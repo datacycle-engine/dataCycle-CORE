@@ -30,7 +30,8 @@ module DataCycleCore
         new_content = DataCycleCore::DataHashService.create_duplicate(content: content, current_user: @test_user)
 
         excepted_properties = ['id']
-        assert_equal(content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*excepted_properties))
+        content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
+        assert_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
       end
 
       # linked objects must be the same
@@ -49,7 +50,8 @@ module DataCycleCore
         new_content = DataCycleCore::DataHashService.create_duplicate(content: content, current_user: @test_user)
 
         excepted_properties = ['id']
-        assert_equal(content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*excepted_properties))
+        content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
+        assert_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
       end
 
       # linked objects must be the same
@@ -63,7 +65,8 @@ module DataCycleCore
 
         excepted_properties = ['id', 'author', 'image']
 
-        assert_equal(content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*excepted_properties))
+        content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
+        assert_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
         assert_equal(content.author.first.get_data_hash, new_content.author.first.get_data_hash)
         assert_equal(content.image.first.get_data_hash, new_content.image.first.get_data_hash)
       end
@@ -75,10 +78,11 @@ module DataCycleCore
         new_content = DataCycleCore::DataHashService.create_duplicate(content: content, current_user: @test_user)
 
         excepted_properties = ['id']
-        assert_not_equal(content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*excepted_properties))
+        content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
+        assert_not_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
         assert_not_equal(content.question.first.id, new_content.question.first.id)
 
-        assert_equal(content.get_data_hash.except(*(excepted_properties + ['question'])).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*(excepted_properties + ['question'])))
+        assert_equal(content.get_data_hash.except(*(excepted_properties + ['question'])).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*(excepted_properties + ['question'])))
       end
 
       test 'test duplication with assets' do
@@ -99,7 +103,8 @@ module DataCycleCore
 
         excepted_properties = ['id'] + content.asset_property_names + content.computed_property_names
 
-        assert_equal(content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*excepted_properties))
+        content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}")
+        assert_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
         assert_nil(new_content.asset)
         content.computed_property_names.each do |computed_property|
           assert_nil(new_content.send(computed_property.to_sym))
@@ -140,13 +145,15 @@ module DataCycleCore
         excepted_properties = ['id', 'author', 'image']
 
         I18n.with_locale(:de) do
-          assert_equal(content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*excepted_properties))
+          content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
+          assert_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
           assert_equal(content.author.first.get_data_hash, new_content.author.first.get_data_hash)
           assert_equal(content.image.first.get_data_hash, new_content.image.first.get_data_hash)
         end
 
         I18n.with_locale(:en) do
-          assert_equal(content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*excepted_properties))
+          content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
+          assert_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
         end
 
         assert_equal([:de], new_content.author.first.available_locales)
@@ -174,15 +181,17 @@ module DataCycleCore
         excepted_properties = ['id']
 
         I18n.with_locale(:de) do
-          assert_not_equal(content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*excepted_properties))
+          content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
+          assert_not_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
           assert_not_equal(content.question.first.id, new_content.question.first.id)
-          assert_equal(content.get_data_hash.except(*(excepted_properties + ['question'])).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*(excepted_properties + ['question'])))
+          assert_equal(content_data_hash_properties.except('question'), new_content.get_data_hash.except(*(excepted_properties + ['question'])))
         end
 
         I18n.with_locale(:en) do
-          assert_not_equal(content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*excepted_properties))
+          content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
+          assert_not_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
           assert_not_equal(content.question.first.id, new_content.question.first.id)
-          assert_equal(content.get_data_hash.except(*(excepted_properties + ['question'])).merge('name' => "DUPLICATE: #{content.name}"), new_content.get_data_hash.except(*(excepted_properties + ['question'])))
+          assert_equal(content_data_hash_properties.except('question'), new_content.get_data_hash.except(*(excepted_properties + ['question'])))
         end
 
         # 3 embedded * 2 contents * 2 translations = 12 + embedded created in setup

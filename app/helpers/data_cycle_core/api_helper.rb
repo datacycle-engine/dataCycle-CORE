@@ -180,7 +180,7 @@ module DataCycleCore
         next if value.blank?
         if key == 'dc:classification'
           data[key] ||= []
-          { key => data[key]+ value}
+          { key => data[key] + value }
         elsif data[key].blank? || !key.in?(['dataCycleProperty', 'additionalProperty'])
           { key => value }
         else

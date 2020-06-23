@@ -31,8 +31,23 @@
         :search: true
         :validations:
           :required: true
+      :headline:
+        :label: Headline
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: concat
+          :parameters:
+            :0:
+              :type: content
+              :name: name
+        :ui:
+          :show:
+            :disabled: true
         :api:
-          :name: headline
+          :minimal: true
       :validity_period:
         :type: mixin
         :name: validity_period

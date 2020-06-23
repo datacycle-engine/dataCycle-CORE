@@ -276,7 +276,6 @@ module DataCycleCore
             price_specification_api_values = {
               '@id' => price_specification_object.id,
               '@type' => 'UnitPriceSpecification',
-              'name' => price_specification_object.template_name,
               'price' => price_specification_object.price,
               'minPrice' => price_specification_object.min_price,
               'maxPrice' => price_specification_object.max_price,

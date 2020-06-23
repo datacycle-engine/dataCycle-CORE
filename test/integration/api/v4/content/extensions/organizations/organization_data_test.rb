@@ -35,7 +35,7 @@ module DataCycleCore
                 # test full event data
                 required_attributes = required_validation_attributes(@content)
                 # test minimal
-                assert_attributes(json_validate, required_attributes, ['id', 'name']) do
+                assert_attributes(json_validate, required_attributes, ['id', 'name', 'legal_name']) do
                   {
                     '@id' => @content.id,
                     '@type' => 'Organization',
