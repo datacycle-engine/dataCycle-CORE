@@ -73,7 +73,7 @@ module DataCycleCore
             response.headers['set-cookie']
                     .split(/[;,]/)
                     .map(&:strip)
-                    .map{ |c| c.split('=') }
+                    .map { |c| c.split('=') }
           ].select { |k, _| ['PHPSESSID', 'apiax', 'apism', 'apixi'].include?(k) })
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from url: #{File.join([@host, @end_point])}, params: token=#{@token}, qt=#{parameters.dig(:qt)}, keyfolder=#{parameters.dig(:keyfolder)}", response) unless response.success?
