@@ -178,7 +178,10 @@ module DataCycleCore
     def merge_overlay(data, overlay)
       overlay.map { |key, value|
         next if value.blank?
-        if data[key].blank? || !key.in?(['dataCycleProperty', 'additionalProperty'])
+        if key == 'dc:classification'
+          data[key] ||= []
+          { key => data[key] + value }
+        elsif data[key].blank? || !key.in?(['dataCycleProperty', 'additionalProperty'])
           { key => value }
         else
           { key => data[key].reject { |item| item.dig('identifier').in?(value.map { |i| i.dig('identifier') }) } + overlay[key] }

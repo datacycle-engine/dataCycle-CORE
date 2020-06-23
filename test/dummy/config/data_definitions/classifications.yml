@@ -30,7 +30,7 @@
         - $$Rezept
     - $$Organisation
     - $$Zeitleiste
-    - $$Thema
+    - $$Container
     - $$Schneehöhe - Messpunkt
     - $$Skigebiet - Addon
     # embedded
@@ -50,17 +50,17 @@
     - $$EventSchedule
 
 - Geschlecht | all:
-    - Männlich | Male
-    - Weiblich | Female
+    - Männlich | Male **https://schema.org/Male
+    - Weiblich | Female **https://schema.org/Female
 
 - Wochentage | all:
-    - Montag
-    - Dienstag
-    - Mittwoch
-    - Donnerstag
-    - Freitag
-    - Samstag
-    - Sonntag
+    - Montag **https://schema.org/Monday
+    - Dienstag **https://schema.org/Tuesday
+    - Mittwoch **https://schema.org/Wednesday
+    - Donnerstag **https://schema.org/Thursday
+    - Freitag **https://schema.org/Friday
+    - Samstag **https://schema.org/Saturday
+    - Sonntag **https://schema.org/Sunday
 
 - Monate | all:
     - Januar
@@ -401,3 +401,7 @@
   - Veranstaltung auf unbekannten Zeitpunkt vertagt **https://schema.org/EventPostponed
   - Veranstaltung verschoben **https://schema.org/EventRescheduled
   - Veranstaltung geplant **https://schema.org/EventScheduled
+
+- ActionTypes | all:
+  - Download **https://schema.org/DownloadAction
+  - View **https://schema.org/ViewAction

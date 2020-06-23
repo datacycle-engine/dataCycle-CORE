@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Thema
+    :name: Container
     :type: object
     :schema_type: CreativeWork
     :content_type: container
@@ -9,12 +9,7 @@
       :container:
         :allowed_templates:
           - Artikel
-          - Biografie
-          - Interview
-          - Quiz
-          - Rezept
-          - SocialMediaPosting
-          - Zeitleiste
+          - Recherche
       :creatable:
         :allowed: true
       :download:
@@ -66,7 +61,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Thema"
+        :default_value: "Container"
       :meta_data:
         :type: mixin
         :name: meta_data

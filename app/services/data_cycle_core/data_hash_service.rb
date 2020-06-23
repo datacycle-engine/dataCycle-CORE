@@ -26,7 +26,7 @@ module DataCycleCore
         I18n.with_locale(locale) do
           created = new_content.new_record?
           new_content.save!
-          new_content_datahash = content.duplicate_data_hash(content.get_data_hash)
+          new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ 'name': "DUPLICATE: #{content.title}" })
           new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: created)
         end
       end

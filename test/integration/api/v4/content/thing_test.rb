@@ -371,7 +371,7 @@ module DataCycleCore
             assert_equal({}, validator.call(json_context.second).errors.to_h)
 
             fields = Dry::Schema.JSON do
-              required(:"dc:classification").value(:array).each do
+              optional(:"dc:classification").value(:array).each do
                 hash(
                   DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
                     Dry::Schema.JSON do

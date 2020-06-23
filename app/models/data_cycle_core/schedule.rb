@@ -39,6 +39,23 @@ module DataCycleCore
       }[day]
     end
 
+    def to_repeat_frequency(rule_hash)
+      return if rule_hash[:interval].nil? || rule_hash[:rule_type].nil?
+
+      interval = rule_hash.dig(:interval).to_s
+
+      case rule_hash.dig(:rule_type)
+      when 'IceCube::YearlyRule'
+        "P#{interval}Y"
+      when 'IceCube::MonthlyRule'
+        "P#{interval}M"
+      when 'IceCube::WeeklyRule'
+        "P#{interval}W"
+      when 'IceCube::DailyRule'
+        "P#{interval}D"
+      end
+    end
+
     def to_api_default_values
       {
         '@id' => id,
@@ -57,11 +74,10 @@ module DataCycleCore
       by_month_day = nil
       if @schedule_object&.recurrence_rules&.first.present?
         rule = @schedule_object&.recurrence_rules&.first
-        rule_ical = rule.to_ical
         rule_hash = rule.to_hash
         end_time = rule&.until_time&.in_time_zone&.to_s(:only_time) if end_time.blank? && rule&.until_time.present?
         repeat_count = rule&.occurrence_count
-        repeat_frequency = /FREQ=(.+?);/.match(rule_ical).try(:send, '[]', 1)&.downcase&.presence
+        repeat_frequency = to_repeat_frequency(rule_hash)
         by_day = rule_hash.dig(:validations, :day)
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
@@ -77,16 +93,18 @@ module DataCycleCore
         'endTime' => end_time,
         'duration' => duration&.iso8601,
         'repeatCount' => repeat_count,
-        'exceptDate' => exdate&.map(&:to_s)&.presence,
-        'additionalDate' => rdate&.map(&:to_s)&.presence,
+        'exceptDate' => exdate&.map(&:iso8601)&.presence,
+        'dc:additionalDate' => rdate&.map(&:iso8601)&.presence,
         'repeatFrequency' => repeat_frequency,
         'byDay' => by_day&.map { |day| dow(day) },
         'byMonth' => by_month&.map(&:to_i),
-        'byMonthDay' => by_month_day&.map(&:to_i)
+        'byMonthDay' => by_month_day&.map(&:to_i),
+        'scheduleTimezone' => dtstart.time_zone.name
       }.compact
     end
 
     def to_schedule_schema_org_api_v3
+      return {} unless @schedule_object.terminating?
       return {} unless @schedule_object.all_occurrences.size.positive?
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
@@ -130,6 +148,7 @@ module DataCycleCore
     end
 
     def to_schedule_schema_org_api_v2
+      return {} unless @schedule_object.terminating?
       return {} unless @schedule_object.all_occurrences.size.positive?
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?

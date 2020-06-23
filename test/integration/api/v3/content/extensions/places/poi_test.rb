@@ -86,7 +86,6 @@ module DataCycleCore
 
                 # Validate OpeningHoursSpecification
                 expected_opening_hours_specification_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification_result')
-
                 assert_equal(expected_opening_hours_specification_hash, json_data.dig('openingHoursSpecification'))
               end
 

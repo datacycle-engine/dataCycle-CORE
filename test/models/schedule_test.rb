@@ -80,7 +80,8 @@ module DataCycleCore
         'startTime' => '09:00',
         'endTime' => '16:00',
         'duration' => 'PT7H',
-        'repeatFrequency' => 'daily'
+        'repeatFrequency' => 'P1D',
+        'scheduleTimezone' => 'Vienna'
       }
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
@@ -103,7 +104,8 @@ module DataCycleCore
         'startTime' => '09:00',
         'endTime' => '16:00',
         'duration' => 'PT7H',
-        'repeatFrequency' => 'daily'
+        'repeatFrequency' => 'P1D',
+        'scheduleTimezone' => 'Vienna'
       }
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
@@ -124,7 +126,8 @@ module DataCycleCore
         'startTime' => '09:00',
         'endTime' => '16:00',
         'duration' => 'PT7H',
-        'repeatFrequency' => 'daily'
+        'repeatFrequency' => 'P1D',
+        'scheduleTimezone' => 'Vienna'
       }
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
