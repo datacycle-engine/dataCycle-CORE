@@ -108,6 +108,9 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :additional_job_properties:
         :type: mixin
         :name: additional_job_properties
