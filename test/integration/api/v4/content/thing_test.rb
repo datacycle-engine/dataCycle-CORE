@@ -371,7 +371,7 @@ module DataCycleCore
             assert_equal({}, validator.call(json_context.second).errors.to_h)
 
             fields = Dry::Schema.JSON do
-              required(:"dc:classification").value(:array).each do
+              optional(:"dc:classification").value(:array).each do
                 hash(
                   DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
                     Dry::Schema.JSON do
@@ -405,6 +405,7 @@ module DataCycleCore
             thing_with_classifications_pref_label = false
             validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: fields })
             json_data['@graph'].each do |item|
+
               assert_equal({}, validator.call(item).errors.to_h)
               thing_with_description = true if item.dig('description').present?
               thing_with_thumbnail_url = true if item.dig('thumbnailUrl').present?
