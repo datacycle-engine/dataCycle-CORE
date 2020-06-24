@@ -37,7 +37,7 @@ module DataCycleCore
                   {
                     '@id' => @content.id,
                     '@type' => 'ImageObject',
-                    'name' => @content.title
+                    'name' => @content.name
                   }
                 end
 
