@@ -71,11 +71,6 @@
             :type: text_editor
             :options:
               :data-size: full
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: Öffnungszeit
       :meta_data:
         :type: mixin
         :name: meta_data
@@ -109,11 +104,6 @@
           :edit:
             :options:
               :placeholder: hh:mm
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: Öffnungszeit - Zeitspanne
       :meta_data:
         :type: mixin
         :name: meta_data
@@ -198,8 +188,6 @@
           :edit:
             :options:
               :placeholder: hh:mm:ss
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: "Öffnungszeit - Simple"
+      :meta_data:
+        :type: mixin
+        :name: meta_data

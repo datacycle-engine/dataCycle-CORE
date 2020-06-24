@@ -83,11 +83,6 @@
         :label: "Wetter - Meldung"
         :type: classification
         :tree_label: "Bergfex - Wetter - Meldung"
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: "Schneehöhe - Messpunkt"
       :meta_data:
         :type: mixin
         :name: meta_data

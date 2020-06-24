@@ -12,9 +12,6 @@
           :show:
             :content_area: header
             :partial: universal_classifications
-      :cc_rel:
-        :type: mixin
-        :name: cc_rel
       :date_created:
         :label: Erstellungsdatum
         :type: datetime

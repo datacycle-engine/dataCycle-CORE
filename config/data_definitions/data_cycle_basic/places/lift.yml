@@ -70,6 +70,9 @@
       :feratel_cps:
         :type: mixin
         :name: feratel_cps
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :meta_data:
         :type: mixin
         :name: meta_data

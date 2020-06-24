@@ -8,14 +8,14 @@ module DataCycleCore
       data_set = DataCycleCore::TestPreparations.data_set_object('Container')
       test_hash = { 'name' => 'Dies ist ein Test!', 'description' => 'wtf is going on???' }
       data_set.set_data_hash(data_hash: test_hash)
-      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash.merge({ 'headline' => data_set.name }), data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
     end
 
     test 'save CreativeWork with only Titel' do
       data_set = DataCycleCore::TestPreparations.data_set_object('Container')
       test_hash = { 'name' => 'Dies ist ein Test!' }
       data_set.set_data_hash(data_hash: test_hash)
-      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash.merge({ 'headline' => data_set.name }), data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(data_set.cache_key.to_s, "data_cycle_core/things/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
     end
 
@@ -29,7 +29,7 @@ module DataCycleCore
         }
       }
       data_set.set_data_hash(data_hash: test_hash)
-      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash.merge({ 'headline' => data_set.name }), data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
     end
 
     test 'save CreativeWork with irrelevant sub-properties_tree' do
@@ -42,9 +42,9 @@ module DataCycleCore
         }
       }
       data_set.set_data_hash(data_hash: test_hash)
-      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash.merge({ 'headline' => data_set.name }), data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-06-01' }, 'test' => { 'test1' => 1, 'test2' => 2, 'test3' => { 'hallo' => 'World' } } })
-      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash.merge({ 'headline' => data_set.name }), data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
     end
 
     test 'save CreativeWork, Data properly written to jsonb' do
@@ -57,7 +57,7 @@ module DataCycleCore
         }
       }
       data_set.set_data_hash(data_hash: test_hash)
-      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash.merge({ 'headline' => data_set.name }), data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(test_hash.dig('validity_period', 'valid_from'), data_set.validity_period.valid_from)
       assert_equal(test_hash.dig('validity_period', 'valid_until'), data_set.validity_period.valid_until)
     end
@@ -80,7 +80,7 @@ module DataCycleCore
       current_user = DataCycleCore::User.first
       test_hash = { 'name' => 'Dies ist ein Test!' }
       data_set.set_data_hash(data_hash: test_hash, current_user: current_user)
-      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash.merge({ 'headline' => data_set.name }), data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(current_user.id, data_set.updated_by)
     end
     # TODO: move to specific test
@@ -117,12 +117,12 @@ module DataCycleCore
       content = DataCycleCore::TestPreparations.data_set_object('Artikel')
       content.save!
       content.set_data_hash(data_hash: test_hash, prevent_history: true)
-      assert_equal(test_hash.except('image', 'keywords'), content.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash.except('image', 'keywords').merge({ 'headline' => content.name }), content.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(test_hash['image'], content.image.pluck(:id))
 
       test_hash['description'] = 'only change description'
       content.set_data_hash(data_hash: { 'description' => test_hash['description'] }, partial_update: true, prevent_history: true)
-      assert_equal(test_hash.except('image', 'keywords'), content.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash.except('image', 'keywords').merge({ 'headline' => content.name }), content.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(test_hash['image'], content.image.pluck(:id))
     end
   end

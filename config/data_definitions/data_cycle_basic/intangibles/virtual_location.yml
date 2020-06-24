@@ -20,9 +20,6 @@
         :storage_location: translated_value
         :validations:
           :format: url
-      # :subject_of:
-      #   :label: Thema von
-      #   :type: linked
-      #   :inverse_of: about
-      #   :link_direction: inverse
-      #   :global: true
+      :meta_data:
+        :type: mixin
+        :name: meta_data
