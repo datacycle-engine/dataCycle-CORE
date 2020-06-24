@@ -23,7 +23,7 @@ module DataCycleCore
         end
 
         def self.modified(data)
-          data.dig('Modified')&.in_time_zone
+          data.dig('Modified').try(:in_time_zone)
         end
       end
     end
