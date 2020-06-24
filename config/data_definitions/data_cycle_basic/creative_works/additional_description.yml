@@ -82,6 +82,9 @@
       :publication_schedule:
         :type: mixin
         :name: publication_schedule
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :meta_data:
         :type: mixin
         :name: meta_data

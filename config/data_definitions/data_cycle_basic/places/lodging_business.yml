@@ -95,6 +95,9 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: 'Unterkunft'
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :meta_data:
         :type: mixin
         :name: meta_data

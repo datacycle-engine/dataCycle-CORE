@@ -110,7 +110,7 @@ module DataCycleCore
 
         def transform_sort_param(key, order)
           return unless ALLOWED_SORT_ATTRIBUTES.key?(key.to_sym)
-          "#{ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym)} #{order}"
+          "#{ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym)} #{order} NULLS LAST"
         end
       end
     end

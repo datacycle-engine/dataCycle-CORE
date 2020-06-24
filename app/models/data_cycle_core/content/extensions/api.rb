@@ -9,7 +9,7 @@ module DataCycleCore
         def to_api_list
           {
             '@id' => id,
-            '@type' => schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize,
+            '@type' => api_type,
             'dct:modified' => updated_at,
             'dct:created' => created_at
           }
@@ -25,8 +25,7 @@ module DataCycleCore
         def to_api_default_values
           {
             '@id' => id,
-            '@type' => schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize,
-            'name' => title || template_name
+            '@type' => api_type
           }
         end
 

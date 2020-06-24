@@ -18,9 +18,7 @@ module DataCycleCore
             when 'I18n'
               definition.dig('type').constantize.send(definition.dig('name'))
             when 'content'
-              args.dig(:content).send(definition.dig('name'))
-            when 'data_hash'
-              args.dig(:data_hash).dig(definition.dig('name'))
+              args.dig(:data_hash).dig(definition.dig('name')) || args.dig(:content).send(definition.dig('name'))
             else
               raise 'Unknown type for string transformation'
             end

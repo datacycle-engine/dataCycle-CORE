@@ -42,7 +42,7 @@
               :name: created_at
             :4: "-text-"
             :5:
-              :type: data_hash
+              :type: content
               :name: value_2
       :computed_value_correct:
         :label: Computed Value
@@ -69,6 +69,6 @@
               :name: created_at
             :4: "-text-"
             :5:
-              :type: data_hash
+              :type: content
               :name: value_2
 

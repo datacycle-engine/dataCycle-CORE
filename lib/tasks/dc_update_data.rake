@@ -3,18 +3,22 @@
 namespace :dc do
   namespace :update_data do
     desc 'update all computed attributes'
-    task :computed_attributes, [:template_name, :webhooks, :dry_run] => [:environment] do |_, args|
+    task :computed_attributes, [:template_name, :webhooks, :computed_name, :dry_run] => [:environment] do |_, args|
       dry_run = args.fetch(:dry_run, false)
       webhooks = args.fetch(:webhooks, 'true')
       template_name = args.fetch(:template_name, false)
+      computed_name = args.fetch(:computed_name, false)
+      computed_names = computed_name.present? && computed_name != 'false' ? computed_name.split(',') : false
 
-      if template_name.present?
+      if template_name.present? && template_name != 'false'
         selected_things = DataCycleCore::Thing.where(template: true, template_name: template_name)
       else
         selected_things = DataCycleCore::Thing.where(template: true)
       end
 
       selected_things.find_each.select { |template| template.computed_property_names.present? }.each do |template|
+        next if computed_names.size.positive? && !(computed_names & template.computed_property_names).size.positive?
+
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         items_to_update = items.size
         translated_computed = (template.computed_property_names & template.translatable_property_names).present?

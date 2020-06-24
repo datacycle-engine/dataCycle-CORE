@@ -13,9 +13,23 @@
         :ui:
           :show:
             :disabled: true
-        :api:
-          :name: legal_name
-          :minimal: true
         :normalize:
           :id: company
           :type: company
+      :legal_name:
+        :label: Legal Name
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: concat
+          :parameters:
+            :0:
+              :type: content
+              :name: name
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :minimal: true

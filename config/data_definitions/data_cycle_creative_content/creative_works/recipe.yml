@@ -114,6 +114,9 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :additional_properties:
         :type: mixin
         :name: additional_properties
@@ -151,11 +154,9 @@
           :transformation:
             :method: map
             :key: name
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: Zutatengruppe
+      :meta_data:
+        :type: mixin
+        :name: meta_data
 
 - :data:
     :name: Zutat
@@ -173,8 +174,6 @@
         :search: true
         :validations:
           :required: true
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: Zutat
+      :meta_data:
+        :type: mixin
+        :name: meta_data

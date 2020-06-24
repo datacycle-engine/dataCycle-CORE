@@ -30,8 +30,3 @@
         :ui:
           :show:
             :content_area: header
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: "Overlay"
