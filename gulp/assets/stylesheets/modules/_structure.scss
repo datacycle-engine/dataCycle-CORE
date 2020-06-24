@@ -14,6 +14,12 @@ body {
 .off-canvas-content {
   overflow: hidden;
   flex: auto;
+  display: flex;
+  flex-flow: column nowrap;
+
+  .inner-container {
+    flex: auto;
+  }
 }
 
 button,
@@ -324,8 +330,8 @@ body.login-page {
       color: white;
       text-decoration: underline;
     }
-    .login-checkboxes{
-      a{
+    .login-checkboxes {
+      a {
         text-decoration: underline;
         color: $white;
       }
