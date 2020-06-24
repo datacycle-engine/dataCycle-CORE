@@ -854,6 +854,7 @@ de:
       api:
         root: Datenschnittstelle
         classifications: Klassifizierungen
+        contents: Inhalte
 
     schema:
       root: Schema

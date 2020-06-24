@@ -107,7 +107,8 @@
         :label: Veranstaltungsort
         :type: linked
         :stored_filter:
-          - :with_classification_aliases_and_treename:
+          -
+            :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort

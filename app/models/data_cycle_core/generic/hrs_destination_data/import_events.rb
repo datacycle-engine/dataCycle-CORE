@@ -18,13 +18,13 @@ module DataCycleCore
           mongo_item.collection.aggregate(
             [
               { '$match': { _id: { '$exists': true } } },
-              { '$group': { _id: '$dump.de.event.id', dates: { '$addToSet': '$dump.de.date' }, dump: { '$first': '$dump' } } },
+              { '$group': { _id: '$dump.de.event.id', dates: { '$addToSet': '$dump.de.date' }, dump: { '$last': '$dump' } } },
               { '$addFields': { 'dump.de.dates': '$dates' } }
             ]
           )
           # db.events.aggregate([
           #   { $match: { _id: { $exists: true } } },
-          #   { $group: { _id: '$dump.de.event.id', dates: { $addToSet: '$dump.de.date'}, dump: { $first: '$dump'}}}
+          #   { $group: { _id: '$dump.de.event.id', dates: { $addToSet: '$dump.de.date'}, dump: { $last: '$dump'}}}
           #  ])
         end
 

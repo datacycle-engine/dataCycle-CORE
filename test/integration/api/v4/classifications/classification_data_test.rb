@@ -626,7 +626,7 @@ module DataCycleCore
                 'identifier' => [
                   {
                     '@type' => 'PropertyValue',
-                    'propertyID' => external_source.name,
+                    'propertyID' => external_source.identifier,
                     'value' => 'test-identifier'
                   }
                 ]
