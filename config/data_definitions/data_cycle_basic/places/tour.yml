@@ -10,6 +10,8 @@
         :allowed: true
       :download:
         :allowed: true
+      :overlay:
+        :allowed: true
       :serialize:
         :allowed: true
         :serializers:
@@ -190,6 +192,9 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Tour"
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :meta_data:
         :type: mixin
         :name: meta_data

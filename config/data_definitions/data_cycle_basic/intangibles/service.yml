@@ -186,14 +186,9 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: Service
-      :external_key:
-        :label: external_key
-        :type: string
-        :storage_location: column
-        :ui:
-          :show:
-            :disabled: true
-          :edit:
-            :disabled: true
-        :api:
-          :disabled: true
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :meta_data:
+        :type: mixin
+        :name: meta_data

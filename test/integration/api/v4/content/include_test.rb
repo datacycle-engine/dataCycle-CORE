@@ -57,7 +57,7 @@ module DataCycleCore
 
             # schedule has a full header
             header_schedule = json_data.dig('schedule', 0).slice(*full_header_attributes)
-            data_schedule = full_header_data(@content_tour.schedule.first)
+            data_schedule = full_header_data(@content_tour.schedule.first).except('name')
             assert_equal(header_schedule, data_schedule)
           end
 

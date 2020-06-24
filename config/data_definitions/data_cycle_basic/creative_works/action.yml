@@ -31,3 +31,6 @@
         :api:
           :name: '@type'
           :partial: string
+      :meta_data:
+        :type: mixin
+        :name: meta_data

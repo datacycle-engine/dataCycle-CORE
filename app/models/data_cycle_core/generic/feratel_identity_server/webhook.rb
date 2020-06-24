@@ -12,8 +12,8 @@ module DataCycleCore
 
           download_content(download_config: download_config, data_name: :users, data: data)
 
-          data.each do |object|
-            processed_items << import_content(import_config: import_config, data_name: :users, data: object, locale: 'de')
+          data.each do |key, value|
+            processed_items << import_content(import_config: import_config, data_name: :users, data: value, locale: key)
           end
           processed_items
         end

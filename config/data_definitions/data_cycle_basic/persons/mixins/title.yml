@@ -29,3 +29,22 @@
             :disabled: true
         :api:
           :minimal: true
+      :name:
+        :label: Name
+        :storage_location: column
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: concat
+          :parameters:
+            :0:
+              :type: content
+              :name: given_name
+            :1: " "
+            :2:
+              :type: content
+              :name: family_name
+        :ui:
+          :show:
+            :disabled: true

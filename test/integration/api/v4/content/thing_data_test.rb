@@ -276,7 +276,6 @@ module DataCycleCore
             price_specification_api_values = {
               '@id' => price_specification_object.id,
               '@type' => 'UnitPriceSpecification',
-              'name' => price_specification_object.template_name,
               'price' => price_specification_object.price,
               'minPrice' => price_specification_object.min_price,
               'maxPrice' => price_specification_object.max_price,
@@ -408,7 +407,8 @@ module DataCycleCore
               'endDate' => event_schedule_object.dig(:dtend).to_s(:only_date),
               'startTime' => event_schedule_object.dig(:dtstart).to_s(:only_time),
               'endTime' => event_schedule_object.dig(:dtend).to_s(:only_time),
-              'duration' => event_schedule_object.dig(:duration).iso8601
+              'duration' => event_schedule_object.dig(:duration).iso8601,
+              'scheduleTimezone' => 'Vienna'
             }
             assert_attributes(json_validate, required_attributes, ['event_schedule']) do
               {

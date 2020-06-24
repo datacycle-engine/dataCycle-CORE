@@ -88,8 +88,6 @@
           :max: 1
         :api:
           :name: location
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: 'Veranstaltungstermin'
+      :meta_data:
+        :type: mixin
+        :name: meta_data

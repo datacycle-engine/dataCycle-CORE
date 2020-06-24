@@ -138,28 +138,7 @@
       </div>
 
       <div class="special-dates daterange single_occurrence daily weekly monthly yearly">
-        <div class="form-element rdate">
-          <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rtimes]")}" do %>
-            <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
-            <%= t('schedule.rdate', locale: DataCycleCore.ui_language) %>
-          <% end %>
-          <% if readonly %>
-            <%= text_field_tag "#{key}[#{index}][rtimes]",
-              value&.dig(:rtimes).blank? ? nil : value&.dig(:rtimes)&.map{ |t| l(t[:time]&.in_time_zone, format: :edit, locale: DataCycleCore.ui_language) }&.join(', '),
-              class: 'read-only date',
-              id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rtimes]")}", readonly: true %>
-          <% else %>
-            <%= date_field_tag "#{key}[#{index}][rtimes]",
-              value&.dig(:rtimes)&.map { |t| t[:time]&.in_time_zone }&.join(', '),
-              id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rtimes]")}",
-              data: {
-                type: 'datepicker',
-                mode: 'multiple',
-                min_date: value&.dig(:start_time, :time)&.in_time_zone,
-                max_date: value&.dig(:rrules, 0, :until)&.in_time_zone
-              } %>
-          <% end %>
-        </div>
+        <%= hidden_field_tag "#{key}[#{index}][rtimes]", value&.dig(:rtimes).blank? ? nil : value&.dig(:rtimes)&.map{ |t| l(t[:time]&.in_time_zone, format: :edit, locale: DataCycleCore.ui_language) }&.join(', ') %>
 
         <div class="form-element exdate">
           <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][extimes]")}" do %>

@@ -18,7 +18,8 @@ module DataCycleCore
       @data_set.set_data_hash(data_hash: data, update_search_all: false)
       @data_set.save
       expected_hash = {
-        'name' => 'My_test'
+        'name' => 'My_test',
+        'headline' => 'My_test'
       }
 
       assert_equal(expected_hash, @data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes(:creative_work)))

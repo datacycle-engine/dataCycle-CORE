@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Thema
+    :name: Container
     :type: object
     :schema_type: CreativeWork
     :content_type: container
@@ -9,12 +9,7 @@
       :container:
         :allowed_templates:
           - Artikel
-          - Biografie
-          - Interview
-          - Quiz
-          - Rezept
-          - SocialMediaPosting
-          - Zeitleiste
+          - Recherche
       :creatable:
         :allowed: true
       :download:
@@ -36,8 +31,23 @@
         :search: true
         :validations:
           :required: true
+      :headline:
+        :label: Headline
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: concat
+          :parameters:
+            :0:
+              :type: content
+              :name: name
+        :ui:
+          :show:
+            :disabled: true
         :api:
-          :name: headline
+          :minimal: true
       :validity_period:
         :type: mixin
         :name: validity_period
@@ -66,10 +76,13 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Thema"
+        :default_value: "Container"
       :meta_data:
         :type: mixin
         :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :additional_properties:
         :type: mixin
         :name: additional_properties

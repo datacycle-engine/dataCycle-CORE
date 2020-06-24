@@ -54,11 +54,6 @@
         :type: embedded
         :template_name: Öffnungszeit
         :translated: true
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: "Overlay"
       :cc_rel:
         :type: mixin
         :name: cc_rel

@@ -36,17 +36,15 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Wetterstation"
-      :data_type:
-        :label: Inhaltstype
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: "Wetterstation"
       :content_classifications:
         :type: mixin
         :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :additional_properties:
         :type: mixin
         :name: additional_properties
@@ -80,6 +78,9 @@
         :linked_table: things
         :template_name: Wetterbericht
         :translated: true
+      :meta_data:
+        :type: mixin
+        :name: meta_data
 
 
 - :data:
@@ -121,6 +122,9 @@
         :translated: true
         :validations:
           :max: 1
+      :meta_data:
+        :type: mixin
+        :name: meta_data
 
 - :data:
     :name: Prognose
@@ -148,6 +152,9 @@
           :show:
             :options:
               :data-unit: °C
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
 
 
 - :data:
@@ -193,3 +200,6 @@
         :label: Vorhersage
         :type: string
         :storage_location: translated_value
+      :meta_data:
+        :type: mixin
+        :name: meta_data
