@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Generic
-    module VTicket
+    module Common
       module DownloadMarkDeleted
         def self.download_content(utility_object:, options:)
           DataCycleCore::Generic::Common::DownloadFunctions.mark_deleted_from_data(
@@ -13,7 +13,10 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where(source_filter.with_evaluated_values.merge("dump.#{locale}": { '$exists': true }))
+          mongo_item.where(
+            I18n.with_locale(locale) { source_filter.with_evaluated_values }
+              .merge("dump.#{locale}": { '$exists': true })
+          )
         end
       end
     end

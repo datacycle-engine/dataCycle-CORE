@@ -270,7 +270,7 @@ module DataCycleCore
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= mark_deleted(download_object: download_object, data_id: data_id, data_name: data_name, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= mark_deleted_from_data(download_object: download_object, iterator: iterator, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             init_mongo_db(download_object) do
@@ -279,9 +279,12 @@ module DataCycleCore
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
 
-                source_filter = options&.dig(:download, :source_filter) || {}
-                source_filter = source_filter.with_evaluated_values
-                source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false } })
+                source_filter = nil
+                I18n.with_locale(locale) do
+                  source_filter = options&.dig(:download, :source_filter) || {}
+                  source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
+                  source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false } })
+                end
 
                 GC.start
                 times = [Time.current]

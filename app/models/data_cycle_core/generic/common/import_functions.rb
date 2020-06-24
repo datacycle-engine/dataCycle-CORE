@@ -112,7 +112,8 @@ module DataCycleCore
                 begin
                   logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}
-                  source_filter = source_filter.with_evaluated_values
+                  source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
+                  source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false } })
                   if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
                     source_filter = source_filter.merge({
                       '$or' => [{
