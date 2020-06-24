@@ -16,6 +16,7 @@ namespace :datacycle do
       end
     end
 
+    desc 'migrates project via rake task'
     task :migrate_project do
       on roles(:all) do
         within release_path do
