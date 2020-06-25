@@ -15,7 +15,7 @@ module DataCycleCore
 
           response = strategy.update content
 
-          render plain: response.to_json, content_type: 'application/json'
+          render plain: response.to_json, content_type: 'application/json', status: response[:error].present? ? :bad_request : :ok
         end
 
         # def create

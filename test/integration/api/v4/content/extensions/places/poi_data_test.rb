@@ -39,7 +39,7 @@ module DataCycleCore
                   {
                     '@id' => @content.id,
                     '@type' => 'TouristAttraction',
-                    'name' => @content.title
+                    'name' => @content.name
                   }
                 end
 

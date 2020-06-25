@@ -61,7 +61,11 @@ module DataCycleCore
         end
 
         test '/api/v4/collections/:uuid with random :uuid responds with 404' do
-          get api_v4_collection_path(id: SecureRandom.uuid)
+          r_id = SecureRandom.uuid
+          get api_v4_collection_path(id: r_id)
+
+          assert_redirected_to api_v4_stored_filter_path(id: r_id, sl: 1)
+          follow_redirect!
 
           assert_response :not_found
           assert_equal(response.content_type, 'application/json')
