@@ -129,7 +129,6 @@ module DataCycleCore
 
         def build_search_query
           endpoint_id = permitted_params[:id]
-          filter_watch_list = false
           @linked_stored_filter = nil
           if endpoint_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
@@ -137,8 +136,7 @@ module DataCycleCore
             if @stored_filter
               authorize! :api, @stored_filter
               @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
-            elsif DataCycleCore::WatchList.exists?(id: endpoint_id)
-              filter_watch_list = true
+            elsif (@watch_list = DataCycleCore::WatchList.find_by(id: endpoint_id))
             else
               raise ActiveRecord::RecordNotFound
             end
@@ -148,7 +146,7 @@ module DataCycleCore
           filter.language = @language
           filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
           query = filter.apply(experimental: true)
-          query = query.watch_list_id(endpoint_id) if filter_watch_list
+          query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
 
           query = query.fulltext_search(@full_text_search) if @full_text_search
 

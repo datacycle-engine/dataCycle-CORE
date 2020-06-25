@@ -31,10 +31,13 @@ module DataCycleCore
 
           test '/api/v4/collections/:id default results' do
             get api_v4_collection_path(id: @watch_list.id)
+            assert_redirected_to api_v4_stored_filter_path(id: @watch_list.id, sl: 1)
+            follow_redirect!
+
             assert_response :success
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse(response.body)
-            assert_equal('Merkliste 1', json_data.dig('meta', 'watchList', 'name'))
+            assert_equal('Merkliste 1', json_data.dig('meta', 'collection', 'name'))
             assert_equal(0, json_data.dig('meta', 'total'))
             assert_equal(0, json_data.dig('meta', 'pages'))
             assert_equal(0, json_data.dig('@graph').length)

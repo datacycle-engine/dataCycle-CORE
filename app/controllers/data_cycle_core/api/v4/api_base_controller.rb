@@ -26,7 +26,7 @@ module DataCycleCore
           offset: 0
         }.freeze
 
-        after_action :log_activity
+        after_action :log_activity, unless: -> { params[:sl] }
         before_action :authenticate, :set_default_response_format
 
         def permitted_params

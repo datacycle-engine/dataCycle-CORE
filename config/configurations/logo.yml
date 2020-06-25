@@ -1,7 +1,7 @@
-normal: 'logo.svg'
-inverted: 'logo_inverted.svg'
+normal: 'dc-logo.svg'
+inverted: 'dc-logo_inverted.svg'
 email: 'eml-datacycle.png'
-print: 'logo.png'
+print: 'dc-logo.png'
 alt_text: 'dataCycle Logo'
 mail_dimensions:
   height: '65px'

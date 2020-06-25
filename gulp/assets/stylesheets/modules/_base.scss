@@ -157,7 +157,12 @@ button,
 }
 
 footer {
-  min-height: 10rem;
+  background-image: url('dc-logo.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 8rem;
+  opacity: 0.33;
+  background-size: 180px;
 }
 
 .detail-header {
@@ -541,7 +546,7 @@ footer {
   }
 
   &.editor {
-    padding: 0 0 30rem 0;
+    padding: 0;
     background: none;
 
     .translated {
