@@ -96,7 +96,12 @@
       :job_location:
         :label: Arbeitsort
         :type: linked
-        :template_name: Örtlichkeit
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
       :data_type:
         :label: Inhaltstyp
         :type: classification

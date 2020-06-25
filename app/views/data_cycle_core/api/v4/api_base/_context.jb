@@ -4,6 +4,7 @@ display_language = nil
 display_language = languages if languages.is_a?(::String)
 display_language = languages.first if languages.is_a?(::Array) && languages.size == 1 && languages.first.is_a?(::String)
 display_language = I18n.default_locale if languages.blank?
+# display_language = I18n.default_locale if languages.blank? || (controller.action_name == 'show' && display_language.is_a?(::String) && !@content.available_locales.include?(display_language.to_sym))
 
 {
   '@context' => [
