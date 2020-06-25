@@ -50,6 +50,13 @@ module DataCycleCore
         attributes.each { |a| required_attributes.delete(a) }
       end
 
+      def assert_translated_attributes(json_validate, required_attributes, attributes)
+        assert_translated_json_attributes(json_validate) do
+          yield
+        end
+        attributes.each { |a| required_attributes.delete(a) }
+      end
+
       def translated_value(thing, attribute, languages)
         languages.map do |locale|
           {
@@ -62,6 +69,13 @@ module DataCycleCore
       def assert_json_attributes(json_validate)
         compare_json = yield
         json = json_validate.dup.slice(*compare_json.keys)
+        assert_equal(compare_json, json)
+        compare_json.each_key { |a| json_validate.delete(a) }
+      end
+
+      def assert_translated_json_attributes(json_validate)
+        compare_json = yield.map { |k, v| v.is_a?(::Array) ? [k, v.sort_by { |c| c['@language'] }] : [k, v] }.to_h
+        json = json_validate.dup.slice(*compare_json.keys).map { |k, v| v.is_a?(::Array) ? [k, v.sort_by { |c| c['@language'] }] : [k, v] }.to_h
         assert_equal(compare_json, json)
         compare_json.each_key { |a| json_validate.delete(a) }
       end

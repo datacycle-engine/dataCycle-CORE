@@ -339,7 +339,7 @@ module DataCycleCore
                 end
 
                 # plain attributes without transformation
-                assert_attributes(json_validate, required_attributes, ['name', 'description', 'job_title', 'honorific_prefix', 'honorific_suffix', 'use_guidelines']) do
+                assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'job_title', 'honorific_prefix', 'honorific_suffix', 'use_guidelines']) do
                   {
                     'name' => translated_value(@content, 'name', ['de', 'en']),
                     'description' => translated_value(@content, 'description', ['de', 'en']),
@@ -367,7 +367,7 @@ module DataCycleCore
                 end
 
                 # address
-                assert_attributes(json_validate, required_attributes, ['address', 'contact_info']) do
+                assert_translated_attributes(json_validate, required_attributes, ['address', 'contact_info']) do
                   {
                     'address' => {
                       '@type' => 'PostalAddress',
