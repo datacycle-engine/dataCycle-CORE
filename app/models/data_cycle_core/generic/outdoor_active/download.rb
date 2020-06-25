@@ -29,7 +29,7 @@ module DataCycleCore
           ].compact
             &.map { |i| Array.wrap(i) }
             &.inject(:+)
-            &.map { |i| i.in_time_zone }
+            &.map(&:in_time_zone)
             &.max
         end
       end
