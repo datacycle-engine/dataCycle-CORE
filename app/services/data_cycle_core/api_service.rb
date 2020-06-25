@@ -129,17 +129,21 @@ module DataCycleCore
     end
 
     def apply_order_query(query, order_params)
-      order_query = order_params&.split(',')&.map { |sort|
-        if sort.starts_with?('-')
-          transform_sort_param(sort[1..-1], 'DESC')
-        elsif sort.starts_with?('+')
-          transform_sort_param(sort[1..-1], 'ASC')
-        else
-          transform_sort_param(sort, 'ASC')
-        end
-      }&.reject(&:blank?)
+      order_query = []
+      order_params&.split(',')&.each do |sort|
+        key, order = key_with_ordering(sort)
+        order_query << transform_sort_param(key, order)
+      end
+
+      order_query = order_query&.reject(&:blank?)
       order_query = ['updated_at ASC'] if order_query.blank?
       query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
+    end
+
+    def key_with_ordering(sort)
+      return sort[1..-1], 'DESC' if sort.starts_with?('-')
+      return sort[1..-1], 'ASC' if sort.starts_with?('+')
+      return sort, 'ASC'
     end
 
     private

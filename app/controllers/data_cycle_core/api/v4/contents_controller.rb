@@ -70,6 +70,7 @@ module DataCycleCore
             filter:
               [
                 :search,
+                :q,
                 {
                   classifications: {
                     in: {
@@ -112,10 +113,10 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          if permitted_params[:search].present?
-            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence))
+          if @full_text_search.present?
+            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(@full_text_search.presence))
           elsif permitted_params&.dig(:filter, :attribute, :schedule).present?
-            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, true))
+            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(@full_text_search.presence, true))
           else
             apply_order_query(query, permitted_params.dig(:sort))
           end
@@ -149,7 +150,7 @@ module DataCycleCore
           query = filter.apply(experimental: true)
           query = query.watch_list_id(endpoint_id) if filter_watch_list
 
-          query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)
+          query = query.fulltext_search(@full_text_search) if @full_text_search
 
           query = query.in_validity_period
 
@@ -159,22 +160,8 @@ module DataCycleCore
 
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
           query = query.distinct_by_content_id
+
           query
-        end
-
-        def apply_event_query_filters(query)
-          return query unless permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?
-          from_date = nil
-          to_date = nil
-          from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)) if permitted_params&.dig(:filter, :from).present?
-          to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)) if permitted_params&.dig(:filter, :to).present?
-
-          query.schedule_search(from_date, to_date)
-        end
-
-        def apply_place_query_filters(query)
-          return query unless permitted_params&.dig(:filter, :box).present? && permitted_params&.dig(:filter, :box)&.split(',')&.size == 4
-          query.within_box(*permitted_params[:filter][:box].split(',').map(&:to_f))
         end
 
         def prepare_url_parameters
@@ -185,6 +172,7 @@ module DataCycleCore
           @field_filter = @fields_parameters.present?
           @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
+          @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)
           @api_version = 4
         end
       end
