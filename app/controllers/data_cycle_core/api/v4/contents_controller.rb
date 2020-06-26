@@ -113,13 +113,7 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          if @full_text_search.present?
-            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(@full_text_search.presence))
-          elsif permitted_params&.dig(:filter, :attribute, :schedule).present?
-            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(@full_text_search.presence, true))
-          else
-            apply_order_query(query, permitted_params.dig(:sort))
-          end
+          apply_order_query(query, permitted_params.dig(:sort), @full_text_search, permitted_params&.dig(:filter, :attribute, :schedule).present?)
         end
 
         def transform_sort_param(key, order)

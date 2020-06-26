@@ -128,15 +128,19 @@ module DataCycleCore
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
     end
 
-    def apply_order_query(query, order_params)
+    def apply_order_query(query, order_params, full_text_search = '', schedule = false)
       order_query = []
       order_params&.split(',')&.each do |sort|
         key, order = key_with_ordering(sort)
         order_query << transform_sort_param(key, order)
       end
-
       order_query = order_query&.reject(&:blank?)
-      order_query = ['updated_at ASC'] if order_query.blank?
+
+      if order_query.blank?
+        return query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(full_text_search.presence)) if full_text_search.present?
+        return query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(full_text_search.presence, schedule)) if schedule.present?
+        order_query = ['updated_at ASC']
+      end
       query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
     end
 
