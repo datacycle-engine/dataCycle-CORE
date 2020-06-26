@@ -6,8 +6,8 @@ require 'json'
 module DataCycleCore
   module Api
     module V4
-      module Content
-        class ModeParameterTest < ActionDispatch::IntegrationTest
+      module General
+        class MetaLinksTest < ActionDispatch::IntegrationTest
           include Devise::Test::IntegrationHelpers
           include Engine.routes.url_helpers
           include DataCycleCore::ApiV4Helper
@@ -23,7 +23,7 @@ module DataCycleCore
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 
-          test 'GET default mode' do
+          test 'GET default' do
             get api_v4_things_path
             assert_response :success
 
@@ -37,7 +37,7 @@ module DataCycleCore
             assert_equal(true, json_data.dig('links').blank?)
           end
 
-          test 'GET default mode size: 1' do
+          test 'GET page size: 1' do
             get api_v4_things_path(page: { size: 1 })
             assert_response :success
 
@@ -50,8 +50,8 @@ module DataCycleCore
             assert_equal(true, json_data['links']['next'].present?)
           end
 
-          test 'GET strict mode' do
-            get api_v4_things_path(mode: 'strict')
+          test 'GET page count: 0' do
+            get api_v4_things_path(page: { count: 0 })
             assert_response :success
 
             assert_equal(response.content_type, 'application/json')
@@ -62,8 +62,8 @@ module DataCycleCore
             assert_equal(true, json_data.key?('links'))
           end
 
-          test 'GET strict mode size: 1' do
-            get api_v4_things_path(mode: 'strict', page: { size: 1 })
+          test 'GET page size: 1 count: 0' do
+            get api_v4_things_path(page: { size: 1, count: 0 })
             assert_response :success
 
             assert_equal(response.content_type, 'application/json')
@@ -74,7 +74,7 @@ module DataCycleCore
             assert_equal(true, json_data['links']['next'].present?)
           end
 
-          test 'POST default mode' do
+          test 'POST default' do
             post api_v4_things_path
             assert_response :success
 
@@ -88,7 +88,7 @@ module DataCycleCore
             assert_equal(true, json_data.dig('links').blank?)
           end
 
-          test 'POST default mode size: 1' do
+          test 'POST page size: 1' do
             post api_v4_things_path(page: { size: 1 })
             assert_response :success
 
@@ -101,8 +101,8 @@ module DataCycleCore
             assert_equal(true, json_data['links']['next'].present?)
           end
 
-          test 'POST strict mode' do
-            post api_v4_things_path(mode: 'strict')
+          test 'POST page count: 0' do
+            post api_v4_things_path(page: { count: 0 })
             assert_response :success
 
             assert_equal(response.content_type, 'application/json')
@@ -113,8 +113,8 @@ module DataCycleCore
             assert_equal(true, json_data.key?('links'))
           end
 
-          test 'POST strict mode size: 1' do
-            post api_v4_things_path(mode: 'strict', page: { size: 1 })
+          test 'POST page size: 1 count: 0' do
+            post api_v4_things_path(page: { size: 1, count: 0 })
             assert_response :success
 
             assert_equal(response.content_type, 'application/json')

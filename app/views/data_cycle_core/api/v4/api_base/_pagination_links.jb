@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json = {}
-unless @mode_parameters == 'strict'
+unless @permitted_params.dig(:page, :count)&.to_i&.zero?
   json['meta'] = {
     total: objects.total_count,
     pages: objects.total_pages

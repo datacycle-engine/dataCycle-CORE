@@ -23,7 +23,8 @@ module DataCycleCore
           size: 25,
           number: 1,
           limit: 0,
-          offset: 0
+          offset: 0,
+          count: 1
         }.freeze
 
         after_action :log_activity, unless: -> { params[:sl] }
@@ -34,25 +35,21 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :content_id, :mode, :sort, { page: [:size, :number, :offset, :limit] }]
+          [:api_subversion, :token, :include, :fields, :content_id, :sort, { page: [:size, :number, :offset, :limit, :count] }]
         end
 
         def page_parameters
           permitted_params&.dig(:page)&.to_h&.symbolize_keys&.reject { |k, v| v.blank? || !permitted_page_params&.include?(k) } || {}
         end
 
-        def mode_parameters
-          permitted_params&.dig(:mode)
-        end
-
         def permitted_page_params
-          [:size, :number, :offset, :limit]
+          [:size, :number, :offset, :limit, :count]
         end
 
         def apply_paging(query)
           page_params = DEFAULT_PAGE_SETTINGS.merge(page_parameters)
           raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for param page[size]: #{page_params[:size]}" unless page_params[:size].to_i.positive?
-          if mode_parameters == 'strict'
+          if page_params[:count].to_i.zero?
             query.page(page_params[:number].to_i).per(page_params[:size].to_i).without_count
           else
             query.page(page_params[:number].to_i).per(page_params[:size].to_i)
