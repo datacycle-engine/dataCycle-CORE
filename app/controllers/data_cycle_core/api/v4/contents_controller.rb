@@ -11,7 +11,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
-        ALLOWED_SORT_ATTRIBUTES = { created: 'created_at', modified: 'updated_at', name: 'name', given_name: 'given_name', family_name: 'family_name' }.freeze
+        ALLOWED_SORT_ATTRIBUTES = { created: 'created_at', modified: 'updated_at', name: 'name', given_name: 'given_name', family_name: 'family_name', random: 'random' }.freeze
         ALLOWED_FILTER_ATTRIBUTES = [:modifiedAt, :createdAt, :schedule].freeze
 
         def index
@@ -118,6 +118,7 @@ module DataCycleCore
 
         def transform_sort_param(key, order)
           return unless ALLOWED_SORT_ATTRIBUTES.key?(key.to_sym)
+          return "#{key.to_sym}()" if ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym) == 'random'
           "#{ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym)} #{order} NULLS LAST"
         end
 
