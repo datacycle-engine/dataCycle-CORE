@@ -233,7 +233,7 @@ module DataCycleCore
                         next if item.dump[locale].nil?
 
                         item.dump[locale]['deleted_at'] ||= Time.zone.now
-                        item.dump[locale]['last_before_delete'] ||= item.seen_at
+                        item.dump[locale]['last_seen_before_delete'] ||= item.seen_at
                         item.dump[locale]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
                         item.save!
                         logging.item_processed('delete', item_id, item_count, max_string)
