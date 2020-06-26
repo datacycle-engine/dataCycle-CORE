@@ -14,7 +14,7 @@
         Collections: <br />
         <ul>
             <% locals[:import_data][:tables].each do |key, value| %>
-                <%=content_tag(:li, "#{key}: #{value}")%>
+                <%=content_tag(:li, "#{key}: #{value[0]} #{value[1].positive? ? '('+ value[1].to_s + ')' : '' }")%>
             <% end %>
         </ul>
     </div>
