@@ -233,6 +233,7 @@ module DataCycleCore
                         next if item.dump[locale].nil?
 
                         item.dump[locale]['deleted_at'] ||= Time.zone.now
+                        item.dump[locale]['last_before_delete'] ||= item.seen_at
                         item.save!
                         logging.item_processed('delete', item_id, item_count, max_string)
                       rescue StandardError => e
@@ -307,6 +308,7 @@ module DataCycleCore
                         # process data
                         # content.dump[locale] = content.dump[locale].except('deleted_at')
                         content.dump[locale]['deleted_at'] ||= Time.zone.now
+                        content.dump[locale]['last_seen_before_delete'] ||= content.seen_at
                         content.save!
 
                         next unless (item_count % delta).zero?
