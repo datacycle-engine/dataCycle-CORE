@@ -93,7 +93,7 @@ Ein sehr häufiger Anwendungsfall um Inhalte einzuschränken ist eine Volltextsu
 }
 ```
 
-Alternativ kann diese Anfrage auch über **HTT-GET** umgesetzt werden:
+Alternativ kann diese Anfrage auch über **HTTP-GET** umgesetzt werden:
 
 _/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN&filter[q]=Musik_
 
