@@ -26,11 +26,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         creative_works: [
           {
-            name: 'Entity-Creative-Work-2',
-            file: import_path.join('creative_works', 'entity_2.yml').to_s,
-            position: 0
-          },
-          {
             name: 'Entity-Creative-Work-1',
             file: import_path.join('creative_works', 'entity.yml').to_s,
             position: 0
@@ -39,6 +34,11 @@ describe DataCycleCore::MasterData::ImportTemplates do
             name: 'Entity-Creative-Work-1-1',
             file: import_path.join('creative_works', 'entity.yml').to_s,
             position: 1
+          },
+          {
+            name: 'Entity-Creative-Work-2',
+            file: import_path.join('creative_works', 'entity_2.yml').to_s,
+            position: 0
           }
         ]
       }
@@ -53,14 +53,14 @@ describe DataCycleCore::MasterData::ImportTemplates do
             position: 0
           },
           {
-            name: 'Entity-Creative-Work-2',
-            file: import_path.join('creative_works', 'entity_2.yml').to_s,
-            position: 0
-          },
-          {
             name: 'Entity-Creative-Work-1-1',
             file: import_path.join('creative_works', 'entity.yml').to_s,
             position: 1
+          },
+          {
+            name: 'Entity-Creative-Work-2',
+            file: import_path.join('creative_works', 'entity_2.yml').to_s,
+            position: 0
           }
         ]
       }
