@@ -1,0 +1,284 @@
+---
+name: Feratel NLW
+credentials:
+  - pos_code: NATURARENA
+    company_code: D474CYC1E
+    range_code: RG
+    range_id: 796217f1-b58c-438f-b422-0305bba4aafc
+    sales_channel_id: BB556229-E7B1-4F21-9C6A-2BEA7120BF5A
+  - pos_code: CONSTARVIS
+    company_code: D474CYC1E
+    range_code: RG
+    range_id: 2F6820A0-AAEE-4D37-ADDD-201AA55FF118
+    sales_channel_id: BB556229-E7B1-4F21-9C6A-2BEA7120BF5A
+default_options:
+  locales: [de, en, it]
+config:
+  download_config:
+    initial_locations:
+      sorting: 1
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: locations
+      read_type: locations
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    categories:
+      sorting: 2
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: categories
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    locations:
+      sorting: 3
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: locations
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    facilities:
+      sorting: 4
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: facilities
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    holiday_themes:
+      sorting: 5
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: holiday_themes
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    facility_groups:
+      sorting: 6
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: facility_groups
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    infrastructure_topics:
+      sorting: 7
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: infrastructure_topics
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    infrastructure_types:
+      sorting: 8
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: infrastructure_types
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTypes
+    custom_attributes:
+      sorting: 9
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: custom_attributes
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadCategories
+    stars:
+      sorting: 10
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: stars
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadCategories
+    classifications:
+      sorting: 11
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: classifications
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadCategories
+    rating_questions:
+      sorting: 12
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: rating_questions
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    additional_service_providers:
+      sorting: 13
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: additional_service_providers
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
+    infrastructure_items:
+      sorting: 14
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: infrastructure_items
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
+    events:
+      sorting: 15
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: events
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
+    accommodations:
+      sorting: 16
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: accommodations
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
+    mark_deleted_accommodations:
+      sorting: 100
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: accommodations
+      read_type: locations
+      endpoint_method: mark_deleted_accommodations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadMarkDeleted
+      delete_reason: 'Published from Feratel delete endpoint for Accommodations.'
+    mark_deleted_events:
+      sorting: 110
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: events
+      read_type: locations
+      endpoint_method: mark_deleted_events
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadMarkDeleted
+      delete_reason: 'Published from Feratel delete endpoint for Events.'
+    mark_deleted_infrastructure_items:
+      sorting: 120
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: infrastructure_items
+      read_type: locations
+      endpoint_method: mark_deleted_infrastructure_items
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadMarkDeleted
+      delete_reason: 'Published from Feratel delete endpoint for InfrastructureItems.'
+  import_config:
+    categories:
+      sorting: 1
+      source_type: categories
+      tree_label: Feratel - Unterkunftsarten
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Id'
+      tag_name_path: 'Name.Translation.text'
+      external_id_prefix: ''
+    feratel_owners:
+      sorting: 2
+      source_type: accommodations
+      tree_label: Feratel - Inhaber
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Details.DataOwner.text'
+      tag_name_path: 'Details.DataOwner.text'
+      external_id_prefix: 'OWNER:'
+      external_id_hash_method: 'MD5'
+    feratel_infrastructure_owners:
+      sorting: 3
+      source_type: infrastructure_items
+      tree_label: Feratel - Inhaber
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Details.DataOwner.text'
+      tag_name_path: 'Details.DataOwner.text'
+      external_id_prefix: 'OWNER:'
+      external_id_hash_method: 'MD5'
+    feratel_event_owners:
+      sorting: 4
+      source_type: events
+      tree_label: Feratel - Inhaber
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Details.DataOwner.text'
+      tag_name_path: 'Details.DataOwner.text'
+      external_id_prefix: 'OWNER:'
+      external_id_hash_method: 'MD5'
+    holiday_themes:
+      sorting: 5
+      source_type: holiday_themes
+      tree_label: Feratel - Urlaubsthemen
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Id'
+      tag_name_path: 'Name.Translation.text'
+      external_id_prefix: ''
+    classifications:
+      sorting: 6
+      source_type: classifications
+      tree_label: Feratel - Unterkunftsklassifizierungen
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Id'
+      tag_name_path: 'Name.Translation.text'
+      external_id_prefix: ''
+    types:
+      sorting: 7
+      source_type: infrastructure_types
+      tree_label: Feratel - Infrastrukturtypen
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Type'
+      tag_name_path: 'Name.Translation.text'
+      external_id_prefix: 'Feratel - Infrastrukturtyp - '
+    # infrastructure_topics: # new_combined types/topics tree
+    #   sorting: 8
+    #   source_type: infrastructure_topics
+    #   import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructureClassifications
+    topics: # old flat list
+      sorting: 8
+      source_type: infrastructure_topics
+      tree_label: Feratel - Infrastrukturklassifizierungen
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Id'
+      tag_name_path: 'Name.Translation.text'
+      external_id_prefix: ''
+    stars:
+      sorting: 9
+      source_type: stars
+      tree_label: Feratel - Sterne
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Id'
+      tag_name_path: 'Name.Translation.text'
+      external_id_prefix: ''
+    locations:
+      sorting: 10
+      source_type: locations
+      tree_label: Feratel - Orte
+      import_strategy: DataCycleCore::Generic::Feratel::ImportLocations
+    infrastructures:
+      sorting: 20
+      source_type: infrastructure_items
+      import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
+      transformations:
+        image:
+          template: Bild
+        infrastructure:
+          template: POI
+    delete_infrastructure_items:
+      sorting: 21
+      import_strategy: DataCycleCore::Generic::Common::DeleteContents
+      source_type: infrastructure_items
+      external_key_path: 'Id'
+    accommodations:
+      sorting: 22
+      source_type: accommodations
+      import_strategy: DataCycleCore::Generic::Feratel::ImportAccommodations
+      transformations:
+        image:
+          template: Bild
+        place:
+          template: Unterkunft
+    delete_accommodations:
+      sorting: 23
+      import_strategy: DataCycleCore::Generic::Common::DeleteContents
+      source_type: accommodations
+      external_key_path: 'Id'
+    events:
+      sorting: 24
+      source_type: events
+      import_strategy: DataCycleCore::Generic::Feratel::ImportEvents
+      transformations:
+        image:
+          template: Bild
+        place:
+          template: Örtlichkeit
+        event:
+          template: Event
+    delete_events:
+      sorting: 25
+      import_strategy: DataCycleCore::Generic::Common::DeleteContents
+      source_type: events
+      external_key_path: 'Id'
