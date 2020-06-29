@@ -17,8 +17,8 @@ module DataCycleCore
           mongo_item.where(
             I18n.with_locale(locale) { source_filter.with_evaluated_values }
               .merge(
-                "dump.#{locale}.deleted_at": { '$exists': false },
-                "dump.#{locale}": { '$exists': true }
+                "dump.#{locale}": { '$exists': true },
+                "dump.#{locale}.deleted_at": { '$exists': false }
               )
           )
         end
