@@ -74,8 +74,8 @@ module DataCycleCore
       end
 
       def assert_translated_json_attributes(json_validate)
-        compare_json = yield.map { |k, v| v.is_a?(::Array) ? [k, v.sort_by { |c| c['@language'] }] : [k, v] }.to_h
-        json = json_validate.dup.slice(*compare_json.keys).map { |k, v| v.is_a?(::Array) ? [k, v.sort_by { |c| c['@language'] }] : [k, v] }.to_h
+        compare_json = sort_translated_attributes(yield)
+        json = sort_translated_attributes(json_validate.dup.slice(*compare_json.keys))
         assert_equal(compare_json, json)
         compare_json.each_key { |a| json_validate.delete(a) }
       end
@@ -99,6 +99,20 @@ module DataCycleCore
         return true if definition.dig('api', 'v4', 'disabled') == false && definition.dig('api', 'v4')&.key?('disabled')
         return true if definition.dig('api', 'disabled') == false && definition.dig('api')&.key?('disabled')
         false
+      end
+
+      private
+
+      def sort_translated_attributes(attributes)
+        attributes.map { |k, v|
+          if v.is_a?(::Hash)
+            [k, sort_translated_attributes(v)]
+          elsif v.is_a?(::Array)
+            [k, v.sort_by { |c| c['@language'] }]
+          else
+            [k, v]
+          end
+        }&.to_h
       end
     end
   end
