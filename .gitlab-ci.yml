@@ -107,32 +107,26 @@ services:
 .master_ci_config: &master_ci
   only:
     - master
-    - release
-    - pre-release
-    - remote-develop
   tags:
-    - data-cycle-core
+    - dc-core
 
 .develop_ci_config: &develop_ci
   only:
     - develop
   tags:
-    - data-cycle-core-develop
+    - dc-core-develop
 
 .review_ci_config: &review_ci
   only:
     - branches
   except:
     - master
-    - release
-    - pre-release
     - develop
-    - remote-develop
   tags:
-    - data-cycle-review
+    - dc-core-review
 
 ########################################################################
-######################### Release / Pre-Release
+######################### Master
 build_caches:
   <<: *master_ci
   extends: .build_caches_config
@@ -144,6 +138,17 @@ rails_test:
 code_validation:
   <<: *master_ci
   extends: .code_validation_config
+
+####################### Deploy Master
+deploy_master:
+  <<: *master_ci
+  extends: .deploy_config
+  tags:
+    - dc-core-deploy
+  environment:
+    name: production
+    url: http://core.datacycle.at/
+  when: manual
 
 ########################################################################
 ######################### Development
@@ -161,10 +166,10 @@ code_validation_develop:
 
 ####################### Deploy Development
 deploy_develop:
-  <<: *master_ci
-  only:
-    - develop
+  <<: *develop_ci
   extends: .deploy_config
+  tags:
+    - dc-core-deploy
   environment:
     name: development
     url: http://core-develop.datacycle.at/
