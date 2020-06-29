@@ -176,9 +176,9 @@ module DataCycleCore
       'location_after.svg',
       'location_before.svg',
       'location.svg',
-      'logo_inverted.svg',
-      'logo.svg',
-      'logo.png'
+      'dc-logo_inverted.svg',
+      'dc-logo.svg',
+      'dc-logo.png'
     ]
     config.action_dispatch.cookies_serializer = :json
     # TODO: check: raise_on_unfiltered_parameters never worked in main application

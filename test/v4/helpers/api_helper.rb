@@ -35,11 +35,28 @@ module DataCycleCore
         assert_equal([], thing.property_names - filled_keys - excluded_keys)
       end
 
+      def assert_translated_datahash(datahash, thing)
+        assert_equal(datahash.keys.sort, (thing.translatable_property_names - thing.computed_property_names).sort)
+      end
+
+      def assert_translated_thing(thing, locale)
+        assert(thing.available_locales.include?(locale.to_sym))
+      end
+
       def assert_attributes(json_validate, required_attributes, attributes)
         assert_json_attributes(json_validate) do
           yield
         end
         attributes.each { |a| required_attributes.delete(a) }
+      end
+
+      def translated_value(thing, attribute, languages)
+        languages.map do |locale|
+          {
+            '@language' => locale,
+            '@value' => I18n.with_locale(locale.to_sym) { attribute.split('.').inject(thing, &:send) }
+          }
+        end
       end
 
       def assert_json_attributes(json_validate)
