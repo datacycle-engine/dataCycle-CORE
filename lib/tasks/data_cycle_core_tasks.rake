@@ -285,19 +285,17 @@ namespace :data_cycle_core do
 
         puts "Merging #{duplicate_ids.size} duplicates of  #{d[1].reverse} ... "
 
-        duplicate_ids.drop(1).each do |duplicate_id|
-          next unless duplicate_id
-
+        duplicate_ids.drop(1).compact.each do |duplicate_id|
           original_id_alias = DataCycleCore::Classification.find(original_id).primary_classification_alias
           duplicate_id_alias = DataCycleCore::Classification.find(duplicate_id).primary_classification_alias
 
           puts "Replacing duplicate #{duplicate_id} with original #{original_id}"
 
-          DataCycleCore::ClassificationContent.where(classification_id: duplicate_id)&.each do |cc|
+          DataCycleCore::ClassificationContent.where(classification_id: duplicate_id)&.find_each do |cc|
             if original_content_ids.include? cc.content_data_id
               cc.destroy
             else
-              DataCycleCore::ClassificationContent.where(id: cc.id).update_all(classification_id: original_id)
+              cc.update_columns(classification_id: original_id) # rubocop:disable Rails/SkipsModelValidations
               # prevent error due to multiple tagging
               original_content_ids.push(cc.content_data_id)
             end
