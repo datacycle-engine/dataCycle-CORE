@@ -2,13 +2,13 @@
   only:
     - master
   tags:
-    - data-cycle-master
+    - dc-master
 
 .development_ci_config: &development_ci
   only:
     - develop
   tags:
-    - data-cycle-develop
+    - dc-develop
 
 .rails_test_config:
   extends: .job_cache_config
