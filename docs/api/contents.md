@@ -248,3 +248,41 @@ Eine grundlegende Möglichkeit, um Inhalte auf Basis ihrer Position zu filtern, 
   }
 }
 ```
+
+
+## Sortieren von Inhalten
+
+Neben der Filterung von Inhalten ist es über die Datenschnittstelle von dataCycle auch möglich, Inhalte nach unterschiedlichen Kriterien zu sortieren. Es gibt dabei zwei grundsätzlich unterschiedliche Arten von Sortierungen: implizite Sortierungen und explizite Sortierungen. Während explizite Sortierungen manuell angewendet werden müssen, werden implizite Sortierungen automatisch verwendet, sobald Inhalte auf eine bestimmte Art und Weise gefiltert werden.
+
+### Implizites Sortieren von Inhalten
+
+Werden Inhalte bei der Abfrage für eine spezifische implizite Sortierung passende gefiltert und wird keine explizite Sortierung festgelegt, wird die passende, implizite Sortierung angewendet. Es ist aber möglich, eine explizite Sortierung festzulegen. In diesem Fall wird keine implizite Sortierung angewendet.
+
+#### Relevanzbasierte Sortierung
+
+Bei der Volltextsuche werden verschiedene Attribute, mit unterschiedlichen Gewichtungen berücksichtigt. Auf Basis der gefundenen Treffer und der jeweiligen Gewichtungen wird eine relevanzbasierte Sortierung durchgeführt. Neben den offensichtlichen Text-Attributen, werden auch Klassifizierungen bei der Volltextsuche berücksichtigt. Außerdem werden alle Attribute und nicht nur diejenigen, die über den Parameter _fields_ angefragt werden, sowohl bei der Volltextsuche als auch bei der relevanzbasierten Sortierung berücksichtigt. Diese beiden Punkte sollten immer im Hinterkopf behalten werden, falls eine Sortierung auf den ersten Blick nicht passend erscheint.
+
+#### Terminbasierte Sortierung
+
+Werden Inhalte auf Basis von Terminen gefiltert (z.B. bei Veranstaltungen), erscheint eine Sortierung auf Basis des Startzeitpunktes eines Termins als optimal. Diese Art der Sortierung führt allerdings dazu, dass Termine mit einer sehr langen Dauer (z.B. Wochen oder Monate) und einem Startzeitpunkt in der Vergangenheit nach vorne gereiht werden. Dieses Verhalt ist im Regelfall nicht wünschenswert! Deshalb berücksichtigt die terminbasierte Sortierung neben dem Startzeitpunkt auch das Ende und in gewisser Weise auch die Dauer eines Termins.
+
+
+### Explizites Sortieren von Inhalten
+
+Soll eine explizite Sortierung verwendet werden, muss diese über den Parameter ``sort`` übergeben werden. Inhalt können sowohl auf- als auch absteigend sortiert werden, die Richtung kann über ein Voranstellen eins **Plus-** bzw. **Minuszeichens** festgelegt werden, wobei die aufsteigende Sortierung (+) als Standard verwendet wird. Eine aufsteigende Sortierung auf Basis des Erstellungsdatums kann bei einer Abfrage über **HTTP-POST** also folgendermaßen angewendet werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "sort": "created"
+}
+```
+
+Alternativ kann die Sortierung auch bei einer Abfrage über **HTTP-GET** angewendet werden:
+
+_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN,sort=created_
+
+Die Attribute, die für die Filterung nutzbar sind, können pro Installation individuell eingeschränkt werden. Prinzipiell stehen aber die folgenden Attribute zur Verfügung:
+
+* **created**
+* **modified**
