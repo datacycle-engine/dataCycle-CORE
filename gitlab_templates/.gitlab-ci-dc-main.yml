@@ -105,7 +105,7 @@ services:
   only:
     - master
   tags:
-    - data-cycle-master
+    - dc-master
 
 ########################################################################
 ######################### Master / Production - Systems
@@ -121,7 +121,7 @@ deploy:
   <<: *master_ci
   extends: .deploy_config
   tags:
-    - data-cycle-deploy
+    - dc-deploy
   environment:
     name: production
     url: $PRODUCTION_URL

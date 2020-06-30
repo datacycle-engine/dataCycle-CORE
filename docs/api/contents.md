@@ -1,14 +1,13 @@
 # Abfragen von Inhalten über die Datenschnittstelle
 
-Einheitlicher Datenendpunkt gespeicherte Suchen / Klassifizierungen
+In dataCycle gibt es zwei Möglichkeiten, wie Inhalte über die Datenschnittstelle verfügbar gemacht werden können. Für eine von Hand ausgewählte Selektion von Inhalten können (statische) Inhaltssammlungen genutzt werden. Sollen Inhalte auf Basis von unterschiedlichen Filterkriterien automatisch ausgewählt werden, können gespeicherte Suchen bzw. "dynamische" Inhaltssammlungen genutzt werden. Über die Datenschnittstelle werden statische und dynamische Inhaltssammlungen über ein einheitliches URL-Schema (_**/api/v4/endpoints/ENDPOINT_ID**_) bereitgestellt.
 
 
 ## Filtern von Inhalten
 
-Häufig ist es so, dass neben der Einschränkung von Inhalten im Zuge der Erstellung eines Datenendpunkts auch eine nachträgliche Filterung direkt beim Abrufen der Inhalte wünschenswert bzw. notwendig ist. Bei dataCycle stehen deshalb unterschiedliche Filter zur Verfügung, die direkt über die API genutzt werden können. Um unterschiedliche Anwendungsfälle möglichst gut abdecken zu können, stehen unterschiedliche Typen von Filtern zu Verfügung. Der grundsätzliche Aufbau ist dabei aber immer der Gleiche: Alle Filter beginnen mit ```filter[TYPE]```. Je nach ausgewähltem Filtertyp unterscheidet sich die restliche Filterkonfiguration und ist auf den jeweiligen Filter abgestimmt. Die API unterstützt das Abfragen und auch das Filtern von Inhalten sowohl über **HTTP-GET** als auch über **HTTP-POST**, im Falle einer POST-Abfrage müssen die Parameter im **JSON**-Format an dataCycle übermittelt werden. Die folgenden Abfragen sind damit also equivalent und liefern auch exakt die gleichen Inhalte aus:
+Häufig ist es so, dass neben der Einschränkung von Inhalten im Zuge der Erstellung eines Datenendpunkts auch eine nachträgliche Filterung direkt beim Abrufen der Inhalte wünschenswert bzw. notwendig ist. Bei dataCycle stehen deshalb unterschiedliche Filter zur Verfügung, die direkt über die API genutzt werden können. Um unterschiedliche Anwendungsfälle möglichst gut abdecken zu können, stehen unterschiedliche Typen von Filtern zu Verfügung. Der grundsätzliche Aufbau der unterschiedlichen Filtertypen ist dabei aber immer sehr ähnlich: Alle Filter beginnen mit ```filter[TYPE]```. Je nach ausgewähltem Filtertyp unterscheidet sich die restliche Filterkonfiguration und ist auf den jeweiligen Filter abgestimmt.
 
-Alle Parameter aus der User-Story
-
+Die API unterstützt das Abfragen und auch das Filtern von Inhalten sowohl über **HTTP-GET** als auch über **HTTP-POST**, im Falle einer POST-Abfrage müssen die Parameter im **JSON**-Format an dataCycle übermittelt werden. Die folgenden Abfragen sind damit also äquivalent und liefern auch exakt die gleichen Inhalte aus:
 
 #### HTTP-GET:
 
@@ -31,14 +30,77 @@ _/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?filter[classifications][
 }
 ```
 
-***ACHTUNG: Bei der Übergabe von Filterparametern über HTTP-POST ist es wichtig, darauf zu achten, dass die einzelnen Komponenten je nach verwendetem Filter exakt den Vorgaben entsprechend entweder als Array oder als String übergeben werden!***
+***ACHTUNG: Bei der Übergabe von Filterparametern sowohl über HTTP-GET als auch über HTTP-POST ist es wichtig, darauf zu achten, dass die einzelnen Komponenten je nach verwendetem Filter exakt den Vorgaben entsprechend entweder als Array oder als String übergeben werden!***
 
-Die Nutzung von HTTP-POST bringt vor allem im Zusammenhang mit komplexen Abfragen einen Vorteil, weil diese in der Regel sehr viel übersichtlicher gestaltet werden können. Außerdem unterliegen sie nicht der Längenbeschränkung von URLs, die wiederum bei sehr komplexen bzw. umfangreichen Abfragen ein Problem verursachen könnte.
+Die Nutzung von HTTP-POST bringt vor allem im Zusammenhang mit komplexen Abfragen einen Vorteil, weil diese in der Regel sehr viel übersichtlicher gestaltet werden können. Außerdem unterliegen sie nicht der Längenbeschränkung von URLs, die ebenfalls bei sehr komplexen bzw. umfangreichen Abfragen Probleme verursachen kann. Die folgende Abfrage, die alle derzeit verfügbaren Filtertypen verwendet, kann in Form eines JSON-Snippets im Gegensatz zu einer fast 1000 Zeichen langen URL immer noch sehr übersichtlich dargestellt werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "q": "Sommer",
+    "classifications": {
+      "in": {
+        "withSubtree": [
+          "b482d10a-8101-45aa-80e7-1a74884f5401,28505016-25d9-4ed8-a8ab-fc432a46e1af",
+          "a1a626c2-3324-4118-b71b-aaecd10bd775"
+        ]
+      },
+      "notIn": {
+        "withSubtree": [
+          "cae91ec2-7b32-44e2-ad99-26c5d1fe7ff5"
+        ]
+      }
+    },
+    "attribute": {
+      "createdAt": {
+        "in": {
+          "min": "2020-03-16",
+          "max": "2020-05-14"
+        },
+        "notIn": {
+          "min": "2020-04-06",
+          "max": "2020-04-13"
+        }          
+      }, {
+        "schedule": {
+          "in": {
+            "min": "2020-06-21",
+            "max": "2020-09-20"
+          }
+        }
+      }
+    },
+    "geo": {
+			"in": {
+				"box": [9.53074836730957,46.37226867675781,17.160776138305664,49.020530700683594]
+			}			
+		}
+  }
+}
+```
+
+### Volltextsuche - **filter\[q\]**
+
+Ein sehr häufiger Anwendungsfall um Inhalte einzuschränken ist eine Volltextsuche. Natürlich steht auch innerhalb von dataCycle über den Filterparameter **filter\[q\]** eine Volltextsuche zur Verfügung. Um beispielsweise nach Inhalten zum Thema "Musik" zu suchen, kann die folgende Suchanfrage an dataCycle übermittelt werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "q": "Musik"
+  }
+}
+```
+
+Alternativ kann diese Anfrage auch über **HTTP-GET** umgesetzt werden:
+
+_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN&filter[q]=Musik_
 
 
 ### Klassifizierungen - **filter\[classifications\]**
 
-Eine Option, um die über den Datenendpunkt vordefinierte Filterung weiter zu verfeinern, ist durch das Einschränken der Inhalte auf Basis von Klassifizierungen. Sie können dabei sowohl als notwendiges als auch als ausschließendes Kriterium verwendet werden. Wird die Klassifizierung als notwendiges Kriterium übergeben, werden nur Inhalte ausgeliefert, die mit einer bestimmten Klassifizierung wie z.B. "Inhaltstypen > Ort > Öffentliche Einrichtung > Museum" verknüpft sind. Im Fall einer ausschließenden Verwendung werden eben diese Inhalte ausgeschlossen. Außerdem kann festgelegt werden ob Sub-Klassifizierungen bei der Filterung mit berücksichtigt werden oder nicht. Im Detail ergeben sich damit die folgenden Kombinationsmöglichkeiten:
+Eine Option, um die über den Datenendpunkt vordefinierte Filterung weiter zu verfeinern, ist durch das Einschränken der Inhalte auf Basis von Klassifizierungen. Sie können dabei sowohl als notwendiges als auch als ausschließendes Kriterium verwendet werden. Wird die Klassifizierung als notwendiges Kriterium übergeben, werden nur Inhalte ausgeliefert, die mit einer bestimmten Klassifizierung wie z.B. "Inhaltstypen > Ort > Öffentliche Einrichtung > Museum" verknüpft sind. Im Fall einer ausschließenden Verwendung werden eben diese Inhalte ausgeschlossen. Außerdem kann festgelegt werden ob Sub-Klassifizierungen bei der Filterung berücksichtigt werden sollen oder nicht. Im Detail ergeben sich damit die folgenden Kombinationsmöglichkeiten:
 
 #### filter\[classifications\]\[in\]\[withSubtree\]\[\]:
 
@@ -47,7 +109,7 @@ Inhalte müssen mit einer der übergebenen Klassifizierungen oder einer zugehör
 
 #### filter\[classifications\]\[in\]\[withoutSubtree\]\[\]:
 
-Inhalte müssen mit einer der übergebenen Klassifizierungen verknüpft sein. Eine indirekte Verknüpfung über eine Sub-Klassifizierung wird bei dieser Art der Abfrage nicht berücksichtigt. (Sehr wohl berücksichtigt werden aber indirekte Verknüpfung, die sich aufgrund eines Klassifizierungs-Mappings ergeben.)
+Inhalte müssen mit einer der übergebenen Klassifizierungen verknüpft sein. Eine indirekte Verknüpfung über eine Sub-Klassifizierung wird bei dieser Art der Abfrage nicht berücksichtigt. (_Sehr wohl berücksichtigt werden aber indirekte Verknüpfungen, die sich aufgrund eines Klassifizierungs-Mappings ergeben._)
 
 
 #### filter\[classifications\]\[notIn\]\[withSubtree\]\[\]:
@@ -57,13 +119,14 @@ Inhalte dürfen nicht mit einer der übergebenen Klassifizierungen oder einer zu
 
 #### filter\[classifications\]\[notIn\]\[withoutSubtree\]\[\]:
 
-Inhalte dürfen nicht mit einer der übergebenen Klassifizierungen verknüpft sein.
+Inhalte dürfen nicht mit einer der übergebenen Klassifizierungen verknüpft sein. Eine indirekte Verknüpfung über eine Sub-Klassifizierung wird bei dieser Art der Abfrage nicht berücksichtigt. (_Sehr wohl berücksichtigt werden aber indirekte Verknüpfungen, die sich aufgrund eines Klassifizierungs-Mappings ergeben._)
 
 
-Die einzelnen Filter können dabei beliebig kombiniert werden, um eine maximale Flexibilität zu erlauben. Außerm ist es möglich die übergebenen Klassifizierungen sowohl mit UND als auch mit einem ODER zu verknüpfen. Für eine UND-Verknüpfung müssen die Klassifizierungen als separate Elemente eines Arrays übergeben werden, für eine ODER-Verknüpfung in Form einer kommagetrennten Liste innerhalb eines einzelnen Strings. Um beispielsweise nach Gallerien oder Museen zu suchen, die barrierefrei zugänglich sind und die keinen Schwerpunkt auf moderne Kunst setzen, könnte die folgende Abfrage verwendet werden:
+Um die Flexibilität des Klassifizierungsfilters noch weiter zu steigern, können die einzelnen Filterbausteine beliebig kombiniert werden, um eine maximale Flexibilität zu erlauben. Außerm ist es möglich die übergebenen Klassifizierungen sowohl mit **UND** als auch mit einem **ODER** zu verknüpfen. Für eine **UND**-Verknüpfung müssen die Klassifizierungen als separate Elemente eines Arrays übergeben werden, für eine **ODER**-Verknüpfung in Form einer kommagetrennten Liste innerhalb eines einzelnen Strings. Um beispielsweise nach Gallerien oder Museen zu suchen, die barrierefrei zugänglich sind und die derzeit keinen Schwerpunkt auf moderne Kunst gesetzt haben, könnte die folgende Abfrage verwendet werden:
 
-```
+```javascript
 {
+  "token": "YOUR_ACCESS_TOKEN",
   "filter": {
     "classifications": {
       "in": {
@@ -82,20 +145,144 @@ Die einzelnen Filter können dabei beliebig kombiniert werden, um eine maximale 
 }
 ```
 
-<!--
 ### Attribute - **filter\[attribute\]**
 
-Eine weitere Option um Inhalte zu filter, ist auf Basis von ausgewählten Attributen.
+Eine weitere Option um Inhalte zu filtern, ist auf Basis von ausgewählten Attributen. Welche Attribute bei dieser Art der Filterung unterstützt werden, kann individuell pro dataCycle-Instanz konfiguriert werden, insbesondere bei sehr individuellen Konfigurationen kann also nicht davon ausgegangen werden, dass alle Attribute uneingeschränkt unterstützt werden.
 
+Derzeit können unterschiedliche Arten von numerischen Attributen, wie z.B. das Erstellungsdatum, ein Veranstaltungstermin oder die Breite eines Bildes, für die Filterung von Inhalten herangezogen werden. Da all diese numerischen Attribute als skalare Werte interpretiert werden können, stehen für alle Attribute die gleichen Filtermöglichkeiten zur Verfügung. Im Prinzip kann man sich diese Attribute immer als Wert auf einer Zahlengerade vorstellen. Möchte man nun eine Filterung durchführen, kann der relevante Bereich auf dieser Zahlengerade durch einen entsprechenden Filter eingeschränkt werden. Unterstützt werden an dieser Stelle sowohl beschränkte Intervalle mit einer unteren (**filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[in\]\[min\]**) und einer oberen Schranke ((**filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[in\]\[max\]**)) als auch einseitig unbeschränkte Intervalle mit entweder nur einer oberen oder nur einer unteren Schranke. Außerdem ist es möglich, das Intervall zu invertieren, sprich den Wertebereich außerhalb des angegebenen Intervalls auszuwählen (**filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[notIn\]\[min\]** bzw. **filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[notIn\]\[max\]**). Die übergebenen Intervalle werden von dataCycle immer als geschlossene Intervalle interpretiert, das heißt, die angegebenen Intervallgrenzen werden bei den damit festgelegten Wertebereichen eingeschlossen.
+Um beispielsweise alle Veranstaltungen im Herbst und im Winter außer den Veranstaltungen zwischen den Weihnachtsfeiertagen auszuwählen, könnte folgende Filterkonfiguration genutzt werden:
 
-#### Aktualisierungen
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "attribute": {
+      "schedule": {
+        "in": {
+          "min": "2020-09-23",
+          "max": "2021-03-20"
+        },
+        "notIn": {
+          "min": "2020-12-24",
+          "max": "2021-01-06"
+        }
+      }
+    }
+  }
+}
+```
 
-Für einige Anwendungsfälle kann es hilfreich sein, herauszufinden zu können, welche Datensätze innerhalb einer vorgegeben Zeitspanne erstellt, geändert bzw. gelöscht worden sind. Zu diesem Zweck können bei API-Endpunkten, die auch Paging unterstützen, spezielle ```filter```-Parameter genutzt werden. Dadurch kann die Anzahl der Datensätze, die geladen werden muss, erheblich reduziert werden. Außerdem muss die Prüfung, ob es seit dem letzten Update neue Änderungen gegeben hat, nicht client-seitig durchgeführt werden, wodurch die Client-Anwendung noch einmal deutlich entlastet werden kann. Für diese Art der Filterung können sogenannte _Attribut-Filter_ genutzt werden, wobei die folgenden Attribute unterstützt werden:
+#### Aktualisierungen - **filter\[attribute\]\[createdAt|modifiedAt|deletedAt\]**
+
+Für einige Anwendungsfälle kann es hilfreich sein, herausfinden zu können, welche Datensätze innerhalb einer vorgegeben Zeitspanne erstellt, geändert oder gelöscht worden sind. Zu diesem Zweck können bei allen API-Endpunkten, die sich aus statischen bzw. dynamischen Inhaltssammlungen ergeben, spezielle _Attribut-Filter_ genutzt werden. Dadurch kann die Anzahl der Datensätze, die geladen werden muss, erheblich reduziert werden. Außerdem muss die Prüfung, ob es seit dem letzten Update neue Änderungen gegeben hat, nicht client-seitig durchgeführt werden, wodurch die auf dataCycle aufbauenden Anwendungen noch einmal deutlich entlastet werden können. Für diese Art der Filterung werden die folgenden Attribute unterstützt:
 
 * **createdAt**
 * **modifiedAt**
-* **deletedAt**
+* **deletedAt** (_ACHTUNG: Dieser Filter steht nur über den speziellen Endpunkt [/api/v4/things/deleted](/api/v4/things/deleted) zur Verfügung!_)
 
-Bei dieser speziellen Art von _Attribut-Filtern_ muss neben dem Attribut, auf dessen Basis die Filterung durchgeführt werden soll, auch ein Zeitraum übergeben werden. Unterstützt werden an dieser Stelle sowohl beschränkte Intervalle mit einer unteren (**filter\[attribute\]\[ATTRIBUTE_NAME\]\[in\]\[min\]**) und einer oberen Schranke ((**filter\[attribute\]\[ATTRIBUTE_NAME\]\[in\]\[max\]**)) als auch einseitig unbeschränkte Intervalle mit entweder einer oberen oder einer unteren Schranke. Die Zeitpunkte müssen dabei entsprechend den Vorgaben von [RFC 3339](https://tools.ietf.org/html/rfc3339) übergeben werden.  Ein Filter für Inhalte, die am 21. Oktober 2015 geändert worden sind, kann beispielsweise über [/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?filter\[attribute\]\[modifiedAt\]\[in\]\[min\]=2015-10-21&filter\[attribute\]\[modifiedAt\]\[in\]\[max\]=2015-10-21](/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?filter\[attribute\]\[modifiedAt\]\[in\]\[min\]=2015-10-21&filter\[attribute\]\[modifiedAt\]\[in\]\[max\]=2015-10-21)" abgebildet werden.
+Bei der Verwendung von Zeitpunkten im Rahmen eines Filterkriteriums müssen die Zeitpunkte entsprechend den Vorgaben von [RFC 3339](https://tools.ietf.org/html/rfc3339) übergeben werden, damit sie von dataCycle korrekt interpretiert werden können.
 
-Der Zeitpunkt der Erstellung und der letzten Aktualisierung können nicht nur für die Filterung direkt beim Abrufen von Inhalten genutzt werden, sie stehen in Form der Attribute ```dct:created``` bzw. ```dct:modified``` bei Bedarf auch direkt bei den einzelnen Inhalten zur Verfügung, sie müssen aber explizit über den zusätzlichen Parameter ```fields``` abgefragt werden. -->
+Sollen beispielsweise alle Inhalte ermittelt werden, die am "Marty-McFly-Day" erstellt worden sind, könnte der Filter folgendermaßen übergeben werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "attribute": {
+      "createdAt": {
+        "in": {
+          "min": "2015-10-21",
+          "max": "2015-10-21"
+        }
+      }
+    }
+  }
+}
+```
+
+_Die Zeitpunkte der Erstellung und der letzten Aktualisierung können nicht nur für die Filterung direkt beim Abrufen von Inhalten genutzt werden. Sie können in Form der Attribute ```dct:created``` bzw. ```dct:modified``` bei Bedarf auch direkt bei den einzelnen Inhalten ausgegeben und weiter ausgewertet werden, sie müssen aber explizit über den zusätzlichen Parameter ```fields``` abgefragt werden._
+
+
+#### Termine - **filter\[attribute\]\[schedule\]**
+
+Sind Veranstaltungen im Datenbestand einer dataCycle-Instanz vorhanden, ist es in der Regel notwendig, diese Veranstaltungen auf Basis des Veranstaltungstermins zu filtern. Da in dataCycle wiederkehrende Veranstaltungstermine in Form von Regelsätzen hinterlegt werden können und nicht als Einzeltermine erfasst werden müssen, gibt es einen speziellen _Attribut-Filter_ für diesen Anwendungsfall. Es kann zwar auch bei diesem Filter ein bzw. mehrere Intervalle übergeben werden, im Gegensatz zu einfachen Zeitpunkten wird bei der Verwendung dieses Filters aber auch eine spezielle Sortierung, die spezifisch auf Termine abgestimmt worden ist, verwendet. Dabei werden Veranstaltungen nach dem ersten Termin im angegeben Zeitraum sortiert, wobei sehr lange dauernde Veranstaltungen, die oft durch eine fehlerhafte Eingabe entstehen, nach hinten gereiht werden.
+
+[//]: # (\(siehe XXX für Details\))
+
+
+Um z.B. alle Veranstaltungen im Zeitraum der letzten Weltraummission eines Space Shuttles abzufragen, könnte der folgende Filter verwendet werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "attribute": {    
+      "schedule": {
+        "in": {
+          "min": "2011-07-10T15:07UTC",
+          "max": "2011-07-19T06:28UTC"
+        }
+      }
+    }
+  }
+}
+```
+
+### Geobasierte Filterung - **filter\[geo\]**
+
+dataCycle wird in vielen Fällen verwendet, um geografisch verortete Inhalte zu verwalten. Um diese geografischen Eigenschaften auch bei der Filterung von Inhalten nutzen zu können, stehen spezielle Filter für das Einschränken von Inhalten auf Basis ihrer geografischen Lage zur Verfügung.
+
+#### Bounding-Box - **filter\[geo\]\[in\]\[box\]**
+
+Eine grundlegende Möglichkeit, um Inhalte auf Basis ihrer Position zu filtern, nutzt eine sogenannte _Bounding-Box_. Eine _Bounding-Box_ ist über vier Eckpunkte eines Rechtecks festgelegt, von denen der Eckpunkt im Süd–Westen und der Eckpunkt im Nord-Osten übergeben werden müssen. (Die beiden anderen Eckpunkte ergeben sich aus denen, die übergeben werden müssen.) Um Inhalte innerhalb einer passenden Bounding-Box für Österreich abzurufen, könnten die folgenden Filterparameter verwendet werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "geo": {
+      "in": {
+        "box": [9.53074836730957,46.37226867675781,17.160776138305664,49.020530700683594]
+      }
+    }
+  }
+}
+```
+
+
+## Sortieren von Inhalten
+
+Neben der Filterung von Inhalten ist es über die Datenschnittstelle von dataCycle auch möglich, Inhalte nach unterschiedlichen Kriterien zu sortieren. Es gibt dabei zwei grundsätzlich unterschiedliche Arten von Sortierungen: implizite Sortierungen und explizite Sortierungen. Während explizite Sortierungen manuell angewendet werden müssen, werden implizite Sortierungen automatisch verwendet, sobald Inhalte auf eine bestimmte Art und Weise gefiltert werden.
+
+### Implizites Sortieren von Inhalten
+
+Werden Inhalte bei der Abfrage für eine spezifische implizite Sortierung passende gefiltert und wird keine explizite Sortierung festgelegt, wird die passende, implizite Sortierung angewendet. Es ist aber möglich, eine explizite Sortierung festzulegen. In diesem Fall wird keine implizite Sortierung angewendet.
+
+#### Relevanzbasierte Sortierung
+
+Bei der Volltextsuche werden verschiedene Attribute, mit unterschiedlichen Gewichtungen berücksichtigt. Auf Basis der gefundenen Treffer und der jeweiligen Gewichtungen wird eine relevanzbasierte Sortierung durchgeführt. Neben den offensichtlichen Text-Attributen, werden auch Klassifizierungen bei der Volltextsuche berücksichtigt. Außerdem werden alle Attribute und nicht nur diejenigen, die über den Parameter ```fields``` angefragt werden, sowohl bei der Volltextsuche als auch bei der relevanzbasierten Sortierung berücksichtigt. Diese beiden Punkte sollten immer im Hinterkopf behalten werden, falls eine Sortierung auf den ersten Blick nicht passend erscheint.
+
+#### Terminbasierte Sortierung
+
+Werden Inhalte auf Basis von Terminen gefiltert (z.B. bei Veranstaltungen), erscheint eine Sortierung auf Basis des Startzeitpunktes eines Termins als optimal. Diese Art der Sortierung führt allerdings dazu, dass Termine mit einer sehr langen Dauer (z.B. Wochen oder Monate) und einem Startzeitpunkt in der Vergangenheit nach vorne gereiht werden. Dieses Verhalt ist im Regelfall nicht wünschenswert! Deshalb berücksichtigt die terminbasierte Sortierung neben dem Startzeitpunkt auch das Ende und in gewisser Weise auch die Dauer eines Termins.
+
+
+### Explizites Sortieren von Inhalten
+
+Soll eine explizite Sortierung verwendet werden, muss diese über den Parameter ``sort`` übergeben werden. Inhalt können sowohl auf- als auch absteigend sortiert werden, die Richtung kann über ein Voranstellen eins **Plus-** bzw. **Minuszeichens** festgelegt werden, wobei die aufsteigende Sortierung (+) als Standard verwendet wird. Eine aufsteigende Sortierung auf Basis des Erstellungsdatums kann bei einer Abfrage über **HTTP-POST** also folgendermaßen angewendet werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "sort": "created"
+}
+```
+
+Alternativ kann die Sortierung auch bei einer Abfrage über **HTTP-GET** angewendet werden:
+
+_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN,sort=created_
+
+Die Attribute, die für die Filterung nutzbar sind, können pro Installation individuell eingeschränkt werden. Prinzipiell stehen aber die folgenden Attribute zur Verfügung:
+
+* **created**
+* **modified**

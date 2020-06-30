@@ -7,7 +7,7 @@ variables:
   only:
     - develop
   tags:
-    - data-cycle-develop
+    - dc-develop
 
 build_caches_develop:
   <<: *development_ci
@@ -21,7 +21,7 @@ deploy_develop:
   <<: *development_ci
   extends: .deploy_config
   tags:
-    - data-cycle-deploy
+    - dc-deploy
   environment:
     name: development
     url: $DEVELOPMENT_URL
