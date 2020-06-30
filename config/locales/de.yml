@@ -60,10 +60,12 @@ de:
     relations: Relationen
 
   dash_board:
+    download_full: Download (full)
     import_full: Import (full)
     import: Import
     download: Download
     download_import: Download&Import
+    delete: delete
 
   notification:
     frequency:

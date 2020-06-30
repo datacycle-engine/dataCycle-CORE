@@ -220,6 +220,38 @@ config:
       location_range_codes: ['RG']
       download_strategy: DataCycleCore::Generic::Feratel::DownloadCodes
       locales: [de]
+    mark_deleted_accommodations:
+      sorting: 100
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: accommodations
+      read_type: locations
+      endpoint_method: mark_deleted_accommodations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadMarkDeleted
+    # mark_deleted_additional_service_providers:
+    #   sorting: 101
+    #   endpoint: DataCycleCore::Generic::Feratel::Endpoint
+    #   source_type: additional_service_providers
+    #   read_type: locations
+    #   endpoint_method: mark_deleted_accommodations
+    #   location_range_codes: ['RG']
+    #   download_strategy: DataCycleCore::Generic::Feratel::DownloadMarkDeleted
+    mark_deleted_events:
+      sorting: 110
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: events
+      read_type: locations
+      endpoint_method: mark_deleted_events
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadMarkDeleted
+    mark_deleted_infrastructure_items:
+      sorting: 120
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: infrastructure_items
+      read_type: locations
+      endpoint_method: mark_deleted_infrastructure_items
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadMarkDeleted
   import_config:
 #    content_score_asp:
 #      sorting: 1
@@ -426,9 +458,8 @@ config:
       import_strategy: DataCycleCore::Generic::Common::UpdateAttributes
       source_type: infrastructure_items
       source_filter:
-        '$or':
-          - 'seen_at':
-              '$lt': '{{ 3.days.ago.beginning_of_day }}'
+        'seen_at':
+          '$lt': '{{ 3.days.ago.beginning_of_day }}'
       external_key_path: 'Id'
       attributes:
         - key: external_status
@@ -441,9 +472,8 @@ config:
       import_strategy: DataCycleCore::Generic::Common::UpdateAttributes
       source_type: accommodations
       source_filter:
-        '$or':
-          - 'seen_at':
-              '$lt': '{{ 3.days.ago.beginning_of_day }}'
+        'seen_at':
+          '$lt': '{{ 3.days.ago.beginning_of_day }}'
       external_key_path: 'Id'
       attributes:
         - key: external_status
