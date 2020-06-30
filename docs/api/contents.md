@@ -260,7 +260,7 @@ Werden Inhalte bei der Abfrage für eine spezifische implizite Sortierung passen
 
 #### Relevanzbasierte Sortierung
 
-Bei der Volltextsuche werden verschiedene Attribute, mit unterschiedlichen Gewichtungen berücksichtigt. Auf Basis der gefundenen Treffer und der jeweiligen Gewichtungen wird eine relevanzbasierte Sortierung durchgeführt. Neben den offensichtlichen Text-Attributen, werden auch Klassifizierungen bei der Volltextsuche berücksichtigt. Außerdem werden alle Attribute und nicht nur diejenigen, die über den Parameter _fields_ angefragt werden, sowohl bei der Volltextsuche als auch bei der relevanzbasierten Sortierung berücksichtigt. Diese beiden Punkte sollten immer im Hinterkopf behalten werden, falls eine Sortierung auf den ersten Blick nicht passend erscheint.
+Bei der Volltextsuche werden verschiedene Attribute, mit unterschiedlichen Gewichtungen berücksichtigt. Auf Basis der gefundenen Treffer und der jeweiligen Gewichtungen wird eine relevanzbasierte Sortierung durchgeführt. Neben den offensichtlichen Text-Attributen, werden auch Klassifizierungen bei der Volltextsuche berücksichtigt. Außerdem werden alle Attribute und nicht nur diejenigen, die über den Parameter ```fields``` angefragt werden, sowohl bei der Volltextsuche als auch bei der relevanzbasierten Sortierung berücksichtigt. Diese beiden Punkte sollten immer im Hinterkopf behalten werden, falls eine Sortierung auf den ersten Blick nicht passend erscheint.
 
 #### Terminbasierte Sortierung
 
