@@ -55,7 +55,7 @@ module DataCycleCore
               required(:@type).value(:string)
               required(:identifier).value(:string)
               required(:name).value(:string)
-              required(:value).value(:string)
+              required(:value).value(:filled?)
             end
           end
           optional(:offers).value(:array).each do

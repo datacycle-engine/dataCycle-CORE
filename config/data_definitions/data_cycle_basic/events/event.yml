@@ -236,6 +236,9 @@
         :inverse_of: about
         :link_direction: inverse
         :global: true
+      :external_source_attributes:
+        :type: mixin
+        :name: external_source_attributes
       :data_type:
         :label: Inhaltstyp
         :type: classification
