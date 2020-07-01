@@ -437,11 +437,11 @@ module DataCycleCore
     def alert_box(value, alert_class, closable)
       options = { class: "flash flash-notification callout #{alert_class}" }
       options[:data] = { closable: '' } if closable
-      content_tag(:div, options) do
+      tag.div(options) do
         if value.is_a?(String)
           concat value.html_safe
         elsif value.is_a?(Hash)
-          concat value.map { |k, v| content_tag(:b, k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
+          concat value.map { |k, v| tag.b(k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
         else
           concat value.html_safe.to_s
         end
@@ -456,7 +456,7 @@ module DataCycleCore
         data: { close: '' },
         aria: { label: 'Dismiss alert' }
       ) do
-        content_tag(:span, '&times;'.html_safe, aria: { hidden: true })
+        tag.span('&times;'.html_safe, aria: { hidden: true })
       end
     end
 

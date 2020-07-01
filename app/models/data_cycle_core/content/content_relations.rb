@@ -42,7 +42,7 @@ module DataCycleCore
           belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
           belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
           belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'
-          belongs_to :representation_of, foreign_key: :representation_of_id, class_name: 'DataCycleCore::User'
+          belongs_to :representation_of, class_name: 'DataCycleCore::User'
 
           belongs_to :parent, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :children, touch: false
           has_many :children, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :parent, dependent: :destroy
