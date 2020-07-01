@@ -217,6 +217,34 @@ namespace :dc do
       progress_bar(items_to_delete, items_to_delete)
     end
 
+    desc 'find_orphaned_things in mongodb'
+    task :find_orphaned_things_in_mongodb, [:template_name, :external_system_id, :collection_name] => [:environment] do |_, args|
+      collection_name = args.fetch(:collection_name, false)
+      external_system_id = args.fetch(:external_system_id, false)
+      template_name = args.fetch(:template_name, false)
+
+      error 'invalid number of arguments' unless collection_name.present? && external_system_id.present? && template_name.present?
+
+      external_system = DataCycleCore::ExternalSystem.find(external_system_id)
+      things = DataCycleCore::Thing.where(template: false, template_name: template_name, external_source_id: external_system.id)
+
+      puts "things (#{template_name}) found: #{things.size}\n"
+
+      things_missing = 0
+      things_missing_keys = []
+
+      external_system.collection(collection_name) do |collection|
+        things.each do |thing|
+          next unless collection.find({ 'external_id': thing.external_key }).count.zero?
+          # puts "item with external key: #{thing.external_key} not found in mongo collection\n"
+          things_missing += 1
+          things_missing_keys << thing
+          next
+        end
+      end
+      puts "things (#{template_name}) missing in mongoDB: #{things_missing}\n"
+    end
+
     def embedded
       embedded_hash = {}
       DataCycleCore::Thing.where(template: true).find_each.select { |temp| temp.content_type == 'entity' }.map do |main_temp|

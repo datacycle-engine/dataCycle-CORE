@@ -194,6 +194,19 @@ module DataCycleCore
       OpenStruct.new(Mongoid.client(id).collections.index_by(&:name))
     end
 
+    def collection(name)
+      mongo_database = "#{Generic::Collection.database_name}_#{id}"
+      Mongoid.override_database(mongo_database)
+      Mongoid.clients[id] = {
+        'database' => mongo_database,
+        'hosts' => Mongoid.default_client.cluster.servers.map(&:address).map { |adr| "#{adr.host}:#{adr.port}" },
+        'options' => nil
+      }
+      yield(Mongoid.client(id)[name])
+    ensure
+      Mongoid.override_database(nil)
+    end
+
     def reset
       update!(last_import: nil, last_successful_import: nil, last_download: nil, last_successful_download: nil)
       reload
