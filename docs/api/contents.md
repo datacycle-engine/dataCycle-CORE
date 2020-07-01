@@ -219,8 +219,8 @@ Um z.B. alle Veranstaltungen im Zeitraum der letzten Weltraummission eines Space
     "attribute": {    
       "schedule": {
         "in": {
-          "min": "2011-07-10T15:07UTC",
-          "max": "2011-07-19T06:28UTC"
+          "min": "2011-07-10",
+          "max": "2011-07-19"
         }
       }
     }
