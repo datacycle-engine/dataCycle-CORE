@@ -149,7 +149,7 @@ Um die Flexibilität des Klassifizierungsfilters noch weiter zu steigern, könne
 
 Eine weitere Option um Inhalte zu filtern, ist auf Basis von ausgewählten Attributen. Welche Attribute bei dieser Art der Filterung unterstützt werden, kann individuell pro dataCycle-Instanz konfiguriert werden, insbesondere bei sehr individuellen Konfigurationen kann also nicht davon ausgegangen werden, dass alle Attribute uneingeschränkt unterstützt werden.
 
-Derzeit können unterschiedliche Arten von numerischen Attributen, wie z.B. das Erstellungsdatum, ein Veranstaltungstermin oder die Breite eines Bildes, für die Filterung von Inhalten herangezogen werden. Da all diese numerischen Attribute als skalare Werte interpretieren werden können, stehen für alle Attribute die gleichen Filtermöglichkeiten zur Verfügung. Im Prinzip kann man sich diese Attribute immer als Wert auf einer Zahlengerade vorstellen. Möchte man nun eine Filterung durchführen, kann der relevante Bereich auf dieser Zahlengerade durch einen entsprechenden Filter eingeschränkt werden. Unterstützt werden an dieser Stelle sowohl beschränkte Intervalle mit einer unteren (**filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[in\]\[min\]**) und einer oberen Schranke ((**filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[in\]\[max\]**)) als auch einseitig unbeschränkte Intervalle mit entweder nur einer oberen oder nur einer unteren Schranke. Außerdem ist es möglich, das Intervall zu invertieren, sprich den Wertebereich außerhalb des angegebenen Intervalls auszuwählen (**filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[notIn\]\[min\]** bzw. **filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[notIn\]\[max\]**). Die übergebenen Intervalle werden von dataCycle immer als geschlossene Intervalle interpretiert, das heißt, die angegebenen Intervallgrenzen werden bei den damit festgelegten Wertebereichen eingeschlossen.
+Derzeit können unterschiedliche Arten von numerischen Attributen, wie z.B. das Erstellungsdatum, ein Veranstaltungstermin oder die Breite eines Bildes, für die Filterung von Inhalten herangezogen werden. Da all diese numerischen Attribute als skalare Werte interpretiert werden können, stehen für alle Attribute die gleichen Filtermöglichkeiten zur Verfügung. Im Prinzip kann man sich diese Attribute immer als Wert auf einer Zahlengerade vorstellen. Möchte man nun eine Filterung durchführen, kann der relevante Bereich auf dieser Zahlengerade durch einen entsprechenden Filter eingeschränkt werden. Unterstützt werden an dieser Stelle sowohl beschränkte Intervalle mit einer unteren (**filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[in\]\[min\]**) und einer oberen Schranke ((**filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[in\]\[max\]**)) als auch einseitig unbeschränkte Intervalle mit entweder nur einer oberen oder nur einer unteren Schranke. Außerdem ist es möglich, das Intervall zu invertieren, sprich den Wertebereich außerhalb des angegebenen Intervalls auszuwählen (**filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[notIn\]\[min\]** bzw. **filter\[attribute\]\[*ATTRIBUTE_NAME*\]\[notIn\]\[max\]**). Die übergebenen Intervalle werden von dataCycle immer als geschlossene Intervalle interpretiert, das heißt, die angegebenen Intervallgrenzen werden bei den damit festgelegten Wertebereichen eingeschlossen.
 Um beispielsweise alle Veranstaltungen im Herbst und im Winter außer den Veranstaltungen zwischen den Weihnachtsfeiertagen auszuwählen, könnte folgende Filterkonfiguration genutzt werden:
 
 ```javascript
@@ -219,8 +219,8 @@ Um z.B. alle Veranstaltungen im Zeitraum der letzten Weltraummission eines Space
     "attribute": {    
       "schedule": {
         "in": {
-          "min": "2011-07-10T15:07UTC",
-          "max": "2011-07-19T06:28UTC"
+          "min": "2011-07-10",
+          "max": "2011-07-19"
         }
       }
     }
@@ -248,3 +248,41 @@ Eine grundlegende Möglichkeit, um Inhalte auf Basis ihrer Position zu filtern, 
   }
 }
 ```
+
+
+## Sortieren von Inhalten
+
+Neben der Filterung von Inhalten ist es über die Datenschnittstelle von dataCycle auch möglich, Inhalte nach unterschiedlichen Kriterien zu sortieren. Es gibt dabei zwei grundsätzlich unterschiedliche Arten von Sortierungen: implizite Sortierungen und explizite Sortierungen. Während explizite Sortierungen manuell angewendet werden müssen, werden implizite Sortierungen automatisch verwendet, sobald Inhalte auf eine bestimmte Art und Weise gefiltert werden.
+
+### Implizites Sortieren von Inhalten
+
+Werden Inhalte bei der Abfrage für eine spezifische implizite Sortierung passende gefiltert und wird keine explizite Sortierung festgelegt, wird die passende, implizite Sortierung angewendet. Es ist aber möglich, eine explizite Sortierung festzulegen. In diesem Fall wird keine implizite Sortierung angewendet.
+
+#### Relevanzbasierte Sortierung
+
+Bei der Volltextsuche werden verschiedene Attribute, mit unterschiedlichen Gewichtungen berücksichtigt. Auf Basis der gefundenen Treffer und der jeweiligen Gewichtungen wird eine relevanzbasierte Sortierung durchgeführt. Neben den offensichtlichen Text-Attributen, werden auch Klassifizierungen bei der Volltextsuche berücksichtigt. Außerdem werden alle Attribute und nicht nur diejenigen, die über den Parameter ```fields``` angefragt werden, sowohl bei der Volltextsuche als auch bei der relevanzbasierten Sortierung berücksichtigt. Diese beiden Punkte sollten immer im Hinterkopf behalten werden, falls eine Sortierung auf den ersten Blick nicht passend erscheint.
+
+#### Terminbasierte Sortierung
+
+Werden Inhalte auf Basis von Terminen gefiltert (z.B. bei Veranstaltungen), erscheint eine Sortierung auf Basis des Startzeitpunktes eines Termins als optimal. Diese Art der Sortierung führt allerdings dazu, dass Termine mit einer sehr langen Dauer (z.B. Wochen oder Monate) und einem Startzeitpunkt in der Vergangenheit nach vorne gereiht werden. Dieses Verhalt ist im Regelfall nicht wünschenswert! Deshalb berücksichtigt die terminbasierte Sortierung neben dem Startzeitpunkt auch das Ende und in gewisser Weise auch die Dauer eines Termins.
+
+
+### Explizites Sortieren von Inhalten
+
+Soll eine explizite Sortierung verwendet werden, muss diese über den Parameter ``sort`` übergeben werden. Inhalt können sowohl auf- als auch absteigend sortiert werden, die Richtung kann über ein Voranstellen eins **Plus-** bzw. **Minuszeichens** festgelegt werden, wobei die aufsteigende Sortierung (+) als Standard verwendet wird. Eine aufsteigende Sortierung auf Basis des Erstellungsdatums kann bei einer Abfrage über **HTTP-POST** also folgendermaßen angewendet werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "sort": "created"
+}
+```
+
+Alternativ kann die Sortierung auch bei einer Abfrage über **HTTP-GET** angewendet werden:
+
+_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN,sort=created_
+
+Die Attribute, die für die Filterung nutzbar sind, können pro Installation individuell eingeschränkt werden. Prinzipiell stehen aber die folgenden Attribute zur Verfügung:
+
+* **created**
+* **modified**
