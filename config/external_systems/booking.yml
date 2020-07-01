@@ -19,8 +19,18 @@ config:
       source_type: hotel_types
       endpoint: DataCycleCore::Generic::Booking::Endpoint
       download_strategy: DataCycleCore::Generic::Booking::DownloadHotelTypes
-    hotels:
+    facility_types:
       sorting: 3
+      source_type: facility_types
+      endpoint: DataCycleCore::Generic::Booking::Endpoint
+      download_strategy: DataCycleCore::Generic::Booking::DownloadFacilityTypes
+    hotel_facility_types:
+      sorting: 4
+      source_type: hotel_facility_types
+      endpoint: DataCycleCore::Generic::Booking::Endpoint
+      download_strategy: DataCycleCore::Generic::Booking::DownloadHotelFacilityTypes
+    hotels:
+      sorting: 5
       source_type: hotels
       endpoint: DataCycleCore::Generic::Booking::Endpoint
       download_strategy: DataCycleCore::Generic::Booking::Download
@@ -33,16 +43,20 @@ config:
       tag_id_path: 'hotel_type_id'
       tag_name_path: 'translations.name'
       external_id_prefix: 'Booking.com - HotelTypes - '
-    hotel_facility_types:
+    facility_types:
       sorting: 2
-      source_type: hotels
+      source_type: facility_types
       import_strategy: DataCycleCore::Generic::Common::ImportTags
-      tree_label: Booking.com - HotelFacilityTypes
-      tag_id_path: 'hotel_data.hotel_facilities.hotel_facility_type_id'
-      tag_name_path: 'hotel_data.hotel_facilities.name'
-      external_id_prefix: 'Booking.com - HotelFacilityTypes - '
-    image_keywords:
+      tree_label: Booking.com - FacilityTypes
+      tag_id_path: 'facility_type_id'
+      tag_name_path: 'translations.name'
+      external_id_prefix: 'Booking.com - FacilityTypes - '
+    hotel_facility_types:
       sorting: 3
+      source_type: hotel_facility_types
+      import_strategy: DataCycleCore::Generic::Booking::ImportHotelFacilityTypes
+    image_keywords:
+      sorting: 10
       source_type: hotels
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: Booking.com - Tags
@@ -50,7 +64,7 @@ config:
       tag_name_path: 'hotel_data.hotel_photos.tags'
       external_id_prefix: 'Booking.com - Tag - '
     hotels:
-      sorting: 4
+      sorting: 20
       source_type: hotels
       import_strategy: DataCycleCore::Generic::Booking::Import
       transformations:

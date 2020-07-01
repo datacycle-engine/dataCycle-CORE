@@ -28,6 +28,7 @@ module DataCycleCore
               download_object: download_object,
               data_id: id_function,
               data_name: name_function,
+              modified: nil,
               raw_data: raw_data.dig('dump'),
               options: full_options.deep_symbolize_keys
             )

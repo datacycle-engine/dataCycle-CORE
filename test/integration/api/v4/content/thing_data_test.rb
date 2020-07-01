@@ -117,7 +117,7 @@ module DataCycleCore
             end
 
             # same_as => additionalProperty
-            assert_attributes(json_validate, required_attributes, ['same_as']) do
+            assert_attributes(json_validate, required_attributes, ['same_as', 'feratel_content_score']) do
               {
                 'additionalProperty' => [
                   {
@@ -125,6 +125,12 @@ module DataCycleCore
                     'identifier' => 'link',
                     'value' => @content.same_as,
                     'name' => 'Link'
+                  },
+                  {
+                    '@type' => 'PropertyValue',
+                    'identifier' => 'feratelContentScore',
+                    'name' => 'ContentScore',
+                    'value' => @content.feratel_content_score
                   }
                 ]
               }
@@ -375,7 +381,7 @@ module DataCycleCore
             end
 
             # same_as => potentialAction
-            assert_attributes(json_validate, required_attributes, ['same_as']) do
+            assert_attributes(json_validate, required_attributes, ['same_as', 'feratel_content_score']) do
               {
                 'additionalProperty' => [
                   {
@@ -383,6 +389,12 @@ module DataCycleCore
                     'identifier' => 'link',
                     'value' => @content.same_as,
                     'name' => 'Link'
+                  },
+                  {
+                    '@type' => 'PropertyValue',
+                    'identifier' => 'feratelContentScore',
+                    'name' => 'ContentScore',
+                    'value' => @content.feratel_content_score
                   }
                 ]
               }

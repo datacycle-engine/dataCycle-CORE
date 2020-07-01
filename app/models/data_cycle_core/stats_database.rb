@@ -79,7 +79,7 @@ module DataCycleCore
             'hosts' => Mongoid.default_client.cluster.servers.map(&:address).map { |adr| "#{adr.host}:#{adr.port}" },
             'options' => nil
           }
-          mongo_data = Hash[Mongoid.client(external_source.id).collections.map { |item| [item.name.humanize, item.count] }]
+          mongo_data = Hash[Mongoid.client(external_source.id).collections.map { |item| [item.name.humanize, [item.count, item.find('dump.de.deleted_at' => { '$exists' => true }).count]] }]
 
           last_download = external_source.last_download.presence || 'never'
           last_import = external_source.last_import.presence || 'never'

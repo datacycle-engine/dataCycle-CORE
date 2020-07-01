@@ -63,6 +63,14 @@ namespace :data_cycle_core do
       external_source.import_one(options[:stage].to_sym, options[:external_key])
     end
 
+    desc 'Download a specific data_set from a given source that supports it'
+    task :download_one, [:external_source_id, :stage, :external_key] => [:environment] do |_, args|
+      options = args.to_h.symbolize_keys
+      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
+      puts "downloading from #{external_source.name} (#{external_source.id}) with external_key: #{options[:external_key]}"
+      external_source.download_single(options[:stage].to_sym, { external_keys: Array.wrap(options[:external_key]) })
+    end
+
     desc 'Download and import data from partial data source'
     task :perform_partial, [:external_source_id, :download_names, :import_names, :mode, :max_count] => [:environment] do |_, args|
       options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|

@@ -10,6 +10,7 @@ module DataCycleCore
           setup do
             DataCycleCore::Thing.where(template: false).delete_all
 
+            # name: Headline used for event, event_series and poi
             @event = DataCycleCore::V4::DummyDataHelper.create_data('event')
             @poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             @poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: { name: 'Headline POI' })
@@ -41,6 +42,36 @@ module DataCycleCore
             params = {
               filter: {
                 search: 'Headline'
+              }
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(3)
+          end
+
+          test 'api/v4/things parameter filter q for fulltext search' do
+            params = {
+              page: {
+                size: 100
+              }
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(@thing_count)
+
+            # find all events
+            params = {
+              page: {
+                size: 100
+              },
+              filter: {
+                search: ''
+              }
+            }
+            post api_v4_things_path(params)
+            assert_api_count_result(@thing_count)
+
+            params = {
+              filter: {
+                q: 'Headline'
               }
             }
             post api_v4_things_path(params)

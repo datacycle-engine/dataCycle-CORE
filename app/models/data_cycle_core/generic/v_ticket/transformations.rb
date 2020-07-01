@@ -73,10 +73,10 @@ module DataCycleCore
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:reject_keys, ['slug', 'promoter', 'categories', 'tags', 'description'])
           .>> t(:underscore_keys)
-          .>> t(:rename_keys, { 'id' => 'external_key', 'start' => 'start_date', 'end' => 'end_date', 'location' => 'event_location' })
+          .>> t(:rename_keys, { 'start' => 'start_date', 'end' => 'end_date', 'location' => 'event_location' })
           .>> t(:add_field, 'url', ->(s) { s&.dig('meta', 'permalink') })
           .>> t(:nest, 'event_period', ['start_date', 'end_date'])
-          .>> t(:reject_keys, ['title', 'location', 'sub_event', 'end', 'start'])
+          .>> t(:reject_keys, ['id', 'title', 'location', 'sub_event', 'end', 'start'])
           .>> t(:strip_all)
         end
 
