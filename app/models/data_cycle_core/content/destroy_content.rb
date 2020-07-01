@@ -19,8 +19,8 @@ module DataCycleCore
             destroy_translation(I18n.locale)
             run_callbacks(:saved_data_hash) unless history?
           else
-            destroy
             run_callbacks(:destroyed_data_hash) unless history?
+            destroy
           end
         end
         self
