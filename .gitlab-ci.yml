@@ -147,7 +147,7 @@ deploy_master:
     - dc-core-deploy
   environment:
     name: production
-    url: http://core.datacycle.at/
+    url: https://core.datacycle.at/
   when: manual
 
 ########################################################################
@@ -172,7 +172,7 @@ deploy_develop:
     - dc-core-deploy
   environment:
     name: development
-    url: http://core-develop.datacycle.at/
+    url: https://core-develop.datacycle.at/
   when: manual
 
 ########################################################################
