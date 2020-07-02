@@ -139,6 +139,16 @@ describe DataCycleCore::MasterData::Validators::String do
       end
     end
 
+    it 'passes when string fulfills url restriction with additional protocols (mailto,sftp,ftp)' do
+      new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'url' } })
+      cases = ['mailto:test@test.at', 'ftp://test@test.at', 'sftp://test@test.at']
+      cases.each do |test_case|
+        validator = subject.new(test_case, new_template)
+        assert_equal(0, validator.error[:error].size)
+        assert_equal(0, validator.error[:warning].size)
+      end
+    end
+
     it 'fails to recognize the following cases as errors' do
       new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'url' } })
       cases = ['https://www.....example.com', 'http://test.com/franz:99999999999999999']
