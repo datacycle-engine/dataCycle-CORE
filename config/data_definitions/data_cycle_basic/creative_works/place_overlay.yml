@@ -65,6 +65,9 @@
         :template_name: Bild
         :api:
           :minimal: true
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
