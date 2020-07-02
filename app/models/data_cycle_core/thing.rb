@@ -36,7 +36,7 @@ module DataCycleCore
     end
 
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
-    has_many :scheduled_data, class_name: 'DataCycleCore::Schedule', foreign_key: 'thing_id', dependent: :destroy, inverse_of: :thing
+    has_many :scheduled_data, class_name: 'DataCycleCore::Schedule', dependent: :destroy, inverse_of: :thing
 
     has_many :duplicate_candidates, -> { where(false_positive: false).order(score: :asc) }, class_name: 'DuplicateCandidate', foreign_key: :original_id, inverse_of: :original
     has_many :duplicates, through: :duplicate_candidates, source: :duplicate

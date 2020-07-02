@@ -27,18 +27,18 @@ config:
       source_type: tour_categories
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
       endpoint_method: tour_categories
-      download_strategy: DataCycleCore::Generic::OutdoorActive::Download
+      download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadFull
     place_categories:
       sorting: 2
       source_type: place_categories
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
       endpoint_method: place_categories
-      download_strategy: DataCycleCore::Generic::OutdoorActive::Download
+      download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadFull
     regions:
       sorting: 3
       source_type: regions
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
-      download_strategy: DataCycleCore::Generic::OutdoorActive::Download
+      download_strategy: DataCycleCore::Generic::OutdoorActive::DownloadFull
     places:
       sorting: 4
       source_type: places
@@ -49,6 +49,56 @@ config:
       source_type: tours
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
       download_strategy: DataCycleCore::Generic::OutdoorActive::Download
+    mark_places_deleted_published:
+      sorting: 100
+      source_type: places
+      download_strategy: DataCycleCore::Generic::Common::DownloadMarkDeleted
+      source_filter:
+        '$or':
+          - "{{ ['dump', I18n.locale, 'meta', 'workflow', 'state'].join('.') }}":
+              '$ne': 'published'
+      external_key_path: 'id'
+      delete_reason: 'Not published (dump.[locale].meta.workflow.sate).'
+    mark_places_deleted_not_poi:
+      sorting: 101
+      source_type: places
+      download_strategy: DataCycleCore::Generic::Common::DownloadMarkDeleted
+      source_filter:
+        '$or':
+          - "{{ ['dump', I18n.locale, 'frontendtype'].join('.') }}":
+              '$ne': 'poi'
+      external_key_path: 'id'
+      delete_reason: 'Not an poi (dump.[locale].frontendtype).'
+    mark_places_deleted_old:
+      sorting: 102
+      source_type: places
+      download_strategy: DataCycleCore::Generic::Common::DownloadMarkDeleted
+      source_filter:
+        '$or':
+          - 'seen_at':
+              '$lt': '{{ 3.days.ago.beginning_of_day }}'
+      external_key_path: 'id'
+      delete_reason: 'Not seen in 3 days.'
+    mark_tours_deleted_published:
+      sorting: 110
+      source_type: tours
+      download_strategy: DataCycleCore::Generic::Common::DownloadMarkDeleted
+      source_filter:
+        '$or':
+          - "{{ ['dump', I18n.locale, 'meta', 'workflow', 'state'].join('.') }}":
+              '$ne': 'published'
+      external_key_path: 'id'
+      delete_reason: 'Not published (dump.[locale].meta.workflow.sate).'
+    mark_tours_deleted_old:
+      sorting: 111
+      source_type: tours
+      download_strategy: DataCycleCore::Generic::Common::DownloadMarkDeleted
+      source_filter:
+        '$or':
+          - 'seen_at':
+              '$lt': '{{ 3.days.ago.beginning_of_day }}'
+      external_key_path: 'id'
+      delete_reason: 'Not seen in 3 days.'
   import_config:
     tour_categories:
       sorting: 1
@@ -127,11 +177,6 @@ config:
     places:
       sorting: 10
       source_type: places
-      source_filter:
-        'dump.de.frontendtype': 'poi'
-        'dump.de.meta.workflow.state': 'published'
-        'seen_at':
-          '$gte': '{{ 3.days.ago.beginning_of_day }}'
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportPlaces
       transformations:
         image:
@@ -140,22 +185,12 @@ config:
           template: POI
     delete_places:
       sorting: 11
-      import_strategy: DataCycleCore::Generic::Common::DeleteContents
+      import_strategy: DataCycleCore::Generic::Common::DeleteContentsSafe
       source_type: places
-      source_filter:
-        '$or':
-          - 'dump.de.meta.workflow.state':
-              '$ne': 'published'
-          - 'seen_at':
-              '$lt': '{{ 3.days.ago.beginning_of_day }}'
       external_key_path: 'id'
     tours:
       sorting: 20
       source_type: tours
-      source_filter:
-        'dump.de.meta.workflow.state': 'published'
-        'seen_at':
-          '$gte': '{{ 3.days.ago.beginning_of_day }}'
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportTours
       transformations:
         image:
@@ -164,14 +199,8 @@ config:
           template: Tour
     delete_tours:
       sorting: 21
-      import_strategy: DataCycleCore::Generic::Common::DeleteContents
+      import_strategy: DataCycleCore::Generic::Common::DeleteContentsSafe
       source_type: tours
-      source_filter:
-        '$or':
-          - 'dump.de.meta.workflow.state':
-              '$ne': 'published'
-          - 'seen_at':
-              '$lt': '{{ 3.days.ago.beginning_of_day }}'
       external_key_path: 'id'
   export_config:
     endpoint: DataCycleCore::Export::OutdoorActive::Endpoint
