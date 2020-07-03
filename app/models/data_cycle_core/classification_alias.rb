@@ -208,6 +208,55 @@ module DataCycleCore
       }
     end
 
+    def move_to_path(new_path, destroy_children = false)
+      return if new_path.blank?
+
+      new_path = Array.wrap(new_path)
+
+      ctl = DataCycleCore::ClassificationTreeLabel.find_by(name: new_path.shift)
+
+      return if ctl.nil?
+
+      new_classification_alias = ctl.create_classification_alias(*(new_path.map { |c| { name: c } }))
+
+      return if new_classification_alias.nil?
+
+      ActiveRecord::Base.transaction do
+        descendants.find_each do |descendant|
+          if destroy_children
+            descendant.merge_with(new_classification_alias)
+          else
+            descendant.move_to_tree(new_classification_alias, ctl.id)
+          end
+        end
+
+        merge_with(new_classification_alias)
+      end
+
+      new_classification_alias.send(:invalidate_cache)
+      new_classification_alias
+    end
+
+    def move_to_tree(parent_ca, tree_label_id)
+      return if parent_ca.nil? || tree_label_id.nil?
+
+      classification_tree&.update(parent_classification_alias_id: parent_ca.id, classification_tree_label_id: tree_label_id)
+    end
+
+    def merge_with(new_classification_alias)
+      DataCycleCore::ClassificationContent.where(classification_id: primary_classification.id).find_each do |cc|
+        cc.update(classification_id: new_classification_alias.primary_classification.id) unless DataCycleCore::ClassificationContent.where(classification_id: new_classification_alias.primary_classification.id, relation: cc.relation, content_data_id: cc.content_data_id).exists?
+      end
+
+      DataCycleCore::ClassificationContent::History.where(classification_id: primary_classification.id).find_each do |cc|
+        cc.update(classification_id: new_classification_alias.primary_classification.id) unless DataCycleCore::ClassificationContent::History.where(classification_id: new_classification_alias.primary_classification.id, relation: cc.relation, content_data_history_id: cc.content_data_history_id).exists?
+      end
+
+      DataCycleCore::StoredFilter.update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")
+
+      destroy
+    end
+
     private
 
     def set_internal_data
