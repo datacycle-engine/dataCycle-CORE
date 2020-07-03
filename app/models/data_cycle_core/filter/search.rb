@@ -159,11 +159,11 @@ module DataCycleCore
               .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
               .order(order_string.present? ? Arel.sql(order_string) : order_string)
           elsif @joined_schedule
-            DataCycleCore::Thing
-              .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id')
-              .where(things: {
-                id: @query.select('DISTINCT ON (things.id) things.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
+            DataCycleCore::Thing.joins(:searches)
+              .where(searches: {
+                id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
               })
+              .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
               .order(order_string.present? ? Arel.sql(order_string) : order_string)
           end
         )
