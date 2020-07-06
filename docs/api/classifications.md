@@ -1,3 +1,3 @@
-# Klassifizierungen
+<!-- # Abfragen von Klassifizierungen über die Datenschnittstelle
 
-Zugriff
+TODO: Zugriff -->

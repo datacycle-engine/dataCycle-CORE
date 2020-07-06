@@ -1,7 +1,8 @@
 # Übersicht
 
-* [Systemarchitektur](/docs/architecture)
-* [Datenstruktur](/docs/data_structure)
+<!-- * [Systemarchitektur](/docs/architecture)
+* [Datenstruktur](/docs/data_structure) -->
 * [Klassifizierungen](/docs/classifications)
-* [Datenschnittstellen](/docs/api)
-  * [Klassifizierungen](/docs/api/classifications)
+* [Datenschnittstelle](/docs/api)
+  * [Datenschnittstelle für Klassifizierungen](/docs/api/classifications)
+  * [Datenschnittstelle für Inhalte (Ad-Hoc-Datenendpunkte)](/docs/api/contents)

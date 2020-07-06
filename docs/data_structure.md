@@ -1,4 +1,4 @@
-#	Datenstruktur
+<!-- #	Datenstruktur
 Die grundsätzlichen Datenstrukturen für in dataCycle abgelegte Inhalte orientieren sich stark an den Vorgaben von
 [schema.org](https://schema.org/), Erweiterungen bzw. Änderungen gibt es nur in Ausnahmefällen.
 
@@ -51,4 +51,4 @@ Datentyp dient in ersterer Linie einer klaren Strukturierung der Daten, auch im 
 werden. Ein einfacher Anwendungsfall für einen verschachtelten Datensatz ist zum Beispiel ein Zitat, das wiederum aus
 einem Text, einem Bild und einem Autor bestehen kann. An dieser Stelle ergibt es Sinn, diese Daten nicht innerhalb
 eines einzigen Textfeldes abzulegen, sondern sie stattdessen in separaten Datenfelder zu erfassen und die Felder für
-die Auslieferung über die Schnittstelle gemäß [schema.org](https://schema.org/) zu benennen.
+die Auslieferung über die Schnittstelle gemäß [schema.org](https://schema.org/) zu benennen. -->

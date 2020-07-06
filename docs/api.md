@@ -1,6 +1,6 @@
 # Datenschnittstelle
 
-Über die grafische Benutzeroberfläche können mittels kombinierbarer Filter beliebige Datenendpunkte erstellt werden. Diese können in weiterer Folge für ausgewählte Benutzer freigegeben und somit über die Datenschnittstelle verfügbar gemacht werden. Auch eine Änderung im Nachhinein ist jederzeit möglich. Sobald die zu einem Datenendpunkt gehörige Filterkonfiguration geändert und gespeichert wird, werden bei einer neuerlichen Datenabfrage die angepassten Filter unmittelbar berücksichtigt.
+Damit Daten von dataCycle abgerufen werden können, stehen zwei verschiedene Arten von Datenendpunkten zur Verfügung. Klassifizierungen können über verschiedene, allgemein zugängliche Datenendpunkte abgefragt werden (siehe [Abfragen von Klassifizierungen über die Datenschnittstelle](/docs/api/classifications)). Als Einstiegspunkt kann z.B. die Liste aller vorhandenen Klassifizierungsbäume ([/api/v4/concept_schemes](/api/v4/concept_schemes)) genutzt werden. Für die eigentlichen Inhalte (z.B. Artikel, Veranstaltungen, Bilder, POIs, ...) können über die grafische Benutzeroberfläche mittels kombinierbarer Filter beliebige Datenendpunkte, sogenannte Ad-Hoc-Datenendpunkte (siehe [Abfragen von Inhalten über die Datenschnittstelle](/docs/api/contents)), erstellt werden. Diese können in weiterer Folge für ausgewählte Benutzer freigegeben und somit über die Datenschnittstelle verfügbar gemacht werden. Auch eine Änderung im Nachhinein ist jederzeit möglich. Sobald die zu einem Datenendpunkt gehörige Filterkonfiguration geändert und gespeichert wird, werden bei einer neuerlichen Datenabfrage die angepassten Filter unmittelbar berücksichtigt.
 
 ## Allgemeine Konzepte
 
@@ -13,12 +13,14 @@ Die Datenschnittstelle verwendet für die Ausgabe der Daten so weit wie möglich
 
 Bei der Auslieferung von Klassifizierungen über die Datenschnittstelle setzt dataCycle auf den [SKOS](https://www.w3.org/TR/skos-reference/)-Standard. Damit können nahezu beliebig komplexe Zusammenhänge zwischen Klassifizierungen abgebildet werden. Der Standard erlaubt es außerdem, unterschiedliche und unabhängige Klassifierungsschemata abzubilden. Insbesondere Verknüpfungen zwischen Klassifizierungen können sehr flexibel modelliert und dargestellt werden. dataCycle macht dabei eine wesentliche Einschränkung gegenüber dem vollen Potential von SKOS: Derzeit werden, um die ohnehin bereits recht komplexe Klassifizierungsmechanik etwas übersichtlicher zu halten, ausschließlich streng hierarchische Klassifizierungsbäume und keine Graphen unterstützt.
 
+_siehe auch [Abfragen von Klassifizierungen über die Datenschnittstelle](/docs/api/classifications)_
+
 
 ### Inhalte
 
 Das bei der Auslieferung von Inhalten verwendete Vokabular greift - zumindest in Bezug auf für den tatsächlichen Inhalt verwendete Attribute - im Wesentlichen auf die Definitionen von [schema.org](https://schema.org) zurück. Es ist zwar grundsätzlich möglich, dieses Vokabular um zusätzliche Attribute zu erweitern, das wird aber so gut wie möglich vermieden und nur in speziellen Fällen zur Anwendung gebracht. Neben den für den eigentlichen Inhalt verwendeten Attributen, gibt es einige Ergänzungen die in der Regel dafür verwendet werden, um den Umgang mit der API für Entwickler komfortabler zu gestalten. Eine wichtige Ausnahme bildet das Attribut ```dc:classification```, das dazu verwendet wird, um die mittels [SKOS](https://www.w3.org/TR/skos-reference/) abgebildeten Klassifizierungen mit den Inhalten zu verknüpfen. Grund für dieses zusätzliche Attribut ist, dass im Vokabular von [schema.org](https://schema.org) derzeit keine ausreichend gute Möglichkeit besteht, komplexere Klassifizierungssystematiken zu verwenden.
 
-siehe auch [Abfragen von Inhalten über die Datenschnittstelle](/docs/api/contents)
+_siehe auch [Abfragen von Inhalten über die Datenschnittstelle](/docs/api/contents)_
 
 
 ### Paging
@@ -111,7 +113,7 @@ Ohne eine speziell formulierte Abfrage, wird bei dataCycle nur die erste Ebene d
 }
 ```
 
-Das inkludieren von verknüpften Inhalten funktionert dabei nicht nur auf einer Ebene sondern ist beliebig kaskadierbar. Mit dem zusätzlichen Parameter ```include=image.author``` kann beispielsweise erreicht werden, dass zusätzlich zum Bild selbst auch der Photograph vollständig ausgeliefert wird:
+Das Inkludieren von verknüpften Inhalten funktioniert dabei nicht nur auf einer Ebene sondern ist beliebig kaskadierbar. Mit dem zusätzlichen Parameter ```include=image.author``` kann beispielsweise erreicht werden, dass zusätzlich zum Bild selbst auch der Fotograph (über das Attribut [author](https://schema.org/author)) vollständig ausgeliefert wird:
 
 ```javascript
 {
