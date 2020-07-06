@@ -63,7 +63,12 @@
       :content_location:
         :label: Standort
         :type: linked
-        :template_name: Örtlichkeit
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
         :api:
           :name: location
       :linked_data:
@@ -80,6 +85,9 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Organisation"
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :meta_data:
         :type: mixin
         :name: meta_data

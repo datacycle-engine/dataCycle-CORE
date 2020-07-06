@@ -6,7 +6,7 @@
 # You can define all roles on a single server, or split them:
 
 # activate for deployment:
-server '37.61.206.122', user: 'pixelpoint', roles: ['app', 'db', 'web']
+server '45.129.181.4', user: 'pixelpoint', roles: ['app', 'db', 'web']
 set :branch, 'develop'
 set :rails_env, 'staging'
 set :deploy_to, '/var/www/data-cycle-core/develop'

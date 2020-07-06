@@ -12,7 +12,7 @@ module DataCycleCore
         end
 
         def self.filter(data, _external_system)
-          data.destroyed? && ['Artikel'].include?(data.template_name)
+          ['Artikel'].include?(data.template_name)
         end
       end
     end

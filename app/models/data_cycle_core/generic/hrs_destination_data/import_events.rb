@@ -15,16 +15,17 @@ module DataCycleCore
 
         def self.load_contents(mongo_item, _locale, _source_filter)
           # mongo_item.where(source_filter).all
+          # hardcoded locale = de
           mongo_item.collection.aggregate(
             [
-              { '$match': { _id: { '$exists': true } } },
-              { '$group': { _id: '$dump.de.event.id', dates: { '$addToSet': '$dump.de.date' }, dump: { '$first': '$dump' } } },
+              { '$match': { _id: { '$exists': true }, 'dump.de.deleted_at': { '$exists': false } } }, # import only not deleted data
+              { '$group': { _id: '$dump.de.event.id', dates: { '$addToSet': '$dump.de.date' }, dump: { '$last': '$dump' } } },
               { '$addFields': { 'dump.de.dates': '$dates' } }
             ]
           )
           # db.events.aggregate([
           #   { $match: { _id: { $exists: true } } },
-          #   { $group: { _id: '$dump.de.event.id', dates: { $addToSet: '$dump.de.date'}, dump: { $first: '$dump'}}}
+          #   { $group: { _id: '$dump.de.event.id', dates: { $addToSet: '$dump.de.date'}, dump: { $last: '$dump'}}}
           #  ])
         end
 

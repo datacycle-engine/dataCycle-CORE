@@ -26,7 +26,7 @@ module DataCycleCore
         I18n.with_locale(locale) do
           created = new_content.new_record?
           new_content.save!
-          new_content_datahash = content.duplicate_data_hash(content.get_data_hash)
+          new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ 'name': "DUPLICATE: #{content.title}" })
           new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: created)
         end
       end
@@ -57,7 +57,7 @@ module DataCycleCore
       return object if object_params[:datahash].nil? && translations.nil?
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translations&.delete(locale.to_s) || {}), object.schema)
-      datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
+      datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)] if object.property_names.include?('permitted_creator')
 
       translations&.each do |l, locale_hash|
         I18n.with_locale(l) do

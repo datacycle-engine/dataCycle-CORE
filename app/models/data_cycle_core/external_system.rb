@@ -92,12 +92,13 @@ module DataCycleCore
       raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
       success = true
       ts_start = Time.zone.now
+      self.last_download = ts_start
+      save
       download_config.sort_by { |v|
         v.second['sorting']
       }.each do |(name, _)|
         success &&= download_single(name, options, &block)
       end
-      self.last_download = ts_start
       self.last_successful_download = ts_start if success
       save
       success
@@ -191,6 +192,19 @@ module DataCycleCore
         'options' => nil
       }
       OpenStruct.new(Mongoid.client(id).collections.index_by(&:name))
+    end
+
+    def collection(name)
+      mongo_database = "#{Generic::Collection.database_name}_#{id}"
+      Mongoid.override_database(mongo_database)
+      Mongoid.clients[id] = {
+        'database' => mongo_database,
+        'hosts' => Mongoid.default_client.cluster.servers.map(&:address).map { |adr| "#{adr.host}:#{adr.port}" },
+        'options' => nil
+      }
+      yield(Mongoid.client(id)[name])
+    ensure
+      Mongoid.override_database(nil)
     end
 
     def reset

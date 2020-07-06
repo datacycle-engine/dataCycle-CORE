@@ -70,7 +70,7 @@ else
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_container'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_geo'),

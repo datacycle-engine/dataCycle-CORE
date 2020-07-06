@@ -22,7 +22,13 @@
               import/download:
               <ul>
                   <% @stat_job_queue.each do |job| %>
-                      <%= content_tag(:li, ("#{job['status']}<br/> " + truncate([job['job'], job['ref_id']].compact.join('-'), length: 24) + "<br/> #{job['created_at']}").html_safe)%>
+                    <li>
+                      <%= job['status'].html_safe %>
+                      <b><i> <%= link_to(t('dash_board.delete', locale: DataCycleCore.ui_language), admin_delete_queue_path(id: job['id']))%> </i></b><br/>
+                      <b><%= DataCycleCore::ExternalSystem.find(job['ref_id']).name %></b>
+                      <i>(<%= job['job'].html_safe %>)</i> <br/>
+                      <%= job['created_at'].to_s.html_safe %>
+                    </li>
                   <% end %>
               </ul>
           <% else %>

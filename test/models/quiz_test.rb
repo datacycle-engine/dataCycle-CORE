@@ -39,6 +39,7 @@ module DataCycleCore
       }
       expected_hash_quiz = {
         'name' => 'Dies ist ein Test Quiz!',
+        'headline' => 'Dies ist ein Test Quiz!',
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 
@@ -104,6 +105,7 @@ module DataCycleCore
       }
       expected_hash_quiz = {
         'name' => 'Dies ist ein Test Quiz!',
+        'headline' => 'Dies ist ein Test Quiz!',
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 

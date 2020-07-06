@@ -75,6 +75,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
+          assert_nil(json_data.dig('meta', 'collection'))
           assert_equal(true, json_data.key?('links'))
 
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
@@ -110,6 +111,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
+          assert_nil(json_data.dig('meta', 'collection'))
           assert_equal(true, json_data.key?('links'))
 
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
@@ -124,6 +126,7 @@ module DataCycleCore
 
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
+          assert_nil(json_data.dig('meta', 'collection'))
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == 'Test-POI' }
           assert_equal(1, poi.dig('image')&.size)
         end
@@ -136,6 +139,7 @@ module DataCycleCore
 
           assert_equal(0, json_data['@graph'].size)
           assert_equal(0, json_data['meta']['total'].to_i)
+          assert_nil(json_data.dig('meta', 'collection'))
         end
       end
     end

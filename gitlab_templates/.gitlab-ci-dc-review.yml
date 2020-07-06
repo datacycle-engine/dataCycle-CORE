@@ -13,7 +13,7 @@ variables:
     - pre-release
     - develop
   tags:
-    - data-cycle-review
+    - dc-review
 
 build_caches_review:
   <<: *review_ci

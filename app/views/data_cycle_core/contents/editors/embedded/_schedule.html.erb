@@ -39,7 +39,7 @@
   <div class="schedule-editor embedded-properties accordion-content" data-tab-content>
     <div class="daterange schedule-range">
       <div class="form-element start">
-        <% full_day = value&.dig(:duration).to_i.positive? && value&.dig(:duration) % 1.day == 0 %>
+        <% full_day = value&.dig(:duration).to_i.positive? && value&.dig(:duration) % 1.day == 0 && Time.zone.now.beginning_of_day == value&.dig(:start_time, :time) %>
 
         <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][start_time][time]")}" do %>
           <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>

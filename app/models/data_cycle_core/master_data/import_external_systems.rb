@@ -115,7 +115,7 @@ module DataCycleCore
         schema do
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
-          required(:endpoint) { str? }
+          optional(:endpoint) { str? }
           required(:download_strategy) { str? }
           optional(:logging_strategy) { str? }
         end

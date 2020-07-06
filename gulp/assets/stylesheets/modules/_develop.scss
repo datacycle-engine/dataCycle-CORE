@@ -172,7 +172,7 @@
 }
 
 .detail-content-wrapper {
-  margin: 1rem 0 10rem 0;
+  margin: 1rem 0;
 }
 
 .container-details {
@@ -2741,6 +2741,34 @@ button.button-prime.small.bulk-delete-button {
 
 [type='checkbox'] + label.flex-field {
   display: flex;
+}
+.new-content-reveal .multi-step fieldset .form-element.daterange .conditional-form-field,
+.detail-header.editor .form-element .conditional-form-field {
+  padding: 1rem;
+  .conditional-field-selector {
+    label {
+      display: block;
+      padding-top: 0.1rem;
+
+      input[type='radio'] {
+        margin: 0;
+      }
+
+      &:last-of-type {
+        padding-bottom: 1rem;
+      }
+    }
+  }
+  .conditional-field-content {
+    display: none;
+
+    &.active {
+      display: initial;
+    }
+  }
+  .form-element {
+    margin: 0;
+  }
 }
 
 .remote-rendering .loading .fa {

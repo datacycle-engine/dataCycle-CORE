@@ -6,6 +6,10 @@ Hash.class_eval do
   # used for values provided by end users.
   def with_evaluated_values
     map { |key, value|
+      # allow also evaluated keys
+      key = eval(key[2..-3]) if key.is_a?(String) && /{{.*}}/.match?(key) # rubocop:disable Security/Eval
+      key = eval(key[2..-3]).to_sym if key.is_a?(Symbol) && /{{.*}}/.match?(key.to_s) # rubocop:disable Security/Eval
+
       if value.is_a?(Hash) || value.is_a?(Array)
         [key, value.with_evaluated_values]
       elsif value.is_a?(String) && /{{.*}}/.match?(value)

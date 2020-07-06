@@ -107,7 +107,8 @@
         :label: Veranstaltungsort
         :type: linked
         :stored_filter:
-          - :with_classification_aliases_and_treename:
+          -
+            :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
@@ -235,11 +236,17 @@
         :inverse_of: about
         :link_direction: inverse
         :global: true
+      :external_source_attributes:
+        :type: mixin
+        :name: external_source_attributes
       :data_type:
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: 'Veranstaltung'
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :meta_data:
         :type: mixin
         :name: meta_data

@@ -59,10 +59,51 @@ config:
       endpoint: DataCycleCore::Generic::JetTicket::Endpoint
       download_strategy: DataCycleCore::Generic::JetTicket::DownloadEvents
   import_config:
+    event_series_classification:
+      sorting: 1
+      source_type: event_series
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: JetTicket - EventSeries
+      tag_id_path: EventSeriesID
+      tag_name_path: Name
+      external_id_prefix: 'JetTicket - EventSeries - '
+    event_type_type:
+      sorting: 2
+      source_type: event_types
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      source_filter:
+        'dump.de.Style': '1'
+      tree_label: JetTicket - EventTypen
+      tag_id_path: EventTypeID
+      tag_name_path: Name
+      external_id_prefix: 'JetTicket - EventTyp - '
+    event_type_kind:
+      sorting: 3
+      source_type: event_types
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      source_filter:
+        'dump.de.Style': '2'
+      tree_label: JetTicket - EventGattungen
+      tag_id_path: EventTypeID
+      tag_name_path: Name
+      external_id_prefix: 'JetTicket - EventGattung - '
+    country_codes:
+      sorting: 4
+      source_type: countries
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: JetTicket - CountryCodes
+      tag_id_path: CountryCode
+      tag_name_path: Name
+      external_id_prefix: 'JetTicket - CountryCode - '
+    venues:
+      sorting: 40
+      source_type: venues
+      import_strategy: DataCycleCore::Generic::JetTicket::ImportVenue
+    event_managers:
+      sorting: 40
+      source_type: event_managers
+      import_strategy: DataCycleCore::Generic::JetTicket::ImportEventManager
     events:
       sorting: 50
       source_type: events
       import_strategy: DataCycleCore::Generic::JetTicket::ImportEvents
-      transformations:
-        media_asset:
-          template: Event

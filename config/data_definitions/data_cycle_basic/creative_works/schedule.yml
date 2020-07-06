@@ -38,8 +38,6 @@
         :label: Frequenz
         :type: string
         :storage_location: value
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: "EventSchedule"
+      :meta_data:
+        :type: mixin
+        :name: meta_data

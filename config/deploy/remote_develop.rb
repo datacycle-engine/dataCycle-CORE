@@ -5,7 +5,7 @@
 # Defines a single server with a list of roles and multiple properties.
 # You can define all roles on a single server, or split them:
 
-server '37.61.206.122', user: 'pixelpoint', roles: ['app', 'db', 'web']
+server '45.129.181.4', user: 'pixelpoint', roles: ['app', 'db', 'web']
 set :application, 'remote-develop'
 set :branch, 'remote-develop'
 set :rails_env, 'development'

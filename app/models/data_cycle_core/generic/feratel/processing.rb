@@ -26,7 +26,7 @@ module DataCycleCore
           template = config&.dig(:template) || 'Örtlichkeit'
           place_hash = {}
 
-          address = raw_data.dig('Addresses', 'Address')&.select { |d|
+          address = Array.wrap(raw_data.dig('Addresses', 'Address'))&.select { |d|
             d['Type'] == 'Venue'
           }&.first
 

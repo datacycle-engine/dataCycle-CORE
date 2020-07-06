@@ -141,7 +141,6 @@ module DataCycleCore
       return @content if @content.present?
 
       @content = DataCycleCore::Thing.find_by(template_name: template_name, template: true).dup
-      # byebug
       @content.template = false
       @content.created_by = user&.id if user.present?
 

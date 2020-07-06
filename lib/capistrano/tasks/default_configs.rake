@@ -29,6 +29,7 @@ namespace :datacycle do
         after 'assets:precompile', 'deploy:iconfonts'
 
         after 'deploy:migrate', 'datacycle:dev:update_project'
+        after 'datacycle:dev:update_project', 'datacycle:dev:migrate_project'
 
         unless fetch(:skip_deploy_configs)
           before 'puma:restart', 'datacycle:puma:deploy_config'

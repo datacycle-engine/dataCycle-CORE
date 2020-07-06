@@ -65,13 +65,11 @@
         :template_name: Bild
         :api:
           :minimal: true
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
         :template_name: Öffnungszeit
         :translated: true
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: "Overlay"

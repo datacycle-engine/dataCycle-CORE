@@ -24,6 +24,25 @@
         :normalize:
           :id: surname
           :type: surname
+      :name:
+        :label: Name
+        :storage_location: column
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: concat
+          :parameters:
+            :0:
+              :type: content
+              :name: given_name
+            :1: " "
+            :2:
+              :type: content
+              :name: family_name
+        :ui:
+          :show:
+            :disabled: true
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -34,8 +53,3 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
-      :data_type:
-        :label: Inhaltstype
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: "Overlay"

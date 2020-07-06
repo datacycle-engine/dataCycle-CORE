@@ -69,7 +69,12 @@
       :content_location:
         :label: Veranstaltungsort
         :type: linked
-        :template_name: Örtlichkeit
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
         :api:
           :name: location
       :virtual_location:
@@ -132,11 +137,3 @@
             :disabled: true
           :show:
             :disabled: true
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: 'Overlay'
-      :cc_rel:
-        :type: mixin
-        :name: cc_rel

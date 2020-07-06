@@ -16,9 +16,9 @@ DataCycleCore.setup do |config|
   if Rails.env.test?
     config.default_template_paths = [
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content_v2'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_container'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_geo'),
@@ -29,16 +29,17 @@ DataCycleCore.setup do |config|
   else
     config.default_template_paths = [
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content_v2'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_geo'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_feratel_identity_server'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_jet_ticket'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_reisen_fuer_alle')
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
-      # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection')
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_container')
     ].freeze
   end
 

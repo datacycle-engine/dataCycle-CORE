@@ -26,8 +26,23 @@
             :disabled: true
         :api:
           :minimal: true
-          :v4:
-            :name: title
+      :title:
+        :label: API-Titel
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: concat
+          :parameters:
+            :0:
+              :type: content
+              :name: name
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :minimal: true
       :description:
         :label: Beschreibung
         :type: string
@@ -81,7 +96,12 @@
       :job_location:
         :label: Arbeitsort
         :type: linked
-        :template_name: Örtlichkeit
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
       :data_type:
         :label: Inhaltstyp
         :type: classification
@@ -93,6 +113,9 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :additional_job_properties:
         :type: mixin
         :name: additional_job_properties

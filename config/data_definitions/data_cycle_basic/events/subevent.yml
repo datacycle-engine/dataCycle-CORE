@@ -83,13 +83,16 @@
       :content_location:
         :label: Veranstaltungsort
         :type: linked
-        :template_name: Örtlichkeit
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
         :validations:
           :max: 1
         :api:
           :name: location
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: 'Veranstaltungstermin'
+      :meta_data:
+        :type: mixin
+        :name: meta_data

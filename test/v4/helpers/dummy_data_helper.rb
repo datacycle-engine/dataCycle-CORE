@@ -13,11 +13,54 @@ module DataCycleCore
         #   raise ArgumentError, 'Unknown type for ApiV4DummyDataHelper'
       end
 
+      def minimal_poi
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'v4_poi')
+        data_hash['name'] = "poi_#{SecureRandom.uuid}"
+        data_hash['validity_period'] = validity_period
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('country_code').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: data_hash, user: @user)
+      end
+
       def poi
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'v4_poi')
         data_hash['name'] = "poi_#{SecureRandom.uuid}"
         data_hash['validity_period'] = validity_period
         data_hash['image'] = [image.id]
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('country_code').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: data_hash, user: @user)
+      end
+
+      def full_poi
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'v4_poi')
+        data_hash['name'] = "poi_#{SecureRandom.uuid}"
+        data_hash['validity_period'] = validity_period
+        image_id = image.id
+        data_hash['image'] = [image_id]
+        data_hash['logo'] = [image_id]
+        data_hash['primary_image'] = [image_id]
+        data_hash['opening_hours_specification'] = opening_hours_specification
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('country_code').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
         DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: data_hash, user: @user)
       end
 
@@ -133,6 +176,16 @@ module DataCycleCore
         DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: data_hash, user: @user)
       end
 
+      def person_overlay
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_overlay')
+        if data_hash.dig('country_code').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        data_hash['image'] = [image.id]
+        DataCycleCore::TestPreparations.create_content(template_name: 'PersonOverlay', data_hash: data_hash, user: @user)
+      end
+
       def organization
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('organizations', 'v4_organization')
         data_hash['image'] = [image.id]
@@ -191,6 +244,13 @@ module DataCycleCore
           'valid_from' => 10.days.ago,
           'valid_through' => 10.days.from_now
         }
+      end
+
+      def opening_hours_specification
+        opening_hours_classifications = DataCycleCore::Classification.where(name: ['Montag'])&.map(&:id)
+        opening_hours_specification_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
+        opening_hours_specification_data_hash.first['day_of_week'] = opening_hours_classifications
+        opening_hours_specification_data_hash
       end
     end
   end

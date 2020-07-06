@@ -9,9 +9,9 @@ module DataCycleCore
       template_trans = DataCycleCore::Thing::Translation.count
       current_user = DataCycleCore::User.first
 
-      data_set = DataCycleCore::TestPreparations.data_set_object('Thema')
+      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
       data_set.save!
-      data_hash = { 'name' => 'Test Thema!' }
+      data_hash = { 'name' => 'Test Container!', 'headline' => 'Test Container!' }
       error = data_set.set_data_hash(data_hash: data_hash, prevent_history: true, current_user: current_user)
 
       returned_data_hash = data_set.get_data_hash
@@ -47,6 +47,7 @@ module DataCycleCore
       r_dh = ds_a.get_data_hash
       e_hash = {
         'name' => 'Test Artikel!',
+        'headline' => 'Test Artikel!',
         'tags' => [],
         'image' => [],
         'textblock' => [],

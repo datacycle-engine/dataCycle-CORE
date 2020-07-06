@@ -1,0 +1,37 @@
+---
+- :data:
+    :name: Inhaltsblock
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Überschrift
+        :type: string
+        :storage_location: column
+        :search: true
+      :alternative_headline:
+        :label: Unterüberschrift
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :text:
+        :label: Text
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :meta_data:
+        :type: mixin
+        :name: meta_data

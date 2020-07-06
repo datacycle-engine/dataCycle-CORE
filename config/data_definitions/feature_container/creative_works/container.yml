@@ -1,0 +1,88 @@
+---
+- :data:
+    :name: Container
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: container
+    :boost: 10000.0
+    :features:
+      :container:
+        :allowed_templates:
+          - Artikel
+          - Recherche
+      :creatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :indesign: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+      :headline:
+        :label: Headline
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: concat
+          :parameters:
+            :0:
+              :type: content
+              :name: name
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :minimal: true
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :topic:
+        :label: Themenbereich
+        :type: classification
+        :tree_label: Themenbereiche
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Container"
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

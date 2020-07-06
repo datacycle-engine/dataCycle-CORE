@@ -219,7 +219,12 @@
       :content_location:
         :label: Ort
         :type: linked
-        :template_name: Örtlichkeit
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
         :validations:
           :max: 1
       :additional_media_properties:
@@ -248,6 +253,9 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Bild"
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :meta_data:
         :type: mixin
         :name: meta_data

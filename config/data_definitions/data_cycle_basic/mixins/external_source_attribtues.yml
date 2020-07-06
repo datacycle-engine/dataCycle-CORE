@@ -11,6 +11,12 @@
         :validations:
           :format: float
         :advanced_search: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
       :external_status:
         :label: Externer Status
         :type: classification

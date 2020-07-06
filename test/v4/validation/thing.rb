@@ -7,7 +7,7 @@ module DataCycleCore
         DEFAULT_HEADER = Dry::Schema.JSON do
           required(:@id).value(:uuid_v4?)
           required(:@type).value(:string)
-          required(:name).value(:string)
+          optional(:name).value(:string)
         end
 
         DEFAULT_DELETED_HEADER = Dry::Schema.JSON do
@@ -55,7 +55,7 @@ module DataCycleCore
               required(:@type).value(:string)
               required(:identifier).value(:string)
               required(:name).value(:string)
-              required(:value).value(:string)
+              required(:value).value(:filled?)
             end
           end
           optional(:offers).value(:array).each do

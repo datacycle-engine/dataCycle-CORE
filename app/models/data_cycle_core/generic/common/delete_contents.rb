@@ -14,15 +14,15 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where({ "dump.#{locale}": { '$exists': true } }.merge(source_filter.with_evaluated_values))
+          mongo_item.where({ "dump.#{locale}": { '$exists': true } }.merge(I18n.with_locale(locale) { source_filter.with_evaluated_values }))
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           last_success = utility_object.external_source.last_successful_download
-          raise 'No successful download detected!' if last_success.blank?
+          raise 'Delete canceled (No successful download detected)!' if last_success.blank?
 
           last_download = utility_object.external_source.last_download
-          raise "Last download(s) failed! Last success: #{last_success}, last try: #{last_download}" if last_download.present? && last_success < last_download
+          raise "Delete canceled (Last download(s) failed)! Last success: #{last_success}, last try: #{last_download}" if last_download.present? && last_success < last_download
 
           delete_deadline = eval(options.dig(:import, :last_successful_download)) if options.dig(:import, :last_successful_download).present? # rubocop:disable Security/Eval
           if delete_deadline.present? && last_success < delete_deadline

@@ -11,7 +11,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
-        ALLOWED_SORT_ATTRIBUTES = { created: 'created_at', modified: 'updated_at' }.freeze
+        ALLOWED_SORT_ATTRIBUTES = { created: 'created_at', modified: 'updated_at', name: 'name', given_name: 'given_name', family_name: 'family_name', random: 'random' }.freeze
         ALLOWED_FILTER_ATTRIBUTES = [:modifiedAt, :createdAt, :schedule].freeze
 
         def index
@@ -70,6 +70,7 @@ module DataCycleCore
             filter:
               [
                 :search,
+                :q,
                 {
                   classifications: {
                     in: {
@@ -112,23 +113,17 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          if permitted_params[:search].present?
-            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence))
-          elsif permitted_params&.dig(:filter, :attribute, :schedule).present?
-            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, true))
-          else
-            apply_order_query(query, permitted_params.dig(:sort))
-          end
+          apply_order_query(query, permitted_params.dig(:sort), @full_text_search, permitted_params&.dig(:filter, :attribute, :schedule).present?)
         end
 
         def transform_sort_param(key, order)
           return unless ALLOWED_SORT_ATTRIBUTES.key?(key.to_sym)
-          "#{ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym)} #{order}"
+          return "#{key.to_sym}()" if ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym) == 'random'
+          "#{ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym)} #{order} NULLS LAST"
         end
 
         def build_search_query
           endpoint_id = permitted_params[:id]
-          filter_watch_list = false
           @linked_stored_filter = nil
           if endpoint_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
@@ -136,8 +131,7 @@ module DataCycleCore
             if @stored_filter
               authorize! :api, @stored_filter
               @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
-            elsif DataCycleCore::WatchList.exists?(id: endpoint_id)
-              filter_watch_list = true
+            elsif (@watch_list = DataCycleCore::WatchList.find_by(id: endpoint_id))
             else
               raise ActiveRecord::RecordNotFound
             end
@@ -147,9 +141,9 @@ module DataCycleCore
           filter.language = @language
           filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
           query = filter.apply(experimental: true)
-          query = query.watch_list_id(endpoint_id) if filter_watch_list
+          query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
 
-          query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)
+          query = query.fulltext_search(@full_text_search) if @full_text_search
 
           query = query.in_validity_period
 
@@ -159,32 +153,18 @@ module DataCycleCore
 
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
           query = query.distinct_by_content_id
+
           query
-        end
-
-        def apply_event_query_filters(query)
-          return query unless permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?
-          from_date = nil
-          to_date = nil
-          from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)) if permitted_params&.dig(:filter, :from).present?
-          to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)) if permitted_params&.dig(:filter, :to).present?
-
-          query.schedule_search(from_date, to_date)
-        end
-
-        def apply_place_query_filters(query)
-          return query unless permitted_params&.dig(:filter, :box).present? && permitted_params&.dig(:filter, :box)&.split(',')&.size == 4
-          query.within_box(*permitted_params[:filter][:box].split(',').map(&:to_f))
         end
 
         def prepare_url_parameters
           @url_parameters = permitted_params.reject { |k, _| k == 'format' }
           @include_parameters = parse_tree_params(permitted_params.dig(:include))
           @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
-          @mode_parameters = permitted_params.dig(:mode)
           @field_filter = @fields_parameters.present?
           @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
+          @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)
           @api_version = 4
         end
       end

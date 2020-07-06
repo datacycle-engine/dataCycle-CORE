@@ -1,12 +1,13 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
-    <label>
-      <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span> <%= definition['label'] %>
-      <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
-    </label>
+  <label>
+    <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+    <%= definition['label'] %>
+    <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
+  </label>
 
-    <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
-      <%= render_attribute_editor key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parameters: { options: options || {} } , content: content %>
-    <% end %>
+  <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+    <%= render_attribute_editor key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parameters: { options: options || {} } , content: content %>
+  <% end %>
 
 <% end %>

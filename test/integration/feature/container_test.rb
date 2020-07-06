@@ -11,7 +11,7 @@ module DataCycleCore
       setup do
         @routes = Engine.routes
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'LifeCycleTestArtikel' })
-        @container = DataCycleCore::TestPreparations.create_content(template_name: 'Thema', data_hash: { name: 'TestContainer' })
+        @container = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: { name: 'TestContainer' })
         sign_in(User.find_by(email: 'tester@datacycle.at'))
       end
 
@@ -65,7 +65,7 @@ module DataCycleCore
         }
 
         assert_redirected_to root_path
-        assert_equal 'Thema wurde gelöscht.', flash[:success]
+        assert_equal 'Container wurde gelöscht.', flash[:success]
 
         get root_path, params: {
           utf8: '✓',
