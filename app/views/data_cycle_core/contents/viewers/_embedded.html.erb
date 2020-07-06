@@ -12,7 +12,7 @@
           hide_label: true,
           item_diff: changes_by_value(options.dig(:item_diff), object.try('thing_id') || object.id),
           mode: changes_class(options.dig(:item_diff), object.try('thing_id') || object.id),
-          class: 'accordion-item'
+          class: definition.dig('ui', 'show', 'hide_onload') ? 'accordion-item' : 'accordion-item is-active'
         }).with_indifferent_access,
         data_attributes: { id: [object.id], editor: 'embedded_object', accordion_item: true },
         content: content do %>

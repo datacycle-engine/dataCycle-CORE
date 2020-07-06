@@ -2771,6 +2771,14 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 
-.remote-rendering .loading .fa {
-  color: $light-gray;
+.remote-rendering {
+  &.accordion-content {
+    .loading {
+      padding: 1rem 0;
+    }
+  }
+
+  .loading .fa {
+    color: $light-gray;
+  }
 }
