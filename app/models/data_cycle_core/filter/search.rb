@@ -19,13 +19,15 @@ module DataCycleCore
           @query = query || DataCycleCore::Thing
             .joins(:searches)
             .where(searches: { locale: @locale })
-            .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
+          # temporary disabled disabled (api sort name)
+          # .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
         end
       end
 
       def content_includes
         reflect(
           @query.includes(
+            :translations,
             :watch_lists,
             :external_source,
             :external_systems,
@@ -156,15 +158,21 @@ module DataCycleCore
               .where(searches: {
                 id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
               })
-              .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
               .order(order_string.present? ? Arel.sql(order_string) : order_string)
+          # .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
           elsif @joined_schedule
-            DataCycleCore::Thing.joins(:searches)
-              .where(searches: {
-                id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
+            DataCycleCore::Thing
+              .where(things: {
+                id: @query.select('DISTINCT ON (things.id) things.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
               })
-              .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
               .order(order_string.present? ? Arel.sql(order_string) : order_string)
+            # elsif @joined_schedule
+            #   DataCycleCore::Thing.joins(:searches)
+            #     .where(searches: {
+            #       id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
+            #     })
+            #     .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
+            #     .order(order_string.present? ? Arel.sql(order_string) : order_string)
           end
         )
       end
