@@ -12,7 +12,7 @@ module DataCycleCore
           send(iteration_strategy, download_object: download_object, data_id: data_id, data_name: data_name, modified: modified, options: options)
         end
 
-        def self.download_single(download_object:, data_id:, data_name:, modified:, raw_data:, options:)
+        def self.download_single(download_object:, data_id:, data_name:, modified: nil, raw_data:, options:)
           init_mongo_db(download_object) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
@@ -42,7 +42,7 @@ module DataCycleCore
           end
         end
 
-        def self.download_sequential(download_object:, data_id:, data_name:, modified:, options:)
+        def self.download_sequential(download_object:, data_id:, data_name:, modified: nil, options:)
           success = true
           delta = 100
           options[:locales] ||= I18n.available_locales
@@ -116,7 +116,7 @@ module DataCycleCore
           success
         end
 
-        def self.download_parallel(download_object:, data_id:, data_name:, modified:, options:)
+        def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, options:)
           success = true
           delta = 100
 

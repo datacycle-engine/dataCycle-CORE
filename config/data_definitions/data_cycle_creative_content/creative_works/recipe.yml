@@ -62,6 +62,19 @@
         :template_name: Person
         :validations:
           :max: 1
+      :content_location:
+        :label: Ort
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Örtlichkeit
+                - POI
+                - Unterkunft
+                - LocalBusiness
+                - Gastronomischer Betrieb
       :recipe_yield:
         :label: Portionen
         :type: string
