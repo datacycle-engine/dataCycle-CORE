@@ -31,7 +31,6 @@ module DataCycleCore
 
           test '/api/v4/collections/:id default results' do
             get api_v4_collection_path(id: @watch_list.id)
-            assert_redirected_to api_v4_stored_filter_path(id: @watch_list.id, sl: 1)
             follow_redirect!
 
             assert_response :success
