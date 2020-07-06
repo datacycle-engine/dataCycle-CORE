@@ -252,7 +252,7 @@ module DataCycleCore
         cc.update(classification_id: new_classification_alias.primary_classification.id) unless DataCycleCore::ClassificationContent::History.where(classification_id: new_classification_alias.primary_classification.id, relation: cc.relation, content_data_history_id: cc.content_data_history_id).exists?
       end
 
-      DataCycleCore::StoredFilter.update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")
+      DataCycleCore::StoredFilter.update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb") # rubocop:disable Rails/SkipsModelValidations
 
       destroy
     end
