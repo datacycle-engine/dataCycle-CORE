@@ -5,7 +5,7 @@ module DataCycleCore
     include DataHashHelper
 
     def api_default_attributes
-      ['@id', '@type', '@language', 'name']
+      ['@id', '@type']
     end
 
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
@@ -76,6 +76,10 @@ module DataCycleCore
 
     def serialize_language(language_array)
       language_array.join(',')
+    end
+
+    def in_language?(content, languages)
+      content.translatable? || languages.include?(content.first_available_locale.to_s)
     end
 
     def load_value_object(content, key, value, languages)

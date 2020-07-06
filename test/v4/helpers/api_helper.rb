@@ -9,6 +9,7 @@ module DataCycleCore
           'overlay', # overlays must be tested in a spererate task
           'schedule', # legacy property for events
           'sub_event', # legacy property for events
+          'about', # TODO: check if should be tested with full thing
           'subject_of', # TODO: check if should be tested with full thing
           'is_linked_to', # TODO: check if should be tested with full thing
           'linked_thing', # TODO: check if should be tested with full thing
@@ -17,7 +18,10 @@ module DataCycleCore
           'country_code_api', # legacy property for API v2 + v3
           'gender_api', # legacy property for API v2 + v3
           'asset', # disabled asset property for tests,
-          'tour' # active after tour refactoring
+          'tour', # active after tour refactoring
+          'tour', # active after tour refactoring
+          'publication_schedule', # creativeWorks: publicationSchedule
+          'release_status_comment' # creativeWorks: publicationSchedule
         ].freeze
 
       def assert_api_count_result(count)

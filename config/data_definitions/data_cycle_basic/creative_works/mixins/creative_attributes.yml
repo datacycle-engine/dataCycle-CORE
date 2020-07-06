@@ -15,6 +15,13 @@
         :search: true
         :api:
           :name: name
+          :v4:
+            :name: linkName
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :about:
         :label: Hauptthema
         :type: linked
