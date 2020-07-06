@@ -90,9 +90,6 @@ class Validator {
       QuillHelpers.updateEditors(this.form);
       this.submitFormData = this.form.serializeArray().uniqFieldValues();
 
-      console.log(this.initialFormData);
-      console.log(this.submitFormData);
-
       if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
