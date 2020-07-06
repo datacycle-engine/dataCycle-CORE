@@ -1,6 +1,6 @@
 # Abfragen von Inhalten über die Datenschnittstelle
 
-In dataCycle gibt es zwei Möglichkeiten, wie Inhalte über die Datenschnittstelle verfügbar gemacht werden können. Für eine von Hand ausgewählte Selektion von Inhalten können (statische) Inhaltssammlungen genutzt werden. Sollen Inhalte auf Basis von unterschiedlichen Filterkriterien automatisch ausgewählt werden, können gespeicherte Suchen bzw. "dynamische" Inhaltssammlungen genutzt werden. Über die Datenschnittstelle werden statische und dynamische Inhaltssammlungen über ein einheitliches URL-Schema (_**/api/v4/endpoints/ENDPOINT_ID**_) bereitgestellt.
+In dataCycle gibt es zwei Möglichkeiten, wie Inhalte über die Datenschnittstelle verfügbar gemacht werden können. Für eine von Hand ausgewählte Selektion von Inhalten können (statische) Inhaltssammlungen genutzt werden. Sollen Inhalte auf Basis von unterschiedlichen Filterkriterien automatisch ausgewählt werden, können gespeicherte Suchen bzw. "dynamische" Inhaltssammlungen verwendet werden. Über die Datenschnittstelle werden statische und dynamische Inhaltssammlungen über ein einheitliches URL-Schema (_**/api/v4/endpoints/ENDPOINT_ID**_) bereitgestellt. Die konkrete URL kann über das User-Interface direkt bei der jeweiligen Inhaltssammlung bzw. bei der gespeicherten Suche in die Zwischenablage übernommen werden.
 
 
 ## Filtern von Inhalten
@@ -11,7 +11,7 @@ Die API unterstützt das Abfragen und auch das Filtern von Inhalten sowohl über
 
 #### HTTP-GET:
 
-_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?filter[classifications][in][withSubtree][]=3b9b4787-99e5-47c1-8d09-db65c1db43cc_
+_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN&filter[classifications][in][withSubtree][]=3b9b4787-99e5-47c1-8d09-db65c1db43cc_
 
 #### HTTP-POST:
 
@@ -122,7 +122,7 @@ Inhalte dürfen nicht mit einer der übergebenen Klassifizierungen oder einer zu
 Inhalte dürfen nicht mit einer der übergebenen Klassifizierungen verknüpft sein. Eine indirekte Verknüpfung über eine Sub-Klassifizierung wird bei dieser Art der Abfrage nicht berücksichtigt. (_Sehr wohl berücksichtigt werden aber indirekte Verknüpfungen, die sich aufgrund eines Klassifizierungs-Mappings ergeben._)
 
 
-Um die Flexibilität des Klassifizierungsfilters noch weiter zu steigern, können die einzelnen Filterbausteine beliebig kombiniert werden, um eine maximale Flexibilität zu erlauben. Außerm ist es möglich die übergebenen Klassifizierungen sowohl mit **UND** als auch mit einem **ODER** zu verknüpfen. Für eine **UND**-Verknüpfung müssen die Klassifizierungen als separate Elemente eines Arrays übergeben werden, für eine **ODER**-Verknüpfung in Form einer kommagetrennten Liste innerhalb eines einzelnen Strings. Um beispielsweise nach Gallerien oder Museen zu suchen, die barrierefrei zugänglich sind und die derzeit keinen Schwerpunkt auf moderne Kunst gesetzt haben, könnte die folgende Abfrage verwendet werden:
+Um die Flexibilität des Klassifizierungsfilters noch weiter zu steigern, können die einzelnen Filterbausteine beliebig kombiniert werden, um eine maximale Flexibilität zu erlauben. Außerdem ist es möglich die übergebenen Klassifizierungen sowohl mit **UND** als auch mit einem **ODER** zu verknüpfen. Für eine **UND**-Verknüpfung müssen die Klassifizierungen als separate Elemente eines Arrays übergeben werden, für eine **ODER**-Verknüpfung in Form einer kommagetrennten Liste innerhalb eines einzelnen Strings. Um beispielsweise nach Gallerien oder Museen zu suchen, die barrierefrei zugänglich sind und die derzeit keinen Schwerpunkt auf moderne Kunst gesetzt haben, könnte die folgende Abfrage verwendet werden:
 
 ```javascript
 {
@@ -252,11 +252,13 @@ Eine grundlegende Möglichkeit, um Inhalte auf Basis ihrer Position zu filtern, 
 
 ## Sortieren von Inhalten
 
-Neben der Filterung von Inhalten ist es über die Datenschnittstelle von dataCycle auch möglich, Inhalte nach unterschiedlichen Kriterien zu sortieren. Es gibt dabei zwei grundsätzlich unterschiedliche Arten von Sortierungen: implizite Sortierungen und explizite Sortierungen. Während explizite Sortierungen manuell angewendet werden müssen, werden implizite Sortierungen automatisch verwendet, sobald Inhalte auf eine bestimmte Art und Weise gefiltert werden.
+Neben der Filterung von Inhalten ist es über die Datenschnittstelle von dataCycle auch möglich, Inhalte nach unterschiedlichen Kriterien zu sortieren. Es gibt dabei zwei grundsätzlich unterschiedliche Arten von Sortierungen: implizite (automatische) Sortierungen und explizite (benutzerdefinierte) Sortierungen. Während explizite Sortierungen manuell angewendet werden müssen, werden implizite Sortierungen automatisch verwendet, sobald Inhalte auf eine bestimmte Art und Weise gefiltert werden. Eine implizite Sortierung ergibt sich also auf Basis der verwendeten Filter und kann nicht manuell ausgewählt werden.
 
-### Implizites Sortieren von Inhalten
 
-Werden Inhalte bei der Abfrage für eine spezifische implizite Sortierung passende gefiltert und wird keine explizite Sortierung festgelegt, wird die passende, implizite Sortierung angewendet. Es ist aber möglich, eine explizite Sortierung festzulegen. In diesem Fall wird keine implizite Sortierung angewendet.
+### Implizites (automatisches) Sortieren von Inhalten
+
+Je nachdem, welche Filter beim Abfragen von Inhalten verwendet werden, kann in speziellen Fällen automatisch eine passende Sortierung angewendet werden. Sollen beispielsweise Veranstaltungen für einen bestimmten Zeitraum abgefragt werden, können diese auf Basis des Veranstaltungstermins sortiert werden. Ist eine der in weiterer Folge beschriebenen Sortierungen anwendbar, wird diese automatisch verwendet. Eine manuelle Auswahl der impliziten Sortiermethoden ist nicht möglich. Der Grund dafür ist, dass es sich dabei um Sortierungen handelt, die nur in einem sehr speziellen Kontext sinnvoll angewendet werden können und einen oder mehrere Referenzwerte (z.B. einen Zeitraum) benötigen.
+
 
 #### Relevanzbasierte Sortierung
 
@@ -267,9 +269,9 @@ Bei der Volltextsuche werden verschiedene Attribute, mit unterschiedlichen Gewic
 Werden Inhalte auf Basis von Terminen gefiltert (z.B. bei Veranstaltungen), erscheint eine Sortierung auf Basis des Startzeitpunktes eines Termins als optimal. Diese Art der Sortierung führt allerdings dazu, dass Termine mit einer sehr langen Dauer (z.B. Wochen oder Monate) und einem Startzeitpunkt in der Vergangenheit nach vorne gereiht werden. Dieses Verhalt ist im Regelfall nicht wünschenswert! Deshalb berücksichtigt die terminbasierte Sortierung neben dem Startzeitpunkt auch das Ende und in gewisser Weise auch die Dauer eines Termins.
 
 
-### Explizites Sortieren von Inhalten
+### Explizites (benutzerdefiniertes) Sortieren von Inhalten
 
-Soll eine explizite Sortierung verwendet werden, muss diese über den Parameter ``sort`` übergeben werden. Inhalt können sowohl auf- als auch absteigend sortiert werden, die Richtung kann über ein Voranstellen eins **Plus-** bzw. **Minuszeichens** festgelegt werden, wobei die aufsteigende Sortierung (+) als Standard verwendet wird. Eine aufsteigende Sortierung auf Basis des Erstellungsdatums kann bei einer Abfrage über **HTTP-POST** also folgendermaßen angewendet werden:
+Neben den automatisch angewendeten impliziten Sortierungen, gibt es die Möglichkeit direkt beim Abrufen der Inhalte über die API, eine explizite, benutzerdefinierte Sortierung festzulegen. Soll eine solche explizite Sortierung verwendet werden, weil z.B. für die abgefragten Inhalte keine der verfügbaren implizite Sortierungen angewendet werden kann oder weil die implizite Sortierung nicht das gewünschte Ergebnis liefert, muss diese über den Parameter ``sort`` übergeben werden. Inhalte können dabei sowohl auf- als auch absteigend sortiert werden. Die Richtung kann über ein Voranstellen eins **Plus-** bzw. **Minuszeichens** festgelegt werden, wobei die aufsteigende Sortierung (+) als Standard verwendet wird. Eine aufsteigende Sortierung auf Basis des Erstellungsdatums kann bei einer Abfrage über **HTTP-POST** also folgendermaßen angewendet werden:
 
 ```javascript
 {

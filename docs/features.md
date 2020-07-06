@@ -1,4 +1,4 @@
-# Funktionskatalog
+<!-- # Funktionskatalog
 
 ## Datenstruktur
 * Strukturierte Stammdaten auf Basis von [schema.org](https://schema.org/)
@@ -192,4 +192,4 @@
 * Geo-Coding von Inhalten auf Basis von Adressen
 * Reverse Geo-Coding auf Basis von Geo-Koordinaten
 * Normalisieren von Adressdaten
-* Installation auf beliebiger Server-Infrastruktur (mit dem Betriebssystem Linux) im hausinternen Data-Center
+* Installation auf beliebiger Server-Infrastruktur (mit dem Betriebssystem Linux) im hausinternen Data-Center -->
