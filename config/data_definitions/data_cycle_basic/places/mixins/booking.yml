@@ -32,3 +32,9 @@
           :transformation:
             :method: combine
             :name: potentialAction
+          :v4:
+            :partial: action
+            :type: OrderAction
+            :transformation:
+              :method: append
+              :name: potentialAction
