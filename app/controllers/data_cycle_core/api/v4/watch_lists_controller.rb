@@ -17,7 +17,7 @@ module DataCycleCore
 
         # method to show a particular WatchList
         def show
-          redirect_to api_v4_stored_filter_path(permitted_params.merge(sl: 1))
+          redirect_to api_v4_stored_filter_path(permitted_params.except(:id).merge(sl: 1))
           # @watch_list = DataCycleCore::WatchList.find(permitted_params[:id])
           # @pagination_contents = apply_paging(@watch_list.watch_list_data_hashes.order(created_at: :desc, id: :asc))
           # @contents = @pagination_contents
