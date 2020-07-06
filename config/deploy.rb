@@ -15,7 +15,7 @@ append :linked_files, 'test/dummy/.env'
 
 # Default value for linked_dirs is []
 remove :linked_dirs, 'vendor/gems/data-cycle-core/node_modules'
-append :linked_dirs, 'test/dummy/tmp', 'test/dummy/public/uploads', 'test/dummy/public/assets', 'test/dummy/db/backups'
+append :linked_dirs, 'test/dummy/tmp', 'test/dummy/public/uploads', 'test/dummy/public/assets', 'test/dummy/db/backups', 'test/dummy/log'
 
 Rake::Task['deploy:npm'].clear
 Rake::Task['deploy:gulp'].clear_actions
