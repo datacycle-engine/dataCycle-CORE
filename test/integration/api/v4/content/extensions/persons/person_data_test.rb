@@ -41,6 +41,16 @@ module DataCycleCore
                   }
                 end
 
+                # validate language
+                assert_attributes(json_validate, required_attributes, []) do
+                  {
+                    'dc:multilingual' => true,
+                    'dc:translation' => [
+                      'de'
+                    ]
+                  }
+                end
+
                 # plain attributes without transformation
                 assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'given_name', 'family_name', 'honorific_prefix', 'honorific_suffix']) do
                   {
@@ -121,7 +131,7 @@ module DataCycleCore
                 json_context = json_validate.delete('@context')
                 assert_equal(2, json_context.size)
                 assert_equal('http://schema.org', json_context.first)
-                validator = DataCycleCore::V4::Validation::Context.context
+                validator = DataCycleCore::V4::Validation::Context.context('en')
                 assert_equal({}, validator.call(json_context.second).errors.to_h)
 
                 # test full event data
@@ -133,6 +143,16 @@ module DataCycleCore
                     '@id' => @content.id,
                     '@type' => 'Person',
                     'name' => @content.name
+                  }
+                end
+
+                # validate language
+                assert_attributes(json_validate, required_attributes, []) do
+                  {
+                    'dc:multilingual' => true,
+                    'dc:translation' => [
+                      'de'
+                    ]
                   }
                 end
 
@@ -237,6 +257,17 @@ module DataCycleCore
                     }
                   end
 
+                  # validate language
+                  assert_attributes(json_validate, required_attributes, []) do
+                    {
+                      'dc:multilingual' => true,
+                      'dc:translation' => [
+                        'de',
+                        'en'
+                      ]
+                    }
+                  end
+
                   # plain attributes without transformation
                   assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'given_name', 'family_name', 'honorific_prefix', 'honorific_suffix']) do
                     {
@@ -338,6 +369,17 @@ module DataCycleCore
                   }
                 end
 
+                # validate language
+                assert_attributes(json_validate, required_attributes, []) do
+                  {
+                    'dc:multilingual' => true,
+                    'dc:translation' => [
+                      'de',
+                      'en'
+                    ]
+                  }
+                end
+
                 # plain attributes without transformation
                 assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'job_title', 'honorific_prefix', 'honorific_suffix', 'use_guidelines']) do
                   {
@@ -429,6 +471,16 @@ module DataCycleCore
                   {
                     '@id' => @content.id,
                     '@type' => 'Person'
+                  }
+                end
+
+                # validate language
+                assert_attributes(json_validate, required_attributes, []) do
+                  {
+                    'dc:multilingual' => true,
+                    'dc:translation' => [
+                      'de'
+                    ]
                   }
                 end
 
