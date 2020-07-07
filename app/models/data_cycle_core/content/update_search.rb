@@ -21,7 +21,7 @@ module DataCycleCore
         return if search_property_names.blank? || embedded?
         # timestamp = Time.zone.now
         I18n.with_locale(language) do
-          search_data = walk_embedded_data(self)
+          search_data = walk_embedded_data(self, false)
           advanced_search_attributes = walk_advanced(self)
           classification_mapping = walk_classifications(self)
           classification_alias_mapping = classification_mapping.dig(:classification_aliases)
@@ -52,24 +52,28 @@ module DataCycleCore
         # ap "### inside update time: #{(Time.zone.now - timestamp)}: #{id}"
       end
 
-      def walk_embedded_data(object)
-        string_hash = parse_search_data(object)
+      def walk_embedded_data(object, is_embedded)
+        string_hash = parse_search_data(object, is_embedded)
         object.embedded_property_names.each do |embedded_name|
           object.try('send', embedded_name)&.each do |embedded_object|
-            embedded_string_hash = walk_embedded_data(embedded_object)
+            embedded_string_hash = walk_embedded_data(embedded_object, true)
             string_hash = append_hash(string_hash, embedded_string_hash)
           end
         end
         string_hash
       end
 
-      def parse_search_data(object)
+      def parse_search_data(object, is_embedded)
         string_hash = {}
         string_hash[:full_text] = DataCycleCore::MasterData::DataConverter.string_to_string(object.search_property_names.map { |item| object.send(item) }.join(' ').gsub(/[']/, "''"))
         string_hash[:full_text] = '' if string_hash[:full_text].nil?
         string_hash[:headline] = object.try('send', 'title')
         string_hash[:headline] = DataCycleCore::MasterData::DataConverter.string_to_string(string_hash[:headline].gsub(/[']/, "''")) unless string_hash[:headline].nil?
         string_hash[:headline] = '' if string_hash[:headline].nil?
+        if is_embedded # only headline of main content gets full boost!
+          string_hash[:full_text] = [string_hash[:headline], string_hash[:full_text]].join(' ')
+          string_hash[:headline] = ''
+        end
         if object.embedded?
           string_hash[:classification_string] = ''
         else
