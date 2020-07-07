@@ -1,11 +1,11 @@
 $('.remote-rendering[data-remote-render-id="<%= @target %>"]').children().fadeOut('fast', function(){
   <% if @render_function.present? && respond_to?(@render_function) %>
-    $('.remote-rendering[data-remote-render-id="<%= @target %>"]').html('<%= j try(@render_function, (@render_params || {}).merge(parameters: @options)) %>').removeClass('remote-rendering').addClass('remote-rendered').trigger('dc:html:changed').trigger('dc:html:initialized');
+    $('.remote-rendering[data-remote-render-id="<%= @target %>"]').html('<%= j try(@render_function, (@render_params || {}).merge(parameters: @options)) %>').removeClass('remote-rendering').addClass('remote-rendered').trigger('dc:html:changed').trigger('dc:html:initialized', JSON.parse('<%== (@options.dig(:event_data) || {}).to_json %>'));
   <% else %>
-    $('.remote-rendering[data-remote-render-id="<%= @target %>"]').html('<%= j render(@partial, @options) %>').removeClass('remote-rendering').addClass('remote-rendered').trigger('dc:html:changed').trigger('dc:html:initialized');
+    $('.remote-rendering[data-remote-render-id="<%= @target %>"]').html('<%= j render(@partial, @options) %>').removeClass('remote-rendering').addClass('remote-rendered').trigger('dc:html:changed').trigger('dc:html:initialized', JSON.parse('<%== (@options.dig(:event_data) || {}).to_json %>'));
   <% end %>
-
   <% @content_for.presence&.each do |yield_class| %>
     $('.remote-rendered[data-remote-render-id="<%= @target %>"]').siblings('.<%= yield_class %>').add($('.remote-rendered[data-remote-render-id="<%= @target %>"]').closest('.<%= yield_class %>')).first().html('<%= j yield(yield_class.to_sym) %>')
   <% end %>
 });
+

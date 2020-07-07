@@ -2,12 +2,12 @@
 <% objects = objects.concat(new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
 <% objects.presence&.each_with_index do |object, index| %>
-    <% I18n.with_locale(object.first_available_locale) do %>
+  <% I18n.with_locale(object.first_available_locale) do %>
 
-      <% validation_properties = ordered_validation_properties(validation: object.schema) %>
-      <% validation_properties['text']['label'] = object.try(:name) if object.try(:name).present? %>
+    <% validation_properties = ordered_validation_properties(validation: object.schema) %>
+    <% validation_properties['text']['label'] = object.try(:name) if object.try(:name).present? %>
 
-      <%= render 'data_cycle_core/contents/viewers/attribute',
+    <%= render 'data_cycle_core/contents/viewers/attribute',
         key: 'text',
         definition: validation_properties['text'],
         value: object.try(:text),
@@ -18,13 +18,13 @@
         content: content,
         data_attributes: { editor: 'embedded_object', id: [object.id] },
         data_label: 'Textblock' do %>
-          <span class="detail-content"><%= object.try(:text).try(:html_safe) %></span>
-      <% end %>
+      <span class="detail-content"><%= object.try(:text).try(:html_safe) %></span>
     <% end %>
+  <% end %>
 <% end %>
 
 <div class="clear-both">
-  <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
+  <%= link_to t('common.load_all', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
     content,
     key: key,
     complete_key: key,

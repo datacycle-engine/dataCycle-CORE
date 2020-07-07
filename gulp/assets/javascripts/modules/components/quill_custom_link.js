@@ -15,18 +15,18 @@ class LinkTooltip extends QuillTooltip {
 
   listen() {
     super.listen();
-    this.root.querySelector('a.ql-action').addEventListener('click', (event) => {
+    this.root.querySelector('a.ql-action').addEventListener('click', event => {
       if (this.root.classList.contains('ql-editing')) {
         this.save();
       } else {
         this.edit('customlink', {
           text: this.preview.textContent,
-          external: this.preview.getAttribute('target') == '_blank',
+          external: this.preview.getAttribute('target') == '_blank'
         });
       }
       event.preventDefault();
     });
-    this.root.querySelector('a.ql-remove').addEventListener('click', (event) => {
+    this.root.querySelector('a.ql-remove').addEventListener('click', event => {
       if (this.linkRange != null) {
         const range = this.linkRange;
         this.restoreFocus();
@@ -84,7 +84,7 @@ class LinkTooltip extends QuillTooltip {
     let { value } = this.textbox;
     value = {
       text: value,
-      external: this.externalCheckbox && this.externalCheckbox.checked,
+      external: this.externalCheckbox && this.externalCheckbox.checked
     };
     switch (this.root.getAttribute('data-mode')) {
       case 'customlink': {
@@ -112,7 +112,7 @@ LinkTooltip.TEMPLATE = [
   '<input type="text" data-formula="e=mc^2" data-link="https://quilljs.com" data-video="Embed URL">',
   '<a class="ql-action"></a>',
   '<a class="ql-remove"></a>',
-  '<br><label class="dc--external-link-label"><input type="checkbox" checked="checked" class="dc--external-link"></label>',
+  '<br><label class="dc--external-link-label"><input type="checkbox" checked="checked" class="dc--external-link"></label>'
 ].join('');
 
 class QuillLinkFormat extends InlineBlot {
@@ -158,7 +158,7 @@ class QuillLinkModule extends QuillModule {
   constructor(quill, options) {
     super(quill.container, options);
     this.quill = quill;
-    this.tooltip = new LinkTooltip(this.quill, options.bounds);
+    this.tooltip = new LinkTooltip(this.quill, quill.options.bounds);
     this.quill.getModule('toolbar').addHandler('customlink', this.customlinkHandler.bind(this));
   }
   customlinkHandler(value) {
@@ -168,7 +168,7 @@ class QuillLinkModule extends QuillModule {
       let preview = this.quill.getText(range);
       this.tooltip.edit('customlink', {
         text: preview,
-        external: true,
+        external: true
       });
     } else {
       this.quill.format('customlink', false);

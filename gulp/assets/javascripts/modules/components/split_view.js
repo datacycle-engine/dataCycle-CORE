@@ -29,28 +29,19 @@ class SplitView {
     this.container
       .closest('.split-content')
       .on('click', '.copy-all, .translate-all', this.triggerAllButtons.bind(this));
-    this.container.on('dc:contents:added', this.setupAdditionalButtons.bind(this));
+    this.container.on('dc:contents:added', '[data-id]:not(.dc-sw-initialized)', this.setupAdditionalButtons.bind(this));
     this.container
       .closest('.split-content')
       .find('.close-subscribe-notice')
       .on('click', this.dismissSubscribeNotice.bind(this));
   }
   setupAdditionalButtons(event, data) {
-    event.stopImmediatePropagation();
-    if (data.editor !== undefined && $(event.target).data('id') !== undefined) {
-      let key =
-        $(event.target).data('key') ||
-        $(event.target)
-          .parents('div[data-editor=' + data.editor + ']')
-          .data('key');
+    let item = $(event.target);
 
-      this.addButtons(
-        event.target,
-        key,
-        $(event.target).data('id'),
-        data.single ? 'single-data-id' : 'data-id',
-        data.single
-      );
+    if (data.editor !== undefined && item.data('id') !== undefined) {
+      let key = item.data('key') || item.parents('div[data-editor=' + data.editor + ']').data('key');
+
+      this.addButtons(event.target, key, item.data('id'), data.single ? 'single-data-id' : 'data-id', data.single);
     }
   }
   dismissSubscribeNotice(_event) {
@@ -133,6 +124,7 @@ class SplitView {
       if (single && !$(element).hasClass('copy-single')) element = $(element).find('.copy-single');
       this.renderButton(element, copy_attr, single);
     }
+    $(element).addClass('dc-sw-initialized');
   }
   valueNotEmpty(value) {
     if (value === undefined || value === null) return false;

@@ -7,8 +7,6 @@ module.exports.initialize = function ($) {
     if ($(text).data('json')) text = JSON.stringify($(text).data('json'));
     else text = $(text).html();
 
-    console.log(text);
-
     var inp = document.createElement('input');
     document.body.appendChild(inp);
     inp.value = text;

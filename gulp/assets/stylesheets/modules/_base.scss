@@ -576,7 +576,9 @@ footer {
 
     .form-element {
       position: relative;
-      margin-bottom: 1rem;
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
 
       &.release_status_comment {
         margin-bottom: 2rem;

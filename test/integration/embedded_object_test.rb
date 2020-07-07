@@ -65,7 +65,7 @@ module DataCycleCore
     end
 
     test 'render new embedded object (Zeitleiste in Artikel)' do
-      get new_embedded_object_thing_path(@content), xhr: true, as: :json, params: {
+      get render_embedded_object_thing_path(@content), xhr: true, as: :json, params: {
         content_id: @content.id,
         content_type: @content.class.table_name,
         definition: @content.schema.dig('properties', 'timeline_item'),
@@ -105,7 +105,8 @@ module DataCycleCore
         },
         object_ids: [
           timeline_item.id
-        ]
+        ],
+        duplicated_content: true
       }, headers: {
         referer: edit_thing_path(@content)
       }

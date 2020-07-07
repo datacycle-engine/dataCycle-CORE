@@ -57,7 +57,7 @@ module.exports.initialize = function ($) {
       contentType: 'application/json'
     }).fail(data => {
       if (data.responseText !== undefined) $(element).html(data.responseText);
-      else $(target + ':visible').html('Fehler beim Laden des Inhalts.');
+      else $(element).html('Fehler beim Laden des Inhalts.');
     });
   }
 };

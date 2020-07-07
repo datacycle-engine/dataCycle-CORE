@@ -20,3 +20,35 @@ Array.prototype.mergeUnique = function (toMerge) {
 
   return this.concat(toMerge).filter((elem, pos, arr) => arr.indexOf(elem) == pos);
 };
+Array.prototype.mergeUniqueFormValues = function (toMerge) {
+  if (!toMerge || !toMerge.length) return this;
+
+  let tmpArray = [...this];
+
+  for (let i = 0; i < toMerge.length; i++) {
+    if (!tmpArray.find(e => e.name === toMerge[i].name && e.value === toMerge[i].value)) {
+      tmpArray.splice(
+        tmpArray.lastIndexOfFieldName(
+          toMerge[i].name.substring(0, toMerge[i].name.replace('[]', '').lastIndexOf('['))
+        ) + 1,
+        0,
+        toMerge[i]
+      );
+    }
+  }
+
+  return tmpArray;
+};
+Array.prototype.lastIndexOfFieldName = function (name) {
+  if (!name || !name.length) return -1;
+
+  for (let i = this.length - 1; i >= 0; i--) {
+    if (this[i].name.includes(name)) return i;
+  }
+  return this.lastIndexOfFieldName(name.substring(0, name.lastIndexOf('[')));
+};
+Array.prototype.uniqFieldValues = function () {
+  return this.filter((obj, pos, arr) => {
+    return arr.map(mapObj => JSON.stringify(mapObj)).indexOf(JSON.stringify(obj)) === pos;
+  });
+};

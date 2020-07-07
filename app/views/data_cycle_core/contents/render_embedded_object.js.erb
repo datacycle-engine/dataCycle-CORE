@@ -1,31 +1,44 @@
 <% content_for :rendered_items do %>
-  <% @objects.presence&.each_with_index do |object, index| %>
+  <% if @objects.nil? %>
     <%= render_embedded_object_partial(
-      key: params[:key],
-      definition: params[:definition],
-      parameters: {
-        index: params[:index].presence&.to_i + index,
-        options: params[:options],
-        object: object,
-        new_content: true,
-        locale: params[:locale],
-        attribute_locale: params[:attribute_locale]
-      },
-      content: @content
-    ) %>
+          key: @key,
+          definition: @definition,
+          parameters: {
+            index: @index,
+            options: @options,
+            locale: @locale,
+            new_content: true
+          },
+          content: @content
+        ) %>
+  <% else %>
+    <% @objects.presence&.each_with_index do |object, index| %>
+      <%= render_embedded_object_partial(
+            key: @key,
+            definition: @definition,
+            parameters: {
+              index: @index.presence&.to_i + index,
+              options: @options,
+              object: object,
+              locale: @locale,
+              duplicated_content: @duplicated_content.to_s == 'true',
+              attribute_locale: @attribute_locale
+            },
+            content: @content
+      ) %>
+    <% end %>
   <% end %>
 <% end %>
 
-$('#<%= sanitize_to_id(params[:key]) %> > .buttons > .addContentObject .fa').css('display', 'none');
-$('#<%= sanitize_to_id(params[:key]) %> > .buttons > button').prop('disabled', false);
+$('#<%= sanitize_to_id(@key) %> > .buttons > .addContentObject .fa').css('display', 'none');
+$('#<%= sanitize_to_id(@key) %> > .buttons > button').prop('disabled', false);
 
-var followingEmbedded = $('#<%= sanitize_to_id(params[:key]) %> > .content-object-item').filter(function(){
-  return parseInt($(this).data('index')) > parseInt(<%= params[:index].presence&.to_i %>);
+var followingEmbedded = $('#<%= sanitize_to_id(@key) %> > .content-object-item').filter(function(){
+return parseInt($(this).data('index')) > parseInt(<%= @index.presence&.to_i %>);
 }).first();
 
 if (followingEmbedded.length) $(followingEmbedded).before('<%= j yield :rendered_items %>');
-else $('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j yield :rendered_items %>');
+else $('#<%= sanitize_to_id(@key) %> > .buttons').before('<%= j yield :rendered_items %>');
 
 $('<%= j content_for :forms %>').appendTo('body').foundation();
-
-$('<%= (params[:index].presence&.to_i..(params[:index].presence&.to_i + @objects.size)).map { |i| "##{sanitize_to_id(params[:key])}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed').trigger('dc:html:initialized');
+$('<%= (@index.presence&.to_i..(@index.presence&.to_i + @objects&.size.to_i)).map { |i| "##{sanitize_to_id(@key)}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed').trigger('dc:html:initialized', { newContent: <%= @objects.nil? || @duplicated_content.to_s == 'true' %> });

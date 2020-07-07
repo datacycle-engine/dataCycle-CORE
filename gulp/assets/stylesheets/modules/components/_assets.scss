@@ -472,6 +472,27 @@ ul.asset-list {
     margin: 0;
     min-width: 3rem;
   }
+  .file-info {
+    .possible-duplicates {
+      i {
+        font-size: 0.9rem;
+      }
+    }
+    .dropdown-pane {
+      left: auto !important;
+      .duplicates-list {
+        li {
+          display: inline-block;
+          .duplicate-link {
+            img {
+              max-width: 50px;
+              max-height: 50px;
+            }
+          }
+        }
+      }
+    }
+  }
   .file-label {
     font-size: 0.9rem;
     color: darken($medium-gray, 10%);
@@ -543,11 +564,21 @@ ul.asset-list {
     display: block;
     color: $alert-color;
     font-size: 0.8rem;
+
+    a {
+      color: $alert-color;
+      font-size: 0.8rem;
+    }
   }
   .notice {
     display: block;
     color: $warning-color;
     font-size: 0.8rem;
+
+    a {
+      color: $warning-color;
+      font-size: 0.8rem;
+    }
   }
   &.error {
     .upload-number {
