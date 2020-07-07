@@ -43,10 +43,10 @@ module DataCycleCore
         if parent_classification_alias
           classification_alias = parent_classification_alias
             .sub_classification_alias
-            .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source])
+            .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source], uri: attributes[:uri])
         else
           classification_alias = classification_aliases.roots
-            .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source])
+            .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source], uri: attributes[:uri])
         end
 
         if classification_alias.new_record?
@@ -54,7 +54,8 @@ module DataCycleCore
 
           classification = Classification.create!(name: attributes[:name],
                                                   external_source: attributes[:external_source],
-                                                  external_key: attributes[:external_key])
+                                                  external_key: attributes[:external_key],
+                                                  uri: attributes[:uri])
 
           ClassificationGroup.create!(classification: classification,
                                       classification_alias: classification_alias)

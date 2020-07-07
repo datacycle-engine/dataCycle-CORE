@@ -64,7 +64,6 @@ module DataCycleCore
           r_id = SecureRandom.uuid
           get api_v4_collection_path(id: r_id)
 
-          assert_redirected_to api_v4_stored_filter_path(id: r_id, sl: 1)
           follow_redirect!
 
           assert_response :not_found

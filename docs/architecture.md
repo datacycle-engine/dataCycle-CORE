@@ -1,4 +1,4 @@
-#	Systemarchitektur
+<!-- #	Systemarchitektur
 Die technische Basis für dataCycle bildet das Web-Application-Framework „Ruby on Rails“. Da in der dataCycle nicht
 nur Daten zu finden sind, die auch innerhalb der dataCycle erstellt worden sind, ist es notwendig, externe Systeme
 über einen Import-Prozess anzubinden. Dieser Import-Prozess erfolgt in zwei Schritten, die auch über verschiedene
@@ -71,4 +71,4 @@ aktuellen Daten durch die historischen Daten nicht unnötig verlangsamt wird, we
 dafür vorgesehen Tabellen abgelegt. Über diesen Mechanismus ist es auch möglich, nachzuverfolgen, welche Inhalte von
 welchem Benutzer zu welchem Zeitpunkt gelöscht worden sind. Es kommt in der Praxis immer wieder vor, dass Inhalte
 unabsichtlich gelöscht werden und in diesen Fällen ist es sehr hilfreich, herauszufinden, durch welchen Benutzer
-dieser Vorgang ausgelöst worden sind.
+dieser Vorgang ausgelöst worden sind. -->
