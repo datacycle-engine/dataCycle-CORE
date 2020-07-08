@@ -95,6 +95,10 @@ module DataCycleCore
         thing.property_names - excluded_keys
       end
 
+      def required_multilingual_validation_attributes(thing)
+        required_validation_attributes(thing) - thing.translatable_property_names
+      end
+
       def excluded_properties_for(content)
         content.name_property_selector { |definition| definition['type'] == 'classification' && api_enabled?(definition) == false }
       end

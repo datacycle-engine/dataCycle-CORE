@@ -173,7 +173,7 @@ module DataCycleCore
               }
             end
 
-            # locations content_location, virtual_location
+            # locations super_event
             assert_attributes(json_validate, required_attributes, ['super_event']) do
               {
                 'superEvent' => [

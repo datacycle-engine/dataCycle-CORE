@@ -65,10 +65,11 @@ unless content.schema.nil?
       next unless ['embedded', 'linked', 'string', 'computed'].include?(prop.dig('type'))
       json[property_name] ||= []
       if ['embedded', 'linked'].include?(prop.dig('type'))
-        json[property_name] += (render(*partial_params)&.dig(property_name) || []) unless partial_params.nil?
+        json[property_name] += (render(*partial_params)&.dig(property_name) || [])&.reject(&:blank?) unless partial_params.nil?
       else
-        json[property_name] += ([render(*partial_params)] || []) unless partial_params.nil?
+        json[property_name] += ([render(*partial_params)] || [])&.reject(&:blank?) unless partial_params.nil?
       end
+      json.delete(property_name) if json.dig(property_name).blank?
     else
       json.merge! render(*partial_params) unless partial_params.nil?
     end
