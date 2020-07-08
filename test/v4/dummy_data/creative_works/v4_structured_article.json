@@ -18,12 +18,5 @@
       "url": "https://booking.link",
       "name": "booking.link"
     }
-  ],
-  "content_block": [
-    {
-      "name": "contentBlock - Name",
-      "alternative_headline": "contentBlock - alternativeHeadline",
-      "text": "<p>contentBlock - Text<br/></p>"
-    }
   ]
 }

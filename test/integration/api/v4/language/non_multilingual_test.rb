@@ -404,7 +404,27 @@ module DataCycleCore
 
             assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
-            binding.pry
+            # linked default: images, member
+            assert_attributes(json_validate, required_attributes, ['content_block']) do
+              {
+                'contentBlock' => [
+                  @content.content_block.first.to_api_default_values.merge(
+                    {
+                      'dc:multilingual' => false,
+                      'dc:translation' => [
+                        'de'
+                      ],
+                      'name' => translated_value(@content, 'content_block.first.name', ['de']),
+                      'alternativeHeadline' => translated_value(@content, 'content_block.first.alternative_headline', ['de']),
+                      'text' => translated_value(@content, 'content_block.first.text', ['de']),
+                      'image' => [
+                        @content.content_block.first.image.first.to_api_default_values
+                      ]
+                    }
+                  )
+                ]
+              }
+            end
 
             assert_equal([], required_attributes)
             assert_equal({}, json_validate)

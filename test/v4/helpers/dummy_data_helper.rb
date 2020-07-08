@@ -209,6 +209,7 @@ module DataCycleCore
         data_hash['author'] = [person.id]
         data_hash['validity_period'] = validity_period
         data_hash['content_location'] = [poi.id]
+        data_hash['content_block'] = [content_block]
         DataCycleCore::TestPreparations.create_content(template_name: 'Strukturierter Artikel', data_hash: data_hash, user: @user)
       end
 
@@ -270,6 +271,12 @@ module DataCycleCore
       def price_specification
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('intangibles', 'v4_unit_price_specification')
         data_hash['validity_period'] = offer_period
+        data_hash
+      end
+
+      def content_block
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'v4_content_block')
+        data_hash['image'] = image.id
         data_hash
       end
 
