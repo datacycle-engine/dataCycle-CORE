@@ -27,6 +27,7 @@ module DataCycleCore
           "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
           "#{definition&.dig('compute', 'type')&.underscore}_#{api_property_definition.dig('partial')&.underscore}",
           definition&.dig('compute', 'type')&.underscore,
+          definition&.dig('virtual', 'type')&.underscore,
           definition['type'].underscore,
           'default'
         ].reject(&:blank?)
@@ -64,6 +65,10 @@ module DataCycleCore
     def included_attribute?(name, attribute_list)
       return if attribute_list.blank?
       attribute_list.map { |item| item.first == name }.inject(&:|)
+    end
+
+    def virtual_attribute(content, key, definition, language)
+      DataCycleCore::Utility::Virtual::Base.virtual_values(key, definition, content, language)
     end
 
     def subtree_for(name, attribute_list)

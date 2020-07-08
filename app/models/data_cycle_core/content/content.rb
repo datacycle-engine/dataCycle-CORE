@@ -159,6 +159,10 @@ module DataCycleCore
         name_property_selector { |definition| PLAIN_PROPERTY_TYPES.include?(definition['type']) }
       end
 
+      def virtual_property_names
+        name_property_selector { |definition| definition['type'] == 'virtual' }
+      end
+
       def linked_property_names
         name_property_selector { |definition| definition['type'] == 'linked' }
       end
@@ -258,6 +262,8 @@ module DataCycleCore
           schedule_array = send(property_name)
           schedule_array = schedule_array.map(&:to_h).presence
           schedule_array.blank? ? [] : schedule_array.compact
+        elsif virtual_property_names.include?(property_name)
+          []
         else
           raise StandardError, "cannot determine how to serialize #{property_name}"
         end
@@ -308,6 +314,8 @@ module DataCycleCore
               load_computed_attribute(key[0], key[1])
             elsif schedule_property_names.include?(key[0])
               load_schedule(key[0])
+            elsif virtual_property_names.include?(key[0])
+              nil
             else
               raise NotImplementedError
             end
