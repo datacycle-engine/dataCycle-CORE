@@ -263,6 +263,7 @@ de:
     user_registration:
       terms_conditions: 'Ich aktzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
+    no_selection: keine Auswahl
 
   upload:
     drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'
@@ -529,7 +530,7 @@ de:
         invalid: 'Der Eintrag mit Startzeitpunkt %{data} enthält keine gültigen Termine'
       number: '%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data}).'
       no_data: 'Keine Daten angegeben.'
-      no_validation: 'Keine Validierguns-Daten angegeben.'
+      no_validation: 'Keine Validierungs-Daten angegeben.'
       data_type: 'Falschen Daten-Typ angegeben für %{template} %{data}. Erwartet wurde UUID oder UUID Array.'
       data_format_embedded: 'Daten in falschem Fromat angegeben für %{template} %{data}. Erwartet wurde ein Hash oder ein Array von Hashes.'
       data_array_format: 'Elemente des Daten-Arrays für %{template} haben falsches Format %{key}.'
