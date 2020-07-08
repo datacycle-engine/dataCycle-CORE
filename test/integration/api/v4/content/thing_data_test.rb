@@ -370,7 +370,7 @@ module DataCycleCore
             offer_api_values = {
               '@id' => offer_object.id,
               '@type' => 'Offer',
-              'dc:multilingual' => false,
+              'dc:multilingual' => true,
               'dc:translation' => [
                 'de'
               ],

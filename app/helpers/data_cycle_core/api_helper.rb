@@ -78,8 +78,8 @@ module DataCycleCore
       language_array.join(',')
     end
 
-    def in_language?(content, languages)
-      content.translatable? || languages.include?(content.first_available_locale.to_s)
+    def in_language?(content, options)
+      (content.embedded? && options.dig(:translatable_embedded)) || content.translatable? || options.dig(:languages).include?(content.first_available_locale.to_s)
     end
 
     def load_value_object(content, key, value, languages)
