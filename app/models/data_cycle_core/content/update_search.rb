@@ -35,7 +35,7 @@ module DataCycleCore
           DataCycleCore::Search.where(content_data_id: id, locale: language).first_or_initialize.tap do |s|
             s.full_text = search_data[:full_text]&.unicode_normalize(:nfkc)
             s.created_at = created_at
-            s.updated_at = Time.zone.now.to_s(:long_usec)
+            s.updated_at = Time.zone.now
             s.headline = search_data[:headline]
             s.classification_string = search_data[:classification_string]
             s.data_type = template_name
@@ -78,8 +78,8 @@ module DataCycleCore
           string_hash[:classification_string] = ''
         else
           string_hash[:classification_string] = [
-            object.display_classification_aliases('show').pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
-            object.display_classification_aliases('show').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
+            object.display_classification_aliases('show').map(&:name).try(:join, ' ').try(:gsub, /[']/, "''")&.strip,
+            object.display_classification_aliases('show').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")&.strip
           ].compact.join(' ')
         end
         string_hash[:all_text] = [string_hash[:headline].squish, string_hash[:classification_string].squish, string_hash[:full_text].squish].join(' ')

@@ -70,7 +70,8 @@ module DataCycleCore
 
       def destroy_translation(locale)
         translations.in_locale(locale).destroy
-        translations.reload # bug of Globalize (does not invalidate query cache)
+        searches.where(locale: locale).delete_all
+        translations.reload # (rails cache still includes removed translations)
       end
     end
   end

@@ -4,12 +4,9 @@ module DataCycleCore
   module Update
     class Base
       def update
-        total_updates = query.count
-        puts "UPDATE '#{@template.template_name}' templates - #{total_updates} items (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+        progressbar = ProgressBar.create(total: query.size, format: '%t |%w>%i| %a - %c/%C', title: @template.template_name)
 
-        item_count = 0
         query.includes(classification_aliases: [:classification_alias_path, :classification_tree_label]).find_each do |content_item|
-          timestamp = Time.zone.now
           data_hash_all = {}
           content_item.available_locales.each do |locale|
             I18n.with_locale(locale) do
@@ -20,24 +17,15 @@ module DataCycleCore
           modify_content(content_item)
           data_hash_all.each do |locale, data_hash|
             I18n.with_locale(locale) do
-              error = write(content_item, data_hash, timestamp)
+              error = write(content_item, data_hash, Time.zone.now)
               if error[:error].present?
                 ap "ERROR: for #{table_name}(#{content_item.id}).with_locale(#{locale})"
                 ap error
               end
             end
           end
-          # ap "### time: #{(Time.zone.now - timestamp)}"
-          # progress bar
-          if (item_count % 1000).zero?
-            total_count = [total_updates, 1].max
-            fraction = [100, (item_count * 100.0 / total_count).round(0)].min
-            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-          end
-          item_count += 1
+          progressbar.increment
         end
-
-        puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
       end
 
       private
