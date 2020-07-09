@@ -86,9 +86,15 @@ module DataCycleCore
               .map do |item|
                 deleted = item.find('dump.de.deleted_at' => { '$exists' => true }).count
                 archived = item.find('dump.de.archived_at' => { '$exists' => true }).count
-                additional_string = ''
-                additional_string += "(D:#{deleted}, A:#{archived})" if deleted.positive? || archived.positive?
-                [item.name.humanize, [item.count, additional_string]]
+                info = []
+                if deleted.positive? || archived.positive?
+                  info = ['(']
+                  info += ["D:#{deleted}"] if deleted.positive?
+                  info += [', '] if deleted.positive? && archived.positive?
+                  info += ["A:#{archived}"] if archived.positive?
+                  info += [')']
+                end
+                [item.name.humanize, [item.count, info.join('')]]
               end
           ]
 
