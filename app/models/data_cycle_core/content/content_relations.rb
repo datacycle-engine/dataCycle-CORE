@@ -90,21 +90,20 @@ module DataCycleCore
 
         tree_query = <<-SQL
           WITH RECURSIVE content_tree(id) AS (
-              SELECT #{self.class.table_name}.id
-              FROM #{self.class.table_name}
-              INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_a_id}
+              SELECT #{content_content_table}.#{content_a_id}
+              FROM #{content_content_table}
               WHERE #{content_content_table}.#{content_b_id} = '#{id}'
             UNION ALL
-              SELECT #{self.class.table_name}.id
-              FROM #{self.class.table_name}
-              INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_a_id}
+              SELECT #{content_content_table}.#{content_a_id}
+              FROM #{content_content_table}
+              INNER JOIN #{self.class.table_name} ON #{self.class.table_name}.id = #{content_content_table}.#{content_b_id}
               INNER JOIN content_tree ON content_tree.id = #{content_content_table}.#{content_b_id}
               WHERE #{self.class.table_name}.content_type = 'embedded'
           )
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
+        self.class.where("#{self.class.table_name}.id IN (#{tree_query})").where.not(content_type: 'embedded')
       end
 
       def linked_contents

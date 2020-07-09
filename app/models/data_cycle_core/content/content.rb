@@ -14,7 +14,7 @@ module DataCycleCore
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :webhook_source, :webhook_as_of, :prevent_webhooks
+      attr_accessor :datahash, :webhook_source, :webhook_as_of, :prevent_webhooks, :original_id
 
       DataCycleCore.features
         .select { |_, v| !v.dig(:only_config) == true }

@@ -52,6 +52,7 @@ module DataCycleCore
           redirect_back(fallback_location: root_path, alert: (I18n.t :type_mismatch, scope: [:controllers, :error, :duplicate], locale: DataCycleCore.ui_language)) && return if @content.template_name != @duplicate.template_name
 
           I18n.with_locale(@content.first_available_locale) do
+            @duplicate.original_id = @content.id
             @content.merge_with_duplicate(@duplicate)
 
             flash[:success] = I18n.t :merged_with_duplicate, scope: [:controllers, :success], locale: DataCycleCore.ui_language

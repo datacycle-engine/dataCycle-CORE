@@ -278,12 +278,14 @@ class Validator {
     this.removeSubmitButtonErrors();
     this.disable();
     this.requests = [];
+
     $(event.target)
       .find('.validation-container:visible')
       .add(this.agbsCheck)
       .each((i, elem) => {
         this.requests.push(this.validateItem(elem));
       });
+
     this.resolveRequests($(event.target).is(this.form), data);
   }
   submitForm(

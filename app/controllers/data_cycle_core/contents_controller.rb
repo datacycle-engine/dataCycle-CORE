@@ -175,15 +175,20 @@ module DataCycleCore
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
         valid = @content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true)
 
-        redirect_to(edit_thing_path(@content, watch_list_params), alert: valid[:error]) && return if valid[:error].present?
+        if valid[:error].present?
+          flash[:error] = valid[:error]
+          redirect_back(fallback_location: root_path)
+          return
+        end
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
-        merge_and_remove_duplicate if params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
+        duplicate = params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
+        merge_and_remove_duplicate if duplicate
 
         if params[:new_locale].present?
           redirect_to(edit_thing_path(@content, watch_list_params.merge(locale: params[:new_locale])))
-        elsif !params[:save_and_close] && !params[:finalize] && !params[:duplicate_id]
+        elsif !params[:save_and_close] && !params[:finalize] && !duplicate
           redirect_back(fallback_location: root_path)
         else
           redirect_to(thing_path(@content, watch_list_params.merge(locale: I18n.locale)))
