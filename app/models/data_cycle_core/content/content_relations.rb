@@ -150,6 +150,7 @@ module DataCycleCore
             INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_b_id}
             INNER JOIN content_tree ON content_tree.id = #{content_content_table}.#{content_a_id}
             AND #{self.class.table_name}.id <> ALL (content_tree.all_things)
+            AND #{self.class.table_name}.content_type = 'embedded'
           )
           SELECT DISTINCT id FROM content_tree
         SQL
