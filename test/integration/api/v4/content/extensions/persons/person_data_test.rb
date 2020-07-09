@@ -135,14 +135,13 @@ module DataCycleCore
                 assert_equal({}, validator.call(json_context.second).errors.to_h)
 
                 # test full event data
-                required_attributes = required_validation_attributes(@content)
+                required_attributes = required_multilingual_validation_attributes(@content)
 
                 # test minimal
                 assert_attributes(json_validate, required_attributes, ['id', 'name']) do
                   {
                     '@id' => @content.id,
-                    '@type' => 'Person',
-                    'name' => @content.name
+                    '@type' => 'Person'
                   }
                 end
 
@@ -159,12 +158,8 @@ module DataCycleCore
                 # plain attributes without transformation
                 assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'given_name', 'family_name', 'honorific_prefix', 'honorific_suffix']) do
                   {
-                    'description' => @content.description,
-                    'jobTitle' => @content.job_title,
                     'givenName' => @content.given_name,
-                    'familyName' => @content.family_name,
-                    'honorificPrefix' => @content.honorific_prefix,
-                    'honorificSuffix' => @content.honorific_suffix
+                    'familyName' => @content.family_name
                   }
                 end
 
@@ -174,11 +169,10 @@ module DataCycleCore
                 end
 
                 # cc_rel
-                assert_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
+                assert_attributes(json_validate, required_attributes, ['license', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
                   # license is overwritten by license_classification
                   {
                     'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
-                    'cc:useGuidelines' => @content.use_guidelines,
                     'cc:attributionUrl' => @content.attribution_url,
                     'cc:attributionName' => @content.attribution_name,
                     'cc:morePermissions' => @content.more_permissions
@@ -186,6 +180,7 @@ module DataCycleCore
                 end
 
                 # address
+                # must fail !!!!
                 assert_attributes(json_validate, required_attributes, ['address', 'contact_info']) do
                   {
                     'address' => {

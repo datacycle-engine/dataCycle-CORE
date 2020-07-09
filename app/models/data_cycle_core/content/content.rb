@@ -195,6 +195,12 @@ module DataCycleCore
         name_property_selector { |definition| definition.dig('external') }
       end
 
+      def untranslatable_embedded_property_names
+        property_definitions.select { |_, definition|
+          definition['type'] == 'embedded' && !definition.dig('translatable')
+        }.keys
+      end
+
       def searchable_embedded_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'embedded' && definition['advanced_search'] == true

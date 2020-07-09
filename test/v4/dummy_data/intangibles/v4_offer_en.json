@@ -1,0 +1,11 @@
+{
+  "url": "http://offer-url-en.at",
+  "name": "Angebo- ent",
+  "text": "<p>Long Description- en</p>",
+  "price": "min 3€",
+  "description": "<p>Description juhu- en</p>",
+  "potentialAction": {
+    "url": "https://booking-en.link",
+    "name": "booking.link- en"
+  }
+}

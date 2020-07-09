@@ -40,7 +40,7 @@ module DataCycleCore
       end
 
       def assert_translated_datahash(datahash, thing)
-        assert_equal(datahash.keys.sort, (thing.translatable_property_names - thing.computed_property_names).sort)
+        assert_equal(datahash.keys.sort, (thing.translatable_property_names + thing.untranslatable_embedded_property_names - thing.computed_property_names - EXCLUDED_PROPERTIES).sort)
       end
 
       def assert_translated_thing(thing, locale)
@@ -88,6 +88,17 @@ module DataCycleCore
         json_classifications = json_validate.dig('dc:classification').sort_by { |c| c['@id'] }
         assert_equal(json_classifications, classifications.sort_by { |c| c['@id'] })
         json_validate.delete('dc:classification')
+      end
+
+      def assert_linked(json_validate, required_attributes, attributes)
+        compare_json = yield
+        json = json_validate.dup.slice(*compare_json.keys)
+        compare_json.each_key do |attribute|
+          # binding.pry
+          assert_equal(compare_json.dig(attribute).sort_by { |c| c['@id'] }, json.dig(attribute).sort_by { |c| c['@id'] })
+        end
+        compare_json.each_key { |a| json_validate.delete(a) }
+        attributes.each { |a| required_attributes.delete(a) }
       end
 
       def required_validation_attributes(thing)
