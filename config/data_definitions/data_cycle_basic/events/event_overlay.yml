@@ -134,8 +134,3 @@
             :disabled: true
           :show:
             :disabled: true
-      :super_event:
-        :label: Veranstaltungsserie
-        :type: linked
-        :template_name: Eventserie
-        :inverse_of: sub_event
