@@ -218,7 +218,7 @@ namespace :dc do
       desc 'rebuild the searches table'
       task :rebuild, [:template_names] => :environment do |_, args|
         temp_time = Time.zone.now
-        template_names = args.templates&.split('|')&.map(&:squish)
+        template_names = args.template_names&.split('|')&.map(&:squish)
         puts 'UPDATING SEARCH ENTRIES'
 
         query = DataCycleCore::Thing.where(template: true).where.not(content_type: 'embedded')
@@ -229,8 +229,8 @@ namespace :dc do
           DataCycleCore::Update::Update.new(type: DataCycleCore::Thing, template: template_object, strategy: strategy, transformation: nil)
         end
 
-        clean_up_query = DataCycleCore::Search.where('updated_at < ?', temp_time)
-        clean_up_query = clean_up_query.where(datatype: template_names) if template_names.present?
+        clean_up_query = DataCycleCore::Search.where('searches.updated_at < ?', temp_time)
+        clean_up_query = clean_up_query.where(data_type: template_names) if template_names.present?
         clean_up_count = clean_up_query.delete_all
 
         puts "REMOVED #{clean_up_count} orphaned entries."
