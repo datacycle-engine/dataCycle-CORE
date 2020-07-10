@@ -94,11 +94,17 @@ module DataCycleCore
         compare_json = yield
         json = json_validate.dup.slice(*compare_json.keys)
         compare_json.each_key do |attribute|
-          # binding.pry
           assert_equal(compare_json.dig(attribute).sort_by { |c| c['@id'] }, json.dig(attribute).sort_by { |c| c['@id'] })
         end
         compare_json.each_key { |a| json_validate.delete(a) }
         attributes.each { |a| required_attributes.delete(a) }
+      end
+
+      def assert_context(json_context, language)
+        assert_equal(2, json_context.size)
+        assert_equal('http://schema.org', json_context.first)
+        validator = DataCycleCore::V4::Validation::Context.context(language)
+        assert_equal({}, validator.call(json_context.second).errors.to_h)
       end
 
       def required_validation_attributes(thing)

@@ -8,13 +8,13 @@ module DataCycleCore
       module Content
         module Extensions
           module CreativeWorks
-            class ArticleDataTest < DataCycleCore::V4::Base
+            class StructuredArticleDataTest < DataCycleCore::V4::Base
               setup do
-                @content = DataCycleCore::V4::DummyDataHelper.create_data('article')
+                @content = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
                 assert_full_thing_datahash(@content)
               end
 
-              test 'api_v4_thing_path article' do
+              test 'api_v4_thing_path structured_article' do
                 params = {
                   id: @content.id
                 }
@@ -112,6 +112,15 @@ module DataCycleCore
                         'value' => @content.link_name,
                         'name' => 'Linktitel'
                       }
+                    ]
+                  }
+                end
+
+                # embedded
+                assert_attributes(json_validate, required_attributes, ['content_block']) do
+                  {
+                    'contentBlock' => [
+                      @content.content_block.first.to_api_default_values
                     ]
                   }
                 end

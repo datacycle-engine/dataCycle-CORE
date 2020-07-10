@@ -7,18 +7,21 @@ module DataCycleCore
     module V4
       module Language
         class NonMultilingualTest < DataCycleCore::V4::Base
+          # Testing not mulitlingual thing (Article)
+          # only available in language de
           setup do
             @content = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
-            # add translation for image
+
+            # add translation for author
             author = @content.author.first
             data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_en')
             I18n.with_locale(:en) { author.set_data_hash(data_hash: author.get_data_hash.merge(data_hash_en)) }
             author.reload
+
+            assert_full_thing_datahash(@content)
           end
 
-          test 'api_v4_thing_path validate non multilingual in en' do
-            assert_full_thing_datahash(@content)
-
+          test 'non multilingual api_v4_thing_path, params: language:en' do
             params = {
               id: @content.id,
               language: 'en'
@@ -27,14 +30,8 @@ module DataCycleCore
             json_data = JSON.parse response.body
             json_validate = json_data.dup
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_validate.delete('@context'), params.dig(:language))
 
-            # test full event data
             # empty because not exist in en
             required_attributes = []
 
@@ -53,9 +50,7 @@ module DataCycleCore
             assert_equal({}, json_validate)
           end
 
-          test 'api_v4_thing_path validate non multilingual with language de,en' do
-            assert_full_thing_datahash(@content)
-
+          test 'non multilingual api_v4_thing_path, params: language:de,en' do
             params = {
               id: @content.id,
               language: 'de,en'
@@ -64,23 +59,18 @@ module DataCycleCore
             json_data = JSON.parse response.body
             json_validate = json_data.dup
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_validate.delete('@context'), params.dig(:language))
 
-            # test full event data
-
-            # test full event data
             required_attributes = required_validation_attributes(@content)
-            # test minimal
 
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Article'
+                '@type' => 'Article',
+                'dc:multilingual' => false,
+                'dc:translation' => [
+                  'de'
+                ]
               }
             end
 
@@ -95,16 +85,6 @@ module DataCycleCore
                 'sameAs' => translated_value(@content, 'url', ['de']),
                 'alternativeHeadline' => translated_value(@content, 'alternative_headline', ['de']),
                 'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de'])
-              }
-            end
-
-            # validate language
-            assert_attributes(json_validate, required_attributes, []) do
-              {
-                'dc:multilingual' => false,
-                'dc:translation' => [
-                  'de'
-                ]
               }
             end
 
@@ -124,7 +104,7 @@ module DataCycleCore
               }
             end
 
-            # linked default: images, member
+            # linked default
             assert_attributes(json_validate, required_attributes, ['image', 'content_location', 'author', 'video', 'content_block']) do
               {
                 'author' => [
@@ -145,7 +125,7 @@ module DataCycleCore
               }
             end
 
-            # linked default: images, member
+            # potentialAction
             assert_translated_attributes(json_validate, required_attributes, ['potential_action']) do
               {
                 'potentialAction' => [
@@ -162,7 +142,7 @@ module DataCycleCore
               }
             end
 
-            # same_as => additionalProperty
+            # additionalProperty
             assert_translated_attributes(json_validate, required_attributes, ['link_name']) do
               {
                 'additionalProperty' => [
@@ -182,9 +162,7 @@ module DataCycleCore
             assert_equal({}, json_validate)
           end
 
-          test 'api_v4_thing_path validate non multilingual with language de,en and include translated and not translated linked object' do
-            assert_full_thing_datahash(@content)
-
+          test 'non multilingual api_v4_thing_path, params: language:de,en include translated and not translated linked object' do
             fields = [
               'name',
               'dc:multilingual',
@@ -207,12 +185,7 @@ module DataCycleCore
             json_data = JSON.parse response.body
             json_validate = json_data.dup
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_validate.delete('@context'), params.dig(:language))
 
             # empty because of fields param
             required_attributes = []
@@ -220,7 +193,11 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Article'
+                '@type' => 'Article',
+                'dc:multilingual' => false,
+                'dc:translation' => [
+                  'de'
+                ]
               }
             end
 
@@ -228,16 +205,6 @@ module DataCycleCore
             assert_translated_attributes(json_validate, required_attributes, ['name']) do
               {
                 'name' => translated_value(@content, 'name', ['de'])
-              }
-            end
-
-            # validate language
-            assert_attributes(json_validate, required_attributes, []) do
-              {
-                'dc:multilingual' => false,
-                'dc:translation' => [
-                  'de'
-                ]
               }
             end
 
@@ -281,9 +248,7 @@ module DataCycleCore
             assert_equal({}, json_validate)
           end
 
-          test 'api_v4_thing_path validate non multilingual with language de,en and include embedded object' do
-            assert_full_thing_datahash(@content)
-
+          test 'non multilingual api_v4_thing_path, params: language:de,en include embedded object' do
             params = {
               id: @content.id,
               language: 'de,en',
@@ -293,23 +258,18 @@ module DataCycleCore
             json_data = JSON.parse response.body
             json_validate = json_data.dup
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_validate.delete('@context'), params.dig(:language))
 
-            # test full event data
-
-            # test full event data
             required_attributes = required_validation_attributes(@content)
-            # test minimal
 
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Article'
+                '@type' => 'Article',
+                'dc:multilingual' => false,
+                'dc:translation' => [
+                  'de'
+                ]
               }
             end
 
@@ -324,16 +284,6 @@ module DataCycleCore
                 'sameAs' => translated_value(@content, 'url', ['de']),
                 'alternativeHeadline' => translated_value(@content, 'alternative_headline', ['de']),
                 'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de'])
-              }
-            end
-
-            # validate language
-            assert_attributes(json_validate, required_attributes, []) do
-              {
-                'dc:multilingual' => false,
-                'dc:translation' => [
-                  'de'
-                ]
               }
             end
 
@@ -353,7 +303,7 @@ module DataCycleCore
               }
             end
 
-            # linked default: images, member
+            # linked default
             assert_attributes(json_validate, required_attributes, ['image', 'content_location', 'author', 'video']) do
               {
                 'author' => [
@@ -371,7 +321,7 @@ module DataCycleCore
               }
             end
 
-            # linked default: images, member
+            # potentialAction
             assert_translated_attributes(json_validate, required_attributes, ['potential_action']) do
               {
                 'potentialAction' => [
@@ -388,7 +338,7 @@ module DataCycleCore
               }
             end
 
-            # same_as => additionalProperty
+            # additionalProperty
             assert_translated_attributes(json_validate, required_attributes, ['link_name']) do
               {
                 'additionalProperty' => [
@@ -404,7 +354,7 @@ module DataCycleCore
 
             assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
-            # linked default: images, member
+            # embedded
             assert_attributes(json_validate, required_attributes, ['content_block']) do
               {
                 'contentBlock' => [
