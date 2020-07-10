@@ -175,6 +175,35 @@ module DataCycleCore
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
+          test 'api/v4/thing with include=organizer' do
+            params = {
+              id: @event.id,
+              include: 'organizer'
+            }
+            post api_v4_thing_path(params)
+
+            json_data = JSON.parse response.body
+            json_validate = json_data.dup
+
+            # validate context
+            json_context = json_validate.delete('@context')
+            assert_equal(2, json_context.size)
+            assert_equal('http://schema.org', json_context.first)
+            validator = DataCycleCore::V4::Validation::Context.context
+            assert_equal({}, validator.call(json_context.second).errors.to_h)
+
+            include = Dry::Schema.JSON do
+              required(:organizer).value(:array, min_size?: 1).each do
+                hash(DataCycleCore::V4::Validation::Thing::DEFAULT_HEADER.merge(
+                       DataCycleCore::V4::Validation::Thing::DEFAULT_PERSON_ATTRIBUTES
+                     ))
+              end
+            end
+
+            validator = DataCycleCore::V4::Validation::Thing.event(params: { include: include })
+            assert_equal({}, validator.call(json_validate).errors.to_h)
+          end
+
           test 'api/v4/thing with fields:image.thumbnailUrl,description,image.author.address' do
             params = {
               id: @event.id,

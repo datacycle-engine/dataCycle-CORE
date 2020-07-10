@@ -105,8 +105,6 @@ module DataCycleCore
       data_value
     end
 
-    # APIv4 fields = mode_parameters
-    # TODO: v4 needs unique method
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil, linked_filter_id = nil, is_linked = false, depth = 0)
       include_params = is_linked ? include_parameters.dup << 'is_linked' : include_parameters
       if item.is_a?(DataCycleCore::Thing)
@@ -114,12 +112,28 @@ module DataCycleCore
       elsif item.is_a?(DataCycleCore::Thing::History)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       elsif item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       else
         raise NotImplementedError
       end
+    end
+
+    # cache key
+    # section: WIP
+    def api_v4_cache_key(item, language, include_parameters, field_parameters, api_subversion = nil, full = nil)
+      include_params = include_parameters&.sort&.inject([]){|carrier,param| carrier << param.join('.')}.join(',')
+      field_params = field_parameters&.sort&.inject([]){|carrier,param| carrier << param.join('.')}.join(',')
+
+      if item.is_a?(DataCycleCore::Thing) || item.is_a?(DataCycleCore::Thing::History)
+        test = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_include/#{include_params}_fields/#{field_params}"
+      elsif item.is_a?(DataCycleCore::ClassificationAlias) || item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
+        test = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_include/#{include_params}_fields/#{field_params}_#{full}"
+      else
+        raise NotImplementedError
+      end
+      test
     end
 
     def api_plain_context(languages)
