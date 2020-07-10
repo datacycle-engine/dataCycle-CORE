@@ -5,22 +5,10 @@ let QuillHelpers = require('./../helpers/quill_helpers');
 class Validator {
   constructor(formElement) {
     this.form = $(formElement);
-    this.submitButton = this.form
-      .siblings('.edit-header')
-      .find('.submit-edit-form')
-      .first();
-    this.saveButton = this.form
-      .siblings('.edit-header')
-      .find('.save-content-button')
-      .first();
-    this.languageMenu = this.form
-      .siblings('.edit-header')
-      .find('#locales-menu')
-      .first();
-    this.agbsCheck = this.form
-      .siblings('.edit-header')
-      .find('.form-element.agbs')
-      .first();
+    this.submitButton = this.form.siblings('.edit-header').find('.submit-edit-form').first();
+    this.saveButton = this.form.siblings('.edit-header').find('.save-content-button').first();
+    this.languageMenu = this.form.siblings('.edit-header').find('#locales-menu').first();
+    this.agbsCheck = this.form.siblings('.edit-header').find('.form-element.agbs').first();
     this.contentUploader = this.form.data('content-uploader');
     this.initialFormData = [];
     this.submitFormData = [];
@@ -59,6 +47,7 @@ class Validator {
     this.agbsCheck.on('change', this.validateSingle.bind(this));
     this.form.on('dc:form:disable', this.disable.bind(this));
     this.form.on('dc:form:enable', this.enable.bind(this));
+    this.form.on('dc:html:initialized', '*', this.updateInitialFormData.bind(this));
 
     if (this.form.hasClass('bulk-edit-form') && window.actionCable !== undefined) {
       this.initActionCable();
@@ -87,9 +76,7 @@ class Validator {
   }
   closeError(event) {
     event.preventDefault();
-    $(event.target)
-      .closest('.single_error')
-      .remove();
+    $(event.target).closest('.single_error').remove();
   }
   validateSingle(event, data) {
     if (data && data.type === 'reset') return;
@@ -98,10 +85,11 @@ class Validator {
   }
   pageLeaveWarning() {
     QuillHelpers.updateEditors(this.form);
-    this.initialFormData = this.form.serializeArray();
+    this.initialFormData = this.form.serializeArray().uniqFieldValues();
     $(window).on('beforeunload', event => {
       QuillHelpers.updateEditors(this.form);
-      this.submitFormData = this.form.serializeArray();
+      this.submitFormData = this.form.serializeArray().uniqFieldValues();
+
       if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
@@ -125,6 +113,14 @@ class Validator {
         }
       });
     }
+  }
+  updateInitialFormData(event, data = {}) {
+    event.preventDefault();
+
+    if (!data || !data.newContent)
+      this.initialFormData = this.initialFormData.mergeUniqueFormValues(
+        $(event.target).find(':input').serializeArray()
+      );
   }
   validateAgbs(validationContainer) {
     let error = {
@@ -160,9 +156,7 @@ class Validator {
   renderErrorMessage(data, validationContainer) {
     let out = '';
     let item_id = '';
-    let item_label = $(validationContainer)
-      .find('label')
-      .first();
+    let item_label = $(validationContainer).find('label').first();
     let button_text = '';
     if (validationContainer != null && $(validationContainer).data('id') != undefined)
       item_id = $(validationContainer).data('id') + '_error';
@@ -174,14 +168,10 @@ class Validator {
     for (let key in data.error) {
       if (
         ($(validationContainer).data('id') != undefined &&
-          $(validationContainer)
-            .data('id')
-            .search(new RegExp(key, 'i')) != -1) ||
+          $(validationContainer).data('id').search(new RegExp(key, 'i')) != -1) ||
         ($(validationContainer).data('id') == undefined &&
           $(item_label).attr('for') != undefined &&
-          $(item_label)
-            .attr('for')
-            .search(new RegExp(key, 'i')) != -1)
+          $(item_label).attr('for').search(new RegExp(key, 'i')) != -1)
       ) {
         button_text += '<strong>' + ($(item_label).text() || 'Fehler') + ':</strong><br>' + data.error[key] + '<br>';
         out += '<strong>' + ($(item_label).text() || 'Fehler') + ':</strong> ' + data.error[key] + '</br>';
@@ -198,9 +188,7 @@ class Validator {
   }
   removeSubmitButtonErrors(item) {
     var item_id = '';
-    let item_label = $(item)
-      .find('label')
-      .first();
+    let item_label = $(item).find('label').first();
     if (item != null && $(item).data('id') != undefined) item_id = $(item).data('id') + '_error';
     else if (item != null && $(item_label).attr('for') != undefined) item_id = $(item_label).attr('for') + '_error';
     if (item == null) {
@@ -214,9 +202,7 @@ class Validator {
     }
   }
   resetField(validationContainer) {
-    $(validationContainer)
-      .children('.single_error')
-      .remove();
+    $(validationContainer).children('.single_error').remove();
     $(validationContainer).removeClass('has-error');
   }
   findItemsForField(validationContainer) {
@@ -224,13 +210,7 @@ class Validator {
     if ($(validationContainer).data('key') != undefined) {
       items = $(validationContainer).find('[name^="' + $(validationContainer).data('key') + '"]');
     } else if ($(validationContainer).children('label').length) {
-      items = $(validationContainer).find(
-        '#' +
-          $(validationContainer)
-            .children('label')
-            .first()
-            .prop('for')
-      );
+      items = $(validationContainer).find('#' + $(validationContainer).children('label').first().prop('for'));
     }
     return items;
   }
@@ -284,9 +264,7 @@ class Validator {
             .prop('id')
             .search(new RegExp(Object.keys(data.error).join('|'), 'i')) != -1
         ) {
-          $(validationContainer)
-            .append(this.renderErrorMessage(data, validationContainer))
-            .addClass('has-error');
+          $(validationContainer).append(this.renderErrorMessage(data, validationContainer)).addClass('has-error');
         }
       } else {
         this.removeSubmitButtonErrors(validationContainer);
@@ -300,12 +278,14 @@ class Validator {
     this.removeSubmitButtonErrors();
     this.disable();
     this.requests = [];
+
     $(event.target)
       .find('.validation-container:visible')
       .add(this.agbsCheck)
       .each((i, elem) => {
         this.requests.push(this.validateItem(elem));
       });
+
     this.resolveRequests($(event.target).is(this.form), data);
   }
   submitForm(

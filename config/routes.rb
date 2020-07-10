@@ -53,7 +53,6 @@ DataCycleCore::Engine.routes.draw do
       get :create_duplication, on: :member
       post :validate, on: :member
       post :validate, on: :collection
-      get :new_embedded_object, on: :member
       get :render_embedded_object, on: :member
       post :bulk_create, on: :collection
       delete :remove_locks, on: :member

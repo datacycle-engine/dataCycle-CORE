@@ -18,6 +18,7 @@ module DataCycleCore
         can :experimental_features, :dash_board
         can :advanced_filter, :backend
         can :show_admin_activities, :dash_board
+        can [:create_api, :create_api_with_users], DataCycleCore::StoredFilter
       end
     end
   end

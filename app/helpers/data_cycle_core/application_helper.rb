@@ -252,7 +252,7 @@ module DataCycleCore
 
       return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
 
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && (content.nil? || content&.allowed_feature_attribute?(key.attribute_name_from_key))
 
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
@@ -391,12 +391,12 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
-    def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {}, content: nil)
+    def render_embedded_object_partial(key:, definition:, parameters: {}, content: nil)
       partials = [
         "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
         definition['type'].underscore_blanks.to_s,
         'default'
-      ].compact.map { |p| "data_cycle_core/contents/editors/embedded/#{p}_#{partial}" }
+      ].compact.map { |p| "data_cycle_core/contents/editors/embedded/#{p}" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
@@ -418,6 +418,14 @@ module DataCycleCore
         block.arity <= 1 ? capture(name, &block) : capture(name, options, html_options, &block)
       else
         ERB::Util.html_escape(name)
+      end
+    end
+
+    def conditional_tag(name, condition, options = nil, &block)
+      if condition
+        content_tag name, capture(&block), options
+      else
+        capture(&block)
       end
     end
 

@@ -21,7 +21,7 @@ module DataCycleCore
         return if search_property_names.blank? || embedded?
         # timestamp = Time.zone.now
         I18n.with_locale(language) do
-          search_data = walk_embedded_data(self)
+          search_data = walk_embedded_data(self, false)
           advanced_search_attributes = walk_advanced(self)
           classification_mapping = walk_classifications(self)
           classification_alias_mapping = classification_mapping.dig(:classification_aliases)
@@ -35,7 +35,7 @@ module DataCycleCore
           DataCycleCore::Search.where(content_data_id: id, locale: language).first_or_initialize.tap do |s|
             s.full_text = search_data[:full_text]&.unicode_normalize(:nfkc)
             s.created_at = created_at
-            s.updated_at = Time.zone.now.to_s(:long_usec)
+            s.updated_at = Time.zone.now
             s.headline = search_data[:headline]
             s.classification_string = search_data[:classification_string]
             s.data_type = template_name
@@ -52,30 +52,34 @@ module DataCycleCore
         # ap "### inside update time: #{(Time.zone.now - timestamp)}: #{id}"
       end
 
-      def walk_embedded_data(object)
-        string_hash = parse_search_data(object)
+      def walk_embedded_data(object, is_embedded)
+        string_hash = parse_search_data(object, is_embedded)
         object.embedded_property_names.each do |embedded_name|
           object.try('send', embedded_name)&.each do |embedded_object|
-            embedded_string_hash = walk_embedded_data(embedded_object)
+            embedded_string_hash = walk_embedded_data(embedded_object, true)
             string_hash = append_hash(string_hash, embedded_string_hash)
           end
         end
         string_hash
       end
 
-      def parse_search_data(object)
+      def parse_search_data(object, is_embedded)
         string_hash = {}
         string_hash[:full_text] = DataCycleCore::MasterData::DataConverter.string_to_string(object.search_property_names.map { |item| object.send(item) }.join(' ').gsub(/[']/, "''"))
         string_hash[:full_text] = '' if string_hash[:full_text].nil?
         string_hash[:headline] = object.try('send', 'title')
         string_hash[:headline] = DataCycleCore::MasterData::DataConverter.string_to_string(string_hash[:headline].gsub(/[']/, "''")) unless string_hash[:headline].nil?
         string_hash[:headline] = '' if string_hash[:headline].nil?
+        if is_embedded # only headline of main content gets full boost!
+          string_hash[:full_text] = [string_hash[:headline], string_hash[:full_text]].join(' ')
+          string_hash[:headline] = ''
+        end
         if object.embedded?
           string_hash[:classification_string] = ''
         else
           string_hash[:classification_string] = [
-            object.display_classification_aliases('show').pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
-            object.display_classification_aliases('show').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
+            object.display_classification_aliases('show').map(&:name).try(:join, ' ').try(:gsub, /[']/, "''")&.strip,
+            object.display_classification_aliases('show').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")&.strip
           ].compact.join(' ')
         end
         string_hash[:all_text] = [string_hash[:headline].squish, string_hash[:classification_string].squish, string_hash[:full_text].squish].join(' ')

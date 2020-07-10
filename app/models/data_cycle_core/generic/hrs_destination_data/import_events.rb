@@ -13,12 +13,11 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(mongo_item, _locale, _source_filter)
-          # mongo_item.where(source_filter).all
+        def self.load_contents(mongo_item, _locale, source_filter)
           # hardcoded locale = de
           mongo_item.collection.aggregate(
             [
-              { '$match': { _id: { '$exists': true }, 'dump.de.deleted_at': { '$exists': false } } }, # import only not deleted data
+              { '$match': { _id: { '$exists': true } }.merge(source_filter) }, # import only not deleted or archived data
               { '$group': { _id: '$dump.de.event.id', dates: { '$addToSet': '$dump.de.date' }, dump: { '$last': '$dump' } } },
               { '$addFields': { 'dump.de.dates': '$dates' } }
             ]

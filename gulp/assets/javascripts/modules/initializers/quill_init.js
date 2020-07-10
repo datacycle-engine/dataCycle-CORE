@@ -124,6 +124,7 @@ module.exports.initialize = function ($) {
         options.modules.toolbar = toolbar[mode];
         options.formats = formats[mode];
         options.readOnly = readOnly;
+        options.bounds = node;
 
         try {
           let editor = new Quill(node, options);

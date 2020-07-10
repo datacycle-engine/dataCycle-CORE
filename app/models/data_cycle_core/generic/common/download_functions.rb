@@ -265,7 +265,7 @@ module DataCycleCore
           success
         end
 
-        def self.mark_deleted_from_data(download_object:, iterator:, options:)
+        def self.mark_deleted_from_data(download_object:, iterator:, archived: nil, options:)
           success = true
           delta = 100
           fixnum_max = (2**(0.size * 4 - 2) - 1)
@@ -285,12 +285,11 @@ module DataCycleCore
                 I18n.with_locale(locale) do
                   source_filter = options&.dig(:download, :source_filter) || {}
                   source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
-                  source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false } })
                 end
 
                 GC.start
                 times = [Time.current]
-
+                archive_from = options.dig(:download, :archive_from).present? ? eval(options.dig(:download, :archive_from)) : nil # rubocop:disable Security/Eval
                 begin
                   download_object.source_object.with(download_object.source_type) do |mongo_item|
                     mongo_item.with_session do |session|
@@ -300,17 +299,22 @@ module DataCycleCore
                         iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
                       end
                       iterate.each do |content|
+                        next if archive_from.present? && content.seen_at > archive_from
                         break if options[:max_count].present? && item_count >= options[:max_count]
                         item_count += 1
                         next if options[:min_count].present? && item_count < options[:min_count]
 
                         session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
 
-                        # process data
-                        # content.dump[locale] = content.dump[locale].except('deleted_at')
-                        content.dump[locale]['deleted_at'] ||= Time.zone.now
-                        content.dump[locale]['last_seen_before_delete'] ||= content.seen_at
-                        content.dump[locale]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
+                        if archived.present? && archived.call(content.dump[locale], archive_from)
+                          content.dump[locale]['archived_at'] ||= Time.zone.now
+                          content.dump[locale]['last_seen_before_archived'] ||= content.seen_at
+                          content.dump[locale]['archive_reason'] ||= options.dig(:download, :archive_reason) if options.dig(:download, :archive_reason).present?
+                        else
+                          content.dump[locale]['deleted_at'] ||= Time.zone.now
+                          content.dump[locale]['last_seen_before_delete'] ||= content.seen_at
+                          content.dump[locale]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
+                        end
                         content.save!
 
                         next unless (item_count % delta).zero?

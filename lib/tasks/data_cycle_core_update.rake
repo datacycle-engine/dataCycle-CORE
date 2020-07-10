@@ -175,45 +175,6 @@ namespace :data_cycle_core do
       puts "#{'thing_histories'.ljust(15)} | #{args[:template_name].ljust(25)} | #{(affected_history_items || 0).to_s.rjust(7)} | #{(total_history_items || 0).to_s.rjust(7)} | #{format_time(Time.zone.now - temp, 5, 6, 's')} \r"
     end
 
-    desc 'recreate the entries in the search table for all data-types in the Database'
-    task :rebuild_search, [:templates] => :environment do |_, args|
-      template_names = args.fetch(:templates, nil)&.split('|')&.map(&:squish)
-      puts 'updating search:'
-
-      query = DataCycleCore::Thing.where(template: true)
-      query = query.where(template_name: template_names) if template_names.present?
-
-      query.each do |template_object|
-        next if template_object.embedded?
-        template_name = template_object.template_name
-        data_count = DataCycleCore::Thing.where(template: false).where('template_name = ?', template_name).count
-        puts "#{'things'.ljust(25)} | #{template_name.ljust(25)} | #{(data_count || 0).to_s.rjust(10)}"
-
-        strategy = DataCycleCore::Update::UpdateSearch
-        DataCycleCore::Update::Update.new(type: DataCycleCore::Thing, template: template_object, strategy: strategy, transformation: nil)
-      end
-    end
-
-    desc 'update weigths (boost) in search table'
-    task update_search: [:environment] do
-      puts "#{'content_class'.ljust(30)} | #{'data_definition_name'.ljust(25)} | #{'#entries'.ljust(10)} | new weight"
-      puts '-' * 84
-      DataCycleCore::Thing.where(template: true).each do |template_object|
-        template_name = template_object.template_name
-        boost = template_object.schema['boost']
-
-        if boost.present?
-          search_entries = DataCycleCore::Search.where(content_data_type: 'DataCycleCore::Thing', data_type: template_name).count
-
-          connection = ActiveRecord::Base.connection
-          sql_update = "UPDATE searches SET boost = #{boost} WHERE content_data_type = 'DataCycleCore::Thing' AND data_type = '#{template_name}'"
-          connection.exec_query(sql_update)
-        end
-
-        puts "#{data_object.to_s.ljust(30)} | #{template_name.ljust(25)} | #{search_entries.to_s.rjust(10)} | #{(boost || 'no search').to_s.rjust(10)}"
-      end
-    end
-
     desc 'auto_tag all images (without Cloud Vision Tags)'
     task auto_tagging: [:environment] do
       abort('Feature AutoTagging has to be enabled!') unless DataCycleCore::Feature::AutoTagging.enabled?
@@ -250,6 +211,29 @@ namespace :dc do
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].invoke
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_all_templates_sql"].invoke(args.fetch(:history, false))
+      end
+    end
+
+    namespace :search do
+      desc 'rebuild the searches table'
+      task :rebuild, [:template_names] => :environment do |_, args|
+        temp_time = Time.zone.now
+        template_names = args.template_names&.split('|')&.map(&:squish)
+        puts 'UPDATING SEARCH ENTRIES'
+
+        query = DataCycleCore::Thing.where(template: true).where.not(content_type: 'embedded')
+        query = query.where(template_name: template_names) if template_names.present?
+
+        query.find_each do |template_object|
+          strategy = DataCycleCore::Update::UpdateSearch
+          DataCycleCore::Update::Update.new(type: DataCycleCore::Thing, template: template_object, strategy: strategy, transformation: nil)
+        end
+
+        clean_up_query = DataCycleCore::Search.where('searches.updated_at < ?', temp_time)
+        clean_up_query = clean_up_query.where(data_type: template_names) if template_names.present?
+        clean_up_count = clean_up_query.delete_all
+
+        puts "REMOVED #{clean_up_count} orphaned entries."
       end
     end
   end

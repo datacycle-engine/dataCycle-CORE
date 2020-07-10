@@ -8,6 +8,8 @@ module DataCycleCore
           @host = host
           @end_point = end_point
           @token = token
+          @options = options[:options] || {}
+          @params = @options[:params] || {}
           @retry_options = {
             max: 5,
             interval: 1,
@@ -50,10 +52,12 @@ module DataCycleCore
         end
 
         def load_assets(folder_id)
-          load(qt: 'r', keyfolder: folder_id)
+          changed_from = @params[:changed_from]
+          load(qt: 'r', keyfolder: folder_id, changed_from: changed_from)
         end
 
         def load(**parameters)
+          changed_from = parameters.dig(:changed_from)
           conn = Faraday::Connection.new(File.join([@host, @end_point])) do |f|
             f.request :retry, @retry_options
             f.response :logger
@@ -67,6 +71,11 @@ module DataCycleCore
             req.params['token'] = @token
             req.params['qt'] = parameters.dig(:qt) if parameters.dig(:qt).present?
             req.params['keyfolder'] = parameters.dig(:keyfolder) if parameters.dig(:keyfolder).present?
+            if changed_from.present?
+              req.params['column_1'] = 'geaendert'
+              req.params['operator_1'] = 3
+              req.params['choice_1'] = changed_from.to_s
+            end
           end
 
           @cookie_values = (@cookie_values || {}).merge(Hash[

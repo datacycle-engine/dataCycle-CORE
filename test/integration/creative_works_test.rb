@@ -141,46 +141,7 @@ module DataCycleCore
       }, headers: {
         referer: thing_path(@content)
       }
-      assert response.body.include?('load-more-linked-contents')
-      assert(linked_pois[5..9].all? { |s| response.body.include?(s.name) })
-
-      get load_more_linked_objects_thing_path(@content), xhr: true, params: {
-        definition: @content.schema.dig('properties', 'content_location'),
-        key: 'content_location',
-        load_more_action: 'show',
-        locale: 'de',
-        content_id: @content.id,
-        content_type: 'things',
-        page: 3
-      }, headers: {
-        referer: thing_path(@content)
-      }
-      assert response.body.exclude?('load-more-linked-contents')
-      assert response.body.include?(linked_pois[10].name)
-
-      # get load_more_linked_objects_thing_path(@content), xhr: true, params: {
-      #   definition: @content.schema.dig('properties', 'quotation'),
-      #   key: 'quotation',
-      #   load_more_action: 'show',
-      #   locale: 'de',
-      #   page: 2
-      # }, headers: {
-      #   referer: thing_path(@content)
-      # }
-      # assert response.body.include?('load-more-linked-contents')
-      # assert(quotations[5..9].all? { |s| response.body.include?(s[:text]) })
-
-      # get load_more_linked_objects_thing_path(@content), xhr: true, params: {
-      #   definition: @content.schema.dig('properties', 'quotation'),
-      #   key: 'quotation',
-      #   load_more_action: 'show',
-      #   locale: 'de',
-      #   page: 3
-      # }, headers: {
-      #   referer: thing_path(@content)
-      # }
-      # assert response.body.exclude?('load-more-linked-contents')
-      # assert(response.body.include?(quotations.dig(10, :text)))
+      assert(linked_pois[5..10].all? { |s| response.body.include?(s.name) })
 
       get load_more_linked_objects_thing_path(@content), xhr: true, params: {
         definition: @content.schema.dig('properties', 'content_location'),
@@ -195,54 +156,7 @@ module DataCycleCore
       }, headers: {
         referer: edit_thing_path(@content)
       }
-      assert response.body.include?('load-more-linked-contents')
-      assert(linked_pois[5..9].all? { |s| response.body.include?(s.name) })
-
-      get load_more_linked_objects_thing_path(@content), xhr: true, params: {
-        definition: @content.schema.dig('properties', 'content_location'),
-        complete_key: 'thing[datahash][content_location]',
-        key: 'content_location',
-        content_id: @content.id,
-        content_type: 'things',
-        load_more_action: 'object_browser',
-        editable: true,
-        locale: 'de',
-        page: 3
-      }, headers: {
-        referer: edit_thing_path(@content)
-      }
-      assert response.body.exclude?('load-more-linked-contents')
-      assert response.body.include?(linked_pois[10].name)
-
-      # get load_more_linked_objects_thing_path(@content), xhr: true, params: {
-      #   definition: @content.schema.dig('properties', 'quotation'),
-      #   complete_key: 'thing[datahash][quotation]',
-      #   content_id: @content.id,
-      #   content_type: 'things',
-      #   editable: true,
-      #   key: 'quotation',
-      #   load_more_action: 'embedded_object',
-      #   page: 2
-      # }, headers: {
-      #   referer: edit_thing_path(@content)
-      # }
-      # assert response.body.include?('load-more-linked-contents')
-      # assert(quotations[5..9].all? { |s| response.body.include?(s[:text]) })
-      #
-      # get load_more_linked_objects_thing_path(@content), xhr: true, params: {
-      #   definition: @content.schema.dig('properties', 'quotation'),
-      #   complete_key: 'thing[datahash][quotation]',
-      #   content_id: @content.id,
-      #   content_type: 'things',
-      #   editable: true,
-      #   key: 'quotation',
-      #   load_more_action: 'embedded_object',
-      #   page: 3
-      # }, headers: {
-      #   referer: edit_thing_path(@content)
-      # }
-      # assert response.body.exclude?('load-more-linked-contents')
-      # assert(response.body.include?(quotations.dig(10, :text)))
+      assert(linked_pois[5..10].all? { |s| response.body.include?(s.name) })
     end
 
     # TODO: fix test (fails sometimes)

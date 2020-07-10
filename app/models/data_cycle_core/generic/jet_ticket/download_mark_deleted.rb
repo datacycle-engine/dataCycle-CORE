@@ -2,12 +2,13 @@
 
 module DataCycleCore
   module Generic
-    module Common
+    module JetTicket
       module DownloadMarkDeleted
         def self.download_content(utility_object:, options:)
           DataCycleCore::Generic::Common::DownloadFunctions.mark_deleted_from_data(
             download_object: utility_object,
             iterator: method(:load_contents).to_proc,
+            archived: method(:archive?).to_proc,
             options: options
           )
         end
@@ -21,6 +22,14 @@ module DataCycleCore
                 "dump.#{locale}.archived_at" => { '$exists' => false }
               })
           )
+        end
+
+        def self.archive?(data, deadline)
+          dtstart = data.dig('DateTime').try(:in_time_zone)
+          return true if dtstart.blank?
+          duration = Time.zone.parse(data.dig('Duration')) - Time.new(1900).in_time_zone
+          dtend = dtstart + duration
+          (dtend < deadline) && (dtstart < deadline)
         end
       end
     end

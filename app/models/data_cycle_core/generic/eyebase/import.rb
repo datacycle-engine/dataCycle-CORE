@@ -13,13 +13,8 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where(
-            source_filter.with_evaluated_values.merge(
-              "dump.#{locale}.mediaassettype.text": '501',
-              "dump.#{locale}.color.#cdata-section": { '$ne': 'rot' }
-            )
-          )
+        def self.load_contents(mongo_item, _locale, source_filter)
+          mongo_item.where(source_filter.with_evaluated_values)
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
@@ -28,7 +23,7 @@ module DataCycleCore
               utility_object: utility_object,
               raw_data: raw_data,
               locale: locale,
-              options: utility_object.external_source.config.dig('import_config', 'keywords')
+              options: utility_object.external_source.config.dig('import_config', 'keywords') || 'Eyebase - Tags'
             )
 
             DataCycleCore::Generic::Eyebase::Processing.process_media_asset(

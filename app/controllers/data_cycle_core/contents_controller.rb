@@ -175,15 +175,20 @@ module DataCycleCore
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
         valid = @content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true)
 
-        redirect_to(edit_thing_path(@content, watch_list_params), alert: valid[:error]) && return if valid[:error].present?
+        if valid[:error].present?
+          flash[:error] = valid[:error]
+          redirect_back(fallback_location: root_path)
+          return
+        end
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
-        merge_and_remove_duplicate if params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
+        duplicate = params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
+        merge_and_remove_duplicate if duplicate
 
         if params[:new_locale].present?
           redirect_to(edit_thing_path(@content, watch_list_params.merge(locale: params[:new_locale])))
-        elsif !params[:save_and_close] && !params[:finalize] && !params[:duplicate_id]
+        elsif !params[:save_and_close] && !params[:finalize] && !duplicate
           redirect_back(fallback_location: root_path)
         else
           redirect_to(thing_path(@content, watch_list_params.merge(locale: I18n.locale)))
@@ -262,23 +267,24 @@ module DataCycleCore
       end
     end
 
-    def new_embedded_object
-      @content = DataCycleCore::Thing.find_by(id: params[:id]) || DataCycleCore::Thing.new { |t| t.id = params[:id] || SecureRandom.uuid }
-
-      return unless can?(:edit, DataCycleCore::Thing) || can?(:edit, @content)
-
-      I18n.with_locale(params[:locale] || I18n.locale) do
-        respond_to(:js)
-        render && return
-      end
-    end
-
     def render_embedded_object
-      authorize! :edit, DataCycleCore::Thing
+      @content = DataCycleCore::Thing.find_by(id: render_embedded_object_params[:id]) || DataCycleCore::Thing.new { |t| t.id = render_embedded_object_params[:id] || SecureRandom.uuid } # new Thing required for bulk_edit
+      @key = render_embedded_object_params[:key]
+      @definition = render_embedded_object_params[:definition]
+      @index = render_embedded_object_params[:index]
+      @options = render_embedded_object_params[:options]
+      @locale = render_embedded_object_params[:locale]
+      @attribute_locale = render_embedded_object_params[:attribute_locale]
+      @duplicated_content = render_embedded_object_params[:duplicated_content]
 
-      I18n.with_locale(params[:locale] || I18n.locale) do
-        @objects = DataCycleCore::Thing.where(id: params[:object_ids]).includes(:translations)
-        @content = DataCycleCore::Thing.find(params[:id])
+      if @content&.template
+        authorize! :edit, @content
+      else
+        authorize! :edit, DataCycleCore::Thing
+      end
+
+      I18n.with_locale(@locale || I18n.locale) do
+        @objects = DataCycleCore::Thing.where(id: render_embedded_object_params[:object_ids]).includes(:translations) if render_embedded_object_params[:object_ids].present?
 
         respond_to(:js)
         render && return
@@ -304,15 +310,8 @@ module DataCycleCore
       @object = DataCycleCore::Thing.find(linked_object_params[:id])
       authorize! :show, @object
 
-      @page = linked_object_params[:page]&.to_i || 1
-
       I18n.with_locale(linked_object_params[:locale] || I18n.locale) do
-        if linked_object_params[:load_more_type] == 'all'
-          @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.includes(:translations)
-        else
-          @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
-        end
-
+        @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.offset(DataCycleCore.linked_objects_page_size)&.includes(:translations)
         @params = linked_object_params.to_h
 
         respond_to do |format|
@@ -415,6 +414,10 @@ module DataCycleCore
 
     def life_cycle_params
       params.require(:life_cycle).permit(:name, :id)
+    end
+
+    def render_embedded_object_params
+      params.permit(:id, :locale, :attribute_locale, :key, :index, :duplicated_content, object_ids: [], definition: {}, options: {})
     end
 
     def content_params(template_name, params_hash = nil)

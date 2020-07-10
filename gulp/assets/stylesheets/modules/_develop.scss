@@ -1552,24 +1552,36 @@ label[for='user_access_token'] {
       padding: 0.5rem;
 
       .removeContentObject {
+        position: absolute;
         z-index: 13;
-        top: 0.5rem;
-        right: 0.5rem;
+        top: 0.7rem;
+        right: 0.7rem;
       }
 
       .embedded-header {
         z-index: 13;
         width: 50%;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        position: absolute;
+        left: 1rem;
+        top: 0.6rem;
 
         .draggable-handle {
           display: inline-block;
           float: none;
         }
 
+        .swap-button.disabled {
+          color: lighten($color: $dark-gray, $amount: 20%);
+        }
+
         .translated {
           position: relative;
           top: 0;
           left: 0;
+          margin-right: 0.3rem;
           &.fixed-toolbar {
             position: fixed;
             top: 60px;
@@ -1588,14 +1600,16 @@ label[for='user_access_token'] {
 
           &.fixed-toolbar {
             position: fixed;
-            top: 59px;
+            top: 57px;
             width: 50%;
+            border: none;
           }
 
           &.fixed-split-toolbar {
             position: fixed;
             top: 185px;
             width: 25%;
+            border: none;
           }
         }
 
@@ -1607,6 +1621,7 @@ label[for='user_access_token'] {
 
       .text_editor {
         margin-bottom: 0;
+        width: 100%;
         .translated {
           display: none;
         }
@@ -2649,16 +2664,6 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 .embedded-object {
-  counter-reset: embedded;
-
-  .content-object-item:not(:only-of-type) {
-    counter-increment: embedded;
-
-    > .embedded-header::after {
-      content: counter(embedded);
-    }
-  }
-
   .swap-button {
     position: relative;
     float: left;
@@ -2680,10 +2685,6 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 
-.accordion {
-  &.no-margin {
-  }
-}
 .fallback-title {
   line-height: 1;
 }
@@ -2767,5 +2768,17 @@ button.button-prime.small.bulk-delete-button {
   }
   .form-element {
     margin: 0;
+  }
+}
+
+.remote-rendering {
+  &.accordion-content {
+    .loading {
+      padding: 1rem 0;
+    }
+  }
+
+  .loading .fa {
+    color: $light-gray;
   }
 }
