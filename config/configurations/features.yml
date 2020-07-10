@@ -81,7 +81,8 @@
     :relative: true
   :geo_filter:
     :geo_radius: false
-    :geo_within_classification: false
+    :geo_within_classification:
+      false
       # - Administrative Einheiten
   # :relation_filter:
   #   :event_location: content_location
@@ -187,3 +188,8 @@
   :widgets:
     :list:
     :map:
+
+:tile_border_color:
+  :enabled: false
+  :only_config: true
+  # :tree_label: Eyebase - Status
