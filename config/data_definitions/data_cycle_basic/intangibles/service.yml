@@ -132,15 +132,6 @@
         :api:
           :v4:
             :name: sameAs
-      # :hours_available:
-      #   :label: Verfügbarkeit
-      #   :type: embedded
-      #   :template_name: EventSchedule
-      #   :translated: true
-      #   :api:
-      #     :name: eventSchedule
-      #     :v4:
-      #       :disabled: true
       :hours_available:
         :label: Termine
         :type: schedule
@@ -163,21 +154,6 @@
         :label: Angebote
         :type: embedded
         :template_name: Angebot
-      # :potentialAction:
-      #   :label: Buchungs-Url
-      #   :type: object
-      #   :storage_location: translated_value
-      #   :api:
-      #     :type: Action
-      #   :properties:
-      #     :name:
-      #       :label: Name
-      #       :type: string
-      #       :storage_location: translated_value
-      #     :url:
-      #       :label: URL
-      #       :type: string
-      #       :storage_location: translated_value
       :feratel_service_classifications:
         :type: mixin
         :name: feratel_service_classifications

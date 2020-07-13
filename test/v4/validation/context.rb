@@ -30,6 +30,14 @@ module DataCycleCore
             required(:'@id') { eql?('https://schema.datacycle.at/isLinkedTo') }
             required(:'@container') { eql?('@set') }
           end
+          required(:'dc:multilingual').hash do
+            required(:'@id') { eql?('https://schema.datacycle.at/multilingual') }
+            required(:'@container') { eql?('@set') }
+          end
+          required(:'dc:translation').hash do
+            required(:'@id') { eql?('https://schema.datacycle.at/translation') }
+            required(:'@container') { eql?('@set') }
+          end
         end
 
         def self.build_language_attributes(languages)

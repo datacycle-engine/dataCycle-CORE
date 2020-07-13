@@ -6,7 +6,7 @@ module DataCycleCore
       contents ||= @contents
       json_context = api_plain_context(@language)
       json_contents = contents.map do |item|
-        Rails.cache.fetch("api_v4_#{api_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
+        Rails.cache.fetch(api_v4_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion), expires_in: 1.year + Random.rand(7.days)) do
           item.to_api_list
         end
       end
@@ -23,7 +23,7 @@ module DataCycleCore
     def list_api_deleted_request(contents)
       json_context = api_plain_context(@language)
       json_contents = contents.map do |item|
-        Rails.cache.fetch("api_v4_#{api_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
+        Rails.cache.fetch(api_v4_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion), expires_in: 1.year + Random.rand(7.days)) do
           item.to_api_deleted_list
         end
       end

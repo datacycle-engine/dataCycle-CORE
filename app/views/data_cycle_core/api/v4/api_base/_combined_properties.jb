@@ -15,12 +15,16 @@ combined.each do |combined_key, combined_value|
       partial_params = render_api_attribute key: key, definition: definition, value: content.try(key.to_sym), parameters: { options: options }, content: content
       render(*partial_params) unless partial_params.nil?
     end
-  }&.compact&.presence
+  }&.compact&.reject(&:blank?)
+
+  if json.dig(combined_key).blank?
+    json.delete(combined_key)
+    next
+  end
 
   new_fields = subtree_for(combined_key, options[:fields])
   next if new_fields.blank?
   new_include = subtree_for(combined_key, options[:include])
   json[combined_key] = json[combined_key]&.map { |array_item| array_item.select { |p_key, _value| api_default_attributes.include?(p_key) || select_attributes(new_fields).include?(p_key) || select_attributes(new_include).include?(p_key) } }
 end
-
 json.compact

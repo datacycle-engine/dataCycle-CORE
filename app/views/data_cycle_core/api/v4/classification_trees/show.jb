@@ -12,7 +12,7 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 json = {}
 if @classification_tree_label.visible?('api')
   json.merge! render 'context', languages: @language
-  json.merge!(Rails.cache.fetch("api_v4_#{api_cache_key(@classification_tree_label, options[:language], options[:include], options[:fields], @api_subversion, options[:full])}", expires_in: 1.year + Random.rand(7.days)) do
+  json.merge!(Rails.cache.fetch(api_v4_cache_key(@classification_tree_label, options[:language], options[:include], options[:fields], @api_subversion, options[:full]), expires_in: 1.year + Random.rand(7.days)) do
     I18n.with_locale(I18n.default_locale) do
       render 'classification_tree', content: @classification_tree_label, options: options.dup
     end

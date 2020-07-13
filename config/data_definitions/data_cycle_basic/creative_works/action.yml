@@ -5,9 +5,6 @@
     :schema_type: Action
     :boost: 1.0
     :content_type: embedded
-    :features:
-      :translatable:
-        :allowed: true
     :properties:
       :id:
         :label: id

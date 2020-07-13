@@ -46,6 +46,16 @@ module DataCycleCore
               }
             end
 
+            # validate language
+            assert_attributes(json_validate, required_attributes, []) do
+              {
+                'dc:multilingual' => true,
+                'dc:translation' => [
+                  'de'
+                ]
+              }
+            end
+
             # plain attributes without transformation
             assert_attributes(json_validate, required_attributes, ['description', 'potential_action']) do
               {
@@ -163,7 +173,7 @@ module DataCycleCore
               }
             end
 
-            # locations content_location, virtual_location
+            # locations super_event
             assert_attributes(json_validate, required_attributes, ['super_event']) do
               {
                 'superEvent' => [
@@ -206,6 +216,16 @@ module DataCycleCore
                 '@id' => @content.id,
                 '@type' => 'Event',
                 'name' => @content.name
+              }
+            end
+
+            # validate language
+            assert_attributes(json_validate, required_attributes, []) do
+              {
+                'dc:multilingual' => true,
+                'dc:translation' => [
+                  'de'
+                ]
               }
             end
 
@@ -282,6 +302,10 @@ module DataCycleCore
             price_specification_api_values = {
               '@id' => price_specification_object.id,
               '@type' => 'UnitPriceSpecification',
+              'dc:multilingual' => false,
+              'dc:translation' => [
+                'de'
+              ],
               'price' => price_specification_object.price,
               'minPrice' => price_specification_object.min_price,
               'maxPrice' => price_specification_object.max_price,
@@ -293,6 +317,10 @@ module DataCycleCore
             item_offered_api_values = {
               '@id' => item_offered_object.id,
               '@type' => 'Intangible',
+              'dc:multilingual' => true,
+              'dc:translation' => [
+                'de'
+              ],
               'name' => item_offered_object.name,
               'description' => item_offered_object.description,
               'sameAs' => item_offered_object.url,
@@ -342,6 +370,10 @@ module DataCycleCore
             offer_api_values = {
               '@id' => offer_object.id,
               '@type' => 'Offer',
+              'dc:multilingual' => true,
+              'dc:translation' => [
+                'de'
+              ],
               'name' => offer_object.name,
               'description' => offer_object.description,
               'price' => offer_object.price,
@@ -438,6 +470,10 @@ module DataCycleCore
             virtual_location_api_values = {
               '@id' => virtual_location_object.id,
               '@type' => 'VirtualLocation',
+              'dc:multilingual' => false,
+              'dc:translation' => [
+                'de'
+              ],
               'name' => virtual_location_object.name,
               'url' => virtual_location_object.url
             }

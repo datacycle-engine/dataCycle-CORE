@@ -42,6 +42,16 @@ module DataCycleCore
                   }
                 end
 
+                # validate language
+                assert_attributes(json_validate, required_attributes, []) do
+                  {
+                    'dc:multilingual' => true,
+                    'dc:translation' => [
+                      'de'
+                    ]
+                  }
+                end
+
                 # plain attributes without transformation
                 assert_attributes(json_validate, required_attributes, ['description', 'potential_action']) do
                   {
