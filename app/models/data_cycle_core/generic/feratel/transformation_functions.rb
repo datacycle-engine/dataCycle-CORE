@@ -105,20 +105,6 @@ module DataCycleCore
           data.merge({ 'amenity_feature' => amenity_features })
         end
 
-        def self.add_external_system_data(data, name, key)
-          return data if (external_name = data.dig(*name)).nil? || (external_key = data.dig(*key)).nil?
-
-          external_system_data = data['external_system_data'] || []
-          external_system_data.push(
-            {
-              name: external_name,
-              external_key: external_key
-            }
-          )
-
-          data.merge({ 'external_system_data' => external_system_data })
-        end
-
         def self.add_service_description(data, attribute_name, description_name)
           raise ArgumentError unless data.is_a?(Hash)
 
