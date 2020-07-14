@@ -36,7 +36,7 @@ module DataCycleCore
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
-          assert_equal(@test_content.id, json_data.dig('@id'))
+          assert_equal(@test_content.id, json_data.dig('@graph').first.dig('@id'))
         end
 
         test '/api/v4/things/deleted' do
@@ -88,7 +88,7 @@ module DataCycleCore
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
-          assert_equal(tree_id, json_data.dig('@id'))
+          assert_equal(tree_id, json_data.dig('@graph').first.dig('@id'))
         end
 
         test '/api/v4/concept_schemes/id/concepts' do
@@ -110,7 +110,7 @@ module DataCycleCore
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
-          assert_equal(classification.id, json_data.dig('@id'))
+          assert_equal(classification.id, json_data.dig('@graph').first.dig('@id'))
         end
 
         test '/api/v4/users/:id' do

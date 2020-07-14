@@ -48,11 +48,11 @@ module DataCycleCore
             get api_v4_thing_path(id: @content_overlay, fields: fields&.join(','), include: includes&.join(','))
             assert_response(:success)
             assert_equal('application/json', response.content_type)
-            JSON.parse(response.body)
+            JSON.parse(response.body).dig('@graph').first
           end
 
           def add_default(array)
-            (['@context', '@id', '@type'] + array).sort
+            (['@id', '@type'] + array).sort
           end
 
           def add_header(array)

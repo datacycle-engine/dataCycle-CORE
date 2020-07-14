@@ -32,13 +32,9 @@ module DataCycleCore
             post api_v4_concept_scheme_path(params)
 
             json_data = JSON.parse(response.body)
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             assert_json_attributes(json_validate) do
               {
@@ -77,13 +73,9 @@ module DataCycleCore
             post api_v4_concept_scheme_path(params)
 
             json_data = JSON.parse(response.body)
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             assert_json_attributes(json_validate) do
               {
@@ -132,13 +124,9 @@ module DataCycleCore
             post api_v4_concept_scheme_path(params)
 
             json_data = JSON.parse(response.body)
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             assert_json_attributes(json_validate) do
               {
@@ -194,13 +182,9 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
 
             json_data = JSON.parse(response.body)
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             assert_json_attributes(json_validate) do
               {
@@ -306,13 +290,9 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
 
             json_data = JSON.parse(response.body)
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             I18n.with_locale('en') do
               assert_json_attributes(json_validate) do
@@ -446,13 +426,9 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
 
             json_data = JSON.parse(response.body)
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             pref_label = []
             I18n.with_locale('en') do
@@ -611,13 +587,9 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
 
             json_data = JSON.parse(response.body)
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig('de'))
 
             assert_json_attributes(json_validate) do
               {

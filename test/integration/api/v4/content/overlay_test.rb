@@ -68,7 +68,7 @@ module DataCycleCore
 
             assert_response(:success)
             assert_equal('application/json', response.content_type)
-            json_data = JSON.parse(response.body)
+            json_data = JSON.parse(response.body).dig('@graph').first
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content_overlay)
             assert_equal(header.except('name'), data.except('name'))
