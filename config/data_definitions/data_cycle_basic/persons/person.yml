@@ -82,6 +82,7 @@
         :api:
           :partial: enumeration
           :type: GenderType
+      # legacy protpert for v2 / v3
       :gender_api:
         :label: Geschlecht
         :storage_location: value

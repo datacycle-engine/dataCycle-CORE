@@ -27,6 +27,13 @@ module DataCycleCore
           count: 1
         }.freeze
 
+        DEFAULT_SECTION_SETTINGS = {
+          '@graph': 1,
+          '@context': 1,
+          meta: 1,
+          links: 1
+        }.freeze
+
         after_action :log_activity, unless: -> { params[:sl] }
         before_action :authenticate, :set_default_response_format
 
@@ -35,21 +42,30 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :content_id, :sort, { page: [:size, :number, :offset, :limit, :count] }]
+          [:api_subversion, :token, :include, :fields, :content_id, :sort, :format, { section: permitted_section_params }, { page: permitted_page_params }]
         end
 
         def page_parameters
           permitted_params&.dig(:page)&.to_h&.symbolize_keys&.reject { |k, v| v.blank? || !permitted_page_params&.include?(k) } || {}
         end
 
+        def section_parameters
+          permitted_params&.dig(:section)&.to_h&.symbolize_keys&.reject { |k, v| v.blank? || !permitted_section_params&.include?(k) } || {}
+        end
+
         def permitted_page_params
-          [:size, :number, :offset, :limit, :count]
+          [:size, :number, :offset, :limit]
+        end
+
+        def permitted_section_params
+          [:'@graph', :'@context', :meta, :links]
         end
 
         def apply_paging(query)
           page_params = DEFAULT_PAGE_SETTINGS.merge(page_parameters)
+          section_params = DEFAULT_SECTION_SETTINGS.merge(section_parameters)
           raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for param page[size]: #{page_params[:size]}" unless page_params[:size].to_i.positive?
-          if page_params[:count].to_i.zero?
+          if section_params[:meta].to_i.zero?
             query.page(page_params[:number].to_i).per(page_params[:size].to_i).without_count
           else
             query.page(page_params[:number].to_i).per(page_params[:size].to_i)
@@ -73,6 +89,18 @@ module DataCycleCore
         def log_activity
           activity_data = permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action'))
           current_user.activities.create(activity_type: "api_v#{@api_version}", data: activity_data)
+        end
+
+        def prepare_url_parameters
+          @url_parameters = permitted_params.reject { |k, _| k == 'format' }
+          @include_parameters = parse_tree_params(permitted_params.dig(:include))
+          @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
+          @field_filter = @fields_parameters.present?
+          @section_parameters = section_parameters
+          @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
+          @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
+          @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)
+          @api_version = 4
         end
 
         private
