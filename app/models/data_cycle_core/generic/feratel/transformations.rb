@@ -131,6 +131,7 @@ module DataCycleCore
           .>> t(:unwrap, 'Address')
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
+          .>> t(:add_external_system_data, ['MetaRating', 'RatingSystem'], ['MetaRating', 'RatingCode'])
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['ServiceProvider']))
           .>> t(:add_links, 'logo', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['ServiceProviderLogo']))

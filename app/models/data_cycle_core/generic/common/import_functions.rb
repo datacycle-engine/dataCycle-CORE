@@ -88,6 +88,13 @@ module DataCycleCore
           end
 
           content.tap(&:save!)
+
+          data.dig('external_system_data')&.each do |es|
+            external_system = DataCycleCore::ExternalSystem.find_by(name: es['name'])
+            content.add_external_system_data(external_system, { external_key: es['external_key'] })
+          end
+
+          content
         end
 
         def self.import_contents(utility_object:, iterator:, data_processor:, options:)
