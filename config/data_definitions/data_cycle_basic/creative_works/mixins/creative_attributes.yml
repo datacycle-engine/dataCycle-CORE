@@ -91,6 +91,7 @@
           :name: sameAs
         :xml:
           :name: sameAs
+      # legacy property for v2 / v3
       :keywords:
         :label: Keywords
         :storage_location: translated_value
@@ -104,3 +105,17 @@
         :ui:
           :show:
             :disabled: true
+#      :keywords:
+#        :label: Keywords
+#        :storage_location: virtual
+#        :type: virtual
+#        :virtual:
+#          :type: string
+#          :module: Utility::Virtual::Classification
+#          :method: concat
+#          :key: name
+#          :parameters:
+#            :0: tags
+#        :ui:
+#          :show:
+#            :disabled: true
