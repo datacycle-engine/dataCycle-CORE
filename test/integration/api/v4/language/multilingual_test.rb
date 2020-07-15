@@ -11,11 +11,6 @@ module DataCycleCore
             @content = DataCycleCore::V4::DummyDataHelper.create_data('event')
             @article = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
             @article.set_data_hash(partial_update: true, prevent_history: true, data_hash: { about: [@content.id] })
-            # add translation for image
-            # author = @content.author.first
-            # data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_en')
-            # I18n.with_locale(:en) { author.set_data_hash(data_hash: author.get_data_hash.merge(data_hash_en)) }
-            # author.reload
           end
 
           test 'api_v4_thing_path event multilingual in non existing language' do

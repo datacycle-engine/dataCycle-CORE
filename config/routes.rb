@@ -241,6 +241,7 @@ DataCycleCore::Engine.routes.draw do
           namespace :v4 do
             scope path: '(/:api_subversion)' do
               match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
+              match 'things/fetch_multiple', to: 'contents#fetch', as: 'contents_fetch', via: [:get, :post]
 
               match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
               match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]

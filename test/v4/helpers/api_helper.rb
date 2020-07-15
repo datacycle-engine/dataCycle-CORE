@@ -28,9 +28,20 @@ module DataCycleCore
         assert_response :success
         assert_equal(response.content_type, 'application/json')
         json_data = JSON.parse(response.body)
+        assert_equal(2, json_data['@context'].size)
         assert_equal(count, json_data['@graph'].size)
         assert_equal(count, json_data['meta']['total'].to_i)
-        assert_equal(true, json_data.key?('links'))
+        assert(json_data.key?('links'))
+      end
+
+      def assert_api_default_sections
+        assert_response :success
+        assert_equal(response.content_type, 'application/json')
+        json_data = JSON.parse(response.body)
+        assert_equal(2, json_data['@context'].size)
+        assert(json_data['@graph'].size.positive?)
+        assert(json_data.key?('meta'))
+        assert(json_data.key?('links'))
       end
 
       def assert_full_thing_datahash(thing)
