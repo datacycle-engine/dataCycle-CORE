@@ -158,5 +158,25 @@ describe DataCycleCore::MasterData::Validators::String do
         assert_equal(0, validator.error[:warning].size)
       end
     end
+
+    it 'gives a warning when string does not fulfill telephone DIN 5008 format restriction' do
+      new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'telephone_din5008' } })
+      cases = ['(030) 86402357', '0 22 56 / 4 35 90 45', '0030-795-463872 ', '0043 463 123443-23', '0049 30 1564855', '050 12435-23-22', '1 1245', '0463 12 23 343']
+      cases.each do |test_case|
+        validator = subject.new(test_case, new_template)
+        assert_equal(0, validator.error[:error].size)
+        assert_equal(1, validator.error[:warning].size)
+      end
+    end
+
+    it 'passes when string fulfills telephone DIN 5008 format restriction' do
+      new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'telephone_din5008' } })
+      cases = ['01 12345', '123456-445', '+43 911 6348-24333625', '089 4359045', '0664 123456677', '+43 664 123454945', '050 12435-23', '01 33455-34', '+43 1 123', '01 58058-0', '+43 212 2233', '+49 30 12345-67']
+      cases.each do |test_case|
+        validator = subject.new(test_case, new_template)
+        assert_equal(0, validator.error[:error].size)
+        assert_equal(0, validator.error[:warning].size)
+      end
+    end
   end
 end
