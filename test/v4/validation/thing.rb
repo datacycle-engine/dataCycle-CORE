@@ -23,6 +23,8 @@ module DataCycleCore
 
         # Test with Event
         DEFAULT_EVENT_ATTRIBUTES = Dry::Schema.JSON do
+          optional(:'dc:multilingual').value(:bool)
+          optional(:'dc:translation').array(:str?)
           optional(:"dc:classification").value(:array).each do
             hash(DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER)
           end
@@ -80,6 +82,8 @@ module DataCycleCore
 
         # Test with Author
         DEFAULT_PERSON_ATTRIBUTES = Dry::Schema.JSON do
+          optional(:'dc:multilingual').value(:bool)
+          optional(:'dc:translation').array(:str?)
           optional(:"dc:classification").value(:array).each do
             hash(DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER)
           end

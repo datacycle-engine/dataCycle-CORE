@@ -19,6 +19,13 @@ module DataCycleCore
               end
               xml.ChangedEvents do
                 xml.Details
+                xml.Documents
+                xml.Descriptions
+                xml.Links
+                xml.Facilities
+                xml.Addresses
+                xml.CustomAttributes
+                xml.HandicapFacilities
               end
             end
           end
@@ -39,6 +46,31 @@ module DataCycleCore
               end
               xml.ChangedServiceProviders do
                 xml.Details
+                xml.Documents
+                xml.Descriptions
+                xml.Links
+                xml.Facilities
+                xml.Addresses
+                xml.HotSpots
+                xml.Services do
+                  xml.Details
+                  xml.Descriptions
+                  xml.Facilities
+                  xml.Products do
+                    xml.Details
+                    xml.Descriptions
+                    xml.PriceDetails
+                  end
+                end
+                xml.AdditionalServices do
+                  xml.Details
+                  xml.Links
+                  xml.Facilities
+                  xml.AdditionalProducts do
+                    xml.Details
+                    xml.PriceDetails
+                  end
+                end
               end
             end
           end
@@ -59,6 +91,22 @@ module DataCycleCore
               end
               xml.ChangedServiceProviders do
                 xml.Details
+                xml.Documents
+                xml.Descriptions
+                xml.Links
+                xml.Facilities
+                xml.Addresses
+                xml.HotSpots
+                xml.AdditionalServices do
+                  xml.Details
+                  xml.Descriptions
+                  xml.Links
+                  xml.Facilities
+                  xml.AdditionalProducts do
+                    xml.Details
+                    xml.PriceDetails
+                  end
+                end
               end
             end
           end
@@ -79,6 +127,13 @@ module DataCycleCore
               end
               xml.ChangedInfrastructures do
                 xml.Details
+                xml.Documents
+                xml.Descriptions
+                xml.Links
+                xml.Addresses
+                xml.HotSpots
+                xml.CustomAttributes
+                xml.HandicapFacilities
               end
             end
           end

@@ -371,7 +371,7 @@ class ObjectBrowser {
         content_type: this.content_type,
         load_more_action: 'object_browser',
         load_more_type: 'all',
-        load_more_except: loaded_ids
+        load_more_except: undefined
       },
       contentType: 'application/json'
     }).done(() => {

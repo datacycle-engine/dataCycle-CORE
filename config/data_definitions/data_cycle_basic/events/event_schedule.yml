@@ -7,9 +7,6 @@
     :content_type: embedded
     :api:
       :type: Schedule
-    :features:
-      :translatable:
-        :allowed: true
     :properties:
       :id:
         :label: id
