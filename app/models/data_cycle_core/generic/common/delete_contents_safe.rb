@@ -19,10 +19,12 @@ module DataCycleCore
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
-          last_successful_import = utility_object.external_source.last_successful_import || Time.zone.now - 20.years
-          last_successful_download = utility_object.external_source.last_successful_download || Time.zone.now - 20.years
-          last_success = [last_successful_import, last_successful_download].compact.min
-          return if last_success.present? && last_success > raw_data.dig('deleted_at').in_time_zone
+          unless options.dig(:mode).try(:to_s) == 'full'
+            last_successful_import = utility_object.external_source.last_successful_import || Time.zone.now - 20.years
+            last_successful_download = utility_object.external_source.last_successful_download || Time.zone.now - 20.years
+            last_success = [last_successful_import, last_successful_download].compact.min
+            return if last_success.present? && last_success > raw_data.dig('deleted_at').in_time_zone
+          end
 
           I18n.with_locale(locale) do
             external_key_path = options.dig(:import, :external_key_path).split('.')
