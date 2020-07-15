@@ -19,6 +19,13 @@ module DataCycleCore
               end
               xml.ChangedEvents do
                 xml.Details
+                # xml.Documents
+                # xml.Descriptions
+                # xml.Links
+                # xml.Facilities
+                # xml.Addresses
+                # xml.CustomAttributes
+                # xml.HandicapFacilities
               end
             end
           end
