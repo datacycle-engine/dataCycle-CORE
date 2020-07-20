@@ -3,6 +3,7 @@
 module DataCycleCore
   module Filter
     extend ActiveSupport::Concern
+    DEFAULT_PAGE_SIZE = 25
 
     def get_filtered_results(query: nil, user_filter: { scope: 'backend' })
       @stored_filter ||= DataCycleCore::StoredFilter.new
@@ -122,8 +123,9 @@ module DataCycleCore
         @tree_page = @classification_trees&.current_page
         @tree_total_pages = @classification_trees&.total_pages
       else
+        page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
         @contents = get_filtered_results(query: query, user_filter: user_filter)
-        @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page]).without_count
+        @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page]).per(page_size).without_count
       end
     end
 
