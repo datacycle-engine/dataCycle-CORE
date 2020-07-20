@@ -107,6 +107,7 @@ module DataCycleCore
 
         def self.add_external_system_data(data, name, key)
           return data if (external_name = data.dig(*name)).nil? || (external_key = data.dig(*key)).nil?
+          return data if DataCycleCore::ExternalSystem.find_by(name: external_name).blank?
 
           external_system_data = data['external_system_data'] || []
           external_system_data.push(

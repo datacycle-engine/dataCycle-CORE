@@ -23,15 +23,46 @@ module DataCycleCore
           .>> t(:rename_keys, { 'label_de' => 'designation', 'icon_url_de' => 'icon' })
           .>> t(:nest, 'certification_type', ['designation', 'key', 'icon'])
           .>> t(:add_links, 'licence_owner', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('licence_owner'))&.map { |i| "reisen-fuer-alle.de - Lizenznehmer - #{i}" } })
-          .>> t(:add_links, 'certification_deaf', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('deaf', 'level'))&.map { |i| "reisen-fuer-alle.de - Zertifikat - Gehörlos - #{i}" } })
-          .>> t(:add_links, 'certification_mental', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('mental', 'level'))&.map { |i| "reisen-fuer-alle.de - Zertifikat - Kognitiv - #{i}" } })
-          .>> t(:add_links, 'certification_partially_deaf', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('partially_deaf', 'level'))&.map { |i| "reisen-fuer-alle.de - Zertifikat - Hörbehinderung - #{i}" } })
-          .>> t(:add_links, 'certification_partially_visual', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('partially_visual', 'level'))&.map { |i| "reisen-fuer-alle.de - Zertifikat - Sehbehinderung - #{i}" } })
-          .>> t(:add_links, 'certification_visual', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('visual', 'level'))&.map { |i| "reisen-fuer-alle.de - Zertifikat - Blind - #{i}" } })
-          .>> t(:add_links, 'certification_walking', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('walking', 'level'))&.map { |i| "reisen-fuer-alle.de - Zertifikat - Gehbehinderung - #{i}" } })
-          .>> t(:add_links, 'certification_wheelchair', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('wheelchair', 'level'))&.map { |i| "reisen-fuer-alle.de - Zertifikat - Rollstuhl - #{i}" } })
+          .>> t(:add_field, 'certificate_classification', ->(s) { add_classifications(s) })
           .>> t(:add_field, 'linked_thing', ->(s) { add_external_links(s.slice('feratel', 'outdoor_active')) })
           .>> t(:reject_keys, ['base_data', 'deaf', 'mental', 'partially_deaf', 'partially_visual', 'visual', 'walking', 'wheelchair'])
+        end
+
+        def self.add_classifications(data)
+          convert_topic_to_classification_name = {
+            'deaf' => 'Gehörlose',
+            'mental' => 'Kognitiv Beeinträchtigte',
+            'partially_deaf' => 'Hörbehinderte',
+            'partially_visual' => 'Sehbehinderte',
+            'visual' => 'Blinde',
+            'walking' => 'Gehbehinderte',
+            'wheelchair' => 'Rollstuhlfahrer'
+          }
+          convert_level = {
+            'full' => 'barrierefrei',
+            'info' => 'teilweise barrierefrei'
+          }
+
+          result = ['deaf', 'mental', 'partially_deaf', 'partially_visual', 'visual', 'walking', 'wheelchair'].map { |topic|
+            next if data.dig(topic, 'level') == 'none'
+            get_classification_id(convert_level[data.dig(topic, 'level')], convert_topic_to_classification_name[topic])
+          }.compact
+          result
+        end
+
+        def self.get_classification_id(leaf, parent)
+          parent_class = DataCycleCore::ClassificationAlias.for_tree('reisen-fuer-alle.de - Zertifikate').find_by(name: parent)
+          raise "reise-fuer-all.de importer: could not find classification_alias for #{parent} in tree (reisen-fuer-alle.de - Zertifikate)" if parent.blank?
+          class_alias = DataCycleCore::ClassificationAlias
+            .joins(:classification_tree)
+            .find_by(
+              classification_aliases: { name: leaf },
+              classification_trees: {
+                parent_classification_alias_id: parent_class.try(:id)
+              }
+            )
+          raise "reise-fuer-all.de importer: could not find classification_alias for #{leaf} in tree (reisen-fuer-alle.de - Zertifikate) with parent_classification_alias #{parent}" if class_alias.blank?
+          class_alias.primary_classification.id
         end
 
         def self.add_external_links(data)
