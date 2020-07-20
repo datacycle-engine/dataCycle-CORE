@@ -38,12 +38,12 @@ module DataCycleCore
             .find(permitted_params[:id])
         end
 
-        # fetch multiple ids
-        def fetch
-          if permitted_params[:uuid].present? && permitted_params[:uuid].is_a?(::Array) && permitted_params[:uuid].size.positive?
+        def select
+          uuid = permitted_params[:uuid] || permitted_params[:uuids]&.split(',')
+          if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
             fetched_things = DataCycleCore::Thing
               .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
-              .where(id: permitted_params[:uuid])
+              .where(id: uuid)
             @contents = apply_paging(fetched_things)
             render 'index'
           else
@@ -74,7 +74,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, uuid: []] + [permitted_filter_parameters]
+          super + [:id, :language, :uuids, uuid: []] + [permitted_filter_parameters]
         end
 
         def permitted_filter_parameters

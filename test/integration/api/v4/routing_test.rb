@@ -45,7 +45,7 @@ module DataCycleCore
           assert_equal(@content.id, json_data.dig('@graph').first.dig('@id'))
         end
 
-        test 'GET/POST /api/v4/things/fetch_multiple' do
+        test 'GET/POST /api/v4/things/select' do
           params = {
             uuid: [
               @content.id,
@@ -53,13 +53,28 @@ module DataCycleCore
             ]
           }
 
-          get api_v4_contents_fetch_path(params)
+          get api_v4_contents_select_path(params)
           json_data = JSON.parse response.body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(2)
           assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
 
-          post api_v4_contents_fetch_path(params)
+          post api_v4_contents_select_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(2)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+          params = {
+            uuids: "#{@content.id},#{@content.image.first.id}"
+          }
+          get api_v4_contents_select_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(2)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+          post api_v4_contents_select_path(params)
           json_data = JSON.parse response.body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(2)
