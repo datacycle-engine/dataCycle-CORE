@@ -90,7 +90,8 @@ module DataCycleCore
       'DataCycleCore::Generic::MediaArchive::Webhook',
       'DataCycleCore::Generic::Common::Webhook',
       'DataCycleCore::Generic::FeratelIdentityServer::Webhook',
-      'DataCycleCore::Generic::Sulu::Webhook'
+      'DataCycleCore::Generic::Sulu::Webhook',
+      'DataCycleCore::Generic::ExternalLink::Webhook'
     ]
 
     mattr_accessor :excluded_filter_classifications
