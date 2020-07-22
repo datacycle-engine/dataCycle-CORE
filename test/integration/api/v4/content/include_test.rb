@@ -25,6 +25,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse response.body
+            json_data = json_data.dig('@graph').first
 
             # full header of main item
             header = json_data.slice(*full_header_attributes)
@@ -43,6 +44,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse response.body
+            json_data = json_data.dig('@graph').first
 
             # full header of main item
             header = json_data.slice(*full_header_attributes)
@@ -67,6 +69,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse response.body
+            json_data = json_data.dig('@graph').first
 
             # full header of main item
             header = json_data.slice(*full_header_attributes)
@@ -91,6 +94,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse response.body
+            json_data = json_data.dig('@graph').first
 
             # full header of main item
             header = json_data.slice(*full_header_attributes)
@@ -120,6 +124,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse response.body
+            json_data = json_data.dig('@graph').first
 
             # full header of main item
             header = json_data.slice(*full_header_attributes)

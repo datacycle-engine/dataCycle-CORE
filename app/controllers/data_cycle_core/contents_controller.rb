@@ -375,6 +375,12 @@ module DataCycleCore
       redirect_back(fallback_location: root_path)
     end
 
+    def clear_cache
+      authorize! :clear, :cache
+      Rails.cache.delete_matched("*#{params[:id]}*")
+      redirect_back(fallback_location: root_path)
+    end
+
     private
 
     def set_watch_list
