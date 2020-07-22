@@ -11,12 +11,16 @@ module DataCycleCore
 
         def update
           strategy = api_strategy
-          content = content_params.as_json
+          contents = Array.wrap(content_params.as_json)
 
           external_source_id = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id]).try(:id)
-          response = strategy.update(content.merge('data_cycle_external_system_id' => external_source_id))
+          responses = contents.map do |content|
+            strategy.update(content.merge('data_cycle_external_system_id' => external_source_id))
+          end
 
-          render plain: response.to_json, content_type: 'application/json', status: response[:error].present? ? :bad_request : :ok
+          errors = responses.select { |i| i[:error].present? }
+
+          render plain: responses.to_json, content_type: 'application/json', status: errors.size.positive? ? :bad_request : :ok
         end
 
         # def create
@@ -31,12 +35,16 @@ module DataCycleCore
 
         def destroy
           strategy = api_strategy
-          content = content_params.as_json
+          contents = Array.wrap(content_params.as_json)
 
           external_source_id = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id]).try(:id)
-          response = strategy.delete(content.merge('data_cycle_external_system_id' => external_source_id))
+          responses = contents.map do |content|
+            strategy.delete(content.merge('data_cycle_external_system_id' => external_source_id))
+          end
 
-          render plain: response.to_json, content_type: 'application/json', status: response[:error].present? ? :bad_request : :ok
+          errors = responses.select { |i| i[:error].present? }
+
+          render plain: responses.to_json, content_type: 'application/json', status: errors.size.positive? ? :bad_request : :ok
         end
 
         private
