@@ -12,3 +12,7 @@
 #  :v2:
 #    :subversions:
 #      - 'test'
+#:ui:
+#  :dashboard:
+#    :page:
+#      :size: 25

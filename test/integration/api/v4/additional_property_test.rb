@@ -25,6 +25,8 @@ module DataCycleCore
 
           assert(json_data['@context'].present?)
           assert_equal('de', json_data.dig('@context', 1, '@language'))
+
+          json_data = json_data.dig('@graph').first
           assert_equal(@content.id, json_data['@id'])
           assert_equal(@content.schema['schema_type'], json_data['@type'])
           assert_equal(@content.name, json_data['name'])

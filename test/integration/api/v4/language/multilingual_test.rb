@@ -11,11 +11,6 @@ module DataCycleCore
             @content = DataCycleCore::V4::DummyDataHelper.create_data('event')
             @article = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
             @article.set_data_hash(partial_update: true, prevent_history: true, data_hash: { about: [@content.id] })
-            # add translation for image
-            # author = @content.author.first
-            # data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_en')
-            # I18n.with_locale(:en) { author.set_data_hash(data_hash: author.get_data_hash.merge(data_hash_en)) }
-            # author.reload
           end
 
           test 'api_v4_thing_path event multilingual in non existing language' do
@@ -27,14 +22,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             # required attributes for multilingual contents
             required_attributes = required_multilingual_validation_attributes(@content) + ['subject_of']
@@ -145,14 +135,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             # test full event data
             required_attributes = required_validation_attributes(@content)
@@ -341,14 +326,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             # empty because of fields param
             required_attributes = []
@@ -443,14 +423,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             # empty because of fields param
             required_attributes = []
@@ -541,14 +516,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             # test full event data
             required_attributes = required_validation_attributes(@content)
@@ -761,14 +731,9 @@ module DataCycleCore
 
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             # empty because of fields param
             required_attributes = []
@@ -959,14 +924,9 @@ module DataCycleCore
 
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context(params[:language])
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             # empty because of fields param
             required_attributes = []

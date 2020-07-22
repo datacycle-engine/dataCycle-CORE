@@ -146,6 +146,8 @@ de:
     version: Version
     comment: Kommentar
     status: Status
+    confirm_delete_all_caches: Wirklich alle Caches leeren?
+    confirm_delete_cache: Wirklich den Cache leeren?
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
     download_gpx: Als GPX-Datei herunterladen
     duplicate_content: Inhalt duplizieren
@@ -824,6 +826,9 @@ de:
     settings: Einstellungen
     publication_date: Publikationsdatum
     publications_calendar: Publikationskalender
+    cache:
+      clear_all: Alle Caches leeren
+      clear: Cache leeren
     classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
     classification_relations:
       one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'

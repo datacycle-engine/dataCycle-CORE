@@ -29,4 +29,17 @@
       <% end %>
     </div>
   <% end %>
+  <% if can? :clear_all, :cache %>
+    <div class="row columns">
+      <%= link_to clear_all_caches_path,
+                  method: :get,
+                  data: {
+                      confirm: "#{t('common.confirm_delete_all_caches', locale: DataCycleCore.ui_language) }"
+                  },
+                  title: t('data_cycle_core.cache.clear_all', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+        <span class="icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
+        <span class="title"><%= t('data_cycle_core.cache.clear_all', locale: DataCycleCore.ui_language) %></span>
+      <% end %>
+    </div>
+  <% end %>
 </div>

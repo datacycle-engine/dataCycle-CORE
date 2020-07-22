@@ -38,6 +38,19 @@ module DataCycleCore
             .find(permitted_params[:id])
         end
 
+        def select
+          uuid = permitted_params[:uuid] || permitted_params[:uuids]&.split(',')
+          if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
+            fetched_things = DataCycleCore::Thing
+              .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+              .where(id: uuid)
+            @contents = apply_paging(fetched_things)
+            render 'index'
+          else
+            render json: { error: 'No ids given!' }, layout: false, status: :bad_request
+          end
+        end
+
         def deleted
           deleted_contents = DataCycleCore::Thing::History.where(
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
@@ -61,7 +74,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language] + [permitted_filter_parameters]
+          super + [:id, :language, :uuids, uuid: []] + [permitted_filter_parameters]
         end
 
         def permitted_filter_parameters
