@@ -20,7 +20,7 @@ module DataCycleCore
           .>> t(:add_field, 'author', ->(s) { get_thing_id(s.dig('field_202', '#cdata-section'), 'Organization', external_source_id) })
           .>> t(:add_field, 'copyright_holder', ->(s) { get_thing_id(s.dig('copyright', '#cdata-section'), 'Organization', external_source_id) })
           .>> t(:add_field, 'content_location', ->(s) { get_thing_id(s.dig('field_214', '#cdata-section'), 'Örtlichkeit', external_source_id) })
-          .>> t(:add_field, 'restrictions', ->(s) { s.dig('field_216', '#cdata-section') })
+          .>> t(:add_field, 'restrictions', ->(s) { s.dig('field_224', '#cdata-section') })
           .>> t(:add_field, 'use_guidelines', ->(s) { s.dig('field_216', '#cdata-section') })
           .>> t(:add_field, 'date_created', ->(s) { s.dig('erstellt', '#cdata-section') })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('geaendert', '#cdata-section') })
