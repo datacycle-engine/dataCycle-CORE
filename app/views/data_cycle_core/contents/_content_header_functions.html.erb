@@ -34,6 +34,18 @@
             <button class="link" onclick="window.print();"><i aria-hidden="true" class="fa fa-print"></i></button>
           </li>
         <% end %>
+      <% if can? :clear_all, :cache %>
+        <li>
+          <%= link_to clear_cache_thing_path(content),
+                      method: :get,
+                      data: {
+                          confirm: "#{t('common.confirm_delete_cache', locale: DataCycleCore.ui_language) }"
+                      },
+                      title: t('data_cycle_core.cache.clear', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+            <span class="icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
+          <% end %>
+        </li>
+      <% end %>
         <li class="buttons">
           <%= link_to previous_authorized_crumb.url, class: 'hascontent close-show-button' do %>
             <i aria-hidden="true" class="fa fa-times"></i>

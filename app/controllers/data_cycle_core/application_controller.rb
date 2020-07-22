@@ -30,6 +30,12 @@ module DataCycleCore
       @current_ability ||= DataCycleCore::Ability.new(current_user, session)
     end
 
+    def clear_all_caches
+      authorize! :clear_all, :cache
+      Rails.cache.clear
+      redirect_back(fallback_location: root_path)
+    end
+
     def add_filter
       respond_to(:js)
     end

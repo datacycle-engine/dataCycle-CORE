@@ -17,6 +17,8 @@ DataCycleCore::Engine.routes.draw do
   get '/docs/*path', to: 'documentation#show'
   get '/docs', to: 'documentation#show'
 
+  get :clear_all_caches, controller: :application
+
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', as: 'local_asset', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file)/,
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
@@ -51,6 +53,7 @@ DataCycleCore::Engine.routes.draw do
       get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
       get :download_indesign, on: :member
       get :create_duplication, on: :member
+      get :clear_cache, on: :member
       post :validate, on: :member
       post :validate, on: :collection
       get :render_embedded_object, on: :member
@@ -241,6 +244,7 @@ DataCycleCore::Engine.routes.draw do
           namespace :v4 do
             scope path: '(/:api_subversion)' do
               match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
+              match 'things/select(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
 
               match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
               match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]

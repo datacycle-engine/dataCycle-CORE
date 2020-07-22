@@ -28,9 +28,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            assert_context(json_validate.delete('@context'), params.dig(:language))
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             # empty because not exist in en
             required_attributes = []
@@ -57,9 +57,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            assert_context(json_validate.delete('@context'), params.dig(:language))
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             required_attributes = required_validation_attributes(@content)
 
@@ -183,9 +183,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            assert_context(json_validate.delete('@context'), params.dig(:language))
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             # empty because of fields param
             required_attributes = []
@@ -256,9 +256,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            assert_context(json_validate.delete('@context'), params.dig(:language))
+            assert_context(json_data.dig('@context'), params.dig(:language))
 
             required_attributes = required_validation_attributes(@content)
 

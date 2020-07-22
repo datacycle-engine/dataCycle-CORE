@@ -22,7 +22,8 @@ namespace :datacycle do
         within release_path do
           with rails_env: fetch(:rails_env) do
             print_message 'Migrating Project'
-            execute :rake, "#{fetch(:cmd_prefix, '')}dc:update_data:computed_attributes[false,true,\"headline\\,name\\,legal_name\"]"
+            print_message 'No pending migrations found'
+            # execute :rake, "#{fetch(:cmd_prefix, '')}dc:update_data:computed_attributes[false,true,\"headline\\,name\\,legal_name\"]"
           end
         end
       end

@@ -125,7 +125,7 @@ module DataCycleCore
 
     def invalidate_cache
       classification_aliases.includes(:primary_classification).map { |ca| ca&.primary_classification&.things&.ids }.flatten.uniq&.each do |item_id|
-        Rails.cache.delete_matched("*data_cycle_core/thing_#{item_id}*")
+        Rails.cache.delete_matched("*#{item_id}*")
       end
     end
   end

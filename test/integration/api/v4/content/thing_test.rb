@@ -19,14 +19,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             validator = DataCycleCore::V4::Validation::Thing.event
             assert_equal({}, validator.call(json_validate).errors.to_h)
@@ -40,14 +35,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             fields = Dry::Schema.JSON do
               required(:startDate).value(:date_time)
@@ -67,14 +57,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             fields = Dry::Schema.JSON do
               required(:image).value(:array, min_size?: 1).each do
@@ -97,14 +82,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             fields = Dry::Schema.JSON do
               required(:image).value(:array, min_size?: 1).each do
@@ -144,14 +124,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             fields = Dry::Schema.JSON do
               required(:description).value(:string)
@@ -183,14 +158,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             include = Dry::Schema.JSON do
               required(:organizer).value(:array, min_size?: 1).each do
@@ -212,14 +182,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             fields = Dry::Schema.JSON do
               required(:description).value(:string)
@@ -267,14 +232,9 @@ module DataCycleCore
             post api_v4_thing_path(params)
 
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             fields = Dry::Schema.JSON do
               required(:"dc:classification").value(:array, min_size?: 1).each do
@@ -340,14 +300,8 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             fields = Dry::Schema.JSON do
               optional(:description).value(:string)
@@ -390,14 +344,8 @@ module DataCycleCore
             assert_api_count_result(@thing_count)
 
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             fields = Dry::Schema.JSON do
               optional(:"dc:classification").value(:array).each do
