@@ -48,6 +48,18 @@
         :api:
           :v4:
             :name: 'cc:useGuidelines'
+      :restrictions:
+        :label: Einschränkungen
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
       :license_classification:
         :label: Lizenzen
         :type: classification
