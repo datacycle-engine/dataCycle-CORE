@@ -5,6 +5,8 @@ module DataCycleCore
     belongs_to :syncable, polymorphic: true
     belongs_to :external_system
 
+    after_update :invalidate_cache
+
     def external_url
       return if !syncable.is_a?(DataCycleCore::Thing) || external_system&.default_options(:export)&.dig('external_url').blank? || external_key.blank?
 
@@ -21,6 +23,12 @@ module DataCycleCore
 
     def self.with_external_system(external_system_id)
       find_by(external_system_id: external_system_id)
+    end
+
+    private
+
+    def invalidate_cache
+      syncable.try(:invalidate_content_a_cache)
     end
   end
 end
