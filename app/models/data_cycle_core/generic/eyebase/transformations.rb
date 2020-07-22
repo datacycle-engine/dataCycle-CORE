@@ -27,7 +27,7 @@ module DataCycleCore
           .>> t(:add_field, 'width', ->(s) { s.dig('resolution_x', 'text')&.to_i })
           .>> t(:add_field, 'height', ->(s) { s.dig('resolution_y', 'text')&.to_i })
           .>> t(:add_field, 'content_size', ->(s) { s.dig('size_mb', 'text')&.gsub(',', '.')&.to_f&.*(1024)&.*(1024).to_i })
-          .>> t(:reject_keys, ['item_id', 'titel', 'field_202', 'copyright', 'field_216', 'resolution_x', 'resolution_y', 'size_mb'])
+          .>> t(:reject_keys, ['item_id', 'titel', 'field_202', 'field_224', 'copyright', 'field_216', 'resolution_x', 'resolution_y', 'size_mb'])
           .>> t(:add_field, 'content_url', ->(s) { s.dig('main_permalink', '#cdata-section') })
           .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('quality_512', 'permalink', '#cdata-section') })
           .>> t(:add_field, 'keywords_eyebase', ->(s) { parse_keywords(s) })
