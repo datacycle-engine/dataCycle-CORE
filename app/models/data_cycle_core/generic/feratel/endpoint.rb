@@ -386,7 +386,7 @@ module DataCycleCore
 
           if data_array[0].nil?
             envelop = Nokogiri::XML.parse(response.body)
-            raise StandardError, response.body if envelop.children.first&.try(:name) == 'html'
+            raise StandardError, response.body if envelop.children.first&.try(:name) == 'html' || envelop.children.first&.try(:name) == 'HTML'
 
             data = Nokogiri::XML(envelop.children.first.content)
             data.remove_namespaces!
