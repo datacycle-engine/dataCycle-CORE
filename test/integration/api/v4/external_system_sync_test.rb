@@ -51,6 +51,8 @@ module DataCycleCore
           assert_response :success
 
           assert_equal(new_external_key, @data_set.external_system_data(@external_system).dig('external_key'))
+          data = JSON.parse(response.body)
+          assert_equal([{ 'update' => @data_set.id }], data)
         end
 
         test 'update external_key for two things' do
@@ -68,6 +70,21 @@ module DataCycleCore
 
           assert_equal(new_external_key1, @data_set.external_system_data(@external_system).dig('external_key'))
           assert_equal(new_external_key2, data_set2.external_system_data(@external_system).dig('external_key'))
+          data = JSON.parse(response.body)
+          assert_equal([{ 'update' => @data_set.id }, { 'update' => data_set2.id }], data)
+        end
+
+        test 'update external_key in external system sync for a thing that does not exist' do
+          new_external_key = 'new_cms_id'
+          thing_id = SecureRandom.uuid
+          request_body = { '@graph' => item_body(thing_id, @external_system.name, new_external_key) }
+
+          patch api_v4_external_sources_update_path(external_source_id: @external_system.id), params: request_body, as: :json
+          assert_response :bad_request
+
+          assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
+          data = JSON.parse(response.body)
+          assert_equal(1, data.first['error'].size)
         end
 
         test 'delete external_key in external system sync for a thing' do
@@ -80,6 +97,8 @@ module DataCycleCore
           assert_response :success
 
           assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
+          data = JSON.parse(response.body)
+          assert_equal([{ 'delete' => @data_set.id }], data)
         end
 
         test 'delete external_key for two things' do
@@ -97,11 +116,38 @@ module DataCycleCore
               item_body(data_set2.id, @external_system.name, new_external_key2)
             ]
           }
-          delete api_v4_external_sources_update_path(external_source_id: @external_system.id), params: request_body, as: :json
+          delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
           assert_response :success
 
           assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
           assert_nil(data_set2.external_system_data(@external_system).dig('external_key'))
+          data = JSON.parse(response.body)
+          assert_equal([{ 'delete' => @data_set.id }, { 'delete' => data_set2.id }], data)
+        end
+
+        test 'delete external_key in external system sync for a thing that does not exist' do
+          new_external_key = 'new_cms_id'
+          thing_id = SecureRandom.uuid
+          request_body = { '@graph' => item_body(thing_id, @external_system.name, new_external_key) }
+
+          delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
+          assert_response :bad_request
+
+          assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
+          data = JSON.parse(response.body)
+          assert_equal(1, data.first['error'].size)
+        end
+
+        test 'sending request to a system that does not exist' do
+          new_external_key = 'new_cms_id'
+          thing_id = SecureRandom.uuid
+          request_body = { '@graph' => item_body(thing_id, @external_system.name, new_external_key) }
+
+          delete api_v4_external_sources_delete_path(external_source_id: SecureRandom.uuid), params: request_body, as: :json
+          assert_response :not_found
+
+          patch api_v4_external_sources_update_path(external_source_id: SecureRandom.uuid), params: request_body, as: :json
+          assert_response :not_found
         end
       end
     end
