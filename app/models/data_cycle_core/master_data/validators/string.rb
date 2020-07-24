@@ -92,8 +92,6 @@ module DataCycleCore
         end
 
         def telephone_din5008(data)
-          # TODO: test
-          # binding.pry
           din5008 = /^(\+[1-9]\d+) ([1-9]\d*) ([1-9]\d+)(\-\d+){0,1}$|^(0\d+) ([1-9]\d+)(\-\d+){0,1}$|^([1-9]\d+)(\-\d+){0,1}$|^(\+[1-9]\d+) ([1-9]\d+)(\-\d+){0,1}$/
           check_telephone = !(data =~ din5008).nil?
           (@error[:warning][@template_key] ||= []) << I18n.t(:telephone_din5008, scope: [:validation, :warnings], data: data, locale: DataCycleCore.ui_language) unless check_telephone

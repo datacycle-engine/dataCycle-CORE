@@ -964,7 +964,8 @@ video {
 
 // Submit button errors
 .tooltip {
-  .tooltip-error {
+  .tooltip-error,
+  .tooltip-warning {
     display: block;
     border-top: 1px solid white;
     margin-top: 0.5rem;
