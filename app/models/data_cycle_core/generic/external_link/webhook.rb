@@ -12,7 +12,7 @@ module DataCycleCore
 
           init_logging do |logging|
             errors = update_sync(data: data, external_system_id: raw_data.dig('data_cycle_external_system_id'))
-            errors = nil if errors.dig('error').blank?
+            errors = nil if errors.blank?
             if errors.present?
               logging.error('update', data['id'], raw_data, errors)
             else
@@ -30,7 +30,7 @@ module DataCycleCore
 
           init_logging do |logging|
             errors = delete_sync(data: data, external_system_id: raw_data.dig('data_cycle_external_system_id'))
-            errors = nil if errors.dig('error').blank?
+            errors = nil if errors.blank?
             if errors.present?
               logging.error('update', data['id'], raw_data, errors)
             else
@@ -43,6 +43,7 @@ module DataCycleCore
         private
 
         def update_sync(data:, external_system_id:)
+          return ["Data with id=#{data['id']} not found!"] if DataCycleCore::Thing.where(id: data['id']).blank?
           now = Time.zone.now
           identifier = data.dig('external_system_syncs').detect { |d| d['external_system_id'] == external_system_id }
           sync = DataCycleCore::ExternalSystemSync.find_or_initialize_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_system_id: external_system_id)
@@ -56,9 +57,10 @@ module DataCycleCore
         end
 
         def delete_sync(data:, external_system_id:)
+          return ["Data with id=#{data['id']} not found!"] if DataCycleCore::Thing.where(id: data['id']).blank?
           now = Time.zone.now
           sync = DataCycleCore::ExternalSystemSync.find_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_system_id: external_system_id)
-          return { error: "Data with #{id} not found!" } if sync.blank?
+          return ["Nothing to delete for data with id=#{data['id']}, in system with id=#{external_system_id}!"] if sync.blank?
           sync.data = Hash(sync.data).merge(pull_delete_data: { deleted_at: now })
           sync.data['external_key'] = nil
           sync.last_pull_at = now
