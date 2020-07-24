@@ -1,4 +1,4 @@
-image: patrickrainer/data_cycle_base:2.7.1
+image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
 
 variables:
   POSTGRES_USER: postgres
@@ -50,7 +50,7 @@ cache:
     - vendor/gems/data-cycle-core/lib/assets
 
 services:
-  - name: patrickrainer/data_cycle_postgis:latest
+  - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
     alias: postgres
   - name: mvertes/alpine-mongo:3.6.5-0
     alias: mongodb
