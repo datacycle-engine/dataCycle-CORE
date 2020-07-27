@@ -68,7 +68,7 @@ namespace :data_cycle_core do
       options = args.to_h.symbolize_keys
       external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       puts "downloading from #{external_source.name} (#{external_source.id}) with external_key: #{options[:external_key]}"
-      external_source.download_single(options[:stage].to_sym, { external_keys: Array.wrap(options[:external_key]) })
+      external_source.download_single(options[:stage].to_sym, { external_keys: Array.wrap(options[:external_key]), mode: 'full' })
     end
 
     desc 'Download and import data from partial data source'
