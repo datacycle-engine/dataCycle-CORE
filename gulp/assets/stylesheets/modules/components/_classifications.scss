@@ -144,14 +144,23 @@ ul.backend-treeview-list,
     border-top: 1px solid $medium-gray;
 
     > span.inner-item {
+      position: relative;
       padding: 0.7rem 1rem;
       display: inline-block;
+
+      .clipboard-notice {
+        right: auto;
+        left: 1rem;
+        top: 8px;
+      }
     }
 
     a.edit,
     a.destroy,
     a.download,
+    a.copy-to-clipboard,
     a.contents-list {
+      display: inline;
       margin: 0 0 0 0.2rem;
       color: $dark-gray;
       cursor: pointer;
@@ -159,6 +168,7 @@ ul.backend-treeview-list,
 
     a.edit:hover,
     a.download:hover,
+    a.copy-to-clipboard:hover,
     a.contents-list:hover {
       color: $primary-color;
     }
@@ -191,6 +201,12 @@ ul.backend-treeview-list,
           position: relative;
           padding: 0.5rem 0 0 1rem;
           display: inline-block;
+
+          .clipboard-notice {
+            right: auto;
+            left: 1rem;
+            top: 6px;
+          }
 
           &::before {
             content: '';
