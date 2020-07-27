@@ -10,6 +10,7 @@ module DataCycleCore
             data_id: method(:data_id).to_proc,
             data_name: method(:data_name).to_proc,
             modified: method(:modified).to_proc,
+            delete: method(:delete).to_proc,
             options: options
           )
         end
@@ -48,6 +49,10 @@ module DataCycleCore
             .inject(&:+)
             .map { |i| i.dig('ChangeDate').in_time_zone }
             .max
+        end
+
+        def self.delete(data, locale)
+          data.dig('Descriptions').blank? && locale != 'de'
         end
       end
     end
