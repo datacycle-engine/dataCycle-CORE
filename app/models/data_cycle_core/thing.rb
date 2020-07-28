@@ -26,6 +26,10 @@ module DataCycleCore
       belongs_to :duplicate, class_name: 'DataCycleCore::Thing'
       belongs_to :thing_duplicate
 
+      def self.thing_duplicates
+        DataCycleCore::ThingDuplicate.where(id: all.pluck(:thing_duplicate_id))
+      end
+
       def self.with_fp
         unscope(where: :false_positive)
       end
