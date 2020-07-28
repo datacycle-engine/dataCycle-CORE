@@ -98,7 +98,11 @@ class NewContentDialog {
       if (v && v.value.isUuid()) {
         requests.push(
           $.get('/api/v4/universal/' + v.value + '?fields=name,skos:prefLabel').done(data => {
-            v.text = data && (data['skos:prefLabel'] || data.name);
+            v.text =
+              data &&
+              data['@graph'] &&
+              data['@graph'][0] &&
+              (data['@graph'][0]['skos:prefLabel'] || data['@graph'][0].name);
           })
         );
       }
