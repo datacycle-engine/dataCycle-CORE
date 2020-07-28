@@ -1263,10 +1263,24 @@ CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree
 
 
 --
+-- Name: by_created_by_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX by_created_by_created_at ON public.things USING btree (created_by, created_at);
+
+
+--
 -- Name: by_ctl_esi; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX by_ctl_esi ON public.classification_tree_labels USING btree (external_source_id);
+
+
+--
+-- Name: by_template_name_template; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX by_template_name_template ON public.things USING btree (template_name, template);
 
 
 --
@@ -2250,6 +2264,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200529140637'),
 ('20200602070145'),
 ('20200721111525'),
-('20200724094112');
+('20200724094112'),
+('20200728062727');
 
 
