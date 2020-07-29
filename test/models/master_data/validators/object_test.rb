@@ -78,11 +78,11 @@ describe DataCycleCore::MasterData::Validators::Object do
       assert_equal(no_error_hash, validator.error)
     end
 
-    it 'warns for missing data' do
+    it 'does not warn for missing data' do
       data_hash = { 'greeting' => 'Hello World!' }
       validator = subject.new(data_hash, template_hash)
       assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
+      assert_equal(0, validator.error[:warning].size)
     end
 
     it 'produces an error when a object definition is missing' do
@@ -235,7 +235,7 @@ describe DataCycleCore::MasterData::Validators::Object do
 
       validator = subject.new({ 'test' => 'wrong' }, daterange_hash)
       assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
+      assert_equal(0, validator.error[:warning].size)
     end
 
     it 'produced an error if wrong validator is given' do

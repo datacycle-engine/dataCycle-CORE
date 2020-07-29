@@ -34,10 +34,7 @@ module DataCycleCore
           template_data.each do |key, key_item|
             @template_key = key
 
-            if !strict && data_keys.exclude?(key)
-              (@error[:warning][key] ||= []) << I18n.t(:no_evaluate, scope: [:validation, :warnings], data: key, locale: DataCycleCore.ui_language)
-              next
-            end
+            next if !strict && data_keys.exclude?(key)
 
             unless basic_types.include?(key_item['type'])
               (@error[:error][key] ||= []) << I18n.t(:object_type, scope: [:validation, :errors], data: key_item, type: key_item['type'], locale: DataCycleCore.ui_language)
