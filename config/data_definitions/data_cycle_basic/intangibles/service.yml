@@ -52,12 +52,10 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
-      :additional_information:
+      :subject_of:
         :label: Ergänzende Information
         :type: embedded
         :template_name: Ergänzende Information
-        :api:
-          :name: subject_of
       :url:
         :label: Angebots URL
         :type: string

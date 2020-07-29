@@ -313,8 +313,8 @@ module DataCycleCore
               ],
               'name' => item_offered_object.name,
               'description' => item_offered_object.description,
-              'subject_of' => [{
-                '@id' => item_offered_object.additional_information.first.id,
+              'subjectOf' => [{
+                '@id' => item_offered_object.subject_of.first.id,
                 '@type' => 'CreativeWork'
               }],
               'sameAs' => item_offered_object.url,

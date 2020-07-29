@@ -4,7 +4,7 @@
   "text": "<p>Long Description</p>",
   "description": "<p>Description juhu</p>",
   "meeting_point": "<p>Meeting Point juhu</p>",
-  "additional_information": [{
+  "subject_of": [{
     "name": "equipment",
     "description": "<p>equipment juhu</p>"
   }]
