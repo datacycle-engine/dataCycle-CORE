@@ -4,8 +4,8 @@
   "text": "<p>Long Description</p>",
   "description": "<p>Description juhu</p>",
   "meeting_point": "<p>Meeting Point juhu</p>",
-  "equipment": "<p>equipment juhu</p>",
-  "requirements": "<p>requirements juhu</p>",
-  "included_services": "<p>included services juhu</p>",
-  "difficulty": "<p>difficulty juhu</p>"
+  "additional_information": [{
+    "name": "equipment",
+    "description": "<p>equipment juhu</p>"
+  }]
 }

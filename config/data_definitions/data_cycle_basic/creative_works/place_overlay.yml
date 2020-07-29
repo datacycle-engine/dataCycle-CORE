@@ -65,6 +65,9 @@
         :template_name: Bild
         :api:
           :minimal: true
+      :postal_address:
+        :type: mixin
+        :name: postal_address          
       :potential_actions:
         :type: mixin
         :name: potential_actions

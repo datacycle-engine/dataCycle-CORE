@@ -313,6 +313,10 @@ module DataCycleCore
               ],
               'name' => item_offered_object.name,
               'description' => item_offered_object.description,
+              'subject_of' => [{
+                '@id' => item_offered_object.additional_information.first.id,
+                '@type' => 'CreativeWork'
+              }],
               'sameAs' => item_offered_object.url,
               'hoursAvailable' => [
                 item_offered_object.hours_available.first.to_api_default_values
@@ -323,36 +327,6 @@ module DataCycleCore
                   'identifier' => 'text',
                   'name' => 'Beschreibung (lang)',
                   'value' => item_offered_object.text
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'meetingPoint',
-                  'name' => 'Treffpunkt',
-                  'value' => item_offered_object.meeting_point
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'equipment',
-                  'name' => 'Ausrüstung',
-                  'value' => item_offered_object.equipment
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'requirements',
-                  'name' => 'Voraussetzungen',
-                  'value' => item_offered_object.requirements
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'includedServices',
-                  'name' => 'Services inkludiert',
-                  'value' => item_offered_object.included_services
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'difficulty',
-                  'name' => 'Schwierigkeitsgrad',
-                  'value' => item_offered_object.difficulty
                 }
               ]
             }
