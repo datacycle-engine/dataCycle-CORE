@@ -9,6 +9,7 @@ module DataCycleCore
       @stored_filter ||= DataCycleCore::StoredFilter.new
       @filters = pre_filters.dup
       @stored_filter.parameters ||= @filters
+      @stored_filter.parameters = @stored_filter.parameters.presence&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
       query = query&.dup
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language

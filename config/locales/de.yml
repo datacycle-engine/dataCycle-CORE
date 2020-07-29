@@ -607,7 +607,7 @@ de:
       moved_to: 'Inhalt in %{data} verschoben'
       become_user: 'Eingeloggt als %{data}.'
       duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
-      merged_with_duplicate: Inhalte wurden zusammengeführt
+      merged_with_duplicate: Inhalte werden im Hintergrund zusammengeführt
       bulk_updated: Inhalte wurden aktualisiert
       bulk_deleted: Inhalte wurden gelöscht
       bulk_created: Inhalte wurden erstellt

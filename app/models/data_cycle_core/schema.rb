@@ -130,6 +130,8 @@ module DataCycleCore
             '//schema.org/Number'
           when 'schedule'
             '//schema.org/Schedule'
+          when 'geographic'
+            '//schema.org/line'
           else
             definition['type']
           end
