@@ -82,6 +82,16 @@
         :api:
           :partial: enumeration
           :type: GenderType
+      :nationality:
+        :label: Nationalität
+        :type: classification
+        :tree_label: Länder
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :partial: enumeration
+          :type: Country
       # legacy protpert for v2 / v3
       :gender_api:
         :label: Geschlecht
