@@ -22,6 +22,7 @@
     ]
   },
   "dependencies": {
+    "@tmcw/togeojson": "4.0.0",
     "actioncable": "5.2.3",
     "babel-core": "6.26.3",
     "babel-preset-env": "1.7.0",
@@ -77,7 +78,6 @@
     "require-dir": "0.3.2",
     "select2": "4.0.3",
     "sortablejs": "1.7.0",
-    "@tmcw/togeojson": "4.0.0",
     "turbolinks": "5.0.3",
     "vinyl-source-stream": "1.1.0",
     "watchify": "3.9.0",

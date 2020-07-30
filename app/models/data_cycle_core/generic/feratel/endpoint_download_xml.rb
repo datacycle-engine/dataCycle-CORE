@@ -469,6 +469,34 @@ module DataCycleCore
           end
         end
 
+        def create_brochures_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.BasicData do
+              xml.Filters('ShowCreativeCommons' => true) do
+                xml.ShopItem('Type' => 'Brochure')
+                xml.Languages do
+                  Array(lang).each do |l|
+                    xml.Language('Value' => l.to_s)
+                  end
+                end
+              end
+
+              xml.ShopItems do
+                xml.Details('DateFrom' => '1980-01-01')
+                xml.Documents('DateFrom' => '1980-01-01')
+                xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
+                xml.Links('DateFrom' => '1980-01-01')
+                xml.Variations do
+                  xml.Details('DateFrom' => '1980-01-01')
+                  xml.Documents('DateFrom' => '1980-01-01')
+                  xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
+                  xml.Links('DateFrom' => '1980-01-01')
+                end
+              end
+            end
+          end
+        end
+
         def create_package_containers_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           # start_date = Time.zone.now.to_s[0..9]
           # end_date = (Time.zone.now + 2.years).to_s[0..9]

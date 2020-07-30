@@ -28,6 +28,10 @@ module DataCycleCore
           enumerate_items(:additional_service_types, '//AdditionalServiceTypes/AdditionalServiceType', lang: lang)
         end
 
+        def brochures(lang: :de)
+          enumerate_items(:brochures, '//ShopItems/ShopItem', lang: lang)
+        end
+
         def categories(lang: :de)
           enumerate_items(:categories, '//Categories/Category', lang: lang)
         end
@@ -279,7 +283,7 @@ module DataCycleCore
         def load_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, index: false, retry_count: 0, deleted_from: nil)
           method_name = index ? "create_#{type}_index_request_xml" : "create_#{type}_request_xml"
 
-          if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
+          if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers, :brochures].include?(type)
             url = "#{@endpoint_url}/DSI/BasicData.asmx/GetData"
             request_parameters = send(method_name, lang: lang, range_code: range_code, range_ids: range_ids)
           elsif [:mark_deleted_events, :mark_deleted_accommodations, :mark_deleted_infrastructure_items].include?(type)

@@ -8,6 +8,29 @@ module DataCycleCore
           DataCycleCore::Generic::Feratel::TransformationFunctions[*args]
         end
 
+        def self.to_brochure(external_source_id)
+          t(:stringify_keys)
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:add_cc, external_source_id)
+          .>> t(:rename_keys, 'Id' => 'external_key')
+          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Names') || s.dig('Details', 'Name') })
+          .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['ShopItem']))
+          .>> t(:reject_keys, ['Names', 'Name'])
+          .>> t(:unwrap_description, 'ShopItemDescription')
+          .>> t(:add_field, 'url', ->(s) { Array.wrap(s.dig('Links', 'Link')).first&.dig('URL') })
+          .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ShopItemDescription')) })
+          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
+          .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Owner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('Details', 'Owner')).hexdigest}"] : [] })
+          .>> t(:add_links, 'feratel_shop_item_groups', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Group', 'Id').present? ? [s&.dig('Details', 'Group', 'Id')&.downcase] : [] })
+          .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Details', 'HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+          .>> t(:add_links, 'language_variations', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('Variations', 'Variation')).map { |i| i.dig('Details', 'Language') }.compact.map { |i| "Feratel - Sprachvariante - #{i}" } || [] })
+          .>> t(:reject_keys, ['ShopItemDescription'])
+          .>> t(:strip_all)
+          .>> t(:compact)
+        end
+
         def self.to_local_business(external_source_id)
           t(:stringify_keys)
           .>> t(:flatten_translations)
