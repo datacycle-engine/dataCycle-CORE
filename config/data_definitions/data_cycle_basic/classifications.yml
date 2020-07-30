@@ -101,6 +101,25 @@
   - $$Preis pro Person
   - $$Preis pro Package
 
+- Länder | all:
+  - Andorra
+  - Dänemark
+  - Deutschland
+  - Frankreich
+  - Italien
+  - Kroatien
+  - Liechtenstein
+  - Österreich
+  - Polen
+  - Portugal
+  - Slowakei
+  - Slowenien
+  - Schweiz
+  - Schweden
+  - Spanien
+  - Tschechien
+  - Ungarn
+
 - Ländercodes | show, edit, api, xml:
   - AF | Afghanistan
   - EG | Ägypten
