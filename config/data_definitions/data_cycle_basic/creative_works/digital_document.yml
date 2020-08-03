@@ -36,9 +36,6 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
-      :feratel_classifications:
-        :type: mixin
-        :name: feratel_classifications
       :creative_attributes:
         :type: mixin
         :name: creative_attributes
