@@ -82,7 +82,7 @@ module DataCycleCore
           error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: utility_object.partial_update)
 
           if utility_object.logging && error[:error].present?
-            utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
+            utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
           elsif error[:error].present?
             raise error[:error].first
           end
