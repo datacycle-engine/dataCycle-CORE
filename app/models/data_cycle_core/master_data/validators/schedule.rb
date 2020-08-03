@@ -14,11 +14,7 @@ module DataCycleCore
           elsif data.is_a?(::Array)
             if template.key?('validations')
               template['validations'].each_key do |key|
-                if keywords.include?(key)
-                  method(key).call(data, template['validations'][key])
-                else
-                  (@error[:error][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :warnings], key: key, type: 'ScheduleArray', locale: DataCycleCore.ui_language)
-                end
+                method(key).call(data, template['validations'][key]) if keywords.include?(key)
               end
             end
 

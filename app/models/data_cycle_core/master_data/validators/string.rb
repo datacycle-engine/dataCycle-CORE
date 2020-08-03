@@ -16,11 +16,7 @@ module DataCycleCore
           if data.blank? || data.is_a?(::String)
             if template.key?('validations')
               template['validations'].each_key do |key|
-                if string_keywords.include?(key)
-                  method(key).call(data.to_s, template['validations'][key])
-                else
-                  (@error[:warning][@template_key] ||= []) << I18n.t(:string, scope: [:validation, :warnings], data: data, key: key, template: template, locale: DataCycleCore.ui_language) unless key == 'type'
-                end
+                method(key).call(data.to_s, template['validations'][key]) if string_keywords.include?(key)
               end
             end
           else

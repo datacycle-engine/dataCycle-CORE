@@ -166,12 +166,12 @@ describe DataCycleCore::MasterData::Validators::Classification do
       assert_equal(0, validator.error[:warning].size)
     end
 
-    it 'produces a warning when an unsupported keyword is used' do
+    it 'produces no warning when an unsupported keyword is used' do
       uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
       new_template = template_hash_length.deep_dup.merge({ 'validations' => { 'maxi' => 3 } })
       validator = subject.new(uuid, new_template)
       assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
+      assert_equal(0, validator.error[:warning].size)
     end
   end
 end
