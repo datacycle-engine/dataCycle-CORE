@@ -45,11 +45,11 @@ describe DataCycleCore::MasterData::Validators::Number do
       assert_equal(0, validator.error[:warning].size)
     end
 
-    it 'warns if no data is given' do
-      validator = subject.new(nil, template_hash)
-      assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
-    end
+    # it 'warns if no data is given' do
+    #   validator = subject.new(nil, template_hash)
+    #   assert_equal(0, validator.error[:error].size)
+    #   assert_equal(1, validator.error[:warning].size)
+    # end
 
     it 'succeeds if number is given within min, max options' do
       validator = subject.new(50.55, template_hash_val)
