@@ -20,7 +20,7 @@ module DataCycleCore
               end
             end
           elsif data.blank?
-            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
+            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
           else
             (@error[:error][@template_key] ||= []) << I18n.t(:number, scope: [:validation, :errors], data: data, class: data.class, template: template['label'], locale: DataCycleCore.ui_language)
           end
