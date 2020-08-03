@@ -161,3 +161,11 @@ en:
       read_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> shared %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” with you and asks for your additions and feedback.</span>"
       download_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> shared %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” with you.<br><br>%{n_type} is ready for download.</span>"
       updated_watchlist_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\">%{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” was updated and contents were added or removed.</span>"
+
+  import:
+    feratel:
+      additional_service:
+        equipment: Equipment
+        requirements: Requirements
+        included_services: Included Services
+        difficulty: Difficulty

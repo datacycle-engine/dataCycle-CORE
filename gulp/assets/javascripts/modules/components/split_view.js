@@ -142,7 +142,7 @@ class SplitView {
     if ($(element).find('> .content-link > .buttons').length) element = $(element).find('> .content-link > .buttons');
     if ($(element).children('.buttons').length) element = $(element).children('.buttons');
 
-    if (this.enableTranslateButtons && copy_attr === 'html') {
+    if (this.enableTranslateButtons && this.isTranslatableField(element)) {
       $(element).append(
         '<a class="button-prime small translate' +
         (single ? ' translate-single-button' : '') + //??
@@ -161,6 +161,10 @@ class SplitView {
         copy_attr +
         '" title="übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
     );
+  }
+  isTranslatableField(element) {
+    let field = element.parents('[data-editor]').first();
+    return field.hasClass('string') && (field.data('editor') === 'text_editor' || field.data('editor') === 'string');
   }
   handleButtonClick(event) {
     event.preventDefault();
