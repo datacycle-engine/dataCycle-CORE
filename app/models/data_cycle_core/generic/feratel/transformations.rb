@@ -113,7 +113,8 @@ module DataCycleCore
         def self.to_subject_of(hash)
           ['equipment', 'requirements', 'included_services', 'difficulty'].map { |desc|
             next if hash[desc].blank?
-            { 'name' => desc, 'description' => hash[desc] }
+            name = I18n.t("import.feratel.additional_service.#{desc}", default: [desc])
+            { 'name' => name, 'description' => hash[desc] }
           }.compact
         end
 
