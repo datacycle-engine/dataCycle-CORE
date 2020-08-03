@@ -59,11 +59,11 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       assert_equal(0, validator.error[:error].size)
     end
 
-    it 'produces a warning if no data are given' do
-      validator = subject.new(nil, template_hash.deep_dup)
-      assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
-    end
+    # it 'produces a warning if no data are given' do
+    #   validator = subject.new(nil, template_hash.deep_dup)
+    #   assert_equal(0, validator.error[:error].size)
+    #   assert_equal(1, validator.error[:warning].size)
+    # end
 
     it 'produces no error if a wrong validations keyword is given' do
       new_template_hash = template_hash.deep_dup
