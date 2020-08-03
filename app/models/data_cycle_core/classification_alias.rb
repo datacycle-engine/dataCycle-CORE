@@ -26,6 +26,7 @@ module DataCycleCore
     translates :name, :description, column_suffix: '_i18n', backend: :jsonb
     default_scope { i18n }
     before_save :set_internal_data
+    after_destroy :clean_stored_filters
 
     attr_accessor :content_template
 
@@ -64,6 +65,7 @@ module DataCycleCore
 
     after_update :update_primary_classification
     after_update :invalidate_things_cache, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'assignable', 'internal', 'description_i18n']).present? || classification_groups.map(&:changed?).inject(&:|) || saved_changes&.dig('description_i18n')&.uniq&.many? }
+    # before_destroy :invalidate_things_cache
 
     delegate :visible?, to: :classification_tree_label
 
@@ -285,8 +287,12 @@ module DataCycleCore
       linked_contents.find_each do |item|
         item&.search_languages(true)
         # TODO: move to cache warmup feature
-        Rails.cache.delete_matched("*data_cycle_core/thing_#{item.id}*")
+        Rails.cache.delete_matched("*#{item.id}*")
       end
+    end
+
+    def clean_stored_filters
+      DataCycleCore::StoredFilter.where("stored_filters.parameters::TEXT ILIKE '%#{id}%'").update_all("parameters = REPLACE(parameters::TEXT, '\"#{id}\"', '')::JSONB") # rubocop:disable Rails/SkipsModelValidations
     end
   end
 end

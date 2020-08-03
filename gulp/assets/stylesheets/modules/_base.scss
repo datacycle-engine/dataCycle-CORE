@@ -157,7 +157,7 @@ button,
 }
 
 footer {
-  background-image: url('dc-logo.svg');
+  // background-image: url('dc-logo.svg');
   background-repeat: no-repeat;
   background-position: center;
   height: 8rem;
@@ -576,7 +576,9 @@ footer {
 
     .form-element {
       position: relative;
-      margin-bottom: 1rem;
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
 
       &.release_status_comment {
         margin-bottom: 2rem;
@@ -677,6 +679,12 @@ footer {
           top: -2rem;
           right: auto;
         }
+
+        .single_warning {
+          left: 1rem;
+          top: -2rem;
+          right: auto;
+        }
       }
     }
   }
@@ -762,6 +770,7 @@ footer {
 }
 
 span.single_error,
+span.single_warning,
 .form-error {
   position: absolute;
   top: -3.3rem;
@@ -788,7 +797,22 @@ span.single_error,
   }
 }
 
+span.single_warning {
+  background-color: map-get($foundation-palette, warning);
+  .close-warning {
+    display: block;
+    width: 1.2rem;
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    text-align: center;
+    line-height: 1.2;
+    cursor: pointer;
+  }
+}
+
 span.single_error:before,
+span.single_warning:before,
 .form-error:before {
   content: '';
   position: absolute;
@@ -800,6 +824,10 @@ span.single_error:before,
   transition: all 0.4s ease;
   left: 30%;
   bottom: -1.2rem;
+}
+
+span.single_warning:before {
+  border-top: 20px solid map-get($foundation-palette, warning);
 }
 
 .detail-header-wrapper {

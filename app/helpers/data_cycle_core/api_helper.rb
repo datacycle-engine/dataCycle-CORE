@@ -5,7 +5,7 @@ module DataCycleCore
     include DataHashHelper
 
     def api_default_attributes
-      ['@id', '@type', '@language', 'name']
+      ['@id', '@type']
     end
 
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
@@ -27,6 +27,7 @@ module DataCycleCore
           "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
           "#{definition&.dig('compute', 'type')&.underscore}_#{api_property_definition.dig('partial')&.underscore}",
           definition&.dig('compute', 'type')&.underscore,
+          definition&.dig('virtual', 'type')&.underscore,
           definition['type'].underscore,
           'default'
         ].reject(&:blank?)
@@ -66,6 +67,10 @@ module DataCycleCore
       attribute_list.map { |item| item.first == name }.inject(&:|)
     end
 
+    def virtual_attribute(content, key, definition, language)
+      DataCycleCore::Utility::Virtual::Base.virtual_values(key, definition, content, language)
+    end
+
     def subtree_for(name, attribute_list)
       attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.select(&:present?)
     end
@@ -76,6 +81,10 @@ module DataCycleCore
 
     def serialize_language(language_array)
       language_array.join(',')
+    end
+
+    def in_language?(content, options)
+      (content.embedded? && options.dig(:translatable_embedded)) || content.translatable? || options.dig(:languages).include?(content.first_available_locale.to_s)
     end
 
     def load_value_object(content, key, value, languages)
@@ -96,8 +105,6 @@ module DataCycleCore
       data_value
     end
 
-    # APIv4 fields = mode_parameters
-    # TODO: v4 needs unique method
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil, linked_filter_id = nil, is_linked = false, depth = 0)
       include_params = is_linked ? include_parameters.dup << 'is_linked' : include_parameters
       if item.is_a?(DataCycleCore::Thing)
@@ -105,12 +112,27 @@ module DataCycleCore
       elsif item.is_a?(DataCycleCore::Thing::History)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       elsif item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       else
         raise NotImplementedError
       end
+    end
+
+    # TODO: add section parameter
+    def api_v4_cache_key(item, language, include_parameters, field_parameters, api_subversion = nil, full = nil)
+      include_params = include_parameters&.sort&.inject([]) { |carrier, param| carrier << param.join('.') }&.join(',')
+      field_params = field_parameters&.sort&.inject([]) { |carrier, param| carrier << param.join('.') }&.join(',')
+
+      if item.is_a?(DataCycleCore::Thing) || item.is_a?(DataCycleCore::Thing::History)
+        test = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_include/#{include_params}_fields/#{field_params}"
+      elsif item.is_a?(DataCycleCore::ClassificationAlias) || item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
+        test = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_include/#{include_params}_fields/#{field_params}_#{full}"
+      else
+        raise NotImplementedError
+      end
+      test
     end
 
     def api_plain_context(languages)

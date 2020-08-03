@@ -29,6 +29,18 @@ module DataCycleCore
             end
 
             Array.wrap(raw_data.dig('AdditionalServices', 'AdditionalService')).each do |service_data|
+              DataCycleCore::Generic::Feratel::Processing.process_image(
+                utility_object,
+                service_data,
+                options.dig(:import, :transformations, :image)
+              )
+
+              DataCycleCore::Generic::Feratel::Processing.process_meeting_point(
+                utility_object,
+                service_data.merge({ 'provider_id' => raw_data.dig('Id') }),
+                options&.dig(:import, :transformations, :meeting_point)
+              )
+
               DataCycleCore::Generic::Feratel::Processing.process_as(
                 utility_object,
                 service_data.merge({ 'provider_id' => raw_data.dig('Id') }),

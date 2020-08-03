@@ -36,7 +36,7 @@ module DataCycleCore
           template = config&.dig(:template) || 'Event'
 
           sub_events = loop_collect(raw_data, 'subEvent') do |item_data|
-            transform_sub_event(utility_object, item_data, config.dig(:embedded, :sub_event), raw_data)
+            transform_sub_event(utility_object, item_data, config&.dig(:embedded, :sub_event), raw_data)
           end
 
           event_data = DataCycleCore::Generic::VTicket::Transformations

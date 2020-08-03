@@ -3,6 +3,7 @@
     :type: object
     :schema_type: Intangible
     :content_type: entity
+    :boost: 100.0
     :api:
       :type: 'dc:certification'
     :properties:
@@ -73,45 +74,45 @@
             :type: string
             :storage_location: translated_value
       :public_pdf:
-        :label: Öffentliche Dokumente
+        :label: Detailberichte zur Barrierefreiheit zum Download
         :type: object
         :storage_location: translated_value
         :properties:
-          :allergic:
-            :label: Allergien
+          :wheelchair:
+            :label: Gehbehinderte/Rollstuhlfahrer
             :type: string
             :storage_location: translated_value
           :deaf:
-            :label: Hören
-            :type: string
-            :storage_location: translated_value
-          :generations:
-            :label: Generationen
-            :type: string
-            :storage_location: translated_value
-          :mental:
-            :label: Kognitiv
+            :label: Hörbehinderte/Gehörlose
             :type: string
             :storage_location: translated_value
           :visual:
-            :label: Sehen
+            :label: Sehbehinderte/Blinde
             :type: string
             :storage_location: translated_value
-          :walking:
-            :label: Gehen
+          :mental:
+            :label: Kognitiv Beeinträchtigte
             :type: string
             :storage_location: translated_value
-          :wheelchair:
-            :label: Rollstuhl
-            :type: string
-            :storage_location: translated_value
+          # :allergic:
+          #   :label: Allergien
+          #   :type: string
+          #   :storage_location: translated_value
+          # :generations:
+          #   :label: Generationen
+          #   :type: string
+          #   :storage_location: translated_value
+          # :walking:
+          #   :label: Gehen
+          #   :type: string
+          #   :storage_location: translated_value
       :short_report:
         :label: Kurzbericht
         :type: object
         :storage_location: translated_value
         :properties:
-          :deaf:
-            :label: Hören
+          :walking:
+            :label: Gehbehinderte/Rollstuhlfahrer
             :type: string
             :storage_location: translated_value
             :search: true
@@ -120,8 +121,8 @@
                 :type: text_editor
                 :options:
                   :data-size: full
-          :mental:
-            :label: Kognitiv
+          :deaf:
+            :label: Hörbehinderte/Gehörlose
             :type: string
             :storage_location: translated_value
             :search: true
@@ -131,7 +132,7 @@
                 :options:
                   :data-size: full
           :visual:
-            :label: Sehen
+            :label: Sehbehinderte/Blinde
             :type: string
             :storage_location: translated_value
             :search: true
@@ -140,8 +141,8 @@
                 :type: text_editor
                 :options:
                   :data-size: full
-          :walking:
-            :label: Gehen/Rollstuhl
+          :mental:
+            :label: Kognitiv Beeinträchtigte
             :type: string
             :storage_location: translated_value
             :search: true
@@ -150,6 +151,11 @@
                 :type: text_editor
                 :options:
                   :data-size: full
+      :short_report_pdf:
+        :label: Prüfbericht Reisen für Alle
+        :type: linked
+        :template_name: PDF
+        :global: true
       :licence_owner:
         :label: Lizenznehmer
         :type: classification
@@ -158,58 +164,10 @@
         :ui:
           :show:
             :content_area: header
-      :certification_deaf:
-        :label: Zertifikat Gehörlos
+      :certificate_classification:
+        :label: Zertifizierungen
         :type: classification
-        :tree_label: reisen-fuer-alle.de - Zertifikat - Gehörlos
-        :global: true
-        :ui:
-          :show:
-            :content_area: header
-      :certification_mental:
-        :label: Zertifikat Kognitiv
-        :type: classification
-        :tree_label: reisen-fuer-alle.de - Zertifikat - Kognitiv
-        :global: true
-        :ui:
-          :show:
-            :content_area: header
-      :certification_partially_deaf:
-        :label: Zertifikat Hörbehinderung
-        :type: classification
-        :tree_label: reisen-fuer-alle.de - Zertifikat - Hörbehinderung
-        :global: true
-        :ui:
-          :show:
-            :content_area: header
-      :certification_partially_visual:
-        :label: Zertifikat Sehbehinderung
-        :type: classification
-        :tree_label: reisen-fuer-alle.de - Zertifikat - Sehbehinderung
-        :global: true
-        :ui:
-          :show:
-            :content_area: header
-      :certification_visual:
-        :label: Zertifikat Blind
-        :type: classification
-        :tree_label: reisen-fuer-alle.de - Zertifikat - Blind
-        :global: true
-        :ui:
-          :show:
-            :content_area: header
-      :certification_walking:
-        :label: Zertifikat Gehbehinderung
-        :type: classification
-        :tree_label: reisen-fuer-alle.de - Zertifikat - Gehbehinderung
-        :global: true
-        :ui:
-          :show:
-            :content_area: header
-      :certification_wheelchair:
-        :label: Zertifikat Rollstuhl
-        :type: classification
-        :tree_label: reisen-fuer-alle.de - Zertifikat - Rollstuhl
+        :tree_label: reisen-fuer-alle.de - Zertifikate
         :global: true
         :ui:
           :show:

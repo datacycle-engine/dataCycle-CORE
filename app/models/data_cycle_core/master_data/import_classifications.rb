@@ -83,10 +83,11 @@ module DataCycleCore
           .joins(:classification_tree)
           .find_by(
             classification_aliases: { name: data },
-            classification_trees: { classification_tree_label_id: label_id }
+            classification_trees: {
+              parent_classification_alias_id: parent.try(:id),
+              classification_tree_label_id: label_id
+            }
           )
-
-        puts "WARNING: Duplicate ClassificationAlias '#{"#{parent&.internal_name} -> " unless parent.nil?}#{data}' found, check classification.yml" if find_alias.present? && find_alias&.parent_classification_alias&.id != parent&.id
 
         if find_alias.present?
           updated_data = find_alias

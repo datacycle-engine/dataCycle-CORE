@@ -29,6 +29,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse response.body
+            json_data = json_data.dig('@graph').first
 
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content)
@@ -43,6 +44,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse response.body
+            json_data = json_data.dig('@graph').first
 
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content)
@@ -60,6 +62,7 @@ module DataCycleCore
 
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse response.body
+            json_data = json_data.dig('@graph').first
 
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content)
@@ -78,11 +81,13 @@ module DataCycleCore
             assert_response :success
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse response.body
+            json_data = json_data.dig('@graph').first
 
             get api_v4_thing_path(id: @content.id, include: 'dc:classification.skos:inScheme')
             assert_response :success
             assert_equal(response.content_type, 'application/json')
             json_data2 = JSON.parse response.body
+            json_data2 = json_data2.dig('@graph').first
             assert_equal(json_data, json_data2)
           end
 
@@ -91,6 +96,7 @@ module DataCycleCore
             assert_response :success
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse response.body
+            json_data = json_data.dig('@graph').first
 
             assert_equal(1, json_data.dig('dc:classification').size)
             assert_equal(['@id', '@type', 'skos:inScheme'], json_data.dig('dc:classification', 0).keys)
@@ -102,6 +108,7 @@ module DataCycleCore
             assert_response :success
             assert_equal(response.content_type, 'application/json')
             json_data = JSON.parse response.body
+            json_data = json_data.dig('@graph').first
 
             assert_equal(1, json_data.dig('dc:classification').size)
             assert_concept_attributes(json_data.dig('dc:classification', 0))

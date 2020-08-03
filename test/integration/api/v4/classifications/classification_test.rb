@@ -52,7 +52,7 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
 
             validator = DataCycleCore::V4::Validation::Concept.concept_scheme
-            assert_equal({}, validator.call(json_data.except('@context')).errors.to_h)
+            assert_equal({}, validator.call(json_data.dig('@graph').first).errors.to_h)
           end
 
           test 'api/v4/concept_schemes/(:id) with fields=dc:entityUrl,dc:hasConcept' do
@@ -71,7 +71,7 @@ module DataCycleCore
             end
 
             validator = DataCycleCore::V4::Validation::Concept.concept_scheme(params: { fields: fields })
-            assert_equal({}, validator.call(json_data.except('@context')).errors.to_h)
+            assert_equal({}, validator.call(json_data.dig('@graph').first).errors.to_h)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts' do
@@ -84,7 +84,6 @@ module DataCycleCore
 
             assert_api_count_result(classifications)
             json_data = JSON.parse(response.body)
-
             validator = DataCycleCore::V4::Validation::Concept.concept
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
@@ -146,8 +145,8 @@ module DataCycleCore
             end
 
             validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
-            assert_equal({}, validator.call(json_data.except('@context')).errors.to_h)
-            assert_equal('test-identifier', json_data.dig('identifier').first.dig('value'))
+            assert_equal({}, validator.call(json_data.dig('@graph').first).errors.to_h)
+            assert_equal('test-identifier', json_data.dig('@graph').first.dig('identifier').first.dig('value'))
 
             update_tag.update_column(:external_source_id, nil) # rubocop:disable Rails/SkipsModelValidations
             update_tag.primary_classification.update_column(:external_source_id, nil) # rubocop:disable Rails/SkipsModelValidations

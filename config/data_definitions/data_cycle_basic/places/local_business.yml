@@ -38,6 +38,10 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
       :content_classifications:
         :type: mixin
         :name: content_classifications

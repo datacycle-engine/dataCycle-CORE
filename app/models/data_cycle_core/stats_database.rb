@@ -64,7 +64,7 @@ module DataCycleCore
               database: mongo_database,
               db_size: 0,
               tables: {
-                "no collections found": 0
+                "no collections found": ['', '']
               },
               last_import: 'never',
               last_download: 'never',
@@ -79,7 +79,24 @@ module DataCycleCore
             'hosts' => Mongoid.default_client.cluster.servers.map(&:address).map { |adr| "#{adr.host}:#{adr.port}" },
             'options' => nil
           }
-          mongo_data = Hash[Mongoid.client(external_source.id).collections.map { |item| [item.name.humanize, [item.count, item.find('dump.de.deleted_at' => { '$exists' => true }).count]] }]
+          mongo_data = Hash[
+            Mongoid
+              .client(external_source.id)
+              .collections
+              .map do |item|
+                deleted = item.find('dump.de.deleted_at' => { '$exists' => true }).count
+                archived = item.find('dump.de.archived_at' => { '$exists' => true }).count
+                info = []
+                if deleted.positive? || archived.positive?
+                  info = ['(']
+                  info += ["D:#{deleted}"] if deleted.positive?
+                  info += [', '] if deleted.positive? && archived.positive?
+                  info += ["A:#{archived}"] if archived.positive?
+                  info += [')']
+                end
+                [item.name.humanize, [item.count, info.join('')]]
+              end
+          ]
 
           last_download = external_source.last_download.presence || 'never'
           last_import = external_source.last_import.presence || 'never'

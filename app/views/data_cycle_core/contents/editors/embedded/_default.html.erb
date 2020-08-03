@@ -1,0 +1,44 @@
+<% I18n.with_locale(locale) do %>
+  <% object = DataCycleCore::DataHashService.get_internal_template(definition['template_name']) if local_assigns[:object].blank? %>
+
+  <%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item#{ ' is-active' unless definition.dig('ui', 'edit', 'hide_onload') && !object.template && !local_assigns[:duplicated_content] }",
+        id: "#{sanitize_to_id(key)}_item_#{index}",
+        data: {
+          id: object.template || local_assigns[:duplicated_content] ? nil : object.id,
+          index: index,
+          accordion_item: true
+        } do %>
+    <span class="embedded-header">
+      <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
+        <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
+        <span class="swap-prev swap-button disabled" title="<%= t('common.embedded_move_up', locale: DataCycleCore.ui_language) %>"><i class="fa fa-arrow-up" aria-hidden="true"></i></span>
+        <span class="swap-next swap-button disabled" title="<%= t('common.embedded_move_down', locale: DataCycleCore.ui_language) %>"><i class="fa fa-arrow-down" aria-hidden="true"></i></span>
+      <% end %>
+    </span>
+
+    <a href="#" class="accordion-title">
+      <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %>
+      <span class="embedded-label"><%= definition['label'] %></span>
+      <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
+    </a>
+
+    <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
+      <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject', data: {
+                confirm_delete: !object.template && definition&.dig('translated') && object&.translations&.many? ? t('actions.delete_with_translated_html', locale: DataCycleCore.ui_language) : nil
+              } %>
+    <% end %>
+
+    <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless object.template || local_assigns[:duplicated_content] %>
+
+    <% if object.template || local_assigns[:duplicated_content] %>
+      <div class="embedded-properties accordion-content" data-tab-content>
+        <%= render 'data_cycle_core/contents/editors/embedded/single_item', local_assigns.merge({ object: object, locale: I18n.locale, event_data: { newContent: object.template } }) %>
+      </div>
+    <% else %>
+      <div class="embedded-properties accordion-content remote-render" data-tab-content
+        data-remote-path="data_cycle_core/contents/editors/embedded/single_item"
+        data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, locale: I18n.locale, event_data: { newContent: object.template } })).to_json %>">
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

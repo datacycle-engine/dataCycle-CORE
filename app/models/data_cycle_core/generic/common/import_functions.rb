@@ -88,6 +88,13 @@ module DataCycleCore
           end
 
           content.tap(&:save!)
+
+          data.dig('external_system_data')&.each do |es|
+            external_system = DataCycleCore::ExternalSystem.find_by(name: es['name'])
+            content.add_external_system_data(external_system, { external_key: es['external_key'] })
+          end
+
+          content
         end
 
         def self.import_contents(utility_object:, iterator:, data_processor:, options:)
@@ -113,7 +120,7 @@ module DataCycleCore
                   logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}
                   source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
-                  source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false } })
+                  source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
                   if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
                     source_filter = source_filter.merge({
                       '$or' => [{

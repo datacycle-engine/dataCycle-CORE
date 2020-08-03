@@ -38,6 +38,10 @@
     flex-flow: row wrap;
     align-items: center;
 
+    > * {
+      height: 3.5rem;
+    }
+
     .single_occurrence,
     .daily,
     .weekly,

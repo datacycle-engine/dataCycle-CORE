@@ -1,4 +1,12 @@
 # frozen_string_literal: true
 
-property_header = render "data_cycle_core/api/v#{@api_version}/api_base/property_value_header", key: key, definition: definition
-property_header.merge({ 'value' => load_value_object(content, key, value, options[:languages]) })
+json ||= {}
+
+value = load_value_object(content, key, value, options[:languages])
+
+if value.present?
+  json = render "data_cycle_core/api/v#{@api_version}/api_base/property_value_header", key: key, definition: definition
+  json = json.merge({ 'value' => value })
+end
+
+json

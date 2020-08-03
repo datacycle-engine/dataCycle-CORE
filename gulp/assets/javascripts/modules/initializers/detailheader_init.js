@@ -1,6 +1,6 @@
 // Reveal Blur
 module.exports.initialize = function ($) {
-  $('.copy-to-clipboard').on('click', function (event) {
+  $(document).on('click', '.copy-to-clipboard', function (event) {
     event.preventDefault();
     var text = $(this).data('value');
     var inp = document.createElement('input');

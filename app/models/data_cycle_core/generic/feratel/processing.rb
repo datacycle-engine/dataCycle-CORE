@@ -74,6 +74,16 @@ module DataCycleCore
           )
         end
 
+        def self.process_brochure(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.to_brochure(utility_object.external_source.id),
+            default: { template: 'Katalog' },
+            config: config
+          )
+        end
+
         def self.process_room(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
@@ -157,6 +167,16 @@ module DataCycleCore
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Feratel::Transformations.to_additional_service(utility_object.external_source.id),
             default: { template: 'Service' },
+            config: config
+          )
+        end
+
+        def self.process_meeting_point(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.to_meeting_point,
+            default: { template: 'Örtlichkeit' },
             config: config
           )
         end

@@ -112,17 +112,17 @@ module DataCycleCore
         self.validity_range = get_validity_range(validity_hash)
       end
 
-      private
-
       def invalidate_content_a_cache
         Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: self.class.name, delayed_reference_id: id, locked_at: nil)
       end
 
       def invalidate_cache
         related_contents.ids.each do |item_id|
-          Rails.cache.delete_matched("*#{self.class.name.underscore}_#{item_id}*")
+          Rails.cache.delete_matched("*#{item_id}*")
         end
       end
+
+      private
 
       def notify_subscribers
         subscriptions.except_user(@current_user).to_notify.presence&.each do |subscription|

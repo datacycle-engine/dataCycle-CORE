@@ -9,18 +9,14 @@ module DataCycleCore
         end
 
         def string_formats
-          ['uuid', 'url', 'email']
+          ['uuid', 'url', 'email', 'telephone_din5008']
         end
 
         def validate(data, template, _strict = false)
           if data.blank? || data.is_a?(::String)
             if template.key?('validations')
               template['validations'].each_key do |key|
-                if string_keywords.include?(key)
-                  method(key).call(data.to_s, template['validations'][key])
-                else
-                  (@error[:warning][@template_key] ||= []) << I18n.t(:string, scope: [:validation, :warnings], data: data, key: key, template: template, locale: DataCycleCore.ui_language) unless key == 'type'
-                end
+                method(key).call(data.to_s, template['validations'][key]) if string_keywords.include?(key)
               end
             end
           else
@@ -89,6 +85,12 @@ module DataCycleCore
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
           check_uuid = data.length == 36 && !(data_uuid =~ uuid).nil?
           (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
+        end
+
+        def telephone_din5008(data)
+          din5008 = /^(\+[1-9]\d+) ([1-9]\d*) ([1-9]\d+)(\-\d+){0,1}$|^(0\d+) ([1-9]\d+)(\-\d+){0,1}$|^([1-9]\d+)(\-\d+){0,1}$|^(\+[1-9]\d+) ([1-9]\d+)(\-\d+){0,1}$/
+          check_telephone = !(data =~ din5008).nil?
+          (@error[:warning][@template_key] ||= []) << I18n.t(:telephone_din5008, scope: [:validation, :warnings], data: data, locale: DataCycleCore.ui_language) unless check_telephone
         end
       end
     end

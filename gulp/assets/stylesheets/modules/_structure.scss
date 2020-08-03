@@ -229,11 +229,20 @@ button.button-prime {
   padding: 0;
 
   &.alert {
-    background-color: map-get($foundation-palette, alert);
+    background-color: map-get($foundation-palette, alert) !important;
 
     &:focus,
     &:hover {
-      background-color: lighten(map-get($foundation-palette, alert), 10%);
+      background-color: lighten(map-get($foundation-palette, alert), 10%) !important;
+    }
+  }
+
+  &.warning {
+    background-color: map-get($foundation-palette, warning);
+
+    &:focus,
+    &:hover {
+      background-color: lighten(map-get($foundation-palette, warning), 10%);
     }
   }
 

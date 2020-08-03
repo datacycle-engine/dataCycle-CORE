@@ -167,6 +167,27 @@
           :transformation:
             :method: map
             :key: name
+          :v4:
+            :disabled: true
+      :virtual_recipe_ingredient:
+        :label: Virtual Recipe Ingredient
+        :storage_location: virtual
+        :type: virtual
+        :virtual:
+          :type: enum
+          :module: Utility::Virtual::Embedded
+          :method: map
+          :key: name
+          :parameters:
+            :0: recipe_ingredient
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :name: recipeIngredient
+        :ui:
+          :show:
+            :disabled: true
       :meta_data:
         :type: mixin
         :name: meta_data

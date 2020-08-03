@@ -38,6 +38,19 @@ module DataCycleCore
             .find(permitted_params[:id])
         end
 
+        def select
+          uuid = permitted_params[:uuid] || permitted_params[:uuids]&.split(',')
+          if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
+            fetched_things = DataCycleCore::Thing
+              .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+              .where(id: uuid)
+            @contents = apply_paging(fetched_things)
+            render 'index'
+          else
+            render json: { error: 'No ids given!' }, layout: false, status: :bad_request
+          end
+        end
+
         def deleted
           deleted_contents = DataCycleCore::Thing::History.where(
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
@@ -61,8 +74,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          # json-api: sort
-          super + [:id, :language, :include, :fields, :format] + [permitted_filter_parameters]
+          super + [:id, :language, :uuids, uuid: []] + [permitted_filter_parameters]
         end
 
         def permitted_filter_parameters
@@ -155,17 +167,6 @@ module DataCycleCore
           query = query.distinct_by_content_id
 
           query
-        end
-
-        def prepare_url_parameters
-          @url_parameters = permitted_params.reject { |k, _| k == 'format' }
-          @include_parameters = parse_tree_params(permitted_params.dig(:include))
-          @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
-          @field_filter = @fields_parameters.present?
-          @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
-          @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
-          @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)
-          @api_version = 4
         end
       end
     end

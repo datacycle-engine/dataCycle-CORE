@@ -9,11 +9,25 @@
     data-max="<%= definition.dig('validations', 'max') || 0 %>"
     data-min="<%= definition.dig('validations', 'min') || 0 %>" data-content-id="<%= content.id %>"
     data-content-type="<%= content.class.table_name %>" data-url="<%= thing_path(content) %>"
-    data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>">
+    data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>"
+    data-accordion
+    data-allow-all-closed="true"
+    data-multi-expand="true">
 
     <% if objects.present? %>
       <% objects.each_with_index do |object, index| %>
-        <%= render_embedded_object_partial(key: key, definition: definition, parameters: { object: object, index: index, options: options, new_content: new_content ||= false, attribute_locale: local_assigns[:attribute_locale] }, content: content) %>
+        <%= render_embedded_object_partial(key: key,
+          definition: definition,
+          parameters: {
+            object: object,
+            index: index,
+            options: options,
+            new_content: local_assigns[:new_content].to_s == 'true',
+            attribute_locale: local_assigns[:attribute_locale],
+            duplicated_content: local_assigns[:duplicated_content].to_s == 'true'
+          },
+          content: content
+        ) %>
       <% end %>
 
       <% value.presence&.ids&.reject {|v| objects.presence&.ids&.include?(v)}&.each_with_index do |id, index| %>
@@ -23,13 +37,13 @@
       <%= hidden_field_tag key + '[]', nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_default" %>
     <% end %>
 
-    <div class="buttons">
+    <span class="buttons">
       <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
         <button id="add_<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>" type="button"
         class="button addContentObject" style="display: none;"><%= definition['label'] %>
           hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
       <% end %>
-    </div>
+    </span>
   </div>
 
 <% end %>

@@ -104,7 +104,8 @@ de:
     'true': Ja
     'false': Nein
     loading: 'Laden ...'
-    load_more: ... weitere Einträge laden
+    load_more: ... weitere Inhalte anzeigen
+    load_all: ...alle Inhalte anzeigen
     are_you_sure: 'Sind Sie sicher?'
     language: 'Sprache'
     all: Alle
@@ -145,6 +146,8 @@ de:
     version: Version
     comment: Kommentar
     status: Status
+    confirm_delete_all_caches: Wirklich alle Caches leeren?
+    confirm_delete_cache: Wirklich den Cache leeren?
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
     download_gpx: Als GPX-Datei herunterladen
     duplicate_content: Inhalt duplizieren
@@ -262,6 +265,7 @@ de:
     user_registration:
       terms_conditions: 'Ich aktzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
+    no_selection: keine Auswahl
 
   upload:
     drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'
@@ -528,7 +532,7 @@ de:
         invalid: 'Der Eintrag mit Startzeitpunkt %{data} enthält keine gültigen Termine'
       number: '%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data}).'
       no_data: 'Keine Daten angegeben.'
-      no_validation: 'Keine Validierguns-Daten angegeben.'
+      no_validation: 'Keine Validierungs-Daten angegeben.'
       data_type: 'Falschen Daten-Typ angegeben für %{template} %{data}. Erwartet wurde UUID oder UUID Array.'
       data_format_embedded: 'Daten in falschem Fromat angegeben für %{template} %{data}. Erwartet wurde ein Hash oder ein Array von Hashes.'
       data_array_format: 'Elemente des Daten-Arrays für %{template} haben falsches Format %{key}.'
@@ -564,6 +568,7 @@ de:
       start_date: 'Kein Start-Datum angegeben, setze auf 1970-01-01.'
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
+      telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
   controllers:
     error:
       invalid_parent: 'Ungültiges Eltern Objekt.'
@@ -581,6 +586,7 @@ de:
       no_shared_attributes: Es gibt keine Attribute, die bei allen Inhalten vorkommen
       no_selected_attributes: Es wurden keine Attribute zum Überschreiben ausgewählt
       external_items: Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!
+      no_watchlist: Es wurde keine Inhaltssammlung gewählt
     success:
       created: '%{data} wurde erfolgreich erstellt.'
       ready_to_send: '%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden.'
@@ -601,7 +607,7 @@ de:
       moved_to: 'Inhalt in %{data} verschoben'
       become_user: 'Eingeloggt als %{data}.'
       duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
-      merged_with_duplicate: Inhalte wurden zusammengeführt
+      merged_with_duplicate: Inhalte werden im Hintergrund zusammengeführt
       bulk_updated: Inhalte wurden aktualisiert
       bulk_deleted: Inhalte wurden gelöscht
       bulk_created: Inhalte wurden erstellt
@@ -820,6 +826,9 @@ de:
     settings: Einstellungen
     publication_date: Publikationsdatum
     publications_calendar: Publikationskalender
+    cache:
+      clear_all: Alle Caches leeren
+      clear: Cache leeren
     classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
     classification_relations:
       one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'

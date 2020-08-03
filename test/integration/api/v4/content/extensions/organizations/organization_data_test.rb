@@ -23,14 +23,9 @@ module DataCycleCore
                 }
                 post api_v4_thing_path(params)
                 json_data = JSON.parse response.body
-                json_validate = json_data.dup
+                json_validate = json_data.dup.dig('@graph').first
 
-                # validate context
-                json_context = json_validate.delete('@context')
-                assert_equal(2, json_context.size)
-                assert_equal('http://schema.org', json_context.first)
-                validator = DataCycleCore::V4::Validation::Context.context
-                assert_equal({}, validator.call(json_context.second).errors.to_h)
+                assert_context(json_data.dig('@context'), 'de')
 
                 # test full event data
                 required_attributes = required_validation_attributes(@content)
@@ -41,6 +36,16 @@ module DataCycleCore
                     '@type' => 'Organization',
                     'name' => @content.name,
                     'legalName' => @content.name
+                  }
+                end
+
+                # validate language
+                assert_attributes(json_validate, required_attributes, []) do
+                  {
+                    'dc:multilingual' => true,
+                    'dc:translation' => [
+                      'de'
+                    ]
                   }
                 end
 

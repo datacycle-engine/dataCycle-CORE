@@ -25,14 +25,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             # test full event data
             required_attributes = required_validation_attributes(@content)
@@ -43,6 +38,16 @@ module DataCycleCore
                 '@id' => @content.id,
                 '@type' => 'Event',
                 'name' => @content.name
+              }
+            end
+
+            # validate language
+            assert_attributes(json_validate, required_attributes, []) do
+              {
+                'dc:multilingual' => true,
+                'dc:translation' => [
+                  'de'
+                ]
               }
             end
 
@@ -163,7 +168,7 @@ module DataCycleCore
               }
             end
 
-            # locations content_location, virtual_location
+            # locations super_event
             assert_attributes(json_validate, required_attributes, ['super_event']) do
               {
                 'superEvent' => [
@@ -188,14 +193,9 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
-            json_validate = json_data.dup
+            json_validate = json_data.dup.dig('@graph').first
 
-            # validate context
-            json_context = json_validate.delete('@context')
-            assert_equal(2, json_context.size)
-            assert_equal('http://schema.org', json_context.first)
-            validator = DataCycleCore::V4::Validation::Context.context
-            assert_equal({}, validator.call(json_context.second).errors.to_h)
+            assert_context(json_data.dig('@context'), 'de')
 
             # test full event data
             required_attributes = required_validation_attributes(@content)
@@ -206,6 +206,16 @@ module DataCycleCore
                 '@id' => @content.id,
                 '@type' => 'Event',
                 'name' => @content.name
+              }
+            end
+
+            # validate language
+            assert_attributes(json_validate, required_attributes, []) do
+              {
+                'dc:multilingual' => true,
+                'dc:translation' => [
+                  'de'
+                ]
               }
             end
 
@@ -282,6 +292,10 @@ module DataCycleCore
             price_specification_api_values = {
               '@id' => price_specification_object.id,
               '@type' => 'UnitPriceSpecification',
+              'dc:multilingual' => false,
+              'dc:translation' => [
+                'de'
+              ],
               'price' => price_specification_object.price,
               'minPrice' => price_specification_object.min_price,
               'maxPrice' => price_specification_object.max_price,
@@ -293,8 +307,16 @@ module DataCycleCore
             item_offered_api_values = {
               '@id' => item_offered_object.id,
               '@type' => 'Intangible',
+              'dc:multilingual' => true,
+              'dc:translation' => [
+                'de'
+              ],
               'name' => item_offered_object.name,
               'description' => item_offered_object.description,
+              'subjectOf' => [{
+                '@id' => item_offered_object.subject_of.first.id,
+                '@type' => 'CreativeWork'
+              }],
               'sameAs' => item_offered_object.url,
               'hoursAvailable' => [
                 item_offered_object.hours_available.first.to_api_default_values
@@ -305,36 +327,6 @@ module DataCycleCore
                   'identifier' => 'text',
                   'name' => 'Beschreibung (lang)',
                   'value' => item_offered_object.text
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'meetingPoint',
-                  'name' => 'Treffpunkt',
-                  'value' => item_offered_object.meeting_point
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'equipment',
-                  'name' => 'Ausrüstung',
-                  'value' => item_offered_object.equipment
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'requirements',
-                  'name' => 'Voraussetzungen',
-                  'value' => item_offered_object.requirements
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'includedServices',
-                  'name' => 'Services inkludiert',
-                  'value' => item_offered_object.included_services
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'difficulty',
-                  'name' => 'Schwierigkeitsgrad',
-                  'value' => item_offered_object.difficulty
                 }
               ]
             }
@@ -342,6 +334,10 @@ module DataCycleCore
             offer_api_values = {
               '@id' => offer_object.id,
               '@type' => 'Offer',
+              'dc:multilingual' => true,
+              'dc:translation' => [
+                'de'
+              ],
               'name' => offer_object.name,
               'description' => offer_object.description,
               'price' => offer_object.price,
@@ -438,6 +434,10 @@ module DataCycleCore
             virtual_location_api_values = {
               '@id' => virtual_location_object.id,
               '@type' => 'VirtualLocation',
+              'dc:multilingual' => false,
+              'dc:translation' => [
+                'de'
+              ],
               'name' => virtual_location_object.name,
               'url' => virtual_location_object.url
             }

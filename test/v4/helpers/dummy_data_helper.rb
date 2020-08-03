@@ -87,6 +87,21 @@ module DataCycleCore
         DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, user: @user)
       end
 
+      def video
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('media_objects', 'v4_video')
+        data_hash['name'] = "video_#{SecureRandom.uuid}"
+        # TODO: make this more generic for all kind of classifications
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('tags').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
+          data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        DataCycleCore::TestPreparations.create_content(template_name: 'Video', data_hash: data_hash, user: @user)
+      end
+
       def full_image
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('media_objects', 'v4_image')
         data_hash['name'] = "image_#{SecureRandom.uuid}"
@@ -161,6 +176,43 @@ module DataCycleCore
         DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: data_hash, user: @user)
       end
 
+      def article
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'v4_article')
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('tags').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
+          data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        data_hash['image'] = [image.id]
+        data_hash['video'] = [image.id]
+        data_hash['author'] = [person.id]
+        data_hash['validity_period'] = validity_period
+        data_hash['content_location'] = [poi.id]
+        DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: data_hash, user: @user)
+      end
+
+      def structured_article
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'v4_structured_article')
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('tags').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
+          data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        data_hash['image'] = [image.id]
+        data_hash['video'] = [image.id]
+        data_hash['author'] = [person.id]
+        data_hash['validity_period'] = validity_period
+        data_hash['content_location'] = [poi.id]
+        data_hash['content_block'] = [content_block]
+        DataCycleCore::TestPreparations.create_content(template_name: 'Strukturierter Artikel', data_hash: data_hash, user: @user)
+      end
+
       def person
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person')
         if data_hash.dig('country_code').present?
@@ -219,6 +271,12 @@ module DataCycleCore
       def price_specification
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('intangibles', 'v4_unit_price_specification')
         data_hash['validity_period'] = offer_period
+        data_hash
+      end
+
+      def content_block
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'v4_content_block')
+        data_hash['image'] = image.id
         data_hash
       end
 

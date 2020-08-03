@@ -201,11 +201,11 @@ module DataCycleCore
               ['key', 'string', 'text', 'number', 'boolean',
                'datetime', 'geographic',
                'object', 'embedded', 'linked', 'classification',
-               'asset', 'computed', 'schedule']
+               'asset', 'computed', 'schedule', 'virtual']
             )
           end
           optional(:storage_location) do
-            str? & included_in?(['column', 'value', 'translated_value'])
+            str? & included_in?(['column', 'value', 'translated_value', 'virtual'])
           end
           optional(:template_name) { str? }
           optional(:validations) { hash? }

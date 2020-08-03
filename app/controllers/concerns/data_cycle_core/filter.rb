@@ -3,11 +3,13 @@
 module DataCycleCore
   module Filter
     extend ActiveSupport::Concern
+    DEFAULT_PAGE_SIZE = 25
 
     def get_filtered_results(query: nil, user_filter: { scope: 'backend' })
       @stored_filter ||= DataCycleCore::StoredFilter.new
       @filters = pre_filters.dup
       @stored_filter.parameters ||= @filters
+      @stored_filter.parameters = @stored_filter.parameters.presence&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
       query = query&.dup
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
@@ -122,8 +124,9 @@ module DataCycleCore
         @tree_page = @classification_trees&.current_page
         @tree_total_pages = @classification_trees&.total_pages
       else
+        page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
         @contents = get_filtered_results(query: query, user_filter: user_filter)
-        @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page]).without_count
+        @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page]).per(page_size).without_count
       end
     end
 

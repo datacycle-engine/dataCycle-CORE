@@ -1,58 +1,120 @@
 # frozen_string_literal: true
 
-require 'test_helper'
-require 'json'
+require 'v4/base'
 
 module DataCycleCore
   module Api
     module V4
-      class RoutingTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
-
+      class RoutingTest < DataCycleCore::V4::Base
         setup do
           DataCycleCore::Thing.where(template: false).delete_all
           @routes = Engine.routes
-          @test_content = DataCycleCore::DummyDataHelper.create_data('tour')
-          sign_in(User.find_by(email: 'tester@datacycle.at'))
+          @content = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
+
+          @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
         end
 
-        test '/api/v4/things' do
-          count = DataCycleCore::Thing.where(template: false).with_content_type('entity').count
+        # only working in development and test environment
+        test 'GET/POST /api/v4/things' do
+          params = {}
 
-          get api_v4_things_path
-          assert_response :success
+          get api_v4_things_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(@thing_count)
 
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(count, json_data['@graph'].length)
-          assert_equal(count, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
+          post api_v4_things_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(@thing_count)
         end
 
-        test '/api/v4/things/:id' do
-          get api_v4_thing_path(id: @test_content.id)
-          assert_response :success
+        test 'GET/POST /api/v4/things/:id' do
+          params = {
+            id: @content.id
+          }
 
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(@test_content.id, json_data.dig('@id'))
+          get api_v4_thing_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_equal(@content.id, json_data.dig('@graph').first.dig('@id'))
+
+          post api_v4_thing_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_equal(@content.id, json_data.dig('@graph').first.dig('@id'))
+        end
+
+        test 'GET/POST /api/v4/things/select' do
+          params = {
+            uuid: [
+              @content.id,
+              @content.image.first.id
+            ]
+          }
+
+          get api_v4_contents_select_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(2)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+          post api_v4_contents_select_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(2)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+          params = {
+            uuids: "#{@content.id},#{@content.image.first.id}"
+          }
+          get api_v4_contents_select_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(2)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+          post api_v4_contents_select_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(2)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
         end
 
         test '/api/v4/things/deleted' do
-          @test_content.destroy_content
-          get api_v4_contents_deleted_path(filter: { deletedSince: '01-01-2010' })
-          assert_response :success
-
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(1, json_data['@graph'].size)
-          assert_equal(1, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
+          deleted_content_id = @content.id
+          @content.destroy_content
+          params = {
+            filter: {
+              attribute: {
+                deletedAt: {
+                  in: {
+                    min: '2010-01-01'
+                  }
+                }
+              }
+            }
+          }
+          get api_v4_contents_deleted_path(params)
+          json_data = JSON.parse response.body
+          assert_equal(2, json_data['@context'].size)
+          assert_api_count_result(1)
+          assert_equal(deleted_content_id, json_data.dig('@graph').first.dig('@id'))
         end
 
-        test '/api/v4/endpoints/:uuid/ with random :uuid responds with 404' do
-          get api_v4_stored_filter_path(id: SecureRandom.uuid)
+        test 'GET/POST /api/v4/endpoints/:uuid/ with random :uuid responds with 404' do
+          params = {
+            id: SecureRandom.uuid
+          }
+
+          get api_v4_stored_filter_path(params)
+
+          assert_response :not_found
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(['error'], json_data.keys)
+
+          post api_v4_stored_filter_path(params)
 
           assert_response :not_found
           assert_equal(response.content_type, 'application/json')
@@ -60,10 +122,20 @@ module DataCycleCore
           assert_equal(['error'], json_data.keys)
         end
 
-        test '/api/v4/collections/:uuid with random :uuid responds with 404' do
-          r_id = SecureRandom.uuid
-          get api_v4_collection_path(id: r_id)
+        test 'GET/POST /api/v4/collections/:uuid with random :uuid responds with 404' do
+          params = {
+            id: SecureRandom.uuid
+          }
 
+          get api_v4_collection_path(params)
+          follow_redirect!
+
+          assert_response :not_found
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(['error'], json_data.keys)
+
+          post api_v4_collection_path(params)
           follow_redirect!
 
           assert_response :not_found
@@ -72,54 +144,80 @@ module DataCycleCore
           assert_equal(['error'], json_data.keys)
         end
 
-        test '/api/v4/concept_schemes' do
-          get api_v4_concept_schemes_path
-          assert_response :success
+        test 'GET/POST /api/v4/concept_schemes' do
+          params = {}
 
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(['@context', '@graph', 'meta', 'links'].sort, json_data.keys.sort)
+          get api_v4_concept_schemes_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_default_sections
+
+          post api_v4_concept_schemes_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_default_sections
         end
 
-        test '/api/v4/concept_schemes/id' do
+        test 'GET/POST /api/v4/concept_schemes/id' do
           tree_id = DataCycleCore::ClassificationTreeLabel.where(name: 'Geschlecht').visible('api').first.id
-          get api_v4_concept_scheme_path(id: tree_id)
-          assert_response :success
+          params = { id: tree_id }
 
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(tree_id, json_data.dig('@id'))
+          get api_v4_concept_scheme_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_equal(tree_id, json_data.dig('@graph').first.dig('@id'))
+
+          post api_v4_concept_scheme_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_equal(tree_id, json_data.dig('@graph').first.dig('@id'))
         end
 
-        test '/api/v4/concept_schemes/id/concepts' do
-          tree_id = DataCycleCore::ClassificationTreeLabel.where(name: 'Geschlecht').visible('api').first
-          get classifications_api_v4_concept_scheme_path(id: tree_id)
-          assert_response :success
+        test 'GET/POST /api/v4/concept_schemes/id/concepts' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.where(name: 'Geschlecht').visible('api').first.id
+          params = { id: tree_id }
 
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(['@context', '@graph', 'meta', 'links'].sort, json_data.keys.sort)
+          get classifications_api_v4_concept_scheme_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_default_sections
+
+          post classifications_api_v4_concept_scheme_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_default_sections
         end
 
-        test '/api/v4/concept_schemes/id/concepts/classification_id' do
+        test 'GET/POST /api/v4/concept_schemes/id/concepts/classification_id' do
           tree = DataCycleCore::ClassificationTreeLabel.all.detect { |item| DataCycleCore::ClassificationAlias.for_tree(item.name).count.positive? }
           classification = DataCycleCore::ClassificationAlias.for_tree(tree.name).first
+          params = {
+            id: tree.id,
+            classification_id: classification.id
+          }
 
-          get classifications_api_v4_concept_scheme_path(id: tree.id, classification_id: classification.id)
-          assert_response :success
+          get classifications_api_v4_concept_scheme_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_equal(classification.id, json_data.dig('@graph').first.dig('@id'))
 
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(classification.id, json_data.dig('@id'))
+          post classifications_api_v4_concept_scheme_path(params)
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_equal(classification.id, json_data.dig('@graph').first.dig('@id'))
         end
 
-        test '/api/v4/users/:id' do
+        test 'GET/POST /api/v4/users/:id' do
           user_id = User.find_by(email: 'tester@datacycle.at').id
-          get api_v4_user_path(id: user_id)
-          assert_response :success
+          params = {
+            id: user_id
+          }
+          get api_v4_user_path(params)
+          json_data = JSON.parse response.body
+          assert_equal(user_id, json_data.dig('id'))
 
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
+          post api_v4_user_path(params)
+          json_data = JSON.parse response.body
           assert_equal(user_id, json_data.dig('id'))
         end
       end

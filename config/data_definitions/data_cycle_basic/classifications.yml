@@ -14,6 +14,7 @@
   - $$Text:
     - $$Artikel
     - $$Beschreibungstext
+    - $$Katalog
   - $$Organisation
   - $$Person
   - $$Pauschalangebot
@@ -100,6 +101,25 @@
 - Feratel - Preis - Typ | all:
   - $$Preis pro Person
   - $$Preis pro Package
+
+- Länder | all:
+  - Andorra
+  - Dänemark
+  - Deutschland
+  - Frankreich
+  - Italien
+  - Kroatien
+  - Liechtenstein
+  - Österreich
+  - Polen
+  - Portugal
+  - Slowakei
+  - Slowenien
+  - Schweiz
+  - Schweden
+  - Spanien
+  - Tschechien
+  - Ungarn
 
 - Ländercodes | show, edit, api, xml:
   - AF | Afghanistan

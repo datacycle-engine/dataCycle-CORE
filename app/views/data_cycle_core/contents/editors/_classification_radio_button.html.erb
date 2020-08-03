@@ -9,6 +9,10 @@
   <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }) %>
 
   <ul class="no-bullet classification-radiobutton-list">
+    <li class="radiobutton-wrap">
+      <%= radio_button_tag key + '[]', '', true, id: sanitize_to_id(key + '[]') %>
+      <%= label_tag key + '[]', "#{t("common.no_selection", locale: DataCycleCore.ui_language)}" %>
+    </li>
     <%= collection_radio_buttons(nil, key + '[]', classification_items, :primary_classification_id, :internal_name, {}, { namespace: local_assigns.dig(:options, :prefix) }) do |rb| %>
       <li class="radiobutton-wrap">
         <%= rb.radio_button value: rb.value, checked: (value&.ids&.include?(rb.value) || (value.blank? && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))) %>

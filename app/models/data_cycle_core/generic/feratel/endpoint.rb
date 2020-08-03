@@ -20,11 +20,16 @@ module DataCycleCore
           @per = 100
           @options = options[:options] || {}
           @params = @options[:params] || {}
+          @endpoint_url = options[:endpoint_url] || 'http://interface.deskline.net'
         end
 
         # basic download of data
         def additional_service_types(lang: :de)
           enumerate_items(:additional_service_types, '//AdditionalServiceTypes/AdditionalServiceType', lang: lang)
+        end
+
+        def brochures(lang: :de)
+          enumerate_items(:brochures, '//ShopItems/ShopItem', lang: lang)
         end
 
         def categories(lang: :de)
@@ -278,14 +283,14 @@ module DataCycleCore
         def load_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, index: false, retry_count: 0, deleted_from: nil)
           method_name = index ? "create_#{type}_index_request_xml" : "create_#{type}_request_xml"
 
-          if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
-            url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
+          if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers, :brochures].include?(type)
+            url = "#{@endpoint_url}/DSI/BasicData.asmx/GetData"
             request_parameters = send(method_name, lang: lang, range_code: range_code, range_ids: range_ids)
           elsif [:mark_deleted_events, :mark_deleted_accommodations, :mark_deleted_infrastructure_items].include?(type)
-            url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
+            url = "#{@endpoint_url}/DSI/BasicData.asmx/GetData"
             request_parameters = send(method_name, range_code: range_code, range_ids: range_ids, deleted_from: deleted_from)
           else
-            url = 'http://interface.deskline.net/DSI/KeyValue.asmx/GetKeyValues'
+            url = "#{@endpoint_url}/DSI/KeyValue.asmx/GetKeyValues"
             request_parameters = send(method_name, lang: lang, range_code: range_code, range_ids: range_ids)
           end
 
@@ -321,7 +326,7 @@ module DataCycleCore
         end
 
         def load_data_item(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, item_ids:, retry_count: 0)
-          url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
+          url = "#{@endpoint_url}/DSI/BasicData.asmx/GetData"
           request_parameters = send("create_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids, item_ids: item_ids)
 
           # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
@@ -357,9 +362,9 @@ module DataCycleCore
 
         def load_data_large(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, pattern:)
           if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
-            url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
+            url = "#{@endpoint_url}/DSI/BasicData.asmx/GetData"
           else
-            url = 'http://interface.deskline.net/DSI/KeyValue.asmx/GetKeyValues'
+            url = "#{@endpoint_url}/DSI/KeyValue.asmx/GetKeyValues"
           end
 
           request_parameters = send("create_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids)
@@ -386,7 +391,7 @@ module DataCycleCore
 
           if data_array[0].nil?
             envelop = Nokogiri::XML.parse(response.body)
-            raise StandardError, response.body if envelop.children.first&.try(:name) == 'html'
+            raise StandardError, response.body if envelop.children.first&.try(:name) == 'html' || envelop.children.first&.try(:name) == 'HTML'
 
             data = Nokogiri::XML(envelop.children.first.content)
             data.remove_namespaces!
@@ -396,7 +401,7 @@ module DataCycleCore
         end
 
         def load_changed_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, changed_from:, retry_count: 0)
-          url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
+          url = "#{@endpoint_url}/DSI/BasicData.asmx/GetData"
           request_parameters = send("updated_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids, changed_from: changed_from)
 
           # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
