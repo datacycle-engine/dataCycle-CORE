@@ -36,7 +36,7 @@ module DataCycleCore
         template_paths.each do |core_template_path|
           content_sets.each do |content_set_name|
             files = core_template_path + content_set_name + '*.yml'
-            file_names = Dir[files]
+            file_names = Dir[files].sort
             file_names.each do |file_name|
               data_templates = YAML.safe_load(File.open(file_name.to_s), [Symbol])
               data_templates.each_index do |index|
