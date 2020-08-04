@@ -55,7 +55,7 @@ module DataCycleCore
 
         def url(data)
           return if data.blank?
-          schemes = ['http', 'https', 'mailto', 'ftp', 'sftp']
+          schemes = ['http', 'https', 'mailto', 'ftp', 'sftp', 'tel']
 
           begin
             (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless schemes.include?(Addressable::URI.parse(data)&.scheme)
