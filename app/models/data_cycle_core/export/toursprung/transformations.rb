@@ -10,13 +10,17 @@ module DataCycleCore
           content_data[:text] = data.translated_locales&.collect { |l| [l, I18n.with_locale(l) { data.try(:text) }] }&.to_h&.reject { |_k, v| v.blank? }
 
           {
-            resource: utility_object.external_system.credentials(:export).dig('resource'),
+            resource: utility_object.external_system.credentials(:export).dig('resources', data.template_name),
             id: data.id,
+            data: content_data.compact.to_json
+          }.merge(data.try(:tour).is_a?(RGeo::Geographic::SphericalLineStringImpl) ? {
             lat: data.try(:tour)&.points&.first&.y,
             lng: data.try(:tour)&.points&.first&.x,
-            points: data.try(:tour)&.points&.map { |p| [p.y, p.x] }&.to_json,
-            data: content_data.compact.to_json
-          }
+            points: data.try(:tour)&.points&.map { |p| [p.y, p.x] }&.to_json
+          } : {
+            lat: data.location&.y,
+            lng: data.location&.x
+          })
         end
       end
     end
