@@ -21,7 +21,7 @@ module DataCycleCore
 
         return_data = iterate_tree_hash(merged_data_trees)
         inhaltstypen_trees.each do |inhaltstypen_tree|
-          return_data.merge!(iterate_tree_hash(inhaltstypen_tree))
+          return_data.merge!(iterate_tree_hash(inhaltstypen_tree, false))
         end
         check_features
         return_data
@@ -50,13 +50,13 @@ module DataCycleCore
         }.reduce({}, :merge)
       end
 
-      def self.iterate_tree_hash(trees_hash)
+      def self.iterate_tree_hash(trees_hash, allow_duplicates = true)
         trees_hash.each do |k, v|
-          walk_tree_hash(v, nil, get_label(k).id)
+          walk_tree_hash(v, nil, get_label(k).id, allow_duplicates)
         end
       end
 
-      def self.walk_tree_hash(data_tree, parent, label_id)
+      def self.walk_tree_hash(data_tree, parent, label_id, allow_duplicates = true)
         # data format> [$$]name[ | description]
         return nil if data_tree.blank?
         data_tree.each do |k, v|
@@ -72,22 +72,23 @@ module DataCycleCore
           split_data = split_data[0].split('|').map(&:squish)
           name = split_data[0]
           description = split_data[1]
-          current_alias = save_data(name, parent, internal, description, uri, label_id)
+          current_alias = save_data(name, parent, internal, description, uri, label_id, allow_duplicates)
 
-          walk_tree_hash(v, current_alias, label_id) if v.is_a?(Hash)
+          walk_tree_hash(v, current_alias, label_id, allow_duplicates) if v.is_a?(Hash)
         end
       end
 
-      def self.save_data(data, parent, internal, description, uri, label_id)
+      def self.save_data(data, parent, internal, description, uri, label_id, allow_duplicates = true)
         find_alias = DataCycleCore::ClassificationAlias
           .joins(:classification_tree)
           .find_by(
             classification_aliases: { name: data },
             classification_trees: {
-              parent_classification_alias_id: parent.try(:id),
               classification_tree_label_id: label_id
-            }
+            }.merge(allow_duplicates ? { parent_classification_alias_id: parent.try(:id) } : {})
           )
+
+        puts "WARNING: Duplicate ClassificationAlias '#{"#{parent&.internal_name} -> " unless parent.nil?}#{data}' found, check classification.yml" if !allow_duplicates && find_alias.present? && find_alias&.parent_classification_alias&.id != parent&.id
 
         if find_alias.present?
           updated_data = find_alias
