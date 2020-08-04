@@ -126,7 +126,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
-          .>> t(:add_field, 'name', ->(s) { [s.dig('Details', 'Name'), ' - Treffpunkt'].join('') })
+          .>> t(:add_field, 'name', ->(s) { [s.dig('Details', 'Name'), I18n.t('import.feratel.meeting_point', default: ['Treffpunkt'])].join(' - ') })
           .>> t(:add_service_description, 'meeting_point', 'Meeting Point')
           .>> t(:rename_keys, { 'meeting_point' => 'description' })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('Details', 'Position', 'Longitude')&.to_f })

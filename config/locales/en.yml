@@ -164,6 +164,7 @@ en:
 
   import:
     feratel:
+      meeting_point: meeting point      
       additional_service:
         equipment: Equipment
         requirements: Requirements

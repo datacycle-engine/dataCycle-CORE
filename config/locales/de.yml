@@ -880,6 +880,7 @@ de:
 
   import:
     feratel:
+      meeting_point: Treffpunkt
       additional_service:
         equipment: Ausrüstung
         requirements: Voraussetzung
