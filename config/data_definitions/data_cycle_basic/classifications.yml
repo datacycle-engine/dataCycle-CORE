@@ -410,7 +410,7 @@
   - Download **https://schema.org/DownloadAction
   - View **https://schema.org/ViewAction
 
-- ItemAvalability | all:
+- ItemAvailability | all:
   - Eingestellt **https://schema.org/Discontinued
   - Verfügbar **https://schema.org/InStock
   - Nur im Geschäft **https://schema.org/InStoreOnly
