@@ -15,8 +15,7 @@ module DataCycleCore
               setup do
                 @routes = Engine.routes
                 @content = DataCycleCore::DummyDataHelper.create_data('poi')
-                @content.description = 'some description'
-                @content.text = 'some text'
+                @content.set_data_hash(data_hash: { 'description' => 'some description', 'text' => 'some text' }, partial_update: true, prevent_history: true)
                 @content.save
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end

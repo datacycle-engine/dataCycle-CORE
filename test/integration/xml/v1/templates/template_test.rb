@@ -12,7 +12,7 @@ module DataCycleCore
         setup do
           @routes = Engine.routes
           @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
-          @content.text = 'Hello World!'
+          @content.set_data_hash(data_hash: { 'text' => 'Hello World!' }, partial_update: true, prevent_history: true)
           @content.save!
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
