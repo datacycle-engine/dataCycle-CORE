@@ -428,6 +428,7 @@ module DataCycleCore
 
       def set_property_value(property_name, property_definition, value)
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
+        ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}")
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
              (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
         reload_memoized [property_name, property_definition]
