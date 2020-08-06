@@ -19,6 +19,7 @@ module DataCycleCore
       include UpdateSearch
 
       before_save :set_internal_data
+      before_save_data_hash :set_default_values, if: -> { properties_with_default_values.present? }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks, unless: -> { prevent_webhooks }
@@ -74,6 +75,15 @@ module DataCycleCore
       def set_computed_values
         computed_property_names.each do |computed_property|
           @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(computed_property, properties_for(computed_property), @data_hash, self)
+        end
+      end
+
+      def set_default_values
+        to_set = properties_with_default_values.select { |name, _| @data_hash[name].blank? }
+        to_set = to_set.select { |name, definition| definition.dig('validations', 'required').present? && @data_hash.key?(name) } unless @new_content
+
+        to_set.each do |property_name, property_definition|
+          @data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, @data_hash, self)
         end
       end
 
@@ -175,13 +185,13 @@ module DataCycleCore
 
       def normalize_value(value, properties)
         norm_value = value
-        if properties.key?('default_value') && value.blank?
-          if properties['default_value'].is_a?(String) && /{{.*}}/.match?(properties['default_value']) # eval code enclosed in double curly braces: {{ ... }}
-            norm_value = eval(properties['default_value'][2..-3]) # rubocop:disable Security/Eval
-          else
-            norm_value = properties['default_value']
-          end
-        end
+        # if properties.key?('default_value') && value.blank?
+        #   if properties['default_value'].is_a?(String) && /{{.*}}/.match?(properties['default_value']) # eval code enclosed in double curly braces: {{ ... }}
+        #     norm_value = eval(properties['default_value'][2..-3]) # rubocop:disable Security/Eval
+        #   else
+        #     norm_value = properties['default_value']
+        #   end
+        # end
         return DataCycleCore::MasterData::DataConverter.string_to_string(norm_value) if properties['type'] == 'string'
         norm_value
       end
