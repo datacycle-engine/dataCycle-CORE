@@ -72,12 +72,14 @@ module DataCycleCore
         relation_contents
       end
 
-      def load_classifications(relation_name)
+      def load_classifications(relation_name, overlay_flag = false)
+        value = overlay_data(I18n.locale).try(:[], relation_name) if overlay_flag
+        content_data_id = value.present? ? overlay_data(I18n.locale).dig('id') : id
         DataCycleCore::Classification
           .joins(:classification_contents)
           .where(
             classification_contents: {
-              content_data_id: id, relation: relation_name
+              content_data_id: content_data_id, relation: relation_name
             }
           )
       end

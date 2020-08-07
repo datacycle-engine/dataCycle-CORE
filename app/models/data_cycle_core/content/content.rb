@@ -46,7 +46,8 @@ module DataCycleCore
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
             if self.class.ancestors.include?(DataCycleCore::Feature::Content::Overlay) && name.to_s.end_with?(overlay_name)
-              get_property_value(name.to_s.delete_suffix("_#{overlay_name}"), property_definition, nil, true)
+              original_name = name.to_s.delete_suffix("_#{overlay_name}")
+              get_property_value(original_name, property_definition, nil, original_name.in?(overlay_property_names))
             else
               get_property_value(name.to_s, property_definition)
             end
@@ -57,9 +58,9 @@ module DataCycleCore
       end
 
       def respond_to?(method_name, include_all = false)
-        (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten +
+        (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym, (item.to_s + "_#{overlay_name}").to_sym] }.flatten +
           linked_property_names.map { |item| item + '_ids' } +
-          Array.wrap(overlay_property_names)&.map { |item| item + "_#{overlay_name}" }).include?(method_name.to_sym) || super
+          Array.wrap(overlay_property_names)&.map { |item| (item + "_#{overlay_name}").to_sym }&.flatten).include?(method_name.to_sym) || super
       end
 
       def content_type?(*types)
@@ -316,7 +317,7 @@ module DataCycleCore
             elsif included_property_names.include?(key[0])
               load_included_data(key[0], key[1], key[4])
             elsif classification_property_names.include?(key[0])
-              load_classifications(key[0])
+              load_classifications(key[0], key[4])
             elsif linked_property_names.include?(key[0])
               load_linked_objects(key[0], key[3])
             elsif embedded_property_names.include?(key[0])
