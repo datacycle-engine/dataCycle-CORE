@@ -32,19 +32,24 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::Api
 
       after_save :reload_memoized
+      after_save :reload_memoized_overlay
 
       def method_missing(name, *args, &block)
-        property_definition = property_definitions.try(:[], name.to_s.delete_suffix('='))
+        property_definition = property_definitions.try(:[], name.to_s.delete_suffix('=').delete_suffix("_#{overlay_name}"))
         if property_definition && name.to_s.ends_with?('=')
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
           set_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
         elsif property_definition
           if name.to_s.in?(embedded_property_names + linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
-            get_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
+            get_property_value(name.to_s, property_definition, args.first)
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
-            get_property_value(name.to_s.delete_suffix('='), property_definition)
+            if self.class.ancestors.include?(DataCycleCore::Feature::Content::Overlay) && name.end_with?(overlay_name)
+              get_property_value(name.to_s.delete_suffix("_#{overlay_name}"), property_definition, nil, true)
+            else
+              get_property_value(name.to_s, property_definition)
+            end
           end
         else
           super
@@ -52,7 +57,9 @@ module DataCycleCore
       end
 
       def respond_to?(method_name, include_all = false)
-        (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
+        (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten +
+          linked_property_names.map { |item| item + '_ids' } +
+          Array.wrap(overlay_property_names)&.map { |item| item + "_#{overlay_name}" }).include?(method_name.to_sym) || super
       end
 
       def content_type?(*types)
@@ -301,11 +308,11 @@ module DataCycleCore
         @enabled_features ||= DataCycleCore::FeatureService.enabled_features(schema)
       end
 
-      def get_property_value(property_name, property_definition, filter = nil)
+      def get_property_value(property_name, property_definition, filter = nil, overlay = false)
         @get_property_value ||= Hash.new do |h, key|
           h[key] =
             if plain_property_names.include?(key[0])
-              load_json_attribute(key[0], key[1])
+              load_json_attribute(key[0], key[1], overlay)
             elsif included_property_names.include?(key[0])
               load_included_data(key[0], key[1])
             elsif classification_property_names.include?(key[0])
@@ -326,11 +333,13 @@ module DataCycleCore
               raise NotImplementedError
             end
         end
-        @get_property_value[[property_name, property_definition, I18n.locale, filter]]
+        @get_property_value[[property_name, property_definition, I18n.locale, filter, overlay]]
       end
 
-      def load_json_attribute(property_name, property_definition)
-        convert_to_type(
+      def load_json_attribute(property_name, property_definition, overlay)
+        value = overlay_data(I18n.locale).try(:[], property_name) if overlay
+        value ||= send(property_name) if property_definition['storage_location'] == 'column'
+        value || convert_to_type(
           property_definition['type'],
           send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
         )
@@ -442,6 +451,14 @@ module DataCycleCore
         @get_property_value.delete(key) && return if key.present?
 
         remove_instance_variable(:@get_property_value) if instance_variable_defined?(:@get_property_value)
+      end
+
+      def reload_memoized_overlay(locale = nil)
+        return unless instance_variable_defined?(:@overlay_data)
+
+        @overlay_data.delete(locale) && return if locale.present?
+
+        remove_instance_variable(:@overlay_data) if instance_variable_defined?(:@overlay_data)
       end
     end
   end

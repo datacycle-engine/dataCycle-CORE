@@ -22,7 +22,7 @@ module DataCycleCore
           assert_equal image2.id, @content.image.first.id
         end
 
-        test 'reload attributes if set via attribute=' do
+        test 'reload attributes if set via partial_update' do
           assert_equal @release_status_comment, @content.release_status_comment
 
           new_comment = 'Test Kommentar 2'
