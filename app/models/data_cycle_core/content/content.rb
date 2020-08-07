@@ -45,7 +45,7 @@ module DataCycleCore
             get_property_value(name.to_s, property_definition, args.first)
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
-            if self.class.ancestors.include?(DataCycleCore::Feature::Content::Overlay) && name.end_with?(overlay_name)
+            if self.class.ancestors.include?(DataCycleCore::Feature::Content::Overlay) && name.to_s.end_with?(overlay_name)
               get_property_value(name.to_s.delete_suffix("_#{overlay_name}"), property_definition, nil, true)
             else
               get_property_value(name.to_s, property_definition)
@@ -308,13 +308,13 @@ module DataCycleCore
         @enabled_features ||= DataCycleCore::FeatureService.enabled_features(schema)
       end
 
-      def get_property_value(property_name, property_definition, filter = nil, overlay = false)
+      def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false)
         @get_property_value ||= Hash.new do |h, key|
           h[key] =
             if plain_property_names.include?(key[0])
-              load_json_attribute(key[0], key[1], overlay)
+              load_json_attribute(key[0], key[1], key[4])
             elsif included_property_names.include?(key[0])
-              load_included_data(key[0], key[1])
+              load_included_data(key[0], key[1], key[4])
             elsif classification_property_names.include?(key[0])
               load_classifications(key[0])
             elsif linked_property_names.include?(key[0])
@@ -333,11 +333,12 @@ module DataCycleCore
               raise NotImplementedError
             end
         end
-        @get_property_value[[property_name, property_definition, I18n.locale, filter, overlay]]
+        @get_property_value[[property_name, property_definition, I18n.locale, filter, overlay_flag]]
       end
 
-      def load_json_attribute(property_name, property_definition, overlay)
-        value = overlay_data(I18n.locale).try(:[], property_name) if overlay
+      def load_json_attribute(property_name, property_definition, overlay_flag)
+        # puts "load_json_attribute: #{property_name}(#{overlay_flag})"
+        value = overlay_data(I18n.locale).try(:[], property_name) if overlay_flag
         value ||= send(property_name) if property_definition['storage_location'] == 'column'
         value || convert_to_type(
           property_definition['type'],
@@ -352,15 +353,19 @@ module DataCycleCore
         )
       end
 
-      def load_included_data(property_name, property_definition)
+      def load_included_data(property_name, property_definition, overlay_flag)
+        # puts "load_included_data: #{property_name}(#{overlay_flag})"
         sub_property_definitions = property_definition.try(:[], 'properties')
         raise StandardError, "Template for included data #{property_name} has no Subproperties defined." if sub_property_definitions.blank?
+        thing_data = load_subproperty_hash(
+          sub_property_definitions,
+          property_definition['storage_location'],
+          send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name)
+        )
+        overlayed_data = {}
+        overlayed_data = overlay_data(I18n.locale).try(:[], property_name) || {} if overlay_flag
         OpenStructHash.new(
-          load_subproperty_hash(
-            sub_property_definitions,
-            property_definition['storage_location'],
-            send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name)
-          )
+          thing_data.merge(overlayed_data)
         ).freeze
       end
 
