@@ -19,7 +19,7 @@ module DataCycleCore
       include UpdateSearch
 
       before_save :set_internal_data
-      before_save_data_hash :set_default_values, if: -> { properties_with_default_values.present? }
+      before_save_data_hash :set_default_values, if: -> { properties_with_default_values.present? && (@new_content || (translated_locales.present? && translated_locales.exclude?(I18n.locale))) }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks, unless: -> { prevent_webhooks }
@@ -79,8 +79,8 @@ module DataCycleCore
       end
 
       def set_default_values
-        to_set = properties_with_default_values.select { |name, _| @data_hash[name].blank? }
-        to_set = to_set.select { |name, definition| definition.dig('validations', 'required').present? && @data_hash.key?(name) } unless @new_content
+        to_set = properties_with_default_values.select { |name, _| @data_hash[name].blank? && !@data_hash[name].is_a?(FalseClass) }
+        to_set = to_set.slice(*translatable_property_names) if translated_locales.present?
 
         to_set.each do |property_name, property_definition|
           @data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, @data_hash, self)
@@ -314,26 +314,26 @@ module DataCycleCore
         # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
         upsert_item.save
-        upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)
+        upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true, new_content: @new_content)
         upsert_item
       end
 
-      def set_classification_relation_ids(ids, relation_name, tree_label, default_value, not_translated, universal)
+      def set_classification_relation_ids(ids, relation_name, _tree_label, default_value, not_translated, universal)
         return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
         present_relation_ids = send(relation_name).pluck(:classification_id) || []
         ids ||= []
         if is_blank?(ids) && !universal
-          if default_value.present?
-            classification_id = load_default_classification(tree_label, default_value)
-            ids = [classification_id] # the convention is: don't delete the default_value
-            if present_relation_ids.count.zero?
-              DataCycleCore::ClassificationContent.find_or_create_by!(
-                'content_data_id' => id,
-                classification_id: classification_id,
-                relation: relation_name
-              )
-            end
-          end
+          # if default_value.present?
+          #   classification_id = load_default_classification(tree_label, default_value)
+          #   ids = [classification_id] # the convention is: don't delete the default_value
+          #   if present_relation_ids.count.zero?
+          #     DataCycleCore::ClassificationContent.find_or_create_by!(
+          #       'content_data_id' => id,
+          #       classification_id: classification_id,
+          #       relation: relation_name
+          #     )
+          #   end
+          # end
         else
           ids.each do |classification_id_value|
             next if present_relation_ids.include?(classification_id_value)

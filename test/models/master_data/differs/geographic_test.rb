@@ -49,25 +49,5 @@ describe DataCycleCore::MasterData::Differs::Geographic do
         assert_nil(subject.new(item[0], item[1]).diff_hash)
       end
     end
-
-    it 'properly handles default_values' do
-      hash = template_hash.deep_dup
-      hash['default_value'] = 'POINT (10.0 20.0)'
-      a_val = RGeo::Geographic.simple_mercator_factory.point(10, 20)
-      a_string = a_val.to_s
-      [[a_val, nil], [a_string, nil], [nil, a_val], [nil, a_string]].each do |a, b|
-        assert_nil(subject.new(a, b, hash).diff_hash)
-      end
-    end
-
-    it 'properly handles eval default_values' do
-      hash = template_hash.deep_dup
-      hash['default_value'] = '{{RGeo::Geographic.simple_mercator_factory.point(10, 20)}}'
-      a_val = RGeo::Geographic.simple_mercator_factory.point(10, 20)
-      a_string = a_val.to_s
-      [[a_val, nil], [a_string, nil], [nil, a_val], [nil, a_string]].each do |a, b|
-        assert_nil(subject.new(a, b, hash).diff_hash)
-      end
-    end
   end
 end

@@ -14,7 +14,7 @@ module DataCycleCore
         'name' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???'
       }
-      content_data.set_data_hash(data_hash: data_hash, prevent_history: true)
+      content_data.set_data_hash(data_hash: data_hash, prevent_history: true, new_content: true)
       content_hash = content_data.get_data_hash
 
       diff = content_data.diff(content_hash)
@@ -22,10 +22,12 @@ module DataCycleCore
       assert_equal(false, content_data.diff?(content_hash))
 
       diff = content_data.diff(data_hash)
-      _diff_hash_if_defaults_are_not_considered = {
-        'data_type' => [['-', content_data.data_type.ids]]
+      diff_hash_if_defaults_are_not_considered = {
+        'data_type' => [['-', content_data.data_type.ids]],
+        'data_pool' => [['-', content_data.data_pool.ids]],
+        'upload_date' => ['-', content_data.upload_date]
       }
-      assert_equal({}, diff)
+      assert_equal(diff_hash_if_defaults_are_not_considered, diff)
       assert_equal(false, content_data.diff?(data_hash))
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)
@@ -187,7 +189,7 @@ module DataCycleCore
       content_data = DataCycleCore::TestPreparations.data_set_object('Bild')
       content_data.save!
       data_hash = { 'name' => 'Dies ist ein Test!', 'description' => 'wtf is going on???' }
-      content_data.set_data_hash(data_hash: data_hash, prevent_history: true)
+      content_data.set_data_hash(data_hash: data_hash, prevent_history: true, new_content: true)
       content_hash = content_data.get_data_hash
       updated_at = content_data.updated_at.to_s(:long_usec)
       created_at = content_data.created_at.to_s(:long_usec)
