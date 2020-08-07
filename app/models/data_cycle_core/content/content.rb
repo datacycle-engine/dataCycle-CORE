@@ -40,17 +40,16 @@ module DataCycleCore
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
           set_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
         elsif property_definition
-          if name.to_s.in?(embedded_property_names + linked_property_names)
+          original_name = name.to_s
+          overlay_flag = original_name.ends_with?(overlay_name)
+          original_name = name.to_s.delete_suffix("_#{overlay_name}") if self.class.ancestors.include?(DataCycleCore::Feature::Content::Overlay) && name.to_s.ends_with?(overlay_name)
+
+          if original_name.to_s.in?(embedded_property_names + linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
-            get_property_value(name.to_s, property_definition, args.first)
+            get_property_value(original_name, property_definition, args.first, overlay_flag & original_name.in?(overlay_property_names))
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
-            if self.class.ancestors.include?(DataCycleCore::Feature::Content::Overlay) && name.to_s.end_with?(overlay_name)
-              original_name = name.to_s.delete_suffix("_#{overlay_name}")
-              get_property_value(original_name, property_definition, nil, original_name.in?(overlay_property_names))
-            else
-              get_property_value(name.to_s, property_definition)
-            end
+            get_property_value(original_name, property_definition, nil, overlay_flag & original_name.in?(overlay_property_names))
           end
         else
           super
@@ -321,7 +320,7 @@ module DataCycleCore
             elsif linked_property_names.include?(key[0])
               load_linked_objects(key[0], key[3])
             elsif embedded_property_names.include?(key[0])
-              load_embedded_objects(key[0], key[3])
+              load_embedded_objects(key[0], key[3], true, [I18n.locale], key[4])
             elsif asset_property_names.include?(key[0])
               load_asset_relation(key[0])
             elsif computed_property_names.include?(key[0])

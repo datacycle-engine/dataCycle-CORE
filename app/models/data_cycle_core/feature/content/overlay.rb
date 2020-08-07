@@ -17,14 +17,18 @@ module DataCycleCore
         end
 
         def overlay_property_names
-          @overlay_property_names ||= DataCycleCore::Thing.find_by(template_name: overlay_template_name, template: true)&.property_names
+          @overlay_property_names ||= DataCycleCore::Thing.find_by(template_name: overlay_template_name, template: true)&.property_names || []
         end
 
         def overlay_data(locale)
-          @overlay_data ||= Hash.new do |h, key|
+          @overlay_data ||= ActiveSupport::HashWithIndifferentAccess.new do |h, key|
             h[key] = send(overlay_name).first.try(:get_data_hash)
           end
           @overlay_data[locale]
+        end
+
+        def all_overlay_data
+          @overlay_data
         end
       end
     end
