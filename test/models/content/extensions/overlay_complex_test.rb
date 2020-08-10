@@ -159,7 +159,6 @@ module DataCycleCore
       assert_equal(odtend, event.overlay.first.end_date.to_s(:long_datetime))
       assert_equal(odtfrom, event.start_date_overlay.to_s(:long_datetime))
       assert_equal(odtend, event.end_date_overlay.to_s(:long_datetime))
-      byebug
     end
   end
 end
