@@ -87,7 +87,7 @@ module DataCycleCore
           .find_by(asset_contents: { content_data_id: id, relation: relation_name })
       end
 
-      def load_schedule(relation_name)
+      def load_schedule(relation_name, _overlay_flag = false)
         DataCycleCore::Schedule::History.where(thing_history_id: id, relation: relation_name).order(created_at: :asc)
       end
 

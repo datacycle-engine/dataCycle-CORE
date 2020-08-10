@@ -59,6 +59,25 @@ module DataCycleCore
       })
     end
 
+    def create_schedule(dtstart, dtend, duration)
+      schedule = DataCycleCore::Schedule.new
+      dtstart = Time.parse(dtstart).in_time_zone
+      dtend = Time.parse(dtend).in_time_zone
+      end_time = dtstart + duration
+      schedule.schedule_object = IceCube::Schedule.new(dtstart, end_time: end_time) do |s|
+        s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9).until(dtend))
+      end
+      schedule.schedule_object.to_hash.merge(dtstart: dtstart, dtend: dtend).compact
+    end
+
+    def create_event_with_event_schedule(schedule_hash, overlay_schedule_hash)
+      item = create_event
+      update_event(item, {
+        event_schedule: Array.wrap(schedule_hash),
+        overlay: [{ event_schedule: Array.wrap(overlay_schedule_hash).compact }.compact].compact
+      })
+    end
+
     test 'test overlay of simple attribute(column), no overlay present' do
       event = create_event
       assert_equal('Test Event', event.name)
@@ -108,9 +127,39 @@ module DataCycleCore
       assert_equal(image.id, event.image_overlay.first.id)
 
       event = create_event_with_image(image.id, overlay_image.id)
+      assert_not_equal(image.id, overlay_image.id)
       assert_equal(1, event.overlay.size)
       assert_equal(image.id, event.image.first.id)
       assert_equal(overlay_image.id, event.image_overlay.first.id)
+    end
+
+    test 'event with proper schedule' do
+      dtfrom = '2019-11-20T09:00:00'
+      dtend = '2020-01-04T16:00:00'
+      schedule_hash = create_schedule(dtfrom, dtend, 7.hours).to_h
+      odtfrom = '2020-11-20T09:00:00'
+      odtend = '2021-01-04T16:00:00'
+      overlay_schedule_hash = create_schedule(odtfrom, odtend, 7.hours)
+
+      event = create_event_with_event_schedule(schedule_hash, nil)
+      assert_equal(0, event.overlay.size)
+      assert_equal(dtfrom, event.start_date.to_s(:long_datetime))
+      assert_equal(dtend, event.end_date.to_s(:long_datetime))
+
+      event = create_event_with_event_schedule(schedule_hash, overlay_schedule_hash)
+      assert_equal(1, event.overlay.size)
+      schedule = event.event_schedule.first.to_h
+      schedule_overlay = event.overlay.first.event_schedule.first.to_h
+      assert_not_equal(schedule, schedule_overlay)
+      assert_equal(schedule_overlay, event.event_schedule_overlay.first.to_h)
+
+      assert_equal(dtfrom, event.start_date.to_s(:long_datetime))
+      assert_equal(dtend, event.end_date.to_s(:long_datetime))
+      assert_equal(odtfrom, event.overlay.first.start_date.to_s(:long_datetime))
+      assert_equal(odtend, event.overlay.first.end_date.to_s(:long_datetime))
+      assert_equal(odtfrom, event.start_date_overlay.to_s(:long_datetime))
+      assert_equal(odtend, event.end_date_overlay.to_s(:long_datetime))
+      byebug
     end
   end
 end

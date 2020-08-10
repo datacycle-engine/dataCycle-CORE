@@ -321,12 +321,12 @@ module DataCycleCore
               load_linked_objects(key[0], key[3], false, [I18n.locale], key[4])
             elsif embedded_property_names.include?(key[0])
               load_embedded_objects(key[0], key[3], true, [I18n.locale], key[4])
-            elsif asset_property_names.include?(key[0])
+            elsif asset_property_names.include?(key[0]) # no overlay
               load_asset_relation(key[0])
             elsif computed_property_names.include?(key[0])
-              load_computed_attribute(key[0], key[1])
+              load_computed_attribute(key[0], key[1], key[4])
             elsif schedule_property_names.include?(key[0])
-              load_schedule(key[0])
+              load_schedule(key[0], key[4])
             elsif virtual_property_names.include?(key[0])
               nil
             else
@@ -337,7 +337,6 @@ module DataCycleCore
       end
 
       def load_json_attribute(property_name, property_definition, overlay_flag)
-        # puts "load_json_attribute: #{property_name}(#{overlay_flag})"
         value = overlay_data(I18n.locale).try(:[], property_name) if overlay_flag
         value ||= send(property_name) if property_definition['storage_location'] == 'column'
         value || convert_to_type(
@@ -346,15 +345,16 @@ module DataCycleCore
         )
       end
 
-      def load_computed_attribute(property_name, property_definition)
-        convert_to_type(
+      def load_computed_attribute(property_name, property_definition, overlay_flag)
+        value = overlay_data(I18n.locale).try(:[], property_name) if overlay_flag
+        value ||= send(property_name) if property_definition['storage_location'] == 'column'
+        value || convert_to_type(
           property_definition.dig('compute', 'type'),
           send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
         )
       end
 
       def load_included_data(property_name, property_definition, overlay_flag)
-        # puts "load_included_data: #{property_name}(#{overlay_flag})"
         sub_property_definitions = property_definition.try(:[], 'properties')
         raise StandardError, "Template for included data #{property_name} has no Subproperties defined." if sub_property_definitions.blank?
         thing_data = load_subproperty_hash(
