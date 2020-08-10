@@ -7,19 +7,16 @@ module DataCycleCore
     test 'diff of a CreativeWork(Bild) and a hash' do
       template = DataCycleCore::Thing.count
       template_trans = DataCycleCore::Thing::Translation.count
-
-      content_data = DataCycleCore::TestPreparations.data_set_object('Bild')
-      content_data.save!
       data_hash = {
         'name' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???'
       }
-      content_data.set_data_hash(data_hash: data_hash, prevent_history: true, new_content: true)
+      content_data = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, prevent_history: true)
       content_hash = content_data.get_data_hash
 
-      diff = content_data.diff(content_hash)
-      assert_equal({}, diff)
-      assert_equal(false, content_data.diff?(content_hash))
+      # diff = content_data.diff(content_hash)
+      # assert_equal({}, diff)
+      # assert_equal(false, content_data.diff?(content_hash))
 
       diff = content_data.diff(data_hash)
       diff_hash_if_defaults_are_not_considered = {
@@ -28,7 +25,10 @@ module DataCycleCore
         'upload_date' => ['-', content_data.upload_date]
       }
       assert_equal(diff_hash_if_defaults_are_not_considered, diff)
-      assert_equal(false, content_data.diff?(data_hash))
+
+      partial_schema_hash = content_data.schema.dup
+      partial_schema_hash['properties'] = content_data.property_definitions&.slice(*data_hash.keys)
+      assert_equal(false, content_data.diff?(data_hash, partial_schema_hash))
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
@@ -52,9 +52,12 @@ module DataCycleCore
         'description' => ['~', 'change description', 'wtf is going on???']
       }
 
-      assert_equal(true, content_data.diff?(update_hash))
-      assert_equal(diff_hash, content_data.diff(update_hash))
-      content_data.set_data_hash(data_hash: update_hash)
+      partial_schema_hash = content_data.schema.dup
+      partial_schema_hash['properties'] = content_data.property_definitions&.slice(*update_hash.keys)
+
+      assert_equal(true, content_data.diff?(update_hash, partial_schema_hash))
+      assert_equal(diff_hash, content_data.diff(update_hash, partial_schema_hash))
+      content_data.set_data_hash(data_hash: update_hash, partial_update: true)
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)
@@ -185,18 +188,18 @@ module DataCycleCore
     test 'make sure data are not saved if nothing has changed' do
       template = DataCycleCore::Thing.count
       template_trans = DataCycleCore::Thing::Translation.count
-
-      content_data = DataCycleCore::TestPreparations.data_set_object('Bild')
-      content_data.save!
       data_hash = { 'name' => 'Dies ist ein Test!', 'description' => 'wtf is going on???' }
-      content_data.set_data_hash(data_hash: data_hash, prevent_history: true, new_content: true)
+      content_data = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, prevent_history: true)
       content_hash = content_data.get_data_hash
       updated_at = content_data.updated_at.to_s(:long_usec)
       created_at = content_data.created_at.to_s(:long_usec)
 
       diff = content_data.diff(content_hash)
       assert_equal({}, diff)
-      assert_equal(false, content_data.diff?(data_hash))
+
+      partial_schema_hash = content_data.schema.dup
+      partial_schema_hash['properties'] = content_data.property_definitions&.slice(*data_hash.keys)
+      assert_equal(false, content_data.diff?(data_hash, partial_schema_hash))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)

@@ -7,19 +7,13 @@ module DataCycleCore
     module Attributes
       class EmbeddedMulitSingleLanguageTest < ActiveSupport::TestCase
         def setup
-          embedded_de = DataCycleCore::TestPreparations.data_set_object('Embedded-Creative-Work-2')
-          embedded_de.save
-          embedded_de.set_data_hash(data_hash: { 'name' => 'Deutsch' }, prevent_history: true)
+          embedded_de = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Creative-Work-2', data_hash: { 'name' => 'Deutsch' }, prevent_history: true)
           embedded_en = nil
           I18n.with_locale(:en) do
-            embedded_en = DataCycleCore::TestPreparations.data_set_object('Embedded-Creative-Work-2')
-            embedded_en.save
-            embedded_en.set_data_hash(data_hash: { 'name' => 'English' }, prevent_history: true)
+            embedded_en = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Creative-Work-2', data_hash: { 'name' => 'English' }, prevent_history: true)
           end
 
-          @data_set = DataCycleCore::TestPreparations.data_set_object('Embedded-Entity-Creative-Work-1')
-          @data_set.save
-          @data_set.set_data_hash(data_hash: { 'name' => 'Deutsch', 'embedded_creative_work' => [{ 'id' => embedded_de.id }] }, prevent_history: true)
+          @data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Creative-Work-1', data_hash: { 'name' => 'Deutsch', 'embedded_creative_work' => [{ 'id' => embedded_de.id }] }, prevent_history: true)
           I18n.with_locale(:en) { @data_set.set_data_hash(data_hash: { 'name' => 'English', 'embedded_creative_work' => [{ 'id' => embedded_en.id }] }, prevent_history: true) }
 
           assert_equal([:de, :en], @data_set.available_locales.sort)

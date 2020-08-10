@@ -21,7 +21,6 @@ module DataCycleCore
           .>> t(:nest, 'contact_info', ['email', 'telephone', 'url'])
           .>> t(:add_field, 'forecasts', ->(s) { parse_forecasts(s, external_source_id) })
           .>> t(:reject_keys, ['metadata', '01_station'])
-          .>> t(:compact)
           .>> t(:strip_all)
         end
 
