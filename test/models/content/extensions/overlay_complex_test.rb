@@ -51,6 +51,14 @@ module DataCycleCore
       })
     end
 
+    def create_event_with_image(image, overlay_image)
+      item = create_event
+      update_event(item, {
+        image: [image],
+        overlay: [{ image: [overlay_image].compact }.compact].compact
+      })
+    end
+
     test 'test overlay of simple attribute(column), no overlay present' do
       event = create_event
       assert_equal('Test Event', event.name)
@@ -89,6 +97,20 @@ module DataCycleCore
       event = create_event_with_overlay_schedule
       assert_equal(event_date_range(1).stringify_keys, event.schedule.first.get_data_hash.dig('event_date'))
       assert_equal(event_date_range(2).stringify_keys, event.schedule_overlay.first.get_data_hash.dig('event_date'))
+    end
+
+    test 'event with linked image' do
+      image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild' })
+      overlay_image = DataCycleCore::DummyDataHelper.create_data('image')
+
+      event = create_event_with_image(image.id, nil)
+      assert_equal(0, event.overlay.size)
+      assert_equal(image.id, event.image_overlay.first.id)
+
+      event = create_event_with_image(image.id, overlay_image.id)
+      assert_equal(1, event.overlay.size)
+      assert_equal(image.id, event.image.first.id)
+      assert_equal(overlay_image.id, event.image_overlay.first.id)
     end
   end
 end
