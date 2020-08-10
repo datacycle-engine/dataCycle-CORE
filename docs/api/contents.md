@@ -288,3 +288,20 @@ Die Attribute, die für die Filterung nutzbar sind, können pro Installation ind
 
 * **created**
 * **modified**
+
+
+### Zufallssortierung
+
+Neben den beiden bereits beschriebenen Möglichkeiten zum Sortieren von Inhalten, gibt es auch eine Möglichkeit um Inhalte in zufälliger Reihenfolge abzufragen. Ein möglicher Anwendungsfall dafür wäre beispielsweise, wenn aus einer großen Anzahl von Inhalten bei jedem Zugriff fünf zufällige Inhalte ausgewählt werden sollen. Über die Datenschnittstelle kann diese Zufallsauswahl folgendermaßen erreicht werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "sort": "random",
+  "page": {
+    "size": 5
+  }
+}
+```
+
+***ACHTUNG: Der Zufallsgenerator wird bei jeder Abfrage zurückgesetzt! Das heißt, dass bei einer Abfrage über mehrere Seiten nicht sichergestellt ist, dass keine Inhalte doppelt ausgeliefert werden. Um sicherzugehen, dass jeder Inhalt nur genau einmal ausgeliefert wird, sollte nur eine Seite mit einer passenden Seitengröße abgefragt werden.***

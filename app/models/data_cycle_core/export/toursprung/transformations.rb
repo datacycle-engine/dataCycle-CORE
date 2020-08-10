@@ -5,39 +5,28 @@ module DataCycleCore
     module Toursprung
       module Transformations
         def self.json_partial(utility_object, data)
-          api_version = utility_object.external_system.credentials(:export).dig('api_version') || DataCycleCore.main_config.dig('api', 'default')
+          content_data = {}
+          content_data[:name] = data.translated_locales&.collect { |l| [l, I18n.with_locale(l) { data.try(:name) }] }&.to_h&.reject { |_k, v| v.blank? }
+          content_data[:text] = data.translated_locales&.collect { |l| [l, I18n.with_locale(l) { data.try(:text) }] }&.to_h&.reject { |_k, v| v.blank? }
 
-          content_json =
-            if data.is_a?(DataCycleCore::Thing)
-              "DataCycleCore::Api::#{api_version.classify}::ContentsController".safe_constantize&.render(
-                assigns: try("common_data_#{api_version}", utility_object, data),
-                template: "data_cycle_core/api/#{api_version}/contents/show",
-                layout: false
-              )
-            else
-              {}
-            end
-
-          {
-            resource: utility_object.external_system.credentials(:export).dig('resource'),
+          json_data = {
+            resource: utility_object.external_system.credentials(:export).dig('resources', data.template_name),
             id: data.id,
-            lat: data.try(:tour)&.points&.first&.y,
-            lng: data.try(:tour)&.points&.first&.x,
-            points: data.try(:tour)&.points&.map { |p| [p.y, p.x] }&.to_json,
-            data: content_json
+            data: content_data.compact.to_json
           }
-        end
 
-        def self.common_data_v4(utility_object, data)
-          {
-            content: data,
-            id: data.id,
-            api_version: '4',
-            language: data.try(:translated_locales)&.map(&:to_s) || [I18n.locale.to_s],
-            include_parameters: utility_object.external_system.config.dig('export_config', name.demodulize.underscore, 'include_parameters') || utility_object.external_system.config.dig('export_config', 'include_parameters') || [],
-            fields_parameters: utility_object.external_system.config.dig('export_config', name.demodulize.underscore, 'fields_parameters') || utility_object.external_system.config.dig('export_config', 'fields_parameters') || [],
-            token: utility_object.external_system.credentials(:export).dig('token')
-          }
+          if data.try(:tour).is_a?(RGeo::Geographic::SphericalLineStringImpl)
+            json_data.merge({
+              lat: data.try(:tour)&.points&.first&.y,
+              lng: data.try(:tour)&.points&.first&.x,
+              points: data.try(:tour)&.points&.map { |p| [p.y, p.x] }&.to_json
+            })
+          else
+            json_data.merge({
+              lat: data.location&.y,
+              lng: data.location&.x
+            })
+          end
         end
       end
     end

@@ -24,6 +24,8 @@
                 <i class="fa fa-trash-o" aria-hidden="true"></i>
             <% end %>
         <% end %>
+
+        <%= link_to tag.i(class: 'fa fa-clipboard'), '#', class: 'copy-to-clipboard', title: t('actions.copy_to_clipboard', locale: DataCycleCore.ui_language), data: { value: classification_tree.sub_classification_alias.try(:id) } %>
     </span>
     <% if can?(:update, classification_tree.sub_classification_alias) ||
           can?(:map_classifications, classification_tree.sub_classification_alias) %>

@@ -273,10 +273,12 @@ module DataCycleCore
                 xml.HousePackageMasters('DateFrom' => '1980-01-01')
                 xml.AdditionalServices do
                   xml.Details('DateFrom' => '1980-01-01')
+                  xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
                   xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                   xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                   xml.Facilities('DateFrom' => '1980-01-01')
-                  xml.HandicapClassifications('DateFrom' => '1980-01-01')
+                  xml.GuestCards('DateFrom' => '1980-01-01')
+                  # xml.HandicapClassifications('DateFrom' => '1980-01-01')
                   xml.AdditionalProducts do
                     xml.Details('DateFrom' => '1980-01-01')
                     xml.Prices('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
@@ -462,6 +464,34 @@ module DataCycleCore
                 #     xml.Prices('DateFrom' => '1980-01-01')
                 #   end
                 # end
+              end
+            end
+          end
+        end
+
+        def create_brochures_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.BasicData do
+              xml.Filters('ShowCreativeCommons' => true) do
+                xml.ShopItem('Type' => 'Brochure')
+                xml.Languages do
+                  Array(lang).each do |l|
+                    xml.Language('Value' => l.to_s)
+                  end
+                end
+              end
+
+              xml.ShopItems do
+                xml.Details('DateFrom' => '1980-01-01')
+                xml.Documents('DateFrom' => '1980-01-01')
+                xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
+                xml.Links('DateFrom' => '1980-01-01')
+                xml.Variations do
+                  xml.Details('DateFrom' => '1980-01-01')
+                  xml.Documents('DateFrom' => '1980-01-01')
+                  xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
+                  xml.Links('DateFrom' => '1980-01-01')
+                end
               end
             end
           end

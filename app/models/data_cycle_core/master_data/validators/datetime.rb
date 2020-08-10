@@ -10,7 +10,7 @@ module DataCycleCore
 
         def validate(data, template, _strict = false)
           if data.blank?
-            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
+            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
             return @error
           end
 
@@ -23,11 +23,7 @@ module DataCycleCore
 
           if template.key?('validations')
             template['validations'].each_key do |key|
-              if datetime_keywords.include?(key)
-                method(key).call(value, template['validations'][key])
-              else
-                (@error[:warning][@template_key] ||= []) << I18n.t(:string, scope: [:validation, :warnings], data: data, key: key, template: template, locale: DataCycleCore.ui_language) unless key == 'type'
-              end
+              method(key).call(value, template['validations'][key]) if datetime_keywords.include?(key)
             end
           end
           @error

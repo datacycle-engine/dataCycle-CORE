@@ -607,7 +607,7 @@ de:
       moved_to: 'Inhalt in %{data} verschoben'
       become_user: 'Eingeloggt als %{data}.'
       duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
-      merged_with_duplicate: Inhalte wurden zusammengeführt
+      merged_with_duplicate: Inhalte werden im Hintergrund zusammengeführt
       bulk_updated: Inhalte wurden aktualisiert
       bulk_deleted: Inhalte wurden gelöscht
       bulk_created: Inhalte wurden erstellt
@@ -877,6 +877,15 @@ de:
       common:
         invalid: Gültigkeitszeitraum überschritten
         translation_missing: Keine Übersetzung vorhanden
+
+  import:
+    feratel:
+      meeting_point: Treffpunkt
+      additional_service:
+        equipment: Ausrüstung
+        requirements: Voraussetzung
+        included_services: Inkludierte Services
+        difficulty: Schwierigkeitsgrad
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

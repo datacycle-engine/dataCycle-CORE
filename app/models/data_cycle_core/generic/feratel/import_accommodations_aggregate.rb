@@ -43,7 +43,7 @@ module DataCycleCore
               "facilities_#{locale}": { "$push": "$dump.#{locale}.Facilities.Facility" }
             } },
             { "$project": { "dump.#{locale}.Facilities": 0, "dump.#{locale}.JoinFacility": 0, "dump.#{locale}.JoinFacilityGroup": 0 } },
-            { "$addFields": { "dump.#{locale}.Facilities.Facility": "$facilities_#{locale}" } },
+            { "$addFields": { "dump.#{locale}.Facilities.Facility": "$facilities_#{locale}", "external_id": "$dump.#{locale}.Id" } },
             { "$project": { "facilities_#{locale}": 0 } }
           ]
         end

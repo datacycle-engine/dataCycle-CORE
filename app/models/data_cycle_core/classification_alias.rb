@@ -26,6 +26,7 @@ module DataCycleCore
     translates :name, :description, column_suffix: '_i18n', backend: :jsonb
     default_scope { i18n }
     before_save :set_internal_data
+    after_destroy :clean_stored_filters
 
     attr_accessor :content_template
 
@@ -288,6 +289,10 @@ module DataCycleCore
         # TODO: move to cache warmup feature
         Rails.cache.delete_matched("*#{item.id}*")
       end
+    end
+
+    def clean_stored_filters
+      DataCycleCore::StoredFilter.where("stored_filters.parameters::TEXT ILIKE '%#{id}%'").update_all("parameters = REPLACE(parameters::TEXT, '\"#{id}\"', '')::JSONB") # rubocop:disable Rails/SkipsModelValidations
     end
   end
 end

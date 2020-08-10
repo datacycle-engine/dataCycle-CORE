@@ -65,6 +65,7 @@ require 'premailer'
 
 # Image Optimizer
 require 'image_optim'
+require 'dotenv/load'
 
 module DataCycleCore
   class << self

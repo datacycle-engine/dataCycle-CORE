@@ -3,14 +3,13 @@
 module DataCycleCore
   module Generic
     module Feratel
-      module DownloadContents
+      module DownloadExperiences
         def self.download_content(utility_object:, options:)
           DataCycleCore::Generic::Common::DownloadFunctions.download_data(
             download_object: utility_object,
             data_id: method(:data_id).to_proc,
             data_name: method(:data_name).to_proc,
             modified: method(:modified).to_proc,
-            delete: method(:delete).to_proc,
             options: options
           )
         end
@@ -49,10 +48,6 @@ module DataCycleCore
             .inject(&:+)
             .map { |i| i.dig('ChangeDate').in_time_zone }
             .max
-        end
-
-        def self.delete(data, locale)
-          data.dig('Descriptions').blank? && locale != 'de'
         end
       end
     end

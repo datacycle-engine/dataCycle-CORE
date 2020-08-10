@@ -10,7 +10,7 @@ module DataCycleCore
 
         def validate(data, template, _strict = false)
           if blank?(data)
-            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
+            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
           elsif data.is_a?(::Array)
             check_data_array(data, template)
           elsif data.is_a?(::Hash)
@@ -27,11 +27,7 @@ module DataCycleCore
           # validate given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
-              if keywords.include?(key)
-                method(key).call(data, template['validations'][key])
-              else
-                (@error[:error][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :warnings], key: key, type: 'EmbeddedLinkArray', locale: DataCycleCore.ui_language)
-              end
+              method(key).call(data, template['validations'][key]) if keywords.include?(key)
             end
           end
 

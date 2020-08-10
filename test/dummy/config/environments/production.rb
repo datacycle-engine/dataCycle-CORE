@@ -107,15 +107,10 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3000'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
-  config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
+  config.action_mailer.delivery_method = :sendmail
+  config.action_mailer.default_options = { from: 'noreply@localhost' }
 
-  #
-  # config.action_mailer.delivery_method = :smtp
-  # config.action_mailer.smtp_settings = {
-  #     address: '',
-  #     openssl_verify_mode: 'none'
-  # }
-  # ActionMailer::Base.default :from => ''
+  config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
   config.action_cable.url = '/cable'
   config.action_cable.allowed_request_origins = [config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')]
 end

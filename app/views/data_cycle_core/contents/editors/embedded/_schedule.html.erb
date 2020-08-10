@@ -1,4 +1,4 @@
-<%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item#{' is-active' if local_assigns[:object].nil?}",
+<%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item is-active",
   id: "#{sanitize_to_id(key)}_item_#{index}",
   data: {
     id: local_assigns[:object]&.id,

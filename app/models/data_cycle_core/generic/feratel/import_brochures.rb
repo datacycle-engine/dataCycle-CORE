@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Feratel
-      module ImportAdditionalServiceProviders
+      module ImportBrochures
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
@@ -19,7 +19,7 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            ['feratel_asp_owners'].each do |name_tag|
+            ['feratel_owners'].each do |name_tag|
               DataCycleCore::Generic::Common::ImportTags.process_content(
                 utility_object: utility_object,
                 raw_data: raw_data,
@@ -28,30 +28,16 @@ module DataCycleCore
               )
             end
 
-            Array.wrap(raw_data.dig('AdditionalServices', 'AdditionalService')).each do |service_data|
-              DataCycleCore::Generic::Feratel::Processing.process_image(
-                utility_object,
-                service_data,
-                options.dig(:import, :transformations, :image)
-              )
-
-              DataCycleCore::Generic::Feratel::Processing.process_meeting_point(
-                utility_object,
-                service_data.merge({ 'provider_id' => raw_data.dig('Id') }),
-                options&.dig(:import, :transformations, :meeting_point)
-              )
-
-              DataCycleCore::Generic::Feratel::Processing.process_as(
-                utility_object,
-                service_data.merge({ 'provider_id' => raw_data.dig('Id') }),
-                options&.dig(:import, :transformations, :additional_services)
-              )
-            end
-
-            DataCycleCore::Generic::Feratel::Processing.process_asp(
+            DataCycleCore::Generic::Feratel::Processing.process_image(
               utility_object,
               raw_data,
-              options&.dig(:import, :transformations, :additional_service_providers)
+              options&.dig(:import, :transformations, :image)
+            )
+
+            DataCycleCore::Generic::Feratel::Processing.process_brochure(
+              utility_object,
+              raw_data,
+              options&.dig(:import, :transformations, :brochure)
             )
           end
         end

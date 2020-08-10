@@ -43,6 +43,7 @@ class Validator {
       this.pageLeaveWarning();
     }
     this.form.on('click', '.close-error', this.closeError.bind(this));
+    this.form.on('click', '.close-warning', this.closeWarning.bind(this));
     this.agbsCheck.on('click', '.close-error', this.closeError.bind(this));
     this.agbsCheck.on('change', this.validateSingle.bind(this));
     this.form.on('dc:form:disable', this.disable.bind(this));
@@ -78,6 +79,10 @@ class Validator {
     event.preventDefault();
     $(event.target).closest('.single_error').remove();
   }
+  closeWarning(event) {
+    event.preventDefault();
+    $(event.target).closest('.single_warning').remove();
+  }
   validateSingle(event, data) {
     if (data && data.type === 'reset') return;
     this.requests = [this.validateItem(event.currentTarget)];
@@ -96,7 +101,7 @@ class Validator {
     if (this.languageMenu.length) {
       this.languageMenu.on('click', '.list-items > li > a', event => {
         QuillHelpers.updateEditors(this.form);
-        this.submitFormData = this.form.serializeArray();
+        this.submitFormData = this.form.serializeArray().uniqFieldValues();
         if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData)) {
           event.preventDefault();
           new ConfirmationModal({
@@ -186,6 +191,39 @@ class Validator {
     }
     return out;
   }
+  renderWarningMessage(data, validationContainer) {
+    let out = '';
+    let item_id = '';
+    let item_label = $(validationContainer).find('label').first();
+    let button_text = '';
+    if (validationContainer != null && $(validationContainer).data('id') != undefined)
+      item_id = $(validationContainer).data('id') + '_warning';
+    else if (validationContainer != null && $(item_label).attr('for') != undefined)
+      item_id = $(item_label).attr('for') + '_warning';
+    if ($('#' + item_id).length != 0) return '';
+    button_text = '<span id="button_' + item_id + '" class="tooltip-warning">';
+    out = "<span id='" + item_id + "' class='single_warning'>";
+    for (let key in data.warning) {
+      if (
+        ($(validationContainer).data('id') != undefined &&
+          $(validationContainer).data('id').search(new RegExp(key, 'i')) != -1) ||
+        ($(validationContainer).data('id') == undefined &&
+          $(item_label).attr('for') != undefined &&
+          $(item_label).attr('for').search(new RegExp(key, 'i')) != -1)
+      ) {
+        button_text += '<strong>' + ($(item_label).text() || 'Warnung') + ':</strong><br>' + data.warning[key] + '<br>';
+        out += '<strong>' + ($(item_label).text() || 'Warnung') + ':</strong> ' + data.warning[key] + '</br>';
+      }
+    }
+    out += '<i class="fa fa-times close-warning" aria-hidden="true"></i></span>';
+    if ($(out).text().length == 0) return '';
+    if (this.form.hasClass('edit-content-form')) {
+      this.submitButton.addClass('warning');
+      $('#' + this.submitButton.data('toggle') + ' #button_' + item_id).remove();
+      $('#' + this.submitButton.data('toggle')).append(button_text + '</span>');
+    }
+    return out;
+  }
   removeSubmitButtonErrors(item) {
     var item_id = '';
     let item_label = $(item).find('label').first();
@@ -201,9 +239,26 @@ class Validator {
       }
     }
   }
+  removeSubmitButtonWarnings(item) {
+    var item_id = '';
+    let item_label = $(item).find('label').first();
+    if (item != null && $(item).data('id') != undefined) item_id = $(item).data('id') + '_warning';
+    else if (item != null && $(item_label).attr('for') != undefined) item_id = $(item_label).attr('for') + '_warning';
+    if (item == null) {
+      this.submitButton.removeClass('warning');
+      $('#' + this.submitButton.data('toggle') + ' .tooltip-warning').remove();
+    } else {
+      $('#' + this.submitButton.data('toggle') + ' #button_' + item_id).remove();
+      if ($('#' + this.submitButton.data('toggle') + ' .tooltip-warning').length == 0) {
+        this.submitButton.removeClass('warning');
+      }
+    }
+  }
   resetField(validationContainer) {
     $(validationContainer).children('.single_error').remove();
     $(validationContainer).removeClass('has-error');
+    $(validationContainer).children('.single_warning').remove();
+    $(validationContainer).removeClass('has-warning');
   }
   findItemsForField(validationContainer) {
     let items = [];
@@ -256,8 +311,9 @@ class Validator {
       data: $.param(form_data),
       dataType: 'json'
     }).done(data => {
-      if (data != undefined && Object.keys(data.error).length > 0) {
+      if (data != undefined) {
         if (
+          Object.keys(data.error).length > 0 &&
           items
             .filter('[id]')
             .first()
@@ -265,9 +321,25 @@ class Validator {
             .search(new RegExp(Object.keys(data.error).join('|'), 'i')) != -1
         ) {
           $(validationContainer).append(this.renderErrorMessage(data, validationContainer)).addClass('has-error');
+        } else {
+          this.removeSubmitButtonErrors(validationContainer);
+        }
+
+        if (
+          Object.keys(data.warning).length > 0 &&
+          items
+            .filter('[id]')
+            .first()
+            .prop('id')
+            .search(new RegExp(Object.keys(data.warning).join('|'), 'i')) != -1
+        ) {
+          $(validationContainer).append(this.renderWarningMessage(data, validationContainer)).addClass('has-warning');
+        } else {
+          this.removeSubmitButtonWarnings(validationContainer);
         }
       } else {
         this.removeSubmitButtonErrors(validationContainer);
+        this.removeSubmitButtonWarnings(validationContainer);
       }
     });
   }

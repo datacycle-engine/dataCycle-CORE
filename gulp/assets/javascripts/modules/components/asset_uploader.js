@@ -296,9 +296,7 @@ class AssetUploader {
       let attribute = file.attributeValues[key];
 
       if (attribute.type == 'boolean') {
-        let value = values && values.length && values.filter(v => v.value.includes('true')).length ? 'ja' : 'nein';
-        if (attribute.ui && attribute.ui.create && attribute.ui.create.transform_value == 'invert')
-          value = value == 'ja' ? 'nein' : 'ja';
+        let value = values && values.length && values.pop().value == 'true' ? 'ja' : 'nein';
 
         Object.assign(attribute, {
           name: key,
@@ -330,7 +328,6 @@ class AssetUploader {
     }
 
     let label = attribute.label;
-    if (attribute.ui && attribute.ui.create && attribute.ui.create.label) label = attribute.ui.create.label;
 
     return (
       '<span class="file-label" title="' +

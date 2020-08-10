@@ -48,81 +48,14 @@
           :transformation:
             :method: combine
             :name: additionalProperty
-      :meeting_point:
-        :label: Treffpunkt
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
-        :api:
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: combine
-            :name: additionalProperty
-      :equipment:
-        :label: Ausrüstung
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
-        :api:
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: combine
-            :name: additionalProperty
-      :requirements:
-        :label: Voraussetzungen
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
-        :api:
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: combine
-            :name: additionalProperty
-      :included_services:
-        :label: Services inkludiert
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
-        :api:
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: combine
-            :name: additionalProperty
-      :difficulty:
-        :label: Schwierigkeitsgrad
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :api:
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: combine
-            :name: additionalProperty
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :subject_of:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
       :url:
         :label: Angebots URL
         :type: string
@@ -132,6 +65,10 @@
         :api:
           :v4:
             :name: sameAs
+      :area_served:
+        :label: Treffpunkt
+        :type: linked
+        :template_name: Örtlichkeit
       :hours_available:
         :label: Termine
         :type: schedule

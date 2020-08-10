@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Pimcore
-      module ImportEvent
+      module ImportEventSeries
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
@@ -21,19 +21,7 @@ module DataCycleCore
           I18n.with_locale(locale) do
             next if raw_data.dig('localizedData', 'name').blank? # unnamed events are not imported
 
-            DataCycleCore::Generic::Pimcore::Processing.process_place(
-              utility_object,
-              raw_data.dig('organiser'),
-              options.dig(:import, :transformations, :place)
-            )
-
-            DataCycleCore::Generic::Pimcore::Processing.process_organization(
-              utility_object,
-              raw_data.dig('organiser'),
-              options.dig(:import, :transformations, :organization)
-            )
-
-            DataCycleCore::Generic::Pimcore::Processing.process_event(
+            DataCycleCore::Generic::Pimcore::Processing.process_event_series(
               utility_object,
               raw_data,
               options.dig(:import, :transformations, :event)

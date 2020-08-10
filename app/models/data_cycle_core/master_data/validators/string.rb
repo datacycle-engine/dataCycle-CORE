@@ -16,11 +16,7 @@ module DataCycleCore
           if data.blank? || data.is_a?(::String)
             if template.key?('validations')
               template['validations'].each_key do |key|
-                if string_keywords.include?(key)
-                  method(key).call(data.to_s, template['validations'][key])
-                else
-                  (@error[:warning][@template_key] ||= []) << I18n.t(:string, scope: [:validation, :warnings], data: data, key: key, template: template, locale: DataCycleCore.ui_language) unless key == 'type'
-                end
+                method(key).call(data.to_s, template['validations'][key]) if string_keywords.include?(key)
               end
             end
           else
@@ -59,7 +55,7 @@ module DataCycleCore
 
         def url(data)
           return if data.blank?
-          schemes = ['http', 'https', 'mailto', 'ftp', 'sftp']
+          schemes = ['http', 'https', 'mailto', 'ftp', 'sftp', 'tel']
 
           begin
             (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless schemes.include?(Addressable::URI.parse(data)&.scheme)
@@ -92,8 +88,6 @@ module DataCycleCore
         end
 
         def telephone_din5008(data)
-          # TODO: test
-          # binding.pry
           din5008 = /^(\+[1-9]\d+) ([1-9]\d*) ([1-9]\d+)(\-\d+){0,1}$|^(0\d+) ([1-9]\d+)(\-\d+){0,1}$|^([1-9]\d+)(\-\d+){0,1}$|^(\+[1-9]\d+) ([1-9]\d+)(\-\d+){0,1}$/
           check_telephone = !(data =~ din5008).nil?
           (@error[:warning][@template_key] ||= []) << I18n.t(:telephone_din5008, scope: [:validation, :warnings], data: data, locale: DataCycleCore.ui_language) unless check_telephone

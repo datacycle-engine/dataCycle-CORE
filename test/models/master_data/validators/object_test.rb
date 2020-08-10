@@ -78,11 +78,11 @@ describe DataCycleCore::MasterData::Validators::Object do
       assert_equal(no_error_hash, validator.error)
     end
 
-    it 'warns for missing data' do
+    it 'does not warn for missing data' do
       data_hash = { 'greeting' => 'Hello World!' }
       validator = subject.new(data_hash, template_hash)
       assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
+      assert_equal(0, validator.error[:warning].size)
     end
 
     it 'produces an error when a object definition is missing' do
@@ -102,7 +102,7 @@ describe DataCycleCore::MasterData::Validators::Object do
       data_hash = { 'greeting' => nil, 'anzahl' => nil }
       validator = subject.new(data_hash, template_hash)
       assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
+      # assert_equal(1, validator.error[:warning].size)
     end
 
     it 'successfully validates daterange with proper template and varying test-data' do
@@ -134,7 +134,7 @@ describe DataCycleCore::MasterData::Validators::Object do
       }
       validator = subject.new(data_hash, daterange_hash)
       assert_equal(3, validator.error[:error].size)
-      assert_equal(2, validator.error[:warning].values[0].size)
+      assert_equal(0, validator.error[:warning].size)
 
       data_hash = {
         'validity_period' => {
@@ -144,7 +144,7 @@ describe DataCycleCore::MasterData::Validators::Object do
       }
       validator = subject.new(data_hash, daterange_hash)
       assert_equal(2, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
+      assert_equal(0, validator.error[:warning].size)
 
       data_hash = {
         'validity_period' => {
@@ -154,7 +154,7 @@ describe DataCycleCore::MasterData::Validators::Object do
       }
       validator = subject.new(data_hash, daterange_hash)
       assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
+      assert_equal(0, validator.error[:warning].size)
 
       data_hash = {
         'validity_period' => {
@@ -164,7 +164,7 @@ describe DataCycleCore::MasterData::Validators::Object do
       }
       validator = subject.new(data_hash, daterange_hash)
       assert_equal(0, validator.error[:error].size)
-      assert_equal(2, validator.error[:warning].size)
+      assert_equal(0, validator.error[:warning].size)
     end
 
     # TODO: [patrick]: check if required
@@ -235,7 +235,7 @@ describe DataCycleCore::MasterData::Validators::Object do
 
       validator = subject.new({ 'test' => 'wrong' }, daterange_hash)
       assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
+      assert_equal(0, validator.error[:warning].size)
     end
 
     it 'produced an error if wrong validator is given' do
@@ -249,7 +249,7 @@ describe DataCycleCore::MasterData::Validators::Object do
       template_hash['validity_period']['validations']['unknown_valitor'] = 'test'
       validator = subject.new(data_hash, template_hash)
       assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
+      assert_equal(0, validator.error[:warning].size)
 
       template_hash = daterange_hash.deep_dup
       template_hash['validity_period']['validations']['daterange'] = { 'from' => 'valid_from' }

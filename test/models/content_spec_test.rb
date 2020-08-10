@@ -39,19 +39,6 @@ module SharedExamplesForContent
       it 'provides existing data' do
         assert(subject.existing_property, property_value)
       end
-
-      it 'updates existing data' do
-        different_property_value = data_provider.call
-        subject.existing_property = different_property_value
-
-        assert(subject.existing_property, different_property_value)
-      end
-
-      it 'creates data for new property' do
-        subject.property = 'some data'
-
-        assert(subject.property, 'some data')
-      end
     end
   end
 
@@ -73,12 +60,6 @@ module SharedExamplesForContent
 
       it 'provides names of plain properties' do
         assert(subject.plain_property_names, ['property'])
-      end
-
-      it 'creates data for new property' do
-        subject.property = 'some data'
-
-        assert(subject.property, 'some data')
       end
     end
   end

@@ -42,6 +42,4 @@ DataCycleCore.setup do |config|
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_container')
     ].freeze
   end
-
-  config.webhooks = ENV['WEBHOOKS']&.split(',')&.map(&:squish)
 end
