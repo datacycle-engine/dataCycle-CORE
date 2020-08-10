@@ -11,7 +11,7 @@
       :releasable:
         :allowed: true
       :creatable:
-        :allowed: true
+        :allowed: false
       :download:
         :allowed: true
       :serialize:
