@@ -587,6 +587,7 @@ de:
       no_selected_attributes: Es wurden keine Attribute zum Überschreiben ausgewählt
       external_items: Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!
       no_watchlist: Es wurde keine Inhaltssammlung gewählt
+      content_duplication_invalid: 'Das Duplikat konnte nicht erstellt werden!'
     success:
       created: '%{data} wurde erfolgreich erstellt.'
       ready_to_send: '%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden.'

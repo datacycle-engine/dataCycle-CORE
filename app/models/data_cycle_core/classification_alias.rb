@@ -97,10 +97,7 @@ module DataCycleCore
     def self.classification_for_tree_with_name(tree_name, *names)
       for_tree(tree_name)
         .with_internal_name(names)
-        .map(&:classifications)
-        .flatten
-        .map(&:id)
-        .first
+        .classifications.pluck(:id).first
     end
 
     def self.classifications_for_tree_with_name(tree_name, *names)
@@ -265,7 +262,7 @@ module DataCycleCore
       return unless name_i18n_changed? # && internal_name.blank?
       available_translation = I18n.available_locales.drop_while { |locale| name(locale: locale).blank? }
       return if available_translation.blank?
-      self.internal_name = name(locale: available_translation.first)
+      self.internal_name = DataCycleCore::MasterData::DataConverter.string_to_string(name(locale: available_translation.first))
     end
 
     def update_primary_classification
@@ -274,7 +271,7 @@ module DataCycleCore
       return if primary_classification.nil?
 
       primary_classification.tap do |c|
-        c.name = name
+        c.name = DataCycleCore::MasterData::DataConverter.string_to_string(name)
         c.save!
       end
     end

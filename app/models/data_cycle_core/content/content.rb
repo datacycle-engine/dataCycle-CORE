@@ -191,6 +191,10 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition['type'] == 'classification' }
       end
 
+      def properties_with_default_values(include_overlay = false)
+        @properties_with_default_values ||= property_selector(include_overlay) { |definition| definition['default_value'].present? }
+      end
+
       def asset_property_names
         name_property_selector { |definition| definition['type'] == 'asset' }
       end
