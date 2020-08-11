@@ -219,7 +219,9 @@
               :class: daterange
           :show:
             :type: date
-        :default_value: '{{Time.zone.now.beginning_of_day}}'
+        :default_value:
+          module: DataCycleCore::Utility::DefaultValue::Date
+          method: beginning_of_day
         :advanced_search: true
       :youtube_url:
         :label: YouTube URL
@@ -246,8 +248,7 @@
         :label: Rechteinhaber
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Person
@@ -261,8 +262,7 @@
         :label: Ort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
@@ -294,7 +294,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Video"
+        :default_value: 'Video'
       :meta_data:
         :type: mixin
         :name: meta_data

@@ -8,15 +8,12 @@ module DataCycleCore
       @content_count = DataCycleCore::Thing.where(template: false).count
       @external_system_count = DataCycleCore::ExternalSystem.count
 
-      @data_set = DataCycleCore::TestPreparations.data_set_object('Artikel')
-      @data_set.save
-
       data = {
         'name' => 'My_test'
       }
 
-      @data_set.set_data_hash(data_hash: data, update_search_all: false)
-      @data_set.save
+      @data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: data)
+
       expected_hash = {
         'name' => 'My_test',
         'headline' => 'My_test'
@@ -70,7 +67,7 @@ module DataCycleCore
     test 'external source to external systems sync' do
       external_source_id = SecureRandom.uuid
 
-      data_set2 = DataCycleCore::TestPreparations.data_set_object('Artikel')
+      data_set2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1' })
       data_set2.external_key = '1234'
       data_set2.external_source_id = external_source_id
       data_set2.save

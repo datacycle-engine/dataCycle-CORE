@@ -7,22 +7,19 @@ module DataCycleCore
     def setup
       create_content('Artikel', { name: 'HEADLINE 1', tags: get_classification_ids_from_alias_names('Tags', ['Tag 1']) })
       create_content('Artikel', { name: 'HEADLINE 2', tags: get_classification_ids_from_alias_names('Tags', ['Tag 2', 'Nested Tag 1']) })
-      create_content('Artikel', { name: 'HEADLINE 2', tags: get_classification_ids_from_alias_names('Tags', ['Tag 1', 'Tag 2']) })
+      create_content('Artikel', { name: 'HEADLINE 3', tags: get_classification_ids_from_alias_names('Tags', ['Tag 1', 'Tag 2']) })
     end
 
     test 'test search utility functions' do
       search_count = DataCycleCore::Search.count
-      data_set = DataCycleCore::TestPreparations.data_set_object('Artikel')
-      data_set.save!
       data_hash = {
         'name' => 'Caption Test',
         'description' => 'Description Test',
         'link_name' => 'Link Name Test',
         'text' => 'Full Test'
       }
-      data_set.set_data_hash(data_hash: data_hash)
-      data_set.update_search(I18n.locale)
-      data_set.save
+
+      DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: data_hash)
 
       assert_equal(1, DataCycleCore::Search.count - search_count)
     end
@@ -64,13 +61,7 @@ module DataCycleCore
     private
 
     def create_content(template_name, data = {})
-      content = DataCycleCore::TestPreparations.data_set_object(template_name)
-      content.save!
-
-      result = content.set_data_hash(data_hash: data.stringify_keys)
-      raise 'InvalidData' if result[:error].present?
-      content.save!
-      content
+      DataCycleCore::TestPreparations.create_content(template_name: template_name, data_hash: data)
     end
 
     def get_classification_ids_from_alias_names(tree_name, *alias_names)

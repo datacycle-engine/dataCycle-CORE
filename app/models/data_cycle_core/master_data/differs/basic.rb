@@ -29,14 +29,14 @@ module DataCycleCore
           ['~', a, b]
         end
 
-        def load_value(default_value)
-          return if default_value.blank?
-          if default_value.is_a?(::String) && /{{.*}}/.match?(default_value)
-            eval(default_value[2..-3]) # rubocop:disable Security/Eval
-          else
-            default_value
-          end
-        end
+        # def load_value(default_value)
+        #   return if default_value.blank?
+        #   if default_value.is_a?(::String) && /{{.*}}/.match?(default_value)
+        #     eval(default_value[2..-3]) # rubocop:disable Security/Eval
+        #   else
+        #     default_value
+        #   end
+        # end
       end
     end
   end

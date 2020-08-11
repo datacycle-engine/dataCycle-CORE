@@ -5,8 +5,6 @@ require 'test_helper'
 module DataCycleCore
   class QuizTest < ActiveSupport::TestCase
     test 'generate a Quiz with questions, then delete all questions and answers' do
-      data_set = DataCycleCore::TestPreparations.data_set_object('Quiz')
-      data_set.save!
       data_hash = {
         'name' => 'Dies ist ein Test Quiz!',
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!',
@@ -43,12 +41,10 @@ module DataCycleCore
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 
-      error = data_set.set_data_hash(data_hash: data_hash)
-      data_set.save
-
+      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Quiz', data_hash: data_hash)
       returned_data_hash = data_set.get_data_hash
 
-      assert_equal(0, error[:error].count)
+      assert_equal(0, data_set.errors.messages.size)
       assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(2, returned_data_hash['question'].count)
       assert_equal(4, returned_data_hash['question'][0]['suggested_answer'].count)
@@ -71,8 +67,6 @@ module DataCycleCore
     end
 
     test 'generate a Quiz with questions and answers, then delete one question' do
-      data_set = DataCycleCore::TestPreparations.data_set_object('Quiz')
-      data_set.save!
       data_hash = {
         'name' => 'Dies ist ein Test Quiz!',
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!',
@@ -109,11 +103,10 @@ module DataCycleCore
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 
-      error = data_set.set_data_hash(data_hash: data_hash)
-      data_set.save
+      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Quiz', data_hash: data_hash)
       returned_data_hash = data_set.get_data_hash
 
-      assert_equal(0, error[:error].count)
+      assert_equal(0, data_set.errors.messages.size)
       assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(2, returned_data_hash['question'].count)
       assert_equal(4, returned_data_hash['question'][0]['suggested_answer'].count)

@@ -15,22 +15,12 @@ module DataCycleCore
 
           count_things(diff: [linked_size, 0, 0, 0]) do
             (1..linked_size).each do |i|
-              linked = DataCycleCore::TestPreparations.data_set_object('Place-Bi')
-              linked.save
-              linked.set_data_hash(data_hash: place_hash(i), prevent_history: true)
-              linked.save
-              @linked_objects.push(linked.id)
+              @linked_objects.push(DataCycleCore::TestPreparations.create_content(template_name: 'Place-Bi', data_hash: place_hash(i), prevent_history: true).id)
             end
           end
 
           count_things(diff: [1, 0, 0, 0]) do
-            @data_set = DataCycleCore::TestPreparations.data_set_object('Tour-Bi')
-            @data_set.save
-            @data_set.set_data_hash(
-              data_hash: tour_hash,
-              prevent_history: true
-            )
-            @data_set.save
+            @data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Tour-Bi', data_hash: tour_hash, prevent_history: true)
           end
 
           count_things(diff: [0, 1, 5, 0]) do
@@ -95,10 +85,7 @@ module DataCycleCore
 
           count_things(diff: [2, 1, 2, 5]) do
             (1..2).each do |i|
-              linked = DataCycleCore::TestPreparations.data_set_object('Place-Bi')
-              linked.save
-              linked.set_data_hash(data_hash: place_hash(i * 100), prevent_history: true)
-              linked_objects2.push(linked.id)
+              linked_objects2.push(DataCycleCore::TestPreparations.create_content(template_name: 'Place-Bi', data_hash: place_hash(i * 100), prevent_history: true).id)
             end
 
             data_set.set_data_hash(data_hash: tour_hash.merge({ 'linked_place' => linked_objects + linked_objects2 }))

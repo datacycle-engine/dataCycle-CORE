@@ -37,11 +37,7 @@ module DataCycleCore
         end
 
         def create_data(data)
-          data_set = DataCycleCore::TestPreparations.data_set_object('Artikel')
-          data_set.save
-          data_set.set_data_hash(data_hash: data, update_search_all: false)
-          data_set.save
-          data_set
+          DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: data)
         end
 
         test 'update external_key in external system sync for a thing' do

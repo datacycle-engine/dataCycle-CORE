@@ -7,16 +7,12 @@ module DataCycleCore
     module Attributes
       class ComputedTest < ActiveSupport::TestCase
         test 'Testing Utility::Calculation::Math methods' do
-          data_set = DataCycleCore::TestPreparations.data_set_object('Calculation-Math')
-          data_set.save
-
           data = {
             'value_1' => 5,
             'value_2' => 6
           }
+          data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Calculation-Math', data_hash: data)
 
-          data_set.set_data_hash(data_hash: data, update_search_all: false)
-          data_set.save
           expected_hash = {
             'value_1' => 5,
             'value_2' => 6,
@@ -32,16 +28,12 @@ module DataCycleCore
         end
 
         test 'Testing Utility::Calculation::Common methods' do
-          data_set = DataCycleCore::TestPreparations.data_set_object('Calculation-Common')
-          data_set.save
-
           data = {
             'value_1' => 5,
             'value_2' => 6
           }
 
-          data_set.set_data_hash(data_hash: data, update_search_all: false)
-          data_set.save
+          data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Calculation-Common', data_hash: data)
           expected_hash = {
             'value_1' => 5,
             'value_2' => 6,
@@ -56,16 +48,12 @@ module DataCycleCore
         end
 
         test 'Testing Utility::Calculation::String methods' do
-          data_set = DataCycleCore::TestPreparations.data_set_object('Computed-String')
-          data_set.save
-
           data = {
             'value_1' => 'val_1',
             'value_2' => 'val_2'
           }
 
-          data_set.set_data_hash(data_hash: data, update_search_all: false)
-          data_set.save
+          data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Computed-String', data_hash: data)
           expected_hash = {
             'value_1' => 'val_1',
             'value_2' => 'val_2',

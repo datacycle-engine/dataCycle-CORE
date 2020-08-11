@@ -98,14 +98,15 @@
               :class: daterange
           :show:
             :type: date
-        :default_value: '{{Time.zone.now.beginning_of_day}}'
+        :default_value:
+          module: DataCycleCore::Utility::DefaultValue::Date
+          method: beginning_of_day
         :advanced_search: true
       :author:
         :label: Fotograf
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Person
@@ -114,8 +115,7 @@
         :label: Rechteinhaber
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Person
@@ -124,13 +124,12 @@
         :label: Copyright - Jahr
         :type: number
         :storage_location: value
-        :advanced_search: true       
+        :advanced_search: true
       :content_location:
         :label: Ort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
@@ -159,7 +158,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Datei"
+        :default_value: 'Datei'
       :meta_data:
         :type: mixin
         :name: meta_data

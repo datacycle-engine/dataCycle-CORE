@@ -5,7 +5,7 @@ require 'test_helper'
 module DataCycleCore
   class ContentFeatureTest < ActiveSupport::TestCase
     test 'content_objects allows querying active features' do
-      content = DataCycleCore::TestPreparations.data_set_object('Artikel')
+      content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1' }, prevent_history: true)
 
       assert(content.enabled_features.size.positive?)
     end
@@ -22,10 +22,8 @@ module DataCycleCore
     end
 
     test 'content_object has consistent data definitions' do
-      content = DataCycleCore::TestPreparations.data_set_object('Artikel')
-      content.save!
-      content.set_data_hash(data_hash: { 'name' => 'HEADLINE 1' })
-      content.save!
+      content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { 'name' => 'HEADLINE 1' })
+
       assert(content == content.verify)
     end
   end

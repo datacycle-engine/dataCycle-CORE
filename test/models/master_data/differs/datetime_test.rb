@@ -45,23 +45,5 @@ describe DataCycleCore::MasterData::Differs::Datetime do
         assert_equal(['+', a], subject.new(nil, item).diff_hash)
       end
     end
-
-    it 'handles default_values correctly' do
-      date = '2018-01-01'.in_time_zone
-      hash = template_hash.deep_dup
-      hash['default_value'] = date.to_s
-      [[nil, date], [date, nil], [date.to_s, nil], [nil, date.to_s]].each do |a, b|
-        assert_nil(subject.new(a, b, hash).diff_hash)
-      end
-    end
-
-    it 'handles eval default_values correctly' do
-      date = '2018-01-01'.in_time_zone
-      hash = template_hash.deep_dup
-      hash['default_value'] = '{{ "2018-01-01".in_time_zone }}'
-      [[nil, date], [date, nil], [date.to_s, nil], [nil, date.to_s]].each do |a, b|
-        assert_nil(subject.new(a, b, hash).diff_hash)
-      end
-    end
   end
 end

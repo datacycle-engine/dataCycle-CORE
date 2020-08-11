@@ -10,25 +10,19 @@ module DataCycleCore
           # insert embedded (embedded includes linked)
           @cw_temp = DataCycleCore::Thing.count
 
-          linked = DataCycleCore::TestPreparations.data_set_object('Linked-Place-1')
-          linked.save
-          linked.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'linked'), prevent_history: true)
+          linked = DataCycleCore::TestPreparations.create_content(template_name: 'Linked-Place-1', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'linked'), prevent_history: true)
           linked_id = linked.id
           @linked_objects = [linked_id]
 
-          @data_set = DataCycleCore::TestPreparations.data_set_object('Embedded-Entity-Creative-Work-1')
-          @data_set.save
-          error = @data_set.set_data_hash(
-            data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge(
-              { 'embedded_creative_work' =>
-                  [
-                    DataCycleCore::TestPreparations
-                      .load_dummy_data_hash('creative_works', 'embedded')
-                      .merge({ 'linked_place' => [linked_id] })
-                  ] }
-            ),
-            prevent_history: true
-          )
+          @data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Creative-Work-1', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge(
+            { 'embedded_creative_work' =>
+                [
+                  DataCycleCore::TestPreparations
+                    .load_dummy_data_hash('creative_works', 'embedded')
+                    .merge({ 'linked_place' => [linked_id] })
+                ] }
+          ), prevent_history: true)
+
           returned_data_hash = @data_set.get_data_hash
 
           expected_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge(
@@ -39,7 +33,7 @@ module DataCycleCore
                     .merge({ 'linked_place' => [linked_id] })
                 ] }
           )
-          assert_equal(0, error[:error].count)
+          assert_equal(0, @data_set.errors.messages.size)
           assert_equal(
             expected_hash.except('embedded_creative_work'),
             returned_data_hash.compact.except('embedded_creative_work', *DataCycleCore::TestPreparations.excepted_attributes)
