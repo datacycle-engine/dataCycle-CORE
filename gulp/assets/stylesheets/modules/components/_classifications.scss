@@ -553,6 +553,12 @@ ul.backend-treeview-list,
             height: 2.6rem;
             vertical-align: top;
           }
+          &.large{
+            img{
+              height: 10rem;
+              vertical-align: top;
+            }
+          }
         }
       }
       &.open {
