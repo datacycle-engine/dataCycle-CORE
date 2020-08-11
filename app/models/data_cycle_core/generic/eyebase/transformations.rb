@@ -42,7 +42,6 @@ module DataCycleCore
             s.dig('color', '#cdata-section').then { |v| v.nil? ? nil : "Eyebase - Status - #{v}" }
           })
           .>> t(:reject_keys, ['quality_1', 'quality_512'])
-          .>> t(:compact)
           .>> t(:strip_all)
         end
         # .>> t(:add_field, 'photographer', ->(s) { s.dig('field_202', '#cdata-section') })

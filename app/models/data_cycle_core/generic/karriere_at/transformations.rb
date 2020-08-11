@@ -27,7 +27,6 @@ module DataCycleCore
           .>> t(:add_links, 'hiring_organization', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('company', 'children', 'id', 'text')]&.compact&.flatten&.map { |item| "Company:#{item}" }&.flatten || [] })
           .>> t(:add_links, 'job_location', DataCycleCore::Thing, external_source_id, ->(s) { [parse_place_key(s)].compact })
           .>> t(:reject_keys, ['id', 'title', 'sharing', 'isPdf', 'geo', 'company', 'jobLevel'])
-          .>> t(:compact)
           .>> t(:strip_all)
         end
 
@@ -36,7 +35,6 @@ module DataCycleCore
           .>> t(:add_field, 'external_key', ->(s) { ['Company:', s.dig('id', 'text')].join('') })
           .>> t(:add_field, 'name', ->(s) { s.dig('name', '#cdata-section') })
           .>> t(:reject_keys, ['id'])
-          .>> t(:compact)
           .>> t(:strip_all)
         end
 
@@ -49,7 +47,6 @@ module DataCycleCore
           .>> t(:reject_keys, ['location'])
           .>> t(:location)
           .>> t(:reject_keys, ['id'])
-          .>> t(:compact)
           .>> t(:strip_all)
         end
 

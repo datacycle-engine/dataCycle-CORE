@@ -22,7 +22,6 @@ module DataCycleCore
           .>> t(:rename_keys, 'categories' => 'event_category')
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "PLACE:#{s.dig('event_location', 'id')}" })
           .>> t(:add_link, 'image', DataCycleCore::Thing, external_source_id, ->(s) { "IMAGE:#{s.dig('image', 'id')}" })
-          .>> t(:compact)
           .>> t(:strip_all)
         end
 
@@ -47,7 +46,6 @@ module DataCycleCore
           .>> t(:reject_keys, ['id', '@type', 'event_location'])
           .>> t(:underscore_keys)
           .>> t(:nest, 'event_period', ['start_date', 'end_date'])
-          .>> t(:compact)
           .>> t(:strip_all)
         end
 
@@ -61,7 +59,6 @@ module DataCycleCore
           .>> t(:unwrap, 'address', ['street_address', 'postal_code', 'address_country', 'address_locality'])
           .>> t(:reject_keys, ['id', 'geo', '@type', 'address'])
           .>> t(:nest, 'address', ['street_address', 'postal_code', 'address_country', 'address_locality'])
-          .>> t(:compact)
           .>> t(:strip_all)
         end
 
@@ -74,7 +71,6 @@ module DataCycleCore
           .>> t(:map_value, 'width', ->(s) { s&.to_i })
           .>> t(:map_value, 'height', ->(s) { s&.to_i })
           .>> t(:reject_keys, ['id', '@type'])
-          .>> t(:compact)
           .>> t(:strip_all)
         end
       end

@@ -6,7 +6,6 @@ module DataCycleCore
   class CreativeWorksTest < ActionDispatch::IntegrationTest
     include Devise::Test::IntegrationHelpers
     include Engine.routes.url_helpers
-
     setup do
       @routes = Engine.routes
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })

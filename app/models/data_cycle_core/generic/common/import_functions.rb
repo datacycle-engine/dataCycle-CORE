@@ -38,6 +38,7 @@ module DataCycleCore
           content.template_name = template.template_name
           content.created_by = data['created_by']
           content.webhook_source = utility_object&.external_source&.name
+          created = content.new_record?
           content.save!
 
           global_attributes = {}
@@ -79,7 +80,7 @@ module DataCycleCore
           end
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
-          error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: utility_object.partial_update)
+          error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: !created, new_content: created)
 
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))

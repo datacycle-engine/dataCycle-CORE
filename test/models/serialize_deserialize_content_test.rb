@@ -78,8 +78,6 @@ module DataCycleCore
     end
 
     test 'write untranslatable data to a jsonb field' do
-      data = DataCycleCore::TestPreparations.data_set_object('SimpleJsonTest')
-      data.save!
       data_hash = {
         'name' => 'Test Data',
         'datum' => Time.zone.now,
@@ -87,7 +85,8 @@ module DataCycleCore
         'geo' => RGeo::Geographic.spherical_factory(srid: 4326).point(12.3, 40.344),
         'text' => 'Servas'
       }
-      data.set_data_hash(data_hash: data_hash)
+
+      data = DataCycleCore::TestPreparations.create_content(template_name: 'SimpleJsonTest', data_hash: data_hash)
 
       assert_equal(::String, data.name.class)
       assert_equal('DateTime', data.datum.class.to_s)

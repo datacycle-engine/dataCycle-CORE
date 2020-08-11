@@ -32,7 +32,6 @@ module DataCycleCore
           .>> t(:universal_classifications, ->(s) { s.dig('language_variations') })
           .>> t(:reject_keys, ['ShopItemDescription', 'feratel_owners', 'feratel_shop_item_groups', 'holiday_themes', 'language_variations'])
           .>> t(:strip_all)
-          .>> t(:compact)
         end
 
         def self.to_local_business(external_source_id)
@@ -68,7 +67,6 @@ module DataCycleCore
           .>> t(:add_field, 'makes_offer', ->(s) { load_offers(s, external_source_id) })
           .>> t(:reject_keys, ['Link', 'Details', 'CustomAttributes', 'QualityDetails'])
           .>> t(:strip_all)
-          .>> t(:compact)
         end
 
         def self.load_offers(s, external_source_id)
@@ -111,7 +109,6 @@ module DataCycleCore
           .>> t(:ensure_classification_tree, 'feratel_facilities_additional_services', 'Feratel - Merkmale - Services')
           .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details')) }) # .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
           .>> t(:strip_all)
-          .>> t(:compact)
         end
 
         def self.to_subject_of(hash)
@@ -134,7 +131,6 @@ module DataCycleCore
           .>> t(:add_field, 'external_key', ->(s) { ['meeting_point: ', s.dig('Id')].join })
           .>> t(:location)
           .>> t(:strip_all)
-          .>> t(:compact)
         end
 
         def self.area_served(hash, external_source_id)
@@ -152,7 +148,6 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_field, 'price_specification', ->(s) { load_price(s, external_source_id) })
           .>> t(:strip_all)
-          .>> t(:compact)
         end
         # .>> t(:add_links, 'offered_by', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('provider_id')] })
 

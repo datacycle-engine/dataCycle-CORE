@@ -209,7 +209,7 @@ module DataCycleCore
           end
           optional(:template_name) { str? }
           optional(:validations) { hash? }
-          optional(:default_value) { str? } # the default_value is set if no value is given. for classifications. for plain values supports also evaluated code in double curly braces {{...}}
+          optional(:default_value) { str? | hash? } # the default_value is set only on creation of content or translation / can either be a String or a Hash with 'module' and 'method'
           optional(:ui) { hash? }
           optional(:api) { hash? }
           optional(:xml) { hash? }

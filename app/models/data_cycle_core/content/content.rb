@@ -179,6 +179,10 @@ module DataCycleCore
         name_property_selector { |definition| definition['type'] == 'computed' }
       end
 
+      def properties_with_default_values
+        @properties_with_default_values ||= property_selector { |definition| definition['default_value'].present? }
+      end
+
       def classification_property_names
         name_property_selector { |definition| definition['type'] == 'classification' }
       end

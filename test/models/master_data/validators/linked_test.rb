@@ -14,13 +14,7 @@ module DataCycleCore
     end
 
     def create_content(template_name, data = {})
-      content = DataCycleCore::TestPreparations.data_set_object(template_name)
-      content.save!
-
-      result = content.set_data_hash(data_hash: data.stringify_keys)
-      raise 'InvalidData' if result[:error].present?
-      content.save!
-      content
+      DataCycleCore::TestPreparations.create_content(template_name: template_name, data_hash: data)
     end
 
     def creator_hash
