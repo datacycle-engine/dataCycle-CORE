@@ -24,12 +24,16 @@ module DataCycleCore
 
       content.available_locales.each do |locale|
         I18n.with_locale(locale) do
-          created = new_content.new_record?
-          new_content.save!
-          new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ 'name': "DUPLICATE: #{content.title}" })
-          new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: created)
+          ActiveRecord::Base.transaction do
+            created = new_content.new_record?
+            new_content.save!
+            new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ 'name': "DUPLICATE: #{content.title}" })
+            valid = new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: created)
+            raise ActiveRecord::Rollback, 'dataHash errors found' if valid.dig(:error).present?
+          end
         end
       end
+      return false if new_content.id.nil?
       new_content.reload
     end
 
