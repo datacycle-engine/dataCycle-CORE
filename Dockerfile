@@ -1,4 +1,4 @@
-FROM patrickrainer/data_cycle_base:2.7.1
+FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
 
 RUN mkdir -p /var/www/app
 
