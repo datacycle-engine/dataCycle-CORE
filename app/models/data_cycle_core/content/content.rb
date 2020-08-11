@@ -235,6 +235,13 @@ module DataCycleCore
         name_property_selector { |definition| definition['search'] == true }
       end
 
+      def embedded_title_property_name
+        return unless embedded?
+
+        @embedded_title_property_name ||=
+          name_property_selector { |definition| definition['type'] == 'string' && definition.dig('ui', 'is_title') == true }.first || 'name'
+      end
+
       def schema_sorted
         sorted_properties = schema.dig('properties').map { |key, value| { key => value } }.sort_by { |i| i.values.first.dig('sorting') }.inject(&:merge)
         schema.deep_dup.merge({ 'properties' => sorted_properties })

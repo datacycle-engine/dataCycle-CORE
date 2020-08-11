@@ -10,11 +10,12 @@
     font-weight: normal;
     font-size: 1rem;
     border: none !important;
-    padding: 0.8rem 1rem;
+    padding: 0.8rem 3rem 0.8rem 1rem;
     transition: all 0.2s ease-in-out;
     display: flex;
     flex-flow: row nowrap;
     align-content: center;
+    line-height: initial;
 
     &:hover {
       color: $black;
@@ -28,6 +29,17 @@
       text-decoration: inherit;
       font-size: 1.5rem;
       line-height: 1rem;
+    }
+
+    > .embedded-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &:before {
+        content: '-';
+        padding: 0 0.6rem 0 0.5rem;
+      }
     }
 
     .icon {
@@ -44,8 +56,10 @@
     background: transparent;
   }
 
-  [data-accordion-item].is-active > .accordion-title::before {
-    content: '\f106';
+  [data-accordion-item].is-active > .accordion-title {
+    &::before {
+      content: '\f106';
+    }
   }
 
   .detail-type.embedded:not(:only-of-type) {

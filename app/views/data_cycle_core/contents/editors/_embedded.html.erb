@@ -1,4 +1,4 @@
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'object embedded_object'), content: content do %>
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'object embedded_object'), content: content, parent: local_assigns[:parent] do %>
   <%= label_tag("#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", definition['label']) if DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(content, key) %>
   <% objects = local_assigns[:duplicated_content].to_s == 'true' ? value.presence&.includes(:translations) : value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
 

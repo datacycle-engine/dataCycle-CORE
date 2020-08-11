@@ -1,16 +1,18 @@
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'detail_object'), content: content do %>
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'detail_object'), content: content, parent: local_assigns[:parent] do %>
 
-    <div class="content-object-item">
+  <div class="content-object-item">
 
-        <!-- TODO: [patrick]: add icon to data_definition -->
-        <span class="embedded-header"><span class="icon"><i class="fa fa-folder-open" aria-hidden="true"></i></span> <%= definition['label'] %>
-          <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
-        </span>
+    <!-- TODO: [patrick]: add icon to data_definition -->
+    <span class="embedded-header">
+      <span class="icon"><i class="fa fa-folder-open" aria-hidden="true"></i></span>
+      <%= definition['label'] %>
+      <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
+    </span>
 
-        <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
-          <%= render_attribute_editor key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parameters: { options: { prefix: local_assigns.dig(:options, :prefix) } } , content: content %>
-        <% end %>
+    <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+      <%= render_attribute_editor key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parameters: { options: { prefix: local_assigns.dig(:options, :prefix) } } , content: content %>
+    <% end %>
 
-    </div>
+  </div>
 
 <% end %>

@@ -1,23 +1,23 @@
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
 
   <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
     <span class="icon <%= key.attribute_name_from_key %>">
-        <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
-        <i aria-hidden="true" class="fa fa-clock-o"></i>
+      <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
+      <i aria-hidden="true" class="fa fa-clock-o"></i>
     </span>
     <%= definition['label'] %>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   <% end %>
   <div class="duration-slider">
-      <div class="small-10 columns">
-          <div class="slider <%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) ? '' : 'disabled' %>" data-slider data-initial-start="<%= value.try(:to_i) || 0 %>" data-step="1" data-position-value-function="pow" data-non-linear-base="5" data-start="<%= definition.dig('validations', 'min').try(:to_i) %>" data-end="<%= definition.dig('validations', 'max').try(:to_i) %>" data-decimal="0">
-              <span class="slider-handle" data-slider-handle role="slider" tabindex="1" aria-controls="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>"></span>
-          </div>
+    <div class="small-10 columns">
+      <div class="slider <%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) ? '' : 'disabled' %>" data-slider data-initial-start="<%= value.try(:to_i) || 0 %>" data-step="1" data-position-value-function="pow" data-non-linear-base="5" data-start="<%= definition.dig('validations', 'min').try(:to_i) %>" data-end="<%= definition.dig('validations', 'max').try(:to_i) %>" data-decimal="0">
+        <span class="slider-handle" data-slider-handle role="slider" tabindex="1" aria-controls="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>"></span>
       </div>
-      <div class="small-2 columns">
-          <%= number_field_tag key, value, options.merge(id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}") %>
-          <span class="duration-label"><%= options.fetch('data-unit', 'min') %></span>
-      </div>
+    </div>
+    <div class="small-2 columns">
+      <%= number_field_tag key, value, options.merge(id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}") %>
+      <span class="duration-label"><%= options.fetch('data-unit', 'min') %></span>
+    </div>
   </div>
 
 <% end %>

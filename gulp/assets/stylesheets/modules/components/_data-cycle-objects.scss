@@ -1002,13 +1002,17 @@ span.single_error.object-browser-error {
       }
 
       .accordion-title {
-        flex: auto;
+        flex: 1;
         padding: 0.2rem;
         font-size: 1rem;
         border: none;
         background: transparent;
         color: $dark-gray;
         transition: all 0.2s ease-in-out;
+        padding-right: 3rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         &:hover {
           color: $primary-color;
@@ -1016,6 +1020,20 @@ span.single_error.object-browser-error {
 
         .icon .fa {
           font-size: 1rem;
+        }
+
+        > .embedded-title {
+          transition: all 0.2s ease-in-out;
+          opacity: 0;
+
+          &.visible {
+            opacity: 1;
+          }
+
+          &:before {
+            content: '-';
+            padding: 0 0.6rem 0 0.5rem;
+          }
         }
 
         &::before {
