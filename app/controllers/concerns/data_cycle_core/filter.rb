@@ -26,7 +26,7 @@ module DataCycleCore
       end
 
       @stored_filter.parameters = current_user.default_filter(@stored_filter.parameters, user_filter) if user_filter.present?
-      query = @stored_filter.apply(experimental: can?(:experimental_features, :dash_board), query: query)
+      query = @stored_filter.apply(query: query)
       @filters = @stored_filter.parameters
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }
