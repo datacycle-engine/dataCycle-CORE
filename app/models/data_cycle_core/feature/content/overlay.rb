@@ -5,7 +5,8 @@ module DataCycleCore
     module Content
       module Overlay
         def overlay?
-          overlay.size.positive?
+          return false unless content_type == 'entity'
+          send(overlay_name).size.positive?
         end
 
         def overlay_name
@@ -19,6 +20,15 @@ module DataCycleCore
         def overlay_property_names
           @overlay_property_names ||= DataCycleCore::Thing.find_by(template_name: overlay_template_name, template: true)&.property_names || []
         end
+        alias overlay_properties overlay_property_names
+
+        def overlay_property_definitions
+          @overlay_property_definitions ||= DataCycleCore::Thing.find_by(template_name: overlay_template_name, template: true)&.schema&.dig('properties') || {}
+        end
+
+        def overlay_properties_for(overlay_property_name)
+          overlay_property_definitions[overlay_property_name]
+        end
 
         def overlay_data(locale)
           @overlay_data ||= ActiveSupport::HashWithIndifferentAccess.new do |h, key|
@@ -27,8 +37,21 @@ module DataCycleCore
           @overlay_data[locale]
         end
 
+        def add_overlay_property_names
+          overlay_property_names - property_names
+        end
+        alias add_overlay_properties add_overlay_property_names
+
+        def add_overlay_property_definitions
+          @add_overlay_property_definitions ||= Hash[*add_overlay_property_names.map { |prop| [prop, overlay_properties_for(prop)] }&.flatten]
+        end
+
         def all_overlay_data
           @overlay_data
+        end
+
+        def property_names_with_overlay
+          property_names + add_overlay_property_names
         end
       end
     end

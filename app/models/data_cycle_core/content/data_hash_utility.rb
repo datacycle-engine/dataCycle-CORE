@@ -45,12 +45,14 @@ module DataCycleCore
         [from, to]
       end
 
-      def name_property_selector
-        property_selector { |definition| yield(definition) }.keys
+      def name_property_selector(include_overlay = false)
+        property_selector(include_overlay) { |definition| yield(definition) }.keys
       end
 
-      def property_selector
-        property_definitions.select { |_, definition| yield(definition) }
+      def property_selector(include_overlay = false)
+        all_properties = property_definitions
+        all_properties = all_properties.merge(add_overlay_property_definitions) if include_overlay
+        all_properties.select { |_, definition| yield(definition) }
       end
 
       def duplicate_data_hash(data_hash)
