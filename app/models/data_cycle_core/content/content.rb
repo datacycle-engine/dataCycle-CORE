@@ -241,7 +241,7 @@ module DataCycleCore
       end
 
       def to_h(timestamp = Time.zone.now)
-        property_names.map { |property_name|
+        (property_names - virtual_property_names).map { |property_name|
           property_value = attribute_to_h(property_name, timestamp)
           { property_name.to_s => property_value }
         }.inject(&:merge).deep_stringify_keys
