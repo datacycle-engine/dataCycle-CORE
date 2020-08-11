@@ -133,10 +133,10 @@ module DataCycleCore
       assert_equal(overlay_image.id, event.image_overlay.first.id)
     end
 
-    test 'event with proper schedule' do
+    test 'event with proper schedule and computed properties' do
       dtfrom = '2019-11-20T09:00:00'
       dtend = '2020-01-04T16:00:00'
-      schedule_hash = create_schedule(dtfrom, dtend, 7.hours).to_h
+      schedule_hash = create_schedule(dtfrom, dtend, 7.hours)
       odtfrom = '2020-11-20T09:00:00'
       odtend = '2021-01-04T16:00:00'
       overlay_schedule_hash = create_schedule(odtfrom, odtend, 7.hours)
