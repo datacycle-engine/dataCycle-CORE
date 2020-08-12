@@ -20,6 +20,7 @@
         <a href="#" class="accordion-title">
           <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %>
           <span class="title"><%= definition['label'].titleize %></span>
+          <%= tag.span(object.send(object.embedded_title_property_name), title: object.send(object.embedded_title_property_name), class: 'embedded-title') if object.embedded_title_property_name.present? && object.try(object.embedded_title_property_name).present? %>
         </a>
 
         <div class="accordion-content remote-render" data-tab-content
