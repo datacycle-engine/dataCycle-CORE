@@ -19,7 +19,7 @@ module DataCycleCore
               logging.info("Update   Thing: #{data['id']}", "transformed_data: #{data}")
             end
           end
-          errors.present? ? { error: errors } : { update: data['id'] }
+          errors.present? ? { error: errors } : { update: "#{data['id']} (#{data.dig('external_system_syncs').map { |i| i['external_key'] }.join(', ')})" }
         end
 
         def delete(raw_data)
@@ -37,7 +37,7 @@ module DataCycleCore
               logging.info("Update   Thing: #{data['id']}", "transformed_data: #{data}")
             end
           end
-          errors.present? ? { error: errors } : { delete: data['id'] }
+          errors.present? ? { error: errors } : { delete: "#{data['id']} (#{data.dig('external_system_syncs').map { |i| i['external_key'] }.join(', ')})" }
         end
 
         private
@@ -45,28 +45,26 @@ module DataCycleCore
         def update_sync(data:, external_system_id:)
           return ["Data with id=#{data['id']} not found!"] if DataCycleCore::Thing.where(id: data['id']).blank?
           now = Time.zone.now
-          identifier = data.dig('external_system_syncs').detect { |d| d['external_system_id'] == external_system_id }
-          sync = DataCycleCore::ExternalSystemSync.find_or_initialize_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_system_id: external_system_id)
-          sync.data = Hash(sync.data).merge(pull_data: data.merge(updated_at: now), external_key: identifier.dig('external_key'))
-          sync.data['pull_delete_data'] = nil if sync.data.dig('pull_delete_data').present?
-          sync.last_pull_at = now
-          sync.save!
-          sync.last_successful_pull_at = now
-          sync.save!
+          data.dig('external_system_syncs').each do |sync_data|
+            sync = DataCycleCore::ExternalSystemSync.find_or_initialize_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_system_id: external_system_id, external_key: sync_data.dig('external_key'))
+            sync.data = Hash(sync.data).merge(pull_data: data.merge(updated_at: now), external_key: sync_data.dig('external_key'))
+            sync.data['pull_delete_data'] = nil if sync.data.dig('pull_delete_data').present?
+            sync.data['external_name'] = sync_data['external_name'] if sync_data['external_name'].present?
+            sync.last_pull_at = now
+            sync.save!
+            sync.last_successful_pull_at = now
+            sync.save!
+          end
           {}
         end
 
         def delete_sync(data:, external_system_id:)
           return ["Data with id=#{data['id']} not found!"] if DataCycleCore::Thing.where(id: data['id']).blank?
-          now = Time.zone.now
-          sync = DataCycleCore::ExternalSystemSync.find_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_system_id: external_system_id)
-          return ["Nothing to delete for data with id=#{data['id']}, in system with id=#{external_system_id}!"] if sync.blank?
-          sync.data = Hash(sync.data).merge(pull_delete_data: { deleted_at: now })
-          sync.data['external_key'] = nil
-          sync.last_pull_at = now
-          sync.save!
-          sync.last_successful_pull_at = now
-          sync.save!
+          data.dig('external_system_syncs').each do |sync_data|
+            sync = DataCycleCore::ExternalSystemSync.find_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_system_id: external_system_id, external_key: sync_data.dig('external_key'))
+            return ["Nothing to delete for data with id=#{data['id']}, in system with id=#{external_system_id}, external_id: #{sync_data.dig('external_key')}!"] if sync.blank?
+            sync.destroy
+          end
           {}
         end
 
@@ -82,7 +80,7 @@ module DataCycleCore
         schema do
           required(:@id) { str? }
           required(:@type) { str? }
-          optional(:url) { str? }
+          required(:url) { str? }
           optional(:name) { str? }
           optional(:inLanguage) { str? }
           required(:identifier).value(:array, min_size?: 1).each do

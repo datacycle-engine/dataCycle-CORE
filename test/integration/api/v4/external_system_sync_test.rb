@@ -48,7 +48,7 @@ module DataCycleCore
 
           assert_equal(new_external_key, @data_set.external_system_data(@external_system).dig('external_key'))
           data = JSON.parse(response.body)
-          assert_equal([{ 'update' => @data_set.id }], data)
+          assert_equal([{ 'update' => "#{@data_set.id} (#{@data_set.external_system_data(@external_system).dig('external_key')})" }], data)
         end
 
         test 'update external_key for two things' do
@@ -67,7 +67,7 @@ module DataCycleCore
           assert_equal(new_external_key1, @data_set.external_system_data(@external_system).dig('external_key'))
           assert_equal(new_external_key2, data_set2.external_system_data(@external_system).dig('external_key'))
           data = JSON.parse(response.body)
-          assert_equal([{ 'update' => @data_set.id }, { 'update' => data_set2.id }], data)
+          assert_equal([{ 'update' => "#{@data_set.id} (#{@data_set.external_system_data(@external_system).dig('external_key')})" }, { 'update' => "#{data_set2.id} (#{data_set2.external_system_data(@external_system).dig('external_key')})" }], data)
         end
 
         test 'update external_key in external system sync for a thing that does not exist' do
@@ -92,9 +92,9 @@ module DataCycleCore
           delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
           assert_response :success
 
-          assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
+          assert_nil(@data_set.external_system_data(@external_system))
           data = JSON.parse(response.body)
-          assert_equal([{ 'delete' => @data_set.id }], data)
+          assert_equal([{ 'delete' => "#{@data_set.id} (#{new_external_key})" }], data)
         end
 
         test 'delete external_key for two things' do
@@ -115,10 +115,10 @@ module DataCycleCore
           delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
           assert_response :success
 
-          assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
-          assert_nil(data_set2.external_system_data(@external_system).dig('external_key'))
+          assert_nil(@data_set.external_system_data(@external_system))
+          assert_nil(data_set2.external_system_data(@external_system))
           data = JSON.parse(response.body)
-          assert_equal([{ 'delete' => @data_set.id }, { 'delete' => data_set2.id }], data)
+          assert_equal([{ 'delete' => "#{@data_set.id} (#{new_external_key1})" }, { 'delete' => "#{data_set2.id} (#{new_external_key2})" }], data)
         end
 
         test 'delete external_key in external system sync for a thing that does not exist' do

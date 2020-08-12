@@ -16,7 +16,7 @@
 
   <% content.external_system_syncs.each do |external_relation| %>
     <div class="external-connection">
-      <span class="copy-to-clipboard" title="<%= (external_relation.external_key.present? ? tag.b("#{DataCycleCore::Thing.human_attribute_name(:external_key, locale: DataCycleCore.ui_language)}: ") + external_relation.external_key.to_s + tag.br : '') + (external_relation.status.present? ? "<b>#{t('common.status', locale: DataCycleCore.ui_language)}:</b> #{t("external_connection_states.#{external_relation.status}", locale: DataCycleCore.ui_language)}" : '') %><br>
+      <span class="copy-to-clipboard" title="<%= (external_relation.data.dig('external_name').present? ? tag.b("#{DataCycleCore::Thing.human_attribute_name(:name, locale: DataCycleCore.ui_language)}: ") + external_relation.data.dig('external_name').to_s + tag.br : '') + (external_relation.external_key.present? ? tag.b("#{DataCycleCore::Thing.human_attribute_name(:external_key, locale: DataCycleCore.ui_language)}: ") + external_relation.external_key.to_s + tag.br : '') + (external_relation.status.present? ? "<b>#{t('common.status', locale: DataCycleCore.ui_language)}:</b> #{t("external_connection_states.#{external_relation.status}", locale: DataCycleCore.ui_language)}" : '') %><br>
         <b><%= t('common.date', locale: DataCycleCore.ui_language) %>:</b> <%= l(external_relation.updated_at, locale: DataCycleCore.ui_language) %>" data-tooltip data-value="<%= external_relation.external_key %>" data-allow-html="true">
         <span class="external-system-icon fa-stack <%= external_relation.status %>">
           <i class="fa fa-file-o fa-stack-2x" aria_hidden="true"></i>
