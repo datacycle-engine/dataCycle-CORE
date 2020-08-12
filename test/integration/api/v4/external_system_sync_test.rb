@@ -92,7 +92,7 @@ module DataCycleCore
           delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
           assert_response :success
 
-          assert_nil(@data_set.external_system_data(@external_system))
+          assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
           data = JSON.parse(response.body)
           assert_equal([{ 'delete' => "#{@data_set.id} (#{new_external_key})" }], data)
         end
@@ -115,8 +115,8 @@ module DataCycleCore
           delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
           assert_response :success
 
-          assert_nil(@data_set.external_system_data(@external_system))
-          assert_nil(data_set2.external_system_data(@external_system))
+          assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
+          assert_nil(data_set2.external_system_data(@external_system).dig('external_key'))
           data = JSON.parse(response.body)
           assert_equal([{ 'delete' => "#{@data_set.id} (#{new_external_key1})" }, { 'delete' => "#{data_set2.id} (#{new_external_key2})" }], data)
         end

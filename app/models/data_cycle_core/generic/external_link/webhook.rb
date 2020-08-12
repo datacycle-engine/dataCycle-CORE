@@ -60,10 +60,16 @@ module DataCycleCore
 
         def delete_sync(data:, external_system_id:)
           return ["Data with id=#{data['id']} not found!"] if DataCycleCore::Thing.where(id: data['id']).blank?
+          now = Time.zone.now
           data.dig('external_system_syncs').each do |sync_data|
             sync = DataCycleCore::ExternalSystemSync.find_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_system_id: external_system_id, external_key: sync_data.dig('external_key'))
             return ["Nothing to delete for data with id=#{data['id']}, in system with id=#{external_system_id}, external_id: #{sync_data.dig('external_key')}!"] if sync.blank?
-            sync.destroy
+            sync.data = Hash(sync.data).merge(pull_delete_data: { deleted_at: now })
+            sync.data['external_key'] = nil
+            sync.last_pull_at = now
+            sync.save!
+            sync.last_successful_pull_at = now
+            sync.save!
           end
           {}
         end
