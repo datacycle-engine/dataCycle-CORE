@@ -37,7 +37,7 @@
             :options:
               :data-size: basic
       :aggregate_rating:
-        :label: Durchschittswertung
+        :label: Durchschnittswertung
         :type: embedded
-        :template_name: Durchschittswertung
+        :template_name: Durchschnittswertung
         :translated: true

@@ -1,5 +1,5 @@
 - :data:
-    :name: Durchschittswertung
+    :name: Durchschnittswertung
     :type: object
     :schema_type: Intangible
     :content_type: embedded
