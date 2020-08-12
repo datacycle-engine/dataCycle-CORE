@@ -24,6 +24,7 @@ module DataCycleCore
       end
       extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::Content::ContentRelations
+      include DataCycleCore::Content::ContentOverlay
       extend  DataCycleCore::Content::ContentFilters
       include DataCycleCore::Content::DestroyContent
       include DataCycleCore::Content::DataHashUtility
