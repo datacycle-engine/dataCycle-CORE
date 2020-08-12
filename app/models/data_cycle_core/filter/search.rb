@@ -94,7 +94,7 @@ module DataCycleCore
         relation = :relation_a
         filtered_id = :content_b_id
 
-        filter_query = filter.apply(experimental: true).select(:id).except(:order).to_sql
+        filter_query = filter.apply.select(:id).except(:order).to_sql
         subquery = Arel::SelectManager.new
           .from(content_content)
           .where(
@@ -116,7 +116,7 @@ module DataCycleCore
         thing_id = :content_b_id
         filtered_id = :content_a_id
 
-        filter_query = filter.apply(experimental: true).select(:id).except(:order).to_sql
+        filter_query = filter.apply.select(:id).except(:order).to_sql
         subquery = Arel::SelectManager.new
           .from(content_content)
           .where(

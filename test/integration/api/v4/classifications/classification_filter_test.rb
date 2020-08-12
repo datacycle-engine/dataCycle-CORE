@@ -10,6 +10,9 @@ module DataCycleCore
           setup do
             DataCycleCore::Thing.where(template: false).delete_all
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
+            other_trees = DataCycleCore::ClassificationTreeLabel.where.not(name: 'Tags')
+            now = Time.zone.now
+            other_trees.update_all(created_at: now, updated_at: now, seen_at: now) # rubocop:disable Rails/SkipsModelValidations
           end
 
           # TODO: add context test
@@ -281,6 +284,8 @@ module DataCycleCore
           test 'api/v4/concept_schemes/id/concepts parameter filter[:created_since]' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags')
+            now = Time.zone.now
+            classifications.update_all(created_at: now, updated_at: now, seen_at: now) # rubocop:disable Rails/SkipsModelValidations
             classifications_count = classifications.count
             classificaton_tag = classifications.with_name('Tag 3').first
             orig_ts = classificaton_tag.created_at

@@ -24,6 +24,7 @@ module DataCycleCore
       end
       extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::Content::ContentRelations
+      include DataCycleCore::Content::ContentOverlay
       extend  DataCycleCore::Content::ContentFilters
       include DataCycleCore::Content::DestroyContent
       include DataCycleCore::Content::DataHashUtility
@@ -32,19 +33,25 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::Api
 
       after_save :reload_memoized
+      after_save :reload_memoized_overlay
 
       def method_missing(name, *args, &block)
-        property_definition = property_definitions.try(:[], name.to_s.delete_suffix('='))
+        original_name = name.to_s
+        root_name = name.to_s.delete_suffix('=').delete_suffix("_#{overlay_name}")
+        property_definition = property_definitions.try(:[], root_name) || overlay_property_definitions.try(:[], root_name)
         if property_definition && name.to_s.ends_with?('=')
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
           set_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
         elsif property_definition
-          if name.to_s.in?(embedded_property_names + linked_property_names)
+          overlay_flag = original_name.ends_with?(overlay_name)
+          original_name = name.to_s.delete_suffix("_#{overlay_name}") if self.class.ancestors.include?(DataCycleCore::Feature::Content::Overlay) && name.to_s.ends_with?(overlay_name)
+
+          if original_name.to_s.in?(embedded_property_names + linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
-            get_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
+            get_property_value(original_name, property_definition, args.first, overlay_flag & original_name.in?(overlay_property_names))
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
-            get_property_value(name.to_s.delete_suffix('='), property_definition)
+            get_property_value(original_name, property_definition, nil, overlay_flag & original_name.in?(overlay_property_names))
           end
         else
           super
@@ -52,7 +59,9 @@ module DataCycleCore
       end
 
       def respond_to?(method_name, include_all = false)
-        (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
+        (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym, (item.to_s + "_#{overlay_name}").to_sym] }.flatten +
+          linked_property_names.map { |item| item + '_ids' } +
+          Array.wrap(overlay_property_names)&.map { |item| (item + "_#{overlay_name}").to_sym }&.flatten).include?(method_name.to_sym) || super
       end
 
       def content_type?(*types)
@@ -101,8 +110,8 @@ module DataCycleCore
       end
       alias properties property_names
 
-      def properties_for(property_name)
-        property_definitions[property_name]
+      def properties_for(property_name, include_overlay = false)
+        include_overlay ? property_definitions.merge(add_overlay_property_definitions)[property_name] : property_definitions[property_name]
       end
 
       def translatable_property_names
@@ -155,44 +164,44 @@ module DataCycleCore
         }.to_h
       end
 
-      def plain_property_names
-        name_property_selector { |definition| PLAIN_PROPERTY_TYPES.include?(definition['type']) }
+      def plain_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| PLAIN_PROPERTY_TYPES.include?(definition['type']) }
       end
 
-      def virtual_property_names
-        name_property_selector { |definition| definition['type'] == 'virtual' }
+      def virtual_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'virtual' }
       end
 
-      def linked_property_names
-        name_property_selector { |definition| definition['type'] == 'linked' }
+      def linked_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'linked' }
       end
 
-      def embedded_property_names
-        name_property_selector { |definition| definition['type'] == 'embedded' }
+      def embedded_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'embedded' }
       end
 
-      def included_property_names
-        name_property_selector { |definition| definition['type'] == 'object' }
+      def included_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'object' }
       end
 
-      def computed_property_names
-        name_property_selector { |definition| definition['type'] == 'computed' }
+      def computed_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'computed' }
       end
 
-      def properties_with_default_values
-        @properties_with_default_values ||= property_selector { |definition| definition['default_value'].present? }
+      def classification_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'classification' }
       end
 
-      def classification_property_names
-        name_property_selector { |definition| definition['type'] == 'classification' }
+      def properties_with_default_values(include_overlay = false)
+        @properties_with_default_values ||= property_selector(include_overlay) { |definition| definition['default_value'].present? }
       end
 
       def asset_property_names
         name_property_selector { |definition| definition['type'] == 'asset' }
       end
 
-      def schedule_property_names
-        name_property_selector { |definition| definition['type'] == 'schedule' }
+      def schedule_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'schedule' }
       end
 
       def external_property_names
@@ -223,16 +232,16 @@ module DataCycleCore
         }.keys
       end
 
-      def geo_properties
-        property_selector { |definition| definition['type'] == 'geographic' }
+      def geo_properties(include_overlay = false)
+        property_selector(include_overlay) { |definition| definition['type'] == 'geographic' }
       end
 
-      def global_property_names
-        name_property_selector { |definition| definition['global'] == true }
+      def global_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['global'] == true }
       end
 
-      def search_property_names
-        name_property_selector { |definition| definition['search'] == true }
+      def search_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['search'] == true }
       end
 
       def embedded_title_property_name
@@ -248,7 +257,7 @@ module DataCycleCore
       end
 
       def to_h(timestamp = Time.zone.now)
-        property_names.map { |property_name|
+        (property_names - virtual_property_names).map { |property_name|
           property_value = attribute_to_h(property_name, timestamp)
           { property_name.to_s => property_value }
         }.inject(&:merge).deep_stringify_keys
@@ -312,57 +321,73 @@ module DataCycleCore
         @enabled_features ||= DataCycleCore::FeatureService.enabled_features(schema)
       end
 
-      def get_property_value(property_name, property_definition, filter = nil)
+      def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false)
         @get_property_value ||= Hash.new do |h, key|
           h[key] =
-            if plain_property_names.include?(key[0])
-              load_json_attribute(key[0], key[1])
-            elsif included_property_names.include?(key[0])
-              load_included_data(key[0], key[1])
-            elsif classification_property_names.include?(key[0])
-              load_classifications(key[0])
-            elsif linked_property_names.include?(key[0])
-              load_linked_objects(key[0], key[3])
-            elsif embedded_property_names.include?(key[0])
-              load_embedded_objects(key[0], key[3])
-            elsif asset_property_names.include?(key[0])
+            if plain_property_names(true).include?(key[0])
+              load_json_attribute(key[0], key[1], key[4])
+            elsif included_property_names(true).include?(key[0])
+              load_included_data(key[0], key[1], key[4])
+            elsif classification_property_names(true).include?(key[0])
+              load_classifications(key[0], key[4])
+            elsif linked_property_names(true).include?(key[0])
+              load_linked_objects(key[0], key[3], false, [I18n.locale], key[4])
+            elsif embedded_property_names(true).include?(key[0])
+              load_embedded_objects(key[0], key[3], true, [I18n.locale], key[4])
+            elsif asset_property_names.include?(key[0]) # no overlay
               load_asset_relation(key[0])
-            elsif computed_property_names.include?(key[0])
-              load_computed_attribute(key[0], key[1])
-            elsif schedule_property_names.include?(key[0])
-              load_schedule(key[0])
+            elsif computed_property_names(true).include?(key[0])
+              load_computed_attribute(key[0], key[1], key[4])
+            elsif schedule_property_names(true).include?(key[0])
+              load_schedule(key[0], key[4])
             elsif virtual_property_names.include?(key[0])
               nil
             else
               raise NotImplementedError
             end
         end
-        @get_property_value[[property_name, property_definition, I18n.locale, filter]]
+        @get_property_value[[property_name, property_definition, I18n.locale, filter, overlay_flag]]
       end
 
-      def load_json_attribute(property_name, property_definition)
-        convert_to_type(
-          property_definition['type'],
-          send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
-        )
+      def load_json_attribute(property_name, property_definition, overlay_flag)
+        value = overlay_data(I18n.locale).try(:[], property_name) if overlay_flag
+        value ||
+          if property_definition['storage_location'] == 'column'
+            send(property_name)
+          else
+            convert_to_type(
+              property_definition['type'],
+              send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s),
+              property_definition
+            )
+          end
       end
 
-      def load_computed_attribute(property_name, property_definition)
-        convert_to_type(
-          property_definition.dig('compute', 'type'),
-          send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
-        )
+      def load_computed_attribute(property_name, property_definition, overlay_flag)
+        value = overlay_data(I18n.locale).try(:[], property_name) if overlay_flag
+        value ||
+          if property_definition['storage_location'] == 'column'
+            send(property_name)
+          else
+            convert_to_type(
+              property_definition.dig('compute', 'type'),
+              send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
+            )
+          end
       end
 
-      def load_included_data(property_name, property_definition)
+      def load_included_data(property_name, property_definition, overlay_flag)
         sub_property_definitions = property_definition.try(:[], 'properties')
         raise StandardError, "Template for included data #{property_name} has no Subproperties defined." if sub_property_definitions.blank?
+        thing_data = load_subproperty_hash(
+          sub_property_definitions,
+          property_definition['storage_location'],
+          send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name)
+        )
+        overlayed_data = {}
+        overlayed_data = overlay_data(I18n.locale).try(:[], property_name) || {} if overlay_flag
         OpenStructHash.new(
-          load_subproperty_hash(
-            sub_property_definitions,
-            property_definition['storage_location'],
-            send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name)
-          )
+          thing_data.merge(overlayed_data)
         ).freeze
       end
 
@@ -380,8 +405,8 @@ module DataCycleCore
         }.inject(&:merge)
       end
 
-      def convert_to_type(type, value)
-        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value)
+      def convert_to_type(type, value, definition = nil)
+        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value, definition)
       end
 
       def convert_to_string(type, value)
@@ -453,6 +478,14 @@ module DataCycleCore
         @get_property_value.delete(key) && return if key.present?
 
         remove_instance_variable(:@get_property_value) if instance_variable_defined?(:@get_property_value)
+      end
+
+      def reload_memoized_overlay(locale = nil)
+        return unless instance_variable_defined?(:@overlay_data)
+
+        @overlay_data.delete(locale) && return if locale.present?
+
+        remove_instance_variable(:@overlay_data) if instance_variable_defined?(:@overlay_data)
       end
     end
   end
