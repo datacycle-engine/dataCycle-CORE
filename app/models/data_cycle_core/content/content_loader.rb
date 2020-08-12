@@ -65,7 +65,7 @@ module DataCycleCore
           relation_contents = root_object.send(relation_name).where(content_contents: {
             relation_a: relation_a_name,
             relation_b: relation_b_name,
-            content_filter => filter.apply(experimental: true).select(:id).except(:order)
+            content_filter => filter.apply.select(:id).except(:order)
           })
         else
           relation_contents = root_object.send(relation_name).where(content_contents: {

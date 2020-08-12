@@ -3,12 +3,12 @@
 module DataCycleCore
   module MasterData
     module DataConverter
-      def self.convert_to_type(type, data)
+      def self.convert_to_type(type, data, definition = nil)
         case type
         when 'key'
           data
         when 'number'
-          data&.to_f
+          DataCycleCore::MasterData::DataConverter.string_to_number(data, definition)
         when 'string'
           DataCycleCore::MasterData::DataConverter.string_to_string(data)
         when 'datetime'
@@ -37,6 +37,15 @@ module DataCycleCore
 
       def self.string_to_string(value)
         value&.unicode_normalize(:nfc)&.delete("\u0000")&.strip # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)
+      end
+
+      def self.string_to_number(value, definition)
+        number_format = definition&.dig('validations', 'format')
+        case number_format
+        when 'integer'
+          return value&.to_i
+        end
+        value&.to_f
       end
 
       def self.geographic_to_string(value)
