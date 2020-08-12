@@ -290,7 +290,7 @@ module DataCycleCore
 
     def clean_stored_filters
       # TODO: write single SQL Query in to remove ids from JSONB Arrays
-      DataCycleCore::StoredFilter.where('stored_filters.parameters::TEXT ILIKE ?', "%#{id}%").find_each { |s| s.update_column(:parameters, s.parameters&.each { |p| p['v'].reject! { |v| v == id } if p['v'].is_a?(Array) }) }
+      DataCycleCore::StoredFilter.where('stored_filters.parameters::TEXT ILIKE ?', "%#{id}%").find_each { |s| s.update_column(:parameters, s.parameters&.each { |p| p['v'].reject! { |v| v == id } if p['v'].is_a?(Array) }) } # rubocop:disable Rails/SkipsModelValidations
     end
   end
 end
