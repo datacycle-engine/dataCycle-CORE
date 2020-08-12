@@ -241,7 +241,7 @@ module DataCycleCore
       end
 
       def to_h(timestamp = Time.zone.now)
-        property_names.map { |property_name|
+        (property_names - virtual_property_names).map { |property_name|
           property_value = attribute_to_h(property_name, timestamp)
           { property_name.to_s => property_value }
         }.inject(&:merge).deep_stringify_keys
@@ -336,7 +336,8 @@ module DataCycleCore
       def load_json_attribute(property_name, property_definition)
         convert_to_type(
           property_definition['type'],
-          send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
+          send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s),
+          property_definition
         )
       end
 
@@ -373,8 +374,8 @@ module DataCycleCore
         }.inject(&:merge)
       end
 
-      def convert_to_type(type, value)
-        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value)
+      def convert_to_type(type, value, definition = nil)
+        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value, definition)
       end
 
       def convert_to_string(type, value)
