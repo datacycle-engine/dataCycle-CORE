@@ -67,14 +67,14 @@ module DataCycleCore
 
     test 'add embedded in overlay (not present in definition of thing)' do
       thing = create_thing_with_embedded
-      assert_nil(thing.embedded)
+      assert_equal([], thing.embedded)
       assert_equal(thing.overlay.first.embedded.first.id, thing.embedded_overlay.first.id)
     end
 
     test 'add linked in overlay (not present in definition of thing)' do
       image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild' })
       thing = create_thing_with_linked(image)
-      assert_nil(thing.linked)
+      assert_equal([], thing.linked)
       assert_equal(image.id, thing.linked_overlay.first.id)
     end
   end

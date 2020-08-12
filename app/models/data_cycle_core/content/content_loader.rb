@@ -30,7 +30,7 @@ module DataCycleCore
 
       def load_linked_objects(relation_name, filter = nil, same_language = false, languages = [I18n.locale], overlay_flag = false)
         properties = properties_for(relation_name, overlay_flag)
-        return nil if properties.nil?
+        return [] if properties.nil?
         relation_b = properties.dig('inverse_of')
         language_flag = same_language
         language_flag = properties.dig('linked_language') == 'same' if properties.dig('linked_language').present?
@@ -38,7 +38,7 @@ module DataCycleCore
       end
 
       def load_embedded_objects(relation_name, filter = nil, same_language = true, languages = [I18n.locale], overlay_flag = false)
-        return nil if properties_for(relation_name, overlay_flag).nil?
+        return [] if properties_for(relation_name, overlay_flag).nil?
         language_flag = same_language
         language_flag = !properties_for(relation_name, overlay_flag).dig('translated') if properties_for(relation_name, overlay_flag).dig('translated').present?
         language_flag = false if same_language == false # overrules flag in template (needed for create_history and destroy)
