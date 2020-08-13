@@ -64,11 +64,13 @@ module DataCycleCore
           if k == :box
             query = query.send(query_method, *v)
           else
-            v = {
-              'lon' => v[0],
-              'lat' => v[1],
-              'distance' => v[2]
-            } if k == :perimeter && v.size == 3
+            if k == :perimeter && v.size == 3
+              v = {
+                'lon' => v[0],
+                'lat' => v[1],
+                'distance' => v[2]
+              }
+            end
             query = query.send(query_method, v)
           end
         end
