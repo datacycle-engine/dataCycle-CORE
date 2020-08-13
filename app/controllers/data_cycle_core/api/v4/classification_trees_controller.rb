@@ -43,6 +43,7 @@ module DataCycleCore
               @classification_aliases = apply_filters(@classification_aliases, filter)
             end
 
+            @classification_aliases = apply_full_text_search(@classification_aliases, @full_text_search) if @full_text_search
             @classification_aliases = apply_ordering(@classification_aliases)
             @classification_aliases = apply_paging(@classification_aliases)
           else
@@ -57,6 +58,8 @@ module DataCycleCore
         def permitted_filter_parameters
           {
             filter: [
+              :search,
+              :q,
               {
                 attribute: {
                   modifiedAt: attribute_filter_operations,
@@ -91,6 +94,12 @@ module DataCycleCore
               end
             end
           end
+          query
+        end
+
+        def apply_full_text_search(query, search)
+          query = query.search(search)
+          query = query.order_by_similarity(search)
           query
         end
 

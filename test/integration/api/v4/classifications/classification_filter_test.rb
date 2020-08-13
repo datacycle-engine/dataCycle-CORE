@@ -131,6 +131,7 @@ module DataCycleCore
 
             tree_tags.update_column(:created_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
           end
+
           test 'api/v4/concept_schemes parameter filter[:modifiedAt]' do
             tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
             orig_ts = tree_tags.updated_at
@@ -566,6 +567,45 @@ module DataCycleCore
             }
             get classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications)
+          end
+          test 'api/v4/concept_schemes/id/concepts parameter filter[:q] filter[:search]' do
+            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+
+            params = {
+              id: tree_id,
+              filter: {
+                q: 'Tag'
+              }
+            }
+            post classifications_api_v4_concept_scheme_path(params)
+            assert_api_count_result(5)
+
+            params = {
+              id: tree_id,
+              filter: {
+                q: 'Nested'
+              }
+            }
+            post classifications_api_v4_concept_scheme_path(params)
+            assert_api_count_result(2)
+
+            params = {
+              id: tree_id,
+              filter: {
+                search: 'Tag'
+              }
+            }
+            post classifications_api_v4_concept_scheme_path(params)
+            assert_api_count_result(5)
+
+            params = {
+              id: tree_id,
+              filter: {
+                search: 'Nested'
+              }
+            }
+            post classifications_api_v4_concept_scheme_path(params)
+            assert_api_count_result(2)
           end
         end
       end
