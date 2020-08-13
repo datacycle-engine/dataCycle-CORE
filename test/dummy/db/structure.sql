@@ -608,7 +608,8 @@ CREATE TABLE public.external_system_syncs (
     last_push_at timestamp without time zone,
     last_successful_push_at timestamp without time zone,
     last_pull_at timestamp without time zone,
-    last_successful_pull_at timestamp without time zone
+    last_successful_pull_at timestamp without time zone,
+    external_key character varying
 );
 
 
@@ -1627,10 +1628,10 @@ CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (ite
 
 
 --
--- Name: index_external_system_syncs_on_syncable_external_system; Type: INDEX; Schema: public; Owner: -
+-- Name: index_external_system_syncs_on_syncable_external_system_keys; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_external_system_syncs_on_syncable_external_system ON public.external_system_syncs USING btree (syncable_type, syncable_id, external_system_id);
+CREATE UNIQUE INDEX index_external_system_syncs_on_syncable_external_system_keys ON public.external_system_syncs USING btree (syncable_type, syncable_id, external_system_id, external_key);
 
 
 --
@@ -2265,6 +2266,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200602070145'),
 ('20200721111525'),
 ('20200724094112'),
-('20200728062727');
+('20200728062727'),
+('20200812110341'),
+('20200812111137');
 
 
