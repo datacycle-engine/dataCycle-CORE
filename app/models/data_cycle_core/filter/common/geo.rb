@@ -24,7 +24,15 @@ module DataCycleCore
           return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
 
           reflect(
-            @query.where(st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon'), values&.dig('lat')), 4326)), values&.dig('distance').to_i))
+            @query.where(st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
+          )
+        end
+
+        def not_geo_radius(values)
+          return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
+
+          reflect(
+            @query.where.not(st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
           )
         end
 

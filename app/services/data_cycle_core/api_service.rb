@@ -61,7 +61,12 @@ module DataCycleCore
         filter&.each do |k, v|
           query_method = filter_prefix + query_method_mapping(k)
           next unless query.respond_to?(query_method)
-          query = query.send(query_method, *v)
+          value = transform_value_for_method(v, query_method)
+          if value.is_a?(::Hash)
+            query = query.send(query_method, value)
+          else
+            query = query.send(query_method, *value)
+          end
         end
       end
       query
@@ -87,6 +92,7 @@ module DataCycleCore
       return 'date_range' if date_range.include?(key)
       return 'in_schedule' if key == :schedule
       return 'within_box' if key == :box
+      return 'geo_radius' if key == :perimeter
       key.to_s
     end
 
@@ -150,6 +156,19 @@ module DataCycleCore
     end
 
     private
+
+    # TODO: remove fast hack
+    def transform_value_for_method(value, method)
+      if ['geo_radius', 'not_geo_radius'].include?(method)
+        return nil if value.size != 3
+        return {
+          'lon' => value[0],
+          'lat' => value[1],
+          'distance' => value[2]
+        }
+      end
+      value
+    end
 
     def date_from_single_value(value)
       return if value.blank?
