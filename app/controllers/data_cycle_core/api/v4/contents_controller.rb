@@ -106,10 +106,14 @@ module DataCycleCore
                 {
                   geo: {
                     in: {
-                      box: []
+                      box: [],
+                      perimeter: [],
+                      shapes: []
                     },
                     notIn: {
-                      box: []
+                      box: [],
+                      perimeter: [],
+                      shapes: []
                     }
                   }
                 }

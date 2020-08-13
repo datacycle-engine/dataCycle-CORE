@@ -61,7 +61,16 @@ module DataCycleCore
         filter&.each do |k, v|
           query_method = filter_prefix + query_method_mapping(k)
           next unless query.respond_to?(query_method)
-          query = query.send(query_method, *v)
+          if k == :box
+            query = query.send(query_method, *v)
+          else
+            v = {
+              'lon' => v[0],
+              'lat' => v[1],
+              'distance' => v[2]
+            } if k == :perimeter && v.size == 3
+            query = query.send(query_method, v)
+          end
         end
       end
       query
@@ -87,6 +96,8 @@ module DataCycleCore
       return 'date_range' if date_range.include?(key)
       return 'in_schedule' if key == :schedule
       return 'within_box' if key == :box
+      return 'geo_radius' if key == :perimeter
+      return 'geo_within_classification' if key == :shapes
       key.to_s
     end
 
