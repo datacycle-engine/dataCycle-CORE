@@ -86,7 +86,7 @@ module DataCycleCore
         schema do
           required(:@id) { str? }
           required(:@type) { str? }
-          required(:url) { str? }
+          optional(:url) { str? }
           optional(:name) { str? }
           optional(:inLanguage) { str? }
           required(:identifier).value(:array, min_size?: 1).each do
