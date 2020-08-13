@@ -6,7 +6,7 @@ module DataCycleCore
   module Api
     module V4
       module Filter
-        class GeoperimeterTest < DataCycleCore::V4::Base
+        class GeoPerimeterTest < DataCycleCore::V4::Base
           # long lat
           # 10 1
           # 5 5
