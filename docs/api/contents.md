@@ -266,7 +266,7 @@ Um Inhalte im Umkreis von 50 km um den Großglockner abzufragen, kann beispielsw
   "filter": {
     "geo": {
       "in": {
-        "perimeter": [12.69390,47.07453,50000]
+        "perimeter": [12.69390,47.07453,50000] // Längengrad, Breitengrad, Radius
       }
     }
   }
