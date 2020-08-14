@@ -17,6 +17,7 @@ module DataCycleCore
         partials = [
           "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{key.underscore}",
           (api_property_definition&.dig('partial')&.present? ? "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
+          api_property_definition&.dig('partial')&.underscore,
           definition['type'].underscore,
           'default'
         ].reject(&:blank?)
@@ -87,22 +88,27 @@ module DataCycleCore
       (content.embedded? && options.dig(:translatable_embedded)) || content.translatable? || options.dig(:languages).include?(content.first_available_locale.to_s)
     end
 
-    def load_value_object(content, key, value, languages)
+    def load_value_object(content, key, value, languages, definition = nil)
       data_value = nil
       single_value = !content.translatable_property_names.include?(key) || (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
       if single_value
-        data_value = value
+        data_value = api_value_format(value, definition)
       else
         data_value = []
 
         content.translations.each do |translation|
           next unless languages.include?(translation.locale)
           I18n.with_locale(translation.locale) do
-            data_value << { '@language' => I18n.locale, '@value' => content.send(key) } if content.send(key).present?
+            data_value << { '@language' => I18n.locale, '@value' => api_value_format(content.send(key), definition) } if content.send(key).present?
           end
         end
       end
       data_value
+    end
+
+    def api_value_format(value, definition)
+      return value if definition.blank? || definition.dig('format').blank?
+      "#{definition.dig('format', 'prepend')}#{value}#{definition.dig('format', 'append')}"
     end
 
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil, linked_filter_id = nil, is_linked = false, depth = 0)
