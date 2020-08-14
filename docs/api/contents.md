@@ -250,6 +250,58 @@ Eine grundlegende Möglichkeit, um Inhalte auf Basis ihrer Position zu filtern, 
 ```
 
 
+#### Umkreissuche - **filter\[geo\]\[in\]\[perimeter\]**
+
+In einigen Anwendungsfällen ist es wünschenswert, Inhalte in einem definierten Umkreis zu suchen. Genau dafür kann in dataCycle eine sogenannte _Umkreissuche_ genutzt werden. Dieser Filter erwartet sich die folgenden drei Werte in genau dieser Reihenfolge:
+
+* Längengrad
+* Breitengrad
+* Radius (in m)
+
+Um Inhalte im Umkreis von 50 km um den Großglockner abzufragen, kann beispielsweise die folgende Filterkonfiguration genutzt werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "geo": {
+      "in": {
+        "perimeter": [12.69390,47.07453,50000]
+      }
+    }
+  }
+}
+```
+
+
+#### Geo-Shapes - **filter\[geo\]\[in\]\[perimeter\]**
+
+Neben einer Filterung auf Basis einer Bounding-Box bzw. eines Umkreises bietet dataCycle auch die Möglichkeit, beliebige andere Geo-Shapes für eine Einschränkung der ausgelieferten Inhalte zu verwenden. Diese Geo-Shapes sind innerhalb von dataCycle als spezielle Klassifizierungen abgebildet, die z.B. Regions-, Gemeinde- oder Bezirksgrenzen enthalten können. Bei der Verwendung dieses Filters müssen dementsprechend auch die jeweiligen IDs der Klassifizierungen, bei denen die gewünschten Geo-Shapes hinterlegt sind, übergeben werden. Eine Abfrage für alle Orte innerhalb der Landeshauptstädte von Österreich könnte z.B. folgendermaßen realisiert werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+		"geo": {
+			"in": {
+				"shapes": [
+          "f49c4cc4-229a-4421-bf7f-9e1919b93482", // Wien
+          "13e7efe2-2c2a-49a8-a5d9-44f3c279716a", // Sankt Pölten
+          "2a13f3d3-914e-4a73-a7e9-32fe76ab7e2a", // Eisenstadt
+          "044b50ba-28f6-4e9a-9fc3-7f13ac4edb57", // Graz
+          "e0cbd09e-c532-4663-b731-5fd99049307a", // Klagenfurt
+          "01f13679-cded-4307-af50-4d0184674ed9", // Linz
+          "b8d838c0-221d-4d74-b73a-df52df5b3c9c", // Salzburg
+          "d7108f09-7467-4699-a4fa-51b4ed0bab29", // Innsbruck
+          "f0e38258-c919-4676-ab1c-3729bea85f8e"  // Bregenz
+				]
+			}
+		}
+  }
+}
+```
+
+
 ## Sortieren von Inhalten
 
 Neben der Filterung von Inhalten ist es über die Datenschnittstelle von dataCycle auch möglich, Inhalte nach unterschiedlichen Kriterien zu sortieren. Es gibt dabei zwei grundsätzlich unterschiedliche Arten von Sortierungen: implizite (automatische) Sortierungen und explizite (benutzerdefinierte) Sortierungen. Während explizite Sortierungen manuell angewendet werden müssen, werden implizite Sortierungen automatisch verwendet, sobald Inhalte auf eine bestimmte Art und Weise gefiltert werden. Eine implizite Sortierung ergibt sich also auf Basis der verwendeten Filter und kann nicht manuell ausgewählt werden.
