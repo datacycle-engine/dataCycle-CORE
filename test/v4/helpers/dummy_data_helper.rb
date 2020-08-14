@@ -238,6 +238,12 @@ module DataCycleCore
         DataCycleCore::TestPreparations.create_content(template_name: 'PersonOverlay', data_hash: data_hash, user: @user)
       end
 
+      def person_overlay_minimal
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_overlay_minimal')
+        data_hash['image'] = [image.id]
+        DataCycleCore::TestPreparations.create_content(template_name: 'PersonOverlay', data_hash: data_hash, user: @user)
+      end
+
       def organization
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('organizations', 'v4_organization')
         data_hash['image'] = [image.id]

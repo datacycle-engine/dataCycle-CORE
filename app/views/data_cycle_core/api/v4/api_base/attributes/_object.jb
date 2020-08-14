@@ -18,7 +18,7 @@ if content.translatable_property_names.include?(key) && content.translations.siz
     translated_properties[o_key_name.camelize(:lower)] = []
     content.translations.each do |translation|
       I18n.with_locale(translation.locale) do
-        translated_value = content.try(key)&.try(o_key)
+        translated_value = content.try(key + '_overlay')&.try(o_key)
         next if translated_value.blank?
         translated_properties[o_key_name.camelize(:lower)] << { '@language' => translation.locale.to_s, '@value' => translated_value }
       end

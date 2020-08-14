@@ -17,7 +17,6 @@ module DataCycleCore
       ordered_properties = ActiveSupport::OrderedHash.new
       validation['properties'].each do |prop|
         next if type.present? && prop[1]['type'] != type
-
         if content_area.present? && content_area == 'content'
           next if prop[1].dig('ui', 'show', 'content_area').present?
         elsif content_area.present?

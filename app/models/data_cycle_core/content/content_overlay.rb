@@ -5,6 +5,7 @@ module DataCycleCore
     module ContentOverlay
       def overlay?
         return false unless content_type == 'entity'
+        return false unless respond_to?(overlay_name)
         send(overlay_name).size.positive?
       end
 
@@ -30,6 +31,7 @@ module DataCycleCore
       end
 
       def overlay_data(locale)
+        return unless overlay?
         @overlay_data ||= ActiveSupport::HashWithIndifferentAccess.new do |h, key|
           h[key] = send(overlay_name).first.try(:get_data_hash)
         end
