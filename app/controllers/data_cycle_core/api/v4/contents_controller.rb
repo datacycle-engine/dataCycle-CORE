@@ -80,44 +80,7 @@ module DataCycleCore
         def permitted_filter_parameters
           {
             filter:
-              [
-                :search,
-                :q,
-                {
-                  classifications: {
-                    in: {
-                      withSubtree: [],
-                      withoutSubtree: []
-                    },
-                    notIn: {
-                      withSubtree: [],
-                      withoutSubtree: []
-                    }
-                  }
-                },
-                {
-                  attribute: {
-                    createdAt: attribute_filter_operations,
-                    deletedAt: attribute_filter_operations,
-                    modifiedAt: attribute_filter_operations,
-                    schedule: attribute_filter_operations
-                  }
-                },
-                {
-                  geo: {
-                    in: {
-                      box: [],
-                      perimeter: [],
-                      shapes: []
-                    },
-                    notIn: {
-                      box: [],
-                      perimeter: [],
-                      shapes: []
-                    }
-                  }
-                }
-              ]
+              attribute_filters + [linked: {}]
           }
         end
 
@@ -163,9 +126,11 @@ module DataCycleCore
 
           query = query.in_validity_period
 
-          query = apply_classification_filters(query)
-          query = apply_attribute_filters(query)
-          query = apply_geo_filters(query)
+          query = apply_classification_filters(query, permitted_params&.dig(:filter, :classifications))
+          query = apply_attribute_filters(query, permitted_params&.dig(:filter, :attribute))
+          query = apply_geo_filters(query, permitted_params&.dig(:filter, :geo))
+
+          query = apply_linked_filters(query, permitted_params&.dig(:filter, :linked))
 
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
           query = query.distinct_by_content_id

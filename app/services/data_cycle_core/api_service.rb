@@ -37,9 +37,9 @@ module DataCycleCore
       list_hash
     end
 
-    def apply_classification_filters(query)
-      return query if permitted_params&.dig(:filter, :classifications).blank?
-      classification_params = permitted_params[:filter][:classifications].to_h.deep_symbolize_keys
+    def apply_classification_filters(query, filters)
+      return query if filters.blank?
+      classification_params = filters.to_h.deep_symbolize_keys
 
       classification_params.each do |operator, filter|
         filter_prefix = operator == :notIn ? 'not_' : ''
@@ -52,9 +52,9 @@ module DataCycleCore
       query
     end
 
-    def apply_geo_filters(query)
-      return query if permitted_params&.dig(:filter, :geo).blank?
-      geo_filter = permitted_params[:filter][:geo].to_h.deep_symbolize_keys
+    def apply_geo_filters(query, filters)
+      return query if filters.blank?
+      geo_filter = filters.to_h.deep_symbolize_keys
 
       geo_filter.each do |operator, filter|
         filter_prefix = operator == :notIn ? 'not_' : ''
@@ -78,9 +78,9 @@ module DataCycleCore
       query
     end
 
-    def apply_attribute_filters(query)
-      return query if permitted_params&.dig(:filter, :attribute).blank?
-      attribute_filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys
+    def apply_attribute_filters(query, filters)
+      return query if filters.blank?
+      attribute_filter = filters.to_h.deep_symbolize_keys
       attribute_filter.each do |attribute_key, operator|
         attribute_path = attribute_path_mapping(attribute_key)
         query_method = query_method_mapping(attribute_key)
@@ -89,6 +89,28 @@ module DataCycleCore
           next unless query.respond_to?(query_method)
           query = query.send(query_method, v, attribute_path)
         end
+      end
+      query
+    end
+
+    def apply_linked_filters(query, filters)
+      return query if filters.blank?
+
+      linked_filter = filters.to_h.deep_symbolize_keys
+      linked_filter.each do |linked_name, attribute_filter|
+        linked_stored_filter = DataCycleCore::StoredFilter.new
+        linked_stored_filter.language = @language
+        linked_query = linked_stored_filter.apply
+
+        if attribute_filter.dig(:classifications).present?
+          linked_query = apply_classification_filters(linked_query, attribute_filter.dig(:classifications))
+        elsif attribute_filter.dig(:geo).present?
+          linked_query = apply_geo_filters(linked_query, attribute_filter.dig(:geo))
+        else
+          linked_query = apply_attribute_filters(linked_query, attribute_filter.dig(:attribute))
+        end
+
+        query = query.relation_filter(linked_query, linked_name)
       end
       query
     end
@@ -134,6 +156,47 @@ module DataCycleCore
           :bool
         ]
       }
+    end
+
+    def attribute_filters
+      [
+        :search,
+        :q,
+        {
+          classifications: {
+            in: {
+              withSubtree: [],
+              withoutSubtree: []
+            },
+            notIn: {
+              withSubtree: [],
+              withoutSubtree: []
+            }
+          }
+        },
+        {
+          attribute: {
+            createdAt: attribute_filter_operations,
+            deletedAt: attribute_filter_operations,
+            modifiedAt: attribute_filter_operations,
+            schedule: attribute_filter_operations
+          }
+        },
+        {
+          geo: {
+            in: {
+              box: [],
+              perimeter: [],
+              shapes: []
+            },
+            notIn: {
+              box: [],
+              perimeter: [],
+              shapes: []
+            }
+          }
+        }
+      ]
     end
 
     def apply_timestamp_query_string(values, attribute_path)

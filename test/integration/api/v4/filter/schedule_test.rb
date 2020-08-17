@@ -7,15 +7,15 @@ module DataCycleCore
     module V4
       module Filter
         class ScheduleTest < DataCycleCore::V4::Base
-          # 10.days.ago - 5.days.ago
+          # 8.days.ago - 5.days.ago
           # 5.days.ago - 5.days
-          # today - today
+          # today - tomorrow
           # 5.days - 10.days
           setup do
             DataCycleCore::Thing.where(template: false).delete_all
 
             @event_a = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
-            schedule_a = DataCycleCore::TestPreparations.generate_schedule(8.days.ago.midday, 8.days.from_now, 1.hour).serialize_schedule_object
+            schedule_a = DataCycleCore::TestPreparations.generate_schedule(8.days.ago.midday, 5.days.ago, 1.hour).serialize_schedule_object
             @event_a.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_schedule: [schedule_a.schedule_object.to_hash] })
 
             @event_b = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
@@ -67,7 +67,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
-            assert_api_count_result(3)
+            assert_api_count_result(2)
 
             params = {
               fields: 'dct:modified,startDate,endDate',
@@ -83,7 +83,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
-            assert_api_count_result(2)
+            assert_api_count_result(1)
 
             params = {
               fields: 'dct:modified,startDate,endDate',
@@ -114,7 +114,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
-            assert_api_count_result(3)
+            assert_api_count_result(2)
 
             params = {
               fields: 'dct:modified,startDate,endDate',
