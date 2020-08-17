@@ -11,6 +11,7 @@ module DataCycleCore
 
         def update
           strategy = api_strategy
+          render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?
           contents = Array.wrap(content_params.as_json)
 
           external_source_id = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id]).try(:id)
@@ -35,6 +36,7 @@ module DataCycleCore
 
         def destroy
           strategy = api_strategy
+          render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?
           contents = Array.wrap(content_params.as_json)
 
           external_source_id = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id]).try(:id)
