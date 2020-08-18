@@ -126,11 +126,7 @@ module DataCycleCore
 
           query = query.in_validity_period
 
-          query = apply_classification_filters(query, permitted_params&.dig(:filter, :classifications))
-          query = apply_attribute_filters(query, permitted_params&.dig(:filter, :attribute))
-          query = apply_geo_filters(query, permitted_params&.dig(:filter, :geo))
-
-          query = apply_linked_filters(query, permitted_params&.dig(:filter, :linked))
+          query = apply_filters(query, permitted_params&.dig(:filter))
 
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
           query = query.distinct_by_content_id

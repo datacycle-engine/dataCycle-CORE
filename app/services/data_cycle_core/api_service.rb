@@ -37,11 +37,20 @@ module DataCycleCore
       list_hash
     end
 
-    def apply_classification_filters(query, filters)
+    def apply_filters(query, filters)
       return query if filters.blank?
-      classification_params = filters.to_h.deep_symbolize_keys
+      filters.each do |filter_k, filter_v|
+        filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
+        next if filter_v.blank?
+        filter_method_name = ('apply_' + filter_k.to_s + '_filters')
+        next unless respond_to?(filter_method_name)
+        query = send(filter_method_name, query, filter_v)
+      end
+      query
+    end
 
-      classification_params.each do |operator, filter|
+    def apply_classifications_filters(query, filters)
+      filters.each do |operator, filter|
         filter_prefix = operator == :notIn ? 'not_' : ''
         filter&.each do |k, v|
           param_to_classifications(v).each do |classifications|
@@ -53,10 +62,7 @@ module DataCycleCore
     end
 
     def apply_geo_filters(query, filters)
-      return query if filters.blank?
-      geo_filter = filters.to_h.deep_symbolize_keys
-
-      geo_filter.each do |operator, filter|
+      filters.each do |operator, filter|
         filter_prefix = operator == :notIn ? 'not_' : ''
         filter&.each do |k, v|
           query_method = filter_prefix + query_method_mapping(k)
@@ -79,9 +85,7 @@ module DataCycleCore
     end
 
     def apply_attribute_filters(query, filters)
-      return query if filters.blank?
-      attribute_filter = filters.to_h.deep_symbolize_keys
-      attribute_filter.each do |attribute_key, operator|
+      filters.each do |attribute_key, operator|
         attribute_path = attribute_path_mapping(attribute_key)
         query_method = query_method_mapping(attribute_key)
         operator.each do |k, v|
@@ -93,24 +97,17 @@ module DataCycleCore
       query
     end
 
-    def apply_linked_filters(query, filters)
-      return query if filters.blank?
-
-      linked_filter = filters.to_h.deep_symbolize_keys
+    def apply_linked_filters(query, linked_filter)
       linked_filter.each do |linked_name, attribute_filter|
         linked_stored_filter = DataCycleCore::StoredFilter.new
         linked_stored_filter.language = @language
         linked_query = linked_stored_filter.apply
 
-        if attribute_filter.dig(:classifications).present?
-          linked_query = apply_classification_filters(linked_query, attribute_filter.dig(:classifications))
-        elsif attribute_filter.dig(:geo).present?
-          linked_query = apply_geo_filters(linked_query, attribute_filter.dig(:geo))
-        else
-          linked_query = apply_attribute_filters(linked_query, attribute_filter.dig(:attribute))
-        end
+        # add error handling
+        attribute_filter.delete_if { |k, _v| ![:classifications, :geo, :attribute].include?(k) }
 
-        query = query.relation_filter(linked_query, linked_name)
+        linked_query = apply_filters(linked_query, attribute_filter)
+        query = query.relation_filter(linked_query, linked_attribute_mapping(linked_name)) if linked_query.present?
       end
       query
     end
@@ -123,6 +120,15 @@ module DataCycleCore
       return 'geo_radius' if key == :perimeter
       return 'geo_within_classification' if key == :shapes
       key.to_s
+    end
+
+    def linked_attribute_mapping(linked_name)
+      case linked_name
+      when :location
+        'content_location'
+      else
+        linked_name&.to_s&.underscore
+      end
     end
 
     def attribute_path_mapping(attribute_key)
