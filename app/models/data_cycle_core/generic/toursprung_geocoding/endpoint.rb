@@ -4,11 +4,12 @@ module DataCycleCore
   module Generic
     module ToursprungGeocoding
       class Endpoint
-        def initialize(host: nil, end_point: nil, key: nil, **options)
+        def initialize(host: nil, end_point: nil, key: nil, allow_ambiguous_address: nil, **options)
           @host = host
           @end_point = end_point
           @key = key
           @options = options
+          @allow_ambiguous_address = allow_ambiguous_address
         end
 
         def geocode(address, locale = I18n.locale)
@@ -18,7 +19,7 @@ module DataCycleCore
           data = load_data(address: address_string, locale: locale)
           return OpenStruct.new(error: I18n.t(:address_not_found, scope: [:validation, :warnings], locale: DataCycleCore.ui_language)) if data.blank?
 
-          return OpenStruct.new(error: I18n.t(:address_ambiguous, scope: [:validation, :warnings], locale: DataCycleCore.ui_language)) if data.many?
+          return OpenStruct.new(error: I18n.t(:address_ambiguous, scope: [:validation, :warnings], locale: DataCycleCore.ui_language)) if data.many? && !@allow_ambiguous_address
 
           geodata = parse_geo(data.first)
 
