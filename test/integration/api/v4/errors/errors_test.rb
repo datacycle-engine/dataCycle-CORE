@@ -10,7 +10,7 @@ module DataCycleCore
           # TODO: add more test for invalid values (classifications, Date, ...)
           test 'api/v4/things with invalid parameter (empty value)' do
             params = {
-              fields: ""
+              fields: ''
             }
             post api_v4_things_path(params)
             assert_response :bad_request
@@ -18,12 +18,12 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            error_object ={
-              "source" => {
-                "parameter" => "fields"
+            error_object = {
+              'source' => {
+                'parameter' => 'fields'
               },
-              "title" => "Invalid Query Parameter",
-              "detail" => "must be filled"
+              'title' => 'Invalid Query Parameter',
+              'detail' => 'must be filled'
             }
             assert_equal(error_object, json_data.dig('errors').first)
           end
@@ -31,7 +31,7 @@ module DataCycleCore
           test 'api/v4/things with invalid parameters (invalid values)' do
             params = {
               page: {
-                size: "asdf"
+                size: 'asdf'
               }
             }
             post api_v4_things_path(params)
@@ -40,12 +40,12 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            error_object ={
-              "source" => {
-                "parameter" => "page[size]"
+            error_object = {
+              'source' => {
+                'parameter' => 'page[size]'
               },
-              "title" => "Invalid Query Parameter",
-              "detail" => "must be an integer"
+              'title' => 'Invalid Query Parameter',
+              'detail' => 'must be an integer'
             }
             assert_equal(error_object, json_data.dig('errors').first)
 
@@ -60,19 +60,19 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            error_object ={
-              "source" => {
-                "parameter" => "page[size]"
+            error_object = {
+              'source' => {
+                'parameter' => 'page[size]'
               },
-              "title" => "Invalid Query Parameter",
-              "detail" => "must be greater than or equal to 1"
+              'title' => 'Invalid Query Parameter',
+              'detail' => 'must be greater than or equal to 1'
             }
             assert_equal(error_object, json_data.dig('errors').first)
           end
 
           test 'api/v4/things with unknown parameter' do
             params = {
-              my_field: "test_field"
+              my_field: 'test_field'
             }
             post api_v4_things_path(params)
             assert_response :bad_request
@@ -80,18 +80,18 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            error_object ={
-              "source" => {
-                "parameter" => "my_field"
+            error_object = {
+              'source' => {
+                'parameter' => 'my_field'
               },
-              "title" => "Unknown Query Parameter",
-              "detail" => "is not allowed"
+              'title' => 'Unknown Query Parameter',
+              'detail' => 'is not allowed'
             }
             assert_equal(error_object, json_data.dig('errors').first)
 
             params = {
               filter: {
-                classifica2tions: "asdf"
+                classifica2tions: 'asdf'
               }
             }
             post api_v4_things_path(params)
@@ -100,12 +100,12 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            error_object ={
-              "source" => {
-                "parameter" => "filter[classifica2tions]"
+            error_object = {
+              'source' => {
+                'parameter' => 'filter[classifica2tions]'
               },
-              "title" => "Unknown Query Parameter",
-              "detail" => "is not allowed"
+              'title' => 'Unknown Query Parameter',
+              'detail' => 'is not allowed'
             }
             assert_equal(error_object, json_data.dig('errors').first)
 
@@ -114,7 +114,7 @@ module DataCycleCore
                 attribute: {
                   createdAt: {
                     in: {
-                      asdf: "2020-5/5"
+                      asdf: '2020-5/5'
                     }
                   }
                 }
@@ -126,12 +126,12 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
-            error_object ={
-              "source" => {
-                "parameter" => "filter[attribute][createdAt][in][asdf]"
+            error_object = {
+              'source' => {
+                'parameter' => 'filter[attribute][createdAt][in][asdf]'
               },
-              "title" => "Unknown Query Parameter",
-              "detail" => "is not allowed"
+              'title' => 'Unknown Query Parameter',
+              'detail' => 'is not allowed'
             }
             assert_equal(error_object, json_data.dig('errors').first)
           end
@@ -145,7 +145,7 @@ module DataCycleCore
                     attribute: {
                       mod2ifiedAt: {
                         in: {
-                          min: "2020-07-07"
+                          min: '2020-07-07'
                         }
                       }
                     }
@@ -160,11 +160,11 @@ module DataCycleCore
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
-              "source" => {
-                "parameter" => "filter[linked][contentLocation][attribute][mod2ifiedAt][in][min]"
+              'source' => {
+                'parameter' => 'filter[linked][contentLocation][attribute][mod2ifiedAt][in][min]'
               },
-              "title" => "Unknown Query Parameter",
-              "detail" => "is not allowed"
+              'title' => 'Unknown Query Parameter',
+              'detail' => 'is not allowed'
             }
             assert_equal(error_object, json_data.dig('errors').first)
 
@@ -191,11 +191,11 @@ module DataCycleCore
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
-              "source" => {
-                "parameter" => "filter[linked][contentLocation][attribute][modifiedAt][in][min]"
+              'source' => {
+                'parameter' => 'filter[linked][contentLocation][attribute][modifiedAt][in][min]'
               },
-              "title" => "Invalid Query Parameter",
-              "detail" => "must be a string"
+              'title' => 'Invalid Query Parameter',
+              'detail' => 'must be a string'
             }
             assert_equal(error_object, json_data.dig('errors').first)
           end
@@ -211,7 +211,7 @@ module DataCycleCore
                         attribute: {
                           modifiedAt: {
                             in: {
-                              min: "2020-07-07"
+                              min: '2020-07-07'
                             }
                           }
                         }
@@ -228,11 +228,11 @@ module DataCycleCore
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
             error_object = {
-              "source" => {
-                "parameter" => "filter[linked][contentLocation][linked][image][attribute][modifiedAt][in][min]"
+              'source' => {
+                'parameter' => 'filter[linked][contentLocation][linked][image][attribute][modifiedAt][in][min]'
               },
-              "title" => "Unknown Query Parameter",
-              "detail" => "is not allowed"
+              'title' => 'Unknown Query Parameter',
+              'detail' => 'is not allowed'
             }
             assert_equal(error_object, json_data.dig('errors').first)
           end
