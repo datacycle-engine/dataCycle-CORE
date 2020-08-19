@@ -37,11 +37,20 @@ module DataCycleCore
       list_hash
     end
 
-    def apply_classification_filters(query)
-      return query if permitted_params&.dig(:filter, :classifications).blank?
-      classification_params = permitted_params[:filter][:classifications].to_h.deep_symbolize_keys
+    def apply_filters(query, filters)
+      return query if filters.blank?
+      filters.each do |filter_k, filter_v|
+        filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
+        next if filter_v.blank?
+        filter_method_name = ('apply_' + filter_k.to_s + '_filters')
+        next unless respond_to?(filter_method_name)
+        query = send(filter_method_name, query, filter_v)
+      end
+      query
+    end
 
-      classification_params.each do |operator, filter|
+    def apply_classifications_filters(query, filters)
+      filters.each do |operator, filter|
         filter_prefix = operator == :notIn ? 'not_' : ''
         filter&.each do |k, v|
           param_to_classifications(v).each do |classifications|
@@ -52,11 +61,8 @@ module DataCycleCore
       query
     end
 
-    def apply_geo_filters(query)
-      return query if permitted_params&.dig(:filter, :geo).blank?
-      geo_filter = permitted_params[:filter][:geo].to_h.deep_symbolize_keys
-
-      geo_filter.each do |operator, filter|
+    def apply_geo_filters(query, filters)
+      filters.each do |operator, filter|
         filter_prefix = operator == :notIn ? 'not_' : ''
         filter&.each do |k, v|
           query_method = filter_prefix + query_method_mapping(k)
@@ -78,10 +84,8 @@ module DataCycleCore
       query
     end
 
-    def apply_attribute_filters(query)
-      return query if permitted_params&.dig(:filter, :attribute).blank?
-      attribute_filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys
-      attribute_filter.each do |attribute_key, operator|
+    def apply_attribute_filters(query, filters)
+      filters.each do |attribute_key, operator|
         attribute_path = attribute_path_mapping(attribute_key)
         query_method = query_method_mapping(attribute_key)
         operator.each do |k, v|
@@ -89,6 +93,21 @@ module DataCycleCore
           next unless query.respond_to?(query_method)
           query = query.send(query_method, v, attribute_path)
         end
+      end
+      query
+    end
+
+    def apply_linked_filters(query, linked_filter)
+      linked_filter.each do |linked_name, attribute_filter|
+        linked_stored_filter = DataCycleCore::StoredFilter.new
+        linked_stored_filter.language = @language
+        linked_query = linked_stored_filter.apply
+
+        # add error handling
+        attribute_filter.delete_if { |k, _v| ![:classifications, :geo, :attribute].include?(k) }
+
+        linked_query = apply_filters(linked_query, attribute_filter)
+        query = query.relation_filter(linked_query, linked_attribute_mapping(linked_name)) if linked_query.present?
       end
       query
     end
@@ -101,6 +120,15 @@ module DataCycleCore
       return 'geo_radius' if key == :perimeter
       return 'geo_within_classification' if key == :shapes
       key.to_s
+    end
+
+    def linked_attribute_mapping(linked_name)
+      case linked_name
+      when :location
+        'content_location'
+      else
+        linked_name&.to_s&.underscore
+      end
     end
 
     def attribute_path_mapping(attribute_key)
@@ -136,6 +164,63 @@ module DataCycleCore
       }
     end
 
+    def attribute_filters
+      [
+        :search,
+        :q,
+        {
+          classifications: {
+            in: {
+              withSubtree: [],
+              withoutSubtree: []
+            },
+            notIn: {
+              withSubtree: [],
+              withoutSubtree: []
+            }
+          }
+        },
+        {
+          attribute: {
+            createdAt: attribute_filter_operations,
+            deletedAt: attribute_filter_operations,
+            modifiedAt: attribute_filter_operations,
+            schedule: attribute_filter_operations
+          }
+        },
+        {
+          geo: {
+            in: {
+              box: [],
+              perimeter: [],
+              shapes: []
+            },
+            notIn: {
+              box: [],
+              perimeter: [],
+              shapes: []
+            }
+          }
+        }
+      ]
+    end
+
+    def validate_api_params(unpermitted_params)
+      validator = DataCycleCore::MasterData::Contracts::ApiContract.new
+      linked_validator = DataCycleCore::MasterData::Contracts::ApiLinkedContract.new
+
+      validation_params = unpermitted_params&.deep_symbolize_keys
+      linked_params = validation_params[:filter].delete(:linked) if validation_params.dig(:filter, :linked).present?
+
+      validation = validator.call(validation_params)
+      validation_errors = validation.errors.to_h.present? ? api_errors(validation.errors) : []
+      linked_params&.each do |linked_name, attribute_filter|
+        linked_validation = linked_validator.call(attribute_filter)
+        validation_errors += api_errors(linked_validation.errors, linked_name) if linked_validation.errors.to_h.present?
+      end
+      raise DataCycleCore::Error::Api::BadRequest.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
+    end
+
     def apply_timestamp_query_string(values, attribute_path)
       date_range = "[#{date_from_single_value(values.dig(:min))&.beginning_of_day},#{date_from_single_value(values.dig(:max))&.end_of_day}]"
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
@@ -163,6 +248,24 @@ module DataCycleCore
     end
 
     private
+
+    def api_errors(errors, linked_name = nil)
+      errors.map do |error|
+        type = 'invalid_parameter'
+        error_path = error.path
+        if error.path.is_a?(::String)
+          type = 'unknown_parameter'
+          error_path = error.path.split('.')
+        end
+        error_path.prepend(:filter, :linked, linked_name) if linked_name.present?
+        parameter_path = error_path.drop(1).inject(error_path.first.to_s) { |a, b| a << "[#{b}]" }
+        {
+          parameter_path: parameter_path,
+          type: type,
+          detail: error.text
+        }
+      end
+    end
 
     def date_from_single_value(value)
       return if value.blank?

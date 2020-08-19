@@ -6,6 +6,10 @@ module DataCycleCore
       class UniversalController < ::DataCycleCore::Api::V4::ApiBaseController
         before_action :prepare_url_parameters
 
+        def permitted_params
+          @permitted_params ||= params.permit(*permitted_parameter_keys)
+        end
+
         def show
           if permitted_params[:id].blank?
             render json: { error: 'No id given!' }, layout: false, status: :bad_request

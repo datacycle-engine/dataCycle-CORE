@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
+json ||= {}
 key_new = attribute_key(key, definition)
 
-json ||= {}
-
-classification_aliases = content.send(key).includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
+classification_aliases = content.send(key + '_overlay').includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
 classification_string = classification_aliases
   .presence.map { |classification_alias| classification_alias.uri || classification_alias.name || classification_alias.internal_name }
   .join(',')

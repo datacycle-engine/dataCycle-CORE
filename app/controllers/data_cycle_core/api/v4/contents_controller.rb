@@ -7,7 +7,6 @@ module DataCycleCore
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
         include DataCycleCore::ApiHelper
-        include DataCycleCore::ApiService
         before_action :prepare_url_parameters
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
@@ -80,44 +79,7 @@ module DataCycleCore
         def permitted_filter_parameters
           {
             filter:
-              [
-                :search,
-                :q,
-                {
-                  classifications: {
-                    in: {
-                      withSubtree: [],
-                      withoutSubtree: []
-                    },
-                    notIn: {
-                      withSubtree: [],
-                      withoutSubtree: []
-                    }
-                  }
-                },
-                {
-                  attribute: {
-                    createdAt: attribute_filter_operations,
-                    deletedAt: attribute_filter_operations,
-                    modifiedAt: attribute_filter_operations,
-                    schedule: attribute_filter_operations
-                  }
-                },
-                {
-                  geo: {
-                    in: {
-                      box: [],
-                      perimeter: [],
-                      shapes: []
-                    },
-                    notIn: {
-                      box: [],
-                      perimeter: [],
-                      shapes: []
-                    }
-                  }
-                }
-              ]
+              attribute_filters + [linked: {}]
           }
         end
 
@@ -163,9 +125,7 @@ module DataCycleCore
 
           query = query.in_validity_period
 
-          query = apply_classification_filters(query)
-          query = apply_attribute_filters(query)
-          query = apply_geo_filters(query)
+          query = apply_filters(query, permitted_params&.dig(:filter))
 
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
           query = query.distinct_by_content_id

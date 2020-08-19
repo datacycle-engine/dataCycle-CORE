@@ -1,0 +1,118 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module MasterData
+    module Contracts
+      class ApiContract < Dry::Validation::Contract
+        # config.messages.default_locale = :en
+        # config.messages.backend = :i18n
+        config.validate_keys = true
+
+        BASE = Dry::Schema.Params do
+          optional(:format).value(:symbol)
+          optional(:controller).filled(:string)
+          optional(:action).filled(:string)
+          optional(:api_subversion).filled(:string)
+          optional(:token).filled(:string)
+          optional(:id).filled(:string)
+        end
+
+        CONTENT = Dry::Schema.Params do
+          optional(:uuid).filled(:array)
+          optional(:uuids).filled(:string)
+          optional(:content_id).filled(:string)
+        end
+
+        CLASSIFICATIONS = Dry::Schema.Params do
+          optional(:classification_id).filled(:string)
+        end
+
+        BASE_JSON_API = Dry::Schema.Params do
+          optional(:language).filled(:string)
+          optional(:sort).filled(:string)
+          optional(:fields).filled(:string)
+          optional(:include).filled(:string)
+        end
+
+        WATCHLIST = Dry::Schema.Params do
+          optional(:sl).filled(:string)
+          optional(:user_email).filled(:string)
+          optional(:thing_id).filled(:string)
+        end
+
+        PAGE = Dry::Schema.Params do
+          optional(:size).value(:integer, gteq?: 1)
+          optional(:number).value(:integer, gteq?: 1)
+          optional(:limit).value(:integer, gteq?: 1)
+          optional(:offset).value(:integer, gteq?: 0)
+        end
+
+        SECTION = Dry::Schema.Params do
+          optional(:'@graph').value(:integer, included_in?: [0, 1])
+          optional(:'@context').value(:integer, included_in?: [0, 1])
+          optional(:meta).value(:integer, included_in?: [0, 1])
+          optional(:links).value(:integer, included_in?: [0, 1])
+        end
+
+        CLASSIFICATIONS_FILTER = Dry::Schema.Params do
+          optional(:withSubtree).value(:array, min_size?: 1)
+          optional(:withoutSubtree).value(:array, min_size?: 1)
+        end
+
+        GEO_FILTER = Dry::Schema.Params do
+          optional(:box).value(:array, min_size?: 4)
+          optional(:perimeter).value(:array, min_size?: 3)
+          optional(:shapes).value(:array, min_size?: 1)
+        end
+
+        ATTRIBUTE_FILTER = Dry::Schema.Params do
+          optional(:in).hash do
+            optional(:min).filled(:string)
+            optional(:max).filled(:string)
+            optional(:equals).filled(:string)
+            optional(:like).filled(:string)
+            optional(:bool).filled(:string)
+          end
+          optional(:notIn).hash do
+            optional(:min).filled(:string)
+            optional(:max).filled(:string)
+            optional(:equals).filled(:string)
+            optional(:like).filled(:string)
+            optional(:bool).filled(:string)
+          end
+        end
+
+        FILTER = Dry::Schema.Params do
+          optional(:search).value(:string)
+          optional(:q).value(:string)
+          optional(:classifications).hash do
+            optional(:in).hash(CLASSIFICATIONS_FILTER)
+            optional(:notIn).hash(CLASSIFICATIONS_FILTER)
+          end
+          optional(:geo).hash do
+            optional(:in).hash(GEO_FILTER)
+            optional(:notIn).hash(GEO_FILTER)
+          end
+          optional(:attribute).hash do
+            optional(:createdAt).hash(ATTRIBUTE_FILTER)
+            optional(:deletedAt).hash(ATTRIBUTE_FILTER)
+            optional(:modifiedAt).hash(ATTRIBUTE_FILTER)
+            optional(:schedule).hash(ATTRIBUTE_FILTER)
+          end
+        end
+
+        params(BASE, BASE_JSON_API, WATCHLIST, CLASSIFICATIONS, CONTENT) do
+          optional(:page).hash(PAGE)
+          optional(:section).hash(SECTION)
+          optional(:filter).hash(FILTER)
+        end
+      end
+      class ApiLinkedContract < Dry::Validation::Contract
+        config.validate_keys = true
+
+        params(DataCycleCore::MasterData::Contracts::ApiContract::FILTER) do
+        end
+      end
+    end
+  end
+end

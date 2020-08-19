@@ -525,6 +525,119 @@ module DataCycleCore
                   }
                 end
 
+                assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
+
+                assert_equal([], required_attributes)
+                assert_equal({}, json_validate)
+              end
+
+              test 'api_v4_thing_path validate full person and person_overlay_minimal with default params' do
+                assert_full_thing_datahash(@content)
+                content_overlay = DataCycleCore::V4::DummyDataHelper.create_data('person_overlay_minimal')
+                assert_full_thing_datahash(content_overlay)
+                @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { 'overlay' => [content_overlay.get_data_hash] })
+
+                params = {
+                  id: @content.id
+                }
+                post api_v4_thing_path(params)
+                json_data = JSON.parse response.body
+                json_validate = json_data.dup.dig('@graph').first
+
+                assert_context(json_data.dig('@context'), 'de')
+
+                # test full event data
+                required_attributes = required_validation_attributes(@content)
+                # test minimal
+                assert_attributes(json_validate, required_attributes, ['id']) do
+                  {
+                    '@id' => @content.id,
+                    '@type' => 'Person'
+                  }
+                end
+
+                # validate language
+                assert_attributes(json_validate, required_attributes, []) do
+                  {
+                    'dc:multilingual' => true,
+                    'dc:translation' => [
+                      'de'
+                    ]
+                  }
+                end
+
+                # plain attributes without transformation
+                assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'honorific_prefix', 'honorific_suffix']) do
+                  {
+                    'description' => @content.description,
+                    'jobTitle' => @content.job_title,
+                    'honorificPrefix' => @content.honorific_prefix,
+                    'honorificSuffix' => @content.honorific_suffix
+                  }
+                end
+
+                # disabled attributes
+                assert_attributes(json_validate, required_attributes, ['validity_period']) do
+                  {}
+                end
+
+                # cc_rel
+                assert_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
+                  # license is overwritten by license_classification
+                  {
+                    'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                    'cc:useGuidelines' => @content.use_guidelines,
+                    'cc:attributionUrl' => @content.attribution_url,
+                    'cc:attributionName' => @content.attribution_name,
+                    'cc:morePermissions' => @content.more_permissions
+                  }
+                end
+
+                # linked default: images, member
+                assert_attributes(json_validate, required_attributes, ['member_of']) do
+                  {
+                    'memberOf' => [
+                      @content.member_of.first.to_api_default_values
+                    ]
+                  }
+                end
+
+                # overlay properties
+                assert_attributes(json_validate, required_attributes, ['given_name', 'family_name', 'name']) do
+                  {
+                    'givenName' => content_overlay.given_name,
+                    'familyName' => content_overlay.family_name,
+                    'name' => content_overlay.name
+                  }
+                end
+
+                # linked default: images, member
+                assert_attributes(json_validate, required_attributes, ['image']) do
+                  {
+                    'image' => [
+                      content_overlay.image.first.to_api_default_values
+                    ]
+                  }
+                end
+
+                # address
+                assert_attributes(json_validate, required_attributes, ['address', 'contact_info']) do
+                  {
+                    'address' => {
+                      '@type' => 'PostalAddress',
+                      'streetAddress' => content_overlay.address.street_address,
+                      'postalCode' => @content.address.postal_code,
+                      'addressLocality' => @content.address.address_locality,
+                      'addressCountry' => @content.country_code.first.classification_aliases.first.name,
+                      'name' => @content.contact_info.name,
+                      'telephone' => content_overlay.contact_info.telephone,
+                      'faxNumber' => @content.contact_info.fax_number,
+                      'email' => @content.contact_info.email,
+                      'url' => content_overlay.contact_info.url
+                    }
+                  }
+                end
+
                 assert_classifications(json_validate, (@content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values) + content_overlay.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values)))
 
                 assert_equal([], required_attributes)

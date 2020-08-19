@@ -148,14 +148,14 @@ module DataCycleCore
           params = {}
 
           get api_v4_concept_schemes_path(params)
+          assert_api_default_sections
           json_data = JSON.parse response.body
           assert_context(json_data.dig('@context'), 'de')
-          assert_api_default_sections
 
           post api_v4_concept_schemes_path(params)
+          assert_api_default_sections
           json_data = JSON.parse response.body
           assert_context(json_data.dig('@context'), 'de')
-          assert_api_default_sections
         end
 
         test 'GET/POST /api/v4/concept_schemes/id' do
@@ -178,14 +178,14 @@ module DataCycleCore
           params = { id: tree_id }
 
           get classifications_api_v4_concept_scheme_path(params)
+          assert_api_default_sections
           json_data = JSON.parse response.body
           assert_context(json_data.dig('@context'), 'de')
-          assert_api_default_sections
 
           post classifications_api_v4_concept_scheme_path(params)
+          assert_api_default_sections
           json_data = JSON.parse response.body
           assert_context(json_data.dig('@context'), 'de')
-          assert_api_default_sections
         end
 
         test 'GET/POST /api/v4/concept_schemes/id/concepts/classification_id' do

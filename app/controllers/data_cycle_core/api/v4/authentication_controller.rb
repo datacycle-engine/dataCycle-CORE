@@ -4,6 +4,10 @@ module DataCycleCore
   module Api
     module V4
       class AuthenticationController < ::DataCycleCore::Api::V4::ApiBaseController
+        def permitted_params
+          @permitted_params ||= params.permit(*permitted_parameter_keys)
+        end
+
         def login
           @user = User.find_by(email: login_params[:email])
 

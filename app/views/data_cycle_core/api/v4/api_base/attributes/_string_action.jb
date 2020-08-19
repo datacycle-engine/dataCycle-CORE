@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 json ||= {}
+api_property_definition = api_definition(definition)
 
-value = load_value_object(content, key, value, options[:languages])
+value = load_value_object(content, key, value, options[:languages], api_property_definition)
 
 if value.present?
   property_definition = api_definition(definition)

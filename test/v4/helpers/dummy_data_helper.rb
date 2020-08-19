@@ -168,11 +168,10 @@ module DataCycleCore
       end
 
       def minimal_event
-        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'v4_event')
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'v4_event_minimal')
         data_hash['name'] = "event_#{SecureRandom.uuid}"
         data_hash['event_schedule'] = [schedule]
         data_hash['validity_period'] = validity_period
-        data_hash['image'] = [image.id]
         DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: data_hash, user: @user)
       end
 
@@ -234,6 +233,12 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
           data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
+        data_hash['image'] = [image.id]
+        DataCycleCore::TestPreparations.create_content(template_name: 'PersonOverlay', data_hash: data_hash, user: @user)
+      end
+
+      def person_overlay_minimal
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_overlay_minimal')
         data_hash['image'] = [image.id]
         DataCycleCore::TestPreparations.create_content(template_name: 'PersonOverlay', data_hash: data_hash, user: @user)
       end
