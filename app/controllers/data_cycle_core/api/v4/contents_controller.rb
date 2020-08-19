@@ -7,7 +7,6 @@ module DataCycleCore
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
         include DataCycleCore::ApiHelper
-        include DataCycleCore::ApiService
         before_action :prepare_url_parameters
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 

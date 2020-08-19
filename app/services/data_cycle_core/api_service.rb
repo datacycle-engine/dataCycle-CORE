@@ -205,6 +205,22 @@ module DataCycleCore
       ]
     end
 
+    def validate_api_params(unpermitted_params)
+      validator = DataCycleCore::MasterData::Contracts::ApiContract.new
+      linked_validator = DataCycleCore::MasterData::Contracts::ApiLinkedContract.new
+
+      validation_params = unpermitted_params&.deep_symbolize_keys
+      linked_params = validation_params[:filter].delete(:linked) if validation_params.dig(:filter, :linked).present?
+
+      validation = validator.call(validation_params)
+      validation_errors = validation.errors.to_h.present? ? api_errors(validation.errors) : []
+      linked_params&.each do |linked_name, attribute_filter|
+        linked_validation = linked_validator.call(attribute_filter)
+        validation_errors += api_errors(linked_validation.errors, linked_name) if linked_validation.errors.to_h.present?
+      end
+      raise DataCycleCore::Error::Api::BadRequest.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
+    end
+
     def apply_timestamp_query_string(values, attribute_path)
       date_range = "[#{date_from_single_value(values.dig(:min))&.beginning_of_day},#{date_from_single_value(values.dig(:max))&.end_of_day}]"
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
@@ -232,6 +248,24 @@ module DataCycleCore
     end
 
     private
+
+    def api_errors(errors, linked_name = nil)
+      errors.map do |error|
+        type = 'invalid_parameter'
+        error_path = error.path
+        if error.path.is_a?(::String)
+          type = 'unknown_parameter'
+          error_path = error.path.split('.')
+        end
+        error_path.prepend(:filter, :linked, linked_name) if linked_name.present?
+        parameter_path = error_path.drop(1).inject(error_path.first.to_s) { |a, b| a << "[#{b}]" }
+        {
+          parameter_path: parameter_path,
+          type: type,
+          detail: error.text
+        }
+      end
+    end
 
     def date_from_single_value(value)
       return if value.blank?

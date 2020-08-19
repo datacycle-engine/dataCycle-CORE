@@ -9,6 +9,10 @@ module DataCycleCore
         #   redirect_to thing_path(@content)
         # end
 
+        def permitted_params
+          @permitted_params ||= params.permit(*permitted_parameter_keys)
+        end
+
         def update
           strategy = api_strategy
           render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?

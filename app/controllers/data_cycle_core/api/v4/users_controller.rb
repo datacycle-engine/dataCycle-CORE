@@ -7,6 +7,10 @@ module DataCycleCore
         before_action :prepare_url_parameters
         before_action :check_feature_enabled, except: :index
 
+        def permitted_params
+          @permitted_params ||= params.permit(*permitted_parameter_keys)
+        end
+
         def index
           @user_data = current_user
           @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)

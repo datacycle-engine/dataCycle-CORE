@@ -4,7 +4,6 @@ module DataCycleCore
   module Api
     module V4
       class ClassificationTreesController < ::DataCycleCore::Api::V4::ApiBaseController
-        include DataCycleCore::ApiService
         before_action :prepare_url_parameters
 
         ALLOWED_FILTER_ATTRIBUTES = [:modifiedAt, :createdAt, :deletedAt].freeze

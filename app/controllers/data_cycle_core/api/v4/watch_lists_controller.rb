@@ -5,6 +5,7 @@ module DataCycleCore
     module V4
       class WatchListsController < ::DataCycleCore::Api::V4::ContentsController
         before_action :prepare_url_parameters
+
         def index
           if permitted_params[:user_email].present?
             @watch_lists = DataCycleCore::WatchList

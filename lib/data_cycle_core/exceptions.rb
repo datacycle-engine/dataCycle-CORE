@@ -7,6 +7,14 @@ module DataCycleCore
       end
       class TimeOutError < StandardError
       end
+      class BadRequest < StandardError
+        attr_reader :data
+
+        def initialize(data)
+          @data = data
+          super
+        end
+      end
     end
     module Download
       class InvalidSerializationFormatError < StandardError
