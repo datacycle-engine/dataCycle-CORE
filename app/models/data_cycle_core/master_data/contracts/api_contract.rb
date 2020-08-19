@@ -41,10 +41,10 @@ module DataCycleCore
         end
 
         PAGE = Dry::Schema.Params do
-          optional(:size).value(:integer)
-          optional(:number).value(:integer)
-          optional(:limit).value(:integer)
-          optional(:offset).value(:integer)
+          optional(:size).value(:integer, gteq?: 1)
+          optional(:number).value(:integer, gteq?: 1)
+          optional(:limit).value(:integer, gteq?: 1)
+          optional(:offset).value(:integer, gteq?: 0)
         end
 
         SECTION = Dry::Schema.Params do
