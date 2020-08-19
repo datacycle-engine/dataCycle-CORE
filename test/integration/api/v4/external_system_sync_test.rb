@@ -17,7 +17,7 @@ module DataCycleCore
           @data_set = create_data({ 'name' => 'My_test' })
 
           external_thing_data = { 'key_1' => 'value_1' }
-          @external_system = DataCycleCore::ExternalSystem.find_by(name: 'Exozet')
+          @external_system = DataCycleCore::ExternalSystem.find_by(name: 'austria.info')
           @data_set.add_external_system_data(@external_system, external_thing_data)
         end
 
