@@ -90,7 +90,7 @@ module DataCycleCore
           data
         end
 
-        def self.add_amenity_features(data, _external_source_id)
+        def self.add_amenity_features(data, external_source_id)
           amenity_features = []
           Array.wrap(data.dig('Facilities', 'Facility'))&.flatten&.each do |facility|
             next unless facility['ValueType'] == 'IntDigit'
@@ -98,7 +98,11 @@ module DataCycleCore
             amenity_features.push(
               {
                 name: facility['GroupName'] + ' |> ' + facility['Name'],
-                value: facility['Value'].to_i
+                value: facility['Value'].to_i,
+                universal_classifications: facility['GroupID'].present? ? [DataCycleCore::Classification.find_by(
+                  external_source_id: external_source_id,
+                  external_key: facility['GroupID'].downcase
+                )&.id] : []
               }
             )
           end
