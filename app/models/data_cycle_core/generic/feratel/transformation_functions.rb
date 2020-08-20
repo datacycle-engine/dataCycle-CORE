@@ -95,14 +95,18 @@ module DataCycleCore
           Array.wrap(data.dig('Facilities', 'Facility'))&.flatten&.each do |facility|
             next unless facility['ValueType'] == 'IntDigit'
 
+            if facility['GroupID'].present?
+              universal_classifications = [DataCycleCore::Classification.find_by(
+                external_source_id: external_source_id,
+                external_key: facility['GroupID'].downcase
+              )&.id]
+            end
+
             amenity_features.push(
               {
                 name: facility['GroupName'] + ' |> ' + facility['Name'],
                 value: facility['Value'].to_i,
-                universal_classifications: facility['GroupID'].present? ? [DataCycleCore::Classification.find_by(
-                  external_source_id: external_source_id,
-                  external_key: facility['GroupID'].downcase
-                )&.id] : []
+                universal_classifications: universal_classifications || []
               }
             )
           end
