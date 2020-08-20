@@ -67,7 +67,10 @@
           :minimal: true
       :postal_address:
         :type: mixin
-        :name: postal_address          
+        :name: postal_address
+      :contact_info:
+        :type: mixin
+        :name: contact_info
       :potential_actions:
         :type: mixin
         :name: potential_actions
