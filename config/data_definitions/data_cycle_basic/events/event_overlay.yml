@@ -54,7 +54,7 @@
         :type: linked
         :template_name: Bild
       :url:
-        :label: URL
+        :label: Inhalt URL
         :type: string
         :storage_location: translated_value
         :validations:
