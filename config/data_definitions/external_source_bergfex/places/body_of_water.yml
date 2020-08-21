@@ -31,6 +31,14 @@
       :title:
         :type: mixin
         :name: title
+      :tourism_region:
+        :label: Tourismus-Region
+        :type: classification
+        :tree_label: Tourismus-Regionen
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -135,6 +143,14 @@
         :api:
           :v4:
             :name: sameAs
+      :link_url:
+        :label: Link
+        :type: string
+        :storage_location: translated_value
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
       :data_type:
         :label: Inhaltstyp
         :type: classification
