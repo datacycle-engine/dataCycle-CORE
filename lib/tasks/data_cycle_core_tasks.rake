@@ -325,6 +325,8 @@ namespace :data_cycle_core do
 
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
 
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:check:invalid_overlay_definitions"].invoke
+
       if template_names.present?
         template_names.each do |template_name|
           Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_template_sql"].invoke(template_name, false)

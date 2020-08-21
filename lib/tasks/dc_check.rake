@@ -38,15 +38,21 @@ namespace :dc do
 
     desc 'check for invalid overlay properties'
     task invalid_overlay_definitions: :environment do
-      puts "### Check for invalid overlay data_definition\r"
-      count = 0
+      puts "######## Check for invalid overlay data_definition\r"
+      errors = false
       DataCycleCore::Thing.where(template: true).to_a.select { |thing| thing.overlay_template_name.present? }.each do |thing|
         next if thing.add_overlay_property_names.blank?
-        count += 1
+        errors = true
         found_things = DataCycleCore::Thing.where(template: false, template_name: thing.overlay_template_name).count
         puts "#{('# ' + thing.template_name).ljust(41)} | #{thing.overlay_template_name}| #{found_things} | #{thing.add_overlay_property_names.join(',')} \r"
       end
-      puts "no invalid data found\r" if count.zero?
+      if errors
+        puts "\n[error] ... Invalid overlay data_definition"
+        puts "\n"
+        exit(-1)
+      end
+      puts "[done] ... no invalid data found\r"
+      puts "\n"
     end
   end
 end
