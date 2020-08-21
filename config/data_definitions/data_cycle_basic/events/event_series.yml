@@ -27,7 +27,7 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :template_name: EventOverlay
+        :template_name: EventserieOverlay
         :validations:
           :max: 1
       :title:
