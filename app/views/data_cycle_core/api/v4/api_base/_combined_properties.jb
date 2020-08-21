@@ -11,8 +11,10 @@ end
 
 combined.each do |combined_key, combined_value|
   json[combined_key] = combined_value.map { |key, definition|
-    if content.try(key.to_sym).present?
-      partial_params = render_api_attribute key: key, definition: definition, value: content.try(key.to_sym), parameters: { options: options }, content: content
+    value = load_value_object(content, key, content.try(key + '_overlay'), options[:languages], definition)
+
+    if value.present?
+      partial_params = render_api_attribute key: key, definition: definition, value: value, parameters: { options: options }, content: content
       render(*partial_params) unless partial_params.nil?
     end
   }&.compact&.reject(&:blank?)

@@ -99,7 +99,7 @@ module DataCycleCore
         content.translations.each do |translation|
           next unless languages.include?(translation.locale)
           I18n.with_locale(translation.locale) do
-            data_value << { '@language' => I18n.locale, '@value' => api_value_format(content.send(key), definition) } if content.send(key).present?
+            data_value << { '@language' => I18n.locale, '@value' => api_value_format(content.send(key + '_overlay'), definition) } if content.send(key + '_overlay').present?
           end
         end
       end

@@ -105,6 +105,24 @@ module DataCycleCore
                   }
                 end
 
+                # organizer
+                assert_attributes(json_validate, required_attributes, ['organizer']) do
+                  {
+                    'organizer' => [
+                      @content.organizer.first.to_api_default_values
+                    ]
+                  }
+                end
+
+                # performer
+                assert_attributes(json_validate, required_attributes, ['performer']) do
+                  {
+                    'performer' => [
+                      @content.performer.first.to_api_default_values
+                    ]
+                  }
+                end
+
                 assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
                 assert_equal([], required_attributes)

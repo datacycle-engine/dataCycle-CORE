@@ -151,6 +151,8 @@ module DataCycleCore
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'v4_event_series')
         data_hash['image'] = [image.id]
         data_hash['validity_period'] = validity_period
+        data_hash['organizer'] = [organization.id]
+        data_hash['performer'] = [person.id]
         data_hash['content_location'] = [poi.id]
         if data_hash.dig('license_classification').present?
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])

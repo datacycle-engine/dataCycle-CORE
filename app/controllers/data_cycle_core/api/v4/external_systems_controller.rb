@@ -4,10 +4,11 @@ module DataCycleCore
   module Api
     module V4
       class ExternalSystemsController < ApiBaseController
-        # def show
-        #   @content = DataCycleCore::Thing.find_by!(external_source_id: permitted_params[:external_source_id], external_key: permitted_params[:external_key])
-        #   redirect_to thing_path(@content)
-        # end
+        def show
+          @content = DataCycleCore::Thing.find_by!(external_source_id: permitted_params[:external_source_id], external_key: permitted_params[:external_key])
+
+          redirect_to api_v4_thing_path({ id: @content.id }.merge(params.except(:external_key, :external_source_id, :controller, :action).to_unsafe_hash))
+        end
 
         def permitted_params
           @permitted_params ||= params.permit(*permitted_parameter_keys)
