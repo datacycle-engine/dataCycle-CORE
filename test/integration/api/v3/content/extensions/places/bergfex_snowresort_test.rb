@@ -137,7 +137,7 @@ module DataCycleCore
                 data_hash = {
                   'overlay' => [{
                     'name' => 'overlay_name',
-                    'link_url' => 'LINK URL',
+                    'url' => 'LINK URL',
                     'image' => [overlay_image.id]
                   }]
                 }
@@ -154,7 +154,7 @@ module DataCycleCore
 
                 # content data
                 assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
-                assert_equal(data_hash.dig('overlay').first.dig('link_url'), json_data.dig('sameAs'))
+                assert_equal(data_hash.dig('overlay').first.dig('url'), json_data.dig('sameAs'))
                 assert_equal(overlay_image.id, json_data.dig('image').first.dig('identifier'))
               end
 

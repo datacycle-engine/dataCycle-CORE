@@ -143,10 +143,6 @@
         :api:
           :v4:
             :name: sameAs
-      :link_url:
-        :label: Link
-        :type: string
-        :storage_location: translated_value
       :image:
         :label: Bilder
         :type: linked
