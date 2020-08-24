@@ -53,17 +53,16 @@ module DataCycleCore
       assert_not @classification_group2.reload.destroyed?
     end
 
-    # activate test when classifications with mapped aliases get correctly deleted
-    # test 'destroy classification with mappings from another alias including aliases and groups' do
-    #   @classification_alias2.update(classification_ids: [@classification1.id, @classification2.id])
-    #   @classification_tree1.destroy
+    test 'destroy classification with mappings from another alias including aliases and groups' do
+      @classification_alias2.update(classification_ids: [@classification1.id, @classification2.id])
+      @classification_tree1.destroy
 
-    #   assert @classification1.reload.destroyed?
-    #   assert @classification_alias1.reload.destroyed?
-    #   assert @classification_group1.reload.destroyed?
-    #   assert_not @classification2.reload.destroyed?
-    #   assert_not @classification_alias2.reload.destroyed?
-    #   assert_not @classification_group2.reload.destroyed?
-    # end
+      assert @classification1.reload.destroyed?
+      assert @classification_alias1.reload.destroyed?
+      assert @classification_group1.reload.destroyed?
+      assert_not @classification2.reload.destroyed?
+      assert_not @classification_alias2.reload.destroyed?
+      assert_not @classification_group2.reload.destroyed?
+    end
   end
 end
