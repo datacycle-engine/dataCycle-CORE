@@ -52,7 +52,7 @@ module DataCycleCore
         end
 
         def self.delete(data, locale)
-          data.dig('Descriptions').blank? && locale != 'de'
+          data.dig('Descriptions').blank? && locale.to_s != I18n.default_locale.to_s
         end
       end
     end
