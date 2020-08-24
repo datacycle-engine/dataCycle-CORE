@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: EventOverlay
+    :name: EventserieOverlay
     :type: object
     :schema_type: Event
     :content_type: embedded
@@ -13,32 +13,6 @@
         :type: string
         :storage_location: column
         :search: true
-      :start_date:
-        :label: Startzeitpunkt
-        :storage_location: column
-        :type: computed
-        :compute:
-          :type: datetime
-          :module: Utility::Compute::Schedule
-          :method: start_date
-          :parameters:
-            :0: event_schedule
-        :ui:
-          :show:
-            :content_area: none
-      :end_date:
-        :label: Endzeitpunkt
-        :storage_location: column
-        :type: computed
-        :compute:
-          :type: datetime
-          :module: Utility::Compute::Schedule
-          :method: end_date
-          :parameters:
-            :0: event_schedule
-        :ui:
-          :show:
-            :content_area: none
       :description:
         :label: Teasertext
         :type: string
@@ -53,16 +27,6 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
-      :url:
-        :label: Inhalt URL
-        :type: string
-        :storage_location: translated_value
-        :validations:
-          :format: url
-        :api:
-          :name: sameAs
-        :xml:
-          :name: sameAs
       :content_location:
         :label: Veranstaltungsort
         :type: linked
@@ -102,24 +66,3 @@
             :type: radio_button
         :api:
           :disabled: true
-      :event_schedule:
-        :label: Termine
-        :type: schedule
-        :api:
-          :disabled: true
-          :v4:
-            :disabled: false
-      :schedule:
-        :label: Event-Schedule
-        :type: embedded
-        :template_name: EventSchedule
-        :translated: true
-        :api:
-          :name: eventSchedule
-          :v4:
-            :disabled: true
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
