@@ -23,6 +23,24 @@ CREATE SCHEMA public;
 COMMENT ON SCHEMA public IS 'standard public schema';
 
 
+--
+-- Name: update_watch_lists_full_path_names_and_name(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_watch_lists_full_path_names_and_name() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+      BEGIN
+        IF NEW.full_path <> OLD.full_path OR OLD.full_path IS NULL THEN
+          NEW.name = (string_to_array(NEW.full_path, '/'))[array_length(string_to_array(NEW.full_path, '/'), 1)];
+          NEW.full_path_names = (string_to_array(NEW.full_path, '/'))[1:array_length(string_to_array(NEW.full_path, '/'), 1) - 1];
+        END IF;
+
+        RETURN NEW;
+      END;
+      $$;
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -950,7 +968,9 @@ CREATE TABLE public.watch_lists (
     user_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    full_path character varying,
+    full_path_names character varying[]
 );
 
 
@@ -2090,6 +2110,13 @@ CREATE TRIGGER tsvectorsearchupdate BEFORE INSERT OR UPDATE ON public.searches F
 
 
 --
+-- Name: watch_lists watchlistfullpathnames; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER watchlistfullpathnames BEFORE INSERT OR UPDATE ON public.watch_lists FOR EACH ROW EXECUTE PROCEDURE public.update_watch_lists_full_path_names_and_name();
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -2269,6 +2296,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200728062727'),
 ('20200812110341'),
 ('20200812111137'),
-('20200824121824');
+('20200824121824'),
+('20200824140802');
 
 

@@ -37,11 +37,10 @@
     background: white;
     a {
       color: $black;
-      line-height: 1rem;
     }
     li {
       .watch-list-item {
-        padding: inherit;
+        padding: 0;
         .watchlist-name {
           width: 100%;
           display: block;
@@ -56,7 +55,7 @@
         a {
           color: $black;
           padding: 0;
-          line-height: initial;
+          line-height: 1.5rem;
           display: block;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -73,9 +72,56 @@
 }
 
 .watch-lists {
+  .accordion {
+    > .accordion-item {
+      padding: 0.2rem;
+      > .accordion-title,
+      > .accordion-content {
+        font-size: 0.9rem;
+        border: none;
+        padding: 0 0 0 1rem;
+        line-height: 1.5rem;
+      }
+      > .accordion-title {
+        padding-left: 1.2rem;
+        &:hover,
+        &:focus {
+          background-color: transparent;
+        }
+        &::before {
+          left: 0;
+          font-family: 'FontAwesome';
+          content: '\f07b';
+          display: block;
+          text-align: left;
+          right: auto;
+          margin: 0;
+          top: 0;
+        }
+      }
+
+      &.is-active {
+        > .accordion-title {
+          &::before {
+            content: '\f07c';
+          }
+        }
+      }
+    }
+  }
+
   > ul {
     margin: 0;
     list-style: none;
+    text-align: left;
+
+    .collection-group {
+      > .collection-group,
+      > li {
+        padding-left: 1rem;
+      }
+    }
+
     > li {
       display: none;
       &.visible {

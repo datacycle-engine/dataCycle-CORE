@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class WatchList < ApplicationRecord
-    validates :name, presence: true
+    validates :full_path, presence: true
 
     scope :by_user, ->(user) { where user: user }
 
@@ -18,6 +18,8 @@ module DataCycleCore
     has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
 
     has_many :activities, as: :activitiable, dependent: :destroy
+
+    after_save -> { reload }, if: :saved_change_to_full_path?
 
     def valid_write_links?
       valid_write_links.present?

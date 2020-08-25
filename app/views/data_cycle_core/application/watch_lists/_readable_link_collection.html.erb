@@ -1,1 +1,20 @@
-<%= render partial: 'data_cycle_core/application/watch_lists/readable_link', collection: DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :watch_list_shares, :user).order(updated_at: :desc), as: :watch_list, locals: local_assigns %>
+<% collection_group_index ||= 0 %>
+<% if local_assigns[:collection_group].present? %>
+  <% group_title = collection_group[0] %>
+  <% collection_groups = collection_group[1].group_by { |c| c.full_path_names[collection_group_index] } %>
+<% else %>
+  <% collection_groups = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :watch_list_shares, :user).order(updated_at: :desc).group_by { |c| c.full_path_names[collection_group_index] } %>
+<% end %>
+
+<%= conditional_tag(:div, local_assigns[:collection_group].present?, class: 'collection-group accordion-item is-active', data: { accordion_item: true }) do %>
+  <%= link_to group_title, '#', class: 'accordion-title' if group_title.present? %>
+  <%= conditional_tag :div, local_assigns[:collection_group].present?, class: 'accordion-content', data: { tab_content: true } do %>
+    <% if collection_groups.except(nil).present? %>
+      <div class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+        <%= render partial: 'data_cycle_core/application/watch_lists/readable_link_collection', collection: collection_groups.except(nil), as: :collection_group, locals: local_assigns.merge(collection_group_index: collection_group_index + 1) %>
+      </div>
+    <% end %>
+
+    <%= render partial: 'data_cycle_core/application/watch_lists/readable_link', collection: collection_groups[nil], as: :watch_list, locals: local_assigns %>
+  <% end %>
+<% end %>

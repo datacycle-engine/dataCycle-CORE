@@ -651,8 +651,8 @@ de:
               blank: 'Datei darf nicht leer sein'
         data_cycle_core/watch_list:
           attributes:
-            name:
-              blank: 'Name: Darf nicht leer sein.'
+            full_path:
+              blank: 'darf nicht leer sein.'
         data_cycle_core/user:
           attributes:
             password:
@@ -729,6 +729,7 @@ de:
     attributes:
       data_cycle_core/watch_list:
         name: Name
+        full_path: Name (inklusive Ordnerpfad)
         user_group_ids: Benutzergruppen
         user_ids: Benutzer
         user_id: Eigentümer
