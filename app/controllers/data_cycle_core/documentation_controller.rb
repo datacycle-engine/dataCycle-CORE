@@ -5,6 +5,15 @@ module DataCycleCore
     include DataCycleCore::ErrorHandler
     rescue_from ActionController::UnknownFormat, with: :not_acceptable
 
+    HTML_OPTIONS = {
+      with_toc_data: true
+    }.freeze
+
+    MARKDOWN_OPTIONS = {
+      no_intra_emphasis: true,
+      fenced_code_blocks: true
+    }.freeze
+
     def show
       @markdown = render_markdown
     end
@@ -34,9 +43,7 @@ module DataCycleCore
         File.file?(p)
       end
 
-      markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML,
-                                         no_intra_emphasis: true,
-                                         fenced_code_blocks: true)
+      markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(HTML_OPTIONS), MARKDOWN_OPTIONS)
 
       markdown.render(File.read(markdown_path)) if markdown_path
     end
