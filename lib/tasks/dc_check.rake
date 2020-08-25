@@ -54,5 +54,24 @@ namespace :dc do
       puts "[done] ... no invalid data found\r"
       puts "\n"
     end
+
+    desc 'check for unused templates'
+    task unused_templates: :environment do
+      puts "######## Check for unused templates\r"
+      warnings = false
+      DataCycleCore::Thing.where(template: true).each do |template|
+        count = DataCycleCore::Thing.where(template: false, template_name: template.template_name).count
+        next if count.positive?
+        warnings = true
+        puts "#{('# ' + template.template_name).ljust(41)} | #{template.content_type}| #{count} | #{template.template_updated_at} \r"
+      end
+      if warnings
+        puts "\n[warning] ... unused data_definitions found"
+        puts "\n"
+        exit(-1)
+      end
+      puts "[done] ... no unused data_definitions found\r"
+      puts "\n"
+    end
   end
 end

@@ -4,7 +4,7 @@ module DataCycleCore
   module Feature
     class Geocode < Base
       class << self
-        def address_source(content)
+        def address_source(content = nil)
           attribute_keys(content).first
         end
 

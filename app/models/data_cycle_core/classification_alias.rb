@@ -27,6 +27,7 @@ module DataCycleCore
     default_scope { i18n }
     before_save :set_internal_data
     after_destroy :clean_stored_filters
+    before_destroy -> { primary_classification&.destroy }, prepend: true
 
     attr_accessor :content_template
 
