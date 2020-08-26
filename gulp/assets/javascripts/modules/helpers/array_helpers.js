@@ -10,10 +10,7 @@ Array.prototype.intersect = function (a) {
 };
 
 Array.prototype.equal_to = function (a) {
-  return (
-    this.length === a.length &&
-    this.filter((e, i) => a[i].name === e.name && a[i].value === e.value).length === this.length
-  );
+  return this.length === a.length && this.filter((e, i) => a[i].name !== e.name || a[i].value !== e.value).length === 0;
 };
 Array.prototype.mergeUnique = function (toMerge) {
   if (!toMerge || !toMerge.length) return this;
