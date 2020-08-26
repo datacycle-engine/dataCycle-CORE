@@ -43,11 +43,11 @@ module DataCycleCore
 
                 next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
-                serialized_content = serializer.serialize(content, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
+                serialized_content, response_mime_type = serializer.serialize(content, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
 
                 next unless serialized_content
 
-                mime_type = serializer.mime_type(serialized_content, content)
+                mime_type = serializer.mime_type(serialized_content, content).presence || response_mime_type
                 file_extension = serializer.file_extension(mime_type)
 
                 next unless file_extension
@@ -88,12 +88,12 @@ module DataCycleCore
               serializer = ('DataCycleCore::Serialize::' + serialize_format.first.to_s.classify + 'Serializer').constantize
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
-              serialized_content = serializer.try(serialize_method, content, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
+              serialized_content, response_mime_type = serializer.try(serialize_method, content, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content
 
               next unless serialized_content
 
-              mime_type = serializer.mime_type(serialized_content, content)
+              mime_type = serializer.mime_type(serialized_content, content).presence || response_mime_type
               file_extension = serializer.file_extension(mime_type)
 
               next unless file_extension
@@ -110,10 +110,10 @@ module DataCycleCore
             assets.each do |asset|
               serializer = serializer_for_content(asset, 'asset')
               next unless serializer
-              serialized_content = serializer.serialize(asset, nil, version.is_a?(Hash) ? (version.dig(asset.id) || 'original') : version)
+              serialized_content, response_mime_type = serializer.serialize(asset, nil, version.is_a?(Hash) ? (version.dig(asset.id) || 'original') : version)
               next unless serialized_content
 
-              mime_type = serializer.mime_type(serialized_content, asset)
+              mime_type = serializer.mime_type(serialized_content, asset).presence || response_mime_type
               file_extension = serializer.file_extension(mime_type)
 
               next unless file_extension
@@ -138,10 +138,10 @@ module DataCycleCore
 
     def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize, transformation: nil)
       language = languages&.first&.to_sym || I18n.locale
-      serialized_content = serializer.try(serialize_method, content, language, version, transformation)
+      serialized_content, response_mime_type = serializer.try(serialize_method, content, language, version, transformation)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content
 
-      mime_type = serializer.mime_type(serialized_content, content)
+      mime_type = serializer.mime_type(serialized_content, content).presence || response_mime_type
       file_extension = serializer.file_extension(mime_type)
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless file_extension
