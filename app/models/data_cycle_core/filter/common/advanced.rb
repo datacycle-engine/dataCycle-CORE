@@ -4,7 +4,7 @@ module DataCycleCore
   module Filter
     module Common
       module Advanced
-        COMPARISION_OPERATORS = {
+        COMPARISON_OPERATORS = {
           greater: '>',
           lower: '<',
           equal: '=',
@@ -93,29 +93,29 @@ module DataCycleCore
 
         private
 
-        def advanced_numeric(value = nil, attribute_path = nil, comparision = nil)
-          return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparision.present?
+        def advanced_numeric(value = nil, attribute_path = nil, comparison = nil)
+          return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
           num_range = "[#{value&.dig('min').presence&.to_f},#{value&.dig('max').presence&.to_f}]"
 
-          case comparision
+          case comparison
           when :equal
-            query_string = Thing.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal)', attribute_path, num_range])
+            query_string = Thing.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(searches.advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal)', attribute_path, num_range])
           when :not_equal
-            query_string = Thing.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal))', attribute_path, num_range])
+            query_string = Thing.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements(searches.advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal))', attribute_path, num_range])
           else
             return self
           end
 
           reflect(
-            @query.where(attribute_path_not_null(attribute_path)).where(query_string)
+            @query.where(search_exists(advanced_query_string(query_string, attribute_path)))
           )
         end
 
-        def advanced_date(value = nil, attribute_path = nil, comparision = nil)
-          return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparision.present?
+        def advanced_date(value = nil, attribute_path = nil, comparison = nil)
+          return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
           date_range = "[#{value&.dig('from')&.to_s},#{value&.dig('until')&.to_s}]"
 
-          case comparision
+          case comparison
           when :equal
             query_string = Thing.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::daterange @> (pil)::text::date)', attribute_path, date_range])
           when :not_equal
@@ -125,35 +125,35 @@ module DataCycleCore
           end
 
           reflect(
-            @query.where(attribute_path_not_null(attribute_path)).where(query_string)
+            @query.where(search_exists(advanced_query_string(query_string, attribute_path)))
           )
         end
 
-        def advanced_time(value = nil, attribute_path = nil, comparision = nil)
-          return self unless value.present? && attribute_path.present? && comparision.present?
-          comparision_operator = COMPARISION_OPERATORS.dig(comparision)
-          query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::text::time #{comparision_operator} ?::time)", attribute_path, value])
+        def advanced_time(value = nil, attribute_path = nil, comparison = nil)
+          return self unless value.present? && attribute_path.present? && comparison.present?
+          comparison_operator = COMPARISON_OPERATORS.dig(comparison)
+          query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::text::time #{comparison_operator} ?::time)", attribute_path, value])
 
           reflect(
             @query.where(attribute_path_not_null(attribute_path)).where(query_string)
           )
         end
 
-        def advanced_boolean(value = nil, attribute_path = nil, comparision = nil)
-          return self unless (value.present? || value.to_s == 'false') && attribute_path.present? && comparision.present?
+        def advanced_boolean(value = nil, attribute_path = nil, comparison = nil)
+          return self unless (value.present? || value.to_s == 'false') && attribute_path.present? && comparison.present?
 
-          comparision_operator = COMPARISION_OPERATORS.dig(comparision)
-          query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::boolean #{comparision_operator} ?)", attribute_path, value])
+          comparison_operator = COMPARISON_OPERATORS.dig(comparison)
+          query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::boolean #{comparison_operator} ?)", attribute_path, value])
 
           reflect(
-            @query.where(attribute_path_not_null(attribute_path)).where(query_string)
+            @query.where(search_exists(advanced_query_string(query_string, attribute_path)))
           )
         end
 
-        def advanced_string(value = nil, attribute_path = nil, comparision = nil)
-          return self unless value.present? && attribute_path.present? && comparision.present?
+        def advanced_string(value = nil, attribute_path = nil, comparison = nil)
+          return self unless value.present? && attribute_path.present? && comparison.present?
 
-          case comparision
+          case comparison
           when :equal
             query_string = Thing.send(:sanitize_sql_for_conditions, ['(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: value])
           when :not_equal
@@ -165,8 +165,12 @@ module DataCycleCore
           end
 
           reflect(
-            @query.where(attribute_path_not_null(attribute_path)).where(query_string)
+            @query.where(search_exists(advanced_query_string(query_string, attribute_path)))
           )
+        end
+
+        def advanced_query_string(query_string, attribute_path)
+          Arel.sql(attribute_path_not_null(attribute_path) + ' AND ' + query_string)
         end
 
         def attribute_path_not_null(path)

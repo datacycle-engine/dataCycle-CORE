@@ -37,20 +37,22 @@ module DataCycleCore
           t = filter['t']
         end
 
-        next unless query.respond_to?(t)
-
-        # TODO: move to production with more options (not etc...)
         t = "#{t}_with_subtree" if (filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids') && !language.include?('all')
+
+        next unless query.respond_to?(t)
 
         if query.method(t)&.parameters&.size == 3
           query = query.send(t, filter['v'], filter['q'].presence, filter['n'].presence)
         elsif query.method(t)&.parameters&.size == 2
           query = query.send(t, filter['v'], filter['q'].presence || filter['n'].presence)
-        elsif t == 'order'
-          query = query.send(t, Arel.sql(filter['v']))
         else
           query = query.send(t, filter['v'])
         end
+      end
+
+      sort_parameters.presence&.sort_by { |s| s.dig('sorting')&.to_i }&.each do |sort|
+        next unless query.respond_to?('sort_' + sort['method'])
+        query = query.send('sort_' + sort['method'], sort['table'], sort['value'])
       end
 
       query

@@ -14,19 +14,27 @@ module DataCycleCore
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
 
-      @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }.present?)
+      # TODO: find obsolete order parameters
+      # only used for ordering
+      # @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }.present?)
+      # if @stored_filter.parameters.none? { |f| f['t'] == 'order' }
+      #   @stored_filter.parameters.push(
+      #     {
+      #       't' => 'order',
+      #       'v' => @order_string
+      #     }
+      #   )
+      # end
 
-      if @stored_filter.parameters.none? { |f| f['t'] == 'order' }
-        @stored_filter.parameters.push(
-          {
-            't' => 'order',
-            'v' => @order_string
-          }
-        )
-      end
+      # @order_string is required for view mode
+
+      sort_params = DataCycleCore::Filter::Search.sort_params_from_filter(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }.present?)
+      @stored_filter.sort_parameters = sort_params
 
       @stored_filter.parameters = current_user.default_filter(@stored_filter.parameters, user_filter) if user_filter.present?
       query = @stored_filter.apply(query: query)
+
+      # used on dashboard
       @filters = @stored_filter.parameters
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }
@@ -41,6 +49,10 @@ module DataCycleCore
             .uniq
         )
         .index_by(&:id)
+      # ap '###########################################################################################'
+      # ap query.to_sql
+      # ap '###########################################################################################'
+      # binding.pry
 
       query
     end

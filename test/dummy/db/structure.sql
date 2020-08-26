@@ -480,13 +480,6 @@ CREATE TABLE public.things (
     elevation double precision,
     location public.geometry(Point,4326),
     line public.geography(LineStringZ,4326),
-    address_locality character varying,
-    street_address character varying,
-    postal_code character varying,
-    address_country character varying,
-    fax_number character varying,
-    telephone character varying,
-    email character varying,
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
@@ -758,7 +751,8 @@ CREATE TABLE public.stored_filters (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     api_users text[],
-    linked_stored_filter_id uuid
+    linked_stored_filter_id uuid,
+    sort_parameters jsonb
 )
 WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
@@ -807,13 +801,6 @@ CREATE TABLE public.thing_histories (
     elevation double precision,
     location public.geometry(Point,4326),
     line public.geography(LineStringZ,4326),
-    address_locality character varying,
-    street_address character varying,
-    postal_code character varying,
-    address_country character varying,
-    fax_number character varying,
-    telephone character varying,
-    email character varying,
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
@@ -917,11 +904,11 @@ CREATE TABLE public.users (
     uid character varying,
     jti character varying,
     creator_id uuid,
-    additional_attributes jsonb,
     confirmation_token character varying,
     confirmed_at timestamp without time zone,
     confirmation_sent_at timestamp without time zone,
-    unconfirmed_email character varying
+    unconfirmed_email character varying,
+    additional_attributes jsonb
 );
 
 
@@ -1845,6 +1832,13 @@ CREATE INDEX index_thing_translations_on_thing_id ON public.thing_translations U
 
 
 --
+-- Name: index_thing_translations_on_thing_id_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_translations_on_thing_id_name ON public.thing_translations USING btree (thing_id, locale, name);
+
+
+--
 -- Name: index_things_on_boost_updated_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2264,11 +2258,13 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200525104244'),
 ('20200529140637'),
 ('20200602070145'),
+('20200714062906'),
 ('20200721111525'),
 ('20200724094112'),
 ('20200728062727'),
 ('20200812110341'),
 ('20200812111137'),
-('20200824121824');
+('20200824121824'),
+('20200826082051');
 
 

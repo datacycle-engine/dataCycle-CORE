@@ -8,20 +8,24 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Date
       include DataCycleCore::Filter::Common::External
       include DataCycleCore::Filter::Common::Geo
+      include DataCycleCore::Filter::Sort
 
       def initialize(locale = ['de'], query = nil, joined_search = false, joined_schedule = false)
         @locale = locale
         @joined_search = joined_search
         @joined_schedule = joined_schedule
-        if locale.nil?
-          @query = query || DataCycleCore::Thing
-        else
-          @query = query || DataCycleCore::Thing
-            .joins(:searches)
-            .where(searches: { locale: @locale })
-          # temporary disabled disabled (api sort name)
-          # .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
-        end
+
+        @query = query || DataCycleCore::Thing
+
+        # if locale.nil?
+        #   @query = query || DataCycleCore::Thing
+        # else
+        #   @query = query || DataCycleCore::Thing
+        #   .joins(:searches)
+        #   .where(searches: { locale: @locale })
+        # temporary disabled disabled (api sort name)
+        # .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
+        # end
       end
 
       def content_includes
@@ -155,6 +159,9 @@ module DataCycleCore
       end
 
       def distinct_by_content_id(order_string = nil)
+        # TODO: consider languages
+        return self
+
         return self unless (@joined_search && @locale.blank?) || @locale&.many? || @joined_schedule
 
         reflect(
@@ -164,7 +171,7 @@ module DataCycleCore
                 id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
               })
               .order(order_string.present? ? Arel.sql(order_string) : order_string)
-          # .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
+            # .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
           elsif @joined_schedule
             DataCycleCore::Thing
               .where(things: {
@@ -243,6 +250,55 @@ module DataCycleCore
             search: (search || '').squish
           ]
         )
+      end
+
+      def self.sort_params_from_filter(search, events = false)
+        if search.blank? && events == false
+          return [
+            {
+              "method": 'boost',
+              "table": 'things',
+              "value": 'DESC',
+              "sorting": 0
+            },
+            {
+              "method": 'updated_at',
+              "table": 'things',
+              "value": 'DESC',
+              "sorting": 1
+            }
+          ]
+        end
+        if events == true
+          return [
+            {
+              "method": 'end_date',
+              "table": 'things',
+              "value": 'ASC',
+              "sorting": 0
+            },
+            {
+              "method": 'start_date',
+              "table": 'things',
+              "value": 'DESC NULLS LAST',
+              "sorting": 1
+            },
+            {
+              "method": 'updated_at',
+              "table": 'things',
+              "value": 'DESC',
+              "sorting": 2
+            }
+          ]
+        end
+        [
+          {
+            "method": 'fulltext_search',
+            "table": 'searches',
+            "value": 'DESC',
+            "sorting": 0
+          }
+        ]
       end
     end
   end

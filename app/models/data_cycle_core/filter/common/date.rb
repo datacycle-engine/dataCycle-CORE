@@ -131,20 +131,6 @@ module DataCycleCore
           )
         end
 
-        def event_end_time(time)
-          time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
-          reflect(
-            @query.where(thing[:start_date].lteq(Arel::Nodes.build_quoted(time.iso8601)))
-          )
-        end
-
-        def event_from_time(time)
-          time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
-          reflect(
-            @query.where(thing[:end_date].gteq(Arel::Nodes.build_quoted(time.iso8601)))
-          )
-        end
-
         def sort_by_proximity(date = Time.zone.now)
           reflect(
             @query.reorder(
@@ -152,6 +138,22 @@ module DataCycleCore
               absolute_date_diff(thing[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
               thing[:start_date]
             )
+          )
+        end
+
+        # TODO: remove legacy method (API's)
+        def event_end_time(time)
+          time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
+          reflect(
+            @query.where(thing[:start_date].lteq(Arel::Nodes.build_quoted(time.iso8601)))
+          )
+        end
+
+        # TODO: remove legacy method (API's)
+        def event_from_time(time)
+          time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
+          reflect(
+            @query.where(thing[:end_date].gteq(Arel::Nodes.build_quoted(time.iso8601)))
           )
         end
 
