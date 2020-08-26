@@ -29,7 +29,7 @@ module DataCycleCore
           if remote?(content)
             conn = Faraday.new
             response = conn.get content.content_url
-            return response.body if response.status == 200
+            return response.body, response.headers&.dig('content-type') if response.status == 200
           else
             return content.asset.try(version, recreate: true)&.dynamic_version(name: version, options: transformation, process: true) if version.present? && transformation.present? && (content.asset&.versions&.key?(version.to_sym) || version == 'original')
             return content.asset.try(version, recreate: true) if version.present? && content.asset&.versions&.key?(version.to_sym)

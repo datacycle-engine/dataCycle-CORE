@@ -56,14 +56,22 @@ module DataCycleCore
                   xml.Details
                   xml.Descriptions
                   xml.Facilities
+                  xml.Availabilities
                   xml.Products do
                     xml.Details
                     xml.Descriptions
-                    xml.PriceDetails
+                    xml.Links
+                    xml.Availabilities
+                    xml.Gaps
+                    # not working properties
+                    # xml.PriceDetails
+                    # xml.ArrivalDepartureTemplates
+                    # xml.SalesRuleTemplates
                   end
                 end
                 xml.AdditionalServices do
                   xml.Details
+                  xml.Descriptions
                   xml.Links
                   xml.Facilities
                   xml.AdditionalProducts do

@@ -266,7 +266,7 @@ Um Inhalte im Umkreis von 50 km um den Großglockner abzufragen, kann beispielsw
   "filter": {
     "geo": {
       "in": {
-        "perimeter": [12.69390,47.07453,50000] // Längengrad, Breitengrad, Radius
+        "perimeter": [12.69390,47.07453,50000] // Längengrad, Breitengrad, Radius (in m)
       }
     }
   }
@@ -274,7 +274,7 @@ Um Inhalte im Umkreis von 50 km um den Großglockner abzufragen, kann beispielsw
 ```
 
 
-#### Geo-Shapes - **filter\[geo\]\[in\]\[perimeter\]**
+#### Geo-Shapes - **filter\[geo\]\[in\]\[shapes\]**
 
 Neben einer Filterung auf Basis einer Bounding-Box bzw. eines Umkreises bietet dataCycle auch die Möglichkeit, beliebige andere Geo-Shapes für eine Einschränkung der ausgelieferten Inhalte zu verwenden. Diese Geo-Shapes sind innerhalb von dataCycle als spezielle Klassifizierungen abgebildet, die z.B. Regions-, Gemeinde- oder Bezirksgrenzen enthalten können. Bei der Verwendung dieses Filters müssen dementsprechend auch die jeweiligen IDs der Klassifizierungen, bei denen die gewünschten Geo-Shapes hinterlegt sind, übergeben werden. Eine Abfrage für alle Orte innerhalb der Landeshauptstädte von Österreich könnte z.B. folgendermaßen realisiert werden:
 
@@ -300,6 +300,30 @@ Neben einer Filterung auf Basis einer Bounding-Box bzw. eines Umkreises bietet d
   }
 }
 ```
+
+
+### Graphbasierte Filterung - **filter\[linked\]\[RELATION\]\[...\]**
+
+Bei der Filterung von Inhalten auf Basis von Klassifizierungen, Attributen oder der geografischen Lage erfolgt die Filterung immer auf Basis von Eigenschaften des jeweiligen Inhalts. In einigen Fällen ist es aber notwendig, Inhalte auf Basis von anderen, verknüpften Inhalten einzuschränken. Ein konkreter Anwendungsfall dafür wäre etwa die Filterung von Veranstaltungen auf Basis der geografischen Lage des Veranstaltungsortes. Die Veranstaltung ist dabei über die Relation **location** mit dem Veranstaltungsort verknüpft. Um beispielsweise Veranstaltungen rund um Schloss Rotenturm zu filtern, kann der folgende Filter verwendet werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "linked": {
+      "location": { // Name der Relation
+        "geo": {
+          "in": {
+            "perimeter": [16.2448,47.2509,3000] // Längengrad, Breitengrad, Radius (in m)
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Der Filter besteht dabei aus einem äußeren und einem inneren Teil. Im inneren Teil können alle Filter verwendet werden, die sich direkt auf einen Inhalt beziehen, es können also alle geobasierten, attributbasierten und klassifizierungsbasierten Filter verwendet werden. Auch eine Kombination von verschiedenen Filtern ist möglich. Im äußeren Teil wird festgelegt, wie die Inhalte aus dem inneren Filter mit den eigentlich abgefragten Inhalten verknüpft sein müssen. Die Art der Verknüpfung wird dabei über den Namen der Relation festgelegt, also z.B. *filter\[linked\]\[__location__\]\[...\]*.
 
 
 ## Sortieren von Inhalten
