@@ -23,7 +23,7 @@
           :required: true
         :ui:
           :show:
-            :disabled: true
+            :content_area: none
         :api:
           :minimal: true
       :description:

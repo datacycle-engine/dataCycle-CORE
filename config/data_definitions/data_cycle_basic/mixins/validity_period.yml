@@ -15,7 +15,7 @@
           :edit:
             :type: daterange
           :show:
-            :disabled: true
+            :content_area: none
         :api:
           :disabled: true
         :properties:
