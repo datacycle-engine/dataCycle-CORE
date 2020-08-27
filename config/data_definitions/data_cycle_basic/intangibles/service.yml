@@ -21,7 +21,7 @@
           :minimal: true
         :ui:
           :show:
-            :disabled: true
+            :content_area: none
       :description:
         :label: Beschreibung
         :type: string
@@ -80,8 +80,7 @@
         :label: Dienstleister
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - LocalBusiness

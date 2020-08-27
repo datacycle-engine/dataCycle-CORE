@@ -83,7 +83,7 @@ module DataCycleCore
         content_content_a.exists?
       end
 
-      def related_contents
+      def related_contents(embedded: false)
         content_content_table = history? ? 'content_content_histories' : 'content_contents'
         content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
         content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
@@ -103,7 +103,9 @@ module DataCycleCore
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{tree_query})").where.not(content_type: 'embedded')
+        query = self.class.where("#{self.class.table_name}.id IN (#{tree_query})") # .where.not(content_type: 'embedded')
+        query = query.where.not(content_type: 'embedded') unless embedded
+        query
       end
 
       def linked_contents
