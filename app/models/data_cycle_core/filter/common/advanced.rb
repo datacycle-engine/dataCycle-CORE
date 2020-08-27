@@ -106,9 +106,7 @@ module DataCycleCore
             return self
           end
 
-          reflect(
-            @query.where(search_exists(advanced_query_string(query_string, attribute_path)))
-          )
+          advanced_query(query_string, attribute_path)
         end
 
         def advanced_date(value = nil, attribute_path = nil, comparison = nil)
@@ -124,9 +122,7 @@ module DataCycleCore
             return self
           end
 
-          reflect(
-            @query.where(search_exists(advanced_query_string(query_string, attribute_path)))
-          )
+          advanced_query(query_string, attribute_path)
         end
 
         def advanced_time(value = nil, attribute_path = nil, comparison = nil)
@@ -134,9 +130,7 @@ module DataCycleCore
           comparison_operator = COMPARISON_OPERATORS.dig(comparison)
           query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::text::time #{comparison_operator} ?::time)", attribute_path, value])
 
-          reflect(
-            @query.where(attribute_path_not_null(attribute_path)).where(query_string)
-          )
+          advanced_query(query_string, attribute_path)
         end
 
         def advanced_boolean(value = nil, attribute_path = nil, comparison = nil)
@@ -145,9 +139,7 @@ module DataCycleCore
           comparison_operator = COMPARISON_OPERATORS.dig(comparison)
           query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::boolean #{comparison_operator} ?)", attribute_path, value])
 
-          reflect(
-            @query.where(search_exists(advanced_query_string(query_string, attribute_path)))
-          )
+          advanced_query(query_string, attribute_path)
         end
 
         def advanced_string(value = nil, attribute_path = nil, comparison = nil)
@@ -164,6 +156,13 @@ module DataCycleCore
             return self
           end
 
+          advanced_query(query_string, attribute_path)
+        end
+
+        private
+
+        def advanced_query(query_string, attribute_path)
+          return self if query_string.blank?
           reflect(
             @query.where(search_exists(advanced_query_string(query_string, attribute_path)))
           )

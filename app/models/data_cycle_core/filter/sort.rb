@@ -3,6 +3,16 @@
 module DataCycleCore
   module Filter
     module Sort
+      def sort_by_proximity(date = Time.zone.now)
+        reflect(
+          @query.reorder(
+            absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
+            absolute_date_diff(thing[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
+            thing[:start_date]
+          )
+        )
+      end
+
       def sort_boost(table, value)
         return self if table.blank? || value.blank?
         reflect(

@@ -131,16 +131,6 @@ module DataCycleCore
           )
         end
 
-        def sort_by_proximity(date = Time.zone.now)
-          reflect(
-            @query.reorder(
-              absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
-              absolute_date_diff(thing[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
-              thing[:start_date]
-            )
-          )
-        end
-
         # TODO: remove legacy method (API's)
         def event_end_time(time)
           time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)

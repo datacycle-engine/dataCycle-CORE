@@ -105,12 +105,12 @@ module DataCycleCore
         filtered_id = :content_b_id
 
         subquery = Arel::SelectManager.new
-          .from(content_content)
-          .where(
-            content_content[thing_id].eq(thing[:id])
-              .and(content_content[relation].eq(name))
-              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
-          )
+                     .from(content_content)
+                     .where(
+                       content_content[thing_id].eq(thing[:id])
+                         .and(content_content[relation].eq(name))
+                         .and(content_content[filtered_id].in(Arel.sql(filter_query)))
+                     )
 
         reflect(
           @query.where(subquery.exists)
@@ -127,11 +127,11 @@ module DataCycleCore
 
         filter_query = filter.apply.select(:id).except(:order).to_sql
         subquery = Arel::SelectManager.new
-          .from(content_content)
-          .where(
-            content_content[thing_id].eq(thing[:id])
-              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
-          )
+                     .from(content_content)
+                     .where(
+                       content_content[thing_id].eq(thing[:id])
+                         .and(content_content[filtered_id].in(Arel.sql(filter_query)))
+                     )
 
         reflect(
           @query.where(subquery.exists)
@@ -158,35 +158,9 @@ module DataCycleCore
         )
       end
 
+      # TODO: remove after refactoring
       def distinct_by_content_id(order_string = nil)
-        # TODO: consider languages
         return self
-
-        return self unless (@joined_search && @locale.blank?) || @locale&.many? || @joined_schedule
-
-        reflect(
-          if (@joined_search && @locale.blank?) || @locale&.many?
-            DataCycleCore::Thing.joins(:searches)
-              .where(searches: {
-                id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
-              })
-              .order(order_string.present? ? Arel.sql(order_string) : order_string)
-            # .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
-          elsif @joined_schedule
-            DataCycleCore::Thing
-              .where(things: {
-                id: @query.select('DISTINCT ON (things.id) things.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
-              })
-              .order(order_string.present? ? Arel.sql(order_string) : order_string)
-            # elsif @joined_schedule
-            #   DataCycleCore::Thing.joins(:searches)
-            #     .where(searches: {
-            #       id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
-            #     })
-            #     .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
-            #     .order(order_string.present? ? Arel.sql(order_string) : order_string)
-          end
-        )
       end
 
       def count_distinct
@@ -221,10 +195,11 @@ module DataCycleCore
 
         reflect(
           @query
-            .joins(:searches)
             .where(
-              search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
-                .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish))))
+              search_exists(
+                search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
+                  .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish))))
+              )
             )
         )
       end
