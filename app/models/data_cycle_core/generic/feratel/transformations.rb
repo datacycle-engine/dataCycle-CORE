@@ -278,33 +278,35 @@ module DataCycleCore
         def self.feratel_event_location_to_place
           t(:stringify_keys)
           .>> t(:rename_keys, { 'Id' => 'external_key' })
-          .>> t(:add_field, 'name',
-                lambda do |s|
-                  s.dig('Company', 'text') ||
-                  [s.dig('FirstName', 'text'), s.dig('LastName', 'text')].flatten.reject(&:blank?).presence&.join(' ') ||
-                  s.dig('location_name')
-                end)
-          .>> t(:add_field, 'description',
-                lambda do |s|
-                  return nil if s.dig('Company', 'text').blank?
-
-                  [s.dig('Title', 'text'), s.dig('FirstName', 'text'), s.dig('LastName', 'text')].flatten.reject(&:blank?).presence&.join(' ')
-                end)
           .>> t(:add_field, 'street_address', ->(s) { s.dig('AddressLine1', 'text') })
           .>> t(:add_field, 'postal_code', ->(s) { s.dig('ZipCode', 'text') })
           .>> t(:add_field, 'address_locality', ->(s) { s.dig('Town', 'text') })
           .>> t(:add_field, 'address_country', ->(s) { s.dig('Country', 'text') })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
-          .>> t(:rename_keys, 'Latitude' => 'latitude', 'Longitude' => 'longitude')
-          .>> t(:map_value, 'latitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
-          .>> t(:map_value, 'longitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
+          .>> t(:add_field, 'latitude', ->(s) { s.dig('Position', 'Latitude')&.to_f&.then { |v| v.zero? ? nil : v } })
+          .>> t(:add_field, 'longitude', ->(s) { s.dig('Position', 'Longitude')&.to_f&.then { |v| v.zero? ? nil : v } })
           .>> t(:location)
+          .>> t(:add_field, 'name',
+                lambda do |s|
+                  [
+                    s.dig('Company', 'text'),
+                    [s.dig('FirstName', 'text'), s.dig('LastName', 'text')].flatten.reject(&:blank?).presence&.join(' ')
+                  ].reject(&:blank?).join(' - ')
+                end)
           .>> t(:add_field, 'email', ->(s) { s.dig('Email', 'text') })
           .>> t(:add_field, 'url', ->(s) { s.dig('URL', 'text') })
           .>> t(:add_field, 'telephone', ->(s) { s.dig('Mobile', 'text') || s.dig('Phone', 'text') })
           .>> t(:add_field, 'fax_number', ->(s) { s.dig('Fax', 'text') })
-          .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
-          .>> t(:reject_keys, ['Type', 'ChangeDate', 'Company', 'AddressLine1', 'Country', 'ZipCode', 'Town'])
+          .>> t(:nest, 'contact_info', ['name', 'email', 'fax_number', 'telephone', 'url'])
+          .>> t(:add_field, 'name',
+                lambda do |s|
+                  [
+                    s.dig('Location', 'Translation', 'text'),
+                    s.dig('Company', 'text'),
+                    [s.dig('FirstName', 'text'), s.dig('LastName', 'text')].flatten.reject(&:blank?).presence&.join(' ')
+                  ].reject(&:blank?).first
+                end)
+          .>> t(:reject_keys, ['Type', 'ChangeDate', 'Company', 'AddressLine1', 'Country', 'ZipCode', 'Town', 'Location', 'Position'])
           .>> t(:strip_all)
         end
 
@@ -320,7 +322,7 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['EventHeader']))
           .>> t(:add_field, 'feratel_locations', ->(s) { s.dig('Addresses', 'Address').is_a?(Hash) ? [s.dig('Addresses', 'Address')] : s.dig('Addresses', 'Address') })
-          .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('feratel_locations')&.detect { |item| item.dig('Type') == 'Venue' }&.dig('Id') || "Location:#{s.dig('external_key')}" })
+          .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "Location:#{s.dig('external_key')}" })
           .>> t(:add_field, 'feratel_super_events', ->(s) { s.dig('SerialEvents', 'SerialEvent').is_a?(Hash) ? [s.dig('SerialEvents', 'SerialEvent')] : s.dig('SerialEvents', 'SerialEvent') })
           .>> t(:add_links, 'super_event', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('feratel_super_events')&.map { |e| e&.dig('Id') } })
           .>> t(:add_field, 'schedule', ->(s) { load_event_schedules(s) }) # deprecated as_of(16.3.2020)
