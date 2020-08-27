@@ -1,4 +1,4 @@
-<li id="content-<%= content&.id %>-watch-list-<%= watch_list&.id %>" data-name="<%= watch_list.name&.downcase %>" class="visible <%= 'even' if local_assigns[:watch_list_counter]&.even? %>">
+<li id="content-<%= content&.id %>-watch-list-<%= watch_list&.id %>" data-name="<%= watch_list.name&.downcase %>">
   <% linked_watch_lists = watch_list.watch_list_data_hashes.any? { |w| w.hashable_id == content.id && w.hashable_type == 'DataCycleCore::Thing' } %>
   <span class="watch-list-item <%= watch_list.user == current_user ? 'private' : 'shared' %>">
     <span class="check <%= 'checked' if linked_watch_lists %>"><i class="fa fa-check" aria-hidden="true"></i></span>

@@ -43,6 +43,7 @@ module DataCycleCore
 
     def create
       @watch_list = current_user.watch_lists.build(watch_list_params)
+      @new_form_id = create_form_params[:new_form_id]
 
       respond_to do |format|
         if !@watch_list.nil? && @watch_list.save
@@ -293,6 +294,10 @@ module DataCycleCore
 
     def watch_list_params
       params.require(:watch_list).permit(:full_path, :user_id, user_group_ids: [], user_ids: [])
+    end
+
+    def create_form_params
+      params.permit(:new_form_id)
     end
 
     def hashable_params

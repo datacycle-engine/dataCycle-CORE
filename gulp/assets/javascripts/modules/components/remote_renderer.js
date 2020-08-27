@@ -1,0 +1,109 @@
+var RandomHelpers = require('./../helpers/random_number_helpers');
+
+class RemoteRenderer {
+  constructor(selector) {
+    this.selector = $(selector);
+
+    this.init();
+  }
+  init() {
+    this.loadInitial();
+
+    this.selector.on('change.zf.tabs', this.loadChangedTabs.bind(this));
+    this.selector.on('dc:remote:reload', '.remote-rendered', this.reload.bind(this));
+    this.selector.on(
+      'dc:remote:reloadOnNextOpen',
+      '.remote-render, .remote-rendering, .remote-rendered',
+      this.reloadOnNextOpen.bind(this)
+    );
+    this.selector.on(
+      'open.zf.reveal dc:remote:render dc:html:changed show.zf.dropdown dc:toggler:show down.zf.accordion',
+      '*',
+      this.loadRemote.bind(this)
+    );
+  }
+  reload(event, data) {
+    event.stopPropagation();
+
+    $(event.target).removeClass('dc-fd-initialized');
+    this.loadRemotePartial(event.target, data);
+  }
+  reloadOnNextOpen(event, data) {
+    event.stopPropagation();
+
+    if (data) {
+      let remoteOptions = $(event.target).data('remoteOptions');
+      $(event.target).attr('data-remote-options', JSON.stringify(Object.assign(remoteOptions, data)));
+    }
+
+    $(event.target).addClass('remote-reload').removeClass('dc-fd-initialized');
+  }
+  loadInitial() {
+    this.selector.find('.remote-render:visible').each((_, element) => {
+      if (!$(element).closest('.dropdown-pane').length) this.loadRemotePartial(element);
+    });
+  }
+  loadRemote(event) {
+    event.stopPropagation();
+
+    $(event.target)
+      .find('.remote-render, .remote-reload')
+      .addBack('.remote-render, .remote-reload')
+      .filter((_, elem) => {
+        return $(elem).css('visibility') != 'hidden' && $(elem).is(':visible');
+      })
+      .each((_, element) => {
+        this.loadRemotePartial(element);
+      });
+  }
+  loadChangedTabs(event) {
+    event.stopPropagation();
+    $(event.target)
+      .siblings('[data-tabs-content]')
+      .find('.remote-render:visible')
+      .each((_, element) => {
+        this.loadRemotePartial(element);
+      });
+  }
+  loadRemotePartial(element, additionalParams = null) {
+    let id = $(element).data('remote-render-id');
+
+    if (id === undefined) {
+      id = RandomHelpers.generateRandomId();
+      element.setAttribute('data-remote-render-id', id);
+    }
+
+    let params = {
+      target: id,
+      partial: $(element).data('remotePath'),
+      content_for: $(element).data('remoteContentFor'),
+      options: $(element).data('remoteOptions'),
+      render_function: $(element).data('remoteRenderFunction'),
+      render_params: $(element).data('remoteRenderParams')
+    };
+
+    if (additionalParams) {
+      for (const [key, value] of Object.entries(additionalParams)) {
+        Object.assign(params[key], value);
+      }
+    }
+
+    $(element)
+      .removeClass('remote-render remote-rendered remote-reload')
+      .addClass('remote-rendering')
+      .html('<div class="loading show"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+
+    $.ajax({
+      type: 'POST',
+      url: window.DATA_CYCLE_ENGINE_PATH + '/remote_render',
+      data: JSON.stringify(params),
+      dataType: 'script',
+      contentType: 'application/json'
+    }).fail(data => {
+      if (data.responseText !== undefined) $(element).html(data.responseText);
+      else $(element).html('Fehler beim Laden des Inhalts.');
+    });
+  }
+}
+
+module.exports = RemoteRenderer;

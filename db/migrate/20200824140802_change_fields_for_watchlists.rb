@@ -3,6 +3,7 @@
 class ChangeFieldsForWatchlists < ActiveRecord::Migration[5.2]
   def up
     add_column :watch_lists, :full_path, :string
+    add_index :watch_lists, :full_path, using: :gin
     add_column :watch_lists, :full_path_names, :string, array: true
 
     execute <<-SQL
@@ -45,6 +46,7 @@ class ChangeFieldsForWatchlists < ActiveRecord::Migration[5.2]
     SQL
 
     remove_column :watch_lists, :full_path
+    remove_index :watch_lists, :full_path
     remove_column :watch_lists, :full_path_names
   end
 end

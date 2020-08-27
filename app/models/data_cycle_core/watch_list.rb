@@ -24,5 +24,11 @@ module DataCycleCore
     def valid_write_links?
       valid_write_links.present?
     end
+
+    def self.fulltext_search(q)
+      return all if q.blank?
+
+      all.where('watch_lists.full_path ILIKE ?', "%#{q}%")
+    end
   end
 end
