@@ -277,9 +277,19 @@ module DataCycleCore
 
         def self.feratel_event_location_to_place
           t(:stringify_keys)
-          .>> t(:add_field, 'name', ->(s) { s.dig('Company', 'text') || [s.dig('Title', 'text'), s.dig('LastName', 'text'), s.dig('FirstName', 'text')].flatten.reject(&:blank?).presence&.join('') || s.dig('location_name') })
-          .>> t(:add_field, 'description', ->(s) { s.dig('Company', 'text').present? ? [s.dig('Title', 'text'), s.dig('LastName', 'text'), s.dig('FirstName', 'text')].flatten.join('') : nil })
           .>> t(:rename_keys, { 'Id' => 'external_key' })
+          .>> t(:add_field, 'name',
+                lambda do |s|
+                  s.dig('Company', 'text') ||
+                  [s.dig('FirstName', 'text'), s.dig('LastName', 'text')].flatten.reject(&:blank?).presence&.join(' ') ||
+                  s.dig('location_name')
+                end)
+          .>> t(:add_field, 'description',
+                lambda do |s|
+                  return nil if s.dig('Company', 'text').blank?
+
+                  [s.dig('Title', 'text'), s.dig('FirstName', 'text'), s.dig('LastName', 'text')].flatten.reject(&:blank?).presence&.join(' ')
+                end)
           .>> t(:add_field, 'street_address', ->(s) { s.dig('AddressLine1', 'text') })
           .>> t(:add_field, 'postal_code', ->(s) { s.dig('ZipCode', 'text') })
           .>> t(:add_field, 'address_locality', ->(s) { s.dig('Town', 'text') })
