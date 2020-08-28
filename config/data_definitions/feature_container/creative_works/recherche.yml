@@ -32,7 +32,7 @@
           :required: true
         :ui:
           :show:
-            :disabled: true
+            :content_area: none
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -50,7 +50,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Recherche"
+        :default_value: 'Recherche'
       :meta_data:
         :type: mixin
         :name: meta_data

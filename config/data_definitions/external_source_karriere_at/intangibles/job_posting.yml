@@ -23,7 +23,7 @@
           :required: true
         :ui:
           :show:
-            :disabled: true
+            :content_area: none
         :api:
           :minimal: true
       :title:
@@ -86,7 +86,7 @@
             :type: string
             :storage_location: translated_value
       :date_posted:
-        :label:  Veröffentlichungsdatum
+        :label: Veröffentlichungsdatum
         :type: datetime
         :storage_location: value
       :hiring_organization:
@@ -97,8 +97,7 @@
         :label: Arbeitsort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
