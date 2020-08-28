@@ -60,7 +60,7 @@ module DataCycleCore
 
           query = filter.apply
           if content_schema_type
-            query = query.where(searches: { schema_type: content_schema_type })
+            query = query.schema_type(content_schema_type)
             query = apply_event_query_filters(query) if content_schema_type == 'Event'
             query = apply_place_query_filters(query) if content_schema_type == 'Place'
           end

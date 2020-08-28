@@ -10,12 +10,18 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Geo
       include DataCycleCore::Filter::Sort
 
+      # TODO: refactor initializer
       def initialize(locale = ['de'], query = nil, joined_search = false, joined_schedule = false)
         @locale = locale
         @joined_search = joined_search
         @joined_schedule = joined_schedule
 
         @query = query || DataCycleCore::Thing
+          .where(template: false).where.not(content_type: 'embedded')
+
+        # @query = query || DataCycleCore::Thing
+        #   .joins(:searches)
+        #   .where(searches: { locale: @locale })
 
         # if locale.nil?
         #   @query = query || DataCycleCore::Thing
@@ -61,6 +67,14 @@ module DataCycleCore
 
         reflect(
           @query.where(thing[:created_by].in(ids))
+        )
+      end
+
+      def schema_type(type)
+        return self if type.blank?
+        query_string = Thing.send(:sanitize_sql_for_conditions, ['(schema -> :attribute_path)::jsonb ? :type', attribute_path: 'schema_type', type: type])
+        reflect(
+          @query.where(Arel.sql(query_string))
         )
       end
 
@@ -158,7 +172,7 @@ module DataCycleCore
         )
       end
 
-      # TODO: remove after refactoring
+      # TODO: raise DeprecationError
       def distinct_by_content_id(order_string = nil)
         return self
       end

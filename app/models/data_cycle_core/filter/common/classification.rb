@@ -91,7 +91,7 @@ module DataCycleCore
 
         # TODO: remove legacy method
         def not_classification_alias_ids(ids = nil)
-          classification_alias_ids_with_subtree(ids)
+          not_classification_alias_ids_with_subtree(ids)
         end
 
         # TODO: remove legacy method
