@@ -73,6 +73,3 @@
 
 :user_api:
   :enabled: true
-
-:collection_group:
-  :enabled: true
