@@ -23,6 +23,7 @@ module DataCycleCore
       query_params = language.include?('all') ? [nil, DataCycleCore::Thing] : [language]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
 
+
       parameters.presence&.each do |filter|
         case filter['m']
         when 'e'
@@ -50,10 +51,11 @@ module DataCycleCore
         end
       end
 
-      sort_parameters.presence&.sort_by { |s| s.dig('sorting')&.to_i }&.each do |sort|
-        next unless query.respond_to?('sort_' + sort['method'])
-        query = query.send('sort_' + sort['method'], sort['table'], sort['value'])
-      end
+      # binding.pry
+      # sort_parameters.presence&.sort_by { |s| s.dig('sorting')&.to_i }&.each do |sort|
+      #   next unless query.respond_to?('sort_' + sort['method'])
+      #   query = query.send('sort_' + sort['method'], sort['table'], sort['value'])
+      # end
 
       query
     end

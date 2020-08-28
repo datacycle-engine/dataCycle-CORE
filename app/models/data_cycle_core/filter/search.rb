@@ -15,12 +15,13 @@ module DataCycleCore
         @locale = locale
         @include_embedded = include_embedded
 
-        @query = query || DataCycleCore::Thing
-        @query = @query.where(template: false).where.not(content_type: 'embedded') unless @include_embedded
+        @query = query || default_query
+        
+        # binding.pry
 
         # add default sorting
         # TODO: move default ordering to module
-        @query = @query.order('things.boost DESC, things.updated_at DESC, things.id ASC') if query.blank?
+        # @query = @query.order('things.boost DESC, things.updated_at DESC, things.id ASC') if query.blank?
 
         # @query = query || DataCycleCore::Thing
         #   .joins(:searches)
@@ -35,6 +36,13 @@ module DataCycleCore
         # temporary disabled disabled (api sort name)
         # .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
         # end
+      end
+
+      def default_query
+        query = DataCycleCore::Thing
+        query = query.where(template: false).where.not(content_type: 'embedded') unless @include_embedded
+        query = query.order('things.boost DESC, things.updated_at DESC, things.id ASC')
+        query
       end
 
       def content_includes
@@ -248,6 +256,8 @@ module DataCycleCore
 
       def self.sort_params_from_filter(search, events = false)
         if search.blank? && events == false
+          return nil
+          # default ordering
           return [
             {
               "method": 'boost',
