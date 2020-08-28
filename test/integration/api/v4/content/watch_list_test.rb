@@ -13,10 +13,7 @@ module DataCycleCore
 
           setup do
             @routes = Engine.routes
-            @watch_list = DataCycleCore::WatchList.create({
-              name: 'Merkliste 1',
-              user: User.find_by(email: 'tester@datacycle.at')
-            })
+            @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'Merkliste 1')
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 

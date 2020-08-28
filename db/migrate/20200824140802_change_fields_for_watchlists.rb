@@ -3,30 +3,10 @@
 class ChangeFieldsForWatchlists < ActiveRecord::Migration[5.2]
   def up
     add_column :watch_lists, :full_path, :string
-    add_index :watch_lists, :full_path, using: :gin
     add_column :watch_lists, :full_path_names, :string, array: true
 
     execute <<-SQL
-      CREATE OR REPLACE FUNCTION update_watch_lists_full_path_names_and_name()
-        RETURNS TRIGGER
-        LANGUAGE PLPGSQL
-        AS
-      $$
-      BEGIN
-        IF NEW.full_path <> OLD.full_path OR OLD.full_path IS NULL THEN
-          NEW.name = (string_to_array(NEW.full_path, '/'))[array_length(string_to_array(NEW.full_path, '/'), 1)];
-          NEW.full_path_names = (string_to_array(NEW.full_path, '/'))[1:array_length(string_to_array(NEW.full_path, '/'), 1) - 1];
-        END IF;
-
-        RETURN NEW;
-      END;
-      $$;
-    SQL
-
-    execute <<-SQL
-      CREATE TRIGGER watchlistfullpathnames BEFORE INSERT OR UPDATE
-      ON watch_lists FOR EACH ROW EXECUTE PROCEDURE
-      update_watch_lists_full_path_names_and_name();
+      CREATE INDEX full_path_idx ON watch_lists USING GIN (full_path gin_trgm_ops);
     SQL
 
     execute <<-SQL
@@ -37,16 +17,12 @@ class ChangeFieldsForWatchlists < ActiveRecord::Migration[5.2]
 
   def down
     execute <<-SQL
-      DROP TRIGGER IF EXISTS watchlistfullpathnames
-      ON watch_lists;
-    SQL
-
-    execute <<-SQL
-      DROP FUNCTION IF EXISTS update_watch_lists_full_path_names_and_name;
+      UPDATE watch_lists
+      SET name = full_path;
     SQL
 
     remove_column :watch_lists, :full_path
-    remove_index :watch_lists, :full_path
+    remove_index :watch_lists, :full_path, name: 'full_path_idx' if index_exists?(:watch_lists, :full_path, name: 'full_path_idx')
     remove_column :watch_lists, :full_path_names
   end
 end

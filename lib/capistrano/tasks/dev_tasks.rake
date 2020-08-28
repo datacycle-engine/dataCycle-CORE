@@ -29,6 +29,19 @@ namespace :datacycle do
       end
     end
 
+    desc 'migrates project via rake task after new rails application is booted'
+    task :migrate_project_with_new_configs do
+      on roles(:all) do
+        within release_path do
+          with rails_env: fetch(:rails_env) do
+            print_message 'Migrating Project after puma:restart'
+            print_message 'No pending migrations found'
+            execute :rake, "#{fetch(:cmd_prefix, '')}dc:update_data:migrate_collections"
+          end
+        end
+      end
+    end
+
     desc 'dump database'
     task :dump_db do
       on roles(:all) do

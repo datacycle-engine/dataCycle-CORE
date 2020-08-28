@@ -1,6 +1,6 @@
 <% collections, collection_groups, new_index, nested, group_title = get_collection_groups(local_assigns, true) %>
 
-<%= conditional_tag(:div, nested, class: "collection-group accordion-item#{ ' is-active' if local_assigns[:collection_item_count].to_i < 11 }#{ ' has-selected-collections' if has_selected_collections?(collections, content.id) }", data: { accordion_item: true }) do %>
+<%= conditional_tag(:div, nested, class: "collection-group accordion-item#{ ' is-active' if local_assigns[:collection_item_count].to_i < 11 }#{ ' has-selected-collections' if selected_collections?(collections, content.id) }", data: { accordion_item: true }) do %>
   <%= link_to group_title, '#', class: 'accordion-title' if group_title.present? %>
   <%= conditional_tag :div, nested, class: 'accordion-content', data: { tab_content: true } do %>
     <% if collection_groups.except(nil).present? %>

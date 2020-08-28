@@ -23,7 +23,7 @@ module DataCycleCore
           post(
             watch_lists_path, xhr: true, params: {
               watch_list: {
-                name: name
+                full_path: name
               }
             }, headers: {
               referer: root_path

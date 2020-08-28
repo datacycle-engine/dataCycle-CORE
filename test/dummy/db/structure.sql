@@ -23,24 +23,6 @@ CREATE SCHEMA public;
 COMMENT ON SCHEMA public IS 'standard public schema';
 
 
---
--- Name: update_watch_lists_full_path_names_and_name(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.update_watch_lists_full_path_names_and_name() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-      BEGIN
-        IF NEW.full_path <> OLD.full_path OR OLD.full_path IS NULL THEN
-          NEW.name = (string_to_array(NEW.full_path, '/'))[array_length(string_to_array(NEW.full_path, '/'), 1)];
-          NEW.full_path_names = (string_to_array(NEW.full_path, '/'))[1:array_length(string_to_array(NEW.full_path, '/'), 1) - 1];
-        END IF;
-
-        RETURN NEW;
-      END;
-      $$;
-
-
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -1410,6 +1392,13 @@ CREATE INDEX extid_extkey_del_idx ON public.classifications USING btree (deleted
 
 
 --
+-- Name: full_path_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX full_path_idx ON public.watch_lists USING gin (full_path public.gin_trgm_ops);
+
+
+--
 -- Name: headline_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2107,13 +2096,6 @@ CREATE INDEX words_idx ON public.searches USING gin (full_text public.gin_trgm_o
 --
 
 CREATE TRIGGER tsvectorsearchupdate BEFORE INSERT OR UPDATE ON public.searches FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('words', 'pg_catalog.simple', 'full_text');
-
-
---
--- Name: watch_lists watchlistfullpathnames; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER watchlistfullpathnames BEFORE INSERT OR UPDATE ON public.watch_lists FOR EACH ROW EXECUTE PROCEDURE public.update_watch_lists_full_path_names_and_name();
 
 
 --

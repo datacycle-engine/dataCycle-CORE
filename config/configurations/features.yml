@@ -193,3 +193,7 @@
   :enabled: false
   :only_config: true
   # :tree_label: Eyebase - Status
+
+:collection_group:
+  :enabled: false
+  :separator: ' / '
