@@ -18,6 +18,10 @@ module DataCycleCore
         @query = query || DataCycleCore::Thing
         @query = @query.where(template: false).where.not(content_type: 'embedded') unless @include_embedded
 
+        # add default sorting
+        # TODO: move default ordering to module
+        @query = @query.order('things.boost DESC, things.updated_at DESC, things.id ASC') if query.blank?
+
         # @query = query || DataCycleCore::Thing
         #   .joins(:searches)
         #   .where(searches: { locale: @locale })
@@ -178,6 +182,7 @@ module DataCycleCore
         self
       end
 
+      # TODO: check if obsolete
       def count_distinct
         # return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many?
         @query.except(:order, :limit, :offset).count('DISTINCT things.id')
@@ -255,6 +260,12 @@ module DataCycleCore
               "table": 'things',
               "value": 'DESC',
               "sorting": 1
+            },
+            {
+              "method": 'id',
+              "table": 'things',
+              "value": 'ASC',
+              "sorting": 2
             }
           ]
         end
