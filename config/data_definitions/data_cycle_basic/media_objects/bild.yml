@@ -12,6 +12,8 @@
         :allowed: true
       :download:
         :allowed: true
+      :overlay:
+        :allowed: false
       :serialize:
         :allowed: true
         :serializers:
@@ -33,6 +35,12 @@
       :title:
         :type: mixin
         :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: BildOverlay
+        :validations:
+          :max: 1
       :validity_period:
         :type: mixin
         :name: validity_period
