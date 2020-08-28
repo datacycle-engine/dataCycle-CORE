@@ -1,20 +1,3 @@
-$('.add-watchlist').each(function () {
-  var content = {
-    hashable_type: $(this).parent('.watch-lists').data('content-type'),
-    hashable_id: $(this).parent('.watch-lists').data('content-id')
-  }
-  $('<%= escape_javascript(render 'data_cycle_core/application/watch_lists/editable_link', content: nil, watch_list: @watch_list) %>').appendTo($(this).siblings('.list-items')).trigger('dc:watchlist:calculate_even');
-
-  var item = $(this).siblings('.list-items').find('> li > .watch-list-item').last();
-  item.prop('id', 'content-' + content.hashable_id + '-watch-list-' + '<%= @watch_list.id %>');
-
-  item.find('a.add-to-watchlist-link').prop('href', function(i, val){
-    return val + '?' + $.param(content);
-  });
-  $(this).find('input[type="text"]').val('');
-});
-
-$('.add-watchlist-to-menu input[type="text"]').val('');
-$('<%= escape_javascript(render 'data_cycle_core/application/watch_lists/readable_link', watch_list: @watch_list) %>').appendTo($('.add-watchlist-to-menu').siblings('.list-items')).trigger('dc:watchlist:calculate_even');
+$('#<%= @new_form_id %>').trigger('dc:collection:newCollection');
 
 $('#add-items-to-watch-list-select').trigger('dc:create:option', { text: '<%= @watch_list.name %>', id: '<%= @watch_list.id %>' });

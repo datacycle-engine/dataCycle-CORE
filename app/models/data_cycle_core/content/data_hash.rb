@@ -9,12 +9,11 @@ module DataCycleCore
       define_model_callbacks :created_data_hash, only: :after
       define_model_callbacks :destroyed_data_hash, only: :after
 
-      DataCycleCore.features
-        .select { |_, v| !v.dig(:only_config) == true }
-        .each_key do |key|
-          module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
-          prepend module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
-        end
+      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
+        feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
+        prepend feature.data_hash_module if feature.enabled? && feature.data_hash_module
+      end
+
       include CreateHistory
       include UpdateSearch
 

@@ -313,6 +313,7 @@ class Validator {
     }).done(data => {
       if (data != undefined) {
         if (
+          data.error &&
           Object.keys(data.error).length > 0 &&
           items
             .filter('[id]')
@@ -326,6 +327,7 @@ class Validator {
         }
 
         if (
+          data.warning &&
           Object.keys(data.warning).length > 0 &&
           items
             .filter('[id]')

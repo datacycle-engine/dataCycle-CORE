@@ -43,6 +43,7 @@ module DataCycleCore
 
     def create
       @watch_list = current_user.watch_lists.build(watch_list_params)
+      @new_form_id = create_form_params[:new_form_id]
 
       respond_to do |format|
         if !@watch_list.nil? && @watch_list.save
@@ -222,22 +223,29 @@ module DataCycleCore
 
     def validate
       @watch_list = DataCycleCore::WatchList.find(params[:id])
-      @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
-      @shared_template_features = @watch_list.things.shared_template_features
 
-      render json: { warning: { content: ['content not found'] } } && return if params[:thing].blank?
+      if params[:watch_list].present?
+        @watch_list.attributes = watch_list_params
+        @watch_list.validate
+        render json: { error: @watch_list.errors.messages }
+      else
+        @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
+        @shared_template_features = @watch_list.things.shared_template_features
 
-      template_hash = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys
+        render json: { warning: { content: ['content not found'] } } && return if params[:thing].blank?
 
-      object_params = content_params(template_hash)
-      translation_values = object_params[:translations]&.values&.first || {}
+        template_hash = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), template_hash)
+        object_params = content_params(template_hash)
+        translation_values = object_params[:translations]&.values&.first || {}
 
-      validator = DataCycleCore::MasterData::ValidateData.new
-      valid = validator.validate(datahash, template_hash)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), template_hash)
 
-      render json: valid.to_json
+        validator = DataCycleCore::MasterData::ValidateData.new
+        valid = validator.validate(datahash, template_hash)
+
+        render json: valid.to_json
+      end
     end
 
     def download
@@ -285,7 +293,11 @@ module DataCycleCore
     private
 
     def watch_list_params
-      params.require(:watch_list).permit(:name, :user_id, user_group_ids: [], user_ids: [])
+      params.require(:watch_list).permit(:full_path, :user_id, user_group_ids: [], user_ids: [])
+    end
+
+    def create_form_params
+      params.permit(:new_form_id)
     end
 
     def hashable_params

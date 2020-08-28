@@ -58,7 +58,7 @@ initializers.push(require('./modules/initializers/htmldiff_init'));
 initializers.push(require('./modules/initializers/remote_render_init'));
 initializers.push(require('./modules/initializers/new_contents_init'));
 initializers.push(require('./modules/initializers/admin_panel_init'));
-initializers.push(require('./modules/initializers/watch_list'));
+initializers.push(require('./modules/initializers/collection'));
 initializers.push(require('./modules/initializers/reload_required_init'));
 initializers.push(require('./modules/initializers/bulk_delete_init'));
 initializers.push(require('./modules/initializers/content_lock_init'));

@@ -1,6 +1,7 @@
 .confirmation-modal {
   padding: 3rem 3rem 6rem 3rem;
   min-width: 20rem;
+  word-wrap: break-word;
   section.confirmation-section {
     display: none;
     &:first-of-type {

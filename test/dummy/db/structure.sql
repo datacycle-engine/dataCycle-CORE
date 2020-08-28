@@ -950,7 +950,9 @@ CREATE TABLE public.watch_lists (
     user_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    full_path character varying,
+    full_path_names character varying[]
 );
 
 
@@ -1387,6 +1389,13 @@ CREATE INDEX deleted_at_id_idx ON public.classification_aliases USING btree (del
 --
 
 CREATE INDEX extid_extkey_del_idx ON public.classifications USING btree (deleted_at, external_source_id, external_key);
+
+
+--
+-- Name: full_path_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX full_path_idx ON public.watch_lists USING gin (full_path public.gin_trgm_ops);
 
 
 --
@@ -2269,6 +2278,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200728062727'),
 ('20200812110341'),
 ('20200812111137'),
-('20200824121824');
+('20200824121824'),
+('20200824140802');
 
 

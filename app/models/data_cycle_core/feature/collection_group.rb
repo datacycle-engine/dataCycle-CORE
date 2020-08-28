@@ -2,10 +2,10 @@
 
 module DataCycleCore
   module Feature
-    class Overlay < Base
+    class CollectionGroup < Base
       class << self
-        def content_module
-          DataCycleCore::Feature::Content::Overlay
+        def separator
+          configuration.dig('separator')
         end
       end
     end

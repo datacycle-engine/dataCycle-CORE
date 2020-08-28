@@ -4,6 +4,10 @@ module DataCycleCore
   module Feature
     class PublicationSchedule < Base
       class << self
+        def data_hash_module
+          DataCycleCore::Feature::DataHash::PublicationSchedule
+        end
+
         def available?(content = nil)
           enabled? && attribute_keys(content).present?
         end

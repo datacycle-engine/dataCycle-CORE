@@ -4,6 +4,14 @@ module DataCycleCore
   module Feature
     class ContentLock < Base
       class << self
+        def content_module
+          DataCycleCore::Feature::Content::ContentLock
+        end
+
+        def controller_module
+          DataCycleCore::Feature::ControllerFunctions::ContentLock
+        end
+
         def lock_length
           configuration.dig('lock_length')
         end

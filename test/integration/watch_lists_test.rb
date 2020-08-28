@@ -20,7 +20,7 @@ module DataCycleCore
 
       post watch_lists_path, xhr: true, params: {
         watch_list: {
-          name: name
+          full_path: name
         }
       }, headers: {
         referer: root_path
@@ -42,7 +42,7 @@ module DataCycleCore
 
       patch watch_list_path(id: @watch_list), params: {
         watch_list: {
-          name: name,
+          full_path: name,
           user_group_ids: [user_group.id]
         }
       }, headers: {
@@ -53,6 +53,36 @@ module DataCycleCore
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_select '.detail-header > .title', name
+    end
+
+    test 'validate Watchlist' do
+      name = "test_watch_list_#{Time.now.getutc.to_i}"
+
+      post validate_watch_list_path(id: @watch_list), params: {
+        watch_list: {
+          full_path: name
+        }
+      }, headers: {
+        referer: edit_watch_list_path(@watch_list)
+      }
+
+      assert_response :success
+      response_body = JSON.parse(response.body)
+      assert_equal 0, response_body['error'].size
+    end
+
+    test 'validate Watchlist with empty name' do
+      post validate_watch_list_path(id: @watch_list), params: {
+        watch_list: {
+          full_path: nil
+        }
+      }, headers: {
+        referer: edit_watch_list_path(@watch_list)
+      }
+
+      assert_response :success
+      response_body = JSON.parse(response.body)
+      assert_equal 1, response_body['error'].size
     end
 
     test 'delete Watchlist' do
