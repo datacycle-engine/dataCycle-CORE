@@ -21,7 +21,7 @@ module DataCycleCore
 
     def apply(query: nil)
       query_params = language.include?('all') ? [nil, DataCycleCore::Thing] : [language]
-      query ||= DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
+      query ||= DataCycleCore::Filter::Search.new(*query_params)
 
       parameters.presence&.each do |filter|
         case filter['m']

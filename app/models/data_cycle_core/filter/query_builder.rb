@@ -298,7 +298,7 @@ module DataCycleCore
 
       # chain method for Builder pattern
       def reflect(query)
-        self.class.new(@locale, query, @joined_search, @joined_schedule)
+        self.class.new(@locale, query, @include_embedded)
       end
     end
   end

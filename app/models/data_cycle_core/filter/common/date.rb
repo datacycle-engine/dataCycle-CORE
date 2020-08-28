@@ -12,7 +12,6 @@ module DataCycleCore
 
         def schedule_search(from, to, relation = nil)
           return self if from.blank? && to.blank?
-          @joined_schedule = true
 
           from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from&.beginning_of_day)
           to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to&.end_of_day)

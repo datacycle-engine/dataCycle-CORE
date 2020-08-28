@@ -159,8 +159,6 @@ module DataCycleCore
           advanced_query(query_string, attribute_path)
         end
 
-        private
-
         def advanced_query(query_string, attribute_path)
           return self if query_string.blank?
           reflect(

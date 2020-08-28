@@ -11,13 +11,12 @@ module DataCycleCore
       include DataCycleCore::Filter::Sort
 
       # TODO: refactor initializer
-      def initialize(locale = ['de'], query = nil, joined_search = false, joined_schedule = false)
+      def initialize(locale = ['de'], query = nil, include_embedded = false)
         @locale = locale
-        @joined_search = joined_search
-        @joined_schedule = joined_schedule
+        @include_embedded = include_embedded
 
         @query = query || DataCycleCore::Thing
-          .where(template: false).where.not(content_type: 'embedded')
+        @query = @query.where(template: false).where.not(content_type: 'embedded') unless @include_embedded
 
         # @query = query || DataCycleCore::Thing
         #   .joins(:searches)
@@ -119,12 +118,12 @@ module DataCycleCore
         filtered_id = :content_b_id
 
         subquery = Arel::SelectManager.new
-                     .from(content_content)
-                     .where(
-                       content_content[thing_id].eq(thing[:id])
-                         .and(content_content[relation].eq(name))
-                         .and(content_content[filtered_id].in(Arel.sql(filter_query)))
-                     )
+          .from(content_content)
+          .where(
+            content_content[thing_id].eq(thing[:id])
+              .and(content_content[relation].eq(name))
+              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
+          )
 
         reflect(
           @query.where(subquery.exists)
@@ -141,26 +140,28 @@ module DataCycleCore
 
         filter_query = filter.apply.select(:id).except(:order).to_sql
         subquery = Arel::SelectManager.new
-                     .from(content_content)
-                     .where(
-                       content_content[thing_id].eq(thing[:id])
-                         .and(content_content[filtered_id].in(Arel.sql(filter_query)))
-                     )
+          .from(content_content)
+          .where(
+            content_content[thing_id].eq(thing[:id])
+              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
+          )
 
         reflect(
           @query.where(subquery.exists)
         )
       end
 
+      # TODO: raise DeprecationError
       def modified_since(date = Time.zone.now)
         reflect(
-          @query.where(search[:updated_at].gteq(Time.zone.parse(date)))
+          @query.where(thing[:updated_at].gteq(Time.zone.parse(date)))
         )
       end
 
+      # TODO: raise DeprecationError
       def created_since(date = Time.zone.now)
         reflect(
-          @query.where(search[:created_at].gteq(Time.zone.parse(date)))
+          @query.where(thing[:created_at].gteq(Time.zone.parse(date)))
         )
       end
 
@@ -173,12 +174,12 @@ module DataCycleCore
       end
 
       # TODO: raise DeprecationError
-      def distinct_by_content_id(order_string = nil)
-        return self
+      def distinct_by_content_id(_order_string = nil)
+        self
       end
 
       def count_distinct
-        return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many? || @joined_schedule
+        # return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many?
         @query.except(:order, :limit, :offset).count('DISTINCT things.id')
       end
 
@@ -204,7 +205,6 @@ module DataCycleCore
 
       def fulltext_search(name)
         return self if name.blank?
-        @joined_search = true
         normalized_name = name.unicode_normalize(:nfkc)
 
         reflect(

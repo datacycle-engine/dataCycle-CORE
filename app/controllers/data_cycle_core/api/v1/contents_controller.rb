@@ -69,7 +69,7 @@ module DataCycleCore
         private
 
         def build_search_query
-          query = DataCycleCore::Filter::Search.new(permitted_params.fetch(:language) { 'de' }).exclude_templates_embedded
+          query = DataCycleCore::Filter::Search.new(permitted_params.fetch(:language) { 'de' })
           query
         end
 
@@ -78,11 +78,12 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          if permitted_params[:search].blank?
-            query
-          else
-            query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search]))
-          end
+          query
+          # if permitted_params[:search].blank?
+          #   query
+          # else
+          #   query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search]))
+          # end
         end
       end
     end
