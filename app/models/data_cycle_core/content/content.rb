@@ -16,11 +16,9 @@ module DataCycleCore
 
       attr_accessor :datahash, :webhook_source, :webhook_as_of, :webhook_run_at, :prevent_webhooks, :original_id, :synchronous_webhooks
 
-      DataCycleCore.features
-        .select { |_, v| !v.dig(:only_config) == true }
-        .each_key do |key|
-        module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
-        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
+      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
+        feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
+        include feature.content_module if feature.enabled? && feature.content_module
       end
       extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::Content::ContentRelations

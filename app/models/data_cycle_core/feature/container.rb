@@ -4,6 +4,14 @@ module DataCycleCore
   module Feature
     class Container < Base
       class << self
+        def content_module
+          DataCycleCore::Feature::Content::Container
+        end
+
+        def controller_module
+          DataCycleCore::Feature::ControllerFunctions::Container
+        end
+
         def available_containers
           @available_containers ||= DataCycleCore::Thing.where(template: true).where("schema ->> 'content_type' = ?", 'container').order(:template_name)
         end

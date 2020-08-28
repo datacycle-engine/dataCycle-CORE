@@ -4,6 +4,10 @@ module DataCycleCore
   module Feature
     class ViewMode < Base
       class << self
+        def ability_class
+          DataCycleCore::Feature::Abilities::ViewMode
+        end
+
         def allowed_modes(user = nil)
           return [] unless enabled? && !user.nil?
 

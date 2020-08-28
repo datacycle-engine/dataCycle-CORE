@@ -50,6 +50,22 @@ module DataCycleCore
           config = config.merge(content&.collect_properties&.map { |k| content&.schema&.dig('properties', *k, 'features', name.demodulize.underscore).presence&.merge({ 'attribute_keys': (k.is_a?(Array) ? [k.last] : [k]), 'tree_label': content&.schema&.dig('properties', *k, 'tree_label') }) }.presence&.compact&.first || {})
           config&.with_indifferent_access
         end
+
+        def content_module
+          false
+        end
+
+        def ability_class
+          false
+        end
+
+        def data_hash_module
+          false
+        end
+
+        def controller_module
+          false
+        end
       end
     end
   end

@@ -7,12 +7,10 @@ module DataCycleCore
     include DataCycleCore::ErrorHandler
     before_action :authenticate_user!, :set_watch_list
 
-    DataCycleCore.features
-      .select { |_, v| !v.dig(:only_config) == true }
-      .each_key do |key|
-        module_name = ('DataCycleCore::Feature::ControllerFunctions::' + key.to_s.classify).constantize
-        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
-      end
+    DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
+      feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
+      include feature.controller_module if feature.enabled? && feature.controller_module
+    end
 
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
     rescue_from ActiveRecord::RecordNotFound, with: :not_found

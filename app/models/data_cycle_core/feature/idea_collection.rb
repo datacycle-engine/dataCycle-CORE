@@ -4,6 +4,14 @@ module DataCycleCore
   module Feature
     class IdeaCollection < Base
       class << self
+        def data_hash_module
+          DataCycleCore::Feature::DataHash::IdeaCollection
+        end
+
+        def controller_module
+          DataCycleCore::Feature::ControllerFunctions::IdeaCollection
+        end
+
         def template_name(content = nil)
           configuration(content).dig('template')
         end
