@@ -71,6 +71,43 @@ module DataCycleCore
           assert_equal('Hallo', data_set.description)
           assert_equal('Hallo', data_set.get_data_hash.dig('description'))
         end
+
+        test 'create thing with data_hash_service/create_internal_object' do
+          data_type = DataCycleCore::Classification.for_tree('Inhaltstypen').find_by(name: 'Bild')
+          params = {
+            datahash: {
+              name: 'TestBild 1'
+            }
+          }.with_indifferent_access
+
+          content = DataCycleCore::DataHashService.create_internal_object('Bild', params, nil)
+
+          assert_equal params.dig(:datahash, :name), content.name
+          assert_equal data_type.id, content.data_type.first.id
+        end
+
+        test 'create thing with data_hash_service/create_internal_object with multiple languages' do
+          data_type = DataCycleCore::Classification.for_tree('Inhaltstypen').find_by(name: 'Bild')
+          params = {
+            translations: {
+              de: {
+                name: 'TestBild 1'
+              },
+              en: {
+                name: 'TestBild 1 en'
+              }
+            }
+          }.with_indifferent_access
+
+          content = DataCycleCore::DataHashService.create_internal_object('Bild', params, nil)
+
+          I18n.with_locale(:en) do
+            assert_equal params.dig(:translations, :en, :name), content.name
+          end
+
+          assert_equal params.dig(:translations, :de, :name), content.name
+          assert_equal data_type.id, content.data_type.first.id
+        end
       end
     end
   end
