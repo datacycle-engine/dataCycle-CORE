@@ -23,7 +23,6 @@ module DataCycleCore
       query_params = language.include?('all') ? [nil, DataCycleCore::Thing] : [language]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
 
-
       parameters.presence&.each do |filter|
         case filter['m']
         when 'e'

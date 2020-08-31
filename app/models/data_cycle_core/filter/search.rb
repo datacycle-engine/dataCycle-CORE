@@ -124,12 +124,12 @@ module DataCycleCore
         filtered_id = :content_b_id
 
         subquery = Arel::SelectManager.new
-                     .from(content_content)
-                     .where(
-                       content_content[thing_id].eq(thing[:id])
-                         .and(content_content[relation].eq(name))
-                         .and(content_content[filtered_id].in(Arel.sql(filter_query)))
-                     )
+          .from(content_content)
+          .where(
+            content_content[thing_id].eq(thing[:id])
+              .and(content_content[relation].eq(name))
+              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
+          )
 
         reflect(
           @query.where(subquery.exists)
@@ -146,11 +146,11 @@ module DataCycleCore
 
         filter_query = filter.apply.select(:id).except(:order).to_sql
         subquery = Arel::SelectManager.new
-                     .from(content_content)
-                     .where(
-                       content_content[thing_id].eq(thing[:id])
-                         .and(content_content[filtered_id].in(Arel.sql(filter_query)))
-                     )
+          .from(content_content)
+          .where(
+            content_content[thing_id].eq(thing[:id])
+              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
+          )
 
         reflect(
           @query.where(subquery.exists)
@@ -234,7 +234,9 @@ module DataCycleCore
         SQL
       end
 
+
       def fulltext_search_cte(normalized_name, name)
+        search_string = (name || '').split(' ').join('%')
         order_string = ActiveRecord::Base.send(
           :sanitize_sql_array,
           [
@@ -245,31 +247,47 @@ module DataCycleCore
               2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
               1 * similarity(searches.full_text, :search_string))"
             ),
-            search_string: "%#{name}%",
+            search_string: "%#{search_string}%",
             search: (name || '').squish
           ]
         )
 
-        res_query = <<-SQL
-          WITH cte_search AS (
-            SELECT DISTINCT ON (content_data_id)
-              content_data_id,
-              (#{order_string}) as fulltext_boost
-            FROM
-              "searches"
-            WHERE
-              "searches"."locale" IN ('de', 'en')
-              AND (
-                #{search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" }).to_sql}
-                OR #{tsmatch(search[:words], tsquery(quoted(normalized_name.squish))).to_sql}
-              )
-            ORDER BY
-              content_data_id, fulltext_boost DESC
-          )
-        SQL
+        if @locale.present?
+          res_query = <<-SQL
+            WITH cte_search AS (
+              SELECT DISTINCT ON (content_data_id)
+                content_data_id,
+                (#{order_string}) as fulltext_boost
+              FROM
+                "searches"
+              WHERE
+                #{search[:locale].in(@locale).to_sql}
+                AND (
+                  #{search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" }).to_sql}
+                  OR #{tsmatch(search[:words], tsquery(quoted(normalized_name.squish))).to_sql}
+                )
+              ORDER BY
+                content_data_id, fulltext_boost DESC
+            )
+          SQL
+        else
+          res_query = <<-SQL
+            WITH cte_search AS (
+              SELECT DISTINCT ON (content_data_id)
+                content_data_id,
+                (#{order_string}) as fulltext_boost
+              FROM
+                "searches"
+              WHERE
+                  #{search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" }).to_sql}
+                  OR #{tsmatch(search[:words], tsquery(quoted(normalized_name.squish))).to_sql}
+              ORDER BY
+                content_data_id, fulltext_boost DESC
+            )
+          SQL
+        end
         res_query
       end
-
 
       def self.get_order_by_query_string(search, events = false)
         return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.boost DESC, things.updated_at DESC')) if search.blank? && events == false
@@ -296,7 +314,7 @@ module DataCycleCore
 
       def self.sort_params_from_filter(search = nil, schedule = nil)
         if search.present?
-          return [
+          [
             {
               "method": 'fulltext_search',
               "table": 'searches',
@@ -307,7 +325,7 @@ module DataCycleCore
           ]
         elsif schedule.present?
           # TODO: respect start_date
-          return [
+          [
             {
               "method": 'by_proximity',
               "table": 'things',
