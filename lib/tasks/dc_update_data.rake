@@ -50,6 +50,28 @@ namespace :dc do
       end
     end
 
+    desc 'set default attributes'
+    task :set_defaults, [:template_names, :webhooks] => [:environment] do |_, args|
+      template_names = args.template_names&.split('|')&.map(&:squish)
+
+      contents = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded')
+      contents = contents.where(template_name: template_names) if template_names.present?
+
+      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      contents.find_each do |content|
+        I18n.with_locale(content.first_available_locale) do
+          next if content.properties_with_default_values.blank?
+
+          content.instance_variable_set(:@data_hash, {})
+          content.set_default_values(force: true)
+          content.prevent_webhooks = args.webhooks&.downcase == 'false'
+          content.set_data_hash(data_hash: content.instance_variable_get(:@data_hash), partial_update: true)
+          progressbar.increment
+        end
+      end
+    end
+
     desc 'migrate collections for feature/collection_groups'
     task migrate_collections: :environment do
       if DataCycleCore::Feature::CollectionGroup.enabled?
