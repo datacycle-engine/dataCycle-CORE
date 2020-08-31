@@ -16,12 +16,6 @@ module DataCycleCore
         @include_embedded = include_embedded
 
         @query = query || default_query
-        
-        # binding.pry
-
-        # add default sorting
-        # TODO: move default ordering to module
-        # @query = @query.order('things.boost DESC, things.updated_at DESC, things.id ASC') if query.blank?
 
         # @query = query || DataCycleCore::Thing
         #   .joins(:searches)
@@ -130,12 +124,12 @@ module DataCycleCore
         filtered_id = :content_b_id
 
         subquery = Arel::SelectManager.new
-          .from(content_content)
-          .where(
-            content_content[thing_id].eq(thing[:id])
-              .and(content_content[relation].eq(name))
-              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
-          )
+                     .from(content_content)
+                     .where(
+                       content_content[thing_id].eq(thing[:id])
+                         .and(content_content[relation].eq(name))
+                         .and(content_content[filtered_id].in(Arel.sql(filter_query)))
+                     )
 
         reflect(
           @query.where(subquery.exists)
@@ -152,11 +146,11 @@ module DataCycleCore
 
         filter_query = filter.apply.select(:id).except(:order).to_sql
         subquery = Arel::SelectManager.new
-          .from(content_content)
-          .where(
-            content_content[thing_id].eq(thing[:id])
-              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
-          )
+                     .from(content_content)
+                     .where(
+                       content_content[thing_id].eq(thing[:id])
+                         .and(content_content[filtered_id].in(Arel.sql(filter_query)))
+                     )
 
         reflect(
           @query.where(subquery.exists)
@@ -193,7 +187,8 @@ module DataCycleCore
       # TODO: check if obsolete
       def count_distinct
         # return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many?
-        @query.except(:order, :limit, :offset).count('DISTINCT things.id')
+        # @query.except(:order, :limit, :offset).count('DISTINCT things.id')
+        @query.except(:order, :limit, :offset).count
       end
 
       def boolean(value, filter_method)
@@ -220,16 +215,61 @@ module DataCycleCore
         return self if name.blank?
         normalized_name = name.unicode_normalize(:nfkc)
 
+        search_cte = fulltext_search_cte(normalized_name, name)
+        joined_search_cte = joins_fulltext_search_cte(search_cte)
+
         reflect(
           @query
-            .where(
-              search_exists(
-                search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
-                  .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish))))
-              )
-            )
+           .joins(joined_search_cte)
         )
       end
+
+      def joins_fulltext_search_cte(search_cte)
+        <<-SQL
+          JOIN (
+            #{search_cte}
+            SELECT content_data_id, fulltext_boost FROM cte_search
+          )AS joined_search_cte 
+          ON joined_search_cte.content_data_id = things.id
+        SQL
+      end
+
+      def fulltext_search_cte(normalized_name, name)
+        order_string = ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          [
+            Arel.sql(
+              "boost * (
+              8 * similarity(searches.classification_string, :search_string) +
+              4 * similarity(searches.headline, :search_string) +
+              2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
+              1 * similarity(searches.full_text, :search_string))"
+            ),
+            search_string: "%#{name}%",
+            search: (name || '').squish
+          ]
+        )
+
+        res_query = <<-SQL
+          WITH cte_search AS (
+            SELECT DISTINCT ON (content_data_id)
+              content_data_id,
+              (#{order_string}) as fulltext_boost
+            FROM
+              "searches"
+            WHERE
+              "searches"."locale" IN ('de', 'en')
+              AND (
+                #{search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" }).to_sql}
+                OR #{tsmatch(search[:words], tsquery(quoted(normalized_name.squish))).to_sql}
+              )
+            ORDER BY
+              content_data_id, fulltext_boost DESC
+          )
+        SQL
+        res_query
+      end
+
 
       def self.get_order_by_query_string(search, events = false)
         return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.boost DESC, things.updated_at DESC')) if search.blank? && events == false
@@ -254,61 +294,29 @@ module DataCycleCore
         )
       end
 
-      def self.sort_params_from_filter(search, events = false)
-        if search.blank? && events == false
-          return nil
-          # default ordering
+      def self.sort_params_from_filter(search = nil, schedule = nil)
+        if search.present?
           return [
             {
-              "method": 'boost',
-              "table": 'things',
-              "value": 'DESC',
+              "method": 'fulltext_search',
+              "table": 'searches',
+              "ordering": 'DESC',
+              "value": search,
               "sorting": 0
-            },
+            }
+          ]
+        elsif schedule.present?
+          # TODO: respect start_date
+          return [
             {
-              "method": 'updated_at',
+              "method": 'by_proximity',
               "table": 'things',
-              "value": 'DESC',
-              "sorting": 1
-            },
-            {
-              "method": 'id',
-              "table": 'things',
-              "value": 'ASC',
-              "sorting": 2
+              "ordering": 'ASC',
+              "value": '',
+              "sorting": 0
             }
           ]
         end
-        if events == true
-          return [
-            {
-              "method": 'end_date',
-              "table": 'things',
-              "value": 'ASC',
-              "sorting": 0
-            },
-            {
-              "method": 'start_date',
-              "table": 'things',
-              "value": 'DESC NULLS LAST',
-              "sorting": 1
-            },
-            {
-              "method": 'updated_at',
-              "table": 'things',
-              "value": 'DESC',
-              "sorting": 2
-            }
-          ]
-        end
-        [
-          {
-            "method": 'fulltext_search',
-            "table": 'searches',
-            "value": 'DESC',
-            "sorting": 0
-          }
-        ]
       end
     end
   end

@@ -146,7 +146,14 @@ module DataCycleCore
           )
         end
 
-        private
+        # TODO: check this values
+        # date helpers
+        # duplicate method
+        def date_from_single_value(value)
+          return if value.blank?
+          return value if value.is_a?(::Date)
+          DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
+        end
 
         def date_from_filter_object(value, mode)
           mode ||= 'absolute'
@@ -163,12 +170,6 @@ module DataCycleCore
           end
 
           return from_date, to_date
-        end
-
-        def date_from_single_value(value)
-          return if value.blank?
-          return value if value.is_a?(::Date)
-          DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
         end
 
         def relative_to_absolute_date(value)

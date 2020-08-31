@@ -3,7 +3,33 @@
 module DataCycleCore
   module Filter
     module Sort
-      def sort_by_proximity(date = Time.zone.now)
+      def sort_boost(table, ordering)
+        return self if table.blank? || ordering.blank?
+        reflect(
+          @query
+            .order(Arel.sql("#{table}.boost #{ordering}"))
+        )
+      end
+
+      def sort_updated_at(table, ordering)
+        return self if table.blank? || ordering.blank?
+        reflect(
+          @query
+            .order(Arel.sql("#{table}.updated_at #{ordering}"))
+        )
+      end
+
+      def sort_name(table, ordering)
+        return self if table.blank? || ordering.blank?
+        binding.pry
+        reflect(
+          @query
+            .order(Arel.sql("#{table}.updated_at #{ordering}"))
+        )
+      end
+
+      def sort_by_proximity(_table, _ordering, value)
+        date = date_from_single_value(value) || Time.zone.now
         reflect(
           @query.reorder(
             absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
@@ -13,40 +39,14 @@ module DataCycleCore
         )
       end
 
-      def sort_boost(table, value)
-        return self if table.blank? || value.blank?
+      def sort_fulltext_search(_table, ordering)
         reflect(
           @query
-            .order(Arel.sql("#{table}.boost #{value}"))
-        )
-      end
-
-      def sort_updated_at(table, value)
-        return self if table.blank? || value.blank?
-        reflect(
-          @query
-            .order(Arel.sql("#{table}.updated_at #{value}"))
-        )
-      end
-
-      def sort_ful2ltext_search(_table, _value)
-        search_string = (search || '').split(' ').join('%')
-
-        ActiveRecord::Base.send(
-          :sanitize_sql_array,
-          [
-            Arel.sql(
-              "things.boost * (
-              8 * similarity(searches.classification_string, :search_string) +
-              4 * similarity(searches.headline, :search_string) +
-              2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
-              1 * similarity(searches.full_text, :search_string))
-              DESC NULLS LAST,
-              things.updated_at DESC"
-            ),
-            search_string: "%#{search_string}%",
-            search: (search || '').squish
-          ]
+            .reorder(
+              Arel.sql("fulltext_boost #{ordering}"),
+              Arel.sql('things.updated_at DESC'),
+              Arel.sql('things.id ASC')
+            )
         )
       end
     end

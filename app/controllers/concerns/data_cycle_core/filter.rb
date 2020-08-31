@@ -28,7 +28,7 @@ module DataCycleCore
 
       # @order_string is required for view mode
 
-      sort_params = DataCycleCore::Filter::Search.sort_params_from_filter(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }.present?)
+      sort_params = DataCycleCore::Filter::Search.sort_params_from_filter(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' })
       @stored_filter.sort_parameters = sort_params
 
       @stored_filter.parameters = current_user.default_filter(@stored_filter.parameters, user_filter) if user_filter.present?
