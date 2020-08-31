@@ -18,7 +18,7 @@ module DataCycleCore
       include UpdateSearch
 
       before_save :set_internal_data
-      before_save_data_hash :set_default_values, if: -> { properties_with_default_values.present? && (@new_content || (translated_locales.present? && translated_locales.exclude?(I18n.locale))) }
+      before_save_data_hash :add_default_values, if: -> { properties_with_default_values.present? && (@new_content || (translated_locales.present? && translated_locales.exclude?(I18n.locale))) }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks, unless: -> { prevent_webhooks }
@@ -77,7 +77,7 @@ module DataCycleCore
         end
       end
 
-      def set_default_values(force: false)
+      def add_default_values(force: false)
         to_set = properties_with_default_values.select { |name, _| @data_hash[name].blank? && !@data_hash[name].is_a?(FalseClass) }
         to_set = to_set.slice(*translatable_property_names) if translated_locales.present? && !force
 
