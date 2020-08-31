@@ -21,12 +21,12 @@ _/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN&
 {
   "token": "YOUR_ACCESS_TOKEN",
   "filter": {
-		"classifications": {
-			"in": {
-				"withSubtree": ["3b9b4787-99e5-47c1-8d09-db65c1db43cc"]
-			}
-		}
-	}
+    "classifications": {
+      "in": {
+        "withSubtree": ["3b9b4787-99e5-47c1-8d09-db65c1db43cc"]
+      }
+    }
+  }
 }
 ```
 
@@ -72,10 +72,10 @@ Die Nutzung von HTTP-POST bringt vor allem im Zusammenhang mit komplexen Abfrage
       }
     },
     "geo": {
-			"in": {
-				"box": [9.53074836730957,46.37226867675781,17.160776138305664,49.020530700683594]
-			}			
-		}
+      "in": {
+        "box": [9.53074836730957,46.37226867675781,17.160776138305664,49.020530700683594]
+      }      
+    }
   }
 }
 ```
@@ -141,7 +141,7 @@ Um die Flexibilität des Klassifizierungsfilters noch weiter zu steigern, könne
         ]
       }
     }
-  }		
+  }    
 }
 ```
 
@@ -250,6 +250,82 @@ Eine grundlegende Möglichkeit, um Inhalte auf Basis ihrer Position zu filtern, 
 ```
 
 
+#### Umkreissuche - **filter\[geo\]\[in\]\[perimeter\]**
+
+In einigen Anwendungsfällen ist es wünschenswert, Inhalte in einem definierten Umkreis zu suchen. Genau dafür kann in dataCycle eine sogenannte _Umkreissuche_ genutzt werden. Dieser Filter erwartet sich die folgenden drei Werte in genau dieser Reihenfolge:
+
+* Längengrad
+* Breitengrad
+* Radius (in m)
+
+Um Inhalte im Umkreis von 50 km um den Großglockner abzufragen, kann beispielsweise die folgende Filterkonfiguration genutzt werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "geo": {
+      "in": {
+        "perimeter": [12.69390,47.07453,50000] // Längengrad, Breitengrad, Radius (in m)
+      }
+    }
+  }
+}
+```
+
+
+#### Geo-Shapes - **filter\[geo\]\[in\]\[shapes\]**
+
+Neben einer Filterung auf Basis einer Bounding-Box bzw. eines Umkreises bietet dataCycle auch die Möglichkeit, beliebige andere Geo-Shapes für eine Einschränkung der ausgelieferten Inhalte zu verwenden. Diese Geo-Shapes sind innerhalb von dataCycle als spezielle Klassifizierungen abgebildet, die z.B. Regions-, Gemeinde- oder Bezirksgrenzen enthalten können. Bei der Verwendung dieses Filters müssen dementsprechend auch die jeweiligen IDs der Klassifizierungen, bei denen die gewünschten Geo-Shapes hinterlegt sind, übergeben werden. Eine Abfrage für alle Orte innerhalb der Landeshauptstädte von Österreich könnte z.B. folgendermaßen realisiert werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "geo": {
+      "in": {
+        "shapes": [
+          "f49c4cc4-229a-4421-bf7f-9e1919b93482", // Wien
+          "13e7efe2-2c2a-49a8-a5d9-44f3c279716a", // Sankt Pölten
+          "2a13f3d3-914e-4a73-a7e9-32fe76ab7e2a", // Eisenstadt
+          "044b50ba-28f6-4e9a-9fc3-7f13ac4edb57", // Graz
+          "e0cbd09e-c532-4663-b731-5fd99049307a", // Klagenfurt
+          "01f13679-cded-4307-af50-4d0184674ed9", // Linz
+          "b8d838c0-221d-4d74-b73a-df52df5b3c9c", // Salzburg
+          "d7108f09-7467-4699-a4fa-51b4ed0bab29", // Innsbruck
+          "f0e38258-c919-4676-ab1c-3729bea85f8e"  // Bregenz
+        ]
+      }
+    }
+  }
+}
+```
+
+
+### Graphbasierte Filterung - **filter\[linked\]\[RELATION\]\[...\]**
+
+Bei der Filterung von Inhalten auf Basis von Klassifizierungen, Attributen oder der geografischen Lage erfolgt die Filterung immer auf Basis von Eigenschaften des jeweiligen Inhalts. In einigen Fällen ist es aber notwendig, Inhalte auf Basis von anderen, verknüpften Inhalten einzuschränken. Ein konkreter Anwendungsfall dafür wäre etwa die Filterung von Veranstaltungen auf Basis der geografischen Lage des Veranstaltungsortes. Die Veranstaltung ist dabei über die Relation **location** mit dem Veranstaltungsort verknüpft. Um beispielsweise Veranstaltungen rund um Schloss Rotenturm zu filtern, kann der folgende Filter verwendet werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "linked": {
+      "location": { // Name der Relation
+        "geo": {
+          "in": {
+            "perimeter": [16.2448,47.2509,3000] // Längengrad, Breitengrad, Radius (in m)
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Der Filter besteht dabei aus einem äußeren und einem inneren Teil. Im inneren Teil können alle Filter verwendet werden, die sich direkt auf einen Inhalt beziehen, es können also alle geobasierten, attributbasierten und klassifizierungsbasierten Filter verwendet werden. Auch eine Kombination von verschiedenen Filtern ist möglich. Im äußeren Teil wird festgelegt, wie die Inhalte aus dem inneren Filter mit den eigentlich abgefragten Inhalten verknüpft sein müssen. Die Art der Verknüpfung wird dabei über den Namen der Relation festgelegt, also z.B. *filter\[linked\]\[__location__\]\[...\]*.
+
+
 ## Sortieren von Inhalten
 
 Neben der Filterung von Inhalten ist es über die Datenschnittstelle von dataCycle auch möglich, Inhalte nach unterschiedlichen Kriterien zu sortieren. Es gibt dabei zwei grundsätzlich unterschiedliche Arten von Sortierungen: implizite (automatische) Sortierungen und explizite (benutzerdefinierte) Sortierungen. Während explizite Sortierungen manuell angewendet werden müssen, werden implizite Sortierungen automatisch verwendet, sobald Inhalte auf eine bestimmte Art und Weise gefiltert werden. Eine implizite Sortierung ergibt sich also auf Basis der verwendeten Filter und kann nicht manuell ausgewählt werden.
@@ -288,3 +364,20 @@ Die Attribute, die für die Filterung nutzbar sind, können pro Installation ind
 
 * **created**
 * **modified**
+
+
+### Zufallssortierung
+
+Neben den beiden bereits beschriebenen Möglichkeiten zum Sortieren von Inhalten, gibt es auch eine Möglichkeit um Inhalte in zufälliger Reihenfolge abzufragen. Ein möglicher Anwendungsfall dafür wäre beispielsweise, wenn aus einer großen Anzahl von Inhalten bei jedem Zugriff fünf zufällige Inhalte ausgewählt werden sollen. Über die Datenschnittstelle kann diese Zufallsauswahl folgendermaßen erreicht werden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "sort": "random",
+  "page": {
+    "size": 5
+  }
+}
+```
+
+***ACHTUNG: Der Zufallsgenerator wird bei jeder Abfrage zurückgesetzt! Das heißt, dass bei einer Abfrage über mehrere Seiten nicht sichergestellt ist, dass keine Inhalte doppelt ausgeliefert werden. Um sicherzugehen, dass jeder Inhalt nur genau einmal ausgeliefert wird, sollte nur eine Seite mit einer passenden Seitengröße abgefragt werden.***

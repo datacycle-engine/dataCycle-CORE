@@ -141,7 +141,7 @@ describe DataCycleCore::MasterData::Validators::String do
 
     it 'passes when string fulfills url restriction with additional protocols (mailto,sftp,ftp)' do
       new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'url' } })
-      cases = ['mailto:test@test.at', 'ftp://test@test.at', 'sftp://test@test.at']
+      cases = ['mailto:test@test.at', 'ftp://test@test.at', 'sftp://test@test.at', 'tel:+43664123456']
       cases.each do |test_case|
         validator = subject.new(test_case, new_template)
         assert_equal(0, validator.error[:error].size)

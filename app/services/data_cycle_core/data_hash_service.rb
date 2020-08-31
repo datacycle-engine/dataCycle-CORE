@@ -24,12 +24,16 @@ module DataCycleCore
 
       content.available_locales.each do |locale|
         I18n.with_locale(locale) do
-          created = new_content.new_record?
-          new_content.save!
-          new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ 'name': "DUPLICATE: #{content.title}" })
-          new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: created)
+          ActiveRecord::Base.transaction do
+            created = new_content.new_record?
+            new_content.save!
+            new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ 'name': "DUPLICATE: #{content.title}" })
+            valid = new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: created)
+            raise ActiveRecord::Rollback, 'dataHash errors found' if valid.dig(:error).present?
+          end
         end
       end
+      return false if new_content.id.nil?
       new_content.reload
     end
 
@@ -59,6 +63,14 @@ module DataCycleCore
       datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translations&.delete(locale.to_s) || {}), object.schema)
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)] if object.property_names.include?('permitted_creator')
 
+      I18n.with_locale(locale) do
+        valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
+        if valid[:error].present?
+          valid[:error].each { |k, v| v.each { |e| object.errors.add(k, e) } }
+          return object
+        end
+      end
+
       translations&.each do |l, locale_hash|
         I18n.with_locale(l) do
           valid = object.set_data_hash(data_hash: locale_hash, current_user: current_user, prevent_history: true, update_search_all: false, partial_update: true)
@@ -66,14 +78,6 @@ module DataCycleCore
             valid[:error].each { |k, v| v.each { |e| object.errors.add(k, e) } }
             return object
           end
-        end
-      end
-
-      I18n.with_locale(locale) do
-        valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
-        if valid[:error].present?
-          valid[:error].each { |k, v| v.each { |e| object.errors.add(k, e) } }
-          return object
         end
       end
 

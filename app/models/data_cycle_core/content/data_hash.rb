@@ -9,16 +9,16 @@ module DataCycleCore
       define_model_callbacks :created_data_hash, only: :after
       define_model_callbacks :destroyed_data_hash, only: :after
 
-      DataCycleCore.features
-        .select { |_, v| !v.dig(:only_config) == true }
-        .each_key do |key|
-          module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
-          prepend module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
-        end
+      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
+        feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
+        prepend feature.data_hash_module if feature.enabled? && feature.data_hash_module
+      end
+
       include CreateHistory
       include UpdateSearch
 
       before_save :set_internal_data
+      before_save_data_hash :add_default_values, if: -> { properties_with_default_values.present? && (@new_content || (translated_locales.present? && translated_locales.exclude?(I18n.locale))) }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks, unless: -> { prevent_webhooks }
@@ -74,6 +74,15 @@ module DataCycleCore
       def set_computed_values
         computed_property_names.each do |computed_property|
           @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(computed_property, properties_for(computed_property), @data_hash, self)
+        end
+      end
+
+      def add_default_values(force: false)
+        to_set = properties_with_default_values.select { |name, _| @data_hash[name].blank? && !@data_hash[name].is_a?(FalseClass) }
+        to_set = to_set.slice(*translatable_property_names) if translated_locales.present? && !force
+
+        to_set.each do |property_name, property_definition|
+          @data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, @data_hash, self)
         end
       end
 
@@ -175,13 +184,13 @@ module DataCycleCore
 
       def normalize_value(value, properties)
         norm_value = value
-        if properties.key?('default_value') && value.blank?
-          if properties['default_value'].is_a?(String) && /{{.*}}/.match?(properties['default_value']) # eval code enclosed in double curly braces: {{ ... }}
-            norm_value = eval(properties['default_value'][2..-3]) # rubocop:disable Security/Eval
-          else
-            norm_value = properties['default_value']
-          end
-        end
+        # if properties.key?('default_value') && value.blank?
+        #   if properties['default_value'].is_a?(String) && /{{.*}}/.match?(properties['default_value']) # eval code enclosed in double curly braces: {{ ... }}
+        #     norm_value = eval(properties['default_value'][2..-3]) # rubocop:disable Security/Eval
+        #   else
+        #     norm_value = properties['default_value']
+        #   end
+        # end
         return DataCycleCore::MasterData::DataConverter.string_to_string(norm_value) if properties['type'] == 'string'
         norm_value
       end
@@ -295,7 +304,7 @@ module DataCycleCore
       def upsert_content(name, item)
         template = DataCycleCore::Thing.find_by(template: true, template_name: name)
         if item['id'].present?
-          upsert_item = DataCycleCore::Thing.find_or_create_by(id: item['id'])
+          upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item['id'])
         else
           upsert_item = DataCycleCore::Thing.new
         end
@@ -303,27 +312,28 @@ module DataCycleCore
         upsert_item.template_name = template.template_name
         # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
+        created = upsert_item.new_record?
         upsert_item.save
-        upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)
+        upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true, new_content: created)
         upsert_item
       end
 
-      def set_classification_relation_ids(ids, relation_name, tree_label, default_value, not_translated, universal)
+      def set_classification_relation_ids(ids, relation_name, _tree_label, default_value, not_translated, universal)
         return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
         present_relation_ids = send(relation_name).pluck(:classification_id) || []
         ids ||= []
         if is_blank?(ids) && !universal
-          if default_value.present?
-            classification_id = load_default_classification(tree_label, default_value)
-            ids = [classification_id] # the convention is: don't delete the default_value
-            if present_relation_ids.count.zero?
-              DataCycleCore::ClassificationContent.find_or_create_by!(
-                'content_data_id' => id,
-                classification_id: classification_id,
-                relation: relation_name
-              )
-            end
-          end
+          # if default_value.present?
+          #   classification_id = load_default_classification(tree_label, default_value)
+          #   ids = [classification_id] # the convention is: don't delete the default_value
+          #   if present_relation_ids.count.zero?
+          #     DataCycleCore::ClassificationContent.find_or_create_by!(
+          #       'content_data_id' => id,
+          #       classification_id: classification_id,
+          #       relation: relation_name
+          #     )
+          #   end
+          # end
         else
           ids.each do |classification_id_value|
             next if present_relation_ids.include?(classification_id_value)

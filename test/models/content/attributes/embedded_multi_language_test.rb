@@ -8,14 +8,10 @@ module DataCycleCore
       class EmbeddedMulitLanguageTest < ActiveSupport::TestCase
         def setup
           DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').delete_all
-          @embedded_multi = DataCycleCore::TestPreparations.data_set_object('Embedded-Creative-Work-2')
-          @embedded_multi.save
-          @embedded_multi.set_data_hash(data_hash: { 'name' => 'Deutsch' }, prevent_history: true)
+          @embedded_multi = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Creative-Work-2', data_hash: { 'name' => 'Deutsch' }, prevent_history: true)
           I18n.with_locale(:en) { @embedded_multi.set_data_hash(data_hash: { 'name' => 'English' }, prevent_history: true) }
 
-          @data_set_multi = DataCycleCore::TestPreparations.data_set_object('Embedded-Entity-Creative-Work-2')
-          @data_set_multi.save
-          @data_set_multi.set_data_hash(data_hash: { 'name' => 'Deutsch' }, prevent_history: true)
+          @data_set_multi = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Creative-Work-2', data_hash: { 'name' => 'Deutsch' }, prevent_history: true)
           I18n.with_locale(:en) { @data_set_multi.set_data_hash(data_hash: { 'name' => 'English', 'embedded_creative_work' => [{ 'id' => @embedded_multi.id }] }, prevent_history: true) }
 
           assert_equal([:de, :en], @data_set_multi.available_locales.sort)

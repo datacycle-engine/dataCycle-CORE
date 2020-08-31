@@ -84,17 +84,22 @@ module DataCycleCore
         )
       end
 
-      def relation_filter(filter_id = nil, name = nil)
+      def relation_filter(filter = nil, name = nil)
         return self if name.blank?
-        return self if filter_id.blank?
-        filter = DataCycleCore::StoredFilter.find(filter_id)
         return self if filter.blank?
+
+        if filter.is_a?(DataCycleCore::Filter::Search)
+          filter_query = filter.select(:id).except(:order).to_sql
+        else
+          stored_filter = DataCycleCore::StoredFilter.find(filter)
+          return self if stored_filter.blank?
+          filter_query = stored_filter.apply.select(:id).except(:order).to_sql
+        end
 
         thing_id = :content_a_id
         relation = :relation_a
         filtered_id = :content_b_id
 
-        filter_query = filter.apply(experimental: true).select(:id).except(:order).to_sql
         subquery = Arel::SelectManager.new
           .from(content_content)
           .where(
@@ -116,7 +121,7 @@ module DataCycleCore
         thing_id = :content_b_id
         filtered_id = :content_a_id
 
-        filter_query = filter.apply(experimental: true).select(:id).except(:order).to_sql
+        filter_query = filter.apply.select(:id).except(:order).to_sql
         subquery = Arel::SelectManager.new
           .from(content_content)
           .where(

@@ -12,6 +12,8 @@
         :allowed: true
       :download:
         :allowed: true
+      :overlay:
+        :allowed: false
       :serialize:
         :allowed: true
         :serializers:
@@ -33,6 +35,12 @@
       :title:
         :type: mixin
         :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: BildOverlay
+        :validations:
+          :max: 1
       :validity_period:
         :type: mixin
         :name: validity_period
@@ -189,14 +197,16 @@
         :type: datetime
         :storage_location: value
         :ui:
-         :edit:
-           :type: date
-           :options:
-             :placeholder: tt.mm.jjjj
-             :class: daterange
-         :show:
-           :type: date
-        :default_value: '{{Time.zone.now.beginning_of_day}}'
+          :edit:
+            :type: date
+            :options:
+              :placeholder: tt.mm.jjjj
+              :class: daterange
+          :show:
+            :type: date
+        :default_value:
+          module: DataCycleCore::Utility::DefaultValue::Date
+          method: beginning_of_day
         :advanced_search: true
       :photographer:
         :label: Fotograf
@@ -207,8 +217,7 @@
         :label: Fotograf
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Person
@@ -220,8 +229,7 @@
         :label: Ort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
@@ -252,7 +260,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Bild"
+        :default_value: 'Bild'
       :cc_rel:
         :type: mixin
         :name: cc_rel

@@ -164,8 +164,14 @@ en:
 
   import:
     feratel:
+      meeting_point: meeting point      
       additional_service:
         equipment: Equipment
         requirements: Requirements
         included_services: Included Services
         difficulty: Difficulty
+
+  exceptions:
+    data_cycle_core/error/api/bad_request:
+      unknown_parameter: Unknown Query Parameter
+      invalid_parameter: Invalid Query Parameter

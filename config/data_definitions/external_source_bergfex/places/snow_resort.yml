@@ -33,6 +33,14 @@
       :title:
         :type: mixin
         :name: title
+      :tourism_region:
+        :label: Tourismus-Region
+        :type: classification
+        :tree_label: Tourismus-Regionen
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -207,6 +215,10 @@
           :name: sameAs
         :xml:
           :name: sameAs
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
       :condition_avalanche_warning_level:
         :label: "Lawinenwarnlevel"
         :type: classification

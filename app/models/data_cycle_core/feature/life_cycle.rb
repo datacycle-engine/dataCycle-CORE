@@ -4,6 +4,18 @@ module DataCycleCore
   module Feature
     class LifeCycle < Base
       class << self
+        def content_module
+          DataCycleCore::Feature::Content::LifeCycle
+        end
+
+        def data_hash_module
+          DataCycleCore::Feature::DataHash::LifeCycle
+        end
+
+        def controller_module
+          DataCycleCore::Feature::ControllerFunctions::LifeCycle
+        end
+
         def ordered_classifications(content = nil)
           @ordered_classifications ||= DataCycleCore::Classification
             .includes(classification_aliases: :classification_tree_label)

@@ -11,6 +11,7 @@ module.exports.initialize = function ($) {
     event.stopPropagation();
 
     if ($(event.target).hasClass('accordion-item')) Foundation.reInit($(event.target).closest('[data-accordion]'));
+    if ($(event.target).hasClass('accordion')) Foundation.reInit($(event.target));
     $(event.target).foundation().addClass('dc-fd-initialized');
   });
 

@@ -38,9 +38,7 @@ server {
   location @puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %> {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
-
-    # enable for https
-    # proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-Proto $scheme;
 
     proxy_redirect off;
     proxy_read_timeout 300;
@@ -66,8 +64,7 @@ server {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Real-IP $remote_addr;
-    # required for https
-    # proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-Proto $scheme;
     proxy_redirect off;
   }
 

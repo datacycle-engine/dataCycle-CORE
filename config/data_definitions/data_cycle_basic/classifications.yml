@@ -367,6 +367,13 @@
 
 - Preis-Währung | all:
   - EUR | Euro
+  - USD | US-Dollar
+  - HUF | Ungarische Forint
+  - CZK | Tschechische Kronen
+  - HRK | Kroatische Kuna
+  - CHF | Schweizer Franken
+  - PLN | Polnische Złoty
+  - DKK | Dänische Kronen
 
 - Lizenzen | show, edit, api, xml:
   - Open Data:
@@ -401,4 +408,16 @@
 
 - ActionTypes | all:
   - Download **https://schema.org/DownloadAction
-  - View **https://schema.org/ViewAction
+  - externer Link **https://schema.org/ViewAction
+  - Bestellen **https://schema.org/OrderAction
+
+- ItemAvailability | all:
+  - Eingestellt **https://schema.org/Discontinued
+  - Verfügbar **https://schema.org/InStock
+  - Nur im Geschäft **https://schema.org/InStoreOnly
+  - Eingeschränkt verfügbar **https://schema.org/LimitedAvailability
+  - Nur online **https://schema.org/OnlineOnly
+  - Nicht vorrätig **https://schema.org/OutOfStock
+  - Vorbestellen **https://schema.org/PreOrder
+  - Vorverkauf **https://schema.org/PreSale
+  - Ausverkauft **https://schema.org/SoldOut

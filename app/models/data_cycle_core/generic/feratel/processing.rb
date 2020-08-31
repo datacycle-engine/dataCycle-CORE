@@ -24,26 +24,21 @@ module DataCycleCore
 
         def self.process_event_location(utility_object, raw_data, config)
           template = config&.dig(:template) || 'Örtlichkeit'
-          place_hash = {}
+          place_hash = [
+            Array.wrap(raw_data.dig('Addresses', 'Address'))&.select { |d| d['Type'] == 'Venue' }&.first,
+            raw_data.dig('Details', 'Location').present? ? { 'Location' => raw_data.dig('Details', 'Location') } : nil,
+            raw_data.dig('Details', 'Position').present? ? { 'Position' => raw_data.dig('Details', 'Position') } : nil
+          ].reject(&:blank?).reduce({}, :merge)
 
-          address = Array.wrap(raw_data.dig('Addresses', 'Address'))&.select { |d|
-            d['Type'] == 'Venue'
-          }&.first
+          # binding.pry if raw_data.dig('Addresses', 'Address').blank?
 
-          return if address.blank? && (!raw_data.dig('Details', 'Position', 'Latitude').to_f.positive? || !raw_data.dig('Details', 'Position', 'Longitude').to_f.positive?)
+          return if [
+            place_hash.dig('Location', 'Translation', 'text'),
+            place_hash.dig('Company', 'text'),
+            place_hash.dig('FirstName', 'text'), place_hash.dig('LastName', 'text')
+          ].reject(&:blank?).empty?
 
-          if address.present?
-            place_hash.merge!(address)
-          elsif raw_data.dig('Details', 'Position', 'Latitude').to_f.positive? && raw_data.dig('Details', 'Position', 'Longitude').to_f.positive?
-            if raw_data.dig('Details', 'Location', 'Translation', 'text').present?
-              place_hash['Id'] = "Location:#{raw_data.dig('Id')}"
-              place_hash['location_name'] = raw_data.dig('Details', 'Location', 'Translation', 'text')
-            end
-          end
-
-          return if place_hash.blank?
-
-          place_hash.merge!(raw_data.dig('Details', 'Position'))
+          place_hash['Id'] = "Location:#{raw_data.dig('Id')}"
 
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,

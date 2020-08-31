@@ -32,7 +32,7 @@
     :xml: false
 
 :overlay:
-  :enabled: false
+  :enabled: true
   :attribute_keys:
     - overlay
 
@@ -193,3 +193,7 @@
   :enabled: false
   :only_config: true
   # :tree_label: Eyebase - Status
+
+:collection_group:
+  :enabled: false
+  :separator: ' / '

@@ -4,11 +4,12 @@ module DataCycleCore
   module Generic
     module GoogleGeocoding
       class Endpoint
-        def initialize(host: nil, end_point: nil, key: nil, **options)
+        def initialize(host: nil, end_point: nil, key: nil, allow_ambiguous_address: nil, **options)
           @host = host
           @end_point = end_point
           @key = key
           @options = options
+          @allow_ambiguous_address = allow_ambiguous_address
         end
 
         def geocode(address, locale = I18n.locale)

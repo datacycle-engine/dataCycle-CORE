@@ -27,23 +27,5 @@ describe DataCycleCore::MasterData::Differs::String do
       b = 'HenryIV'
       assert_equal('~', subject.new(a, b).diff_hash[0])
     end
-
-    it 'handles default_values correctly' do
-      string = 'Hallo'
-      hash = template_hash.deep_dup
-      hash['default_value'] = string
-      [[nil, string], [string, nil], [nil, nil]].each do |a, b|
-        assert_nil(subject.new(a, b, hash).diff_hash)
-      end
-    end
-
-    it 'handles eval default_values correctly' do
-      string = 'Hello World'
-      hash = template_hash.deep_dup
-      hash['default_value'] = '{{ ["Hello", "World"].join(" ") }}'
-      [[nil, string], [string, nil], [nil, nil]].each do |a, b|
-        assert_nil(subject.new(a, b, hash).diff_hash)
-      end
-    end
   end
 end

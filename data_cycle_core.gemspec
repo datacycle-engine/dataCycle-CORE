@@ -139,6 +139,10 @@ Gem::Specification.new do |s|
   # premailer
   s.add_dependency 'premailer'
 
+  # support for ED25519 SSH Keys
+  s.add_dependency 'bcrypt_pbkdf'
+  s.add_dependency 'ed25519'
+
   # validation gems
   s.add_development_dependency 'brakeman', '>= 4.5.1'
   s.add_development_dependency 'bundler-audit'

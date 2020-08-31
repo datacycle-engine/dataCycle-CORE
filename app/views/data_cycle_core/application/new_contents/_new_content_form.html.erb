@@ -9,7 +9,7 @@
       data-remote-path="data_cycle_core/contents/new/shared/new_form"
       data-remote-render-function="<%= local_assigns[:render_function] %>"
       data-remote-render-params="<%= local_assigns[:render_params] %>"
-      data-remote-options="<%= to_query_params(local_assigns.deep_merge(options: { force_render: true, prefix: SecureRandom.uuid.underscore + '_'})).to_json %>">
+      data-remote-options="<%= to_query_params(local_assigns.deep_merge(options: { force_render: true, prefix: SecureRandom.uuid.underscore + '_', ui_scope: 'create' })).to_json %>">
   </div>
 
   <button class="close-button" data-close aria-label="Close modal" type="button">

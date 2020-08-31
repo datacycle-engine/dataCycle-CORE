@@ -36,7 +36,7 @@ module DataCycleCore
         template_paths.each do |core_template_path|
           content_sets.each do |content_set_name|
             files = core_template_path + content_set_name + '*.yml'
-            file_names = Dir[files]
+            file_names = Dir[files].sort
             file_names.each do |file_name|
               data_templates = YAML.safe_load(File.open(file_name.to_s), [Symbol])
               data_templates.each_index do |index|
@@ -209,7 +209,7 @@ module DataCycleCore
           end
           optional(:template_name) { str? }
           optional(:validations) { hash? }
-          optional(:default_value) { str? } # the default_value is set if no value is given. for classifications. for plain values supports also evaluated code in double curly braces {{...}}
+          optional(:default_value) { str? | hash? } # the default_value is set only on creation of content or translation / can either be a String or a Hash with 'module' and 'method'
           optional(:ui) { hash? }
           optional(:api) { hash? }
           optional(:xml) { hash? }

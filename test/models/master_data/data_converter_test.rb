@@ -224,4 +224,41 @@ describe DataCycleCore::MasterData::DataConverter do
       assert_equal a, subject.string_to_string(a)
     end
   end
+
+  describe 'convert number objects' do
+    it 'converts string to float objects if no definition is present' do
+      test_cases = ['3', '4.9', '5,7']
+      test_cases.each do |test_case|
+        converted_data = subject.convert_to_type('number', test_case)
+        assert(converted_data.is_a?(::Float))
+        assert_equal(test_case.to_f, converted_data)
+      end
+    end
+    it 'converts string to float objects if validation format is set to float' do
+      definition = {
+        'validations' => {
+          'format' => 'float'
+        }
+      }
+      test_cases = ['3', '4.9', '5,7']
+      test_cases.each do |test_case|
+        converted_data = subject.convert_to_type('number', test_case, definition)
+        assert(converted_data.is_a?(::Float))
+        assert_equal(test_case.to_f, converted_data)
+      end
+    end
+    it 'converts string to integer objects if validation format is set to integer' do
+      definition = {
+        'validations' => {
+          'format' => 'integer'
+        }
+      }
+      test_cases = ['3', '4.9', '5,7']
+      test_cases.each do |test_case|
+        converted_data = subject.convert_to_type('number', test_case, definition)
+        assert(converted_data.is_a?(::Integer))
+        assert_equal(test_case.to_i, converted_data)
+      end
+    end
+  end
 end

@@ -10,7 +10,7 @@
         :default_value: freigegeben
         :ui:
           :show:
-            :disabled: true
+            :content_area: none
           :edit:
             :options:
               :multiple: false
@@ -23,7 +23,7 @@
         :storage_location: value
         :ui:
           :show:
-            :disabled: true
+            :content_area: none
           :edit:
             :type: text_editor
             :options:

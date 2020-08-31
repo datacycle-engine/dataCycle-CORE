@@ -12,7 +12,7 @@
           :required: true
         :ui:
           :show:
-            :disabled: true
+            :content_area: none
         :normalize:
           :id: company
           :type: company

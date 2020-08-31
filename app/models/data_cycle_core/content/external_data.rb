@@ -5,7 +5,7 @@ module DataCycleCore
     module ExternalData
       def add_external_system_data(external_system, data = nil, status = nil)
         external_data = external_system_syncs.find_or_initialize_by(external_system_id: external_system.id)
-        external_data.update({ data: data, status: status }.compact)
+        external_data.update({ data: data, status: status, external_key: data.try(:dig, 'external_key') }.compact)
       end
 
       def remove_external_system_data(external_system)

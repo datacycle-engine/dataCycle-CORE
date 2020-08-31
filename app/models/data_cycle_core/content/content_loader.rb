@@ -28,22 +28,24 @@ module DataCycleCore
         end
       end
 
-      def load_linked_objects(relation_name, filter = nil, same_language = false, languages = [I18n.locale])
-        properties = properties_for(relation_name)
+      def load_linked_objects(relation_name, filter = nil, same_language = false, languages = [I18n.locale], overlay_flag = false)
+        properties = properties_for(relation_name, overlay_flag)
+        return [] if properties.nil?
         relation_b = properties.dig('inverse_of')
         language_flag = same_language
         language_flag = properties.dig('linked_language') == 'same' if properties.dig('linked_language').present?
-        load_relation(relation_name, relation_b, language_flag, languages, filter, properties.dig('link_direction') == 'inverse')
+        load_relation(relation_name, relation_b, language_flag, languages, filter, properties.dig('link_direction') == 'inverse', overlay_flag)
       end
 
-      def load_embedded_objects(relation_name, filter = nil, same_language = true, languages = [I18n.locale])
+      def load_embedded_objects(relation_name, filter = nil, same_language = true, languages = [I18n.locale], overlay_flag = false)
+        return [] if properties_for(relation_name, overlay_flag).nil?
         language_flag = same_language
-        language_flag = !properties_for(relation_name).dig('translated') if properties_for(relation_name).dig('translated').present?
+        language_flag = !properties_for(relation_name, overlay_flag).dig('translated') if properties_for(relation_name, overlay_flag).dig('translated').present?
         language_flag = false if same_language == false # overrules flag in template (needed for create_history and destroy)
-        load_relation(relation_name, nil, language_flag, languages, filter)
+        load_relation(relation_name, nil, language_flag, languages, filter, false, overlay_flag)
       end
 
-      def load_relation(relation_a, relation_b, same_language, languages, filter = nil, inverse = false)
+      def load_relation(relation_a, relation_b, same_language, languages, filter = nil, inverse = false, overlay_flag = false)
         if inverse
           relation_name = :content_a
           relation_a_name = relation_b
@@ -56,14 +58,17 @@ module DataCycleCore
           content_filter = :content_b_id
         end
 
+        overwritten = overlay_data(I18n.locale).try(:[], relation_a) if overlay_flag
+        root_object = overwritten.present? ? overlay.first : self
+
         if filter.present?
-          relation_contents = send(relation_name).where(content_contents: {
+          relation_contents = root_object.send(relation_name).where(content_contents: {
             relation_a: relation_a_name,
             relation_b: relation_b_name,
-            content_filter => filter.apply(experimental: true).select(:id).except(:order)
+            content_filter => filter.apply.select(:id).except(:order)
           })
         else
-          relation_contents = send(relation_name).where(content_contents: {
+          relation_contents = root_object.send(relation_name).where(content_contents: {
             relation_a: relation_a_name,
             relation_b: relation_b_name
           })
@@ -72,12 +77,14 @@ module DataCycleCore
         relation_contents
       end
 
-      def load_classifications(relation_name)
+      def load_classifications(relation_name, overlay_flag = false)
+        value = overlay_data(I18n.locale).try(:[], relation_name) if overlay_flag
+        content_data_id = value.present? ? overlay_data(I18n.locale).dig('id') : id
         DataCycleCore::Classification
           .joins(:classification_contents)
           .where(
             classification_contents: {
-              content_data_id: id, relation: relation_name
+              content_data_id: content_data_id, relation: relation_name
             }
           )
       end
@@ -91,8 +98,10 @@ module DataCycleCore
           .find_by(asset_contents: { content_data_id: id, relation: relation_name })
       end
 
-      def load_schedule(relation_name)
-        DataCycleCore::Schedule.where(thing_id: id, relation: relation_name).order(created_at: :asc)
+      def load_schedule(relation_name, overlay_flag = false)
+        value = overlay_data(I18n.locale).try(:[], relation_name) if overlay_flag
+        thing_id = value.present? ? overlay_data(I18n.locale).dig('id') : id
+        DataCycleCore::Schedule.where(thing_id: thing_id, relation: relation_name).order(created_at: :asc)
       end
 
       def as_of(timestamp)

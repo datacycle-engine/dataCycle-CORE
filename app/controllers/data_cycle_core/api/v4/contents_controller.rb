@@ -7,7 +7,6 @@ module DataCycleCore
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
         include DataCycleCore::ApiHelper
-        include DataCycleCore::ApiService
         before_action :prepare_url_parameters
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
@@ -80,40 +79,7 @@ module DataCycleCore
         def permitted_filter_parameters
           {
             filter:
-              [
-                :search,
-                :q,
-                {
-                  classifications: {
-                    in: {
-                      withSubtree: [],
-                      withoutSubtree: []
-                    },
-                    notIn: {
-                      withSubtree: [],
-                      withoutSubtree: []
-                    }
-                  }
-                },
-                {
-                  attribute: {
-                    createdAt: attribute_filter_operations,
-                    deletedAt: attribute_filter_operations,
-                    modifiedAt: attribute_filter_operations,
-                    schedule: attribute_filter_operations
-                  }
-                },
-                {
-                  geo: {
-                    in: {
-                      box: []
-                    },
-                    notIn: {
-                      box: []
-                    }
-                  }
-                }
-              ]
+              attribute_filters + [linked: {}]
           }
         end
 
@@ -152,16 +118,14 @@ module DataCycleCore
           filter = @stored_filter || DataCycleCore::StoredFilter.new
           filter.language = @language
           filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
-          query = filter.apply(experimental: true)
+          query = filter.apply
           query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
 
           query = query.fulltext_search(@full_text_search) if @full_text_search
 
           query = query.in_validity_period
 
-          query = apply_classification_filters(query)
-          query = apply_attribute_filters(query)
-          query = apply_geo_filters(query)
+          query = apply_filters(query, permitted_params&.dig(:filter))
 
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
           query = query.distinct_by_content_id

@@ -21,7 +21,6 @@ module DataCycleCore
           .>> t(:add_field, 'latitude', ->(s) { s.dig('lat')&.try(:to_f) })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('lng')&.try(:to_f) })
           .>> t(:location)
-          .>> t(:compact)
           .>> t(:strip_all)
         end
 

@@ -8,16 +8,13 @@ module DataCycleCore
       template = DataCycleCore::Thing.count
       template_trans = DataCycleCore::Thing::Translation.count
       current_user = DataCycleCore::User.first
-
-      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
-      data_set.save!
       data_hash = { 'name' => 'Test Container!', 'headline' => 'Test Container!' }
-      error = data_set.set_data_hash(data_hash: data_hash, prevent_history: true, current_user: current_user)
+      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: data_hash, prevent_history: true, user: current_user)
 
       returned_data_hash = data_set.get_data_hash
       assert_equal(data_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(current_user.id, data_set.updated_by)
-      assert_equal(0, error[:error].count)
+      assert_equal(0, data_set.errors.messages.size)
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)
@@ -41,7 +38,7 @@ module DataCycleCore
         'name' => 'Test Artikel!',
         'date_modified' => Time.zone.now
       }
-      e_a = ds_a.set_data_hash(data_hash: dh_a, prevent_history: true, current_user: current_user)
+      e_a = ds_a.set_data_hash(data_hash: dh_a, prevent_history: true, current_user: current_user, new_content: true)
       ds_a.save
 
       r_dh = ds_a.get_data_hash

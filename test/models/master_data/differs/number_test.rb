@@ -64,32 +64,5 @@ describe DataCycleCore::MasterData::Differs::Number do
       float_template['validations'] = { 'format' => 'float' }
       assert_nil(subject.new(10, 10.0001, float_template).diff_hash)
     end
-
-    it 'handles default_values correctly' do
-      integer_template = template_hash.deep_dup
-      integer_template['validations'] = { 'format' => 'integer' }
-      integer_template['default_value'] = 5
-      [[nil, 5], [5, nil], ['5', nil]].each do |item|
-        assert_nil(subject.new(item[0], item[1], integer_template).diff_hash)
-      end
-    end
-
-    it 'handles default_values (as string) correctly' do
-      integer_template = template_hash.deep_dup
-      integer_template['validations'] = { 'format' => 'integer' }
-      integer_template['default_value'] = '5'
-      [[nil, 5], [5, nil], ['5', nil]].each do |item|
-        assert_nil(subject.new(item[0], item[1], integer_template).diff_hash)
-      end
-    end
-
-    it 'handles default_values (as ruby_code) correctly' do
-      integer_template = template_hash.deep_dup
-      integer_template['validations'] = { 'format' => 'integer' }
-      integer_template['default_value'] = '{{Math.sqrt(25)}}'
-      [[nil, 5], [5, nil], ['5', nil]].each do |item|
-        assert_nil(subject.new(item[0], item[1], integer_template).diff_hash)
-      end
-    end
   end
 end

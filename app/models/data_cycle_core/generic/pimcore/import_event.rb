@@ -19,6 +19,8 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
+            next if raw_data.dig('localizedData', 'name').blank? # unnamed events are not imported
+
             DataCycleCore::Generic::Pimcore::Processing.process_place(
               utility_object,
               raw_data.dig('organiser'),

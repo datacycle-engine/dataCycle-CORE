@@ -184,6 +184,30 @@ module DataCycleCore
           data_hash['universal_classifications'] += (function.call(data_hash) || [])
           data_hash
         end
+
+        def self.geocode(data_hash, condition_function = nil)
+          return data_hash unless DataCycleCore::Feature::Geocode.enabled?
+          return data_hash if condition_function.present? && !condition_function.call(data_hash)
+
+          address_params = data_hash.dig(DataCycleCore::Feature::Geocode.address_source)
+          return data_hash if address_params.blank? || address_params.values.all?(&:blank?)
+
+          begin
+            geocoded_data = DataCycleCore::Feature::Geocode.geocode_address(address_params.to_h)
+          rescue DataCycleCore::Generic::Common::Error::EndpointError => e
+            geocoded_data = OpenStruct.new(error: e.message)
+          end
+
+          if geocoded_data.try(:error).present?
+            logger = DataCycleCore::Generic::Logger::LogFile.new('geocode')
+            logger.info(geocoded_data.error)
+            logger.close
+            return data_hash
+          end
+
+          attributes = DataCycleCore::Feature::Geocode.geodata_to_attributes(geocoded_data)
+          data_hash.merge(attributes.deep_stringify_keys)
+        end
       end
     end
   end

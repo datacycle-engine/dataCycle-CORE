@@ -10,6 +10,10 @@
         :translated: true
         :api:
           :name: subject_of
+      :number_of_rooms:
+        :label: Anzahl Zimmer/Apartments/Stellplätze
+        :type: number
+        :storage_location: value
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
@@ -37,7 +41,7 @@
             :options:
               :data-size: basic
       :aggregate_rating:
-        :label: Durchschittswertung
+        :label: Durchschnittswertung
         :type: embedded
-        :template_name: Durchschittswertung
+        :template_name: Durchschnittswertung
         :translated: true

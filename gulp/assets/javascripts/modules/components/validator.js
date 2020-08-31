@@ -101,7 +101,7 @@ class Validator {
     if (this.languageMenu.length) {
       this.languageMenu.on('click', '.list-items > li > a', event => {
         QuillHelpers.updateEditors(this.form);
-        this.submitFormData = this.form.serializeArray();
+        this.submitFormData = this.form.serializeArray().uniqFieldValues();
         if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData)) {
           event.preventDefault();
           new ConfirmationModal({
@@ -313,6 +313,7 @@ class Validator {
     }).done(data => {
       if (data != undefined) {
         if (
+          data.error &&
           Object.keys(data.error).length > 0 &&
           items
             .filter('[id]')
@@ -326,6 +327,7 @@ class Validator {
         }
 
         if (
+          data.warning &&
           Object.keys(data.warning).length > 0 &&
           items
             .filter('[id]')

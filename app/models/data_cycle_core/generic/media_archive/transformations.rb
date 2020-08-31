@@ -83,7 +83,6 @@ module DataCycleCore
           .>> t(:map_value, 'name', ->(s) { s.try :[], I18n.locale.to_s })
           .>> t(:add_field, 'external_key', ->(s) { "-#{template}: #{s['url'].split('/').last}" })
           .>> t(:location)
-          .>> t(:compact)
           .>> t(:strip_all)
         end
 
@@ -93,7 +92,6 @@ module DataCycleCore
           .>> t(:reject_keys, ['id'])
           .>> t(:add_link, 'member_of', DataCycleCore::Thing, external_source_id, ->(s) { Digest::SHA1.hexdigest(s.dig('member_of', 'name')) }, ->(s) { s&.dig('member_of', 'name').present? })
           .>> t(:strip_all)
-          .>> t(:compact)
         end
       end
     end

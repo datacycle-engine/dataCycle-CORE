@@ -16,4 +16,17 @@ module.exports.initialize = function ($) {
         embedded_objects.push(new EmbeddedObject($(elem)));
       });
   });
+
+  $(document).on('change', '.form-element.is-embedded-title', event => {
+    let value = $(event.currentTarget).find(':input').first().val();
+    let titleField = $(event.currentTarget)
+      .closest('.content-object-item')
+      .find('> .accordion-title > .embedded-title');
+
+    titleField.text(value);
+    titleField.attr('title', value);
+
+    if (value && value.length) titleField.addClass('visible');
+    else titleField.removeClass('visible');
+  });
 };

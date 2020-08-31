@@ -1,18 +1,12 @@
 ---
-name: Exozet
+name: austria.info
 credentials:
-  host: http://test.com # https://cms.oew.stage.exozet.com/hook
-  token: xxxxxxxxx # 2963b255a0b2bfba36201b9fe70c37bf
+  host: http://test.com
+  token: xxxxxxxxx
   api_version: 4
   api_subversion:
 default_options:
   export:
     external_url: 'https://cms.austria.info/admin/app/sonatapagepage/%{external_key}/edit'
 config:
-  # export_config:
-  #   endpoint: Export::Exozet::Endpoint
-  #   update:
-  #     strategy: Export::Exozet::Update
-  #   delete:
-  #     strategy: Export::Exozet::Delete
   api_strategy: DataCycleCore::Generic::ExternalLink::Webhook

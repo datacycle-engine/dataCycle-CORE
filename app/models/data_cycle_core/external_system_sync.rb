@@ -8,6 +8,7 @@ module DataCycleCore
     after_update :invalidate_cache
 
     def external_url
+      return data.dig('external_url') if data&.dig('external_url').present?
       return if !syncable.is_a?(DataCycleCore::Thing) || external_system&.default_options(:export)&.dig('external_url').blank? || external_key.blank?
 
       format(external_system.default_options(:export).dig('external_url'), locale: I18n.locale, type: type, external_key: external_key)

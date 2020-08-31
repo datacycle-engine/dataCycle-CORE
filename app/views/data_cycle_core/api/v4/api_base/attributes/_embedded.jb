@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json ||= {}
-data = content.load_embedded_objects(key, nil, false, options[:languages]).includes(:translations, :classifications)
+data = content.load_embedded_objects(key, nil, false, options[:languages], true).includes(:translations, :classifications)
 translatable_embedded = content.properties_for(key).dig('translated') || false
 
 if data.present?

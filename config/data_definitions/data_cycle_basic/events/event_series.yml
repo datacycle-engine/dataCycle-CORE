@@ -27,7 +27,7 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :template_name: EventOverlay
+        :template_name: EventserieOverlay
         :validations:
           :max: 1
       :title:
@@ -70,6 +70,25 @@
                 - Ort
         :api:
           :name: location
+      :performer:
+        :label: Ausführende Person/Organisation
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :organizer:
+        :label: Veranstalter
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+                - LocalBusiness
       :virtual_location:
         :label: Virtueller Veranstaltungsort
         :type: embedded

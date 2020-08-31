@@ -40,13 +40,27 @@ module DataCycleCore
           t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { [Digest::MD5.hexdigest(DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(s.dig('organiser')).merge('organization' => true).to_s)] })
           .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { [Digest::MD5.hexdigest(DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(s.dig('organiser')).merge('place' => true).to_s)] })
           .>> t(:add_field, 'organizer_key', ->(s) { Digest::MD5.hexdigest(DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(s.dig('organiser')).merge('organization' => true).to_s) })
-          .>> t(:add_field, 'external_key', ->(s) { s.dig('id') })
+          .>> t(:add_field, 'external_key', ->(s) { "Pimcore - #{s.dig('id')}" })
           .>> t(:add_field, 'pimcore_tags', ->(s) { get_tags(s) })
           .>> t(:add_links, 'pimcore_locations', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('locations'))&.map { |name| "Pimcore - Location - #{name}" } || [] })
           .>> t(:add_links, 'pimcore_categories', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('categories'))&.map { |name| "Pimcore - Event-Category - #{name}" } || [] })
           .>> t(:add_field, 'name', ->(s) { s.dig('localizedData', 'name').presence })
           .>> t(:add_field, 'url', ->(s) { s.dig('localizedData', 'bergerlebnisPage').presence || s.dig('localizedData', 'link') })
           .>> t(:add_field, 'potential_action', ->(s) { s.dig('localizedData', 'bookingLink') })
+          .>> t(:add_field, 'description', ->(s) { [s.dig('localizedData', 'shortText').presence, s.dig('localizedData', 'longText').presence].compact.join('<br/>') })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { get_image_external_keys(s.dig('images')) })
+          .>> t(:add_field, 'start_date', ->(s) { get_time(s.dig('localizedData', 'dateInfo', 'dateFrom')) })
+          .>> t(:add_field, 'end_date', ->(s) { get_time(s.dig('localizedData', 'dateInfo', 'dateTo')) })
+          .>> t(:nest, 'event_period', ['start_date', 'end_date'])
+          .>> t(:add_field, 'event_schedule', ->(s) { load_schedules(s.dig('localizedData', 'dateInfo', 'dateItems')) })
+          .>> t(:reject_keys, ['id', 'images', 'localizedDate', 'organiser', 'locations', 'categories'])
+        end
+
+        def self.to_event_series(external_source_id)
+          t(:add_field, 'external_key', ->(s) { "Pimcore - Series #{s.dig('id')}" })
+          .>> t(:add_field, 'pimcore_tags', ->(s) { get_tags(s) })
+          .>> t(:add_links, 'pimcore_categories', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('categories'))&.map { |name| "Pimcore - Event-Category - #{name}" } || [] })
+          .>> t(:add_field, 'name', ->(s) { s.dig('localizedData', 'name').presence })
           .>> t(:add_field, 'description', ->(s) { [s.dig('localizedData', 'shortText').presence, s.dig('localizedData', 'longText').presence].compact.join('<br/>') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { get_image_external_keys(s.dig('images')) })
           .>> t(:add_field, 'start_date', ->(s) { get_time(s.dig('localizedData', 'dateInfo', 'dateFrom')) })
@@ -85,9 +99,10 @@ module DataCycleCore
         end
 
         def self.to_event_image
-          t(:add_field, 'external_key', ->(s) { "Pimcore - EventImage - #{s.dig('link')}" })
-          .>> t(:add_field, 'content_url', ->(s) { s.dig('link') })
-          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('link') })
+          t(:add_field, 'external_key', ->(s) { "Pimcore - EventImage - #{CGI.unescape(s.dig('link'))}" })
+          .>> t(:add_field, 'name', ->(s) { CGI.unescape(s.dig('link')).split('/')&.last })
+          .>> t(:add_field, 'content_url', ->(s) { CGI.unescape(s.dig('link')) })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { CGI.unescape(s.dig('link')) })
           .>> t(:reject_keys, ['link', 'index', 'gallery_size'])
         end
 
@@ -136,10 +151,12 @@ module DataCycleCore
           array.map { |schedule|
             dstart = get_time(schedule.dig('dateFrom'))
             dend = get_time(schedule.dig('dateTo'))
-            tstart = schedule.dig('timeFrom').to_datetime
-            tend = schedule.dig('timeTo').to_datetime
+            tstart = schedule.dig('timeFrom')&.to_datetime || Time.zone.now.beginning_of_day.to_datetime
+            tend = schedule.dig('timeTo').in?(['00:00', nil]) ? Time.zone.now.end_of_day.to_datetime : schedule.dig('timeTo')&.to_datetime || Time.zone.now.beginning_of_day.to_datetime
+            next_day = next_day?(schedule.dig('timeFrom'), schedule.dig('timeTo'))
             dtstart = dstart + tstart.hour * 60 * 60 + tstart.minute * 60
             dtend = dend + tend.hour * 60 * 60 + tend.minute * 60
+            dtend = dtend.next_day if next_day
             duration = tend.to_i - tstart.to_i
             active_days = weekdays
               .select { |day, _val| schedule.dig(day) == '1' }
@@ -157,6 +174,14 @@ module DataCycleCore
             end
             schedule_object.to_hash.merge(dtstart: dtstart, dtend: dtend).compact
           }.sort_by { |item| item[:dtstart] }
+        end
+
+        def self.next_day?(from, to)
+          return false if from.blank? || to.blank?
+          to_seconds = to.split(':').map(&:to_i).zip([60, 1]).map { |v, m| v * m }.sum
+          from_seconds = from.split(':').map(&:to_i).zip([60, 1]).map { |v, m| v * m }.sum
+          return false if to_seconds > 180
+          to_seconds < from_seconds
         end
       end
     end

@@ -1,10 +1,18 @@
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
   <% value ||= false %>
   <%= hidden_field_tag key, value, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" if options.presence&.dig('readonly') %>
-  <%= check_box nil, key, { id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", checked: value, disabled: options.presence&.dig('readonly') }, 'true', 'false' %>
+  <%= check_box nil,
+    key,
+    {
+      id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}",
+      checked: value,
+      disabled: options.presence&.dig('readonly')
+    },
+    definition.dig('ui', local_assigns.dig(:options, :ui_scope), 'true_value') || 'true',
+    definition.dig('ui', local_assigns.dig(:options, :ui_scope), 'false_value') || 'false' %>
   <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
     <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
-    <%= definition['label'] %>
+    <%= definition.dig('ui', local_assigns.dig(:options, :ui_scope), 'label') || definition['label'] %>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   <% end %>
 <% end %>

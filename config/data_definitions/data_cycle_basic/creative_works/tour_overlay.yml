@@ -54,6 +54,3 @@
         :type: embedded
         :template_name: Öffnungszeit
         :translated: true
-      :cc_rel:
-        :type: mixin
-        :name: cc_rel

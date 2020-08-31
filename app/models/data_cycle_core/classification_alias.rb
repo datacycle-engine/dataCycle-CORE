@@ -27,6 +27,7 @@ module DataCycleCore
     default_scope { i18n }
     before_save :set_internal_data
     after_destroy :clean_stored_filters
+    before_destroy -> { primary_classification&.destroy }, prepend: true
 
     attr_accessor :content_template
 
@@ -97,10 +98,7 @@ module DataCycleCore
     def self.classification_for_tree_with_name(tree_name, *names)
       for_tree(tree_name)
         .with_internal_name(names)
-        .map(&:classifications)
-        .flatten
-        .map(&:id)
-        .first
+        .classifications.pluck(:id).first
     end
 
     def self.classifications_for_tree_with_name(tree_name, *names)
@@ -265,7 +263,7 @@ module DataCycleCore
       return unless name_i18n_changed? # && internal_name.blank?
       available_translation = I18n.available_locales.drop_while { |locale| name(locale: locale).blank? }
       return if available_translation.blank?
-      self.internal_name = name(locale: available_translation.first)
+      self.internal_name = DataCycleCore::MasterData::DataConverter.string_to_string(name(locale: available_translation.first))
     end
 
     def update_primary_classification
@@ -274,7 +272,7 @@ module DataCycleCore
       return if primary_classification.nil?
 
       primary_classification.tap do |c|
-        c.name = name
+        c.name = DataCycleCore::MasterData::DataConverter.string_to_string(name)
         c.save!
       end
     end
@@ -292,7 +290,27 @@ module DataCycleCore
     end
 
     def clean_stored_filters
-      DataCycleCore::StoredFilter.where("stored_filters.parameters::TEXT ILIKE '%#{id}%'").update_all("parameters = REPLACE(parameters::TEXT, '\"#{id}\"', '')::JSONB") # rubocop:disable Rails/SkipsModelValidations
+      ActiveRecord::Base.connection.execute <<-SQL
+        WITH subquery AS
+        (
+            SELECT
+              id,
+              jsonb_agg( CASE
+                WHEN jsonb_typeof( elem -> 'v' ) = 'array'
+                THEN jsonb_set( elem,'{v}',( ( elem -> 'v' ) - '#{id}' ) )
+                ELSE elem
+            END ) AS new_parameters
+            FROM
+              stored_filters,
+              jsonb_array_elements( parameters ) elem
+            WHERE parameters::TEXT ILIKE '%#{id}%'
+            GROUP BY id
+        )
+        UPDATE stored_filters
+        SET
+          parameters = subquery.new_parameters FROM subquery
+        WHERE stored_filters.id = subquery.id
+      SQL
     end
   end
 end

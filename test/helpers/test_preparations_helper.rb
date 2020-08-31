@@ -133,22 +133,23 @@ module DataCycleCore
       )
     end
 
-    def self.create_content(template_name: nil, data_hash: nil, user: nil)
+    def self.create_content(template_name: nil, data_hash: nil, user: nil, prevent_history: false, save_time: Time.zone.now)
       return if template_name.blank? || data_hash.blank?
-      data_hash.deep_stringify_keys!
-
-      @content = DataCycleCore::Thing.find_by(data_hash.slice('name', 'given_name', 'family_name').merge(template_name: template_name))
+      data_hash = data_hash.dup.with_indifferent_access
+      @content = DataCycleCore::Thing.find_by(data_hash.slice('name', 'given_name', 'family_name').merge({ template_name: template_name, template: false }))
       return @content if @content.present?
 
       @content = DataCycleCore::Thing.find_by(template_name: template_name, template: true).dup
       @content.template = false
+      @content.created_at = save_time - 1 / 1001.0 # use - 1 / 1001.0 to ensure history creation
+      @content.updated_at = save_time - 1 / 1001.0 # use - 1 / 1001.0 to ensure history creation
       @content.created_by = user&.id if user.present?
-
       @content.save!
-      I18n.with_locale(:de) do
-        @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: (user || User.find_by(email: 'tester@datacycle.at')))
-      end
-      @content.reload
+
+      valid = @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: (user || User.find_by(email: 'tester@datacycle.at')), update_search_all: false, prevent_history: prevent_history, save_time: save_time)
+      valid[:error].each { |k, v| v.each { |e| @content.errors.add(k, e) } } if valid[:error].present?
+
+      @content
     end
 
     def self.generate_schedule(dtstart, dtend, duration)
@@ -165,7 +166,7 @@ module DataCycleCore
     def self.create_watch_list(name: nil)
       return if name.blank?
 
-      DataCycleCore::WatchList.find_or_create_by(name: name, user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id)
+      DataCycleCore::WatchList.find_or_create_by(full_path: name, user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id)
     end
 
     def self.excepted_attributes(model = nil)
@@ -177,12 +178,12 @@ module DataCycleCore
       @dummy_data_hash.dig(model.to_sym, name.to_sym).dup
     end
 
-    def self.data_set_object(template_name)
-      template = DataCycleCore::Thing.where(template: true, template_name: template_name).first
-      data_set = DataCycleCore::Thing.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set
-    end
+    # def self.data_set_object(template_name)
+    #   template = DataCycleCore::Thing.where(template: true, template_name: template_name).first
+    #   data_set = DataCycleCore::Thing.new
+    #   data_set.schema = template.schema
+    #   data_set.template_name = template.template_name
+    #   data_set
+    # end
   end
 end

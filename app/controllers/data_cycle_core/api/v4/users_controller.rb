@@ -7,10 +7,14 @@ module DataCycleCore
         before_action :prepare_url_parameters
         before_action :check_feature_enabled, except: :index
 
+        def permitted_params
+          @permitted_params ||= params.permit(*permitted_parameter_keys)
+        end
+
         def index
           @user_data = current_user
           @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
-          @stored_filter = DataCycleCore::StoredFilter.accessible_by(current_ability).where("'#{current_user.id}' = ANY (api_users)")
+          @stored_filter = DataCycleCore::StoredFilter.accessible_by(current_ability, :api).where("'#{current_user.id}' = ANY (api_users)").where.not(name: nil)
         end
 
         def show

@@ -175,6 +175,11 @@
         :label: Bewertung - Landschaft
         :type: number
         :storage_location: value
+      :opening_hours_specification:
+        :label: Öffnungszeit
+        :type: embedded
+        :template_name: Öffnungszeit
+        :translated: true
       :potential_actions:
         :type: mixin
         :name: potential_actions
@@ -201,3 +206,6 @@
       :additional_properties:
         :type: mixin
         :name: additional_properties
+      :additional_tour_properties:
+        :type: mixin
+        :name: additional_tour_properties

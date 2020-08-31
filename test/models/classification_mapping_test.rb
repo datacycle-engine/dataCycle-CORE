@@ -53,17 +53,46 @@ module DataCycleCore
       assert_not @classification_group2.reload.destroyed?
     end
 
-    # activate test when classifications with mapped aliases get correctly deleted
-    # test 'destroy classification with mappings from another alias including aliases and groups' do
-    #   @classification_alias2.update(classification_ids: [@classification1.id, @classification2.id])
-    #   @classification_tree1.destroy
+    test 'destroy classification with mappings from another alias including aliases and groups' do
+      @classification_alias2.update(classification_ids: [@classification1.id, @classification2.id])
+      @classification_tree1.destroy
 
-    #   assert @classification1.reload.destroyed?
-    #   assert @classification_alias1.reload.destroyed?
-    #   assert @classification_group1.reload.destroyed?
-    #   assert_not @classification2.reload.destroyed?
-    #   assert_not @classification_alias2.reload.destroyed?
-    #   assert_not @classification_group2.reload.destroyed?
-    # end
+      assert @classification1.reload.destroyed?
+      assert @classification_alias1.reload.destroyed?
+      assert @classification_group1.reload.destroyed?
+      assert_not @classification2.reload.destroyed?
+      assert_not @classification_alias2.reload.destroyed?
+      assert_not @classification_group2.reload.destroyed?
+    end
+
+    test 'destroy classification_tree_label with mappings' do
+      @classification_tree_label.destroy
+
+      assert @classification1.reload.destroyed?
+      assert @classification_alias1.reload.destroyed?
+      assert @classification_group1.reload.destroyed?
+      assert @classification2.reload.destroyed?
+      assert @classification_alias2.reload.destroyed?
+      assert @classification_group2.reload.destroyed?
+    end
+
+    test 'destroy single classification_alias' do
+      @classification_alias1.destroy
+
+      assert @classification1.reload.destroyed?
+      assert @classification_alias1.reload.destroyed?
+      assert @classification_group1.reload.destroyed?
+    end
+
+    test 'destroy multiple classification_aliases' do
+      DataCycleCore::ClassificationAlias.for_tree(@classification_tree_label.name).destroy_all
+
+      assert @classification1.reload.destroyed?
+      assert @classification_alias1.reload.destroyed?
+      assert @classification_group1.reload.destroyed?
+      assert @classification2.reload.destroyed?
+      assert @classification_alias2.reload.destroyed?
+      assert @classification_group2.reload.destroyed?
+    end
   end
 end

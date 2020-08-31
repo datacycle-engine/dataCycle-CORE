@@ -22,12 +22,12 @@ module DataCycleCore
           assert_equal image2.id, @content.image.first.id
         end
 
-        test 'reload attributes if set via attribute=' do
+        test 'reload attributes if set via partial_update' do
           assert_equal @release_status_comment, @content.release_status_comment
 
           new_comment = 'Test Kommentar 2'
 
-          @content.release_status_comment = new_comment
+          @content.set_data_hash(data_hash: { 'release_status_comment' => new_comment }, prevent_history: true, partial_update: true)
 
           assert_equal new_comment, @content.release_status_comment
         end

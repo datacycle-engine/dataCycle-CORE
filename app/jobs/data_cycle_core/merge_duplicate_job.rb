@@ -22,7 +22,12 @@ module DataCycleCore
       query1.find_each do |linked_content|
         save_time = Time.zone.now
         content = linked_content.content_a
-        content = linked_content.content_a.related_contents&.first if content.embedded?
+        update_contents = [content]
+
+        if content.embedded?
+          update_contents.concat(Array.wrap(content.related_contents(embedded: true)))
+          content = content.related_contents.first
+        end
 
         next if content.nil?
         if DataCycleCore::Feature::ContentLock.enabled? && content.locked?
@@ -32,7 +37,9 @@ module DataCycleCore
 
         content.to_history(save_time: save_time)
         # rubocop:disable Rails/SkipsModelValidations
-        content.update_columns(updated_at: save_time, updated_by: nil)
+        update_contents.each do |c|
+          c.update_columns(updated_at: save_time, updated_by: nil)
+        end
         linked_content.update_column(:content_b_id, original.id)
         # rubocop:enable Rails/SkipsModelValidations
         content.send(:execute_update_webhooks)
@@ -43,6 +50,7 @@ module DataCycleCore
       duplicate_external_key = duplicate.external_key
       duplicate_external_source_id = duplicate.external_source_id
 
+      duplicate.original_id = original.id
       duplicate.destroy_content
 
       # rubocop:disable Rails/SkipsModelValidations

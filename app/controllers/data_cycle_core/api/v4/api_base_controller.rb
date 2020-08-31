@@ -11,6 +11,7 @@ module DataCycleCore
         include ActiveSupport::Rescuable
         include DataCycleCore::ErrorHandler
         include ActionController::HttpAuthentication::Token::ControllerMethods
+        include DataCycleCore::ApiService
         helper DataCycleCore::ApiHelper
 
         unless Rails.env.development?
@@ -19,12 +20,15 @@ module DataCycleCore
           rescue_from ActiveRecord::RecordNotFound, with: :not_found
         end
 
+        rescue_from DataCycleCore::Error::Api::BadRequest, with: :bad_api_request
+
+        wrap_parameters format: []
+
         DEFAULT_PAGE_SETTINGS = {
           size: 25,
           number: 1,
           limit: 0,
-          offset: 0,
-          count: 1
+          offset: 0
         }.freeze
 
         DEFAULT_SECTION_SETTINGS = {
@@ -38,27 +42,20 @@ module DataCycleCore
         before_action :authenticate, :set_default_response_format
 
         def permitted_params
-          @permitted_params ||= params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+          validate_api_params(params.to_unsafe_hash)
+          @permitted_params ||= params.permit(*permitted_parameter_keys)
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :content_id, :sort, :format, { section: permitted_section_params }, { page: permitted_page_params }]
+          [:api_subversion, :token, :include, :fields, :content_id, :sort, :format, section: {}, page: {}]
         end
 
         def page_parameters
-          permitted_params&.dig(:page)&.to_h&.symbolize_keys&.reject { |k, v| v.blank? || !permitted_page_params&.include?(k) } || {}
+          permitted_params&.dig(:page)&.to_h&.deep_symbolize_keys || {}
         end
 
         def section_parameters
-          permitted_params&.dig(:section)&.to_h&.symbolize_keys&.reject { |k, v| v.blank? || !permitted_section_params&.include?(k) } || {}
-        end
-
-        def permitted_page_params
-          [:size, :number, :offset, :limit]
-        end
-
-        def permitted_section_params
-          [:'@graph', :'@context', :meta, :links]
+          permitted_params&.dig(:section)&.to_h&.deep_symbolize_keys || {}
         end
 
         def apply_paging(query)
