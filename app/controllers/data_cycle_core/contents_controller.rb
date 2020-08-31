@@ -300,7 +300,7 @@ module DataCycleCore
       translation_values = object_params[:translations]&.values&.first || {}
       data_hash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
       @object.instance_variable_set(:@data_hash, data_hash)
-      @object.set_default_values if @object.properties_with_default_values.present?
+      @object.add_default_values if @object.properties_with_default_values.present?
 
       valid = @object.validate(data_hash, nil, params[:strict] == '1')
       render json: valid.to_json
