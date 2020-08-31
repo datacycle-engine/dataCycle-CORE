@@ -63,7 +63,7 @@ module DataCycleCore
         end
       end
 
-      # query = query.send('sort_name', 'thing_translations', 'ASC')
+      query = query.send('sort_name', 'thing_translations', 'ASC')
 
       query
     end

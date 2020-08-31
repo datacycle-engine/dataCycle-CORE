@@ -20,11 +20,13 @@ module DataCycleCore
       end
 
       def sort_name(table, ordering)
-        return self if table.blank? || ordering.blank?
-        binding.pry
+        return self if table.blank? || ordering.blank? || @locale.blank?
         reflect(
           @query
-            .order(Arel.sql("#{table}.updated_at #{ordering}"))
+            .joins("LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = '#{@locale.first}'")
+            .reorder(
+              Arel.sql("#{table}.name #{ordering} NULLS LAST")
+            )
         )
       end
 
