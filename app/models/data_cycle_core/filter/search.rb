@@ -215,6 +215,21 @@ module DataCycleCore
         return self if name.blank?
         normalized_name = name.unicode_normalize(:nfkc)
 
+        reflect(
+          @query
+            .where(
+              search_exists(
+                search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
+                  .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish))))
+              )
+            )
+        )
+      end
+
+      def fulltext_search_with_cte(name)
+        return self if name.blank?
+        normalized_name = name.unicode_normalize(:nfkc)
+
         search_cte = fulltext_search_cte(normalized_name, name)
         joined_search_cte = joins_fulltext_search_cte(search_cte)
 
@@ -233,7 +248,6 @@ module DataCycleCore
           ON joined_search_cte.content_data_id = things.id
         SQL
       end
-
 
       def fulltext_search_cte(normalized_name, name)
         search_string = (name || '').split(' ').join('%')
