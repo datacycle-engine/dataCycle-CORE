@@ -108,6 +108,24 @@ module DataCycleCore
           assert_equal params.dig(:translations, :de, :name), content.name
           assert_equal data_type.id, content.data_type.first.id
         end
+
+        test 'setting default_value again does not override existing value' do
+          upload_date = 2.days.ago.beginning_of_day
+          set_default_value('Bild', 'upload_date', Time.zone.now.beginning_of_day.to_s)
+
+          data = { 'name' => 'Testbild', 'upload_date' => upload_date }
+          data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
+
+          assert_equal(upload_date, data_set.upload_date)
+          assert_equal(upload_date, data_set.get_data_hash.dig('upload_date'))
+
+          data_set.instance_variable_set(:@data_hash, {})
+          data_set.add_default_values(force: true)
+          data_set.set_data_hash(data_hash: data_set.instance_variable_get(:@data_hash), partial_update: true)
+
+          assert_equal(upload_date, data_set.upload_date)
+          assert_equal(upload_date, data_set.get_data_hash.dig('upload_date'))
+        end
       end
     end
   end

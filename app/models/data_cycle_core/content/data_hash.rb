@@ -78,7 +78,7 @@ module DataCycleCore
       end
 
       def add_default_values(force: false)
-        to_set = properties_with_default_values.select { |name, _| @data_hash[name].blank? && !@data_hash[name].is_a?(FalseClass) }
+        to_set = properties_with_default_values.select { |name, _| @data_hash[name].blank? && !@data_hash[name].is_a?(FalseClass) && try(name).blank? && !try(name).is_a?(FalseClass) }
         to_set = to_set.slice(*translatable_property_names) if translated_locales.present? && !force
 
         to_set.each do |property_name, property_definition|
