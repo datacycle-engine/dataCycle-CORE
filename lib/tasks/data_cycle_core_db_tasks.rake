@@ -4,8 +4,9 @@ namespace :data_cycle_core do
   namespace :db do
     desc 'Dumps the database to backups'
     task :dump, [:backup_name, :format, :mode] => [:environment] do |_, args|
-      dump_fmt   = ensure_format(args[:format])
-      dump_sfx   = suffix_for_format(dump_fmt)
+      temp = Time.zone.now
+      dump_fmt = ensure_format(args[:format])
+      dump_sfx = suffix_for_format(dump_fmt)
       backup_dir = backup_directory(Rails.env, create: true)
       full_path  = nil
       cmd        = nil
@@ -20,13 +21,15 @@ namespace :data_cycle_core do
           full_path = "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
         end
 
+        sh "rm -rf #{full_path}" if full_path.present?
+
         case args[:mode]
         when 'review'
-          cmd = "#{pgclusters}pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories'"
+          cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 2' if dump_fmt == 'd'} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories'"
         when 'full'
-          cmd = "#{pgclusters}pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions'"
+          cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 2' if dump_fmt == 'd'} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions'"
         else
-          cmd = "#{pgclusters}pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
+          cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 2' if dump_fmt == 'd'} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
         end
       end
 
@@ -34,6 +37,7 @@ namespace :data_cycle_core do
       system cmd
       puts ''
       puts "Dumped to file: #{full_path}"
+      puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
       puts ''
     end
 
@@ -96,6 +100,7 @@ namespace :data_cycle_core do
 
     desc 'Restores the database from a backup using PATTERN'
     task :restore, [:pattern] => [:environment] do |_, args|
+      temp = Time.zone.now
       pattern = args[:pattern]
       pgclusters = ''
       pgclusters = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main " unless ENV.fetch('PGCLUSTER_DISABLED', false)
@@ -120,7 +125,7 @@ namespace :data_cycle_core do
             when 'p'
               cmd = "psql --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
             else
-              cmd = "#{pgclusters}pg_restore -F #{fmt} -O -v --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
+              cmd = "#{pgclusters}pg_restore -F #{fmt}#{' -j 2' if fmt == 'd'} -O -v --disable-triggers --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
             end
           else
             puts "Too many files match the pattern '#{pattern}':"
@@ -139,6 +144,7 @@ namespace :data_cycle_core do
           system cmd
           puts ''
           puts "Restored from file: #{file}"
+          puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
           puts ''
         end
       else
@@ -159,25 +165,25 @@ namespace :data_cycle_core do
       end
     end
 
-    desc 'import db from [cap_environment]'
-    task :import_remote_db, [:cap_environment] => [:environment] do |_, args|
-      logger = Logger.new('log/import_live_db.log')
-      logger.info('Started Importing Live DB...')
+    # desc 'import db from [cap_environment]'
+    # task :import_remote_db, [:cap_environment] => [:environment] do |_, args|
+    #   logger = Logger.new('log/import_live_db.log')
+    #   logger.info('Started Importing Live DB...')
 
-      sh "cap #{args.fetch(:cap_environment, 'pre_release')} review:download_dev_db[true]"
-      sh "mkdir -p db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/"
-      sh "mv tmp/dev_db.dump db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/dev_db.dump"
+    #   sh "cap #{args.fetch(:cap_environment, 'pre_release')} review:download_dev_db[true]"
+    #   sh "mkdir -p db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/"
+    #   sh "mv tmp/dev_db.dump db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/dev_db.dump"
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore"].invoke('dev_db.dump')
+    #   Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump"].invoke
+    #   Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore"].invoke('dev_db.dump')
 
-      if ENV.fetch('RAILS_ENV', 'development') != 'development'
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs:all"].invoke(true)
-      end
+    #   if ENV.fetch('RAILS_ENV', 'development') != 'development'
+    #     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
+    #     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs:all"].invoke(true)
+    #   end
 
-      logger.info('Imported Live DB successfully')
-    end
+    #   logger.info('Imported Live DB successfully')
+    # end
 
     desc 'reset database, import templates, classifications, external_sources'
     task reset: :environment do
@@ -208,7 +214,7 @@ namespace :data_cycle_core do
       when 'sql' then 'p'
       when 'tar' then 't'
       when 'dir' then 'd'
-      else 'c'
+      else 'd'
       end
     end
 

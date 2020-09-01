@@ -191,3 +191,65 @@ namespace :datacycle do
     end
   end
 end
+
+namespace :dc do
+  namespace :dev do
+    desc 'import remote db'
+    task :import_remote_db, [:history, :format] do |_, args|
+      dump_format = ensure_format(args.format)
+      dump_suffix = suffix_for_format(dump_format)
+      local_rails_env = ENV.fetch('RAILS_ENV', 'development')
+
+      on roles(:all) do
+        within release_path do
+          with rails_env: fetch(:rails_env) do
+            if args[:history] == 'true'
+              execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[dev_db,#{dump_format},full]"
+            else
+              execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[dev_db,#{dump_format},review]"
+            end
+          end
+        end
+        within shared_path do
+          download! "#{fetch(:application_root_path, '')}db/backups/#{fetch(:rails_env, 'staging')}/dev_db.#{dump_suffix}", "#{fetch(:application_root_path, '')}tmp/", recursive: true
+        end
+        print_message 'download complete'
+      end
+
+      sh "mkdir -p db/backups/#{local_rails_env}/"
+      sh "mv -f tmp/dev_db.#{dump_suffix} db/backups/#{local_rails_env}/"
+      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump'" if local_rails_env != 'development'
+      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore[dev_db.#{dump_suffix}]'"
+
+      if local_rails_env != 'development'
+        sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}db:migrate'"
+        sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}dc:update:configs:all[true]'"
+      end
+
+      puts "Successfully imported DB from #{fetch(:rails_env)}"
+    end
+
+    private
+
+    def ensure_format(format)
+      return format if ['c', 'p', 't', 'd'].include?(format)
+
+      case format
+      when 'dump' then 'c'
+      when 'sql' then 'p'
+      when 'tar' then 't'
+      when 'dir' then 'd'
+      else 'd'
+      end
+    end
+
+    def suffix_for_format(suffix)
+      case suffix
+      when 'c' then 'dump'
+      when 'p' then 'sql'
+      when 't' then 'tar'
+      when 'd' then 'dir'
+      end
+    end
+  end
+end
