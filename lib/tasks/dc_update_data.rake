@@ -68,7 +68,7 @@ namespace :dc do
           content.prevent_webhooks = args.webhooks&.downcase == 'false'
           begin
             content.set_data_hash(data_hash: content.instance_variable_get(:@data_hash), partial_update: true)
-          rescue ArgumentError => e
+          rescue StandardError => e
             puts e.message
           end
           progressbar.increment
