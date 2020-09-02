@@ -235,8 +235,9 @@ module DataCycleCore
       order_query = order_query&.reject(&:blank?)
 
       if order_query.blank?
+        # TODO: add fulltext_search or schedule if present
         # return query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(full_text_search.presence, schedule)) if schedule.present? || full_text_search.present?
-        order_query = ['updated_at ASC']
+        return query
       end
       query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
     end
