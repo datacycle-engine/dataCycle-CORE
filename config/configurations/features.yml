@@ -62,6 +62,12 @@
     - Inhaltstypen
   :autoload_last_filter: true
 
+:sortable:
+  :enabled: true
+  :updated_at: true
+  :created_at: true
+  :translated_name: true
+
 :advanced_filter:
   :enabled: true
   :classification_alias_ids: all

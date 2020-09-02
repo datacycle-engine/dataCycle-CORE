@@ -28,8 +28,9 @@ module DataCycleCore
 
       # @order_string is required for view mode
 
-      sort_params = DataCycleCore::Filter::Search.sort_params_from_filter(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' })
-      @stored_filter.sort_parameters = sort_params
+      @sort_params = sort_params.dup
+      @stored_filter.sort_parameters ||= (@sort_params.present? || DataCycleCore::Filter::Search.sort_params_from_filter(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }) )
+      @sort_params = @stored_filter.sort_parameters
 
       @stored_filter.parameters = current_user.default_filter(@stored_filter.parameters, user_filter) if user_filter.present?
       query = @stored_filter.apply(query: query)
@@ -72,6 +73,10 @@ module DataCycleCore
 
     def pre_filters
       @pre_filters ||= params[:f].presence&.values&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
+    end
+
+    def sort_params
+      @sort_params ||= params[:s].presence&.values&.reject { |s| s.is_a?(Hash) ? s.any? { |_, v| v.blank? } : s.blank? } || []
     end
 
     def set_instance_variables_by_view_mode(query: nil, user_filter: { scope: 'backend' })

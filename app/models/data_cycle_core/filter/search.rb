@@ -330,22 +330,18 @@ module DataCycleCore
         if search.present?
           [
             {
-              "method": 'fulltext_search',
-              "table": 'searches',
-              "ordering": 'DESC',
-              "value": search,
-              "sorting": 0
+              "m": 'fulltext_search',
+              "o": 'DESC',
+              "v": search
             }
           ]
         elsif schedule.present?
           # TODO: respect start_date
           [
             {
-              "method": 'by_proximity',
-              "table": 'things',
-              "ordering": 'ASC',
-              "value": '',
-              "sorting": 0
+              "m": 'by_proximity',
+              "o": 'ASC',
+              "v": schedule
             }
           ]
         end

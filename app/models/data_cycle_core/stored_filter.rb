@@ -50,20 +50,21 @@ module DataCycleCore
         end
       end
 
-      sort_parameters.presence&.sort_by { |s| s.dig('sorting')&.to_i }&.each do |sort|
-        sort_method_name = 'sort_' + sort['method']
-        next unless query.respond_to?('sort_' + sort['method'])
+      if sort_parameters.present?
+        query = query.reset_sort
+        sort_parameters.each do |sort|
+          sort_method_name = 'sort_' + sort['m']
+          next unless query.respond_to?('sort_' + sort['m'])
 
-        if query.method(sort_method_name)&.parameters&.size == 3
-          query = query.send(sort_method_name, sort['table'].presence, sort['ordering'].presence, sort['value'].presence)
-        elsif query.method(sort_method_name)&.parameters&.size == 2
-          query = query.send(sort_method_name, sort['table'].presence, sort['ordering'].presence)
-        else
-          next
+          if query.method(sort_method_name)&.parameters&.size == 2
+            query = query.send(sort_method_name, sort['o'].presence, sort['v'].presence)
+          elsif query.method(sort_method_name)&.parameters&.size == 1
+            query = query.send(sort_method_name, sort['o'].presence)
+          else
+            next
+          end
         end
       end
-
-      # query = query.send('sort_name', 'thing_translations', 'ASC')
 
       query
     end
