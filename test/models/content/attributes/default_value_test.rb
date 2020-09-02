@@ -71,6 +71,61 @@ module DataCycleCore
           assert_equal('Hallo', data_set.description)
           assert_equal('Hallo', data_set.get_data_hash.dig('description'))
         end
+
+        test 'create thing with data_hash_service/create_internal_object' do
+          data_type = DataCycleCore::Classification.for_tree('Inhaltstypen').find_by(name: 'Bild')
+          params = {
+            datahash: {
+              name: 'TestBild 1'
+            }
+          }.with_indifferent_access
+
+          content = DataCycleCore::DataHashService.create_internal_object('Bild', params, nil)
+
+          assert_equal params.dig(:datahash, :name), content.name
+          assert_equal data_type.id, content.data_type.first.id
+        end
+
+        test 'create thing with data_hash_service/create_internal_object with multiple languages' do
+          data_type = DataCycleCore::Classification.for_tree('Inhaltstypen').find_by(name: 'Bild')
+          params = {
+            translations: {
+              de: {
+                name: 'TestBild 1'
+              },
+              en: {
+                name: 'TestBild 1 en'
+              }
+            }
+          }.with_indifferent_access
+
+          content = DataCycleCore::DataHashService.create_internal_object('Bild', params, nil)
+
+          I18n.with_locale(:en) do
+            assert_equal params.dig(:translations, :en, :name), content.name
+          end
+
+          assert_equal params.dig(:translations, :de, :name), content.name
+          assert_equal data_type.id, content.data_type.first.id
+        end
+
+        test 'setting default_value again does not override existing value' do
+          upload_date = 2.days.ago.beginning_of_day
+          set_default_value('Bild', 'upload_date', Time.zone.now.beginning_of_day.to_s)
+
+          data = { 'name' => 'Testbild', 'upload_date' => upload_date }
+          data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
+
+          assert_equal(upload_date, data_set.upload_date)
+          assert_equal(upload_date, data_set.get_data_hash.dig('upload_date'))
+
+          data_set.instance_variable_set(:@data_hash, {})
+          data_set.add_default_values(force: true)
+          data_set.set_data_hash(data_hash: data_set.instance_variable_get(:@data_hash), partial_update: true)
+
+          assert_equal(upload_date, data_set.upload_date)
+          assert_equal(upload_date, data_set.get_data_hash.dig('upload_date'))
+        end
       end
     end
   end

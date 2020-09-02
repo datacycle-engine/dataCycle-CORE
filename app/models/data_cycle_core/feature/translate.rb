@@ -4,6 +4,10 @@ module DataCycleCore
   module Feature
     class Translate < Base
       class << self
+        def controller_module
+          DataCycleCore::Feature::ControllerFunctions::Translate
+        end
+
         def text_source(content)
           attribute_keys(content).first
         end

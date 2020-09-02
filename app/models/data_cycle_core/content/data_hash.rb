@@ -9,17 +9,16 @@ module DataCycleCore
       define_model_callbacks :created_data_hash, only: :after
       define_model_callbacks :destroyed_data_hash, only: :after
 
-      DataCycleCore.features
-        .select { |_, v| !v.dig(:only_config) == true }
-        .each_key do |key|
-          module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
-          prepend module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
-        end
+      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
+        feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
+        prepend feature.data_hash_module if feature.enabled? && feature.data_hash_module
+      end
+
       include CreateHistory
       include UpdateSearch
 
       before_save :set_internal_data
-      before_save_data_hash :set_default_values, if: -> { properties_with_default_values.present? && (@new_content || (translated_locales.present? && translated_locales.exclude?(I18n.locale))) }
+      before_save_data_hash :add_default_values, if: -> { properties_with_default_values.present? && (@new_content || (translated_locales.present? && translated_locales.exclude?(I18n.locale))) }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks, unless: -> { prevent_webhooks }
@@ -78,9 +77,9 @@ module DataCycleCore
         end
       end
 
-      def set_default_values
-        to_set = properties_with_default_values.select { |name, _| @data_hash[name].blank? && !@data_hash[name].is_a?(FalseClass) }
-        to_set = to_set.slice(*translatable_property_names) if translated_locales.present?
+      def add_default_values(force: false)
+        to_set = properties_with_default_values.select { |name, _| @data_hash[name].blank? && !@data_hash[name].is_a?(FalseClass) && try(name).blank? && !try(name).is_a?(FalseClass) }
+        to_set = to_set.slice(*translatable_property_names) if translated_locales.present? && !force
 
         to_set.each do |property_name, property_definition|
           @data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, @data_hash, self)

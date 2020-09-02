@@ -17,13 +17,22 @@
   }
 }
 
+.dropdown-pane .watchlist-name .add-to-watchlist-link {
+  color: $black;
+}
+
 .detail-header-functions .add-to-watchlist-link,
+.add-to-watchlist-link {
+  display: inline;
+}
+
+.detail-header-functions .change-link .add-to-watchlist-link,
 .detail-header-functions .remove-from-watchlist-link,
-.add-to-watchlist-link,
+.change-link .add-to-watchlist-link,
 .remove-from-watchlist-link {
   display: inline;
   .fa {
-    font-size: 1.1rem;
+    font-size: 1rem;
     width: 1.1rem;
     height: 1.1rem;
     line-height: 1.1rem;
@@ -37,17 +46,13 @@
     background: white;
     a {
       color: $black;
-      line-height: 1rem;
     }
     li {
       .watch-list-item {
-        padding: inherit;
+        padding: 0;
         .watchlist-name {
           width: 100%;
           display: block;
-          i.fa {
-            font-size: 1rem;
-          }
         }
         .check,
         .change-link {
@@ -56,7 +61,7 @@
         a {
           color: $black;
           padding: 0;
-          line-height: initial;
+          line-height: 1.4rem;
           display: block;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -70,48 +75,105 @@
       }
     }
   }
+
+  .watch-lists .accordion > .accordion-item > .accordion-title::before {
+    color: $black;
+  }
 }
 
 .watch-lists {
-  > ul {
-    margin: 0;
-    list-style: none;
-    > li {
-      display: none;
-      &.visible {
-        background: none;
-        display: block;
-        &.even {
-          background-color: lighten($light-gray, 3%);
+  .fa:not(.fa-circle-o-notch) {
+    font-size: 1rem;
+  }
 
-          .watch-list-item .check {
-            color: white;
+  .accordion {
+    > .accordion-item {
+      padding: 0.2rem 0;
+      border-bottom: 1px solid $light-gray;
+      > .accordion-title,
+      > .accordion-content {
+        font-size: 0.9rem;
+        border: none;
+        padding: 0 0 0 1.2rem;
+        line-height: 1.4rem;
+      }
+      > .accordion-title {
+        padding: 0 0 0.2rem 1.2rem;
+        color: $black;
+        &:hover,
+        &:focus {
+          background-color: transparent;
+        }
+        &::before {
+          left: 0;
+          font-family: 'FontAwesome';
+          content: '\f07b';
+          display: block;
+          text-align: left;
+          right: auto;
+          margin: 0;
+          top: 1px;
+          color: $light-gray;
+        }
+      }
+
+      > .accordion-content {
+        > li {
+          padding: 0.2rem 0;
+        }
+      }
+
+      &.is-active {
+        > .accordion-title::before {
+          content: '\f07c';
+        }
+      }
+
+      &.has-selected-collections {
+        > .accordion-title::before {
+          color: $primary-color;
+        }
+
+        &.is-active {
+          > .accordion-title::before {
+            color: $primary-color;
           }
         }
-        .watch-list-item {
-          .check {
-            position: absolute;
-            left: 0;
-            color: $light-gray;
-            &.checked {
-              color: map-get($foundation-palette, primary);
-            }
+      }
+    }
+  }
+
+  > ul {
+    margin: 0;
+    text-align: left;
+
+    li {
+      background: none;
+      border-radius: 0;
+      border-bottom: 1px solid $light-gray;
+      .watch-list-item {
+        .check {
+          position: absolute;
+          left: 0;
+          color: $light-gray;
+          &.checked {
+            color: map-get($foundation-palette, primary);
           }
-          width: 100%;
-          display: block;
-          padding: 0 1.5rem 0 1.5rem;
-          position: relative;
-          line-height: 1.2rem;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          font-size: 0.8rem;
-          &.private {
-            font-weight: 600;
-          }
-          &.shared {
-            font-style: italic;
-          }
+        }
+        width: 100%;
+        display: block;
+        padding: 0 1.2rem 0 1.2rem;
+        position: relative;
+        line-height: 1.4rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.9rem;
+        &.private {
+          font-weight: 600;
+        }
+        &.shared {
+          font-style: italic;
         }
       }
 
@@ -211,7 +273,7 @@
 .watchlist-name {
   .fa {
     margin-right: 0.3rem;
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 }
 

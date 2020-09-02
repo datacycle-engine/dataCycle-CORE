@@ -1,5 +1,12 @@
 <% if content.present? %>
 
+    <% if content.overlay? %>
+      <%= render_attribute_viewer key: 'overlay',
+                                  definition: content.schema['properties']['overlay'],
+                                  value: content.try('overlay'),
+                                  parameters: { options: { } },
+                                  content: content %>
+    <% end %>
     <div class="detail-content imageobject">
 
         <div class="row align-center">

@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class WatchList < ApplicationRecord
-    validates :name, presence: true
+    validates :full_path, presence: true
 
     scope :by_user, ->(user) { where user: user }
 
@@ -19,8 +19,27 @@ module DataCycleCore
 
     has_many :activities, as: :activitiable, dependent: :destroy
 
+    before_save :split_full_path, if: :full_path_changed?
+
     def valid_write_links?
       valid_write_links.present?
+    end
+
+    def self.fulltext_search(q)
+      return all if q.blank?
+
+      all.where('watch_lists.full_path ILIKE ?', "%#{q}%")
+    end
+
+    private
+
+    def split_full_path
+      return self.name = full_path unless DataCycleCore::Feature::CollectionGroup.enabled?
+
+      path_items = full_path.split(DataCycleCore::Feature::CollectionGroup.separator)
+
+      self.full_path_names = path_items[0...-1]
+      self.name = path_items.last
     end
   end
 end

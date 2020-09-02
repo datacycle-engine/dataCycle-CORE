@@ -4,6 +4,10 @@ module DataCycleCore
   module Feature
     class Download < Base
       class << self
+        def controller_module
+          DataCycleCore::Feature::ControllerFunctions::Download
+        end
+
         def allowed?(content = nil)
           enabled? && configuration(content).dig('allowed') && DataCycleCore::Feature::Download.dependencies_allowed?(content) && DataCycleCore::Feature::Serialize.available_serializers(content).size.positive?
         end
