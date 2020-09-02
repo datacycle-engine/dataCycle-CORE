@@ -888,6 +888,27 @@ de:
         requirements: Voraussetzung
         included_services: Inkludierte Services
         difficulty: Schwierigkeitsgrad
+    outdoor_active:
+      place:
+        directions: Anfahrt
+        parking: Parken
+        hours_available: Öffnungszeiten
+        text: Beschreibung
+        price: Preis
+        description: Kurzeschreibung
+      tour:
+        directions: Anfahrt
+        parking: Parken
+        hours_available: Öffnungszeiten
+        text: Beschreibung
+        price: Preis
+        description: Kurzbeschreibung
+        directions_public_transport: Öffentliche Verekehrsmittel
+        instructions: Wegbeschreibung
+        safety_instructions: Sicherheitshinweise
+        equipment: Ausrüstung
+        suggestion: Tipps
+        additional_information: Zusatzinformationen
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
