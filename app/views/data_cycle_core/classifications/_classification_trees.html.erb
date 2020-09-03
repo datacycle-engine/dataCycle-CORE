@@ -12,10 +12,12 @@
   </li>
 <% end %>
 
-<li class="new-button">
-  <div class="new-button-spacer"><a href="#" class="button-prime small create"><i class="fa fa-plus"></i></a></div>
-  <%= render 'classification_alias_form',
+<% if can?(:create, classification_tree_label) %>
+  <li class="new-button">
+    <div class="new-button-spacer"><a href="#" class="button-prime small create"><i class="fa fa-plus"></i></a></div>
+    <%= render 'classification_alias_form',
               classification_tree_label: classification_tree_label,
               classification_tree: classification_tree,
               classification_alias: DataCycleCore::ClassificationAlias.new %>
-</li>
+  </li>
+<% end %>

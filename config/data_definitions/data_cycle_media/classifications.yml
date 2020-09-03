@@ -1,7 +1,7 @@
-- Inhaltstypen | filter:
-  - $$Asset:
-    - $$Audio
-    - $$Bild
-    - $$Video
-    - $$Datei
-    - $$PDF
+- $$Inhaltstypen | filter:
+    - $$Asset:
+        - $$Audio
+        - $$Bild
+        - $$Video
+        - $$Datei
+        - $$PDF

@@ -1,25 +1,25 @@
-- Inhaltstypen | filter:
-  - $$Zertifizierung
+- $$Inhaltstypen | filter:
+    - $$Zertifizierung
 
 - reisen-fuer-alle.de - Zertifikate | all:
-  - $$Gehbehinderte:
-      - $$barrierefrei
-      - $$teilweise barrierefrei
-  - $$Rollstuhlfahrer:
-      - $$barrierefrei
-      - $$teilweise barrierefrei
-  - $$Hörbehinderte:
-      - $$barrierefrei
-      - $$teilweise barrierefrei
-  - $$Gehörlose:
-      - $$barrierefrei
-      - $$teilweise barrierefrei
-  - $$Sehbehinderte:
-      - $$barrierefrei
-      - $$teilweise barrierefrei
-  - $$Blinde:
-      - $$barrierefrei
-      - $$teilweise barrierefrei
-  - $$Kognitiv Beeinträchtigte:
-      - $$barrierefrei
-      - $$teilweise barrierefrei
+    - $$Gehbehinderte:
+        - $$barrierefrei
+        - $$teilweise barrierefrei
+    - $$Rollstuhlfahrer:
+        - $$barrierefrei
+        - $$teilweise barrierefrei
+    - $$Hörbehinderte:
+        - $$barrierefrei
+        - $$teilweise barrierefrei
+    - $$Gehörlose:
+        - $$barrierefrei
+        - $$teilweise barrierefrei
+    - $$Sehbehinderte:
+        - $$barrierefrei
+        - $$teilweise barrierefrei
+    - $$Blinde:
+        - $$barrierefrei
+        - $$teilweise barrierefrei
+    - $$Kognitiv Beeinträchtigte:
+        - $$barrierefrei
+        - $$teilweise barrierefrei

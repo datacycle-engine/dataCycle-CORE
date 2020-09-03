@@ -62,7 +62,7 @@ module DataCycleCore
         data_tree.each do |k, v|
           internal = false
           if k.starts_with?('$$') # '$$' prefix for interal classifications
-            k = k[2..(k.length - 1)]
+            k = k[2..-1]
             internal = true
           end
           # extract uri
@@ -111,12 +111,19 @@ module DataCycleCore
       end
 
       def self.get_label(label)
+        internal = false
+        if label.starts_with?('$$') # '$$' prefix for interal classifications
+          label = label[2..-1]
+          internal = true
+        end
+
         split_data = label.split('|').map(&:squish)
         label = split_data[0]
         visibility = split_data[1] == 'all' ? DataCycleCore.default_classification_visibilities : (split_data[1]&.split(',')&.map(&:squish) || [])
 
         DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: label) do |label_data|
           label_data.seen_at = Time.zone.now
+          label_data.internal = internal
           label_data.visibility = visibility
         end
       end
