@@ -21,6 +21,15 @@ class RemoteRenderer {
       '*',
       this.loadRemote.bind(this)
     );
+    this.selector.on('click', '.remote-render-failed > .remote-reload-link', this.reloadAfterFail.bind(this));
+  }
+  reloadAfterFail(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    let remoteContainer = $(event.target).parent('.remote-render-failed');
+    remoteContainer.addClass('remote-reload').removeClass('remote-render-failed');
+    this.loadRemotePartial(remoteContainer);
   }
   reload(event, data) {
     event.stopPropagation();
@@ -100,8 +109,10 @@ class RemoteRenderer {
       dataType: 'script',
       contentType: 'application/json'
     }).fail(data => {
-      if (data.responseText !== undefined) $(element).html(data.responseText);
-      else $(element).html('Fehler beim Laden des Inhalts.');
+      $(element)
+        .html('Fehler beim Laden des Inhalts. <a href="#" class="remote-reload-link">Neu laden</a>')
+        .removeClass('remote-rendering')
+        .addClass('remote-render-failed');
     });
   }
 }
