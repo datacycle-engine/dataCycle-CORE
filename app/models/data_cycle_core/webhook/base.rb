@@ -4,7 +4,7 @@ module DataCycleCore
   module Webhook
     class Base
       def self.execute_all(data, action)
-        return if data.prevent_webhooks == true
+        return if data.try(:prevent_webhooks) == true
 
         get_webhooks_for(action, data).each do |external_system, webhook|
           execute(external_system, webhook, data, action)
