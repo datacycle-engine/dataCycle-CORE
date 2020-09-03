@@ -84,18 +84,18 @@ namespace :data_cycle_core do
 
       if files.size > max_files
         puts 'deleting files'
-        files.drop(5).each { |file| File.delete(file) }
+        files.drop(5).each { |file| FileUtils.rm_rf(file) }
       else
         puts "nothing to delete - file count: #{files.size}"
       end
-      system "/bin/ls -lt #{backup_dir}"
+      system "cd #{backup_dir}; du -hs --time *"
     end
 
     desc 'Show the existing database backups'
     task dumps: :environment do
       backup_dir = backup_directory(Rails.env)
       puts backup_dir.to_s
-      system "/bin/ls -lth #{backup_dir}"
+      system "cd #{backup_dir}; du -hs --time *"
     end
 
     desc 'Restores the database from a backup using PATTERN'
