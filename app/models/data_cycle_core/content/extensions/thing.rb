@@ -66,11 +66,11 @@ module DataCycleCore
           end
 
           # TODO: remove sort_by_proximity (implemented in DataCycleCore::Filter::Search)
-          def sort_by_proximity(date = Time.zone.now)
-            order(absolute_date_diff(arel_table[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
-                  absolute_date_diff(arel_table[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
-                  :start_date)
-          end
+          # def sort_by_proximity(date = Time.zone.now)
+          #   order(absolute_date_diff(arel_table[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
+          #         absolute_date_diff(arel_table[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
+          #         :start_date)
+          # end
         end
       end
     end

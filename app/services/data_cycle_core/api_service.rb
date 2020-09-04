@@ -226,7 +226,7 @@ module DataCycleCore
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
     end
 
-    def apply_order_query(query, order_params, _full_text_search = '', _schedule = false)
+    def apply_order_query(query, order_params, full_text_search = '', schedule = false)
       order_query = []
       order_params&.split(',')&.each do |sort|
         key, order = key_with_ordering(sort)
@@ -235,8 +235,8 @@ module DataCycleCore
       order_query = order_query&.reject(&:blank?)
 
       if order_query.blank?
-        # TODO: add fulltext_search or schedule if present
-        # return query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(full_text_search.presence, schedule)) if schedule.present? || full_text_search.present?
+        query = query.sort_fulltext_search('DESC', full_text_search) if full_text_search.present?
+        query = query.sort_by_proximity if schedule.present?
         return query
       end
       query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))

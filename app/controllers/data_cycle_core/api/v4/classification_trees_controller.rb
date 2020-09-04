@@ -42,7 +42,7 @@ module DataCycleCore
               @classification_aliases = apply_filters(@classification_aliases, filter)
             end
 
-            @classification_aliases = apply_full_text_search(@classification_aliases, @full_text_search) if @full_text_search
+            @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
             @classification_aliases = apply_ordering(@classification_aliases)
             @classification_aliases = apply_paging(@classification_aliases)
           else
@@ -98,12 +98,27 @@ module DataCycleCore
 
         def apply_full_text_search(query, search)
           query = query.search(search)
-          query = query.order_by_similarity(search)
           query
         end
 
         def apply_ordering(query)
-          apply_order_query(query, permitted_params.dig(:sort))
+          apply_order_query(query, permitted_params.dig(:sort), @full_text_search)
+        end
+
+        def apply_order_query(query, order_params, full_text_search = '')
+          order_query = []
+          order_params&.split(',')&.each do |sort|
+            key, order = key_with_ordering(sort)
+            order_query << transform_sort_param(key, order)
+          end
+          order_query = order_query&.reject(&:blank?)
+
+          if order_query.blank?
+            query = query.order_by_similarity(full_text_search) if full_text_search.present?
+            query = query.order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('updated_at DESC')))
+            return query
+          end
+          query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
         end
 
         def transform_sort_param(key, order)

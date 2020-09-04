@@ -8,6 +8,7 @@ module DataCycleCore
           @query.except(:order)
         )
       end
+
       def sort_boost(ordering)
         return self if ordering.blank?
         reflect(
@@ -43,8 +44,8 @@ module DataCycleCore
         )
       end
 
-      # Todo respect date for sorting
-      def sort_by_proximity(_ordering, _value)
+      # TODO: respect date for sorting
+      def sort_by_proximity(_ordering = '', _value = {})
         date = Time.zone.now
         # date = date_from_single_value(value) || Time.zone.now
         reflect(
