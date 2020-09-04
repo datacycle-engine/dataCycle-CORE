@@ -35,6 +35,11 @@ module DataCycleCore
               )
             end
 
+            DataCycleCore::Generic::OutdoorActive::Processing.process_main_image(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :image)
+            )
             DataCycleCore::Generic::OutdoorActive::Processing.process_image(
               utility_object,
               raw_data,
