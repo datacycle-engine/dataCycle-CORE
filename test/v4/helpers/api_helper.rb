@@ -19,7 +19,7 @@ module DataCycleCore
           'gender_api', # legacy property for API v2 + v3
           'asset', # disabled asset property for tests,
           'tour', # active after tour refactoring
-          'tour', # active after tour refactoring
+          'additional_information',
           'publication_schedule', # creativeWorks: publicationSchedule
           'release_status_comment' # creativeWorks: publicationSchedule
         ].freeze

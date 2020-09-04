@@ -19,7 +19,7 @@ module DataCycleCore
                 'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo', 'country_code',
                 'google_business_primary_category', 'google_business_additional_categories', 'feratel_status', 'topic',
                 'feratel_content_score', 'feratel_facilities', 'piemonte_venue_category', 'wikidata_classification',
-                'feratel_creative_commons'],
+                'feratel_creative_commons', 'additional_information'],
         person: [],
         products: []
       }.freeze
