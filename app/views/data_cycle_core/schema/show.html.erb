@@ -31,6 +31,7 @@
             <%= tag.i(class: 'fa fa-language has-tip', aria_hidden: true, title: 'Translated') if definition[:translated] %>
             <%= tag.i(class: 'fa fa-tag has-tip', aria_hidden: true, title: 'Classification') if definition[:data_type] == 'classification' %>
             <%= tag.i(class: 'fa fa-share-alt has-tip', aria_hidden: true, title: 'embedded') if definition[:embedded] %>
+            <%= tag.i(class: 'fa fa-search has-tip', aria_hidden: true, title: 'fulltext search') if definition[:fulltext_search] %>
           </th>
           <td>
             <% Array.wrap(definition[:data_type]).each do |data_type| %>
