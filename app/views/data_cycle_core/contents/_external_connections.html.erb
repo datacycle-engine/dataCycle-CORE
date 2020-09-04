@@ -1,3 +1,23 @@
+<% external_connections = external_systems_with_details(content) if !content.try(:external_source).nil? || content.try(:external_system_syncs)&.any? %>
+
+<% if external_connections.present? %>
+  <div class="external-connections">
+    <% external_connections.each do |name, syncs| %>
+      <span data-toggle="external-connections-<%= name.underscore_blanks %>"><i class="fa fa-external-link-square external-system-icon <%= content.external_system_syncs.pluck(:status).compact.join(' ') %>"></i> <%= name %></span>
+      <div class="dropdown-pane" id="external-connections-<%= name.underscore_blanks %>" data-dropdown data-hover="true" data-hover-pane="true">
+        <ul class="list-items no-bullet">
+          <% syncs.each do |sync| %>
+            <li>
+              <%= external_sync_status_icon(sync[:status], sync[:sync_type], true) %>
+              <%= tag.span(sync[:external_key], class: 'sync-external-key') if sync[:external_key].present? %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
 <div class="external-connections">
   <% if content.external_source.present? %>
     <div class="external-connection">

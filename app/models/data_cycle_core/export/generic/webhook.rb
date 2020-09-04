@@ -27,7 +27,7 @@ module DataCycleCore
         def perform
           data = DataCycleCore::Thing.find_by(id: @data.id)
           system_sync = data.try(:external_system_sync_by_system, @utility_object.external_system)
-          system_sync&.update(last_push_at: Time.zone.now)
+          system_sync&.update(last_sync_at: Time.zone.now)
 
           if data || @type == 'delete'
             @response = @utility_object.endpoint.content_request(
@@ -40,7 +40,7 @@ module DataCycleCore
           end
 
           data&.add_external_system_data(@utility_object.external_system, nil, 'success')
-          system_sync&.update(last_successful_push_at: system_sync.last_push_at)
+          system_sync&.update(last_successful_sync_at: system_sync.last_sync_at)
         end
 
         def reference_type
