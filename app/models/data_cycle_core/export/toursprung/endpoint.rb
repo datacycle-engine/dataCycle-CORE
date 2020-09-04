@@ -23,6 +23,7 @@ module DataCycleCore
           time = Faraday.get(time_url)&.body
           body[:api_key] = @username
           body[:token] = Digest::MD5.hexdigest(@token + @password + time)
+          body.slice!(:api_key, :token, :resource, :id) if method.to_s == 'delete'
 
           @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
 
