@@ -75,7 +75,7 @@ module DataCycleCore
           @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
             .reorder(
-              sanitized_order_string(order_string, ordering, true),
+              Arel.sql(sanitized_order_string(order_string, ordering, true)),
               Arel.sql('things.updated_at DESC'),
               Arel.sql('things.id ASC')
             )
@@ -86,7 +86,7 @@ module DataCycleCore
         reflect(
           @query
             .reorder(
-              sanitized_order_string('fulltext_boost', ordering, true),
+              Arel.sql(sanitized_order_string('fulltext_boost', ordering, true)),
               Arel.sql('things.updated_at DESC'),
               Arel.sql('things.id ASC')
             )
