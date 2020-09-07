@@ -239,7 +239,22 @@ module DataCycleCore
         query = query.sort_by_proximity if schedule.present?
         return query
       end
-      query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
+
+      query = query.reset_sort
+      order_query.each do |sort|
+        sort_method_name = 'sort_' + sort['m']
+        next unless query.respond_to?('sort_' + sort['m'])
+
+        if query.method(sort_method_name)&.parameters&.size == 2
+          query = query.send(sort_method_name, sort['o'].presence, sort['v'].presence)
+        elsif query.method(sort_method_name)&.parameters&.size == 1
+          query = query.send(sort_method_name, sort['o'].presence)
+        else
+          next
+        end
+      end
+
+      query
     end
 
     def key_with_ordering(sort)

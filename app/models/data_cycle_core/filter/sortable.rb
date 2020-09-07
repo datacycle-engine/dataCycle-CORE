@@ -9,6 +9,13 @@ module DataCycleCore
         )
       end
 
+      def sort_random(_ordering)
+        reflect(
+          @query
+            .order(ActiveRecord::Base.send(:sanitize_sql_for_order, 'random()'))
+        )
+      end
+
       def sort_boost(ordering)
         reflect(
           @query
