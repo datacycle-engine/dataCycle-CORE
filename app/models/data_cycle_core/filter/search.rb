@@ -8,7 +8,7 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Date
       include DataCycleCore::Filter::Common::External
       include DataCycleCore::Filter::Common::Geo
-      include DataCycleCore::Filter::Sort
+      include DataCycleCore::Filter::Sortable
 
       # TODO: refactor initializer
       def initialize(locale = ['de'], query = nil, include_embedded = false)
@@ -16,25 +16,11 @@ module DataCycleCore
         @include_embedded = include_embedded
 
         @query = query || default_query
-
-        # @query = query || DataCycleCore::Thing
-        #   .joins(:searches)
-        #   .where(searches: { locale: @locale })
-
-        # if locale.nil?
-        #   @query = query || DataCycleCore::Thing
-        # else
-        #   @query = query || DataCycleCore::Thing
-        #   .joins(:searches)
-        #   .where(searches: { locale: @locale })
-        # temporary disabled disabled (api sort name)
-        # .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
-        # end
       end
 
       def default_query
-        query = DataCycleCore::Thing
-        query = query.where(template: false).where.not(content_type: 'embedded') unless @include_embedded
+        query = DataCycleCore::Thing.where(template: false)
+        query = query.where.not(content_type: 'embedded') unless @include_embedded
         query = query.order('things.boost DESC, things.updated_at DESC, things.id ASC')
         query
       end
@@ -50,12 +36,6 @@ module DataCycleCore
             :primary_classification_aliases,
             classification_aliases: [:classification_alias_path, :classification_tree_label]
           )
-        )
-      end
-
-      def exclude_templates_embedded
-        reflect(
-          @query.where(template: false).where.not(content_type: 'embedded')
         )
       end
 
@@ -157,17 +137,24 @@ module DataCycleCore
         )
       end
 
-      # TODO: raise DeprecationError
+      # TODO: raise DeprecationError + replace methods
       def modified_since(date = Time.zone.now)
         reflect(
           @query.where(thing[:updated_at].gteq(Time.zone.parse(date)))
         )
       end
 
-      # TODO: raise DeprecationError
+      # TODO: raise DeprecationError + replace methods
       def created_since(date = Time.zone.now)
         reflect(
           @query.where(thing[:created_at].gteq(Time.zone.parse(date)))
+        )
+      end
+
+      # TODO: delete if not required
+      def exclude_templates_embedded
+        reflect(
+          @query.where(template: false).where.not(content_type: 'embedded')
         )
       end
 
@@ -303,6 +290,7 @@ module DataCycleCore
         res_query
       end
 
+      # TODO: remove obsolete method (replace with sort_params_from_filter)
       def self.get_order_by_query_string(search, events = false)
         return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.boost DESC, things.updated_at DESC')) if search.blank? && events == false
         return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.end_date ASC NULLS LAST, things.start_date DESC NULLS LAST, things.updated_at DESC')) if events == true
@@ -336,7 +324,6 @@ module DataCycleCore
             }
           ]
         elsif schedule.present?
-          # TODO: respect start_date
           [
             {
               "m": 'by_proximity',

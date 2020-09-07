@@ -29,10 +29,10 @@ module DataCycleCore
           if permitted_params[:con_id].present?
             @classification_parent_tree = DataCycleCore::ClassificationTree.find(permitted_params[:cpt_id])
             @container = DataCycleCore::Thing.find(permitted_params[:con_id])
-            @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
+            # TODO: check if ordering is required
+            # @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
             @contents = get_filtered_results(user_filter: nil)
               .part_of(@container.id)
-              .distinct_by_content_id(@order_string)
               .content_includes
               .page(params[:page])
 
@@ -49,10 +49,10 @@ module DataCycleCore
               .order('classification_aliases.internal_name')
               .page(params[:tree_page])
 
-            @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
+            # TODO: check if ordering is required
+            # @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
             @contents = get_filtered_results(user_filter: nil)
               .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
-              .distinct_by_content_id(@order_string)
               .content_includes
               .page(params[:page])
 

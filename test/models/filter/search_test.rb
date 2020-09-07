@@ -47,15 +47,14 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count)
     end
 
-    # TODO: remove count_distinct
     test 'correctly count multilingual entries' do
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count)
-      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count_distinct)
+      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count)
     end
 
     test 'correctly filter out multilingual entries' do
-      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').distinct_by_content_id.count)
-      assert_equal(2, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').distinct_by_content_id.first.available_locales.count)
+      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count)
+      assert_equal(2, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').first.available_locales.count)
     end
 
     test 'finds embedded_data' do

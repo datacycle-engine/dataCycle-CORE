@@ -128,7 +128,6 @@ module DataCycleCore
           query = apply_filters(query, permitted_params&.dig(:filter))
 
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
-          query = query.distinct_by_content_id
 
           query
         end

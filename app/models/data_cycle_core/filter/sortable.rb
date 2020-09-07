@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Filter
-    module Sort
+    module Sortable
       def reset_sort
         reflect(
           @query.except(:order)

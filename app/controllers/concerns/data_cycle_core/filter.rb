@@ -14,20 +14,6 @@ module DataCycleCore
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
 
-      # TODO: find obsolete order parameters
-      # only used for ordering
-      # @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }.present?)
-      # if @stored_filter.parameters.none? { |f| f['t'] == 'order' }
-      #   @stored_filter.parameters.push(
-      #     {
-      #       't' => 'order',
-      #       'v' => @order_string
-      #     }
-      #   )
-      # end
-
-      # @order_string is required for view mode
-
       @sort_params = sort_params.dup
       @stored_filter.sort_parameters ||= (@sort_params.presence || DataCycleCore::Filter::Search.sort_params_from_filter(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }))
       @sort_params = @stored_filter.sort_parameters
@@ -91,13 +77,12 @@ module DataCycleCore
         if mode_params[:con_id].present? && request.xhr?
           @classification_parent_tree = DataCycleCore::ClassificationTree.find(mode_params[:cpt_id])
           @container = DataCycleCore::Thing.find(mode_params[:con_id])
-          @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
+          # TODO: check if ordering is required
+          # @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
           @contents = get_filtered_results(query: query, user_filter: user_filter)
             .part_of(@container.id)
-          tmp_count = @contents.count_distinct
-          @contents = @contents.distinct_by_content_id(@order_string)
-            .content_includes
-            .page(params[:page])
+          tmp_count = @contents.count
+          @contents = @contents.content_includes.page(params[:page])
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -111,13 +96,12 @@ module DataCycleCore
             .order('classification_aliases.internal_name')
             .page(params[:tree_page])
 
-          @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
+          # TODO: check if ordering is required
+          # @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
           @contents = get_filtered_results(query: query, user_filter: user_filter)
             .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
-          tmp_count = @contents.count_distinct
-          @contents = @contents.distinct_by_content_id(@order_string)
-            .content_includes
-            .page(params[:page])
+          tmp_count = @contents.count
+          @contents = @contents.content_includes.page(params[:page])
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -139,7 +123,7 @@ module DataCycleCore
       else
         page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
         @contents = get_filtered_results(query: query, user_filter: user_filter)
-        @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page]).per(page_size).without_count
+        @contents = @contents.content_includes.page(params[:page]).per(page_size).without_count
       end
     end
 
@@ -173,7 +157,7 @@ module DataCycleCore
         total_count = total_count.classification_tree_ids(ca_label.id)
       end
 
-      total_count.count_distinct
+      total_count.count
     end
 
     def load_stored_filter

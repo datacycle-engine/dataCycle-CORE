@@ -25,14 +25,12 @@ module DataCycleCore
 
       @language ||= params.fetch(:language) { [current_user.default_locale] }
 
-      query_params = @language.include?('all') ? [nil, DataCycleCore::Thing] : [@language]
+      query_params = @language.include?('all') ? [nil] : [@language]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
 
       @filters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
-
-      query = query.distinct_by_content_id(@order_string)
 
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }

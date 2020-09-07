@@ -20,7 +20,7 @@ module DataCycleCore
     # q => String (Optional)    | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width') || type
 
     def apply(query: nil)
-      query_params = language.include?('all') ? [nil, DataCycleCore::Thing] : [language]
+      query_params = language.include?('all') ? [nil] : [language]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
 
       parameters.presence&.each do |filter|

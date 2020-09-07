@@ -48,7 +48,7 @@ module DataCycleCore
         @per = permitted_params[:per] if permitted_params[:per].present?
         @per ||= DEFAULT_PER
 
-        @total = query.count_distinct
+        @total = query.count
         @pages = @total.fdiv(@per.to_i).ceil
 
         if permitted_params[:page].present?
@@ -57,7 +57,6 @@ module DataCycleCore
         end
         @page ||= 1
 
-        # @results = query.distinct_by_content_id(order_string).content_includes.page(@page).per(@per)
         @results = query.content_includes.page(@page).per(@per)
         respond_to(:js)
       end
