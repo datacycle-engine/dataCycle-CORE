@@ -99,9 +99,9 @@ module DataCycleCore
 
           case comparison
           when :equal
-            query_string = Thing.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(searches.advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal)', attribute_path, num_range])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(searches.advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal)', attribute_path, num_range])
           when :not_equal
-            query_string = Thing.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements(searches.advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal))', attribute_path, num_range])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements(searches.advanced_attributes -> ?) pil WHERE ?::numrange @> (pil)::decimal))', attribute_path, num_range])
           else
             return self
           end
@@ -115,9 +115,9 @@ module DataCycleCore
 
           case comparison
           when :equal
-            query_string = Thing.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::daterange @> (pil)::text::date)', attribute_path, date_range])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::daterange @> (pil)::text::date)', attribute_path, date_range])
           when :not_equal
-            query_string = Thing.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::daterange @> (pil)::text::date))', attribute_path, date_range])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::daterange @> (pil)::text::date))', attribute_path, date_range])
           else
             return self
           end
@@ -128,7 +128,7 @@ module DataCycleCore
         def advanced_time(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.present? && attribute_path.present? && comparison.present?
           comparison_operator = COMPARISON_OPERATORS.dig(comparison)
-          query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::text::time #{comparison_operator} ?::time)", attribute_path, value])
+          query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::text::time #{comparison_operator} ?::time)", attribute_path, value])
 
           advanced_query(query_string, attribute_path)
         end
@@ -137,7 +137,7 @@ module DataCycleCore
           return self unless (value.present? || value.to_s == 'false') && attribute_path.present? && comparison.present?
 
           comparison_operator = COMPARISON_OPERATORS.dig(comparison)
-          query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::boolean #{comparison_operator} ?)", attribute_path, value])
+          query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::boolean #{comparison_operator} ?)", attribute_path, value])
 
           advanced_query(query_string, attribute_path)
         end
@@ -147,11 +147,11 @@ module DataCycleCore
 
           case comparison
           when :equal
-            query_string = Thing.send(:sanitize_sql_for_conditions, ['(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: value])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: value])
           when :not_equal
-            query_string = Thing.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: value])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: value])
           when :like
-            query_string = Thing.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::TEXT LIKE ?)', attribute_path, "%#{value}%"])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::TEXT LIKE ?)', attribute_path, "%#{value}%"])
           else
             return self
           end
@@ -162,16 +162,17 @@ module DataCycleCore
         def advanced_query(query_string, attribute_path)
           return self if query_string.blank?
           reflect(
-            @query.where(search_exists(advanced_query_string(query_string, attribute_path)))
+            @query.where(search_exists(Arel.sql(advanced_query_string(query_string, attribute_path))))
           )
         end
 
         def advanced_query_string(query_string, attribute_path)
-          Arel.sql(attribute_path_not_null(attribute_path) + ' AND ' + query_string)
+          # attribute_path_not_null(attribute_path) + ' AND ' + query_string
+          [attribute_path_not_null(attribute_path), query_string].join(' AND ')
         end
 
         def attribute_path_not_null(path)
-          Thing.send(:sanitize_sql_for_conditions, ['advanced_attributes ? :path', path: path])
+          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['advanced_attributes ? :path', path: path])
         end
       end
     end

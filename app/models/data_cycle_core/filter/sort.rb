@@ -10,37 +10,32 @@ module DataCycleCore
       end
 
       def sort_boost(ordering)
-        return self if ordering.blank?
         reflect(
           @query
-            .order(Arel.sql("things.boost #{ordering}"))
+            .order(sanitized_order_string('things.boost', ordering))
         )
       end
 
       def sort_updated_at(ordering)
-        return self if ordering.blank?
         reflect(
           @query
-            .order(Arel.sql("things.created_at #{ordering}"))
+            .order(sanitized_order_string('things.updated_at', ordering))
         )
       end
 
       def sort_created_at(ordering)
-        return self if ordering.blank?
         reflect(
           @query
-            .order(Arel.sql("things.updated_at #{ordering}"))
+            .order(sanitized_order_string('things.created_at', ordering))
         )
       end
 
       def sort_translated_name(ordering)
-        return self if ordering.blank? || @locale.blank?
+        locale = @locale&.first || I18n.available_locales.first.to_s
         reflect(
           @query
-            .joins("LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = '#{@locale.first}'")
-            .order(
-              Arel.sql("thing_translations.name #{ordering} NULLS LAST")
-            )
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = ?', locale]))
+            .order(sanitized_order_string('thing_translations.name', ordering, true))
         )
       end
 
@@ -58,7 +53,7 @@ module DataCycleCore
       end
 
       def sort_fulltext_search(ordering, value)
-        return self if ordering.blank? || value.blank?
+        return self if value.blank?
         locale = @locale&.first || I18n.available_locales.first.to_s
         search_string = (value || '').split(' ').join('%')
 
@@ -78,9 +73,9 @@ module DataCycleCore
         )
         reflect(
           @query
-            .joins("LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = '#{locale}'")
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
             .reorder(
-              Arel.sql("#{order_string} #{ordering} NULLS LAST"),
+              sanitized_order_string(order_string, ordering, true),
               Arel.sql('things.updated_at DESC'),
               Arel.sql('things.id ASC')
             )
@@ -91,11 +86,19 @@ module DataCycleCore
         reflect(
           @query
             .reorder(
-              Arel.sql("fulltext_boost #{ordering}"),
+              sanitized_order_string('fulltext_boost', ordering, true),
               Arel.sql('things.updated_at DESC'),
               Arel.sql('things.id ASC')
             )
         )
+      end
+
+      def sanitized_order_string(order_string, order, nulls_last = false)
+        raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for ordering: #{order}" unless ['ASC', 'DESC'].include?(order)
+        raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for order string: #{order_string}" if order_string.blank?
+
+        order_nulls = nulls_last ? ' NULLS LAST' : ''
+        ActiveRecord::Base.send(:sanitize_sql_for_order, "#{order_string} #{order}#{order_nulls}")
       end
     end
   end
