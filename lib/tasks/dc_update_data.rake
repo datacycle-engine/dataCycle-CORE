@@ -9,7 +9,7 @@ namespace :dc do
       template_name = args.fetch(:template_name, false)
       computed_name = args.fetch(:computed_name, false)
       computed_names = computed_name.present? && computed_name != 'false' ? computed_name.split(',') : false
-
+      
       if template_name.present? && template_name != 'false'
         selected_things = DataCycleCore::Thing.where(template: true, template_name: template_name)
       else
@@ -17,7 +17,7 @@ namespace :dc do
       end
 
       selected_things.find_each.select { |template| template.computed_property_names.present? }.each do |template|
-        next if computed_names.size.positive? && !(computed_names & template.computed_property_names).size.positive?
+        next if computed_names.present? &&  computed_names.size.positive? && !(computed_names & template.computed_property_names).size.positive?
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         items_to_update = items.size
         translated_computed = (template.computed_property_names & template.translatable_property_names).present?
