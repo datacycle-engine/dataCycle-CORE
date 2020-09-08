@@ -221,6 +221,7 @@ module DataCycleCore
       raise DataCycleCore::Error::Api::BadRequest.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
     end
 
+    # only used for classifications + deleted things endpoint
     def apply_timestamp_query_string(values, attribute_path)
       date_range = "[#{date_from_single_value(values.dig(:min))&.beginning_of_day},#{date_from_single_value(values.dig(:max))&.end_of_day}]"
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])

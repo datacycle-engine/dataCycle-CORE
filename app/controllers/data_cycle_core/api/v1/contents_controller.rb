@@ -78,12 +78,8 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
+          query = query.sort_fulltext_search('DESC', permitted_params[:search]) if permitted_params[:search]
           query
-          # if permitted_params[:search].blank?
-          #   query
-          # else
-          #   query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search]))
-          # end
         end
       end
     end

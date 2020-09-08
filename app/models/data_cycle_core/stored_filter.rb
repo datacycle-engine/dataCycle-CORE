@@ -37,6 +37,7 @@ module DataCycleCore
           t = filter['t']
         end
 
+        # TODO: migrate stored filters to use latest classification filter methods
         t = "#{t}_with_subtree" if (filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids') && !language.include?('all')
 
         next unless query.respond_to?(t)

@@ -22,5 +22,7 @@ module DataCycleCore
     end
     class RecordNotFoundError < StandardError
     end
+    class DeprecatedMethodError < StandardError
+    end
   end
 end
