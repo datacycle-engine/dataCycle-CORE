@@ -204,11 +204,11 @@ module DataCycleCore
       assert(DataCycleCore::Filter::Search.new(:de).in_validity_period.count.positive?)
     end
 
-    test 'has helper for created_since and modified_since' do
+    test 'has helper for created_at and modified_at' do
       items = DataCycleCore::Filter::Search.new(:de)
       all = items.count
-      assert_equal(all, items.created_since((Time.zone.now - 1.hour).to_s).count)
-      assert_equal(all, items.modified_since((Time.zone.now - 1.hour).to_s).count)
+      assert_equal(all, items.created_at({ min: (Time.zone.now - 1.hour).to_s }).count)
+      assert_equal(all, items.modified_at({ min: (Time.zone.now - 1.hour).to_s }).count)
     end
 
     test 'supports geo queries' do

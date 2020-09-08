@@ -36,8 +36,8 @@ module DataCycleCore
 
         def search
           query = build_search_query
-          query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
-          query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
+          query = query.modified_at({ min: permitted_params[:modified_since] }) if permitted_params[:modified_since]
+          query = query.created_at({ min: permitted_params[:created_since] }) if permitted_params[:created_since]
           query = query.in_validity_period unless permitted_params[:modified_since] || permitted_params[:created_since]
           query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search]
           query = apply_ordering(query)

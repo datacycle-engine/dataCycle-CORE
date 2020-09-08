@@ -11,7 +11,6 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Geo
       include DataCycleCore::Filter::Sortable
 
-      # TODO: refactor initializer
       def initialize(locale = ['de'], query = nil, include_embedded = false)
         @locale = locale
         @include_embedded = include_embedded
@@ -138,20 +137,6 @@ module DataCycleCore
         )
       end
 
-      # TODO: raise DeprecationError + replace methods
-      def modified_since(date = Time.zone.now)
-        reflect(
-          @query.where(thing[:updated_at].gteq(Time.zone.parse(date)))
-        )
-      end
-
-      # TODO: raise DeprecationError + replace methods
-      def created_since(date = Time.zone.now)
-        reflect(
-          @query.where(thing[:created_at].gteq(Time.zone.parse(date)))
-        )
-      end
-
       def with_content_ids(ids = nil)
         return self if ids.blank?
 
@@ -200,13 +185,23 @@ module DataCycleCore
         end
       end
 
+      # Deprecated: replace with modified_at
+      def modified_since(_date = Time.zone.now)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+
+      # Deprecated: replace with created_at
+      def created_since(_date = Time.zone.now)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+
       # Deprecated: no replacement
       def exclude_templates_embedded
         raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
 
       # Deprecated: replace with sort_fulltext_search or sort_by_proximity
-      def self.get_order_by_query_string(search, events = false)
+      def self.get_order_by_query_string(_search, _events = false)
         raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
 
