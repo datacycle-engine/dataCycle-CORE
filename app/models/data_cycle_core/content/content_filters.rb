@@ -3,31 +3,23 @@
 module DataCycleCore
   module Content
     module ContentFilters
-      def with_classification_alias_names(*names)
-        where(id: name.constantize.joins(:classification_aliases)
-          .merge(ClassificationAlias.with_name(names.flatten).with_descendants))
+      # Deprecated: no replacement
+      def with_classification_alias_names(*_names)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
 
-      def with_classification_alias_ids(*ids)
-        where(id: name.constantize.joins(:classification_aliases)
-          .merge(ClassificationAlias.where(id: ids).with_descendants))
+      # Deprecated: no replacement
+      def with_classification_alias_ids(*_ids)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
 
-      def search(q, language)
-        contents = arel_table
-        search_entries = Search.arel_table
+      # def search
+      #   DataCycleCore::Filter::Search.new(nil,nil,true)
+      # end
 
-        joins(
-          contents
-            .join(search_entries)
-            .on(
-              contents[:id].eq(search_entries[:content_data_id])
-                .and(search_entries[:locale].eq(language))
-            ).join_sources
-        ).where(
-          search_entries[:all_text].matches_all(q.split(' ').map(&:strip))
-            .or(tsmatch(search_entries[:words], tsquery(quoted(q.squish))))
-        )
+      # Deprecated: no replacement
+      def search(_q, _language)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
 
       def with_content_type(type)

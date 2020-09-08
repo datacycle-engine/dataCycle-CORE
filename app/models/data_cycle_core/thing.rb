@@ -60,6 +60,8 @@ module DataCycleCore
 
     has_many :activities, as: :activitiable, dependent: :destroy
 
+    # Deprecated: no replacement
+    # TODO: currently not replaceable
     def self.with_classification_alias_ids(classification_alias_ids)
       classification_alias_ids = Array(classification_alias_ids).map { |id|
         "'#{id}'"
@@ -94,38 +96,9 @@ module DataCycleCore
       )
     end
 
-    def self.without_classification_alias_ids(classification_alias_ids)
-      classification_alias_ids = Array(classification_alias_ids).map { |id|
-        "'#{id}'"
-      }.join(',')
-
-      virtual_table_name = "contents_#{SecureRandom.hex}"
-
-      where(
-        <<-SQL.gsub(/\s+/, ' ')
-          things.id NOT IN (
-            WITH #{virtual_table_name} AS (
-              WITH recursive recursive_classification_trees AS (
-                    SELECT *
-                    FROM   classification_trees
-                    WHERE  classification_trees.parent_classification_alias_id IN (#{classification_alias_ids})
-                    OR     classification_trees.classification_alias_id        IN (#{classification_alias_ids})
-                    UNION ALL
-                    SELECT     classification_trees.*
-                    FROM       classification_trees
-                    inner join recursive_classification_trees
-                    ON         classification_trees.parent_classification_alias_id = recursive_classification_trees.classification_alias_id
-              ) SELECT DISTINCT content_data_id
-              FROM classification_contents
-              join classification_groups ON classification_contents.classification_id = classification_groups.classification_id
-              join recursive_classification_trees ON recursive_classification_trees.classification_alias_id = classification_groups.classification_alias_id
-              WHERE classification_groups.deleted_at IS NULL
-                  AND recursive_classification_trees.deleted_at IS NULL
-            )
-            SELECT content_data_id FROM #{virtual_table_name}
-          )
-        SQL
-      )
+    # Deprecated: no replacement
+    def self.without_classification_alias_ids(_classification_alias_ids)
+      raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
     end
 
     def self.translated_locales

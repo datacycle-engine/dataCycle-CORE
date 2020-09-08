@@ -29,7 +29,10 @@ module DataCycleCore
       query ||= DataCycleCore::Filter::Search.new(*query_params)
 
       @filters.presence&.each do |filter|
-        query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
+        # TODO: migrate stored filters to use latest classification filter methods
+        filter_method = filter['t']
+        filter_method = "#{filter['t']}_with_subtree" if filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids'
+        query = query.send(filter_method, filter['v']) if query.respond_to?(filter_method)
       end
 
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }

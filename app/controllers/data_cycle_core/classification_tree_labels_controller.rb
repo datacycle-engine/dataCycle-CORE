@@ -52,7 +52,7 @@ module DataCycleCore
             # TODO: check if ordering is required
             # @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
             @contents = get_filtered_results(user_filter: nil)
-              .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
+              .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
               .content_includes
               .page(params[:page])
 

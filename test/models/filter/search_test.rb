@@ -78,13 +78,14 @@ module DataCycleCore
 
     test 'filter contents based on classifications' do
       items = DataCycleCore::Filter::Search.new(:de)
-        .with_classification_alias_ids_without_recursion(find_alias_ids('Tags', 'Tag 3'))
+        .classification_alias_ids_without_subtree(find_alias_ids('Tags', 'Tag 3'))
       assert_equal(2, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
-        .classification_alias_ids(find_alias_ids('Tags', 'Tag 3'))
+        .classification_alias_ids_with_subtree(find_alias_ids('Tags', 'Tag 3'))
       assert_equal(3, items.count)
       # same_as
+      # TODO: refactor to use search ?
       items = DataCycleCore::Thing
         .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 3'))
       assert_equal(3, items.count)
@@ -94,7 +95,7 @@ module DataCycleCore
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
-        .not_classification_alias_ids(find_alias_ids('Tags', 'Tag 2'))
+        .not_classification_alias_ids_with_subtree(find_alias_ids('Tags', 'Tag 2'))
       assert_equal(7, items.count)
     end
 

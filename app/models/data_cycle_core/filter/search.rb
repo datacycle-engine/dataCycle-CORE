@@ -39,6 +39,12 @@ module DataCycleCore
         )
       end
 
+      def exclude_templates_embedded
+        reflect(
+          @query.where(template: false).where.not(content_type: 'embedded')
+        )
+      end
+
       def subscribed_user_id(id = nil)
         return self if id.blank?
 
@@ -192,11 +198,6 @@ module DataCycleCore
 
       # Deprecated: replace with created_at
       def created_since(_date = Time.zone.now)
-        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
-      end
-
-      # Deprecated: no replacement
-      def exclude_templates_embedded
         raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
 

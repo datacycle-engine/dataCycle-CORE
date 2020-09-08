@@ -99,7 +99,7 @@ module DataCycleCore
           # TODO: check if ordering is required
           # @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
           @contents = get_filtered_results(query: query, user_filter: user_filter)
-            .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
+            .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
           tmp_count = @contents.count
           @contents = @contents.content_includes.page(params[:page])
 
@@ -149,9 +149,9 @@ module DataCycleCore
       when 'container'
         total_count = total_count.part_of(mode_params[:con_id])
       when 'classification_alias'
-        total_count = total_count.with_classification_alias_ids_without_recursion(classification_tree.sub_classification_alias.id)
+        total_count = total_count.classification_alias_ids_without_subtree(classification_tree.sub_classification_alias.id)
       when 'ca_recursive'
-        total_count = total_count.classification_alias_ids(classification_tree.sub_classification_alias.id)
+        total_count = total_count.classification_alias_ids_with_subtree(classification_tree.sub_classification_alias.id)
       when 'classification_tree_label'
         ca_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
         total_count = total_count.classification_tree_ids(ca_label.id)

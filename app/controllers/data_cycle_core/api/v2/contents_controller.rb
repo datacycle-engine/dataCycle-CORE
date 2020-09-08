@@ -97,7 +97,7 @@ module DataCycleCore
             permitted_params.dig(:filter, :classifications).map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
-              query = query.classification_alias_ids(classifications)
+              query = query.classification_alias_ids_with_subtree(classifications)
             end
           end
           query

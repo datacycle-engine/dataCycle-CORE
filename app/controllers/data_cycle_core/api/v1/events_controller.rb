@@ -6,7 +6,9 @@ module DataCycleCore
       class EventsController < DataCycleCore::Api::V1::ContentsController
         def index
           query = DataCycleCore::Thing.includes(:translations, :classifications).with_schema_type('Event').with_content_type('entity')
-          query = query.search(permitted_params&.dig(:q), permitted_params.fetch(:language) { DataCycleCore.ui_language }) if permitted_params&.dig(:q)
+
+          # DataCycleCore::Thing.search has been refactored
+          # query = query.search(permitted_params&.dig(:q), permitted_params.fetch(:language) { DataCycleCore.ui_language }) if permitted_params&.dig(:q)
 
           if permitted_params&.dig(:filter, :from)
             query = query.from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
@@ -24,7 +26,8 @@ module DataCycleCore
             end
           end
 
-          query = query.with_translations(permitted_params.fetch(:language) { DataCycleCore.ui_language })
+          # DataCycleCore::Thing.with_translations is deprecated
+          # query = query.with_translations(permitted_params.fetch(:language) { DataCycleCore.ui_language })
           @contents = apply_paging(query).sort_by_proximity
         end
 

@@ -36,7 +36,6 @@ module DataCycleCore
           )
         end
 
-        # used in data_definitions for linked objects
         def with_classification_aliases_and_treename(definition)
           return self if definition.blank?
           raise StandardError, 'Missing data definition: treeLabel' if definition.dig('treeLabel').blank?
@@ -84,19 +83,19 @@ module DataCycleCore
           )
         end
 
-        # TODO: remove legacy method
-        def classification_alias_ids(ids = nil)
-          classification_alias_ids_with_subtree(ids)
+        # Deprecated: replace with classification_alias_ids_with_subtree
+        def classification_alias_ids(_ids = nil)
+          raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
         end
 
-        # TODO: remove legacy method
-        def not_classification_alias_ids(ids = nil)
-          not_classification_alias_ids_with_subtree(ids)
+        # Deprecated: replace with not_classification_alias_ids_with_subtree
+        def not_classification_alias_ids(_ids = nil)
+          raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
         end
 
-        # TODO: remove legacy method
-        def with_classification_alias_ids_without_recursion(ids = nil)
-          classification_alias_ids_without_subtree(ids)
+        # Deprecated: replace with classification_alias_ids_without_subtree
+        def with_classification_alias_ids_without_recursion(_ids = nil)
+          raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
         end
       end
     end

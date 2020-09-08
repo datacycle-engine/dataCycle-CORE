@@ -76,9 +76,9 @@ module DataCycleCore
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
               if @mode_parameters.include?('strict')
-                query = query.with_classification_alias_ids_without_recursion(classifications)
+                query = query.classification_alias_ids_without_subtree(classifications)
               else
-                query = query.classification_alias_ids(classifications)
+                query = query.classification_alias_ids_with_subtree(classifications)
               end
             end
           end
