@@ -5,6 +5,7 @@ module DataCycleCore
     module V1
       class EventsController < DataCycleCore::Api::V1::ContentsController
         def index
+          # DEPRECATED ACTION
           query = DataCycleCore::Thing.includes(:translations, :classifications).with_schema_type('Event').with_content_type('entity')
 
           # DataCycleCore::Thing.search has been refactored

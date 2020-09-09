@@ -15,7 +15,7 @@ module DataCycleCore
       @stored_filter.language = @language
 
       @sort_params = sort_params.dup
-      @stored_filter.sort_parameters ||= (@sort_params.presence || DataCycleCore::Filter::Search.sort_params_from_filter(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }))
+      @stored_filter.sort_parameters ||= (@sort_params.presence || DataCycleCore::StoredFilter.sort_params_from_filter(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }))
       @sort_params = @stored_filter.sort_parameters
 
       @stored_filter.parameters = current_user.default_filter(@stored_filter.parameters, user_filter) if user_filter.present?

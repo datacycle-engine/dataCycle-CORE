@@ -241,6 +241,7 @@ module DataCycleCore
         return query
       end
 
+      # TODO: refactor
       query = query.reset_sort
       order_query.each do |sort|
         sort_method_name = 'sort_' + sort['m']

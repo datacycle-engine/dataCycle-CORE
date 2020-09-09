@@ -49,6 +49,9 @@
 :main_filter:
   :autoload_last_filter: true
 
+:sortable:
+  :enabled: true
+
 :advanced_filter:
   :boolean:
     - duplicate_candidates

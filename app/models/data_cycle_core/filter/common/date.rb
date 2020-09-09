@@ -130,7 +130,6 @@ module DataCycleCore
           )
         end
 
-        # TODO: check if required
         def modified_at(d = nil)
           date_range(d, 'updated_at')
         end
@@ -139,7 +138,7 @@ module DataCycleCore
           date_range(d, 'created_at')
         end
 
-        # TODO: remove legacy method (API's)
+        # TODO: remove legacy method (API v1,v2,v3)
         def event_end_time(time)
           time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
           reflect(
@@ -147,7 +146,7 @@ module DataCycleCore
           )
         end
 
-        # TODO: remove legacy method (API's)
+        # TODO: remove legacy method (API v1,v2,v3)
         def event_from_time(time)
           time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
           reflect(

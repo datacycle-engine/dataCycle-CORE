@@ -3,25 +3,6 @@
 module DataCycleCore
   module Content
     module ContentFilters
-      # Deprecated: no replacement
-      def with_classification_alias_names(*_names)
-        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
-      end
-
-      # Deprecated: no replacement
-      def with_classification_alias_ids(*_ids)
-        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
-      end
-
-      # def search
-      #   DataCycleCore::Filter::Search.new(nil,nil,true)
-      # end
-
-      # Deprecated: no replacement
-      def search(_q, _language)
-        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
-      end
-
       def with_content_type(type)
         where("schema ->> 'content_type' = ?", type)
       end
@@ -54,6 +35,21 @@ module DataCycleCore
         joins(:classifications)
           .where('classification_contents.relation = ?', DataCycleCore::Feature::LifeCycle.attribute_keys.first)
           .where.not('classification_contents.classification_id = ?', id)
+      end
+
+      # Deprecated: no replacement
+      def with_classification_alias_names(*_names)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+
+      # Deprecated: no replacement
+      def with_classification_alias_ids(*_ids)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+
+      # Deprecated: no replacement
+      def search(_q, _language)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
     end
   end

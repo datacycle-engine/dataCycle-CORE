@@ -69,5 +69,25 @@ module DataCycleCore
 
       query
     end
+
+    def self.sort_params_from_filter(search = nil, schedule = nil)
+      if search.present?
+        [
+          {
+            "m": 'fulltext_search',
+            "o": 'DESC',
+            "v": search
+          }
+        ]
+      elsif schedule.present?
+        [
+          {
+            "m": 'by_proximity',
+            "o": 'ASC',
+            "v": schedule
+          }
+        ]
+      end
+    end
   end
 end

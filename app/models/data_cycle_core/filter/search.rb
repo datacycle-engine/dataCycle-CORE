@@ -39,12 +39,6 @@ module DataCycleCore
         )
       end
 
-      def exclude_templates_embedded
-        reflect(
-          @query.where(template: false).where.not(content_type: 'embedded')
-        )
-      end
-
       def subscribed_user_id(id = nil)
         return self if id.blank?
 
@@ -171,26 +165,6 @@ module DataCycleCore
         end
       end
 
-      def self.sort_params_from_filter(search = nil, schedule = nil)
-        if search.present?
-          [
-            {
-              "m": 'fulltext_search',
-              "o": 'DESC',
-              "v": search
-            }
-          ]
-        elsif schedule.present?
-          [
-            {
-              "m": 'by_proximity',
-              "o": 'ASC',
-              "v": schedule
-            }
-          ]
-        end
-      end
-
       # Deprecated: replace with modified_at
       def modified_since(_date = Time.zone.now)
         raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
@@ -198,6 +172,11 @@ module DataCycleCore
 
       # Deprecated: replace with created_at
       def created_since(_date = Time.zone.now)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+
+      # Deprecated: no replacement
+      def exclude_templates_embedded
         raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
 

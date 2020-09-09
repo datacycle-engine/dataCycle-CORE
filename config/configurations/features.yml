@@ -63,7 +63,7 @@
   :autoload_last_filter: true
 
 :sortable:
-  :enabled: true
+  :enabled: false
   :updated_at: true
   :created_at: true
   :translated_name: true
