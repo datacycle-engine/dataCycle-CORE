@@ -53,24 +53,20 @@ module DataCycleCore
         end
 
         module ClassMethods
-          # TODO: remove from_time (implemented in DataCycleCore::Filter::Search)
-          def from_time(time)
-            time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
-            where(arel_table[:end_date].gteq(Arel::Nodes.build_quoted(time.iso8601)))
+          # Deprecated: no replacement
+          def from_time(_time)
+            raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
           end
 
-          # TODO: remove to_time (implemented in DataCycleCore::Filter::Search)
+          # Deprecated: no replacement
           def to_time(time)
-            time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
-            where(arel_table[:start_date].lteq(Arel::Nodes.build_quoted(time.iso8601)))
+            raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
           end
 
-          # TODO: remove sort_by_proximity (implemented in DataCycleCore::Filter::Search)
-          # def sort_by_proximity(date = Time.zone.now)
-          #   order(absolute_date_diff(arel_table[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
-          #         absolute_date_diff(arel_table[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
-          #         :start_date)
-          # end
+          # Deprecated: no replacement
+          def sort_by_proximity(_date = Time.zone.now)
+            raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+          end
         end
       end
     end

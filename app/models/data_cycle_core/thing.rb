@@ -60,47 +60,6 @@ module DataCycleCore
 
     has_many :activities, as: :activitiable, dependent: :destroy
 
-    # Deprecated: no replacement
-    # TODO: currently not replaceable
-    def self.with_classification_alias_ids(classification_alias_ids)
-      classification_alias_ids = Array(classification_alias_ids).map { |id|
-        "'#{id}'"
-      }.join(',')
-
-      virtual_table_name = "contents_#{SecureRandom.hex}"
-
-      joins(
-        <<-SQL.gsub(/\s+/, ' ')
-          JOIN (
-            WITH RECURSIVE recursive_classification_trees AS (
-              SELECT *
-              FROM classification_trees
-              WHERE classification_trees.parent_classification_alias_id IN (#{classification_alias_ids})
-              OR classification_trees.classification_alias_id IN (#{classification_alias_ids})
-              UNION ALL
-              SELECT classification_trees.*
-              FROM classification_trees
-              INNER JOIN recursive_classification_trees
-                ON classification_trees.parent_classification_alias_id = recursive_classification_trees.classification_alias_id
-            )
-            SELECT DISTINCT content_data_id
-            FROM classification_contents
-            JOIN classification_groups
-              ON classification_contents.classification_id = classification_groups.classification_id
-            JOIN recursive_classification_trees
-              ON recursive_classification_trees.classification_alias_id = classification_groups.classification_alias_id
-            WHERE classification_groups.deleted_at IS NULL AND recursive_classification_trees.deleted_at IS NULL
-          ) AS #{virtual_table_name}
-            ON things.id = #{virtual_table_name}.content_data_id
-        SQL
-      )
-    end
-
-    # Deprecated: no replacement
-    def self.without_classification_alias_ids(_classification_alias_ids)
-      raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
-    end
-
     def self.translated_locales
       DataCycleCore::Thing::Translation.where(translated_model: all).distinct.pluck(:locale)
     end
