@@ -1,0 +1,38 @@
+<div class="reveal" id="<%= "add-items-to-watch-list-overlay-#{template_name}-#{relation_a}" %>" data-reveal>
+  <h3><%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></h3>
+
+  <%= form_with url: add_related_items_watch_lists_path, local: true, id: 'add-items-to-watch-list-form' do |f| %>
+    <%= hidden_field_tag :template_name, template_name %>
+    <%= hidden_field_tag :relation_a, relation_a %>
+    <%= hidden_field_tag :content_id, content.id %>
+    <div class="validation-container form-element">
+      <%= f.label :watch_list, DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %>
+      <div class="v-select white">
+        <%= f.collection_select(:watch_list,
+          DataCycleCore::WatchList.accessible_by(current_ability).order(updated_at: :desc),
+          :id,
+          :name,
+          {},
+          {
+            class: 'single-select',
+            id: 'add-items-to-watch-list-select',
+            data: {
+              allow_clear: false,
+              tags: true
+            }
+          }) %>
+      </div>
+    </div>
+    <div class="buttons">
+      <%= f.button t('actions.add', locale: DataCycleCore.ui_language),
+        class: 'button primary',
+        data: {
+          disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-fw'></i> #{t('actions.add', locale: DataCycleCore.ui_language)}"
+        },
+        type: :submit %>
+    </div>
+  <% end %>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

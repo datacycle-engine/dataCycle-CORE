@@ -103,6 +103,7 @@ DataCycleCore::Engine.routes.draw do
   resources :watch_lists do
     delete :remove_item, on: :member
     get :add_item, on: :member
+    post :add_related_items, on: :collection
     get :bulk_edit, on: :member
     patch :bulk_update, on: :member
     post :validate, on: :member
