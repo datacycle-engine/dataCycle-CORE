@@ -175,6 +175,14 @@ module DataCycleCore
           'dc:isLinkedTo' => {
             '@id' => 'https://schema.datacycle.at/isLinkedTo',
             '@container' => '@set'
+          },
+          'dc:multilingual' => {
+            '@id' => 'https://schema.datacycle.at/multilingual',
+            '@container' => '@set'
+          },
+          'dc:translation' => {
+            '@id' => 'https://schema.datacycle.at/translation',
+            '@container' => '@set'
           }
         }.compact
       ]

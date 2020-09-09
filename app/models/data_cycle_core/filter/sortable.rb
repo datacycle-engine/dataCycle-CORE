@@ -29,6 +29,7 @@ module DataCycleCore
             .order(sanitized_order_string('things.updated_at', ordering))
         )
       end
+      alias sort_modified sort_updated_at
 
       def sort_created_at(ordering)
         reflect(
@@ -36,6 +37,7 @@ module DataCycleCore
             .order(sanitized_order_string('things.created_at', ordering))
         )
       end
+      alias sort_created sort_created_at
 
       def sort_translated_name(ordering)
         locale = @locale&.first || I18n.available_locales.first.to_s
@@ -45,6 +47,7 @@ module DataCycleCore
             .order(sanitized_order_string('thing_translations.name', ordering, true))
         )
       end
+      alias sort_name sort_translated_name
 
       # TODO: respect date for sorting
       def sort_by_proximity(_ordering = '', _value = {})

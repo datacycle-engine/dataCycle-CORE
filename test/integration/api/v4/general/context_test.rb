@@ -82,6 +82,47 @@ module DataCycleCore
             validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
             assert_equal({}, validator.call(json_context.second).errors.to_h)
           end
+
+          test 'api/v4/things default paht' do
+            params = {}
+            post api_v4_things_path(params)
+
+            json_data = JSON.parse(response.body)
+            json_context = json_data.dig('@context')
+            assert_equal(2, json_context.size)
+            assert_equal('http://schema.org', json_context.first)
+
+            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
+            assert_equal({}, validator.call(json_context.second).errors.to_h)
+          end
+
+          test 'api/v4/things with fields: dct:modified' do
+            params = {
+              fields: 'dct:modified'
+            }
+            post api_v4_things_path(params)
+
+            json_data = JSON.parse(response.body)
+            json_context = json_data.dig('@context')
+            assert_equal(2, json_context.size)
+            assert_equal('http://schema.org', json_context.first)
+
+            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
+            assert_equal({}, validator.call(json_context.second).errors.to_h)
+          end
+
+          test 'api/v4/things/deleted with fields: dct:modified' do
+            params = {}
+            post api_v4_contents_deleted_path(params)
+
+            json_data = JSON.parse(response.body)
+            json_context = json_data.dig('@context')
+            assert_equal(2, json_context.size)
+            assert_equal('http://schema.org', json_context.first)
+
+            validator = DataCycleCore::V4::Validation::Context.context(params.dig(:language))
+            assert_equal({}, validator.call(json_context.second).errors.to_h)
+          end
         end
       end
     end

@@ -6,30 +6,31 @@ module DataCycleCore
       class EventsController < DataCycleCore::Api::V1::ContentsController
         def index
           # DEPRECATED ACTION
-          query = DataCycleCore::Thing.includes(:translations, :classifications).with_schema_type('Event').with_content_type('entity')
+          #
+          filter = DataCycleCore::StoredFilter.new
+          filter.language = 'all'
+          query = filter.apply
+          query = query.schema_type('Event')
 
-          # DataCycleCore::Thing.search has been refactored
-          # query = query.search(permitted_params&.dig(:q), permitted_params.fetch(:language) { DataCycleCore.ui_language }) if permitted_params&.dig(:q)
+          query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
 
           if permitted_params&.dig(:filter, :from)
-            query = query.from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
+            query = query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
           else
-            query = query.from_time(Time.zone.now)
+            query = query.event_from_time(Time.zone.now)
           end
 
-          query = query.to_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to))) if permitted_params&.dig(:filter, :to)
+          query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to))) if permitted_params&.dig(:filter, :to)
 
           if permitted_params&.dig(:filter, :classifications)
             permitted_params.dig(:filter, :classifications).map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
-              query = query.with_classification_alias_ids(classifications)
+              query = query.classification_alias_ids_with_subtree(classifications)
             end
           end
-
-          # DataCycleCore::Thing.with_translations is deprecated
-          # query = query.with_translations(permitted_params.fetch(:language) { DataCycleCore.ui_language })
-          @contents = apply_paging(query).sort_by_proximity
+          query = query.sort_by_proximity
+          @contents = apply_paging(query)
         end
 
         def show

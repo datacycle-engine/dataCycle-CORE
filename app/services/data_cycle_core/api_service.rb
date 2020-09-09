@@ -16,7 +16,7 @@ module DataCycleCore
         '@graph' => json_contents,
         'links' => json_links
       }
-      list_hash['meta'] = api_plain_meta(contents.total_count, contents.total_pages) unless @mode_parameters == 'strict'
+      list_hash['meta'] = api_plain_meta(contents.total_count, contents.total_pages) unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
       list_hash
     end
 
@@ -33,7 +33,7 @@ module DataCycleCore
         '@graph' => json_contents,
         'links' => json_links
       }
-      list_hash['meta'] = api_plain_meta(contents.total_count, contents.total_pages) unless @mode_parameters == 'strict'
+      list_hash['meta'] = api_plain_meta(contents.total_count, contents.total_pages) unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
       list_hash
     end
 
@@ -231,7 +231,11 @@ module DataCycleCore
       order_query = []
       order_params&.split(',')&.each do |sort|
         key, order = key_with_ordering(sort)
-        order_query << transform_sort_param(key, order)
+        order_query <<
+          {
+            'm' => key,
+            'o' => order
+          }
       end
       order_query = order_query&.reject(&:blank?)
 
@@ -241,7 +245,6 @@ module DataCycleCore
         return query
       end
 
-      # TODO: refactor
       query = query.reset_sort
       order_query.each do |sort|
         sort_method_name = 'sort_' + sort['m']
@@ -285,6 +288,7 @@ module DataCycleCore
       end
     end
 
+    # TODO: check if required
     def date_from_single_value(value)
       return if value.blank?
       return value if value.is_a?(::Date)
