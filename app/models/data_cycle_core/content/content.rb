@@ -183,7 +183,10 @@ module DataCycleCore
       end
 
       def computed_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'computed' }
+        @computed_property_names ||= Hash.new do |h, key|
+          h[key] = name_property_selector(key) { |definition| definition['type'] == 'computed' }
+        end
+        @computed_property_names[include_overlay]
       end
 
       def classification_property_names(include_overlay = false)
@@ -191,7 +194,10 @@ module DataCycleCore
       end
 
       def properties_with_default_values(include_overlay = false)
-        @properties_with_default_values ||= property_selector(include_overlay) { |definition| definition['default_value'].present? }
+        @properties_with_default_values ||= Hash.new do |h, key|
+          h[key] = property_selector(key) { |definition| definition['default_value'].present? }
+        end
+        @properties_with_default_values[include_overlay]
       end
 
       def asset_property_names

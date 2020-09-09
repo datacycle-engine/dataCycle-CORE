@@ -34,10 +34,10 @@ namespace :dc do
 
           if translated_computed
             item.available_locales.each do |locale|
-              I18n.with_locale(locale) { item.set_data_hash(data_hash: item.get_data_hash) }
+              I18n.with_locale(locale) { item.set_data_hash(data_hash: item.get_data_hash.except(*template.computed_property_names)) }
             end
           else
-            I18n.with_locale(item.first_available_locale) { item.set_data_hash(data_hash: item.get_data_hash) }
+            I18n.with_locale(item.first_available_locale) { item.set_data_hash(data_hash: item.get_data_hash.except(*template.computed_property_names)) }
           end
         end
 

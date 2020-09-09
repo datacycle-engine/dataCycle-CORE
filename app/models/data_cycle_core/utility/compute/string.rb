@@ -36,7 +36,7 @@ module DataCycleCore
               end
             end
 
-            attribution_name.compact.blank? ? nil : attribution_name.compact.join(' / ').prepend('(c) ')
+            attribution_name.compact.presence&.join(' / ')&.prepend('(c) ')
           end
         end
       end
