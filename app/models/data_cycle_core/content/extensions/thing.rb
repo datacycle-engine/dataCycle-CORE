@@ -59,7 +59,7 @@ module DataCycleCore
           end
 
           # Deprecated: no replacement
-          def to_time(time)
+          def to_time(_time)
             raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
           end
 
