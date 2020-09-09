@@ -165,6 +165,75 @@ footer {
   background-size: 180px;
 }
 
+.external-system-icon,
+.external-connections-icon {
+  color: lighten($black, 10%);
+
+  &.success {
+    color: $success-color;
+  }
+
+  &.pending {
+    color: $primary-color;
+  }
+
+  &.error {
+    color: $warning-color;
+  }
+
+  &.failure {
+    color: $alert-color;
+  }
+}
+
+.external-connections-icon {
+  vertical-align: middle;
+}
+
+.tooltip .external-system-icon:not(.success, .pending, .error, .failure) {
+  color: inherit;
+}
+
+.external-system-icon {
+  font-size: 0.9rem;
+  vertical-align: middle;
+  margin-right: 0.2rem;
+
+  &.fa-stack {
+    width: auto;
+    height: auto;
+    line-height: inherit;
+    font-size: 0.9rem;
+
+    .fa-file-o {
+      font-size: inherit;
+      line-height: inherit;
+    }
+    .fa-long-arrow-right {
+      font-size: inherit;
+      line-height: inherit;
+      position: absolute;
+      bottom: -2px;
+    }
+
+    &.export {
+      padding-right: 5px;
+
+      .fa-long-arrow-right {
+        left: 5px;
+      }
+    }
+
+    &.import {
+      padding-left: 5px;
+
+      .fa-long-arrow-right {
+        left: 0px;
+      }
+    }
+  }
+}
+
 .detail-header {
   position: relative;
   background: $light-gray;
@@ -240,11 +309,53 @@ footer {
       flex-flow: row nowrap;
       align-items: center;
       justify-content: center;
-      .external-link {
-        margin-left: 0.5rem;
+      cursor: pointer;
+      font-weight: bold;
+
+      .external-connections-icon {
+        margin-right: 0.3rem;
       }
-      .external-link-icon {
-        vertical-align: middle;
+    }
+
+    .external-connections-dropdown {
+      min-width: 350px;
+      max-width: 400px;
+
+      .list-items {
+        > li {
+          display: flex;
+          flex-flow: row nowrap;
+          align-items: center;
+
+          > * {
+            white-space: nowrap;
+          }
+
+          > *:not(:last-child) {
+            margin-right: 0.5rem;
+          }
+
+          .sync-external-key {
+            flex: auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            .copy-to-clipboard {
+              display: inline;
+            }
+          }
+
+          .last-successful-sync-at {
+            color: $dark-gray;
+          }
+
+          .external-edit-link {
+            .fa {
+              font-size: 1rem;
+              vertical-align: middle;
+            }
+          }
+        }
       }
     }
   }

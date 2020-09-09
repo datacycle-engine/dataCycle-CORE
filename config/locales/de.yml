@@ -491,7 +491,8 @@ de:
     merge_with_duplicate: Änderungen speichern, Duplikat löschen und Ansicht schließen
     reload: Seite neu laden
     redirect_to_login: zur Anmeldung
-    external_edit: In Externem System öffnen
+    external_show: In Externem System öffnen
+    external_edit: In Externem System bearbeiten
     open_as_source: Als Vorlage laden
     close_source: Vorlage schließen
     bulk_edit: im Bulk bearbeiten

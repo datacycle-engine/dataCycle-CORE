@@ -3,13 +3,20 @@
 <% if external_connections.present? %>
   <div class="external-connections">
     <% external_connections.each do |name, syncs| %>
-      <span data-toggle="external-connections-<%= name.underscore_blanks %>"><i class="fa fa-external-link-square external-system-icon <%= content.external_system_syncs.pluck(:status).compact.join(' ') %>"></i> <%= name %></span>
-      <div class="dropdown-pane" id="external-connections-<%= name.underscore_blanks %>" data-dropdown data-hover="true" data-hover-pane="true">
+      <span class="external-connection" data-toggle="external-connections-<%= name.underscore_blanks %>"><i class="fa fa-external-link-square external-connections-icon <%= content.external_system_syncs.pluck(:status).compact.join(' ') %>"></i> <%= name %></span>
+      <div class="dropdown-pane external-connections-dropdown" id="external-connections-<%= name.underscore_blanks %>" data-dropdown data-hover="true" data-hover-pane="true">
         <ul class="list-items no-bullet">
           <% syncs.each do |sync| %>
             <li>
               <%= external_sync_status_icon(sync[:status], sync[:sync_type], true) %>
-              <%= tag.span(sync[:external_key], class: 'sync-external-key') if sync[:external_key].present? %>
+
+              <%= tag.span(class: 'sync-external-key') do %>
+                <%= tag.span(sync[:external_name] || sync[:external_key], class: 'copy-to-clipboard', title: [sync[:external_name], sync[:external_key]].compact.join("\n\nExterne Id: "), data: { value: sync[:external_key] }) %>
+              <% end %>
+
+              <%= tag.span(l(sync[:date], locale: DataCycleCore.ui_language, format: :history), class: 'last-successful-sync-at') if sync[:date].present? %>
+
+              <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', title: t('actions.external_edit', locale: DataCycleCore.ui_language), target: :_blank if sync[:external_edit_url].present? %>
             </li>
           <% end %>
         </ul>
@@ -17,36 +24,3 @@
     <% end %>
   </div>
 <% end %>
-
-<div class="external-connections">
-  <% if content.external_source.present? %>
-    <div class="external-connection">
-      <span class="copy-to-clipboard" title="<b><%= DataCycleCore::Thing.human_attribute_name(:external_key, locale: DataCycleCore.ui_language) + ':</b> '  + content.external_key.to_s %>" data-tooltip data-value="<%= content.external_key %>" data-allow-html="true">
-        <span class="external-source-icon fa-stack">
-          <i class="fa fa-file-o fa-stack-2x" aria_hidden="true"></i>
-          <i class="fa fa-long-arrow-right fa-stack-1x" aria_hidden="true"></i>
-        </span>
-        <b><%= content.external_source.name %></b>
-      </span>
-      <%= link_to content.external_source.external_url(content), class: 'external-link', title: t('actions.external_edit', locale: DataCycleCore.ui_language), target: :_blank do %>
-        <i class="external-link-icon fa fa-external-link" aria_hidden="true"></i>
-      <% end if content.external_source.external_url(content).present? %>
-    </div>
-  <% end %>
-
-  <% content.external_system_syncs.each do |external_relation| %>
-    <div class="external-connection">
-      <span class="copy-to-clipboard" title="<%= (external_relation.data&.dig('external_name').present? ? tag.b("#{DataCycleCore::Thing.human_attribute_name(:name, locale: DataCycleCore.ui_language)}: ") + external_relation.data.dig('external_name').to_s + tag.br : '') + (external_relation.external_key.present? ? tag.b("#{DataCycleCore::Thing.human_attribute_name(:external_key, locale: DataCycleCore.ui_language)}: ") + external_relation.external_key.to_s + tag.br : '') + (external_relation.status.present? ? "<b>#{t('common.status', locale: DataCycleCore.ui_language)}:</b> #{t("external_connection_states.#{external_relation.status}", locale: DataCycleCore.ui_language)}" : '') %><br>
-        <b><%= t('common.date', locale: DataCycleCore.ui_language) %>:</b> <%= l(external_relation.updated_at, locale: DataCycleCore.ui_language) %>" data-tooltip data-value="<%= external_relation.external_key %>" data-allow-html="true">
-        <span class="external-system-icon fa-stack <%= external_relation.status %>">
-          <i class="fa fa-file-o fa-stack-2x" aria_hidden="true"></i>
-          <i class="fa fa-long-arrow-right fa-stack-1x" aria_hidden="true"></i>
-        </span>
-        <b><%= external_relation.external_system.name %></b>
-      </span>
-      <%= link_to external_relation.external_url, class: 'external-link', title: t('actions.external_edit', locale: DataCycleCore.ui_language), target: :_blank do %>
-        <i class="external-link-icon fa fa-external-link" aria_hidden="true"></i>
-      <% end if external_relation.external_url.present? %>
-    </div>
-  <% end %>
-</div>

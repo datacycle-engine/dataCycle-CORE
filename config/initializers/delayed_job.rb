@@ -8,5 +8,5 @@ Delayed::Worker.sleep_delay = Rails.env.development? ? 5 : 60
 Delayed::Worker.delay_jobs = !Rails.env.test?
 Delayed::Worker.default_queue_name = 'default'
 Delayed::Worker.default_priority = 5
-Delayed::Worker.raise_signal_exceptions = :term
+Delayed::Worker.raise_signal_exceptions = true # :term tries to finish running jobs, but doesnt resume them after restart if they didnt finish in time (they would be resumed after Delayed::Worker.max_run_time)
 Delayed::Worker.logger = Logger.new(Rails.root.join('log', 'delayed_job.log'))

@@ -1541,9 +1541,6 @@ label[for='user_access_token'] {
   .external-source-icon {
     margin-right: 0.2rem;
   }
-  .external-system-icon {
-    margin-right: 0.4rem;
-  }
 }
 
 // textblocks
@@ -2264,100 +2261,6 @@ section.duplicate-candidates {
   }
 }
 
-.external-system-icon {
-  color: lighten($black, 10%);
-
-  &.success {
-    color: $success-color;
-  }
-
-  &.pending {
-    color: $primary-color;
-  }
-
-  &.error {
-    color: $warning-color;
-  }
-
-  &.failure {
-    color: $alert-color;
-  }
-}
-
-// .external-source-icon,
-// .external-source-icon .fa,
-// .external-system-icon,
-// .external-system-icon .fa {
-//   height: 1.2rem;
-//   width: calc(1rem + 6px);
-//   font-size: 1rem;
-//   line-height: 1.2rem;
-//   text-align: center;
-//   padding: 0 3px;
-//   &:last-child {
-//     padding-right: 0;
-//   }
-// }
-// .external-source-icon {
-//   margin-left: 3px;
-//   .fa-long-arrow-right {
-//     top: 2px;
-//     left: -6px;
-//   }
-// }
-
-// .external-system-icon {
-//   margin-right: 3px;
-//   .fa-long-arrow-right {
-//     top: 2px;
-//     left: 5px;
-//   }
-// }
-
-// .fa-stack {
-//   &.external-source-icon,
-//   &.external-system-icon {
-//     color: lighten($black, 10%);
-
-//     &.success {
-//       color: $success-color;
-//     }
-
-//     &.pending {
-//       color: $primary-color;
-//     }
-
-//     &.error {
-//       color: $warning-color;
-//     }
-
-//     &.failure {
-//       color: $alert-color;
-//     }
-//   }
-// }
-
-.external-connection-tooltip {
-  p {
-    margin: 0;
-    &:not(:first-of-type) {
-      border-top: 1px dashed;
-      padding-top: 0.5rem;
-      margin-top: 0.5rem;
-    }
-  }
-  .external-source-icon,
-  .external-system-icon {
-    height: 1.2rem;
-    width: 1.2rem;
-    line-height: 1rem;
-    margin-right: 0.3rem;
-    .fa {
-      font-size: 1rem;
-    }
-  }
-}
-
 //.object-browser-overlay
 .object-thumbs,
 .object_browser.media.linked {
@@ -2378,7 +2281,7 @@ section.duplicate-candidates {
   }
 }
 .object-browser-overlay {
-  .tile-properties {
+  .tile-properties:not(:last-child) {
     padding-bottom: 1rem;
   }
   .tile-top {
@@ -2394,28 +2297,6 @@ section.duplicate-candidates {
   }
   .tags {
     padding-bottom: 1rem;
-  }
-  .external-sources-tiles {
-    color: $dark-gray;
-    text-align: right;
-    padding-top: 1.5rem;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    display: flex;
-    padding-right: 1rem;
-    flex-flow: row nowrap;
-    align-items: center;
-    justify-content: flex-end;
-    .external-source-icon {
-      position: relative;
-      color: $dark-gray;
-      float: none;
-    }
-    .external-source-title {
-      display: inline-block;
-      position: relative;
-    }
   }
 }
 .chosen-items-container {
