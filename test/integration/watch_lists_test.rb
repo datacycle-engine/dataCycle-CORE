@@ -13,6 +13,10 @@ module DataCycleCore
       @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
       @current_user = User.find_by(email: 'tester@datacycle.at')
       sign_in(@current_user)
+      @organization = DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: { name: 'TestOrganisation' })
+      @image_a = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'TestBildA', author: [@organization.id] })
+      @image_b = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'TestBildB', author: [@organization.id] })
+      @image_c = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'TestBildC', copyright_holder: [@organization.id] })
     end
 
     test 'create Watchlist' do
@@ -119,6 +123,62 @@ module DataCycleCore
       assert_equal response.content_type, 'application/json'
       json_data = JSON.parse response.body
       assert_equal json_data.dig('collection', 'items').size, 1
+    end
+
+    test 'add related content to watch_list' do
+      post add_related_items_watch_lists_path, xhr: true, params: {
+        watch_list: @watch_list.id,
+        template_name: 'Bild',
+        relation_a: 'author',
+        content_id: @organization.id
+      }, headers: {
+        referer: root_path
+      }
+
+      assert_response :success
+      assert_equal DataCycleCore::WatchList.where(name: @watch_list.name).size, 1
+      assert @watch_list.things.ids.include?(@image_a.id)
+      assert @watch_list.things.ids.include?(@image_b.id)
+      assert_not @watch_list.things.ids.include?(@image_c.id)
+
+      get watch_list_path(@watch_list)
+      assert_response :success
+      assert_select 'li.grid-item > .content-link > .inner > .title', 'TestBildB'
+
+      get api_v2_collection_path(@watch_list)
+      assert_response :success
+      assert_equal response.content_type, 'application/json'
+      json_data = JSON.parse response.body
+      assert_equal json_data.dig('collection', 'items').size, 2
+    end
+
+    test 'add related content to new watch_list' do
+      post add_related_items_watch_lists_path, xhr: true, params: {
+        watch_list: 'TestWatchList2',
+        template_name: 'Bild',
+        relation_a: 'author',
+        content_id: @organization.id
+      }, headers: {
+        referer: root_path
+      }
+
+      assert_response :success
+      watch_list = DataCycleCore::WatchList.find_by(name: 'TestWatchList2')
+      assert_not_nil watch_list
+
+      assert watch_list.things.ids.include?(@image_a.id)
+      assert watch_list.things.ids.include?(@image_b.id)
+      assert_not watch_list.things.ids.include?(@image_c.id)
+
+      get watch_list_path(watch_list)
+      assert_response :success
+      assert_select 'li.grid-item > .content-link > .inner > .title', 'TestBildB'
+
+      get api_v2_collection_path(watch_list)
+      assert_response :success
+      assert_equal response.content_type, 'application/json'
+      json_data = JSON.parse response.body
+      assert_equal json_data.dig('collection', 'items').size, 2
     end
 
     test 'remove content from watch_list' do
