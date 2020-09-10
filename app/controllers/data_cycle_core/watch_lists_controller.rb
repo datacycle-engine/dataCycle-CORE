@@ -115,7 +115,7 @@ module DataCycleCore
 
     def add_related_items
       @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list])
-      @watch_list = current_user.watch_lists.create(name: params[:watch_list]) if @watch_list.nil?
+      @watch_list = current_user.watch_lists.create(full_path: params[:watch_list]) if @watch_list.nil?
 
       authorize!(:add_item, @watch_list)
 
