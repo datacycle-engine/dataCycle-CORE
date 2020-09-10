@@ -13,7 +13,7 @@ module DataCycleCore
           json_data = {
             resource: utility_object.external_system.credentials(:export).dig('resources', data.template_name),
             id: data.id,
-            data: content_data.compact.to_json
+            data: content_data.reject { |_k, v| v.blank? }.to_json
           }
 
           if data.try(:tour).is_a?(RGeo::Geographic::SphericalLineStringImpl)
@@ -33,7 +33,7 @@ module DataCycleCore
         def self.specific_types(utility_object, data)
           return if utility_object.external_system.credentials(:export).dig('specific_types_tree_label').blank?
 
-          data.mapped_classification_aliases.for_tree(utility_object.external_system.credentials(:export).dig('specific_types_tree_label')).map do |ca|
+          data&.mapped_classification_aliases&.for_tree(utility_object.external_system.credentials(:export).dig('specific_types_tree_label'))&.map do |ca|
             ca.translated_locales.map { |l|
               I18n.with_locale(l) { [l, ca.name] }
             }.to_h&.reject { |_k, v| v.blank? }
