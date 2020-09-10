@@ -165,6 +165,10 @@ footer {
   background-size: 180px;
 }
 
+.external-connections-tooltip {
+  white-space: nowrap;
+}
+
 .external-system-icon,
 .external-connections-icon {
   color: lighten($black, 10%);

@@ -2,7 +2,8 @@
   class: "fa fa-external-link-square has-tip external-connections-icon #{content.external_system_syncs.pluck(:status).compact.join(' ')}",
   data: {
     tooltip: true,
-    allow_html: true
+    allow_html: true,
+    template_classes: 'external-connections-tooltip'
   },
   title: external_systems_tooltip(content.external_source, content.external_system_syncs.includes(:external_system))
   ) if !content.try(:external_source).nil? || content.try(:external_system_syncs)&.any? %>
