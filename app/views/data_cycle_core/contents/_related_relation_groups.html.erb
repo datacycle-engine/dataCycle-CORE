@@ -21,7 +21,7 @@
                 
                     <li>
                         <span class="inner-item">
-                            <%= items.first.split('_').map(&:capitalize).join(' ') %> (<%= items.second.size %>) 
+                            <%= items.second.first&.schema&.dig("properties", items.first, 'label') || items.first.split('_').map(&:capitalize).join(' ') %> (<%= items.second.size %>) 
 
                             <%= button_tag type: :button, id: "add-items-to-watch-list-#{group.first}-#{items.first}", data: { open: "add-items-to-watch-list-overlay-#{group.first}-#{items.first}", template_name: group.first, relation_a: items.first } do %>
                             <i class="fa fa-plus" aria-hidden="true"></i>
