@@ -44,7 +44,7 @@ module Translations
           methods = []
           if klass < ::ActiveRecord::Base
             methods = [:changes_applied, :clear_changes_information, :reload]
-          elsif klass.ancestors.include?(::ActiveModel::Dirty)
+          elsif klass <= ::ActiveModel::Dirty
             methods = [:changes_applied, :clear_changes_information]
           end
 

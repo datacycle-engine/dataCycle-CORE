@@ -51,7 +51,7 @@ module DataCycleCore
                  class: "fa-stack #{sync_type} #{additional_classes}"
                )
              else tag.i(class: "fa fa-link #{additional_classes}")
-      end
+             end
 
       icon = tag.i(class: "fa fa-refresh #{additional_classes}") if status == 'pending'
       icon = tag.i(class: "fa fa-times #{additional_classes}") if status&.in?(['failure', 'error'])

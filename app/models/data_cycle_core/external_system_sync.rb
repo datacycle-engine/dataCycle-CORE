@@ -19,7 +19,7 @@ module DataCycleCore
     end
 
     def external_key
-      data&.dig(external_system&.default_options(:export)&.dig('external_key_param') || 'external_key')
+      super || data&.dig(external_system&.default_options(:export)&.dig('external_key_param') || 'external_key')
     end
 
     def self.with_external_system(external_system_id)
