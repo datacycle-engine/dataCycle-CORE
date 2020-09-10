@@ -114,7 +114,9 @@ module DataCycleCore
     end
 
     def add_related_items
-      @watch_list = DataCycleCore::WatchList.find(params[:watch_list])
+      @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list])
+      @watch_list = current_user.watch_lists.create(name: params[:watch_list]) if @watch_list.nil?
+
       authorize!(:add_item, @watch_list)
 
       content = DataCycleCore::Thing.find(params[:content_id])
