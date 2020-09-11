@@ -3,49 +3,49 @@ services:
   postgres:
     image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
     environment:
-    - ALLOW_IP_RANGE=0.0.0.0/0
+      - ALLOW_IP_RANGE=0.0.0.0/0
     ports:
-    - '5446:5432'
+      - '5446:5432'
   mongodb:
     image: 'mvertes/alpine-mongo:4.0.6-1'
     ports:
-    - '27026:27017'
+      - '27026:27017'
   web:
     build: .
     environment:
-#    - RAILS_ENV=production
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=
-    - POSTGRES_HOST=postgres
-    - POSTGRES_PORT=5432
-#    - POSTGRES_VERSION=11
-    - MONGODB_HOST=mongodb
-    - ALLOW_IP_RANGE=172.18.0.0/12
-    - TZ=Europe/Vienna
-    - APP_HOST=localhost:3010
-    - APP_PROTOCOL=http
-    - MAILHOG_HOST=mailhog
-    - SSH_AUTH_SOCK=/ssh-agent
-    # - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock  # SSH-forwarding for Mac
-#    - WEBHOOKS=Local-Text-File
-    - "CORE_RAKE_PREFIX=app:"
+      # - RAILS_ENV=production
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      # - POSTGRES_VERSION=11
+      - MONGODB_HOST=mongodb
+      - ALLOW_IP_RANGE=172.18.0.0/12
+      - TZ=Europe/Vienna
+      - APP_HOST=localhost:3010
+      - APP_PROTOCOL=http
+      - MAILHOG_HOST=mailhog
+      - SSH_AUTH_SOCK=/ssh-agent
+      # - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock  # SSH-forwarding for Mac
+      # - WEBHOOKS=Local-Text-File
+      - 'CORE_RAKE_PREFIX=app:'
     command:
-    - ./docker/setup.sh
+      - ./docker/setup.sh
     volumes:
-    - 'gems:/gems'
-    - '.:/var/www/app'
-    - $SSH_AUTH_SOCK:/ssh-agent
+      - 'gems:/gems'
+      - '.:/var/www/app'
+      - $SSH_AUTH_SOCK:/ssh-agent
     # - /run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock  # SSH-forwarding for Mac
     user: root
     ports:
-    - '3010:3000'
+      - '3010:3000'
     links:
-    - postgres
-    - mongodb
+      - postgres
+      - mongodb
     stdin_open: true
     tty: true
-#    depends_on:
-#      - chrome
+  #    depends_on:
+  #      - chrome
   mailhog:
     image: yappabe/mailhog
     environment:
@@ -58,7 +58,7 @@ services:
     volumes:
       - 'redis:/data'
     ports:
-    - '6380:6379'
+      - '6380:6379'
 #  redis-commander:
 #    image: rediscommander/redis-commander:latest
 #    build: .

@@ -29,10 +29,11 @@ module DataCycleCore
             locale: I18n.locale
           )
 
-          return if Delayed::Job.exists?(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil)
+          return if Delayed::Job.exists?(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil) && data.webhook_run_at.blank?
 
           data.add_external_system_data(external_system, nil, 'pending')
-          Delayed::Job.enqueue(webhook)
+          run_at = data.webhook_run_at || Time.zone.now
+          Delayed::Job.enqueue(webhook, run_at: run_at, created_at: run_at, updated_at: run_at)
         end
 
         def self.update(utility_object:, data:)
@@ -47,10 +48,11 @@ module DataCycleCore
             locale: I18n.locale
           )
 
-          return if Delayed::Job.exists?(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil)
+          return if Delayed::Job.exists?(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil) && data.webhook_run_at.blank?
 
           data.add_external_system_data(external_system, nil, 'pending')
-          Delayed::Job.enqueue(webhook)
+          run_at = data.webhook_run_at || Time.zone.now
+          Delayed::Job.enqueue(webhook, run_at: run_at, created_at: run_at, updated_at: run_at)
         end
 
         def self.delete(utility_object:, data:)
@@ -65,10 +67,11 @@ module DataCycleCore
             locale: I18n.locale
           )
 
-          return if Delayed::Job.exists?(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil)
+          return if Delayed::Job.exists?(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil) && data.webhook_run_at.blank?
 
           data.add_external_system_data(external_system, nil, 'pending')
-          Delayed::Job.enqueue(webhook)
+          run_at = data.webhook_run_at || Time.zone.now
+          Delayed::Job.enqueue(webhook, run_at: run_at, created_at: run_at, updated_at: run_at)
         end
       end
     end
