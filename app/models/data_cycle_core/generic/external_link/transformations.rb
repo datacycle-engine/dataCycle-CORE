@@ -12,16 +12,17 @@ module DataCycleCore
           t(:deep_stringify_keys)
           .>> t(:rename_keys, { '@id' => 'id' })
           .>> t(:reject_keys, ['@type'])
-          .>> t(:add_field, 'external_system_syncs', ->(s) { parse_identifier(s.dig('identifier'), external_system_id, s.dig('name')) })
+          .>> t(:add_field, 'external_system_syncs', ->(s) { parse_identifier(s.dig('identifier'), external_system_id) })
           .>> t(:strip_all)
         end
 
-        def self.parse_identifier(data, external_system_id, name)
+        def self.parse_identifier(data, external_system_id)
           result = data.map { |d|
             {
               external_system_id: external_system_id,
               external_key: d.dig('value'),
-              external_name: name
+              name: d.dig('name'),
+              alternate_name: d.dig('alternateName')
             }
           }.compact.select { |d| d[:external_key].present? }
 

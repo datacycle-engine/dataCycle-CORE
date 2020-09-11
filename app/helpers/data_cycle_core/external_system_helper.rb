@@ -2,15 +2,8 @@
 
 module DataCycleCore
   module ExternalSystemHelper
-    def external_systems_tooltip(external_source, external_system_syncs)
-      tooltip_lines = []
-      tooltip_lines << "#{external_sync_status_icon('success', 'import')} #{external_source.name}" unless external_source.nil?
-
-      external_system_syncs.each do |s|
-        tooltip_lines << "#{external_sync_status_icon(s.status, s.sync_type)} #{s.external_system&.name}" unless s.external_system.nil?
-      end
-
-      tooltip_lines.join('<br>')
+    def external_systems_tooltip(external_source, external_systems)
+      Array.wrap(external_systems.pluck(:name)).push(external_source&.name).compact.uniq.join("\n")
     end
 
     def external_systems_with_details(content)
@@ -23,7 +16,7 @@ module DataCycleCore
           date: [content.updated_at, content.external_source.last_successful_import].compact.min,
           external_key: content.external_key || content.id,
           external_edit_url: content.external_source.external_url(content),
-          name: nil
+          title: "#{t('common.external_key', locale: DataCycleCore.ui_language)}: #{(content.external_key || content.id)}"
         }]
       end
 
@@ -34,7 +27,12 @@ module DataCycleCore
           date: sync.last_successful_sync_at,
           external_key: sync.external_key || content.id,
           external_edit_url: sync.external_url,
-          external_name: sync.data&.dig('external_name')
+          name: sync.data&.dig('name').presence,
+          title: [
+            sync.data&.dig('name').present? ? "#{t('common.external_name', locale: DataCycleCore.ui_language)}: #{sync.data['name']}" : nil,
+            sync.data&.dig('alternate_name').present? ? "#{t('common.external_alternate_name', locale: DataCycleCore.ui_language)}: #{sync.data['alternate_name']}" : nil,
+            "#{t('common.external_key', locale: DataCycleCore.ui_language)}: #{(sync.external_key || content.id)}"
+          ].compact.join("\n\n")
         })
       end
 

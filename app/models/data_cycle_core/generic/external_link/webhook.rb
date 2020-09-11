@@ -48,9 +48,9 @@ module DataCycleCore
           now = Time.zone.now
           data.dig('external_system_syncs').each do |sync_data|
             sync = external_system.external_system_syncs.find_or_initialize_by(syncable_id: data['id'], syncable_type: 'DataCycleCore::Thing', external_key: sync_data.dig(:external_key), sync_type: 'link')
-            sync.data = Hash(sync.data).merge(pull_data: data.merge(updated_at: now), external_key: sync_data.dig(:external_key))
-            sync.data['pull_delete_data'] = nil if sync.data.dig('pull_delete_data').present?
-            sync.data['external_name'] = sync_data[:external_name] if sync_data[:external_name].present?
+            sync.data = Hash(sync.data).merge(pull_data: data.merge(updated_at: now))
+            sync.data['name'] = sync_data[:name] if sync_data[:name].present?
+            sync.data['alternate_name'] = sync_data[:alternate_name] if sync_data[:alternate_name].present?
             sync.status = 'success'
             sync.last_sync_at = now
             sync.last_successful_sync_at = now
@@ -82,13 +82,14 @@ module DataCycleCore
           required(:@id) { str? }
           required(:@type) { str? }
           optional(:url) { str? }
-          optional(:name) { str? }
           optional(:inLanguage) { str? }
           required(:identifier).value(:array, min_size?: 1).each do
             hash do
+              optional(:name) { str? }
               required(:@type).value(:string)
               required(:propertyID).value(:string)
               required(:value).value(:string)
+              optional(:alternateName) { str? }
             end
           end
         end
