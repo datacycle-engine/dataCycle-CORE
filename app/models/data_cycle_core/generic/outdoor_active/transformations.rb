@@ -120,7 +120,11 @@ module DataCycleCore
            'equipment', 'suggestion', 'additional_information'].map { |desc|
             next if hash[desc].blank?
             name = I18n.t("import.outdoor_active.#{type}.#{desc}", default: [desc])
-            { 'name' => name, 'description' => hash[desc] }
+            {
+              'name' => name,
+              'description' => hash[desc],
+              'type_of_information' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Informationstypen', desc))
+            }
           }.compact
         end
 

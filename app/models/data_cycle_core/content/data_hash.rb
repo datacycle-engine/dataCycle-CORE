@@ -159,6 +159,7 @@ module DataCycleCore
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
         when 'schedule'
+          byebug
           set_schedule(value, key)
         when 'computed'
           save_values(key, value, properties)
@@ -312,9 +313,8 @@ module DataCycleCore
         upsert_item.template_name = template.template_name
         # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
-        created = upsert_item.new_record?
         upsert_item.save
-        upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true, new_content: created)
+        upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true, new_content: upsert_item.new_record?)
         upsert_item
       end
 

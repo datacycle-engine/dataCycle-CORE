@@ -70,6 +70,30 @@
 - Beschreibungsarten | all:
 
 - Informationstypen | all:
+    - description | OutdoorActive
+    - text | OutdoorActive
+    - directions | OutdoorActive
+    - directions_public_transport | OutdoorActive
+    - parking | OutdoorActive
+    - hours_available | OutdoorActive
+    - price | OutdoorActive
+    - instructions | OutdoorActive
+    - safety_instructions | OutdoorActive
+    - equipment | OutdoorActive
+    - suggestion | OutdoorActive
+    - additional_information | OutdoorActive
+    - ShopItemDescription | Feratel
+    - ServiceProviderDescription | Feratel
+    - ServiceDescription | Feratel
+    - Package | Feratel
+    - PackageShortText | Feratel
+    - PackageContentLong | Feratel
+    - EventHeader | Feratel
+    - InfrastructureLong | Feratel
+    - InfrastructureShort | Feratel
+    - InfrastructurePriceInfo | Feratel
+    - ServiceDescription | Feratel
+    - ProductDescription | Feratel
 
 - POI - Kategorien | all:
 
