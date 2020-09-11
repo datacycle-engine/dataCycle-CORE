@@ -7,8 +7,9 @@ require:
 
 AllCops:
   TargetRubyVersion: 2.7.1
-  #  TargetRailsVersion: 5.2.3
+  # TargetRailsVersion: 5.2.3
   DisplayCopNames: true
+  NewCops: enable
   Exclude:
     - 'node_modules/**/*'
     - 'tmp/**/*'
