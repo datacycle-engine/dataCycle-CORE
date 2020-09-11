@@ -218,7 +218,7 @@ module DataCycleCore
         linked_validation = linked_validator.call(attribute_filter)
         validation_errors += api_errors(linked_validation.errors, linked_name) if linked_validation.errors.to_h.present?
       end
-      raise DataCycleCore::Error::Api::BadRequest.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
+      raise DataCycleCore::Error::Api::BadRequestError.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
     end
 
     # only used for classifications + deleted things endpoint

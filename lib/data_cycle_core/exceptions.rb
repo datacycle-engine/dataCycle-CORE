@@ -7,13 +7,15 @@ module DataCycleCore
       end
       class TimeOutError < StandardError
       end
-      class BadRequest < StandardError
+      class BadRequestError < StandardError
         attr_reader :data
 
         def initialize(data)
           @data = data
           super
         end
+      end
+      class ExpiredContentError < BadRequestError
       end
     end
     module Download

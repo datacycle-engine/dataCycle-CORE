@@ -31,6 +31,7 @@ module DataCycleCore
           @content = DataCycleCore::Thing
             .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             .find(permitted_params[:id])
+          raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
         end
 
         def select
