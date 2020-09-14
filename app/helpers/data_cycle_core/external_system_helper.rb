@@ -2,8 +2,11 @@
 
 module DataCycleCore
   module ExternalSystemHelper
-    def external_systems_tooltip(external_source, external_systems)
-      Array.wrap(external_systems.pluck(:name)).push(external_source&.name).compact.uniq.join("\n")
+    def external_systems_tooltip(external_source, external_system_syncs)
+      external_connections = external_system_syncs.joins(:external_system).select('external_systems.name').group('external_systems.name').size
+      external_connections[external_source.name] = (external_connections[external_source.name] || 0) + 1 unless external_source.nil?
+
+      external_connections.map { |k, v| "#{k} (#{v})" }.compact.uniq.join("\n")
     end
 
     def external_systems_with_details(content)
