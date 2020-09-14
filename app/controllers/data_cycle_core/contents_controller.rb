@@ -5,7 +5,8 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::ParamsResolver
     include DataCycleCore::ErrorHandler
-    before_action :authenticate_user!, :set_watch_list
+    before_action :authenticate_user!, except: [:asset]
+    before_action :set_watch_list, except: [:asset]
 
     DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
       feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
@@ -82,6 +83,12 @@ module DataCycleCore
           format.html { render && return }
         end
       end
+    end
+
+    def asset
+      content = DataCycleCore::Thing.find(params[:id])
+      raise ActiveRecord::RecordNotFound unless content.respond_to?(:content_url)
+      redirect_to content.content_url
     end
 
     def new
