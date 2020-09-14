@@ -42,7 +42,7 @@ module DataCycleCore
           set_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
         elsif property_definition
           overlay_flag = original_name.ends_with?(overlay_name)
-          original_name = name.to_s.delete_suffix("_#{overlay_name}") if self.class.ancestors.include?(DataCycleCore::Feature::Content::Overlay) && name.to_s.ends_with?(overlay_name)
+          original_name = name.to_s.delete_suffix("_#{overlay_name}") if DataCycleCore::Feature::Overlay.enabled? && name.to_s.ends_with?(overlay_name)
 
           if original_name.to_s.in?(embedded_property_names + linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
@@ -58,8 +58,7 @@ module DataCycleCore
 
       def respond_to?(method_name, include_all = false)
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym, (item.to_s + "_#{overlay_name}").to_sym] }.flatten +
-          linked_property_names.map { |item| item + '_ids' } +
-          Array.wrap(overlay_property_names)&.map { |item| (item + "_#{overlay_name}").to_sym }&.flatten).include?(method_name.to_sym) || super
+          linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
 
       def content_type?(*types)
