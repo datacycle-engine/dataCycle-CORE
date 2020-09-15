@@ -88,7 +88,8 @@ module DataCycleCore
     def asset
       content = DataCycleCore::Thing.find(params[:id])
       raise ActiveRecord::RecordNotFound unless content.respond_to?(:content_url)
-      redirect_to content.content_url
+      uri = URI.parse(content.content_url)
+      redirect_to(uri.to_s)
     end
 
     def new
