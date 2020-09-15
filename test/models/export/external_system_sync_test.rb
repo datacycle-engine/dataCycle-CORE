@@ -13,7 +13,7 @@ module DataCycleCore
       test 'test external_url in export_config with external_key in external_system_sync' do
         @external_system.update(default_options: {
           export: {
-            external_url: 'https://test.at/%{external_key}/%{locale}/%{type}/edit'
+            external_url: 'https://test.at/%<external_key>s/%<locale>s/%<type>s/edit'
           }
         })
         @content.add_external_system_data(@external_system, nil, 'success', 'link', 'test-link-1')
@@ -28,7 +28,7 @@ module DataCycleCore
       test 'test external_detail_url in export_config with external_key in external_system_sync' do
         @external_system.update(default_options: {
           export: {
-            external_detail_url: 'https://test.at/%{external_key}/%{locale}/%{type}'
+            external_detail_url: 'https://test.at/%<external_key>s/%<locale>s/%<type>s'
           }
         })
         @content.add_external_system_data(@external_system, nil, 'success', 'link', 'test-link-1')
@@ -45,7 +45,7 @@ module DataCycleCore
 
         @external_system.update(default_options: {
           import: {
-            external_url: 'https://test.at/%{external_key}/%{locale}/edit'
+            external_url: 'https://test.at/%<external_key>s/%<locale>s/edit'
           }
         })
 
@@ -61,7 +61,7 @@ module DataCycleCore
 
         @external_system.update(default_options: {
           import: {
-            external_detail_url: 'https://test.at/%{external_key}/%{locale}'
+            external_detail_url: 'https://test.at/%<external_key>s/%<locale>s'
           }
         })
 
@@ -74,7 +74,7 @@ module DataCycleCore
 
       test 'test external_url in default_config' do
         @external_system.update(default_options: {
-          external_url: 'https://test.at/%{external_key}/%{locale}/edit'
+          external_url: 'https://test.at/%<external_key>s/%<locale>s/edit'
         })
         @content.add_external_system_data(@external_system, nil, 'success', 'link', 'test-link-1')
         @content.update(external_source_id: @external_system.id, external_key: 'test-link-2')
@@ -89,7 +89,7 @@ module DataCycleCore
 
       test 'test external_detail_url in default_config' do
         @external_system.update(default_options: {
-          external_detail_url: 'https://test.at/%{external_key}/%{locale}'
+          external_detail_url: 'https://test.at/%<external_key>s/%<locale>s'
         })
         @content.add_external_system_data(@external_system, nil, 'success', 'link', 'test-link-1')
         @content.update(external_source_id: @external_system.id, external_key: 'test-link-2')
@@ -105,7 +105,7 @@ module DataCycleCore
       test 'test external_url in export_config with custom attribute as external_key in external_system_sync' do
         @external_system.update(default_options: {
           export: {
-            external_url: 'https://test.at/%{external_key}/%{locale}/%{type}/edit',
+            external_url: 'https://test.at/%<external_key>s/%<locale>s/%<type>s/edit',
             external_key_param: 'super_external_name'
           }
         })
