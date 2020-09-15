@@ -148,7 +148,7 @@ module DataCycleCore
       display_language = I18n.default_locale if languages.blank?
 
       [
-        'http://schema.org',
+        'https://schema.org/',
         {
           '@base' => api_v4_universal_url(id: nil),
           '@language' => display_language,
@@ -156,6 +156,7 @@ module DataCycleCore
           'dct' => 'http://purl.org/dc/terms/',
           'cc' => 'http://creativecommons.org/ns#',
           'dc' => 'https://schema.datacycle.at/',
+          'dcls' => schema_url + '/',
           'dc:entityUrl' => {
             '@id' => 'https://schema.datacycle.at/entityUrl',
             '@type' => '@id'

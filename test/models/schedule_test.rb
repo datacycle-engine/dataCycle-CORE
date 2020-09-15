@@ -72,7 +72,7 @@ module DataCycleCore
       assert_equal(dtend, schedule.dtend)
       assert_equal(duration, schedule.duration)
       expected_serialization = {
-        '@context' => 'http://schema.org',
+        '@context' => 'https://schema.org/',
         '@type' => 'Schedule',
         'inLanguage' => 'de',
         'startDate' => '2019-11-20',
@@ -96,7 +96,7 @@ module DataCycleCore
       assert_equal(dtend, schedule.dtend)
       assert_equal(duration, schedule.duration)
       expected_serialization = {
-        '@context' => 'http://schema.org',
+        '@context' => 'https://schema.org/',
         '@type' => 'Schedule',
         'inLanguage' => 'de',
         'startDate' => '2019-11-20',
@@ -119,7 +119,7 @@ module DataCycleCore
       assert_nil(schedule.dtend)
       assert_equal(duration, schedule.duration)
       expected_serialization = {
-        '@context' => 'http://schema.org',
+        '@context' => 'https://schema.org/',
         '@type' => 'Schedule',
         'inLanguage' => 'de',
         'startDate' => '2019-11-20',

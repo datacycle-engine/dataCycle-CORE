@@ -84,7 +84,7 @@ module DataCycleCore
       end
 
       {
-        '@context' => 'http://schema.org',
+        '@context' => 'https://schema.org/',
         '@type' => 'Schedule',
         'inLanguage' => I18n.locale.to_s,
         'startDate' => dtstart&.to_s(:only_date),

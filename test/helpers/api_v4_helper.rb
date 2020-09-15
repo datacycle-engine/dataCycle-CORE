@@ -13,7 +13,7 @@ module DataCycleCore
     def full_header_data(thing, languages = 'de')
       full_header_attributes
         .zip([thing.id,
-              thing.schema.dig('api', 'type') || thing.schema.dig('schema_type'),
+              thing.api_type,
               header_name(thing, languages)]).to_h
     end
 
