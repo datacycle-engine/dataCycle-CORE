@@ -30,6 +30,7 @@ module DataCycleCore
           date: sync.last_successful_sync_at,
           external_key: sync.external_key || content.id,
           external_edit_url: sync.external_url,
+          external_detail_url: sync.external_detail_url,
           name: sync.data&.dig('name').presence,
           title: [
             sync.data&.dig('name').present? ? "#{t('common.external_name', locale: DataCycleCore.ui_language)}: #{sync.data['name']}" : nil,

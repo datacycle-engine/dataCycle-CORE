@@ -353,7 +353,8 @@ footer {
             color: $dark-gray;
           }
 
-          .external-edit-link {
+          .external-edit-link,
+          .external-detail-link {
             .fa {
               font-size: 1rem;
               vertical-align: middle;
