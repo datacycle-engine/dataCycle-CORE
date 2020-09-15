@@ -6,10 +6,10 @@
 
 <%= link_to thing_path(content), title: t('actions.show', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "show-link" do %>
   <i class="fa fa-eye" aria-hidden="true"></i>
-<% end if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:show, content) %>
+<% end if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:show, content, :tile_buttons) %>
 
 <%= link_to edit_thing_path(content, locale: I18n.locale), title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
   <i class="fa fa-pencil" aria-hidden="true"></i>
-<% end if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:update, content) %>
+<% end if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:update, content, :tile_buttons) %>
 
 <%= tag.span(tag.i(class: 'fa fa-times'), class: 'delete-thumbnail') if local_assigns[:removable] %>
