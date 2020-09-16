@@ -16,7 +16,7 @@ module DataCycleCore
             if errors.present?
               logging.error('update', data['id'], raw_data, errors)
             else
-              logging.info("Update   Thing: #{data['id']}", "transformed_data: #{data}")
+              logging.info("update Thing: #{data['id']}", "transformed_data: #{data}")
             end
           end
 
@@ -33,9 +33,9 @@ module DataCycleCore
             errors = delete_sync(data: data, external_system: external_system)
             errors = nil if errors.blank?
             if errors.present?
-              logging.error('update', data['id'], raw_data, errors)
+              logging.error('delete', data['id'], raw_data, errors)
             else
-              logging.info("Update   Thing: #{data['id']}", "transformed_data: #{data}")
+              logging.info("delete Thing: #{data['id']}", "transformed_data: #{data}")
             end
           end
           errors.present? ? { error: errors } : { delete: "#{data['id']} (#{data.dig('external_system_syncs').map { |i| i[:external_key] }.join(', ')})" }
