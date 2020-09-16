@@ -1155,6 +1155,10 @@ span.single_error.object-browser-error {
         display: flex;
         flex-flow: row nowrap;
 
+        &.with-accordion-all-buttons {
+          padding-right: 7rem;
+        }
+
         &:hover {
           color: $primary-color;
         }

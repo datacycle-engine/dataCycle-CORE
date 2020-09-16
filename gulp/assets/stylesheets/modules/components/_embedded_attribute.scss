@@ -109,6 +109,11 @@
     &.with-accordion-all-buttons {
       padding-right: 7rem;
     }
+
+    .embedded-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   .accordion-child-buttons {
