@@ -46,7 +46,7 @@ module.exports.initialize = function ($) {
 
   var toolbar = {
     none: [],
-    minimal: [['bold', 'italic', 'underline']],
+    minimal: [['bold', 'italic', 'underline'], ['clean']],
     basic: [
       [
         {
@@ -54,7 +54,8 @@ module.exports.initialize = function ($) {
         }
       ],
       [{ script: 'sub' }, { script: 'super' }],
-      ['bold', 'italic', 'underline']
+      ['bold', 'italic', 'underline'],
+      ['clean']
     ],
     full: [
       [
@@ -77,7 +78,8 @@ module.exports.initialize = function ($) {
       ],
       [{ script: 'sub' }, { script: 'super' }],
       ['bold', 'italic', 'underline'],
-      ['customlink', 'contentlink']
+      ['customlink', 'contentlink'],
+      ['clean']
     ]
   };
 

@@ -223,6 +223,27 @@ describe DataCycleCore::MasterData::DataConverter do
       a = 'm²'
       assert_equal a, subject.string_to_string(a)
     end
+
+    it 'normalizes multiple blank spaces to single space' do
+      a = ' Henry  I      V        '
+      b = 'Henry I V'
+
+      assert_equal subject.string_to_string(a), subject.string_to_string(b)
+    end
+
+    it 'normalizes blank lines at the start and end of text' do
+      a = '<p><br></p><p><br></p>Henry<p><br></p>I<p><br></p>V<p><br></p><p><br></p><p><br></p>'
+      b = 'Henry<p><br></p>I<p><br></p>V'
+
+      assert_equal b, subject.string_to_string(a)
+    end
+
+    it 'normalizes blank lines with whitespaces at the start and end of text' do
+      a = '<p> <br> </p><p><br></p><p>Henry<br><br></p><p><br></p><p>I</p><p><br></p><p>V<br><br><br></p><p>b</p><p><br></p><p> <br></p><p> <br></p>'
+      b = '<p>Henry<br><br></p><p><br></p><p>I</p><p><br></p><p>V<br><br><br></p><p>b</p>'
+
+      assert_equal b, subject.string_to_string(a)
+    end
   end
 
   describe 'convert number objects' do
