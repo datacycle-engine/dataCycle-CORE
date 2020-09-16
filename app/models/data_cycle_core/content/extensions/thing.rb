@@ -19,7 +19,7 @@ module DataCycleCore
 
         def desc
           case schema_type
-          when 'Organization', 'Event', 'CreativeWork', 'Intangible'
+          when 'Organization', 'Event', 'CreativeWork', 'Product', 'Intangible'
             description
           when 'Person'
             content&.dig('job_title')
