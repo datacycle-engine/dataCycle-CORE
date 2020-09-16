@@ -247,8 +247,6 @@ de:
         none: Originalformat
     help: Hilfe
     mode_switcher_title: Ansicht
-    embedded_move_down: nach unten verschieben
-    embedded_move_up: nach oben verschieben
     date: Datum
     longitude: Längengrad
     latitude: Breitengrad
@@ -269,6 +267,12 @@ de:
     external_name: Titel
     external_alternate_name: Alternativer Titel
     external_key: Externe Id
+
+  embedded:
+    move_down: nach unten verschieben
+    move_up: nach oben verschieben
+    open_all: Alle aufklappen
+    close_all: Alle zuklappen
 
   upload:
     drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'

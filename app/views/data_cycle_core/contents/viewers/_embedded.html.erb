@@ -17,16 +17,17 @@
         data_attributes: { id: [object.id], editor: 'embedded_object', accordion_item: true },
         content: content do %>
 
-        <a href="#" class="accordion-title">
+        <a href="#" class="accordion-title<%= ' with-accordion-all-buttons' if object.embedded_property_names.present? %>">
           <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %>
           <span class="title"><%= definition['label'].titleize %></span>
           <%= tag.span(object.send(object.embedded_title_property_name), title: object.send(object.embedded_title_property_name), class: 'embedded-title') if object.embedded_title_property_name.present? && object.try(object.embedded_title_property_name).present? %>
         </a>
-
         <div class="accordion-content remote-render" data-tab-content
         data-remote-path="data_cycle_core/contents/viewers/embedded/default"
         data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, index: index, locale: I18n.locale })).to_json %>">
         </div>
+
+        <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_children' if object.embedded_property_names.present? %>
       <% end %>
     <% end %>
 

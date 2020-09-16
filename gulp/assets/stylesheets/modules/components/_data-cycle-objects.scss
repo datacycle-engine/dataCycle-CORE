@@ -1148,17 +1148,22 @@ span.single_error.object-browser-error {
         background: transparent;
         color: $dark-gray;
         transition: all 0.2s ease-in-out;
-        padding-right: 3rem;
+        padding-right: 2.5rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        display: flex;
+        flex-flow: row nowrap;
 
         &:hover {
           color: $primary-color;
         }
 
-        .icon .fa {
-          font-size: 1rem;
+        .icon {
+          margin-right: 0.5rem;
+          .fa {
+            font-size: 1rem;
+          }
         }
 
         > .embedded-title {

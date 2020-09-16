@@ -1,8 +1,10 @@
 var EmbeddedObject = require('./../components/embedded_object');
+var AccordionExtension = require('./../components/accordion_extension');
 
 // Word Counter
 module.exports.initialize = function ($) {
   var embedded_objects = [];
+  var accorion_extension = new AccordionExtension();
 
   $('.edit-content-form .embedded-object').each((index, element) => {
     embedded_objects.push(new EmbeddedObject($(element)));

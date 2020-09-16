@@ -10,7 +10,7 @@
     font-weight: normal;
     font-size: 1rem;
     border: none !important;
-    padding: 0.8rem 3rem 0.8rem 1rem;
+    padding: 0.8rem 2.5rem 0.8rem 1rem;
     transition: all 0.2s ease-in-out;
     display: flex;
     flex-flow: row nowrap;
@@ -100,6 +100,69 @@
     > .accordion-title > .embedded-label::after {
       content: counter(embedded);
       margin-left: 0.3rem;
+    }
+  }
+}
+
+.accordion-item {
+  .accordion-title {
+    &.with-accordion-all-buttons {
+      padding-right: 7rem;
+    }
+  }
+
+  .accordion-child-buttons {
+    position: absolute;
+    right: 2.5rem;
+    top: 0;
+    padding: 0;
+    height: 3rem;
+    display: flex;
+
+    .accordion-close-children,
+    .accordion-open-children {
+      cursor: pointer;
+      color: $dark-gray;
+      padding: 0.8rem 0.5rem;
+
+      .fa {
+        font-size: 1.5rem;
+        line-height: 1rem;
+        vertical-align: middle;
+      }
+
+      &:hover {
+        color: $black;
+      }
+    }
+  }
+
+  &.content-object-item {
+    .accordion-child-buttons {
+      right: 5.5rem;
+      top: 0.5rem;
+    }
+  }
+}
+
+.detail-header .edit .button-prime {
+  &.accordion-close-all,
+  &.accordion-open-all {
+    background-color: $dark-gray;
+  }
+}
+
+.edit-links-bar {
+  .accordion-child-buttons {
+    display: flex;
+
+    .accordion-close-all,
+    .accordion-open-all {
+      .fa {
+        font-size: 1.5rem;
+        line-height: 1rem;
+        vertical-align: middle;
+      }
     }
   }
 }
