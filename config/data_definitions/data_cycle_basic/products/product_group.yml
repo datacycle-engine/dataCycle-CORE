@@ -7,7 +7,7 @@
     :boost: 100.0
     :features:
       :creatable:
-        :allowed: true
+        :allowed: false
       :translatable:
         :allowed: true
     :properties:
