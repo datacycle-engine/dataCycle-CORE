@@ -12,7 +12,7 @@ module DataCycleCore
       def sort_random(_ordering)
         reflect(
           @query
-            .order(ActiveRecord::Base.send(:sanitize_sql_for_order, 'random()'))
+            .order(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_order, 'random()')))
         )
       end
 
