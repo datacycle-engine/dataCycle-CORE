@@ -1,53 +1,10 @@
 # frozen_string_literal: true
 
 json ||= {}
-display_language = nil
-display_language = languages if languages.is_a?(::String)
-display_language = languages.first if languages.is_a?(::Array) && languages.size == 1 && languages.first.is_a?(::String)
-display_language = I18n.default_locale if languages.blank?
-# display_language = I18n.default_locale if languages.blank? || (controller.action_name == 'show' && display_language.is_a?(::String) && !@content.available_locales.include?(display_language.to_sym))
 
 unless @permitted_params.dig(:section, :'@context')&.to_i&.zero?
   json = {
-    '@context' => [
-      'http://schema.org',
-      {
-        '@base' => api_v4_universal_url(id: nil),
-        '@language' => display_language,
-        'skos' => 'https://www.w3.org/2009/08/skos-reference/skos.html#',
-        'dct' => 'http://purl.org/dc/terms/',
-        'cc' => 'http://creativecommons.org/ns#',
-        'dc' => 'https://schema.datacycle.at/',
-        'dc:entityUrl' => {
-          '@id' => 'https://schema.datacycle.at/entityUrl',
-          '@type' => '@id'
-        },
-        'dc:classification' => {
-          '@id' => 'https://schema.datacycle.at/classification',
-          '@container' => '@set'
-        },
-        'dc:hasConcept' => {
-          '@id' => 'https://schema.datacycle.at/hasConcept',
-          '@type' => '@id'
-        },
-        'dc:linkedThing' => {
-          '@id' => 'https://schema.datacycle.at/linkedThing',
-          '@container' => '@set'
-        },
-        'dc:isLinkedTo' => {
-          '@id' => 'https://schema.datacycle.at/isLinkedTo',
-          '@container' => '@set'
-        },
-        'dc:multilingual' => {
-          '@id' => 'https://schema.datacycle.at/multilingual',
-          '@container' => '@set'
-        },
-        'dc:translation' => {
-          '@id' => 'https://schema.datacycle.at/translation',
-          '@container' => '@set'
-        }
-      }.compact
-    ]
+    '@context' => api_plain_context(languages)
   }
 end
 json

@@ -36,8 +36,8 @@ module DataCycleCore
 
         def search
           query = build_search_query
-          query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
-          query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
+          query = query.modified_at({ min: permitted_params[:modified_since] }) if permitted_params[:modified_since]
+          query = query.created_at({ min: permitted_params[:created_since] }) if permitted_params[:created_since]
           query = query.in_validity_period unless permitted_params[:modified_since] || permitted_params[:created_since]
           query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search]
           query = apply_ordering(query)
@@ -69,7 +69,7 @@ module DataCycleCore
         private
 
         def build_search_query
-          query = DataCycleCore::Filter::Search.new(permitted_params.fetch(:language) { 'de' }).exclude_templates_embedded
+          query = DataCycleCore::Filter::Search.new(permitted_params.fetch(:language) { 'de' })
           query
         end
 
@@ -78,11 +78,8 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          if permitted_params[:search].blank?
-            query
-          else
-            query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search]))
-          end
+          query = query.sort_fulltext_search('DESC', permitted_params[:search]) if permitted_params[:search]
+          query
         end
       end
     end

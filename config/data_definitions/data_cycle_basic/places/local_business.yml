@@ -5,9 +5,7 @@
     :schema_type: Place
     :content_type: entity
     :api:
-      :type:
-        - Organization
-        - Place
+      :type: LocalBusiness
     :boost: 10.0
     :features:
       :geocode:

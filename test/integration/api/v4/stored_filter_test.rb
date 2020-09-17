@@ -26,9 +26,11 @@ module DataCycleCore
               'n' => 'Suchbegriff',
               't' => 'fulltext_search',
               'v' => string
-            }, {
-              't' => 'order',
-              'v' => "things.boost * (8 * similarity(searches.classification_string, '%#{string}%') + 4 * similarity(searches.headline, '%#{string}%') + 2 * ts_rank_cd(searches.words, plainto_tsquery('simple', '#{string}'),16) + 1 * similarity(searches.full_text, '%#{string}%')) DESC NULLS LAST, things.updated_at DESC"
+            }],
+            sort_parameters: [{
+              'v' => string,
+              'm' => 'fulltext_search',
+              'o' => 'DESC'
             }],
             api: true
           )

@@ -282,7 +282,7 @@ module DataCycleCore
             assert_api_count_result(1)
           end
 
-          test 'api/v4/concept_schemes/id/concepts parameter filter[:created_since]' do
+          test 'api/v4/concept_schemes/id/concepts parameter filter[:created_at]' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags')
             now = Time.zone.now
@@ -407,7 +407,7 @@ module DataCycleCore
             classificaton_tag.update_column(:created_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
           end
 
-          test 'api/v4/concept_schemes/id/concepts parameter filter[:modified_since]' do
+          test 'api/v4/concept_schemes/id/concepts parameter filter[:modifiedAt]' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags')
             classifications_count = classifications.count

@@ -26,6 +26,9 @@ module DataCycleCore
           v != 'advanced_attributes'
         end
 
+        # Sortable
+        can :sortable, :backend
+
         # Classifications
         can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
         can [:read, :download], DataCycleCore::ClassificationTreeLabel

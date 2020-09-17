@@ -12,7 +12,6 @@ module DataCycleCore
 
         def schedule_search(from, to, relation = nil)
           return self if from.blank? && to.blank?
-          @joined_schedule = true
 
           from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from&.beginning_of_day)
           to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to&.end_of_day)
@@ -131,6 +130,15 @@ module DataCycleCore
           )
         end
 
+        def modified_at(d = nil)
+          date_range(d, 'updated_at')
+        end
+
+        def created_at(d = nil)
+          date_range(d, 'created_at')
+        end
+
+        # TODO: remove legacy method (API v1,v2,v3)
         def event_end_time(time)
           time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
           reflect(
@@ -138,6 +146,7 @@ module DataCycleCore
           )
         end
 
+        # TODO: remove legacy method (API v1,v2,v3)
         def event_from_time(time)
           time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
           reflect(
@@ -145,17 +154,14 @@ module DataCycleCore
           )
         end
 
-        def sort_by_proximity(date = Time.zone.now)
-          reflect(
-            @query.reorder(
-              absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
-              absolute_date_diff(thing[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
-              thing[:start_date]
-            )
-          )
+        # TODO: check this values
+        # date helpers
+        # duplicate method
+        def date_from_single_value(value)
+          return if value.blank?
+          return value if value.is_a?(::Date)
+          DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
         end
-
-        private
 
         def date_from_filter_object(value, mode)
           mode ||= 'absolute'
@@ -172,12 +178,6 @@ module DataCycleCore
           end
 
           return from_date, to_date
-        end
-
-        def date_from_single_value(value)
-          return if value.blank?
-          return value if value.is_a?(::Date)
-          DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
         end
 
         def relative_to_absolute_date(value)

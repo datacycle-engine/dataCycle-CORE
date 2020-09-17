@@ -60,7 +60,7 @@ module DataCycleCore
 
       authorize! :add_item, @watch_list
 
-      content_query = get_filtered_results.distinct_by_content_id(@order_string).select("'#{@watch_list.id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()")
+      content_query = get_filtered_results.select("'#{@watch_list.id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()")
 
       ActiveRecord::Base.connection.execute <<-SQL.squish
         INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type, created_at, updated_at)

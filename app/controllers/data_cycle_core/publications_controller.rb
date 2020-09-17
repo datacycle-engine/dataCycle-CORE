@@ -25,14 +25,15 @@ module DataCycleCore
 
       @language ||= params.fetch(:language) { [current_user.default_locale] }
 
-      query_params = @language.include?('all') ? [nil, DataCycleCore::Thing] : [@language]
-      query ||= DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
+      query_params = @language.include?('all') ? [nil] : [@language]
+      query ||= DataCycleCore::Filter::Search.new(*query_params)
 
       @filters.presence&.each do |filter|
-        query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
+        # TODO: migrate stored filters to use latest classification filter methods
+        filter_method = filter['t']
+        filter_method = "#{filter['t']}_with_subtree" if filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids'
+        query = query.send(filter_method, filter['v']) if query.respond_to?(filter_method)
       end
-
-      query = query.distinct_by_content_id(@order_string)
 
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }

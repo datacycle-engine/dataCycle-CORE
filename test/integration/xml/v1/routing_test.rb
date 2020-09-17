@@ -50,7 +50,7 @@ module DataCycleCore
 
         test '/xml/v1/creative_works' do
           get xml_v1_creative_works_path
-          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'CreativeWork' }).count
+          count = DataCycleCore::Filter::Search.new.schema_type('CreativeWork').count
 
           assert_response :success
           assert_equal response.content_type, 'application/xml'
@@ -60,7 +60,7 @@ module DataCycleCore
 
         test '/xml/v1/places' do
           get xml_v1_places_path
-          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Place' }).count
+          count = DataCycleCore::Filter::Search.new.schema_type('Place').count
 
           assert_response :success
           assert_equal response.content_type, 'application/xml'
@@ -70,7 +70,7 @@ module DataCycleCore
 
         test '/xml/v1/events' do
           get xml_v1_events_path
-          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Event' }).count
+          count = DataCycleCore::Filter::Search.new.schema_type('Event').count
 
           assert_response :success
           assert_equal response.content_type, 'application/xml'
@@ -80,7 +80,7 @@ module DataCycleCore
 
         test '/xml/v1/persons' do
           get xml_v1_persons_path
-          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Person' }).count
+          count = DataCycleCore::Filter::Search.new.schema_type('Person').count
 
           assert_response :success
           assert_equal response.content_type, 'application/xml'
@@ -90,7 +90,7 @@ module DataCycleCore
 
         test '/xml/v1/organizations' do
           get xml_v1_organizations_path
-          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Organization' }).count
+          count = DataCycleCore::Filter::Search.new.schema_type('Organization').count
 
           assert_response :success
           assert_equal response.content_type, 'application/xml'

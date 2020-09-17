@@ -390,6 +390,15 @@ de:
     in_schedule: nach Termin filtern...
     inactive_things: Abgelaufenen Inhalten filtern...
 
+  sortable:
+    default: Standard
+    created_at: Erstellungsdatum
+    translated_name: Name
+    updated_at: Aktualisierungsdatum
+    ordering:
+      asc: Aufsteigend
+      desc: Absteigend
+
   object_browser:
     details:
       created_at: erstellt
