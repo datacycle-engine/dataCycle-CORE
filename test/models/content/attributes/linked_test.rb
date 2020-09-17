@@ -48,9 +48,6 @@ module DataCycleCore
               'n' => 'Suchbegriff',
               't' => 'fulltext_search',
               'v' => 'test'
-            }, {
-              't' => 'order',
-              'v' => "things.boost * (8 * similarity(searches.classification_string, '%test%') + 4 * similarity(searches.headline, '%test%') + 2 * ts_rank_cd(searches.words, plainto_tsquery('simple', 'test'),16) + 1 * similarity(searches.full_text, '%test%')) DESC NULLS LAST, things.updated_at DESC"
             }]
           )
 
