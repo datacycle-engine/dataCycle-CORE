@@ -18,6 +18,10 @@
     - $$Organisation
     - $$Person
     - $$Pauschalangebot
+    - $$Produkte:
+        - $$Produkt
+        - $$Produktgruppe
+        - $$Produktmodel
     - $$Service
     - $$Veranstaltung
     - $$Veranstaltungsserie

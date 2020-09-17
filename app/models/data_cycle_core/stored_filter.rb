@@ -20,8 +20,8 @@ module DataCycleCore
     # q => String (Optional)    | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width') || type
 
     def apply(query: nil)
-      query_params = language.include?('all') ? [nil, DataCycleCore::Thing] : [language]
-      query ||= DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
+      query_params = language.include?('all') ? [nil] : [language]
+      query ||= DataCycleCore::Filter::Search.new(*query_params)
 
       parameters.presence&.each do |filter|
         case filter['m']
@@ -37,23 +37,57 @@ module DataCycleCore
           t = filter['t']
         end
 
-        next unless query.respond_to?(t)
+        # TODO: migrate stored filters to use latest classification filter methods
+        t = "#{t}_with_subtree" if filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids'
 
-        # TODO: move to production with more options (not etc...)
-        t = "#{t}_with_subtree" if (filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids') && !language.include?('all')
+        next unless query.respond_to?(t)
 
         if query.method(t)&.parameters&.size == 3
           query = query.send(t, filter['v'], filter['q'].presence, filter['n'].presence)
         elsif query.method(t)&.parameters&.size == 2
           query = query.send(t, filter['v'], filter['q'].presence || filter['n'].presence)
-        elsif t == 'order'
-          query = query.send(t, Arel.sql(filter['v']))
         else
           query = query.send(t, filter['v'])
         end
       end
 
+      if sort_parameters.present?
+        query = query.reset_sort
+        sort_parameters.each do |sort|
+          sort_method_name = 'sort_' + sort['m']
+          next unless query.respond_to?('sort_' + sort['m'])
+
+          if query.method(sort_method_name)&.parameters&.size == 2
+            query = query.send(sort_method_name, sort['o'].presence, sort['v'].presence)
+          elsif query.method(sort_method_name)&.parameters&.size == 1
+            query = query.send(sort_method_name, sort['o'].presence)
+          else
+            next
+          end
+        end
+      end
+
       query
+    end
+
+    def self.sort_params_from_filter(search = nil, schedule = nil)
+      if search.present?
+        [
+          {
+            "m": 'fulltext_search',
+            "o": 'DESC',
+            "v": search
+          }
+        ]
+      elsif schedule.present?
+        [
+          {
+            "m": 'by_proximity',
+            "o": 'ASC',
+            "v": schedule
+          }
+        ]
+      end
     end
   end
 end

@@ -7,21 +7,22 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Classification
       include DataCycleCore::Filter::Common::Date
       include DataCycleCore::Filter::Common::External
+      include DataCycleCore::Filter::Common::Fulltext
       include DataCycleCore::Filter::Common::Geo
+      include DataCycleCore::Filter::Sortable
 
-      def initialize(locale = ['de'], query = nil, joined_search = false, joined_schedule = false)
+      def initialize(locale = ['de'], query = nil, include_embedded = false)
         @locale = locale
-        @joined_search = joined_search
-        @joined_schedule = joined_schedule
-        if locale.nil?
-          @query = query || DataCycleCore::Thing
-        else
-          @query = query || DataCycleCore::Thing
-            .joins(:searches)
-            .where(searches: { locale: @locale })
-          # temporary disabled disabled (api sort name)
-          # .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
-        end
+        @include_embedded = include_embedded
+
+        @query = query || default_query
+      end
+
+      def default_query
+        query = DataCycleCore::Thing.where(template: false)
+        query = query.where.not(content_type: 'embedded') unless @include_embedded
+        query = query.order('things.boost DESC, things.updated_at DESC, things.id ASC')
+        query
       end
 
       def content_includes
@@ -38,12 +39,6 @@ module DataCycleCore
         )
       end
 
-      def exclude_templates_embedded
-        reflect(
-          @query.where(template: false).where.not(content_type: 'embedded')
-        )
-      end
-
       def subscribed_user_id(id = nil)
         return self if id.blank?
 
@@ -57,6 +52,14 @@ module DataCycleCore
 
         reflect(
           @query.where(thing[:created_by].in(ids))
+        )
+      end
+
+      def schema_type(type)
+        return self if type.blank?
+        query_string = Thing.send(:sanitize_sql_for_conditions, ['(schema -> :attribute_path)::jsonb ? :type', attribute_path: 'schema_type', type: type])
+        reflect(
+          @query.where(Arel.sql(query_string))
         )
       end
 
@@ -134,57 +137,12 @@ module DataCycleCore
         )
       end
 
-      def modified_since(date = Time.zone.now)
-        reflect(
-          @query.where(search[:updated_at].gteq(Time.zone.parse(date)))
-        )
-      end
-
-      def created_since(date = Time.zone.now)
-        reflect(
-          @query.where(search[:created_at].gteq(Time.zone.parse(date)))
-        )
-      end
-
       def with_content_ids(ids = nil)
         return self if ids.blank?
 
         reflect(
           @query.where(thing[:id].in(ids))
         )
-      end
-
-      def distinct_by_content_id(order_string = nil)
-        return self unless (@joined_search && @locale.blank?) || @locale&.many? || @joined_schedule
-
-        reflect(
-          if (@joined_search && @locale.blank?) || @locale&.many?
-            DataCycleCore::Thing.joins(:searches)
-              .where(searches: {
-                id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
-              })
-              .order(order_string.present? ? Arel.sql(order_string) : order_string)
-          # .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
-          elsif @joined_schedule
-            DataCycleCore::Thing
-              .where(things: {
-                id: @query.select('DISTINCT ON (things.id) things.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
-              })
-              .order(order_string.present? ? Arel.sql(order_string) : order_string)
-            # elsif @joined_schedule
-            #   DataCycleCore::Thing.joins(:searches)
-            #     .where(searches: {
-            #       id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
-            #     })
-            #     .joins('LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = searches.locale')
-            #     .order(order_string.present? ? Arel.sql(order_string) : order_string)
-          end
-        )
-      end
-
-      def count_distinct
-        return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many? || @joined_schedule
-        @query.except(:order, :limit, :offset).count('DISTINCT things.id')
       end
 
       def boolean(value, filter_method)
@@ -207,42 +165,34 @@ module DataCycleCore
         end
       end
 
-      def fulltext_search(name)
-        return self if name.blank?
-        @joined_search = true
-        normalized_name = name.unicode_normalize(:nfkc)
-
-        reflect(
-          @query
-            .joins(:searches)
-            .where(
-              search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
-                .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish))))
-            )
-        )
+      # Deprecated: replace with modified_at
+      def modified_since(_date = Time.zone.now)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
 
-      def self.get_order_by_query_string(search, events = false)
-        return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.boost DESC, things.updated_at DESC')) if search.blank? && events == false
-        return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.end_date ASC NULLS LAST, things.start_date DESC NULLS LAST, things.updated_at DESC')) if events == true
-        search_string = (search || '').split(' ').join('%')
+      # Deprecated: replace with created_at
+      def created_since(_date = Time.zone.now)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
 
-        ActiveRecord::Base.send(
-          :sanitize_sql_array,
-          [
-            Arel.sql(
-              "things.boost * (
-              8 * similarity(searches.classification_string, :search_string) +
-              4 * similarity(searches.headline, :search_string) +
-              2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
-              1 * similarity(searches.full_text, :search_string))
-              DESC NULLS LAST,
-              things.updated_at DESC"
-            ),
-            search_string: "%#{search_string}%",
-            search: (search || '').squish
-          ]
-        )
+      # Deprecated: no replacement
+      def exclude_templates_embedded
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+
+      # Deprecated: replace with sort_fulltext_search or sort_by_proximity
+      def self.get_order_by_query_string(_search, _events = false)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+
+      # Deprecated: no replacement
+      def distinct_by_content_id(_order_string = nil)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+
+      # Deprecated: replace with count
+      def count_distinct
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
     end
   end

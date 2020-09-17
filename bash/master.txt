@@ -29,3 +29,4 @@ DataCycleVtgBodensee;git@git.pixelpoint.biz:data-cycle/data-cycle-vtg-bodensee.g
 DataCycleRegionVillach;git@git.pixelpoint.biz:data-cycle/data-cycle-region-villach.git
 DataCycleKaernten;git@git.pixelpoint.biz:data-cycle/data-cycle-kw.git
 DataCycleVermieterWebsites;git@git.pixelpoint.biz:data-cycle/data-cycle-vermieterwebsites.git
+DataCycleLindner;git@git.pixelpoint.biz/data-cycle/data-cycle-lindner.git

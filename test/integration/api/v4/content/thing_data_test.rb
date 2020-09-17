@@ -409,7 +409,7 @@ module DataCycleCore
             event_schedule_api_values = {
               '@id' => event_schedule_object.dig(:id),
               '@type' => 'Schedule',
-              '@context' => 'http://schema.org',
+              '@context' => 'https://schema.org/',
               'inLanguage' => 'de',
               'startDate' => event_schedule_object.dig(:dtstart).to_s(:only_date),
               'endDate' => event_schedule_object.dig(:dtend).to_s(:only_date),

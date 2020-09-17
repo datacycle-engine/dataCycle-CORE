@@ -6,9 +6,10 @@ module DataCycleCore
       module Transformations
         def self.json_partial(utility_object, data)
           content_data = {}
-          content_data[:name] = data.translated_locales&.collect { |l| [l, I18n.with_locale(l) { data.try(:name) }] }&.to_h&.reject { |_k, v| v.blank? }
-          content_data[:text] = data.translated_locales&.collect { |l| [l, I18n.with_locale(l) { data.try(:text) }] }&.to_h&.reject { |_k, v| v.blank? }
-          content_data[:specificTypes] = specific_types(utility_object, data)
+          utility_object.external_system.export_config&.dig(:transformation_config, 'attributes', data&.template_name)&.each do |key|
+            content_data[key.to_sym] = data.translated_locales&.collect { |l| [l, I18n.with_locale(l) { data.try(key) }] }&.to_h&.reject { |_k, v| v.blank? }
+          end
+          content_data.merge!(additional_attributes(utility_object, data) || {})
 
           json_data = {
             resource: utility_object.external_system.credentials(:export).dig('resources', data.template_name),
@@ -30,14 +31,15 @@ module DataCycleCore
           end
         end
 
-        def self.specific_types(utility_object, data)
-          return if utility_object.external_system.credentials(:export).dig('specific_types_tree_label').blank?
+        def self.delete_json_partial(utility_object, data)
+          {
+            resource: utility_object.external_system.credentials(:export).dig('resources', data.template_name),
+            id: data.id
+          }
+        end
 
-          data&.mapped_classification_aliases&.for_tree(utility_object.external_system.credentials(:export).dig('specific_types_tree_label'))&.map do |ca|
-            ca.translated_locales.map { |l|
-              I18n.with_locale(l) { [l, ca.name] }
-            }.to_h&.reject { |_k, v| v.blank? }
-          end
+        def self.additional_attributes(_utility_object, _data)
+          nil
         end
       end
     end

@@ -37,24 +37,24 @@ module DataCycleCore
     test 'small helper functions' do
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').limit(1).count)
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').take(1).count)
-      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').offset(1).count)
-      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').skip(1).count)
+      assert_equal(0, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').offset(1).count)
+      assert_equal(0, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').skip(1).count)
     end
 
     test 'find multilingual entries' do
       assert_equal(1, DataCycleCore::Filter::Search.new([:de]).fulltext_search('XYZ').count)
       assert_equal(1, DataCycleCore::Filter::Search.new([:en]).fulltext_search('XYZ').count)
-      assert_equal(2, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count)
+      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count)
     end
 
     test 'correctly count multilingual entries' do
-      assert_equal(2, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count)
-      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count_distinct)
+      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count)
+      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count)
     end
 
     test 'correctly filter out multilingual entries' do
-      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').distinct_by_content_id.count)
-      assert_equal(2, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').distinct_by_content_id.first.available_locales.count)
+      assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count)
+      assert_equal(2, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').first.available_locales.count)
     end
 
     test 'finds embedded_data' do
@@ -66,22 +66,26 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Thing.joins(:searches).where(content_type: 'embedded').count)
     end
 
+    # TODO: change this test because with 1 result this test will always rank valid
     test 'supplies a valid ranking' do
       search_for = 'AAA'
-      order_string = DataCycleCore::Filter::Search.get_order_by_query_string(search_for)
-      items = DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search(search_for).order(order_string)
+      # TODO: refactor order query
+      # order_string = DataCycleCore::Filter::Search.get_order_by_query_string(search_for)
+      # items = DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search(search_for).order(order_string)
+      items = DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search(search_for)
       assert_equal(search_for, items.first.name)
     end
 
     test 'filter contents based on classifications' do
       items = DataCycleCore::Filter::Search.new(:de)
-        .with_classification_alias_ids_without_recursion(find_alias_ids('Tags', 'Tag 3'))
+        .classification_alias_ids_without_subtree(find_alias_ids('Tags', 'Tag 3'))
       assert_equal(2, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
-        .classification_alias_ids(find_alias_ids('Tags', 'Tag 3'))
+        .classification_alias_ids_with_subtree(find_alias_ids('Tags', 'Tag 3'))
       assert_equal(3, items.count)
       # same_as
+      # TODO: refactor to use search ?
       items = DataCycleCore::Thing
         .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 3'))
       assert_equal(3, items.count)
@@ -91,7 +95,7 @@ module DataCycleCore
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
-        .not_classification_alias_ids(find_alias_ids('Tags', 'Tag 2'))
+        .not_classification_alias_ids_with_subtree(find_alias_ids('Tags', 'Tag 2'))
       assert_equal(7, items.count)
     end
 
@@ -201,11 +205,11 @@ module DataCycleCore
       assert(DataCycleCore::Filter::Search.new(:de).in_validity_period.count.positive?)
     end
 
-    test 'has helper for created_since and modified_since' do
+    test 'has helper for created_at and modified_at' do
       items = DataCycleCore::Filter::Search.new(:de)
       all = items.count
-      assert_equal(all, items.created_since((Time.zone.now - 1.hour).to_s).count)
-      assert_equal(all, items.modified_since((Time.zone.now - 1.hour).to_s).count)
+      assert_equal(all, items.created_at({ min: (Time.zone.now - 1.hour).to_s }).count)
+      assert_equal(all, items.modified_at({ min: (Time.zone.now - 1.hour).to_s }).count)
     end
 
     test 'supports geo queries' do

@@ -113,6 +113,29 @@ module DataCycleCore
       end
     end
 
+    def add_related_items
+      @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list])
+      @watch_list = current_user.watch_lists.create(full_path: params[:watch_list]) if @watch_list.nil?
+
+      authorize!(:add_item, @watch_list)
+
+      content = DataCycleCore::Thing.find(params[:content_id])
+      related_objects = content&.related_contents&.joins(:content_content_a)&.where(template: false, template_name: params[:template_name], content_contents: { content_b_id: params[:content_id], relation_a: params[:relation_a] })
+
+      content_query = related_objects.select("'#{@watch_list.id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()")
+
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type, created_at, updated_at)
+        #{content_query.to_sql}
+        ON CONFLICT DO NOTHING
+      SQL
+
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language)) }
+        format.js
+      end
+    end
+
     def bulk_edit
       @watch_list ||= DataCycleCore::WatchList.find(params[:id])
 

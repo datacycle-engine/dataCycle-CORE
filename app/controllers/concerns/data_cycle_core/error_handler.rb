@@ -18,7 +18,7 @@ module DataCycleCore
       redirect_back_with_error exception, :unprocessable_entity
     end
 
-    def bad_api_request(exception)
+    def bad_request_api_error(exception)
       api_errors = exception.data.map do |error|
         {
           source: {
@@ -29,6 +29,19 @@ module DataCycleCore
         }
       end
       render json: { errors: api_errors }, layout: false, status: :bad_request
+    end
+
+    def expired_content_api_error(exception)
+      api_errors = exception.data.map do |error|
+        {
+          source: {
+            pointer: error.dig(:pointer_path)
+          },
+          title: I18n.t("exceptions.#{exception.class.name.underscore}.#{error.dig(:type)}", default: exception.message, locale: :en),
+          detail: error.dig(:detail)
+        }
+      end
+      render json: { errors: api_errors }, layout: false, status: :not_found
     end
 
     def not_acceptable

@@ -1,0 +1,91 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module Content
+    module Searchable
+      def with_content_type(type)
+        where("schema ->> 'content_type' = ?", type)
+      end
+
+      def with_schema_type(type)
+        where("schema ->> 'schema_type' = ?", type)
+      end
+
+      def without_template_names(*names)
+        where.not(template_name: names)
+      end
+
+      def with_template_names(*names)
+        where(template_name: names)
+      end
+
+      def with_default_data_type(classification_alias_names)
+        where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", classification_alias_names)
+      end
+
+      def expired_not_release_id(id)
+        return unless DataCycleCore::Feature::Releasable.enabled?
+        joins(:classifications)
+          .where('classification_contents.relation = ?', DataCycleCore::Feature::Releasable.attribute_keys.first)
+          .where.not('classification_contents.classification_id = ?', id)
+      end
+
+      def expired_not_life_cycle_id(id)
+        return if DataCycleCore::Feature::LifeCycle.attribute_keys.blank?
+        joins(:classifications)
+          .where('classification_contents.relation = ?', DataCycleCore::Feature::LifeCycle.attribute_keys.first)
+          .where.not('classification_contents.classification_id = ?', id)
+      end
+
+      # TODO: currently not replaceable: used in PulicationsController
+      def with_classification_alias_ids(classification_alias_ids)
+        classification_alias_ids = Array(classification_alias_ids).map { |id|
+          "'#{id}'"
+        }.join(',')
+
+        virtual_table_name = "contents_#{SecureRandom.hex}"
+
+        joins(
+          <<-SQL.gsub(/\s+/, ' ')
+          JOIN (
+            WITH RECURSIVE recursive_classification_trees AS (
+              SELECT *
+              FROM classification_trees
+              WHERE classification_trees.parent_classification_alias_id IN (#{classification_alias_ids})
+              OR classification_trees.classification_alias_id IN (#{classification_alias_ids})
+              UNION ALL
+              SELECT classification_trees.*
+              FROM classification_trees
+              INNER JOIN recursive_classification_trees
+                ON classification_trees.parent_classification_alias_id = recursive_classification_trees.classification_alias_id
+            )
+            SELECT DISTINCT content_data_id
+            FROM classification_contents
+            JOIN classification_groups
+              ON classification_contents.classification_id = classification_groups.classification_id
+            JOIN recursive_classification_trees
+              ON recursive_classification_trees.classification_alias_id = classification_groups.classification_alias_id
+            WHERE classification_groups.deleted_at IS NULL AND recursive_classification_trees.deleted_at IS NULL
+          ) AS #{virtual_table_name}
+            ON things.id = #{virtual_table_name}.content_data_id
+        SQL
+        )
+      end
+
+      # Deprecated: no replacement
+      def without_classification_alias_ids(_classification_alias_ids)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+
+      # Deprecated: no replacement
+      def with_classification_alias_names(*_names)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+
+      # Deprecated: no replacement
+      def search(_q, _language)
+        raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+    end
+  end
+end

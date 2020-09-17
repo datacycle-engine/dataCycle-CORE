@@ -758,7 +758,8 @@ CREATE TABLE public.stored_filters (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     api_users text[],
-    linked_stored_filter_id uuid
+    linked_stored_filter_id uuid,
+    sort_parameters jsonb
 )
 WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
@@ -1861,6 +1862,13 @@ CREATE INDEX index_things_on_boost_updated_at ON public.things USING btree (boos
 
 
 --
+-- Name: index_things_on_boost_updated_at_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_boost_updated_at_id ON public.things USING btree (boost, updated_at, id);
+
+
+--
 -- Name: index_things_on_content_type; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2279,6 +2287,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200812110341'),
 ('20200812111137'),
 ('20200824121824'),
-('20200824140802');
+('20200824140802'),
+('20200826082051');
 
 

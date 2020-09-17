@@ -36,18 +36,17 @@ module DataCycleCore
           query = query.where(template_name: template_name.to_s) if template_name
         end
 
-        order_string = DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search])
-
         query = query.in_validity_period
         query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search].present?
         query = query.where('things.id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
         query = query.where(id: permitted_params[:filter_ids]) if permitted_params[:filter_ids].present?
-        query = query.order(order_string)
+
+        query = query.sort_fulltext_search('DESC', permitted_params[:search]) if permitted_params[:search].present?
 
         @per = permitted_params[:per] if permitted_params[:per].present?
         @per ||= DEFAULT_PER
 
-        @total = query.count_distinct
+        @total = query.count
         @pages = @total.fdiv(@per.to_i).ceil
 
         if permitted_params[:page].present?
@@ -56,7 +55,7 @@ module DataCycleCore
         end
         @page ||= 1
 
-        @results = query.distinct_by_content_id(order_string).content_includes.page(@page).per(@per)
+        @results = query.content_includes.page(@page).per(@per)
         respond_to(:js)
       end
     end

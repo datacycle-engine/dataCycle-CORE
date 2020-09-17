@@ -59,6 +59,7 @@ module DataCycleCore
                 assert_equal(@content.logo.first.id, json_data.dig('logo').first.dig('identifier'))
               end
 
+              # test fails because no ordering = random
               test 'stored item can be found via different endpoints' do
                 get(api_v3_things_path)
                 assert_response(:success)
