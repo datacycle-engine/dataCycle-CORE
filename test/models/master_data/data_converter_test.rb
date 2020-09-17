@@ -244,6 +244,13 @@ describe DataCycleCore::MasterData::DataConverter do
 
       assert_equal b, subject.string_to_string(a)
     end
+
+    it 'normalizes multiple &nbsp; whitespaces to a single one' do
+      a = '  Henry&nbsp;&nbsp;  V&nbsp;&nbsp;&nbsp;I         '
+      b = 'Henry&nbsp;V&nbsp;I'
+
+      assert_equal b, subject.string_to_string(a)
+    end
   end
 
   describe 'convert number objects' do

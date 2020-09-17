@@ -12,7 +12,7 @@ let Break = Quill.import('blots/break');
 let Embed = Quill.import('blots/embed');
 let Parchment = Quill.import('parchment');
 
-icons['insertnbsp'] = '<span title="quill-nbsp">␣</span>';
+icons['insertnbsp'] = '<span title="Geschütztes Leerzeichen einfügen">␣</span>';
 
 function lineBreakMatcher() {
   var newDelta = new Delta();

@@ -36,7 +36,13 @@ module DataCycleCore
       end
 
       def self.string_to_string(value)
-        value&.unicode_normalize(:nfc)&.delete("\u0000")&.squish&.gsub(%r{(<p>\s*(<br>)*\s*</p>)*$}, '')&.gsub(%r{^(<p>\s*(<br>)*\s*</p>)*}, '') # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)
+        value
+          &.unicode_normalize(:nfc)
+          &.delete("\u0000") # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)
+          &.squish
+          &.gsub(%r{(<p>\s*(<br>)*\s*</p>)*$}, '') # remove empty lines from HTML-Editor at the end of the String
+          &.gsub(%r{^(<p>\s*(<br>)*\s*</p>)*}, '') # remove empty lines from HTML-Editor at the start of the String
+          &.gsub(/(\s*&nbsp;\s*)+/, '&nbsp;') # normalize multiple &nbsp; to a single one
       end
 
       def self.string_to_number(value, definition)
