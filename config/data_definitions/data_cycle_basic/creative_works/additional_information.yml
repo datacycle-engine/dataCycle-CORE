@@ -35,7 +35,7 @@
             :type: text_editor
             :options:
               :data-size: basic
-      :schedule:
+      :validity_schedule:
         :label: Season
         :type: schedule
         :api:

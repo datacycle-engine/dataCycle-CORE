@@ -159,7 +159,6 @@ module DataCycleCore
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
         when 'schedule'
-          byebug
           set_schedule(value, key)
         when 'computed'
           save_values(key, value, properties)

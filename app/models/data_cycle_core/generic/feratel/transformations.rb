@@ -229,7 +229,7 @@ module DataCycleCore
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate').in_time_zone })
           .>> t(:add_field, 'name', ->(s) { s.dig('Type') })
           .>> t(:add_field, 'type_of_information', ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Informationstypen', desc) } })
-          .>> t(:add_field, 'schedule', ->(s) { make_season(s.dig('ShowFrom'), s.dig('ShowTo')) })
+          .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
         end
 
         def self.make_season(from, to)
@@ -239,7 +239,7 @@ module DataCycleCore
           to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 0, 0)
           from_yday = from_date.to_date.yday
           to_yday = to_date.to_date.yday
-          to_yday *= -1 if from_yday > to_yday
+          to_yday = -366 + to_yday if from_yday > to_yday
           rrule = IceCube::Rule.yearly.day_of_year(from_yday, to_yday)
           schedule_object = IceCube::Schedule.new(from_date) do |s|
             s.add_recurrence_rule(rrule)
