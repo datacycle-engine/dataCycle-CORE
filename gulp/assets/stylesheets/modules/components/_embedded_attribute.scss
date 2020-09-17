@@ -126,6 +126,10 @@
 
     .accordion-close-children,
     .accordion-open-children {
+      display: flex;
+      flex-flow: column;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       color: $dark-gray;
       padding: 0.8rem 0.5rem;
