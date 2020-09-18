@@ -14,7 +14,7 @@ class AccordionExtension {
   closeChildren(event) {
     $(event.currentTarget)
       .closest('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
-      .foundation('up', $(event.currentTarget).closest('.accordion-child-buttons').siblings('.accordion-content'));
+      .foundation('up', $(event.currentTarget).closest('.accordion-title').siblings('.accordion-content'));
 
     this.closeAccordionItems(event, $(event.currentTarget.closest('.accordion-item')));
   }
@@ -24,7 +24,7 @@ class AccordionExtension {
   openChildren(event) {
     $(event.currentTarget)
       .closest('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
-      .foundation('down', $(event.currentTarget).closest('.accordion-child-buttons').siblings('.accordion-content'));
+      .foundation('down', $(event.currentTarget).closest('.accordion-title').siblings('.accordion-content'));
 
     this.openAccordionItems(event, $(event.currentTarget.closest('.accordion-item')));
   }

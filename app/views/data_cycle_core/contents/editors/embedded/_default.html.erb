@@ -16,14 +16,16 @@
       <% end %>
     </span>
 
-    <a href="#" class="accordion-title<%= ' with-accordion-all-buttons' if object.embedded_property_names.present? %>">
-      <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %>
-      <span class="embedded-label"><%= definition['label'] %></span>
-      <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
-      <%= tag.span object.try(object.embedded_title_property_name), title: object.try(object.embedded_title_property_name), class: "embedded-title#{' visible' if object.try(object.embedded_title_property_name).present?}" if object.embedded_title_property_name.present? %>
-    </a>
+    <div class="accordion-title">
+      <span class="title">
+        <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %>
+        <span class="embedded-label"><%= definition['label'] %></span>
+        <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
+        <%= tag.span object.try(object.embedded_title_property_name), title: object.try(object.embedded_title_property_name), class: "embedded-title#{' visible' if object.try(object.embedded_title_property_name).present?}" if object.embedded_title_property_name.present? %>
+      </span>
 
-    <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_children' if object.embedded_property_names.present? %>
+      <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children' if object.embedded_property_names.present? %>
+    </div>
 
     <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
       <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject', data: {

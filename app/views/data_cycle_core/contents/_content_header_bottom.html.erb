@@ -1,7 +1,7 @@
 <div class="edit">
   <%= yield :buttons %>
 
-  <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_all', wrapper_tag: 'span', additional_classes: 'button-prime small' if content.embedded_property_names.present? %>
+  <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'all', additional_classes: 'button-prime small' if content.embedded_property_names.present? %>
 
   <%= link_to create_duplication_thing_path(content),
                 method: :get,

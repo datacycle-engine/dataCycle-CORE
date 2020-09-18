@@ -17,17 +17,22 @@
         data_attributes: { id: [object.id], editor: 'embedded_object', accordion_item: true },
         content: content do %>
 
-        <a href="#" class="accordion-title<%= ' with-accordion-all-buttons' if object.embedded_property_names.present? %>">
+        <div class="accordion-title">
           <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %>
-          <span class="title"><%= definition['label'].titleize %></span>
-          <%= tag.span(object.send(object.embedded_title_property_name), title: object.send(object.embedded_title_property_name), class: 'embedded-title') if object.embedded_title_property_name.present? && object.try(object.embedded_title_property_name).present? %>
-        </a>
+          <span class="title">
+            <span class="embedded-type"><%= definition['label'].titleize %></span>
+            <%= tag.span(object.send(object.embedded_title_property_name), title: object.send(object.embedded_title_property_name), class: 'embedded-title') if object.embedded_title_property_name.present? && object.try(object.embedded_title_property_name).present? %>
+          </span>
+
+          <%= link_to tag.i(class: 'fa fa-pencil'), edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale), class: 'edit-content-link', title: t('actions.edit', locale: DataCycleCore.ui_language) if can?(:edit, content) %>
+
+          <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children' if object.embedded_property_names.present? %>
+        </div>
+
         <div class="accordion-content remote-render" data-tab-content
         data-remote-path="data_cycle_core/contents/viewers/embedded/default"
         data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, index: index, locale: I18n.locale })).to_json %>">
         </div>
-
-        <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_children' if object.embedded_property_names.present? %>
       <% end %>
     <% end %>
 
