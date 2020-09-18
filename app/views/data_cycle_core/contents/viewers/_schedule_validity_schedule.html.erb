@@ -23,8 +23,8 @@
     <% validity_range = Array.wrap(object.try(:schedule_object)&.first(2)) || [] %>
 
     <span class="detail-content events-calender-view">
-      <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: Array.wrap(validity_range.first), as: :date, locals: { object: object, skip_year: true } %>
-      <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: Array.wrap(validity_range.last), as: :date, locals: { object: object, skip_year: true } %>
+      <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: Array.wrap(validity_range.first&.try(:to_date)), as: :date, locals: { object: object, skip_year: true } %>
+      <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: Array.wrap(validity_range.last&.try(:to_date)), as: :date, locals: { object: object, skip_year: true } %>
     </span>
 
   <% end %>
