@@ -66,13 +66,9 @@ module DataCycleCore
         private
 
         def apply_ordering(query)
-          if permitted_params[:q].present? || @stored_filter.nil? || content_schema_type == 'Event'
-            query = query.except(:order)
-            query = query.sort_by_proximity if content_schema_type.present? && content_schema_type == 'Event'
-            query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence))
-          else
-            query
-          end
+          query = query.sort_fulltext_search('DESC', permitted_params[:q]) if permitted_params[:q].present?
+          query = query.sort_by_proximity if content_schema_type.present? && content_schema_type == 'Event'
+          query
         end
 
         def build_search_query
@@ -87,22 +83,21 @@ module DataCycleCore
 
           query = filter.apply
           if content_schema_type
-            query = query.where(searches: { schema_type: content_schema_type })
+            query = query.schema_type(content_schema_type)
             query = apply_event_query_filters(query) if content_schema_type == 'Event'
             query = apply_place_query_filters(query) if content_schema_type == 'Place'
           end
-          # query = query.where(schema_type: content_schema_type) if content_schema_type
-          query = query.modified_since(permitted_params.dig(:filter, :modified_since)) if permitted_params.dig(:filter, :modified_since)
-          query = query.created_since(permitted_params.dig(:filter, :created_since)) if permitted_params.dig(:filter, :created_since)
-          query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
 
+          query = query.modified_at({ min: permitted_params.dig(:filter, :modified_since) }) if permitted_params.dig(:filter, :modified_since)
+          query = query.created_at({ min: permitted_params.dig(:filter, :created_since) }) if permitted_params.dig(:filter, :created_since)
+          query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
           query = query.in_validity_period
 
           if permitted_params&.dig(:filter, :classifications)
             permitted_params.dig(:filter, :classifications).map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
-              query = query.classification_alias_ids(classifications)
+              query = query.classification_alias_ids_with_subtree(classifications)
             end
           end
           query

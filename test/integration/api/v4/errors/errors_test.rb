@@ -7,6 +7,11 @@ module DataCycleCore
     module V4
       module Errors
         class ErrorTest < DataCycleCore::V4::Base
+          setup do
+            @content = DataCycleCore::V4::DummyDataHelper.create_data('article')
+            @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { validity_period: { 'valid_from' => 10.days.ago, 'valid_until' => 5.days.ago } })
+          end
+
           # TODO: add more test for invalid values (classifications, Date, ...)
           test 'api/v4/things with invalid parameter (empty value)' do
             params = {
@@ -233,6 +238,26 @@ module DataCycleCore
               },
               'title' => 'Unknown Query Parameter',
               'detail' => 'is not allowed'
+            }
+            assert_equal(error_object, json_data.dig('errors').first)
+          end
+
+          test 'api/v4/things detail error for expired items' do
+            params = {
+              id: @content.id
+            }
+            post api_v4_thing_path(params)
+            assert_response :not_found
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            error_object = {
+              'source' => {
+                'pointer' => request.path
+              },
+              'title' => 'Content is expired',
+              'detail' => 'is expired'
             }
             assert_equal(error_object, json_data.dig('errors').first)
           end

@@ -68,7 +68,7 @@ module DataCycleCore
 
         test '/api/v3/creative_works' do
           get api_v3_creative_works_path
-          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'CreativeWork' }).count
+          count = DataCycleCore::Filter::Search.new.schema_type('CreativeWork').count
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
@@ -80,7 +80,7 @@ module DataCycleCore
 
         test '/api/v3/places' do
           get api_v3_places_path
-          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Place' }).count
+          count = DataCycleCore::Filter::Search.new.schema_type('Place').count
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
@@ -92,7 +92,7 @@ module DataCycleCore
 
         test '/api/v3/events' do
           get api_v3_events_path
-          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Event' }).count
+          count = DataCycleCore::Filter::Search.new.schema_type('Event').count
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
@@ -104,7 +104,7 @@ module DataCycleCore
 
         test '/api/v3/persons' do
           get api_v3_persons_path
-          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Person' }).count
+          count = DataCycleCore::Filter::Search.new.schema_type('Person').count
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
@@ -116,7 +116,7 @@ module DataCycleCore
 
         test '/api/v3/organizations' do
           get api_v3_organizations_path
-          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Organization' }).count
+          count = DataCycleCore::Filter::Search.new.schema_type('Organization').count
 
           assert_response :success
           assert_equal response.content_type, 'application/json'

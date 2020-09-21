@@ -110,7 +110,38 @@
                         buttons: 'a' }) %>
                     <% end %>
                   </span>
+
+                  <% if content_for?(:sortable) || filter[:sortable].present? %>
+                    <%= yield :sortable %>
+                    <span class="filter-sortable">
+                          <span class="filter-sortable-select-wrapper">
+                            <%= select_tag(
+                                    "s[v][m]",
+                                    options_for_select(
+                                        filter[:sortable].map { |sortable|
+                                          [
+                                              sortable.dig(:label),
+                                              sortable.dig(:method)
+                                          ]
+                                        }, @sort_params.presence&.first&.dig('m')
+                                    ),
+                                    {:include_blank => I18n.t('sortable.default', default: 'default', locale: DataCycleCore.ui_language)}
+                                ) %>
+                          </span>
+                          <span class="filter-sortable-checkbox-wrapper">
+                            <%= check_box nil,
+                                          "s[v][o]",
+                                          {
+                                              checked: @sort_params.presence&.first&.dig('o') == 'ASC'
+                                          },
+                                          'ASC',
+                                          'DESC' %>
+                            <label for="s[v][o]">&nbsp;</label>
+                          </span>
+                      </span>
+                  <% end %>
                 </div>
+
 
                 <div class=" filterbuttons clearfix">
                   <div class="filterbuttons-left">

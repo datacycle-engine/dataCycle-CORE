@@ -279,9 +279,26 @@ module DataCycleCore
         DataCycleCore::Subscription.arel_table
       end
 
+      def search_exists(query_string)
+        if @locale.present?
+          search
+            .where(
+              search[:content_data_id].eq(thing[:id])
+                .and(search[:locale].in(@locale))
+                .and(query_string)
+            ).exists
+        else
+          search
+            .where(
+              search[:content_data_id].eq(thing[:id])
+                .and(query_string)
+            ).exists
+        end
+      end
+
       # chain method for Builder pattern
       def reflect(query)
-        self.class.new(@locale, query, @joined_search, @joined_schedule)
+        self.class.new(@locale, query, @include_embedded)
       end
     end
   end

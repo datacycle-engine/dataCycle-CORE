@@ -172,6 +172,8 @@ en:
         difficulty: Difficulty
 
   exceptions:
-    data_cycle_core/error/api/bad_request:
+    data_cycle_core/error/api/bad_request_error:
       unknown_parameter: Unknown Query Parameter
       invalid_parameter: Invalid Query Parameter
+    data_cycle_core/error/api/expired_content_error:
+      expired_content: Content is expired
