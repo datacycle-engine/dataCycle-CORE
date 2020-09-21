@@ -18,6 +18,8 @@
           :xml: true
           :json: true
           :indesign: true
+    :api:
+      :type: BodyOfWater
     :properties:
       :id:
         :label: id

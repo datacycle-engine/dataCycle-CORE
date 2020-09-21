@@ -5,6 +5,10 @@
     :schema_type: Place
     :content_type: entity
     :boost: 100.0
+    :api:
+      :type:
+        - Place
+        - 'dcls:WeatherStation'
     :properties:
       :id:
         :label: id
@@ -56,6 +60,10 @@
     :schema_type: Place
     :content_type: embedded
     :boost: 1.0
+    :api:
+      :type:
+        - Place
+        - 'dcls:WeatherForecast'
     :properties:
       :id:
         :label: id
@@ -89,6 +97,10 @@
     :schema_type: Place
     :content_type: embedded
     :boost: 1.0
+    :api:
+      :type:
+        - Place
+        - 'dcls:TemperatureForecasts'
     :properties:
       :temperature_06:
         :label: 6 Uhr
@@ -132,6 +144,10 @@
     :schema_type: Place
     :content_type: embedded
     :boost: 1.0
+    :api:
+      :type:
+        - Place
+        - 'dcls:WeatherPrediction'
     :properties:
       :id:
         :label: id
@@ -163,6 +179,10 @@
     :schema_type: Place
     :content_type: embedded
     :boost: 1.0
+    :api:
+      :type:
+        - Place
+        - 'dcls:DailyWeatherPrediction'
     :properties:
       :id:
         :label: id
