@@ -13,8 +13,6 @@
 
     <span class="leaf-month"><%= l(date, format: "%b", locale: DataCycleCore.ui_language) %></span>
     <span class="leaf-day"><%= l(date, format: "%e", locale: DataCycleCore.ui_language) %></span>
-    <% unless skip_year %>
-      <span class="leaf-year"><%= l(date, format: "%Y", locale: DataCycleCore.ui_language) %></span>
-    <% end %>
+    <span class="leaf-year"><%= l(date, format: "%Y", locale: DataCycleCore.ui_language) %></span>
   </span>
 </span>

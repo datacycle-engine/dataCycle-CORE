@@ -23,8 +23,9 @@
     <% validity_range = Array.wrap(object.try(:schedule_object)&.first(2)) || [] %>
 
     <span class="detail-content events-calender-view">
-      <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: Array.wrap(validity_range.first&.try(:to_date)), as: :date, locals: { object: object, skip_year: true } %>
-      <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: Array.wrap(validity_range.last&.try(:to_date)), as: :date, locals: { object: object, skip_year: true } %>
+      <b><%= l(validity_range.first&.try(:to_date), format: t('date.formats.short', locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></b>
+      <b>-</b>
+      <b><%= l(validity_range.last&.try(:to_date), format: t('date.formats.short', locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></b>
     </span>
 
   <% end %>

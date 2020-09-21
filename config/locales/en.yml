@@ -192,6 +192,9 @@ en:
         suggestion: Suggestion
         additional_information: Additional information
 
+  schedule:
+    ongoing: ongoing
+
   exceptions:
     data_cycle_core/error/api/bad_request_error:
       unknown_parameter: Unknown Query Parameter

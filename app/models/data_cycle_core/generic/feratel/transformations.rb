@@ -219,7 +219,7 @@ module DataCycleCore
         def self.parse_descriptions(data)
           return [] if data.blank?
 
-          data.map do |desc|
+          Array.wrap(data).map do |desc|
             to_additional_information.call(desc)
           end
         end
