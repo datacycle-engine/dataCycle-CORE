@@ -34,7 +34,8 @@
             options: options,
             new_content: local_assigns[:new_content].to_s == 'true',
             attribute_locale: local_assigns[:attribute_locale],
-            duplicated_content: local_assigns[:duplicated_content].to_s == 'true'
+            duplicated_content: local_assigns[:duplicated_content].to_s == 'true',
+            hide_embedded: local_assigns[:hide_embedded].to_s == 'true'
           },
           content: content
         ) %>

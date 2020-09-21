@@ -43,17 +43,22 @@
 
     > .title {
       flex: auto;
-    }
-
-    > .title > .embedded-title {
-      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-style: italic;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
 
-      &:before {
-        content: '-';
-        padding: 0 0.6rem 0 0.5rem;
+      > .embedded-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-style: italic;
+
+        &:before {
+          content: '-';
+          padding: 0 0.6rem 0 0.5rem;
+        }
       }
     }
 
@@ -110,20 +115,44 @@
 .embedded-object {
   counter-reset: embedded;
 
+  .content-object-item {
+    > .accordion-title {
+      cursor: pointer;
+      padding: 0;
+      > .title {
+        flex: auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+
+        > .embedded-title,
+        > .embedded-label {
+          padding: 0.2rem;
+        }
+
+        > .embedded-title {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-style: italic;
+
+          &.visible:before {
+            content: '-';
+            padding: 0 0.6rem 0 0.5rem;
+          }
+        }
+      }
+    }
+  }
+
   .content-object-item:not(:only-of-type) {
     counter-increment: embedded;
 
-    > .accordion-title {
-      cursor: pointer;
-
-      > .title {
-        flex: auto;
-      }
-
-      > .embedded-label::after {
-        content: counter(embedded);
-        margin-left: 0.3rem;
-      }
+    > .accordion-title > .title > .embedded-label::after {
+      content: counter(embedded);
+      margin-left: 0.3rem;
     }
   }
 }
@@ -142,6 +171,8 @@
     cursor: pointer;
     color: $dark-gray;
     padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
 
     .fa {
       font-size: 1.5rem;

@@ -743,18 +743,12 @@ footer {
     }
 
     .input input,
-    .string:not(.date, .name, .datetime, .headline, .headline_external, .text_editor) input,
+    .string:not(.date, .datetime, .text_editor) input,
     input.single_date,
     .single_date input.form-control,
     .number input {
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;
-    }
-
-    .headline_external input,
-    .name input,
-    .headline input {
-      padding: 1rem 5rem 1.5rem 5rem;
     }
 
     .publish_at {
@@ -846,9 +840,10 @@ footer {
   }
 
   .ql-editor {
-    padding-top: 3rem;
+    padding-top: 2.5rem;
     padding-bottom: 2rem;
     font-size: 1rem;
+    min-height: 8rem;
 
     p:not(:last-child) {
       margin-bottom: 0.5rem;

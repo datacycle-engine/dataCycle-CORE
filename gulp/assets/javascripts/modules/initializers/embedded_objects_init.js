@@ -23,7 +23,7 @@ module.exports.initialize = function ($) {
     let value = $(event.currentTarget).find(':input').first().val();
     let titleField = $(event.currentTarget)
       .closest('.content-object-item')
-      .find('> .accordion-title > .embedded-title');
+      .find('> .accordion-title > .title > .embedded-title');
 
     titleField.text(value);
     titleField.attr('title', value);

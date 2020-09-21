@@ -1,6 +1,17 @@
 /* todo: merge styles */
 /* Fixes for Firefox */
 .detail-header.editor {
+  > .form-element {
+    &.headline,
+    &.name,
+    &.headline_external {
+      input {
+        height: 6rem;
+        padding: 1.5rem 0.5rem;
+      }
+    }
+  }
+
   .form-element {
     label + select {
       margin-top: 3rem;
@@ -39,15 +50,6 @@
             }
           }
         }
-      }
-    }
-
-    &.headline,
-    &.name,
-    &.headline_external {
-      input {
-        height: 6rem;
-        padding: 1.5rem 0.5rem;
       }
     }
 
@@ -2731,10 +2733,10 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 
-.filter-sortable{
+.filter-sortable {
   display: inline-flex;
   justify-content: right;
-  .filter-sortable-select-wrapper{
+  .filter-sortable-select-wrapper {
     position: relative;
     select {
       font-size: 0.8rem;
@@ -2754,7 +2756,7 @@ button.button-prime.small.bulk-delete-button {
       padding-right: 1.5rem;
     }
 
-    &::before{
+    &::before {
       content: '\f0dc';
       font-family: FontAwesome;
       font-size: 1.5rem;
@@ -2769,13 +2771,13 @@ button.button-prime.small.bulk-delete-button {
       line-height: 1;
     }
   }
-  .filter-sortable-checkbox-wrapper{
+  .filter-sortable-checkbox-wrapper {
     position: relative;
     padding-left: 0.5rem;
-    input{
+    input {
       display: none;
     }
-    label{
+    label {
       font-size: 0.8rem;
       -webkit-appearance: none;
       -moz-appearance: none;
@@ -2794,7 +2796,7 @@ button.button-prime.small.bulk-delete-button {
       margin: 0;
       line-height: 1.6;
     }
-    input + label:before{
+    input + label:before {
       content: '\f063';
       font-family: FontAwesome;
       font-size: 1.3rem;
@@ -2809,7 +2811,7 @@ button.button-prime.small.bulk-delete-button {
       line-height: 1;
     }
     input:checked + label:before {
-      content: "\f062";
+      content: '\f062';
       font-family: FontAwesome;
     }
   }
