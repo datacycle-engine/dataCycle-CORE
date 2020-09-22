@@ -89,7 +89,7 @@ module DataCycleCore
 
       template_hash['properties'].each do |key, value|
         if value['type'] == 'schedule'
-          key = { key.to_sym => [:id, :full_day, :rtimes, :extimes, start_time: [:time], end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]] }
+          key = { key.to_sym => [:id, :full_day, :rtimes, :extimes, start_time: [:time], end_time: [:time], yearly_end: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]] }
         elsif value['type'] == 'embedded'
           object_properties = get_internal_template(value['template_name'])
           key = { key.to_sym => get_params_from_hash(object_properties.schema) }
@@ -117,7 +117,8 @@ module DataCycleCore
           next nil if s.dig('start_time', 'time').blank?
 
           start_time = s.dig('start_time', 'time')&.in_time_zone
-          end_time = s.dig('end_time', 'time')&.in_time_zone || start_time
+          end_time = s.dig('end_time', 'time')&.in_time_zone
+          end_time ||= start_time if s.dig('yearly_end').blank?
 
           if s['full_day'] == '1'
             start_time = start_time.beginning_of_day
@@ -133,7 +134,7 @@ module DataCycleCore
 
           s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day if s.dig('rrules', 0, 'until').present?
           s['rrules'][0]['validations'] ||= {}
-          s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present?
+          s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present? && s.dig('yearly_end').blank?
           s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
           s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
           s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
@@ -143,6 +144,15 @@ module DataCycleCore
             s.dig('rrules', 0, 'validations', 'day')&.map!(&:to_i)
           when 'IceCube::SingleOccurrenceRule'
             s.except!('rrules')
+          when 'IceCube::YearlyRule'
+            if s.dig('yearly_end').present?
+              from_yday = s.dig('start_time', 'time').to_date.yday
+              to_yday = s.dig('yearly_end', 'time').to_date.yday
+              to_yday = -366 + to_yday if from_yday > to_yday
+              s['rrules'][0]['validations']['day_of_year'] = [from_yday, to_yday]
+            else
+              s.dig('rrules', 0, 'validations')&.delete('day')
+            end
           else
             s.dig('rrules', 0, 'validations')&.delete('day')
           end

@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Sulu
       class Webhook < DataCycleCore::Generic::Common::Webhook
-        def update(raw_data)
+        def update(raw_data, _external_system)
           validator = Contract.new
           errors = validator.call(raw_data.deep_symbolize_keys).errors.to_h || {}
           return { error: errors } if errors.present?

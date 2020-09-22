@@ -74,6 +74,37 @@
 - Beschreibungsarten | all:
 
 - Informationstypen | all:
+    - description | OutdoorActive
+    - text | OutdoorActive
+    - directions | OutdoorActive
+    - directions_public_transport | OutdoorActive
+    - parking | OutdoorActive
+    - hours_available | OutdoorActive
+    - price | OutdoorActive
+    - instructions | OutdoorActive
+    - safety_instructions | OutdoorActive
+    - equipment | OutdoorActive
+    - suggestion | OutdoorActive
+    - additional_information | OutdoorActive
+    - AdditionalService | Feratel
+    - CurrentInformation | Feratel
+    - EventHeader | Feratel
+    - EventHeaderShort | Feratel
+    - GuestCardClassification | Feratel
+    - InfrastructureLong | Feratel
+    - InfrastructureOpeningTimes | Feratel
+    - InfrastructurePriceInfo | Feratel
+    - InfrastructureShort | Feratel
+    - Package | Feratel
+    - PackageContentLong | Feratel
+    - PackageShortText | Feratel
+    - ProductDescription | Feratel
+    - SEOKeywords | Feratel
+    - ShopItemDescription | Feratel
+    - ServiceDescription | Feratel
+    - ServiceProviderArrivalVoucher | Feratel
+    - ServiceProviderConditions | Feratel
+    - ServiceProviderDescription | Feratel
 
 - POI - Kategorien | all:
 

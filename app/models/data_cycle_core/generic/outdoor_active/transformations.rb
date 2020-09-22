@@ -26,6 +26,7 @@ module DataCycleCore
               'gettingThere' => 'directions'
             }
           )
+          .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'place') })
           .>> t(:map_value, 'elevation', ->(s) { s.try(:to_f) })
           .>> t(:add_field, 'latitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
           .>> t(:add_field, 'longitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f) })
@@ -82,6 +83,7 @@ module DataCycleCore
               'additionalInformation' => 'additional_information'
             }
           )
+          .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'tour') })
           .>> t(:add_field, 'schedule', ->(s) { load_tour_season(s.dig('season')) })
           .>> t(:map_value, 'elevation', ->(s) { s&.to_f })
           .>> t(:map_value, 'length', ->(s) { s&.to_f })
@@ -110,6 +112,20 @@ module DataCycleCore
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
           .>> t(:reject_keys, ['meta', 'primary', 'gallery', 'author'])
           .>> t(:strip_all)
+        end
+
+        def self.to_additional_information(hash, type)
+          ['description', 'text', 'directions', 'directions_public_transport', 'parking',
+           'hours_available', 'price', 'instructions', 'safety_instructions',
+           'equipment', 'suggestion', 'additional_information'].map { |desc|
+            next if hash[desc].blank?
+            name = I18n.t("import.outdoor_active.#{type}.#{desc}", default: [desc])
+            {
+              'name' => name,
+              'description' => hash[desc],
+              'type_of_information' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Informationstypen', desc))
+            }
+          }.compact
         end
 
         def self.tour(geometry)

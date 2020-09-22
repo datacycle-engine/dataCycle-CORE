@@ -65,6 +65,9 @@ module DataCycleCore
 
     def to_schedule_schema_org
       # supports only select features of the rrule spec https://github.com/schemaorg/schemaorg/issues/1457
+      start_date = dtstart&.to_s(:only_date)
+      start_time = dtstart&.to_s(:only_time)
+      end_date = dtend&.to_s(:only_date)
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
       repeat_count = nil
@@ -81,15 +84,22 @@ module DataCycleCore
         by_day = rule_hash.dig(:validations, :day)
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
+        if rule_hash.dig(:validations, :day_of_year).present?
+          validity_range = Array.wrap(schedule_object&.first(2)) || []
+          start_date = validity_range.first&.to_date
+          end_date = validity_range.last&.to_date
+          start_time = nil
+          end_time = nil
+        end
       end
 
       {
         '@context' => 'https://schema.org/',
         '@type' => 'Schedule',
         'inLanguage' => I18n.locale.to_s,
-        'startDate' => dtstart&.to_s(:only_date),
-        'endDate' => dtend&.to_s(:only_date),
-        'startTime' => dtstart&.to_s(:only_time),
+        'startDate' => start_date,
+        'endDate' => end_date,
+        'startTime' => start_time,
         'endTime' => end_time,
         'duration' => duration&.iso8601,
         'repeatCount' => repeat_count,
@@ -106,6 +116,9 @@ module DataCycleCore
     def to_schedule_schema_org_api_v3
       return {} unless @schedule_object.terminating?
       return {} unless @schedule_object.all_occurrences.size.positive?
+      start_date = dtstart&.beginning_of_day&.to_s(:long_msec)
+      end_date = dtend&.beginning_of_day&.to_s(:long_msec)
+      start_time = dtstart&.to_s(:only_time)
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
       repeat_count = nil
@@ -123,6 +136,13 @@ module DataCycleCore
         by_day = rule_hash.dig(:validations, :day)
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
+        if rule_hash.dig(:validations, :day_of_year).present?
+          validity_range = Array.wrap(schedule_object&.first(2)) || []
+          start_date = validity_range.first&.to_date
+          end_date = validity_range.last&.to_date
+          start_time = nil
+          end_time = nil
+        end
       end
 
       schedule_hash = {
@@ -130,9 +150,9 @@ module DataCycleCore
         '@type' => 'Schedule',
         'contentType' => 'EventSchedule',
         'inLanguage' => I18n.locale.to_s,
-        'startDate' => dtstart&.beginning_of_day&.to_s(:long_msec),
-        'endDate' => dtend&.beginning_of_day&.to_s(:long_msec),
-        'startTime' => dtstart&.to_s(:only_time),
+        'startDate' => start_date,
+        'endDate' => end_date,
+        'startTime' => start_time,
         'endTime' => end_time,
         'duration' => duration&.iso8601,
         'repeatCount' => repeat_count,
@@ -150,6 +170,9 @@ module DataCycleCore
     def to_schedule_schema_org_api_v2
       return {} unless @schedule_object.terminating?
       return {} unless @schedule_object.all_occurrences.size.positive?
+      start_date = dtstart&.beginning_of_day&.to_s(:long_msec)
+      end_date = dtend&.beginning_of_day&.to_s(:long_msec)
+      start_time = dtstart&.to_s(:only_time)
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
       repeat_count = nil
@@ -164,15 +187,22 @@ module DataCycleCore
         by_day = rule_hash.dig(:validations, :day)
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
+        if rule_hash.dig(:validations, :day_of_year).present?
+          validity_range = Array.wrap(schedule_object&.first(2)) || []
+          start_date = validity_range.first&.to_date
+          end_date = validity_range.last&.to_date
+          start_time = nil
+          end_time = nil
+        end
       end
 
       {
         '@context' => 'http://schema.org',
         '@type' => 'Schedule',
         'contentType' => 'EventSchedule',
-        'startDate' => dtstart&.beginning_of_day&.to_s(:long_msec),
-        'endDate' => dtend&.beginning_of_day&.to_s(:long_msec),
-        'startTime' => dtstart&.to_s(:only_time),
+        'startDate' => start_date,
+        'endDate' => end_date,
+        'startTime' => start_time,
         'endTime' => end_time,
         'duration' => duration&.iso8601,
         'repeatCount' => repeat_count,

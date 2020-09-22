@@ -1,0 +1,32 @@
+---
+name: Toursprung
+credentials:
+  host: https://maptoolkit.net
+  username: sandbox
+  password: welcome2mtk
+  token: df50dd4a6df40d101c6199376b7624bf
+  resources:
+    POI: sandbox_pois
+    Tour: sandbox_routes
+config:
+  export_config:
+    endpoint: DataCycleCore::Export::Toursprung::Endpoint
+    filter:
+      template_names:
+        - Tour
+        - POI
+    transformation_config:
+      attributes:
+        POI:
+          - name
+          - text
+        Tour:
+          - name
+          - text
+    update:
+      strategy: DataCycleCore::Export::Generic::Update
+      path: /items/post
+    delete:
+      strategy: DataCycleCore::Export::Generic::Delete
+      path: /items/delete
+      transformation: delete_json_partial

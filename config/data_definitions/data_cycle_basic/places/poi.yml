@@ -36,6 +36,13 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :translated: false
+        :api:
+          :name: subject_of # same as subject_of <-> about ....
       :content_classifications:
         :type: mixin
         :name: content_classifications

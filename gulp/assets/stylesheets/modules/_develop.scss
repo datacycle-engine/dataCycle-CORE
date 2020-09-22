@@ -1,6 +1,17 @@
 /* todo: merge styles */
 /* Fixes for Firefox */
 .detail-header.editor {
+  > .form-element {
+    &.headline,
+    &.name,
+    &.headline_external {
+      input {
+        height: 6rem;
+        padding: 1.5rem 0.5rem;
+      }
+    }
+  }
+
   .form-element {
     label + select {
       margin-top: 3rem;
@@ -39,15 +50,6 @@
             }
           }
         }
-      }
-    }
-
-    &.headline,
-    &.name,
-    &.headline_external {
-      input {
-        height: 6rem;
-        padding: 1.5rem 0.5rem;
       }
     }
 
@@ -1541,9 +1543,6 @@ label[for='user_access_token'] {
   .external-source-icon {
     margin-right: 0.2rem;
   }
-  .external-system-icon {
-    margin-right: 0.4rem;
-  }
 }
 
 // textblocks
@@ -2310,80 +2309,6 @@ section.duplicate-candidates {
   }
 }
 
-.external-source-icon,
-.external-source-icon .fa,
-.external-system-icon,
-.external-system-icon .fa {
-  height: 1.2rem;
-  width: calc(1rem + 6px);
-  font-size: 1rem;
-  line-height: 1.2rem;
-  text-align: center;
-  padding: 0 3px;
-  &:last-child {
-    padding-right: 0;
-  }
-}
-.external-source-icon {
-  margin-left: 3px;
-  .fa-long-arrow-right {
-    top: 2px;
-    left: -6px;
-  }
-}
-
-.external-system-icon {
-  margin-right: 3px;
-  .fa-long-arrow-right {
-    top: 2px;
-    left: 5px;
-  }
-}
-
-.fa-stack {
-  &.external-source-icon,
-  &.external-system-icon {
-    color: lighten($black, 10%);
-
-    &.success {
-      color: $success-color;
-    }
-
-    &.pending {
-      color: $primary-color;
-    }
-
-    &.error {
-      color: $warning-color;
-    }
-
-    &.failure {
-      color: $alert-color;
-    }
-  }
-}
-
-.external-connection-tooltip {
-  p {
-    margin: 0;
-    &:not(:first-of-type) {
-      border-top: 1px dashed;
-      padding-top: 0.5rem;
-      margin-top: 0.5rem;
-    }
-  }
-  .external-source-icon,
-  .external-system-icon {
-    height: 1.2rem;
-    width: 1.2rem;
-    line-height: 1rem;
-    margin-right: 0.3rem;
-    .fa {
-      font-size: 1rem;
-    }
-  }
-}
-
 //.object-browser-overlay
 .object-thumbs,
 .object_browser.media.linked {
@@ -2404,7 +2329,7 @@ section.duplicate-candidates {
   }
 }
 .object-browser-overlay {
-  .tile-properties {
+  .tile-properties:not(:last-child) {
     padding-bottom: 1rem;
   }
   .tile-top {
@@ -2420,28 +2345,6 @@ section.duplicate-candidates {
   }
   .tags {
     padding-bottom: 1rem;
-  }
-  .external-sources-tiles {
-    color: $dark-gray;
-    text-align: right;
-    padding-top: 1.5rem;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    display: flex;
-    padding-right: 1rem;
-    flex-flow: row nowrap;
-    align-items: center;
-    justify-content: flex-end;
-    .external-source-icon {
-      position: relative;
-      color: $dark-gray;
-      float: none;
-    }
-    .external-source-title {
-      display: inline-block;
-      position: relative;
-    }
   }
 }
 .chosen-items-container {
@@ -2830,10 +2733,10 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 
-.filter-sortable{
+.filter-sortable {
   display: inline-flex;
   justify-content: right;
-  .filter-sortable-select-wrapper{
+  .filter-sortable-select-wrapper {
     position: relative;
     select {
       font-size: 0.8rem;
@@ -2853,7 +2756,7 @@ button.button-prime.small.bulk-delete-button {
       padding-right: 1.5rem;
     }
 
-    &::before{
+    &::before {
       content: '\f0dc';
       font-family: FontAwesome;
       font-size: 1.5rem;
@@ -2868,13 +2771,13 @@ button.button-prime.small.bulk-delete-button {
       line-height: 1;
     }
   }
-  .filter-sortable-checkbox-wrapper{
+  .filter-sortable-checkbox-wrapper {
     position: relative;
     padding-left: 0.5rem;
-    input{
+    input {
       display: none;
     }
-    label{
+    label {
       font-size: 0.8rem;
       -webkit-appearance: none;
       -moz-appearance: none;
@@ -2893,7 +2796,7 @@ button.button-prime.small.bulk-delete-button {
       margin: 0;
       line-height: 1.6;
     }
-    input + label:before{
+    input + label:before {
       content: '\f063';
       font-family: FontAwesome;
       font-size: 1.3rem;
@@ -2908,7 +2811,7 @@ button.button-prime.small.bulk-delete-button {
       line-height: 1;
     }
     input:checked + label:before {
-      content: "\f062";
+      content: '\f062';
       font-family: FontAwesome;
     }
   }

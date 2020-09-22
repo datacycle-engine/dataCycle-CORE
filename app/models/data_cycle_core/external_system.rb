@@ -218,6 +218,12 @@ module DataCycleCore
       format(default_options.dig('external_url'), locale: I18n.locale, external_key: content.external_key)
     end
 
+    def external_detail_url(content)
+      return if default_options&.dig('external_detail_url').blank? || content&.external_key.blank?
+
+      format(default_options.dig('external_detail_url'), locale: I18n.locale, external_key: content.external_key)
+    end
+
     def query(collection_name)
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
       Mongoid.override_database("#{mongo_class.database_name}_#{id}")

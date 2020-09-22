@@ -23,6 +23,7 @@ class EmbeddedObject {
     this.sortable;
     this.content_id = this.element.data('content-id');
     this.content_type = this.element.data('content-type');
+    this.locationArray = location.hash.substr(1).split('+').filter(Boolean);
     this.setup();
   }
   setup() {
@@ -142,6 +143,10 @@ class EmbeddedObject {
     this.element.children('.content-object-item').each((index, element) => {
       $(element).children('.removeContentObject').off('click').on('click', this.handleRemoveEvent.bind(this));
     });
+
+    this.element
+      .off('init.zf.accordion', this.scrollToLocationHash.bind(this))
+      .on('init.zf.accordion', this.scrollToLocationHash.bind(this));
   }
   handleRemoveEvent(event) {
     event.preventDefault();
@@ -185,6 +190,41 @@ class EmbeddedObject {
     }
 
     this.element.children('.content-object-item').each((_, elem) => this.setSwapClasses(elem));
+  }
+  scrollToLocationHash(event) {
+    event.stopPropagation();
+
+    if (!this.locationArray || !this.locationArray.length || !this.ids || !this.ids.length) return;
+
+    let embeddedId = this.locationArray.intersect(this.ids)[0];
+
+    if (!embeddedId) return;
+
+    let embeddedObject = this.element.find('.content-object-item[data-id="' + embeddedId + '"]').first();
+
+    let topOffset = embeddedObject.offset().top - 60;
+
+    if (embeddedObject.hasClass('hidden')) this.loadAllContents(embeddedObject);
+    else if (embeddedObject.data('accordion-item') && !embeddedObject.hasClass('is-active'))
+      embeddedObject.closest('[data-accordion]').foundation('down', embeddedObject.find('> .accordion-content'));
+
+    this.element.find('> .accordion-item:not(.is-active) > .accordion-content.remote-render').each((index, item) => {
+      let remoteOptions = $(item).data('remote-options');
+      delete remoteOptions.hide_embedded;
+      $(item).attr('data-remote-options', JSON.stringify(remoteOptions));
+    });
+
+    window.scrollTo({ top: topOffset, behavior: 'smooth' });
+  }
+  loadAllContents(embeddedObject) {
+    this.element.on('dc:html:initialized', event => {
+      if ($(event.target).data('id') == embeddedObject.data('id') && !$(event.target).hasClass('hidden'))
+        $(event.target).closest('[data-accordion]').foundation('down', $(event.target).find('> .accordion-content'));
+
+      this.element.off(event);
+    });
+
+    this.element.find('> .buttons > .load-more-linked-contents').click();
   }
 }
 

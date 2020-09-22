@@ -247,8 +247,6 @@ de:
         none: Originalformat
     help: Hilfe
     mode_switcher_title: Ansicht
-    embedded_move_down: nach unten verschieben
-    embedded_move_up: nach oben verschieben
     date: Datum
     longitude: Längengrad
     latitude: Breitengrad
@@ -266,6 +264,15 @@ de:
       terms_conditions: 'Ich aktzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
     no_selection: keine Auswahl
+    external_name: Titel
+    external_alternate_name: Alternativer Titel
+    external_key: Externe Id
+
+  embedded:
+    move_down: nach unten verschieben
+    move_up: nach oben verschieben
+    open_all: Alle aufklappen
+    close_all: Alle zuklappen
 
   upload:
     drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'
@@ -500,7 +507,8 @@ de:
     merge_with_duplicate: Änderungen speichern, Duplikat löschen und Ansicht schließen
     reload: Seite neu laden
     redirect_to_login: zur Anmeldung
-    external_edit: In Externem System öffnen
+    external_detail: In Externem System öffnen
+    external_edit: In Externem System bearbeiten
     open_as_source: Als Vorlage laden
     close_source: Vorlage schließen
     bulk_edit: im Bulk bearbeiten
@@ -897,6 +905,27 @@ de:
         requirements: Voraussetzung
         included_services: Inkludierte Services
         difficulty: Schwierigkeitsgrad
+    outdoor_active:
+      place:
+        directions: Anfahrt
+        parking: Parken
+        hours_available: Öffnungszeiten
+        text: Beschreibung
+        price: Preis
+        description: Kurzeschreibung
+      tour:
+        directions: Anfahrt
+        parking: Parken
+        hours_available: Öffnungszeiten
+        text: Beschreibung
+        price: Preis
+        description: Kurzbeschreibung
+        directions_public_transport: Öffentliche Verekehrsmittel
+        instructions: Wegbeschreibung
+        safety_instructions: Sicherheitshinweise
+        equipment: Ausrüstung
+        suggestion: Tipps
+        additional_information: Zusatzinformationen
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

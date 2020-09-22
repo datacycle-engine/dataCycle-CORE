@@ -96,12 +96,18 @@ module DataCycleCore
         schema[:boost] = schema[:boost] || 1.0
         schema[:features] = transform_features(schema: schema, content_set: content_set)
         schema[:properties] = transform_properties(schema: schema, content_set: content_set, mixins: mixins)
+        schema[:api] = transform_api_properties(schema: schema, content_set: content_set)
         schema
       end
 
       def self.transform_features(schema: {}, content_set: nil)
         return schema[:features].deep_merge(DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features)&.deep_symbolize_keys) if DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features).present?
         schema.dig(:features) || {}
+      end
+
+      def self.transform_api_properties(schema: {}, content_set: nil)
+        return DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :api)&.deep_symbolize_keys if DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :api).present?
+        schema.dig(:api) || {}
       end
 
       def self.transform_properties(schema: {}, content_set: nil, mixins: nil)

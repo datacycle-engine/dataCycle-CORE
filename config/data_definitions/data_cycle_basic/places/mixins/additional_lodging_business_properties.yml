@@ -7,7 +7,6 @@
         :label: Ergänzende Information
         :type: embedded
         :template_name: Ergänzende Information
-        :translated: true
         :api:
           :name: subject_of
       :number_of_rooms:

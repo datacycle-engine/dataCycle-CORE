@@ -14,6 +14,7 @@ module DataCycleCore
           json_data = {
             resource: utility_object.external_system.credentials(:export).dig('resources', data.template_name),
             id: data.id,
+            description: data&.title,
             data: content_data.reject { |_k, v| v.blank? }.to_json
           }
 

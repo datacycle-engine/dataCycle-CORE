@@ -14,12 +14,19 @@ module DataCycleCore
       format(external_system.default_options(:export).dig('external_url'), locale: I18n.locale, type: type, external_key: external_key)
     end
 
+    def external_detail_url
+      return data.dig('external_detail_url') if data&.dig('external_detail_url').present?
+      return if !syncable.is_a?(DataCycleCore::Thing) || external_system&.default_options(:export)&.dig('external_detail_url').blank? || external_key.blank?
+
+      format(external_system.default_options(:export).dig('external_detail_url'), locale: I18n.locale, type: type, external_key: external_key)
+    end
+
     def type
       external_system&.default_options(:export)&.dig('type_mapping', syncable.template_name) || syncable.template_name.underscore_blanks
     end
 
     def external_key
-      data&.dig(external_system&.default_options(:export)&.dig('external_key_param') || 'external_key')
+      super || data&.dig(external_system&.default_options(:export)&.dig('external_key_param') || 'external_key')
     end
 
     def self.with_external_system(external_system_id)

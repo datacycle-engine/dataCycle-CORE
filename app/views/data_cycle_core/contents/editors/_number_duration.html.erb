@@ -10,12 +10,21 @@
   <% end %>
   <div class="duration-slider">
     <div class="small-10 columns">
-      <div class="slider <%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) ? '' : 'disabled' %>" data-slider data-initial-start="<%= value.try(:to_i) || 0 %>" data-step="1" data-position-value-function="pow" data-non-linear-base="5" data-start="<%= definition.dig('validations', 'min').try(:to_i) %>" data-end="<%= definition.dig('validations', 'max').try(:to_i) %>" data-decimal="0">
-        <span class="slider-handle" data-slider-handle role="slider" tabindex="1" aria-controls="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>"></span>
-      </div>
+      <%= tag.div tag.span(class: 'slider-handle', role: 'slider', tabindex: 1, aria: { controls: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" }, data: { slider_handle: true }),
+        class: "slider#{' disabled' unless can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) }",
+        data: {
+          slider: true,
+          initial_start: value.try(:to_i) || 0,
+          step: 1,
+          position_value_function: 'pow',
+          non_linear_base: 5,
+          start: definition.dig('validations', 'min').try(:to_i) || 0,
+          end: definition.dig('validations', 'max').try(:to_i) || 100,
+          decimal: 0
+        } %>
     </div>
     <div class="small-2 columns">
-      <%= number_field_tag key, value, options.merge(id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}") %>
+      <%= number_field_tag key, value, options.merge(id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", min: definition.dig('validations', 'min').try(:to_i) || 0, max: definition.dig('validations', 'max').try(:to_i) || 100, step: 1, value: value.try(:to_i) || 0) %>
       <span class="duration-label"><%= options.fetch('data-unit', 'min') %></span>
     </div>
   </div>
