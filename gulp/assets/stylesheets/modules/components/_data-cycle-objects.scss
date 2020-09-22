@@ -150,6 +150,10 @@
     width: 300px;
     max-width: 450px;
 
+    .object-browser-tile-checkbox {
+      display: none;
+    }
+
     .thumbnail {
       position: relative;
       display: block;
@@ -207,7 +211,7 @@
       }
     }
 
-    &.image {
+    &.asset {
       width: 194px;
       max-width: 194px;
       &.hard-warnings {
@@ -216,6 +220,16 @@
         .thumbnail {
           box-shadow: 0 0 5px 1px $alert-color;
         }
+      }
+
+      .buttons {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba($white, 0.8);
+        border-bottom-left-radius: 5px;
+        padding: 2px 5px;
+        z-index: 1;
       }
     }
 
@@ -229,10 +243,21 @@
       right: 0;
       margin-left: 0.5rem;
       float: right;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: flex-end;
+
+      .tile-external-connections {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
       > a,
       > span {
         padding: 0 3px;
+        margin-left: 3px;
 
         &.copy {
           position: relative;
@@ -322,6 +347,20 @@
     flex-flow: row wrap;
     width: 100%;
     margin-bottom: 0;
+
+    .object-browser-tile-checkbox {
+      display: none;
+    }
+
+    .delete-thumbnail {
+      position: relative;
+      order: 1;
+      text-shadow: 1px 1px 1px rgba($black, 0.3);
+      .fa {
+        font-size: 1.3rem;
+      }
+    }
+
     .media {
       flex: auto;
       position: relative;
@@ -352,16 +391,6 @@
 
       .name {
         font-weight: 600;
-      }
-
-      .delete-thumbnail {
-        position: relative;
-        float: right;
-        margin-left: 5px;
-        text-shadow: 1px 1px 1px rgba($black, 0.3);
-        .fa {
-          font-size: 1.3rem;
-        }
       }
 
       &.thumbnail {
@@ -552,7 +581,39 @@
 
       li.item {
         width: auto !important;
-        margin: 0;
+        margin: 0 0.3rem 0 0;
+      }
+
+      .item.content {
+        .object-browser-tile-checkbox {
+          display: none;
+        }
+
+        .buttons {
+          position: relative;
+          top: 0;
+          right: 0;
+
+          > *:not(.delete-thumbnail) {
+            display: none;
+          }
+
+          .delete-thumbnail {
+            display: inline-block;
+            position: relative;
+            order: 1;
+            text-shadow: 1px 1px 1px rgba($black, 0.3);
+            .fa {
+              font-size: 1.3rem;
+            }
+          }
+        }
+
+        &.asset {
+          .buttons {
+            position: absolute;
+          }
+        }
       }
     }
 
@@ -565,31 +626,13 @@
       width: auto;
       max-width: none;
 
-      .delete-thumbnail {
-        display: block;
-        float: right;
-
-        margin-left: 5px;
-        text-shadow: 1px 1px 1px rgba($black, 0.3);
-        .fa {
-          font-size: 1.3rem;
-        }
-      }
-
       &.thumbnail {
         width: 80px;
         height: 80px;
         background-size: cover;
         border: 0;
-        margin: 0 0.3rem 0 0;
+        margin: 0;
         display: inline-block;
-
-        .delete-thumbnail {
-          display: block;
-          right: 0.2rem;
-          color: white;
-          text-shadow: 1px 1px 1px rgba($black, 0.3);
-        }
 
         .warning {
           display: none;
@@ -644,13 +687,16 @@
       border-color: $primary-color;
       background-color: $primary-color;
       box-shadow: 0 0 1px rgba($primary-color, 1);
+      color: $white;
     }
     .media.item {
       position: relative;
+
       &.active {
         border-color: $primary-color;
         background-color: $primary-color;
         box-shadow: 0 0 1px rgba($primary-color, 1);
+        color: $white;
 
         &.hard-warnings {
           box-shadow: 0 0 1px rgba($primary-color, 1), 0 0 5px $alert-color;
@@ -662,6 +708,20 @@
 
         .warning {
           opacity: 1;
+        }
+
+        .buttons {
+          color: $white;
+
+          .external-connections-icon {
+            &.pending {
+              color: $white;
+            }
+          }
+
+          a {
+            color: $white;
+          }
         }
       }
     }
@@ -687,6 +747,7 @@
     flex-flow: row wrap;
 
     li.item {
+      position: relative;
       display: block;
       flex: auto;
       width: 250px;
@@ -700,14 +761,84 @@
       .description {
         display: none;
       }
-      &.image {
+      &.asset {
         width: 194px;
         max-width: 194px;
+
+        .object-browser-tile-checkbox {
+          cursor: pointer;
+          position: absolute;
+          top: 5px;
+          left: 5px;
+          z-index: 1;
+        }
+
+        .buttons {
+          position: absolute;
+          right: 0;
+          top: 0;
+          background: rgba($white, 0.8);
+          border-bottom-left-radius: 5px;
+          padding: 2px 5px;
+        }
       }
     }
 
     .item.content {
       transition: box-shadow 0.1s;
+
+      .object-browser-tile-checkbox {
+        cursor: pointer;
+        display: inline-flex;
+        color: white;
+        font-size: 1.1rem;
+        line-height: 1.1rem;
+        border: 1px solid rgba($dark-gray, 0.5);
+        background-color: white;
+        border-radius: 5px;
+        margin: 0 0.2rem 0.5rem 0;
+        width: 1.2rem;
+        height: 1.2rem;
+        vertical-align: top;
+        align-items: center;
+        justify-content: center;
+
+        &::before {
+          vertical-align: baseline;
+        }
+      }
+
+      &.active .object-browser-tile-checkbox {
+        color: $black;
+      }
+
+      .buttons {
+        float: right;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: flex-end;
+        position: relative;
+        z-index: 1;
+
+        .tile-external-connections {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        > a,
+        > span {
+          padding: 0 3px;
+          margin-left: 3px;
+
+          &.copy {
+            position: relative;
+            top: 0;
+            right: 0;
+          }
+        }
+      }
 
       &.hard-warnings {
         &.media,
@@ -750,8 +881,8 @@
       cursor: pointer;
 
       &.thumbnail {
-        width: 200px;
-        max-width: 200px;
+        width: 194px;
+        max-width: 194px;
         height: 170px;
         padding: 5px 0;
         background-position: center center;
@@ -799,6 +930,14 @@
       position: absolute;
       right: 1.5rem;
       top: 1.5rem;
+
+      > * {
+        padding: 0 3px;
+      }
+
+      .tile-external-connections .fa {
+        line-height: inherit;
+      }
     }
 
     .fa-exclamation-triangle {
@@ -1009,17 +1148,22 @@ span.single_error.object-browser-error {
         background: transparent;
         color: $dark-gray;
         transition: all 0.2s ease-in-out;
-        padding-right: 3rem;
+        padding-right: 2.5rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        display: flex;
+        flex-flow: row nowrap;
 
         &:hover {
           color: $primary-color;
         }
 
-        .icon .fa {
-          font-size: 1rem;
+        .icon {
+          margin-right: 0.5rem;
+          .fa {
+            font-size: 1rem;
+          }
         }
 
         > .embedded-title {

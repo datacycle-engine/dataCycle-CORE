@@ -1,8 +1,10 @@
 var EmbeddedObject = require('./../components/embedded_object');
+var AccordionExtension = require('./../components/accordion_extension');
 
 // Word Counter
 module.exports.initialize = function ($) {
   var embedded_objects = [];
+  var accorion_extension = new AccordionExtension();
 
   $('.edit-content-form .embedded-object').each((index, element) => {
     embedded_objects.push(new EmbeddedObject($(element)));
@@ -21,7 +23,7 @@ module.exports.initialize = function ($) {
     let value = $(event.currentTarget).find(':input').first().val();
     let titleField = $(event.currentTarget)
       .closest('.content-object-item')
-      .find('> .accordion-title > .embedded-title');
+      .find('> .accordion-title > .title > .embedded-title');
 
     titleField.text(value);
     titleField.attr('title', value);

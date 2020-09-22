@@ -82,8 +82,11 @@ class ObjectBrowser {
       }
     });
     this.overlay.children('.items').on('click', 'li.item', function (event) {
+      if ($(event.target).closest('a.show-link').length || $(event.target).closest('a.edit-link').length) return;
+
       event.preventDefault();
       event.stopImmediatePropagation();
+
       if (self.selected != $(this).data('id')) {
         $(this).addClass('in-object-browser');
         self.loadDetails($(this).data('id'));
@@ -315,8 +318,11 @@ class ObjectBrowser {
         .children('.object-thumbs')
         .children('li.item')
         .find('[data-tooltip]')
-        .each(function () {
-          $(this).attr('title', $(this).data('title')).foundation().addClass('dc-fd-initialized');
+        .each((index, item) => {
+          $(item)
+            .attr('title', $('#' + $(item).data('toggle')).html())
+            .foundation()
+            .addClass('dc-fd-initialized');
         });
     }
   }
@@ -326,8 +332,11 @@ class ObjectBrowser {
       this.overlay.find('.chosen-items-container').append(element);
       $(element)
         .find('[data-tooltip]')
-        .each(function () {
-          $(this).attr('title', $(this).data('title')).foundation().addClass('dc-fd-initialized');
+        .each((index, item) => {
+          $(item)
+            .attr('title', $('#' + $(item).data('toggle')).html())
+            .foundation()
+            .addClass('dc-fd-initialized');
         });
       this.overlay
         .children('.items')

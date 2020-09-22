@@ -1,4 +1,4 @@
-<%= render 'data_cycle_core/contents/grid/compact/tile_wrapper', local_assigns.except(:tile_links).merge(tile_classes: 'image') do %>
+<%= render 'data_cycle_core/contents/grid/compact/tile_wrapper', local_assigns.except(:tile_links).merge(tile_classes: 'asset') do %>
   <%
       thumbnail_url = object.try(:asset)&.first&.thumbnail_url
   %>
@@ -17,10 +17,7 @@
           </div>
         </div>
       <% end %>
-      <% if local_assigns[:edit_buttons] && can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
-        <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
-        <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
-      <% end %>
+      <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
       <%= render 'data_cycle_core/contents/grid/attributes/warnings', content: object, locale: render_locale %>
       <% if object.try(:external_source).present? %>
         <span class="external-source-icon fa-stack has-tip" title="<%= object.external_source.name %>">
