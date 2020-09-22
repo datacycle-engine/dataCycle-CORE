@@ -4,15 +4,15 @@ module DataCycleCore
   module Generic
     module Common
       class Webhook < DataCycleCore::Generic::WebhookBase
-        def update(_data)
+        def update(_data, _external_system)
           raise NotImplemented
         end
 
-        def create(_data)
+        def create(_data, _external_system)
           raise NotImplemented
         end
 
-        def delete(_data)
+        def delete(_data, _external_system)
           raise NotImplemented
         end
 
