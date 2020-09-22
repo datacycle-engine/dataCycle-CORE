@@ -22,7 +22,9 @@
           :gpx: true
           :indesign: true
     :api:
-      :type: TouristAttraction
+      :type:
+        - TouristAttraction
+        - 'dcls:Lift'
     :properties:
       :id:
         :label: id
