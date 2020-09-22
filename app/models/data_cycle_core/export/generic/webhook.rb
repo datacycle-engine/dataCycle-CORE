@@ -44,7 +44,7 @@ module DataCycleCore
         end
 
         def reference_type
-          @utility_object.external_system.name.underscore_blanks
+          "#{@utility_object.external_system.identifier.underscore_blanks}_#{@type}"
         end
       end
     end
