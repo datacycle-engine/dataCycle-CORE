@@ -86,18 +86,25 @@
     - equipment | OutdoorActive
     - suggestion | OutdoorActive
     - additional_information | OutdoorActive
-    - ShopItemDescription | Feratel
-    - ServiceProviderDescription | Feratel
-    - ServiceDescription | Feratel
-    - Package | Feratel
-    - PackageShortText | Feratel
-    - PackageContentLong | Feratel
+    - AdditionalService | Feratel
+    - CurrentInformation | Feratel
     - EventHeader | Feratel
+    - EventHeaderShort | Feratel
+    - GuestCardClassification | Feratel
     - InfrastructureLong | Feratel
-    - InfrastructureShort | Feratel
+    - InfrastructureOpeningTimes | Feratel
     - InfrastructurePriceInfo | Feratel
-    - ServiceDescription | Feratel
+    - InfrastructureShort | Feratel
+    - Package | Feratel
+    - PackageContentLong | Feratel
+    - PackageShortText | Feratel
     - ProductDescription | Feratel
+    - SEOKeywords | Feratel
+    - ShopItemDescription | Feratel
+    - ServiceDescription | Feratel
+    - ServiceProviderArrivalVoucher | Feratel
+    - ServiceProviderConditions | Feratel
+    - ServiceProviderDescription | Feratel
 
 - POI - Kategorien | all:
 
