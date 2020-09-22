@@ -11,7 +11,7 @@ module DataCycleCore
 
       class << self
         def enabled?
-          DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :enabled) && dependencies_enabled?
+          @enabled ||= DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :enabled) && dependencies_enabled?
         end
 
         def dependencies_enabled?

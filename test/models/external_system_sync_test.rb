@@ -66,13 +66,12 @@ module DataCycleCore
 
     test 'external source to external systems sync' do
       external_source_id = SecureRandom.uuid
+      external_key = '1234'
 
       data_set2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1' })
-      data_set2.external_key = '1234'
+      data_set2.external_key = external_key
       data_set2.external_source_id = external_source_id
       data_set2.save
-
-      expected_data = { 'external_key' => '1234' }
 
       data_set2.external_source_to_external_system_syncs
 
@@ -81,7 +80,7 @@ module DataCycleCore
       assert_nil(data_set2.external_key)
       assert_nil(data_set2.external_source_id)
       assert_equal(data_set2.external_system_syncs.first.external_system_id, external_source_id)
-      assert_equal(data_set2.external_system_syncs.first.data, expected_data)
+      assert_equal(data_set2.external_system_syncs.first.external_key, external_key)
     end
   end
 end

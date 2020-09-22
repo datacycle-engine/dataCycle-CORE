@@ -605,11 +605,10 @@ CREATE TABLE public.external_system_syncs (
     updated_at timestamp without time zone NOT NULL,
     status character varying,
     syncable_type character varying DEFAULT 'DataCycleCore::Thing'::character varying,
-    last_push_at timestamp without time zone,
-    last_successful_push_at timestamp without time zone,
-    last_pull_at timestamp without time zone,
-    last_successful_pull_at timestamp without time zone,
-    external_key character varying
+    last_sync_at timestamp without time zone,
+    last_successful_sync_at timestamp without time zone,
+    external_key character varying,
+    sync_type character varying DEFAULT 'export'::character varying
 );
 
 
@@ -1638,10 +1637,10 @@ CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (ite
 
 
 --
--- Name: index_external_system_syncs_on_syncable_external_system_keys; Type: INDEX; Schema: public; Owner: -
+-- Name: index_external_system_syncs_on_unique_attributes; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_external_system_syncs_on_syncable_external_system_keys ON public.external_system_syncs USING btree (syncable_type, syncable_id, external_system_id, external_key);
+CREATE UNIQUE INDEX index_external_system_syncs_on_unique_attributes ON public.external_system_syncs USING btree (syncable_type, syncable_id, external_system_id, sync_type, external_key);
 
 
 --
@@ -2288,6 +2287,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200812111137'),
 ('20200824121824'),
 ('20200824140802'),
-('20200826082051');
+('20200826082051'),
+('20200903102806');
 
 

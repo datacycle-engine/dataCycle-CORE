@@ -11,6 +11,8 @@
       <ul class="edit-links-bar">
         <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
 
+        <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_all', wrapper_tag: 'li' if content.embedded_property_names.present? %>
+
         <%= yield :additional_functions %>
 
         <% if can?(:index, content) && content.respond_to?(:siblings) && content.respond_to?(:parent) && !content.parent.nil? && !content.siblings.try(:size).nil? && !content.siblings.try(:size).zero? %>

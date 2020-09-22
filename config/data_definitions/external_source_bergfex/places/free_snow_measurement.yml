@@ -8,6 +8,10 @@
     :features:
       :creatable:
         :allowed: true
+    :api:
+      :type:
+        - Place
+        - 'dcls:SnowHeightMeasuringPoint'
     :properties:
       :id:
         :label: id

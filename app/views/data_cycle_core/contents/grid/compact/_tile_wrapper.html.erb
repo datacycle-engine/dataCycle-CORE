@@ -1,3 +1,5 @@
+<% content_for(:tile_header_buttons, render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition, options: local_assigns[:options], removable: local_assigns[:edit_buttons] && can?(:edit, DataCycleCore::DataAttribute.new(key, definition, local_assigns[:options], content, :edit)))) %>
+
 <li class="<%= [
     'item',
     'content',
@@ -12,11 +14,14 @@
     DataCycleCore::Feature::TileBorderColor.enabled? ? DataCycleCore::Feature::TileBorderColor.class_string(object) : nil
   ].compact.join(' ') %>" data-id="<%= local_assigns[:object_id] || object.id %>">
   <div class="content-link">
+    <i class="fa fa-check object-browser-tile-checkbox" aria-hidden="true"></i>
+
     <%= hidden_field_tag key, object.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" if local_assigns[:edit_buttons] %>
-    <%= render 'data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition if local_assigns[:tile_links] %>
+
+    <%= tag.div(yield_content!(:tile_header_buttons), class: 'buttons') if content_for?(:tile_header_buttons) %>
 
     <%= yield %>
 
-    <%= yield_content!(:tile_buttons) %>
+    <%= yield_content!(:tile_bottom_buttons) if content_for?(:tile_bottom_buttons) %>
   </div>
 </li>

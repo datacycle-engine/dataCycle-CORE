@@ -8,7 +8,8 @@
         options: (o_prop.dig('ui', 'edit', 'options') || {}).merge(prefix: local_assigns.dig(:options, :prefix)),
         parent: object,
         attribute_locale: local_assigns[:attribute_locale],
-        duplicated_content: local_assigns[:duplicated_content]
+        duplicated_content: local_assigns[:duplicated_content],
+        hide_embedded: local_assigns[:hide_embedded]
       },
       content: content %>
   <% end %>

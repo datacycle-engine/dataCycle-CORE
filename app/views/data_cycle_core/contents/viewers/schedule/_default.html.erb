@@ -18,8 +18,6 @@
       <i><%=object.try(:schedule_object)&.terminating? ? "(#{object.schedule_object.all_occurrences.size})" : "#{t('schedule.ongoing', locale: DataCycleCore.ui_language)}" %></i>
     </span>
 
-    <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
-
     <% next_occurrences = object.try(:schedule_object)&.next_occurrences(5) || [] %>
     <% previous_occurrence = object.try(:schedule_object)&.previous_occurrence(Time.zone.now) %>
 
