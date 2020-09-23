@@ -14,8 +14,8 @@ module DataCycleCore
     def show
       @schema = Schema.load_schema_from_database
 
-      @template_schema = @schema.template_by_schema_name(params[:id])
-      @template_schema = @schema.template_by_template_name(params[:id]) if @template_schema.nil?
+      @template_schema = @schema.template_by_template_name(params[:id])
+      @template_schema = @schema.template_by_schema_name(params[:id]) if @template_schema.nil?
 
       raise ActiveRecord::RecordNotFound, "Couldn't find template '#{params[:id]}'" if @template_schema.nil?
     end
