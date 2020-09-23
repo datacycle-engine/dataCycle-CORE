@@ -714,6 +714,8 @@
           color: $white;
 
           .external-connections-icon {
+            color: $white;
+            
             &.pending {
               color: $white;
             }
