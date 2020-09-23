@@ -52,6 +52,20 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
+      :provider:
+        :label: Dienstleister
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - LocalBusiness
+                - Unterkunft
+                - Organisation
+      :area_served:
+        :label: Treffpunkt
+        :type: linked
+        :template_name: Örtlichkeit
       :subject_of:
         :label: Ergänzende Information
         :type: embedded
@@ -65,10 +79,6 @@
         :api:
           :v4:
             :name: sameAs
-      :area_served:
-        :label: Treffpunkt
-        :type: linked
-        :template_name: Örtlichkeit
       :hours_available:
         :label: Termine
         :type: schedule
@@ -76,16 +86,6 @@
           :disabled: true
           :v4:
             :disabled: false
-      :provider:
-        :label: Dienstleister
-        :type: linked
-        :stored_filter:
-          - :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - LocalBusiness
-                - Unterkunft
-                - Organisation
       :offers:
         :label: Angebote
         :type: embedded
