@@ -83,6 +83,10 @@ module DataCycleCore
         content_content_a.exists?
       end
 
+      def has_cached_related_contents?
+        content_content_a.where.not(relation_b: nil).or(content_content_b).exists?
+      end
+
       def related_contents(embedded: false)
         content_content_table = history? ? 'content_content_histories' : 'content_contents'
         content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
@@ -153,6 +157,40 @@ module DataCycleCore
             INNER JOIN content_tree ON content_tree.id = #{content_content_table}.#{content_a_id}
             AND #{self.class.table_name}.id <> ALL (content_tree.all_things)
             AND #{self.class.table_name}.content_type = 'embedded'
+          )
+          SELECT DISTINCT id FROM content_tree
+        SQL
+
+        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
+      end
+
+      def cached_related_contents
+        content_content_table = history? ? 'content_content_histories' : 'content_contents'
+        content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
+        content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
+
+        tree_query = <<-SQL
+          WITH RECURSIVE content_tree(id, link, ids, cycle) AS (
+            SELECT #{content_content_table}.#{content_a_id}, #{content_content_table}.#{content_b_id}, ARRAY[#{content_content_table}.#{content_a_id}], FALSE
+            FROM #{content_content_table}
+            WHERE #{content_content_table}.#{content_b_id} = '#{id}'
+            UNION
+            SELECT #{content_content_table}.#{content_b_id}, #{content_content_table}.#{content_a_id}, ARRAY[#{content_content_table}.#{content_b_id}], FALSE
+            FROM #{content_content_table}
+            WHERE #{content_content_table}.#{content_a_id} = '#{id}'
+            AND #{content_content_table}.relation_b IS NOT NULL
+          UNION ALL
+             SELECT b.id, b.link, t.ids || b.id, b.id = ANY(t.ids)
+             FROM (
+                SELECT #{content_content_table}.#{content_a_id} AS id, #{content_content_table}.#{content_b_id} AS link
+                FROM #{content_content_table}
+                UNION
+                SELECT #{content_content_table}.#{content_b_id} AS id, #{content_content_table}.#{content_a_id} AS link
+                FROM #{content_content_table}
+                WHERE #{content_content_table}.relation_b IS NOT NULL
+             ) b, content_tree t
+             WHERE b.link = t.id
+             AND NOT t.cycle
           )
           SELECT DISTINCT id FROM content_tree
         SQL
