@@ -170,6 +170,7 @@ module DataCycleCore
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
+          .>> t(:add_field, 'potential_action', ->(s) { parse_links(s.dig('Links', 'Link')) })
           .>> t(:add_cc, external_source_id)
           .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description')) })
           .>> t(:add_amenity_features, external_source_id)
@@ -218,7 +219,6 @@ module DataCycleCore
 
         def self.parse_descriptions(data)
           return [] if data.blank?
-
           Array.wrap(data).map do |desc|
             to_additional_information.call(desc)
           end
@@ -245,6 +245,21 @@ module DataCycleCore
             s.add_recurrence_rule(rrule)
           end
           schedule_object.to_hash.merge(dtstart: from_date)
+        end
+
+        def self.parse_links(data)
+          return [] if data.blank?
+          Array.wrap(data).map do |link|
+            to_view_action.call(link)
+          end
+        end
+
+        def self.to_view_action
+          t(:rename_keys, { 'URL' => 'url', 'Id' => 'external_key', 'Name' => 'name' })
+          .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_key: s.dig('external_key'))&.id })
+          .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
+          .>> t(:add_field, 'action_type', ->(_) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'View')) })
+          .>> t(:reject_keys, ['ChangeDate', 'Type', 'Order', 'Names'])
         end
 
         def self.feratel_to_aggregate_offer(external_source_id)
