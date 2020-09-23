@@ -18,7 +18,7 @@ module DataCycleCore
           # TODO: add context test
           # add tests to combine created / modified
 
-          test 'api/v4/concept_schemes parameter filter[:createdAt]' do
+          test 'api/v4/concept_schemes parameter filter[:dct:created]' do
             tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
             orig_ts = tree_tags.created_at
 
@@ -26,7 +26,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -40,7 +40,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -56,7 +56,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -71,7 +71,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -85,7 +85,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -101,7 +101,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     notIn: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -115,7 +115,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     },
@@ -132,7 +132,7 @@ module DataCycleCore
             tree_tags.update_column(:created_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
           end
 
-          test 'api/v4/concept_schemes parameter filter[:modifiedAt]' do
+          test 'api/v4/concept_schemes parameter filter[:dct:modified]' do
             tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
             orig_ts = tree_tags.updated_at
 
@@ -140,7 +140,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -154,7 +154,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -170,7 +170,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -185,7 +185,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -199,7 +199,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -215,7 +215,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     notIn: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -229,7 +229,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     },
@@ -246,11 +246,11 @@ module DataCycleCore
             tree_tags.update_column(:updated_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
           end
 
-          test 'api/v4/concept_schemes parameter filter[:deletedAt]' do
+          test 'api/v4/concept_schemes parameter filter[:dct:deleted]' do
             params = {
               filter: {
                 attribute: {
-                  deletedAt: {
+                  'dct:deleted': {
                     in: {
                       min: (Time.zone.now - 20.years).to_s(:iso8601)
                     }
@@ -270,7 +270,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  deletedAt: {
+                  'dct:deleted': {
                     in: {
                       max: (Time.zone.now + 20.years).to_s(:iso8601)
                     }
@@ -296,7 +296,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -311,7 +311,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -328,7 +328,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -344,7 +344,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -359,7 +359,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -376,7 +376,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     notIn: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -390,7 +390,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     },
@@ -407,7 +407,7 @@ module DataCycleCore
             classificaton_tag.update_column(:created_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
           end
 
-          test 'api/v4/concept_schemes/id/concepts parameter filter[:modifiedAt]' do
+          test 'api/v4/concept_schemes/id/concepts parameter filter[:dct:modified]' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags')
             classifications_count = classifications.count
@@ -419,7 +419,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -434,7 +434,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -451,7 +451,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -467,7 +467,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -482,7 +482,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -499,7 +499,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     notIn: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -513,7 +513,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     },
@@ -530,7 +530,7 @@ module DataCycleCore
             classificaton_tag.update_column(:updated_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
           end
 
-          test 'api/v4/concept_schemes/id/concepts parameter filter[:deletedAt]' do
+          test 'api/v4/concept_schemes/id/concepts parameter filter[:dct:deleted]' do
             DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: [Rails.root.join('..', 'dummy_data', 'classifications')])
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Test').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Test').count
@@ -538,7 +538,7 @@ module DataCycleCore
               id: tree_id,
               filter: {
                 attribute: {
-                  deletedAt: {
+                  'dct:deleted': {
                     in: {
                       min: (Time.zone.now - 20.years).to_s(:iso8601)
                     }
@@ -557,7 +557,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  deletedAt: {
+                  'dct:deleted': {
                     in: {
                       max: (Time.zone.now + 20.years).to_s(:iso8601)
                     }

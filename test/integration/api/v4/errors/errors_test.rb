@@ -117,7 +117,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       asdf: '2020-5/5'
                     }
@@ -133,7 +133,7 @@ module DataCycleCore
             assert_equal(1, json_data['errors'].size)
             error_object = {
               'source' => {
-                'parameter' => 'filter[attribute][createdAt][in][asdf]'
+                'parameter' => 'filter[attribute][dct:created][in][asdf]'
               },
               'title' => 'Unknown Query Parameter',
               'detail' => 'is not allowed'
@@ -179,7 +179,7 @@ module DataCycleCore
                 linked: {
                   contentLocation: {
                     attribute: {
-                      modifiedAt: {
+                      'dct:modified': {
                         in: {
                           min: ['asdf']
                         }
@@ -197,7 +197,7 @@ module DataCycleCore
             assert_equal(1, json_data['errors'].size)
             error_object = {
               'source' => {
-                'parameter' => 'filter[linked][contentLocation][attribute][modifiedAt][in][min]'
+                'parameter' => 'filter[linked][contentLocation][attribute][dct:modified][in][min]'
               },
               'title' => 'Invalid Query Parameter',
               'detail' => 'must be a string'
@@ -214,7 +214,7 @@ module DataCycleCore
                     linked: {
                       image: {
                         attribute: {
-                          modifiedAt: {
+                          'dct:modified': {
                             in: {
                               min: '2020-07-07'
                             }
@@ -234,7 +234,7 @@ module DataCycleCore
             assert_equal(1, json_data['errors'].size)
             error_object = {
               'source' => {
-                'parameter' => 'filter[linked][contentLocation][linked][image][attribute][modifiedAt][in][min]'
+                'parameter' => 'filter[linked][contentLocation][linked][image][attribute][dct:modified][in][min]'
               },
               'title' => 'Unknown Query Parameter',
               'detail' => 'is not allowed'

@@ -89,14 +89,18 @@ module DataCycleCore
             optional(:in).hash(CLASSIFICATIONS_FILTER)
             optional(:notIn).hash(CLASSIFICATIONS_FILTER)
           end
+          optional(:'dc:classification').hash do
+            optional(:in).hash(CLASSIFICATIONS_FILTER)
+            optional(:notIn).hash(CLASSIFICATIONS_FILTER)
+          end
           optional(:geo).hash do
             optional(:in).hash(GEO_FILTER)
             optional(:notIn).hash(GEO_FILTER)
           end
           optional(:attribute).hash do
-            optional(:createdAt).hash(ATTRIBUTE_FILTER)
-            optional(:deletedAt).hash(ATTRIBUTE_FILTER)
-            optional(:modifiedAt).hash(ATTRIBUTE_FILTER)
+            optional(:'dct:created').hash(ATTRIBUTE_FILTER)
+            optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
+            optional(:'dct:modified').hash(ATTRIBUTE_FILTER)
             optional(:schedule).hash(ATTRIBUTE_FILTER)
           end
         end

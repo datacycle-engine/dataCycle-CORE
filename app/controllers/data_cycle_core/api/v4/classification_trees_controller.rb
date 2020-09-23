@@ -6,15 +6,15 @@ module DataCycleCore
       class ClassificationTreesController < ::DataCycleCore::Api::V4::ApiBaseController
         before_action :prepare_url_parameters
 
-        ALLOWED_FILTER_ATTRIBUTES = [:modifiedAt, :createdAt, :deletedAt].freeze
-        ALLOWED_SORT_ATTRIBUTES = { created: 'created_at', modified: 'updated_at' }.freeze
+        ALLOWED_FILTER_ATTRIBUTES = [:'dct:modified', :'dct:created', :'dct:deleted'].freeze
+        ALLOWED_SORT_ATTRIBUTES = { 'dct:created': 'created_at', 'dct:modified': 'updated_at' }.freeze
 
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
 
           if permitted_params.dig(:filter, :attribute).present?
             filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
-            @classification_tree_labels = @classification_tree_labels.with_deleted if filter.key?(:deletedAt)
+            @classification_tree_labels = @classification_tree_labels.with_deleted if filter.key?(:'dct:deleted')
             @classification_tree_labels = apply_filters(@classification_tree_labels, filter)
           end
           @classification_tree_labels = apply_ordering(@classification_tree_labels)
@@ -38,7 +38,7 @@ module DataCycleCore
 
             if permitted_params.dig(:filter, :attribute).present?
               filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
-              @classification_aliases = @classification_aliases.with_deleted if filter.key?(:deletedAt)
+              @classification_aliases = @classification_aliases.with_deleted if filter.key?(:'dct:deleted')
               @classification_aliases = apply_filters(@classification_aliases, filter)
             end
 
@@ -61,9 +61,9 @@ module DataCycleCore
               :q,
               {
                 attribute: {
-                  modifiedAt: attribute_filter_operations,
-                  createdAt: attribute_filter_operations,
-                  deletedAt: attribute_filter_operations
+                  'dct:modified': attribute_filter_operations,
+                  'dct:created': attribute_filter_operations,
+                  'dct:deleted': attribute_filter_operations
                 }
               }
             ]
@@ -75,11 +75,11 @@ module DataCycleCore
         def apply_filters(query, filter)
           filter.each do |attribute_key, operator|
             attribute_path = case attribute_key
-                             when :modifiedAt
+                             when :'dct:modified'
                                'updated_at'
-                             when :createdAt
+                             when :'dct:created'
                                'created_at'
-                             when :deletedAt
+                             when :'dct:deleted'
                                'deleted_at'
                              else
                                next
