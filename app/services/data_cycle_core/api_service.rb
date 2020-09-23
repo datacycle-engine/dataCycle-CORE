@@ -42,7 +42,7 @@ module DataCycleCore
       filters.each do |filter_k, filter_v|
         filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
         next if filter_v.blank?
-        filter_method_name = ('apply_' + filter_k.parameterize(separator: '_').to_s + '_filters')
+        filter_method_name = ('apply_' + filter_k.to_s.parameterize(separator: '_') + '_filters')
         # TODO: add API error
         next unless respond_to?(filter_method_name)
         query = send(filter_method_name, query, filter_v)
