@@ -29,7 +29,7 @@ module DataCycleCore
             .order(sanitized_order_string('things.updated_at', ordering))
         )
       end
-      alias sort_modified sort_updated_at
+      alias sort_dct_modified sort_updated_at
 
       def sort_created_at(ordering)
         reflect(
@@ -37,7 +37,7 @@ module DataCycleCore
             .order(sanitized_order_string('things.created_at', ordering))
         )
       end
-      alias sort_created sort_created_at
+      alias sort_dct_created sort_created_at
 
       def sort_translated_name(ordering)
         locale = @locale&.first || I18n.available_locales.first.to_s

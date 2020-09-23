@@ -28,7 +28,7 @@ module DataCycleCore
             # DESC
             params = {
               fields: 'dct:modified,dct:created',
-              sort: '-created'
+              sort: '-dct:created'
             }
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
@@ -43,7 +43,7 @@ module DataCycleCore
             # ASC
             params = {
               fields: 'dct:modified,dct:created',
-              sort: '+created'
+              sort: '+dct:created'
             }
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
@@ -58,7 +58,7 @@ module DataCycleCore
             # make sure ASC is default
             params = {
               fields: 'dct:modified,dct:created',
-              sort: 'created'
+              sort: 'dct:created'
             }
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
@@ -80,7 +80,7 @@ module DataCycleCore
             # DESC
             params = {
               fields: 'dct:modified,dct:created',
-              sort: '-modified'
+              sort: '-dct:modified'
             }
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
@@ -94,7 +94,7 @@ module DataCycleCore
             # ASC
             params = {
               fields: 'dct:modified,dct:created',
-              sort: '+modified'
+              sort: '+dct:modified'
             }
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
@@ -109,7 +109,7 @@ module DataCycleCore
             # make sure ASC is default
             params = {
               fields: 'dct:modified,dct:created',
-              sort: 'modified'
+              sort: 'dct:modified'
             }
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
@@ -144,7 +144,7 @@ module DataCycleCore
 
             params = {
               fields: 'dct:modified,dct:created',
-              sort: '-created,+modified,+another'
+              sort: '-dct:created,+dct:modified,+another'
             }
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)

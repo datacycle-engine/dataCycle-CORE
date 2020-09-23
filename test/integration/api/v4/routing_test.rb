@@ -87,7 +87,7 @@ module DataCycleCore
           params = {
             filter: {
               attribute: {
-                deletedAt: {
+                'dct:deleted': {
                   in: {
                     min: '2010-01-01'
                   }
