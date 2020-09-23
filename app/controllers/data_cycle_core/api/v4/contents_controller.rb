@@ -52,8 +52,8 @@ module DataCycleCore
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
-          if permitted_params&.dig(:filter, :attribute, :deletedAt).present?
-            filter = permitted_params[:filter][:attribute][:deletedAt].to_h.deep_symbolize_keys
+          if permitted_params&.dig(:filter, :attribute, :'dct:deleted').present?
+            filter = permitted_params[:filter][:attribute][:'dct:deleted'].to_h.deep_symbolize_keys
             filter.each do |operator, value|
               query_string = apply_timestamp_query_string(value, "#{deleted_contents.table.name}.deleted_at")
               if operator == :in

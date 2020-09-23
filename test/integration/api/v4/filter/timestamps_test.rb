@@ -18,7 +18,7 @@ module DataCycleCore
             @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
           end
 
-          test 'api/v4/things parameter filter[:createdAt]' do
+          test 'api/v4/things parameter filter[dct:created]' do
             orig_ts = @food_establishment_a.created_at
             @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
 
@@ -30,7 +30,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -48,7 +48,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -65,7 +65,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -81,7 +81,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -96,7 +96,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -113,7 +113,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     },
@@ -130,7 +130,7 @@ module DataCycleCore
             @food_establishment_a.update_column(:created_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
           end
 
-          test 'api/v4/things parameter filter[:modifiedAt]' do
+          test 'api/v4/things parameter filter[:dct:modified]' do
             orig_ts = @food_establishment_a.updated_at
             @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
 
@@ -142,7 +142,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -160,7 +160,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -177,7 +177,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -193,7 +193,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -208,7 +208,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     notIn: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 12.days).to_s(:iso8601)
@@ -225,7 +225,7 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     },
@@ -242,7 +242,7 @@ module DataCycleCore
             @food_establishment_a.update_column(:updated_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
           end
 
-          test 'api/v4/things parameter filter[:modifiedAt] + filter[:createdAt]' do
+          test 'api/v4/things parameter filter[:dct:modified] + filter[:dct:created]' do
             orig_ts = @food_establishment_a.updated_at
             @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
 
@@ -254,12 +254,12 @@ module DataCycleCore
               fields: 'dct:modified',
               filter: {
                 attribute: {
-                  modifiedAt: {
+                  'dct:modified': {
                     in: {
                       min: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
                   },
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       max: (Time.zone.now + 1.day).to_s(:iso8601)
                     }
@@ -290,7 +290,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  deletedAt: {
+                  'dct:deleted': {
                     in: {
                       min: Time.zone.now.to_s(:iso8601)
                     }
@@ -315,7 +315,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  deletedAt: {
+                  'dct:deleted': {
                     in: {
                       min: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -329,7 +329,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  deletedAt: {
+                  'dct:deleted': {
                     in: {
                       max: (Time.zone.now + 5.days).to_s(:iso8601)
                     }
@@ -343,7 +343,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  deletedAt: {
+                  'dct:deleted': {
                     in: {
                       max: (Time.zone.now - 5.days).to_s(:iso8601)
                     }
@@ -357,7 +357,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  deletedAt: {
+                  'dct:deleted': {
                     in: {
                       min: (Time.zone.now - 5.days).to_s(:iso8601),
                       max: (Time.zone.now + 5.days).to_s(:iso8601)
@@ -372,7 +372,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  deletedAt: {
+                  'dct:deleted': {
                     in: {
                       min: (Time.zone.now - 5.days).to_s(:iso8601)
                     },

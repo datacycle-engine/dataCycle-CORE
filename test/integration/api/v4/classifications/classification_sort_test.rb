@@ -21,7 +21,7 @@ module DataCycleCore
 
             # DESC
             params = {
-              sort: '-created'
+              sort: '-dct:created'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -35,7 +35,7 @@ module DataCycleCore
 
             # ASC
             params = {
-              sort: '+created'
+              sort: '+dct:created'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -49,7 +49,7 @@ module DataCycleCore
 
             # make sure ASC is default
             params = {
-              sort: 'created'
+              sort: 'dct:created'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -71,7 +71,7 @@ module DataCycleCore
             # DESC
             tree_tags.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
-              sort: '-modified'
+              sort: '-dct:modified'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -85,7 +85,7 @@ module DataCycleCore
 
             # ASC
             params = {
-              sort: '+modified'
+              sort: '+dct:modified'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -99,7 +99,7 @@ module DataCycleCore
 
             # make sure ASC is default
             params = {
-              sort: 'modified'
+              sort: 'dct:modified'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -131,7 +131,7 @@ module DataCycleCore
 
             tree_tags.update_column(:created_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
-              sort: '-created,+modified,+another'
+              sort: '-dct:created,+dct:modified,+another'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -157,7 +157,7 @@ module DataCycleCore
             # modified ASC
             params = {
               id: tree_id,
-              sort: 'modified'
+              sort: 'dct:modified'
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
@@ -172,7 +172,7 @@ module DataCycleCore
             # modified ASC
             params = {
               id: tree_id,
-              sort: '+modified'
+              sort: '+dct:modified'
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
@@ -187,7 +187,7 @@ module DataCycleCore
             # modified DESC
             params = {
               id: tree_id,
-              sort: '-modified'
+              sort: '-dct:modified'
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
@@ -216,7 +216,7 @@ module DataCycleCore
             # muliple and invalid sort params
             params = {
               id: tree_id,
-              sort: '-modified,+created,+another,++another2'
+              sort: '-dct:modified,+dct:created,+another,++another2'
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)

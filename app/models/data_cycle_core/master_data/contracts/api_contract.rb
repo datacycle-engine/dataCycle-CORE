@@ -98,9 +98,9 @@ module DataCycleCore
             optional(:notIn).hash(GEO_FILTER)
           end
           optional(:attribute).hash do
-            optional(:createdAt).hash(ATTRIBUTE_FILTER)
-            optional(:deletedAt).hash(ATTRIBUTE_FILTER)
-            optional(:modifiedAt).hash(ATTRIBUTE_FILTER)
+            optional(:'dct:created').hash(ATTRIBUTE_FILTER)
+            optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
+            optional(:'dct:modified').hash(ATTRIBUTE_FILTER)
             optional(:schedule).hash(ATTRIBUTE_FILTER)
           end
         end
