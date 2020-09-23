@@ -89,6 +89,10 @@ module DataCycleCore
             optional(:in).hash(CLASSIFICATIONS_FILTER)
             optional(:notIn).hash(CLASSIFICATIONS_FILTER)
           end
+          optional(:'dc:classification').hash do
+            optional(:in).hash(CLASSIFICATIONS_FILTER)
+            optional(:notIn).hash(CLASSIFICATIONS_FILTER)
+          end
           optional(:geo).hash do
             optional(:in).hash(GEO_FILTER)
             optional(:notIn).hash(GEO_FILTER)

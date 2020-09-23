@@ -42,7 +42,9 @@ module DataCycleCore
       filters.each do |filter_k, filter_v|
         filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
         next if filter_v.blank?
+        filter_k = 'classifications' if filter_k == 'dc:classification'
         filter_method_name = ('apply_' + filter_k.to_s + '_filters')
+        # TODO: add API error
         next unless respond_to?(filter_method_name)
         query = send(filter_method_name, query, filter_v)
       end
@@ -164,21 +166,28 @@ module DataCycleCore
       }
     end
 
+    def classification_filter_operations
+      {
+        in: {
+          withSubtree: [],
+          withoutSubtree: []
+        },
+        notIn: {
+          withSubtree: [],
+          withoutSubtree: []
+        }
+      }
+    end
+
     def attribute_filters
       [
         :search,
         :q,
         {
-          classifications: {
-            in: {
-              withSubtree: [],
-              withoutSubtree: []
-            },
-            notIn: {
-              withSubtree: [],
-              withoutSubtree: []
-            }
-          }
+          classifications: classification_filter_operations
+        },
+        {
+          'dc:classification': classification_filter_operations
         },
         {
           attribute: {
