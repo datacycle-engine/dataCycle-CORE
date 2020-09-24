@@ -267,7 +267,8 @@ module DataCycleCore
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
-          .>> t(:rename_keys, { 'Id' => 'external_key' })
+          .>> t(:unwrap_description, 'AddressContactDescription')
+          .>> t(:rename_keys, { 'Id' => 'external_key', 'AddressContactDescription' => 'description' })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
           .>> t(:add_field, 'name', ->(s) { [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
@@ -277,7 +278,6 @@ module DataCycleCore
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
           .>> t(:add_field, 'name', ->(s) { s.dig('Company') })
-          .>> t(:unwrap_description, 'AddressContactDescription')
         end
 
         def self.feratel_to_aggregate_offer(external_source_id)
