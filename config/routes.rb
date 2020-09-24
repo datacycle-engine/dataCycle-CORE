@@ -54,7 +54,7 @@ DataCycleCore::Engine.routes.draw do
       get :download_indesign, on: :member
       get :create_duplication, on: :member
       get :clear_cache, on: :member
-      get :asset, on: :member
+      get 'asset/:type', on: :member, action: :asset, constraints: { type: '(content|thumb)' }
       post :validate, on: :member
       post :validate, on: :collection
       get :render_embedded_object, on: :member
