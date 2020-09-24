@@ -389,7 +389,7 @@ module DataCycleCore
                 xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                 xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                 xml.Facilities('DateFrom' => '1980-01-01')
-                xml.Addresses('DateFrom' => '1980-01-01', 'GetSettlementAddresses' => true)
+                xml.Addresses('DateFrom' => '1980-01-01', 'GetSettlementAddresses' => true, 'DetailedInformation' => true)
                 xml.HotSpots('DateFrom' => '1980-01-01')
                 xml.MetaRating('DateFrom' => '1980-01-01', 'CheckMinAmount' => true)
                 xml.HandicapFacilities('DateFrom' => '1980-01-01')

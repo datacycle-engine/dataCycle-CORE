@@ -9,6 +9,15 @@
         :template_name: Ergänzende Information
         :api:
           :name: subject_of
+      :founder:
+        :label: Gastgeber
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
       :number_of_rooms:
         :label: Anzahl Zimmer/Apartments/Stellplätze
         :type: number
