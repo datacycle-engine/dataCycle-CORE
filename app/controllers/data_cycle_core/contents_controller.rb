@@ -85,20 +85,19 @@ module DataCycleCore
       end
     end
 
+    # original = content_url
+    # content => Bild: content_url ; other = thumbnail_url
+    # thumbnail = thumbnail_url
     def asset
       content = DataCycleCore::Thing.find(params[:id])
       type = asset_proxy_params.dig(:type)
-      attribute = case type
-                  when 'content'
-                    :content_url
-                  when 'thumb'
-                    :thumbnail_url
-                  else
-                    raise ActiveRecord::RecordNotFound
-                  end
+      attribute = :content_url
+      attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && content.template_name != 'Bild')
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
       uri = URI.parse(content.send(attribute))
+
+      # TODO: send to proxy if type = orginal
       redirect_to(uri.to_s)
     end
 
