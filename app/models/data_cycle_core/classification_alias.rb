@@ -263,7 +263,7 @@ module DataCycleCore
       return unless name_i18n_changed? # && internal_name.blank?
       available_translation = I18n.available_locales.drop_while { |locale| name(locale: locale).blank? }
       return if available_translation.blank?
-      self.internal_name = DataCycleCore::MasterData::DataConverter.string_to_string(name(locale: available_translation.first))
+      self.internal_name = DataCycleCore::MasterData::DataConverter.string_to_string(name(locale: available_translation.first)&.to_s)
     end
 
     def update_primary_classification
@@ -272,7 +272,7 @@ module DataCycleCore
       return if primary_classification.nil?
 
       primary_classification.tap do |c|
-        c.name = DataCycleCore::MasterData::DataConverter.string_to_string(name)
+        c.name = DataCycleCore::MasterData::DataConverter.string_to_string(name&.to_s)
         c.save!
       end
     end

@@ -29,6 +29,10 @@ module DataCycleCore
             )
           )
 
+          occurrence_string = "get_occurrences(schedules.rrule::rrule, #{from.blank? ? 'schedules.dtstart' : occurrence_from.to_sql}"
+          occurrence_string += ", #{occurrence_to.to_sql}" if to.present?
+          occurrence_string += ')'
+
           reflect(
             @query
               .where(
@@ -51,7 +55,7 @@ module DataCycleCore
                         sub_select.dup.where(
                           in_range(
                             tstzrange(from_node, to_node),
-                            any(Arel::Nodes::SqlLiteral.new("get_occurrences(schedules.rrule::rrule, #{from.blank? ? 'schedules.dtstart' : occurrence_from.to_sql}, #{to.blank? ? 'schedules.dtend' : occurrence_to.to_sql})"))
+                            any(Arel::Nodes::SqlLiteral.new(occurrence_string))
                           )
                         )
                       ),
