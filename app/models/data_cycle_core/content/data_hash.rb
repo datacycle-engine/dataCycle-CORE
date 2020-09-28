@@ -23,7 +23,7 @@ module DataCycleCore
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
-      after_saved_data_hash :invalidate_content_a_cache, if: :is_related?
+      after_saved_data_hash :invalidate_content_a_cache, if: :has_cached_related_contents?
       after_created_data_hash :execute_create_webhooks
       after_destroyed_data_hash :execute_delete_webhooks
 
@@ -126,7 +126,7 @@ module DataCycleCore
       end
 
       def invalidate_cache
-        related_contents.ids.each do |item_id|
+        cached_related_contents.ids.each do |item_id|
           Rails.cache.delete_matched("*#{item_id}*")
         end
       end

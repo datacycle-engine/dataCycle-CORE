@@ -83,6 +83,10 @@ module DataCycleCore
         content_content_a.exists?
       end
 
+      def has_cached_related_contents?
+        content_content_a.where.not(relation_b: nil).or(content_content_b).exists?
+      end
+
       def related_contents(embedded: false)
         content_content_table = history? ? 'content_content_histories' : 'content_contents'
         content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
@@ -155,6 +159,27 @@ module DataCycleCore
             AND #{self.class.table_name}.content_type = 'embedded'
           )
           SELECT DISTINCT id FROM content_tree
+        SQL
+
+        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
+      end
+
+      def cached_related_contents
+        return self.class.none if history?
+
+        tree_query = <<-SQL
+          WITH RECURSIVE paths(src, dest, path) AS (
+            SELECT DISTINCT ON (c.dest) c.src, c.dest, ARRAY[c.src, c.dest]
+            FROM content_content_relations c
+            WHERE c.src = '#{id}'
+            UNION ALL
+            SELECT DISTINCT on (d.dest) d.src, d.dest, p.path || ARRAY[d.dest]
+            FROM paths p
+            INNER JOIN content_content_relations d
+            ON p.dest = d.src
+            WHERE d.dest != ALL(p.path)
+          )
+          SELECT DISTINCT paths.dest FROM paths
         SQL
 
         self.class.where("#{self.class.table_name}.id IN (#{tree_query})")

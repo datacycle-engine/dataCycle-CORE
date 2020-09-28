@@ -392,6 +392,21 @@ WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', a
 
 
 --
+-- Name: content_content_relations; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.content_content_relations AS
+ SELECT e.content_b_id AS src,
+    e.content_a_id AS dest
+   FROM public.content_contents e
+UNION ALL
+ SELECT f.content_a_id AS src,
+    f.content_b_id AS dest
+   FROM public.content_contents f
+  WHERE (f.relation_b IS NOT NULL);
+
+
+--
 -- Name: data_links; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2289,6 +2304,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200824140802'),
 ('20200826082051'),
 ('20200903102806'),
-('20200922112719');
+('20200922112719'),
+('20200928122555');
 
 

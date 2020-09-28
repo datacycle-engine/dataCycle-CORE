@@ -267,6 +267,7 @@ de:
     external_name: Titel
     external_alternate_name: Alternativer Titel
     external_key: Externe Id
+    inverse_linked: Inverse Referenz
 
   embedded:
     move_down: nach unten verschieben
