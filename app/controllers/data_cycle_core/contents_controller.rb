@@ -97,13 +97,7 @@ module DataCycleCore
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
       uri = URI.parse(content.send(attribute))
 
-      if type == 'original'
-        serialized_content, response_mime_type = DataCycleCore::Serialize::AssetSerializer.serialize(content, nil, nil)
-        mime_type = DataCycleCore::Serialize::AssetSerializer.mime_type(serialized_content, content).presence || response_mime_type
-        send_data serialized_content, type: mime_type, disposition: 'inline'
-      else
-        redirect_to(uri.to_s)
-      end
+      redirect_to(uri.to_s)
     end
 
     def new
