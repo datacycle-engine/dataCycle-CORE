@@ -373,7 +373,7 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
             assert_equal(@event_b.id, json_data['@graph'].first.dig('@id'))
 
-            # validate linked with modifiedAt
+            # validate linked with 'dct:modified'
             image_test = @event_c.image.first
             orig_ts = image_test.updated_at
             image_test.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
@@ -400,7 +400,7 @@ module DataCycleCore
                 linked: {
                   image: {
                     attribute: {
-                      modifiedAt: {
+                      'dct:modified': {
                         in: {
                           min: (Time.zone.now + 5.days).to_s(:iso8601)
                         }

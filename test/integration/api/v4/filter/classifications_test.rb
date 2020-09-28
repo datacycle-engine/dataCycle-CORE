@@ -503,6 +503,470 @@ module DataCycleCore
             post api_v4_things_path(post_params)
             assert_api_count_result(4)
           end
+
+          test 'api/v4/things with filter[dc:classification][in]' do
+            # all items (8)
+            post_params = {}
+            post api_v4_things_path(post_params)
+            assert_api_count_result(8)
+
+            # withSubtree CC BY-SA 4.0 (2)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withSubtree: [
+                      @cc_by_sa40.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(2)
+
+            # withSubtree CC BY 4.0 (2)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withSubtree: [
+                      @cc_by40.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(2)
+
+            # withSubtree CC BY (3)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withSubtree: [
+                      @cc_by.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(3)
+
+            # withSubtree CC0 (4)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withSubtree: [
+                      @cc0.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(4)
+
+            # withSubtree place (4)
+            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withSubtree: [
+                      place.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(4)
+
+            ### Logical AND
+            # withSubtree CC0 AND CC BY(0)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withSubtree: [
+                      @cc0.id,
+                      @cc_by.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(0)
+
+            # withSubtree food establisment AND CC BY(1)
+            food_establishment = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Gastronomischer Betrieb').first
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withSubtree: [
+                      food_establishment.id,
+                      @cc_by.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(1)
+
+            ### Logical OR
+            # withSubtree CC0 OR CC BY(7)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withSubtree: [
+                      "#{@cc0.id},#{@cc_by.id}"
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(7)
+
+            # withSubtree food establisment OR CC BY(4)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withSubtree: [
+                      "#{food_establishment.id},#{@cc_by.id}"
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(4)
+
+            ### withoutSubtree
+            # withoutSubtree place (0)
+            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withoutSubtree: [
+                      place.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(0)
+
+            # withoutSubtree CC BY 4.0 (2)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withoutSubtree: [
+                      @cc_by40.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(2)
+
+            # withoutSubtree CC BY (1)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withoutSubtree: [
+                      @cc_by.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(1)
+
+            # combine withSubtree and withoutSubtree
+            # combine withSubtree (place) and withoutSubtree CC BY-SA 4.0 (2)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withSubtree: [
+                      place.id
+                    ],
+                    withoutSubtree: [
+                      @cc_by_sa40.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(2)
+
+            # combine withSubtree (CC BY) and withoutSubtree CC BY-SA 4.0 (1)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  in: {
+                    withSubtree: [
+                      @cc_by.id
+                    ],
+                    withoutSubtree: [
+                      @cc_by_sa40.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(1)
+          end
+
+          test 'api/v4/things with filter[dc:classification][notIn]' do
+            # all items (8)
+            post_params = {}
+            post api_v4_things_path(post_params)
+            assert_api_count_result(8)
+
+            # withSubtree CC BY-SA 4.0 (6)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withSubtree: [
+                      @cc_by_sa40.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(6)
+
+            # withSubtree CC BY 4.0 (6)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withSubtree: [
+                      @cc_by40.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(6)
+
+            # withSubtree CC BY (5)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withSubtree: [
+                      @cc_by.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(5)
+
+            # withSubtree CC0 (4)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withSubtree: [
+                      @cc0.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(4)
+
+            # withSubtree place (4)
+            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withSubtree: [
+                      place.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(4)
+
+            ### Logical AND
+            # withSubtree CC0 AND CC BY(1)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withSubtree: [
+                      @cc0.id,
+                      @cc_by.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(1)
+
+            # withSubtree food establisment AND CC BY(4)
+            food_establishment = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Gastronomischer Betrieb').first
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withSubtree: [
+                      food_establishment.id,
+                      @cc_by.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(4)
+
+            ### Logical OR
+            # withSubtree CC0 OR CC BY(1)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withSubtree: [
+                      "#{@cc0.id},#{@cc_by.id}"
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(1)
+
+            # withSubtree food establisment OR CC BY(4)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withSubtree: [
+                      "#{food_establishment.id},#{@cc_by.id}"
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(4)
+
+            ### withoutSubtree
+            # withoutSubtree place (8)
+            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withoutSubtree: [
+                      place.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(8)
+
+            # withoutSubtree CC BY 4.0 (6)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withoutSubtree: [
+                      @cc_by40.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(6)
+
+            # withoutSubtree CC BY (7)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withoutSubtree: [
+                      @cc_by.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(7)
+
+            # combine withSubtree and withoutSubtree
+            # combine withSubtree (place) and withoutSubtree CC BY-SA 4.0 (4)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withSubtree: [
+                      place.id
+                    ],
+                    withoutSubtree: [
+                      @cc_by_sa40.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(4)
+
+            # combine withSubtree (CC BY) and withoutSubtree CC BY-SA 4.0 (4)
+            post_params = {
+              filter: {
+                'dc:classification': {
+                  notIn: {
+                    withSubtree: [
+                      @cc_by.id
+                    ],
+                    withoutSubtree: [
+                      @cc_by_sa40.id
+                    ]
+                  }
+                }
+              }
+            }
+            post api_v4_things_path(post_params)
+            assert_api_count_result(4)
+          end
         end
       end
     end
