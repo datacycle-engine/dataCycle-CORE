@@ -11,6 +11,5 @@
     <% object_options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
 
     <%= render_attribute_viewer key: "#{key}[#{index}][#{embedded_key}]", definition: prop, value: object_value, parameters: { options: object_options, parent: object }, content: content %>
-
   <% end %>
 <% end %>
