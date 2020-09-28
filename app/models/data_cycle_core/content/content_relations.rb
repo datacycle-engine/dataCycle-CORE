@@ -165,34 +165,21 @@ module DataCycleCore
       end
 
       def cached_related_contents
-        content_content_table = history? ? 'content_content_histories' : 'content_contents'
-        content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
-        content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
+        return self.class.none if history?
 
         tree_query = <<-SQL
-          WITH RECURSIVE content_tree(id, link, ids, cycle) AS (
-            SELECT #{content_content_table}.#{content_a_id}, #{content_content_table}.#{content_b_id}, ARRAY[#{content_content_table}.#{content_a_id}], FALSE
-            FROM #{content_content_table}
-            WHERE #{content_content_table}.#{content_b_id} = '#{id}'
-            UNION
-            SELECT #{content_content_table}.#{content_b_id}, #{content_content_table}.#{content_a_id}, ARRAY[#{content_content_table}.#{content_b_id}], FALSE
-            FROM #{content_content_table}
-            WHERE #{content_content_table}.#{content_a_id} = '#{id}'
-            AND #{content_content_table}.relation_b IS NOT NULL
-          UNION ALL
-             SELECT b.id, b.link, t.ids || b.id, b.id = ANY(t.ids)
-             FROM (
-                SELECT #{content_content_table}.#{content_a_id} AS id, #{content_content_table}.#{content_b_id} AS link
-                FROM #{content_content_table}
-                UNION
-                SELECT #{content_content_table}.#{content_b_id} AS id, #{content_content_table}.#{content_a_id} AS link
-                FROM #{content_content_table}
-                WHERE #{content_content_table}.relation_b IS NOT NULL
-             ) b, content_tree t
-             WHERE b.link = t.id
-             AND NOT t.cycle
+          WITH RECURSIVE paths(src, dest, path) AS (
+            SELECT DISTINCT ON (c.dest) c.src, c.dest, ARRAY[c.src, c.dest]
+            FROM content_content_relations c
+            WHERE c.src = '#{id}'
+            UNION ALL
+            SELECT DISTINCT on (d.dest) d.src, d.dest, p.path || ARRAY[d.dest]
+            FROM paths p
+            INNER JOIN content_content_relations d
+            ON p.dest = d.src
+            WHERE d.dest != ALL(p.path)
           )
-          SELECT DISTINCT id FROM content_tree
+          SELECT DISTINCT paths.dest FROM paths
         SQL
 
         self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
