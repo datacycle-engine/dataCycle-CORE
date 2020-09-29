@@ -75,17 +75,6 @@ namespace :dc do
         end
       end
     end
-
-    desc 'migrate collections for feature/collection_groups'
-    task migrate_collections: :environment do
-      if DataCycleCore::Feature::CollectionGroup.enabled?
-        separator = DataCycleCore::Feature::CollectionGroup.separator
-        ActiveRecord::Base.connection.execute <<-SQL
-          UPDATE watch_lists
-          SET name = (string_to_array(full_path, '#{separator}'))[array_length(string_to_array(full_path, '#{separator}'), 1)], full_path_names = (string_to_array(full_path, '#{separator}'))[1:array_length(string_to_array(full_path, '#{separator}'), 1) - 1]
-        SQL
-      end
-    end
   end
 end
 
