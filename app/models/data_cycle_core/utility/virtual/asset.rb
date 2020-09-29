@@ -19,7 +19,7 @@ module DataCycleCore
                 'asset',
                 args.dig(:content).id,
                 transformations.dig('version'),
-                "#{args.dig(:content).name.parameterize(separator: '_')}#{orig_url.present? ? File.extname(orig_url): ''}"
+                "#{args.dig(:content).name.parameterize(separator: '_')}#{orig_url.present? ? File.extname(orig_url) : ''}"
               ].join('/')
             elsif transformations.dig('version') == 'dynamic'
               [
