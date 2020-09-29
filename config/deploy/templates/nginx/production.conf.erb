@@ -105,15 +105,21 @@ server {
         return 503;
     }
 
-    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/content\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
-        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/smartcrop/2500/2500/$file_name.$type;
-    }
+    # image proxy settings
+    # custom image verison
+    # location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/content\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
+    #    proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/smartcrop/2500/2500/$file_name.$type;
+    # }
 
     location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/thumb\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
-        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/smartcrop/350/350/$file_name.$type;
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/smartcrop/300/300/$file_name.$type;
     }
 
     location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/web\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/smartcrop/2048/2048/$file_name.$type;
+    }
+
+    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/web_small\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
         proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/smartcrop/1500/1500/$file_name.$type;
     }
 
@@ -127,6 +133,47 @@ server {
         proxy_cache imaginary_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
 
         proxy_cache_key "$rqUrl$mode$width$height$type";
+
+        proxy_cache_background_update on;
+
+        proxy_cache_lock on;
+        proxy_cache_lock_age 5s;
+        proxy_cache_lock_timeout 5s;
+
+        proxy_cache_use_stale updating;
+
+        proxy_cache_valid 200 30d;  # Cache valid assets for 30 days.
+        proxy_cache_valid any 15s;  # Everything else gets 15s.
+
+        proxy_http_version 1.1;
+        expires 1y;
+
+        add_header X-Cache $upstream_cache_status;
+    }
+
+    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/original\/.(?<file_name>(.*))\.(?<type>(.*))"{
+        limit_req zone=req_zone burst=100 nodelay;
+
+        set $type "original";
+        set $rqUrl "https://self_data-cycle-base_production/things/$thing/asset/original";
+
+        proxy_pass $rqUrl;
+
+        proxy_intercept_errors on;
+        recursive_error_pages on;
+        error_page 301 302 303 307 308 = @image_proxy_redirect;
+    }
+
+    location @image_proxy_redirect {
+        set $saved_redirect_location $upstream_http_location;
+        resolver 8.8.8.8 8.8.4.4;
+
+        proxy_pass $saved_redirect_location;
+        proxy_cache imaginary_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
+
+        proxy_cache_key "$rqUrl$type";
+
+        proxy_ignore_headers Cache-Control Expires Set-Cookie;
 
         proxy_cache_background_update on;
 
