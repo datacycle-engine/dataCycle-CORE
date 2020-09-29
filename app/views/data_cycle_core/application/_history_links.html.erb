@@ -1,15 +1,7 @@
-<div id="show-history-link" data-toggle="show-history" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
-  <%= t("history.#{dataCycleObject.histories.exists? ? 'updated_at' : 'created_at'}", locale: DataCycleCore.ui_language) %> <%= l(Time.zone.at(Time.zone.at(dataCycleObject.updated_at)), locale: DataCycleCore.ui_language) if dataCycleObject.updated_at.present? %>
-  <% person = dataCycleObject.histories.present? ? dataCycleObject.try(:updated_by_user) : dataCycleObject.try(:created_by_user) %>
-
-  <% if person.is_a?(Object) && !person.nil? %>
-    <span> <%= t('terms.from', locale: DataCycleCore.ui_language) %> </span>
-    <span><strong><%= tag.a(person.full_name, class: 'email-link', href: "mailto:#{person.email}", title: person.full_name) %></strong></span>
-  <% else %>
-    <span> <%= t('terms.from', locale: DataCycleCore.ui_language) %> </span>
-    <span><strong>System</strong></span>
-  <% end %>
-
+<div id="show-history-link" data-toggle="show-history" class="link">
+  <i class="fa fa-clock-o" aria-hidden="true"></i>
+  <% visible_date = visible_content_date(dataCycleObject) %>
+  <%= visible_date[:updated] || visible_date[:created] %>
 </div>
 
 <% if dataCycleObject.histories.exists? %>
