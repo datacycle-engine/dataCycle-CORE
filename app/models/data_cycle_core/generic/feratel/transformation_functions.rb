@@ -173,6 +173,11 @@ module DataCycleCore
             end
           end]
         end
+
+        def self.unwrap_address_data(data, address_type, address_function)
+          return data if address_function.call(data).blank?
+          data.merge({ 'Address' => address_function.call(data).detect { |i| i['Type'] == address_type }&.except('Documents', 'Descriptions') }&.compact)
+        end
       end
     end
   end

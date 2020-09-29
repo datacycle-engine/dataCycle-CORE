@@ -44,7 +44,7 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['Service']))
           .>> t(:reject_keys, ['Names', 'Name'])
-          .>> t(:unwrap_address, 'Object')
+          .>> t(:unwrap_address_data, 'Object', ->(s) { Array.wrap(s.dig('Addresses', 'Address')) })
           .>> t(:add_field, 'street_address', ->(s) { s.dig('Address', 'AddressLine1') })
           .>> t(:add_field, 'address_locality', ->(s) { s.dig('Address', 'Town') })
           .>> t(:add_field, 'postal_code', ->(s) { s.dig('Address', 'ZipCode') })
@@ -186,7 +186,7 @@ module DataCycleCore
           .>> t(:unwrap_description, 'ServiceProviderDescription')
           .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
           .>> t(:reject_keys, ['Town'])
-          .>> t(:unwrap_address, 'Object')
+          .>> t(:unwrap_address_data, 'Object', ->(s) { Array.wrap(s.dig('Addresses', 'Address')) })
           .>> t(:unwrap, 'Address')
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
@@ -257,6 +257,7 @@ module DataCycleCore
 
         def self.to_view_action
           t(:rename_keys, { 'URL' => 'url', 'Id' => 'external_key', 'Name' => 'name' })
+          .>> t(:map_value, 'url', ->(s) { s.nil? || s == 'http://' ? '' : (!s.starts_with?('http://') && !s.starts_with?('https://') ? "http://#{s}" : s) })
           .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_key: s.dig('external_key'))&.id })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
           .>> t(:add_field, 'action_type', ->(_) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'View')) })
@@ -277,7 +278,7 @@ module DataCycleCore
           .>> t(:nest, 'contact_info', ['name', 'email', 'fax_number', 'telephone', 'url'])
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
-          .>> t(:add_field, 'name', ->(s) { s.dig('Company') })
+          .>> t(:add_field, 'name', ->(s) { s.dig('Company') || [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
         end
 
         def self.feratel_to_aggregate_offer(external_source_id)
@@ -437,7 +438,7 @@ module DataCycleCore
           .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructureShort')) if v&.dig('InfrastructureShort').present? })
           .>> t(:add_field, 'text', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructureLong')) if v&.dig('InfrastructureLong').present? })
           .>> t(:add_field, 'price_range', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructurePriceInfo')) if v&.dig('InfrastructurePriceInfo').present? })
-          .>> t(:unwrap_address, 'InfrastructureExternal')
+          .>> t(:unwrap_address_data, 'InfrastructureExternal', ->(s) { Array.wrap(s.dig('Addresses', 'Address')) })
           .>> t(:unwrap, 'Address', ['AddressLine1', 'Town', 'ZipCode', 'Country', 'Fax', 'Phone', 'Email', 'URL'])
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
