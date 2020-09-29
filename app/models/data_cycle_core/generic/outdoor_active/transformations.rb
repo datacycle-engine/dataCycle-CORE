@@ -58,7 +58,7 @@ module DataCycleCore
           .>> t(:add_field, 'tour', ->(s) { tour(s&.dig('geometry')) })
           .>> t(:unwrap, 'elevation', ['ascent', 'descent', 'minAltitude', 'maxAltitude'])
           .>> t(:unwrap, 'time', ['min'])
-          .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape'])
+          .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape', 'technique'])
           .>> t(:add_field, 'author', ->(s) { s.dig('meta', 'author') })
           .>> t(
             :rename_keys,
@@ -75,6 +75,7 @@ module DataCycleCore
               'difficulty' => 'difficulty_rating',
               'qualityOfExperience' => 'experience_rating',
               'landscape' => 'landscape_rating',
+              'technique' => 'technique_rating',
               'directions' => 'instructions',
               'gettingThere' => 'directions',
               'publicTransit' => 'directions_public_transport',
@@ -92,6 +93,7 @@ module DataCycleCore
           .>> t(:map_value, 'difficulty_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'experience_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'landscape_rating', ->(s) { s&.to_i })
+          .>> t(:map_value, 'technique_rating', ->(s) { s&.to_i })
           .>> t(:add_links, 'poi', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('pois', 'poi')&.map { |item| item&.dig('id') } || [] })
           .>> t(:add_links, 'primary_image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('primaryImage')&.dig('id') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('images', 'image')&.map { |item| item&.dig('id') } || [] })

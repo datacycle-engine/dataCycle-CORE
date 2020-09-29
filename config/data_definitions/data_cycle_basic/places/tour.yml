@@ -182,6 +182,10 @@
         :label: Bewertung - Landschaft
         :type: number
         :storage_location: value
+      :technique_rating:
+        :label: Bewertung - Technik
+        :type: number
+        :storage_location: value
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
@@ -203,7 +207,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Tour"
+        :default_value: 'Tour'
       :cc_rel:
         :type: mixin
         :name: cc_rel
