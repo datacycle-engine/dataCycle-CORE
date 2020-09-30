@@ -14,9 +14,9 @@ module DataCycleCore
 
         def not_classification_alias_ids_with_subtree(ids = nil)
           return self if ids.blank?
-          query_string = Thing.send(:sanitize_sql_for_conditions, ['(classification_aliases_mapping && ARRAY[?]::uuid[] OR classification_ancestors_mapping && ARRAY[?]::uuid[])', ids, ids])
+          query_string = Thing.send(:sanitize_sql_for_conditions, ['NOT((classification_aliases_mapping && ARRAY[?]::uuid[] OR classification_ancestors_mapping && ARRAY[?]::uuid[]))', ids, ids])
           reflect(
-            @query.where.not(search_exists(Arel.sql(query_string)))
+            @query.where(search_exists(Arel.sql(query_string)))
           )
         end
 
@@ -30,9 +30,9 @@ module DataCycleCore
 
         def not_classification_alias_ids_without_subtree(ids = nil)
           return self if ids.blank?
-          query_string = Thing.send(:sanitize_sql_for_conditions, ['classification_aliases_mapping && ARRAY[?]::uuid[]', ids])
+          query_string = Thing.send(:sanitize_sql_for_conditions, ['NOT(classification_aliases_mapping && ARRAY[?]::uuid[])', ids])
           reflect(
-            @query.where.not(search_exists(Arel.sql(query_string)))
+            @query.where(search_exists(Arel.sql(query_string)))
           )
         end
 
