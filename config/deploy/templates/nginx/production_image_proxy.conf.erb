@@ -1,0 +1,216 @@
+proxy_cache_path /var/cache/nginx/<%= fetch(:application) %>_<%= fetch(:rails_env) %> levels=1:2 keys_zone=<%= fetch(:application) %>_<%= fetch(:rails_env) %>:100m inactive=1y max_size=100m;
+proxy_cache_path /var/cache/nginx/imaginary_<%= fetch(:application) %>_<%= fetch(:rails_env) %> levels=1:2 keys_zone=imaginary_<%= fetch(:application) %>_<%= fetch(:rails_env) %>:10M inactive=1y max_size=1000M;
+# testing rate limit
+limit_req_zone $binary_remote_addr zone=req_zone:10m rate=100r/s;
+
+upstream self_<%= fetch(:application) %>_<%= fetch(:rails_env) %> {
+    server <%= fetch(:server_name) %>:443;
+}
+
+upstream docker-imaginary {
+    server localhost:9000;
+}
+
+upstream puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %> {
+    server unix:<%= File.join(fetch(:deploy_to), 'shared/tmp/sockets/puma.sock') %> fail_timeout=0;
+}
+
+# enable for https
+server {
+    listen 80;
+    listen [::]:80;
+    server_name <%= fetch(:server_name) %>;
+
+    location ^~ /.well-known {
+        root /var/www/<%= fetch(:application) %>/production/shared/public;
+        try_files $uri/index.html $uri @puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
+    }
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl; # managed by Certbot
+    listen [::]:443 ssl;
+    ssl_certificate /etc/letsencrypt/live/<%= fetch(:server_name) %>/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/<%= fetch(:server_name) %>/privkey.pem; # managed by Certbot
+
+    server_name <%= fetch(:server_name) %>;
+    root <%= File.join(fetch(:deploy_to), 'current/public') %>;
+    try_files $uri/index.html $uri @puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
+
+    client_max_body_size 4G;
+    keepalive_timeout 90;
+
+    error_page 500 502 504 /500.html;
+    error_page 503 @503;
+
+    location ^~ /.well-known {
+        root /var/www/<%= fetch(:application) %>/production/shared/public;
+    }
+
+    location @puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %> {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_redirect off;
+        proxy_read_timeout 300;
+        proxy_pass http://puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
+        # limit_req zone=one;
+        access_log <%= File.join(fetch(:deploy_to), 'shared/log/nginx.access.log') %>;
+        error_log <%= File.join(fetch(:deploy_to), 'shared/log/nginx.error.log') %>;
+    }
+
+    location ^~ /assets/ {
+        try_files $uri @puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
+        gzip_static on;
+        expires max;
+        add_header Cache-Control public;
+    }
+
+    location /cable {
+        proxy_pass http://puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
+    location = /50x.html {
+        root html;
+    }
+
+    location = /404.html {
+        root html;
+    }
+
+    location @503 {
+        error_page 405 = /system/maintenance.html;
+        if (-f $document_root/system/maintenance.html) {
+            rewrite ^(.*)$ /system/maintenance.html break;
+        }
+        rewrite ^(.*)$ /503.html break;
+    }
+
+    if ($request_method !~ ^(GET|HEAD|PUT|PATCH|POST|DELETE|OPTIONS)$ ){
+        return 405;
+    }
+
+    if (-f $document_root/system/maintenance.html) {
+        return 503;
+    }
+
+    # image proxy settings
+    # custom image verison
+    # location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/content\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
+    #    proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/smartcrop/2500/2500/$file_name.$type;
+    # }
+
+    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/thumb\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/smartcrop/300/300/$file_name.$type;
+    }
+
+    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/web\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/smartcrop/2048/2048/$file_name.$type;
+    }
+
+    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/web_small\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/smartcrop/1500/1500/$file_name.$type;
+    }
+
+    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<mode>(crop|fit|resize|smartcrop|thumbnail))\/(?<width>\d+)\/(?<height>\d+)\/(.*)\.(?<type>(jpeg|png|webp))"{
+        limit_req zone=req_zone burst=100 nodelay;
+
+        set $rqUrl "https://<%= fetch(:server_name) %>/things/$thing/asset/content";
+
+        proxy_pass http://docker-imaginary/$mode?width=$width&height=$height&type=$type&url=$rqUrl;
+
+        proxy_cache imaginary_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
+
+        proxy_cache_key "$rqUrl$mode$width$height$type";
+
+        proxy_cache_background_update on;
+
+        proxy_cache_lock on;
+        proxy_cache_lock_age 5s;
+        proxy_cache_lock_timeout 5s;
+
+        proxy_cache_use_stale updating;
+
+        proxy_cache_valid 200 30d;  # Cache valid assets for 30 days.
+        proxy_cache_valid any 15s;  # Everything else gets 15s.
+
+        proxy_http_version 1.1;
+        expires 1y;
+
+        add_header X-Cache $upstream_cache_status;
+
+        proxy_intercept_errors on;
+        recursive_error_pages on;
+        error_page 502 = $rqUrl;
+    }
+
+    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/original\/.(?<file_name>(.*))\.(?<type>(.*))"{
+        limit_req zone=req_zone burst=100 nodelay;
+
+        set $type "original";
+        set $proxyUrl "https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/things/$thing/asset/original";
+
+        proxy_pass $proxyUrl;
+
+        proxy_intercept_errors on;
+        recursive_error_pages on;
+        error_page 301 302 303 307 308 = @image_proxy_redirect;
+    }
+
+    location @image_proxy_redirect {
+        set $saved_redirect_location $upstream_http_location;
+        resolver 8.8.8.8 8.8.4.4;
+
+        proxy_pass $saved_redirect_location;
+        proxy_cache imaginary_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
+
+        proxy_cache_key "$proxyUrl$type";
+
+        proxy_ignore_headers Cache-Control Expires Set-Cookie;
+
+        proxy_cache_background_update on;
+
+        proxy_cache_lock on;
+        proxy_cache_lock_age 5s;
+        proxy_cache_lock_timeout 5s;
+
+        proxy_cache_use_stale updating;
+
+        proxy_cache_valid 200 30d;  # Cache valid assets for 30 days.
+        proxy_cache_valid any 15s;  # Everything else gets 15s.
+
+        proxy_http_version 1.1;
+        expires 1y;
+
+        add_header X-Cache $upstream_cache_status;
+    }
+
+    # Disabled API caching
+    # set $no_cache 1;
+
+    # if ($request_uri ~* '/api/') {
+    #   set $no_cache 0;
+    # }
+
+    # Don't cache or serve pages specified above
+    # proxy_cache_bypass $no_cache;
+    # proxy_no_cache $no_cache;
+
+    # proxy_cache <%= fetch(:application) %>_<%= fetch(:rails_env) %>;
+    # proxy_cache_lock on;
+    # proxy_cache_valid 200 10s;
+    # proxy_cache_use_stale updating;
+    # proxy_cache_background_update on;
+    # add_header X-Cache $upstream_cache_status;
+}
