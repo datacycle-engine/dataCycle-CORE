@@ -155,9 +155,9 @@ server {
         limit_req zone=req_zone burst=100 nodelay;
 
         set $type "original";
-        set $rqUrl "https://self_data-cycle-base_production/things/$thing/asset/original";
+        set $proxyUrl "https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/things/$thing/asset/original";
 
-        proxy_pass $rqUrl;
+        proxy_pass $proxyUrl;
 
         proxy_intercept_errors on;
         recursive_error_pages on;
@@ -171,7 +171,7 @@ server {
         proxy_pass $saved_redirect_location;
         proxy_cache imaginary_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
 
-        proxy_cache_key "$rqUrl$type";
+        proxy_cache_key "$proxyUrl$type";
 
         proxy_ignore_headers Cache-Control Expires Set-Cookie;
 
