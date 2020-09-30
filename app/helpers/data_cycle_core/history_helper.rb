@@ -78,12 +78,12 @@ module DataCycleCore
                                    ], ' ')
       end
 
-      if content.updated_at.present? && content.updated_at != content.created_at
+      if content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i
         data[:updated] = tag.span(safe_join([
                                               t('history.updated_at', locale: DataCycleCore.ui_language),
                                               l(content.updated_at.in_time_zone, locale: DataCycleCore.ui_language),
                                               history_by_link(content.updated_by_user)
-                                            ], ' '), title: strip_tags(data[:created]).presence)
+                                            ], ' '), title: content.histories.exists? ? nil : strip_tags(data[:created]).presence)
       end
 
       data

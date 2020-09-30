@@ -1026,13 +1026,14 @@ a.link {
   li {
     position: relative;
     text-align: left;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     line-height: 1.2rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: flex;
     flex-flow: row nowrap;
+    align-items: center;
 
     .history-time {
       flex: auto;
@@ -1061,6 +1062,14 @@ a.link {
       flex: 0;
       margin-left: 0.5rem;
       min-width: 1rem;
+      display: flex;
+      align-items: center;
+
+      > a {
+        display: flex;
+        align-items: center;
+      }
+
       .fa {
         line-height: 1.2rem;
       }

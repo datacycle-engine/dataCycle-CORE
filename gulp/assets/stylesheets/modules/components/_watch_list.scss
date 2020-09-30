@@ -89,7 +89,7 @@
   .accordion {
     > .accordion-item {
       padding: 0.2rem 0;
-      border-bottom: 1px solid $light-gray;
+
       > .accordion-title,
       > .accordion-content {
         font-size: 0.9rem;
@@ -98,12 +98,15 @@
         line-height: 1.4rem;
       }
       > .accordion-title {
+        display: block;
         padding: 0 0 0.2rem 1.2rem;
         color: $black;
+
         &:hover,
         &:focus {
           background-color: transparent;
         }
+
         &::before {
           left: 0;
           font-family: 'FontAwesome';
@@ -118,7 +121,7 @@
       }
 
       > .accordion-content {
-        > li {
+        > li:not(.collection-group-item) {
           padding: 0.2rem 0;
         }
       }
@@ -150,7 +153,11 @@
     li {
       background: none;
       border-radius: 0;
-      border-bottom: 1px solid $light-gray;
+
+      &.collection-group-item {
+        padding: 0;
+      }
+
       .watch-list-item {
         .check {
           position: absolute;
