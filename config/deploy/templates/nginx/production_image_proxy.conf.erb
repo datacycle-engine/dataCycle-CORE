@@ -112,7 +112,7 @@ server {
     # }
 
     location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/thumb\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
-        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/smartcrop/300/300/$file_name.$type;
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/fit/300/300/$file_name.$type;
     }
 
     location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/web\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
