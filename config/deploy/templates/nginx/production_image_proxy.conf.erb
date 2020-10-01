@@ -13,7 +13,7 @@ upstream docker-imaginary {
 
 # imaginary endpoints
 map $arg_mode $endpoint {
-    default "resize";
+    default "fit";
     ~(crop|fit|resize|smartcrop|thumbnail)$ $arg_mode;
 }
 # imaginary endpoints width
@@ -124,27 +124,27 @@ server {
     # image proxy settings
     # custom image verison
     # location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/content\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
-    #    proxy_pass http://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$endpoint/2500/2500/$file_name.$type;
+    #    proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$endpoint/2500/2500/$file_name.$type;
     # }
 
     location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/thumb\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))$"{
-        proxy_pass http://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$endpoint/300/300/$file_name.$type;
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$endpoint/300/300/$file_name.$type;
     }
 
     location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/web\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))$"{
-        proxy_pass http://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$endpoint/2048/2048/$file_name.$type;
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$endpoint/2048/2048/$file_name.$type;
     }
 
     location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/web_small\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))$"{
-        proxy_pass http://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$endpoint/1500/1500/$file_name.$type;
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$endpoint/1500/1500/$file_name.$type;
     }
 
     location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/custom\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))$"{
-        proxy_pass http://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$endpoint/$endpoint_width/$endpoint_height/$file_name.$type;
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$endpoint/$endpoint_width/$endpoint_height/$file_name.$type;
     }
 
     location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/format\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))$"{
-        proxy_pass http://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/convert/$endpoint_width/$endpoint_height/$file_name.$type;
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/convert/$endpoint_width/$endpoint_height/$file_name.$type;
     }
 
     location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<mode>(crop|fit|resize|smartcrop|thumbnail|convert))\/(?<width>\d+)\/(?<height>\d+)\/(.*)\.(?<type>(jpeg|png|webp))$"{
