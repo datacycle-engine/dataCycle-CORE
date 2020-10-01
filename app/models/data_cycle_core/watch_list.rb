@@ -34,9 +34,10 @@ module DataCycleCore
     private
 
     def split_full_path
-      return self.name = full_path unless DataCycleCore::Feature::CollectionGroup.enabled?
+      full_path.squish!
+      return self.name = full_path.squish unless DataCycleCore::Feature::CollectionGroup.enabled?
 
-      path_items = full_path.split(DataCycleCore::Feature::CollectionGroup.separator)
+      path_items = full_path.squish.split(DataCycleCore::Feature::CollectionGroup.separator)
 
       self.full_path_names = path_items[0...-1]
       self.name = path_items.last
