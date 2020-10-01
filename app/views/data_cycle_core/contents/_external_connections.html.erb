@@ -3,7 +3,7 @@
 <% if external_connections.present? %>
   <div class="external-connections">
     <% external_connections.each do |name, syncs| %>
-      <span class="external-connection" data-toggle="external-connections-<%= name.underscore_blanks %>"><i class="fa fa-external-link-square external-connections-icon<%= ' success' unless content.external_source.nil? %> <%= content.external_system_syncs.pluck(:status).compact.join(' ') %>"></i> <%= name %> (<%= syncs.size %>)</span>
+      <span class="external-connection" data-toggle="external-connections-<%= name.underscore_blanks %>"><i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i> <%= name %> (<%= syncs.size %>)</span>
       <div class="dropdown-pane bottom external-connections-dropdown" id="external-connections-<%= name.underscore_blanks %>" data-dropdown data-hover="true" data-hover-pane="true">
         <ul class="list-items no-bullet">
           <% syncs.each do |sync| %>
