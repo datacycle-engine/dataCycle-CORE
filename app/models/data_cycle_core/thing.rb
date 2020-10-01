@@ -39,7 +39,7 @@ module DataCycleCore
       end
     end
 
-    has_many :histories, -> { joins(:translations).order('LOWER(thing_history_translations.history_valid) DESC, thing_history_translations.created_at DESC') }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
+    has_many :histories, -> { joins(:translations).order(Arel.sql('LOWER(thing_history_translations.history_valid) DESC, thing_history_translations.created_at DESC')) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
     has_many :scheduled_data, class_name: 'DataCycleCore::Schedule', dependent: :destroy, inverse_of: :thing
 
     has_many :duplicate_candidates, -> { where(false_positive: false).order(score: :asc) }, class_name: 'DuplicateCandidate', foreign_key: :original_id, inverse_of: :original
