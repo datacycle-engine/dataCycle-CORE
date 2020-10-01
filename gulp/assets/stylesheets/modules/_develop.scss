@@ -1040,11 +1040,7 @@ a.link {
     }
 
     &.active {
-      .email-link {
-        color: $black;
-        font-weight: bold;
-      }
-      .history-time {
+      > * {
         color: $black;
         font-weight: bold;
       }
