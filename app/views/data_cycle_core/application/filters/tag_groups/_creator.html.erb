@@ -4,7 +4,7 @@
     <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
   </span>
 
-  <% creators = DataCycleCore::User.where(id: value).map { |c| [c.id, { title: c.email, text: "#{c.given_name} #{c.family_name}" }] }.to_h %>
+  <% creators = DataCycleCore::User.where(id: value).map { |c| [c.id, { title: c.email, text: c.try(:full_name) }] }.to_h %>
 
   <span class="tags-container">
     <% value.each do |creator_id| %>
