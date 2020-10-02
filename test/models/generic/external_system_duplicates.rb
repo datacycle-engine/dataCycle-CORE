@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   module Generic
-    class FeratelTest < ActiveSupport::TestCase
+    class FeratelTest < DataCycleCore::TestCases::ActiveSupportTestCase
       def download_from_local_json(external_source, folder_name, credentials = false)
         path = Rails.root.join('..', 'fixtures', 'external_sources', folder_name)
         files = path + '*.json'
@@ -35,26 +35,51 @@ module DataCycleCore
         end
       end
 
-      test 'perform import' do
-        options = {
+      before(:all) do
+        @options = {
           max_count: 1,
           mode: 'full'
         }
-        external_source_f = DataCycleCore::ExternalSystem.find_by(name: 'Feratel VCloud')
-        download_from_local_json(external_source_f, 'feratel', true)
-        external_source_f.import(options)
-        external_source_oa = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive')
-        download_from_local_json(external_source_oa, 'outdoor_active')
-        external_source_oa.import(options)
+        @external_source_f = DataCycleCore::ExternalSystem.find_by(name: 'Feratel VCloud')
+        @external_source_oa = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive')
 
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').count)
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Unterkunft').with_schema_type('Place').count)
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Event').with_schema_type('Event').count)
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'EventSchedule').with_schema_type('Event').count)
-        assert_equal(3, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').count)
+        download_from_local_json(@external_source_f, 'feratel', true)
+        download_from_local_json(@external_source_oa, 'outdoor_active')
+        @external_source_f.import(@options)
       end
 
-      def teardown
+      test 'perform import with duplicate image' do
+        DataCycleCore::Thing.find_by(template: false, template_name: 'Bild', external_source_id: @external_source_f.id, external_key: 'd0e6eb3e-788a-421e-a240-5ac2d8bc082e').add_external_system_data(@external_source_oa, nil, nil, 'duplicate', '3572986')
+
+        @external_source_oa.import(@options)
+
+        assert_equal(2, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').size)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Unterkunft').with_schema_type('Place').size)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Event').with_schema_type('Event').size)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'EventSchedule').with_schema_type('Event').size)
+        assert_equal(5, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').size)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Tour').with_schema_type('Place').size)
+
+        assert_equal 2, DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_f.id).image.size
+        assert_equal 1, DataCycleCore::Thing.find_by(template: false, template_name: 'Event', external_source_id: @external_source_f.id).image.size
+        assert_equal 2, DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_oa.id).image.size
+        assert_equal 1, DataCycleCore::Thing.find_by(template: false, template_name: 'Tour', external_source_id: @external_source_oa.id).image.size
+      end
+
+      test 'perform import with duplicate poi' do
+        DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_f.id).add_external_system_data(@external_source_oa, nil, nil, 'duplicate', '3047464')
+
+        @external_source_oa.import(@options)
+
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').size)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Unterkunft').with_schema_type('Place').size)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Event').with_schema_type('Event').size)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'EventSchedule').with_schema_type('Event').size)
+        assert_equal(6, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').size)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Tour').with_schema_type('Place').size)
+      end
+
+      after(:all) do
         DataCycleCore::MongoHelper.drop_mongo_db('Feratel VCloud')
         DataCycleCore::MongoHelper.drop_mongo_db('OutdoorActive')
       end

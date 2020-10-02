@@ -23,6 +23,9 @@ module DataCycleCore
         def self.create_or_update_content(utility_object:, template:, data:, local: false, config: {})
           return nil if data.except('external_key', 'locale').blank?
 
+          duplicate = DataCycleCore::ExternalSystemSync.find_by(external_system_id: utility_object.external_source.id, sync_type: 'duplicate', external_key: data['external_key'], syncable_type: 'DataCycleCore::Thing')
+          return duplicate.syncable unless duplicate.nil?
+
           if local
             content = DataCycleCore::Thing.new
           else
