@@ -79,7 +79,7 @@
         :type: embedded
         :template_name: Öffnungszeit
         :translated: true
-      :overlay_trans:
+      :overlay_dummy:
         :label: invisible
         :type: string
         :storage_location: translated_value

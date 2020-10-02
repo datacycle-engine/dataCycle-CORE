@@ -36,15 +36,15 @@ module DataCycleCore
       def method_missing(name, *args, &block)
         original_name = name.to_s
         root_name = name.to_s.delete_suffix('=').delete_suffix("_#{overlay_name}")
-        property_definition = property_definitions.try(:[], root_name) || overlay_property_definitions.try(:[], root_name)
+        property_definition = property_definitions.try(:[], root_name)
         if property_definition && name.to_s.ends_with?('=')
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
           set_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
         elsif property_definition
           overlay_flag = original_name.ends_with?(overlay_name)
-          original_name = name.to_s.delete_suffix("_#{overlay_name}") if DataCycleCore::Feature::Overlay.enabled? && name.to_s.ends_with?(overlay_name)
+          original_name = original_name.delete_suffix("_#{overlay_name}") if DataCycleCore::Feature::Overlay.enabled? && original_name.ends_with?(overlay_name)
 
-          if original_name.to_s.in?(embedded_property_names + linked_property_names)
+          if original_name.in?(embedded_property_names + linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
             get_property_value(original_name, property_definition, args.first, overlay_flag & original_name.in?(overlay_property_names))
           else
