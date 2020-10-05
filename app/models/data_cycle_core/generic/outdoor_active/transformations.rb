@@ -125,7 +125,7 @@ module DataCycleCore
             {
               'name' => name,
               'description' => hash[desc],
-              'type_of_information' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Informationstypen', desc))
+              'universal_classifications' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc))
             }
           }.compact
         end
