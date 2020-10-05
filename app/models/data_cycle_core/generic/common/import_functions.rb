@@ -23,18 +23,27 @@ module DataCycleCore
         def self.create_or_update_content(utility_object:, template:, data:, local: false, config: {})
           return nil if data.except('external_key', 'locale').blank?
 
-          duplicate = DataCycleCore::ExternalSystemSync.find_by(external_system_id: utility_object.external_source.id, sync_type: 'duplicate', external_key: data['external_key'], syncable_type: 'DataCycleCore::Thing')
-          return duplicate.syncable unless duplicate.nil?
-
           if local
             content = DataCycleCore::Thing.new
           else
-            content = DataCycleCore::Thing.find_or_initialize_by(
+            content = DataCycleCore::Thing.includes(:external_system_syncs).where(
+              external_system_syncs: {
+                external_system_id: utility_object.external_source.id,
+                sync_type: 'duplicate',
+                external_key: data['external_key'],
+                syncable_type: 'DataCycleCore::Thing'
+              }
+            ).or(
+              DataCycleCore::Thing.includes(:external_system_syncs).where(
+                external_source_id: utility_object.external_source.id,
+                external_key: data['external_key']
+              )
+            ).first || DataCycleCore::Thing.new(
               external_source_id: utility_object.external_source.id,
-              external_key: data['external_key'],
-              template_name: template.template_name, # external_keys are sometime not uniq across datatypes!
-              template: false
+              external_key: data['external_key']
             )
+
+            return content if content&.external_source_id != utility_object.external_source.id || content&.external_key != data['external_key']
           end
           content.metadata ||= {}
           content.schema = template.schema

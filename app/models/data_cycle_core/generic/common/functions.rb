@@ -127,16 +127,36 @@ module DataCycleCore
           return data_hash if condition_function.present? && !condition_function.call(data_hash)
           return data_hash if key_function.call(data_hash).blank?
 
-          data_hash.merge(
-            {
-              attribute => [
-                content_type.find_by(
+          if content_type == DataCycleCore::Thing
+            data_hash[attribute] = DataCycleCore::Thing.includes(:external_system_syncs)
+              .where(
+                external_system_syncs: {
+                  external_system_id: external_source_id,
+                  sync_type: 'duplicate',
+                  external_key: key_function.call(data_hash),
+                  syncable_type: 'DataCycleCore::Thing'
+                }
+              ).or(
+                DataCycleCore::Thing.includes(:external_system_syncs).where(
                   external_source_id: external_source_id,
                   external_key: key_function.call(data_hash)
-                )&.id
-              ].compact.presence
-            }
-          )
+                )
+              )
+              .limit(1)
+              .pluck(:id)
+              .presence
+          else
+            data_hash[attribute] = content_type
+              .where(
+                external_source_id: external_source_id,
+                external_key: key_function.call(data_hash)
+              )
+              .limit(1)
+              .pluck(:id)
+              .presence
+          end
+
+          data_hash
         end
 
         def self.add_user_link(data_hash, attribute, key_function)
@@ -149,15 +169,44 @@ module DataCycleCore
 
           key_function_values = key_function.call(data_hash) || []
           # key_function_values = [DataCycleCore::Thing.where(external_source_id: external_source_id, template: false, template_name: 'POI').first.external_key] if attribute == 'poi'
-          data_hash.merge(
-            {
-              attribute =>
-                content_type.where(
+
+          if content_type == DataCycleCore::Thing
+            data_hash[attribute] = DataCycleCore::Thing.includes(:external_system_syncs)
+              .where(
+                external_system_syncs: {
+                  external_system_id: external_source_id,
+                  sync_type: 'duplicate',
+                  external_key: key_function_values,
+                  syncable_type: 'DataCycleCore::Thing'
+                }
+              ).or(
+                DataCycleCore::Thing.includes(:external_system_syncs).where(
                   external_source_id: external_source_id,
                   external_key: key_function_values
-                )&.sort_by { |u| key_function_values.index(u.external_key) }&.map(&:id)&.compact&.presence || []
-            }
-          )
+                )
+              ).order(
+                [
+                  Arel.sql('array_position(ARRAY[?]::varchar[], (CASE WHEN external_system_syncs.external_key IS NOT NULL THEN external_system_syncs.external_key ELSE things.external_key END)::varchar)'),
+                  key_function_values
+                ]
+              )
+              .pluck(:id)
+          else
+            data_hash[attribute] = content_type
+              .where(
+                external_source_id: external_source_id,
+                external_key: key_function_values
+              )
+              .order(
+                [
+                  Arel.sql("array_position(ARRAY[?]::varchar[], #{content_type.table_name}.external_key::varchar)"),
+                  key_function_values
+                ]
+              )
+              .pluck(:id)
+          end
+
+          data_hash
         end
 
         def self.local_image(data_hash, attribute)

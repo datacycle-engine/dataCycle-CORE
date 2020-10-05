@@ -49,7 +49,8 @@ module DataCycleCore
       end
 
       test 'perform import with duplicate image' do
-        DataCycleCore::Thing.find_by(template: false, template_name: 'Bild', external_source_id: @external_source_f.id, external_key: 'd0e6eb3e-788a-421e-a240-5ac2d8bc082e').add_external_system_data(@external_source_oa, nil, nil, 'duplicate', '3572986')
+        duplicate = DataCycleCore::Thing.find_by(template: false, template_name: 'Bild', external_source_id: @external_source_f.id, external_key: '6fbe4b8f-e1c1-427e-8f82-a9911bed9d6f')
+        duplicate.add_external_system_data(@external_source_oa, nil, nil, 'duplicate', '3572986')
 
         @external_source_oa.import(@options)
 
@@ -62,8 +63,12 @@ module DataCycleCore
 
         assert_equal 2, DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_f.id).image.size
         assert_equal 1, DataCycleCore::Thing.find_by(template: false, template_name: 'Event', external_source_id: @external_source_f.id).image.size
-        assert_equal 2, DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_oa.id).image.size
-        assert_equal 1, DataCycleCore::Thing.find_by(template: false, template_name: 'Tour', external_source_id: @external_source_oa.id).image.size
+        assert_equal 1, DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_oa.id).image.size
+
+        tour_images = DataCycleCore::Thing.find_by(template: false, template_name: 'Tour', external_source_id: @external_source_oa.id).image
+
+        assert_equal 2, tour_images.size
+        assert_equal ['18444221', duplicate.external_key], tour_images.pluck(:external_key) # the order of the array is important!
       end
 
       test 'perform import with duplicate poi' do
