@@ -22,7 +22,9 @@
           :gpx: true
           :indesign: true
     :api:
-      :type: TouristAttraction
+      :type:
+        - TouristAttraction
+        - 'dcls:Slope'
     :properties:
       :id:
         :label: id

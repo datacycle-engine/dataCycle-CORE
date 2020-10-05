@@ -36,7 +36,7 @@
   :enabled: false
 
 :normalize:
-  :enabled: true
+  :enabled: false
   :external_source: Econob Normalize
   :endpoint: DataCycleCore::MasterData::Normalizer::Endpoint
 
@@ -48,6 +48,9 @@
 
 :main_filter:
   :autoload_last_filter: true
+
+:sortable:
+  :enabled: true
 
 :advanced_filter:
   :boolean:

@@ -392,6 +392,21 @@ WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', a
 
 
 --
+-- Name: content_content_relations; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.content_content_relations AS
+ SELECT e.content_b_id AS src,
+    e.content_a_id AS dest
+   FROM public.content_contents e
+UNION ALL
+ SELECT f.content_a_id AS src,
+    f.content_b_id AS dest
+   FROM public.content_contents f
+  WHERE (f.relation_b IS NOT NULL);
+
+
+--
 -- Name: data_links; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -605,11 +620,10 @@ CREATE TABLE public.external_system_syncs (
     updated_at timestamp without time zone NOT NULL,
     status character varying,
     syncable_type character varying DEFAULT 'DataCycleCore::Thing'::character varying,
-    last_push_at timestamp without time zone,
-    last_successful_push_at timestamp without time zone,
-    last_pull_at timestamp without time zone,
-    last_successful_pull_at timestamp without time zone,
-    external_key character varying
+    last_sync_at timestamp without time zone,
+    last_successful_sync_at timestamp without time zone,
+    external_key character varying,
+    sync_type character varying DEFAULT 'export'::character varying
 );
 
 
@@ -758,7 +772,8 @@ CREATE TABLE public.stored_filters (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     api_users text[],
-    linked_stored_filter_id uuid
+    linked_stored_filter_id uuid,
+    sort_parameters jsonb
 )
 WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
@@ -1637,10 +1652,10 @@ CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (ite
 
 
 --
--- Name: index_external_system_syncs_on_syncable_external_system_keys; Type: INDEX; Schema: public; Owner: -
+-- Name: index_external_system_syncs_on_unique_attributes; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_external_system_syncs_on_syncable_external_system_keys ON public.external_system_syncs USING btree (syncable_type, syncable_id, external_system_id, external_key);
+CREATE UNIQUE INDEX index_external_system_syncs_on_unique_attributes ON public.external_system_syncs USING btree (syncable_type, syncable_id, external_system_id, sync_type, external_key);
 
 
 --
@@ -1858,6 +1873,13 @@ CREATE INDEX index_thing_translations_on_thing_id ON public.thing_translations U
 --
 
 CREATE INDEX index_things_on_boost_updated_at ON public.things USING btree (boost, updated_at);
+
+
+--
+-- Name: index_things_on_boost_updated_at_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_boost_updated_at_id ON public.things USING btree (boost, updated_at, id);
 
 
 --
@@ -2279,6 +2301,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200812110341'),
 ('20200812111137'),
 ('20200824121824'),
-('20200824140802');
+('20200824140802'),
+('20200826082051'),
+('20200903102806'),
+('20200922112719'),
+('20200928122555');
 
 

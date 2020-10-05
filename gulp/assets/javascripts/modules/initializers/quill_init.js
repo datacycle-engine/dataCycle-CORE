@@ -5,11 +5,14 @@ var { QuillContentlinkModule, ContentlinkBlot } = require('./../components/quill
 var { QuillLinkFormat, QuillLinkModule } = require('../components/quill_custom_link');
 var ConfirmationModal = require('./../components/confirmation_modal');
 var quill_helpers = require('./../helpers/quill_helpers');
+var icons = Quill.import('ui/icons');
 
 var Delta = Quill.import('delta');
 let Break = Quill.import('blots/break');
 let Embed = Quill.import('blots/embed');
 let Parchment = Quill.import('parchment');
+
+icons['insertnbsp'] = '<span title="Geschütztes Leerzeichen einfügen">␣</span>';
 
 function lineBreakMatcher() {
   var newDelta = new Delta();
@@ -45,40 +48,56 @@ module.exports.initialize = function ($) {
   };
 
   var toolbar = {
-    none: [],
-    minimal: [['bold', 'italic', 'underline']],
-    basic: [
-      [
-        {
-          header: [1, 2, 3, 4, false]
-        }
+    none: {
+      container: []
+    },
+    minimal: { container: [['bold', 'italic', 'underline'], ['insertnbsp'], , ['clean']] },
+    basic: {
+      container: [
+        [
+          {
+            header: [1, 2, 3, 4, false]
+          }
+        ],
+        [{ script: 'sub' }, { script: 'super' }],
+        ['bold', 'italic', 'underline'],
+        ['insertnbsp'],
+        ['clean']
+      ]
+    },
+    full: {
+      container: [
+        [
+          {
+            align: []
+          }
+        ],
+        [
+          {
+            list: 'ordered'
+          },
+          {
+            list: 'bullet'
+          }
+        ],
+        [
+          {
+            header: [1, 2, 3, 4, false]
+          }
+        ],
+        [{ script: 'sub' }, { script: 'super' }],
+        ['bold', 'italic', 'underline'],
+        ['insertnbsp'],
+        ['customlink', 'contentlink'],
+        ['clean']
       ],
-      [{ script: 'sub' }, { script: 'super' }],
-      ['bold', 'italic', 'underline']
-    ],
-    full: [
-      [
-        {
-          align: []
+      handlers: {
+        insertnbsp: function (value) {
+          var selection = this.quill.getSelection(true);
+          this.quill.insertText(selection, '\u00a0');
         }
-      ],
-      [
-        {
-          list: 'ordered'
-        },
-        {
-          list: 'bullet'
-        }
-      ],
-      [
-        {
-          header: [1, 2, 3, 4, false]
-        }
-      ],
-      [{ script: 'sub' }, { script: 'super' }],
-      ['bold', 'italic', 'underline'],
-      ['customlink', 'contentlink']
-    ]
+      }
+    }
   };
 
   var default_options = {

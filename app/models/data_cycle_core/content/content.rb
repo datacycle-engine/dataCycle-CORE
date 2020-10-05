@@ -14,7 +14,7 @@ module DataCycleCore
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :webhook_source, :webhook_as_of, :webhook_run_at, :prevent_webhooks, :original_id, :synchronous_webhooks
+      attr_accessor :datahash, :webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :original_id, :synchronous_webhooks
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
         feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
@@ -23,7 +23,7 @@ module DataCycleCore
       extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::Content::ContentRelations
       include DataCycleCore::Content::ContentOverlay
-      extend  DataCycleCore::Content::ContentFilters
+      extend  DataCycleCore::Content::Searchable
       include DataCycleCore::Content::DestroyContent
       include DataCycleCore::Content::DataHashUtility
       include DataCycleCore::Content::Extensions::Content
@@ -42,7 +42,7 @@ module DataCycleCore
           set_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
         elsif property_definition
           overlay_flag = original_name.ends_with?(overlay_name)
-          original_name = name.to_s.delete_suffix("_#{overlay_name}") if self.class.ancestors.include?(DataCycleCore::Feature::Content::Overlay) && name.to_s.ends_with?(overlay_name)
+          original_name = name.to_s.delete_suffix("_#{overlay_name}") if DataCycleCore::Feature::Overlay.enabled? && name.to_s.ends_with?(overlay_name)
 
           if original_name.to_s.in?(embedded_property_names + linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
@@ -58,8 +58,7 @@ module DataCycleCore
 
       def respond_to?(method_name, include_all = false)
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym, (item.to_s + "_#{overlay_name}").to_sym] }.flatten +
-          linked_property_names.map { |item| item + '_ids' } +
-          Array.wrap(overlay_property_names)&.map { |item| (item + "_#{overlay_name}").to_sym }&.flatten).include?(method_name.to_sym) || super
+          linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
 
       def content_type?(*types)
@@ -183,7 +182,10 @@ module DataCycleCore
       end
 
       def computed_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'computed' }
+        @computed_property_names ||= Hash.new do |h, key|
+          h[key] = name_property_selector(key) { |definition| definition['type'] == 'computed' }
+        end
+        @computed_property_names[include_overlay]
       end
 
       def classification_property_names(include_overlay = false)
@@ -191,7 +193,10 @@ module DataCycleCore
       end
 
       def properties_with_default_values(include_overlay = false)
-        @properties_with_default_values ||= property_selector(include_overlay) { |definition| definition['default_value'].present? }
+        @properties_with_default_values ||= Hash.new do |h, key|
+          h[key] = property_selector(key) { |definition| definition['default_value'].present? }
+        end
+        @properties_with_default_values[include_overlay]
       end
 
       def asset_property_names
@@ -461,6 +466,7 @@ module DataCycleCore
       end
 
       def set_property_value(property_name, property_definition, value)
+        Appsignal.send_error(e, nil, "method set_property_value is deprecated use set_data_hash instead. Thing: #{id}(#{template_name}) - #{property_name}")
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
         ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}")
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',

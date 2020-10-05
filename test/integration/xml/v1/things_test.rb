@@ -34,7 +34,7 @@ module DataCycleCore
           assert(xml_data.dig('RDF', 'thing').present?)
           data_hash = [xml_data.dig('RDF', 'thing')].flatten.detect { |item| item.dig('contentType') == 'Artikel' }
 
-          assert_equal('http://schema.org', data_hash.dig('context'))
+          assert_equal('https://schema.org/', data_hash.dig('context'))
           assert_equal('CreativeWork', data_hash.dig('type'))
           assert_equal('Artikel', data_hash.dig('contentType'))
           assert(data_hash.dig('id').present?)

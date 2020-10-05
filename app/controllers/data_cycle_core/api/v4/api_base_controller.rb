@@ -20,7 +20,8 @@ module DataCycleCore
           rescue_from ActiveRecord::RecordNotFound, with: :not_found
         end
 
-        rescue_from DataCycleCore::Error::Api::BadRequest, with: :bad_api_request
+        rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error
+        rescue_from DataCycleCore::Error::Api::ExpiredContentError, with: :expired_content_api_error
 
         wrap_parameters format: []
 
@@ -41,6 +42,7 @@ module DataCycleCore
         after_action :log_activity, unless: -> { params[:sl] }
         before_action :authenticate, :set_default_response_format
 
+        # TODO: move validate_api_params to be called before permitted_params
         def permitted_params
           validate_api_params(params.to_unsafe_hash)
           @permitted_params ||= params.permit(*permitted_parameter_keys)

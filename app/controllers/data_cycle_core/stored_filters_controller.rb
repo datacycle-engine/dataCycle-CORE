@@ -56,11 +56,11 @@ module DataCycleCore
       redirect_to(root_path, alert: (I18n.t :no_watchlist, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if params[:watch_list_id].blank?
 
       @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list_id])
-      @watch_list = current_user.watch_lists.create(name: params[:watch_list_id]) if @watch_list.nil?
+      @watch_list = current_user.watch_lists.create(full_path: params[:watch_list_id]) if @watch_list.nil?
 
       authorize! :add_item, @watch_list
 
-      content_query = get_filtered_results.distinct_by_content_id(@order_string).select("'#{@watch_list.id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()")
+      content_query = get_filtered_results.select("'#{@watch_list.id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()")
 
       ActiveRecord::Base.connection.execute <<-SQL.squish
         INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type, created_at, updated_at)

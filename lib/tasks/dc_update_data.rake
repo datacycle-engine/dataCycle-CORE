@@ -17,7 +17,7 @@ namespace :dc do
       end
 
       selected_things.find_each.select { |template| template.computed_property_names.present? }.each do |template|
-        next if computed_names.size.positive? && !(computed_names & template.computed_property_names).size.positive?
+        next if computed_names.present? && computed_names.size.positive? && !(computed_names & template.computed_property_names).size.positive?
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         items_to_update = items.size
         translated_computed = (template.computed_property_names & template.translatable_property_names).present?
@@ -34,10 +34,10 @@ namespace :dc do
 
           if translated_computed
             item.available_locales.each do |locale|
-              I18n.with_locale(locale) { item.set_data_hash(data_hash: item.get_data_hash) }
+              I18n.with_locale(locale) { item.set_data_hash(data_hash: item.get_data_hash.except(*template.computed_property_names)) }
             end
           else
-            I18n.with_locale(item.first_available_locale) { item.set_data_hash(data_hash: item.get_data_hash) }
+            I18n.with_locale(item.first_available_locale) { item.set_data_hash(data_hash: item.get_data_hash.except(*template.computed_property_names)) }
           end
         end
 
@@ -73,17 +73,6 @@ namespace :dc do
           end
           progressbar.increment
         end
-      end
-    end
-
-    desc 'migrate collections for feature/collection_groups'
-    task migrate_collections: :environment do
-      if DataCycleCore::Feature::CollectionGroup.enabled?
-        separator = DataCycleCore::Feature::CollectionGroup.separator
-        ActiveRecord::Base.connection.execute <<-SQL
-          UPDATE watch_lists
-          SET name = (string_to_array(full_path, '#{separator}'))[array_length(string_to_array(full_path, '#{separator}'), 1)], full_path_names = (string_to_array(full_path, '#{separator}'))[1:array_length(string_to_array(full_path, '#{separator}'), 1) - 1]
-        SQL
       end
     end
   end

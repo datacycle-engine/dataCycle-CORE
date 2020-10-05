@@ -15,13 +15,12 @@ module DataCycleCore
         end
 
         def update
-          strategy = api_strategy
+          strategy, external_system = api_strategy
           render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?
           contents = Array.wrap(content_params.as_json)
 
-          external_source_id = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id]).try(:id)
           responses = contents.map do |content|
-            strategy.update(content.merge('data_cycle_external_system_id' => external_source_id))
+            strategy.update(content, external_system)
           end
 
           errors = responses.select { |i| i[:error].present? }
@@ -40,13 +39,12 @@ module DataCycleCore
         # end
 
         def destroy
-          strategy = api_strategy
+          strategy, external_system = api_strategy
           render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?
           contents = Array.wrap(content_params.as_json)
 
-          external_source_id = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id]).try(:id)
           responses = contents.map do |content|
-            strategy.delete(content.merge('data_cycle_external_system_id' => external_source_id))
+            strategy.delete(content, external_system)
           end
 
           errors = responses.select { |i| i[:error].present? }
@@ -65,10 +63,10 @@ module DataCycleCore
         end
 
         def api_strategy
-          external_source = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id])
-          api_strategy = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
+          external_system = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id])
+          api_strategy = DataCycleCore.allowed_api_strategies.find { |object| object == external_system.config['api_strategy'] }
 
-          api_strategy&.constantize&.new(external_source, permitted_params[:type], permitted_params[:external_key], permitted_params[:token])
+          return api_strategy&.constantize&.new(external_system, permitted_params[:type], permitted_params[:external_key], permitted_params[:token]), external_system
         end
       end
     end

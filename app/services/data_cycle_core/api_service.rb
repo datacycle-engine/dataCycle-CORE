@@ -16,7 +16,7 @@ module DataCycleCore
         '@graph' => json_contents,
         'links' => json_links
       }
-      list_hash['meta'] = api_plain_meta(contents.total_count, contents.total_pages) unless @mode_parameters == 'strict'
+      list_hash['meta'] = api_plain_meta(contents.total_count, contents.total_pages) unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
       list_hash
     end
 
@@ -33,7 +33,7 @@ module DataCycleCore
         '@graph' => json_contents,
         'links' => json_links
       }
-      list_hash['meta'] = api_plain_meta(contents.total_count, contents.total_pages) unless @mode_parameters == 'strict'
+      list_hash['meta'] = api_plain_meta(contents.total_count, contents.total_pages) unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
       list_hash
     end
 
@@ -42,7 +42,8 @@ module DataCycleCore
       filters.each do |filter_k, filter_v|
         filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
         next if filter_v.blank?
-        filter_method_name = ('apply_' + filter_k.to_s + '_filters')
+        filter_method_name = ('apply_' + filter_k.to_s.parameterize(separator: '_') + '_filters')
+        # TODO: add API error
         next unless respond_to?(filter_method_name)
         query = send(filter_method_name, query, filter_v)
       end
@@ -60,6 +61,8 @@ module DataCycleCore
       end
       query
     end
+
+    alias apply_dc_classification_filters apply_classifications_filters
 
     def apply_geo_filters(query, filters)
       filters.each do |operator, filter|
@@ -104,7 +107,7 @@ module DataCycleCore
         linked_query = linked_stored_filter.apply
 
         # add error handling
-        attribute_filter.delete_if { |k, _v| ![:classifications, :geo, :attribute].include?(k) }
+        attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute].include?(k) }
 
         linked_query = apply_filters(linked_query, attribute_filter)
         query = query.relation_filter(linked_query, linked_attribute_mapping(linked_name)) if linked_query.present?
@@ -113,7 +116,7 @@ module DataCycleCore
     end
 
     def query_method_mapping(key)
-      date_range = [:modifiedAt, :createdAt]
+      date_range = [:'dct:modified', :'dct:created']
       return 'date_range' if date_range.include?(key)
       return 'in_schedule' if key == :schedule
       return 'within_box' if key == :box
@@ -133,9 +136,9 @@ module DataCycleCore
 
     def attribute_path_mapping(attribute_key)
       case attribute_key
-      when :modifiedAt
+      when :'dct:modified'
         'updated_at'
-      when :createdAt
+      when :'dct:created'
         'created_at'
       when :schedule
         # currently a hack
@@ -164,27 +167,34 @@ module DataCycleCore
       }
     end
 
+    def classification_filter_operations
+      {
+        in: {
+          withSubtree: [],
+          withoutSubtree: []
+        },
+        notIn: {
+          withSubtree: [],
+          withoutSubtree: []
+        }
+      }
+    end
+
     def attribute_filters
       [
         :search,
         :q,
         {
-          classifications: {
-            in: {
-              withSubtree: [],
-              withoutSubtree: []
-            },
-            notIn: {
-              withSubtree: [],
-              withoutSubtree: []
-            }
-          }
+          classifications: classification_filter_operations
+        },
+        {
+          'dc:classification': classification_filter_operations
         },
         {
           attribute: {
-            createdAt: attribute_filter_operations,
-            deletedAt: attribute_filter_operations,
-            modifiedAt: attribute_filter_operations,
+            'dct:created': attribute_filter_operations,
+            'dct:deleted': attribute_filter_operations,
+            'dct:modified': attribute_filter_operations,
             schedule: attribute_filter_operations
           }
         },
@@ -218,9 +228,10 @@ module DataCycleCore
         linked_validation = linked_validator.call(attribute_filter)
         validation_errors += api_errors(linked_validation.errors, linked_name) if linked_validation.errors.to_h.present?
       end
-      raise DataCycleCore::Error::Api::BadRequest.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
+      raise DataCycleCore::Error::Api::BadRequestError.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
     end
 
+    # only used for classifications + deleted things endpoint
     def apply_timestamp_query_string(values, attribute_path)
       date_range = "[#{date_from_single_value(values.dig(:min))&.beginning_of_day},#{date_from_single_value(values.dig(:max))&.end_of_day}]"
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
@@ -230,15 +241,35 @@ module DataCycleCore
       order_query = []
       order_params&.split(',')&.each do |sort|
         key, order = key_with_ordering(sort)
-        order_query << transform_sort_param(key, order)
+        order_query <<
+          {
+            'm' => key.parameterize(separator: '_'),
+            'o' => order
+          }
       end
       order_query = order_query&.reject(&:blank?)
 
       if order_query.blank?
-        return query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(full_text_search.presence, schedule)) if schedule.present? || full_text_search.present?
-        order_query = ['updated_at ASC']
+        query = query.sort_fulltext_search('DESC', full_text_search) if full_text_search.present?
+        query = query.sort_by_proximity if schedule.present?
+        return query
       end
-      query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
+
+      query = query.reset_sort
+      order_query.each do |sort|
+        sort_method_name = 'sort_' + sort['m']
+        next unless query.respond_to?('sort_' + sort['m'])
+
+        if query.method(sort_method_name)&.parameters&.size == 2
+          query = query.send(sort_method_name, sort['o'].presence, sort['v'].presence)
+        elsif query.method(sort_method_name)&.parameters&.size == 1
+          query = query.send(sort_method_name, sort['o'].presence)
+        else
+          next
+        end
+      end
+
+      query
     end
 
     def key_with_ordering(sort)
@@ -267,6 +298,7 @@ module DataCycleCore
       end
     end
 
+    # TODO: check if required
     def date_from_single_value(value)
       return if value.blank?
       return value if value.is_a?(::Date)

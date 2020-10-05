@@ -5,7 +5,8 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::ParamsResolver
     include DataCycleCore::ErrorHandler
-    before_action :authenticate_user!, :set_watch_list
+    before_action :authenticate_user!, except: [:asset]
+    before_action :set_watch_list, except: [:asset]
 
     DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
       feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
@@ -84,6 +85,13 @@ module DataCycleCore
       end
     end
 
+    def asset
+      content = DataCycleCore::Thing.find(params[:id])
+      raise ActiveRecord::RecordNotFound unless content.respond_to?(:content_url)
+      uri = URI.parse(content.content_url)
+      redirect_to(uri.to_s)
+    end
+
     def new
       @resolved_params = resolve_params(new_params)
       @template = DataCycleCore::Thing.find_by(template: true, template_name: @resolved_params[:template])
@@ -126,6 +134,7 @@ module DataCycleCore
 
     def edit
       @content ||= DataCycleCore::Thing.find(params[:id])
+      @hide_embedded = params[:hide_embedded].present?
 
       # get show data for split view
       if source_params.present?
@@ -274,6 +283,7 @@ module DataCycleCore
       @locale = render_embedded_object_params[:locale]
       @attribute_locale = render_embedded_object_params[:attribute_locale]
       @duplicated_content = render_embedded_object_params[:duplicated_content]
+      @hide_embedded = render_embedded_object_params[:hide_embedded]
 
       if @content&.template
         authorize! :edit, @content
@@ -424,7 +434,7 @@ module DataCycleCore
     end
 
     def render_embedded_object_params
-      params.permit(:id, :locale, :attribute_locale, :key, :index, :duplicated_content, object_ids: [], definition: {}, options: {})
+      params.permit(:id, :locale, :attribute_locale, :key, :index, :duplicated_content, :hide_embedded, object_ids: [], definition: {}, options: {})
     end
 
     def content_params(template_name, params_hash = nil)

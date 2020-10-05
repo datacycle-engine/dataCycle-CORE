@@ -60,4 +60,15 @@ module.exports.initialize = function ($) {
             .remove();
       });
   });
+
+  $(document).on('click', 'div.accordion-title', event => {
+    if ($(event.target).closest('a').length) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    $(event.currentTarget)
+      .closest('[data-accordion]')
+      .foundation('toggle', $(event.currentTarget).closest('.accordion-title').siblings('.accordion-content'));
+  });
 };

@@ -6,7 +6,7 @@ body.schema {
     h1 {
       font: bold 24px Helvetica, Arial, sans-serif;
       letter-spacing: -1px;
-      margin: 0.25em 0 0 0;
+      margin: 1em 0 0 0;
     }
 
     table {
@@ -38,6 +38,11 @@ body.schema {
       tbody {
         th {
           font-family: Courier, monospace;
+          white-space: nowrap;
+
+          .fa {
+            vertical-align: middle;
+          }
         }
 
         td {

@@ -48,7 +48,7 @@ module DataCycleCore
       end
 
       def schema_name
-        @template_schema.dig('api', 'type') || @template_schema['schema_type']
+        Array.wrap(@template_schema.dig('api', 'type')).reject { |s| s.start_with?('dc:', 'dcls:') }.presence || @template_schema['schema_type']
       end
 
       def content_type
@@ -70,6 +70,7 @@ module DataCycleCore
                 comment: definition['type'] == 'classification' ? definition['tree_label'] : nil,
                 comment_link: definition['tree_label'].present? ? DataCycleCore::ClassificationTreeLabel.find_by(name: definition['tree_label'])&.id : nil,
                 translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name') ? true : false,
+                fulltext_search: definition.dig('search') == true,
                 embedded: definition['type'] == 'embedded'
               }
             end
@@ -89,36 +90,24 @@ module DataCycleCore
       end
 
       def resolve_data_type(definition)
-        if definition.dig('api', 'type')
-          "//schema.org/#{definition.dig('api', 'type')}"
-        elsif definition['type'] == 'embedded'
+        return "//schema.org/#{definition.dig('api', 'type')}" if definition.dig('api', 'type')
+
+        case definition['type']
+        when 'embedded'
           raise 'Cannot resolve embedded templates without schema' if @schema.nil?
-          "/schema/#{@schema.template_by_template_name(definition['template_name']).schema_name}"
-        elsif definition['type'] == 'linked'
+          "/schema/#{definition['template_name']}"
+        when 'linked'
           if definition['template_name'].present?
             raise 'Cannot resolve linked templates without schema' if @schema.nil?
-            Array.wrap(@schema.template_by_template_name(definition['template_name']).schema_name)
-              .compact
-              &.map { |i| DataCycleCore::Thing.find_by(template_name: i, template: true).present? ? "/schema/#{i}" : "//schema.org/#{i}" }
+            "/schema/#{definition['template_name']}"
           elsif definition['stored_filter'].present?
             raise 'Cannot resolve linked templates without schema' if @schema.nil?
             @schema.template_by_classification(definition.dig('stored_filter', 0, 'with_classification_aliases_and_treename', 'aliases'))
-              .map { |i|
-                template_name = i
-                template_name = 'Organization' if i == 'Organisation' # no direct relation between Classification and Template!
-                if DataCycleCore::Thing.find_by(template_name: template_name, template: true).present?
-                  "/schema/#{template_name}"
-                else
-                  Array.wrap(@schema.template_by_template_name(i)&.schema_name)
-                    .compact
-                    &.map { |item| DataCycleCore::Thing.find_by(template_name: item, template: true).present? ? "/schema/#{item}" : "//schema.org/#{item}" }
-                    .presence
-                end
-              }.compact
+              .map { |i| i.sub(/^Organisation$/, 'Organization') }.compact
           else
             '//schema.org/Thing'
           end
-        elsif definition['type'] == 'classification'
+        when 'classification'
           'classification'
         else
           case definition.dig('compute', 'type') || definition['type']

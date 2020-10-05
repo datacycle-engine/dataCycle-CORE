@@ -81,6 +81,19 @@ $fa-font-path: '/assets';
         }
       }
     }
+    .ql-insertnbsp {
+      position: relative;
+      overflow: hidden;
+
+      span {
+        display: inline-block;
+        font-size: 1.3rem;
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 100%;
+      }
+    }
   }
 }
 

@@ -67,5 +67,36 @@ module DataCycleCore
     def new_relation(diff, table)
       "data_cycle_core/#{table}".classify.constantize.where(id: change_by_mode(diff, '+'))
     end
+
+    def visible_content_date(content)
+      data = {}
+      if content.created_at.present?
+        data[:created] = safe_join([
+                                     t('history.created_at', locale: DataCycleCore.ui_language),
+                                     l(content.created_at.in_time_zone, locale: DataCycleCore.ui_language),
+                                     history_by_link(content.created_by_user)
+                                   ], ' ')
+      end
+
+      if content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i
+        data[:updated] = tag.span(safe_join([
+                                              t('history.updated_at', locale: DataCycleCore.ui_language),
+                                              l(content.updated_at.in_time_zone, locale: DataCycleCore.ui_language),
+                                              history_by_link(content.updated_by_user)
+                                            ], ' '), title: content.histories.exists? ? nil : strip_tags(data[:created]).presence)
+      end
+
+      data
+    end
+
+    def history_by_link(user)
+      link_text = t('terms.from', locale: DataCycleCore.ui_language)
+
+      if user.nil?
+        safe_join([link_text, tag.b('System')], ' ')
+      else
+        safe_join([link_text, tag.b(tag.a(user.full_name, class: 'email-link', href: "mailto:#{user.email}", title: user.full_name))], ' ')
+      end
+    end
   end
 end

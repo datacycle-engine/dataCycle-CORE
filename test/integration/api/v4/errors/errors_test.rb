@@ -7,6 +7,11 @@ module DataCycleCore
     module V4
       module Errors
         class ErrorTest < DataCycleCore::V4::Base
+          setup do
+            @content = DataCycleCore::V4::DummyDataHelper.create_data('article')
+            @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { validity_period: { 'valid_from' => 10.days.ago, 'valid_until' => 5.days.ago } })
+          end
+
           # TODO: add more test for invalid values (classifications, Date, ...)
           test 'api/v4/things with invalid parameter (empty value)' do
             params = {
@@ -112,7 +117,7 @@ module DataCycleCore
             params = {
               filter: {
                 attribute: {
-                  createdAt: {
+                  'dct:created': {
                     in: {
                       asdf: '2020-5/5'
                     }
@@ -128,7 +133,7 @@ module DataCycleCore
             assert_equal(1, json_data['errors'].size)
             error_object = {
               'source' => {
-                'parameter' => 'filter[attribute][createdAt][in][asdf]'
+                'parameter' => 'filter[attribute][dct:created][in][asdf]'
               },
               'title' => 'Unknown Query Parameter',
               'detail' => 'is not allowed'
@@ -174,7 +179,7 @@ module DataCycleCore
                 linked: {
                   contentLocation: {
                     attribute: {
-                      modifiedAt: {
+                      'dct:modified': {
                         in: {
                           min: ['asdf']
                         }
@@ -192,7 +197,7 @@ module DataCycleCore
             assert_equal(1, json_data['errors'].size)
             error_object = {
               'source' => {
-                'parameter' => 'filter[linked][contentLocation][attribute][modifiedAt][in][min]'
+                'parameter' => 'filter[linked][contentLocation][attribute][dct:modified][in][min]'
               },
               'title' => 'Invalid Query Parameter',
               'detail' => 'must be a string'
@@ -209,7 +214,7 @@ module DataCycleCore
                     linked: {
                       image: {
                         attribute: {
-                          modifiedAt: {
+                          'dct:modified': {
                             in: {
                               min: '2020-07-07'
                             }
@@ -229,10 +234,30 @@ module DataCycleCore
             assert_equal(1, json_data['errors'].size)
             error_object = {
               'source' => {
-                'parameter' => 'filter[linked][contentLocation][linked][image][attribute][modifiedAt][in][min]'
+                'parameter' => 'filter[linked][contentLocation][linked][image][attribute][dct:modified][in][min]'
               },
               'title' => 'Unknown Query Parameter',
               'detail' => 'is not allowed'
+            }
+            assert_equal(error_object, json_data.dig('errors').first)
+          end
+
+          test 'api/v4/things detail error for expired items' do
+            params = {
+              id: @content.id
+            }
+            post api_v4_thing_path(params)
+            assert_response :not_found
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            error_object = {
+              'source' => {
+                'pointer' => request.path
+              },
+              'title' => 'Content is expired',
+              'detail' => 'is expired'
             }
             assert_equal(error_object, json_data.dig('errors').first)
           end

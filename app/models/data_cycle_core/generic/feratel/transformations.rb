@@ -44,7 +44,7 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['Service']))
           .>> t(:reject_keys, ['Names', 'Name'])
-          .>> t(:unwrap_address, 'Object')
+          .>> t(:unwrap_address_data, 'Object', ->(s) { Array.wrap(s.dig('Addresses', 'Address')) })
           .>> t(:add_field, 'street_address', ->(s) { s.dig('Address', 'AddressLine1') })
           .>> t(:add_field, 'address_locality', ->(s) { s.dig('Address', 'Town') })
           .>> t(:add_field, 'postal_code', ->(s) { s.dig('Address', 'ZipCode') })
@@ -170,7 +170,10 @@ module DataCycleCore
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
+          .>> t(:add_field, 'potential_action', ->(s) { parse_links(s.dig('Links', 'Link')) })
+          .>> t(:add_links, 'founder', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('Addresses', 'Address')).select { |i| i.dig('Type') == 'LandLord' }.map { |i| i.dig('Id') } })
           .>> t(:add_cc, external_source_id)
+          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description')) })
           .>> t(:add_amenity_features, external_source_id)
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] } })
           .>> t(:unwrap, 'Details')
@@ -183,7 +186,7 @@ module DataCycleCore
           .>> t(:unwrap_description, 'ServiceProviderDescription')
           .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
           .>> t(:reject_keys, ['Town'])
-          .>> t(:unwrap_address, 'Object')
+          .>> t(:unwrap_address_data, 'Object', ->(s) { Array.wrap(s.dig('Addresses', 'Address')) })
           .>> t(:unwrap, 'Address')
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
@@ -214,6 +217,71 @@ module DataCycleCore
         # .>> t(:add_field, 'makes_offer_service', ->(s) { parse_products([s.dig('Services', 'Service')]&.flatten&.compact, external_source_id) })
         # .>> t(:add_field, 'makes_offer_package', ->(s) { parse_packages([s.dig('HousePackageMasters', 'HousePackageMaster')]&.flatten&.compact, external_source_id) })
         # .>> t(:add_field, 'makes_offer', ->(s) { Array(s.dig('makes_offer_package')) + Array(s.dig('makes_offer_service')) })
+
+        def self.parse_descriptions(data)
+          return [] if data.blank?
+          Array.wrap(data).map do |desc|
+            to_additional_information.call(desc)
+          end
+        end
+
+        def self.to_additional_information
+          t(:rename_keys, { 'text' => 'description' })
+          .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate').in_time_zone })
+          .>> t(:add_field, 'name', ->(s) { s.dig('Type') })
+          .>> t(:add_field, 'universal_classifications', ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc) } })
+          .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
+        end
+
+        def self.make_season(from, to)
+          raise ArgumentError if from.blank? || to.blank?
+          return [] if from == '101' && to == '3112' # no schedule, is valid all year long
+          from_date = Time.zone.local(2010, from.to_i / 100, from.to_i % 100, 0, 0)
+          to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 0, 0)
+          from_yday = from_date.to_date.yday
+          to_yday = to_date.to_date.yday
+          to_yday = -366 + to_yday if from_yday > to_yday
+          rrule = IceCube::Rule.yearly.day_of_year(from_yday, to_yday)
+          schedule_object = IceCube::Schedule.new(from_date) do |s|
+            s.add_recurrence_rule(rrule)
+          end
+          schedule_object.to_hash.merge(dtstart: from_date)
+        end
+
+        def self.parse_links(data)
+          return [] if data.blank?
+          Array.wrap(data).map do |link|
+            to_view_action.call(link)
+          end
+        end
+
+        def self.to_view_action
+          t(:rename_keys, { 'URL' => 'url', 'Id' => 'external_key', 'Name' => 'name' })
+          .>> t(:map_value, 'url', ->(s) { s.nil? || s == 'http://' ? '' : (!s.starts_with?('http://') && !s.starts_with?('https://') ? "http://#{s}" : s) })
+          .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_key: s.dig('external_key'))&.id })
+          .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
+          .>> t(:add_field, 'action_type', ->(_) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'View')) })
+          .>> t(:reject_keys, ['ChangeDate', 'Type', 'Order', 'Names'])
+        end
+
+        def self.to_landlord(external_source_id)
+          t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:unwrap_description, 'AddressContactDescription')
+          .>> t(:rename_keys, { 'AddressContactDescription' => 'description' })
+          .>> t(:add_field, 'external_key', ->(s) { "LandLord:#{s.dig('Id')}" })
+          .>> t(:reject_keys, ['Id'])
+          .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
+          .>> t(:add_field, 'name', ->(s) { [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
+          .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['AddressContactDocument']))
+          .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
+          .>> t(:nest, 'contact_info', ['name', 'email', 'fax_number', 'telephone', 'url'])
+          .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
+          .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
+          .>> t(:add_field, 'name', ->(s) { s.dig('Company') || [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
+        end
 
         def self.feratel_to_aggregate_offer(external_source_id)
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
@@ -372,7 +440,7 @@ module DataCycleCore
           .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructureShort')) if v&.dig('InfrastructureShort').present? })
           .>> t(:add_field, 'text', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructureLong')) if v&.dig('InfrastructureLong').present? })
           .>> t(:add_field, 'price_range', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructurePriceInfo')) if v&.dig('InfrastructurePriceInfo').present? })
-          .>> t(:unwrap_address, 'InfrastructureExternal')
+          .>> t(:unwrap_address_data, 'InfrastructureExternal', ->(s) { Array.wrap(s.dig('Addresses', 'Address')) })
           .>> t(:unwrap, 'Address', ['AddressLine1', 'Town', 'ZipCode', 'Country', 'Fax', 'Phone', 'Email', 'URL'])
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
@@ -749,7 +817,7 @@ module DataCycleCore
                 rrule.hour_of_day(tstart.hour)
                 rrule.minute_of_hour(tstart.minute) if tstart.minute.positive?
                 rrule.day(active_days) if active_days.present?
-                rrule.until(dtend)
+                rrule.until(dtend.end_of_day)
                 schedule_object = IceCube::Schedule.new(dtstart, options) do |s|
                   s.add_recurrence_rule(rrule)
                 end

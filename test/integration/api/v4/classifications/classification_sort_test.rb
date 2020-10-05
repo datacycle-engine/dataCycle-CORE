@@ -21,7 +21,7 @@ module DataCycleCore
 
             # DESC
             params = {
-              sort: '-created'
+              sort: '-dct:created'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -35,7 +35,7 @@ module DataCycleCore
 
             # ASC
             params = {
-              sort: '+created'
+              sort: '+dct:created'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -49,7 +49,7 @@ module DataCycleCore
 
             # make sure ASC is default
             params = {
-              sort: 'created'
+              sort: 'dct:created'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -71,7 +71,7 @@ module DataCycleCore
             # DESC
             tree_tags.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
-              sort: '-modified'
+              sort: '-dct:modified'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -85,7 +85,7 @@ module DataCycleCore
 
             # ASC
             params = {
-              sort: '+modified'
+              sort: '+dct:modified'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -99,7 +99,7 @@ module DataCycleCore
 
             # make sure ASC is default
             params = {
-              sort: 'modified'
+              sort: 'dct:modified'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -111,16 +111,16 @@ module DataCycleCore
               assert(a.dig('dct:modified').to_datetime <= b.dig('dct:modified').to_datetime)
             end
 
-            # make sure modified ASC is default for empty sort params
+            # make sure modified DESC is default for empty sort params
             params = {}
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
             json_data = JSON.parse(response.body)
-            assert_equal(tree_tags.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(tree_tags.id, json_data.dig('@graph').first.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime <= b.dig('dct:modified').to_datetime)
+              assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
             end
             tree_tags.update_column(:updated_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
           end
@@ -131,7 +131,7 @@ module DataCycleCore
 
             tree_tags.update_column(:created_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
-              sort: '-created,+modified,+another'
+              sort: '-dct:created,+dct:modified,+another'
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -157,7 +157,7 @@ module DataCycleCore
             # modified ASC
             params = {
               id: tree_id,
-              sort: 'modified'
+              sort: 'dct:modified'
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
@@ -172,7 +172,7 @@ module DataCycleCore
             # modified ASC
             params = {
               id: tree_id,
-              sort: '+modified'
+              sort: '+dct:modified'
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
@@ -187,7 +187,7 @@ module DataCycleCore
             # modified DESC
             params = {
               id: tree_id,
-              sort: '-modified'
+              sort: '-dct:modified'
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
@@ -199,7 +199,7 @@ module DataCycleCore
               assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
             end
 
-            # make sure default is modified ASC
+            # make sure default is modified DESC
             params = {
               id: tree_id
             }
@@ -207,16 +207,16 @@ module DataCycleCore
             assert_api_count_result(classifications_count)
 
             json_data = JSON.parse(response.body)
-            assert_equal(classificaton_tag.id, json_data.dig('@graph').last.dig('@id'))
+            assert_equal(classificaton_tag.id, json_data.dig('@graph').first.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime <= b.dig('dct:modified').to_datetime)
+              assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
             end
 
             # muliple and invalid sort params
             params = {
               id: tree_id,
-              sort: '-modified,+created,+another,++another2'
+              sort: '-dct:modified,+dct:created,+another,++another2'
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)

@@ -207,6 +207,12 @@
           :name: containsPlace
           :partial: to_linked
         :advanced_search: true
+      :additional_snow_report:
+        :label: freie Scheehöhenmesspunkte
+        :type: linked
+        :inverse_of: snow_resort
+        :link_direction: inverse
+        :template_name: freie Scheehöhenmesspunkte
       :url:
         :label: Link
         :type: string

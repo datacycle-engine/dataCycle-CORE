@@ -8,6 +8,13 @@
       :id:
         :label: id
         :type: key
+      :type_of_information:
+        :label: Informationstyp
+        :type: classification
+        :tree_label: Informationstypen
+        :ui:
+          :show:
+            :content_area: header
       :name:
         :label: Name
         :type: string
@@ -28,6 +35,13 @@
             :type: text_editor
             :options:
               :data-size: basic
+      :validity_schedule:
+        :label: Season
+        :type: schedule
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
       :image:
         :label: Bilder
         :type: linked

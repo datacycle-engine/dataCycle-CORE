@@ -26,6 +26,7 @@ module DataCycleCore
               'gettingThere' => 'directions'
             }
           )
+          .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'place') })
           .>> t(:map_value, 'elevation', ->(s) { s.try(:to_f) })
           .>> t(:add_field, 'latitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
           .>> t(:add_field, 'longitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f) })
@@ -57,7 +58,7 @@ module DataCycleCore
           .>> t(:add_field, 'tour', ->(s) { tour(s&.dig('geometry')) })
           .>> t(:unwrap, 'elevation', ['ascent', 'descent', 'minAltitude', 'maxAltitude'])
           .>> t(:unwrap, 'time', ['min'])
-          .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape'])
+          .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape', 'technique'])
           .>> t(:add_field, 'author', ->(s) { s.dig('meta', 'author') })
           .>> t(
             :rename_keys,
@@ -74,6 +75,7 @@ module DataCycleCore
               'difficulty' => 'difficulty_rating',
               'qualityOfExperience' => 'experience_rating',
               'landscape' => 'landscape_rating',
+              'technique' => 'technique_rating',
               'directions' => 'instructions',
               'gettingThere' => 'directions',
               'publicTransit' => 'directions_public_transport',
@@ -82,6 +84,7 @@ module DataCycleCore
               'additionalInformation' => 'additional_information'
             }
           )
+          .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'tour') })
           .>> t(:add_field, 'schedule', ->(s) { load_tour_season(s.dig('season')) })
           .>> t(:map_value, 'elevation', ->(s) { s&.to_f })
           .>> t(:map_value, 'length', ->(s) { s&.to_f })
@@ -90,7 +93,9 @@ module DataCycleCore
           .>> t(:map_value, 'difficulty_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'experience_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'landscape_rating', ->(s) { s&.to_i })
+          .>> t(:map_value, 'technique_rating', ->(s) { s&.to_i })
           .>> t(:add_links, 'poi', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('pois', 'poi')&.map { |item| item&.dig('id') } || [] })
+          .>> t(:add_links, 'primary_image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('primaryImage')&.dig('id') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('images', 'image')&.map { |item| item&.dig('id') } || [] })
           .>> t(:load_category, 'tour_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
           .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
@@ -109,6 +114,20 @@ module DataCycleCore
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
           .>> t(:reject_keys, ['meta', 'primary', 'gallery', 'author'])
           .>> t(:strip_all)
+        end
+
+        def self.to_additional_information(hash, type)
+          ['description', 'text', 'directions', 'directions_public_transport', 'parking',
+           'hours_available', 'price', 'instructions', 'safety_instructions',
+           'equipment', 'suggestion', 'additional_information'].map { |desc|
+            next if hash[desc].blank?
+            name = I18n.t("import.outdoor_active.#{type}.#{desc}", default: [desc])
+            {
+              'name' => name,
+              'description' => hash[desc],
+              'universal_classifications' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc))
+            }
+          }.compact
         end
 
         def self.tour(geometry)

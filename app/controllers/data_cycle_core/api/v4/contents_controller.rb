@@ -10,14 +10,10 @@ module DataCycleCore
         before_action :prepare_url_parameters
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
-        ALLOWED_SORT_ATTRIBUTES = { created: 'created_at', modified: 'updated_at', name: 'name', given_name: 'given_name', family_name: 'family_name', random: 'random' }.freeze
-        ALLOWED_FILTER_ATTRIBUTES = [:modifiedAt, :createdAt, :schedule].freeze
-
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
             query = build_search_query
-            # query = build_search_query.includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             query = apply_ordering(query)
 
             @pagination_contents = apply_paging(query)
@@ -35,6 +31,7 @@ module DataCycleCore
           @content = DataCycleCore::Thing
             .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             .find(permitted_params[:id])
+          raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
         end
 
         def select
@@ -55,8 +52,8 @@ module DataCycleCore
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
-          if permitted_params&.dig(:filter, :attribute, :deletedAt).present?
-            filter = permitted_params[:filter][:attribute][:deletedAt].to_h.deep_symbolize_keys
+          if permitted_params&.dig(:filter, :attribute, :'dct:deleted').present?
+            filter = permitted_params[:filter][:attribute][:'dct:deleted'].to_h.deep_symbolize_keys
             filter.each do |operator, value|
               query_string = apply_timestamp_query_string(value, "#{deleted_contents.table.name}.deleted_at")
               if operator == :in
@@ -94,12 +91,6 @@ module DataCycleCore
           apply_order_query(query, permitted_params.dig(:sort), @full_text_search, permitted_params&.dig(:filter, :attribute, :schedule).present?)
         end
 
-        def transform_sort_param(key, order)
-          return unless ALLOWED_SORT_ATTRIBUTES.key?(key.to_sym)
-          return "#{key.to_sym}()" if ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym) == 'random'
-          "#{ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym)} #{order} NULLS LAST"
-        end
-
         def build_search_query
           endpoint_id = permitted_params[:id]
           @linked_stored_filter = nil
@@ -128,8 +119,6 @@ module DataCycleCore
           query = apply_filters(query, permitted_params&.dig(:filter))
 
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
-          query = query.distinct_by_content_id
-
           query
         end
       end

@@ -12,7 +12,15 @@
           <ul>
             <li class="has-dropdown">
               <a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= t('common.version', locale: DataCycleCore.ui_language) %></a>
-              <%= render 'histories', content: @content, additional_classes: 'align-right' %>
+
+              <div class="dropdown-pane no-bullet bottom remote-render align-right"
+                id="show-history"
+                data-dropdown
+                data-hover="true"
+                data-hover-pane="true"
+                data-remote-path="data_cycle_core/application/histories"
+                data-remote-options="<%= to_query_params({ content: @content, history_id: @diff_source&.id }).to_json %>">
+              </div>
             </li>
             <li class="buttons"></li>
           </ul>

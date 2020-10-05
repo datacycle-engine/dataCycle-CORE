@@ -164,14 +164,40 @@ en:
 
   import:
     feratel:
-      meeting_point: meeting point      
+      meeting_point: meeting point
       additional_service:
         equipment: Equipment
         requirements: Requirements
         included_services: Included Services
         difficulty: Difficulty
+    outdoor_active:
+      place:
+        directions: Directions
+        parking: Parking
+        hours_available: Opening hours
+        text: Description
+        price: Price
+        description: Short description
+      tour:
+        directions: Directions
+        parking: Parking
+        hours_available: Opening hours
+        text: Description
+        price: Price
+        description: Short description
+        directions_public_transport: Public transport
+        instructions: Location Plan
+        safety_instructions: Safety instructions
+        equipment: Equipment
+        suggestion: Suggestion
+        additional_information: Additional information
+
+  schedule:
+    ongoing: ongoing
 
   exceptions:
-    data_cycle_core/error/api/bad_request:
+    data_cycle_core/error/api/bad_request_error:
       unknown_parameter: Unknown Query Parameter
       invalid_parameter: Invalid Query Parameter
+    data_cycle_core/error/api/expired_content_error:
+      expired_content: Content is expired

@@ -13,7 +13,7 @@ $('<%= params[:overlay_id] %> .items .no-results').remove();
 var html_content = '<%= j yield(:rendered_items) %>';
 
 <% I18n.with_locale(params[:locale] || I18n.locale) do %>
-  $('<%= params[:overlay_id] %>').find('.items .loading').before(html_content);
+  $(html_content).insertBefore('<%= params[:overlay_id] %> .items .loading').foundation();
 
   $('<%= params[:overlay_id] %>').find('.item-info-scrollable').html('<%= escape_javascript(render_linked_details(key: params[:key], definition: params[:definition], parameters: { object: @objects.first, options: params[:options] })) %>').trigger('dc:html:changed').trigger('dc:html:initialized');
 

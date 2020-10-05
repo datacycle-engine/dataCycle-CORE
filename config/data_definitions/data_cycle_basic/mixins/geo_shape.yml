@@ -11,6 +11,7 @@
           :edit:
             :disabled: true
         :api:
+          :minimal: true
           :disabled: false
           :v4:
             :name: line

@@ -15,7 +15,7 @@
 
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{index}][v]",
-      options_for_select(DataCycleCore::User.all.map { |e| ["#{e.given_name} #{e.family_name} <#{e.email}>", e.id, { title: e.email }] }, value),
+      options_for_select(DataCycleCore::User.all.map { |e| ["#{e.try(:full_name)} <#{e.email}>", e.id, { title: e.email }] }, value),
       {
         multiple: true,
         class: 'multi-select',

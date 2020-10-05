@@ -491,7 +491,9 @@ $filter-border: #aaa;
   .filtertags {
     font-size: 0.8rem;
     display: flex;
-
+    > .filter-groups{
+      flex: auto;
+    }
     > .icon {
       white-space: nowrap;
       margin-right: 0.5rem;

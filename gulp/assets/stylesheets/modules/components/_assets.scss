@@ -78,8 +78,11 @@
         flex: auto;
         width: 90px;
         max-width: 100px;
-        margin: 0.1rem;
+        margin: 0.3rem;
+        padding: 0;
         background: white;
+        transition: all 0.2s ease-in-out;
+
         > a {
           > img {
             box-shadow: 0 0 5px $dark-gray;
@@ -483,10 +486,22 @@ ul.asset-list {
       .duplicates-list {
         li {
           display: inline-block;
+          border: none;
+          margin: 0.2rem;
+          padding: 0;
+
           .duplicate-link {
             img {
               max-width: 50px;
               max-height: 50px;
+              box-shadow: 1px 1px 3px $dark-gray;
+              transition: all 0.2s ease-in-out;
+            }
+
+            &:hover {
+              > img {
+                box-shadow: 0 0 5px $primary-color;
+              }
             }
           }
         }

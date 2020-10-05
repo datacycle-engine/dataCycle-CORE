@@ -80,6 +80,17 @@ module DataCycleCore
           }.reduce(data.reject { |k, _| k == 'ContentDescriptions' }, &:merge)
         end
 
+        def self.add_service_description(data, attribute_name, description_name)
+          raise ArgumentError unless data.is_a?(Hash)
+
+          description = Array.wrap(data.dig('Descriptions', 'Description'))
+            .detect { |item| item['Name'] == description_name && item['Type'] == 'AdditionalService' }
+            &.dig('text')
+
+          return data if description.blank?
+          data.merge({ attribute_name => description })
+        end
+
         def self.add_cc(data, external_source_id)
           if data.dig('CCId').present?
             classification = DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: data.dig('CCId'))
@@ -128,17 +139,6 @@ module DataCycleCore
           data.merge({ 'external_system_data' => external_system_data })
         end
 
-        def self.add_service_description(data, attribute_name, description_name)
-          raise ArgumentError unless data.is_a?(Hash)
-
-          description = Array.wrap(data.dig('Descriptions', 'Description'))
-            .detect { |item| item['Name'] == description_name && item['Type'] == 'AdditionalService' }
-            &.dig('text')
-
-          return data if description.blank?
-          data.merge({ attribute_name => description })
-        end
-
         def self.ensure_classification_tree(data, attribute_name, classification_tree)
           data.merge({
             attribute_name => DataCycleCore::Classification.for_tree(classification_tree)
@@ -172,6 +172,11 @@ module DataCycleCore
               [k, v]
             end
           end]
+        end
+
+        def self.unwrap_address_data(data, address_type, address_function)
+          return data if address_function.call(data).blank?
+          data.merge({ 'Address' => address_function.call(data).detect { |i| i['Type'] == address_type }&.except('Documents', 'Descriptions') }&.compact)
         end
       end
     end

@@ -19,7 +19,7 @@ module DataCycleCore
           'gender_api', # legacy property for API v2 + v3
           'asset', # disabled asset property for tests,
           'tour', # active after tour refactoring
-          'tour', # active after tour refactoring
+          'additional_information',
           'publication_schedule', # creativeWorks: publicationSchedule
           'release_status_comment' # creativeWorks: publicationSchedule
         ].freeze
@@ -113,7 +113,7 @@ module DataCycleCore
 
       def assert_context(json_context, language)
         assert_equal(2, json_context.size)
-        assert_equal('http://schema.org', json_context.first)
+        assert_equal('https://schema.org/', json_context.first)
         validator = DataCycleCore::V4::Validation::Context.context(language)
         assert_equal({}, validator.call(json_context.second).errors.to_h)
       end

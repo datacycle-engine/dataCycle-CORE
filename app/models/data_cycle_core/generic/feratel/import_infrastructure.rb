@@ -33,6 +33,7 @@ module DataCycleCore
               raw_data,
               options.dig(:import, :transformations, :image)
             )
+
             DataCycleCore::Generic::Feratel::Processing.process_infrastructure(
               utility_object,
               raw_data,

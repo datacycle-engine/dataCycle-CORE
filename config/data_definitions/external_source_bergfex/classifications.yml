@@ -1,6 +1,7 @@
 - Inhaltstypen | filter:
-  - $$Ort:
-    - $$Badeseen
-    - $$Skigebiet
-  - $$Schneehöhe - Messpunkt
-  - $$Skigebiet - Addon
+    - $$Ort:
+        - $$Badeseen
+        - $$Skigebiet
+        - $$freie Scheehöhenmesspunkte        
+    - $$Schneehöhe - Messpunkt
+    - $$Skigebiet - Addon

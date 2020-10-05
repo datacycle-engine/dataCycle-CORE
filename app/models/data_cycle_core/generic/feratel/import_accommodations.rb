@@ -37,6 +37,24 @@ module DataCycleCore
               options.dig(:import, :transformations, :image)
             )
 
+            Array.wrap(raw_data.dig('Addresses', 'Address')).each do |address_data|
+              next unless address_data.dig('Type') == 'LandLord'
+
+              if address_data.key?('Documents')
+                DataCycleCore::Generic::Feratel::Processing.process_image(
+                  utility_object,
+                  address_data,
+                  options.dig(:import, :transformations, :image)
+                )
+              end
+
+              DataCycleCore::Generic::Feratel::Processing.process_landlord(
+                utility_object,
+                address_data,
+                options.dig(:import, :transformations, :landlord)
+              )
+            end
+
             # to include rooms, services and pricing to accommodations
             # [raw_data.dig('Services', 'Service')]&.flatten&.compact&.each do |service_data|
             #   DataCycleCore::Generic::Feratel::Processing.process_room(

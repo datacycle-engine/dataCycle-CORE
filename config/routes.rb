@@ -54,6 +54,7 @@ DataCycleCore::Engine.routes.draw do
       get :download_indesign, on: :member
       get :create_duplication, on: :member
       get :clear_cache, on: :member
+      get :asset, on: :member
       post :validate, on: :member
       post :validate, on: :collection
       get :render_embedded_object, on: :member
@@ -103,6 +104,7 @@ DataCycleCore::Engine.routes.draw do
   resources :watch_lists do
     delete :remove_item, on: :member
     get :add_item, on: :member
+    post :add_related_items, on: :collection
     get :bulk_edit, on: :member
     patch :bulk_update, on: :member
     post :validate, on: :member

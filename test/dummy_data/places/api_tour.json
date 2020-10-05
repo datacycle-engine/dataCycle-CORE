@@ -8,7 +8,10 @@
   "safety_instructions": "tmp_safety_instructions",
   "equipment": "tmp_equipment",
   "suggestion": "tmp_suggestion",
-  "additional_information": "tmp_additional_information",
+  "additional_information": [{
+    "name": "temp_name",
+    "description": "tmp_description"
+  }],
   "ascent": 1,
   "descent": 2,
   "min_altitude": 3,

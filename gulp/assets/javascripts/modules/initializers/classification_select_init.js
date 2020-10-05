@@ -13,7 +13,7 @@ module.exports.initialize = function ($) {
         $(event.target)
           .find('> li > :checkbox')
           .each((_, item) => {
-            if (data.value !== undefined && data.value.includes($(item).val())) $(item).prop('checked', true);
+            $(item).prop('checked', data.value !== undefined && data.value.includes($(item).val()));
           });
       });
 

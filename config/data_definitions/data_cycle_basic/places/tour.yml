@@ -32,6 +32,13 @@
         :template_name: TourOverlay
         :validations:
           :max: 1
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        translated: false
+        :api:
+          :name: subject_of # same as subject_of <-> about ....
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -130,11 +137,11 @@
         :type: string
         :storage_location: translated_value
         :search: true
-      :additional_information:
-        :label: Zusatzinformation
-        :type: string
-        :storage_location: translated_value
-        :search: true
+      # :additional_information:
+      #   :label: Zusatzinformation
+      #   :type: string
+      #   :storage_location: translated_value
+      #   :search: true
       :ascent:
         :label: Aufstieg (m)
         :type: number
@@ -175,6 +182,10 @@
         :label: Bewertung - Landschaft
         :type: number
         :storage_location: value
+      :technique_rating:
+        :label: Bewertung - Technik
+        :type: number
+        :storage_location: value
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
@@ -196,7 +207,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Tour"
+        :default_value: 'Tour'
       :cc_rel:
         :type: mixin
         :name: cc_rel

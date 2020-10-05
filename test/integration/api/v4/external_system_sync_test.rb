@@ -46,9 +46,9 @@ module DataCycleCore
           patch api_v4_external_sources_update_path(external_source_id: @external_system.id), params: request_body, as: :json
           assert_response :success
 
-          assert_equal(new_external_key, @data_set.external_system_data(@external_system).dig('external_key'))
+          assert_equal(new_external_key, @data_set.external_system_sync_by_system(@external_system, 'link', new_external_key).external_key)
           data = JSON.parse(response.body)
-          assert_equal([{ 'update' => "#{@data_set.id} (#{@data_set.external_system_data(@external_system).dig('external_key')})" }], data)
+          assert_equal([{ 'update' => "#{@data_set.id} (#{@data_set.external_system_sync_by_system(@external_system, 'link', new_external_key).external_key})" }], data)
         end
 
         test 'update external_key for two things' do
@@ -64,10 +64,10 @@ module DataCycleCore
           patch api_v4_external_sources_update_path(external_source_id: @external_system.id), params: request_body, as: :json
           assert_response :success
 
-          assert_equal(new_external_key1, @data_set.external_system_data(@external_system).dig('external_key'))
-          assert_equal(new_external_key2, data_set2.external_system_data(@external_system).dig('external_key'))
+          assert_equal(new_external_key1, @data_set.external_system_sync_by_system(@external_system, 'link', new_external_key1).external_key)
+          assert_equal(new_external_key2, data_set2.external_system_sync_by_system(@external_system, 'link', new_external_key2).external_key)
           data = JSON.parse(response.body)
-          assert_equal([{ 'update' => "#{@data_set.id} (#{@data_set.external_system_data(@external_system).dig('external_key')})" }, { 'update' => "#{data_set2.id} (#{data_set2.external_system_data(@external_system).dig('external_key')})" }], data)
+          assert_equal([{ 'update' => "#{@data_set.id} (#{@data_set.external_system_sync_by_system(@external_system, 'link', new_external_key1).external_key})" }, { 'update' => "#{data_set2.id} (#{data_set2.external_system_sync_by_system(@external_system, 'link', new_external_key2).external_key})" }], data)
         end
 
         test 'update external_key in external system sync for a thing that does not exist' do
@@ -85,14 +85,15 @@ module DataCycleCore
 
         test 'delete external_key in external system sync for a thing' do
           new_external_key = 'new_cms_id'
-          @data_set.add_external_system_data(@external_system, { 'external_key' => new_external_key })
-          assert_equal(new_external_key, @data_set.external_system_data(@external_system).dig('external_key'))
+          @data_set.add_external_system_data(@external_system, nil, 'success', 'link', new_external_key)
+
+          assert_equal(new_external_key, @data_set.external_system_sync_by_system(@external_system, 'link', new_external_key).external_key)
           request_body = { '@graph' => item_body(@data_set.id, @external_system.name, new_external_key) }
 
           delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
           assert_response :success
 
-          assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
+          assert_nil(@data_set.external_system_data(@external_system, 'link', new_external_key))
           data = JSON.parse(response.body)
           assert_equal([{ 'delete' => "#{@data_set.id} (#{new_external_key})" }], data)
         end
@@ -101,10 +102,12 @@ module DataCycleCore
           data_set2 = create_data({ 'name' => 'My_test2' })
           new_external_key1 = 'new_cms_id1'
           new_external_key2 = 'new_cms_id2'
-          @data_set.add_external_system_data(@external_system, { 'external_key' => new_external_key1 })
-          data_set2.add_external_system_data(@external_system, { 'external_key' => new_external_key2 })
-          assert_equal(new_external_key1, @data_set.external_system_data(@external_system).dig('external_key'))
-          assert_equal(new_external_key2, data_set2.external_system_data(@external_system).dig('external_key'))
+
+          @data_set.add_external_system_data(@external_system, nil, 'success', 'link', new_external_key1)
+          data_set2.add_external_system_data(@external_system, nil, 'success', 'link', new_external_key2)
+
+          assert_equal(new_external_key1, @data_set.external_system_sync_by_system(@external_system, 'link', new_external_key1).external_key)
+          assert_equal(new_external_key2, data_set2.external_system_sync_by_system(@external_system, 'link', new_external_key2).external_key)
 
           request_body = {
             '@graph' => [
@@ -115,8 +118,8 @@ module DataCycleCore
           delete api_v4_external_sources_delete_path(external_source_id: @external_system.id), params: request_body, as: :json
           assert_response :success
 
-          assert_nil(@data_set.external_system_data(@external_system).dig('external_key'))
-          assert_nil(data_set2.external_system_data(@external_system).dig('external_key'))
+          assert_nil(@data_set.external_system_data(@external_system, 'link', new_external_key1))
+          assert_nil(data_set2.external_system_data(@external_system, 'link', new_external_key2))
           data = JSON.parse(response.body)
           assert_equal([{ 'delete' => "#{@data_set.id} (#{new_external_key1})" }, { 'delete' => "#{data_set2.id} (#{new_external_key2})" }], data)
         end

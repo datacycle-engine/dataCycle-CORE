@@ -41,7 +41,7 @@ namespace :dc do
       puts "######## Check for invalid overlay data_definition\r"
       errors = false
       DataCycleCore::Thing.where(template: true).to_a.select { |thing| thing.overlay_template_name.present? }.each do |thing|
-        next if thing.add_overlay_property_names.blank?
+        next if (thing.add_overlay_property_names - ['overlay_trans']).blank?
         errors = true
         found_things = DataCycleCore::Thing.where(template: false, template_name: thing.overlay_template_name).count
         puts "#{('# ' + thing.template_name).ljust(41)} | #{thing.overlay_template_name}| #{found_things} | #{thing.add_overlay_property_names.join(',')} \r"

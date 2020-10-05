@@ -17,6 +17,19 @@ module DataCycleCore
           (template_names.present? ? data.template_name.in?(template_names) : true) && (classification_ids.present? ? classification_ids.all? { |c| data.classifications.map(&:id).include?(c) } : true)
         end
 
+        def self.enqueue_webhook(data, webhook, external_system)
+          data.add_external_system_data(external_system, nil, 'pending')
+          delayed_job = Delayed::Job.where(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil).order(created_at: :asc).first
+          run_at = data.webhook_run_at || Time.zone.now
+          priority = data.webhook_priority || Delayed::Worker.default_priority
+
+          if delayed_job.nil? || data.webhook_as_of.present?
+            Delayed::Job.enqueue(webhook, run_at: run_at, created_at: run_at, updated_at: run_at, priority: priority)
+          else
+            delayed_job.update(run_at: [delayed_job.run_at, run_at].min, created_at: [delayed_job.created_at, run_at].min, updated_at: [delayed_job.updated_at, run_at].min, priority: [delayed_job.priority, priority].min)
+          end
+        end
+
         def self.create(utility_object:, data:)
           external_system = utility_object.external_system
           webhook = (external_system.config.dig('export_config', 'webhook').presence&.safe_constantize || DataCycleCore::Export::Generic::Webhook).new(
@@ -29,10 +42,7 @@ module DataCycleCore
             locale: I18n.locale
           )
 
-          return if Delayed::Job.exists?(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil)
-
-          data.add_external_system_data(external_system, nil, 'pending')
-          Delayed::Job.enqueue(webhook)
+          enqueue_webhook(data, webhook, external_system)
         end
 
         def self.update(utility_object:, data:)
@@ -47,10 +57,7 @@ module DataCycleCore
             locale: I18n.locale
           )
 
-          return if Delayed::Job.exists?(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil)
-
-          data.add_external_system_data(external_system, nil, 'pending')
-          Delayed::Job.enqueue(webhook)
+          enqueue_webhook(data, webhook, external_system)
         end
 
         def self.delete(utility_object:, data:)
@@ -65,10 +72,7 @@ module DataCycleCore
             locale: I18n.locale
           )
 
-          return if Delayed::Job.exists?(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil)
-
-          data.add_external_system_data(external_system, nil, 'pending')
-          Delayed::Job.enqueue(webhook)
+          enqueue_webhook(data, webhook, external_system)
         end
       end
     end
