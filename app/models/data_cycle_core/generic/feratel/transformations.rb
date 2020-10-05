@@ -817,7 +817,7 @@ module DataCycleCore
                 rrule.hour_of_day(tstart.hour)
                 rrule.minute_of_hour(tstart.minute) if tstart.minute.positive?
                 rrule.day(active_days) if active_days.present?
-                rrule.until(dtend)
+                rrule.until(dtend.end_of_day)
                 schedule_object = IceCube::Schedule.new(dtstart, options) do |s|
                   s.add_recurrence_rule(rrule)
                 end
