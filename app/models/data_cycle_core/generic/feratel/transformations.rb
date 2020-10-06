@@ -229,7 +229,7 @@ module DataCycleCore
           t(:rename_keys, { 'text' => 'description' })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate').in_time_zone })
           .>> t(:add_field, 'name', ->(s) { s.dig('Type') })
-          .>> t(:add_field, 'type_of_information', ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Informationstypen', desc) } })
+          .>> t(:add_field, 'universal_classifications', ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc) } })
           .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
         end
 
@@ -269,7 +269,9 @@ module DataCycleCore
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
           .>> t(:unwrap_description, 'AddressContactDescription')
-          .>> t(:rename_keys, { 'Id' => 'external_key', 'AddressContactDescription' => 'description' })
+          .>> t(:rename_keys, { 'AddressContactDescription' => 'description' })
+          .>> t(:add_field, 'external_key', ->(s) { "LandLord:#{s.dig('Id')}" })
+          .>> t(:reject_keys, ['Id'])
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
           .>> t(:add_field, 'name', ->(s) { [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
@@ -815,7 +817,7 @@ module DataCycleCore
                 rrule.hour_of_day(tstart.hour)
                 rrule.minute_of_hour(tstart.minute) if tstart.minute.positive?
                 rrule.day(active_days) if active_days.present?
-                rrule.until(dtend)
+                rrule.until(dtend.end_of_day)
                 schedule_object = IceCube::Schedule.new(dtstart, options) do |s|
                   s.add_recurrence_rule(rrule)
                 end
