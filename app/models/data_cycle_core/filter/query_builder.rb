@@ -280,20 +280,11 @@ module DataCycleCore
       end
 
       def search_exists(query_string)
-        if @locale.present?
-          search
-            .where(
-              search[:content_data_id].eq(thing[:id])
-                .and(search[:locale].in(@locale))
-                .and(query_string)
-            ).exists
-        else
-          search
-            .where(
-              search[:content_data_id].eq(thing[:id])
-                .and(query_string)
-            ).exists
-        end
+        search
+          .where(
+            search[:content_data_id].eq(thing[:id])
+              .and(query_string)
+          ).exists
       end
 
       # chain method for Builder pattern

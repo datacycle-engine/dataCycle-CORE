@@ -230,7 +230,7 @@ module DataCycleCore
           t(:rename_keys, { 'text' => 'description' })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate').in_time_zone })
           .>> t(:add_field, 'name', ->(s) { s.dig('Type') })
-          .>> t(:add_field, 'type_of_information', ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Informationstypen', desc) } })
+          .>> t(:add_field, 'universal_classifications', ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc) } })
           .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
         end
 
@@ -270,7 +270,9 @@ module DataCycleCore
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
           .>> t(:unwrap_description, 'AddressContactDescription')
-          .>> t(:rename_keys, { 'Id' => 'external_key', 'AddressContactDescription' => 'description' })
+          .>> t(:rename_keys, { 'AddressContactDescription' => 'description' })
+          .>> t(:add_field, 'external_key', ->(s) { "LandLord:#{s.dig('Id')}" })
+          .>> t(:reject_keys, ['Id'])
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
           .>> t(:add_field, 'name', ->(s) { [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
@@ -784,21 +786,19 @@ module DataCycleCore
           return nil if available_dates.blank?
 
           available_dates.each do |date|
-            dstart = nil
-            dend = nil
-            dstart = Time.zone.parse(date['From']) if date['From'].present?
-            dend = Time.zone.parse(date['To']) if date['To'].present?
+            dstart = date['From'].presence
+            dend = date['To'].presence
             options = {} if duration > 1.day && dend.present? # duration is interpreted for the entierty of all event not only a single event
 
             if available_start_times.present?
               available_start_times.each do |time_item|
-                tstart = time_item['Time'].to_datetime
-                dtstart = dstart + tstart.hour * 60 * 60 + tstart.minute * 60
+                tstart = time_item['Time'].presence
+                dtstart = "#{dstart}T#{tstart}".in_time_zone
                 dtend = nil
                 if dend.present?
-                  dtend = dend + tstart.hour * 60 * 60 + tstart.minute * 60
+                  dtend = "#{dend}T#{tstart}".in_time_zone
                   if duration == 1.day && dstart == dend
-                    dtend = dend.end_of_day
+                    dtend = dtend.end_of_day
                   elsif duration < 1.day
                     dtend += duration
                   end
@@ -813,16 +813,23 @@ module DataCycleCore
                   .presence
 
                 rrule = active_days&.size.to_i.in?(1..6) ? IceCube::Rule.weekly : IceCube::Rule.daily
-                rrule.hour_of_day(tstart.hour)
-                rrule.minute_of_hour(tstart.minute) if tstart.minute.positive?
+
+                time = tstart.to_datetime
+                rrule.hour_of_day(time.hour)
+                rrule.minute_of_hour(time.minute) if time.minute.positive?
                 rrule.day(active_days) if active_days.present?
-                rrule.until(dtend)
+                rrule.until(dtend.end_of_day)
                 schedule_object = IceCube::Schedule.new(dtstart, options) do |s|
                   s.add_recurrence_rule(rrule)
                 end
                 res << schedule_object.to_hash.merge(dtstart: dtstart, dtend: dtend).compact if schedule_object.all_occurrences.size.positive?
               end
             else
+              dstart = nil
+              dend = nil
+              dstart = Time.zone.parse(date['From']) if date['From'].present?
+              dend = Time.zone.parse(date['To']) if date['To'].present?
+
               res << {
                 start_time: { time: dstart, zone: dstart.time_zone.name },
                 end_time: { time: dend, zone: dend.time_zone.name },

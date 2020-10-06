@@ -30,6 +30,10 @@ gem 'dotenv-rails'
 
 gem 'jb'
 
+group :test do
+  gem 'minitest-hooks'
+end
+
 group :development, :test, :review do
   gem 'listen'
   gem 'spring'
