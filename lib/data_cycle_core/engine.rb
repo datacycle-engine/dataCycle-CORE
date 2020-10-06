@@ -214,6 +214,9 @@ module DataCycleCore
     config.i18n.fallbacks = false
     config.action_view.form_with_generates_remote_forms = true
 
+    # prevent span tags inside HTML-Attributes for missing translations
+    config.action_view.debug_missing_translation = false
+
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s
