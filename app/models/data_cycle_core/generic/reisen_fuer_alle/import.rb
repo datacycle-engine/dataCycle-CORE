@@ -26,10 +26,10 @@ module DataCycleCore
             next if raw_data.dig('third_party_ids').blank?
 
             feratel_key = raw_data['third_party_ids'].detect { |i| i['key'] == 'deskline_id' }&.dig('value')
-            raw_data['feratel'] = { external_source_id: @feratel.id, external_key: feratel_key } if feratel_key.present?
+            raw_data['feratel'] = { external_system_id: @feratel.id, external_key: feratel_key, limit: 1 } if feratel_key.present?
 
             outdoor_active_key = raw_data['third_party_ids'].detect { |i| i['key'] == 'outdooractive_id' }&.dig('value')
-            raw_data['outdoor_active'] = { external_source_id: @outdoor_active, external_key: outdoor_active_key } if outdoor_active_key.present?
+            raw_data['outdoor_active'] = { external_system_id: @outdoor_active.id, external_key: outdoor_active_key, limit: 1 } if outdoor_active_key.present?
 
             DataCycleCore::Generic::ReisenFuerAlle::Processing.process_rating(
               utility_object,

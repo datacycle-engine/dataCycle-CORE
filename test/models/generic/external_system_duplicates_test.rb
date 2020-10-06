@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   module Generic
-    class FeratelTest < DataCycleCore::TestCases::ActiveSupportTestCase
+    class ExternalSyystemDuplicatesTest < DataCycleCore::TestCases::ActiveSupportTestCase
       def download_from_local_json(external_source, folder_name, credentials = false)
         path = Rails.root.join('..', 'fixtures', 'external_sources', folder_name)
         files = path + '*.json'

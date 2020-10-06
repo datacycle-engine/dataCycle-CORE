@@ -76,11 +76,9 @@ module DataCycleCore
             &.flatten
             &.compact
             &.map do |item|
-              if DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: item.dig('Id')).present?
-                to_offer(external_source_id).call(item).merge({ 'id' => DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: item.dig('Id')).id })
-              else
-                to_offer(external_source_id).call(item)
-              end
+              to_offer(external_source_id).call(item).merge({
+                'id' => t(:find_thing_ids).call(external_system_id: external_source_id, external_key: item.dig('Id'), limit: 1).first
+              }.compact)
             end
           data
         end
@@ -101,7 +99,7 @@ module DataCycleCore
           .>> t(:add_field, 'subject_of', ->(s) { to_subject_of(s) })
           .>> t(:add_links, 'provider', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('provider_id')] })
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
-          .>> t(:add_field, 'area_served', ->(s) { area_served(s, external_source_id) })
+          .>> t(:add_link, 'area_served', DataCycleCore::Thing, external_source_id, ->(s) { "meeting_point: #{s['external_key']}" })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_additional_service_type', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'AdditionalServiceTypes', 'Item'))&.map { |type| type.dig('Id')&.downcase }&.compact.presence || [] })
           .>> t(:add_links, 'feratel_guest_card_classifications', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'GuestCardClassificationId')&.downcase)&.compact.presence || [] })
@@ -133,11 +131,6 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.area_served(hash, external_source_id)
-          external_key = ['meeting_point: ', hash.dig('external_key')].join
-          Array.wrap(DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)&.id).presence
-        end
-
         def self.to_offer(external_source_id)
           t(:stringify_keys)
           .>> t(:flatten_translations)
@@ -153,24 +146,21 @@ module DataCycleCore
 
         def self.load_price(s, external_source_id)
           external_key = "Price:#{s.dig('external_key')}"
-          price = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)
+          price_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: external_key, limit: 1).first
           data = {
             'min_price' => s.dig('Price', 'Range', 'From')&.to_f,
             'max_price' => s.dig('Price', 'Range', 'To')&.to_f,
             'external_key' => external_key
           }
-          if price.present?
-            [data.merge({ 'id' => price.id })]
-          else
-            [data]
-          end
+
+          [data.merge({ 'id' => price_id }.compact)]
         end
 
         def self.feratel_to_accommodation(external_source_id)
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
-          .>> t(:add_field, 'potential_action', ->(s) { parse_links(s.dig('Links', 'Link')) })
+          .>> t(:add_field, 'potential_action', ->(s) { parse_links(s.dig('Links', 'Link'), external_source_id) })
           .>> t(:add_links, 'founder', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('Addresses', 'Address')).select { |i| i.dig('Type') == 'LandLord' }.map { |i| i.dig('Id') } })
           .>> t(:add_cc, external_source_id)
           .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description')) })
@@ -248,17 +238,17 @@ module DataCycleCore
           schedule_object.to_hash.merge(dtstart: from_date)
         end
 
-        def self.parse_links(data)
+        def self.parse_links(data, external_source_id)
           return [] if data.blank?
           Array.wrap(data).map do |link|
-            to_view_action.call(link)
+            to_view_action(external_source_id).call(link)
           end
         end
 
-        def self.to_view_action
+        def self.to_view_action(external_source_id)
           t(:rename_keys, { 'URL' => 'url', 'Id' => 'external_key', 'Name' => 'name' })
           .>> t(:map_value, 'url', ->(s) { s.nil? || s == 'http://' ? '' : (!s.starts_with?('http://') && !s.starts_with?('https://') ? "http://#{s}" : s) })
-          .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_key: s.dig('external_key'))&.id })
+          .>> t(:add_field, 'id', ->(s) { t(:find_thing_ids).call(external_system_id: external_source_id, external_key: s.dig('external_key'), limit: 1).first })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
           .>> t(:add_field, 'action_type', ->(_) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'View')) })
           .>> t(:reject_keys, ['ChangeDate', 'Type', 'Order', 'Names'])
@@ -485,7 +475,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
-          .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_key: s.dig('Id'), external_source_id: external_source_id)&.id })
+          .>> t(:add_field, 'id', ->(s) { t(:find_thing_ids).call(external_system_id: external_source_id, external_key: s.dig('Id'), limit: 1).first })
           .>> t(:rename_keys, 'Id' => 'external_key')
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
@@ -497,8 +487,8 @@ module DataCycleCore
           return if data.blank?
           all_products = []
           data.each do |item|
-            item_offered = DataCycleCore::Thing.find_by(external_key: item.dig('Id'), external_source_id: external_source_id)
-            all_products += parse_product(Array.wrap(item.dig('Products', 'Product')), external_source_id, item_offered.id)
+            item_offered_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: item.dig('Id'), limit: 1).first
+            all_products += parse_product(Array.wrap(item.dig('Products', 'Product')), external_source_id, item_offered_id)
           end
           all_products
         end
@@ -506,9 +496,9 @@ module DataCycleCore
         def self.parse_product(data, external_source_id, item_offered_id)
           return [] if data.blank?
           data.map { |item|
-            thing = DataCycleCore::Thing.find_by(external_key: item.dig('Id'), external_source_id: external_source_id)
+            thing_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: item.dig('Id'), limit: 1).first
             data_hash = {}
-            data_hash['id'] = thing.id if thing.present?
+            data_hash['id'] = thing_id if thing_id.present?
             type_classification = DataCycleCore::ClassificationAlias
               .for_tree('Feratel - Produktarten')
               .find_by(internal_name: item.dig('Details', 'ProductType'))
@@ -537,8 +527,8 @@ module DataCycleCore
           return if data.blank?
           data_hash = {}
           data_hash['external_key'] = [key, '/price_specification'].join(' ')
-          thing = DataCycleCore::Thing.find_by(external_key: data_hash['external_key'], external_source_id: external_source_id)
-          data_hash['id'] = thing.id if thing.present?
+          thing_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: data_hash['external_key'], limit: 1).first
+          data_hash['id'] = thing_id if thing_id.present?
           meal_code = DataCycleCore::ClassificationAlias
             .for_tree('Feratel - Verpflegungs Kürzel')
             .find_by(internal_name: data.dig('StandardMealCode'))
@@ -565,9 +555,9 @@ module DataCycleCore
         def self.parse_packages(data, external_source_id)
           return if data.blank?
           data.map { |item|
-            thing = DataCycleCore::Thing.find_by(external_key: item.dig('Id'), external_source_id: external_source_id)
+            thing_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: item.dig('Id'), limit: 1).first
             data_hash = {}
-            data_hash['id'] = thing.id if thing.present?
+            data_hash['id'] = thing_id if thing_id.present?
             data_hash.merge({
               name: item.dig('Details', 'Name'),
               description: DataCycleCore::Utility::Sanitize::String.format_html(t(:unwrap_description, 'Package').call(item).dig('Package')),
@@ -583,16 +573,16 @@ module DataCycleCore
         def self.parse_package_offers(data_array, external_source_id)
           data_array.map { |data|
             data_hash = {}
-            package = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: data.dig('Id'))
-            data_hash['id'] = package.id if package.present?
+            package_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: data.dig('Id'), limit: 1).first
+            data_hash['id'] = package_id if package_id.present?
             meal_code = DataCycleCore::ClassificationAlias
               .for_tree('Feratel - Verpflegungs Kürzel')
               .find_by(internal_name: data.dig('MealCode'))
               &.classifications
               &.pluck(:id)
             price_hash = {}
-            price = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: "#{data.dig('Id')}/price_specification")
-            price_hash['id'] = price.id if price.present?
+            price_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: "#{data.dig('Id')}/price_specification", limit: 1).first
+            price_hash['id'] = price_id if price_id.present?
             price_hash['min_price'] = data&.dig('PriceFrom')&.to_f
             price_hash['feratel_meal_code'] = meal_code
             data_hash.merge({

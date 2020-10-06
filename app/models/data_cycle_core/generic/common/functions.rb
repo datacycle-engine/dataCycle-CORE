@@ -115,8 +115,7 @@ module DataCycleCore
             {
               attribute => [
                 DataCycleCore::Classification.find_by(
-                  external_source_id: external_source_id,
-                  external_key: external_key.call(data_hash)
+                  external_source_id: external_source_id, external_key: external_key.call(data_hash)
                 )&.id
               ].compact.presence
             }
@@ -125,38 +124,12 @@ module DataCycleCore
 
         def self.add_link(data_hash, attribute, content_type, external_source_id, key_function, condition_function = nil)
           return data_hash if condition_function.present? && !condition_function.call(data_hash)
-          return data_hash if key_function.call(data_hash).blank?
 
-          if content_type == DataCycleCore::Thing
-            data_hash[attribute] = DataCycleCore::Thing.includes(:external_system_syncs)
-              .where(
-                external_system_syncs: {
-                  external_system_id: external_source_id,
-                  sync_type: 'duplicate',
-                  external_key: key_function.call(data_hash),
-                  syncable_type: 'DataCycleCore::Thing'
-                }
-              ).or(
-                DataCycleCore::Thing.includes(:external_system_syncs).where(
-                  external_source_id: external_source_id,
-                  external_key: key_function.call(data_hash)
-                )
-              )
-              .limit(1)
-              .pluck(:id)
-              .presence
-          else
-            data_hash[attribute] = content_type
-              .where(
-                external_source_id: external_source_id,
-                external_key: key_function.call(data_hash)
-              )
-              .limit(1)
-              .pluck(:id)
-              .presence
-          end
-
-          data_hash
+          data_hash.merge(
+            {
+              attribute => find_thing_ids(external_system_id: external_source_id, external_key: key_function.call(data_hash), content_type: content_type, limit: 1).presence
+            }
+          )
         end
 
         def self.add_user_link(data_hash, attribute, key_function)
@@ -170,43 +143,11 @@ module DataCycleCore
           key_function_values = key_function.call(data_hash) || []
           # key_function_values = [DataCycleCore::Thing.where(external_source_id: external_source_id, template: false, template_name: 'POI').first.external_key] if attribute == 'poi'
 
-          if content_type == DataCycleCore::Thing
-            data_hash[attribute] = DataCycleCore::Thing.includes(:external_system_syncs)
-              .where(
-                external_system_syncs: {
-                  external_system_id: external_source_id,
-                  sync_type: 'duplicate',
-                  external_key: key_function_values,
-                  syncable_type: 'DataCycleCore::Thing'
-                }
-              ).or(
-                DataCycleCore::Thing.includes(:external_system_syncs).where(
-                  external_source_id: external_source_id,
-                  external_key: key_function_values
-                )
-              ).order(
-                [
-                  Arel.sql('array_position(ARRAY[?]::varchar[], (CASE WHEN external_system_syncs.external_key IS NOT NULL THEN external_system_syncs.external_key ELSE things.external_key END)::varchar)'),
-                  key_function_values
-                ]
-              )
-              .pluck(:id)
-          else
-            data_hash[attribute] = content_type
-              .where(
-                external_source_id: external_source_id,
-                external_key: key_function_values
-              )
-              .order(
-                [
-                  Arel.sql("array_position(ARRAY[?]::varchar[], #{content_type.table_name}.external_key::varchar)"),
-                  key_function_values
-                ]
-              )
-              .pluck(:id)
-          end
-
-          data_hash
+          data_hash.merge(
+            {
+              attribute => find_thing_ids(external_system_id: external_source_id, external_key: key_function_values, content_type: content_type)
+            }
+          )
         end
 
         def self.local_image(data_hash, attribute)
@@ -256,6 +197,43 @@ module DataCycleCore
 
           attributes = DataCycleCore::Feature::Geocode.geodata_to_attributes(geocoded_data)
           data_hash.merge(attributes.deep_stringify_keys)
+        end
+
+        def self.find_thing_ids(external_system_id:, external_key:, content_type: DataCycleCore::Thing, limit: nil, pluck_id: true)
+          return [] if external_key.blank?
+
+          if content_type == DataCycleCore::Thing
+            query = DataCycleCore::Thing.includes(:external_system_syncs).where(
+              external_system_syncs: {
+                external_system_id: external_system_id,
+                sync_type: 'duplicate',
+                external_key: external_key,
+                syncable_type: 'DataCycleCore::Thing'
+              }
+            ).or(
+              DataCycleCore::Thing.includes(:external_system_syncs).where(
+                external_source_id: external_system_id, external_key: external_key
+              )
+            ).order(
+              [
+                Arel.sql(
+                  'array_position(ARRAY[?]::varchar[], (CASE WHEN external_system_syncs.external_key IS NOT NULL THEN external_system_syncs.external_key ELSE things.external_key END)::varchar)'
+                ),
+                external_key
+              ]
+            )
+          else
+            query = content_type.where(external_source_id: external_system_id, external_key: external_key).order(
+              [
+                Arel.sql("array_position(ARRAY[?]::varchar[], #{content_type.table_name}.external_key::varchar)"),
+                external_key
+              ]
+            )
+          end
+
+          query = query.limit(limit) if limit.present?
+          query = query.pluck(:id) if pluck_id
+          query
         end
       end
     end
