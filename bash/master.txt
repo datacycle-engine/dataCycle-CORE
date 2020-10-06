@@ -30,3 +30,4 @@ DataCycleRegionVillach;git@git.pixelpoint.biz:data-cycle/data-cycle-region-villa
 DataCycleKaernten;git@git.pixelpoint.biz:data-cycle/data-cycle-kw.git
 DataCycleVermieterWebsites;git@git.pixelpoint.biz:data-cycle/data-cycle-vermieterwebsites.git
 DataCycleLindner;git@git.pixelpoint.biz/data-cycle/data-cycle-lindner.git
+DataCycleHowTo;git@git.pixelpoint.biz:data-cycle/data-cycle-how-to.git

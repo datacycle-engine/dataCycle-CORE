@@ -74,6 +74,8 @@
 - Beschreibungsarten | all:
 
 - Informationstypen | all:
+
+- Externe Informationstypen | all:
     - description | OutdoorActive
     - text | OutdoorActive
     - directions | OutdoorActive

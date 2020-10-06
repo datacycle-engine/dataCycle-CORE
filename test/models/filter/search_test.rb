@@ -4,7 +4,16 @@ require 'test_helper'
 
 module DataCycleCore
   class SearchTest < ActiveSupport::TestCase
-    def setup
+    include Minitest::Hooks
+
+    around(:all) do |&block|
+      ActiveRecord::Base.transaction do
+        super(&block)
+        raise ActiveRecord::Rollback
+      end
+    end
+
+    before(:all) do
       @things = DataCycleCore::Thing.where(template: false).count
       create_content('Artikel', { name: 'AAA' })
       create_content('Artikel', { name: 'HEADLINE 1', tags: get_classification_ids('Tags', ['Tag 3']) })
@@ -55,6 +64,16 @@ module DataCycleCore
     test 'correctly filter out multilingual entries' do
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').count)
       assert_equal(2, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').first.available_locales.count)
+    end
+
+    test 'correctly filter out multilingual entries without fulltext search' do
+      I18n.with_locale(:en) do
+        create_content('Artikel', { name: 'AAA Englisch' })
+      end
+
+      assert_equal 9, DataCycleCore::Filter::Search.new(:de).count
+      assert_equal 2, DataCycleCore::Filter::Search.new(:en).count
+      assert_equal 10, DataCycleCore::Filter::Search.new(nil).count
     end
 
     test 'finds embedded_data' do

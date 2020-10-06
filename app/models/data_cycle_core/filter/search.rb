@@ -22,6 +22,7 @@ module DataCycleCore
         query = DataCycleCore::Thing.where(template: false)
         query = query.where.not(content_type: 'embedded') unless @include_embedded
         query = query.order('things.boost DESC, things.updated_at DESC, things.id ASC')
+        query = query.where(DataCycleCore::Search.where('searches.content_data_id = things.id').where(locale: @locale).arel.exists) if @locale.present?
         query
       end
 
