@@ -9,7 +9,7 @@
         </tr>
         <tr>
           <td width="100%" style="width:100%;padding:12pt 0 0 0;">
-            <%= t("data_cycle_core.data_links.#{@data_link.permissions}_link_html", user: @user.full_name, a_type: t(:akkusativ, scope: "data_link_mailer.#{@data_link.item.model_name.singular_route_key}", default: :default, locale: @locale), url: @url, title: @title, n_type: t(:nominativ, scope: "data_link_mailer.#{@data_link.item.model_name.singular_route_key}", default: :default, locale: @locale).capitalize, locale: @locale) %>
+            <%= t("data_cycle_core.data_links.#{@data_link.permissions}_link_html", user: @user.full_name, a_type: t(:akkusativ, scope: "data_link_mailer.#{@data_link.item.model_name.singular_route_key}", default: :default, locale: @locale), url: @url, title: @title, n_type: t(:nominativ, scope: "data_link_mailer.#{@data_link.item.model_name.singular_route_key}", default: :default, locale: @locale), locale: @locale) %>
           </td>
         </tr>
 

@@ -41,6 +41,7 @@ de:
     super_admin: Administrator (DataCycle)
     admin: Administrator
     user: Benutzer
+    standard: Standard
     guest: Gast
 
   view_modes:
