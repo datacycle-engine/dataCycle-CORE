@@ -18,8 +18,6 @@ module DataCycleCore
 
     acts_as_paranoid
 
-    before_destroy :invalidate_things_cache, prepend: true
-
     belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
 
     has_many :classification_trees, dependent: :destroy
@@ -29,8 +27,8 @@ module DataCycleCore
       end
     end
 
-    has_many :primary_classifications, through: :classification_aliases
-    has_many :things, through: :primary_classifications
+    has_many :classifications, through: :classification_aliases
+    has_many :things, through: :classifications
 
     has_one :statistics, -> { readonly }, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label
     after_update :add_things_cache_invalidation_job, if: :saved_changes?

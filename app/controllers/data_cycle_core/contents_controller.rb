@@ -63,7 +63,7 @@ module DataCycleCore
         end
       end
 
-      I18n.with_locale(@content.first_available_locale(params[:locale])) do
+      I18n.with_locale(@locale = @content.first_available_locale(params[:locale])) do
         if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
           pre_filters
           @pre_filters.push(

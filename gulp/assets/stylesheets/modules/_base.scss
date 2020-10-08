@@ -202,8 +202,8 @@ footer {
   &.fa,
   &.fa-stack {
     font-size: 0.9rem;
-    // vertical-align: middle;
     margin-right: 0.2rem;
+    vertical-align: unset;
 
     &.fa-stack {
       width: auto;

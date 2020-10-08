@@ -19,6 +19,7 @@
 
           <div class="show-content">
             <div class="detail-header-info">
+              <%= tag.b(t('duplicate.duplicate', locale: DataCycleCore.ui_language) + ':') if local_assigns[:link_action] == :merge_with_duplicate %>
               <%= render 'meta_data', content: split_source %>
               <ul class="split-locales no-bullet">
                 <%= render 'split_locale_links',
@@ -28,7 +29,7 @@
                   locale: @locale,
                   link_action: local_assigns[:link_action] if split_source.translatable? && I18n.available_locales&.many? %>
               </ul>
-              <%= link_to tag.i(class: 'fa fa-times', aira_hidden: true), edit_thing_path(content, watch_list_id: @watch_list, locale: @locale), title: t('actions.close_source', locale: DataCycleCore.ui_language), data: { tooltip: true }, class: 'close-source-link' %>
+              <%= link_to tag.i(class: 'fa fa-times', aira_hidden: true), edit_thing_path(content, watch_list_id: @watch_list, locale: @locale), title: t('actions.close_source', locale: DataCycleCore.ui_language), class: 'close-source-link' %>
             </div>
 
             <%= render_content_partial 'details', content: split_source, options: { force_render: true }, default: true %>
@@ -41,6 +42,7 @@
       <div class="column">
         <div class="detail-header editor <%= content&.template_name&.underscore_blanks %>">
           <div class="detail-header-info">
+            <%= tag.b(t('duplicate.original', locale: DataCycleCore.ui_language) + ':') if local_assigns[:link_action] == :merge_with_duplicate %>
             <%= render 'meta_data', content: content %>
           </div>
 

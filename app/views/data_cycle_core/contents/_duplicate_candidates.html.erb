@@ -9,7 +9,7 @@
         <div class="duplicate-info">
           <div class="duplicate-score"><%= t('duplicate.score', locale: DataCycleCore.ui_language) %>: <b><%= item.score.to_i %></b></div>
           <div class="duplicate-buttons">
-            <%= link_to t('duplicate.merge', locale: DataCycleCore.ui_language), merge_with_duplicate_thing_path(content, source_id: item.duplicate.id), class: 'button small' %>
+            <%= link_to t('duplicate.merge', locale: DataCycleCore.ui_language), merge_with_duplicate_thing_path(content, source_id: item.duplicate.id, locale: @locale), class: 'button small' %>
             <%= link_to t('duplicate.mark_false_positive', locale: DataCycleCore.ui_language), false_positive_duplicate_thing_path(id: content.id, source_id: item.duplicate.id), method: :post, class: 'button secondary small' %>
           </div>
         </div>

@@ -295,6 +295,9 @@ de:
     merge: zusammenführen
     merge_content: Inhalte zusammenführen
     mark_false_positive: kein Duplikat
+    switch: Original und Duplikat vertauschen
+    duplicate: Duplikat
+    original: Original
 
   tile_links:
     details: zur Detailansicht

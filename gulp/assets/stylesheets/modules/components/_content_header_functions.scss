@@ -33,6 +33,7 @@
         opacity: 0.3;
         transition: all ease-in-out 0.25s;
         outline: none;
+        padding: 0.75rem;
 
         .fa {
           font-size: 1.4rem;
@@ -42,6 +43,13 @@
         &:hover,
         &:focus {
           opacity: 1;
+        }
+      }
+
+      .duplicate-switch-link {
+        .fa {
+          font-size: 1.4rem;
+          line-height: 1.6rem;
         }
       }
     }
@@ -58,9 +66,9 @@
           margin-left: 5px;
         }
         .submit {
-          float: right;
-          margin-top: -0.75rem;
-          margin-bottom: -0.75rem;
+          flex: 0;
+          flex-basis: auto;
+          flex-shrink: 0;
           z-index: 100;
           outline: none;
           i {
@@ -215,6 +223,8 @@ label.agb-link {
         a {
           height: 100%;
           text-align: center;
+          padding: 0.75rem;
+
           &.normalize-content-button {
             height: 100%;
             width: 3rem;
