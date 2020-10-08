@@ -52,6 +52,8 @@ module DataCycleCore
                  tag.i(class: 'fa fa-long-arrow-right'),
                  class: "fa-stack #{sync_type} #{additional_classes}"
                )
+             when 'duplicate'
+               tag.i(class: "fa fa-clone #{additional_classes}")
              else tag.i(class: "fa fa-link #{additional_classes}")
              end
 

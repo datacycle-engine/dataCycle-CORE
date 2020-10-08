@@ -199,40 +199,43 @@ footer {
 }
 
 .external-system-icon {
-  font-size: 0.9rem;
-  vertical-align: middle;
-  margin-right: 0.2rem;
-
+  &.fa,
   &.fa-stack {
-    width: auto;
-    height: auto;
-    line-height: inherit;
     font-size: 0.9rem;
+    // vertical-align: middle;
+    margin-right: 0.2rem;
 
-    .fa-file-o {
-      font-size: inherit;
+    &.fa-stack {
+      width: auto;
+      height: auto;
       line-height: inherit;
-    }
-    .fa-long-arrow-right {
-      font-size: inherit;
-      line-height: inherit;
-      position: absolute;
-      bottom: -2px;
-    }
+      font-size: 0.9rem;
 
-    &.export {
-      padding-right: 5px;
-
-      .fa-long-arrow-right {
-        left: 5px;
+      .fa-file-o {
+        font-size: inherit;
+        line-height: inherit;
       }
-    }
-
-    &.import {
-      padding-left: 5px;
-
       .fa-long-arrow-right {
-        left: 0px;
+        font-size: inherit;
+        line-height: inherit;
+        position: absolute;
+        bottom: -2px;
+      }
+
+      &.export {
+        padding-right: 5px;
+
+        .fa-long-arrow-right {
+          left: 5px;
+        }
+      }
+
+      &.import {
+        padding-left: 5px;
+
+        .fa-long-arrow-right {
+          left: 0px;
+        }
       }
     }
   }

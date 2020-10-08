@@ -23,7 +23,7 @@ module DataCycleCore
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
-      after_saved_data_hash :invalidate_content_a_cache, if: -> { !embedded? && has_cached_related_contents? }
+      after_saved_data_hash :add_related_cache_invalidation_job, if: -> { !embedded? && has_cached_related_contents? }
       after_created_data_hash :execute_create_webhooks
       after_destroyed_data_hash :execute_delete_webhooks
 
@@ -121,11 +121,17 @@ module DataCycleCore
         self.validity_range = get_validity_range(validity_hash)
       end
 
-      def invalidate_content_a_cache
-        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: self.class.name, delayed_reference_id: id, locked_at: nil)
+      def add_related_cache_invalidation_job
+        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_related_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_related_cache", delayed_reference_id: id, locked_at: nil)
       end
 
-      def invalidate_cache
+      def invalidate_self_and_update_search
+        search_languages(true)
+        Rails.cache.delete_matched("*#{id}*")
+        invalidate_related_cache
+      end
+
+      def invalidate_related_cache
         cached_related_contents.ids.each do |item_id|
           Rails.cache.delete_matched("*#{item_id}*")
         end
