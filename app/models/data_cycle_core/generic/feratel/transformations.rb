@@ -171,7 +171,7 @@ module DataCycleCore
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
           .>> t(:add_field, 'potential_action', ->(s) { parse_links(s.dig('Links', 'Link')) })
-          .>> t(:add_links, 'founder', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('Addresses', 'Address')).select { |i| i.dig('Type') == 'LandLord' }.map { |i| i.dig('Id') } })
+          .>> t(:add_links, 'founder', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('Addresses', 'Address')).select { |i| i.dig('Type') == 'LandLord' }.map { |i| "LandLord:#{i.dig('Id')}" } })
           .>> t(:add_cc, external_source_id)
           .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description')) })
           .>> t(:add_amenity_features, external_source_id)
