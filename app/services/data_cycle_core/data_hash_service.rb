@@ -145,9 +145,9 @@ module DataCycleCore
           when 'IceCube::SingleOccurrenceRule'
             s.except!('rrules')
           when 'IceCube::YearlyRule'
-            if s.dig('yearly_end').present?
-              from_yday = s.dig('start_time', 'time').to_date.yday
-              to_yday = s.dig('yearly_end', 'time').to_date.yday
+            from_yday = start_time&.to_date&.yday
+            to_yday = s.dig('yearly_end', 'time')&.to_date&.yday
+            if to_yday.present?
               to_yday = -366 + to_yday if from_yday > to_yday
               s['rrules'][0]['validations']['day_of_year'] = [from_yday, to_yday]
             else

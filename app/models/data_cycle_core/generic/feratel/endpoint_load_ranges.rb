@@ -6,7 +6,7 @@ module DataCycleCore
       module EndpointLoadRanges
         def load_range_ids_new
           raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
-          range_types = { 'Region' => 'RG', 'District' => 'DI', 'Town' => 'TO' }
+          range_types = { 'Country' => 'RG', 'Region' => 'RG', 'District' => 'DI', 'Town' => 'TO' }
           range_parameters = DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
             mongo.where({ 'dump.de.ParentID' => /#{@primary_range_id}/i })
               .to_a.map { |r| [range_types[r.dump['de']['_Type']], r.dump['de']['Id']] }
