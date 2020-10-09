@@ -19,7 +19,7 @@
         :type: string
         :storage_location: translated_value
         :validations:
-          :format: url
+          :format: url          
       :meta_data:
         :type: mixin
         :name: meta_data
