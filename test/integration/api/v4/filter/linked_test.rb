@@ -22,7 +22,7 @@ module DataCycleCore
           ## 2 iamges: cc0
           ## 2 images: ccby
 
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
 
             @cc0 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC0').first

@@ -9,7 +9,7 @@ module DataCycleCore
         module Extensions
           module CreativeWorks
             class ArticleDataTest < DataCycleCore::V4::Base
-              setup do
+              before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('article')
                 assert_full_thing_datahash(@content)
               end

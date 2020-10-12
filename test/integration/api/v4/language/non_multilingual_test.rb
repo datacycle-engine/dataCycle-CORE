@@ -9,7 +9,7 @@ module DataCycleCore
         class NonMultilingualTest < DataCycleCore::V4::Base
           # Testing not mulitlingual thing (Article)
           # only available in language de
-          setup do
+          before(:all) do
             @content = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
 
             # add translation for author

@@ -4,7 +4,8 @@ module DataCycleCore
   module Content
     module DestroyContent
       def destroy_content(current_user: nil, save_time: Time.zone.now, save_history: true, destroy_locale: false, destroy_linked: false)
-        return if destroy_locale && !available_locales.include?(I18n.locale)
+        return self if destroy_locale && !available_locales.include?(I18n.locale)
+
         ActiveRecord::Base.transaction do
           children.each { |item| item.destroy_content(current_user: current_user, save_time: save_time) } if respond_to?(:children)
           if save_history && !history?
@@ -23,6 +24,7 @@ module DataCycleCore
             destroy
           end
         end
+
         self
       end
 

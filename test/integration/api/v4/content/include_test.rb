@@ -7,15 +7,16 @@ module DataCycleCore
   module Api
     module V4
       module Content
-        class IncludeTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
+        class IncludeTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
           include DataCycleCore::ApiV4Helper
 
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
             @routes = Engine.routes
             @content_tour = DataCycleCore::DummyDataHelper.create_data('tour')
+          end
+
+          setup do
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 

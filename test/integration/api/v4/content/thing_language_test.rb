@@ -7,19 +7,20 @@ module DataCycleCore
   module Api
     module V4
       module Content
-        class ThingLanguageTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
+        class ThingLanguageTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
           include DataCycleCore::ApiV4Helper
 
           def embedded_concept_attributes
             ['skos:inScheme', 'skos:topConceptOf', 'skos:broader', 'skos:ancestors']
           end
 
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
             @routes = Engine.routes
             @content = DataCycleCore::DummyDataHelper.create_data('poi_translated')
+          end
+
+          setup do
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 

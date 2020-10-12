@@ -6,11 +6,8 @@ module DataCycleCore
   module Api
     module V4
       class RoutingTest < DataCycleCore::V4::Base
-        setup do
-          DataCycleCore::Thing.where(template: false).delete_all
-          @routes = Engine.routes
+        before(:all) do
           @content = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
-
           @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
         end
 

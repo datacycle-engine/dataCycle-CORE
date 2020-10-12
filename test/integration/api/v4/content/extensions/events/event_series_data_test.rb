@@ -9,7 +9,7 @@ module DataCycleCore
         module Extensions
           module Events
             class EventSeriesDataTest < DataCycleCore::V4::Base
-              setup do
+              before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('event_series')
               end
 

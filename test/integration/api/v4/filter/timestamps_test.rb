@@ -7,13 +7,14 @@ module DataCycleCore
     module V4
       module Filter
         class TimestampsTest < DataCycleCore::V4::Base
-          setup do
-            DataCycleCore::Thing.where(template: false).delete_all
-
+          before(:all) do
             @poi_a = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             @poi_b = DataCycleCore::V4::DummyDataHelper.create_data('poi')
-            @food_establishment_a = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment')
-            @food_establishment_b = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment')
+          end
+
+          setup do
+            @food_establishment_a = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment').reload
+            @food_establishment_b = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment').reload
 
             @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
           end

@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Content
         class ThingDataTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             @content = DataCycleCore::V4::DummyDataHelper.create_data('event')
           end
 

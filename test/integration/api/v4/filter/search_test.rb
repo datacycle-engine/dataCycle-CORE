@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Filter
         class SearchTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
 
             # name: Headline used for event, event_series and poi

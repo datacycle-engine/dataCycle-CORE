@@ -6,11 +6,8 @@ require 'json'
 module DataCycleCore
   module Api
     module V4
-      class JwtAuthenticationTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
-
-        setup do
+      class JwtAuthenticationTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
           DataCycleCore::Thing.where(template: false).delete_all
           @routes = Engine.routes
           @current_user = User.find_by(email: 'tester@datacycle.at')

@@ -11,7 +11,7 @@ module DataCycleCore
           # 2 poi's: licenses: (CC BY 4.0, CC BY-SA 4.0) | CC BY (only for without subTree test)
           # 2 food_establishment CC BY 4.0 | CC BY-SA 4.0
           # 4 images CC0 | CC0 | CC0 | CC0
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
 
             @cc_by40 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY 4.0').first

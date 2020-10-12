@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Classifications
         class ClassificationFilterTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
             other_trees = DataCycleCore::ClassificationTreeLabel.where.not(name: 'Tags')

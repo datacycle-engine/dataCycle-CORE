@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Sort
         class TimestampsTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
             @routes = Engine.routes
 
@@ -17,7 +17,9 @@ module DataCycleCore
             @food_establishment_b = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment')
 
             @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+          end
 
+          setup do
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 

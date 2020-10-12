@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Content
         class ThingTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             @event = DataCycleCore::V4::DummyDataHelper.create_data('event')
             @thing_count = DataCycleCore::Thing.where(template: false, content_type: 'entity').count
           end

@@ -4,7 +4,9 @@ require 'minitest/hooks'
 
 module DataCycleCore
   module TestCases
-    class ActiveSupportTestCase < ActiveSupport::TestCase
+    class ActionDispatchIntegrationTest < ActionDispatch::IntegrationTest
+      include Devise::Test::IntegrationHelpers
+      include Engine.routes.url_helpers
       include Minitest::Hooks
 
       around(:all) do |&block|
