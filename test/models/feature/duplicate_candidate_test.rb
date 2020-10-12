@@ -3,11 +3,15 @@
 require 'test_helper'
 
 module DataCycleCore
-  class DuplicateCandidateTest < ActiveSupport::TestCase
+  class DuplicateCandidateTest < DataCycleCore::TestCases::ActiveSupportTestCase
     include ActiveJob::TestHelper
 
-    def setup
+    before(:all) do
       DataCycleCore::ImageUploader.enable_processing = true
+    end
+
+    after(:all) do
+      DataCycleCore::ImageUploader.enable_processing = false
     end
 
     def upload_image(file_name)
@@ -128,8 +132,40 @@ module DataCycleCore
       assert_empty content2.duplicate_candidates.reload
     end
 
-    def teardown
-      DataCycleCore::ImageUploader.enable_processing = false
+    test 'duplicates from different external_source get merged correctly' do
+      external_source_f = DataCycleCore::ExternalSystem.find_by(name: 'Feratel VCloud')
+      external_key_f = SecureRandom.uuid
+      external_source_oa = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive')
+      external_key_oa = SecureRandom.uuid
+      external_source_v = DataCycleCore::ExternalSystem.find_by(name: 'V-Ticket')
+      external_key_v = SecureRandom.uuid
+      external_source_m = DataCycleCore::ExternalSystem.find_by(name: 'Medienarchiv')
+      external_key_m = SecureRandom.uuid
+      external_source_hrs = DataCycleCore::ExternalSystem.find_by(name: 'HRS')
+      external_key_hrs = SecureRandom.uuid
+
+      image_f = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1' })
+      image_f.update_columns(external_source_id: external_source_f.id, external_key: external_key_f) # rubocop:disable Rails/SkipsModelValidations
+      image_oa = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2' })
+      image_oa.update_columns(external_source_id: external_source_oa.id, external_key: external_key_oa) # rubocop:disable Rails/SkipsModelValidations
+      image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_v.id, external_key: external_key_v, sync_type: 'duplicate')
+      image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_m.id, external_key: external_key_m, sync_type: 'link')
+      image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_hrs.id, external_key: external_key_hrs, sync_type: 'export')
+
+      perform_enqueued_jobs do
+        image_f.merge_with_duplicate(image_oa)
+      end
+
+      assert_performed_jobs 1
+      assert_nil DataCycleCore::Thing.find_by(id: image_oa.id)
+
+      assert_equal external_source_f.id, image_f.external_source.id
+      assert_equal 3, image_f.external_system_syncs.size
+      assert_empty image_f.external_system_syncs.where(sync_type: 'duplicate').pluck(:external_system_id).difference([external_source_v.id, external_source_oa.id])
+      assert_empty image_f.external_system_syncs.where(sync_type: 'duplicate').pluck(:external_key).difference([external_key_v, external_key_oa])
+      assert_empty image_f.external_system_syncs.where(sync_type: 'link').pluck(:external_system_id).difference([external_source_m.id])
+      assert_empty image_f.external_system_syncs.where(sync_type: 'link').pluck(:external_key).difference([external_key_m])
+      assert_equal 0, image_f.external_system_syncs.where(sync_type: 'export').size
     end
   end
 end

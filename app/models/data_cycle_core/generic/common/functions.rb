@@ -217,8 +217,9 @@ module DataCycleCore
             ).order(
               [
                 Arel.sql(
-                  'array_position(ARRAY[?]::varchar[], (CASE WHEN external_system_syncs.external_key IS NOT NULL THEN external_system_syncs.external_key ELSE things.external_key END)::varchar)'
+                  'array_position(ARRAY[?]::varchar[], (CASE WHEN external_system_syncs.external_key = ANY(ARRAY[?]::varchar[]) THEN external_system_syncs.external_key ELSE things.external_key END)::varchar)'
                 ),
+                external_key,
                 external_key
               ]
             )

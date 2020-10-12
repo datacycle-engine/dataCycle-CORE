@@ -532,8 +532,115 @@ select {
 }
 
 #edit-form {
+  .detail-header-info {
+    text-align: left;
+    display: flex;
+    max-width: 100%;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    align-items: center;
+
+    > * {
+      position: relative;
+      margin: 0 0 0 0.5rem;
+
+      &:first-child {
+        margin-left: 0;
+      }
+
+      &.close-source-link,
+      &.split-locales > li > a {
+        padding: 0 0.3rem;
+      }
+
+      &.close-source-link {
+        display: flex;
+        align-items: center;
+
+        .fa {
+          font-size: 1.2rem;
+          color: $black;
+        }
+      }
+    }
+
+    .metadata {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      flex: auto;
+
+      .icon {
+        margin-right: 0.2rem;
+        display: flex;
+        align-items: center;
+      }
+
+      > .type {
+        margin-right: 0.2rem;
+        font-size: 0.9rem;
+      }
+
+      .show-history-link {
+        position: absolute;
+        right: 1rem;
+      }
+
+      &.has-history-link {
+        .created-at {
+          padding-right: 1rem;
+        }
+      }
+    }
+
+    &:hover,
+    &:focus {
+      opacity: 1;
+    }
+
+    &.no-transparency {
+      opacity: 1;
+    }
+
+    &.fixed {
+      padding: 1rem;
+      top: 0rem;
+      background: linear-gradient(to bottom, white 0%, white 30%, rgba(255, 255, 255, 0) 100%);
+      z-index: 2;
+      width: 49%;
+    }
+
+    &.right {
+      left: 50%;
+    }
+
+    .type,
+    .metadata {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .metadata {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: pre;
+    }
+
+    .created-at {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.9rem;
+    }
+  }
+
   .flex-box {
     height: calc(100vh - 11.4rem);
+
+    .detail-header-info > * {
+      margin-top: 1rem;
+    }
 
     &.full-size {
       height: inherit;
@@ -602,107 +709,6 @@ select {
 
     &.detail-header-fixed {
       position: relative;
-    }
-
-    .detail-header-info {
-      text-align: left;
-      display: flex;
-      max-width: 100%;
-      opacity: 0.7;
-      transition: opacity 0.3s ease;
-      align-items: center;
-
-      > * {
-        position: relative;
-        margin: 1rem 0 0 0;
-
-        &.close-source-link,
-        &.split-locales > li > a {
-          padding: 0 0.5rem;
-        }
-
-        &.close-source-link {
-          display: flex;
-          align-items: center;
-
-          .fa {
-            font-size: 1.2rem;
-            color: $black;
-          }
-        }
-      }
-
-      .metadata {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        margin-top: 1rem;
-        flex: auto;
-
-        .icon {
-          margin-right: 0.2rem;
-          display: flex;
-          align-items: center;
-        }
-
-        > .type {
-          margin-right: 0.2rem;
-          font-size: 0.9rem;
-        }
-
-        .show-history-link {
-          position: absolute;
-          right: 1rem;
-        }
-
-        &.has-history-link {
-          .created-at {
-            padding-right: 1rem;
-          }
-        }
-      }
-
-      &:hover,
-      &:focus {
-        opacity: 1;
-      }
-
-      &.no-transparency {
-        opacity: 1;
-      }
-
-      &.fixed {
-        padding: 1rem;
-        top: 0rem;
-        background: linear-gradient(to bottom, white 0%, white 30%, rgba(255, 255, 255, 0) 100%);
-        z-index: 2;
-        width: 49%;
-      }
-
-      &.right {
-        left: 50%;
-      }
-
-      .type,
-      .metadata {
-        display: flex;
-        align-items: center;
-        white-space: nowrap;
-      }
-
-      .metadata {
-        padding-left: 0.5rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: pre;
-      }
-
-      .created-at {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: 0.9rem;
-      }
     }
 
     .split-content {

@@ -50,16 +50,20 @@ module DataCycleCore
       duplicate_external_key = duplicate.external_key
       duplicate_external_source_id = duplicate.external_source_id
 
-      duplicate.original_id = original.id
-      duplicate.destroy_content
+      ActiveRecord::Base.transaction do
+        # rubocop:disable Rails/SkipsModelValidations
+        duplicate.original_id = original.id
+        duplicate.external_system_syncs.where.not({ sync_type: 'export', external_system_id: original.external_source_id, external_key: original.external_key }.compact).update_all(syncable_id: original.id)
+        duplicate.destroy_content
 
-      # rubocop:disable Rails/SkipsModelValidations
-      if original.external_source_id == duplicate_external_source_id
-        original.update_column(:external_key, original.external_key.to_s.split(';').to_set.merge(duplicate_external_key.to_s.split(';')).to_a.join(';').presence)
-      elsif original.external_source_id.blank? && duplicate_external_source_id.present?
-        original.update_columns(external_key: duplicate_external_key, external_source_id: duplicate_external_source_id)
+        # MediaArchive special case, external_keys separated by ;
+        if original.external_source_id == duplicate_external_source_id
+          original.update_column(:external_key, original.external_key.to_s.split(';').to_set.merge(duplicate_external_key.to_s.split(';')).to_a.join(';').presence)
+        elsif duplicate_external_source_id.present? && duplicate_external_key.present? && original.external_source_id != duplicate_external_source_id && original.external_key != duplicate_external_key
+          original.external_system_syncs.find_or_create_by!(external_system_id: duplicate_external_source_id, external_key: duplicate_external_key, sync_type: 'duplicate')
+        end
+        # rubocop:enable Rails/SkipsModelValidations
       end
-      # rubocop:enable Rails/SkipsModelValidations
     end
   end
 end

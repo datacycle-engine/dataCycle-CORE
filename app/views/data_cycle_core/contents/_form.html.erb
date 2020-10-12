@@ -19,8 +19,9 @@
 
           <div class="show-content">
             <div class="detail-header-info">
-              <%= tag.b(t('duplicate.duplicate', locale: DataCycleCore.ui_language) + ':') if local_assigns[:link_action] == :merge_with_duplicate %>
+              <%= tag.b(t('duplicate.duplicate', locale: DataCycleCore.ui_language) + ':', class: 'meta-data-prefix') if local_assigns[:link_action] == :merge_with_duplicate %>
               <%= render 'meta_data', content: split_source %>
+              <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: split_source if split_source.try(:external_source) || split_source.try(:external_systems).present? %>
               <ul class="split-locales no-bullet">
                 <%= render 'split_locale_links',
                   locales: available_locales_with_names.except(:all),
@@ -42,8 +43,9 @@
       <div class="column">
         <div class="detail-header editor <%= content&.template_name&.underscore_blanks %>">
           <div class="detail-header-info">
-            <%= tag.b(t('duplicate.original', locale: DataCycleCore.ui_language) + ':') if local_assigns[:link_action] == :merge_with_duplicate %>
+            <%= tag.b(t('duplicate.original', locale: DataCycleCore.ui_language) + ':', class: 'meta-data-prefix') if local_assigns[:link_action] == :merge_with_duplicate %>
             <%= render 'meta_data', content: content %>
+            <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if content.try(:external_source) || content.try(:external_systems).present? %>
           </div>
 
           <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>

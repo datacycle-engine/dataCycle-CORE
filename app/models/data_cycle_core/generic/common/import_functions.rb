@@ -155,6 +155,7 @@ module DataCycleCore
                       else
                         iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
                       end
+
                       iterate.each do |content|
                         break if options[:max_count].present? && item_count >= options[:max_count]
                         item_count += 1
