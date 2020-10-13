@@ -27,7 +27,7 @@ module DataCycleCore
 
         external_system_syncs.where(external_system_id: external_source_id, sync_type: 'import', external_key: external_key).first_or_create
 
-        update_columns(external_key: nil, external_source_id: nil) # rubocop:disable Rails/SkipsModelValidations
+        update_columns(external_key: nil, external_source_id: nil)
       end
     end
   end

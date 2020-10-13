@@ -11,7 +11,7 @@ module DataCycleCore
           DataCycleCore::Thing.where(template: false).delete_all
           @routes = Engine.routes
           @current_user = User.find_by(email: 'tester@datacycle.at')
-          @current_user.update_column(:access_token, SecureRandom.hex) # rubocop:disable Rails/SkipsModelValidations
+          @current_user.update_column(:access_token, SecureRandom.hex)
 
           @user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
             email: "tester_#{Time.now.getutc.to_i}@datacycle.at",

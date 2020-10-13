@@ -180,6 +180,9 @@ Rails/ApplicationController:
 Rails/RakeEnvironment:
   Enabled: false
 
+Rails/SkipsModelValidations:
+  Enabled: false
+
 #######################################################
 ########## Security
 

@@ -123,9 +123,9 @@ module DataCycleCore
 
             update_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 3').first
             external_source_id = DataCycleCore::ExternalSystem.first.id
-            update_tag.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
-            update_tag.primary_classification.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
-            update_tag.primary_classification.update_column(:external_key, 'test-identifier') # rubocop:disable Rails/SkipsModelValidations
+            update_tag.update_column(:external_source_id, external_source_id)
+            update_tag.primary_classification.update_column(:external_source_id, external_source_id)
+            update_tag.primary_classification.update_column(:external_key, 'test-identifier')
 
             params = {
               id: tree_id,
@@ -148,9 +148,9 @@ module DataCycleCore
             assert_equal({}, validator.call(json_data.dig('@graph').first).errors.to_h)
             assert_equal('test-identifier', json_data.dig('@graph').first.dig('identifier').first.dig('value'))
 
-            update_tag.update_column(:external_source_id, nil) # rubocop:disable Rails/SkipsModelValidations
-            update_tag.primary_classification.update_column(:external_source_id, nil) # rubocop:disable Rails/SkipsModelValidations
-            update_tag.primary_classification.update_column(:external_key, nil) # rubocop:disable Rails/SkipsModelValidations
+            update_tag.update_column(:external_source_id, nil)
+            update_tag.primary_classification.update_column(:external_source_id, nil)
+            update_tag.primary_classification.update_column(:external_key, nil)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts fields skos:inScheme' do

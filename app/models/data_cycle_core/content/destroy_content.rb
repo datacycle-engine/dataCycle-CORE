@@ -49,7 +49,7 @@ module DataCycleCore
         return if last_history_entry.blank?
         DataCycleCore::ContentContent::History
           .where(content_b_history_id: id, content_b_history_type: self.class.to_s)
-          .update_all(content_b_history_id: last_history_entry.id, content_b_history_type: last_history_entry.class.to_s) # rubocop:disable Rails/SkipsModelValidations
+          .update_all(content_b_history_id: last_history_entry.id, content_b_history_type: last_history_entry.class.to_s)
       end
 
       def destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:)

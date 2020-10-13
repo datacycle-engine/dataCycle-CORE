@@ -63,12 +63,10 @@ module DataCycleCore
               if oldest_duplicate.nil?
                 content.try(:destroy_content, save_history: true, destroy_linked: true)
               else
-                # rubocop:disable Rails/SkipsModelValidations
                 content.update_columns(external_source_id: oldest_duplicate.external_system_id, external_key: oldest_duplicate.external_key) unless DataCycleCore::Thing.exists?(
                   external_source_id: oldest_duplicate.external_system_id,
                   external_key: oldest_duplicate.external_key
                 )
-                # rubocop:enable Rails/SkipsModelValidations
                 oldest_duplicate.destroy
               end
             end

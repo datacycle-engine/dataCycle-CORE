@@ -405,7 +405,10 @@ class AssetUploader {
                         '</span>'
                     );
                   if (e.loaded == e.total) {
-                    file.fileField.add(file.fileFormField).find('.upload-number').html('wird verarbeitet...');
+                    file.fileField
+                      .add(file.fileFormField)
+                      .find('.upload-number')
+                      .html('<i class="fa fa-cog fa-spin fa-fw working-spinner"></i>wird verarbeitet');
                   }
                 }
               },

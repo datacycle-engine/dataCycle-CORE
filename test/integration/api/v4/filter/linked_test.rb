@@ -376,7 +376,7 @@ module DataCycleCore
             # validate linked with 'dct:modified'
             image_test = @event_c.image.first
             orig_ts = image_test.updated_at
-            image_test.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            image_test.update_column(:updated_at, (Time.zone.now + 10.days))
 
             # events start in 2days today
             # with image cc0
@@ -415,7 +415,7 @@ module DataCycleCore
 
             json_data = JSON.parse(response.body)
             assert_equal(@event_c.id, json_data['@graph'].first.dig('@id'))
-            image_test.update_column(:updated_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
+            image_test.update_column(:updated_at, orig_ts)
           end
 
           def create_test_event(schedule, classification_id, lat_long)

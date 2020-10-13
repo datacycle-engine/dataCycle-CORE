@@ -295,7 +295,7 @@ namespace :data_cycle_core do
             if original_content_ids.include? cc.content_data_id
               cc.destroy
             else
-              cc.update_columns(classification_id: original_id) # rubocop:disable Rails/SkipsModelValidations
+              cc.update_columns(classification_id: original_id)
               # prevent error due to multiple tagging
               original_content_ids.push(cc.content_data_id)
             end

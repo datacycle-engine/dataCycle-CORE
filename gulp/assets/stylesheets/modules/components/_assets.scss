@@ -405,6 +405,14 @@ ul.asset-list {
       font-size: 0.7rem;
       padding: 5px;
       transition: all 0.3s;
+
+      .working-spinner {
+        font-size: 0.8rem;
+        width: 0.8rem;
+        height: 0.8rem;
+        line-height: 0.8rem;
+        margin-right: 3px;
+      }
     }
   }
 

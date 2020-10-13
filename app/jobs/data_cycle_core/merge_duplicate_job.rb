@@ -36,12 +36,10 @@ module DataCycleCore
         end
 
         content.to_history(save_time: save_time)
-        # rubocop:disable Rails/SkipsModelValidations
         update_contents.each do |c|
           c.update_columns(updated_at: save_time, updated_by: nil)
         end
         linked_content.update_column(:content_b_id, original.id)
-        # rubocop:enable Rails/SkipsModelValidations
         content.send(:execute_update_webhooks)
       end
 
@@ -51,18 +49,15 @@ module DataCycleCore
       duplicate_external_source_id = duplicate.external_source_id
 
       ActiveRecord::Base.transaction do
-        # rubocop:disable Rails/SkipsModelValidations
         duplicate.original_id = original.id
         duplicate.external_system_syncs.where.not({ sync_type: 'export', external_system_id: original.external_source_id, external_key: original.external_key }.compact).update_all(syncable_id: original.id)
         duplicate.destroy_content
 
-        # MediaArchive special case, external_keys separated by ;
-        if original.external_source_id == duplicate_external_source_id
-          original.update_column(:external_key, original.external_key.to_s.split(';').to_set.merge(duplicate_external_key.to_s.split(';')).to_a.join(';').presence)
-        elsif duplicate_external_source_id.present? && duplicate_external_key.present? && original.external_source_id != duplicate_external_source_id && original.external_key != duplicate_external_key
-          original.external_system_syncs.find_or_create_by!(external_system_id: duplicate_external_source_id, external_key: duplicate_external_key, sync_type: 'duplicate')
+        if duplicate_external_source_id.present? && duplicate_external_key.present? && (original.external_source_id != duplicate_external_source_id || original.external_key != duplicate_external_key)
+          duplicate_external_key.split(';').reject(&:blank?).each do |d_external_key|
+            original.external_system_syncs.find_or_create_by!(external_system_id: duplicate_external_source_id, external_key: d_external_key, sync_type: 'duplicate')
+          end
         end
-        # rubocop:enable Rails/SkipsModelValidations
       end
     end
   end

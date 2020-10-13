@@ -25,7 +25,7 @@ module DataCycleCore
 
           test 'api/v4/things with parameter sort: created' do
             orig_ts = @food_establishment_a.created_at
-            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days))
 
             # DESC
             params = {
@@ -72,12 +72,12 @@ module DataCycleCore
               assert(a.dig('dct:created').to_datetime <= b.dig('dct:created').to_datetime)
             end
 
-            @food_establishment_a.update_column(:created_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:created_at, orig_ts)
           end
 
           test 'api/v4/things with parameter sort: modified' do
             orig_ts = @food_establishment_a.updated_at
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days))
 
             # DESC
             params = {
@@ -137,12 +137,12 @@ module DataCycleCore
               assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
             end
 
-            @food_establishment_a.update_column(:updated_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:updated_at, orig_ts)
           end
 
           test 'api/v4/things parameter multiple and invalid sort params' do
             orig_ts = @food_establishment_a.created_at
-            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days))
 
             params = {
               fields: 'dct:modified,dct:created',
@@ -157,7 +157,7 @@ module DataCycleCore
             json_data.dig('@graph').each_cons(2) do |a, b|
               assert(a.dig('dct:created').to_datetime >= b.dig('dct:created').to_datetime)
             end
-            @food_establishment_a.update_column(:created_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:created_at, orig_ts)
           end
         end
       end

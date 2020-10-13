@@ -145,9 +145,9 @@ module DataCycleCore
       external_key_hrs = SecureRandom.uuid
 
       image_f = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1' })
-      image_f.update_columns(external_source_id: external_source_f.id, external_key: external_key_f) # rubocop:disable Rails/SkipsModelValidations
+      image_f.update_columns(external_source_id: external_source_f.id, external_key: external_key_f)
       image_oa = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2' })
-      image_oa.update_columns(external_source_id: external_source_oa.id, external_key: external_key_oa) # rubocop:disable Rails/SkipsModelValidations
+      image_oa.update_columns(external_source_id: external_source_oa.id, external_key: external_key_oa)
       image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_v.id, external_key: external_key_v, sync_type: 'duplicate')
       image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_m.id, external_key: external_key_m, sync_type: 'link')
       image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_hrs.id, external_key: external_key_hrs, sync_type: 'export')
