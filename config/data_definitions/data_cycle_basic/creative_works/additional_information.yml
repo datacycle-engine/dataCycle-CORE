@@ -53,6 +53,8 @@
         :default_value: do_not_show
         :api:
           :disabled: true
+        :xml:
+          :disabled: true
         :ui:
           :edit:
             :disabled: true

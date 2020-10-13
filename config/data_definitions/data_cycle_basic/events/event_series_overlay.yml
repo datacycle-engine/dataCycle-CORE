@@ -66,15 +66,17 @@
             :type: radio_button
         :api:
           :disabled: true
-      :overlay_dummy:
+      :dummy:
         :label: invisible
         :type: string
         :storage_location: translated_value
         :default_value: do_not_show
         :api:
           :disabled: true
+        :xml:
+          :disabled: true
         :ui:
           :edit:
             :disabled: true
           :show:
-            :disabled: true          
+            :disabled: true

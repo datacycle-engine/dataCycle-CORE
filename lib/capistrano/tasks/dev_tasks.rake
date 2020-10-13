@@ -217,7 +217,8 @@ namespace :dc do
       end
 
       sh "mkdir -p db/backups/#{local_rails_env}/"
-      sh "mv -f tmp/dev_db.#{dump_suffix} db/backups/#{local_rails_env}/"
+      sh "rsync -c -r tmp/dev_db.#{dump_suffix} db/backups/#{local_rails_env}/"
+      sh "rm -r tmp/dev_db.#{dump_suffix}"
       sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump'" if local_rails_env != 'development'
       sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore[dev_db.#{dump_suffix}]'"
 

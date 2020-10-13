@@ -19,7 +19,21 @@
         :type: string
         :storage_location: translated_value
         :validations:
-          :format: url          
+          :format: url
+      :dummy:
+        :label: invisible
+        :type: string
+        :storage_location: translated_value
+        :default_value: do_not_show
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :meta_data:
         :type: mixin
         :name: meta_data
