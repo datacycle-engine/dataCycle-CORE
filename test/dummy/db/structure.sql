@@ -1295,6 +1295,13 @@ CREATE INDEX by_ctl_esi ON public.classification_tree_labels USING btree (extern
 
 
 --
+-- Name: by_external_connection_and_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX by_external_connection_and_type ON public.external_system_syncs USING btree (external_system_id, external_key, sync_type);
+
+
+--
 -- Name: by_template_name_template; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2305,6 +2312,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200826082051'),
 ('20200903102806'),
 ('20200922112719'),
-('20200928122555');
+('20200928122555'),
+('20201014110327');
 
 

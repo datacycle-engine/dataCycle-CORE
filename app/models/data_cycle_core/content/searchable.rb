@@ -38,6 +38,8 @@ module DataCycleCore
       end
 
       def by_external_key(external_system_id, external_key, joined_name = 'merged_external_systems')
+        return all if external_system_id.blank? || external_key.blank?
+
         join_external_connections_query = <<-SQL
           INNER JOIN (
             SELECT
@@ -65,7 +67,7 @@ module DataCycleCore
           ON #{joined_name}.thing_id = things.id
         SQL
 
-        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id: external_system_id, external_key: external_key]))
+        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id: external_system_id, external_key: external_key.is_a?(Array) ? external_key.map(&:to_s) : external_key.to_s]))
       end
 
       # TODO: currently not replaceable: used in PulicationsController
