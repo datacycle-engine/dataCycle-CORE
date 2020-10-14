@@ -43,7 +43,7 @@ module DataCycleCore
               data_hash = data_hash.merge('forecast_icon' => [symbol_classification&.id].compact)
               data_hash = data_hash.merge('forecast' => get_forecast_description(symbol_classification))
               data_hash = data_hash.merge('minimum_temperature' => t_min) if t_min.present?
-              data_hash = data_hash.merge('maximum_temperatur' => t_max) if t_max.present?
+              data_hash = data_hash.merge('maximum_temperature' => t_max) if t_max.present?
               data_hash = data_hash.merge('forecast_text' => text_d) if text_d.present?
               basic_data = {
                 'clouds' => single.dig('N')&.to_i,
