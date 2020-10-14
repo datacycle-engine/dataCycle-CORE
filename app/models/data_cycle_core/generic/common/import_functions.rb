@@ -26,19 +26,7 @@ module DataCycleCore
           if local
             content = DataCycleCore::Thing.new
           else
-            content = DataCycleCore::Thing.includes(:external_system_syncs).where(
-              external_system_syncs: {
-                external_system_id: utility_object.external_source.id,
-                sync_type: 'duplicate',
-                external_key: data['external_key'],
-                syncable_type: 'DataCycleCore::Thing'
-              }
-            ).or(
-              DataCycleCore::Thing.includes(:external_system_syncs).where(
-                external_source_id: utility_object.external_source.id,
-                external_key: data['external_key']
-              )
-            ).first || DataCycleCore::Thing.new(
+            content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first || DataCycleCore::Thing.new(
               external_source_id: utility_object.external_source.id,
               external_key: data['external_key']
             )

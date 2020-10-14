@@ -203,26 +203,16 @@ module DataCycleCore
           return [] if external_key.blank?
 
           if content_type == DataCycleCore::Thing
-            query = DataCycleCore::Thing.includes(:external_system_syncs).where(
-              external_system_syncs: {
-                external_system_id: external_system_id,
-                sync_type: 'duplicate',
-                external_key: external_key,
-                syncable_type: 'DataCycleCore::Thing'
-              }
-            ).or(
-              DataCycleCore::Thing.includes(:external_system_syncs).where(
-                external_source_id: external_system_id, external_key: external_key
+            query = DataCycleCore::Thing
+              .by_external_key(external_system_id, external_key, 'thing_external_systems')
+              .order(
+                [
+                  Arel.sql(
+                    'array_position(ARRAY[?]::varchar[], thing_external_systems.external_key::varchar)'
+                  ),
+                  external_key
+                ]
               )
-            ).order(
-              [
-                Arel.sql(
-                  'array_position(ARRAY[?]::varchar[], (CASE WHEN external_system_syncs.external_key = ANY(ARRAY[?]::varchar[]) THEN external_system_syncs.external_key ELSE things.external_key END)::varchar)'
-                ),
-                external_key,
-                external_key
-              ]
-            )
           else
             query = content_type.where(external_source_id: external_system_id, external_key: external_key).order(
               [

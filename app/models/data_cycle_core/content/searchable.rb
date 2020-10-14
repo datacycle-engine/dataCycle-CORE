@@ -37,6 +37,37 @@ module DataCycleCore
           .where.not('classification_contents.classification_id = ?', id)
       end
 
+      def by_external_key(external_system_id, external_key, joined_name = 'merged_external_systems')
+        join_external_connections_query = <<-SQL
+          INNER JOIN (
+            SELECT
+              external_system_syncs.syncable_id AS thing_id,
+              external_system_syncs.external_system_id AS external_system_id,
+              external_system_syncs.external_key AS external_key
+            FROM
+              external_system_syncs
+            WHERE
+              external_system_syncs.syncable_type = 'DataCycleCore::Thing'
+              AND external_system_syncs.sync_type = 'duplicate'
+              AND external_system_syncs.external_system_id = :external_system_id
+              AND external_system_syncs.external_key IN (:external_key)
+            UNION
+            SELECT
+              things.id AS thing_id,
+              things.external_source_id AS external_system_id,
+              things.external_key AS external_key
+            FROM
+              things
+            WHERE
+              things.external_source_id = :external_system_id
+              AND things.external_key IN (:external_key)
+          ) #{joined_name}
+          ON #{joined_name}.thing_id = things.id
+        SQL
+
+        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id: external_system_id, external_key: external_key]))
+      end
+
       # TODO: currently not replaceable: used in PulicationsController
       def with_classification_alias_ids(classification_alias_ids)
         classification_alias_ids = Array(classification_alias_ids).map { |id|
