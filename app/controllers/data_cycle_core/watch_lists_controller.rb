@@ -186,7 +186,7 @@ module DataCycleCore
         update_items = @watch_list.things.joins(:translations).where(thing_translations: { locale: I18n.locale })
         item_count = update_items.size
         errors = []
-        skip_update_names = @watch_list.things.where.not(id: update_items.ids).map { |c| I18n.with_locale(c.first_available_locale) { c.try(:title) || '__unnamed__' } }
+        skip_update_count = @watch_list.things.where.not(id: update_items.ids).size
 
         ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", progress: 0, items: item_count
         update_items.find_each.with_index do |content, index|
@@ -198,8 +198,8 @@ module DataCycleCore
         if errors.present?
           flash[:error] = errors.join(', ')
         else
-          flash[:success] = I18n.t :bulk_updated, scope: [:controllers, :success], locale: DataCycleCore.ui_language
-          flash[:success] += I18n.t :bulk_updated_skipped_html, scope: [:controllers, :info], data: skip_update_names.join(', '), locale: DataCycleCore.ui_language if skip_update_names.present?
+          flash[:success] = I18n.t :bulk_updated, scope: [:controllers, :success], data: item_count, locale: DataCycleCore.ui_language
+          flash[:success] += I18n.t :bulk_updated_skipped_html, scope: [:controllers, :info], data: skip_update_count, locale: DataCycleCore.ui_language if skip_update_count&.positive?
         end
 
         if params[:new_locale].present?
@@ -237,7 +237,7 @@ module DataCycleCore
         ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: index + 1, items: delete_count
       end
 
-      flash[:success] = I18n.t(:bulk_deleted, scope: [:controllers, :success], locale: DataCycleCore.ui_language)
+      flash[:success] = I18n.t(:bulk_deleted, scope: [:controllers, :success], data: delete_count, locale: DataCycleCore.ui_language)
       flash[:success] += I18n.t(:bulk_deleted_not_allowed_html, scope: [:controllers, :info], locale: DataCycleCore.ui_language, data: cant_delete_count) if cant_delete_count.positive?
 
       ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
