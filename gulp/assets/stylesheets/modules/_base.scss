@@ -299,6 +299,7 @@ footer {
   }
 
   .external-connections {
+    position: relative;
     border-bottom: 0px;
     margin-top: 1rem;
     font-size: 0.9rem;
@@ -537,6 +538,7 @@ footer {
     position: absolute;
     right: 1rem;
     bottom: 1rem;
+    z-index: 1;
 
     a span {
       display: block;

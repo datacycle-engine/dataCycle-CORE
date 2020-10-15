@@ -46,7 +46,7 @@ module DataCycleCore
         def self.bergfex_to_ski_resort(external_source_id)
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { "Bergfex - Skigebiet - #{s.dig('id')}" })
-          .>> t(:reject_keys, ['id'])
+          .>> t(:reject_keys, ['id', 'image'])
           .>> t(:rename_keys, {
             'id' => 'external_key',
             'name' => 'name_old',

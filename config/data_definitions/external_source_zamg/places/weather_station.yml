@@ -203,7 +203,7 @@
           :show:
             :options:
               :data-unit: °C
-      :maximum_temperatur:
+      :maximum_temperature:
         :label: Tageshöchsttemperatur
         :type: number
         :storage_location: value
