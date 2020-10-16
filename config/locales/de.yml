@@ -631,15 +631,15 @@ de:
       become_user: 'Eingeloggt als %{data}.'
       duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
       merged_with_duplicate: Inhalte werden im Hintergrund zusammengeführt
-      bulk_updated: Inhalte wurden aktualisiert
-      bulk_deleted: Inhalte wurden gelöscht
-      bulk_created: Inhalte wurden erstellt
+      bulk_updated: '<b>%{data}</b> Inhalte wurden aktualisiert'
+      bulk_deleted: '<b>%{data}</b> Inhalte wurden gelöscht'
+      bulk_created: '<b>%{data}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
     info:
       not_modified: '%{data} wurde nicht geändert.'
       created_duplication: '%{data} wurde erfolgreich dupliziert.'
       content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
-      bulk_updated_skipped_html: '<br>Folgende Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind: %{data}'
+      bulk_updated_skipped_html: '<br><b>%{data}</b> Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind.'
       bulk_deleted_external_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da diese von einem Externen System importiert wurden.'
       bulk_deleted_not_allowed_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da Sie keine Berechtigung dafür haben.'
     job:
