@@ -264,7 +264,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], data: 1, locale: DataCycleCore.ui_language), flash[:success]
       assert_equal bulk_name, @content.name
 
       patch bulk_update_watch_list_path(@watch_list), params: {
@@ -282,7 +282,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], locale: DataCycleCore.ui_language) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], data: I18n.with_locale(@content.first_available_locale) { @content.name }, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], data: 0, locale: DataCycleCore.ui_language) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], data: 1, locale: DataCycleCore.ui_language), flash[:success]
       assert_equal bulk_name, @content.name
     end
 

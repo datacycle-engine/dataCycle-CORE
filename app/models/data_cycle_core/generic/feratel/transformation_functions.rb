@@ -178,6 +178,12 @@ module DataCycleCore
           return data if address_function.call(data).blank?
           data.merge({ 'Address' => address_function.call(data).detect { |i| i['Type'] == address_type }&.except('Documents', 'Descriptions') }&.compact)
         end
+
+        def self.transform_name(data, attribute_name)
+          data[attribute_name] = data[attribute_name].split(',').reverse.join(' ').strip if data[attribute_name].include?(',')
+
+          data
+        end
       end
     end
   end
