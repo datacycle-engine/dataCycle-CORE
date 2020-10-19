@@ -269,6 +269,7 @@ de:
     external_alternate_name: Alternativer Titel
     external_key: Externe Id
     inverse_linked: Inverse Referenz
+    has_overlay: Bei diesem Inhalt ist ein Overlay vorhanden
 
   embedded:
     move_down: nach unten verschieben
