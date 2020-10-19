@@ -146,11 +146,15 @@ module DataCycleCore
 
       image_f = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1' })
       image_f.update_columns(external_source_id: external_source_f.id, external_key: external_key_f)
+      image_f.external_system_syncs.find_or_create_by!(external_system_id: external_source_v.id, external_key: external_key_v, sync_type: 'duplicate')
+
       image_oa = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2' })
       image_oa.update_columns(external_source_id: external_source_oa.id, external_key: external_key_oa)
       image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_v.id, external_key: external_key_v, sync_type: 'duplicate')
       image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_m.id, external_key: external_key_m, sync_type: 'link')
       image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_hrs.id, external_key: external_key_hrs, sync_type: 'export')
+      image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_f.id, external_key: external_key_f, sync_type: 'duplicate')
+      image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_f.id, external_key: external_key_v, sync_type: 'link')
 
       perform_enqueued_jobs do
         image_f.merge_with_duplicate(image_oa)
@@ -160,11 +164,11 @@ module DataCycleCore
       assert_nil DataCycleCore::Thing.find_by(id: image_oa.id)
 
       assert_equal external_source_f.id, image_f.external_source.id
-      assert_equal 3, image_f.external_system_syncs.size
+      assert_equal 4, image_f.external_system_syncs.size
       assert_empty image_f.external_system_syncs.where(sync_type: 'duplicate').pluck(:external_system_id).difference([external_source_v.id, external_source_oa.id])
       assert_empty image_f.external_system_syncs.where(sync_type: 'duplicate').pluck(:external_key).difference([external_key_v, external_key_oa])
-      assert_empty image_f.external_system_syncs.where(sync_type: 'link').pluck(:external_system_id).difference([external_source_m.id])
-      assert_empty image_f.external_system_syncs.where(sync_type: 'link').pluck(:external_key).difference([external_key_m])
+      assert_empty image_f.external_system_syncs.where(sync_type: 'link').pluck(:external_system_id).difference([external_source_m.id, external_source_f.id])
+      assert_empty image_f.external_system_syncs.where(sync_type: 'link').pluck(:external_key).difference([external_key_m, external_key_v])
       assert_equal 0, image_f.external_system_syncs.where(sync_type: 'export').size
     end
   end
