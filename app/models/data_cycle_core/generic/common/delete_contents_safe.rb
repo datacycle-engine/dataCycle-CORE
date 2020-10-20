@@ -34,7 +34,7 @@ module DataCycleCore
             DataCycleCore::Thing.find_by(
               external_source_id: utility_object.external_source.id,
               external_key: external_key
-            ).try(:destroy_content, save_history: true, destroy_linked: true, destroy_locale: true) # delete only a particular translation!
+            )&.try(:destroy_content, save_history: true, destroy_linked: true, destroy_locale: true) # delete only a particular translation!
           end
         end
       end
