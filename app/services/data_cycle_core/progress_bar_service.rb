@@ -2,8 +2,9 @@
 
 module DataCycleCore
   class ProgressBarService
-    def initialize(total_count = 0)
+    def initialize(total_count = 0, title: nil)
       @index = 0
+      @title = title
       @total_count = total_count
       @interval ||= [@total_count / 100.0, 1.0].max.round(0)
     end
@@ -21,12 +22,18 @@ module DataCycleCore
       @index += 1
     end
 
+    def title
+      return if @title.nil?
+      puts @title
+    end
+
     def finish
       puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
     end
 
-    def self.for_shell(total_count = 0)
-      pb = new(total_count)
+    def self.for_shell(total_count = 0, title: nil)
+      pb = new(total_count, title: title)
+      pb.title
       yield(pb)
       pb.finish
     end

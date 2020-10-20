@@ -90,6 +90,7 @@
         :label: Angebote
         :type: embedded
         :template_name: Angebot
+        :translated: true
       :feratel_service_classifications:
         :type: mixin
         :name: feratel_service_classifications

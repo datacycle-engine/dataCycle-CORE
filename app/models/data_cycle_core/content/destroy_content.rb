@@ -71,7 +71,7 @@ module DataCycleCore
       end
 
       def destroy_translation(locale)
-        translations.in_locale(locale).destroy
+        translations.in_locale(locale)&.destroy
         searches.where(locale: locale).delete_all
         translations.reload # (rails cache still includes removed translations)
       end

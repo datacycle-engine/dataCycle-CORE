@@ -90,8 +90,8 @@ module DataCycleCore
                           item_data[:delete_reason] = item.dump[locale].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
                         end
                         item_data[:updated_at] = modified.call(item_data) if modified.present?
-                        item.data_has_changed = true if options.dig(:download, :skip_diff) == true
                         item.data_has_changed = false if modified.present? && download_object.external_source.last_successful_download && modified.call(item_data) < download_object.external_source.last_successful_download
+                        item.data_has_changed = true if options.dig(:download, :skip_diff) == true
                         item.data_has_changed = diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
                         item.dump[locale] = item_data
                         item.save!

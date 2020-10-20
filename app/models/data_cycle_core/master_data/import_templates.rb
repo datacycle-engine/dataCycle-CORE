@@ -342,9 +342,9 @@ module DataCycleCore
       def self.template_statistics
         templates = {}
         history = {}
-        DataCycleCore::Thing.where(template: true).pluck(:template_name)&.sort&.each do |template|
-          templates[template] = DataCycleCore::Thing.where(template_name: template, template: false).count
-          history[template] = DataCycleCore::Thing::History.where(template_name: template).count
+        DataCycleCore::Thing.where(template: true).pluck(:template_name, :content_type)&.sort&.each do |template, type|
+          templates[template] = [type, DataCycleCore::Thing.where(template_name: template, template: false).count]
+          history[template] = [type, DataCycleCore::Thing::History.where(template_name: template).count]
         end
         return templates, history
       end

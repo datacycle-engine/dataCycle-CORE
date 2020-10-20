@@ -175,8 +175,6 @@ module DataCycleCore
           .>> t(:map_value, 'latitude', ->(v) { v.to_f })
           .>> t(:map_value, 'longitude', ->(v) { v.to_f })
           .>> t(:location)
-          .>> t(:unwrap_description, 'ServiceProviderDescription')
-          .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
           .>> t(:reject_keys, ['Town'])
           .>> t(:unwrap_address_data, 'Object', ->(s) { Array.wrap(s.dig('Addresses', 'Address')) })
           .>> t(:unwrap, 'Address')
@@ -202,7 +200,11 @@ module DataCycleCore
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
           .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
         end
+        # remove description from accommodation (they are now in additional_information)
+        # .>> t(:unwrap_description, 'ServiceProviderDescription')
+        # .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
         # to include services, offers, prices
+        # !!!!! service -> offer embedded relation ist jetzt translated = true !!!!
         # .>> t(:add_links, 'contains_place_service', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('Services', 'Service')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
         # .>> t(:add_links, 'contains_place_additional_service', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('AdditionalServices', 'AdditionalService')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
         # .>> t(:add_field, 'contains_place', ->(s) { s.dig('contains_place_service') + s.dig('contains_place_additional_service') })
