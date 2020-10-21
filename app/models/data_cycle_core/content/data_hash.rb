@@ -21,11 +21,11 @@ module DataCycleCore
       before_save_data_hash :add_default_values, if: -> { properties_with_default_values.present? && (@new_content || (translated_locales.present? && translated_locales.exclude?(I18n.locale))) }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
-      after_saved_data_hash :execute_update_webhooks
+      after_saved_data_hash :execute_update_webhooks, if: -> { !embedded? }
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
       after_saved_data_hash :add_related_cache_invalidation_job, if: -> { !embedded? && has_cached_related_contents? }
-      after_created_data_hash :execute_create_webhooks
-      after_destroyed_data_hash :execute_delete_webhooks
+      after_created_data_hash :execute_create_webhooks, if: -> { !embedded? }
+      after_destroyed_data_hash :execute_delete_webhooks, if: -> { !embedded? }
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false)
         return {} if data_hash.blank?
