@@ -46,7 +46,8 @@ module DataCycleCore
             global_attributes[attribute] = content.attribute_to_h(attribute).presence if content.respond_to?(attribute)
           end
 
-          global_data = global_attributes.merge(data).except('external_key')
+          global_data = global_attributes.merge(data)
+          global_data = global_data.except('external_key') unless created
 
           if config&.dig(:asset_type).present?
             if utility_object.asset_download
