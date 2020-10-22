@@ -918,7 +918,7 @@ de:
         hours_available: Öffnungszeiten
         text: Beschreibung
         price: Preis
-        description: Kurzeschreibung
+        description: Kurzbeschreibung
       tour:
         directions: Anfahrt
         parking: Parken
