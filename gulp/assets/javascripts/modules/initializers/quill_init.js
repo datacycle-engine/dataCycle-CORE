@@ -51,7 +51,7 @@ module.exports.initialize = function ($) {
     none: {
       container: []
     },
-    minimal: { container: [['bold', 'italic', 'underline'], ['insertnbsp'], , ['clean']] },
+    minimal: { container: [['bold', 'italic', 'underline'], ['insertnbsp'], ['clean']] },
     basic: {
       container: [
         [
@@ -90,13 +90,14 @@ module.exports.initialize = function ($) {
         ['insertnbsp'],
         ['customlink', 'contentlink'],
         ['clean']
-      ],
-      handlers: {
-        insertnbsp: function (value) {
-          var selection = this.quill.getSelection(true);
-          this.quill.insertText(selection, '\u00a0');
-        }
-      }
+      ]
+    }
+  };
+
+  const customHandlers = {
+    insertnbsp: function (_) {
+      var selection = this.quill.getSelection(true);
+      this.quill.insertText(selection, '\u00a0');
     }
   };
 
@@ -123,7 +124,7 @@ module.exports.initialize = function ($) {
         }
       }
     },
-    theme: 'snow', // or 'bubble'
+    theme: 'snow',
     formats: formats['none'],
     readOnly: false
   };
@@ -141,6 +142,7 @@ module.exports.initialize = function ($) {
 
         let options = default_options;
         options.modules.toolbar = toolbar[mode];
+        options.modules.toolbar.handlers = customHandlers;
         options.formats = formats[mode];
         options.readOnly = readOnly;
         options.bounds = node;

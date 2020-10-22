@@ -203,3 +203,6 @@
 :collection_group:
   :enabled: false
   :separator: ' / '
+
+:named_version:
+  :enabled: false

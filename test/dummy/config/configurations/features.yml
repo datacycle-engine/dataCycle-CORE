@@ -167,3 +167,6 @@
 
 :collection_group:
   :enabled: true
+
+:named_version:
+  :enabled: true

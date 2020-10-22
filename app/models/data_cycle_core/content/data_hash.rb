@@ -27,7 +27,7 @@ module DataCycleCore
       after_created_data_hash :execute_create_webhooks, if: -> { !embedded? }
       after_destroyed_data_hash :execute_delete_webhooks, if: -> { !embedded? }
 
-      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false)
+      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false, version_name: nil)
         return {} if data_hash.blank?
         @data_hash = data_hash.dup.with_indifferent_access
         @current_user = current_user
@@ -48,13 +48,14 @@ module DataCycleCore
 
         if validate?(valid_hash)
           if diff?(@data_hash.dup, partial_schema_hash) || force_update
-            ActiveRecord::Base.transaction do
+            ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
               to_history(save_time: @save_time) unless id.nil? || prevent_history
 
               set_template_data_hash(@data_hash, partial_schema_hash&.dig('properties') || property_definitions)
 
               self.updated_at = @save_time
               self.updated_by = @current_user&.id
+              self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? version_name.presence : nil
 
               if id.nil?
                 self.created_at = @save_time

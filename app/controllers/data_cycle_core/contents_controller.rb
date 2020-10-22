@@ -180,7 +180,7 @@ module DataCycleCore
         object_params = content_params(@content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
-        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true)
+        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true, version_name: object_params[:version_name])
 
         if valid[:error].present?
           flash[:error] = valid[:error]
@@ -444,7 +444,7 @@ module DataCycleCore
       if params_hash.present?
         params_hash.permit(datahash: datahash, translations: translations)
       else
-        params.require(:thing).permit(datahash: datahash, translations: translations)
+        params.require(:thing).permit(:version_name, datahash: datahash, translations: translations)
       end
     end
 

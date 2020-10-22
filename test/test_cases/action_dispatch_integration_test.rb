@@ -15,6 +15,15 @@ module DataCycleCore
           raise ActiveRecord::Rollback
         end
       end
+
+      setup do
+        instance_variables.each do |iv|
+          next unless instance_variable_get(iv).is_a?(ApplicationRecord)
+
+          instance_variable_get(iv).reload
+          instance_variable_get(iv).instance_variable_set(:@destroyed, false) if instance_variable_get(iv).destroyed?
+        end
+      end
     end
   end
 end

@@ -305,6 +305,10 @@ de:
     full_size: in voller Größe öffnen
     media_archive: im Medienarchiv öffnen
 
+  feature:
+    named_version:
+      input_label: Versionsname
+
   history:
     latest_edits: Letzte Bearbeitungen
     created_at: erstellt am
