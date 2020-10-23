@@ -25,12 +25,10 @@
 			<div class="detail-header editor">
 
 				<div class="detail-header-info">
-					<div class="type thema">
-						<span class="icon">
-								<i class="fa fa-user" aria-hidden="true"></i>
-						</span>
-						<span class="title"><%= content.model_name.human(locale: DataCycleCore.ui_language) %></span>
-					</div>
+          <span class="icon">
+              <i class="fa fa-user" aria-hidden="true"></i>
+          </span>
+          <span class="title"><%= content.model_name.human(locale: DataCycleCore.ui_language) %></span>
 				</div>
 
         <% if content.is_a?(DataCycleCore::UserOrganization) %>
