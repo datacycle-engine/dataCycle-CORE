@@ -21,6 +21,9 @@ module DataCycleCore
           authorize! :download_zip, @object
           serialize_format = permitted_download_params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
           languages = permitted_download_params[:language]
+
+          redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: DataCycleCore.ui_language)) && return if serialize_format.blank?
+
           raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('content', serialize_format)
 
           download_items = ([@object] + @object.content_b_linked).to_a.select do |thing|

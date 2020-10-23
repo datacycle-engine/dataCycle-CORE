@@ -308,6 +308,9 @@ de:
   feature:
     named_version:
       input_label: Versionsname
+      version_name_removed: Der Versionsname wurde entfernt!
+    download:
+      missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
 
   history:
     latest_edits: Letzte Bearbeitungen
