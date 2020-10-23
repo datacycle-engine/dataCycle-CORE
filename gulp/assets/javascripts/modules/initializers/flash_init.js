@@ -1,12 +1,9 @@
 // Add Timeout to slideup Flash Messages
 module.exports.initialize = function ($) {
   //schickt flash callout success nach oben
-  if ($('div.flash.callout').length) {
-    $('div.flash.callout').parent('div').removeAttr('style');
-    $('body').prepend($('body').find('div.flash.callout'));
-    $('div.flash.callout').show();
+  if ($('div.flash.callout.success, div.flash.callout.info').length) {
     setTimeout(function () {
-      $('div.flash.callout.success').slideUp('slow');
+      $('div.flash.callout.success, div.flash.callout.info').slideUp();
     }, 4000);
   }
 

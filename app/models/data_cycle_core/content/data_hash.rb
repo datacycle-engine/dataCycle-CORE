@@ -67,6 +67,8 @@ module DataCycleCore
             reload
             run_callbacks(:saved_data_hash)
             run_callbacks(:created_data_hash) if @new_content
+          else
+            valid_hash[:warning] = I18n.t('controllers.warning.no_changes', locale: DataCycleCore.ui_language)
           end
         end
         valid_hash

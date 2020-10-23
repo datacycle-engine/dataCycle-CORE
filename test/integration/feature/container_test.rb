@@ -4,14 +4,13 @@ require 'test_helper'
 
 module DataCycleCore
   module Feature
-    class ContainerTest < ActionDispatch::IntegrationTest
-      include Devise::Test::IntegrationHelpers
-      include Engine.routes.url_helpers
-
-      setup do
-        @routes = Engine.routes
+    class ContainerTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+      before(:all) do
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'LifeCycleTestArtikel' })
         @container = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: { name: 'TestContainer' })
+      end
+
+      setup do
         sign_in(User.find_by(email: 'tester@datacycle.at'))
       end
 

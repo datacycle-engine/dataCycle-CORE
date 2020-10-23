@@ -26,7 +26,7 @@ module DataCycleCore
       assert_equal version_name, @content.histories.first.version_name
     end
 
-    test 'set_data_hash multiple times with verseion_name' do
+    test 'set_data_hash multiple times with version_name' do
       version_name1 = 'Version 1'
       version_name2 = 'Version 2'
       version_name3 = 'Version 3'

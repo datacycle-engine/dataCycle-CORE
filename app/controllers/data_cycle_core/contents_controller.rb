@@ -188,7 +188,11 @@ module DataCycleCore
           return
         end
 
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+        if valid[:warning].present?
+          flash[:info] = valid[:warning]
+        else
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+        end
 
         duplicate = params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
         merge_and_remove_duplicate if duplicate

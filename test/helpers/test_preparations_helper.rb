@@ -133,7 +133,7 @@ module DataCycleCore
       )
     end
 
-    def self.create_content(template_name: nil, data_hash: nil, user: nil, prevent_history: false, save_time: Time.zone.now)
+    def self.create_content(template_name: nil, data_hash: nil, user: nil, prevent_history: false, save_time: Time.zone.now, version_name: nil)
       return if template_name.blank? || data_hash.blank?
       data_hash = data_hash.dup.with_indifferent_access
       @content = DataCycleCore::Thing.find_by(data_hash.slice('name', 'given_name', 'family_name').merge({ template_name: template_name, template: false }))
@@ -146,7 +146,7 @@ module DataCycleCore
       @content.created_by = user&.id if user.present?
       @content.save!
 
-      valid = @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: (user || User.find_by(email: 'tester@datacycle.at')), update_search_all: false, prevent_history: prevent_history, save_time: save_time)
+      valid = @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: (user || User.find_by(email: 'tester@datacycle.at')), update_search_all: false, prevent_history: prevent_history, save_time: save_time, version_name: version_name)
       valid[:error].each { |k, v| v.each { |e| @content.errors.add(k, e) } } if valid[:error].present?
 
       @content

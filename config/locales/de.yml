@@ -643,6 +643,8 @@ de:
       bulk_deleted: '<b>%{data}</b> Inhalte wurden gelöscht'
       bulk_created: '<b>%{data}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
+    warning:
+      no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:
       not_modified: '%{data} wurde nicht geändert.'
       created_duplication: '%{data} wurde erfolgreich dupliziert.'
