@@ -541,7 +541,7 @@ body.login-page {
   &.info,
   &.success {
     position: fixed;
-    display: none;
+    display: block;
     line-height: 4rem;
     margin: 0;
     padding: 0.1rem 1rem;

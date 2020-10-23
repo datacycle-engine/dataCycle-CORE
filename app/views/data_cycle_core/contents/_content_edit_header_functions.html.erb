@@ -8,7 +8,7 @@
           <i class="fa fa-pencil" aria-hidden="true"></i> <%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('actions.edit', locale: DataCycleCore.ui_language) %>
         <% end %>
       </div>
-      <ul class="edit-links-bar">
+      <ul>
         <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
 
         <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_all', wrapper_tag: 'li' if content.embedded_property_names.present? %>

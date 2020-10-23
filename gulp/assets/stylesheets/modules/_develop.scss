@@ -1235,7 +1235,6 @@ ul.translated-locales {
     .select2 {
       border: 1px solid $light-gray;
       background: $light-gray;
-      padding: 3rem 0.5rem 0.5rem 0.5rem;
       min-width: initial;
 
       .select2-selection {
@@ -1274,30 +1273,66 @@ ul.translated-locales {
       }
     }
 
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-      border-radius: 5px;
-      padding: 0 1rem 0 0.3rem;
-      background-color: rgba($primary-color, 0.5);
-      border: 0;
-      margin: 0.1rem;
-      position: relative;
-      word-break: break-word;
-      white-space: normal;
+    &:not(.white) .select2 {
+      padding: 0;
 
-      span {
-        color: white;
-        position: absolute;
-        padding-right: 0.5rem;
-        width: 100%;
-        text-align: right;
-        font-size: 1rem;
-        font-weight: normal;
-        opacity: 0.7;
+      .select2-selection {
+        padding: 3rem 0.5rem 0.5rem 0.5rem;
+        display: block;
+        height: auto;
+
+        &.select2-selection--single {
+          position: relative;
+
+          .select2-selection__arrow {
+            bottom: 8px;
+            right: 8px;
+            top: unset;
+          }
+        }
+      }
+    }
+
+    .select2-container--default .select2-selection--multiple {
+      .select2-selection__clear {
+        margin-top: 0px;
+        height: 22px;
+        line-height: 22px;
       }
 
-      &:focus,
-      &:hover {
-        background-color: rgba(map-get($foundation-palette, alert), 0.5);
+      .select2-search {
+        margin: 0.1rem;
+
+        .select2-search__field {
+          display: block;
+        }
+      }
+
+      .select2-selection__choice {
+        border-radius: 5px;
+        padding: 0 1rem 0 0.3rem;
+        background-color: rgba($primary-color, 0.5);
+        border: 0;
+        margin: 0.1rem;
+        position: relative;
+        word-break: break-word;
+        white-space: normal;
+
+        span {
+          color: white;
+          position: absolute;
+          padding-right: 0.5rem;
+          width: 100%;
+          text-align: right;
+          font-size: 1rem;
+          font-weight: normal;
+          opacity: 0.7;
+        }
+
+        &:focus,
+        &:hover {
+          background-color: rgba(map-get($foundation-palette, alert), 0.5);
+        }
       }
     }
 
