@@ -5,7 +5,6 @@ module DataCycleCore
     module V2
       class ContentsController < Api::V2::ApiBaseController
         PUMA_MAX_TIMEOUT = 60
-        # rescue_from Timeout::Error, :with => :rescue_from_timeout
         include DataCycleCore::Filter
         include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 

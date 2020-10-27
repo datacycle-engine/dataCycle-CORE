@@ -4,6 +4,20 @@ module DataCycleCore
   module ErrorHandler
     extend ActiveSupport::Concern
 
+    included do
+      unless Rails.env.development?
+        rescue_from CanCan::AccessDenied, with: :unauthorized
+        rescue_from ActiveRecord::RecordNotFound, with: :not_found
+        rescue_from ActionController::UnknownFormat, with: :not_acceptable
+        rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity
+        rescue_from ActionController::BadRequest, with: :bad_request
+      end
+
+      rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
+      rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error
+      rescue_from DataCycleCore::Error::Api::ExpiredContentError, with: :expired_content_api_error
+    end
+
     private
 
     def forbidden(exception)

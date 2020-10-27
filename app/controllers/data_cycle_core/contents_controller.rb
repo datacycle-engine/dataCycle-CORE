@@ -3,8 +3,6 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     include DataCycleCore::Filter
-    include DataCycleCore::ParamsResolver
-    include DataCycleCore::ErrorHandler
     before_action :authenticate_user!, except: [:asset]
     before_action :set_watch_list, except: [:asset]
 
@@ -14,7 +12,6 @@ module DataCycleCore
     end
 
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
-    rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
     def index
       redirect_back(fallback_location: root_path)

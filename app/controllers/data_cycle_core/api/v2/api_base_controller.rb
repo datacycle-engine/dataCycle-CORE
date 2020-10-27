@@ -12,12 +12,6 @@ module DataCycleCore
         include DataCycleCore::ErrorHandler
         helper DataCycleCore::ApiHelper
 
-        unless Rails.env.development?
-          rescue_from ActionController::UnknownFormat, with: :not_acceptable
-          rescue_from CanCan::AccessDenied, with: :unauthorized
-          rescue_from ActiveRecord::RecordNotFound, with: :not_found
-        end
-
         DEFAULT_PAGE_SETTINGS = {
           size: 25,
           number: 1,

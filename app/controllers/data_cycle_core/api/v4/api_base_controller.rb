@@ -14,15 +14,6 @@ module DataCycleCore
         include DataCycleCore::ApiService
         helper DataCycleCore::ApiHelper
 
-        unless Rails.env.development?
-          rescue_from ActionController::UnknownFormat, with: :not_acceptable
-          rescue_from CanCan::AccessDenied, with: :unauthorized
-          rescue_from ActiveRecord::RecordNotFound, with: :not_found
-        end
-
-        rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error
-        rescue_from DataCycleCore::Error::Api::ExpiredContentError, with: :expired_content_api_error
-
         wrap_parameters format: []
 
         DEFAULT_PAGE_SETTINGS = {
