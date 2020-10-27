@@ -85,7 +85,7 @@ module DataCycleCore
       respond_to do |format|
         format.html { redirect_back fallback_location: authorized_root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language), allow_other_host: false }
         format.json { render status: status_code, json: { error: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language) } }
-        format.js { render status: status_code, js: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language) }
+        format.js { render status: status_code, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language)}')" }
         format.any { head status_code }
       end
     end

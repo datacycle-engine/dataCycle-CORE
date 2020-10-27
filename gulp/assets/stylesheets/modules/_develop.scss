@@ -1052,6 +1052,10 @@ a.link {
     flex-flow: row nowrap;
     align-items: center;
 
+    > *:not(:last-child) {
+      margin-right: 0.5rem;
+    }
+
     .history-time {
       flex: auto;
       text-align: right;
@@ -1068,12 +1072,10 @@ a.link {
     }
     .email-link {
       max-width: 15rem;
-      margin-right: 0.5rem;
     }
 
     .history-link {
       flex: 0;
-      margin-left: 0.5rem;
       min-width: 1rem;
       display: flex;
       align-items: center;
@@ -1097,6 +1099,21 @@ a.email-link {
   white-space: nowrap;
   text-overflow: ellipsis;
   max-width: 15rem;
+}
+
+.named-version-container {
+  display: inline-flex;
+  flex-flow: row nowrap;
+  align-items: center;
+
+  > *:not(:last-child) {
+    margin-right: 0.3rem;
+  }
+
+  .remove-version-name-link {
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 .row {

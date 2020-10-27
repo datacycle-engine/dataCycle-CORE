@@ -14,7 +14,11 @@ module DataCycleCore
         end
 
         def remove_version_name
-          version_name_params[:class_name].safe_constantize.find(version_name_params[:id]).update_column(:version_name, nil)
+          @content = version_name_params[:class_name].safe_constantize.find(version_name_params[:id])
+          version_name_params[:class_name].safe_constantize.find(version_name_params[:id])
+          authorize!(:remove_version_name, @content)
+
+          @content.update_column(:version_name, nil)
 
           @success_message = I18n.t(:version_name_removed, scope: [:feature, :named_version], locale: DataCycleCore.ui_language)
 

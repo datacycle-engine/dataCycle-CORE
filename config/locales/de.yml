@@ -308,6 +308,8 @@ de:
   feature:
     named_version:
       input_label: Versionsname
+      remove_version_name: Versionsname entfernen
+      confirm_remove: 'Versionsname "%{name}" entfernen?'
       version_name_removed: Der Versionsname wurde entfernt!
     download:
       missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
@@ -319,7 +321,7 @@ de:
     valid_since: gültig seit
     differences_to_version: Unterschiede zu Version
     active_version: Aktuelle Version
-    look_at_version: Version ansehen
+    look_at_version: Aktuellen Inhalt mit dieser Version vergleichen
 
   data_link_mailer:
     content_download: Inhalt herunterladen

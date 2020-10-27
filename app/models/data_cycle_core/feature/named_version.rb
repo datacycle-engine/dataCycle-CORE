@@ -7,6 +7,10 @@ module DataCycleCore
         def controller_module
           DataCycleCore::Feature::ControllerFunctions::NamedVersion
         end
+
+        def ability_class
+          DataCycleCore::Feature::Abilities::NamedVersion
+        end
       end
     end
   end
