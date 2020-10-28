@@ -232,7 +232,7 @@ module DataCycleCore
         merge_with(new_classification_alias)
       end
 
-      new_classification_alias.send(:invalidate_cache)
+      new_classification_alias.send(:invalidate_things_cache)
       new_classification_alias
     end
 
