@@ -22,7 +22,7 @@ module DataCycleCore
         def weather_symbols(*)
           Enumerator.new do |yielder|
             load_data.dig('01_meta', 'symbolcodes').each do |key, value|
-              yielder << { 'code' => key.split('_').last, 'value' => value }
+              yielder << { 'code' => key.split('_').last, 'value' => "<p>#{value}</p>" }
             end
           end
         end
