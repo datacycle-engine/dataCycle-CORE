@@ -143,7 +143,7 @@ module DataCycleCore
       private
 
       def notify_subscribers
-        subscriptions.except_user(@current_user).to_notify.presence&.each do |subscription|
+        subscriptions.except_user(@current_user).to_notify(version_name.present? && DataCycleCore::Feature::NamedVersion.enabled? ? ['always', 'named_version'] : ['always']).presence&.each do |subscription|
           DataCycleCore::SubscriptionMailer.notify(subscription.user, [self]).deliver_later
         end
       end

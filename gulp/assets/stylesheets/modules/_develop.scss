@@ -1038,10 +1038,6 @@ a.link {
 }
 
 #show-history {
-  min-width: 350px;
-  max-width: 90vw;
-  width: auto !important;
-
   li {
     position: relative;
     text-align: left;
@@ -1057,7 +1053,6 @@ a.link {
     }
 
     .history-time {
-      flex: auto;
       text-align: right;
       color: $dark-gray;
     }
@@ -1071,12 +1066,14 @@ a.link {
       color: $medium-gray;
     }
     .email-link {
-      max-width: 15rem;
+      max-width: unset;
+      flex: auto;
     }
 
     .history-link {
       flex: 0;
       min-width: 1rem;
+      width: 1rem;
       display: flex;
       align-items: center;
 
@@ -1105,6 +1102,10 @@ a.email-link {
   display: inline-flex;
   flex-flow: row nowrap;
   align-items: center;
+  width: 2.7rem;
+  min-width: 2.7rem;
+  overflow: hidden;
+  flex: 0;
 
   > *:not(:last-child) {
     margin-right: 0.3rem;
@@ -1300,7 +1301,6 @@ ul.translated-locales {
       padding: 0;
 
       .select2-selection {
-        padding: 3rem 0.5rem 0.5rem 0.5rem;
         display: block;
         height: auto;
 
@@ -1620,7 +1620,12 @@ label[for='user_access_token'] {
 }
 
 // textblocks
-.edit-content-form {
+.edit-content-form,
+.edit_user {
+  .select2-selection {
+    padding: 3rem 0.5rem 0.5rem 0.5rem;
+  }
+
   .embedded_object {
     .content-object-item.textblock {
       padding: 0.5rem;
@@ -2205,6 +2210,19 @@ input.normalized {
   right: 3rem;
   top: 0.5rem;
   padding: 0.3rem 0;
+
+  .dropdown-pane:not(.left) {
+    left: -45px !important;
+
+    &::before {
+      left: 35px;
+    }
+  }
+
+  .dropdown-pane.left {
+    right: -18px !important;
+  }
+
   .translated-attribute-locale {
     &.active {
       color: $black;

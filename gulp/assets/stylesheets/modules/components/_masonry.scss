@@ -133,13 +133,27 @@
     .dropdown-pane {
       left: -22px !important;
 
-      &.align-right {
+      &::before {
+        left: calc(var(--dropdown-arrow-left-offset) - 8px);
+      }
+
+      &.left {
         left: auto !important;
         right: -22px !important;
-        &:before {
-          right: 11px;
-        }
       }
+
+      // &.right {
+      //   left: auto !important;
+      //   right: -22px !important;
+      // }
+
+      // &.align-right {
+      //   left: auto !important;
+      //   right: -22px !important;
+      //   &:before {
+      //     right: 11px;
+      //   }
+      // }
     }
 
     .status {

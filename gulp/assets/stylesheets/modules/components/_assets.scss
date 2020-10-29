@@ -55,6 +55,19 @@
     position: absolute;
     right: 0.5rem;
     bottom: 0;
+
+    .dropdown-pane:not(.left) {
+      left: -24px !important;
+
+      &::before {
+        left: 35px;
+      }
+    }
+
+    .dropdown-pane.left {
+      right: -18px !important;
+    }
+
     > a[data-toggle] {
       padding: 0;
     }
@@ -346,7 +359,6 @@ ul.asset-list {
     flex-flow: row;
     > * {
       padding: 1rem 0.5rem;
-      overflow: hidden;
 
       &:not(:last-of-type) {
         border-right: 1px solid $medium-gray;
@@ -597,6 +609,7 @@ ul.asset-list {
     display: block;
     color: $warning-color;
     font-size: 0.8rem;
+    position: relative;
 
     a {
       color: $warning-color;
@@ -727,7 +740,6 @@ ul.asset-list {
     }
 
     .file-info {
-      overflow: hidden;
       flex: 1;
     }
     .file-buttons {

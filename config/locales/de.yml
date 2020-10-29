@@ -71,6 +71,7 @@ de:
   notification:
     frequency:
       always: sofort bei Änderung
+      named_version: bei benannten Versionen (sofort bei Änderung)
       day: täglich
       week: wöchentlich
 
@@ -308,6 +309,7 @@ de:
   feature:
     named_version:
       input_label: Versionsname
+      version_name: 'Version: %{name}'
       remove_version_name: Versionsname entfernen
       confirm_remove: 'Versionsname "%{name}" entfernen?'
       version_name_removed: Der Versionsname wurde entfernt!

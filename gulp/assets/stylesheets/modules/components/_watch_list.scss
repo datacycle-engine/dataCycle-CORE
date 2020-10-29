@@ -79,6 +79,10 @@
   .watch-lists .accordion > .accordion-item > .accordion-title::before {
     color: $black;
   }
+
+  .menu > li {
+    position: relative;
+  }
 }
 
 .watch-lists {

@@ -1,8 +1,8 @@
 <h5><%= t('history.latest_edits', locale: DataCycleCore.ui_language) %>:</h5>
 <ul class="list-items">
   <% history_entries = complete_history_list(content) %>
-  <% history_entries.each.with_index do |entry, index| %>
-    <%= history_dropdown_line(content, entry, @watch_list&.id, local_assigns[:history_id] == entry['id'], index == (history_entries.size - 1)) %>
+  <% history_entries.each.with_index do |item, index| %>
+    <%= history_dropdown_line(content, item, @watch_list&.id, local_assigns[:history_id] == item[:id], index == (history_entries.size - 1)) %>
   <% end %>
 </ul>
 
