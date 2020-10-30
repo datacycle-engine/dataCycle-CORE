@@ -1629,6 +1629,14 @@ a[data-toggle] {
     }
   }
 
+  &.bottom {
+    left: -22px !important;
+
+    &::before {
+      left: var(--dropdown-arrow-left-offset);
+    }
+  }
+
   &.left {
     right: -5px !important;
     left: unset !important;
