@@ -1644,8 +1644,8 @@ a[data-toggle] {
     bottom: calc(100% + 1rem) !important;
 
     &:before {
-      // top: auto;
-      // bottom: -17px;
+      top: auto;
+      bottom: -17px;
       transform: scaleX(3) rotate(180deg);
     }
   }

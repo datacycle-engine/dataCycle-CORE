@@ -5,30 +5,3 @@
     <%= history_dropdown_line(content, item, @watch_list&.id, local_assigns[:history_id] == item[:id], index == (history_entries.size - 1)) %>
   <% end %>
 </ul>
-
-<%
-=begin
-%>
-<ul class="list-items">
-  <% if content.updated_at.present? && content.created_at.present? && content.updated_at.to_i != content.created_at.to_i %>
-    <% content.translations.order(updated_at: :desc).each do |translation| %>
-      <%= history_dropdown_line(translation, content) %>
-    <% end %>
-  <% end %>
-
-  <% histories = content.histories.includes(:translations, :created_by_user, :updated_by_user).load %>
-  <% if histories.any? %>
-    <% history_size = histories.size %>
-    <% histories.each.with_index do |item, index| %>
-      <%= history_dropdown_line(item, content, local_assigns[:history_id] == item.id, index == (history_size - 1)) %>
-    <% end %>
-  <% end %>
-
-  <% locales_without_history = content.translated_locales.difference(content.histories.translated_locales) %>
-  <% if locales_without_history.any? %>
-    <%= history_dropdown_line(content, content, false, true, locales_without_history) %>
-  <% end %>
-</ul>
-<%
-=end
-%>

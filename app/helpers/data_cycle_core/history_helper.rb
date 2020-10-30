@@ -111,21 +111,23 @@ module DataCycleCore
       version_name = []
       if item[:version_name].present?
         version_name.push(tag.i(class: 'fa fa-tag version-name has-tip', title: t('feature.named_version.version_name', name: item[:version_name], locale: DataCycleCore.ui_language)))
-        version_name.push(
-          link_to(
-            tag.i(class: 'fa fa-times alert-color'),
-            remove_version_name_path(class_name: item[:class_name], id: item[:id]),
-            remote: true,
-            class: 'remove-version-name-link',
-            title: t('feature.named_version.remove_version_name', locale: DataCycleCore.ui_language),
-            method: :patch,
-            data: {
-              confirm: t('feature.named_version.confirm_remove', locale: DataCycleCore.ui_language, name: item[:version_name])
-            }
+        if item[:can_remove_version_name]
+          version_name.push(
+            link_to(
+              tag.i(class: 'fa fa-times alert-color'),
+              remove_version_name_path(class_name: item[:class_name], id: item[:id]),
+              remote: true,
+              class: 'remove-version-name-link',
+              title: t('feature.named_version.remove_version_name', locale: DataCycleCore.ui_language),
+              method: :patch,
+              data: {
+                confirm: t('feature.named_version.confirm_remove', locale: DataCycleCore.ui_language, name: item[:version_name])
+              }
+            )
           )
-        )
+        end
       end
-      tag.span(safe_join(version_name.compact), class: 'named-version-container', id: "version-name-#{item[:id]}")
+      tag.span(safe_join(version_name.compact), class: "named-version-container#{' removable' if item[:can_remove_version_name]}", id: "version-name-#{item[:id]}")
     end
 
     def history_dropdown_line(content, item, watch_list_id, is_active = false, is_last = false)
@@ -138,10 +140,10 @@ module DataCycleCore
       data.push(tag.span(l(history_date.in_time_zone, locale: DataCycleCore.ui_language, format: :history), class: 'history-time', title: l(history_date.in_time_zone, locale: DataCycleCore.ui_language))) if history_date.present?
 
       data.push(version_name_html(item)) if DataCycleCore::Feature::NamedVersion.enabled?
-      if can?(:history, content) && !is_active
+      if can?(:history, content)
         data.push(
           tag.span(
-            item[:class_name] == 'DataCycleCore::Thing::History' ? link_to(tag.i(class: 'fa fa-history', title: t('history.look_at_version', locale: DataCycleCore.ui_language)), history_thing_path(content, history_id: item[:id], watch_list_id: watch_list_id)) : nil,
+            item[:class_name] == 'DataCycleCore::Thing::History' && !is_active ? link_to(tag.i(class: 'fa fa-history', title: t('history.look_at_version', locale: DataCycleCore.ui_language)), history_thing_path(content, history_id: item[:id], watch_list_id: watch_list_id)) : nil,
             class: 'history-link'
           )
         )
@@ -181,7 +183,8 @@ module DataCycleCore
           version_name: include_version_name ? item.version_name : nil,
           created_by_user: item.created_by_user,
           updated_by_user: item.updated_by_user,
-          locale: Array.wrap(locales).join(', ')
+          locale: Array.wrap(locales).join(', '),
+          can_remove_version_name: DataCycleCore::Feature::NamedVersion.enabled? && can?(:remove_version_name, item)
         }
       end
     end

@@ -21,9 +21,16 @@
   color: $black;
 }
 
-.detail-header-functions .add-to-watchlist-link,
-.add-to-watchlist-link {
-  display: inline;
+.watch-list-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.detail-header-functions {
+  .add-to-watchlist-link,
+  .add-to-watchlist-link {
+    display: inline;
+  }
 }
 
 .detail-header-functions .change-link .add-to-watchlist-link,

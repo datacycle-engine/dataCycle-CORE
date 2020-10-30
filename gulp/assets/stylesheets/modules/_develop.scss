@@ -1102,10 +1102,15 @@ a.email-link {
   display: inline-flex;
   flex-flow: row nowrap;
   align-items: center;
-  width: 2.7rem;
-  min-width: 2.7rem;
+  width: 1rem;
+  min-width: 1rem;
   overflow: hidden;
   flex: 0;
+
+  &.removable {
+    width: 2.7rem;
+    min-width: 2.7rem;
+  }
 
   > *:not(:last-child) {
     margin-right: 0.3rem;

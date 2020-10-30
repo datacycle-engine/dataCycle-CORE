@@ -14,6 +14,8 @@ module.exports.initialize = function ($) {
     element.style.setProperty('--dropdown-arrow-left-offset', Math.abs($(element).position().left) + 'px');
     let linked_item = $('[data-toggle="' + $(element).prop('id') + '"]');
 
+    if (!linked_item.length) return;
+
     if (
       linked_item.offset().top + linked_item.outerHeight() - $(document).scrollTop() + $(element).outerHeight() + 20 >=
         $(window).height() &&
