@@ -89,14 +89,6 @@
 
   .menu > li {
     position: relative;
-
-    .dropdown-pane {
-      left: auto !important;
-
-      &::before {
-        left: calc(20px + var(--dropdown-arrow-left-offset));
-      }
-    }
   }
 }
 
