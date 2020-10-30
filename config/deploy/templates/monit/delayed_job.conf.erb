@@ -1,7 +1,7 @@
 # Monit configuration for Delayed::Job
 # Service name: delayed_job_<%= fetch(:application) %>
 #
-<% 11.times do |num| %>
+<% 10.times do |num| %>
 check file delayed_job_<%= fetch(:application) %>_<%= num %>_pidfile
   with path "<%= File.join(fetch(:deploy_to), 'shared/tmp/pids', "delayed_job.#{num}.pid") %>"
   if size = 0 then
