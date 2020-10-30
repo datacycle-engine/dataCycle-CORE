@@ -171,18 +171,19 @@ module DataCycleCore
           WITH RECURSIVE paths(src, dest, path) AS (
             SELECT DISTINCT ON (c.dest) c.src, c.dest, ARRAY[c.src, c.dest]
             FROM content_content_relations c
-            WHERE c.src = '#{id}'
+            WHERE c.src = :id
             UNION ALL
             SELECT DISTINCT on (d.dest) d.src, d.dest, p.path || ARRAY[d.dest]
             FROM paths p
             INNER JOIN content_content_relations d
             ON p.dest = d.src
             WHERE d.dest != ALL(p.path)
+            AND array_length(p.path, 1) <= :depth
           )
           SELECT DISTINCT paths.dest FROM paths
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, id: id, depth: DataCycleCore.cache_invalidation_depth])})")
       end
     end
   end
