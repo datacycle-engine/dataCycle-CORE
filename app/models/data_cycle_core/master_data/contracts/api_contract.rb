@@ -105,6 +105,21 @@ module DataCycleCore
           end
         end
 
+        FILTERED = Dry::Schema.Params do
+          optional(:content_id).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
+          optional(:filter_id).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
+          optional(:watch_list_id).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
+        end
+
         params(BASE, BASE_JSON_API, WATCHLIST, CLASSIFICATIONS, CONTENT) do
           optional(:page).hash(PAGE)
           optional(:section).hash(SECTION)
@@ -115,6 +130,12 @@ module DataCycleCore
         config.validate_keys = true
 
         params(DataCycleCore::MasterData::Contracts::ApiContract::FILTER) do
+        end
+      end
+      class ApiFilteredContract < Dry::Validation::Contract
+        config.validate_keys = true
+
+        params(DataCycleCore::MasterData::Contracts::ApiContract::FILTERED, DataCycleCore::MasterData::Contracts::ApiContract::FILTER) do
         end
       end
     end

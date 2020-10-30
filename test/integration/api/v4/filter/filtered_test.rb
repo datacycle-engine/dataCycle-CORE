@@ -1,0 +1,765 @@
+# frozen_string_literal: true
+
+require 'v4/base'
+
+module DataCycleCore
+  module Api
+    module V4
+      module Filter
+        class FilteredTest < DataCycleCore::V4::Base
+          before(:all) do
+            DataCycleCore::Thing.where(template: false).delete_all
+
+            # name: Headline used for event, event_series and poi
+            @event = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
+            image = DataCycleCore::V4::DummyDataHelper.create_data('image')
+            @event_poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
+            lat_long = {
+              'latitude': 3,
+              'longitude': 3
+            }
+            @event_poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
+            @event_poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@event_poi.longitude, @event_poi.latitude)
+            @event_poi.save
+
+            @event.set_data_hash(partial_update: true, prevent_history: true, data_hash:
+              {
+                image: [image.id],
+                content_location: [@event_poi.id]
+              })
+
+            @poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
+            lat_long = {
+              'latitude': 5,
+              'longitude': 5
+            }
+            @poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
+            @poi.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi.longitude, @poi.latitude)
+            @poi.save
+
+            @poi2 = DataCycleCore::V4::DummyDataHelper.create_data('poi')
+            lat_long = {
+              'latitude': 20,
+              'longitude': 20
+            }
+            @poi2.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
+            @poi2.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi.longitude, @poi.latitude)
+            @poi2.save
+
+            @person = DataCycleCore::V4::DummyDataHelper.create_data('minimal_person')
+
+            @stored_filter = DataCycleCore::StoredFilter.create(
+              name: 'filtered_event_poi',
+              user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id,
+              language: ['de'],
+              parameters: [{
+                'c' => 'd',
+                'm' => 'i',
+                'n' => 'Inhaltstypen',
+                't' => 'classification_alias_ids',
+                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'Person').id, DataCycleCore::ClassificationAlias.find_by(name: 'POI').id, DataCycleCore::ClassificationAlias.find_by(name: 'Veranstaltung').id]
+              }],
+              api: true
+            )
+
+            @stored_filter_poi = DataCycleCore::StoredFilter.create(
+              name: 'filtered_poi',
+              user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id,
+              language: ['de'],
+              parameters: [{
+                'c' => 'd',
+                'm' => 'i',
+                'n' => 'Inhaltstypen',
+                't' => 'classification_alias_ids',
+                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'POI').id]
+              }],
+              api: true
+            )
+
+            @stored_filter_place = DataCycleCore::StoredFilter.create(
+              name: 'filtered_place',
+              user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id,
+              language: ['de'],
+              parameters: [{
+                'c' => 'd',
+                'm' => 'i',
+                'n' => 'Inhaltstypen',
+                't' => 'classification_alias_ids',
+                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'Ort').id]
+              }],
+              api: true
+            )
+
+            @stored_filter_event = DataCycleCore::StoredFilter.create(
+              name: 'filtered_event',
+              user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id,
+              language: ['de'],
+              parameters: [{
+                'c' => 'd',
+                'm' => 'i',
+                'n' => 'Inhaltstypen',
+                't' => 'classification_alias_ids',
+                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'Veranstaltung').id]
+              }],
+              api: true
+            )
+
+            @stored_filter_event_person = DataCycleCore::StoredFilter.create(
+              name: 'filtered_event_person',
+              user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id,
+              language: ['de'],
+              parameters: [{
+                'c' => 'd',
+                'm' => 'i',
+                'n' => 'Inhaltstypen',
+                't' => 'classification_alias_ids',
+                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'Person').id, DataCycleCore::ClassificationAlias.find_by(name: 'Veranstaltung').id]
+              }],
+              api: true
+            )
+
+            @stored_filter_person = DataCycleCore::StoredFilter.create(
+              name: 'filtered_person',
+              user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id,
+              language: ['de'],
+              parameters: [{
+                'c' => 'd',
+                'm' => 'i',
+                'n' => 'Inhaltstypen',
+                't' => 'classification_alias_ids',
+                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'Person').id]
+              }],
+              api: true
+            )
+
+            @watch_list_event_poi1 = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList1')
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi1.id, hashable_id: @event.id, hashable_type: @event.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi1.id, hashable_id: @poi.id, hashable_type: @poi.class.name)
+
+            @watch_list_poi2 = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList2')
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_poi2.id, hashable_id: @poi2.id, hashable_type: @poi2.class.name)
+
+            @watch_list_person_poi_poi2 = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList3')
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @person.id, hashable_type: @person.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @poi.id, hashable_type: @poi.class.name)
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @poi2.id, hashable_type: @poi2.class.name)
+
+            # 4 Images
+            # 3 POI's
+            # 1 Event
+            # 1 Person
+            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+          end
+
+          test 'api/v4/endpoints parameter filtered with content_id' do
+            params = {}
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(5)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @event.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        "#{@event.id},#{@poi.id}"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event.id, @poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            # You must not find linked items
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @poi.image.first.id.to_s
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            assert_api_count_result(0)
+
+            # You must not find items by using AND
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @event.id,
+                        @poi.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            assert_api_count_result(0)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      notIn: [
+                        @event.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(4)
+            assert_equal([@event_poi.id, @poi.id, @poi2.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      notIn: [
+                        "#{@event.id},#{@poi.id}"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(3)
+            assert_equal([@event_poi.id, @poi2.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      notIn: [
+                        @event.id,
+                        @poi.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            assert_api_count_result(3)
+            assert_equal([@event_poi.id, @poi2.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            # OR filters
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @event.id
+                      ]
+                    }
+                  },
+                  {
+                    content_id: {
+                      in: [
+                        @poi.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            # post api_v4_stored_filter_path(params), as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event.id, @poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          end
+
+          test 'api/v4/endpoints parameter filtered with filter_id' do
+            params = {}
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+            assert_api_count_result(5)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_event.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_poi.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(3)
+            assert_equal([@poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    filter_id: {
+                      in: [
+                        "#{@stored_filter_poi.id},#{@stored_filter_event.id}"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(4)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_poi.id,
+                        @stored_filter_event.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            assert_api_count_result(0)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_event.id,
+                        @stored_filter_event_person.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert_equal([@event.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    filter_id: {
+                      notIn: [
+                        @stored_filter_place.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    filter_id: {
+                      notIn: [
+                        "#{@stored_filter_event.id},#{@stored_filter_person.id}"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(3)
+            assert_equal([@poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    filter_id: {
+                      notIn: [
+                        @stored_filter_event.id,
+                        @stored_filter_person.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(3)
+            assert_equal([@poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_event.id
+                      ]
+                    }
+                  },
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_poi.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(4)
+            assert_equal([@poi.id, @poi2.id, @event_poi.id, @event.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          end
+
+          test 'api/v4/endpoints parameter filtered with watch_list_id' do
+            params = {}
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+            assert_api_count_result(5)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    watch_list_id: {
+                      in: [
+                        @watch_list_event_poi1.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event.id, @poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    watch_list_id: {
+                      in: [
+                        @watch_list_person_poi_poi2.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(3)
+            assert_equal([@person.id, @poi.id, @poi2.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    watch_list_id: {
+                      in: [
+                        "#{@watch_list_event_poi1.id},#{@watch_list_person_poi_poi2.id}"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(4)
+            assert_equal([@event.id, @person.id, @poi.id, @poi2.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    watch_list_id: {
+                      in: [
+                        @watch_list_event_poi1.id,
+                        @watch_list_person_poi_poi2.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert_equal([@poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    watch_list_id: {
+                      notIn: [
+                        @watch_list_person_poi_poi2.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event.id, @event_poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    watch_list_id: {
+                      notIn: [
+                        "#{@watch_list_event_poi1.id},#{@watch_list_poi2.id}"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    watch_list_id: {
+                      notIn: [
+                        @watch_list_event_poi1.id,
+                        @watch_list_poi2.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    watch_list_id: {
+                      in: [
+                        @watch_list_event_poi1.id
+                      ]
+                    }
+                  },
+                  {
+                    watch_list_id: {
+                      in: [
+                        @watch_list_poi2.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(3)
+            assert_equal([@event.id, @poi.id, @poi2.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          end
+
+          test 'api/v4/endpoints parameter combine id filters' do
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @person.id
+                      ]
+                    }
+                  },
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_poi.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(4)
+            assert_equal([@poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @person.id
+                      ]
+                    }
+                  },
+                  {
+                    watch_list_id: {
+                      in: [
+                        @watch_list_event_poi1.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(3)
+            assert_equal([@event.id, @poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    watch_list_id: {
+                      in: [
+                        @watch_list_event_poi1.id
+                      ]
+                    }
+                  },
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_poi.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(4)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @person.id
+                      ]
+                    }
+                  },
+                  {
+                    watch_list_id: {
+                      in: [
+                        @watch_list_event_poi1.id
+                      ]
+                    }
+                  },
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_poi.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(5)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          end
+        end
+      end
+    end
+  end
+end

@@ -261,6 +261,7 @@ DataCycleCore::Engine.routes.draw do
               end
 
               match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+              match 'endpoints/:id/things/:content_id', to: 'contents#index', via: [:get, :post]
 
               post 'collections/create', to: 'watch_lists#create'
               resources :collections, only: [], controller: :watch_lists do
