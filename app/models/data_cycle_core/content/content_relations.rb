@@ -178,6 +178,7 @@ module DataCycleCore
             INNER JOIN content_content_relations d
             ON p.dest = d.src
             WHERE d.dest != ALL(p.path)
+            AND array_length(p.path, 1) <= #{DataCycleCore.cache_invalidation_depth}
           )
           SELECT DISTINCT paths.dest FROM paths
         SQL
