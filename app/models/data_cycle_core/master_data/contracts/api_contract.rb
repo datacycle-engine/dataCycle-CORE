@@ -20,7 +20,7 @@ module DataCycleCore
         CONTENT = Dry::Schema.Params do
           optional(:uuid).filled(:array)
           optional(:uuids).filled(:string)
-          optional(:content_id).filled(:string)
+          optional(:content_id) { str? | array? }
         end
 
         CLASSIFICATIONS = Dry::Schema.Params do

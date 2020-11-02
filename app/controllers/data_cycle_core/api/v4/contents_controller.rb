@@ -118,8 +118,7 @@ module DataCycleCore
           query = query.in_validity_period
 
           query = apply_filters(query, permitted_params&.dig(:filter))
-          # binding.pry
-          # query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
+          query = append_filters(query, permitted_params)
           query
         end
       end

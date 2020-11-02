@@ -219,26 +219,37 @@ module DataCycleCore
       end
 
       def apply_or_filters(filters = [])
-        # filter_query_sql = []
         filter_query_sql_ids = []
         filters.each do |filter|
-          # filter_query_sql << Arel.sql(filter.select(:id).except(:order).to_sql)
           filter_query_sql_ids += filter.pluck(:id)
         end
 
         reflect(
           @query.where(thing[:id].in(filter_query_sql_ids.uniq))
         )
-        # if filter_query_sql.size > 1
-        #   reflect(
-        #     @query.where(thing[:id].in(Arel::Nodes::UnionAll.new(*filter_query_sql)))
-        #   )
-        # else
-        #   reflect(
-        #     @query.where(thing[:id].in(filter_query_sql))
-        #   )
-        # end
       end
+
+      # def apply_or_filters(filters = [])
+      #   filter_query_sql = []
+      #   filter_query_sql_ids = []
+      #   filters.each do |filter|
+      #     filter_query_sql << Arel.sql(filter.select(:id).except(:order).to_sql)
+      #     # filter_query_sql_ids += filter.pluck(:id)
+      #   end
+      #
+      #   # reflect(
+      #   #   @query.where(thing[:id].in(filter_query_sql_ids.uniq))
+      #   # )
+      #   if filter_query_sql.size > 1
+      #     reflect(
+      #       @query.where(thing[:id].in(Arel::Nodes::UnionAll.new(*filter_query_sql)))
+      #     )
+      #   else
+      #     reflect(
+      #       @query.where(thing[:id].in(filter_query_sql))
+      #     )
+      #   end
+      # end
 
       def boolean(value, filter_method)
         if respond_to?(filter_method)

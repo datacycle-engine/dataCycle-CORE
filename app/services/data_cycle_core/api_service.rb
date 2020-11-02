@@ -37,6 +37,11 @@ module DataCycleCore
       list_hash
     end
 
+    def append_filters(query, parameters)
+      query = query.with_content_ids(parameters[:content_id]) if parameters&.dig(:content_id).present?
+      query
+    end
+
     def apply_filters(query, filters)
       return query if filters.blank?
       filters.each do |filter_k, filter_v|

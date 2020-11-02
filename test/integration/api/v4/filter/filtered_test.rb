@@ -43,7 +43,7 @@ module DataCycleCore
               'longitude': 20
             }
             @poi2.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long)
-            @poi2.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi.longitude, @poi.latitude)
+            @poi2.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi2.longitude, @poi2.latitude)
             @poi2.save
 
             @person = DataCycleCore::V4::DummyDataHelper.create_data('minimal_person')
@@ -757,6 +757,206 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
             assert_api_count_result(5)
             assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          end
+
+          test 'api/v4/endpoints parameter combine with more filters' do
+            orig_ts = @event.updated_at
+            @event.update_column(:updated_at, (Time.zone.now - 10.days))
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @person.id
+                      ]
+                    }
+                  },
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_poi.id
+                      ]
+                    }
+                  },
+                  attribute: {
+                    'dct:modified': {
+                      in: {
+                        max: (Time.zone.now - 5.days).to_s(:iso8601)
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(5)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+            @event.update_column(:updated_at, orig_ts)
+
+            orig_ts = @event.updated_at
+            @event.update_column(:updated_at, (Time.zone.now - 10.days))
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @person.id
+                      ]
+                    }
+                  },
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_poi.id
+                      ]
+                    },
+                    attribute: {
+                      'dct:modified': {
+                        in: {
+                          max: (Time.zone.now - 5.days).to_s(:iso8601)
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert_equal([@person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+            @event.update_column(:updated_at, orig_ts)
+
+            orig_ts = @poi.updated_at
+            @poi.update_column(:updated_at, (Time.zone.now - 10.days))
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @person.id
+                      ]
+                    }
+                  },
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_poi.id
+                      ]
+                    }
+                  }
+                ],
+                attribute: {
+                  'dct:modified': {
+                    in: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert_equal([@poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+            @poi.update_column(:updated_at, orig_ts)
+
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @person.id
+                      ]
+                    }
+                  },
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_poi.id
+                      ]
+                    }
+                  }
+                ],
+                geo: {
+                  in: {
+                    box: ['1', '1', '10', '10']
+                  }
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event_poi.id, @poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            # distance: 1 degree ~ 111km
+            distance_one_degree = 111 * 1000
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    content_id: {
+                      in: [
+                        @person.id
+                      ]
+                    }
+                  },
+                  {
+                    filter_id: {
+                      in: [
+                        @stored_filter_poi.id
+                      ]
+                    }
+                  }
+                ],
+                geo: {
+                  in: {
+                    perimeter: ['1', '1', (7 * distance_one_degree)]
+                  }
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event_poi.id, @poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            # distance: 1 degree ~ 111km
+            distance_one_degree = 111 * 1000
+            params = {
+              filter: {
+                filtered: [
+                  {
+                    linked: {
+                      content_location: {
+                        geo: {
+                          in: {
+                            perimeter: ['1', '1', (7 * distance_one_degree)]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    geo: {
+                      in: {
+                        perimeter: ['1', '1', (7 * distance_one_degree)]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(3)
+            assert_equal([@event.id, @event_poi.id, @poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
           end
         end
       end
