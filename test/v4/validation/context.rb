@@ -23,7 +23,7 @@ module DataCycleCore
             required(:'@id') { eql?('https://schema.datacycle.at/hasConcept') }
             required(:'@type') { eql?('@id') }
           end
-          requried(:'dc:additionalInformation').hash do
+          required(:'dc:additionalInformation').hash do
             required(:'@id') { eql?('https://schema.datacycle.at/additionalInformation') }
             required(:'@container') { eql?('@set') }
           end
