@@ -36,9 +36,8 @@
         :label: Ergänzende Information
         :type: embedded
         :template_name: Ergänzende Information
-        translated: false
         :api:
-          :name: subject_of # same as subject_of <-> about ....
+          :name: dc:additionalInformation
       :content_classifications:
         :type: mixin
         :name: content_classifications

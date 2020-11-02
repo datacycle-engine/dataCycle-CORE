@@ -55,7 +55,7 @@ module DataCycleCore
             }.try(:[], 'text')
 
             { description_type => description_text }
-          }.reduce(data.reject { |k, _| k == 'Descriptions' }, &:merge)
+          }.reduce(data, &:merge)
         end
 
         def self.unwrap_content_description(data, description_types)
@@ -99,6 +99,14 @@ module DataCycleCore
           data = data.merge(attribution_name: data.dig('CCAuthor')) if data.dig('CCAuthor').present?
           data = data.merge(license: data.dig('CCCopyright')) if data.dig('CCCopyright').present?
           data
+        end
+
+        def self.add_additional_information(data, attributes, translation_path)
+          Array.wrap(attributes).map { |desc|
+            next if data[desc].blank?
+            name = I18n.t("#{translation_path.join('.')}.#{desc}", default: [desc])
+            { 'name' => name, 'description' => data[desc] }
+          }.compact
         end
 
         def self.add_amenity_features(data, external_source_id)

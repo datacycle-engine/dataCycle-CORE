@@ -6,6 +6,8 @@
 
 ## hasConcept
 
+## additionalDescription
+
 ## linkedThing
 
 ## isLinkedTo
