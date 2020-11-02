@@ -77,7 +77,7 @@ module DataCycleCore
         def permitted_filter_parameters
           {
             filter:
-              attribute_filters + [linked: {}] + [filtered: []]
+              attribute_filters + [linked: {}] + [union: []]
           }
         end
 

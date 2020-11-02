@@ -63,6 +63,7 @@
     :linked_image: image
     :linked_location: content_location
   :related_to: true
+  :union_filter_ids: true
   :advanced_attributes:
     # media
     :width:

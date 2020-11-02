@@ -105,7 +105,7 @@ module DataCycleCore
           end
         end
 
-        FILTERED = Dry::Schema.Params do
+        UNION_FILTER = Dry::Schema.Params do
           optional(:content_id).hash do
             optional(:in).filled(:array)
             optional(:notIn).filled(:array)
@@ -132,10 +132,10 @@ module DataCycleCore
         params(DataCycleCore::MasterData::Contracts::ApiContract::FILTER) do
         end
       end
-      class ApiFilteredContract < Dry::Validation::Contract
+      class ApiUnionFilterContract < Dry::Validation::Contract
         config.validate_keys = true
 
-        params(DataCycleCore::MasterData::Contracts::ApiContract::FILTERED, DataCycleCore::MasterData::Contracts::ApiContract::FILTER) do
+        params(DataCycleCore::MasterData::Contracts::ApiContract::UNION_FILTER, DataCycleCore::MasterData::Contracts::ApiContract::FILTER) do
         end
       end
     end

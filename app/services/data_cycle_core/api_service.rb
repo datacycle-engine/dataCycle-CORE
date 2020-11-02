@@ -38,15 +38,15 @@ module DataCycleCore
     end
 
     def append_filters(query, parameters)
-      query = query.with_content_ids(parameters[:content_id]) if parameters&.dig(:content_id).present?
+      query = query.content_ids(parameters[:content_id]) if parameters&.dig(:content_id).present?
       query
     end
 
     def apply_filters(query, filters)
       return query if filters.blank?
       filters.each do |filter_k, filter_v|
-        if filter_k == 'filtered'
-          query = apply_filtered_filters(query, filter_v)
+        if filter_k == 'union'
+          query = apply_union_filters(query, filter_v)
         else
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
           next if filter_v.blank?
@@ -124,12 +124,12 @@ module DataCycleCore
       query
     end
 
-    def apply_filtered_filters(query, filters)
+    def apply_union_filters(query, filters)
       all_filters = []
       filters.each do |filter|
-        linked_stored_filter = DataCycleCore::StoredFilter.new
-        linked_stored_filter.language = @language
-        linked_query = linked_stored_filter.apply
+        union_stored_filter = DataCycleCore::StoredFilter.new
+        union_stored_filter.language = @language
+        union_query = union_stored_filter.apply
 
         filter.each do |filter_k, filter_v|
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
@@ -137,40 +137,27 @@ module DataCycleCore
           filter_method_name = ('apply_' + filter_k.to_s.parameterize(separator: '_') + '_filters')
           # TODO: add API error
           next unless respond_to?(filter_method_name)
-          linked_query = send(filter_method_name, linked_query, filter_v)
+          union_query = send(filter_method_name, union_query, filter_v)
         end
-        all_filters += [linked_query]
+        all_filters += [union_query]
       end
-      query = query.apply_or_filters(all_filters)
+      query = query.union_filter(all_filters)
       query
     end
 
     def apply_content_id_filters(query, filters)
-      query_method = 'with_content_ids'
-      filters.each do |operator, values|
-        query_method = 'not_' + query_method if operator == :notIn
-        next unless query.respond_to?(query_method)
-        values.each do |v|
-          query = query.send(query_method, v.split(','))
-        end
-      end
-      query
+      apply_union_filter_methods(query, filters, 'content_ids')
     end
 
     def apply_filter_id_filters(query, filters)
-      query_method = 'with_filter_ids'
-      filters.each do |operator, values|
-        query_method = 'not_' + query_method if operator == :notIn
-        next unless query.respond_to?(query_method)
-        values.each do |v|
-          query = query.send(query_method, v.split(','))
-        end
-      end
-      query
+      apply_union_filter_methods(query, filters, 'filter_ids')
     end
 
     def apply_watch_list_id_filters(query, filters)
-      query_method = 'with_watch_list_ids'
+      apply_union_filter_methods(query, filters, 'watch_list_ids')
+    end
+
+    def apply_union_filter_methods(query, filters, query_method)
       filters.each do |operator, values|
         query_method = 'not_' + query_method if operator == :notIn
         next unless query.respond_to?(query_method)
@@ -287,7 +274,7 @@ module DataCycleCore
 
       validation_params = unpermitted_params&.deep_symbolize_keys
       linked_params = validation_params[:filter].delete(:linked) if validation_params.dig(:filter, :linked).present?
-      filtered_params = validation_params[:filter].delete(:filtered) if validation_params.dig(:filter, :filtered).present?
+      union_params = validation_params[:filter].delete(:union) if validation_params.dig(:filter, :union).present?
 
       validation = validator.call(validation_params)
       validation_errors = validation.errors.to_h.present? ? api_errors(validation.errors) : []
@@ -295,16 +282,16 @@ module DataCycleCore
         linked_validation = linked_validator.call(attribute_filter)
         validation_errors += api_errors(linked_validation.errors, linked_name) if linked_validation.errors.to_h.present?
       end
-      filtered_params&.each do |filtered_parameters|
-        filtered_validation_errors = validate_api_filtered_params(filtered_parameters)
-        validation_errors += filtered_validation_errors if filtered_validation_errors.present?
+      union_params&.each do |union_parameters|
+        union_validation_errors = validate_api_union_params(union_parameters)
+        validation_errors += union_validation_errors if union_validation_errors.present?
       end
 
       raise DataCycleCore::Error::Api::BadRequestError.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
     end
 
-    def validate_api_filtered_params(unpermitted_params)
-      validator = DataCycleCore::MasterData::Contracts::ApiFilteredContract.new
+    def validate_api_union_params(unpermitted_params)
+      validator = DataCycleCore::MasterData::Contracts::ApiUnionFilterContract.new
       linked_validator = DataCycleCore::MasterData::Contracts::ApiLinkedContract.new
 
       # TODO: add validation and correct API error message
