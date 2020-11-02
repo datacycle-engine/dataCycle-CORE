@@ -18,15 +18,19 @@ module DataCycleCore
           )
         end
 
-        def filter_ids(ids = nil)
+        def union_filter_ids(ids = nil)
           filter_query_sql_ids = filter_ids_query(ids)
-          return self if filter_query_sql_ids.blank?
-
+          # reflect(
+          #   @query.where(thing[:id].in(filter_query_sql_ids.uniq))
+          # )
           reflect(
-            @query.where(thing[:id].in(filter_query_sql_ids.uniq))
+            @query.where(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql)))
           )
         end
-        alias union_filter_ids filter_ids
+
+        def filter_ids(ids = nil)
+          filter_ids_query(ids)
+        end
 
         def not_filter_ids(ids = nil)
           filter_query_sql_ids = filter_ids_query(ids)
@@ -71,22 +75,37 @@ module DataCycleCore
         def filter_ids_query(ids)
           return if ids.blank?
           filter_query_sql_ids = []
+          filter_query_sql = nil
           ids.each do |filter|
             stored_filter = DataCycleCore::StoredFilter.find(filter)
             next if stored_filter.blank?
-            filter_query_sql_ids += stored_filter.apply.pluck(:id)
+            if filter_query_sql.nil?
+              filter_query_sql = stored_filter.apply.select(:id).except(:order)
+            else
+              filter_query_sql.or(stored_filter.apply.select(:id).except(:order))
+            end
+            # filter_query_sql << Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
+            # filter_query_sql_ids += stored_filter.apply.pluck(:id)
           end
-          filter_query_sql_ids
+          # filter_query_sql_ids
+          # filter_query_sql.arel
+          filter_query_sql
         end
 
         def union_filter(filters = [])
-          filter_query_sql_ids = []
+          filter_query_sql = nil
           filters.each do |filter|
-            filter_query_sql_ids += filter.pluck(:id)
+            if filter_query_sql.nil?
+              filter_query_sql = filter.select(:id).except(:order)
+
+            else
+              filter_query_sql.or(filter.select(:id).except(:order))
+            end
+            # filter_query_sql_ids += filter.pluck(:id)
           end
 
           reflect(
-            @query.where(thing[:id].in(filter_query_sql_ids.uniq))
+            @query.where(thing[:id].in(Arel.sql(filter_query_sql.to_sql)))
           )
         end
 
