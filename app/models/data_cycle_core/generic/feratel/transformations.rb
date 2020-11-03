@@ -112,7 +112,7 @@ module DataCycleCore
           .>> t(:add_service_description, 'included_services', 'Included Services')
           .>> t(:add_service_description, 'difficulty', 'Difficulty')
           .>> t(:rename_keys, { 'Id' => 'external_key', 'AdditionalServiceDescription' => 'text' })
-          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description')) })
+          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description'), external_source_id, 'additional_service') })
           .>> t(:add_links, 'provider', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('provider_id')] })
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
           .>> t(:add_link, 'area_served', DataCycleCore::Thing, external_source_id, ->(s) { "meeting_point: #{s['external_key']}" })
@@ -172,8 +172,8 @@ module DataCycleCore
           .>> t(:add_links, 'founder', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('Addresses', 'Address')).select { |i| i.dig('Type') == 'LandLord' }.map { |i| "LandLord:#{i.dig('Id')}" } })
           .>> t(:add_cc, external_source_id)
           .>> t(:map_value, 'GTCs', ->(s) { Array.wrap(s&.dig('GTC')).map { |i| i.merge({ 'Type' => 'GTC' }) } })
-          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description')) })
-          .>> t(:add_field, 'gtc', ->(s) { parse_descriptions(s.dig('GTCs')) })
+          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description'), external_source_id, 'accommodation') })
+          .>> t(:add_field, 'gtc', ->(s) { parse_descriptions(s.dig('GTCs'), external_source_id, 'GTC') })
           .>> t(:merge_array_values, 'additional_information', 'gtc')
           .>> t(:add_amenity_features, external_source_id)
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] } })
@@ -222,19 +222,21 @@ module DataCycleCore
         # .>> t(:add_field, 'makes_offer_package', ->(s) { parse_packages([s.dig('HousePackageMasters', 'HousePackageMaster')]&.flatten&.compact, external_source_id) })
         # .>> t(:add_field, 'makes_offer', ->(s) { Array(s.dig('makes_offer_package')) + Array(s.dig('makes_offer_service')) })
 
-        def self.parse_descriptions(data)
+        def self.parse_descriptions(data, external_source_id, type)
           return [] if data.blank?
           Array.wrap(data).map do |desc|
-            to_additional_information.call(desc)
+            to_additional_information(external_source_id, type).call(desc)
           end
         end
 
-        def self.to_additional_information
+        def self.to_additional_information(external_source_id, type)
           t(:rename_keys, { 'text' => 'description' })
+          .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: s.dig('Id'))&.id })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate').in_time_zone })
-          .>> t(:add_field, 'name', ->(s) { s.dig('Type') })
+          .>> t(:add_field, 'name', ->(s) { I18n.t("import.feratel.#{type}.#{s.dig('Name') || s.dig('Type')}", default: [s.dig('Name') || s.dig('Type')]) })
           .>> t(:add_field, 'universal_classifications', ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc) } })
           .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
+          .>> t(:add_field, 'external_key', ->(s) { s.dig('Id') })
           .>> t(:reject_keys, ['Id', 'Type', 'Language', 'Systems', 'ShowFrom', 'ShowTo', 'ChangeDate'])
         end
 
@@ -392,7 +394,7 @@ module DataCycleCore
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap_description, ['EventHeader'])
           .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('EventHeader')) if v&.dig('EventHeader').present? })
-          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description')) })
+          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description'), external_source_id, 'event') })
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['EventHeader']))
           .>> t(:add_field, 'feratel_locations', ->(s) { s.dig('Addresses', 'Address').is_a?(Hash) ? [s.dig('Addresses', 'Address')] : s.dig('Addresses', 'Address') })
@@ -428,7 +430,7 @@ module DataCycleCore
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Name' => 'name')
           .>> t(:unwrap_description, ['EventHeader'])
-          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description')) })
+          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description'), external_source_id, 'serial_event') })
           .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('EventHeader')) if v&.dig('EventHeader').present? })
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['EventHeader']))
@@ -447,7 +449,7 @@ module DataCycleCore
           .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructureShort')) if v&.dig('InfrastructureShort').present? })
           .>> t(:add_field, 'text', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructureLong')) if v&.dig('InfrastructureLong').present? })
           .>> t(:add_field, 'price_range', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructurePriceInfo')) if v&.dig('InfrastructurePriceInfo').present? })
-          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description')) })
+          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description'), external_source_id, 'infrastructure') })
           .>> t(:unwrap_address_data, 'InfrastructureExternal', ->(s) { Array.wrap(s.dig('Addresses', 'Address')) })
           .>> t(:unwrap, 'Address', ['AddressLine1', 'Town', 'ZipCode', 'Country', 'Fax', 'Phone', 'Email', 'URL'])
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })

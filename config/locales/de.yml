@@ -918,6 +918,30 @@ de:
         requirements: Voraussetzung
         included_services: Inkludierte Services
         difficulty: Schwierigkeitsgrad
+      event:
+        EventHeader: Beschreibung
+        EventHeaderShort: Kurzbeschreibung
+        AdditionalService: Zusatzleistung
+        CurrentInformation: Aktuelle Informationen
+        GuestCardClassification: Gästekartenleistungen
+      serial_event:
+        EventGroup: Beschreibung
+      infrastructure:
+        AdditionalService: Zusatzleistung
+        CurrentInformation: Aktuelle Informationen
+        GuestCardClassification: Gästekartenleistungen
+        InfrastructureLong: Detailbeschreibung
+        InfrastructureOpeningTimes: Öffnungszeiten
+        InfrastructurePriceInfo: Preisinformation
+        InfrastructureShort: Kurzbeschreibung
+      accommodation:
+        CurrentInformation: Aktuelle Informationen
+        SEOKeywords: SEO-Schlagwörter
+        ServiceProviderArrivalVoucher: Anreisemodalitäten
+        ServiceProviderConditions: Zusatzinformationen
+        ServiceProviderDescription: Beschreibung
+      GTC:
+        GTC: Allgemeine Geschäftsbedingungen
     outdoor_active:
       place:
         directions: Anfahrt

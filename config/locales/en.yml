@@ -170,6 +170,30 @@ en:
         requirements: Requirements
         included_services: Included Services
         difficulty: Difficulty
+      event:
+        EventHeader: Description
+        EventHeaderShort: Abstract
+        AdditionalService: Additional service
+        CurrentInformation: Current informationen
+        GuestCardClassification: Guest card informations
+      serial_event:
+        EventGroup: Description
+      infrastructure:
+        AdditionalService: Additional service
+        CurrentInformation: Current informationen
+        GuestCardClassification: Guest card informations
+        InfrastructureLong: Description
+        InfrastructureOpeningTimes: Opening hours
+        InfrastructurePriceInfo: Price information
+        InfrastructureShort: Abstract
+      accommodation:
+        CurrentInformation: Current informationen
+        SEOKeywords: SEO keywords
+        ServiceProviderArrivalVoucher: Arrival
+        ServiceProviderConditions: Additional information
+        ServiceProviderDescription: Description
+      GTC:
+        GTC: General terms and conditions
     outdoor_active:
       place:
         directions: Directions
