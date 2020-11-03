@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 class UpdateAllAutoVacuumValues < ActiveRecord::Migration[5.2]
+  disable_ddl_transaction!
+
   def up
-    execute <<-SQL.squish
-      ANALYZE;
-    SQL
+    execute('ANALYZE;')
+    execute('VACUUM;')
 
     tables.each do |table|
       execute <<-SQL.squish
@@ -22,8 +23,6 @@ class UpdateAllAutoVacuumValues < ActiveRecord::Migration[5.2]
 
     execute(ActiveRecord::Base.sanitize_sql_for_conditions([query, tables]))
 
-    execute <<-SQL.squish
-      ANALYZE;
-    SQL
+    execute('ANALYZE;')
   end
 end
