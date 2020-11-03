@@ -229,6 +229,19 @@ module DataCycleCore
         DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: data_hash, user: @user)
       end
 
+      def minimal_person
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person')
+        if data_hash.dig('country_code').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: data_hash, user: @user)
+      end
+
       def person_overlay
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_overlay')
         if data_hash.dig('country_code').present?
