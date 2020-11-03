@@ -9,6 +9,7 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::External
       include DataCycleCore::Filter::Common::Fulltext
       include DataCycleCore::Filter::Common::Geo
+      include DataCycleCore::Filter::Common::Union
       include DataCycleCore::Filter::Sortable
 
       def initialize(locale = ['de'], query = nil, include_embedded = false)
@@ -135,14 +136,6 @@ module DataCycleCore
 
         reflect(
           @query.where(subquery.exists)
-        )
-      end
-
-      def with_content_ids(ids = nil)
-        return self if ids.blank?
-
-        reflect(
-          @query.where(thing[:id].in(ids))
         )
       end
 
