@@ -69,13 +69,14 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, uuid: []] + [permitted_filter_parameters]
+          # super + [:id, :language, :uuids, uuid: []] + [permitted_filter_parameters]
+          super + [:id, :language, :uuids, uuid: []] + [filter: {}]
         end
 
         def permitted_filter_parameters
           {
             filter:
-              attribute_filters + [linked: {}]
+              attribute_filters + [linked: {}] + [union: []]
           }
         end
 
@@ -116,8 +117,7 @@ module DataCycleCore
           query = query.in_validity_period
 
           query = apply_filters(query, permitted_params&.dig(:filter))
-
-          query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
+          query = append_filters(query, permitted_params)
           query
         end
       end

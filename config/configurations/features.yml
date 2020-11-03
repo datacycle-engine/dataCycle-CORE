@@ -90,6 +90,7 @@
     :geo_within_classification:
       false
       # - Administrative Einheiten
+  # :union_filter_ids: true
   # :relation_filter:
   #   :event_location: content_location
 #  :advanced_attributes:

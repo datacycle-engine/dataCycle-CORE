@@ -40,7 +40,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :content_id, :sort, :format, section: {}, page: {}]
+          [:api_subversion, :token, :include, :fields, :content_id, :sort, :format, section: {}, page: {}, content_id: []]
         end
 
         def page_parameters
@@ -116,6 +116,7 @@ module DataCycleCore
 
           raise CanCan::AccessDenied, 'invalid or missing authentication token' if @user.nil?
 
+          request.env['devise.skip_trackable'] = true
           sign_in @user, store: false
         end
 
