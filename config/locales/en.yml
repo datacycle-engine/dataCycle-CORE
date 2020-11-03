@@ -164,12 +164,22 @@ en:
 
   import:
     feratel:
-      meeting_point: meeting point
+      meeting_point: Meeting point
       additional_service:
-        equipment: Equipment
-        requirements: Requirements
-        included_services: Included Services
-        difficulty: Difficulty
+        Arrival Information: Arrival information
+        Cancellation Information: Cancellation information
+        Difficulty: Difficulty
+        Equipment: Equipment
+        'FAQ / good to know': FAQ / good to know
+        Included Services: Included services
+        Meeting Point: Meeting poing
+        Opening hours: Opening hours
+        Payment: Zahlungsmodalitäten
+        Price Information: Price information
+        Rental Equipment: Rental equipment
+        Requirements: Requirements
+        ServiceDescription: Description
+        Suitable for: Suitable for
       event:
         EventHeader: Description
         EventHeaderShort: Abstract

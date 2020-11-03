@@ -55,6 +55,7 @@ module DataCycleCore
           .>> t(:flatten_texts)
           .>> t(:add_cc, external_source_id)
           .>> t(:rename_keys, 'Id' => 'external_key')
+          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description'), external_source_id, 'accommodation') })
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Names') || s.dig('Details', 'Name') })
           .>> t(:transform_name, 'name')
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })

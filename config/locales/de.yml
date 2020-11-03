@@ -916,10 +916,20 @@ de:
     feratel:
       meeting_point: Treffpunkt
       additional_service:
-        equipment: Ausrüstung
-        requirements: Voraussetzung
-        included_services: Inkludierte Services
-        difficulty: Schwierigkeitsgrad
+        Arrival Information: Informationen zur Anreise
+        Cancellation Information: Stornierungsregelungen
+        Difficulty: Schwierigkeitsgrad
+        Equipment: Ausrüstung
+        'FAQ / good to know': FAQ / nützliche Hinweise
+        Included Services: Enthaltene Leistungen
+        Meeting Point: Treffpunkt
+        Opening hours: Öffnungszeiten
+        Payment: Zahlungsmodalitäten
+        Price Information: Preis
+        Rental Equipment: Mietausrüstung
+        Requirements: Voraussetzung
+        ServiceDescription: Beschreibung
+        Suitable for: Geeignet für
       event:
         EventHeader: Beschreibung
         EventHeaderShort: Kurzbeschreibung
