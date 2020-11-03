@@ -44,6 +44,7 @@ module DataCycleCore
       @decoded = DataCycleCore::JsonWebToken.decode(params[:token])
       @user = DataCycleCore::User.find(@decoded[:user_id])
 
+      request.env['devise.skip_trackable'] = true
       sign_in @user, store: false
     rescue JWT::DecodeError, JSON::ParserError => e
       raise CanCan::AccessDenied, e.message

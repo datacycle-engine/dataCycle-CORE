@@ -125,6 +125,7 @@ module DataCycleCore
 
           raise CanCan::AccessDenied, 'invalid or missing authentication token' if @user.nil?
 
+          request.env['devise.skip_trackable'] = true
           sign_in @user, store: false
         end
 
