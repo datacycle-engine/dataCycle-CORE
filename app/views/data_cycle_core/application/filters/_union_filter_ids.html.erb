@@ -14,7 +14,7 @@
 
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{index}][v]",
-      options_for_select(DataCycleCore::StoredFilter.select(:id, :name).where(api: true).map{ |e| [e.name, e.id] }, value),
+      options_for_select(@accessible_stored_filters.select(:id, :name).map{ |e| [e.name, e.id] }, value),
       {
         multiple: true,
         class: 'multi-select',
