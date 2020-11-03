@@ -34,5 +34,43 @@ namespace :dc do
         puts "REMOVED #{clean_up_count} orphaned entries."
       end
     end
+    namespace :cache do
+      desc 'invalidates cache for expired things'
+      task :invalidate_expired, [:dry_run] => :environment do |_, args|
+        dry_run = args.fetch(:dry_run, false)
+
+        expired_items_filter = DataCycleCore::StoredFilter.create(
+          name: 'expired things',
+          user_id: DataCycleCore::User.find_by(email: 'admin@datacycle.at').id,
+          language: ['de'],
+          parameters: [{
+            'c' => 'a',
+            'm' => 'i',
+            'n' => 'relative',
+            'q' => 'relative',
+            't' => 'inactive_things',
+            'v' => {
+              'from' => {
+                'n' => '7',
+                'mode' => 'm',
+                'unit' => 'day'
+              },
+              'until' => {
+                'n' => '0',
+                'mode' => 'p',
+                'unit' => 'day'
+              }
+            }
+          }]
+        )
+        items = expired_items_filter.apply
+        puts "Expired items found: #{items.count}"
+        items.each do |item|
+          item.invalidate_self_and_update_search unless dry_run
+          puts "Expired item found: #{item.id}"
+        end
+        puts '###### DRY-RUN: No database changes made!' if dry_run
+      end
+    end
   end
 end
