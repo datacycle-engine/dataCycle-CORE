@@ -18,63 +18,60 @@ module DataCycleCore
           )
         end
 
-        def union_filter_ids(ids = nil)
+        def filter_ids(ids = nil)
           filter_query_sql_ids = filter_ids_query(ids)
-          # reflect(
-          #   @query.where(thing[:id].in(filter_query_sql_ids.uniq))
-          # )
+          return self if filter_query_sql_ids.nil?
           reflect(
             @query.where(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql)))
           )
         end
-
-        def filter_ids(ids = nil)
-          filter_ids_query(ids)
-        end
+        alias union_filter_ids filter_ids
 
         def not_filter_ids(ids = nil)
           filter_query_sql_ids = filter_ids_query(ids)
-          return self if filter_query_sql_ids.blank?
-
+          return self if filter_query_sql_ids.nil?
           reflect(
-            @query.where.not(thing[:id].in(filter_query_sql_ids.uniq))
+            @query.where.not(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql)))
           )
         end
         alias not_union_filter_ids not_filter_ids
 
         def watch_list_ids(ids = nil)
           filter_query_sql_ids = watch_list_ids_query(ids)
-          return self if filter_query_sql_ids.blank?
+          return self if filter_query_sql_ids.nil?
 
           reflect(
-            @query.where(thing[:id].in(filter_query_sql_ids.uniq))
+            @query.where(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql)))
           )
         end
 
         def not_watch_list_ids(ids = nil)
           filter_query_sql_ids = watch_list_ids_query(ids)
-          return self if filter_query_sql_ids.blank?
+          return self if filter_query_sql_ids.nil?
 
           reflect(
-            @query.where.not(thing[:id].in(filter_query_sql_ids.uniq))
+            @query.where.not(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql)))
           )
         end
 
         def watch_list_ids_query(ids)
-          return if ids.blank?
+          return nil if ids.blank?
 
-          filter_query_sql_ids = []
+          filter_query_sql = nil
           ids.each do |id|
             watch_list = DataCycleCore::WatchList.find(id)
             next if watch_list.blank?
-            filter_query_sql_ids += watch_list.watch_list_data_hashes.pluck(:hashable_id)
+            if filter_query_sql.nil?
+              filter_query_sql = watch_list.watch_list_data_hashes.select(:hashable_id).except(:order)
+            else
+              filter_query_sql = filter_query_sql.or(watch_list.watch_list_data_hashes.select(:hashable_id).except(:order))
+            end
           end
-          filter_query_sql_ids
+          filter_query_sql
         end
 
         def filter_ids_query(ids)
-          return if ids.blank?
-          filter_query_sql_ids = []
+          return nil if ids.blank?
           filter_query_sql = nil
           ids.each do |filter|
             stored_filter = DataCycleCore::StoredFilter.find(filter)
@@ -82,13 +79,9 @@ module DataCycleCore
             if filter_query_sql.nil?
               filter_query_sql = stored_filter.apply.select(:id).except(:order)
             else
-              filter_query_sql.or(stored_filter.apply.select(:id).except(:order))
+              filter_query_sql = filter_query_sql.or(stored_filter.apply.select(:id).except(:order))
             end
-            # filter_query_sql << Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
-            # filter_query_sql_ids += stored_filter.apply.pluck(:id)
           end
-          # filter_query_sql_ids
-          # filter_query_sql.arel
           filter_query_sql
         end
 
@@ -97,39 +90,14 @@ module DataCycleCore
           filters.each do |filter|
             if filter_query_sql.nil?
               filter_query_sql = filter.select(:id).except(:order)
-
             else
-              filter_query_sql.or(filter.select(:id).except(:order))
+              filter_query_sql = filter_query_sql.or(filter.select(:id).except(:order))
             end
-            # filter_query_sql_ids += filter.pluck(:id)
           end
-
           reflect(
             @query.where(thing[:id].in(Arel.sql(filter_query_sql.to_sql)))
           )
         end
-
-        # def apply_or_filters(filters = [])
-        #   filter_query_sql = []
-        #   filter_query_sql_ids = []
-        #   filters.each do |filter|
-        #     filter_query_sql << Arel.sql(filter.select(:id).except(:order).to_sql)
-        #     # filter_query_sql_ids += filter.pluck(:id)
-        #   end
-        #
-        #   # reflect(
-        #   #   @query.where(thing[:id].in(filter_query_sql_ids.uniq))
-        #   # )
-        #   if filter_query_sql.size > 1
-        #     reflect(
-        #       @query.where(thing[:id].in(Arel::Nodes::UnionAll.new(*filter_query_sql)))
-        #     )
-        #   else
-        #     reflect(
-        #       @query.where(thing[:id].in(filter_query_sql))
-        #     )
-        #   end
-        # end
       end
     end
   end
