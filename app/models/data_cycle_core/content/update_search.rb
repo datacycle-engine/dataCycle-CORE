@@ -9,11 +9,11 @@ module DataCycleCore
 
       def update_search_languages(all, current_locale)
         if all
-          translated_locales.push(current_locale).uniq.each do |locale|
+          translated_locales.each do |locale|
             update_search(locale)
           end
         else
-          update_search(current_locale)
+          update_search(first_available_locale(current_locale))
         end
       end
 
@@ -78,11 +78,11 @@ module DataCycleCore
           string_hash[:classification_string] = ''
         else
           string_hash[:classification_string] = [
-            object.display_classification_aliases('show').map(&:name).try(:join, ' ').try(:gsub, /[']/, "''")&.strip,
-            object.display_classification_aliases('show').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")&.strip
-          ].compact.join(' ')
+            object.display_classification_aliases('show').map(&:name).try(:join, ' ').try(:gsub, /[']/, "''"),
+            object.display_classification_aliases('show').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
+          ].compact.join(' ').squish
         end
-        string_hash[:all_text] = [string_hash[:headline].squish, string_hash[:classification_string].squish, string_hash[:full_text].squish].join(' ')
+        string_hash[:all_text] = [string_hash[:headline].squish, string_hash[:classification_string], string_hash[:full_text].squish].join(' ')
         string_hash
       end
 

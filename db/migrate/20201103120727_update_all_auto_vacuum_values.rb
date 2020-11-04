@@ -7,14 +7,6 @@ class UpdateAllAutoVacuumValues < ActiveRecord::Migration[5.2]
     execute('ANALYZE;')
     execute('VACUUM;')
 
-    tables.each do |table|
-      execute <<-SQL.squish
-        ALTER TABLE #{table} SET (autovacuum_vacuum_scale_factor = 0, autovacuum_vacuum_threshold = 100, autovacuum_analyze_scale_factor = 0, autovacuum_analyze_threshold = 50);
-      SQL
-    end
-  end
-
-  def down
     query = <<-SQL.squish
       UPDATE pg_class
       SET reloptions = NULL
@@ -23,6 +15,43 @@ class UpdateAllAutoVacuumValues < ActiveRecord::Migration[5.2]
 
     execute(ActiveRecord::Base.sanitize_sql_for_conditions([query, tables]))
 
+    execute <<-SQL.squish
+      ALTER SYSTEM SET autovacuum_vacuum_scale_factor = 0;
+    SQL
+
+    execute <<-SQL.squish
+      ALTER SYSTEM SET autovacuum_vacuum_threshold = 100;
+    SQL
+
+    execute <<-SQL.squish
+      ALTER SYSTEM SET autovacuum_analyze_scale_factor = 0;
+    SQL
+
+    execute <<-SQL.squish
+      ALTER SYSTEM SET autovacuum_analyze_threshold = 100;
+    SQL
+
+    execute('SELECT pg_reload_conf();')
+  end
+
+  def down
+    execute <<-SQL.squish
+      ALTER SYSTEM RESET autovacuum_vacuum_scale_factor;
+    SQL
+
+    execute <<-SQL.squish
+      ALTER SYSTEM RESET autovacuum_vacuum_threshold;
+    SQL
+
+    execute <<-SQL.squish
+      ALTER SYSTEM RESET autovacuum_analyze_scale_factor;
+    SQL
+
+    execute <<-SQL.squish
+      ALTER SYSTEM RESET autovacuum_analyze_threshold;
+    SQL
+
+    execute('SELECT pg_reload_conf();')
     execute('ANALYZE;')
   end
 end
