@@ -18,7 +18,7 @@ module DataCycleCore
         end
 
         def first_available_locale(locale = nil)
-          (Array(locale).map(&:to_sym).sort_by { |t| I18n.available_locales.index t }.push(I18n.locale) & translated_locales).first || translated_locales.min_by { |t| I18n.available_locales.index t }
+          (Array.wrap(locale).map(&:to_sym).sort_by { |t| I18n.available_locales.index t }.push(I18n.locale) & translated_locales).first || translated_locales.min_by { |t| I18n.available_locales.index t }
         end
 
         def is_valid?

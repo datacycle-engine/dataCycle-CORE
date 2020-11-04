@@ -500,8 +500,7 @@ CREATE TABLE public.things (
     validity_range tstzrange,
     boost numeric,
     content_type character varying,
-    representation_of_id uuid,
-    version_name character varying
+    representation_of_id uuid
 );
 
 
@@ -825,8 +824,7 @@ CREATE TABLE public.thing_histories (
     validity_range tstzrange,
     boost numeric,
     content_type character varying,
-    representation_of_id uuid,
-    version_name character varying
+    representation_of_id uuid
 );
 
 
@@ -1296,13 +1294,6 @@ CREATE INDEX by_external_connection_and_type ON public.external_system_syncs USI
 --
 
 CREATE INDEX by_template_name_template ON public.things USING btree (template_name, template);
-
-
---
--- Name: by_thing_id_version_name; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX by_thing_id_version_name ON public.thing_histories USING btree (thing_id, version_name);
 
 
 --
@@ -1810,6 +1801,13 @@ CREATE INDEX index_thing_histories_on_representation_of_id ON public.thing_histo
 
 
 --
+-- Name: index_thing_histories_on_thing_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_histories_on_thing_id ON public.thing_histories USING btree (thing_id);
+
+
+--
 -- Name: index_thing_history_id_locale; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2305,7 +2303,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200928122555'),
 ('20201014110327'),
 ('20201016100223'),
-('20201022061044'),
 ('20201103120727');
 
 
