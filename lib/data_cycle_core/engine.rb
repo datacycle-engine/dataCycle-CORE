@@ -102,7 +102,7 @@ module DataCycleCore
     self.ui_language = :de
 
     mattr_accessor :notification_frequencies
-    self.notification_frequencies = ['always', 'day', 'week']
+    self.notification_frequencies = ['always', 'named_version', 'day', 'week']
 
     mattr_accessor :features
     self.features = {}

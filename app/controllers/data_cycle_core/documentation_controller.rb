@@ -2,9 +2,6 @@
 
 module DataCycleCore
   class DocumentationController < ApplicationController
-    include DataCycleCore::ErrorHandler
-    rescue_from ActionController::UnknownFormat, with: :not_acceptable
-
     HTML_OPTIONS = {
       with_toc_data: true
     }.freeze

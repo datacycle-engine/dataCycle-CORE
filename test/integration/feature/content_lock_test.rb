@@ -4,17 +4,17 @@ require 'test_helper'
 
 module DataCycleCore
   module Feature
-    class ContentLockTest < ActionDispatch::IntegrationTest
-      include Devise::Test::IntegrationHelpers
-      include Engine.routes.url_helpers
+    class ContentLockTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       include ActionView::Helpers::DateHelper
 
-      setup do
-        @routes = Engine.routes
+      before(:all) do
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
         @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
         DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
         @current_user = User.find_by(email: 'tester@datacycle.at')
+      end
+
+      setup do
         sign_in(@current_user)
       end
 

@@ -473,7 +473,7 @@ class AssetUploader {
       id +
       '-duplicates-list" aria-haspopup="true"><i class="fa fa-exclamation" aria-hidden="true"></i> Duplikate vorhanden</a>';
     duplicateHtml +=
-      '<div class="dropdown-pane no-bullet bottom" id="' +
+      '<div class="dropdown-pane no-bullet bottom left-auto" id="' +
       id +
       '-duplicates-list" data-dropdown data-hover="true" data-hover-pane="true" aria-hidden="true"><h5>mögliche Duplikate</h5><ul class="list-items duplicates-list no-bullet">';
 

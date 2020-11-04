@@ -10,13 +10,9 @@ module DataCycleCore
           before(:all) do
             @poi_a = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             @poi_b = DataCycleCore::V4::DummyDataHelper.create_data('poi')
-          end
-
-          setup do
-            @food_establishment_a = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment').reload
-            @food_establishment_b = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment').reload
-
-            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+            @food_establishment_a = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment')
+            @food_establishment_b = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment')
+            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').size
           end
 
           test 'api/v4/things parameter filter[dct:created]' do

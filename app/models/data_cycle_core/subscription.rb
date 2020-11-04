@@ -11,10 +11,10 @@ module DataCycleCore
       where.not(user_id: user.id)
     end
 
-    def self.to_notify
-      return if DataCycleCore.notification_frequencies[0].blank?
+    def self.to_notify(frequencies = ['always'])
+      return if DataCycleCore.notification_frequencies.blank?
 
-      includes(:user).where(users: { notification_frequency: DataCycleCore.notification_frequencies[0], locked_at: nil })
+      includes(:user).where(users: { notification_frequency: frequencies, locked_at: nil })
     end
   end
 end

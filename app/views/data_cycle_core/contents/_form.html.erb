@@ -3,7 +3,7 @@
 <%= form_with url: local_assigns[:form_url] || thing_path(content, watch_list_id: watch_list), local: true, method: :patch, class: 'validation-form edit-content-form', data: local_assigns[:form_data_attributes] do |f| %>
   <%= hidden_field_tag :uuid, content.id %>
   <%= hidden_field_tag :table, content.class.table_name %>
-  <%= hidden_field_tag "#{content.class.name.demodulize.underscore}[datahash][creator][]", content.created_by %>
+  <%= hidden_field_tag 'thing[datahash][creator][]', content.created_by %>
   <%= hidden_field_tag :locale, @locale %>
   <%= content_for :additional_form_fields %>
 
@@ -47,6 +47,13 @@
             <%= render 'meta_data', content: content %>
             <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if content.try(:external_source) || content.try(:external_systems).present? %>
           </div>
+
+          <% if DataCycleCore::Feature::NamedVersion.enabled? %>
+            <div class="clearfix form-element version-name string">
+              <%= label_tag 'thing[version_name]', t('feature.named_version.input_label', locale: DataCycleCore.ui_language) %>
+              <%= text_field_tag 'thing[version_name]', nil, id: 'thing_version_name', class: 'form-control' %>
+            </div>
+          <% end %>
 
           <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
 

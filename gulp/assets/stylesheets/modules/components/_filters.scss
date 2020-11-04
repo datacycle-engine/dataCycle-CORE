@@ -491,7 +491,7 @@ $filter-border: #aaa;
   .filtertags {
     font-size: 0.8rem;
     display: flex;
-    > .filter-groups{
+    > .filter-groups {
       flex: auto;
     }
     > .icon {
@@ -945,6 +945,7 @@ $filter-border: #aaa;
       }
 
       > i,
+      > span[data-toggle],
       > a {
         height: 1.5rem;
         padding: 0 0.2rem;
@@ -960,9 +961,11 @@ $filter-border: #aaa;
         text-shadow: 1px 1px 1px #ccc;
       }
 
-      > a {
+      > a,
+      > span[data-toggle]:not(.selected) {
         color: lighten($dark-gray, 20%);
         transition: color 0.3s;
+        cursor: pointer;
 
         &:hover {
           color: $primary-color;

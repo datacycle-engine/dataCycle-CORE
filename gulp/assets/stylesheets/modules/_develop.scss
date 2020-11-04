@@ -263,6 +263,12 @@
     right: 5rem;
     bottom: 1rem;
   }
+
+  .version-name {
+    input {
+      background: none;
+    }
+  }
 }
 
 .data-cycle-object {
@@ -1032,10 +1038,6 @@ a.link {
 }
 
 #show-history {
-  min-width: 350px;
-  max-width: 90vw;
-  width: auto !important;
-
   li {
     position: relative;
     text-align: left;
@@ -1046,8 +1048,11 @@ a.link {
     flex-flow: row nowrap;
     align-items: center;
 
+    > *:not(:last-child) {
+      margin-right: 0.5rem;
+    }
+
     .history-time {
-      flex: auto;
       text-align: right;
       color: $dark-gray;
     }
@@ -1061,14 +1066,14 @@ a.link {
       color: $medium-gray;
     }
     .email-link {
-      max-width: 15rem;
-      margin-right: 0.5rem;
+      max-width: unset;
+      flex: auto;
     }
 
     .history-link {
       flex: 0;
-      margin-left: 0.5rem;
       min-width: 1rem;
+      width: 1rem;
       display: flex;
       align-items: center;
 
@@ -1091,6 +1096,30 @@ a.email-link {
   white-space: nowrap;
   text-overflow: ellipsis;
   max-width: 15rem;
+}
+
+.named-version-container {
+  display: inline-flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  width: 1rem;
+  min-width: 1rem;
+  overflow: hidden;
+  flex: 0;
+
+  &.removable {
+    width: 2.7rem;
+    min-width: 2.7rem;
+  }
+
+  > *:not(:last-child) {
+    margin-right: 0.3rem;
+  }
+
+  .remove-version-name-link {
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 .row {
@@ -1277,7 +1306,6 @@ ul.translated-locales {
       padding: 0;
 
       .select2-selection {
-        padding: 3rem 0.5rem 0.5rem 0.5rem;
         display: block;
         height: auto;
 
@@ -1597,7 +1625,12 @@ label[for='user_access_token'] {
 }
 
 // textblocks
-.edit-content-form {
+.edit-content-form,
+.edit_user {
+  .select2-selection {
+    padding: 3rem 0.5rem 0.5rem 0.5rem;
+  }
+
   .embedded_object {
     .content-object-item.textblock {
       padding: 0.5rem;
@@ -2182,6 +2215,19 @@ input.normalized {
   right: 3rem;
   top: 0.5rem;
   padding: 0.3rem 0;
+
+  .dropdown-pane:not(.left) {
+    left: -45px !important;
+
+    &::before {
+      left: 35px;
+    }
+  }
+
+  .dropdown-pane.left {
+    right: -18px !important;
+  }
+
   .translated-attribute-locale {
     &.active {
       color: $black;

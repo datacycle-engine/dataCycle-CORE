@@ -3,13 +3,9 @@
 module DataCycleCore
   class DownloadsController < ApplicationController
     include DataCycleCore::Filter
-    include DataCycleCore::ErrorHandler
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
     before_action :authenticate
-
-    rescue_from ActiveRecord::RecordNotFound, with: :not_found
-    rescue_from CanCan::AccessDenied, with: :unauthorized
 
     def things
       @object = DataCycleCore::Thing.find_by(id: params[:id])

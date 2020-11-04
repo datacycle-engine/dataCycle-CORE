@@ -55,21 +55,9 @@
     position: absolute;
     right: 0.5rem;
     bottom: 0;
+
     > a[data-toggle] {
       padding: 0;
-    }
-    > .dropdown-pane {
-      max-width: 250px;
-      right: -9px !important;
-      top: calc(100% + 1rem) !important;
-      &::before {
-        font-size: 22px;
-        width: 1.2rem;
-      }
-      &.align-top {
-        top: auto !important;
-        bottom: calc(100% + 1rem) !important;
-      }
     }
     ul.duplicates-list {
       display: flex;
@@ -346,7 +334,6 @@ ul.asset-list {
     flex-flow: row;
     > * {
       padding: 1rem 0.5rem;
-      overflow: hidden;
 
       &:not(:last-of-type) {
         border-right: 1px solid $medium-gray;
@@ -490,7 +477,6 @@ ul.asset-list {
       }
     }
     .dropdown-pane {
-      left: auto !important;
       .duplicates-list {
         li {
           display: inline-block;
@@ -597,6 +583,7 @@ ul.asset-list {
     display: block;
     color: $warning-color;
     font-size: 0.8rem;
+    position: relative;
 
     a {
       color: $warning-color;
@@ -727,7 +714,6 @@ ul.asset-list {
     }
 
     .file-info {
-      overflow: hidden;
       flex: 1;
     }
     .file-buttons {

@@ -4,12 +4,8 @@ require 'test_helper'
 
 module DataCycleCore
   module Feature
-    class ReleasableTest < ActionDispatch::IntegrationTest
-      include Devise::Test::IntegrationHelpers
-      include Engine.routes.url_helpers
-
-      setup do
-        @routes = Engine.routes
+    class ReleasableTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+      before(:all) do
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
         @data_link = DataCycleCore::DataLink.find_or_create_by({
           item_id: @content.id,
@@ -18,6 +14,9 @@ module DataCycleCore
           receiver_id: User.find_by(email: 'guest@datacycle.at')&.id,
           permissions: 'write'
         })
+      end
+
+      setup do
         sign_in(User.find_by(email: 'tester@datacycle.at'))
       end
 

@@ -1,18 +1,11 @@
 # frozen_string_literal: true
 
-require 'minitest/hooks'
+require 'helpers/minitest_hook_helper'
 
 module DataCycleCore
   module TestCases
     class ActiveSupportTestCase < ActiveSupport::TestCase
-      include Minitest::Hooks
-
-      around(:all) do |&block|
-        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-          super(&block)
-          raise ActiveRecord::Rollback
-        end
-      end
+      include DataCycleCore::MinitestHookHelper
     end
   end
 end

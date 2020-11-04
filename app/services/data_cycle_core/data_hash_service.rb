@@ -61,10 +61,10 @@ module DataCycleCore
       return object if object_params[:datahash].nil? && translations.nil?
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translations&.delete(locale.to_s) || {}), object.schema)
-      # save_time = Time.zone.now
+      save_time = Time.zone.now
 
       I18n.with_locale(locale) do
-        valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
+        valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true, save_time: save_time)
         if valid[:error].present?
           valid[:error].each { |k, v| v.each { |e| object.errors.add(k, e) } }
           return object
@@ -73,7 +73,7 @@ module DataCycleCore
 
       translations&.each do |l, locale_hash|
         I18n.with_locale(l) do
-          valid = object.set_data_hash(data_hash: locale_hash, current_user: current_user, prevent_history: true, update_search_all: false, partial_update: true)
+          valid = object.set_data_hash(data_hash: locale_hash, current_user: current_user, prevent_history: true, update_search_all: false, partial_update: true, save_time: save_time)
           if valid[:error].present?
             valid[:error].each { |k, v| v.each { |e| object.errors.add(k, e) } }
             return object

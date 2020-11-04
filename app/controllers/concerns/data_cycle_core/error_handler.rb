@@ -4,6 +4,20 @@ module DataCycleCore
   module ErrorHandler
     extend ActiveSupport::Concern
 
+    included do
+      unless Rails.env.development?
+        rescue_from CanCan::AccessDenied, with: :unauthorized
+        rescue_from ActiveRecord::RecordNotFound, with: :not_found
+        rescue_from ActionController::UnknownFormat, with: :not_acceptable
+        rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity
+        rescue_from ActionController::BadRequest, with: :bad_request
+      end
+
+      rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
+      rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error
+      rescue_from DataCycleCore::Error::Api::ExpiredContentError, with: :expired_content_api_error
+    end
+
     private
 
     def forbidden(exception)
@@ -71,7 +85,7 @@ module DataCycleCore
       respond_to do |format|
         format.html { redirect_back fallback_location: authorized_root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language), allow_other_host: false }
         format.json { render status: status_code, json: { error: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language) } }
-        format.js { render status: status_code, js: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language) }
+        format.js { render status: status_code, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language)}')" }
         format.any { head status_code }
       end
     end

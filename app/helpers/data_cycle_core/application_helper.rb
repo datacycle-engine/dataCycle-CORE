@@ -67,7 +67,7 @@ module DataCycleCore
       when 'tree'
         capture do
           if DataCycleCore::ClassificationTreeLabel.visible('tree_view').many?
-            concat(link_to(mode_icon(mode), '#', data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
+            concat(tag.span(mode_icon(mode), data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
             concat(
               tag.div(class: 'dropdown-pane no-bullet align-right', id: 'tree-view-selector', data: { dropdown: true, hover: true, hover_pane: true }) do
                 concat(

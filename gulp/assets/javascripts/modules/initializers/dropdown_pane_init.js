@@ -2,16 +2,19 @@
 module.exports.initialize = function ($) {
   $(document).on('dc:html:changed', '*', event => {
     event.stopPropagation();
-    let dropdownParent = $(event.target).closest('.dropdown-pane.bottom');
-    if (dropdownParent.length) resizeDropdown(dropdownParent);
+    let dropdownParent = $(event.target).closest('.dropdown-pane');
+    if (dropdownParent.length) dropdownParent.foundation('open');
   });
 
-  $(document).on('show.zf.dropdown dc:dropdown:resize', '.dropdown-pane.bottom', event => {
+  $(document).on('show.zf.dropdown dc:dropdown:resize', '.dropdown-pane', event => {
     resizeDropdown(event.currentTarget);
   });
 
   function resizeDropdown(element) {
+    element.style.setProperty('--dropdown-arrow-left-offset', Math.abs($(element).position().left) + 'px');
     let linked_item = $('[data-toggle="' + $(element).prop('id') + '"]');
+
+    if (!linked_item.length) return;
 
     if (
       linked_item.offset().top + linked_item.outerHeight() - $(document).scrollTop() + $(element).outerHeight() + 20 >=
@@ -19,7 +22,7 @@ module.exports.initialize = function ($) {
       linked_item.offset().top - $(document).scrollTop() >
         $(window).height() - (linked_item.offset().top - $(document).scrollTop() + linked_item.outerHeight())
     ) {
-      $(element).addClass('align-top');
+      $(element).addClass('top');
 
       if ($(element).children('.list-items').length) {
         $(element).children('.list-items').first().css('max-height', '');
@@ -53,7 +56,7 @@ module.exports.initialize = function ($) {
         }
       }
     } else {
-      $(element).removeClass('align-top');
+      $(element).removeClass('top');
       if ($(element).children('.list-items').length) {
         $(element).children('.list-items').first().css('max-height', '');
 

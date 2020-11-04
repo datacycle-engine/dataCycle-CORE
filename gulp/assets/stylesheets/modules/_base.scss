@@ -1,6 +1,7 @@
 body {
   background-color: $body-background;
   border-top: 0.3rem solid $customercolor;
+  --dropdown-arrow-left-offset: 0px;
 }
 
 /* Headings */
@@ -245,6 +246,10 @@ footer {
   }
 }
 
+.external-connection-with-dropdown {
+  position: relative;
+}
+
 .detail-header {
   position: relative;
   background: $light-gray;
@@ -330,8 +335,11 @@ footer {
     }
 
     .external-connections-dropdown {
-      min-width: 350px;
-      max-width: 400px;
+      left: auto !important;
+
+      &::before {
+        left: calc(20px + var(--dropdown-arrow-left-offset));
+      }
 
       .list-items {
         > li {
@@ -1466,8 +1474,10 @@ a[data-toggle] {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
   z-index: 1006;
-  max-width: 300px;
   top: calc(100% + 1rem) !important;
+  min-width: 250px;
+  max-width: 90vw;
+  width: auto !important;
 
   &::before {
     content: '▲';
@@ -1477,13 +1487,22 @@ a[data-toggle] {
     transform: scaleX(3);
     text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
     position: absolute;
-    left: 30px;
+    left: calc(20px + var(--dropdown-arrow-left-offset));
     width: 2rem;
     height: 1.1rem;
     line-height: 1rem;
     display: block;
     text-align: center;
     overflow: hidden;
+  }
+
+  &.watch-lists {
+    min-width: 300px;
+  }
+
+  > .loading {
+    width: 250px;
+    padding: 1rem 0;
   }
 
   a:not(.button) {
@@ -1617,30 +1636,25 @@ a[data-toggle] {
     }
   }
 
-  &.align-right {
-    right: -18px !important;
-    left: auto !important;
+  &.bottom:not(.left-auto):not(.left) {
+    left: -22px !important;
 
-    &:before {
-      content: '▲';
-      font-size: 28px;
-      top: -17px;
-      color: white;
-      transform: scaleX(3);
-      text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
-      position: absolute;
-      left: auto;
-      right: 18px;
-      width: 2rem;
-      height: 1.1rem;
-      line-height: 1rem;
-      display: block;
-      text-align: center;
-      overflow: hidden;
+    &::before {
+      left: var(--dropdown-arrow-left-offset);
     }
   }
 
-  &.align-top {
+  &.left {
+    right: -5px !important;
+    left: unset !important;
+
+    &::before {
+      left: auto;
+      right: 10px;
+    }
+  }
+
+  &.top {
     top: auto !important;
     bottom: calc(100% + 1rem) !important;
 
