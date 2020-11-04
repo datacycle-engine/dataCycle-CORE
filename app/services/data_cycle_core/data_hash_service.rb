@@ -61,7 +61,7 @@ module DataCycleCore
       return object if object_params[:datahash].nil? && translations.nil?
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translations&.delete(locale.to_s) || {}), object.schema)
-      save_time = Time.zone.now
+      # save_time = Time.zone.now
 
       I18n.with_locale(locale) do
         valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
