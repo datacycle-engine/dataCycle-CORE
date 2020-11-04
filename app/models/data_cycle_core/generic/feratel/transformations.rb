@@ -297,6 +297,7 @@ module DataCycleCore
           .>> t(:flatten_texts)
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, { 'Id' => 'external_key', 'Name' => 'name' })
+          .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description'), external_source_id, 'package') })
           .>> t(:unwrap_description, ['Package', 'PackageShortText'])
           .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('Package')) })
           .>> t(:add_field, 'text', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('PackageShortText')) })

@@ -204,6 +204,9 @@ en:
         ServiceProviderDescription: Description
       GTC:
         GTC: General terms and conditions
+      package:
+        PackageShortText: Abstract
+        Package: Description
     outdoor_active:
       place:
         directions: Directions

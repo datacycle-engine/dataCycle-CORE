@@ -954,6 +954,9 @@ de:
         ServiceProviderDescription: Beschreibung
       GTC:
         GTC: Allgemeine Geschäftsbedingungen
+      package:
+        PackageShortText: Kurzbeschreibung
+        Package: Beschreibung
     outdoor_active:
       place:
         directions: Anfahrt
