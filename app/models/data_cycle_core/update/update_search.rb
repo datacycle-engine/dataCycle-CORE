@@ -13,7 +13,7 @@ module DataCycleCore
       end
 
       def modify_content(content_item)
-        content_item.available_locales.each do |lang|
+        content_item.translated_locales.each do |lang|
           content_item.update_search lang
         end
       end

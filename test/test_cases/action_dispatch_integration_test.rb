@@ -1,19 +1,16 @@
 # frozen_string_literal: true
 
-require 'minitest/hooks'
+require 'helpers/minitest_hook_helper'
 
 module DataCycleCore
   module TestCases
     class ActionDispatchIntegrationTest < ActionDispatch::IntegrationTest
       include Devise::Test::IntegrationHelpers
       include Engine.routes.url_helpers
-      include Minitest::Hooks
+      include DataCycleCore::MinitestHookHelper
 
-      around(:all) do |&block|
-        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-          super(&block)
-          raise ActiveRecord::Rollback
-        end
+      before(:all) do
+        @routes = Engine.routes
       end
     end
   end

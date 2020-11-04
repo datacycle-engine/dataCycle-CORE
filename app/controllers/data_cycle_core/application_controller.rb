@@ -10,10 +10,6 @@ module DataCycleCore
     before_action :better_errors_hack, if: -> { Rails.env.development? }
     before_action :flashes_from_params, if: -> { params[:flash].present? }
 
-    rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity
-    rescue_from CanCan::AccessDenied, with: :unauthorized
-    rescue_from ActionController::BadRequest, with: :bad_request
-
     def after_sign_in_path_for(_resource)
       session['user_return_to'] || authorized_root_path
     end

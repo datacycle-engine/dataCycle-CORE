@@ -45,7 +45,7 @@
                   <%= f.label :notification_frequency, DataCycleCore::User.human_attribute_name(:notification_frequency, locale: DataCycleCore.ui_language) %>
                   <div class="v-select">
                     <%= f.select :notification_frequency,
-                      DataCycleCore.notification_frequencies.map{ |f|
+                      DataCycleCore.notification_frequencies.except(DataCycleCore::Feature::NamedVersion.enabled? ? nil : 'named_version').map{ |f|
                         [
                           t("notification.frequency.#{f}", locale: DataCycleCore.ui_language),
                           f

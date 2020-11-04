@@ -43,7 +43,7 @@ module DataCycleCore
       def by_external_key(external_system_id, external_key, joined_name = 'merged_external_systems')
         return all if external_system_id.blank? || external_key.blank?
 
-        join_external_connections_query = <<-SQL
+        join_external_connections_query = <<-SQL.squish
           INNER JOIN (
             SELECT
               external_system_syncs.syncable_id AS thing_id,

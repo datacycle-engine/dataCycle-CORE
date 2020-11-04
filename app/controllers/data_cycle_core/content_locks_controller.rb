@@ -2,9 +2,6 @@
 
 module DataCycleCore
   class ContentLocksController < ApplicationController
-    include DataCycleCore::ErrorHandler
-    rescue_from ActiveRecord::RecordNotFound, with: :not_found
-    rescue_from CanCan::AccessDenied, with: :unauthorized
     skip_before_action :verify_authenticity_token
     before_action :authenticate
 

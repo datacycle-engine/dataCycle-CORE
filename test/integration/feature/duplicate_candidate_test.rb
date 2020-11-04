@@ -4,21 +4,23 @@ require 'test_helper'
 
 module DataCycleCore
   module Feature
-    class DuplicateCandidateTest < ActionDispatch::IntegrationTest
-      include Devise::Test::IntegrationHelpers
-      include Engine.routes.url_helpers
-
-      setup do
-        @routes = Engine.routes
-        @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
-        sign_in(User.find_by(email: 'tester@datacycle.at'))
+    class DuplicateCandidateTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+      before(:all) do
         DataCycleCore::ImageUploader.enable_processing = true
-
+        @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
         image1 = upload_image 'test_rgb.jpg'
         @content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
 
         image2 = upload_image 'test_rgb.png'
         @content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: image2.id })
+      end
+
+      after(:all) do
+        DataCycleCore::ImageUploader.enable_processing = false
+      end
+
+      setup do
+        sign_in(User.find_by(email: 'tester@datacycle.at'))
       end
 
       def upload_image(file_name)
@@ -82,10 +84,6 @@ module DataCycleCore
 
         assert_response 302
         assert_equal I18n.t(:merged_with_duplicate, scope: [:controllers, :success], locale: DataCycleCore.ui_language), flash[:success]
-      end
-
-      def teardown
-        DataCycleCore::ImageUploader.enable_processing = false
       end
     end
   end

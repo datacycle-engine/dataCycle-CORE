@@ -82,27 +82,24 @@
       top: 1rem;
       z-index: 1;
       line-height: 1;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: flex-end;
 
-      > a {
-        line-height: inherit;
-        padding: 0 3px;
-        &:last-child {
-          padding-right: 0;
-        }
-        vertical-align: middle;
-      }
-
+      > a,
+      > div,
       > i.fa {
+        position: relative;
         line-height: inherit;
         padding: 0 3px;
         &:last-child {
           padding-right: 0;
         }
-        vertical-align: middle;
-
         &.has-tip {
           border: none;
         }
+        vertical-align: middle;
       }
 
       > a.button-prime.small,
@@ -133,12 +130,13 @@
     .dropdown-pane {
       left: -22px !important;
 
-      &.align-right {
+      &::before {
+        left: calc(var(--dropdown-arrow-left-offset) - 8px);
+      }
+
+      &.left {
         left: auto !important;
         right: -22px !important;
-        &:before {
-          right: 11px;
-        }
       }
     }
 

@@ -71,6 +71,7 @@ de:
   notification:
     frequency:
       always: sofort bei Änderung
+      named_version: bei benannten Versionen (sofort bei Änderung)
       day: täglich
       week: wöchentlich
 
@@ -308,6 +309,9 @@ de:
   feature:
     named_version:
       input_label: Versionsname
+      version_name: 'Version: %{name}'
+      remove_version_name: Versionsname entfernen
+      confirm_remove: 'Versionsname "%{name}" entfernen?'
       version_name_removed: Der Versionsname wurde entfernt!
     download:
       missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
@@ -319,7 +323,7 @@ de:
     valid_since: gültig seit
     differences_to_version: Unterschiede zu Version
     active_version: Aktuelle Version
-    look_at_version: Version ansehen
+    look_at_version: Aktuellen Inhalt mit dieser Version vergleichen
 
   data_link_mailer:
     content_download: Inhalt herunterladen
@@ -645,6 +649,8 @@ de:
       bulk_deleted: '<b>%{data}</b> Inhalte wurden gelöscht'
       bulk_created: '<b>%{data}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
+    warning:
+      no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:
       not_modified: '%{data} wurde nicht geändert.'
       created_duplication: '%{data} wurde erfolgreich dupliziert.'
