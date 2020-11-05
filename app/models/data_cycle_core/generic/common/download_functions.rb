@@ -25,9 +25,15 @@ module DataCycleCore
 
                   raw_data.each do |language, data_hash|
                     next unless locales.include?(language.to_sym)
-                    if delete.present? && delete.call(data_hash, language)
-                      data_hash[:deleted_at] = item.dump[language].try(:[], 'deleted_at') || Time.zone.now
-                      data_hash[:delete_reason] = item.dump[language].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                    if delete.present?
+                      if delete.present?
+                        if delete.call(data_hash, language)
+                          data_hash[:deleted_at] = item.dump[language].try(:[], 'deleted_at') || Time.zone.now
+                          data_hash[:delete_reason] = item.dump[language].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                        else
+                          data_hash = data_hash.except(:deleted_at, :delte_reason)
+                        end
+                      end
                     end
                     data_hash[:updated_at] = modified.call(data_hash) if modified.present?
                     item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base))
