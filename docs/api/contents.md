@@ -178,7 +178,7 @@ Für einige Anwendungsfälle kann es hilfreich sein, herausfinden zu können, we
 
 * **dct:created**
 * **dct:modified**
-* **deletedAt** (_ACHTUNG: Dieser Filter steht nur über den speziellen Endpunkt [/api/v4/things/deleted](/api/v4/things/deleted) zur Verfügung!_)
+* **dct:deleted** (_ACHTUNG: Dieser Filter steht nur über den speziellen Endpunkt [/api/v4/things/deleted](/api/v4/things/deleted) zur Verfügung!_)
 
 Bei der Verwendung von Zeitpunkten im Rahmen eines Filterkriteriums müssen die Zeitpunkte entsprechend den Vorgaben von [RFC 3339](https://tools.ietf.org/html/rfc3339) übergeben werden, damit sie von dataCycle korrekt interpretiert werden können.
 
