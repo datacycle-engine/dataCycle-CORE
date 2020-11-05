@@ -172,12 +172,12 @@ Um beispielsweise alle Veranstaltungen im Herbst und im Winter außer den Verans
 }
 ```
 
-#### Aktualisierungen - **filter\[attribute\]\[createdAt|modifiedAt|deletedAt\]**
+#### Aktualisierungen - **filter\[attribute\]\[dct:created|dct:modified|deletedAt\]**
 
 Für einige Anwendungsfälle kann es hilfreich sein, herausfinden zu können, welche Datensätze innerhalb einer vorgegeben Zeitspanne erstellt, geändert oder gelöscht worden sind. Zu diesem Zweck können bei allen API-Endpunkten, die sich aus statischen bzw. dynamischen Inhaltssammlungen ergeben, spezielle _Attribut-Filter_ genutzt werden. Dadurch kann die Anzahl der Datensätze, die geladen werden muss, erheblich reduziert werden. Außerdem muss die Prüfung, ob es seit dem letzten Update neue Änderungen gegeben hat, nicht client-seitig durchgeführt werden, wodurch die auf dataCycle aufbauenden Anwendungen noch einmal deutlich entlastet werden können. Für diese Art der Filterung werden die folgenden Attribute unterstützt:
 
-* **createdAt**
-* **modifiedAt**
+* **dct:created**
+* **dct:modified**
 * **deletedAt** (_ACHTUNG: Dieser Filter steht nur über den speziellen Endpunkt [/api/v4/things/deleted](/api/v4/things/deleted) zur Verfügung!_)
 
 Bei der Verwendung von Zeitpunkten im Rahmen eines Filterkriteriums müssen die Zeitpunkte entsprechend den Vorgaben von [RFC 3339](https://tools.ietf.org/html/rfc3339) übergeben werden, damit sie von dataCycle korrekt interpretiert werden können.
@@ -189,7 +189,7 @@ Sollen beispielsweise alle Inhalte ermittelt werden, die am "Marty-McFly-Day" er
   "token": "YOUR_ACCESS_TOKEN",
   "filter": {
     "attribute": {
-      "createdAt": {
+      "dct:created": {
         "in": {
           "min": "2015-10-21",
           "max": "2015-10-21"
