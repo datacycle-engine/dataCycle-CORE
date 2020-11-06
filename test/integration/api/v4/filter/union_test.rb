@@ -144,11 +144,118 @@ module DataCycleCore
             DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @poi.id, hashable_type: @poi.class.name)
             DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @poi2.id, hashable_type: @poi2.class.name)
 
+            @watch_list_event_poi = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList4')
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi.id, hashable_id: @event_poi.id, hashable_type: @event_poi.class.name)
+
             # 4 Images
             # 3 POI's
             # 1 Event
             # 1 Person
             @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+          end
+
+          test 'api/v4/endpoints make sure content_id,filter_id and watch_list id are also available on filter root and linked' do
+            params = {}
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(5)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                content_id: {
+                  in: [
+                    @event.id
+                  ]
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+
+            params = {
+              filter: {
+                linked: {
+                  content_location: {
+                    content_id: {
+                      in: [
+                        @event_poi.id
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+
+            params = {
+              filter: {
+                filter_id: {
+                  in: [
+                    @stored_filter_event.id
+                  ]
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+
+            params = {
+              filter: {
+                linked: {
+                  content_location: {
+                    filter_id: {
+                      in: [
+                        @stored_filter_place.id
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+
+            params = {
+              filter: {
+                watch_list_id: {
+                  in: [
+                    @watch_list_event_poi1.id
+                  ]
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event.id, @poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                linked: {
+                  content_location: {
+                    watch_list_id: {
+                      in: [
+                        @watch_list_event_poi.id
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert_equal([@event.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
           end
 
           test 'api/v4/endpoints parameter union with content_id' do
