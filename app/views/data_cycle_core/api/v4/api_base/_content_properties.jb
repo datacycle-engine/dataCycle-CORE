@@ -36,7 +36,22 @@ unless content.schema.nil?
       next unless is_valid_key
     end
 
-    value = I18n.with_locale(content.first_available_locale) { content.try((key + '_overlay').to_sym) }
+    value = nil
+
+    if prop['type'] == 'embedded' && prop['translated']
+      (options[:languages]&.map(&:to_sym) & content.translated_locales).each do |locale|
+        t_value = I18n.with_locale(locale) { content.try((key + '_overlay').to_sym) }
+
+        if value.nil?
+          value = t_value
+        else
+          value = value.or(t_value)
+        end
+      end
+    else
+      value = I18n.with_locale(content.first_available_locale) { content.try((key + '_overlay').to_sym) }
+    end
+
     value = virtual_attribute(content, key, prop, options[:languages]) if value.blank? && prop.dig('type') == 'virtual'
     next if value.blank?
 
