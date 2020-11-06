@@ -83,15 +83,15 @@ module DataCycleCore
         end
 
         FILTER = Dry::Schema.Params do
-          optional(:content_id).hash do
+          optional(:contentId).hash do
             optional(:in).filled(:array)
             optional(:notIn).filled(:array)
           end
-          optional(:filter_id).hash do
+          optional(:filterId).hash do
             optional(:in).filled(:array)
             optional(:notIn).filled(:array)
           end
-          optional(:watch_list_id).hash do
+          optional(:watchListId).hash do
             optional(:in).filled(:array)
             optional(:notIn).filled(:array)
           end

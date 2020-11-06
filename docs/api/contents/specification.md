@@ -2,7 +2,6 @@
 ```javascript
 {
     "apiSubversion": "String",
-    "contentId": "UUID",
     "fields": "String",
     "filter": {
         "content_id": {
