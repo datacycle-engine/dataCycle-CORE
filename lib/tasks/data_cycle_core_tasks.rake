@@ -125,7 +125,7 @@ namespace :data_cycle_core do
       if DataCycleCore::Feature::Releasable.attribute_keys.present? && archive_release_id.present?
         contents = DataCycleCore::Thing.joins(:classifications)
           .where(template_name: ['Bild', 'Video'], classifications: { id: archive_release_id })
-          .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
+          .where('things.validity_range @> now()')
           .with_content_type('entity').distinct
 
         contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?('things', 'is_part_of')
@@ -155,7 +155,7 @@ namespace :data_cycle_core do
       if DataCycleCore::Feature::LifeCycle.attribute_keys.present? && archive_life_cycle_id.present?
         contents = DataCycleCore::Thing.joins(:classifications)
           .where(template_name: ['Bild', 'Video'], classifications: { id: archive_life_cycle_id })
-          .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
+          .where('things.validity_range @> now()')
           .with_content_type('entity').distinct
 
         contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?('things', 'is_part_of')
