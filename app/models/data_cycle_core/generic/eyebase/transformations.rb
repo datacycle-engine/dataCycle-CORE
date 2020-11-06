@@ -17,9 +17,9 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { s.dig('titel', '#cdata-section') })
           .>> t(:add_field, 'attribution_name', ->(*) { nil })
           .>> t(:add_field, 'license', ->(*) { nil })
-          .>> t(:add_field, 'author', ->(s) { get_thing_id(s.dig('field_202', '#cdata-section'), 'Organization', external_source_id) })
-          .>> t(:add_field, 'copyright_holder', ->(s) { get_thing_id(s.dig('copyright', '#cdata-section'), 'Organization', external_source_id) })
-          .>> t(:add_field, 'content_location', ->(s) { get_thing_id(s.dig('field_214', '#cdata-section'), 'Örtlichkeit', external_source_id) })
+          .>> t(:add_link, 'author', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::MasterData::DataConverter.string_to_string(s.dig('field_202', '#cdata-section').to_s) })
+          .>> t(:add_link, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::MasterData::DataConverter.string_to_string(s.dig('copyright', '#cdata-section').to_s) })
+          .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::MasterData::DataConverter.string_to_string(s.dig('field_214', '#cdata-section').to_s) })
           .>> t(:add_field, 'restrictions', ->(s) { s.dig('field_224', '#cdata-section') })
           .>> t(:add_field, 'use_guidelines', ->(s) { s.dig('field_216', '#cdata-section') })
           .>> t(:add_field, 'date_created', ->(s) { s.dig('erstellt', '#cdata-section') })
@@ -57,13 +57,6 @@ module DataCycleCore
         def self.get_url(data)
           return nil if data.blank?
           File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', data)
-        end
-
-        def self.get_thing_id(data, template, external_source_id)
-          return [] if data.blank?
-          clean_data = DataCycleCore::MasterData::DataConverter.string_to_string(data)
-          item = DataCycleCore::Thing.find_by(template_name: template, external_key: clean_data, external_source_id: external_source_id)
-          item.present? ? [item.id] : []
         end
 
         def self.to_organization

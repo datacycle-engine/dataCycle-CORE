@@ -9,9 +9,7 @@ module DataCycleCore
           @end_point = end_point
         end
 
-        def weather(lang: :de)
-          raise "Unsupported Language (#{lang})" unless lang.to_s == 'de'
-
+        def weather(*)
           Enumerator.new do |yielder|
             full_data = load_data
             meta = full_data.dig('01_meta')
@@ -21,12 +19,10 @@ module DataCycleCore
           end
         end
 
-        def weather_symbols(lang: :de)
-          raise "Unsupported Language (#{lang})" unless lang.to_s == 'de'
-
+        def weather_symbols(*)
           Enumerator.new do |yielder|
             load_data.dig('01_meta', 'symbolcodes').each do |key, value|
-              yielder << { 'code' => key.split('_').last, 'value' => value }
+              yielder << { 'code' => key.split('_').last, 'value' => "<p>#{value}</p>" }
             end
           end
         end

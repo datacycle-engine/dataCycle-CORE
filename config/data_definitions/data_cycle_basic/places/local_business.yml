@@ -98,6 +98,12 @@
       :potential_actions:
         :type: mixin
         :name: potential_actions
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :name: dc:additionalInformation        
       :data_type:
         :label: Inhaltstyp
         :type: classification

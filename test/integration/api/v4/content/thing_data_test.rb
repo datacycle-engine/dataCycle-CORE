@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Content
         class ThingDataTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             @content = DataCycleCore::V4::DummyDataHelper.create_data('event')
           end
 
@@ -313,8 +313,8 @@ module DataCycleCore
               ],
               'name' => item_offered_object.name,
               'description' => item_offered_object.description,
-              'subjectOf' => [{
-                '@id' => item_offered_object.subject_of.first.id,
+              'dc:additionalInformation' => [{
+                '@id' => item_offered_object.additional_information.first.id,
                 '@type' => 'CreativeWork'
               }],
               'sameAs' => item_offered_object.url,

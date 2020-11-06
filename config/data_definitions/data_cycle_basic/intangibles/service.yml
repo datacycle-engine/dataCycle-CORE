@@ -66,10 +66,13 @@
         :label: Treffpunkt
         :type: linked
         :template_name: Örtlichkeit
-      :subject_of:
+      :additional_information:
         :label: Ergänzende Information
         :type: embedded
         :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
       :url:
         :label: Angebots URL
         :type: string
@@ -90,6 +93,7 @@
         :label: Angebote
         :type: embedded
         :template_name: Angebot
+        :translated: true
       :feratel_service_classifications:
         :type: mixin
         :name: feratel_service_classifications

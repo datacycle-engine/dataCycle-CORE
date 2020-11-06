@@ -7,13 +7,13 @@ module DataCycleCore
   module Api
     module V4
       module Content
-        class WatchListTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
-
-          setup do
+        class WatchListTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+          before(:all) do
             @routes = Engine.routes
             @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'Merkliste 1')
+          end
+
+          setup do
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 

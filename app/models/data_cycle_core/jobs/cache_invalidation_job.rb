@@ -14,7 +14,7 @@ module DataCycleCore
       def enqueue(job)
         job.priority = 10
         job.delayed_reference_id = id
-        job.delayed_reference_type = class_name
+        job.delayed_reference_type = "#{class_name.underscore}_#{method_name}"
       end
     end
   end

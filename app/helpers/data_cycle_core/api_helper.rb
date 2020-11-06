@@ -169,6 +169,10 @@ module DataCycleCore
             '@id' => 'https://schema.datacycle.at/hasConcept',
             '@type' => '@id'
           },
+          'dc:additionalInformation' => {
+            '@id' => 'https://schema.datacycle.at/additionalInformation',
+            '@container' => '@set'
+          },
           'dc:linkedThing' => {
             '@id' => 'https://schema.datacycle.at/linkedThing',
             '@container' => '@set'

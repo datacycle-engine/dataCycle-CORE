@@ -6,19 +6,17 @@ require 'json'
 module DataCycleCore
   module Api
     module V4
-      class ExternalSystemSyncTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
-
-        setup do
+      class ExternalSystemSyncTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
           @routes = Engine.routes
-          sign_in(User.find_by(email: 'tester@datacycle.at'))
-
           @data_set = create_data({ 'name' => 'My_test' })
-
           external_thing_data = { 'key_1' => 'value_1' }
           @external_system = DataCycleCore::ExternalSystem.find_by(name: 'austria.info')
           @data_set.add_external_system_data(@external_system, external_thing_data)
+        end
+
+        setup do
+          sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
         def item_body(id, system_name, external_key)

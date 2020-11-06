@@ -260,6 +260,7 @@ DataCycleCore::Engine.routes.draw do
                 match 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications', via: [:get, :post]
               end
 
+              match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
               match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
 
               post 'collections/create', to: 'watch_lists#create'

@@ -43,7 +43,6 @@ header {
   .top-bar {
     height: 4.1rem;
     width: 100%;
-    overflow: hidden;
     padding: 0;
     background-color: $black;
     line-height: 4.1rem;
@@ -541,7 +540,7 @@ body.login-page {
   &.info,
   &.success {
     position: fixed;
-    display: none;
+    display: block;
     line-height: 4rem;
     margin: 0;
     padding: 0.1rem 1rem;

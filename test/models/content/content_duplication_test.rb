@@ -5,8 +5,8 @@ require 'minitest/spec'
 
 module DataCycleCore
   module Content
-    class ContentDuplicationTest < ActiveSupport::TestCase
-      setup do
+    class ContentDuplicationTest < DataCycleCore::TestCases::ActiveSupportTestCase
+      before(:all) do
         image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image')
         @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
 

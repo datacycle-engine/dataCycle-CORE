@@ -7,20 +7,17 @@ module DataCycleCore
     module V4
       module Filter
         class TimestampsTest < DataCycleCore::V4::Base
-          setup do
-            DataCycleCore::Thing.where(template: false).delete_all
-
+          before(:all) do
             @poi_a = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             @poi_b = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             @food_establishment_a = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment')
             @food_establishment_b = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment')
-
-            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').size
           end
 
           test 'api/v4/things parameter filter[dct:created]' do
             orig_ts = @food_establishment_a.created_at
-            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days))
 
             params = {}
             post api_v4_things_path(params)
@@ -60,7 +57,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            @food_establishment_a.update_column(:created_at, (Time.zone.now - 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:created_at, (Time.zone.now - 10.days))
             params = {
               fields: 'dct:modified',
               filter: {
@@ -76,7 +73,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:created_at, (Time.zone.now + 10.days))
             params = {
               fields: 'dct:modified',
               filter: {
@@ -108,7 +105,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count - 1)
 
-            @food_establishment_a.update_column(:created_at, (Time.zone.now - 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:created_at, (Time.zone.now - 10.days))
             params = {
               fields: 'dct:modified',
               filter: {
@@ -127,12 +124,12 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            @food_establishment_a.update_column(:created_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:created_at, orig_ts)
           end
 
           test 'api/v4/things parameter filter[:dct:modified]' do
             orig_ts = @food_establishment_a.updated_at
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days))
 
             params = {}
             post api_v4_things_path(params)
@@ -172,7 +169,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now - 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:updated_at, (Time.zone.now - 10.days))
             params = {
               fields: 'dct:modified',
               filter: {
@@ -188,7 +185,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days))
             params = {
               fields: 'dct:modified',
               filter: {
@@ -220,7 +217,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count - 1)
 
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now - 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:updated_at, (Time.zone.now - 10.days))
             params = {
               fields: 'dct:modified',
               filter: {
@@ -239,12 +236,12 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            @food_establishment_a.update_column(:updated_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:updated_at, orig_ts)
           end
 
           test 'api/v4/things parameter filter[:dct:modified] + filter[:dct:created]' do
             orig_ts = @food_establishment_a.updated_at
-            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:updated_at, (Time.zone.now + 10.days))
 
             params = {}
             post api_v4_things_path(params)
@@ -270,7 +267,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            @food_establishment_a.update_column(:updated_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
+            @food_establishment_a.update_column(:updated_at, orig_ts)
           end
 
           test 'api/v4/things/deleted endpoint' do

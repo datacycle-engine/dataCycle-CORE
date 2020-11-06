@@ -9,6 +9,7 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::External
       include DataCycleCore::Filter::Common::Fulltext
       include DataCycleCore::Filter::Common::Geo
+      include DataCycleCore::Filter::Common::Union
       include DataCycleCore::Filter::Sortable
 
       def initialize(locale = ['de'], query = nil, include_embedded = false)
@@ -21,8 +22,8 @@ module DataCycleCore
       def default_query
         query = DataCycleCore::Thing.where(template: false)
         query = query.where.not(content_type: 'embedded') unless @include_embedded
-        query = query.order('things.boost DESC, things.updated_at DESC, things.id ASC')
-        query = query.where(DataCycleCore::Search.where('searches.content_data_id = things.id').where(locale: @locale).arel.exists) if @locale.present?
+        query = query.order(boost: :desc, updated_at: :desc, id: :desc)
+        query = query.where(DataCycleCore::Search.select(1).where('searches.content_data_id = things.id').where(locale: @locale).arel.exists) if @locale.present?
         query
       end
 
@@ -135,14 +136,6 @@ module DataCycleCore
 
         reflect(
           @query.where(subquery.exists)
-        )
-      end
-
-      def with_content_ids(ids = nil)
-        return self if ids.blank?
-
-        reflect(
-          @query.where(thing[:id].in(ids))
         )
       end
 

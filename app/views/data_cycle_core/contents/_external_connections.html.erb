@@ -3,25 +3,27 @@
 <% if external_connections.present? %>
   <div class="external-connections">
     <% external_connections.each do |name, syncs| %>
-      <span class="external-connection" data-toggle="external-connections-<%= name.underscore_blanks %>"><i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i> <%= name %> (<%= syncs.size %>)</span>
-      <div class="dropdown-pane bottom external-connections-dropdown" id="external-connections-<%= name.underscore_blanks %>" data-dropdown data-hover="true" data-hover-pane="true">
-        <ul class="list-items no-bullet">
-          <% syncs.each do |sync| %>
-            <li>
-              <%= external_sync_status_icon(sync[:status], sync[:sync_type], true) %>
+      <div class="external-connection-with-dropdown">
+        <span class="external-connection" data-toggle="external-connections-<%= name.underscore_blanks %>"><i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i> <%= name %> (<%= syncs.size %>)</span>
+        <div class="dropdown-pane bottom external-connections-dropdown left-auto" id="external-connections-<%= name.underscore_blanks %>" data-dropdown data-hover="true" data-hover-pane="true">
+          <ul class="list-items no-bullet">
+            <% syncs.each do |sync| %>
+              <li>
+                <%= external_sync_status_icon(sync[:status], sync[:sync_type], true) %>
 
-              <%= tag.span(class: 'sync-external-key') do %>
-                <%= tag.span(sync[:name] || sync[:external_key], class: 'copy-to-clipboard', title: sync[:title], data: { value: sync[:external_key] }) %>
-              <% end %>
+                <%= tag.span(class: 'sync-external-key') do %>
+                  <%= tag.span(sync[:name] || sync[:external_key], class: 'copy-to-clipboard', title: sync[:title], data: { value: sync[:external_key] }) %>
+                <% end %>
 
-              <%= tag.span(l(sync[:date], locale: DataCycleCore.ui_language, format: :history), class: 'last-successful-sync-at') if sync[:date].present? %>
+                <%= tag.span(l(sync[:date], locale: DataCycleCore.ui_language, format: :history), class: 'last-successful-sync-at') if sync[:date].present? %>
 
-              <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', title: t('actions.external_edit', locale: DataCycleCore.ui_language), target: :_blank if sync[:external_edit_url].present? %>
+                <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', title: t('actions.external_edit', locale: DataCycleCore.ui_language), target: :_blank if sync[:external_edit_url].present? %>
 
-              <%= link_to tag.i(class: 'external-link-icon fa fa-external-link'), sync[:external_detail_url], class: 'external-detail-link', title: t('actions.external_detail', locale: DataCycleCore.ui_language), target: :_blank if sync[:external_detail_url].present? %>
-            </li>
-          <% end %>
-        </ul>
+                <%= link_to tag.i(class: 'external-link-icon fa fa-external-link'), sync[:external_detail_url], class: 'external-detail-link', title: t('actions.external_detail', locale: DataCycleCore.ui_language), target: :_blank if sync[:external_detail_url].present? %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
       </div>
     <% end %>
   </div>

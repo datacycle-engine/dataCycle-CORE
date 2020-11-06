@@ -90,7 +90,7 @@ module.exports.initialize = function ($) {
   let show_confirmation = function (event) {
     event.preventDefault();
     let confirmationModal = new ConfirmationModal({
-      text: 'Filterparameter aktualisieren?',
+      text: 'Filterparameter aktualisieren?<br /><br />Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.',
       confirmationClass: 'success',
       cancelable: true,
       confirmationCallback: () => {

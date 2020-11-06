@@ -21,7 +21,7 @@ crumb :classifications do
 end
 
 crumb :classification_tree_label do |label|
-  link to_html_string(t("tree_view.#{label.name}")), nil, authorized: can?(:manage, DataCycleCore::Classification)
+  link to_html_string(t("tree_view.#{label.name}", default: label.name, locale: DataCycleCore.ui_language)), nil, authorized: can?(:manage, DataCycleCore::Classification)
   parent :admin if can?(:manage, :dash_board)
 end
 

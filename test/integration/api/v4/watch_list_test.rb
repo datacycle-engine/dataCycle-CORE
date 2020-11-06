@@ -6,11 +6,8 @@ require 'json'
 module DataCycleCore
   module Api
     module V4
-      class WatchListTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
-
-        setup do
+      class WatchListTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
           @user = User.find_by(email: 'tester@datacycle.at')
           DataCycleCore::Thing.where(template: false).delete_all
           @routes = Engine.routes
@@ -18,6 +15,9 @@ module DataCycleCore
           @content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel2' }, user: @user)
           @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
           DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+        end
+
+        setup do
           sign_in(@user)
         end
 

@@ -20,7 +20,10 @@ module DataCycleCore
       end
 
       def with_default_data_type(classification_alias_names)
-        where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", classification_alias_names)
+        # Performance-Impact of 300ms * number of linked attributes in edit view for V-Cloud
+        template_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(internal_name: classification_alias_names).with_descendants.pluck(:internal_name)
+
+        where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
       end
 
       def expired_not_release_id(id)
@@ -35,6 +38,39 @@ module DataCycleCore
         joins(:classifications)
           .where('classification_contents.relation = ?', DataCycleCore::Feature::LifeCycle.attribute_keys.first)
           .where.not('classification_contents.classification_id = ?', id)
+      end
+
+      def by_external_key(external_system_id, external_key, joined_name = 'merged_external_systems')
+        return all if external_system_id.blank? || external_key.blank?
+
+        join_external_connections_query = <<-SQL.squish
+          INNER JOIN (
+            SELECT
+              external_system_syncs.syncable_id AS thing_id,
+              external_system_syncs.external_system_id AS external_system_id,
+              external_system_syncs.external_key AS external_key
+            FROM
+              external_system_syncs
+            WHERE
+              external_system_syncs.syncable_type = 'DataCycleCore::Thing'
+              AND external_system_syncs.sync_type = 'duplicate'
+              AND external_system_syncs.external_system_id = :external_system_id
+              AND external_system_syncs.external_key IN (:external_key)
+            UNION
+            SELECT
+              things.id AS thing_id,
+              things.external_source_id AS external_system_id,
+              things.external_key AS external_key
+            FROM
+              things
+            WHERE
+              things.external_source_id = :external_system_id
+              AND things.external_key IN (:external_key)
+          ) #{joined_name}
+          ON #{joined_name}.thing_id = things.id
+        SQL
+
+        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id: external_system_id, external_key: external_key.is_a?(Array) ? external_key.map(&:to_s) : external_key.to_s]))
       end
 
       # TODO: currently not replaceable: used in PulicationsController

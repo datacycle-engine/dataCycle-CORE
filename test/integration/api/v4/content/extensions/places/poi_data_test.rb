@@ -9,7 +9,7 @@ module DataCycleCore
         module Extensions
           module Places
             class PoiDataTest < DataCycleCore::V4::Base
-              setup do
+              before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('full_poi')
                 @content.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@content.longitude, @content.latitude)
                 @content.save

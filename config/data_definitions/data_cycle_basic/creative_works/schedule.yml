@@ -3,13 +3,10 @@
     :name: Schedule
     :type: object
     :schema_type: CreativeWork
-    :boost: 100.0
     :content_type: embedded
     :api:
       :type: Schedule
     :features:
-      :overlay:
-        :allowed: true
       :translatable:
         :allowed: true
     :properties:

@@ -7,12 +7,10 @@ module DataCycleCore
   module Api
     module V4
       module Content
-        class OverlayTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
+        class OverlayTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
           include DataCycleCore::ApiV4Helper
 
-          setup do
+          before(:all) do
             @routes = Engine.routes
             @content_overlay = DataCycleCore::DummyDataHelper.create_data('event')
             event_schedule = @content_overlay.get_data_hash
@@ -24,6 +22,9 @@ module DataCycleCore
               'duration' => 10.days.to_i
             }]
             @content_overlay.set_data_hash(prevent_history: true, data_hash: event_schedule)
+          end
+
+          setup do
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 

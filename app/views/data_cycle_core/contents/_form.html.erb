@@ -3,7 +3,7 @@
 <%= form_with url: local_assigns[:form_url] || thing_path(content, watch_list_id: watch_list), local: true, method: :patch, class: 'validation-form edit-content-form', data: local_assigns[:form_data_attributes] do |f| %>
   <%= hidden_field_tag :uuid, content.id %>
   <%= hidden_field_tag :table, content.class.table_name %>
-  <%= hidden_field_tag "#{content.class.name.demodulize.underscore}[datahash][creator][]", content.created_by %>
+  <%= hidden_field_tag 'thing[datahash][creator][]', content.created_by %>
   <%= hidden_field_tag :locale, @locale %>
   <%= content_for :additional_form_fields %>
 
@@ -19,7 +19,9 @@
 
           <div class="show-content">
             <div class="detail-header-info">
+              <%= tag.b(t('duplicate.duplicate', locale: DataCycleCore.ui_language) + ':', class: 'meta-data-prefix') if local_assigns[:link_action] == :merge_with_duplicate %>
               <%= render 'meta_data', content: split_source %>
+              <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: split_source if split_source.try(:external_source) || split_source.try(:external_systems).present? %>
               <ul class="split-locales no-bullet">
                 <%= render 'split_locale_links',
                   locales: available_locales_with_names.except(:all),
@@ -28,7 +30,7 @@
                   locale: @locale,
                   link_action: local_assigns[:link_action] if split_source.translatable? && I18n.available_locales&.many? %>
               </ul>
-              <%= link_to tag.i(class: 'fa fa-times', aira_hidden: true), edit_thing_path(content, watch_list_id: @watch_list, locale: @locale), title: t('actions.close_source', locale: DataCycleCore.ui_language), data: { tooltip: true }, class: 'close-source-link' %>
+              <%= link_to tag.i(class: 'fa fa-times', aira_hidden: true), edit_thing_path(content, watch_list_id: @watch_list, locale: @locale), title: t('actions.close_source', locale: DataCycleCore.ui_language), class: 'close-source-link' %>
             </div>
 
             <%= render_content_partial 'details', content: split_source, options: { force_render: true }, default: true %>
@@ -41,8 +43,17 @@
       <div class="column">
         <div class="detail-header editor <%= content&.template_name&.underscore_blanks %>">
           <div class="detail-header-info">
+            <%= tag.b(t('duplicate.original', locale: DataCycleCore.ui_language) + ':', class: 'meta-data-prefix') if local_assigns[:link_action] == :merge_with_duplicate %>
             <%= render 'meta_data', content: content %>
+            <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if content.try(:external_source) || content.try(:external_systems).present? %>
           </div>
+
+          <% if DataCycleCore::Feature::NamedVersion.enabled? %>
+            <div class="clearfix form-element version-name string">
+              <%= label_tag 'thing[version_name]', t('feature.named_version.input_label', locale: DataCycleCore.ui_language) %>
+              <%= text_field_tag 'thing[version_name]', nil, id: 'thing_version_name', class: 'form-control' %>
+            </div>
+          <% end %>
 
           <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
 

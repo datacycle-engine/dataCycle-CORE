@@ -4,7 +4,8 @@ module DataCycleCore
   module Content
     module DestroyContent
       def destroy_content(current_user: nil, save_time: Time.zone.now, save_history: true, destroy_locale: false, destroy_linked: false)
-        return if destroy_locale && !available_locales.include?(I18n.locale)
+        return self if destroy_locale && !available_locales.include?(I18n.locale)
+
         ActiveRecord::Base.transaction do
           children.each { |item| item.destroy_content(current_user: current_user, save_time: save_time) } if respond_to?(:children)
           if save_history && !history?
@@ -23,6 +24,7 @@ module DataCycleCore
             destroy
           end
         end
+
         self
       end
 
@@ -47,7 +49,7 @@ module DataCycleCore
         return if last_history_entry.blank?
         DataCycleCore::ContentContent::History
           .where(content_b_history_id: id, content_b_history_type: self.class.to_s)
-          .update_all(content_b_history_id: last_history_entry.id, content_b_history_type: last_history_entry.class.to_s) # rubocop:disable Rails/SkipsModelValidations
+          .update_all(content_b_history_id: last_history_entry.id, content_b_history_type: last_history_entry.class.to_s)
       end
 
       def destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:)
@@ -69,7 +71,7 @@ module DataCycleCore
       end
 
       def destroy_translation(locale)
-        translations.in_locale(locale).destroy
+        translations.in_locale(locale)&.destroy
         searches.where(locale: locale).delete_all
         translations.reload # (rails cache still includes removed translations)
       end

@@ -28,6 +28,9 @@ module DataCycleCore
     before_save :set_internal_data
     after_destroy :clean_stored_filters
     before_destroy -> { primary_classification&.destroy }, prepend: true
+    before_destroy :invalidate_things_cache, prepend: true
+    after_update :update_primary_classification
+    after_update :add_things_cache_invalidation_job, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'assignable', 'internal', 'description_i18n']).present? || classification_groups.map(&:changed?).inject(&:|) || saved_changes&.dig('description_i18n')&.uniq&.many? }
 
     attr_accessor :content_template
 
@@ -63,10 +66,6 @@ module DataCycleCore
     has_many :additional_classifications, through: :additional_classification_groups, source: :classification
 
     has_one :statistics, class_name: 'Statistics', foreign_key: 'id' # rubocop:disable Rails/HasManyOrHasOneDependent
-
-    after_update :update_primary_classification
-    after_update :invalidate_things_cache, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'assignable', 'internal', 'description_i18n']).present? || classification_groups.map(&:changed?).inject(&:|) || saved_changes&.dig('description_i18n')&.uniq&.many? }
-    # before_destroy :invalidate_things_cache
 
     delegate :visible?, to: :classification_tree_label
 
@@ -233,7 +232,7 @@ module DataCycleCore
         merge_with(new_classification_alias)
       end
 
-      new_classification_alias.send(:invalidate_cache)
+      new_classification_alias.send(:invalidate_things_cache)
       new_classification_alias
     end
 
@@ -252,7 +251,7 @@ module DataCycleCore
         cc.update(classification_id: new_classification_alias.primary_classification.id) unless DataCycleCore::ClassificationContent::History.where(classification_id: new_classification_alias.primary_classification.id, relation: cc.relation, content_data_history_id: cc.content_data_history_id).exists?
       end
 
-      DataCycleCore::StoredFilter.update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb") # rubocop:disable Rails/SkipsModelValidations
+      DataCycleCore::StoredFilter.update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")
 
       destroy
     end
@@ -277,15 +276,13 @@ module DataCycleCore
       end
     end
 
-    def invalidate_things_cache
-      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: self.class.name, delayed_reference_id: id, locked_at: nil)
+    def add_things_cache_invalidation_job
+      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_things_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_things_cache", delayed_reference_id: id, locked_at: nil)
     end
 
-    def invalidate_cache
-      linked_contents.find_each do |item|
-        item&.search_languages(true)
-        # TODO: move to cache warmup feature
-        Rails.cache.delete_matched("*#{item.id}*")
+    def invalidate_things_cache
+      linked_contents.ids.each do |thing_id|
+        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new('DataCycleCore::Thing', thing_id, :invalidate_self_and_update_search) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: 'data_cycle_core/thing_invalidate_self_and_update_search', delayed_reference_id: thing_id, locked_at: nil)
       end
     end
 

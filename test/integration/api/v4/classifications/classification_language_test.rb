@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Classifications
         class ClassificationLanguageTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             @tree = DataCycleCore::ClassificationTreeLabel.where(name: 'Tags').visible('api').first
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
 

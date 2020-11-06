@@ -1,6 +1,6 @@
 // Flash Callout Helpermethods
 module.exports = {
-  show: function(text, type = '') {
+  show: function (text, type = '') {
     let temp = $(
       '<div data-text="' +
         text +
@@ -13,7 +13,7 @@ module.exports = {
       .insertBefore('header')
       .slideDown('fast');
     setTimeout(() => {
-      $(temp).slideUp('slow', function() {
+      $(temp).slideUp('fast', function () {
         $(this).remove();
       });
     }, 4000);

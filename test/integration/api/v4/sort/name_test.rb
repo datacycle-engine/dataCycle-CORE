@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Sort
         class NameTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
             @routes = Engine.routes
 
@@ -21,7 +21,9 @@ module DataCycleCore
             @poi_d.set_data_hash(partial_update: true, prevent_history: true, data_hash: { name: 'ccc - headline' })
 
             @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+          end
 
+          setup do
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 

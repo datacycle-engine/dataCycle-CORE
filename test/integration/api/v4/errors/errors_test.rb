@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Errors
         class ErrorTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             @content = DataCycleCore::V4::DummyDataHelper.create_data('article')
             @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { validity_period: { 'valid_from' => 10.days.ago, 'valid_until' => 5.days.ago } })
           end

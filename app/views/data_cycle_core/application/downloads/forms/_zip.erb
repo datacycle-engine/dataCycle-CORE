@@ -2,13 +2,11 @@
               method: :get,
               local: true do %>
 
-    <div class="form-crumbs"></div>
-
-    <fieldset class="active template">
-        <legend><%= t('common.choose_language', locale: DataCycleCore.ui_language) %></legend>
-        <div class="form-element">
-            <div class="v-select white">
-                <%= select_tag('language[]',
+  <fieldset class="active template">
+    <legend><%= t('common.choose_language', locale: DataCycleCore.ui_language) %></legend>
+    <div class="form-element">
+      <div class="v-select white">
+        <%= select_tag('language[]',
                                options_for_select(
                                    available_locales_for_select(content),
                                    I18n.locale
@@ -18,26 +16,26 @@
                                    class: 'multi-select'
                                }
                     ) %>
-            </div>
-        </div>
-    </fieldset>
+      </div>
+    </div>
+  </fieldset>
 
-    <fieldset class="active template">
-        <legend><%= t('common.download.available_formats', locale: DataCycleCore.ui_language) %></legend>
-        <div class="form-element">
-            <% DataCycleCore::Feature::Serialize.enabled_serializers.except('indesign').each_key do |serializer_key| %>
-                <div>
-                    <%= check_box_tag "serialize_format[#{serializer_key}]" %>
-                    <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: DataCycleCore.ui_language)}" %>
-                </div>
-            <% end %>
+  <fieldset class="active template">
+    <legend><%= t('common.download.available_formats', locale: DataCycleCore.ui_language) %></legend>
+    <div class="form-element">
+      <% DataCycleCore::Feature::Serialize.enabled_serializers.except('indesign').each_key.with_index do |serializer_key, index| %>
+        <div>
+          <%= check_box_tag "serialize_format[#{serializer_key}]", '1', index&.zero? %>
+          <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: DataCycleCore.ui_language)}" %>
         </div>
-    </fieldset>
+      <% end %>
+    </div>
+  </fieldset>
 
-    <div class="buttons">
-        <%= button_tag 'download',
+  <div class="buttons">
+    <%= button_tag 'download',
                        type: :submit,
                        class: "button submit" %>
-    </div>
+  </div>
 
 <% end %>
