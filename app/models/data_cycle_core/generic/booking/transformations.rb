@@ -11,7 +11,7 @@ module DataCycleCore
         def self.booking_to_unterkunft(external_source_id)
           t(:stringify_keys)
           .>> t(:reject_keys, ['region'])
-          .>> t(:add_field, 'additional_information', ->(s) { Array.wrap(to_info.call(s).compact) if s.dig('hotel_data', 'hotel_important_information')&.squish.present? })
+          .>> t(:add_field, 'additional_information', ->(s) { Array.wrap(to_additional_information(external_source_id, 'hotel_important_information').call(s).compact) if s.dig('hotel_data', 'hotel_important_information')&.squish.present? })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('hotel_id').to_s })
           .>> t(:unwrap, 'hotel_data', ['name', 'hotel_description'])
           .>> t(:rename_keys, { 'hotel_description' => 'description' })
@@ -43,16 +43,16 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.to_info
+        def self.to_additional_information(external_source_id, type)
           t(:stringify_keys)
-          .>> t(:add_field, 'name', ->(*) { 'Wichtige Informationen' })
-          .>> t(:add_field, 'description', ->(s) { s.dig('hotel_data', 'hotel_important_information') })
-          .>> t(:reject_keys, ['room_data', 'hotel_id', 'hotel_data', 'external_key'])
+          .>> t(:add_field, 'external_key', ->(s) { "Booking - additional_information - #{I18n.locale} - type - #{s.dig('hotel_id')}" })
+          .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: s.dig('external_key'))&.id })
+          .>> t(:add_field, 'name', ->(*) { I18n.t("import.booking.#{type}", default: [type]) })
+          .>> t(:add_field, 'universal_classifications', ->(*) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', type)) })
+          .>> t(:add_field, 'description', ->(s) { s.dig('hotel_data', type) })
+          .>> t(:reject_keys, ['room_data', 'hotel_id', 'hotel_data'])
           .>> t(:strip_all)
         end
-        # --> removed to make additional information only one language per embedded dataset.
-        # .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: s.dig('external_key')).presence&.id })
-        # .>> t(:add_field, 'external_key', ->(s) { "hotel_important_information:#{s.dig('hotel_id')}" })
 
         def self.load_hotel_facilities(facilities, external_source_id)
           return if facilities.blank?

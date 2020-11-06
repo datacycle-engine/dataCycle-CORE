@@ -144,7 +144,7 @@
         :template_name: Ergänzende Information
         :api:
           :v4:
-            :name: dc:additionalInformation            
+            :name: dc:additionalInformation
       :data_type:
         :label: Inhaltstyp
         :type: classification
