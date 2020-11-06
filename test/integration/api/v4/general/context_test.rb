@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module General
         class ContextTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
           end
 

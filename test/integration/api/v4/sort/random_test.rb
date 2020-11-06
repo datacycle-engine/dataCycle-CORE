@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Sort
         class RandomTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
             @routes = Engine.routes
 
@@ -17,7 +17,9 @@ module DataCycleCore
             @poi_d = DataCycleCore::V4::DummyDataHelper.create_data('poi')
 
             @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+          end
 
+          setup do
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 

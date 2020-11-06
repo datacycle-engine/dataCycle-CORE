@@ -23,6 +23,10 @@ module DataCycleCore
             required(:'@id') { eql?('https://schema.datacycle.at/hasConcept') }
             required(:'@type') { eql?('@id') }
           end
+          required(:'dc:additionalInformation').hash do
+            required(:'@id') { eql?('https://schema.datacycle.at/additionalInformation') }
+            required(:'@container') { eql?('@set') }
+          end
           required(:'dc:linkedThing').hash do
             required(:'@id') { eql?('https://schema.datacycle.at/linkedThing') }
             required(:'@container') { eql?('@set') }

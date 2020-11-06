@@ -102,7 +102,7 @@ module DataCycleCore
     self.ui_language = :de
 
     mattr_accessor :notification_frequencies
-    self.notification_frequencies = ['always', 'day', 'week']
+    self.notification_frequencies = ['always', 'named_version', 'day', 'week']
 
     mattr_accessor :features
     self.features = {}
@@ -157,6 +157,9 @@ module DataCycleCore
 
     mattr_accessor :classification_visibilities
     self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'filter', 'tile', 'list', 'tree_view']
+
+    mattr_accessor :cache_invalidation_depth
+    self.cache_invalidation_depth = 3
   end
 
   def self.setup
@@ -213,6 +216,9 @@ module DataCycleCore
     # !!!!!!!!!!!!!!!! do not switch on !!!!!!!!!!!!!!!!
     config.i18n.fallbacks = false
     config.action_view.form_with_generates_remote_forms = true
+
+    # prevent span tags inside HTML-Attributes for missing translations
+    config.action_view.debug_missing_translation = false
 
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|

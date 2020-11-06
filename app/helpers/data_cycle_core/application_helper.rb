@@ -67,7 +67,7 @@ module DataCycleCore
       when 'tree'
         capture do
           if DataCycleCore::ClassificationTreeLabel.visible('tree_view').many?
-            concat(link_to(mode_icon(mode), '#', data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
+            concat(tag.span(mode_icon(mode), data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
             concat(
               tag.div(class: 'dropdown-pane no-bullet align-right', id: 'tree-view-selector', data: { dropdown: true, hover: true, hover_pane: true }) do
                 concat(
@@ -278,14 +278,16 @@ module DataCycleCore
 
       return if definition['type'] == 'classification' && !definition['universal'] && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(scope.to_s) } : scope.to_s)
 
+      type = definition['type'].underscore_blanks
+      type = definition.dig('compute', 'type').underscore_blanks.to_s if definition.dig('compute', 'type').present?
+
       partials = [
         definition&.dig('ui', 'show', 'partial').presence,
-        "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
+        "#{type}_#{key.attribute_name_from_key}",
         *feature_templates(key, definition, content),
-        ("#{definition['type'].underscore_blanks}_#{definition.dig('ui', 'show', 'type').underscore_blanks}" if definition&.dig('ui', 'show', 'type').present?),
-        ("#{definition['type'].underscore_blanks}_#{definition.dig('validations', 'format').underscore_blanks}" if definition&.dig('validations', 'format').present?),
-        (definition.dig('compute', 'type').underscore_blanks.to_s if definition.dig('compute', 'type').present?),
-        definition['type'].underscore_blanks.to_s
+        ("#{type}_#{definition.dig('ui', 'show', 'type').underscore_blanks}" if definition&.dig('ui', 'show', 'type').present?),
+        ("#{type}_#{definition.dig('validations', 'format').underscore_blanks}" if definition&.dig('validations', 'format').present?),
+        type.to_s
       ].compact
 
       partials = partials.map { |p| "data_cycle_core/contents/viewers/#{p}" }

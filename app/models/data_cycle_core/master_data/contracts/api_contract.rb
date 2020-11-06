@@ -20,7 +20,7 @@ module DataCycleCore
         CONTENT = Dry::Schema.Params do
           optional(:uuid).filled(:array)
           optional(:uuids).filled(:string)
-          optional(:content_id).filled(:string)
+          optional(:content_id) { str? | array? }
         end
 
         CLASSIFICATIONS = Dry::Schema.Params do
@@ -83,6 +83,18 @@ module DataCycleCore
         end
 
         FILTER = Dry::Schema.Params do
+          optional(:content_id).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
+          optional(:filter_id).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
+          optional(:watch_list_id).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
           optional(:search).value(:string)
           optional(:q).value(:string)
           optional(:classifications).hash do
@@ -112,6 +124,12 @@ module DataCycleCore
         end
       end
       class ApiLinkedContract < Dry::Validation::Contract
+        config.validate_keys = true
+
+        params(DataCycleCore::MasterData::Contracts::ApiContract::FILTER) do
+        end
+      end
+      class ApiUnionFilterContract < Dry::Validation::Contract
         config.validate_keys = true
 
         params(DataCycleCore::MasterData::Contracts::ApiContract::FILTER) do

@@ -9,7 +9,7 @@ module DataCycleCore
         module Extensions
           module Organizations
             class OrganizationDataTest < DataCycleCore::V4::Base
-              setup do
+              before(:all) do
                 # create a person to make sure person and organization are connected
                 @person = DataCycleCore::V4::DummyDataHelper.create_data('person')
                 @content = @person.member_of.first

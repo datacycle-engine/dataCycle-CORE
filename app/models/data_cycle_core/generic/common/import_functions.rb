@@ -26,12 +26,12 @@ module DataCycleCore
           if local
             content = DataCycleCore::Thing.new
           else
-            content = DataCycleCore::Thing.find_or_initialize_by(
+            content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first || DataCycleCore::Thing.new(
               external_source_id: utility_object.external_source.id,
-              external_key: data['external_key'],
-              template_name: template.template_name, # external_keys are sometime not uniq across datatypes!
-              template: false
+              external_key: data['external_key']
             )
+
+            return content if content&.external_source_id != utility_object.external_source.id || content&.external_key != data['external_key']
           end
           content.metadata ||= {}
           content.schema = template.schema
@@ -47,6 +47,7 @@ module DataCycleCore
           end
 
           global_data = global_attributes.merge(data)
+          global_data = global_data.except('external_key') unless created
 
           if config&.dig(:asset_type).present?
             if utility_object.asset_download
@@ -143,6 +144,7 @@ module DataCycleCore
                       else
                         iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
                       end
+
                       iterate.each do |content|
                         break if options[:max_count].present? && item_count >= options[:max_count]
                         item_count += 1

@@ -14,7 +14,7 @@ module DataCycleCore
           raise CanCan::AccessDenied, 'invalid_login' unless @user&.valid_password?(params[:password])
           raise CanCan::AccessDenied, 'user_not_allowed' unless @user.can?(:login, :user_api)
 
-          @user.update_column(:jti, SecureRandom.uuid) # rubocop:disable Rails/SkipsModelValidations
+          @user.update_column(:jti, SecureRandom.uuid)
 
           valid_until = Time.zone.now + (DataCycleCore.features.dig(:user_api, :expiration_time) || 24.hours)
           token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @user.id, jti: @user.jti }, exp: valid_until)
@@ -40,7 +40,7 @@ module DataCycleCore
         end
 
         def logout
-          current_user.update_column(:jti, nil) # rubocop:disable Rails/SkipsModelValidations
+          current_user.update_column(:jti, nil)
 
           head :no_content
         end

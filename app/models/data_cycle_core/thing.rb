@@ -17,6 +17,10 @@ module DataCycleCore
       has_many :scheduled_history_data, class_name: 'DataCycleCore::Schedule::History', foreign_key: 'thing_history_id', dependent: :destroy, inverse_of: :thing_history
 
       belongs_to :thing
+
+      def self.translated_locales
+        DataCycleCore::Thing::History::Translation.where(translated_model: all).distinct.pluck(:locale).map(&:to_sym)
+      end
     end
 
     class DuplicateCandidate < ApplicationRecord

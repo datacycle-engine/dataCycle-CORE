@@ -6,13 +6,13 @@ require 'json'
 module DataCycleCore
   module Api
     module V4
-      class AdditionalPropertyTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
-
-        setup do
+      class AdditionalPropertyTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
           @routes = Engine.routes
           @content = DataCycleCore::DummyDataHelper.create_data('additional_property')
+        end
+
+        setup do
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 

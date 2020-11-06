@@ -4,13 +4,11 @@
   <%= visible_date[:updated] || visible_date[:created] %>
 </div>
 
-<% if dataCycleObject.histories.exists? %>
-  <div class="dropdown-pane no-bullet bottom remote-render"
-    id="show-history"
-    data-dropdown
-    data-hover="true"
-    data-hover-pane="true"
-    data-remote-path="data_cycle_core/application/histories"
-    data-remote-options="<%= to_query_params({ content: dataCycleObject }).to_json %>">
-  </div>
-<% end %>
+<div class="dropdown-pane no-bullet bottom remote-render left-auto"
+  id="show-history"
+  data-dropdown
+  data-hover="true"
+  data-hover-pane="true"
+  data-remote-path="data_cycle_core/application/histories"
+  data-remote-options="<%= to_query_params({ content: dataCycleObject }).to_json %>">
+</div>

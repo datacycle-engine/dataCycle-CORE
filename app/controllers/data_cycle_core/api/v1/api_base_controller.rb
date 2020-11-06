@@ -12,12 +12,6 @@ module DataCycleCore
         include DataCycleCore::ErrorHandler
         helper DataCycleCore::ApiHelper
 
-        unless Rails.env.development?
-          rescue_from ActionController::UnknownFormat, with: :not_acceptable
-          rescue_from CanCan::AccessDenied, with: :unauthorized
-          rescue_from ActiveRecord::RecordNotFound, with: :not_found
-        end
-
         DEFAULT_PAGE_SIZE = 25
 
         before_action :authenticate, :set_default_response_format
@@ -46,6 +40,7 @@ module DataCycleCore
           user = User.find_by(access_token: params[:token]) if params[:token].present?
 
           raise CanCan::AccessDenied, 'invalid or missing authentication token' unless user
+          request.env['devise.skip_trackable'] = true
           sign_in user, store: false
         end
 

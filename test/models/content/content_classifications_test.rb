@@ -5,8 +5,8 @@ require 'minitest/spec'
 
 module DataCycleCore
   module Content
-    class ContentClassificationsTest < ActiveSupport::TestCase
-      setup do
+    class ContentClassificationsTest < DataCycleCore::TestCases::ActiveSupportTestCase
+      before(:all) do
         @content = DataCycleCore::TestPreparations.create_content(
           template_name: 'Artikel',
           data_hash: {

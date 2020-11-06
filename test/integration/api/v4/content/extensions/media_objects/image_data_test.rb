@@ -9,7 +9,7 @@ module DataCycleCore
         module Extensions
           module MediaObjects
             class ImageDataTest < DataCycleCore::V4::Base
-              setup do
+              before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('full_image')
               end
 

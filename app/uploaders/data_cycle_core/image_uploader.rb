@@ -80,7 +80,7 @@ module DataCycleCore
     def set_phash
       return if model.duplicate_check&.dig('phash').present? && model.duplicate_check&.dig('phash')&.positive?
 
-      model.update_column(:duplicate_check, { phash: Phash::Image.new(file.file).try(:compute_phash).try(:data) }) # rubocop:disable Rails/SkipsModelValidations
+      model.update_column(:duplicate_check, { phash: Phash::Image.new(file.file).try(:compute_phash).try(:data) })
     end
 
     def remove_animation

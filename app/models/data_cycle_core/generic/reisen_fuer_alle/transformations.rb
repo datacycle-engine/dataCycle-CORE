@@ -68,8 +68,8 @@ module DataCycleCore
         def self.add_external_links(data)
           return [] if data.blank?
           linked_items = []
-          linked_items.push(DataCycleCore::Thing.find_by(**data['feratel'].symbolize_keys)&.id) if data.dig('feratel').present?
-          linked_items.push(DataCycleCore::Thing.find_by(**data['outdoor_active'].symbolize_keys)&.id) if data.dig('outdoor_active').present?
+          linked_items.push(t(:find_thing_ids).call(**data['feratel'].symbolize_keys).first) if data.dig('feratel').present?
+          linked_items.push(t(:find_thing_ids).call(**data['outdoor_active'].symbolize_keys).first) if data.dig('outdoor_active').present?
           linked_items.compact
         end
       end

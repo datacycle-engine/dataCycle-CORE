@@ -92,7 +92,7 @@ module DataCycleCore
         content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
         content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
 
-        tree_query = <<-SQL
+        tree_query = <<-SQL.squish
           WITH RECURSIVE content_tree(id) AS (
               SELECT #{content_content_table}.#{content_a_id}
               FROM #{content_content_table}
@@ -118,7 +118,7 @@ module DataCycleCore
         content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
         content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
 
-        tree_query = <<-SQL
+        tree_query = <<-SQL.squish
           WITH RECURSIVE content_tree(id) AS (
             SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
             FROM #{self.class.table_name}
@@ -143,7 +143,7 @@ module DataCycleCore
         content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
         content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
 
-        tree_query = <<-SQL
+        tree_query = <<-SQL.squish
           WITH RECURSIVE content_tree(id) AS (
             SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
             FROM #{self.class.table_name}
@@ -167,22 +167,23 @@ module DataCycleCore
       def cached_related_contents
         return self.class.none if history?
 
-        tree_query = <<-SQL
+        tree_query = <<-SQL.squish
           WITH RECURSIVE paths(src, dest, path) AS (
             SELECT DISTINCT ON (c.dest) c.src, c.dest, ARRAY[c.src, c.dest]
             FROM content_content_relations c
-            WHERE c.src = '#{id}'
+            WHERE c.src = :id
             UNION ALL
             SELECT DISTINCT on (d.dest) d.src, d.dest, p.path || ARRAY[d.dest]
             FROM paths p
             INNER JOIN content_content_relations d
             ON p.dest = d.src
             WHERE d.dest != ALL(p.path)
+            AND array_length(p.path, 1) <= :depth
           )
           SELECT DISTINCT paths.dest FROM paths
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, id: id, depth: DataCycleCore.cache_invalidation_depth])})")
       end
     end
   end

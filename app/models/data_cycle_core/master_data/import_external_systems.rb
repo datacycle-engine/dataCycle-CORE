@@ -5,7 +5,7 @@ module DataCycleCore
     module ImportExternalSystems
       def self.import_all(validation: true, paths: nil)
         # remove credentials for safety, when running imported live database
-        DataCycleCore::ExternalSystem.update_all(credentials: nil) # rubocop:disable Rails/SkipsModelValidations
+        DataCycleCore::ExternalSystem.update_all(credentials: nil)
 
         errors = {}
         (paths ||= [DataCycleCore.external_sources_path, DataCycleCore.external_systems_path])&.compact!

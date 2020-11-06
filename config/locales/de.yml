@@ -41,6 +41,7 @@ de:
     super_admin: Administrator (DataCycle)
     admin: Administrator
     user: Benutzer
+    standard: Standard
     guest: Gast
 
   view_modes:
@@ -70,6 +71,7 @@ de:
   notification:
     frequency:
       always: sofort bei Änderung
+      named_version: bei benannten Versionen (sofort bei Änderung)
       day: täglich
       week: wöchentlich
 
@@ -268,6 +270,7 @@ de:
     external_alternate_name: Alternativer Titel
     external_key: Externe Id
     inverse_linked: Inverse Referenz
+    has_overlay: Bei diesem Inhalt ist ein Overlay vorhanden
 
   embedded:
     move_down: nach unten verschieben
@@ -294,11 +297,24 @@ de:
     merge: zusammenführen
     merge_content: Inhalte zusammenführen
     mark_false_positive: kein Duplikat
+    switch: Original und Duplikat vertauschen
+    duplicate: Duplikat
+    original: Original
 
   tile_links:
     details: zur Detailansicht
     full_size: in voller Größe öffnen
     media_archive: im Medienarchiv öffnen
+
+  feature:
+    named_version:
+      input_label: Versionsname
+      version_name: 'Version: %{name}'
+      remove_version_name: Versionsname entfernen
+      confirm_remove: 'Versionsname "%{name}" entfernen?'
+      version_name_removed: Der Versionsname wurde entfernt!
+    download:
+      missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -307,7 +323,7 @@ de:
     valid_since: gültig seit
     differences_to_version: Unterschiede zu Version
     active_version: Aktuelle Version
-    look_at_version: Version ansehen
+    look_at_version: Aktuellen Inhalt mit dieser Version vergleichen
 
   data_link_mailer:
     content_download: Inhalt herunterladen
@@ -379,6 +395,7 @@ de:
       contained_in: ist enthalten in
     related_to: ist verküpft mit
     feratel_content_score: Feratel - Content Score
+    union_filter_ids: in gespeicherten Suche...
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
@@ -394,6 +411,7 @@ de:
     geo_within_classification: nach geografischer Lage filtern...
     geo_filter: nach geografischer Lage filtern...
     relation_filter: auf Basis von verknüpften Inhalten filtern ...
+    union_filter_ids: nach gespeicherten Suchen filtern...
     related_to: nach verknüpften Inhalten filtern ...
     in_schedule: nach Termin filtern...
     inactive_things: Abgelaufenen Inhalten filtern...
@@ -627,15 +645,17 @@ de:
       become_user: 'Eingeloggt als %{data}.'
       duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
       merged_with_duplicate: Inhalte werden im Hintergrund zusammengeführt
-      bulk_updated: Inhalte wurden aktualisiert
-      bulk_deleted: Inhalte wurden gelöscht
-      bulk_created: Inhalte wurden erstellt
+      bulk_updated: '<b>%{data}</b> Inhalte wurden aktualisiert'
+      bulk_deleted: '<b>%{data}</b> Inhalte wurden gelöscht'
+      bulk_created: '<b>%{data}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
+    warning:
+      no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:
       not_modified: '%{data} wurde nicht geändert.'
       created_duplication: '%{data} wurde erfolgreich dupliziert.'
       content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
-      bulk_updated_skipped_html: '<br>Folgende Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind: %{data}'
+      bulk_updated_skipped_html: '<br><b>%{data}</b> Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind.'
       bulk_deleted_external_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da diese von einem Externen System importiert wurden.'
       bulk_deleted_not_allowed_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da Sie keine Berechtigung dafür haben.'
     job:
@@ -902,10 +922,47 @@ de:
     feratel:
       meeting_point: Treffpunkt
       additional_service:
-        equipment: Ausrüstung
-        requirements: Voraussetzung
-        included_services: Inkludierte Services
-        difficulty: Schwierigkeitsgrad
+        Arrival Information: Informationen zur Anreise
+        Cancellation Information: Stornierungsregelungen
+        Difficulty: Schwierigkeitsgrad
+        Equipment: Ausrüstung
+        'FAQ / good to know': FAQ / nützliche Hinweise
+        Included Services: Enthaltene Leistungen
+        Meeting Point: Treffpunkt
+        Opening hours: Öffnungszeiten
+        Payment: Zahlungsmodalitäten
+        Price Information: Preis
+        Rental Equipment: Mietausrüstung
+        Requirements: Voraussetzung
+        ServiceDescription: Beschreibung
+        Suitable for: Geeignet für
+      event:
+        EventHeader: Beschreibung
+        EventHeaderShort: Kurzbeschreibung
+        AdditionalService: Zusatzleistung
+        CurrentInformation: Aktuelle Informationen
+        GuestCardClassification: Gästekartenleistungen
+      serial_event:
+        EventGroup: Beschreibung
+      infrastructure:
+        AdditionalService: Zusatzleistung
+        CurrentInformation: Aktuelle Informationen
+        GuestCardClassification: Gästekartenleistungen
+        InfrastructureLong: Detailbeschreibung
+        InfrastructureOpeningTimes: Öffnungszeiten
+        InfrastructurePriceInfo: Preisinformation
+        InfrastructureShort: Kurzbeschreibung
+      accommodation:
+        CurrentInformation: Aktuelle Informationen
+        SEOKeywords: SEO-Schlagwörter
+        ServiceProviderArrivalVoucher: Anreisemodalitäten
+        ServiceProviderConditions: Zusatzinformationen
+        ServiceProviderDescription: Beschreibung
+      GTC:
+        GTC: Allgemeine Geschäftsbedingungen
+      package:
+        PackageShortText: Kurzbeschreibung
+        Package: Beschreibung
     outdoor_active:
       place:
         directions: Anfahrt
@@ -913,7 +970,7 @@ de:
         hours_available: Öffnungszeiten
         text: Beschreibung
         price: Preis
-        description: Kurzeschreibung
+        description: Kurzbeschreibung
       tour:
         directions: Anfahrt
         parking: Parken

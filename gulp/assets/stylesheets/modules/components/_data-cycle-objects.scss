@@ -116,6 +116,10 @@
 
     color: $dark-gray;
   }
+
+  .has-overlay {
+    color: $primary-color;
+  }
 }
 
 /* listItems */
@@ -715,7 +719,7 @@
 
           .external-connections-icon {
             color: $white;
-            
+
             &.pending {
               color: $white;
             }

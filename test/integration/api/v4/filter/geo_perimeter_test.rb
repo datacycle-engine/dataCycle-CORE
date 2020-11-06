@@ -12,7 +12,7 @@ module DataCycleCore
           # 5 5
           # 1 10
           # 1 1
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
 
             @poi_a = DataCycleCore::V4::DummyDataHelper.create_data('poi')

@@ -3,8 +3,6 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     include DataCycleCore::Filter
-    include DataCycleCore::ParamsResolver
-    include DataCycleCore::ErrorHandler
     before_action :authenticate_user!, except: [:asset]
     before_action :set_watch_list, except: [:asset]
 
@@ -14,7 +12,6 @@ module DataCycleCore
     end
 
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
-    rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
     def index
       redirect_back(fallback_location: root_path)
@@ -42,7 +39,7 @@ module DataCycleCore
         end
       end
 
-      flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], locale: DataCycleCore.ui_language
+      flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], data: item_count, locale: DataCycleCore.ui_language
 
       ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids
 
@@ -63,7 +60,7 @@ module DataCycleCore
         end
       end
 
-      I18n.with_locale(@content.first_available_locale(params[:locale])) do
+      I18n.with_locale(@locale = @content.first_available_locale(params[:locale])) do
         if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
           pre_filters
           @pre_filters.push(
@@ -188,7 +185,7 @@ module DataCycleCore
         object_params = content_params(@content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
-        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true)
+        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true, version_name: object_params[:version_name])
 
         if valid[:error].present?
           flash[:error] = valid[:error]
@@ -196,7 +193,11 @@ module DataCycleCore
           return
         end
 
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+        if valid[:warning].present?
+          flash[:info] = valid[:warning]
+        else
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+        end
 
         duplicate = params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
         merge_and_remove_duplicate if duplicate
@@ -456,7 +457,7 @@ module DataCycleCore
       if params_hash.present?
         params_hash.permit(datahash: datahash, translations: translations)
       else
-        params.require(:thing).permit(datahash: datahash, translations: translations)
+        params.require(:thing).permit(:version_name, datahash: datahash, translations: translations)
       end
     end
 

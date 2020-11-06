@@ -223,6 +223,13 @@
             :label: URL
             :type: string
             :storage_location: translated_value
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation            
       :image:
         :label: Bilder
         :type: linked

@@ -3,7 +3,6 @@
 module DataCycleCore
   class RegistrationsController < Devise::RegistrationsController
     include DataCycleCore::ErrorHandler
-    rescue_from ActionController::BadRequest, with: :bad_request
 
     # POST /resource
     def create

@@ -113,7 +113,8 @@ module DataCycleCore
         end
 
         def self.opening_hours(data, external_source_id, external_key)
-          thing = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)
+          thing = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: external_key, limit: 1, pluck_id: false).first
+
           to_update = thing&.opening_hours_specification&.first
           attribute_hash = {}
           attribute_hash['id'] = to_update.id if to_update.present?

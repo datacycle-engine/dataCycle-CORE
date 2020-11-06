@@ -10,16 +10,17 @@ require 'v4/validation/thing'
 
 module DataCycleCore
   module V4
-    class Base < ActionDispatch::IntegrationTest
-      include Devise::Test::IntegrationHelpers
-      include Engine.routes.url_helpers
+    class Base < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       include DataCycleCore::V4::ApiHelper
-      include DataCycleCore::V4::DummyDataHelper
+      # include DataCycleCore::V4::DummyDataHelper
+
+      before(:all) do
+        @routes = Engine.routes
+        DataCycleCore::Thing.where(template: false).delete_all
+      end
 
       setup do
-        @routes = Engine.routes
         sign_in(User.find_by(email: 'tester@datacycle.at'))
-        DataCycleCore::Thing.where(template: false).delete_all
       end
     end
   end

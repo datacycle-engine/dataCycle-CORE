@@ -21,13 +21,13 @@ module DataCycleCore
       before_save_data_hash :add_default_values, if: -> { properties_with_default_values.present? && (@new_content || (translated_locales.present? && translated_locales.exclude?(I18n.locale))) }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
-      after_saved_data_hash :execute_update_webhooks
+      after_saved_data_hash :execute_update_webhooks, if: -> { !embedded? }
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
-      after_saved_data_hash :invalidate_content_a_cache, if: -> { !embedded? && has_cached_related_contents? }
-      after_created_data_hash :execute_create_webhooks
-      after_destroyed_data_hash :execute_delete_webhooks
+      after_saved_data_hash :add_related_cache_invalidation_job, if: -> { !embedded? && has_cached_related_contents? }
+      after_created_data_hash :execute_create_webhooks, if: -> { !embedded? }
+      after_destroyed_data_hash :execute_delete_webhooks, if: -> { !embedded? }
 
-      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false)
+      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false, version_name: nil)
         return {} if data_hash.blank?
         @data_hash = data_hash.dup.with_indifferent_access
         @current_user = current_user
@@ -48,13 +48,14 @@ module DataCycleCore
 
         if validate?(valid_hash)
           if diff?(@data_hash.dup, partial_schema_hash) || force_update
-            ActiveRecord::Base.transaction do
+            ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
               to_history(save_time: @save_time) unless id.nil? || prevent_history
 
               set_template_data_hash(@data_hash, partial_schema_hash&.dig('properties') || property_definitions)
 
               self.updated_at = @save_time
               self.updated_by = @current_user&.id
+              self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? version_name.presence : nil
 
               if id.nil?
                 self.created_at = @save_time
@@ -66,6 +67,8 @@ module DataCycleCore
             reload
             run_callbacks(:saved_data_hash)
             run_callbacks(:created_data_hash) if @new_content
+          else
+            valid_hash[:warning] = I18n.t('controllers.warning.no_changes', locale: DataCycleCore.ui_language)
           end
         end
         valid_hash
@@ -121,11 +124,17 @@ module DataCycleCore
         self.validity_range = get_validity_range(validity_hash)
       end
 
-      def invalidate_content_a_cache
-        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: self.class.name, delayed_reference_id: id, locked_at: nil)
+      def add_related_cache_invalidation_job
+        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_related_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_related_cache", delayed_reference_id: id, locked_at: nil)
       end
 
-      def invalidate_cache
+      def invalidate_self_and_update_search
+        search_languages(true)
+        Rails.cache.delete_matched("*#{id}*")
+        invalidate_related_cache
+      end
+
+      def invalidate_related_cache
         cached_related_contents.ids.each do |item_id|
           Rails.cache.delete_matched("*#{item_id}*")
         end
@@ -134,7 +143,7 @@ module DataCycleCore
       private
 
       def notify_subscribers
-        subscriptions.except_user(@current_user).to_notify.presence&.each do |subscription|
+        subscriptions.except_user(@current_user).to_notify(version_name.present? && DataCycleCore::Feature::NamedVersion.enabled? ? ['always', 'named_version'] : ['always']).presence&.each do |subscription|
           DataCycleCore::SubscriptionMailer.notify(subscription.user, [self]).deliver_later
         end
       end

@@ -52,30 +52,27 @@ module DataCycleCore
       thing = create_thing_with_overlay
       assert_equal('Test', thing.name)
       assert_equal('Test Overlay', thing.name_overlay)
-      assert_nil(thing.description)
-      assert_equal('Description', thing.description_overlay)
+      assert_nil(thing.description) # no exception as it is handled by active_record
+      assert_raise(NoMethodError) { thing.description_overlay }
     end
 
     test 'add simple_object in overlay (not present in definition of thing)' do
       thing = create_thing_with_simple_object
-      assert_equal({}, thing.validity_period.to_h)
-      assert_equal(
-        { 'valid_from' => '1.1.2000'.in_time_zone, 'valid_until' => '1.1.2010'.in_time_zone },
-        thing.validity_period_overlay.to_h
-      )
+      assert_raise(NoMethodError) { thing.validity_period }
+      assert_raise(NoMethodError) { thing.validity_period_overlay }
     end
 
     test 'add embedded in overlay (not present in definition of thing)' do
       thing = create_thing_with_embedded
-      assert_equal([], thing.embedded)
-      assert_equal(thing.overlay.first.embedded.first.id, thing.embedded_overlay.first.id)
+      assert_raise(NoMethodError) { thing.embedded }
+      assert_raise(NoMethodError) { thing.embedded_overlay }
     end
 
     test 'add linked in overlay (not present in definition of thing)' do
       image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild' })
       thing = create_thing_with_linked(image)
-      assert_equal([], thing.linked)
-      assert_equal(image.id, thing.linked_overlay.first.id)
+      assert_raise(NoMethodError) { thing.linked }
+      assert_raise(NoMethodError) { thing.linked_overlay }
     end
   end
 end

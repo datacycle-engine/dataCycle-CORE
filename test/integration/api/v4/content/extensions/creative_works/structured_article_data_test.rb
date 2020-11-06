@@ -9,7 +9,7 @@ module DataCycleCore
         module Extensions
           module CreativeWorks
             class StructuredArticleDataTest < DataCycleCore::V4::Base
-              setup do
+              before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
                 assert_full_thing_datahash(@content)
               end

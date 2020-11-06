@@ -115,8 +115,7 @@ module DataCycleCore
             {
               attribute => [
                 DataCycleCore::Classification.find_by(
-                  external_source_id: external_source_id,
-                  external_key: external_key.call(data_hash)
+                  external_source_id: external_source_id, external_key: external_key.call(data_hash)
                 )&.id
               ].compact.presence
             }
@@ -125,16 +124,10 @@ module DataCycleCore
 
         def self.add_link(data_hash, attribute, content_type, external_source_id, key_function, condition_function = nil)
           return data_hash if condition_function.present? && !condition_function.call(data_hash)
-          return data_hash if key_function.call(data_hash).blank?
 
           data_hash.merge(
             {
-              attribute => [
-                content_type.find_by(
-                  external_source_id: external_source_id,
-                  external_key: key_function.call(data_hash)
-                )&.id
-              ].compact.presence
+              attribute => find_thing_ids(external_system_id: external_source_id, external_key: key_function.call(data_hash), content_type: content_type, limit: 1).presence
             }
           )
         end
@@ -149,13 +142,10 @@ module DataCycleCore
 
           key_function_values = key_function.call(data_hash) || []
           # key_function_values = [DataCycleCore::Thing.where(external_source_id: external_source_id, template: false, template_name: 'POI').first.external_key] if attribute == 'poi'
+
           data_hash.merge(
             {
-              attribute =>
-                content_type.where(
-                  external_source_id: external_source_id,
-                  external_key: key_function_values
-                )&.sort_by { |u| key_function_values.index(u.external_key) }&.map(&:id)&.compact&.presence || []
+              attribute => find_thing_ids(external_system_id: external_source_id, external_key: key_function_values, content_type: content_type)
             }
           )
         end
@@ -207,6 +197,34 @@ module DataCycleCore
 
           attributes = DataCycleCore::Feature::Geocode.geodata_to_attributes(geocoded_data)
           data_hash.merge(attributes.deep_stringify_keys)
+        end
+
+        def self.find_thing_ids(external_system_id:, external_key:, content_type: DataCycleCore::Thing, limit: nil, pluck_id: true)
+          return [] if external_key.blank?
+
+          if content_type == DataCycleCore::Thing
+            query = DataCycleCore::Thing
+              .by_external_key(external_system_id, external_key, 'thing_external_systems')
+              .order(
+                [
+                  Arel.sql(
+                    'array_position(ARRAY[?]::varchar[], thing_external_systems.external_key::varchar)'
+                  ),
+                  external_key
+                ]
+              )
+          else
+            query = content_type.where(external_source_id: external_system_id, external_key: external_key).order(
+              [
+                Arel.sql("array_position(ARRAY[?]::varchar[], #{content_type.table_name}.external_key::varchar)"),
+                external_key
+              ]
+            )
+          end
+
+          query = query.limit(limit) if limit.present?
+          query = query.pluck(:id) if pluck_id
+          query
         end
       end
     end

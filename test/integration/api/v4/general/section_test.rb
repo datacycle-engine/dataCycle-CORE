@@ -7,12 +7,10 @@ module DataCycleCore
   module Api
     module V4
       module General
-        class SectionTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
+        class SectionTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
           include DataCycleCore::ApiV4Helper
 
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
             @routes = Engine.routes
             @content = DataCycleCore::DummyDataHelper.create_data('poi')
@@ -20,6 +18,9 @@ module DataCycleCore
             @content.save
             @content2 = DataCycleCore::DummyDataHelper.create_data('event')
             @content2.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
+          end
+
+          setup do
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 

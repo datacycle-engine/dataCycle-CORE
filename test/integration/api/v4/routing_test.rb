@@ -6,12 +6,15 @@ module DataCycleCore
   module Api
     module V4
       class RoutingTest < DataCycleCore::V4::Base
-        setup do
-          DataCycleCore::Thing.where(template: false).delete_all
-          @routes = Engine.routes
+        before(:all) do
           @content = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
-
           @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+          @stored_filter = DataCycleCore::StoredFilter.create(
+            name: 'all_items_filter',
+            user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id,
+            language: ['de'],
+            api: true
+          )
         end
 
         # only working in development and test environment
@@ -79,6 +82,78 @@ module DataCycleCore
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(2)
           assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+        end
+
+        test 'GET/POST /api/v4/endpoints/[:content_id]' do
+          params = {
+            content_id: [
+              @content.id,
+              @content.image.first.id
+            ]
+          }
+
+          get api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(2)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+          post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(2)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+          params = {
+            content_id: @content.id
+          }
+          get api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(1)
+          assert_equal([@content.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+          post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(1)
+          assert_equal([@content.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+        end
+
+        test 'GET/POST /api/v4/endpoints/things/[:content_id]' do
+          params = {
+            content_id: [
+              @content.id,
+              @content.image.first.id
+            ]
+          }
+
+          get api_v4_stored_filter_things_path(id: @stored_filter.id), params: params, as: :json
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(2)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+          post api_v4_stored_filter_things_path(id: @stored_filter.id), params: params, as: :json
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(2)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+          params = {
+            content_id: @content.id
+          }
+          get api_v4_stored_filter_things_path(id: @stored_filter.id), params: params, as: :json
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(1)
+          assert_equal([@content.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+          post api_v4_stored_filter_things_path(id: @stored_filter.id), params: params, as: :json
+          json_data = JSON.parse response.body
+          assert_context(json_data.dig('@context'), 'de')
+          assert_api_count_result(1)
+          assert_equal([@content.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
         end
 
         test '/api/v4/things/deleted' do

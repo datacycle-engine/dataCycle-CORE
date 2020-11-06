@@ -11,7 +11,7 @@ module DataCycleCore
           # 5.days.ago - 5.days
           # today - tomorrow
           # 5.days - 10.days
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
 
             @event_a = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')

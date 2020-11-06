@@ -3,16 +3,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class SearchTest < ActiveSupport::TestCase
-    include Minitest::Hooks
-
-    around(:all) do |&block|
-      ActiveRecord::Base.transaction do
-        super(&block)
-        raise ActiveRecord::Rollback
-      end
-    end
-
+  class SearchTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
       @things = DataCycleCore::Thing.where(template: false).count
       create_content('Artikel', { name: 'AAA' })

@@ -4,13 +4,12 @@ require 'test_helper'
 
 module DataCycleCore
   module Feature
-    class DuplicateContentTest < ActionDispatch::IntegrationTest
-      include Devise::Test::IntegrationHelpers
-      include Engine.routes.url_helpers
+    class DuplicateContentTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+      before(:all) do
+        @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+      end
 
       setup do
-        @routes = Engine.routes
-        @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
         sign_in(User.find_by(email: 'tester@datacycle.at'))
       end
 

@@ -87,7 +87,7 @@ module DataCycleCore
             .reorder(
               Arel.sql(sanitized_order_string(order_string, ordering, true)),
               Arel.sql('things.updated_at DESC'),
-              Arel.sql('things.id ASC')
+              Arel.sql('things.id DESC')
             )
         )
       end
@@ -98,7 +98,7 @@ module DataCycleCore
             .reorder(
               Arel.sql(sanitized_order_string('fulltext_boost', ordering, true)),
               Arel.sql('things.updated_at DESC'),
-              Arel.sql('things.id ASC')
+              Arel.sql('things.id DESC')
             )
         )
       end

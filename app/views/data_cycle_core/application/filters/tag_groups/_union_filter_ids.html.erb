@@ -1,0 +1,16 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-external-link" aria-hidden="true"></i>
+    <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
+  </span>
+
+  <% stored_filters = DataCycleCore::StoredFilter.select(:id, :name).where(api: true).map { |c| [c.id, c.name] }.to_h %>
+
+  <span class="tags-container">
+    <% value.each do |stored_filter_id| %>
+      <span class="tag"><%= stored_filters[stored_filter_id] %></span>
+    <% end %>
+  </span>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
+</span>

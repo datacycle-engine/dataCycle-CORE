@@ -7,7 +7,7 @@ module DataCycleCore
     module V4
       module Classifications
         class ClassificationSortTest < DataCycleCore::V4::Base
-          setup do
+          before(:all) do
             DataCycleCore::Thing.where(template: false).delete_all
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
           end
@@ -17,7 +17,7 @@ module DataCycleCore
             tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
             orig_ts = tree_tags.created_at
 
-            tree_tags.update_column(:created_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            tree_tags.update_column(:created_at, (Time.zone.now + 10.days))
 
             # DESC
             params = {
@@ -60,7 +60,7 @@ module DataCycleCore
             json_data.dig('@graph').each_cons(2) do |a, b|
               assert(a.dig('dct:created').to_datetime <= b.dig('dct:created').to_datetime)
             end
-            tree_tags.update_column(:created_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
+            tree_tags.update_column(:created_at, orig_ts)
           end
 
           # order by modified
@@ -69,7 +69,7 @@ module DataCycleCore
             orig_ts = tree_tags.updated_at
 
             # DESC
-            tree_tags.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            tree_tags.update_column(:updated_at, (Time.zone.now + 10.days))
             params = {
               sort: '-dct:modified'
             }
@@ -122,14 +122,14 @@ module DataCycleCore
             json_data.dig('@graph').each_cons(2) do |a, b|
               assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
             end
-            tree_tags.update_column(:updated_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
+            tree_tags.update_column(:updated_at, orig_ts)
           end
 
           test 'api/v4/concept_schemes parameter multiple and invalid sort params' do
             tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
             orig_ts = tree_tags.created_at
 
-            tree_tags.update_column(:created_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            tree_tags.update_column(:created_at, (Time.zone.now + 10.days))
             params = {
               sort: '-dct:created,+dct:modified,+another'
             }
@@ -142,7 +142,7 @@ module DataCycleCore
             json_data.dig('@graph').each_cons(2) do |a, b|
               assert(a.dig('dct:created').to_datetime >= b.dig('dct:created').to_datetime)
             end
-            tree_tags.update_column(:created_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
+            tree_tags.update_column(:created_at, orig_ts)
           end
 
           test 'api/v4/concept_schemes/id/concepts parameter sort[:modified]' do
@@ -152,7 +152,7 @@ module DataCycleCore
             classificaton_tag = classifications.with_name('Tag 3').first
             orig_ts = classificaton_tag.updated_at
 
-            classificaton_tag.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
+            classificaton_tag.update_column(:updated_at, (Time.zone.now + 10.days))
 
             # modified ASC
             params = {
@@ -228,7 +228,7 @@ module DataCycleCore
               assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
             end
 
-            classificaton_tag.update_column(:updated_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
+            classificaton_tag.update_column(:updated_at, orig_ts)
           end
         end
       end

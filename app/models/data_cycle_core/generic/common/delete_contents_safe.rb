@@ -31,10 +31,36 @@ module DataCycleCore
             raise "No external id found! Item:#{raw_data.dig('Id')}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
             external_key = [options.dig(:import, :external_key_prefix), raw_data.dig(*external_key_path)].join
 
-            DataCycleCore::Thing.find_by(
+            content = DataCycleCore::Thing.find_by(
               external_source_id: utility_object.external_source.id,
               external_key: external_key
-            ).try(:destroy_content, save_history: true, destroy_linked: true, destroy_locale: true) # delete only a particular translation!
+            )
+
+            if content.nil?
+              DataCycleCore::ExternalSystemSync.find_by(
+                external_system_id: utility_object.external_source.id,
+                sync_type: 'duplicate',
+                external_key: external_key,
+                syncable_type: 'DataCycleCore::Thing'
+              )&.destroy
+            else
+              if content.available_locales.one? && content.available_locales.include?(I18n.locale)
+                oldest_duplicate = content.external_system_syncs.where(
+                  sync_type: 'duplicate',
+                  syncable_type: 'DataCycleCore::Thing'
+                ).order(created_at: :asc).first
+              end
+
+              if oldest_duplicate.nil?
+                content.try(:destroy_content, save_history: true, destroy_linked: true, destroy_locale: true) # delete only a particular translation!
+              else
+                content.update_columns(external_source_id: oldest_duplicate.external_system_id, external_key: oldest_duplicate.external_key) unless DataCycleCore::Thing.exists?(
+                  external_source_id: oldest_duplicate.external_system_id,
+                  external_key: oldest_duplicate.external_key
+                )
+                oldest_duplicate.destroy
+              end
+            end
           end
         end
       end

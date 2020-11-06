@@ -200,15 +200,24 @@ module.exports.initialize = function ($) {
 
     $('.filters .advanced-filters, .filters').on('click', '.focus-advanced-filter', event => {
       event.preventDefault();
-      $('.advanced-filter[data-id="' + $(event.currentTarget).data('target') + '"]')
-        .addClass('highlight')
-        .get(0)
-        .scrollIntoView({
-          behavior: 'smooth'
-        });
-      setTimeout(() => {
-        $('.advanced-filter[data-id="' + $(event.currentTarget).data('target') + '"]').removeClass('highlight');
-      }, 1000);
+
+      let accordion = $(event.currentTarget).closest('.filters').find('.advanced-filters.accordion');
+
+      accordion.one('down.zf.accordion', e => {
+        e.stopPropagation();
+
+        $('.advanced-filter[data-id="' + $(event.currentTarget).data('target') + '"]')
+          .addClass('highlight')
+          .get(0)
+          .scrollIntoView({
+            behavior: 'smooth'
+          });
+        setTimeout(() => {
+          $('.advanced-filter[data-id="' + $(event.currentTarget).data('target') + '"]').removeClass('highlight');
+        }, 1000);
+      });
+
+      accordion.foundation('down', accordion.find('> .accordion-item > .accordion-content'));
     });
   };
 

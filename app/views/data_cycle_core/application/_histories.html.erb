@@ -1,33 +1,7 @@
 <h5><%= t('history.latest_edits', locale: DataCycleCore.ui_language) %>:</h5>
 <ul class="list-items">
-  <% content.histories.includes(:translations, :created_by_user, :updated_by_user).each do |item|%>
-    <li class="<%= item.id == local_assigns[:history_id] ? 'active' : '' %>">
-      <% if item.try(:updated_by_user).present? %>
-        <% person = item.updated_by_user %>
-        <%= tag.a(person.full_name, class: 'email-link', href: "mailto:#{person.email}", title: person.full_name) %>
-      <% elsif item == content.histories.last && item.try(:created_by_user).present? %>
-        <% person = item.created_by_user %>
-        <%= tag.a(person.full_name, class: 'email-link', href: "mailto:#{person.email}", title: person.full_name) %>
-      <% else %>
-        <span class="email-link">System</span>
-      <% end %>
-
-      <% I18n.with_locale(item.first_available_locale) do %>
-        <span>(<%= I18n.locale %>)</span>
-        <% if item.history_valid&.first.present? %>
-          <span class="history-time" title="<%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language) %>">
-            <%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language, format: :history) %>
-          </span>
-        <% end %>
-      <% end %>
-
-      <span class="history-link">
-        <% if can?(:history, content) && item.id != local_assigns[:history_id] %>
-          <%= link_to history_thing_path(content, history_id: item.id, watch_list_id: @watch_list) do %>
-            <i class="fa fa-history" aria-hidden="true"></i>
-          <% end %>
-        <% end %>
-      </span>
-    </li>
+  <% history_entries = complete_history_list(content) %>
+  <% history_entries.each.with_index do |item, index| %>
+    <%= history_dropdown_line(content, item, @watch_list&.id, local_assigns[:history_id] == item[:id], index == (history_entries.size - 1)) %>
   <% end %>
 </ul>

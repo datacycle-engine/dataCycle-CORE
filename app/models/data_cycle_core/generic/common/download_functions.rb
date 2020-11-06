@@ -25,9 +25,15 @@ module DataCycleCore
 
                   raw_data.each do |language, data_hash|
                     next unless locales.include?(language.to_sym)
-                    if delete.present? && delete.call(data_hash, language)
-                      data_hash[:deleted_at] = item.dump[language].try(:[], 'deleted_at') || Time.zone.now
-                      data_hash[:delete_reason] = item.dump[language].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                    if delete.present?
+                      if delete.present?
+                        if delete.call(data_hash, language)
+                          data_hash[:deleted_at] = item.dump[language].try(:[], 'deleted_at') || Time.zone.now
+                          data_hash[:delete_reason] = item.dump[language].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                        else
+                          data_hash = data_hash.except(:deleted_at, :delte_reason)
+                        end
+                      end
                     end
                     data_hash[:updated_at] = modified.call(data_hash) if modified.present?
                     item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base))
@@ -90,8 +96,8 @@ module DataCycleCore
                           item_data[:delete_reason] = item.dump[locale].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
                         end
                         item_data[:updated_at] = modified.call(item_data) if modified.present?
-                        item.data_has_changed = true if options.dig(:download, :skip_diff) == true
                         item.data_has_changed = false if modified.present? && download_object.external_source.last_successful_download && modified.call(item_data) < download_object.external_source.last_successful_download
+                        item.data_has_changed = true if options.dig(:download, :skip_diff) == true
                         item.data_has_changed = diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
                         item.dump[locale] = item_data
                         item.save!

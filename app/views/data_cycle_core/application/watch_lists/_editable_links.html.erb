@@ -1,18 +1,21 @@
-<div class="dropdown-pane no-bullet align-right bottom watch-lists"
-  id="watch-lists-<%= local_assigns[:prefix] %><%= content.id %>"
-  data-dropdown data-hover="true"
-  data-hover-pane="true"
-  data-content-id="<%= content&.id %>"
-  data-content-type="<%= content&.class&.name %>"
-  data-auto-focus="true">
-  <h5>Zu <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %> hinzufügen</h5>
+<div class="watch-list-dropdown link">
+  <a id="add-to-watchlist-link" class="watch-lists-link" data-toggle="watch-lists-<%= local_assigns[:prefix] %><%= content.id %>"><i class="fa <%= content.watch_lists.accessible_by(current_ability).exists? ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i></a>
 
-  <%= render 'data_cycle_core/application/watch_lists/filter', local_assigns %>
-  <ul class="list-items no-bullet remote-render"
-    id="watch-lists-for-<%= local_assigns[:prefix] %><%= content.id %>"
-    data-remote-path="data_cycle_core/application/watch_lists/editable_link_collection"
-    data-remote-options="<%= to_query_params(local_assigns).to_json %>">
-  </ul>
-  <%= render 'data_cycle_core/application/watch_lists/new', local_assigns %>
+  <div class="dropdown-pane no-bullet align-right bottom watch-lists left-auto"
+    id="watch-lists-<%= local_assigns[:prefix] %><%= content.id %>"
+    data-dropdown data-hover="true"
+    data-hover-pane="true"
+    data-content-id="<%= content&.id %>"
+    data-content-type="<%= content&.class&.name %>"
+    data-auto-focus="true">
+    <h5>Zu <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %> hinzufügen</h5>
+
+    <%= render 'data_cycle_core/application/watch_lists/filter', local_assigns %>
+    <ul class="list-items no-bullet remote-render"
+      id="watch-lists-for-<%= local_assigns[:prefix] %><%= content.id %>"
+      data-remote-path="data_cycle_core/application/watch_lists/editable_link_collection"
+      data-remote-options="<%= to_query_params(local_assigns).to_json %>">
+    </ul>
+    <%= render 'data_cycle_core/application/watch_lists/new', local_assigns %>
+  </div>
 </div>
-<a id="add-to-watchlist-link" class="watch-lists-link" data-toggle="watch-lists-<%= local_assigns[:prefix] %><%= content.id %>"><i class="fa <%= content.watch_lists.accessible_by(current_ability).exists? ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i></a>

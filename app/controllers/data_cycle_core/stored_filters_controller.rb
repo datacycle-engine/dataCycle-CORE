@@ -36,7 +36,7 @@ module DataCycleCore
     end
 
     def destroy
-      @stored_filter.filter_uses.update_all(linked_stored_filter_id: nil) # rubocop:disable Rails/SkipsModelValidations
+      @stored_filter.filter_uses.update_all(linked_stored_filter_id: nil)
       if @stored_filter.update(name: nil)
         redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
       else

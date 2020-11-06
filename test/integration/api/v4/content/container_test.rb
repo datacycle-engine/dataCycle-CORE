@@ -7,19 +7,20 @@ module DataCycleCore
   module Api
     module V4
       module Content
-        class ContainerTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
+        class ContainerTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
           include DataCycleCore::ApiV4Helper
 
-          setup do
+          before(:all) do
             @routes = Engine.routes
             @article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'LifeCycleTestArtikel' })
             @container = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: { name: 'TestContainer' })
-            sign_in(User.find_by(email: 'tester@datacycle.at'))
             @article.is_part_of = @container.id
             @article.set_data_hash(data_hash: { name: name }, prevent_history: true)
             @article.save
+          end
+
+          setup do
+            sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 
           test 'container at /api/v4/things/:id serializes with attribute hasPart' do

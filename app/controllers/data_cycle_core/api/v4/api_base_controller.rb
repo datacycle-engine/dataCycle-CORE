@@ -14,15 +14,6 @@ module DataCycleCore
         include DataCycleCore::ApiService
         helper DataCycleCore::ApiHelper
 
-        unless Rails.env.development?
-          rescue_from ActionController::UnknownFormat, with: :not_acceptable
-          rescue_from CanCan::AccessDenied, with: :unauthorized
-          rescue_from ActiveRecord::RecordNotFound, with: :not_found
-        end
-
-        rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error
-        rescue_from DataCycleCore::Error::Api::ExpiredContentError, with: :expired_content_api_error
-
         wrap_parameters format: []
 
         DEFAULT_PAGE_SETTINGS = {
@@ -49,7 +40,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :content_id, :sort, :format, section: {}, page: {}]
+          [:api_subversion, :token, :include, :fields, :content_id, :sort, :format, section: {}, page: {}, content_id: []]
         end
 
         def page_parameters
@@ -125,6 +116,7 @@ module DataCycleCore
 
           raise CanCan::AccessDenied, 'invalid or missing authentication token' if @user.nil?
 
+          request.env['devise.skip_trackable'] = true
           sign_in @user, store: false
         end
 
