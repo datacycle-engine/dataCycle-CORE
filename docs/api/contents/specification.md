@@ -8,7 +8,7 @@
             "in": "[UUID]",
             "notIn": "[UUID]"
         },
-        "filter_id": {
+        "filterId": {
             "in": "[UUID]",
             "notIn": "[UUID]"
         },
@@ -63,7 +63,7 @@
                 "in": "[UUID]",
                 "notIn": "[UUID]"
             },
-            "filter_id": {
+            "filterId": {
                 "in": "[UUID]",
                 "notIn": "[UUID]"
             },
