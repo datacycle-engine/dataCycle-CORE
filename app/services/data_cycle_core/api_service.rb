@@ -115,8 +115,8 @@ module DataCycleCore
         linked_stored_filter.language = @language
         linked_query = linked_stored_filter.apply
 
-        # add error handling
-        attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute].include?(k) }
+        # add error handling for invalid methods
+        attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute, :content_id, :filter_id, :watch_list_id].include?(k) }
 
         linked_query = apply_filters(linked_query, attribute_filter)
         query = query.relation_filter(linked_query, linked_attribute_mapping(linked_name)) if linked_query.present?

@@ -1,11 +1,22 @@
 # Content specification
 ```javascript
-
 {
     "apiSubversion": "String",
     "contentId": "UUID",
     "fields": "String",
     "filter": {
+        "content_id": {
+            "in": "[UUID]",
+            "notIn": "[UUID]"
+        },
+        "filter_id": {
+            "in": "[UUID]",
+            "notIn": "[UUID]"
+        },
+        "watch_list_id": {
+            "in": "[UUID]",
+            "notIn": "[UUID]"
+        },
         "attribute": {
             "{attributeName}":{
                 "in": {
@@ -49,6 +60,18 @@
         "search": "String",
         "q": "String",
         "linked": {
+            "content_id": {
+                "in": "[UUID]",
+                "notIn": "[UUID]"
+            },
+            "filter_id": {
+                "in": "[UUID]",
+                "notIn": "[UUID]"
+            },
+            "watch_list_id": {
+                "in": "[UUID]",
+                "notIn": "[UUID]"
+            },
             "{attributeName(,attributeName)}": {
                 "attribute": {
                     "{attributeName}":{
@@ -151,6 +174,18 @@
                 "search": "String",
                 "q": "String",
                 "linked": {
+                    "content_id": {
+                        "in": "[UUID]",
+                        "notIn": "[UUID]"
+                    },
+                    "filter_id": {
+                        "in": "[UUID]",
+                        "notIn": "[UUID]"
+                    },
+                    "watch_list_id": {
+                        "in": "[UUID]",
+                        "notIn": "[UUID]"
+                    },
                     "{attributeName(,attributeName)}": {
                     "attribute": {
                         "{attributeName}": {
