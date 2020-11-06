@@ -19,13 +19,12 @@ module DataCycleCore
         def self.load_root_classifications(_mongo_item, locale, _options)
           DataCycleCore::Classification
             .where("external_key ILIKE 'Booking.com - FacilityTypes - %'")
-            .pluck(:name, :external_key)
-            .map { |name, external_key|
+            .map { |item|
               {
-                'hotel_facility_type_id' => external_key.split(' - ').last&.to_i,
+                'hotel_facility_type_id' => item.external_key.split(' - ').last&.to_i,
                 'facility_type_id' => 0,
                 'root' => true,
-                'translations' => [{ 'langugage' => 'de', 'name' => name }]
+                'translations' => [{ 'name' => item.primary_classification_alias.name }]
               }
             }.map { |data| { 'dump' => { locale.to_s => data } }.with_indifferent_access }
         end

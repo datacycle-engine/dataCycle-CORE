@@ -33,6 +33,9 @@
         :label: Ergänzende Information
         :type: embedded
         :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation                    
       :logo:
         :label: Logo
         :type: linked
