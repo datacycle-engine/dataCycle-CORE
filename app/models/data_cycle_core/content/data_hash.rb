@@ -28,7 +28,7 @@ module DataCycleCore
       after_destroyed_data_hash :execute_delete_webhooks, if: -> { !embedded? }
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false, version_name: nil)
-        return {} if data_hash.blank?
+        return {} if data_hash.blank? && !force_update
         @data_hash = data_hash.dup.with_indifferent_access
         @current_user = current_user
         @save_time = save_time
