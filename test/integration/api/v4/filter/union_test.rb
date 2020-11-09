@@ -144,6 +144,9 @@ module DataCycleCore
             DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @poi.id, hashable_type: @poi.class.name)
             DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_person_poi_poi2.id, hashable_id: @poi2.id, hashable_type: @poi2.class.name)
 
+            @watch_list_event_poi = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList4')
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list_event_poi.id, hashable_id: @event_poi.id, hashable_type: @event_poi.class.name)
+
             # 4 Images
             # 3 POI's
             # 1 Event
@@ -151,7 +154,111 @@ module DataCycleCore
             @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
           end
 
-          test 'api/v4/endpoints parameter union with content_id' do
+          test 'api/v4/endpoints make sure contentId,filterId and watch_list id are also available on filter root and linked' do
+            params = {}
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(5)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                contentId: {
+                  in: [
+                    @event.id
+                  ]
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+
+            params = {
+              filter: {
+                linked: {
+                  content_location: {
+                    contentId: {
+                      in: [
+                        @event_poi.id
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+
+            params = {
+              filter: {
+                filterId: {
+                  in: [
+                    @stored_filter_event.id
+                  ]
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+
+            params = {
+              filter: {
+                linked: {
+                  content_location: {
+                    filterId: {
+                      in: [
+                        @stored_filter_place.id
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert(@event.id, json_data.dig('@graph').first.dig('@id'))
+
+            params = {
+              filter: {
+                watchListId: {
+                  in: [
+                    @watch_list_event_poi1.id
+                  ]
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event.id, @poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                linked: {
+                  content_location: {
+                    watchListId: {
+                      in: [
+                        @watch_list_event_poi.id
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert_equal([@event.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          end
+
+          test 'api/v4/endpoints parameter union with contentId' do
             params = {}
             post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
             json_data = JSON.parse(response.body)
@@ -162,7 +269,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @event.id
                       ]
@@ -180,7 +287,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         "#{@event.id},#{@poi.id}"
                       ]
@@ -199,7 +306,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @poi.image.first.id.to_s
                       ]
@@ -216,7 +323,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @event.id,
                         @poi.id
@@ -233,7 +340,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       notIn: [
                         @event.id
                       ]
@@ -251,7 +358,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       notIn: [
                         "#{@event.id},#{@poi.id}"
                       ]
@@ -269,7 +376,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       notIn: [
                         @event.id,
                         @poi.id
@@ -288,14 +395,14 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @event.id
                       ]
                     }
                   },
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @poi.id
                       ]
@@ -311,7 +418,7 @@ module DataCycleCore
             assert_equal([@event.id, @poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
           end
 
-          test 'api/v4/endpoints parameter union with filter_id' do
+          test 'api/v4/endpoints parameter union with filterId' do
             params = {}
             post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
             json_data = JSON.parse(response.body)
@@ -322,7 +429,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_event.id
                       ]
@@ -340,7 +447,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_poi.id
                       ]
@@ -358,7 +465,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         "#{@stored_filter_poi.id},#{@stored_filter_event.id}"
                       ]
@@ -376,7 +483,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_poi.id,
                         @stored_filter_event.id
@@ -393,7 +500,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_event.id,
                         @stored_filter_event_person.id
@@ -412,7 +519,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    filter_id: {
+                    filterId: {
                       notIn: [
                         @stored_filter_place.id
                       ]
@@ -430,7 +537,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    filter_id: {
+                    filterId: {
                       notIn: [
                         "#{@stored_filter_event.id},#{@stored_filter_person.id}"
                       ]
@@ -448,7 +555,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    filter_id: {
+                    filterId: {
                       notIn: [
                         @stored_filter_event.id,
                         @stored_filter_person.id
@@ -467,14 +574,14 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_event.id
                       ]
                     }
                   },
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_poi.id
                       ]
@@ -489,7 +596,7 @@ module DataCycleCore
             assert_equal([@poi.id, @poi2.id, @event_poi.id, @event.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
           end
 
-          test 'api/v4/endpoints parameter union with watch_list_id' do
+          test 'api/v4/endpoints parameter union with watchListId' do
             params = {}
             post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
             json_data = JSON.parse(response.body)
@@ -500,7 +607,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    watch_list_id: {
+                    watchListId: {
                       in: [
                         @watch_list_event_poi1.id
                       ]
@@ -518,7 +625,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    watch_list_id: {
+                    watchListId: {
                       in: [
                         @watch_list_person_poi_poi2.id
                       ]
@@ -536,7 +643,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    watch_list_id: {
+                    watchListId: {
                       in: [
                         "#{@watch_list_event_poi1.id},#{@watch_list_person_poi_poi2.id}"
                       ]
@@ -554,7 +661,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    watch_list_id: {
+                    watchListId: {
                       in: [
                         @watch_list_event_poi1.id,
                         @watch_list_person_poi_poi2.id
@@ -573,7 +680,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    watch_list_id: {
+                    watchListId: {
                       notIn: [
                         @watch_list_person_poi_poi2.id
                       ]
@@ -591,7 +698,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    watch_list_id: {
+                    watchListId: {
                       notIn: [
                         "#{@watch_list_event_poi1.id},#{@watch_list_poi2.id}"
                       ]
@@ -609,7 +716,7 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    watch_list_id: {
+                    watchListId: {
                       notIn: [
                         @watch_list_event_poi1.id,
                         @watch_list_poi2.id
@@ -628,14 +735,14 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    watch_list_id: {
+                    watchListId: {
                       in: [
                         @watch_list_event_poi1.id
                       ]
                     }
                   },
                   {
-                    watch_list_id: {
+                    watchListId: {
                       in: [
                         @watch_list_poi2.id
                       ]
@@ -655,14 +762,14 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @person.id
                       ]
                     }
                   },
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_poi.id
                       ]
@@ -680,14 +787,14 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @person.id
                       ]
                     }
                   },
                   {
-                    watch_list_id: {
+                    watchListId: {
                       in: [
                         @watch_list_event_poi1.id
                       ]
@@ -705,14 +812,14 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    watch_list_id: {
+                    watchListId: {
                       in: [
                         @watch_list_event_poi1.id
                       ]
                     }
                   },
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_poi.id
                       ]
@@ -730,21 +837,21 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @person.id
                       ]
                     }
                   },
                   {
-                    watch_list_id: {
+                    watchListId: {
                       in: [
                         @watch_list_event_poi1.id
                       ]
                     }
                   },
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_poi.id
                       ]
@@ -766,14 +873,14 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @person.id
                       ]
                     }
                   },
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_poi.id
                       ]
@@ -801,14 +908,14 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @person.id
                       ]
                     }
                   },
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_poi.id
                       ]
@@ -836,14 +943,14 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @person.id
                       ]
                     }
                   },
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_poi.id
                       ]
@@ -869,14 +976,14 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @person.id
                       ]
                     }
                   },
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_poi.id
                       ]
@@ -901,14 +1008,14 @@ module DataCycleCore
               filter: {
                 union: [
                   {
-                    content_id: {
+                    contentId: {
                       in: [
                         @person.id
                       ]
                     }
                   },
                   {
-                    filter_id: {
+                    filterId: {
                       in: [
                         @stored_filter_poi.id
                       ]

@@ -1,11 +1,21 @@
 # Content specification
 ```javascript
-
 {
     "apiSubversion": "String",
-    "contentId": "UUID",
     "fields": "String",
     "filter": {
+        "contentId": {
+            "in": "[UUID]",
+            "notIn": "[UUID]"
+        },
+        "filterId": {
+            "in": "[UUID]",
+            "notIn": "[UUID]"
+        },
+        "watchListId": {
+            "in": "[UUID]",
+            "notIn": "[UUID]"
+        },
         "attribute": {
             "{attributeName}":{
                 "in": {
@@ -49,6 +59,18 @@
         "search": "String",
         "q": "String",
         "linked": {
+            "contentId": {
+                "in": "[UUID]",
+                "notIn": "[UUID]"
+            },
+            "filterId": {
+                "in": "[UUID]",
+                "notIn": "[UUID]"
+            },
+            "watchListId": {
+                "in": "[UUID]",
+                "notIn": "[UUID]"
+            },
             "{attributeName(,attributeName)}": {
                 "attribute": {
                     "{attributeName}":{
@@ -96,15 +118,15 @@
         },
         "union": [
             {
-                "content_id": {
+                "contentId": {
                     "in": "[UUID]",
                     "notIn": "[UUID]"
                 },
-                "filter_id": {
+                "filterId": {
                     "in": "[UUID]",
                     "notIn": "[UUID]"
                 },
-                "watch_list_id": {
+                "watchListId": {
                     "in": "[UUID]",
                     "notIn": "[UUID]"
                 },
@@ -151,6 +173,18 @@
                 "search": "String",
                 "q": "String",
                 "linked": {
+                    "contentId": {
+                        "in": "[UUID]",
+                        "notIn": "[UUID]"
+                    },
+                    "filterId": {
+                        "in": "[UUID]",
+                        "notIn": "[UUID]"
+                    },
+                    "watchListId": {
+                        "in": "[UUID]",
+                        "notIn": "[UUID]"
+                    },
                     "{attributeName(,attributeName)}": {
                     "attribute": {
                         "{attributeName}": {

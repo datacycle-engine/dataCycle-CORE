@@ -50,7 +50,7 @@ module DataCycleCore
         else
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
           next if filter_v.blank?
-          filter_method_name = ('apply_' + filter_k.to_s.parameterize(separator: '_') + '_filters')
+          filter_method_name = ('apply_' + filter_k.to_s.underscore.parameterize(separator: '_') + '_filters')
           # TODO: add API error
           next unless respond_to?(filter_method_name)
           query = send(filter_method_name, query, filter_v)
@@ -115,8 +115,8 @@ module DataCycleCore
         linked_stored_filter.language = @language
         linked_query = linked_stored_filter.apply
 
-        # add error handling
-        attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute].include?(k) }
+        # add error handling for invalid methods
+        attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId].include?(k) }
 
         linked_query = apply_filters(linked_query, attribute_filter)
         query = query.relation_filter(linked_query, linked_attribute_mapping(linked_name)) if linked_query.present?
@@ -134,7 +134,7 @@ module DataCycleCore
         filter.each do |filter_k, filter_v|
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
           next if filter_v.blank?
-          filter_method_name = ('apply_' + filter_k.to_s.parameterize(separator: '_') + '_filters')
+          filter_method_name = ('apply_' + filter_k.to_s.underscore.parameterize(separator: '_') + '_filters')
           # TODO: add API error
           next unless respond_to?(filter_method_name)
           union_query = send(filter_method_name, union_query, filter_v)

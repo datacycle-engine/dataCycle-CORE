@@ -163,6 +163,8 @@ en:
       updated_watchlist_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\">%{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” was updated and contents were added or removed.</span>"
 
   import:
+    booking:
+      hotel_important_information: Important imformation
     feratel:
       meeting_point: Meeting point
       additional_service:
