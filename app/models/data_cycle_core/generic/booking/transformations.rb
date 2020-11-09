@@ -11,7 +11,9 @@ module DataCycleCore
         def self.booking_to_unterkunft(external_source_id)
           t(:stringify_keys)
           .>> t(:reject_keys, ['region'])
+          .>> t(:add_field, 'additional_information_hotel', ->(s) { Array.wrap(to_additional_information(external_source_id, 'hotel_description').call(s).compact) if s.dig('hotel_data', 'hotel_description')&.squish.present? })
           .>> t(:add_field, 'additional_information', ->(s) { Array.wrap(to_additional_information(external_source_id, 'hotel_important_information').call(s).compact) if s.dig('hotel_data', 'hotel_important_information')&.squish.present? })
+          .>> t(:merge_array_values, 'additional_information', 'additional_information_hotel')
           .>> t(:add_field, 'external_key', ->(s) { s.dig('hotel_id').to_s })
           .>> t(:unwrap, 'hotel_data', ['name', 'hotel_description'])
           .>> t(:rename_keys, { 'hotel_description' => 'description' })
@@ -45,7 +47,7 @@ module DataCycleCore
 
         def self.to_additional_information(external_source_id, type)
           t(:stringify_keys)
-          .>> t(:add_field, 'external_key', ->(s) { "Booking - additional_information - #{I18n.locale} - type - #{s.dig('hotel_id')}" })
+          .>> t(:add_field, 'external_key', ->(s) { "Booking - additional_information - #{I18n.locale} - #{type} - #{s.dig('hotel_id')}" })
           .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: s.dig('external_key'))&.id })
           .>> t(:add_field, 'name', ->(*) { I18n.t("import.booking.#{type}", default: [type]) })
           .>> t(:add_field, 'universal_classifications', ->(*) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', type)) })

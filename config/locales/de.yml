@@ -919,8 +919,9 @@ de:
         translation_missing: Keine Übersetzung vorhanden
 
   import:
-    booking: 
+    booking:
       hotel_important_information: Wichtige Informationen
+      hotel_description: Kurzbeschreibung
     feratel:
       meeting_point: Treffpunkt
       additional_service:
