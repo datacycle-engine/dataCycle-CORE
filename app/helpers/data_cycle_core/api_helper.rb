@@ -111,8 +111,8 @@ module DataCycleCore
 
       return content.load_embedded_objects(key, nil, false, languages, true).includes(:translations, :classifications) unless definition['translated']
 
-      (languages.map(&:to_sym) & content.translated_locales).reduce(nil) do |v, locale|
-        t_value = I18n.with_locale(locale) { content.load_embedded_objects(key, nil, false, languages, true).includes(:translations, :classifications) }
+      languages.map(&:to_sym).reduce(nil) do |v, locale|
+        t_value = I18n.with_locale(locale) { content.load_embedded_objects(key, nil, false, [locale], true).includes(:translations, :classifications) }
 
         if v.nil?
           t_value
