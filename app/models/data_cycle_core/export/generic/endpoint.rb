@@ -11,7 +11,7 @@ module DataCycleCore
         def initialize(**options)
           @host = options.dig(:host)
           @token = options.dig(:token)
-          @token_type = options.fetch(:token_type, 'body')
+          @token_type = options.dig(:token_type) || 'body'
         end
 
         def content_request(method: :post, path:, transformation:, utility_object:, data:)
