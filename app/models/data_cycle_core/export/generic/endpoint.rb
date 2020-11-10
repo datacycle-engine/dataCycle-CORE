@@ -11,13 +11,16 @@ module DataCycleCore
         def initialize(**options)
           @host = options.dig(:host)
           @token = options.dig(:token)
+          @token_type = options.fetch(:token_type, 'body')
         end
 
         def content_request(method: :post, path:, transformation:, utility_object:, data:)
           @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
 
           begin
-            @response = Faraday.run_request(method, File.join(@host, path), transformations.try(transformation, utility_object, data), { 'Content-Type' => 'application/json' })
+            @response = Faraday.run_request(method, File.join(@host, path), transformations.try(transformation, utility_object, data), { 'Content-Type' => 'application/json' }) do |req|
+              req.params['token'] = @token if @token_type == 'url'
+            end
             @output_file.info("#{@response&.env&.dig(:method)&.to_s&.upcase} #{@response&.env&.dig(:url)} #{@response.body}", "#{data&.id} - #{@response&.env&.dig(:status)} #{@response&.env&.dig(:reason_phrase)}")
             @output_file.try(:close)
           rescue Faraday::Error => e
