@@ -186,7 +186,7 @@ de:
     children_present_html: '<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte, diese werden mitgelöscht!</p>'
     creator: Ersteller
     abo_changed_title:
-      one: Ein abonnierter Inhalt wurde geändert
+      one: Ein abonnierter Inhalt (%{title}) wurde geändert
       other: Abonnierte Inhalte wurden geändert
     abo_finalized_title:
       one: Bearbeitung eines abonnierten Inhalts abgeschlossen
