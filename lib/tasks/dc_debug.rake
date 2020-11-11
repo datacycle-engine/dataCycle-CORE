@@ -43,5 +43,15 @@ namespace :dc do
         end
       end
     end
+
+    desc '[debug] show content with more than one overlay'
+    task overlay_survey: :environment do
+      DataCycleCore::ContentContent.select(:content_a_id).where(relation_a: 'overlay')
+        .group(:content_a_id).having('count(relation_a) > ?', 1)
+        .map(&:content_a_id)
+        .map do |i|
+          puts "#{i}; #{DataCycleCore::Thing.find(i).template_name}; #{DataCycleCore::Thing.find(i).load_embedded_objects('overlay', nil, false).map { |o| o.translations.pluck(:locale) }.inject(:+)}"
+        end
+    end
   end
 end
