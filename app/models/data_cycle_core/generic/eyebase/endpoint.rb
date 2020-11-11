@@ -74,7 +74,7 @@ module DataCycleCore
             if changed_from.present?
               req.params['column_1'] = 'geaendert'
               req.params['operator_1'] = 3
-              req.params['choice_1'] = changed_from.to_s
+              req.params['choice_1'] = changed_from.beginning_of_day.to_s
             end
           end
 
