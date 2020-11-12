@@ -71,7 +71,7 @@ de:
   notification:
     frequency:
       always: sofort bei Änderung
-      named_version: bei benannten Versionen (sofort bei Änderung)
+      named_version: bei Versionsänderungen
       day: täglich
       week: wöchentlich
 
