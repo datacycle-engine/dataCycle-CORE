@@ -82,10 +82,18 @@ module DataCycleCore
       end
     end
 
+    # original = content_url
+    # content => Bild: content_url ; other = thumbnail_url
+    # thumbnail = thumbnail_url
     def asset
       content = DataCycleCore::Thing.find(params[:id])
-      raise ActiveRecord::RecordNotFound unless content.respond_to?(:content_url)
-      uri = URI.parse(content.content_url)
+      type = asset_proxy_params.dig(:type)
+      attribute = :content_url
+      attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && content.template_name != 'Bild')
+
+      raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
+      uri = URI.parse(content.send(attribute))
+
       redirect_to(uri.to_s)
     end
 
@@ -424,6 +432,10 @@ module DataCycleCore
 
     def asset_params
       params.permit(:file)
+    end
+
+    def asset_proxy_params
+      params.permit(:type)
     end
 
     def linked_object_params
