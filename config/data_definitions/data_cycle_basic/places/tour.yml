@@ -40,7 +40,8 @@
         :type: embedded
         :template_name: Ergänzende Information
         :api:
-          :name: dc:additionalInformation
+          :v4:
+            :name: dc:additionalInformation
       :description:
         :label: Kurzbeschreibung
         :type: string

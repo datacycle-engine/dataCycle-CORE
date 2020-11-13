@@ -108,6 +108,8 @@
     - ServiceProviderConditions | Feratel
     - ServiceProviderDescription | Feratel
     - GTC | Feratel
+    - hotel_important_information | Booking
+    - hotel_description | Booking
 
 - POI - Kategorien | all:
 

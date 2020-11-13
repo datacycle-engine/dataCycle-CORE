@@ -2,18 +2,17 @@
 ```javascript
 {
     "apiSubversion": "String",
-    "contentId": "UUID",
     "fields": "String",
     "filter": {
-        "content_id": {
+        "contentId": {
             "in": "[UUID]",
             "notIn": "[UUID]"
         },
-        "filter_id": {
+        "filterId": {
             "in": "[UUID]",
             "notIn": "[UUID]"
         },
-        "watch_list_id": {
+        "watchListId": {
             "in": "[UUID]",
             "notIn": "[UUID]"
         },
@@ -60,15 +59,15 @@
         "search": "String",
         "q": "String",
         "linked": {
-            "content_id": {
+            "contentId": {
                 "in": "[UUID]",
                 "notIn": "[UUID]"
             },
-            "filter_id": {
+            "filterId": {
                 "in": "[UUID]",
                 "notIn": "[UUID]"
             },
-            "watch_list_id": {
+            "watchListId": {
                 "in": "[UUID]",
                 "notIn": "[UUID]"
             },
@@ -119,15 +118,15 @@
         },
         "union": [
             {
-                "content_id": {
+                "contentId": {
                     "in": "[UUID]",
                     "notIn": "[UUID]"
                 },
-                "filter_id": {
+                "filterId": {
                     "in": "[UUID]",
                     "notIn": "[UUID]"
                 },
-                "watch_list_id": {
+                "watchListId": {
                     "in": "[UUID]",
                     "notIn": "[UUID]"
                 },
@@ -174,15 +173,15 @@
                 "search": "String",
                 "q": "String",
                 "linked": {
-                    "content_id": {
+                    "contentId": {
                         "in": "[UUID]",
                         "notIn": "[UUID]"
                     },
-                    "filter_id": {
+                    "filterId": {
                         "in": "[UUID]",
                         "notIn": "[UUID]"
                     },
-                    "watch_list_id": {
+                    "watchListId": {
                         "in": "[UUID]",
                         "notIn": "[UUID]"
                     },
