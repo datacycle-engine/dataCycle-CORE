@@ -25,7 +25,7 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, locale)
-          mongo_item.where("dump.#{locale}.mark_for_update" => { '$exists' => true })
+          mongo_item.where({ "dump.#{locale}.mark_for_update".to_sym => { '$exists' => true } })
         end
 
         def self.modified(data)
