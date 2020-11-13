@@ -106,6 +106,22 @@ module DataCycleCore
       data_value
     end
 
+    def load_embedded_object(content, key, languages, definition)
+      return nil if languages.blank?
+
+      return content.load_embedded_objects(key, nil, false, languages, true).includes(:translations, :classifications) unless definition['translated']
+
+      languages.map(&:to_sym).reduce(nil) do |v, locale|
+        t_value = I18n.with_locale(locale) { content.load_embedded_objects(key, nil, false, [locale], true).includes(:translations, :classifications) }
+
+        if v.nil?
+          t_value
+        else
+          v.or(t_value)
+        end
+      end
+    end
+
     def api_value_format(value, definition)
       return value if definition.blank? || definition.dig('format').blank?
       "#{definition.dig('format', 'prepend')}#{value}#{definition.dig('format', 'append')}"

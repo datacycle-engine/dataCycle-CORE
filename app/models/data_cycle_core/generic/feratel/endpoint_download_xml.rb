@@ -216,6 +216,7 @@ module DataCycleCore
                 xml.HandicapFacilities('DateFrom' => '1980-01-01')
                 xml.HandicapClassifications('DateFrom' => '1980-01-01')
                 xml.QualityDetails('DateFrom' => '1980-01-01')
+                xml.GuestCards('DateFrom' => '1980-01-01')
               end
             end
           end

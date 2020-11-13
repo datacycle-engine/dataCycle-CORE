@@ -59,6 +59,7 @@ module DataCycleCore
           .>> t(:unwrap, 'elevation', ['ascent', 'descent', 'minAltitude', 'maxAltitude'])
           .>> t(:unwrap, 'time', ['min'])
           .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape', 'technique'])
+          .>> t(:reject_keys, ['rating'])
           .>> t(:add_field, 'author', ->(s) { s.dig('meta', 'author') })
           .>> t(
             :rename_keys,
