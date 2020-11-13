@@ -1,4 +1,5 @@
 #!/usr/bin/env puma
+# frozen_string_literal: true
 
 directory '/var/www/app/test/dummy/'
 rackup '/var/www/app/test/dummy/config.ru'
@@ -6,11 +7,11 @@ environment 'development'
 
 tag ''
 
-pidfile "/var/www/app/test/dummy/tmp/pids/puma.pid"
-state_path "/var/www/app/test/dummy/tmp/pids/puma.state"
-stdout_redirect(stdout = '/dev/stdout', stderr = '/dev/stderr', append = true)
+pidfile '/var/www/app/test/dummy/tmp/pids/puma.pid'
+state_path '/var/www/app/test/dummy/tmp/pids/puma.state'
+stdout_redirect '/dev/stdout', '/dev/stderr', true
 
-threads 5,5
+threads 5, 5
 
 bind 'unix:///var/www/app/test/dummy/tmp/sockets/puma.sock'
 
