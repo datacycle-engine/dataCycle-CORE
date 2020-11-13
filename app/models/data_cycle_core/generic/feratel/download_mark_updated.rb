@@ -3,32 +3,30 @@
 module DataCycleCore
   module Generic
     module Feratel
-      module DownloadContents
+      module DownloadMarkUpdated
         def self.download_content(utility_object:, options:)
-          DataCycleCore::Generic::Common::DownloadFunctions.download_data(
+          DataCycleCore::Generic::Common::DownloadFunctions.mark_updated(
             download_object: utility_object,
-            data_id: method(:data_id).to_proc,
-            data_name: method(:data_name).to_proc,
-            modified: method(:modified).to_proc,
-            delete: method(:delete).to_proc,
             iterator: method(:load_contents).to_proc,
+            dependent_keys: method(:dependent_keys).to_proc,
             options: options
           )
         end
 
-        def self.data_id(data)
-          data['Id']
+        def self.load_contents(mongo_item, locales, source_filter)
+          criteria = {
+            '$or' => locales.map do |locale|
+              {
+                "dump.#{locale}" => { '$exists' => true },
+                "dump.#{locale}.deleted_at" => { '$exists' => false },
+                "dump.#{locale}.archived_at" => { '$exists' => false }
+              }
+            end
+          }
+          mongo_item.where(source_filter.with_evaluated_values.merge(criteria))
         end
 
-        def self.data_name(data)
-          Array.wrap(data.dig('Details', 'Names', 'Translation')).first.try(:[], 'text')
-        end
-
-        def self.load_contents(mongo_item, locale)
-          mongo_item.where("dump.#{locale}.mark_for_update" => { '$exists' => true })
-        end
-
-        def self.modified(data)
+        def self.dependent_keys(data)
           [
             data,
             data.dig('Facilities'),
@@ -52,12 +50,10 @@ module DataCycleCore
           ].compact
             .map { |i| Array.wrap(i) }
             .inject(&:+)
-            .map { |i| i.dig('ChangeDate').in_time_zone }
-            .max
-        end
-
-        def self.delete(data, locale)
-          data.dig('Descriptions').blank? && locale.to_s != I18n.default_locale.to_s
+            .map { |i| i.dig('Id') }
+            .compact
+            .sort
+            .uniq
         end
       end
     end

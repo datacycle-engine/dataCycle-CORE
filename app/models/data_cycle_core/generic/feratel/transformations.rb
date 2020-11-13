@@ -176,6 +176,8 @@ module DataCycleCore
           .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description'), external_source_id, 'accommodation') })
           .>> t(:add_field, 'gtc', ->(s) { parse_descriptions(s.dig('GTCs'), external_source_id, 'GTC') })
           .>> t(:merge_array_values, 'additional_information', 'gtc')
+          .>> t(:unwrap_description, 'ServiceProviderDescription')
+          .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
           .>> t(:add_amenity_features, external_source_id)
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] } })
           .>> t(:unwrap, 'Details')
@@ -211,9 +213,6 @@ module DataCycleCore
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
           .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
         end
-        # remove description from accommodation (they are now in additional_information)
-        # .>> t(:unwrap_description, 'ServiceProviderDescription')
-        # .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
         # to include services, offers, prices
         # !!!!! service -> offer embedded relation ist jetzt translated = true !!!!
         # .>> t(:add_links, 'contains_place_service', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('Services', 'Service')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
