@@ -295,7 +295,7 @@ module DataCycleCore
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters('ShowCreativeCommons' => true) do
-                xml.Events('Start' => (Time.zone.today - 10.years).strftime('%Y-%m-%d'),
+                xml.Events('Start' => (Time.zone.today - 3.years).strftime('%Y-%m-%d'),
                            'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'),
                            'Status' => 'All')
                 xml.Languages do
@@ -321,7 +321,7 @@ module DataCycleCore
                     xml.Item(id)
                   end
                 end
-                xml.Events('Start' => (Time.zone.today - 10.years).strftime('%Y-%m-%d'),
+                xml.Events('Start' => (Time.zone.today - 3.years).strftime('%Y-%m-%d'),
                            'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'),
                            'Status' => 'All')
                 xml.Languages do
