@@ -186,7 +186,7 @@ module DataCycleCore
           item_ids = []
           ['RG', 'DI', 'TO'].each do |range_code|
             load_range_ids(range_code).each do |range_id|
-              load_updated_data(lang: lang, range_code: range_code, range_ids: range_id, deleted_from: deleted_from).each do |item|
+              load_updated_data(lang: lang, range_code: range_code, range_ids: range_id, deleted_from: deleted_from)&.each do |item|
                 item_ids << item['Id'] unless item_ids.include?(item['Id'])
               end
             end
