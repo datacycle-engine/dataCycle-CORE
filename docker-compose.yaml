@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3.8'
 services:
   postgres:
     image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
@@ -6,7 +6,7 @@ services:
       - ALLOW_IP_RANGE=0.0.0.0/0
     ports:
       - '5446:5432'
-#    shm_size: 4gb
+    shm_size: 4gb
   mongodb:
     image: 'mvertes/alpine-mongo:4.0.6-1'
     ports:
