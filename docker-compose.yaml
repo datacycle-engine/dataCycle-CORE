@@ -78,7 +78,6 @@ services:
     environment:
       PORT: 9000
     command: -enable-url-source -concurrency 20
-    restart: always
     ports:
       - "9000:9000"
 volumes:
