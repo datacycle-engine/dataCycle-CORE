@@ -70,6 +70,7 @@
         :type: string
         :storage_location: translated_value
         :search: true
+        :advanced_search: true
       :description:
         :label: Beschreibung (ALT-Label)
         :type: string
@@ -80,6 +81,7 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :advanced_search: true
       :content_url:
         :label: Bild URL
         :storage_location: value

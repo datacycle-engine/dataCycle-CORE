@@ -8,6 +8,7 @@
         :type: string
         :storage_location: translated_value
         :search: true
+        :advanced_search: true
       :link_name:
         :label: Linktitel
         :type: string
@@ -47,6 +48,7 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :advanced_search: true
       :author:
         :label: Autor
         :type: linked
@@ -63,6 +65,7 @@
             :type: text_editor
             :options:
               :data-size: full
+        :advanced_search: true
       :image:
         :label: Bilder
         :type: linked
