@@ -163,26 +163,25 @@ module DataCycleCore
         end
 
         def advanced_string(value = nil, attribute_path = nil, comparison = nil)
-          # return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
+          return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
           search_value = value.dig('text')
-          query_string = ''
           attribute_path_exists = true
 
-            case comparison
-            when :exists
-              query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil != \'\' AND pil IS NOT NULL)', attribute_path])
-            when :not_exists
-              attribute_path_exists = false
-              query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = \'\' OR pil IS NULL)', attribute_path])
-            when :equal
-              query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: search_value])
-            when :not_equal
-              query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: search_value])
-            when :like
-              query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil LIKE ?)', attribute_path, "%#{search_value}%"])
-            else
-              return self
-            end
+          case comparison
+          when :exists
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil != \'\' AND pil IS NOT NULL)', attribute_path])
+          when :not_exists
+            attribute_path_exists = false
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = \'\' OR pil IS NULL)', attribute_path])
+          when :equal
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: search_value])
+          when :not_equal
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: search_value])
+          when :like
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?)', attribute_path, "%#{search_value&.split(' ')&.join('%')}%"])
+          else
+            return self
+          end
           advanced_query(query_string, attribute_path, attribute_path_exists)
         end
 
