@@ -30,14 +30,14 @@
         <%= hidden_field_tag "f[#{index}][m]", 'n' %>
     <% else %>
         <div class="advanced-filter-mode">
-            <%= select_tag "f[#{index}][m]", options_for_select(filter_mode_options, filter_method) %>
+            <%= select_tag "f[#{index}][m]", options_for_select(filter_mode_options, filter_method), {class: 'advanced-filter-mode-selector'} %>
         </div>
     <% end %>
 
     <div class="advanced-filter-selector">
         <% if filter_advanced_type == 'string' %>
-            <%= hidden_field_tag "f[#{index}][v][helper]", 'true' %>
-            <%= text_field_tag "f[#{index}][v][text]", value&.dig('text'), { placeholder: '', class: 'filter-text' } %>
+            <%= hidden_field_tag "f[#{index}][v][helper]", 'true', {class: 'hidden_helper', disabled: (!['b', 'p'].include?(filter_method))} %>
+            <%= text_field_tag "f[#{index}][v][text]", value&.dig('text'), { placeholder: '', class: 'filter-text', disabled: (['b', 'p'].include?(filter_method)) } %>
         <% elsif filter_advanced_type == 'date' %>
             <span class="separator"><%= t("terms.from", locale: DataCycleCore.ui_language) %></span>
             <%= date_field_tag "f[#{index}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>

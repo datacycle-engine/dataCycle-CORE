@@ -219,6 +219,18 @@ module.exports.initialize = function ($) {
 
       accordion.foundation('down', accordion.find('> .accordion-item > .accordion-content'));
     });
+    $(document).on('change', '.filters .advanced-filter .advanced-filter-mode select', event => {
+      event.preventDefault();
+      let newTarget = $(event.currentTarget).parent().siblings('.advanced-filter-selector');
+      let selectValue = $(event.currentTarget).val();
+      if (selectValue == 'b' || selectValue == 'p'){
+        newTarget.find(':input[type=hidden]').attr('disabled', false);
+        newTarget.find(':input:not([type=hidden])').attr('disabled', true);
+      }else{
+        newTarget.find(':input[type=hidden]').attr('disabled', true);
+        newTarget.find(':input:not([type=hidden])').attr('disabled', false);
+      }
+    });
   };
 
   // submit searchform on blur
