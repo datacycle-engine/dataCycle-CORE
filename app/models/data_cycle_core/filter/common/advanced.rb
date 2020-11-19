@@ -29,6 +29,12 @@ module DataCycleCore
           send(advanced_type, value, attribute_path)
         end
 
+        def not_like_advanced_attributes(value = nil, type = nil, attribute_path = nil)
+          advanced_type = "not_like_advanced_#{type}".to_sym
+          raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+          send(advanced_type, value, attribute_path)
+        end
+
         def exists_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = "exists_advanced_#{type}".to_sym
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
@@ -101,6 +107,10 @@ module DataCycleCore
 
         def like_advanced_string(value = nil, attribute_path = nil)
           advanced_string(value, attribute_path, :like)
+        end
+
+        def not_like_advanced_string(value = nil, attribute_path = nil)
+          advanced_string(value, attribute_path, :not_like)
         end
 
         def exists_advanced_string(value = nil, attribute_path = nil)
@@ -179,6 +189,8 @@ module DataCycleCore
             query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: search_value])
           when :like
             query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?)', attribute_path, "%#{search_value&.split(' ')&.join('%')}%"])
+          when :not_like
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?))', attribute_path, "%#{search_value&.split(' ')&.join('%')}%"])
           else
             return self
           end
