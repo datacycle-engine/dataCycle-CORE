@@ -21,7 +21,8 @@ module DataCycleCore
           'tour', # active after tour refactoring
           'additional_information',
           'publication_schedule', # creativeWorks: publicationSchedule
-          'release_status_comment' # creativeWorks: publicationSchedule
+          'release_status_comment', # creativeWorks: publicationSchedule
+          'dc_potential_action' # TODO: temporary attribute will be moded to potential_action
         ].freeze
 
       def assert_api_count_result(count)
