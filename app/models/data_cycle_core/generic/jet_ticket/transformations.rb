@@ -16,11 +16,35 @@ module DataCycleCore
           .>> t(:add_field, 'event_schedule', ->(s) { Array.wrap(event_schedule(s)) })
           .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s&.dig('EventManager', 'EventManagerID'))&.map { |i| "JetTicket - EventManagerID: #{i}" } })
           .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s&.dig('Venue', 'VenueID'))&.map { |i| "JetTicket - VenueID: #{i}" } })
+          .>> t(:add_field, 'dc_potential_action', ->(s) { parse_potential_action(s, external_source_id) })
           .>> t(:universal_classifications, ->(s) { event_status(s.dig('Status')) })
           .>> t(:universal_classifications, ->(s) { event_flags(s.dig('EventFlags')) })
           .>> t(:universal_classifications, ->(s) { [s.dig('EventType', 'EventTypeID')].compact.map { |i| 'JetTicket - EventTyp - ' + i.to_s }.map { |i| DataCycleCore::Classification.find_by(external_source_id: external_source_id, external_key: i)&.id }.compact })
           .>> t(:universal_classifications, ->(s) { [s.dig('EventType2', 'EventTypeID')].compact.map { |i| 'JetTicket - EventGattung - ' + i.to_s }.map { |i| DataCycleCore::Classification.find_by(external_source_id: external_source_id, external_key: i)&.id }.compact })
           .>> t(:strip_all)
+        end
+
+        def self.parse_potential_action(data, external_source_id)
+          url_translator = {
+            '13' => 'Dornbirn',
+            '14' => 'Götzis',
+            '15' => 'Feldkirch',
+            '16' => 'Landestheater',
+            '17' => 'Bludenz',
+            '18' => 'Symphonieorchester'
+          }
+          event_set_id = data.dig('EventSetID')
+          Array.wrap(data.dig('Releases', 'Release').detect { |i| i.dig('ReleaseID')&.to_i&.in?((13..18).to_a) })
+            .map { |i|
+              action = {}
+              action_id = DataCycleCore::Thing.find_by(external_key: "JetTicket OrderAction:#{data.dig('EventID')}", external_source_id: external_source_id)&.id
+              action['id'] = action_id if action_id.present?
+              action['name'] = 'Buchungs-URL'
+              action['action_type'] = Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'Bestellen'))
+              action['external_key'] = "JetTicket OrderAction:#{data.dig('EventID')}"
+              action['url'] = "https://webshop.events-vorarlberg.at/#{url_translator[i.dig('ReleaseID')]}/Events?eventset_id=[#{event_set_id}]"
+              action
+            }.compact || []
         end
 
         def self.to_organizer(external_source_id)
