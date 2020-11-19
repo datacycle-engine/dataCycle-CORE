@@ -28,6 +28,7 @@
         :api:
           :minimal: true
           :name: value
+        :advanced_search: true
       :dummy:
         :label: invisible
         :type: string

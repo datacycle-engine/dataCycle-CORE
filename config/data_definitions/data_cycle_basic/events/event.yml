@@ -73,6 +73,7 @@
             :type: text_editor
             :options:
               :data-size: full
+        :advanced_search: true
       :url:
         :label: Inhalt URL
         :type: string

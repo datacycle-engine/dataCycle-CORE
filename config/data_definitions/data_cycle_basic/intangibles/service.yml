@@ -32,6 +32,7 @@
             :type: text_editor
             :options:
               :data-size: full
+        :advanced_search: true
       :text:
         :label: Beschreibung (lang)
         :type: string
@@ -42,6 +43,7 @@
             :type: text_editor
             :options:
               :data-size: full
+        :advanced_search: true
         :api:
           :partial: property_value
           :type: PropertyValue

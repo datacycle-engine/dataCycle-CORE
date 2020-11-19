@@ -25,6 +25,7 @@
         :type: string
         :storage_location: translated_value
         :search: true
+        :advanced_search: true
       :description:
         :label: Text
         :type: string
@@ -35,6 +36,7 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :advanced_search: true
       :validity_schedule:
         :label: Season
         :type: schedule
