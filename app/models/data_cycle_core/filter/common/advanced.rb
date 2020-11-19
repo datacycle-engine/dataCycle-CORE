@@ -29,6 +29,24 @@ module DataCycleCore
           send(advanced_type, value, attribute_path)
         end
 
+        def not_like_advanced_attributes(value = nil, type = nil, attribute_path = nil)
+          advanced_type = "not_like_advanced_#{type}".to_sym
+          raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+          send(advanced_type, value, attribute_path)
+        end
+
+        def exists_advanced_attributes(value = nil, type = nil, attribute_path = nil)
+          advanced_type = "exists_advanced_#{type}".to_sym
+          raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+          send(advanced_type, value, attribute_path)
+        end
+
+        def not_exists_advanced_attributes(value = nil, type = nil, attribute_path = nil)
+          advanced_type = "not_exists_advanced_#{type}".to_sym
+          raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+          send(advanced_type, value, attribute_path)
+        end
+
         # TODO: check if required in future version
         def greater_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = "greater_advanced_#{type}".to_sym
@@ -91,6 +109,18 @@ module DataCycleCore
           advanced_string(value, attribute_path, :like)
         end
 
+        def not_like_advanced_string(value = nil, attribute_path = nil)
+          advanced_string(value, attribute_path, :not_like)
+        end
+
+        def exists_advanced_string(value = nil, attribute_path = nil)
+          advanced_string(value, attribute_path, :exists)
+        end
+
+        def not_exists_advanced_string(value = nil, attribute_path = nil)
+          advanced_string(value, attribute_path, :not_exists)
+        end
+
         private
 
         def advanced_numeric(value = nil, attribute_path = nil, comparison = nil)
@@ -143,36 +173,53 @@ module DataCycleCore
         end
 
         def advanced_string(value = nil, attribute_path = nil, comparison = nil)
-          return self unless value.present? && attribute_path.present? && comparison.present?
+          return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
+          search_value = value.dig('text')
+          attribute_path_exists = true
 
           case comparison
+          when :exists
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil != \'\' AND pil IS NOT NULL)', attribute_path])
+          when :not_exists
+            attribute_path_exists = false
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = \'\' OR pil IS NULL)', attribute_path])
           when :equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: value])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: search_value])
           when :not_equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: value])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: search_value])
           when :like
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::TEXT LIKE ?)', attribute_path, "%#{value}%"])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?)', attribute_path, "%#{search_value&.split(' ')&.join('%')}%"])
+          when :not_like
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?))', attribute_path, "%#{search_value&.split(' ')&.join('%')}%"])
           else
             return self
           end
-
-          advanced_query(query_string, attribute_path)
+          advanced_query(query_string, attribute_path, attribute_path_exists)
         end
 
-        def advanced_query(query_string, attribute_path)
-          return self if query_string.blank?
+        def advanced_query(query_string, attribute_path, attribute_path_exists = true)
           reflect(
-            @query.where(search_exists(Arel.sql(advanced_query_string(query_string, attribute_path))))
+            @query
+              .where(
+                search_exists(
+                  Arel.sql(advanced_query_string(query_string, attribute_path, attribute_path_exists)),
+                  true
+                )
+              )
           )
         end
 
-        def advanced_query_string(query_string, attribute_path)
-          # attribute_path_not_null(attribute_path) + ' AND ' + query_string
-          [attribute_path_not_null(attribute_path), query_string].join(' AND ')
+        def advanced_query_string(query_string, attribute_path, attribute_path_exists)
+          return [attribute_path_exists(attribute_path), query_string].reject(&:blank?).join(' AND ').prepend('(').concat(')') if attribute_path_exists == true
+          [attribute_path_not_exists(attribute_path), query_string].reject(&:blank?).join(' OR ').prepend('(').concat(')')
         end
 
-        def attribute_path_not_null(path)
+        def attribute_path_exists(path)
           ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['advanced_attributes ? :path', path: path])
+        end
+
+        def attribute_path_not_exists(path)
+          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes ? :path)', path: path])
         end
       end
     end

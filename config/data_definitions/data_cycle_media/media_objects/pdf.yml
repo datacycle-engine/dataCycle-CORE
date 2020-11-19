@@ -50,6 +50,7 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :advanced_search: true
       :text:
         :label: Inhalt
         :type: computed

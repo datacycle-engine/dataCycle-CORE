@@ -130,6 +130,15 @@
       :type: numeric
     :max_price:
       :type: numeric
+    # testing new filters
+    :description:
+      :type: string
+    :alternative_headline:
+      :type: string
+    :caption:
+      :type: string
+    :text:
+      :type: string
 #    :offer_period.valid_from:
 #      :type: date
 #    :offer_period.valid_through:

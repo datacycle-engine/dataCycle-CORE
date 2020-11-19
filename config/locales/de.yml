@@ -167,6 +167,10 @@ de:
     greater: größer als
     lower: kleiner als
     similar: ist ähnlich
+    like: enthält
+    not_like: enthält nicht
+    blank: ist leer
+    present: ist ausgefüllt
     is_true: 'TRUE'
     is_false: 'FALSE'
     has: enthält
@@ -380,6 +384,9 @@ de:
     elevation: Meereshöhe
     depth_of_snow: Schneehöhe
     depth_of_fresh_snow: Neuschnee
+    caption: Bildunterschrift
+    description: Beschreibung
+    alternative_headline: Unterüberschrift
     geo_radius: Umkreis
     geo_within_classification: Lage
     event_location: Veranstaltungsort
@@ -439,6 +446,8 @@ de:
     until: bis
     min: min
     max: max
+    value_exists: Nicht leer
+    text: Text
 
   list_titles:
     teaser: Teasertext
