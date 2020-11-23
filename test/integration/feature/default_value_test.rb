@@ -21,90 +21,92 @@ module DataCycleCore
         template
       end
 
-      test 'validation works with default_values on creation' do
-        post validate_things_path, xhr: true, params: {
-          template: 'Bild',
-          thing: {
-            datahash: {
-              name: ''
-            }
-          }
-        }
+      # test 'validation works with default_values on creation' do
+      #   post validate_things_path, xhr: true, params: {
+      #     template: 'Bild',
+      #     thing: {
+      #       datahash: {
+      #         name: ''
+      #       }
+      #     }
+      #   }
 
-        assert_response :success
-        assert_equal 'application/json', response.content_type
-        json_data = JSON.parse response.body
+      #   assert_response :success
+      #   assert_equal 'application/json', response.content_type
+      #   json_data = JSON.parse response.body
 
-        assert_empty json_data['error']
-        assert_empty json_data['warning']
-      end
+      #   assert_empty json_data['error']
+      #   assert_empty json_data['warning']
+      # end
 
-      test 'validation works with default_values in new language' do
-        post validate_thing_path(@content), xhr: true, params: {
-          locale: 'en',
-          thing: {
-            datahash: {
-              name: ''
-            }
-          }
-        }
+      # test 'validation works with default_values in new language' do
+      #   post validate_thing_path(@content), xhr: true, params: {
+      #     locale: 'en',
+      #     thing: {
+      #       datahash: {
+      #         name: ''
+      #       }
+      #     }
+      #   }
 
-        assert_response :success
-        assert_equal 'application/json', response.content_type
-        json_data = JSON.parse response.body
+      #   assert_response :success
+      #   assert_equal 'application/json', response.content_type
+      #   json_data = JSON.parse response.body
 
-        assert_empty json_data['error']
-        assert_empty json_data['warning']
-      end
+      #   assert_empty json_data['error']
+      #   assert_empty json_data['warning']
+      # end
 
-      test 'validation works with default_values on creation of translated content' do
-        post validate_things_path, xhr: true, params: {
-          template: 'Bild',
-          thing: {
-            translations: {
-              de: {
-                name: ''
-              }
-            }
-          }
-        }
+      # test 'validation works with default_values on creation of translated content' do
+      #   post validate_things_path, xhr: true, params: {
+      #     template: 'Bild',
+      #     thing: {
+      #       translations: {
+      #         de: {
+      #           name: ''
+      #         }
+      #       }
+      #     }
+      #   }
 
-        assert_response :success
-        assert_equal 'application/json', response.content_type
-        json_data = JSON.parse response.body
+      #   assert_response :success
+      #   assert_equal 'application/json', response.content_type
+      #   json_data = JSON.parse response.body
 
-        assert_empty json_data['error']
-        assert_empty json_data['warning']
-      end
+      #   assert_empty json_data['error']
+      #   assert_empty json_data['warning']
+      # end
 
-      test 'validation works with deleting attributes with default_values' do
-        post validate_thing_path(@content), xhr: true, params: {
-          thing: {
-            datahash: {
-              name: ''
-            }
-          }
-        }
+      # test 'validation works with deleting attributes with default_values' do
+      #   post validate_thing_path(@content), xhr: true, params: {
+      #     thing: {
+      #       datahash: {
+      #         name: ''
+      #       }
+      #     }
+      #   }
 
-        assert_response :success
-        assert_equal 'application/json', response.content_type
-        json_data = JSON.parse response.body
-        assert_equal 1, json_data['error'].size
-        assert_empty json_data['warning']
-      end
+      #   assert_response :success
+      #   assert_equal 'application/json', response.content_type
+      #   json_data = JSON.parse response.body
+      #   assert_equal 1, json_data['error'].size
+      #   assert_empty json_data['warning']
+      # end
 
       test 'validation works in embedded objects' do
-        set_schema_attribute_value('BildOverlay', 'name', 'default_value', 'TranslatedOverlayAttributeDefaultValue')
-        set_schema_attribute_value('BildOverlay', 'name', 'validations', {
+        @content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'DefaultValueArtikelTest' })
+
+        set_schema_attribute_value('Action', 'name', 'default_value', 'TranslatedOverlayAttributeDefaultValue')
+        set_schema_attribute_value('Action', 'name', 'validations', {
           required: true
         })
 
-        post validate_thing_path(@content),
+        post validate_thing_path(@content2),
              xhr: true,
              params: {
                thing: {
                  datahash: {
-                   overlay: {
+                   potential_action: {
                      '0': {
                        name: ''
                      }

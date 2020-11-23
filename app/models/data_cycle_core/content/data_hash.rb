@@ -111,13 +111,35 @@ module DataCycleCore
       end
 
       def validate(data, schema_hash = nil, strict = false, add_defaults = false)
-        if add_defaults && properties_with_default_values.present?
-          @data_hash = data
-          data = add_default_values.dup
-        end
+        data = add_defaults_before_validation(data, add_defaults)
+
+        # if add_defaults && properties_with_default_values.present?
+        #   @data_hash = data
+        #   data = add_default_values.dup
+        # end
 
         validator = DataCycleCore::MasterData::ValidateData.new
         validator.validate(data, schema_hash || schema, strict)
+      end
+
+      def add_defaults_before_validation(data, add_defaults = false)
+        data.slice(*untranslatable_embedded_property_names).each do |key, value|
+          new_embedded = value.select { |o| o['id'].nil? }
+
+          next if new_embedded.blank?
+
+          binding.pry if add_defaults
+        end
+
+        data.slice(*translatable_embedded_property_names).each do |key, value|
+          binding.pry if add_defaults
+        end
+
+        # if properties_with_default_values.present?
+        # end
+        # @data_hash = data
+        # return add_default_values.dup
+        data
       end
 
       def validate?(validation_hash)
