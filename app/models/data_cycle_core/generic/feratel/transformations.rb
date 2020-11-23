@@ -222,9 +222,9 @@ module DataCycleCore
         # .>> t(:add_field, 'makes_offer_package', ->(s) { parse_packages([s.dig('HousePackageMasters', 'HousePackageMaster')]&.flatten&.compact, external_source_id) })
         # .>> t(:add_field, 'makes_offer', ->(s) { Array(s.dig('makes_offer_package')) + Array(s.dig('makes_offer_service')) })
 
-        def self.parse_descriptions(data, external_source_id, type) # ids for descriptions are not uniq in Feratel DSI
+        def self.parse_descriptions(data, external_source_id, type)
           return [] if data.blank?
-          description_ids = []
+          description_ids = [] # ids for descriptions are not uniq in Feratel DSI
           Array.wrap(data).map { |desc|
             next if description_ids.include?(desc.dig('Id'))
             description_ids.push(desc.dig('Id'))
