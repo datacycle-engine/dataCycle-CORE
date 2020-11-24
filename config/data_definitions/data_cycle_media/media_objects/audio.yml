@@ -50,6 +50,7 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :advanced_search: true
       :content_url:
         :label: Audio URL
         :storage_location: value

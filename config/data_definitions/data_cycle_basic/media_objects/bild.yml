@@ -65,6 +65,7 @@
             :disabled: true
           :edit:
             :disabled: true
+        :advanced_search: true
       :caption:
         :label: Bildunterschrift
         :type: string

@@ -53,6 +53,7 @@
             :type: text_editor
             :options:
               :data-size: full
+        :advanced_search: true
       :image:
         :label: Bilder
         :type: linked

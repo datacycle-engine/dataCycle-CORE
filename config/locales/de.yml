@@ -167,6 +167,8 @@ de:
     greater: größer als
     lower: kleiner als
     similar: ist ähnlich
+    like: enthält
+    not_like: enthält nicht
     blank: ist leer
     present: ist ausgefüllt
     is_true: 'TRUE'

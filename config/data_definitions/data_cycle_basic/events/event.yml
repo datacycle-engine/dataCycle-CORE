@@ -73,6 +73,7 @@
             :type: text_editor
             :options:
               :data-size: full
+        :advanced_search: true
       :url:
         :label: Inhalt URL
         :type: string
@@ -216,6 +217,15 @@
         :type: embedded
         :template_name: Angebot
         :translated: true
+      :dc_potential_action:
+        :label: Weiterführende Links
+        :type: embedded
+        :template_name: Action
+        :translated: true
+        :api:
+          :transformation:
+            :method: append
+            :name: potentialAction
       :potential_action:
         :label: Link mit weiterführenden Infos
         :type: string

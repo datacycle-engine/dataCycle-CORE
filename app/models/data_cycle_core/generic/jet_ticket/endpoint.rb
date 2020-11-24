@@ -104,7 +104,7 @@ module DataCycleCore
           envelop = Nokogiri::XML(response.body)
           envelop.remove_namespaces!
           data = envelop.xpath('//' + path)
-          status = envelop.xpath('//EventServiceResult').children.first.content
+          status = envelop.xpath('//EventServiceResult').children.first&.content
 
           # puts Nokogiri::XML(response.body, &:noblanks).to_xml(indent: 2)
           # puts
@@ -113,14 +113,14 @@ module DataCycleCore
           if status != 'true'
             raise "Error JetTicket - downloading #{service_name}/#{method_name}" if retry_count > 5
             sleep(3)
-            load_data(service_name: service_name, method_name: method_name, xml_generator: xml_generator, options: options, retry_count: retry_count + 1)
+            load_data(service_name: service_name, method_name: method_name, xml_generator: xml_generator, path: path, options: options, retry_count: retry_count + 1)
           else
             data
           end
         rescue StandardError
           raise if retry_count > 5
           sleep(3)
-          load_data(service_name: service_name, method_name: method_name, xml_generator: xml_generator, options: options, retry_count: retry_count + 1)
+          load_data(service_name: service_name, method_name: method_name, xml_generator: xml_generator, path: path, options: options, retry_count: retry_count + 1)
         end
 
         def event_request_xml(service_name, method_name, options)

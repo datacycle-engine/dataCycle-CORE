@@ -4,6 +4,8 @@
     :schema_type: Intangible
     :content_type: entity
     :features:
+      :overlay:
+        :allowed: false
       :translatable:
         :allowed: true
     :properties:
@@ -22,6 +24,12 @@
         :ui:
           :show:
             :content_area: none
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: ServiceOverlay
+        :validations:
+          :max: 1
       :description:
         :label: Beschreibung
         :type: string
@@ -32,6 +40,7 @@
             :type: text_editor
             :options:
               :data-size: full
+        :advanced_search: true
       :text:
         :label: Beschreibung (lang)
         :type: string
@@ -42,6 +51,7 @@
             :type: text_editor
             :options:
               :data-size: full
+        :advanced_search: true
         :api:
           :partial: property_value
           :type: PropertyValue

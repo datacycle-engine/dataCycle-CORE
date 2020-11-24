@@ -1,11 +1,9 @@
 ---
 - :data:
-    :name: Skigebiet - Addon
+    :name: ServiceOverlay
     :type: object
-    :schema_type: CreativeWork
+    :schema_type: Service
     :content_type: embedded
-    :api:
-      :type: LocationFeatureSpecification
     :properties:
       :id:
         :label: id
@@ -15,20 +13,20 @@
         :type: string
         :storage_location: column
         :search: true
-        :api:
-          :minimal: true
-          :name: headline
-          :v4:
-            :name: name
-      :text:
-        :label: Text
+      :description:
+        :label: Beschreibung
         :type: string
-        :storage_location: value
+        :storage_location: column
         :search: true
-        :api:
-          :minimal: true
-          :name: value
-        :advanced_search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
       :dummy:
         :label: invisible
         :type: string
@@ -42,7 +40,4 @@
           :edit:
             :disabled: true
           :show:
-            :disabled: true          
-      :meta_data:
-        :type: mixin
-        :name: meta_data
+            :disabled: true
