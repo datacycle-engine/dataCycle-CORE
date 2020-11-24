@@ -64,7 +64,7 @@ module DataCycleCore
         end
       end
 
-      collection.activities.create(user: @current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
+      collection.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
 
       send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
     end
@@ -129,7 +129,7 @@ module DataCycleCore
         end
       end
 
-      collection.activities.create(user: @current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
+      collection.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
 
       send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
     end
@@ -148,7 +148,7 @@ module DataCycleCore
 
       download_file = create_download_file(serializer, serialized_content, content, file_extension, serializer.translatable? ? language : nil)
 
-      content.activities.create(user: @current_user, activity_type: 'download')
+      content.activities.create(user: current_user, activity_type: 'download')
       send_file download_file, filename: "#{download_file_name(content, serializer.translatable? ? language : nil)}#{version.present? ? '-' + version.parameterize(separator: '_') : ''}#{file_extension}", disposition: 'attachment', type: mime_type
     end
 
