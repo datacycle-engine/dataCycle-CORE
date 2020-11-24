@@ -320,7 +320,7 @@ module DataCycleCore
       translation_values = object_params[:translations]&.dig(translation_locale) || {}
       data_hash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
 
-      I18n.with_locale(validation_params[:locale] || translation_locale) do
+      I18n.with_locale(translation_locale || validation_params[:locale]) do
         valid = @object.validate(data_hash, nil, validation_params[:strict] == '1', true)
         render json: valid.to_json
       end

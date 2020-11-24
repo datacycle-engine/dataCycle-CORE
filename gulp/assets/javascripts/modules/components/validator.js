@@ -295,6 +295,7 @@ class Validator {
       });
     }
     let uuid = this.form.find(':input[name="uuid"]').val();
+    let locale = this.form.find(':input[name="locale"]').val() || this.form.find(':input[name="thing[locale]"]').val();
     let table = this.form.find(':input[name="table"]').val() || 'things';
     let url = window.DATA_CYCLE_ENGINE_PATH + '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
     let template = this.form.find(':input[name="template"]').val();
@@ -302,6 +303,13 @@ class Validator {
       form_data.push({
         name: 'template',
         value: template
+      });
+    }
+
+    if (locale != undefined) {
+      form_data.push({
+        name: 'locale',
+        value: locale
       });
     }
 
