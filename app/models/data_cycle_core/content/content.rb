@@ -212,9 +212,11 @@ module DataCycleCore
       end
 
       def untranslatable_embedded_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'embedded' && !definition.dig('translatable')
-        }.keys
+        name_property_selector { |definition| definition['type'] == 'embedded' && !definition.dig('translatable') }
+      end
+
+      def translatable_embedded_property_names
+        name_property_selector { |definition| definition['type'] == 'embedded' && definition.dig('translatable') }
       end
 
       def searchable_embedded_property_names
