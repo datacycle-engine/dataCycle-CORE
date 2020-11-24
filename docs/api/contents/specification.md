@@ -59,19 +59,19 @@
         "search": "String",
         "q": "String",
         "linked": {
-            "contentId": {
-                "in": "[UUID]",
-                "notIn": "[UUID]"
-            },
-            "filterId": {
-                "in": "[UUID]",
-                "notIn": "[UUID]"
-            },
-            "watchListId": {
-                "in": "[UUID]",
-                "notIn": "[UUID]"
-            },
             "{attributeName(,attributeName)}": {
+                "contentId": {
+                    "in": "[UUID]",
+                    "notIn": "[UUID]"
+                },
+                "filterId": {
+                    "in": "[UUID]",
+                    "notIn": "[UUID]"
+                },
+                "watchListId": {
+                    "in": "[UUID]",
+                    "notIn": "[UUID]"
+                },
                 "attribute": {
                     "{attributeName}":{
                         "in": {
@@ -173,61 +173,61 @@
                 "search": "String",
                 "q": "String",
                 "linked": {
-                    "contentId": {
-                        "in": "[UUID]",
-                        "notIn": "[UUID]"
-                    },
-                    "filterId": {
-                        "in": "[UUID]",
-                        "notIn": "[UUID]"
-                    },
-                    "watchListId": {
-                        "in": "[UUID]",
-                        "notIn": "[UUID]"
-                    },
                     "{attributeName(,attributeName)}": {
-                    "attribute": {
-                        "{attributeName}": {
-                        "in": {
-                            "max": "Integer|Float|Date|DateTime",
-                            "min": "Integer|Float|Date|DateTime",
-                            "equals": "String",
-                            "like": "String",
-                            "bool": "Boolean"
+                        "contentId": {
+                            "in": "[UUID]",
+                            "notIn": "[UUID]"
                         },
-                        "notIn": {
-                            "max": "Integer|Float|Date|DateTime",
-                            "min": "Integer|Float|Date|DateTime",
-                            "equals": "String",
-                            "like": "String",
-                            "bool": "Boolean"
-                        }
-                        }
-                    },
-                    "classifications|dc:classification": {
-                        "in": {
-                        "withSubtree": "[UUID]",
-                        "withoutSubtree": "[UUID]"
+                        "filterId": {
+                            "in": "[UUID]",
+                            "notIn": "[UUID]"
                         },
-                        "notIn": {
-                        "withSubtree": "[UUID]",
-                        "withoutSubtree": "[UUID]"
-                        }
-                    },
-                    "geo": {
-                        "in": {
-                        "box": ["swLon", "swLat", "neLon", "neLat"],
-                        "perimeter": ["lon", "lat", "distance"],
-                        "shapes": "[UUID]"
+                        "watchListId": {
+                            "in": "[UUID]",
+                            "notIn": "[UUID]"
                         },
-                        "notIn": {
-                        "box": ["swLon", "swLat", "neLon", "neLat"],
-                        "perimeter": ["lon", "lat", "distance"],
-                        "shapes": "[UUID]"
-                        }
-                    },
-                    "search": "String",
-                    "q": "String"
+                        "attribute": {
+                            "{attributeName}": {
+                            "in": {
+                                "max": "Integer|Float|Date|DateTime",
+                                "min": "Integer|Float|Date|DateTime",
+                                "equals": "String",
+                                "like": "String",
+                                "bool": "Boolean"
+                            },
+                            "notIn": {
+                                "max": "Integer|Float|Date|DateTime",
+                                "min": "Integer|Float|Date|DateTime",
+                                "equals": "String",
+                                "like": "String",
+                                "bool": "Boolean"
+                            }
+                            }
+                        },
+                        "classifications|dc:classification": {
+                            "in": {
+                            "withSubtree": "[UUID]",
+                            "withoutSubtree": "[UUID]"
+                            },
+                            "notIn": {
+                            "withSubtree": "[UUID]",
+                            "withoutSubtree": "[UUID]"
+                            }
+                        },
+                        "geo": {
+                            "in": {
+                            "box": ["swLon", "swLat", "neLon", "neLat"],
+                            "perimeter": ["lon", "lat", "distance"],
+                            "shapes": "[UUID]"
+                            },
+                            "notIn": {
+                            "box": ["swLon", "swLat", "neLon", "neLat"],
+                            "perimeter": ["lon", "lat", "distance"],
+                            "shapes": "[UUID]"
+                            }
+                        },
+                        "search": "String",
+                        "q": "String"
                     }
                 }
             }

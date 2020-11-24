@@ -25,6 +25,7 @@ module DataCycleCore
         def perform
           data = DataCycleCore::Thing.find(@data.id)
           job_result = @endpoint.send(@request, data: data, external_system_data: @external_system_data)
+          external_key = job_result.dig('outdoor_active_id')
 
           case job_result.dig('job_status')
           when 'waiting'
@@ -36,7 +37,11 @@ module DataCycleCore
           when 'jobnotfound', 'failed'
             data.add_external_system_data(@external_system, job_result, 'failure')
           when 'done'
-            data.add_external_system_data(@external_system, job_result, 'success')
+            if external_key.present?
+              data.add_external_system_data(@external_system, job_result, 'success', 'export', external_key)
+            else
+              data.add_external_system_data(@external_system, job_result, 'success')
+            end
           else
             raise DataCycleCore::Generic::Common::Error::GenericError, "Unkown job status: #{job_result.dig('job_status')}"
           end
