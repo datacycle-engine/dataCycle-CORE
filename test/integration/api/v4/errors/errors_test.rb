@@ -261,6 +261,121 @@ module DataCycleCore
             }
             assert_equal(error_object, json_data.dig('errors').first)
           end
+
+          test 'api/v4/things detail error for random uuid items' do
+            params = {
+              id: SecureRandom.uuid
+            }
+            get api_v4_thing_path(params)
+            error_object = {
+              'source' => {
+                'pointer' => request.path
+              },
+              'detail' => 'Not found'
+            }
+            assert_response :not_found
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            assert_equal(error_object, json_data.dig('errors').first)
+
+            post api_v4_thing_path(params)
+            assert_response :not_found
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            assert_equal(error_object, json_data.dig('errors').first)
+          end
+
+          test 'GET/POST /api/v4/endpoints/:uuid/ with random :uuid responds with 404' do
+            params = {
+              id: SecureRandom.uuid
+            }
+
+            get api_v4_stored_filter_path(params)
+            error_object = {
+              'source' => {
+                'pointer' => request.path
+              },
+              'detail' => 'Not found'
+            }
+            assert_response :not_found
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            assert_equal(error_object, json_data.dig('errors').first)
+
+            post api_v4_stored_filter_path(params)
+            assert_response :not_found
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            assert_equal(error_object, json_data.dig('errors').first)
+          end
+
+          test 'GET/POST /api/v4/collections/:uuid with random :uuid responds with 404' do
+            params = {
+              id: SecureRandom.uuid
+            }
+
+            get api_v4_collection_path(params)
+            follow_redirect!
+            error_object = {
+              'source' => {
+                'pointer' => request.path
+              },
+              'detail' => 'Not found'
+            }
+            assert_response :not_found
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            assert_equal(error_object, json_data.dig('errors').first)
+
+            post api_v4_collection_path(params)
+            follow_redirect!
+            assert_response :not_found
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            assert_equal(error_object, json_data.dig('errors').first)
+          end
+
+          test 'GET/POST /api/v4/collections/:uuid without token' do
+            sign_out(User.find_by(email: 'tester@datacycle.at'))
+            params = {
+              id: SecureRandom.uuid
+            }
+
+            get api_v4_collection_path(params)
+            error_object = {
+              'source' => {
+                'pointer' => request.path
+              },
+              'detail' => 'invalid or missing authentication token'
+            }
+            assert_response :unauthorized
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            assert_equal(error_object, json_data.dig('errors').first)
+
+            post api_v4_collection_path(params)
+            assert_response :unauthorized
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            assert_equal(error_object, json_data.dig('errors').first)
+            sign_in(User.find_by(email: 'tester@datacycle.at'))
+          end
         end
       end
     end
