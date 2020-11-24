@@ -13,7 +13,7 @@ module DataCycleCore
           ids = permitted_params.dig(:ids).split(',')
           content = DataCycleCore::Thing.where(id: ids)
 
-          deleted_content_ids = (ids - content.map(&:id))
+          deleted_content_ids = (ids - Array.wrap(content&.map(&:id)))
 
           init_logging do |logger|
             logger.info("DataCycleCore::Api::V2.show for external_system: #{external_system.try(:name)}", nil)
