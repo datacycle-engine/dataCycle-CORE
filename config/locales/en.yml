@@ -241,3 +241,4 @@ en:
       invalid_parameter: Invalid Query Parameter
     data_cycle_core/error/api/expired_content_error:
       expired_content: Content is expired
+    active_record/record_not_found: Not found
