@@ -7,8 +7,7 @@ module DataCycleCore
         after_action :check_job_status, only: [:show]
 
         def show
-          external_system_id = read_id(permitted_params.dig(:id))
-          external_system = DataCycleCore::ExternalSystem.find(external_system_id)
+          external_system = DataCycleCore::ExternalSystem.find(read_id(permitted_params.dig(:id)))
           raise unless external_system.name == 'OutdoorActive'
 
           ids = permitted_params.dig(:ids).split(',')
@@ -68,8 +67,7 @@ module DataCycleCore
         end
 
         def check_job_status
-          external_system_id = read_id(permitted_params.dig(:id))
-          external_system = DataCycleCore::ExternalSystem.find(external_system_id)
+          external_system = DataCycleCore::ExternalSystem.find(read_id(permitted_params.dig(:id)))
           ids = permitted_params.dig(:ids).split(',')
           items = DataCycleCore::Thing.where(id: ids)
 

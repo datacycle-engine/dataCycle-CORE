@@ -15,7 +15,7 @@ module DataCycleCore
               contents.each do |content|
                 xml.poi('id' => content.id,
                         'workflow' => Functions.outdoor_active_system_status(content, external_system),
-                        'lastmodified' => content.updated_at) do
+                        'lastmodified' => content.updated_at.strftime('%Y-%m-%d %H:%M:%S')) do
                   outdoor_active_system_source_keys(content, xml, external_system)
                   # xml.author 'DataCycle'
                   xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
