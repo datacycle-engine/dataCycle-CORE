@@ -29,19 +29,14 @@ module DataCycleCore
 
           case job_result.dig('job_status')
           when 'waiting'
-            data.add_external_system_data(@external_system, job_result, 'pending')
+            data.add_external_system_data(@external_system, job_result, 'pending', 'export', external_key)
           when 'running'
-            data.add_external_system_data(@external_system, job_result, 'pending')
-
+            data.add_external_system_data(@external_system, job_result, 'pending', 'export', external_key)
             raise DataCycleCore::Generic::Common::Error::GenericError, "OutdoorActive job is still running with id #{job_result.dig('job_id')}"
           when 'jobnotfound', 'failed'
-            data.add_external_system_data(@external_system, job_result, 'failure')
+            data.add_external_system_data(@external_system, job_result, 'failure', 'export', external_key)
           when 'done'
-            if external_key.present?
-              data.add_external_system_data(@external_system, job_result, 'success', 'export', external_key)
-            else
-              data.add_external_system_data(@external_system, job_result, 'success')
-            end
+            data.add_external_system_data(@external_system, job_result, 'success', 'export', external_key)
           else
             raise DataCycleCore::Generic::Common::Error::GenericError, "Unkown job status: #{job_result.dig('job_status')}"
           end
