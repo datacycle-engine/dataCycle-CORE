@@ -39,8 +39,8 @@ services:
       - $SSH_AUTH_SOCK:/ssh-agent
     # - /run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock  # SSH-forwarding for Mac
     user: root
-#    ports:
-#      - '3010:3000'
+    #    ports:
+    #      - '3010:3000'
     links:
       - postgres
       - mongodb
@@ -79,7 +79,7 @@ services:
       PORT: 9000
     command: -enable-url-source -concurrency 20
     ports:
-      - "9000:9000"
+      - '9000:9000'
 volumes:
   gems:
   redis:

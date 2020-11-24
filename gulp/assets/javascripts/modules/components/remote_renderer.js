@@ -115,7 +115,7 @@ class RemoteRenderer {
     }).fail(data => {
       $(element)
         .html(
-          '<div class="remote-render-error">Fehler beim Laden des Inhalts.<br><a href="#" class="remote-reload-link"><i class="fa fa-repeat" aria-hidden="true"></i> Neu laden</a></div>'
+          '<div class="remote-render-error">Fehler beim Laden des Inhalts.<a href="#" class="remote-reload-link"><i class="fa fa-repeat" aria-hidden="true"></i> Neu laden</a></div>'
         )
         .removeClass('remote-rendering')
         .addClass('remote-render-failed');
