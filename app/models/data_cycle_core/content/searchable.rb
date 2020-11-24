@@ -53,7 +53,6 @@ module DataCycleCore
               external_system_syncs
             WHERE
               external_system_syncs.syncable_type = 'DataCycleCore::Thing'
-              AND external_system_syncs.sync_type = 'duplicate'
               AND external_system_syncs.external_system_id = :external_system_id
               AND external_system_syncs.external_key IN (:external_key)
             UNION
