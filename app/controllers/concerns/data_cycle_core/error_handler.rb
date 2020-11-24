@@ -59,12 +59,13 @@ module DataCycleCore
     end
 
     def content_api_error(exception)
+      exception_message = exception&.message&.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       [
         {
           source: {
             pointer: request.path
           },
-          detail: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception.message, locale: :en)
+          detail: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: :en)
         }
       ]
     end
