@@ -12,7 +12,7 @@ module DataCycleCore
         end
 
         def self.filter(data, external_system)
-          sync_data = data.external_system_data_all(external_system)
+          sync_data = data.external_system_data_all(external_system, 'export', nil, false)
           job_id = sync_data&.data&.dig('job_id')
           updated_at = sync_data&.updated_at || Time::LONG_AGO
           (

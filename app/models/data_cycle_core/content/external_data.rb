@@ -24,7 +24,11 @@ module DataCycleCore
       end
 
       def external_system_data_all(external_system, sync_type = 'export', external_key = nil, use_key = true)
-        use_key ? external_system_syncs.find_by(external_system_id: external_system.id, sync_type: sync_type, external_key: external_key) : external_system_syncs.find_by(external_system_id: external_system.id, sync_type: sync_type)
+        if use_key
+          external_system_syncs.find_by(external_system_id: external_system.id, sync_type: sync_type, external_key: external_key)
+        else
+          external_system_syncs.find_by(external_system_id: external_system.id, sync_type: sync_type)
+        end
       end
 
       def external_system_data(external_system, sync_type = 'export', external_key = nil, use_key = true)
