@@ -15,11 +15,17 @@ module DataCycleCore
         def error(_job, _exception)
           data = DataCycleCore::Thing.find(@data.id)
           data.add_external_system_data(@external_system, nil, 'error')
+          raise DataCycleCore::Generic::Common::Error::GenericError, "OutdoorActive sync job is failed(error), job_id: #{job_result.dig('job_id')}"
+        rescue DataCycleCore::Generic::Common::Error::GenericError => e
+          Appsignal.send_error(e, nil, 'background')
         end
 
         def failure(_job)
           data = DataCycleCore::Thing.find(@data.id)
           data.add_external_system_data(@external_system, nil, 'failure')
+          raise DataCycleCore::Generic::Common::Error::GenericError, "OutdoorActive sync job is failed(failure), job_id: #{job_result.dig('job_id')}"
+        rescue DataCycleCore::Generic::Common::Error::GenericError => e
+          Appsignal.send_error(e, nil, 'background')
         end
 
         def perform

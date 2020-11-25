@@ -35,7 +35,7 @@ module DataCycleCore
         end
 
         def self.outdoor_active_point(location)
-          "#{location.y} #{location.x}" if location.present?
+          "#{location.y.round(6)} #{location.x.round(6)}" if location.present?
         end
 
         def self.outdoor_active_contact(content, xml)
