@@ -23,7 +23,7 @@ module DataCycleCore
       end
 
       def external_system_data(external_system, sync_type = 'export')
-        external_system_data_all(external_system, sync_type, external_key)&.data
+        external_system_data_all(external_system, sync_type)&.data
       end
 
       def external_system_data_with_key(external_system, sync_type = 'export', external_key = nil)
