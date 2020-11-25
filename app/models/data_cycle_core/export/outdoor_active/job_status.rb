@@ -9,9 +9,9 @@ module DataCycleCore
         def self.process(utility_object:, options: {})
           items = DataCycleCore::Thing.joins(:external_systems)&.to_a&.select do |item|
             if options.dig(:job_id).present?
-              item.external_system_data(utility_object.external_system)&.dig('job_id') == options.dig(:job_id)
+              item.external_system_data(utility_object.external_system, 'export', nil, false)&.dig('job_id') == options.dig(:job_id)
             else
-              item.external_system_data(utility_object.external_system)&.dig('job_id').present?
+              item.external_system_data(utility_object.external_system, 'export', nil, false)&.dig('job_id').present?
             end
           end
 
