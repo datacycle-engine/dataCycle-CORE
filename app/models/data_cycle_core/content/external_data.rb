@@ -18,11 +18,15 @@ module DataCycleCore
         external_system_syncs.find_or_create_by(external_system_id: external_system.id, sync_type: sync_type, external_key: external_key)
       end
 
-      def external_system_data_all(external_system, sync_type = 'export', external_key = nil)
-        external_system_syncs.find_by(external_system_id: external_system.id, sync_type: sync_type, external_key: external_key)
+      def external_system_data_all(external_system, sync_type = 'export')
+        external_system_syncs.find_by(external_system_id: external_system.id, sync_type: sync_type)
       end
 
-      def external_system_data(external_system, sync_type = 'export', external_key = nil)
+      def external_system_data(external_system, sync_type = 'export')
+        external_system_data_all(external_system, sync_type, external_key)&.data
+      end
+
+      def external_system_data_with_key(external_system, sync_type = 'export', external_key = nil)
         external_system_data_all(external_system, sync_type, external_key)&.data
       end
 
