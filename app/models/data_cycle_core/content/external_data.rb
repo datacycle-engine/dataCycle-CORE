@@ -27,7 +27,7 @@ module DataCycleCore
       end
 
       def external_system_data_with_key(external_system, sync_type = 'export', external_key = nil)
-        external_system_data_all(external_system, sync_type, external_key)&.data
+        external_system_syncs.find_by(external_system_id: external_system.id, sync_type: sync_type, external_key: external_key)&.data
       end
 
       def external_source_to_external_system_syncs
