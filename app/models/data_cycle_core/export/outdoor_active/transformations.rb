@@ -18,8 +18,8 @@ module DataCycleCore
                         'lastmodified' => content.updated_at.strftime('%Y-%m-%d %H:%M:%S')) do
                   outdoor_active_system_source_keys(content, xml, external_system)
                   # xml.author 'DataCycle'
-                  xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
                   outdoor_active_system_categories(content, xml, external_system)
+                  xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
                   outdoor_active_contact(content, xml)
                   outdoor_active_descriptons(content, xml)
                   outdoor_active_images(content, xml)
@@ -35,7 +35,7 @@ module DataCycleCore
         end
 
         def self.outdoor_active_point(location)
-          "#{location.y.round(6)} #{location.x.round(6)}" if location.present?
+          "#{location.y} #{location.x}" if location.present?
         end
 
         def self.outdoor_active_contact(content, xml)

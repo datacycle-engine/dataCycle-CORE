@@ -46,7 +46,7 @@ module DataCycleCore
         def parse_job_status_response_body(raw_response_body:, job_id:)
           response_body = Nokogiri::XML(raw_response_body)
 
-          raise DataCycleCore::Generic::Common::Error::EndpointError, 'Cannot process job status with multiple items' if response_body.xpath('//details//content[@type!="imagemeta"]').count > 1
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new('Cannot process job status with multiple items', response_body) if response_body.xpath('//details//content[@type!="imagemeta"]').count > 1
 
           job_status = response_body.children.first.attribute('state').value
 
@@ -82,7 +82,7 @@ module DataCycleCore
               'warnings' => warnings
             }.reject { |_k, v| v.blank? }
           else
-            raise DataCycleCore::Generic::Common::Error::EndpointError, "Unknow job state '#{job_status}'", nil
+            raise DataCycleCore::Generic::Common::Error::EndpointError.new("Unknow job state '#{job_status}'", nil)
           end
         end
       end
