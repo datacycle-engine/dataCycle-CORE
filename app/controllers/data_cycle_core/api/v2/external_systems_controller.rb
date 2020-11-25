@@ -77,7 +77,7 @@ module DataCycleCore
 
           items.each do |item|
             utility_object = DataCycleCore::Export::RefreshObject.new(external_system: external_system)
-            job_id = item.external_system_data(external_system)&.dig('job_id')
+            job_id = item.external_system_data(external_system, 'export', nil, false)&.dig('job_id')
 
             init_logging do |logger|
               logger.info("inspecting item id:#{item.id} --> job_id:#{job_id}", nil)
