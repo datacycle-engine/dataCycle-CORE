@@ -71,7 +71,7 @@ module DataCycleCore
             outdoor_active_id = response_body.xpath('//details//content[@type!="imagemeta"]//@cmsId').first.to_s
             errors = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//invalidContent//text()').map(&:to_s)
             warnings = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//warning//text()').map(&:to_s)
-            warnings = [warnings, response_body.children.first.xpath('//details//message//text()').map(&:to_s)].compact.join('; ')
+            warnings = [warnings, response_body.children.first.xpath('//details//message//text()').map(&:to_s)].flatten.compact.join('; ')
             {
               'job_id' => nil,
               'last_job_id' => job_id,

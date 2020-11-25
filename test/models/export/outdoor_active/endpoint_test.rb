@@ -43,7 +43,6 @@ describe DataCycleCore::Export::OutdoorActive::Endpoint do
 
   it 'should parse successfull job status' do
     result = endpoint.parse_job_status_response_body(raw_response_body: JOB_STATUS_WITH_NO_ERRORS_OR_WARNINGS, job_id: '123456')
-
     assert(result.present?)
     assert(result['outdoor_active_id'], '34214262')
     assert(result['job_status'], 'done')
