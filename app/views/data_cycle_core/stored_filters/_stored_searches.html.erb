@@ -14,26 +14,12 @@
       <span class="buttons">
         <% if can?(:update, stored_search) && stored_search.name.blank? %>
           <a class="save-search" id="save-stored-search-<%= stored_search.id %>" data-toggle="save-search-form-<%= stored_search.id %>"><i class="fa fa-bookmark-o" aria-hidden="true"></i></a>
-          <div class="dropdown-pane no-bullet align-right bottom" id="save-search-form-<%= stored_search.id %>" data-dropdown data-hover="true" data-hover-pane="true">
-            <h5><%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %></h5>
-            <%= form_for(stored_search, namespace: stored_search.id) do |f| %>
-              <div class="validation-container form-element">
-                <%= f.label :name %>
-                <%= f.text_field :name, placeholder: DataCycleCore::StoredFilter.human_attribute_name('name', locale: DataCycleCore.ui_language), required: true, label: false %>
-              </div>
-              <% if can?(:create_global, DataCycleCore::StoredFilter) %>
-                <div class="form-element">
-                  <%= f.check_box :system %>
-                  <%= f.label :system %>
-                </div>
-              <% end %>
-              <%= f.button t('actions.save', locale: DataCycleCore.ui_language),
-                data: {
-                  disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.save', locale: DataCycleCore.ui_language)}"
-                },
-                class: "success button",
-                type: :submit %>
-            <% end %>
+          <div class="dropdown-pane no-bullet align-right bottom remote-render"
+            id="save-search-form-<%= stored_search.id %>"
+            data-dropdown data-hover="true"
+            data-hover-pane="true"
+            data-remote-path="data_cycle_core/stored_filters/add_form"
+            data-remote-options="<%= to_query_params({ stored_search: stored_search }).to_json %>">
           </div>
         <% elsif can?(:update, stored_search) %>
           <i class="fa fa-bookmark" aria-hidden="true"></i>
@@ -42,4 +28,3 @@
     </li>
   <% end %>
 <% end %>
-
