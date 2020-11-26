@@ -28,6 +28,7 @@
         :label: Overlay
         :type: embedded
         :template_name: BodyOfWaterOverlay
+        :translated: true
         :validations:
           :max: 1
       :title:

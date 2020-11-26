@@ -34,6 +34,7 @@
         :label: Overlay
         :type: embedded
         :template_name: PlaceOverlay
+        :translated: true
         :validations:
           :max: 1
       :additional_food_establishment_properties:
