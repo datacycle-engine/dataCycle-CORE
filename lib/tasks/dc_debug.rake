@@ -60,30 +60,51 @@ namespace :dc do
         .group(:content_a_id).having('count(relation_a) > ?', 1)
         .map(&:content_a_id)
         .map do |i|
-          DataCycleCore::Thing.find(i)
+        DataCycleCore::Thing.find(i)
       end
       items.each do |item|
+        # item = items.second
         de_overlay = nil
         en_overlay = nil
+        de_overlay_data_hash = nil
+        en_overlay_data_hash = nil
 
         I18n.with_locale(:de) do
-          de_overlay = item.overlay.detect{|a|a.available_locales.include?(:de)}.get_data_hash
+          de_overlay = item.overlay.detect { |a| a.available_locales.include?(:de) }
+          de_overlay_data_hash = de_overlay.get_data_hash
         end
-
         raise nil.inspect if de_overlay.nil?
 
         I18n.with_locale(:en) do
-          en_overlay = item.overlay&.detect{|a|a.available_locales.include?(:en)}&.get_data_hash
+          en_overlay = item.overlay&.detect { |a| a.available_locales.include?(:en) }
+          en_overlay_data_hash = en_overlay.get_data_hash
+
           next if en_overlay.blank?
-          en_overlay['id'] = de_overlay['id']
-          item.set_data_hash(data_hash: {overlay: [en_overlay]}, partial_update: true, prevent_history: true)
+          en_overlay_data_hash['id'] = de_overlay_data_hash['id']
+        end
+
+        de_overlay.embedded_property_names.each do |embedded_property|
+          if de_overlay_data_hash.dig(embedded_property).size == 1 && en_overlay_data_hash.dig(embedded_property).size == 1
+            en_overlay_data_hash[embedded_property][0]['id'] = de_overlay_data_hash[embedded_property][0]['id']
+          elsif de_overlay_data_hash.dig(embedded_property).empty? && en_overlay_data_hash.dig(embedded_property).empty?
+
+          elsif de_overlay_data_hash.dig(embedded_property).size == 1 && en_overlay_data_hash.dig(embedded_property).empty?
+
+          elsif (de_overlay_data_hash.dig(embedded_property).size == en_overlay_data_hash.dig(embedded_property).size) && embedded_property == 'opening_hours_specification'
+            en_overlay_data_hash[embedded_property] = de_overlay_data_hash[embedded_property]
+          else
+            puts "#{de_overlay_data_hash.dig(embedded_property).size} | #{en_overlay_data_hash.dig(embedded_property).size} | #{item.id}\n"
+          end
+        end
+
+        I18n.with_locale(:en) do
+          item.set_data_hash(data_hash: { overlay: [en_overlay_data_hash] }, partial_update: true, prevent_history: true)
         end
 
         I18n.with_locale(:de) do
-          item.set_data_hash(data_hash: {overlay: [de_overlay]}, partial_update: true, prevent_history: true)
+          item.set_data_hash(data_hash: { overlay: [de_overlay_data_hash] }, partial_update: true, prevent_history: true)
         end
       end
-
     end
   end
 end
