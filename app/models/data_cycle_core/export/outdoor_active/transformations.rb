@@ -44,9 +44,9 @@ module DataCycleCore
             if content.address.present?
               xml.address do
                 xml.street content.address.try(:street_address) if content.address.try(:street_address).present?
-                xml.postalcode content.address.try(:postal_code) if content.address.try(:postal_code).present?
-                xml.municipality content.address.try(:address_locality) if content.address.try(:address_locality).present?
                 xml.number content.address.try(:number) if content.address.try(:number).present?
+                xml.municipality content.address.try(:address_locality) if content.address.try(:address_locality).present?
+                xml.postalcode content.address.try(:postal_code) if content.address.try(:postal_code).present?
               end
             end
             xml.tel content.contact_info.try(:telephone) if content.contact_info.try(:telephone).present?
