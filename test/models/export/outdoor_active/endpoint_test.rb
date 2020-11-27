@@ -37,7 +37,6 @@ JOB_STATUS_WITH_INVALID_CONTENT_ERRORS = <<-EOS
 EOS
 
 JOB_STATUS_WITH_SERIOUS_WARNING = <<-EOS
-  <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
   <update key="datacycle-kaernten" createdAt="2020-11-26 13:42:04" finishedAt="2020-11-26 13:42:04" lastUpdate="2020-11-26 13:42:04" state="warning">
     <sourceUrl>http://datacycle.kaernten.at/api/v2/external_systems/ed979c1a-c582-40ea-adcd-a1ac0b6dd0db/?token=44fddbf821b107fa572c952cd98d8e85&amp;ids=7ec5a968-919b-4815-90da-439c690fb189</sourceUrl>
     <message><![CDATA[You can run the service Service 1972730148 AlpInterfaceUpdater has 200 open events

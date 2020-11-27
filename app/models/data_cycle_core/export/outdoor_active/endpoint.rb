@@ -48,7 +48,7 @@ module DataCycleCore
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new('Cannot process job status with multiple items', response_body) if response_body.xpath('//details//content[@type!="imagemeta"]').count > 1
 
-          job_status = response_body.children.first.attribute('state').value
+          job_status = response_body.xpath('//update').first.attribute('state').value
 
           case job_status
           when 'running', 'jobnotfound'
