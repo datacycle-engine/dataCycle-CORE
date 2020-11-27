@@ -68,6 +68,7 @@ module DataCycleCore
               'job_message' => error_msg
             }
           when 'done', 'warning'
+            serious_warning = (response_body.xpath('//message').children.first.content =~ /AlpInterfaceUpdater has 200 open events/).present?
             outdoor_active_id = response_body.xpath('//details//content[@type!="imagemeta"]//@cmsId').first.to_s
             errors = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//invalidContent//text()').map(&:to_s)
             warnings = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//warning//text()').map(&:to_s)
@@ -77,7 +78,7 @@ module DataCycleCore
               'last_job_id' => job_id,
               'seen_at' => Time.zone.now,
               'outdoor_active_id' => errors.empty? ? outdoor_active_id : nil,
-              'job_status' => errors.empty? ? 'done' : 'failed',
+              'job_status' => errors.present? || serious_warning ? 'failed' : 'done',
               'errors' => errors,
               'warnings' => warnings
             }.reject { |_k, v| v.blank? }
