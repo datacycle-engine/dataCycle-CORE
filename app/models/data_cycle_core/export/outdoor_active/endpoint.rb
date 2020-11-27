@@ -68,7 +68,7 @@ module DataCycleCore
               'job_message' => error_msg
             }
           when 'done', 'warning'
-            serious_warning = (response_body.xpath('//message').children.first.content =~ /AlpInterfaceUpdater has 200 open events/).present?
+            serious_warning = (response_body.xpath('//message').children.first&.content =~ /AlpInterfaceUpdater has 200 open events/).present?
             outdoor_active_id = response_body.xpath('//details//content[@type!="imagemeta"]//@cmsId').first.to_s
             errors = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//invalidContent//text()').map(&:to_s)
             warnings = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//warning//text()').map(&:to_s)

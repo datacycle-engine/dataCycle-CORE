@@ -36,6 +36,20 @@ JOB_STATUS_WITH_INVALID_CONTENT_ERRORS = <<-EOS
   </update>
 EOS
 
+JOB_STATUS_WITH_SERIOUS_WARNING = <<-EOS
+  <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <update key="datacycle-kaernten" createdAt="2020-11-26 13:42:04" finishedAt="2020-11-26 13:42:04" lastUpdate="2020-11-26 13:42:04" state="warning">
+    <sourceUrl>http://datacycle.kaernten.at/api/v2/external_systems/ed979c1a-c582-40ea-adcd-a1ac0b6dd0db/?token=44fddbf821b107fa572c952cd98d8e85&amp;ids=7ec5a968-919b-4815-90da-439c690fb189</sourceUrl>
+    <message><![CDATA[You can run the service Service 1972730148 AlpInterfaceUpdater has 200 open events
+    open event at 2020-11-26T13:41:46: InterfaceUpdateEvent source datacycle-kaerntenin job 2733328408997770056: http://datacycle.kaernten.at/api/v2/external_systems/ed979c1a-c582-40ea-adcd-a1ac0b6dd0db/?token=44fddbf821b107fa572c952cd98d8e85&ids=61af42ae-f761-4903-95f8-5c32a2ec440d
+    open event at 2020-11-26T13:41:44: InterfaceUpdateEvent source datacycle-kaerntenin job 2732835832083493708: http://datacycle.kaernten.at/api/v2/external_systems/ed979c1a-c582-40ea-adcd-a1ac0b6dd0db/?token=44fddbf821b107fa572c952cd98d8e85&ids=fe7870ed-94f5-4c07-aa26-3fb68970805c
+    open event at 2020-11-26T13:41:45: InterfaceUpdateEvent source datacycle-kaerntenin job 2724391853365115724: http://datacycle.kaernten.at/api/v2/external_systems/ed979c1a-c582-40ea-adcd-a1ac0b6dd0db/?token=44fddbf821b107fa572c952cd98d8e85&ids=b82be421-86ae-430a-98da-ab9d633d78fd
+    open event at 2020-11-26T13:41:48: InterfaceUpdateEvent source datacycle-kaerntenin job 2723758534667531086: http://datacycle.kaernten.at/api/v2/external_systems/ed979c1a-c582-40ea-adcd-a1ac0b6dd0db/?token=44fddbf821b107fa572c952cd98d8e85&ids=cc78b257-561b-4569-a54a-d6312117df94
+    open event at 2020-11-26T13:41:51: InterfaceUpdateEvent source datacycle-kaerntenin job 2733328413292755790: http://datacycle.kaernten.at/api/v2/external_systems/ed979c1a-c582-40ea-adcd-a1ac0b6dd0db/?token=44fddbf821b107fa572c952cd98d8e85&ids=1c5e62cd-5528-4ecd-8644-09c1738865c4
+   -1 times on the same time]]></message>
+  </update>
+EOS
+
 describe DataCycleCore::Export::OutdoorActive::Endpoint do
   let(:endpoint) do
     DataCycleCore::Export::OutdoorActive::Endpoint.new
@@ -57,5 +71,12 @@ describe DataCycleCore::Export::OutdoorActive::Endpoint do
     assert_nil(result['outdoor_active_id'])
     assert(result['job_status'], 'failed')
     assert(result['errors'].include?('Invalid data category'))
+  end
+
+  it 'should parse job status containing an jobstatus failed' do
+    result = endpoint.parse_job_status_response_body(raw_response_body: JOB_STATUS_WITH_SERIOUS_WARNING, job_id: '123456')
+
+    assert(result.present?)
+    assert(result['job_status'], 'failed')
   end
 end
