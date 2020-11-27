@@ -10,7 +10,7 @@ module DataCycleCore
           else
             external_system_syncs.find_or_initialize_by(external_system_id: external_system.id, sync_type: sync_type)
           end
-        external_data.attributes = { data: data, status: status, external_key: external_key || external_data.external_key }.compact
+        external_data.attributes = { data: data, status: status, external_key: external_key }.compact
         external_data.save
       end
 

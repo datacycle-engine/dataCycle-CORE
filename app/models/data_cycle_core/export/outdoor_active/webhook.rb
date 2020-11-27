@@ -14,7 +14,7 @@ module DataCycleCore
 
         def error(_job, _exception)
           data = DataCycleCore::Thing.find(@data.id)
-          data.add_external_system_data(@external_system, nil, 'error', nil, false)
+          data.add_external_system_data(@external_system, nil, 'error', 'export', nil, false)
           raise DataCycleCore::Generic::Common::Error::GenericError, "OutdoorActive sync job is failed(error), #{@external_system_data}"
         rescue DataCycleCore::Generic::Common::Error::GenericError => e
           Appsignal.send_error(e, nil, 'background')
@@ -22,7 +22,7 @@ module DataCycleCore
 
         def failure(_job)
           data = DataCycleCore::Thing.find(@data.id)
-          data.add_external_system_data(@external_system, nil, 'failure', nil, false)
+          data.add_external_system_data(@external_system, nil, 'failure', 'export', nil, false)
           raise DataCycleCore::Generic::Common::Error::GenericError, "OutdoorActive sync job is failed(failure), #{@external_system_data}"
         rescue DataCycleCore::Generic::Common::Error::GenericError => e
           Appsignal.send_error(e, nil, 'background')
