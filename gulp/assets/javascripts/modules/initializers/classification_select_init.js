@@ -1,5 +1,4 @@
 // Classification Selctor in Edit Forms
-var ConfirmationModal = require('./../components/confirmation_modal');
 require('select2');
 require('select2/i18n/de');
 $.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'));
