@@ -77,7 +77,7 @@ module DataCycleCore
             serious_warning = global_warning&.include?('AlpInterfaceUpdater has 200 open events') # error when too many updates open
             serious_warning ||= global_warning&.include?('The same job has already been started in') # error when same job was recently startet
             warnings = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//warning//text()').map(&:to_s)
-            warnings = [global_warning.presence, warnings.presence, response_body.children.first.xpath('//details//message//text()').compact.map(&:to_s).join('; ').presence].flatten.compact.join('; ').presence
+            warnings = [global_warning.presence, warnings.presence, response_body.children.first.xpath('//details//message//text()').to_a.compact.map(&:to_s).join('; ').presence].flatten.compact.join('; ').presence
 
             errors = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//invalidContent//text()').map(&:to_s)
             additional_errors = response_body.children.first.to_hash['errors']
