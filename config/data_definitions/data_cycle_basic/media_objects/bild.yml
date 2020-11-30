@@ -39,6 +39,7 @@
         :label: Overlay
         :type: embedded
         :template_name: BildOverlay
+        :translated: true
         :validations:
           :max: 1
       :validity_period:
