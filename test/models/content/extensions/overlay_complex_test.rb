@@ -74,7 +74,7 @@ module DataCycleCore
     def create_event_with_event_schedule(schedule_hash, overlay_schedule_hash)
       item = create_event
       data_hash = {
-        event_schedule: Array.wrap(schedule_hash),
+        event_schedule: Array.wrap(schedule_hash)
       }
       data_hash[:overlay] = [{ event_schedule: Array.wrap(overlay_schedule_hash).compact }.compact].compact if overlay_schedule_hash.present?
       update_event(item, data_hash)
