@@ -56,7 +56,9 @@ module DataCycleCore
             sync.last_successful_sync_at = now
             sync.save!
           end
-          {}
+
+          errors = additional_update_actions(data, external_system) || {}
+          errors
         end
 
         def delete_sync(data:, external_system:)
@@ -66,7 +68,9 @@ module DataCycleCore
             return ["Nothing to delete for data with id=#{data['id']}, in system with id=#{external_system.id}, external_id: #{sync_data.dig(:external_key)}!"] if sync.blank?
             sync.destroy!
           end
-          {}
+
+          errors = additional_delete_actions(data, external_system) || {}
+          errors
         end
 
         def init_logging
@@ -74,6 +78,12 @@ module DataCycleCore
           yield(logging)
         ensure
           logging.close if logging.respond_to?(:close)
+        end
+
+        def additional_update_actions(data, external_system)
+        end
+
+        def additional_delete_actions(data, external_system)
         end
       end
 
