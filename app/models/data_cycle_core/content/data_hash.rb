@@ -28,7 +28,7 @@ module DataCycleCore
       after_destroyed_data_hash :execute_delete_webhooks, if: -> { !embedded? }
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false, version_name: nil)
-        return {} if data_hash.blank?
+        return {} if data_hash.blank? && !force_update
         @data_hash = data_hash.dup.with_indifferent_access
         @current_user = current_user
         @save_time = save_time
@@ -87,6 +87,8 @@ module DataCycleCore
         to_set.each do |property_name, property_definition|
           @data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, @data_hash, self)
         end
+
+        @data_hash
       end
 
       def inherit_source_attributes
@@ -108,7 +110,12 @@ module DataCycleCore
         Webhook::Delete.execute_all(self)
       end
 
-      def validate(data, schema_hash = nil, strict = false)
+      def validate(data, schema_hash = nil, strict = false, add_defaults = false)
+        if add_defaults && properties_with_default_values.present?
+          @data_hash = data
+          data = add_default_values.dup
+        end
+
         validator = DataCycleCore::MasterData::ValidateData.new
         validator.validate(data, schema_hash || schema, strict)
       end

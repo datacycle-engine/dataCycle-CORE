@@ -10,23 +10,33 @@
         <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
     </div>
     <%
-        filter_mode_options =[
-            [t("common.is", locale: DataCycleCore.ui_language), 'i'],
-            [t("common.is_not", locale: DataCycleCore.ui_language), 'e']
-        ]
-        filter_mode_options << [t("common.similar", locale: DataCycleCore.ui_language), 's'] if filter_advanced_type == 'string'
+        if filter_advanced_type == 'string'
+          filter_mode_options =[
+              [t("common.like", locale: DataCycleCore.ui_language), 's'],
+              [t("common.not_like", locale: DataCycleCore.ui_language), 'u'],
+              [t("common.blank", locale: DataCycleCore.ui_language), 'b'],
+              [t("common.present", locale: DataCycleCore.ui_language), 'p', ]
+          ]
+        else
+          filter_mode_options =[
+              [t("common.is", locale: DataCycleCore.ui_language), 'i'],
+              [t("common.is_not", locale: DataCycleCore.ui_language), 'e']
+          ]
+        end
+
     %>
     <% if filter_advanced_type == 'boolean' %>
         <%= hidden_field_tag "f[#{index}][m]", 'n' %>
     <% else %>
         <div class="advanced-filter-mode">
-            <%= select_tag "f[#{index}][m]", options_for_select(filter_mode_options, filter_method) %>
+            <%= select_tag "f[#{index}][m]", options_for_select(filter_mode_options, filter_method), {class: 'advanced-filter-mode-selector'} %>
         </div>
     <% end %>
 
     <div class="advanced-filter-selector">
         <% if filter_advanced_type == 'string' %>
-            <%= text_field_tag "f[#{index}][v]", value, { placeholder: '', class: 'filter-text' } %>
+            <%= hidden_field_tag "f[#{index}][v][helper]", 'true', {class: 'hidden_helper', disabled: (!['b', 'p'].include?(filter_method))} %>
+            <%= text_field_tag "f[#{index}][v][text]", value&.dig('text'), { placeholder: '', class: 'filter-text', disabled: (['b', 'p'].include?(filter_method)) } %>
         <% elsif filter_advanced_type == 'date' %>
             <span class="separator"><%= t("terms.from", locale: DataCycleCore.ui_language) %></span>
             <%= date_field_tag "f[#{index}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>

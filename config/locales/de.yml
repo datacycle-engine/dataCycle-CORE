@@ -71,7 +71,7 @@ de:
   notification:
     frequency:
       always: sofort bei Änderung
-      named_version: bei benannten Versionen (sofort bei Änderung)
+      named_version: bei Versionsänderungen
       day: täglich
       week: wöchentlich
 
@@ -167,6 +167,10 @@ de:
     greater: größer als
     lower: kleiner als
     similar: ist ähnlich
+    like: enthält
+    not_like: enthält nicht
+    blank: ist leer
+    present: ist ausgefüllt
     is_true: 'TRUE'
     is_false: 'FALSE'
     has: enthält
@@ -186,7 +190,7 @@ de:
     children_present_html: '<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte, diese werden mitgelöscht!</p>'
     creator: Ersteller
     abo_changed_title:
-      one: Ein abonnierter Inhalt wurde geändert
+      one: Ein abonnierter Inhalt (%{title}) wurde geändert
       other: Abonnierte Inhalte wurden geändert
     abo_finalized_title:
       one: Bearbeitung eines abonnierten Inhalts abgeschlossen
@@ -380,6 +384,9 @@ de:
     elevation: Meereshöhe
     depth_of_snow: Schneehöhe
     depth_of_fresh_snow: Neuschnee
+    caption: Bildunterschrift
+    description: Beschreibung
+    alternative_headline: Unterüberschrift
     geo_radius: Umkreis
     geo_within_classification: Lage
     event_location: Veranstaltungsort
@@ -439,6 +446,8 @@ de:
     until: bis
     min: min
     max: max
+    value_exists: Nicht leer
+    text: Text
 
   list_titles:
     teaser: Teasertext
@@ -919,8 +928,9 @@ de:
         translation_missing: Keine Übersetzung vorhanden
 
   import:
-    booking: 
+    booking:
       hotel_important_information: Wichtige Informationen
+      hotel_description: Kurzbeschreibung
     feratel:
       meeting_point: Treffpunkt
       additional_service:

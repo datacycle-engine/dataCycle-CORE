@@ -2922,6 +2922,10 @@ button.button-prime.small.bulk-delete-button {
   text-align: center;
   color: $alert-color;
 
+  .remote-reload-link {
+    padding-left: 0.5rem;
+  }
+
   .remote-reload-link,
   .remote-reload-link .fa.fa-repeat {
     color: $primary-color !important;

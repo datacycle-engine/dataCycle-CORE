@@ -7,13 +7,13 @@ module DataCycleCore
         after_action :check_job_status, only: [:show]
 
         def show
-          external_system = DataCycleCore::ExternalSystem.find(permitted_params.dig(:id))
+          external_system = DataCycleCore::ExternalSystem.find(read_id(permitted_params.dig(:id)))
           raise unless external_system.name == 'OutdoorActive'
 
           ids = permitted_params.dig(:ids).split(',')
           content = DataCycleCore::Thing.where(id: ids)
 
-          deleted_content_ids = (ids - content.map(&:id))
+          deleted_content_ids = (ids - Array.wrap(content&.map(&:id)))
 
           init_logging do |logger|
             logger.info("DataCycleCore::Api::V2.show for external_system: #{external_system.try(:name)}", nil)
@@ -67,7 +67,7 @@ module DataCycleCore
         end
 
         def check_job_status
-          external_system = DataCycleCore::ExternalSystem.find(permitted_params.dig(:id))
+          external_system = DataCycleCore::ExternalSystem.find(read_id(permitted_params.dig(:id)))
           ids = permitted_params.dig(:ids).split(',')
           items = DataCycleCore::Thing.where(id: ids)
 
@@ -77,7 +77,7 @@ module DataCycleCore
 
           items.each do |item|
             utility_object = DataCycleCore::Export::RefreshObject.new(external_system: external_system)
-            job_id = item.external_system_data(external_system)&.dig('job_id')
+            job_id = item.external_system_data(external_system, 'export', nil, false)&.dig('job_id')
 
             init_logging do |logger|
               logger.info("inspecting item id:#{item.id} --> job_id:#{job_id}", nil)
@@ -96,10 +96,17 @@ module DataCycleCore
         end
 
         def api_strategy
-          external_source = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id])
+          external_source = DataCycleCore::ExternalSystem.find(read_id(permitted_params[:external_source_id]))
           api_strategy = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
 
           api_strategy&.constantize&.new(external_source, permitted_params[:type], permitted_params[:external_key], permitted_params[:token])
+        end
+
+        def read_id(id)
+          translate_ids = {
+            'ed979c1a-c582-40ea-adcd-a1ac0b6dd0db' => '4f0fb5fd-6adb-480e-91ed-1b04463cab4a'
+          }
+          translate_ids[id] || id
         end
       end
     end

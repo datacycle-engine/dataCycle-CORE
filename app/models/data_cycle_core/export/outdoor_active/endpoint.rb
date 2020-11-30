@@ -46,9 +46,9 @@ module DataCycleCore
         def parse_job_status_response_body(raw_response_body:, job_id:)
           response_body = Nokogiri::XML(raw_response_body)
 
-          raise DataCycleCore::Generic::Common::Error::EndpointError, 'Cannot process job status with multiple items' if response_body.xpath('//details//content[@type!="imagemeta"]').count > 1
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new('Cannot process job status with multiple items', response_body) if response_body.xpath('//details//content[@type!="imagemeta"]').count > 1
 
-          job_status = response_body.children.first.attribute('state').value
+          job_status = response_body.xpath('//update').first.attribute('state').value
 
           case job_status
           when 'running', 'jobnotfound'
@@ -67,22 +67,23 @@ module DataCycleCore
               'job_status' => job_status,
               'job_message' => error_msg
             }
-          when 'done'
+          when 'done', 'warning'
+            serious_warning = response_body.xpath('//message').children.first&.content&.include?('AlpInterfaceUpdater has 200 open events')
             outdoor_active_id = response_body.xpath('//details//content[@type!="imagemeta"]//@cmsId').first.to_s
             errors = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//invalidContent//text()').map(&:to_s)
             warnings = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//warning//text()').map(&:to_s)
-
+            warnings = [warnings, response_body.children.first.xpath('//details//message//text()').map(&:to_s)].flatten.compact.join('; ')
             {
               'job_id' => nil,
               'last_job_id' => job_id,
               'seen_at' => Time.zone.now,
               'outdoor_active_id' => errors.empty? ? outdoor_active_id : nil,
-              'job_status' => errors.empty? ? 'done' : 'failed',
+              'job_status' => errors.present? || serious_warning ? 'failed' : 'done',
               'errors' => errors,
               'warnings' => warnings
             }.reject { |_k, v| v.blank? }
           else
-            raise DataCycleCore::Generic::Common::Error::EndpointError, "Unknow job state '#{job_status}'", nil
+            raise DataCycleCore::Generic::Common::Error::EndpointError.new("Unknow job state '#{job_status}'", nil)
           end
         end
       end

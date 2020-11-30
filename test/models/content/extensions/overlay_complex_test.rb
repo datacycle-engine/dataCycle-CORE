@@ -53,10 +53,11 @@ module DataCycleCore
 
     def create_event_with_image(image, overlay_image)
       item = create_event
-      update_event(item, {
-        image: [image],
-        overlay: [{ image: [overlay_image].compact }.compact].compact
-      })
+      data_hash = {
+        image: [image]
+      }
+      data_hash[:overlay] = [{ image: [overlay_image].compact }.compact].compact if overlay_image.present?
+      update_event(item, data_hash)
     end
 
     def create_schedule(dtstart, dtend, duration)
@@ -72,10 +73,11 @@ module DataCycleCore
 
     def create_event_with_event_schedule(schedule_hash, overlay_schedule_hash)
       item = create_event
-      update_event(item, {
-        event_schedule: Array.wrap(schedule_hash),
-        overlay: [{ event_schedule: Array.wrap(overlay_schedule_hash).compact }.compact].compact
-      })
+      data_hash = {
+        event_schedule: Array.wrap(schedule_hash)
+      }
+      data_hash[:overlay] = [{ event_schedule: Array.wrap(overlay_schedule_hash).compact }.compact].compact if overlay_schedule_hash.present?
+      update_event(item, data_hash)
     end
 
     test 'test overlay of simple attribute(column), no overlay present' do

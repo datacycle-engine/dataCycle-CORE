@@ -15,11 +15,11 @@ module DataCycleCore
               contents.each do |content|
                 xml.poi('id' => content.id,
                         'workflow' => Functions.outdoor_active_system_status(content, external_system),
-                        'lastmodified' => content.updated_at) do
+                        'lastmodified' => content.updated_at.strftime('%Y-%m-%d %H:%M:%S')) do
                   outdoor_active_system_source_keys(content, xml, external_system)
                   # xml.author 'DataCycle'
-                  xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
                   outdoor_active_system_categories(content, xml, external_system)
+                  xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
                   outdoor_active_contact(content, xml)
                   outdoor_active_descriptons(content, xml)
                   outdoor_active_images(content, xml)
@@ -39,19 +39,20 @@ module DataCycleCore
         end
 
         def self.outdoor_active_contact(content, xml)
+          return if content.blank?
           xml.contact do
             if content.address.present?
               xml.address do
-                xml.street content.address.try(:street_address)
-                xml.postalcode content.address.try(:postal_code)
-                xml.municipality content.address.try(:address_locality)
-                xml.number content.address.try(:number)
+                xml.street content.address.try(:street_address) if content.address.try(:street_address).present?
+                xml.number content.address.try(:number) if content.address.try(:number).present?
+                xml.municipality content.address.try(:address_locality) if content.address.try(:address_locality).present?
+                xml.postalcode content.address.try(:postal_code) if content.address.try(:postal_code).present?
               end
             end
-            xml.tel content.contact_info.try(:telephone)
-            xml.fax content.contact_info.try(:fax_number)
-            xml.email content.contact_info.try(:email)
-            xml.url content.contact_info.try(:url)
+            xml.tel content.contact_info.try(:telephone) if content.contact_info.try(:telephone).present?
+            xml.fax content.contact_info.try(:telephone) if content.contact_info.try(:telephone).present?
+            xml.email content.contact_info.try(:email) if content.contact_info.try(:email).present?
+            xml.url content.contact_info.try(:url) if content.contact_info.try(:url).present?
           end
         end
 
@@ -68,7 +69,7 @@ module DataCycleCore
                 xml.description('lang' => translation.locale) do
                   xml.title content.name
                   xml.abstract ActionView::Base.full_sanitizer.sanitize(content.description) if content.description.present?
-                  xml.text_ ActionView::Base.full_sanitizer.sanitize(content.text) if content.text.present?
+                  xml.text ActionView::Base.full_sanitizer.sanitize(content.text) if content.text.present?
                 end
               end
             end
@@ -87,6 +88,8 @@ module DataCycleCore
               next if content.try(image_attribute).blank?
               content.try(image_attribute).each do |image|
                 xml.image('id' => image.id, 'src' => image.content_url) do
+                  xml.source @source
+                  xml.author image.try(:author)&.first&.name if image.try(:author).present?
                   image.translations.each do |translation|
                     I18n.with_locale(translation.locale) do
                       xml.description('lang' => translation.locale) do
@@ -94,19 +97,10 @@ module DataCycleCore
                       end
                     end
                   end
-                  xml.author image.try(:author)&.first&.name if image.try(:author).present?
-                  image_license(image, xml)
-                  xml.source @source
                 end
               end
             end
           end
-        end
-
-        def self.image_license(image, xml)
-          license_string = "#{(image.try(:copyright_holder).present? ? image.copyright_holder&.first&.title : '')}#{(image.try(:copyright_holder).present? ? ', ' + image.copyright_year.to_s : '')}"
-          return if license_string.blank?
-          xml.license license_string
         end
 
         def self.outdoor_active_system_categories(content, xml, external_system)

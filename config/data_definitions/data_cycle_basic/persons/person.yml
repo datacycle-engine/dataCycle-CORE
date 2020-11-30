@@ -36,6 +36,7 @@
         :label: Overlay
         :type: embedded
         :template_name: PersonOverlay
+        :translated: true
         :validations:
           :max: 1
       :content_classifications:
@@ -68,6 +69,7 @@
             :type: text_editor
             :options:
               :data-size: full
+        :advanced_search: true
       :image:
         :label: Bilder
         :type: linked

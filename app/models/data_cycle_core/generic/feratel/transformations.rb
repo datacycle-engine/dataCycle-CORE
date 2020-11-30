@@ -176,6 +176,8 @@ module DataCycleCore
           .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description'), external_source_id, 'accommodation') })
           .>> t(:add_field, 'gtc', ->(s) { parse_descriptions(s.dig('GTCs'), external_source_id, 'GTC') })
           .>> t(:merge_array_values, 'additional_information', 'gtc')
+          .>> t(:unwrap_description, 'ServiceProviderDescription')
+          .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
           .>> t(:add_amenity_features, external_source_id)
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] } })
           .>> t(:unwrap, 'Details')
@@ -211,9 +213,6 @@ module DataCycleCore
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
           .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
         end
-        # remove description from accommodation (they are now in additional_information)
-        # .>> t(:unwrap_description, 'ServiceProviderDescription')
-        # .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
         # to include services, offers, prices
         # !!!!! service -> offer embedded relation ist jetzt translated = true !!!!
         # .>> t(:add_links, 'contains_place_service', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('Services', 'Service')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
@@ -225,9 +224,12 @@ module DataCycleCore
 
         def self.parse_descriptions(data, external_source_id, type)
           return [] if data.blank?
-          Array.wrap(data).map do |desc|
+          description_ids = [] # ids for descriptions are not uniq in Feratel DSI
+          Array.wrap(data).map { |desc|
+            next if description_ids.include?(desc.dig('Id'))
+            description_ids.push(desc.dig('Id'))
             to_additional_information(external_source_id, type).call(desc)
-          end
+          }.compact
         end
 
         def self.to_additional_information(external_source_id, type)
@@ -471,6 +473,8 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
           .>> t(:add_links, 'feratel_topics', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Topics', 'Topic')]&.flatten&.map { |item| item&.dig('Id') } || [] })
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Towns', 'Item')]&.flatten&.map { |item| item&.dig('Id') } || [] })
+          .>> t(:add_links, 'feratel_guest_cards', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+          .>> t(:universal_classifications, ->(s) { s.dig('feratel_guest_cards') })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
           .>> t(:load_category, 'feratel_types', external_source_id, ->(v) { 'Feratel - Infrastrukturtyp - ' + v&.dig('Topics', 'Type').to_s })

@@ -66,27 +66,20 @@ namespace :datacycle do
       end
     end
 
-    desc 'update project config files before 5_2_3 deployment'
-    task :update_configs_before_deploy do
-      on roles(:all) do
-        print_message 'Update puma config'
-        invoke 'datacycle:puma:deploy_config'
-
-        print_message 'Uploading config files'
-        invoke 'datacycle:logrotate:deploy_config'
-      end
-    end
-
     desc 'update project config files: update monit + puma'
     task :update_configs do
       on roles(:all) do
+        # update puma config must be invoked in another task
+        # see: datacycle:default_configs:deploy
         # print_message 'Update puma config'
         # invoke 'datacycle:puma:deploy_config'
         # invoke 'datacycle:puma:restart'
 
-        print_message 'Uploading config files'
+        print_message 'Uploading monit config files'
         invoke('datacycle:monit:deploy_config', 'puma.conf')
         invoke!('datacycle:monit:deploy_config', 'delayed_job.conf')
+
+        # print_message 'Uploading logrotate config files'
         # invoke 'datacycle:logrotate:deploy_config'
 
         print_message 'Reloading services'
@@ -94,6 +87,8 @@ namespace :datacycle do
 
         # invoke('datacycle:nginx:deploy_config', 'production.conf')
         # invoke 'datacycle:nginx:reload'
+
+        # print_message 'Uploading duplicity config files'
         # invoke 'datacycle:duplicity:deploy_config'
       end
     end
@@ -126,6 +121,8 @@ namespace :datacycle do
         print_message 'Uploading config files'
         invoke('datacycle:monit:deploy_config', 'puma.conf')
         invoke!('datacycle:monit:deploy_config', 'delayed_job.conf')
+
+        # print_message 'Uploading logrotate config files'
         invoke 'datacycle:logrotate:deploy_config'
 
         print_message 'Reloading services'
@@ -133,6 +130,8 @@ namespace :datacycle do
 
         invoke('datacycle:nginx:deploy_config', 'production.conf')
         invoke 'datacycle:nginx:reload'
+
+        # print_message 'Uploading duplicity config files'
         invoke 'datacycle:duplicity:deploy_config'
       end
     end
@@ -158,15 +157,15 @@ namespace :datacycle do
       end
     end
 
-    desc 'update project config files: update monit + nginx config files'
+    desc 'check if config files exists'
     task :configs_exists do
       on roles(:all) do
         print_message 'checking for config files'
         invoke 'datacycle:logrotate:validate_config'
         invoke 'datacycle:monit:validate_config'
 
-        # invoke 'datacycle:nginx:validate_config'
-        # invoke 'datacycle:duplicity:validate_config'
+        invoke 'datacycle:nginx:validate_config'
+        invoke 'datacycle:duplicity:validate_config'
       end
     end
 

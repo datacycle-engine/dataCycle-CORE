@@ -43,6 +43,7 @@
             :type: text_editor
             :options:
               :data-size: full
+        :advanced_search: true
       :feratel_accommodation_classifications:
         :type: mixin
         :name: feratel_accommodation_classifications

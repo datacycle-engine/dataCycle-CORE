@@ -150,20 +150,20 @@ module DataCycleCore
         end
 
         # two stage download, first generate an index and then page the index to download full data
-        def infrastructure_items(lang: :de)
-          enumerate_two_stages(:infrastructure_items, '//Infrastructure/InfrastructureItem', '//ChangedInfrastructures/Infrastructure', lang: lang)
+        def infrastructure_items(lang: :de, forced_updates: [])
+          enumerate_two_stages(:infrastructure_items, '//Infrastructure/InfrastructureItem', '//ChangedInfrastructures/Infrastructure', lang: lang, forced_updates: forced_updates)
         end
 
-        def additional_service_providers(lang: :de)
-          enumerate_two_stages(:additional_service_providers, '//ServiceProviders/ServiceProvider', '//ChangedServiceProviders/ServiceProvider', lang: lang)
+        def additional_service_providers(lang: :de, forced_updates: [])
+          enumerate_two_stages(:additional_service_providers, '//ServiceProviders/ServiceProvider', '//ChangedServiceProviders/ServiceProvider', lang: lang, forced_updates: forced_updates)
         end
 
-        def events(lang: :de)
-          enumerate_two_stages(:events, '//Events/Event', '//ChangedEvents/Event', lang: lang)
+        def events(lang: :de, forced_updates: [])
+          enumerate_two_stages(:events, '//Events/Event', '//ChangedEvents/Event', lang: lang, forced_updates: forced_updates)
         end
 
-        def accommodations(lang: :de)
-          enumerate_two_stages(:accommodations, '//ServiceProviders/ServiceProvider', '//ChangedServiceProviders/ServiceProvider', lang: lang)
+        def accommodations(lang: :de, forced_updates: [])
+          enumerate_two_stages(:accommodations, '//ServiceProviders/ServiceProvider', '//ChangedServiceProviders/ServiceProvider', lang: lang, forced_updates: forced_updates)
         end
 
         def mark_deleted_accommodations(lang: :de, deleted_from:)
@@ -176,6 +176,60 @@ module DataCycleCore
 
         def mark_deleted_infrastructure_items(lang: :de, deleted_from:)
           enumerate_items(:mark_deleted_infrastructure_items, '//DeletedItems/Item', lang: lang, deleted_from: deleted_from)
+        end
+
+        def mark_updated(lang: :de, deleted_from: nil)
+          load_deleted_related_items(lang: lang, deleted_from: deleted_from)
+        end
+
+        def load_deleted_related_items(lang: :de, deleted_from: nil)
+          item_ids = []
+          ['RG', 'DI', 'TO'].each do |range_code|
+            load_range_ids(range_code).each do |range_id|
+              load_updated_data(lang: lang, range_code: range_code, range_ids: range_id, deleted_from: deleted_from)&.each do |item|
+                item_ids << item['Id'] unless item_ids.include?(item['Id'])
+              end
+            end
+          end
+          item_ids.sort
+        end
+
+        def load_updated_data(lang: :de, range_code: 'RG', range_ids: @primary_range_id, deleted_from: nil, retry_count: 0)
+          url = "#{@endpoint_url}/DSI/BasicData.asmx/GetData"
+          request_parameters = send('create_mark_updated_request_xml', range_code: range_code, range_ids: range_ids, deleted_from: deleted_from)
+
+          # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
+
+          response = Faraday.new.post do |req|
+            req.url url
+            req.options.timeout = 1200
+            req.body = { 'xmlString' => request_parameters }
+          end
+
+          envelop = Nokogiri::XML(response.body)
+          data = Nokogiri::XML(envelop.children.first.content)
+          data.remove_namespaces!
+
+          # puts Nokogiri::XML(response.body, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
+
+          if data.xpath('//@Status').first.value != '0'
+            raise data.xpath('//@Message').first.value if retry_count > 5
+            sleep(3)
+            load_updated_data(lang: lang, range_code: range_code, range_ids: range_ids, deleted_from: deleted_from, retry_count: retry_count + 1)
+          else
+            data
+              .xpath('//Result/DeletedItems')
+              .map { |i| Array.wrap(i.to_hash['Item']) }
+              .inject(&:+)
+          end
+        rescue StandardError
+          raise if retry_count > 5
+          sleep(3)
+          load_updated_data(lang: lang, range_code: range_code, range_ids: range_ids, deleted_from: deleted_from, retry_count: retry_count + 1)
         end
 
         def enumerate_items(type, xpath, lang: :de, deleted_from: nil)
@@ -227,14 +281,14 @@ module DataCycleCore
           end
         end
 
-        def enumerate_two_stages(type, xpath, changed_xpath, lang: :de)
+        def enumerate_two_stages(type, xpath, changed_xpath, lang: :de, forced_updates: [])
           # load all relevant item_ids
           item_hash = {}
           min_index = @params[:min_count] || 0
           max_index = @params[:max_count] || (2**(0.size * 8 - 2) - 1)
           external_keys = @params[:external_keys]
           changed_from = @params[:changed_from]
-          load_range_ids_new.map { |range_code, range_id|
+          all_data = load_range_ids_new.map { |range_code, range_id|
             data_loaded =
               if changed_from.present?
                 load_changed_data(type, lang: lang, range_code: range_code, range_ids: range_id, changed_from: changed_from).xpath(changed_xpath)
@@ -245,7 +299,8 @@ module DataCycleCore
               next if external_keys.present? && !xml_raw_data['Id'].in?(external_keys)
               [xml_raw_data['Id'], range_code, range_id]
             }.compact
-          }.inject(:+)[min_index...max_index]&.each { |i| item_hash[i[1..2]] = (item_hash[i[1..2]] || []).push(i[0]) }
+          }.inject(:+)
+          (forced_updates + all_data)[min_index...max_index]&.each { |i| item_hash[i[1..2]] = (item_hash[i[1..2]] || []).push(i[0]) }
 
           # load item details
           Enumerator.new do |yielder|
@@ -253,7 +308,11 @@ module DataCycleCore
             item_hash.each do |range, ids|
               ids.each_slice(@per) do |id_slice|
                 load_data_item(type, lang: lang, range_code: range[0], range_ids: range[1], item_ids: id_slice).xpath(xpath).each do |xml_data|
-                  item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
+                  item = {
+                    '_Type' => xml_data.parent.name.singularize,
+                    '_RangeCode' => range[0],
+                    '_RangeId' => range[1]
+                  }.merge(xml_data.to_hash)
                   unless item_ids.include?(item['Id'] || item['Order'])
                     item_ids << item['Id'] || item['Order']
                     yielder << item

@@ -3,10 +3,24 @@
     <i class="fa fa-tags" aria-hidden="true"></i>
     <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
   </span>
+  <% value = value.is_a?(ActionController::Parameters) ? value.to_unsafe_hash : value %>
   <% if value.is_a?(Hash) %>
     <% value.reject {|_,v| v.blank?}.each do |k,v| %>
-      <span class="tag-group-label"><%= t("terms.#{k}", locale: DataCycleCore.ui_language) %></span>
-      <span class="tag"><%= v %></span>
+      <% if ['b', 'p'].include?(local_assigns.dig(:filter_method)) %>
+        <%
+          next if k == 'text'
+          if local_assigns.dig(:filter_method) == 'b'
+            translation_key = 'blank'
+          else
+            translation_key = 'present'
+          end
+        %>
+        <span class="tag"><%= t("common.#{translation_key}", locale: DataCycleCore.ui_language) %></span>
+      <% else %>
+        <% next if k == 'helper' %>
+        <span class="tag-group-label"><%= t("terms.#{k}", locale: DataCycleCore.ui_language) %></span>
+        <span class="tag"><%= v %></span>
+      <% end %>
     <% end %>
   <% else %>
     <span class="tag"><%= value %></span>

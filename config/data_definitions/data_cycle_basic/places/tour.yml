@@ -30,6 +30,7 @@
         :label: Overlay
         :type: embedded
         :template_name: TourOverlay
+        :translated: true
         :validations:
           :max: 1
       :content_classifications:
@@ -52,6 +53,7 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :advanced_search: true
       :text:
         :label: Beschreibung
         :type: string
@@ -62,6 +64,7 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :advanced_search: true
       :primary_image:
         :label: Hauptbild
         :type: linked

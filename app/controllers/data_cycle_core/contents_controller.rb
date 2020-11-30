@@ -53,7 +53,7 @@ module DataCycleCore
 
       if DataCycleCore::Feature::Container.enabled? &&
          @content.content_type?('entity') &&
-         @content.class.name == 'DataCycleCore::Thing' &&
+         @content.instance_of?(DataCycleCore::Thing) &&
          !['Bild', 'Video', 'Video-Serie', 'Foto-Serie'].include?(@content.template_name)
         I18n.with_locale(DataCycleCore.ui_language) do
           @parents = DataCycleCore::Thing.where("schema ->> 'content_type' = 'container' AND template = FALSE").includes(:translations).map { |c| [c.title, c.id] }.presence&.to_h
@@ -82,10 +82,18 @@ module DataCycleCore
       end
     end
 
+    # original = content_url
+    # content => Bild: content_url ; other = thumbnail_url
+    # thumbnail = thumbnail_url
     def asset
       content = DataCycleCore::Thing.find(params[:id])
-      raise ActiveRecord::RecordNotFound unless content.respond_to?(:content_url)
-      uri = URI.parse(content.content_url)
+      type = asset_proxy_params.dig(:type)
+      attribute = :content_url
+      attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && content.template_name != 'Bild')
+
+      raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
+      uri = URI.parse(content.send(attribute))
+
       redirect_to(uri.to_s)
     end
 
@@ -301,20 +309,21 @@ module DataCycleCore
     end
 
     def validate
-      @object = DataCycleCore::Thing.where(id: params[:id]).or(DataCycleCore::Thing.where(template: true, template_name: params[:template])).first
+      @object = DataCycleCore::Thing.find_by(id: validation_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: validation_params[:template])
 
-      render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
+      render json: { warning: { content: ['content/template not found'] } } && return if @object.nil?
 
       authorize! :show, @object
 
       object_params = content_params(@object.template_name)
-      translation_values = object_params[:translations]&.values&.first || {}
+      translation_locale = object_params[:translations]&.keys&.first
+      translation_values = object_params[:translations]&.dig(translation_locale) || {}
       data_hash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
-      @object.instance_variable_set(:@data_hash, data_hash)
-      @object.add_default_values if @object.properties_with_default_values.present?
 
-      valid = @object.validate(data_hash, nil, params[:strict] == '1')
-      render json: valid.to_json
+      I18n.with_locale(translation_locale || validation_params[:locale]) do
+        valid = @object.validate(data_hash, nil, validation_params[:strict] == '1', true)
+        render json: valid.to_json
+      end
     end
 
     def load_more_linked_objects
@@ -426,6 +435,10 @@ module DataCycleCore
       params.permit(:file)
     end
 
+    def asset_proxy_params
+      params.permit(:type)
+    end
+
     def linked_object_params
       params.permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, definition: {}, load_more_except: [], options: {})
     end
@@ -436,6 +449,10 @@ module DataCycleCore
 
     def render_embedded_object_params
       params.permit(:id, :locale, :attribute_locale, :key, :index, :duplicated_content, :hide_embedded, object_ids: [], definition: {}, options: {})
+    end
+
+    def validation_params
+      params.permit(:id, :template, :strict, :locale)
     end
 
     def content_params(template_name, params_hash = nil)

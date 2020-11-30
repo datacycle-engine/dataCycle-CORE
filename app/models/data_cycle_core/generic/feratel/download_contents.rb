@@ -11,6 +11,7 @@ module DataCycleCore
             data_name: method(:data_name).to_proc,
             modified: method(:modified).to_proc,
             delete: method(:delete).to_proc,
+            iterator: method(:load_contents).to_proc,
             options: options
           )
         end
@@ -21,6 +22,10 @@ module DataCycleCore
 
         def self.data_name(data)
           Array.wrap(data.dig('Details', 'Names', 'Translation')).first.try(:[], 'text')
+        end
+
+        def self.load_contents(mongo_item, locale)
+          mongo_item.where({ "dump.#{locale}.mark_for_update".to_sym => { '$exists' => true } })
         end
 
         def self.modified(data)

@@ -36,6 +36,8 @@ module DataCycleCore
 
             next if !strict && data_keys.exclude?(key)
 
+            next if key_item['type'] == 'virtual'
+
             unless basic_types.include?(key_item['type'])
               (@error[:error][key] ||= []) << I18n.t(:object_type, scope: [:validation, :errors], data: key_item, type: key_item['type'], locale: DataCycleCore.ui_language)
               next

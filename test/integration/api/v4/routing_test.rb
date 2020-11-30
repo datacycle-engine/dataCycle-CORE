@@ -177,48 +177,6 @@ module DataCycleCore
           assert_equal(deleted_content_id, json_data.dig('@graph').first.dig('@id'))
         end
 
-        test 'GET/POST /api/v4/endpoints/:uuid/ with random :uuid responds with 404' do
-          params = {
-            id: SecureRandom.uuid
-          }
-
-          get api_v4_stored_filter_path(params)
-
-          assert_response :not_found
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(['error'], json_data.keys)
-
-          post api_v4_stored_filter_path(params)
-
-          assert_response :not_found
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(['error'], json_data.keys)
-        end
-
-        test 'GET/POST /api/v4/collections/:uuid with random :uuid responds with 404' do
-          params = {
-            id: SecureRandom.uuid
-          }
-
-          get api_v4_collection_path(params)
-          follow_redirect!
-
-          assert_response :not_found
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(['error'], json_data.keys)
-
-          post api_v4_collection_path(params)
-          follow_redirect!
-
-          assert_response :not_found
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(['error'], json_data.keys)
-        end
-
         test 'GET/POST /api/v4/concept_schemes' do
           params = {}
 

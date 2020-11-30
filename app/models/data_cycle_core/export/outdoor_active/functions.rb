@@ -10,14 +10,12 @@ module DataCycleCore
 
         def self.update(utility_object:, data:)
           external_system = utility_object.external_system
-          external_system_data = data.external_system_data(external_system)
-          data.add_external_system_data(external_system, nil, 'pending')
+          external_system_data = data.external_system_data(external_system, 'export', nil, false)
+          data.add_external_system_data(external_system, nil, 'pending', 'export', nil, false)
 
           init_logging do |logger|
             logger.info("update -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
           end
-
-          # utility_object.logging.info("update -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
 
           Delayed::Job.enqueue(
             DataCycleCore::Export::OutdoorActive::Webhook.new(
@@ -32,13 +30,11 @@ module DataCycleCore
 
         def self.update_job_status(utility_object:, data:)
           external_system = utility_object.external_system
-          external_system_data = data.external_system_data(external_system)
+          external_system_data = data.external_system_data(external_system, 'export', nil, false)
 
           init_logging do |logger|
             logger.info("update_job_status -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
           end
-
-          # utility_object.logging.info("update_job_status -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
 
           Delayed::Job.enqueue(
             DataCycleCore::Export::OutdoorActive::Webhook.new(
@@ -53,8 +49,8 @@ module DataCycleCore
 
         def self.delete(utility_object:, data:)
           external_system = utility_object.external_system
-          external_system_data = data.external_system_data(external_system)
-          data.add_external_system_data(external_system, nil, 'deleting')
+          external_system_data = data.external_system_data(external_system, 'export', nil, false)
+          data.add_external_system_data(external_system, nil, 'deleting', 'export', nil, false)
 
           init_logging do |logger|
             logger.info("delete -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
