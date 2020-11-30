@@ -54,13 +54,13 @@ module DataCycleCore
           "outdoor_active_#{@data.id}"
         end
 
-        def self.log(message, id)
+        def log(message, id)
           init_logging do |logger|
             logger.info(message, id)
           end
         end
 
-        def self.init_logging
+        def init_logging
           logging = DataCycleCore::Generic::Logger::LogFile.new(:outdoor_active_sync_errors)
           yield(logging)
         ensure
