@@ -30,6 +30,7 @@
         :label: Overlay
         :type: embedded
         :template_name: TourOverlay
+        :translated: true
         :validations:
           :max: 1
       :content_classifications:

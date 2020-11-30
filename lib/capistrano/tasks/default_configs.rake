@@ -30,7 +30,7 @@ namespace :datacycle do
 
         after 'deploy:migrate', 'datacycle:dev:update_project'
         after 'datacycle:dev:update_project', 'datacycle:dev:migrate_project'
-        after 'puma:restart', 'datacycle:dev:migrate_project_with_new_configs'
+        after 'deploy:published', 'datacycle:dev:migrate_project_with_new_configs'
 
         unless fetch(:skip_deploy_configs)
           before 'puma:restart', 'datacycle:puma:deploy_config'

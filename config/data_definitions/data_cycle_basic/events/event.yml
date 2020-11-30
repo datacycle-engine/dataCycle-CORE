@@ -26,6 +26,7 @@
         :label: Overlay
         :type: embedded
         :template_name: EventOverlay
+        :translated: true
         :validations:
           :max: 1
       :title:
