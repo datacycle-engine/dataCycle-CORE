@@ -33,7 +33,7 @@ module DataCycleCore
           job_result = @endpoint.send(@request, data: data, external_system_data: @external_system_data)
           external_key = job_result.dig('outdoor_active_id')
 
-          Function.log(job_results, @data.id) if job_results.dig('errors').present? || job_results.dig('warnings')
+          log(job_results, @data.id) if job_results.dig('errors').present? || job_results.dig('warnings')
 
           case job_result.dig('job_status')
           when 'waiting'
