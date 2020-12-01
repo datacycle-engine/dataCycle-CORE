@@ -21,14 +21,14 @@ class BasicSelect2 {
 
     this.additionalOptionMethods.forEach(configOption => {
       if (typeof this[configOption] === 'function') {
-        select2Options[configOption] = this[configOption];
+        select2Options[configOption] = this[configOption].bind(this);
       }
     });
 
     return select2Options;
   }
   initSelect2() {
-    this.select2Object = this.$element.select2(this.options);
+    this.select2Object = this.$element.select2(this.options());
   }
   initEventHandlers() {
     this.$element.closest('form').on('reset', this.reset);
@@ -38,7 +38,20 @@ class BasicSelect2 {
     this.$element.val(null).trigger('change', { type: 'reset' });
   }
   initSpecificEventHandlers() {}
-  import(_event, _data) {}
+  import(_event, data) {
+    if (!data.value || !data.value.length) return;
+
+    let value = this.$element.val();
+    if (!Array.isArray(value)) value = [value];
+    if (!Array.isArray(data.value)) data.value = [data.value];
+
+    value = value.filter(Boolean);
+    data.value = data.value.filter(Boolean);
+    let diff = data.value.diff(value);
+
+    if (diff.length) this.loadNewOptions(value, diff);
+  }
+  loadNewOptions(_value, _options) {}
   markMatch(text, term) {
     let match = text.toUpperCase().lastIndexOf(term.toUpperCase());
     let $result = $('<span></span>');

@@ -7,11 +7,109 @@ class SimpleSelect2 extends BasicSelect2 {
     this.defaultOptions = Object.assign(this.defaultOptions, {
       width: '100%'
     });
+
+    this.additionalOptionMethods = ['templateResult', 'matcher', 'templateSelection'];
   }
   initSelect2() {
-    this.select2Object = this.$element.select2(this.defaultoptions);
+    let options = Object.assign({}, this.options(), this.languageOptions());
+
+    this.select2Object = this.$element.select2(options);
   }
-  import(event, data) {}
+  initSpecificEventHandlers() {
+    this.$element.on('dc:create:option', this.createOption);
+    this.$element.closest('.form-element').on('dc:upload:filesChanged', this.reloadData);
+  }
+  loadNewOptions(value, newOptions) {
+    this.$element.val(value.concat(newOptions)).trigger('change');
+  }
+  createOption(_event, data) {
+    let newOption = new Option(data.text, data.id, false, false);
+    this.$element.append(newOption).trigger('change');
+  }
+  languageOptions() {
+    return {
+      searching: this.languageSearching
+    };
+  }
+  languageSearching(params) {
+    this.query = params;
+
+    return '';
+  }
+  templateResult(data) {
+    let title = $(data.element).data('title');
+
+    if (data.loading) {
+      return data.text;
+    }
+
+    let term = this.query.term || '';
+    let titleValue = title || data.text;
+    let result = titleValue ? this.markMatch(titleValue, term) : null;
+    this.removeTreeLabel(result);
+    this.decorateResult(result);
+
+    return result;
+  }
+  templateSelection(data) {
+    return this.removeTreeLabelFromSelection(data.text);
+  }
+  matcher(params, data) {
+    if (params.term === undefined || !params.term.trim().length) {
+      return data;
+    }
+
+    if (typeof data.text === 'undefined') {
+      return null;
+    }
+
+    if (data.element.tagName === 'OPTGROUP' && typeof data.children === 'undefined') {
+      return null;
+    }
+
+    var filteredChildren = [];
+    $.each(data.children, function (idx, child) {
+      if (this.optionMatches(child, params)) {
+        filteredChildren.push(child);
+      }
+    });
+
+    if (filteredChildren.length) {
+      var modifiedData = $.extend({}, data, true);
+      modifiedData.children = filteredChildren;
+
+      return modifiedData;
+    }
+
+    if (this.optionMatches(data, params)) {
+      return data;
+    }
+
+    return null;
+  }
+  optionMatches(data, params) {
+    return (
+      data.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1 ||
+      (data.title !== undefined && data.title.toLowerCase().indexOf(params.term.toLowerCase()) > -1)
+    );
+  }
+  reloadData(event) {
+    event.preventDefault();
+
+    let reloadPath = this.config.reloadPath;
+    let type = this.config.type;
+
+    if (!reloadPath || !reloadPath.length || !type || !type.length) return;
+
+    $.getJSON(window.DATA_CYCLE_ENGINE_PATH + reloadPath, { type: type }).done(data => {
+      if (!data || !data.length) return;
+
+      data.forEach(d => {
+        if (!this.$element.find("option[value='" + d[1] + "']").length)
+          this.$element.append(new Option(d[0], d[1], false, false)).trigger('change');
+      });
+    });
+  }
 }
 
 module.exports = SimpleSelect2;

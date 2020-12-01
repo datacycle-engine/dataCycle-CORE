@@ -77,5 +77,64 @@ module DataCycleCore
     def classification_tooltip(classification_alias)
       "#{classification_alias.full_path}#{"\n\n#{strip_tags(classification_alias.description)}" if classification_alias.description.present?}".html_safe # rubocop:disable Rails/OutputSafety
     end
+
+    def advanced_filter_classification_items(tree_label)
+      return [] if tree_label.blank?
+
+      DataCycleCore::ClassificationTreeLabel
+        .find_by(name: tree_label)
+        &.classification_trees
+        &.includes(
+          :parent_classification_alias, sub_classification_alias: [
+            :classifications, :classification_alias_path, sub_classification_alias: [
+              :classifications, :classification_alias_path, sub_classification_alias: [
+                :classifications, :classification_alias_path, :sub_classification_alias
+              ]
+            ]
+          ]
+        ) || []
+    end
+
+    def async_classification_select_options(value, selected_classification_aliases)
+      return nil if value.blank?
+
+      options_for_select(
+        value.map do |c|
+          [
+            selected_classification_aliases[c].try(:internal_name),
+            c,
+            {
+              title: [
+                selected_classification_aliases[c].full_path,
+                selected_classification_aliases[c].description
+              ].reject(&:blank?).join("\n\n")
+            }
+          ]
+        end, value
+      )
+    end
+
+    def simple_classification_select_options(value, classification_items)
+      options_for_select(
+        classification_items
+          &.select { |type| !DataCycleCore.excluded_filter_classifications.include?(type.sub_classification_alias.try(:internal_name)) }
+          &.map do |c|
+          [
+            c.sub_classification_alias.try(:internal_name),
+            c.sub_classification_alias.try(:id),
+            {
+              title: [
+                c.sub_classification_alias.full_path,
+                c.sub_classification_alias.description
+              ].reject(&:blank?).join("\n\n"),
+              data: {
+                title: c.sub_classification_alias.full_path
+              }
+            }
+          ]
+        end,
+        value
+      )
+    end
   end
 end
