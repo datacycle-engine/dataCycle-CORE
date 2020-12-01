@@ -9,6 +9,11 @@
     :enabled: true
   :v4:
     :enabled: true
+:sync_api:
+  :default: v1
+  :enabled: true
+  :v1:
+    :enabled: true
 #  :v2:
 #    :subversions:
 #      - 'test'

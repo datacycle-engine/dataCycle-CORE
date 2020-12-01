@@ -294,6 +294,24 @@ DataCycleCore::Engine.routes.draw do
       end
     end
 
+    if DataCycleCore.main_config.dig(:sync_api, :enabled)
+      defaults format: :json do
+        namespace :sync_api do
+          if DataCycleCore.main_config.dig(:sync_api, :v1, :enabled)
+            namespace :v1 do
+              scope path: '(/:sync_api_subversion)' do
+                match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
+                match 'things/select(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
+
+                match 'things', to: 'contents#index', as: 'contents_index', via: [:get, :post]
+                match 'things/:id', to: 'contents#show', as: 'content_show', via: [:get, :post]
+              end
+            end
+          end
+        end
+      end
+    end
+
     defaults format: :xml do
       namespace :xml do
         namespace :v1 do
