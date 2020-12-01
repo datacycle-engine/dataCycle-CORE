@@ -13,8 +13,8 @@ module DataCycleCore
           data_set_history.send("#{key}=", value)
         end
 
-        lower_bound = histories.includes(:translations).find_by(thing_history_translations: { locale: I18n.locale })&.history_valid&.last || created_at
-        data_set_history.history_valid = (lower_bound...save_time)
+        lower_bound = histories.includes(:translations).find_by(thing_history_translations: { locale: I18n.locale })&.history_valid&.last
+        data_set_history.history_valid = ((lower_bound || created_at)...save_time)
         data_set_history.deleted_at = save_time if delete
         data_set_history.created_at = save_time
         data_set_history.updated_at = save_time
@@ -33,14 +33,13 @@ module DataCycleCore
         embedded_property_names.each do |content_name|
           load_embedded_objects(content_name, nil, false).each_with_index do |content_item, index|
             new_content_history = content_item.to_history(save_time: save_time)
-            from = [new_content_history.updated_at, save_time].min
             DataCycleCore::ContentContent::History.create!({
               content_a_history_id: data_set_history.id,
               relation_a: content_name,
               order_a: index,
               content_b_history_id: new_content_history.id,
               content_b_history_type: 'DataCycleCore::Thing::History',
-              history_valid: (from...save_time)
+              history_valid: ((lower_bound || content_item.created_at)...save_time)
             })
           end
         end
@@ -49,7 +48,6 @@ module DataCycleCore
           properties = properties_for(content_name)
           next if properties.dig('link_direction') == 'inverse'
           load_linked_objects(content_name).each_with_index do |content_item, index|
-            from = [content_item.updated_at, save_time].min
             DataCycleCore::ContentContent::History.create!({
               content_a_history_id: data_set_history.id,
               relation_a: content_name,
@@ -57,7 +55,7 @@ module DataCycleCore
               relation_b: properties.dig('inverse_of'),
               content_b_history_id: content_item.id,
               content_b_history_type: 'DataCycleCore::Thing',
-              history_valid: (from...save_time)
+              history_valid: ((lower_bound || content_item.created_at)...save_time)
             })
           end
         end
