@@ -13,7 +13,7 @@ data_cycle_how_to;DataCycleHowTo;git@git.pixelpoint.biz:data-cycle/data-cycle-ho
 data_cycle_kaernten_werbung;DataCycleKaernten;git@git.pixelpoint.biz:data-cycle/data-cycle-kw.git
 data_cycle_kaertner_veranstaltungsdb;DataCycleKaerntnerEventDB;git@git.pixelpoint.biz:data-cycle/data-cycle-kaerntner-veranstaltungsdb.git
 data_cycle_klagenfurt;DataCycleKlagenfurt;git@git.pixelpoint.biz:data-cycle/data-cycle-klagenfurt.git
-data_cycle_lindner;DataCycleLindner;git@git.pixelpoint.biz/data-cycle/data-cycle-lindner.git
+data_cycle_lindner;DataCycleLindner;git@git.pixelpoint.biz:data-cycle/data-cycle-lindner.git
 data_cycle_media;DataCycleMedia;git@git.pixelpoint.biz:data-cycle/data-cycle-media.git
 data_cycle_millstaetter_see;DataCycleMillstaetterSee;git@git.pixelpoint.biz:data-cycle/data-cycle-millstaetter-see.git
 data_cycle_neusiedlersee;DataCycleNeusiedlersee;git@git.pixelpoint.biz:data-cycle/data-cycle-neusiedlersee.git
