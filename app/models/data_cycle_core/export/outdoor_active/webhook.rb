@@ -33,7 +33,7 @@ module DataCycleCore
           job_result = @endpoint.send(@request, data: data, external_system_data: @external_system_data)
           external_key = job_result.dig('outdoor_active_id')
 
-          Function.log(job_results, @data.id) if job_results.dig('errors').present? || job_results.dig('warnings')
+          log(job_result, @data.id) if job_result.dig('errors').present? || job_result.dig('warnings')
 
           case job_result.dig('job_status')
           when 'waiting'
@@ -54,13 +54,13 @@ module DataCycleCore
           "outdoor_active_#{@data.id}"
         end
 
-        def self.log(message, id)
+        def log(message, id)
           init_logging do |logger|
             logger.info(message, id)
           end
         end
 
-        def self.init_logging
+        def init_logging
           logging = DataCycleCore::Generic::Logger::LogFile.new(:outdoor_active_sync_errors)
           yield(logging)
         ensure

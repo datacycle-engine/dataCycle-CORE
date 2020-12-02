@@ -71,7 +71,7 @@ module DataCycleCore
               'job_message' => error_msg
             }
           when 'done', 'warning'
-            outdoor_active_id = response_body.xpath('//details//content[@type!="imagemeta"]//@cmsId').first.to_s
+            outdoor_active_id = response_body.xpath('//details//content[@type!="imagemeta"]//@cmsId').first.to_s.presence
 
             global_warning = response_body.xpath('//message').children.first&.content
             serious_warning = global_warning&.include?('AlpInterfaceUpdater has 200 open events') # error when too many updates open

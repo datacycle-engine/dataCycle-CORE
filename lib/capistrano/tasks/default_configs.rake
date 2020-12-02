@@ -12,7 +12,7 @@ namespace :datacycle do
         'mailers' => 1,
         'importers' => 1,
         'carrierwave' => 1,
-        'cache_invalidation' => 3,
+        'cache_invalidation' => 2,
         'search_update' => 3,
         'webhooks' => 1,
         'default' => 1
@@ -24,18 +24,18 @@ namespace :datacycle do
       append :linked_dirs, 'node_modules', 'vendor/gems/data-cycle-core/node_modules', 'log', 'db/backups', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'public/uploads', 'public/eyebase', 'public/filmcommission'
 
       namespace :deploy do
+        after 'deploy:started', :add_special_tasks do
+          after 'puma:restart', 'datacycle:dev:migrate_project_with_new_configs'
+          before 'puma:restart', 'datacycle:puma:deploy_config' unless fetch(:skip_deploy_configs)
+        end
+
         before 'assets:precompile', 'deploy:npm'
         after 'deploy:npm', 'deploy:gulp'
         after 'assets:precompile', 'deploy:iconfonts'
 
         after 'deploy:migrate', 'datacycle:dev:update_project'
         after 'datacycle:dev:update_project', 'datacycle:dev:migrate_project'
-        after 'deploy:published', 'datacycle:dev:migrate_project_with_new_configs'
-
-        unless fetch(:skip_deploy_configs)
-          before 'puma:restart', 'datacycle:puma:deploy_config'
-          after 'deploy:cleanup', 'datacycle:dev:update_configs'
-        end
+        after 'deploy:cleanup', 'datacycle:dev:update_configs' unless fetch(:skip_deploy_configs)
 
         before 'deploy:reverted', 'deploy:npm'
       end

@@ -6,11 +6,11 @@ module DataCycleCore
       def add_external_system_data(external_system, data = nil, status = nil, sync_type = 'export', external_key = nil, use_key = true)
         external_data =
           if use_key
-            external_system_syncs.find_or_initialize_by(external_system_id: external_system.id, sync_type: sync_type, external_key: external_key)
+            external_system_syncs.find_or_initialize_by(external_system_id: external_system.id, sync_type: sync_type, external_key: external_key.presence)
           else
             external_system_syncs.find_or_initialize_by(external_system_id: external_system.id, sync_type: sync_type)
           end
-        external_data.attributes = { data: data, status: status, external_key: external_key }.compact
+        external_data.attributes = { data: data, status: status, external_key: external_key.presence }.compact
         external_data.save
       end
 
@@ -25,14 +25,14 @@ module DataCycleCore
 
       def external_system_data_all(external_system, sync_type = 'export', external_key = nil, use_key = true)
         if use_key
-          external_system_syncs.find_by(external_system_id: external_system.id, sync_type: sync_type, external_key: external_key)
+          external_system_syncs.find_by(external_system_id: external_system.id, sync_type: sync_type, external_key: external_key.presence)
         else
           external_system_syncs.find_by(external_system_id: external_system.id, sync_type: sync_type)
         end
       end
 
       def external_system_data(external_system, sync_type = 'export', external_key = nil, use_key = true)
-        external_system_data_all(external_system, sync_type, external_key, use_key)&.data
+        external_system_data_all(external_system, sync_type, external_key.presence, use_key)&.data
       end
 
       def external_system_data_with_key(external_system, sync_type = 'export', external_key = nil)
