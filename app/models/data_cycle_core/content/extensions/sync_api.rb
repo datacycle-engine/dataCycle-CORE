@@ -8,10 +8,11 @@ module DataCycleCore
           available_locales.map { |lang|
             { lang => I18n.with_locale(lang) { to_sync_h } }
           }.inject(&:merge)
+          &.merge({ included: attribute_to_sync_h('included') })
         end
 
         def to_sync_h
-          (property_names - virtual_property_names + ['linked_data'])
+          (property_names - virtual_property_names)
             .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name) } }
             .inject(&:merge)
             .merge(sync_metadata)
@@ -43,14 +44,14 @@ module DataCycleCore
             schedule_array = send(property_name)
             schedule_array = schedule_array.map(&:to_h).presence
             schedule_array.blank? ? [] : schedule_array.compact
-          elsif property_name == 'linked_data'
+          elsif property_name == 'included'
             linked_property_names.map { |linked|
               linked_array = get_property_value(linked, property_definitions[linked], nil, true)
-              linked_array = linked_array.map(&:to_sync_data) if linked_array.present?
+              linked_array = linked_array.map(&:to_sync_data).map { |i| i.merge({ attribute_name: linked }) } if linked_array.present?
               linked_array.presence || []
-            }.inject(:+).compact
+            }.inject(:+)&.compact
           else
-            raise StandardError, "cannot determine how to serialize #{property_name}"
+            raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
           end
         end
 
@@ -61,7 +62,15 @@ module DataCycleCore
             created_at: created_at,
             external_key: external_key,
             external_source_id: external_source_id,
+            external_source: external_source.identifier,
             external_system_syncs: external_system_syncs.map(&:to_hash)
+          }
+        end
+
+        def to_sync_api_deleted
+          {
+            'id' => id,
+            'deleted_at' => deleted_at
           }
         end
       end

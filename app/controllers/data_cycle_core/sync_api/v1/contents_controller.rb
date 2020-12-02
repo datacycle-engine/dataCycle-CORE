@@ -12,11 +12,9 @@ module DataCycleCore
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
             query = build_search_query
-
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
-
-            render 'index'
+            render json: sync_api_format(@contents) { @contents.map(&:to_sync_data) }.to_json
           end
         end
 
@@ -35,7 +33,7 @@ module DataCycleCore
               .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
               .where(id: uuid)
             @contents = apply_paging(fetched_things)
-            render 'index'
+            render json: sync_api_format(@contents) { @contents.map(&:to_sync_data) }.to_json
           else
             render json: { error: 'No ids given!' }, layout: false, status: :bad_request
           end
@@ -70,25 +68,51 @@ module DataCycleCore
         private
 
         def build_search_query
-          query = append_filters(query, permitted_params)
+          filter = DataCycleCore::StoredFilter.new
+          filter.language = @language
+          filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
+          query = filter.apply
           query
         end
 
         def list_api_deleted_request(contents)
-          json_context = api_plain_context(@language)
           json_contents = contents.map do |item|
             Rails.cache.fetch(sync_api_v1_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion), expires_in: 1.year + Random.rand(7.days)) do
-              item.to_api_deleted_list
+              item.to_sync_api_deleted
             end
           end
-          json_links = api_plain_links(contents)
-          list_hash = {
-            '@context' => json_context,
-            '@graph' => json_contents,
-            'links' => json_links
+          sync_api_format(contents) { json_contents }
+        end
+
+        def sync_api_format(contents)
+          {
+            '@graph' => yield,
+            'links' => api_plain_links(contents),
+            'meta' => api_plain_meta(contents.total_count, contents.total_pages)
           }
-          list_hash['meta'] = api_plain_meta(contents.total_count, contents.total_pages) unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
-          list_hash
+        end
+
+        def api_plain_links(contents = nil)
+          contents ||= @contents
+          object_url = (lambda do |params|
+            File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
+          end)
+          if request.request_method == 'POST'
+            common_params = {}
+          else
+            common_params = @permitted_params.to_h.reject { |k, _| ['id', 'format', 'page', 'api_subversion'].include?(k) }
+          end
+          links = {}
+          links[:prev] = object_url.call(common_params.merge(page: { number: contents.prev_page, size: contents.limit_value })) if contents.prev_page
+          links[:next] = object_url.call(common_params.merge(page: { number: contents.next_page, size: contents.limit_value })) if contents.next_page
+          links
+        end
+
+        def api_plain_meta(count, pages)
+          {
+            total: count,
+            pages: pages
+          }
         end
       end
     end
