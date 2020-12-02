@@ -5,10 +5,8 @@ class BasicSelect2 {
     this.config = element.dataset;
     this.defaultOptions = {
       allowClear: true,
-      minimumInputLength: 2,
       dropdownParent: this.$element.parent()
     };
-    this.additionalOptionMethods = [];
     this.select2Object = null;
   }
   init() {
@@ -17,18 +15,11 @@ class BasicSelect2 {
     this.initSpecificEventHandlers();
   }
   options() {
-    let select2Options = this.defaultOptions;
-
-    this.additionalOptionMethods.forEach(configOption => {
-      if (typeof this[configOption] === 'function') {
-        select2Options[configOption] = this[configOption].bind(this);
-      }
-    });
-
-    return select2Options;
+    return this.defaultOptions;
   }
   initSelect2() {
-    this.select2Object = this.$element.select2(this.options());
+    this.$element.select2(this.options());
+    this.select2Object = this.$element.data('select2');
   }
   initEventHandlers() {
     this.$element.closest('form').on('reset', this.reset);
@@ -53,10 +44,10 @@ class BasicSelect2 {
   }
   loadNewOptions(_value, _options) {}
   markMatch(text, term) {
-    let match = text.toUpperCase().lastIndexOf(term.toUpperCase());
+    let match = text.toLowerCase().lastIndexOf(term.toLowerCase());
     let $result = $('<span></span>');
 
-    if (match < 0) {
+    if (!term.length || match < 0) {
       return $result.text(text);
     }
 

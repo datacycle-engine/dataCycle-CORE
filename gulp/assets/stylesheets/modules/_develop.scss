@@ -1435,6 +1435,10 @@ ul.translated-locales {
   }
 
   .select2-dropdown {
+    .select2-results > .select2-results__options {
+      max-height: 400px;
+    }
+
     .select2-results__option {
       > span {
         display: block;

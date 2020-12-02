@@ -13,12 +13,12 @@
   </div>
 
   <div class="advanced-filter-selector">
-    <% classification_items = advanced_filter_classification_items(filter_title) %>
+    <% classification_items = classification_alias_filter_items(filter_title) %>
 
     <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
       <%= select_tag(
           "f[#{index}][v]",
-          async_classification_select_options(value, @selected_classification_aliases),
+          async_classification_select_options(@selected_classification_aliases&.values_at(*value)),
           {
             multiple: true,
             class: 'async-select',
@@ -35,7 +35,7 @@
     <% else %>
       <%= select_tag(
           "f[#{index}][v]",
-          simple_classification_select_options(value, classification_items),
+          simple_classification_select_options(@selected_classification_aliases&.values_at(*value), classification_items),
           {
             multiple: true,
             class: 'multi-select',

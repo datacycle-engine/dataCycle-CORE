@@ -78,62 +78,72 @@ module DataCycleCore
       "#{classification_alias.full_path}#{"\n\n#{strip_tags(classification_alias.description)}" if classification_alias.description.present?}".html_safe # rubocop:disable Rails/OutputSafety
     end
 
-    def advanced_filter_classification_items(tree_label)
-      return [] if tree_label.blank?
-
-      DataCycleCore::ClassificationTreeLabel
-        .find_by(name: tree_label)
-        &.classification_trees
-        &.includes(
-          :parent_classification_alias, sub_classification_alias: [
-            :classifications, :classification_alias_path, sub_classification_alias: [
-              :classifications, :classification_alias_path, sub_classification_alias: [
-                :classifications, :classification_alias_path, :sub_classification_alias
-              ]
-            ]
-          ]
-        ) || []
+    def expected_classification_alias(c)
+      c.is_a?(DataCycleCore::Classification) ? c&.primary_classification_alias : c
     end
 
-    def async_classification_select_options(value, selected_classification_aliases)
+    def expected_value_id(c, expected_type)
+      if c.is_a?(expected_type) then c&.id
+      elsif expected_type == DataCycleCore::Classification then c&.primary_classification&.id
+      else c&.primary_classification_alias&.id
+      end
+    end
+
+    def classification_alias_filter_items(tree_label, order_by = nil)
+      return DataCycleCore::ClassificationAlias.none if tree_label.blank?
+
+      DataCycleCore::ClassificationAlias
+        .for_tree(tree_label)
+        .includes(
+          :primary_classification, :classification_alias_path, sub_classification_alias: [
+            :primary_classification, :classification_alias_path, sub_classification_alias: [
+              :primary_classification, :classification_alias_path, :sub_classification_alias
+            ]
+          ]
+        )
+        .order(order_by)
+    end
+
+    def async_classification_select_options(value, expected_type = DataCycleCore::ClassificationAlias)
       return nil if value.blank?
 
       options_for_select(
         value.map do |c|
           [
-            selected_classification_aliases[c].try(:internal_name),
-            c,
+            expected_classification_alias(c)&.internal_name,
+            expected_value_id(c, expected_type),
             {
               title: [
-                selected_classification_aliases[c].full_path,
-                selected_classification_aliases[c].description
+                expected_classification_alias(c)&.full_path,
+                expected_classification_alias(c)&.description
               ].reject(&:blank?).join("\n\n")
             }
           ]
-        end, value
+        end,
+        value.pluck(:id)
       )
     end
 
-    def simple_classification_select_options(value, classification_items)
+    def simple_classification_select_options(value, classification_items, expected_type = DataCycleCore::ClassificationAlias)
       options_for_select(
         classification_items
-          &.select { |type| !DataCycleCore.excluded_filter_classifications.include?(type.sub_classification_alias.try(:internal_name)) }
+          &.where&.not(internal_name: DataCycleCore.excluded_filter_classifications)
           &.map do |c|
           [
-            c.sub_classification_alias.try(:internal_name),
-            c.sub_classification_alias.try(:id),
+            expected_classification_alias(c)&.internal_name,
+            expected_value_id(c, expected_type),
             {
               title: [
-                c.sub_classification_alias.full_path,
-                c.sub_classification_alias.description
+                expected_classification_alias(c)&.full_path,
+                expected_classification_alias(c)&.description
               ].reject(&:blank?).join("\n\n"),
               data: {
-                title: c.sub_classification_alias.full_path
+                title: expected_classification_alias(c)&.full_path
               }
             }
           ]
         end,
-        value
+        value&.pluck(:id)
       )
     end
   end

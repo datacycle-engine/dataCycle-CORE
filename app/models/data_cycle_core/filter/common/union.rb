@@ -59,7 +59,7 @@ module DataCycleCore
 
           filter_query_sql = nil
           ids.each do |id|
-            watch_list = DataCycleCore::WatchList.find(id)
+            watch_list = DataCycleCore::WatchList.find_by(id: id)
             next if watch_list.blank?
             if filter_query_sql.nil?
               filter_query_sql = watch_list.watch_list_data_hashes.select(:hashable_id).except(:order)
@@ -74,7 +74,7 @@ module DataCycleCore
           return nil if ids.blank?
           filter_query_sql = nil
           ids.each do |filter|
-            stored_filter = DataCycleCore::StoredFilter.find(filter)
+            stored_filter = DataCycleCore::StoredFilter.find_by(id: filter)
             next if stored_filter.blank?
             if filter_query_sql.nil?
               filter_query_sql = stored_filter.apply.select(:id).except(:order)

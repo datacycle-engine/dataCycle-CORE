@@ -5,7 +5,7 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
     before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource except: [:search, :add_to_watchlist] # from cancancan (authorize)
+    load_and_authorize_resource except: [:search, :select_search_or_collection, :add_to_watchlist] # from cancancan (authorize)
 
     def index
       @saved_stored_searches = @accessible_stored_filters.where.not(name: nil).order(:name)
@@ -50,6 +50,34 @@ module DataCycleCore
       stored_filters = DataCycleCore::StoredFilter.where('user_id = ? AND name ILIKE ?', current_user.id, "%#{params[:q]}%").limit(20)
 
       render json: stored_filters
+    end
+
+    def select_search_or_collection
+      authorize! :show, :stored_filter
+
+      query1 = @accessible_stored_filters.where.not(name: nil).select("id, name, 'DataCycleCore::StoredFilter' AS class_name")
+      query2 = DataCycleCore::WatchList.accessible_by(current_ability).where.not(name: nil).select("id, name, 'DataCycleCore::WatchList' AS class_name")
+
+      # if select_search_params[:q].present?
+      #   query1 = query1.where('name ILIKE ?', "%#{select_search_params[:q]}%")
+      #   query2 = query2.where('name ILIKE ?', "%#{select_search_params[:q]}%")
+      # end
+
+      query = Arel::SelectManager.new(Arel::Nodes::TableAlias.new(query1.arel.union(:all, query2.arel), 'combined_collections_and_searches')).project(Arel.star).order('name ASC')
+      query = query.take(select_search_params[:max].to_i) if select_search_params[:max].present?
+
+      binding.pry
+
+      records = ActiveRecord::Base.connection.select_all query.to_sql
+
+      render plain: records.map { |s|
+        {
+          id: s['id'],
+          type: s['class_name'],
+          name: s['name'],
+          title: s['name']
+        }
+      }.to_json, content_type: 'application/json'
     end
 
     def add_to_watchlist
@@ -102,6 +130,10 @@ module DataCycleCore
 
     def stored_filter_params
       params.require(:stored_filter).permit(:id, :name, :system, :api, :linked_stored_filter_id, api_users: [])
+    end
+
+    def select_search_params
+      params.permit(:q, :max)
     end
   end
 end

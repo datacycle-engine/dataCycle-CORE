@@ -3,17 +3,15 @@ var BasicSelect2 = require('./basic_select2');
 class SimpleSelect2 extends BasicSelect2 {
   constructor(element) {
     super(element);
-
-    this.defaultOptions = Object.assign(this.defaultOptions, {
-      width: '100%'
-    });
-
-    this.additionalOptionMethods = ['templateResult', 'matcher', 'templateSelection'];
   }
-  initSelect2() {
-    let options = Object.assign({}, this.options(), this.languageOptions());
-
-    this.select2Object = this.$element.select2(options);
+  options() {
+    return Object.assign({}, this.defaultOptions, {
+      width: '100%',
+      matcher: this.matcher.bind(this),
+      templateResult: this.templateResult.bind(this),
+      templateSelection: this.templateSelection.bind(this),
+      language: this.languageOptions()
+    });
   }
   initSpecificEventHandlers() {
     this.$element.on('dc:create:option', this.createOption);
@@ -28,7 +26,7 @@ class SimpleSelect2 extends BasicSelect2 {
   }
   languageOptions() {
     return {
-      searching: this.languageSearching
+      searching: this.languageSearching.bind(this)
     };
   }
   languageSearching(params) {
@@ -46,8 +44,8 @@ class SimpleSelect2 extends BasicSelect2 {
     let term = this.query.term || '';
     let titleValue = title || data.text;
     let result = titleValue ? this.markMatch(titleValue, term) : null;
-    this.removeTreeLabel(result);
-    this.decorateResult(result);
+    result = this.removeTreeLabel(result);
+    result = this.decorateResult(result);
 
     return result;
   }
@@ -68,7 +66,7 @@ class SimpleSelect2 extends BasicSelect2 {
     }
 
     var filteredChildren = [];
-    $.each(data.children, function (idx, child) {
+    $.each(data.children, (idx, child) => {
       if (this.optionMatches(child, params)) {
         filteredChildren.push(child);
       }

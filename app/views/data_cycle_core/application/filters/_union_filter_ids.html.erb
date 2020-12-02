@@ -12,14 +12,18 @@
     <%= select_tag "f[#{index}][m]", options_for_select([[t("common.has", locale: DataCycleCore.ui_language), 'i'], [t("common.has_not", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
   </div>
 
+  <% binding.pry %>
+
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{index}][v]",
-      options_for_select(@accessible_stored_filters.select(:id, :name).map{ |e| [e.name, e.id] }, value),
+      nil,
       {
         multiple: true,
-        class: 'multi-select',
+        class: 'async-select',
         data: {
-          placeholder: ''
+          max: 20,
+          placeholder: '',
+          search_path: select_search_or_collection_stored_filters_path
         }
       }) %>
   </div>

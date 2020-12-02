@@ -4,15 +4,16 @@ class AsyncSelect2 extends BasicSelect2 {
   constructor(element) {
     super(element);
 
-    this.additionalOptionMethods = ['escapeMarkup', 'templateResult', 'templateSelection'];
     this.aliasIds = this.config.aliasIds || false;
   }
-  initSelect2() {
-    let options = Object.assign({}, this.options(), this.ajaxOptions());
-
-    console.log(options);
-
-    this.select2Object = this.$element.select2(options);
+  options() {
+    return Object.assign({}, this.defaultOptions, {
+      minimumInputLength: 2,
+      escapeMarkup: this.escapeMarkup.bind(this),
+      templateResult: this.templateResult.bind(this),
+      templateSelection: this.templateSelection.bind(this),
+      ajax: this.ajaxOptions()
+    });
   }
   loadNewOptions(_value, ids) {
     $.ajax({
@@ -76,8 +77,8 @@ class AsyncSelect2 extends BasicSelect2 {
     return {
       url: window.DATA_CYCLE_ENGINE_PATH + this.config.searchPath,
       delay: 250,
-      data: this.ajaxDataHandler,
-      processResults: this.ajaxProcessResults
+      data: this.ajaxDataHandler.bind(this),
+      processResults: this.ajaxProcessResults.bind(this)
     };
   }
   ajaxDataHandler(params) {
@@ -85,7 +86,7 @@ class AsyncSelect2 extends BasicSelect2 {
     this.query = params;
     let returnObject = {
       q: params.term,
-      max: max
+      max: this.config.max
     };
 
     if (this.config.treeLabel)
