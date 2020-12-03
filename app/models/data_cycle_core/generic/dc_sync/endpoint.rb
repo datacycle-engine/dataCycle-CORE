@@ -27,11 +27,13 @@ module DataCycleCore
             max_pages = (@params[:max_count] / @per) + 1 if @params[:max_count].present?
             max_pages = [max_pages, first_page.dig('meta', 'pages')].min
             item_pos = [(min_pages - 1) * @per, 1].max
+            min_count = @params[:min_count] || 1
+            max_count = @params[:max_count] || first_page.dig('meta', 'total')
             Enumerator.new do |yielder|
               (min_pages..max_pages).each do |page|
                 load_things(page: page).dig('@graph').each do |data|
                   item_pos += 1
-                  next if item_pos < @params[:min_count] || item_pos > @params[:max_count]
+                  next if item_pos < min_count || item_pos > max_count
                   yielder << data
                 end
               end
