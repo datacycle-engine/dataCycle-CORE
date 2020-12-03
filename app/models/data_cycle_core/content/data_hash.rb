@@ -401,7 +401,7 @@ module DataCycleCore
 
         data.each do |item|
           schedule =
-            if item['id'].present?
+            if item['id'].present? && DataCycleCore::Schedule.find_by(id: item['id'], thing_id: id, relation: relation_name).present?
               DataCycleCore::Schedule.find_by(id: item['id'], thing_id: id, relation: relation_name)
             else
               DataCycleCore::Schedule.new(thing_id: id, relation: relation_name)

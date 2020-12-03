@@ -16,7 +16,7 @@ module DataCycleCore
         def things(*)
           if @params[:external_keys].present?
             Enumerator.new do |yielder|
-              @params[:external_keys].each do |key|
+              Array.wrap(@params[:external_keys]).each do |key|
                 yielder << load_thing(key: key)
               end
             end
@@ -67,7 +67,7 @@ module DataCycleCore
         rescue StandardError
           raise if retry_count > @max_retry
           sleep(1)
-          load_data(key: key, retry_count: retry_count + 1)
+          load_thing(key: key, retry_count: retry_count + 1)
         end
       end
     end

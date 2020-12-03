@@ -17,16 +17,13 @@ module DataCycleCore
         end
 
         def self.parse_external_systems(data, external_source_id)
-          data
-            .dig('external_system_sync')
-            .merge({
-              'external_key' => s.dig('id'),
-              'external_source_id' => external_source_id
-            })
-            .merge({
-              'external_key' => s.dig('external_key'),
-              'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: s.dig('external_source'))
-            })
+          (data.dig('external_system_sync') || {}).merge({
+            'external_key' => data.dig('id'),
+            'external_source_id' => external_source_id
+          }).merge({
+            'external_key' => data.dig('external_key'),
+            'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: data.dig('external_source'))
+          })
         end
       end
     end

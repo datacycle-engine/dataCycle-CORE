@@ -9,7 +9,7 @@ module DataCycleCore
             download_object: utility_object,
             data_id: method(:data_id).to_proc,
             data_name: method(:data_name).to_proc,
-            options: options.merge(iteration_strategy: :download_parallel)
+            options: options.merge(iteration_strategy: :download_all)
           )
         end
 

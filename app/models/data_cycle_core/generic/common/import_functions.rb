@@ -108,8 +108,6 @@ module DataCycleCore
         end
 
         def self.import_sequential(utility_object:, iterator:, data_processor:, options:)
-          delta = 100
-          fixnum_max = (2**(0.size * 4 - 2) - 1)
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               importer_name = options.dig(:import, :name)
@@ -159,7 +157,7 @@ module DataCycleCore
                           options: options
                         )
 
-                        next unless (item_count % delta).zero?
+                        next unless (item_count % logging_delta).zero?
 
                         GC.start
 
@@ -171,6 +169,71 @@ module DataCycleCore
                   end
                 ensure
                   logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
+                end
+              end
+            end
+          end
+        end
+
+        def self.import_all(utility_object:, iterator:, data_processor:, options:)
+          init_logging(utility_object) do |logging|
+            init_mongo_db(utility_object) do
+              importer_name = options.dig(:import, :name)
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+
+              item_count = 0
+              begin
+                logging.phase_started("#{importer_name}(#{phase_name})")
+                source_filter = options&.dig(:import, :source_filter) || {}
+                source_filter = source_filter.with_evaluated_values
+                # source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
+                # if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
+                #   source_filter = source_filter.merge({
+                #     '$or' => [{
+                #       'updated_at' => { '$gte' => utility_object.external_source.last_successful_import }
+                #     }, {
+                #       "dump.#{locale}.updated_at" => { '$gte' => utility_object.external_source.last_successful_import }
+                #     }]
+                #   })
+                # end
+
+                GC.start
+
+                times = [Time.current]
+                utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                  mongo_item.with_session do |session|
+                    if options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
+                      iterate = iterator.call(mongo_item, nil, source_filter)
+                    else
+                      iterate = iterator.call(mongo_item, nil, source_filter).all.no_timeout.max_time_ms(fixnum_max)
+                    end
+
+                    iterate.each do |content|
+                      item_count += 1
+                      break if options[:max_count].present? && item_count > options[:max_count]
+                      next if options[:min_count].present? && item_count < options[:min_count]
+
+                      session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
+
+                      data_processor.call(
+                        utility_object: utility_object,
+                        raw_data: content[:dump],
+                        locale: nil,
+                        options: options
+                      )
+
+                      next unless (item_count % logging_delta).zero?
+
+                      GC.start
+
+                      times << Time.current
+
+                      logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                    end
+                  end
+                ensure
+                  logging.phase_finished("#{importer_name}(#{phase_name})", item_count)
                 end
               end
             end
@@ -255,6 +318,14 @@ module DataCycleCore
           new_hash = {}
           new_hash = load_default_values(config.dig(:default_values)) if config&.dig(:default_values).present?
           new_hash.merge(data_hash)
+        end
+
+        def self.fixnum_max
+          (2**(0.size * 4 - 2) - 1)
+        end
+
+        def self.logging_delta
+          100
         end
       end
     end
