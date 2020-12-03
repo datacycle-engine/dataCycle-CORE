@@ -12,11 +12,9 @@
     <%= select_tag "f[#{index}][m]", options_for_select([[t("common.has", locale: DataCycleCore.ui_language), 'i'], [t("common.has_not", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
   </div>
 
-  <% binding.pry %>
-
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{index}][v]",
-      nil,
+      union_ids_to_value(value),
       {
         multiple: true,
         class: 'async-select',

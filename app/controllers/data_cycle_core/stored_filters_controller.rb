@@ -55,27 +55,18 @@ module DataCycleCore
     def select_search_or_collection
       authorize! :show, :stored_filter
 
-      query1 = @accessible_stored_filters.where.not(name: nil).select("id, name, 'DataCycleCore::StoredFilter' AS class_name")
-      query2 = DataCycleCore::WatchList.accessible_by(current_ability).where.not(name: nil).select("id, name, 'DataCycleCore::WatchList' AS class_name")
+      filter_proc = ->(query, query_table) { query.where(query_table[:name].matches("%#{select_search_params[:q]}%")) } if select_search_params[:q].present?
+      arel_query = @accessible_stored_filters.combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability), filter_proc)
+      arel_query = arel_query.take(select_search_params[:max].to_i) if select_search_params[:max].present?
 
-      # if select_search_params[:q].present?
-      #   query1 = query1.where('name ILIKE ?', "%#{select_search_params[:q]}%")
-      #   query2 = query2.where('name ILIKE ?', "%#{select_search_params[:q]}%")
-      # end
+      result = ActiveRecord::Base.connection.select_all arel_query.to_sql
 
-      query = Arel::SelectManager.new(Arel::Nodes::TableAlias.new(query1.arel.union(:all, query2.arel), 'combined_collections_and_searches')).project(Arel.star).order('name ASC')
-      query = query.take(select_search_params[:max].to_i) if select_search_params[:max].present?
-
-      binding.pry
-
-      records = ActiveRecord::Base.connection.select_all query.to_sql
-
-      render plain: records.map { |s|
+      render plain: result.map { |s|
         {
           id: s['id'],
-          type: s['class_name'],
+          class: s['class_name'],
           name: s['name'],
-          title: s['name']
+          title: "#{I18n.t("activerecord.models.data_cycle_core/#{s['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{s['name']}"
         }
       }.to_json, content_type: 'application/json'
     end

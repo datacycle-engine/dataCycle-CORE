@@ -50,26 +50,22 @@ class AsyncSelect2 extends BasicSelect2 {
     return m;
   }
   templateResult(data) {
-    if (data.loading) {
-      return data.title;
-    }
+    if (data.loading) return;
 
     let term = this.query.term || '';
-    let result = data.title ? this.markMatch(data.title, term) : null;
-    result = this.removeTreeLabel(result);
-    result = this.decorateResult(result);
-
-    if (data.description) {
-      result.attr('title', data.title + '\n\n' + data.description);
-      data.title = data.title + '\n\n' + data.description;
-    }
+    let result = data.full_path || data.name;
+    result = this.markMatch(result, term);
+    if (this.config.showTreeLabel !== 'true') this.removeTreeLabel(result);
+    this.decorateResult(result);
+    this.copySelect2Classes(data, result);
 
     return result;
   }
-  templateSelection(data) {
+  templateSelection(data, container) {
     data.selected = true;
     data.text = data.name || data.text;
     $(data.element).text(data.text);
+    this.copySelect2Classes(data, container);
 
     return data.text;
   }
@@ -99,12 +95,18 @@ class AsyncSelect2 extends BasicSelect2 {
   ajaxProcessResults(data) {
     this.select2Object.$container.removeClass('select2-loading');
 
+    let result = data.map(value => {
+      if (this.aliasIds && value.classification_alias_id != undefined) value.id = value.classification_alias_id;
+      else if (value.classification_id != undefined) value.id = value.classification_id;
+
+      return value;
+    });
+
+    if (this.config.excludeSelf && this.config.excludeSelf.length)
+      result = result.filter(c => c.id !== this.config.excludeSelf);
+
     return {
-      results: data.map(value => {
-        if (this.aliasIds && value.classification_alias_id != undefined) value.id = value.classification_alias_id;
-        else if (value.classification_id != undefined) value.id = value.classification_id;
-        return value;
-      })
+      results: result
     };
   }
 }

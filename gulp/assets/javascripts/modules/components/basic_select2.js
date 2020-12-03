@@ -2,10 +2,11 @@ class BasicSelect2 {
   constructor(element) {
     this.$element = $(element);
     this.query = {};
-    this.config = element.dataset;
+    this.config = this.$element.data();
     this.defaultOptions = {
       allowClear: true,
-      dropdownParent: this.$element.parent()
+      dropdownParent: this.$element.parent(),
+      createTag: this.createTag.bind(this)
     };
     this.select2Object = null;
   }
@@ -22,11 +23,18 @@ class BasicSelect2 {
     this.select2Object = this.$element.data('select2');
   }
   initEventHandlers() {
-    this.$element.closest('form').on('reset', this.reset);
-    this.$element.on('dc:import:data', this.import);
+    this.$element.closest('form').on('reset', this.reset.bind(this));
+    this.$element.on('dc:import:data', this.import.bind(this));
+    this.$element.on('dc:select:destroy', this.destroy.bind(this));
   }
   reset(_event) {
     this.$element.val(null).trigger('change', { type: 'reset' });
+  }
+  destroy(_event) {
+    this.$element.select2('destroy');
+    this.$element.closest('form').off('reset');
+    this.$element.off('dc:import:data');
+    this.$element.off('dc:select:destroy');
   }
   initSpecificEventHandlers() {}
   import(_event, data) {
@@ -61,6 +69,13 @@ class BasicSelect2 {
 
     return $result;
   }
+  copySelect2Classes(data, container) {
+    if (data.class) {
+      $(container).addClass(data.class);
+    } else if (data.element) {
+      $(container).addClass($(data.element).attr('class'));
+    }
+  }
   decorateResult(result) {
     $(result).html(function (index, value) {
       if (value != undefined) {
@@ -69,24 +84,33 @@ class BasicSelect2 {
         return text.join(' > ');
       }
     });
-
-    return result;
   }
   removeTreeLabel(result) {
-    if (!this.config.treeLabel) return result;
+    if (!this.config.treeLabel) return;
 
     $(result).html((index, value) => {
       if (value != undefined) {
         return value.replace(this.config.treeLabel + ' &gt; ', '');
       }
     });
-
-    return result;
   }
   removeTreeLabelFromSelection(text) {
     if (!this.config.treeLabel) return text;
 
     return text.replace(this.config.treeLabel + ' > ', '');
+  }
+  createTag(params) {
+    let term = $.trim(params.term);
+
+    if (term === '') {
+      return null;
+    }
+
+    return {
+      id: term,
+      name: term,
+      newTag: true
+    };
   }
 }
 

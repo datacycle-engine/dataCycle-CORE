@@ -14,8 +14,14 @@ class SimpleSelect2 extends BasicSelect2 {
     });
   }
   initSpecificEventHandlers() {
-    this.$element.on('dc:create:option', this.createOption);
-    this.$element.closest('.form-element').on('dc:upload:filesChanged', this.reloadData);
+    this.$element.on('dc:create:option', this.createOption.bind(this));
+    this.$element.closest('.form-element').on('dc:upload:filesChanged', this.reloadData.bind(this));
+  }
+  destroy(event) {
+    super.destroy(event);
+
+    this.$element.off('dc:create:option');
+    this.$element.closest('.form-element').off('dc:upload:filesChanged');
   }
   loadNewOptions(value, newOptions) {
     this.$element.val(value.concat(newOptions)).trigger('change');
@@ -44,8 +50,8 @@ class SimpleSelect2 extends BasicSelect2 {
     let term = this.query.term || '';
     let titleValue = title || data.text;
     let result = titleValue ? this.markMatch(titleValue, term) : null;
-    result = this.removeTreeLabel(result);
-    result = this.decorateResult(result);
+    this.removeTreeLabel(result);
+    this.decorateResult(result);
 
     return result;
   }
