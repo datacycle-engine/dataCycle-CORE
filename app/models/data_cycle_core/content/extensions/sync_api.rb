@@ -45,8 +45,7 @@ module DataCycleCore
             schedule_array = schedule_array
               .map(&:to_h)
               .map { |i|
-                i.delete(:thing_id)
-                i.delete(:id)
+                i.delete('thing_id')
                 i
               }.presence
             schedule_array.blank? ? [] : schedule_array.compact
