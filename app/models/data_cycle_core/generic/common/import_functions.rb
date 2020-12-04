@@ -79,7 +79,7 @@ module DataCycleCore
           else
             normalized_data = global_data
           end
-byebug
+
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
           error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: !created, new_content: created)
 

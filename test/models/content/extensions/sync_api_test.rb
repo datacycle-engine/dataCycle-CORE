@@ -84,7 +84,7 @@ module DataCycleCore
       event = create_event_with_schedule
       serialized_event = event.to_sync_data
       errors = event.set_data_hash(data_hash: serialized_event.except('included'))
-      byebug
+
     end
   end
 end
