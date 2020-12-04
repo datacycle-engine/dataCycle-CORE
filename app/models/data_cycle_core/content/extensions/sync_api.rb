@@ -42,7 +42,7 @@ module DataCycleCore
             send(property_name)
           elsif schedule_property_names.include?(property_name)
             schedule_array = send(property_name)
-            schedule_array = schedule_array.map(&:to_h).presence
+            schedule_array = schedule_array.map(&:to_h).map { |i| i.delete('thing_id'); i.delete('id') }.presence
             schedule_array.blank? ? [] : schedule_array.compact
           elsif property_name == 'included'
             linked_property_names.map { |linked|
@@ -62,7 +62,7 @@ module DataCycleCore
             created_at: created_at,
             external_key: external_key,
             external_source_id: external_source_id,
-            external_source: external_source.identifier,
+            external_source: external_source&.identifier,
             external_system_syncs: external_system_syncs.map(&:to_hash)
           }
         end
