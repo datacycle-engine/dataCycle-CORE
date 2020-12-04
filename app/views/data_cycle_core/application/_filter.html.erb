@@ -154,7 +154,7 @@
                   <% end %>
 
                   <%= button_tag type: :button, id: 'save-filter', data: { open: 'save-filter-with-name' } do %>
-                    <i class="fa fa-bookmark-o" aria-hidden="true"></i>
+                    <i class="fa fa-floppy-o" aria-hidden="true"></i>
                     <%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %>
                   <% end if can?(:create, DataCycleCore::StoredFilter) && filter[:store] %>
 

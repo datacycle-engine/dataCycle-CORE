@@ -69,19 +69,20 @@
                          class: 'default_classification_mapping' %>
     <div class="v-select">
       <%= f.label :classification_ids %>
+      <%# stay open %>
       <%= f.select(:classification_ids,
-        options_for_select(classification_alias.classifications.map { |c|
-          [
-            c.name,
-            c.id,
-            {
-              title: c.primary_classification_alias&.full_path
-            }
-          ]
-        },
-        classification_alias.additional_classifications.map(&:id)),
+        async_classification_select_options(classification_alias.additional_classifications, DataCycleCore::Classification),
         {},
-        { multiple: true }) %>
+        {
+          multiple: true,
+          data: {
+            placeholder: '',
+            search_path: search_classifications_path,
+            show_tree_label: true,
+            close_on_select: false,
+            exclude_self: classification_alias&.primary_classification_id
+          }
+        }) %>
     </div>
   <% end %>
 
