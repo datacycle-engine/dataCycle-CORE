@@ -89,8 +89,7 @@ module DataCycleCore
             raise error[:error].first
           end
 
-          content.tap(&:save!)
-
+          content.save!
           data.dig('external_system_data')&.each do |es|
             external_system = DataCycleCore::ExternalSystem.find_by(name: es['name'])
             content.add_external_system_data(external_system, { external_key: es['external_key'] }, 'export', es['external_key'], false)

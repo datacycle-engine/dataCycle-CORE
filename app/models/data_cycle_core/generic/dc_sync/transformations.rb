@@ -21,8 +21,8 @@ module DataCycleCore
         def self.parse_external_systems(data, external_source_id)
           [
             data.dig('external_system_syncs'),
-            { 'external_key' => data.dig('id'), 'external_source_id' => external_source_id },
-            { 'external_key' => data.dig('external_key'), 'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: data.dig('external_source')) }
+            { 'external_key' => data.dig('id'), 'name' => DataCycleCore::ExternalSystem.find(external_source_id).name },
+            { 'external_key' => data.dig('external_key'), 'name' => data.dig('external_source') }
           ].flatten
         end
       end
