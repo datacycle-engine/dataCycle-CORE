@@ -33,3 +33,5 @@ DataCycleLindner;git@git.pixelpoint.biz:data-cycle/data-cycle-lindner.git
 DataCycleHowTo;git@git.pixelpoint.biz:data-cycle/data-cycle-how-to.git
 DataCycleNockberge;git@git.pixelpoint.biz:data-cycle/data-cycle-nockberge.git
 DataCycleVcloudLechZuers;git@git.pixelpoint.biz:data-cycle/data-cycle-vcloud-lech-zuers.git
+DataCycleGIP4Radrouting;git@git.pixelpoint.biz:data-cycle/data-cycle-gip4radrouting.git
+DataCycleGstaad;git@git.pixelpoint.biz:data-cycle/data-cycle-gstaad.git
