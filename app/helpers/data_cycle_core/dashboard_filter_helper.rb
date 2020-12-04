@@ -10,8 +10,14 @@ module DataCycleCore
 
       result = ActiveRecord::Base.connection.select_all query.to_sql
 
+      result.to_a
+    end
+
+    def union_values_to_options(value)
+      return if value.blank?
+
       options_for_select(
-        result.map do |s|
+        union_ids_to_value(value)&.map do |s|
           [
             s['name'],
             s['id'],

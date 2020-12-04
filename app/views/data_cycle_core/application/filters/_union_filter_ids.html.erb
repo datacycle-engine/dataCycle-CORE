@@ -14,7 +14,7 @@
 
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{index}][v]",
-      union_ids_to_value(value),
+      union_values_to_options(value),
       {
         multiple: true,
         class: 'async-select',
