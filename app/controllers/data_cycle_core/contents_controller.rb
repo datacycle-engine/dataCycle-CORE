@@ -402,6 +402,23 @@ module DataCycleCore
       redirect_back(fallback_location: root_path)
     end
 
+    def select_search
+      authorize! :show, DataCycleCore::Thing
+
+      contents = DataCycleCore::Thing.includes(:translations).where(template: false).where.not(content_type: 'embedded')
+
+      binding.pry
+
+      render plain: result.map { |s|
+        {
+          id: s['id'],
+          class: s['class_name'],
+          name: s['name'],
+          title: "#{I18n.t("activerecord.models.data_cycle_core/#{s['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{s['name']}"
+        }
+      }.to_json, content_type: 'application/json'
+    end
+
     private
 
     def set_watch_list
@@ -416,6 +433,10 @@ module DataCycleCore
 
     def watch_list_params
       { watch_list_id: @watch_list&.id }
+    end
+
+    def select_search_params
+      params.permit(:id)
     end
 
     def create_locale(params_hash = nil)

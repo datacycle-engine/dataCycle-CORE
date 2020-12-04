@@ -3,7 +3,6 @@
     <h5><%= title_text %></h5>
     <div id="split-source-selector">
         <%= form_tag(url, method: :get) do %>
-
             <% sources = [] %>
             <% contents.includes(:translations).each do |content| %>
                 <% I18n.with_locale(content.first_available_locale) do %>
@@ -18,6 +17,20 @@
 
             <div class="form-element">
                 <div class="v-select white">
+                    <%= select_tag(
+                          'source_id',
+                          async_classification_select_options(value, DataCycleCore::Classification),
+                          {
+                            multiple: false,
+                            include_blank: true,
+                            class: 'async-select',
+                            data: {
+                              max: 20,
+                              placeholder: 'Vorlage wählen',
+                              search_path: select_search_thing()
+                            }
+                          }
+                        ) %>
                     <%= select_tag('source_id', options_for_select(sources, selected&.id), {class: 'single-select select', data: {placeholder: 'Vorlage wählen'}, include_blank: true}) %>
                 </div>
             </div>

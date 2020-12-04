@@ -57,6 +57,8 @@ DataCycleCore::Engine.routes.draw do
       get 'asset/:type', on: :member, action: :asset, constraints: { type: '(content|thumb|original)' }
       post :validate, on: :member
       post :validate, on: :collection
+      get :select_search, on: :member
+      get :select_search, on: :collection
       get :render_embedded_object, on: :member
       post :bulk_create, on: :collection
       delete :remove_locks, on: :member
