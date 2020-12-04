@@ -11,7 +11,7 @@ module DataCycleCore
         def self.to_thing(external_source_id)
           t(:stringify_keys)
           .>> t(:create_main_thing, external_source_id)
-          .>> t(:add_field, 'external_system_sync', ->(s) { parse_external_systems(s, external_source_id) })
+          .>> t(:add_field, 'external_system_data', ->(s) { parse_external_systems(s, external_source_id) })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('id') })
           .>> t(:transform_embedded, external_source_id)
           .>> t(:reject_keys, ['external_source', 'external_source_id', 'external_system_syncs'])
