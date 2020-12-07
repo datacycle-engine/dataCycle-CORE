@@ -19,7 +19,7 @@ module DataCycleCore
                   DataCycleCore::TestPreparations.generate_schedule(
                     3.months.ago.beginning_of_week.midday + 3.days,
                     1.month.from_now,
-                    1.hour,
+                    2.hours,
                     frequency: 'weekly'
                   ).serialize_schedule_object.schedule_object.to_hash
                 ]
@@ -47,7 +47,7 @@ module DataCycleCore
                   DataCycleCore::TestPreparations.generate_schedule(
                     1.month.ago.beginning_of_week.midday + 1.day,
                     3.months.from_now,
-                    1.hour,
+                    0.hours,
                     frequency: 'weekly'
                   ).serialize_schedule_object.schedule_object.to_hash
                 ]
