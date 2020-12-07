@@ -67,11 +67,11 @@ module DataCycleCore
         reflect(
           @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions,
-              [
-                'LEFT JOIN schedule_occurrences ON schedule_occurrences.thing_id = things.id AND occurrence && TSTZRANGE(?, ?)',
-                start_date,
-                end_date
-              ]))
+                                           [
+                                             'LEFT JOIN schedule_occurrences ON schedule_occurrences.thing_id = things.id AND occurrence && TSTZRANGE(?, ?)',
+                                             start_date,
+                                             end_date
+                                           ]))
             .reorder(
               Arel.sql('LOWER(schedule_occurrences.occurrence) ASC')
             )

@@ -18,13 +18,12 @@ module DataCycleCore
                 event_schedule: [
                   DataCycleCore::TestPreparations.generate_schedule(
                     3.months.ago.beginning_of_week.midday + 3.days,
-                    1.months.from_now,
+                    1.month.from_now,
                     1.hour,
                     frequency: 'weekly'
                   ).serialize_schedule_object.schedule_object.to_hash
                 ]
-              }
-            )
+              })
 
             @event_b = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
             @event_b.set_data_hash(partial_update: true, prevent_history: true, data_hash:
@@ -38,8 +37,7 @@ module DataCycleCore
                     frequency: 'weekly'
                   ).serialize_schedule_object.schedule_object.to_hash
                 ]
-              }
-            )
+              })
 
             @event_c = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
             @event_c.set_data_hash(partial_update: true, prevent_history: true, data_hash:
@@ -47,14 +45,13 @@ module DataCycleCore
                 name: 'C',
                 event_schedule: [
                   DataCycleCore::TestPreparations.generate_schedule(
-                    1.months.ago.beginning_of_week.midday + 1.days,
+                    1.month.ago.beginning_of_week.midday + 1.day,
                     3.months.from_now,
                     1.hour,
                     frequency: 'weekly'
                   ).serialize_schedule_object.schedule_object.to_hash
                 ]
-              }
-            )
+              })
 
             @event_d = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
             @event_d.set_data_hash(partial_update: true, prevent_history: true, data_hash:
@@ -68,8 +65,7 @@ module DataCycleCore
                     frequency: 'weekly'
                   ).serialize_schedule_object.schedule_object.to_hash
                 ]
-              }
-            )
+              })
 
             @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
           end
@@ -86,8 +82,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now.beginning_of_week.beginning_of_day).to_s(:iso8601),
-                      max: (Time.zone.now.end_of_week.beginning_of_day).to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
                     }
                   }
                 }
@@ -109,8 +105,8 @@ module DataCycleCore
                 attribute: {
                   schedule: {
                     in: {
-                      min: (Time.zone.now.beginning_of_week.beginning_of_day).to_s(:iso8601),
-                      max: (Time.zone.now.end_of_week.beginning_of_day).to_s(:iso8601)
+                      min: Time.zone.now.beginning_of_week.beginning_of_day.to_s(:iso8601),
+                      max: Time.zone.now.end_of_week.beginning_of_day.to_s(:iso8601)
                     }
                   }
                 }
