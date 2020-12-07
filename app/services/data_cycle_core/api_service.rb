@@ -311,7 +311,19 @@ module DataCycleCore
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
     end
 
-    def apply_order_query(query, order_params, full_text_search = '', schedule = false)
+    def apply_order_query(query, order_params, full_text_search = '', schedule = false, raw_query_params: {})
+      if order_params == 'proximity.occurrence' &&
+         raw_query_params.dig('filter', 'attribute', 'schedule', 'in', 'min').present? &&
+         raw_query_params.dig('filter', 'attribute', 'schedule', 'in', 'max').present?
+
+        query = query.sort_by_schedule_proximity(
+          raw_query_params.dig('filter', 'attribute', 'schedule', 'in', 'min'),
+          raw_query_params.dig('filter', 'attribute', 'schedule', 'in', 'max')
+        )
+
+        return query
+      end
+
       order_query = []
       order_params&.split(',')&.each do |sort|
         key, order = key_with_ordering(sort)

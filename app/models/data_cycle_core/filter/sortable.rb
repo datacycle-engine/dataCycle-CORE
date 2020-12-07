@@ -63,6 +63,21 @@ module DataCycleCore
       end
       alias sort_proximity_intime sort_by_proximity
 
+      def sort_by_schedule_proximity(start_date, end_date)
+        reflect(
+          @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions,
+              [
+                'LEFT JOIN schedule_occurrences ON schedule_occurrences.thing_id = things.id AND occurrence && TSTZRANGE(?, ?)',
+                start_date,
+                end_date
+              ]))
+            .reorder(
+              Arel.sql('LOWER(schedule_occurrences.occurrence) ASC')
+            )
+        )
+      end
+
       def sort_fulltext_search(ordering, value)
         return self if value.blank?
         locale = @locale&.first || I18n.available_locales.first.to_s
