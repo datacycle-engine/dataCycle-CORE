@@ -31,7 +31,8 @@ module DataCycleCore
             @classification_id = permitted_params[:classification_id] || nil
 
             if @classification_id.present?
-              @classification_aliases = DataCycleCore::ClassificationAlias.find(id: @classification_id) # .with_descendants
+              @classification_aliases = DataCycleCore::ClassificationAlias.where(id: @classification_id) # .with_descendants
+              raise ActiveRecord::RecordNotFound if @classification_aliases.blank?
             else
               @classification_aliases = @classification_tree_label.classification_aliases
             end
