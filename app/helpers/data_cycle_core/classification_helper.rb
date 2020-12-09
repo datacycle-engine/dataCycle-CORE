@@ -105,7 +105,7 @@ module DataCycleCore
     end
 
     def async_classification_select_options(value, expected_type = DataCycleCore::ClassificationAlias)
-      return [] if value.blank?
+      return options_for_select([]) if value.blank?
 
       options_for_select(
         value.map do |c|

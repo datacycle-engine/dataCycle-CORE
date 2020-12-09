@@ -56,7 +56,7 @@ module DataCycleCore
     end
 
     def search
-      params.permit(:q, :max, :tree_label)
+      params.permit(:q, :max, :tree_label, :exclude)
 
       query = if params[:tree_label].present? && params[:tree_label] == 'Inhaltstypen'
                 DataCycleCore::ClassificationAlias.for_tree(params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)
@@ -68,6 +68,7 @@ module DataCycleCore
       query = query.search(params[:q])
       query = query.order_by_similarity(params[:q])
       query = query.limit(params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
+      query = query.where.not(id: params[:exclude]) if params[:exclude].present?
       query = query.preload(:primary_classification, :classification_alias_path)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial

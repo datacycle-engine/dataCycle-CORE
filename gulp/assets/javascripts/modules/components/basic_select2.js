@@ -2,7 +2,7 @@ class BasicSelect2 {
   constructor(element) {
     this.$element = $(element);
     this.query = {};
-    this.config = this.$element.data();
+    this.config = this.$element.data() || {};
     this.defaultOptions = {
       allowClear: true,
       dropdownParent: this.$element.parent(),
@@ -56,13 +56,13 @@ class BasicSelect2 {
     let $result = $('<span></span>');
 
     if (!term.length || match < 0) {
-      return $result.text(text);
+      return $result.html(text);
     }
 
-    $result.text(text.substring(0, match));
+    $result.html(text.substring(0, match));
 
     let $match = $('<span class="select2-highlight"></span>');
-    $match.text(text.substring(match, match + term.length));
+    $match.html(text.substring(match, match + term.length));
 
     $result.append($match);
     $result.append(text.substring(match + term.length));

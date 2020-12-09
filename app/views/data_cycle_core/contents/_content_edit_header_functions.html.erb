@@ -15,9 +15,9 @@
 
         <%= yield_content! :additional_functions %>
 
-        <% if can?(:index, content) && content.respond_to?(:siblings) && content.respond_to?(:parent) && !content.parent.nil? && !content.siblings.try(:size).nil? && !content.siblings.try(:size).zero? %>
+        <% if can?(:index, content) && content.try(:content_type?, 'entity') %>
           <li class="has-dropdown right">
-            <%= render 'split_sources', contents: content.siblings, selected: @split_source, url: '', title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
+            <%= render 'split_sources', query_params: { exclude: content&.id }, value: @split_source, url: '', title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
           </li>
         <% end %>
 
