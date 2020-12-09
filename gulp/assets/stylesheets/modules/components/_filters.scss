@@ -1245,3 +1245,22 @@ $filter-border: #aaa;
     }
   }
 }
+.tag-group {
+  &.union_filter_ids {
+    .tag {
+      &.stored_filter::before {
+        content: '\f0b0';
+        font-family: FontAwesome;
+        position: relative;
+        padding: 2px 5px 2px 2px;
+      }
+
+      &.watch_list::before {
+        content: '\f0ca';
+        font-family: FontAwesome;
+        position: relative;
+        padding: 2px 5px 2px 2px;
+      }
+    }
+  }
+}

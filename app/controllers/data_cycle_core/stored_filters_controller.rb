@@ -5,7 +5,7 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
     before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource except: [:search, :add_to_watchlist] # from cancancan (authorize)
+    load_and_authorize_resource except: [:search, :select_search_or_collection, :add_to_watchlist] # from cancancan (authorize)
 
     def index
       @saved_stored_searches = @accessible_stored_filters.where.not(name: nil).order(:name)
@@ -50,6 +50,26 @@ module DataCycleCore
       stored_filters = DataCycleCore::StoredFilter.where('user_id = ? AND name ILIKE ?', current_user.id, "%#{params[:q]}%").limit(20)
 
       render json: stored_filters
+    end
+
+    def select_search_or_collection
+      authorize! :show, :stored_filter
+
+      filter_string = select_search_params[:q]&.strip
+      filter_proc = ->(query, query_table) { query.where(query_table[:name].matches("%#{filter_string}%")) } if filter_string.present?
+      arel_query = @accessible_stored_filters.combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability), filter_proc)
+      arel_query = arel_query.take(select_search_params[:max].to_i) if select_search_params[:max].present?
+
+      result = ActiveRecord::Base.connection.select_all arel_query.to_sql
+
+      render plain: result.map { |s|
+        {
+          id: s['id'],
+          class: s['class_name'],
+          name: s['name'],
+          title: "#{I18n.t("activerecord.models.data_cycle_core/#{s['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{s['name']}"
+        }
+      }.to_json, content_type: 'application/json'
     end
 
     def add_to_watchlist
@@ -102,6 +122,10 @@ module DataCycleCore
 
     def stored_filter_params
       params.require(:stored_filter).permit(:id, :name, :system, :api, :linked_stored_filter_id, api_users: [])
+    end
+
+    def select_search_params
+      params.permit(:q, :max)
     end
   end
 end

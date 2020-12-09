@@ -67,6 +67,7 @@ DataCycleCore::Engine.routes.draw do
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
+    get :select_search_or_collection, on: :collection
     get :download_zip, on: :member
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection

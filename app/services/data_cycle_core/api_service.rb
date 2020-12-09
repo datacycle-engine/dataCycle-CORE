@@ -111,9 +111,7 @@ module DataCycleCore
 
     def apply_linked_filters(query, linked_filter)
       linked_filter.each do |linked_name, attribute_filter|
-        linked_stored_filter = DataCycleCore::StoredFilter.new
-        linked_stored_filter.language = @language
-        linked_query = linked_stored_filter.apply
+        linked_query = DataCycleCore::StoredFilter.new(language: @language).apply
 
         # add error handling for invalid methods
         attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId].include?(k) }
@@ -127,9 +125,7 @@ module DataCycleCore
     def apply_union_filters(query, filters)
       all_filters = []
       filters.each do |filter|
-        union_stored_filter = DataCycleCore::StoredFilter.new
-        union_stored_filter.language = @language
-        union_query = union_stored_filter.apply
+        union_query = DataCycleCore::StoredFilter.new(language: @language).apply
 
         filter.each do |filter_k, filter_v|
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys

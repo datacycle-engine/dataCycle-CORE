@@ -53,6 +53,8 @@ module DataCycleCore
       new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && !new_filter.persisted?
       new_filter.system = filter_params[:system] if params[:stored_filter].present? && filter_params[:system].present?
       new_filter.parameters = @stored_filter.parameters
+      new_filter.language = Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
+      new_filter.sort_parameters = @stored_filter.sort_parameters
       new_filter.save
       new_filter
     end

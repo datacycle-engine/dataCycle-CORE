@@ -390,7 +390,6 @@ ul.backend-treeview-list,
         }
 
         &:hover {
-          z-index: 1;
           box-shadow: 0 0 7px $primary-color;
         }
 
@@ -399,6 +398,11 @@ ul.backend-treeview-list,
         &.select2-container--open {
           border-color: $primary-color;
           background: white;
+        }
+
+        & + .select2-container {
+          border: none;
+          padding: 0;
         }
       }
 
@@ -553,8 +557,8 @@ ul.backend-treeview-list,
             height: 2.6rem;
             vertical-align: top;
           }
-          &.large{
-            img{
+          &.large {
+            img {
               height: 10rem;
               vertical-align: top;
             }

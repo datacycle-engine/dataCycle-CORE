@@ -118,6 +118,35 @@ module DataCycleCore
         )
       end
 
+      def not_relation_filter(filter = nil, name = nil)
+        return self if name.blank?
+        return self if filter.blank?
+
+        if filter.is_a?(DataCycleCore::Filter::Search)
+          filter_query = filter.select(:id).except(:order).to_sql
+        else
+          stored_filter = DataCycleCore::StoredFilter.find(filter)
+          return self if stored_filter.blank?
+          filter_query = stored_filter.apply.select(:id).except(:order).to_sql
+        end
+
+        thing_id = :content_a_id
+        relation = :relation_a
+        filtered_id = :content_b_id
+
+        subquery = Arel::SelectManager.new
+          .from(content_content)
+          .where(
+            content_content[thing_id].eq(thing[:id])
+              .and(content_content[relation].eq(name))
+              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
+          )
+
+        reflect(
+          @query.where.not(subquery.exists)
+        )
+      end
+
       def related_to(filter_id = nil)
         return self if filter_id.blank?
         filter = DataCycleCore::StoredFilter.find(filter_id)

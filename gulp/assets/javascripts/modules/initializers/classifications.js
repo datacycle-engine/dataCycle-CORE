@@ -1,7 +1,9 @@
-require('select2');
-require('select2/i18n/de');
-$.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'));
-var select2_helpers = require('./../helpers/select2_helpers');
+// require('select2');
+// require('select2/i18n/de');
+// $.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'));
+var AsyncSelect2 = require('../components/async_select2');
+
+// var select2_helpers = require('./../helpers/select2_helpers');
 var quill_helpers = require('./../helpers/quill_helpers');
 
 module.exports.initialize = function ($) {
@@ -79,70 +81,19 @@ module.exports.initialize = function ($) {
 
       $(event.target).closest('li').addClass('active');
 
-      var classificationAliasId = $(event.target).closest('li').find('input[name="classification_alias[id]"]').val();
-
       var select = $(event.target).closest('li').find('select[name="classification_alias[classification_ids][]"]');
 
-      var query = {};
-
-      var default_classification_id = $(event.target)
-        .closest('li')
-        .find('.default_classification_mapping')
-        .first()
-        .val();
-
-      select.select2({
-        tags: true,
-        minimumInputLength: 1,
-        escapeMarkup: function (m) {
-          return m;
-        },
-        templateResult: function (data) {
-          if (data.loading) {
-            return data.title;
-          }
-
-          var term = query.term || '';
-
-          var result = data.title ? select2_helpers.markMatch(data.title, term) : null;
-
-          select2_helpers.decorateResult(result);
-
-          return result;
-        },
-        templateSelection: function (data, container) {
-          return data.name || data.text;
-        },
-        ajax: {
-          url: window.DATA_CYCLE_ENGINE_PATH + '/classifications/search',
-          delay: 250,
-          data: function (params) {
-            select.data('select2').$container.addClass('select2-loading');
-            query = params;
-            return {
-              q: params.term
-            };
-          },
-          processResults: function (data) {
-            select.data('select2').$container.removeClass('select2-loading');
-
-            return {
-              results: data
-                .map(value => {
-                  if (value.classification_id != undefined) value.id = value.classification_id;
-                  return value;
-                })
-                .filter(ca => ca.id != default_classification_id)
-            };
-          }
-        }
-      });
+      if (!select.data('select2')) {
+        let newAsyncSelect = new AsyncSelect2(select);
+        newAsyncSelect.init();
+      }
 
       return false;
     });
     $('#classification-administration').on('click', '.discard', function (event) {
       $(this).parents('form').get(0).reset();
       $(this).closest('li.active').removeClass('active');
+
       return false;
     });
     $('#classification-administration').on('click', '.ca-translation-link', event => {
