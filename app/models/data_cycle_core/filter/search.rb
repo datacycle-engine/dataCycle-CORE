@@ -19,14 +19,6 @@ module DataCycleCore
         @query = query || default_query
       end
 
-      def default_query
-        query = DataCycleCore::Thing.where(template: false)
-        query = query.where.not(content_type: 'embedded') unless @include_embedded
-        query = query.order(boost: :desc, updated_at: :desc, id: :desc)
-        query = query.where(DataCycleCore::Search.select(1).where('searches.content_data_id = things.id').where(locale: @locale).arel.exists) if @locale.present?
-        query
-      end
-
       def content_includes
         reflect(
           @query.includes(
@@ -155,6 +147,22 @@ module DataCycleCore
         end
       end
 
+      def template_names(names)
+        return self if names.blank?
+
+        reflect(
+          @query.where(thing[:template_name].in(Array.wrap(names)))
+        )
+      end
+
+      def exclude_ids(ids)
+        return self if ids.blank?
+
+        reflect(
+          @query.where.not(thing[:id].in(Array.wrap(ids)))
+        )
+      end
+
       # Deprecated: replace with modified_at
       def modified_since(_date = Time.zone.now)
         raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
@@ -206,6 +214,14 @@ module DataCycleCore
         Arel::SelectManager.new
           .from(content_content)
           .where(sub_select)
+      end
+
+      def default_query
+        query = DataCycleCore::Thing.where(template: false)
+        query = query.where.not(content_type: 'embedded') unless @include_embedded
+        query = query.order(boost: :desc, updated_at: :desc, id: :desc)
+        query = query.where(DataCycleCore::Search.select(1).where('searches.content_data_id = things.id').where(locale: @locale).arel.exists) if @locale.present?
+        query
       end
     end
   end

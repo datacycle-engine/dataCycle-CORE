@@ -469,6 +469,13 @@ select {
   .button {
     margin: 0;
   }
+
+  .select2-container.select2-loading::after {
+    top: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.2rem;
+    right: 1.2rem;
+  }
 }
 
 #move-to-container-overlay,

@@ -3,23 +3,11 @@
     <h5><%= title_text %></h5>
     <div id="split-source-selector">
         <%= form_tag(url, method: :get) do %>
-            <% sources = [] %>
-            <% contents.includes(:translations).each do |content| %>
-                <% I18n.with_locale(content.first_available_locale) do %>
-                    <% sources.push(["#{content.title} (#{content.template_name}, #{I18n.locale})", content.id]) %>
-                <% end %>
-            <% end %>
-
-            <% selected_value = '' %>
-            <% I18n.with_locale(selected.first_available_locale) do %>
-                <% selected_value = ["#{selected.title} (#{selected.template_name}, #{selected.translated_locales.first})", selected&.id] %>
-            <% end unless selected.blank? %>
-
             <div class="form-element">
                 <div class="v-select white">
                     <%= select_tag(
                           'source_id',
-                          async_classification_select_options(value, DataCycleCore::Classification),
+                          async_thing_select_options(local_assigns[:value], local_assigns.dig(:query_params, :template_name).present?),
                           {
                             multiple: false,
                             include_blank: true,
@@ -27,11 +15,11 @@
                             data: {
                               max: 20,
                               placeholder: 'Vorlage wählen',
-                              search_path: select_search_thing()
+                              search_path: select_search_things_path,
+                              query_params: local_assigns[:query_params]
                             }
                           }
                         ) %>
-                    <%= select_tag('source_id', options_for_select(sources, selected&.id), {class: 'single-select select', data: {placeholder: 'Vorlage wählen'}, include_blank: true}) %>
                 </div>
             </div>
 

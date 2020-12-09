@@ -2,57 +2,57 @@
 
 <% content_for :top_content do %>
 
-    <div>
+  <div>
 
-        <section class="edit-header">
-            <div class="row expanded">
-                <div class="column edit-header-functions">
-                  <div class="edit-name">
-                      <i class="fa fa-columns" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
-                  </div>
-                  <ul>
-                    <li class="has-dropdown right">
-                      <%= render 'split_sources', contents: @content.siblings.where(template_name: @content.template_name), selected: @diff_source, url: compare_thing_path(@content), title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
-                    </li>
-                    <li class="buttons"></li>
-                  </ul>
-                </div>
-            </div>
-        </section>
+    <section class="edit-header">
+      <div class="row expanded">
+        <div class="column edit-header-functions">
+          <div class="edit-name">
+            <i class="fa fa-columns" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
+          </div>
+          <ul>
+            <li class="has-dropdown right">
+              <%= render 'split_sources', query_params: { exclude: @content&.id, template_name: @content&.template_name }, value: @diff_source, url: compare_thing_path(@content), title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
+            </li>
+            <li class="buttons"></li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
-        <div class="column">
+    <div class="column">
 
-            <div class="detail-content detail-content-wrapper">
+      <div class="detail-content detail-content-wrapper">
 
+        <% I18n.with_locale(@diff_source.first_available_locale) do %>
+
+          <div class="detail-content row">
+            <div class="show-content">
+              <div class="detail-header-info diff">
                 <% I18n.with_locale(@diff_source.first_available_locale) do %>
-
-                    <div class="detail-content row">
-                        <div class="show-content">
-                            <div class="detail-header-info diff">
-                                <% I18n.with_locale(@diff_source.first_available_locale) do %>
-                                  <%= render 'diff_meta_data', content: @diff_source %>
-                                <% end %>
-
-                                <span class="meta-data-splitter">
-                                  <i class="fa fa-arrow-right" aria-hidden="true"></i>
-                                </span>
-
-                                <% I18n.with_locale(@content.first_available_locale) do %>
-                                  <%= render 'diff_meta_data', content: @content %>
-                                <% end %>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <%= render_content_partial 'history', content: @diff_source, options: { compare: true, force_render: true } %>
-
+                  <%= render 'diff_meta_data', content: @diff_source %>
                 <% end %>
 
-            </div>
+                <span class="meta-data-splitter">
+                  <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                </span>
 
-        </div>
+                <% I18n.with_locale(@content.first_available_locale) do %>
+                  <%= render 'diff_meta_data', content: @content %>
+                <% end %>
+              </div>
+
+            </div>
+          </div>
+
+          <%= render_content_partial 'history', content: @diff_source, options: { compare: true, force_render: true } %>
+
+        <% end %>
+
+      </div>
 
     </div>
+
+  </div>
 
 <% end %>

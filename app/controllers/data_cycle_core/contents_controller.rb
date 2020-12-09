@@ -404,17 +404,21 @@ module DataCycleCore
 
     def select_search
       authorize! :show, DataCycleCore::Thing
+      template_filter = select_search_params[:template_name].present?
 
-      contents = DataCycleCore::Thing.includes(:translations).where(template: false).where.not(content_type: 'embedded')
+      query = DataCycleCore::Filter::Search.new(nil)
+      query = query
+        .fulltext_search(select_search_params[:q])
+        .template_names(select_search_params[:template_name])
+        .exclude_ids(select_search_params[:exclude])
+      query = query.limit(select_search_params[:max].to_i) if select_search_params[:max].present?
 
-      binding.pry
-
-      render plain: result.map { |s|
+      render plain: query.includes(:translations).map { |content|
         {
-          id: s['id'],
-          class: s['class_name'],
-          name: s['name'],
-          title: "#{I18n.t("activerecord.models.data_cycle_core/#{s['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{s['name']}"
+          id: content.id,
+          class: "#{content.template_name.underscore_blanks} #{content.schema.dig('schema_type').underscore_blanks}",
+          name: "#{"<b>#{content.template_name}</b>: " unless template_filter}#{I18n.with_locale(content.first_available_locale) { content.title }} (#{content.translated_locales.join(', ')})",
+          title: "#{"#{content.template_name}: " unless template_filter}#{I18n.with_locale(content.first_available_locale) { content.title }} (#{content.translated_locales.join(', ')})"
         }
       }.to_json, content_type: 'application/json'
     end
@@ -436,7 +440,7 @@ module DataCycleCore
     end
 
     def select_search_params
-      params.permit(:id)
+      params.permit(:q, :max, :exclude, :template_name)
     end
 
     def create_locale(params_hash = nil)
