@@ -2,8 +2,12 @@
   <span class="tag-group-label">
     <i class="fa fa-arrow-circle-o-right" aria-hidden="true"></i>
     <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
-    <% item_name = DataCycleCore::StoredFilter.find(value).name %>
-    <span class="tag" title="<%=item_name.to_s%>"><%=item_name%></span>
   </span>
+
+  <% item = union_ids_to_value(value)&.first %>
+  <span class="tags-container">
+    <span class="tag <%= item['class_name'] %>" title="<%= "#{I18n.t("activerecord.models.data_cycle_core/#{item['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{item['name']}" %>"><%= item['name'] %></span>
+  </span>
+
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
 </span>

@@ -134,6 +134,19 @@ $filter-border: #aaa;
             border-radius: 4px;
             border-color: $filter-border;
           }
+
+          .select2-selection--single {
+            min-height: 2.2rem;
+
+            .select2-selection__arrow,
+            .select2-selection__rendered {
+              line-height: 32px;
+            }
+          }
+
+          .select2-dropdown .select2-search__field {
+            margin: 0;
+          }
         }
 
         .advanced-filter-mode {
@@ -1246,7 +1259,7 @@ $filter-border: #aaa;
   }
 }
 .tag-group {
-  &.union_filter_ids {
+  &.advanced-tags {
     .tag {
       &.stored_filter::before {
         content: '\f0b0';

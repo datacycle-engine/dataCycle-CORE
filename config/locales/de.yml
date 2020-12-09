@@ -401,9 +401,12 @@ de:
     relation_filter:
       contained_in: ist enthalten in
       not_contained_in: ist nicht enthalten in
-    related_to: ist verküpft mit
+    related_to: ist verknüpft mit
     feratel_content_score: Feratel - Content Score
     union_filter_ids: in gespeicherten Suchen / Inhaltssammlungen
+    related_to_method:
+      related: verknüpft mit
+      not_related: nicht verknüpft mit
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
