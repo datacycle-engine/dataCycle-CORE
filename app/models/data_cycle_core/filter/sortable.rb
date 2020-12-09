@@ -61,6 +61,7 @@ module DataCycleCore
           )
         )
       end
+      alias sort_proximity_intime sort_by_proximity
 
       def sort_fulltext_search(ordering, value)
         return self if value.blank?
@@ -91,6 +92,8 @@ module DataCycleCore
             )
         )
       end
+
+      alias sort_similarity sort_fulltext_search
 
       def sort_fulltext_search_with_cte(ordering)
         reflect(

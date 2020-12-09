@@ -93,49 +93,45 @@ module DataCycleCore
         return self if name.blank?
         return self if filter.blank?
 
-        if filter.is_a?(DataCycleCore::Filter::Search)
-          filter_query = filter.select(:id).except(:order).to_sql
-        else
-          stored_filter = DataCycleCore::StoredFilter.find(filter)
-          return self if stored_filter.blank?
-          filter_query = stored_filter.apply.select(:id).except(:order).to_sql
-        end
-
-        thing_id = :content_a_id
-        relation = :relation_a
-        filtered_id = :content_b_id
-
-        subquery = Arel::SelectManager.new
-          .from(content_content)
-          .where(
-            content_content[thing_id].eq(thing[:id])
-              .and(content_content[relation].eq(name))
-              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
-          )
+        subquery = related_to_query(filter, name)
+        return self if subquery.nil?
 
         reflect(
           @query.where(subquery.exists)
         )
       end
 
-      def related_to(filter_id = nil)
-        return self if filter_id.blank?
-        filter = DataCycleCore::StoredFilter.find(filter_id)
+      def not_relation_filter(filter = nil, name = nil)
+        return self if name.blank?
         return self if filter.blank?
 
-        thing_id = :content_b_id
-        filtered_id = :content_a_id
+        subquery = related_to_query(filter, name)
+        return self if subquery.nil?
 
-        filter_query = filter.apply.select(:id).except(:order).to_sql
-        subquery = Arel::SelectManager.new
-          .from(content_content)
-          .where(
-            content_content[thing_id].eq(thing[:id])
-              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
-          )
+        reflect(
+          @query.where.not(subquery.exists)
+        )
+      end
+
+      def related_to(filter_id = nil)
+        return self if filter_id.blank?
+
+        subquery = related_to_query(filter_id)
+        return self if subquery.nil?
 
         reflect(
           @query.where(subquery.exists)
+        )
+      end
+
+      def not_related_to(filter_id = nil)
+        return self if filter_id.blank?
+
+        subquery = related_to_query(filter_id)
+        return self if subquery.nil?
+
+        reflect(
+          @query.where.not(subquery.exists)
         )
       end
 
@@ -187,6 +183,29 @@ module DataCycleCore
       # Deprecated: replace with count
       def count_distinct
         raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+      end
+
+      private
+
+      def related_to_query(filter, name = nil)
+        if filter.is_a?(DataCycleCore::Filter::Search)
+          filter_query = filter.select(:id).except(:order)
+        elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
+          filter_query = stored_filter.apply.select(:id).except(:order)
+        elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
+          filter_query = collection.watch_list_data_hashes.select(:hashable_id).except(:order)
+        else
+          return
+        end
+
+        sub_select = content_content[:content_a_id].eq(thing[:id])
+          .and(content_content[:content_b_id].in(Arel.sql(filter_query.to_sql)))
+
+        sub_select = sub_select.and(content_content[:relation_a].eq(name)) if name.present?
+
+        Arel::SelectManager.new
+          .from(content_content)
+          .where(sub_select)
       end
     end
   end

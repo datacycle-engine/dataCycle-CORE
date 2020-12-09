@@ -78,6 +78,8 @@ if options[:full]
   json = {
     '@id' => content.id,
     '@type' => 'skos:Concept',
+    'dc:multilingual' => true,
+    'dc:translation' => content.available_locales,
     'dc:entityUrl' => uri,
     'skos:prefLabel' => render_pref_label(content, options[:languages], render_present_language_only),
     'dct:description' => render_description(content, options[:languages], render_present_language_only),

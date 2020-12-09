@@ -32,6 +32,7 @@ module DataCycleCore
 
             if @classification_id.present?
               @classification_aliases = DataCycleCore::ClassificationAlias.where(id: @classification_id) # .with_descendants
+              raise ActiveRecord::RecordNotFound if @classification_aliases.blank?
             else
               @classification_aliases = @classification_tree_label.classification_aliases
             end
