@@ -400,6 +400,7 @@ de:
       unit: Einheit
     relation_filter:
       contained_in: ist enthalten in
+      not_contained_in: ist nicht enthalten in
     related_to: ist verküpft mit
     feratel_content_score: Feratel - Content Score
     union_filter_ids: in gespeicherten Suchen / Inhaltssammlungen
