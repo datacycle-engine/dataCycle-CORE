@@ -64,7 +64,7 @@ class AsyncSelect2 extends BasicSelect2 {
   templateSelection(data, container) {
     data.selected = true;
     data.text = data.name || data.text;
-    $(data.element).text(data.text);
+    $(data.element).html(data.text);
     this.copySelect2Classes(data, container);
 
     return data.text;
@@ -90,6 +90,8 @@ class AsyncSelect2 extends BasicSelect2 {
         tree_label: this.config.treeLabel
       });
 
+    if (this.config.queryParams) Object.assign(returnObject, this.config.queryParams);
+
     return returnObject;
   }
   ajaxProcessResults(data) {
@@ -101,9 +103,6 @@ class AsyncSelect2 extends BasicSelect2 {
 
       return value;
     });
-
-    if (this.config.excludeSelf && this.config.excludeSelf.length)
-      result = result.filter(c => c.id !== this.config.excludeSelf);
 
     return {
       results: result
