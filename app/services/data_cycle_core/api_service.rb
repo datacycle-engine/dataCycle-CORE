@@ -99,13 +99,10 @@ module DataCycleCore
     # TODO:
     def apply_attribute_filters(query, filters)
       filters.each do |attribute_key, operator|
-        # binding.pry
         attribute_path = attribute_path_mapping(attribute_key)
         query_method = query_method_mapping(attribute_key)
         operator.each do |k, v|
-          # hier muss man auf advanced.numeric -> von attributnamen auf generische Query, zur Zeit über mapping oben, möglicherweise wie in date_range lösen
           query_method = 'not_' + query_method if k == :notIn
-          binding.pry
           next unless query.respond_to?(query_method)
           query = query.send(query_method, v, attribute_path)
         end
@@ -172,11 +169,12 @@ module DataCycleCore
       date_range = [:'dct:modified', :'dct:created']
       advanced_numeric = [:width, :height, :number_of_rooms, :max_number_of_people]
       return 'date_range' if date_range.include?(key)
-      return 'advanced_numeric' if advanced_numeric.include?(key)
+      return 'equals_advanced_numeric' if advanced_numeric.include?(key)
       return 'in_schedule' if key == :schedule
       return 'within_box' if key == :box
       return 'geo_radius' if key == :perimeter
       return 'geo_within_classification' if key == :shapes
+      key.to_s
     end
 
     def linked_attribute_mapping(linked_name)
