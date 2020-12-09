@@ -59,6 +59,16 @@ module DataCycleCore
           end
           data
         end
+
+        def self.transform_linked_keys(data)
+          translated_properties = data['include_translation']
+          translated_properties&.each_key do |property_name|
+            data[property_name] = Array.wrap(data[property_name])
+              .map { |item| translated_properties[property_name][item] }
+              .compact
+          end
+          data
+        end
       end
     end
   end

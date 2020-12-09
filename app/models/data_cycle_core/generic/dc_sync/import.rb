@@ -18,22 +18,33 @@ module DataCycleCore
         end
 
         def self.process_content(utility_object:, raw_data:, options:, **_unused)
-          item_template = DataCycleCore::Thing.find_by(template_name: raw_data.dig(raw_data.keys.first, 'template_name'), template: true)
-          # raw_data.dig('included').each do |included_item|
-          #   next unless item_template.property_names.include?(included_item.dig('attribute_name'))
-          #   DataCycleCore::Generic::DcSync::Processing.process_things(
-          #     utility_object,
-          #     included_item,
-          #     raw_data.dig('template_name'),
-          #     options.dig(:import, :transformations, :thing)
-          #   )
-          # end
+          item_template = get_template(raw_data)
+          linked_key_translation = {}
+          raw_data.dig('included').each do |included_item|
+            attribute_name = included_item.dig('attribute_name')
+            next if attribute_name.blank?
+            next unless item_template.property_names.include?(attribute_name)
+            linked_key_translation[included_item.dig('attribute_name')] = {}
+            new_item = DataCycleCore::Generic::DcSync::Processing.process_things(
+              utility_object,
+              included_item,
+              get_template(included_item).template_name,
+              options.dig(:import, :transformations, :thing)
+            )
+            linked_key_translation[attribute_name][new_item.external_key] = new_item.id
+          end
+
           DataCycleCore::Generic::DcSync::Processing.process_things(
             utility_object,
-            raw_data.except('included'),
-            item_template.template_name,
+            raw_data.except('included').merge('include_translation' => linked_key_translation),
+            get_template(raw_data).template_name,
             options.dig(:import, :transformations, :thing)
           )
+        end
+
+        def self.get_template(data)
+          locale = data.keys.except(['included', 'attribute_name']).first
+          DataCycleCore::Thing.find_by(template_name: data.dig(locale, 'template_name'), template: true)
         end
       end
     end
