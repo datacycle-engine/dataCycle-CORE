@@ -21,7 +21,15 @@ module DataCycleCore
         def self.parse_external_systems(data)
           [
             data.dig('external_system_syncs'),
-            { 'external_key' => data.dig('external_key'), 'name' => data.dig('external_source') }
+            {
+              'external_key' => data.dig('external_key'),
+              'name' => data.dig('external_source'),
+              'identifier' => data.dig('external_source'),
+              'status' => 'success',
+              'last_sync_at' => data.dig('updated_at'),
+              'last_successful_sync_at' => data.dig('updated_at'),
+              'sync_type' => 'export'
+            }
           ].flatten
         end
       end

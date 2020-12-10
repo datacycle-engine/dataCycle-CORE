@@ -91,8 +91,14 @@ module DataCycleCore
 
           content.save!
           data.dig('external_system_data')&.each do |es|
-            external_system = DataCycleCore::ExternalSystem.find_by(name: es['name'])
-            content.add_external_system_data(external_system, { external_key: es['external_key'] }, 'success', 'export', es['external_key'], false)
+            external_system =
+              if es['identifier'].present?
+                DataCycleCore::ExternalSystem.find_by(identifier: es['identifier'])
+              else
+                DataCycleCore::ExternalSystem.find_by(name: es['name'])
+              end
+            external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank?
+            content.add_external_system_data(external_system, { external_key: es['external_key'] }, es['status'] || 'success', es['sync_type'] || 'export', es['external_key'], false)
           end
 
           content

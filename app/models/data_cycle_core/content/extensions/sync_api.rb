@@ -73,10 +73,11 @@ module DataCycleCore
             template_name: template_name,
             updated_at: updated_at,
             created_at: created_at,
+            last_sync_at: Time.zone.now,
             external_key: external_key,
             external_source_id: external_source_id,
             external_source: external_source&.identifier,
-            external_system_syncs: external_system_syncs.map(&:to_hash).map { |i| i.slice('external_key').merge({ name: DataCycleCore::ExternalSystem.find(i.dig(:external_system_id))&.identifier }) }
+            external_system_syncs: external_system_syncs.map(&:to_hash).map { |i| i.slice('external_key', 'status', 'last_sync_at', 'last_successful_sync_at').merge({ name: DataCycleCore::ExternalSystem.find(i.dig(:external_system_id))&.identifier }) }
           }
         end
 
