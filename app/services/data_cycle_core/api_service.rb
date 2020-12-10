@@ -313,21 +313,44 @@ module DataCycleCore
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
     end
 
-    def apply_order_query(query, order_params, full_text_search = '', schedule = false)
+    def apply_order_query(query, order_params, full_text_search = '', schedule = nil)
       order_query = []
       order_params&.split(',')&.each do |sort|
         key, order = key_with_ordering(sort)
-        order_query <<
-          {
-            'm' => key.parameterize(separator: '_'),
-            'o' => order
-          }
+        if key == 'proximity.geographic' && permitted_params&.dig(:filter, :geo, :in, :perimeter).present?
+          order_query <<
+            {
+              'm' => key.parameterize(separator: '_'),
+              'o' => order,
+              'v' => permitted_params&.dig(:filter, :geo, :in, :perimeter)
+            }
+        elsif key == 'proximity.inTime' && schedule.present?
+          order_query <<
+            {
+              'm' => key.parameterize(separator: '_'),
+              'o' => order,
+              'v' => schedule&.dig(:in, :min)
+            }
+        elsif key == 'similarity' && full_text_search.present?
+          order_query <<
+            {
+              'm' => key.parameterize(separator: '_'),
+              'o' => order,
+              'v' => full_text_search
+            }
+        else
+          order_query <<
+            {
+              'm' => key.parameterize(separator: '_'),
+              'o' => order
+            }
+        end
       end
       order_query = order_query&.reject(&:blank?)
 
       if order_query.blank?
         query = query.sort_fulltext_search('DESC', full_text_search) if full_text_search.present?
-        query = query.sort_by_proximity if schedule.present?
+        query = query.sort_by_proximity('', schedule&.dig(:in, :min)) if schedule.present?
         return query
       end
 

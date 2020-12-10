@@ -88,7 +88,7 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          apply_order_query(query, permitted_params.dig(:sort), @full_text_search, permitted_params&.dig(:filter, :attribute, :schedule).present?)
+          apply_order_query(query, permitted_params.dig(:sort), @full_text_search, permitted_params&.dig(:filter, :attribute, :schedule))
         end
 
         def build_search_query
