@@ -33,7 +33,6 @@
       :forecasts:
         :label: Wettervorhersage
         :type: embedded
-        :linked_table: things
         :template_name: Wettervorhersage
         :translated: true
       :data_type:
@@ -84,7 +83,6 @@
       :temperature_forecasts:
         :label: Wetterbericht
         :type: embedded
-        :linked_table: things
         :template_name: Wetterbericht
         :translated: true
       :meta_data:
@@ -103,10 +101,12 @@
         - Place
         - 'dcls:TemperatureForecasts'
     :properties:
+      :id:
+        :label: id
+        :type: key
       :temperature_06:
         :label: 6 Uhr
         :type: embedded
-        :linked_table: things
         :template_name: Prognose
         :translated: true
         :validations:
@@ -114,7 +114,6 @@
       :temperature_12:
         :label: 12 Uhr
         :type: embedded
-        :linked_table: things
         :template_name: Prognose
         :translated: true
         :validations:
@@ -122,7 +121,6 @@
       :temperature_18:
         :label: 18 Uhr
         :type: embedded
-        :linked_table: things
         :template_name: Prognose
         :translated: true
         :validations:
@@ -130,7 +128,6 @@
       :temperature_24:
         :label: 24 Uhr
         :type: embedded
-        :linked_table: things
         :template_name: Prognose
         :translated: true
         :validations:
@@ -138,7 +135,6 @@
       :temperature_tag:
         :label: Tagesprognose
         :type: embedded
-        :linked_table: things
         :template_name: Tagesprognose
         :translated: true
         :validations:
