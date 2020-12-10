@@ -4,24 +4,26 @@ module DataCycleCore
   module Content
     module Extensions
       module SyncApi
-        def to_sync_data
+        def to_sync_data(depth = 0)
+          depth += 1
+          return if depth > (DataCycleCore.main_config.dig(:sync_api, :max_depth) || 5)
           (available_locales.presence || [I18n.locale]).map { |lang|
             { lang => I18n.with_locale(lang) { to_sync_h } }
           }.inject(&:merge)
-          &.merge({ included: attribute_to_sync_h('included') })
+          &.merge({ included: attribute_to_sync_h('included', depth) })
           &.deep_stringify_keys
         end
 
-        def to_sync_h
+        def to_sync_h(depth = 0)
           (property_names - virtual_property_names)
-            .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name) } }
+            .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth) } }
             .inject(&:merge)
             .merge(sync_metadata)
             .compact
             .deep_stringify_keys
         end
 
-        def attribute_to_sync_h(property_name)
+        def attribute_to_sync_h(property_name, depth = 0)
           present_overlay = overlay_property_names.include?(property_name)
           property_name_with_overlay = property_name
           property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
@@ -56,7 +58,9 @@ module DataCycleCore
           elsif property_name == 'included'
             linked_property_names.map { |linked|
               linked_array = get_property_value(linked, property_definitions[linked], nil, present_overlay)
-              linked_array = linked_array.map(&:to_sync_data).map { |i| i.merge({ attribute_name: linked }) } if linked_array.present?
+              linked_array = linked_array
+                &.map { |i| i.to_sync_data(depth) }
+                &.map { |i| i.merge({ attribute_name: linked }) }
               linked_array.presence || []
             }.inject(:+)&.compact || []
           else

@@ -45,6 +45,7 @@ module DataCycleCore
           content.schema = template.schema
           content.template_name = template.template_name
           content.webhook_source = external_source.name
+          content.external_source_id = external_source.id
           content.external_key = id
           content.save!
         end
@@ -60,15 +61,15 @@ module DataCycleCore
           data
         end
 
-        def self.transform_linked_keys(data)
-          translated_properties = data['include_translation']
-          translated_properties&.each_key do |property_name|
-            data[property_name] = Array.wrap(data[property_name])
-              .map { |item| translated_properties[property_name][item] }
-              .compact
-          end
-          data
-        end
+        # def self.transform_linked_keys(data)
+        #   translated_properties = data['include_translation']
+        #   translated_properties&.each_key do |property_name|
+        #     data[property_name] = Array.wrap(data[property_name])
+        #       .map { |item| translated_properties[property_name][item] }
+        #       .compact
+        #   end
+        #   data
+        # end
       end
     end
   end
