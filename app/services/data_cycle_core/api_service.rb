@@ -96,7 +96,6 @@ module DataCycleCore
       query
     end
 
-    # TODO:
     def apply_attribute_filters(query, filters)
       filters.each do |attribute_key, operator|
         attribute_path = attribute_path_mapping(attribute_key)
