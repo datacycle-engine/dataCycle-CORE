@@ -407,6 +407,8 @@ de:
     related_to_method:
       related: verknüpft mit
       not_related: nicht verknüpft mit
+    max_number_of_people: max. Anzahl Personen
+    number_of_meeting_rooms: Anzahl der Zimmer (Tagungsraum)
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...

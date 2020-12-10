@@ -139,6 +139,11 @@
       :type: string
     :text:
       :type: string
+    #conventions
+    :number_of_meeting_rooms:
+      :type: numeric
+    :max_number_of_people:
+      :type: numeric
 #    :offer_period.valid_from:
 #      :type: date
 #    :offer_period.valid_through:
