@@ -140,8 +140,8 @@
     :text:
       :type: string
     #conventions
-    # :number_of_rooms:
-    #   :type: numeric
+    :number_of_meeting_rooms:
+      :type: numeric
     :max_number_of_people:
       :type: numeric
 #    :offer_period.valid_from:
