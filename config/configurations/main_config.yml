@@ -12,6 +12,7 @@
 :sync_api:
   :default: v1
   :enabled: true
+  :max_depth: 5  
   :v1:
     :enabled: true
 #  :v2:

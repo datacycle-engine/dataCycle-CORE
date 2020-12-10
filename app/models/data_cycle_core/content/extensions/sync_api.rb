@@ -6,7 +6,7 @@ module DataCycleCore
       module SyncApi
         def to_sync_data(depth = 0)
           depth += 1
-          return if depth > (DataCycleCore.main_config.dig(:sync_api, :max_depth) || 5)
+          return if depth > DataCycleCore.main_config.dig(:sync_api, :max_depth)
           (available_locales.presence || [I18n.locale]).map { |lang|
             { lang => I18n.with_locale(lang) { to_sync_h } }
           }.inject(&:merge)
