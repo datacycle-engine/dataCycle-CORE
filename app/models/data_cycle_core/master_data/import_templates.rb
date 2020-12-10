@@ -191,7 +191,9 @@ module DataCycleCore
             required(:content_type) { str? & included_in?(['embedded', 'entity', 'container']) }
             optional(:boost) { float? }
             optional(:features) { hash? }
-            required(:properties) { hash? }
+            required(:properties).hash do
+              required(:id) { hash? }
+            end
             optional(:api).hash do
               optional(:type) { str? | array? }
             end
