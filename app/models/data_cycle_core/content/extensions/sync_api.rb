@@ -77,7 +77,15 @@ module DataCycleCore
             external_key: external_key,
             external_source_id: external_source_id,
             external_source: external_source&.identifier,
-            external_system_syncs: external_system_syncs.map(&:to_hash).map { |i| i.slice('external_key', 'status', 'last_sync_at', 'last_successful_sync_at').merge({ name: DataCycleCore::ExternalSystem.find(i.dig(:external_system_id))&.identifier }) }
+            external_system_syncs: external_system_syncs.map { |i|
+              {
+                'external_key' => i.external_key,
+                'status' => i.status,
+                'last_sync_at' => i.last_sync_at,
+                'last_successful_sync_at' => i.last_successful_sync_at,
+                'name' => DataCycleCore::ExternalSystem.find(i.external_system_id)&.identifier
+              }
+            }.compact
           }
         end
 
