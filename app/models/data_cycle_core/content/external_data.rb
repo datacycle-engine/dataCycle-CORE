@@ -12,6 +12,7 @@ module DataCycleCore
           end
         external_data.attributes = { data: data, status: status, external_key: external_key.presence }.compact
         external_data.save
+        external_data
       end
 
       def remove_external_system_data(external_system, sync_type = 'export', external_key = nil)
