@@ -31,6 +31,9 @@
         :translated: true
         :validations:
           :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :description:
         :label: Beschreibung
         :type: string
