@@ -69,7 +69,6 @@
                          class: 'default_classification_mapping' %>
     <div class="v-select">
       <%= f.label :classification_ids %>
-      <%# stay open %>
       <%= f.select(:classification_ids,
         async_classification_select_options(classification_alias.additional_classifications, DataCycleCore::Classification),
         {},
@@ -80,7 +79,9 @@
             search_path: search_classifications_path,
             show_tree_label: true,
             close_on_select: false,
-            exclude_self: classification_alias&.primary_classification_id
+            query_params: {
+              exclude: classification_alias.id,
+            }
           }
         }) %>
     </div>

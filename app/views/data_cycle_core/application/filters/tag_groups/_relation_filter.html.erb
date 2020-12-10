@@ -6,7 +6,11 @@
 
   <% item = union_ids_to_value(value)&.first %>
   <span class="tags-container">
-    <span class="tag <%= item['class_name'] %>" title="<%= "#{I18n.t("activerecord.models.data_cycle_core/#{item['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{item['name']}" %>"><%= item['name'] %></span>
+    <%= tag.span(
+      item['name'],
+      class: "tag #{item['class_name']}",
+      title: "#{I18n.t("activerecord.models.data_cycle_core/#{item['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{item['name']}"
+    ) unless item.nil? %>
   </span>
 
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>

@@ -15,6 +15,9 @@
         :type: string
         :storage_location: column
         :search: true
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :linked_data:
         :name: linked_data
         :type: mixin
