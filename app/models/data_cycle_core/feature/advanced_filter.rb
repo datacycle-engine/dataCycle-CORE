@@ -35,6 +35,17 @@ module DataCycleCore
           end
         end
 
+        def union_filter_ids(value)
+          return [] unless value
+          [
+            [
+              I18n.t('filter.union_filter_ids', collections: DataCycleCore::WatchList.model_name.human(count: 2, locale: DataCycleCore.ui_language), default: 'union_filter_ids'.capitalize, locale: DataCycleCore.ui_language),
+              'union_filter_ids',
+              data: { name: 'union_filter_ids'.capitalize }
+            ]
+          ]
+        end
+
         def geo_filter(value)
           if value.is_a?(Hash)
             value_arr = []

@@ -26,6 +26,9 @@
             :content_area: none
         :api:
           :minimal: true
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :title:
         :label: API-Titel
         :storage_location: translated_value

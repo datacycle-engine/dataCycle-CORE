@@ -6,6 +6,9 @@
     :content_type: entity
     :schema_type: CreativeWork
     :properties:
+      :id:
+        :label: id
+        :type: key
       :name:
         :label: Titel
         :type: string
@@ -17,6 +20,9 @@
     :content_type: entity
     :schema_type: CreativeWork
     :properties:
+      :id:
+        :label: id
+        :type: key
       :name:
         :label: Titel
         :type: string
@@ -41,6 +47,9 @@
     :content_type: entity
     :schema_type: CreativeWork
     :properties:
+      :id:
+        :label: id
+        :type: key
       :name:
         :label: Titel
         :type: string
@@ -62,6 +71,9 @@
     :content_type: entity
     :schema_type: CreativeWork
     :properties:
+      :id:
+        :label: id
+        :type: key
       :name:
         :label: Titel
         :type: string
@@ -77,6 +89,9 @@
     :content_type: entity
     :schema_type: CreativeWork
     :properties:
+      :id:
+        :label: id
+        :type: key
       :name:
         :label: Titel
         :type: string
