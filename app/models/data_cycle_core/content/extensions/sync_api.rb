@@ -20,7 +20,7 @@ module DataCycleCore
           (property_names - virtual_property_names)
             .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth: depth, locales: locales) } }
             .inject(&:merge)
-            .merge(sync_metadata)
+            .merge(embedded? ? {} : sync_metadata)
             .compact
             .deep_stringify_keys
         end
