@@ -152,13 +152,19 @@ module DataCycleCore
       @content
     end
 
-    def self.generate_schedule(dtstart, dtend, duration)
+    def self.generate_schedule(dtstart, dtend, duration, frequency: 'daily')
       schedule = DataCycleCore::Schedule.new
       dtstart = dtstart
       dtend = dtend
       end_time = dtstart + duration
       schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time: end_time, duration: duration.to_i }) do |s|
-        s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(dtend))
+        if frequency == 'daily'
+          s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(dtend))
+        elsif frequency == 'weekly'
+          s.add_recurrence_rule(IceCube::Rule.weekly.until(dtend))
+        elsif frequency == 'monthly'
+          s.add_recurrence_rule(IceCube::Rule.monthly.until(dtend))
+        end
       end
       schedule
     end
