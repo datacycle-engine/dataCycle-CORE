@@ -166,7 +166,7 @@ module DataCycleCore
 
     def query_method_mapping(key)
       date_range = [:'dct:modified', :'dct:created']
-      advanced_numeric = [:width, :height, :number_of_rooms, :number_of_meeting_rooms, :max_number_of_people]
+      advanced_numeric = [:width, :height, :numberOfRooms, :numberOfMeetingRooms, :maxNumberOfPeople]
       return 'date_range' if date_range.include?(key)
       return 'equals_advanced_numeric' if advanced_numeric.include?(key)
       return 'in_schedule' if key == :schedule
@@ -195,7 +195,7 @@ module DataCycleCore
         # currently a hack
         'absolute'
       else
-        attribute_key.to_s
+        attribute_key.to_s.underscore
       end
     end
 
