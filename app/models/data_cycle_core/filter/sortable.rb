@@ -51,9 +51,7 @@ module DataCycleCore
 
       def sort_by_proximity(_ordering = '', value = {})
         date = Time.zone.now
-        if value.is_a?(::Hash)
-          date = date_from_single_value(value.dig('in','min')) || date_from_single_value(value.dig('v','from'))
-        end
+        date = date_from_single_value(value.dig('in', 'min')) || date_from_single_value(value.dig('v', 'from')) if value.present? && value.is_a?(::Hash)
         reflect(
           @query.reorder(
             absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
@@ -65,16 +63,21 @@ module DataCycleCore
       alias sort_proximity_intime sort_by_proximity
 
       def sort_proximity_geographic(ordering = '', value = {})
-        return self if value&.first&.blank? || value&.second&.blank?
+        return self if value&.first.blank? || value&.second.blank?
         order_string = "things.location <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
         reflect(
           @query.reorder(
-            Arel.sql(sanitized_order_string(order_string, ordering, true))
+            Arel.sql(sanitized_order_string(order_string, ordering, true)),
+            Arel.sql('things.updated_at DESC'),
+            Arel.sql('things.id DESC')
           )
         )
       end
 
-      def sort_by_schedule_proximity(start_date, end_date)
+      def sort_by_schedule_proximity(_ordering = '', value = {})
+        return self if value&.dig('in', 'min').blank? || value&.dig('in', 'max').blank?
+        start_date = date_from_single_value(value.dig('in', 'min'))
+        end_date = date_from_single_value(value.dig('in', 'max'))
         reflect(
           @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions,
@@ -88,6 +91,7 @@ module DataCycleCore
             )
         )
       end
+      alias sort_proximity_occurrence sort_by_schedule_proximity
 
       def sort_fulltext_search(ordering, value)
         return self if value.blank?

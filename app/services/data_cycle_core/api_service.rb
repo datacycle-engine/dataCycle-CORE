@@ -313,30 +313,17 @@ module DataCycleCore
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
     end
 
-    def apply_order_query(query, order_params, full_text_search = '', schedule = nil)
+    def apply_order_query(query, order_params, full_text_search = '', raw_query_params: {})
       order_query = []
       order_params&.split(',')&.each do |sort|
         key, order = key_with_ordering(sort)
-        if key == 'proximity.geographic' && permitted_params&.dig(:filter, :geo, :in, :perimeter).present?
+        value = order_value_from_params(key, full_text_search, raw_query_params)
+        if value.present?
           order_query <<
             {
               'm' => key.parameterize(separator: '_'),
               'o' => order,
-              'v' => permitted_params&.dig(:filter, :geo, :in, :perimeter)
-            }
-        elsif key == 'proximity.inTime' && schedule.present?
-          order_query <<
-            {
-              'm' => key.parameterize(separator: '_'),
-              'o' => order,
-              'v' => schedule
-            }
-        elsif key == 'similarity' && full_text_search.present?
-          order_query <<
-            {
-              'm' => key.parameterize(separator: '_'),
-              'o' => order,
-              'v' => full_text_search
+              'v' => value
             }
         else
           order_query <<
@@ -350,7 +337,8 @@ module DataCycleCore
 
       if order_query.blank?
         query = query.sort_fulltext_search('DESC', full_text_search) if full_text_search.present?
-        query = query.sort_by_proximity('', schedule&.dig(:in, :min)) if schedule.present?
+        query = query.sort_proximity_geographic('ASC', raw_query_params.dig('filter', 'geo', 'in', 'perimeter')) if raw_query_params.dig('filter', 'geo', 'in', 'perimeter').present?
+        query = query.sort_by_proximity('', raw_query_params.dig('filter', 'attribute', 'schedule', 'in', 'min')) if raw_query_params.dig('filter', 'attribute', 'schedule', 'in', 'min').present?
         return query
       end
 
@@ -369,6 +357,19 @@ module DataCycleCore
       end
 
       query
+    end
+
+    def order_value_from_params(key, full_text_search, raw_query_params)
+      return raw_query_params.dig('filter', 'geo', 'in', 'perimeter') if key == 'proximity.geographic' && raw_query_params.dig('filter', 'geo', 'in', 'perimeter').present?
+      return raw_query_params.dig('filter', 'attribute', 'schedule') if key == 'proximity.inTime' && raw_query_params.dig('filter', 'attribute', 'schedule').present?
+
+      return raw_query_params.dig('filter', 'attribute', 'schedule') if key == 'proximity.occurrence' &&
+                                                                        raw_query_params.dig('filter', 'attribute', 'schedule', 'in', 'min').present? &&
+                                                                        raw_query_params.dig('filter', 'attribute', 'schedule', 'in', 'max').present?
+
+      return full_text_search if key == 'similarity' && full_text_search.present?
+
+      false
     end
 
     def key_with_ordering(sort)
