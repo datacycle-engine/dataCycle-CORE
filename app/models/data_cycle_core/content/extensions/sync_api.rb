@@ -4,26 +4,28 @@ module DataCycleCore
   module Content
     module Extensions
       module SyncApi
-        def to_sync_data(depth = 0)
+        def to_sync_data(depth: 0, locales: nil, translated: false)
           depth += 1
           return if depth > DataCycleCore.main_config.dig(:sync_api, :max_depth)
-          (available_locales.presence || [I18n.locale]).map { |lang|
-            { lang => I18n.with_locale(lang) { to_sync_h } }
+          languages = available_locales.presence || [I18n.locale]
+          languages = locales if locales.present? && translated
+          languages.map { |lang|
+            { lang => I18n.with_locale(lang) { to_sync_h(locales: locales) } }
           }.inject(&:merge)
-          &.merge({ included: attribute_to_sync_h('included', depth) })
+          &.merge({ included: attribute_to_sync_h('included', depth: depth) })
           &.deep_stringify_keys
         end
 
-        def to_sync_h(depth = 0)
+        def to_sync_h(depth = 0, locales: nil)
           (property_names - virtual_property_names)
-            .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth) } }
+            .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth: depth, locales: locales) } }
             .inject(&:merge)
             .merge(sync_metadata)
             .compact
             .deep_stringify_keys
         end
 
-        def attribute_to_sync_h(property_name, depth = 0)
+        def attribute_to_sync_h(property_name, depth: 0, locales: nil)
           present_overlay = overlay_property_names.include?(property_name)
           property_name_with_overlay = property_name
           property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
@@ -40,7 +42,8 @@ module DataCycleCore
           elsif embedded_property_names.include?(property_name)
             return nil if property_name == overlay_name
             embedded_array = send(property_name_with_overlay)
-            embedded_array = embedded_array.map(&:to_sync_data) if embedded_array.present?
+            translated = property_definitions[property_name]['translated']
+            embedded_array = embedded_array&.map { |i| i.to_sync_data(translated: translated, locales: locales) }
             embedded_array.blank? ? [] : embedded_array.compact
           elsif asset_property_names.include?(property_name)
             send(property_name_with_overlay)
@@ -59,7 +62,7 @@ module DataCycleCore
             linked_property_names.map { |linked|
               linked_array = get_property_value(linked, property_definitions[linked], nil, present_overlay)
               linked_array = linked_array
-                &.map { |i| i.to_sync_data(depth) }
+                &.map { |i| i.to_sync_data(depth: depth) }
                 &.map { |i| i.merge({ attribute_name: linked }) }
               linked_array.presence || []
             }.inject(:+)&.compact || []
