@@ -313,21 +313,25 @@ module DataCycleCore
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
     end
 
-    def apply_order_query(query, order_params, full_text_search = '', schedule = false)
+    def apply_order_query(query, order_params, full_text_search = '', raw_query_params: {})
       order_query = []
       order_params&.split(',')&.each do |sort|
         key, order = key_with_ordering(sort)
-        order_query <<
-          {
-            'm' => key.parameterize(separator: '_'),
-            'o' => order
-          }
+        value = order_value_from_params(key, full_text_search, raw_query_params)
+        order_hash = {
+          'm' => key.parameterize(separator: '_'),
+          'o' => order
+        }
+        order_hash['v'] = value if value.present?
+        order_query << order_hash
       end
       order_query = order_query&.reject(&:blank?)
 
       if order_query.blank?
+        # default order depending on filter parameter
         query = query.sort_fulltext_search('DESC', full_text_search) if full_text_search.present?
-        query = query.sort_by_proximity if schedule.present?
+        query = query.sort_proximity_geographic('ASC', order_value_from_params('proximity.geographic', full_text_search, raw_query_params)) if order_value_from_params('proximity.geographic', full_text_search, raw_query_params)
+        query = query.sort_by_proximity('', order_value_from_params('proximity.inTime', full_text_search, raw_query_params)) if order_value_from_params('proximity.inTime', full_text_search, raw_query_params).present?
         return query
       end
 
@@ -348,10 +352,23 @@ module DataCycleCore
       query
     end
 
+    def order_value_from_params(key, full_text_search, raw_query_params)
+      return raw_query_params.dig(*order_constraints.dig(key)) if order_constraints.dig(key).present? && raw_query_params.dig(*order_constraints.dig(key)).present?
+      return full_text_search if key == 'similarity' && full_text_search.present?
+    end
+
     def key_with_ordering(sort)
       return sort[1..-1], 'DESC' if sort.starts_with?('-')
       return sort[1..-1], 'ASC' if sort.starts_with?('+')
       return sort, 'ASC'
+    end
+
+    def order_constraints
+      {
+        'proximity.geographic' => ['filter', 'geo', 'in', 'perimeter'],
+        'proximity.inTime' => ['filter', 'attribute', 'schedule'],
+        'proximity.occurrence' => ['filter', 'attribute', 'schedule']
+      }
     end
 
     private
