@@ -329,7 +329,7 @@ module DataCycleCore
             {
               'm' => key.parameterize(separator: '_'),
               'o' => order,
-              'v' => schedule&.dig(:in, :min)
+              'v' => schedule
             }
         elsif key == 'similarity' && full_text_search.present?
           order_query <<

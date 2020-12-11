@@ -50,7 +50,10 @@ module DataCycleCore
       alias sort_name sort_translated_name
 
       def sort_by_proximity(_ordering = '', value = {})
-        date = date_from_single_value(value) || Time.zone.now
+        date = Time.zone.now
+        if value.is_a?(::Hash)
+          date = date_from_single_value(value.dig('in','min')) || date_from_single_value(value.dig('v','from'))
+        end
         reflect(
           @query.reorder(
             absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
