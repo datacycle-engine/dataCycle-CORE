@@ -20,7 +20,7 @@ module DataCycleCore
           (property_names - virtual_property_names)
             .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth: depth, locales: locales) } }
             .inject(&:merge)
-            .merge(embedded? ? {} : sync_metadata)
+            .merge(sync_metadata)
             .compact
             .deep_stringify_keys
         end
@@ -72,27 +72,32 @@ module DataCycleCore
         end
 
         def sync_metadata
-          {
+          sm = {
             template_name: template_name,
             updated_at: updated_at,
             created_at: created_at,
-            last_sync_at: updated_at,
-            last_successful_sync_at: updated_at,
-            status: 'success',
             external_key: external_key,
             external_source_id: external_source_id,
-            external_source: external_source&.identifier,
-            external_system_syncs: external_system_syncs.map { |i|
-              {
-                'external_key' => i.external_key,
-                'status' => i.status,
-                'last_sync_at' => i.last_sync_at,
-                'sync_type' => 'import',
-                'last_successful_sync_at' => i.last_successful_sync_at,
-                'name' => DataCycleCore::ExternalSystem.find(i.external_system_id)&.identifier
-              }
-            }.compact
+            external_source: external_source&.identifier
           }
+          unless embedded?
+            sm = sm.merge({
+              last_sync_at: updated_at,
+              last_successful_sync_at: updated_at,
+              status: 'success',
+              external_system_syncs: external_system_syncs.map { |i|
+                {
+                  'external_key' => i.external_key,
+                  'status' => i.status,
+                  'last_sync_at' => i.last_sync_at,
+                  'sync_type' => 'import',
+                  'last_successful_sync_at' => i.last_successful_sync_at,
+                  'name' => DataCycleCore::ExternalSystem.find(i.external_system_id)&.identifier
+                }
+              }.compact
+            })
+          end
+          sm
         end
 
         def to_sync_api_deleted

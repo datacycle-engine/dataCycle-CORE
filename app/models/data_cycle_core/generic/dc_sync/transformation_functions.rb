@@ -28,7 +28,7 @@ module DataCycleCore
           template = DataCycleCore::Thing.find_by(template_name: data.dig(I18n.locale.to_s, 'template_name'))
           return nil if template.blank?
           embedded = data[I18n.locale.to_s]
-          embedded['external_system_sync'] = (embedded['external_system_syncs'] || []).push('external_key' => embedded.dig('id'), 'external_source_id' => embedded.dig('external_source_id'))
+          # embedded['external_system_sync'] = (embedded['external_system_syncs'] || []).push('external_key' => embedded.dig('id'), 'external_source_id' => embedded.dig('external_source_id'))
           embedded['external_key'] = embedded['id']
           embedded['external_source_id'] = external_source.id
           create_thing(embedded['id'], template, external_source) if DataCycleCore::Thing.find_by(id: embedded['id']).blank?
