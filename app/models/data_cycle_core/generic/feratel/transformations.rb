@@ -251,13 +251,28 @@ module DataCycleCore
         def self.make_season(from, to)
           raise ArgumentError if from.blank? || to.blank?
           return [] if from == '101' && to == '3112' # no schedule, is valid all year long
-          from_date = Time.zone.local(2010, from.to_i / 100, from.to_i % 100, 0, 0)
-          to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 0, 0)
+
+          from_year = 2010
+          to_year = 2010
+          has_end = false
+          from_year = from.slice!(0..3) if from.length > 4
+          if to.length > 4
+            to_year = to.slice!(0..3)
+            has_end = true
+          end
+
+          from_date = Time.zone.local(from_year, from.to_i / 100, from.to_i % 100, 0, 0)
+          to_date = Time.zone.local(to_year, to.to_i / 100, to.to_i % 100, 0, 0)
           from_yday = from_date.to_date.yday
           to_yday = to_date.to_date.yday
           to_yday = -366 + to_yday if from_yday > to_yday
           rrule = IceCube::Rule.yearly.day_of_year(from_yday, to_yday)
-          schedule_object = IceCube::Schedule.new(from_date) do |s|
+          options = {}
+          if has_end
+            rrule.until(to_date.end_of_day)
+            options = { end_time: to_date.end_of_day }
+          end
+          schedule_object = IceCube::Schedule.new(from_date, options) do |s|
             s.add_recurrence_rule(rrule)
           end
           schedule_object.to_hash.merge(dtstart: from_date)
@@ -502,12 +517,13 @@ module DataCycleCore
 
             if description.blank?
               description = {}
+              description['Id'] = "#{item.dig('Id')} - #{item.dig('ValidFrom')} - #{item.dig('ValidTo')} - #{I18n.locale}"
               description['ChangeDate'] = item.dig('ChangeDate')
               description['Type'] = 'GuestCardClassification'
             end
 
-            description['ShowFrom'] = DateTime.parse(item.dig('ValidFrom')).strftime('%-m%d')
-            description['ShowTo'] = DateTime.parse(item.dig('ValidTo')).strftime('%-m%d')
+            description['ShowFrom'] = DateTime.parse(item.dig('ValidFrom')).strftime('%Y%-m%d')
+            description['ShowTo'] = DateTime.parse(item.dig('ValidTo')).strftime('%Y%-m%d')
 
             parsed.push(parse_descriptions(description, external_source_id, 'GuestCards', ["#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}"]).first)
           end
