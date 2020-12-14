@@ -265,7 +265,7 @@ module DataCycleCore
           to_date = Time.zone.local(to_year, to.to_i / 100, to.to_i % 100, 0, 0)
           from_yday = from_date.to_date.yday
           to_yday = to_date.to_date.yday
-          to_yday = -366 + to_yday if from_yday > to_yday
+          to_yday = -366 + to_yday if from_yday > to_yday && !has_end
           rrule = IceCube::Rule.yearly.day_of_year(from_yday, to_yday)
           options = {}
           if has_end
