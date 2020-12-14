@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ReplaceViewForScheduleOccurrencesWithTableAndTriggers < ActiveRecord::Migration[5.2]
+  disable_ddl_transaction!
+
   def up
     execute <<~SQL.squish
             DROP VIEW IF EXISTS schedule_occurrences;
@@ -80,8 +82,10 @@ class ReplaceViewForScheduleOccurrencesWithTableAndTriggers < ActiveRecord::Migr
       
             CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT OR UPDATE ON schedules FOR EACH ROW EXECUTE FUNCTION generate_schedule_occurences_trigger();
       
-      --       SELECT generate_schedule_occurences(ARRAY_AGG(id)) FROM schedules WHERE schedules.relation::text = 'event_schedule'::text;
+            SELECT generate_schedule_occurences(ARRAY_AGG(id)) FROM schedules WHERE schedules.relation::text = 'event_schedule'::text;
     SQL
+    execute('ANALYZE schedule_occurrences;')
+    execute('VACUUM schedule_occurrences;')
   end
 
   def down
