@@ -49,6 +49,7 @@ cache:
 services:
   - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
     alias: postgres
+    command: ["postgres"]
   - name: mvertes/alpine-mongo:3.6.5-0
     alias: mongodb
 
