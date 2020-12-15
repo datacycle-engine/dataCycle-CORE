@@ -121,6 +121,10 @@ module DataCycleCore
       }
     end
 
+    def to_hash
+      { 'class_type' => self.class.to_s }.merge(attributes)
+    end
+
     private
 
     def add_things_cache_invalidation_job

@@ -13,6 +13,7 @@ module DataCycleCore
             { lang => I18n.with_locale(lang) { to_sync_h(locales: locales) } }
           }.inject(&:merge)
           &.merge({ included: attribute_to_sync_h('included', depth: depth) })
+          &.merge({ classifications: attribute_to_sync_h('classifications') })
           &.deep_stringify_keys
         end
 
@@ -32,7 +33,7 @@ module DataCycleCore
           if plain_property_names.include?(property_name)
             send(property_name_with_overlay)
           elsif classification_property_names.include?(property_name)
-            # send(property_name).try(:pluck, :id)
+            send(property_name).try(:pluck, :id)
           elsif linked_property_names.include?(property_name)
             linked_array = get_property_value(property_name, property_definitions[property_name], nil, present_overlay).pluck(:id)
             linked_array.presence || []
@@ -66,6 +67,12 @@ module DataCycleCore
                 &.map { |i| i.merge({ attribute_name: linked }) }
               linked_array.presence || []
             }.inject(:+)&.compact || []
+          elsif property_name == 'classifications'
+            classification_property_names&.map { |classification_property_name|
+              send(classification_property_name)&.map { |classification|
+                classification.to_hash.merge({ 'ancestors' => classification.ancestors&.map(&:to_hash) })
+              }.presence
+            }&.compact
           else
             raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
           end

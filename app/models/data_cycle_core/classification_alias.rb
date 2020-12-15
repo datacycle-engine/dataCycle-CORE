@@ -256,6 +256,10 @@ module DataCycleCore
       destroy
     end
 
+    def to_hash
+      { 'class_type' => self.class.to_s }.merge(attributes)
+    end
+
     private
 
     def set_internal_data

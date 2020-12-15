@@ -29,6 +29,10 @@ module DataCycleCore
         })
     end
 
+    def to_hash
+      { 'class_type' => self.class.to_s }.merge(attributes)
+    end
+
     def ancestors
       Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 5.days + Random.rand(2.5.days)) do
         [primary_classification_alias] + primary_classification_alias.ancestors
