@@ -13,9 +13,7 @@ module DataCycleCore
           .>> t(:create_main_thing, external_source_id)
           .>> t(:add_field, 'external_system_data', ->(s) { parse_external_systems(s) })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('id') })
-          .>> t(:transform_embedded, external_source_id)
-          .>> t(:transform_linked_keys)
-          .>> t(:reject_keys, ['external_source', 'external_source_id', 'external_system_syncs'])
+          .>> t(:reject_keys, ['external_source', 'external_source_id', 'external_system_syncs', 'include_translation'])
           .>> t(:strip_all)
         end
 
