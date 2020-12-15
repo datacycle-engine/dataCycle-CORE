@@ -70,9 +70,12 @@ module DataCycleCore
           elsif property_name == 'classifications'
             classification_property_names&.map { |classification_property_name|
               send(classification_property_name)&.map { |classification|
-                classification.to_hash.merge({ 'ancestors' => classification.ancestors&.map(&:to_hash) })
-              }.presence
-            }&.compact
+                classification
+                  .to_hash
+                  .merge({ 'ancestors' => classification.ancestors&.map(&:to_hash) })
+                  .merge({ 'attribute_name' => classification_property_name })
+              }.presence&.flatten
+            }&.compact&.flatten
           else
             raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
           end
