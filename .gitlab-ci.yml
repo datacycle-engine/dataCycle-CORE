@@ -29,7 +29,8 @@ before_script:
   - chmod 644 ~/.ssh/known_hosts
 
   - gem install bundler
-  - bundle install --path=cache/bundler
+  - bundle config set --local path 'cache/bundler'
+  - bundle install
 
   - dpkg-reconfigure -f noninteractive tzdata
   - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -69,7 +70,8 @@ services:
   stage: build
   script:
     - gem install bundler
-    - bundle install --path=cache/bundler
+    - bundle config set --local path 'cache/bundler'
+    - bundle install
     - yarn
     - ./node_modules/gulp/bin/gulp.js production
 
