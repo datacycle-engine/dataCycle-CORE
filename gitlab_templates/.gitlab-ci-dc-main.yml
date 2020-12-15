@@ -32,6 +32,7 @@ before_script:
   - git submodule sync --recursive
   - git submodule update --init --recursive --force
 
+  - gem install bundler
   - bundle install --path=cache/bundler
 
   - dpkg-reconfigure -f noninteractive tzdata
@@ -73,6 +74,7 @@ services:
 .build_caches_config:
   stage: build
   script:
+    - gem install bundler
     - bundle install --path=cache/bundler
     # Enable for local rails test
     - cd vendor/gems/data-cycle-core && yarn && ./node_modules/gulp/bin/gulp.js production
