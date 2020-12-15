@@ -2,10 +2,10 @@ image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
 
 variables:
   POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: ""
+  POSTGRES_PASSWORD: 'password'
   POSTGRES_HOST: postgres
   POSTGRES_DB: data-cycle-base_test
-  POSTGRES_PORT: "5432"
+  POSTGRES_PORT: '5432'
   MONGODB_HOST: mongodb
   RAILS_ENV: test
   TZ: Europe/Vienna
@@ -18,11 +18,11 @@ stages:
   - deploy
 
 before_script:
-# uncomment for local testing
+  # uncomment for local testing
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-# uncomment for local testing END
+  # uncomment for local testing END
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
@@ -45,14 +45,14 @@ cache:
     - cache/bundler
     - node_modules
     - lib/assets
-# Enable for local rails test
+    # Enable for local rails test
     - vendor/gems/data-cycle-core/node_modules
     - vendor/gems/data-cycle-core/lib/assets
 
 services:
   - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
     alias: postgres
-  - name: mvertes/alpine-mongo:3.6.5-0
+  - name: mvertes/alpine-mongo:4.0.6-1
     alias: mongodb
 
 ########################################################################
@@ -64,7 +64,7 @@ services:
       - cache/bundler
       - node_modules
       - lib/assets
-# Enable for local rails test
+      # Enable for local rails test
       - vendor/gems/data-cycle-core/node_modules
       - vendor/gems/data-cycle-core/lib/assets
     policy: pull
@@ -73,7 +73,7 @@ services:
   stage: build
   script:
     - bundle install --path=cache/bundler
-# Enable for local rails test
+    # Enable for local rails test
     - cd vendor/gems/data-cycle-core && yarn && ./node_modules/gulp/bin/gulp.js production
     - cd $CI_PROJECT_DIR
     - yarn
