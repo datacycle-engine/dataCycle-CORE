@@ -341,6 +341,7 @@ module DataCycleCore
                 xml.CustomAttributes('DateFrom' => '1980-01-01')
                 xml.HandicapFacilities('DateFrom' => '1980-01-01')
                 xml.HandicapClassifications('DateFrom' => '1980-01-01')
+                xml.GuestCards('DateFrom' => '1980-01-01')
               end
             end
           end

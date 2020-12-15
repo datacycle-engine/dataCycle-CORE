@@ -119,7 +119,10 @@ module DataCycleCore
           .>> t(:add_link, 'area_served', DataCycleCore::Thing, external_source_id, ->(s) { "meeting_point: #{s['external_key']}" })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_additional_service_type', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'AdditionalServiceTypes', 'Item'))&.map { |type| type.dig('Id')&.downcase }&.compact.presence || [] })
-          .>> t(:add_links, 'feratel_guest_card_classifications', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'GuestCardClassificationId')&.downcase)&.compact.presence || [] })
+          .>> t(:add_links, 'feratel_guest_cards', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}" } || [] })
+          .>> t(:universal_classifications, ->(s) { s.dig('feratel_guest_cards') })
+          .>> t(:add_field, 'feratel_guest_cards_descriptions', ->(s) { parse_guest_card_descriptions(Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?), external_source_id) || [] })
+          .>> t(:merge_array_values, 'additional_information', 'feratel_guest_cards_descriptions')
           .>> t(:add_links, 'feratel_facilities_additional_services', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:ensure_classification_tree, 'feratel_facilities_additional_services', 'Feratel - Merkmale - Services')
           .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details')) }) # .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
@@ -222,22 +225,24 @@ module DataCycleCore
         # .>> t(:add_field, 'makes_offer_package', ->(s) { parse_packages([s.dig('HousePackageMasters', 'HousePackageMaster')]&.flatten&.compact, external_source_id) })
         # .>> t(:add_field, 'makes_offer', ->(s) { Array(s.dig('makes_offer_package')) + Array(s.dig('makes_offer_service')) })
 
-        def self.parse_descriptions(data, external_source_id, type)
+        def self.parse_descriptions(data, external_source_id, type, additional_classifications = nil)
           return [] if data.blank?
           description_ids = [] # ids for descriptions are not uniq in Feratel DSI
           Array.wrap(data).map { |desc|
             next if description_ids.include?(desc.dig('Id'))
             description_ids.push(desc.dig('Id'))
-            to_additional_information(external_source_id, type).call(desc)
+            to_additional_information(external_source_id, type, additional_classifications).call(desc)
           }.compact
         end
 
-        def self.to_additional_information(external_source_id, type)
+        def self.to_additional_information(external_source_id, type, additional_classifications = nil)
           t(:rename_keys, { 'text' => 'description' })
           .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: s.dig('Id'))&.id })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate').in_time_zone })
           .>> t(:add_field, 'name', ->(s) { I18n.t("import.feratel.#{type}.#{s.dig('Name') || s.dig('Type')}", default: [s.dig('Name') || s.dig('Type')]) })
           .>> t(:add_field, 'universal_classifications', ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc) } })
+          .>> t(:add_links, 'additional_classifications', DataCycleCore::Classification, external_source_id, ->(_s) { additional_classifications || [] })
+          .>> t(:merge_array_values, 'universal_classifications', 'additional_classifications')
           .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('Id') })
           .>> t(:reject_keys, ['Id', 'Type', 'Language', 'Systems', 'ShowFrom', 'ShowTo', 'ChangeDate'])
@@ -246,13 +251,28 @@ module DataCycleCore
         def self.make_season(from, to)
           raise ArgumentError if from.blank? || to.blank?
           return [] if from == '101' && to == '3112' # no schedule, is valid all year long
-          from_date = Time.zone.local(2010, from.to_i / 100, from.to_i % 100, 0, 0)
-          to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 0, 0)
+
+          from_year = 2010
+          to_year = 2010
+          has_end = false
+          from_year = from.slice!(0..3) if from.length > 4
+          if to.length > 4
+            to_year = to.slice!(0..3)
+            has_end = true
+          end
+
+          from_date = Time.zone.local(from_year, from.to_i / 100, from.to_i % 100, 0, 0)
+          to_date = Time.zone.local(to_year, to.to_i / 100, to.to_i % 100, 0, 0)
           from_yday = from_date.to_date.yday
           to_yday = to_date.to_date.yday
-          to_yday = -366 + to_yday if from_yday > to_yday
+          to_yday = -366 + to_yday if from_yday > to_yday && !has_end
           rrule = IceCube::Rule.yearly.day_of_year(from_yday, to_yday)
-          schedule_object = IceCube::Schedule.new(from_date) do |s|
+          options = {}
+          if has_end
+            rrule.until(to_date.end_of_day)
+            options = { end_time: to_date.end_of_day }
+          end
+          schedule_object = IceCube::Schedule.new(from_date, options) do |s|
             s.add_recurrence_rule(rrule)
           end
           schedule_object.to_hash.merge(dtstart: from_date)
@@ -419,6 +439,10 @@ module DataCycleCore
           .>> t(:ensure_classification_tree, 'feratel_facilities_events', 'Feratel - Merkmale - Events')
           .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventServiceProvider' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
           .>> t(:add_links, 'connected_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventInfrastructure' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
+          .>> t(:add_links, 'feratel_guest_cards', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}" } || [] })
+          .>> t(:universal_classifications, ->(s) { s.dig('feratel_guest_cards') })
+          .>> t(:add_field, 'feratel_guest_cards_descriptions', ->(s) { parse_guest_card_descriptions(Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?), external_source_id) || [] })
+          .>> t(:merge_array_values, 'additional_information', 'feratel_guest_cards_descriptions')
           .>> t(:merge_array_values, 'content_location', 'connected_location')
           .>> t(:reject_keys, ['Systems', '_Type', 'ChangeDate', 'Addresses', 'Documents', 'feratel_documents', 'Facilities', 'CustomAttributes', 'Location', 'Towns', 'Position', 'connected_entries', 'connected_location'])
           .>> t(:strip_all)
@@ -473,13 +497,37 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
           .>> t(:add_links, 'feratel_topics', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Topics', 'Topic')]&.flatten&.map { |item| item&.dig('Id') } || [] })
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Towns', 'Item')]&.flatten&.map { |item| item&.dig('Id') } || [] })
-          .>> t(:add_links, 'feratel_guest_cards', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+          .>> t(:add_links, 'feratel_guest_cards', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}" } || [] })
           .>> t(:universal_classifications, ->(s) { s.dig('feratel_guest_cards') })
+          .>> t(:add_field, 'feratel_guest_cards_descriptions', ->(s) { parse_guest_card_descriptions(Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?), external_source_id) || [] })
+          .>> t(:merge_array_values, 'additional_information', 'feratel_guest_cards_descriptions')
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
           .>> t(:load_category, 'feratel_types', external_source_id, ->(v) { 'Feratel - Infrastrukturtyp - ' + v&.dig('Topics', 'Type').to_s })
           .>> t(:reject_keys, ['Links', 'OpeningHours', 'Towns', 'CustomAttributes', 'FoodAndBeverage', 'ConnectedEntries', 'HolidayThemes', 'DataOwner', 'Active', 'Address', 'Topics', 'ChangeDate', 'Systems', '_Type'])
           .>> t(:strip_all)
+        end
+
+        def self.parse_guest_card_descriptions(data, external_source_id)
+          return [] if data.blank?
+
+          parsed = []
+          data.each do |item|
+            description = Array.wrap(item.dig('Descriptions', 'Description')).first
+
+            if description.blank?
+              description = {}
+              description['Id'] = "#{item.dig('Id')} - #{item.dig('ValidFrom')} - #{item.dig('ValidTo')} - #{I18n.locale}"
+              description['ChangeDate'] = item.dig('ChangeDate')
+              description['Type'] = 'GuestCardClassification'
+            end
+
+            description['ShowFrom'] = DateTime.parse(item.dig('ValidFrom')).strftime('%Y%-m%d')
+            description['ShowTo'] = DateTime.parse(item.dig('ValidTo')).strftime('%Y%-m%d')
+
+            parsed.push(parse_descriptions(description, external_source_id, 'GuestCards', ["#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}"]).first)
+          end
+          parsed
         end
 
         def self.feratel_to_room(external_source_id)
