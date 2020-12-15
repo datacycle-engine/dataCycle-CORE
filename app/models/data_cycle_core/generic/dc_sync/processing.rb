@@ -16,7 +16,7 @@ module DataCycleCore
               processed_thing = DataCycleCore::Generic::Common::ImportFunctions.process_step(
                 utility_object: utility_object,
                 raw_data: data_correct_embedded,
-                transformation: DataCycleCore::Generic::DcSync::Transformations.to_thing(utility_object.external_source.id),
+                transformation: DataCycleCore::Generic::DcSync::Transformations.to_thing(utility_object.external_source),
                 default: { template: template },
                 config: config
               )

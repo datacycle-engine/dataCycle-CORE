@@ -8,9 +8,9 @@ module DataCycleCore
           DataCycleCore::Generic::DcSync::TransformationFunctions[*args]
         end
 
-        def self.to_thing(external_source_id)
+        def self.to_thing(external_source)
           t(:stringify_keys)
-          .>> t(:create_main_thing, external_source_id)
+          .>> t(:create_main_thing, external_source.id)
           .>> t(:add_field, 'external_system_data', ->(s) { parse_external_systems(s) })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('id') })
           .>> t(:reject_keys, ['external_source', 'external_source_id', 'external_system_syncs', 'include_translation'])
@@ -18,9 +18,9 @@ module DataCycleCore
         end
 
         def self.parse_external_systems(data)
-          [
-            data.dig('external_system_syncs'),
-            {
+          syncs = data.dig('external_system_syncs')
+          if data.dig('external_source').present?
+            syncs += [{
               'external_key' => data.dig('external_key'),
               'name' => data.dig('external_source'),
               'identifier' => data.dig('external_source'),
@@ -28,8 +28,9 @@ module DataCycleCore
               'last_sync_at' => data.dig('updated_at'),
               'last_successful_sync_at' => data.dig('updated_at'),
               'sync_type' => 'export'
-            }
-          ].flatten
+            }]
+          end
+          syncs.flatten
         end
       end
     end
