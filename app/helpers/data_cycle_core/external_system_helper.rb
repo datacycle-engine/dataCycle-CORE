@@ -31,10 +31,12 @@ module DataCycleCore
           external_key: sync.external_key || content.id,
           external_edit_url: sync.external_url,
           external_detail_url: sync.external_detail_url,
-          name: sync.data&.dig('name').presence,
+          sync_locale: sync.data&.dig('pull_data', 'inLanguage')&.upcase,
+          name: sync.data&.dig('name').present? ? [sync.data.dig('pull_data', 'inLanguage')&.upcase, sync.data.dig('name')].compact.join(': ') : nil,
           title: [
             sync.data&.dig('name').present? ? "#{t('common.external_name', locale: DataCycleCore.ui_language)}: #{sync.data['name']}" : nil,
             sync.data&.dig('alternate_name').present? ? "#{t('common.external_alternate_name', locale: DataCycleCore.ui_language)}: #{sync.data['alternate_name']}" : nil,
+            sync.data&.dig('pull_data', 'inLanguage').present? ? "#{t('common.external_locale', locale: DataCycleCore.ui_language)}: #{t("locales.#{sync.data.dig('pull_data', 'inLanguage')}", locale: DataCycleCore.ui_language)}" : nil,
             "#{t('common.external_key', locale: DataCycleCore.ui_language)}: #{(sync.external_key || content.id)}"
           ].compact.join("\n\n")
         })

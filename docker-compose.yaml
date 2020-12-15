@@ -4,6 +4,8 @@ services:
     image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
     environment:
       - ALLOW_IP_RANGE=0.0.0.0/0
+      - POSTGRES_PASSWORD=password
+    command: 'postgres'
     ports:
       - '5446:5432'
     shm_size: 4gb
@@ -16,7 +18,7 @@ services:
     environment:
       # - RAILS_ENV=production
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=
+      - POSTGRES_PASSWORD=password
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
       # - POSTGRES_VERSION=11

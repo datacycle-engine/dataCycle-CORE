@@ -282,8 +282,8 @@ module DataCycleCore
                   # xml.HandicapClassifications('DateFrom' => '1980-01-01')
                   xml.AdditionalProducts do
                     xml.Details('DateFrom' => '1980-01-01')
-                    xml.Prices('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
-                    # xml.PriceDetails('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
+                    xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
+                    xml.PriceDetails('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
                   end
                 end
               end

@@ -113,6 +113,7 @@ module DataCycleCore
                   xml.AdditionalProducts do
                     xml.Details
                     xml.PriceDetails
+                    xml.Descriptions
                   end
                 end
               end

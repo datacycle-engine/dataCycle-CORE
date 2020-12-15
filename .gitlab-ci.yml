@@ -2,7 +2,7 @@ image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
 
 variables:
   POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: ""
+  POSTGRES_PASSWORD: "password"
   POSTGRES_HOST: postgres
   POSTGRES_DB: data-cycle-base_test
   POSTGRES_PORT: "5432"
@@ -49,6 +49,7 @@ cache:
 services:
   - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
     alias: postgres
+    command: ["postgres"]
   - name: mvertes/alpine-mongo:3.6.5-0
     alias: mongodb
 
