@@ -46,7 +46,7 @@ module DataCycleCore
             embedded_array = embedded_array&.map { |i| i.to_sync_data(translated: translated, locales: locales) }
             embedded_array.blank? ? [] : embedded_array.compact
           elsif asset_property_names.include?(property_name)
-            send(property_name_with_overlay)
+            # send(property_name_with_overlay) # do nothing --> only import url not asset itself
           elsif computed_property_names.include?(property_name)
             send(property_name_with_overlay)
           elsif schedule_property_names.include?(property_name)
