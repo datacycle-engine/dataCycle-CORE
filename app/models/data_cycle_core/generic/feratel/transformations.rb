@@ -151,6 +151,8 @@ module DataCycleCore
           .>> t(:add_links, 'item_offered', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('service_id')] })
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
+          .>> t(:unwrap_description, ['ProductDescription'])
+          .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('ProductDescription')) if v&.dig('ProductDescription').present? })
           .>> t(:add_field, 'price_specification', ->(s) { load_price(s, external_source_id) })
           .>> t(:strip_all)
         end
