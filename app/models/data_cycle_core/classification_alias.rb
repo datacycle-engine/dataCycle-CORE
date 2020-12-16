@@ -260,6 +260,7 @@ module DataCycleCore
       { 'class_type' => self.class.to_s }
         .merge({ 'external_system' => external_source&.identifier })
         .merge(attributes)
+        .merge({ 'primary_classification' => primary_classification.to_hash })
     end
 
     private
