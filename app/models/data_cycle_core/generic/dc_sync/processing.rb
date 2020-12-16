@@ -60,7 +60,7 @@ module DataCycleCore
         end
 
         def self.transform_classification_keys(data:, lookup:)
-          universal_classifications = lookup['universal_classification']&.values || []
+          universal_classifications = lookup['universal_classifications']&.values || []
           lookup&.each_key do |property_name|
             data[property_name] = lookup[property_name]&.values || []
           end
@@ -109,12 +109,12 @@ module DataCycleCore
           known_classification_names = template.classification_property_names
           classifications&.each do |classification|
             classification_attribute_name = classification['attribute_name']
-            if known_classification_names.include?(classification['attribute_name'])
+            if known_classification_names.include?(classification['attribute_name']) && classification['attribute_name'] != 'universal_classifications'
               expected_tree_label = template.properties_for(classification['attribute_name']).dig('tree_label')
               imported_tree_label = classification.dig('ancestors').detect { |i| i.dig('class_type') == 'DataCycleCore::ClassificationTreeLabel' }.dig('name')
               raise DataCycleCore::Generic::Common::Error::GenericError, "DcSync tried to import classifications for property_name: #{classification['attribute_name']} from tree #{imported_tree_label}. Expected was tree_label #{expected_tree_label}." if expected_tree_label != imported_tree_label
             else
-              classification_attribute_name = 'universal_classification'
+              classification_attribute_name = 'universal_classifications'
             end
             classification_translation[classification_attribute_name] ||= {}
             translated_id = import_classification_path(external_source: utility_object.external_source, data: classification)
@@ -145,13 +145,16 @@ module DataCycleCore
         end
 
         def self.import_classification(external_source:, classification_data:, alias_data:, tree_label_data:, parent_id:)
-          external_source_id = external_source.id
-          internal = alias_data.dig('internal')
           parent_classification_alias = nil
           parent_classification_alias = DataCycleCore::Classification.find(parent_id).primary_classification_alias if parent_id.present?
 
-          external_system = external_source_id
-          external_system = nil if internal
+          tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label_data.dig('name'))
+          if tree_label.present?
+            external_system = tree_label.external_source_id
+          else
+            external_system = external_source.id
+          end
+          byebug if tree_label_data.dig('name') == 'Ausgabekanäle'
           if classification_data[:external_system].present?
             external_system = DataCycleCore::ExternalSystem
               .find_or_create_by(
@@ -179,7 +182,7 @@ module DataCycleCore
           if classification.new_record?
             classification_alias = DataCycleCore::ClassificationAlias.create!(
               alias_data
-                .except('id', 'class_type', 'external_system')
+                .slice('name_i18n', 'description_i18n', 'name', 'description', 'internal_name', 'uri')
                 .merge({ 'external_source_id' => external_system })
             )
 
@@ -191,7 +194,7 @@ module DataCycleCore
 
             tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
               tree_label_data
-                .except('id', 'class_type', 'external_system')
+                .slice('name')
                 .merge('external_source_id' => external_system)
             ) do |item|
               item.visibility = DataCycleCore.default_classification_visibilities

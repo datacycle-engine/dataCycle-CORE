@@ -58,8 +58,7 @@ CREATE TABLE public.activities (
     data jsonb,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -71,8 +70,7 @@ CREATE TABLE public.ar_internal_metadata (
     value character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -89,8 +87,7 @@ CREATE TABLE public.asset_contents (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -110,8 +107,7 @@ CREATE TABLE public.assets (
     name character varying,
     metadata jsonb,
     duplicate_check jsonb
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -131,8 +127,7 @@ CREATE TABLE public.classification_aliases (
     name_i18n jsonb DEFAULT '{}'::jsonb,
     description_i18n jsonb DEFAULT '{}'::jsonb,
     uri character varying
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -149,8 +144,7 @@ CREATE TABLE public.classification_tree_labels (
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
     visibility character varying[] DEFAULT '{}'::character varying[]
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -168,8 +162,7 @@ CREATE TABLE public.classification_trees (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -217,8 +210,7 @@ CREATE TABLE public.classification_contents (
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
     relation character varying
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -234,8 +226,7 @@ CREATE TABLE public.classification_groups (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -300,8 +291,7 @@ CREATE TABLE public.classification_content_histories (
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
     relation character varying
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -316,8 +306,7 @@ CREATE TABLE public.classification_polygons (
     geog public.geography(MultiPolygon,4326),
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -377,8 +366,7 @@ CREATE TABLE public.classifications (
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
     uri character varying
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -396,8 +384,7 @@ CREATE TABLE public.content_content_histories (
     updated_at timestamp without time zone NOT NULL,
     order_a integer,
     relation_b character varying
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -413,8 +400,7 @@ CREATE TABLE public.content_contents (
     updated_at timestamp without time zone NOT NULL,
     order_a integer,
     relation_b character varying
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -451,8 +437,7 @@ CREATE TABLE public.data_links (
     valid_until timestamp without time zone,
     asset_id uuid,
     locale character varying
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -467,8 +452,7 @@ CREATE TABLE public.watch_list_data_hashes (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -536,8 +520,7 @@ CREATE TABLE public.things (
     content_type character varying,
     representation_of_id uuid,
     version_name character varying
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -577,8 +560,7 @@ CREATE TABLE public.delayed_jobs (
     delayed_reference_type character varying,
     created_at timestamp without time zone,
     updated_at timestamp without time zone
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -614,8 +596,7 @@ CREATE TABLE public.thing_duplicates (
     false_positive boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -655,8 +636,7 @@ CREATE TABLE public.external_system_syncs (
     last_successful_sync_at timestamp without time zone,
     external_key character varying,
     sync_type character varying DEFAULT 'export'::character varying
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -677,8 +657,7 @@ CREATE TABLE public.external_systems (
     last_successful_download timestamp without time zone,
     last_import timestamp without time zone,
     last_successful_import timestamp without time zone
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -708,8 +687,7 @@ CREATE TABLE public.roles (
     rank integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -731,8 +709,7 @@ CREATE TABLE public.schedule_histories (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -767,8 +744,7 @@ CREATE TABLE public.schedules (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -777,8 +753,7 @@ WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', aut
 
 CREATE TABLE public.schema_migrations (
     version character varying NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -803,8 +778,7 @@ CREATE TABLE public.searches (
     advanced_attributes jsonb,
     classification_aliases_mapping uuid[],
     classification_ancestors_mapping uuid[]
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -824,8 +798,7 @@ CREATE TABLE public.stored_filters (
     api_users text[],
     linked_stored_filter_id uuid,
     sort_parameters jsonb
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -839,8 +812,7 @@ CREATE TABLE public.subscriptions (
     subscribable_type character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -886,8 +858,7 @@ CREATE TABLE public.thing_histories (
     content_type character varying,
     representation_of_id uuid,
     version_name character varying
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -904,8 +875,7 @@ CREATE TABLE public.thing_history_translations (
     history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -921,8 +891,7 @@ CREATE TABLE public.thing_translations (
     description text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -936,8 +905,7 @@ CREATE TABLE public.user_group_users (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -950,8 +918,7 @@ CREATE TABLE public.user_groups (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -986,13 +953,12 @@ CREATE TABLE public.users (
     uid character varying,
     jti character varying,
     creator_id uuid,
+    additional_attributes jsonb,
     confirmation_token character varying,
     confirmed_at timestamp without time zone,
     confirmation_sent_at timestamp without time zone,
-    unconfirmed_email character varying,
-    additional_attributes jsonb
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+    unconfirmed_email character varying
+);
 
 
 --
@@ -1007,8 +973,7 @@ CREATE TABLE public.watch_list_shares (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     shareable_type character varying DEFAULT 'DataCycleCore::UserGroup'::character varying
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -1024,8 +989,7 @@ CREATE TABLE public.watch_lists (
     updated_at timestamp without time zone NOT NULL,
     full_path character varying,
     full_path_names character varying[]
-)
-WITH (autovacuum_vacuum_scale_factor='0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0', autovacuum_analyze_threshold='50');
+);
 
 
 --
@@ -1938,13 +1902,6 @@ CREATE INDEX index_thing_translations_on_locale ON public.thing_translations USI
 --
 
 CREATE INDEX index_thing_translations_on_thing_id ON public.thing_translations USING btree (thing_id);
-
-
---
--- Name: index_thing_translations_on_thing_id_name; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_thing_translations_on_thing_id_name ON public.thing_translations USING btree (thing_id, locale, name);
 
 
 --
