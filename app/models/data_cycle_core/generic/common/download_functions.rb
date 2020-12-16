@@ -265,7 +265,7 @@ module DataCycleCore
                           item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_successful_download
                           item.data_has_changed = diff?(bson_to_hash(item.dump[key]), data_hash, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
                           item.dump[key] = data_hash
-                        elsif key == 'included'
+                        elsif ['included', 'classifications'].include?(key)
                           item.dump[key] = data_hash
                         else
                           next
