@@ -72,7 +72,20 @@ module DataCycleCore
         private
 
         def build_search_query
-          filter = DataCycleCore::StoredFilter.new
+          endpoint_id = permitted_params[:id]
+          @linked_stored_filter = nil
+          if endpoint_id.present?
+            @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
+
+            if @stored_filter
+              authorize! :api, @stored_filter
+              @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
+            elsif (@watch_list = DataCycleCore::WatchList.find_by(id: endpoint_id))
+            else
+              raise ActiveRecord::RecordNotFound
+            end
+          end
+          filter = @stored_filter || DataCycleCore::StoredFilter.new
           filter.language = @language
           filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
           query = filter.apply
