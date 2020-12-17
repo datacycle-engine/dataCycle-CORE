@@ -17,7 +17,7 @@
       <li class="radiobutton-wrap">
         <%= rb.radio_button value: rb.value, checked: (value&.ids&.include?(rb.value) || (value.blank? && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))) %>
         <% if rb.object.try(:description).present? %>
-          <%= rb.label title: rb.object.try(:description), data: { tooltip: true, allow_html: true } do %>
+          <%= rb.label title: rb.object.try(:description), class: 'dc-foundation-tooltip', data: { allow_html: true } do %>
             <%= rb.text %> <i class="fa fa-info-circle" aria-hidden="true"></i>
           <% end %>
         <% else %>

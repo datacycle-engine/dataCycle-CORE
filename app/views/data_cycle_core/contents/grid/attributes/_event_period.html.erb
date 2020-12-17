@@ -23,10 +23,10 @@
     <% end %>
   <% end %>
 
-  <span class="date"
-              data-tooltip data-allow-html="true" data-tooltip-class="tooltip"
-              aria-haspopup="true" class="event-period"
-              title="<%= event_period_full_value.present? ? event_period_full_value : event_period_value %>">
+  <span data-allow-html="true"
+        aria-haspopup="true"
+        class="date event-period dc-foundation-tooltip"
+        title="<%= event_period_full_value.present? ? event_period_full_value : event_period_value %>">
     <%= event_period_value %>
   </span>
 </div>

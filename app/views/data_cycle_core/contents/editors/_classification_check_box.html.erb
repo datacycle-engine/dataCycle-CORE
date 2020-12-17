@@ -13,7 +13,7 @@
       <li class="checkbox-wrap">
         <%= cb.check_box value: cb.value, checked: (value&.ids&.include?(cb.value) || (value.blank? && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(cb.value))) %>
         <% if cb.object.try(:description).present? %>
-          <%= cb.label title: cb.object.try(:description), data: { tooltip: true, allow_html: true } do %>
+          <%= cb.label title: cb.object.try(:description), class: 'dc-foundation-tooltip', data: { allow_html: true } do %>
             <%= cb.text %> <i class="fa fa-info-circle" aria-hidden="true"></i>
           <% end %>
         <% else %>
