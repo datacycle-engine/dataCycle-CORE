@@ -83,7 +83,7 @@ module DataCycleCore
     test 'event with schedule' do
       event = create_event_with_schedule
       serialized_event = event.to_sync_data
-      assert_equal(['de', 'included'].sort, serialized_event.keys.sort)
+      assert_equal(['de', 'included', 'classifications'].sort, serialized_event.keys.sort)
       main_data = serialized_event['de']
       ['id', 'name', 'schedule', 'template_name', 'updated_at', 'created_at'].each do |attribute|
         assert(main_data[attribute].present?)
@@ -97,7 +97,7 @@ module DataCycleCore
     test 'event with overlay' do
       event = create_event_with_overlay
       serialized_event = event.to_sync_data
-      assert_equal(['de', 'included'].sort, serialized_event.keys.sort)
+      assert_equal(['de', 'included', 'classifications'].sort, serialized_event.keys.sort)
       main_data = serialized_event['de']
       ['id', 'name', 'description', 'template_name', 'updated_at', 'created_at'].each do |attribute|
         assert(main_data[attribute].present?)
@@ -109,7 +109,7 @@ module DataCycleCore
     test 'event_with_overlay_schedule' do
       event = create_event_with_overlay_schedule
       serialized_event = event.to_sync_data
-      assert_equal(['de', 'included'].sort, serialized_event.keys.sort)
+      assert_equal(['de', 'included', 'classifications'].sort, serialized_event.keys.sort)
       main_data = serialized_event['de']
       ['id', 'name', 'schedule', 'template_name', 'updated_at', 'created_at'].each do |attribute|
         assert(main_data[attribute].present?)
@@ -127,7 +127,7 @@ module DataCycleCore
       event = create_event_with_event_schedule(schedule_hash, overlay_schedule_hash)
 
       serialized_event = event.to_sync_data
-      assert_equal(['de', 'included'].sort, serialized_event.keys.sort)
+      assert_equal(['de', 'included', 'classifications'].sort, serialized_event.keys.sort)
       main_data = serialized_event['de']
       ['id', 'name', 'end_date', 'start_date', 'event_schedule', 'template_name', 'updated_at', 'created_at'].each do |attribute|
         assert(main_data[attribute].present?)
@@ -144,7 +144,7 @@ module DataCycleCore
       event = create_event_with_image(image.id, overlay_image.id)
 
       serialized_event = event.to_sync_data
-      assert_equal(['de', 'included'].sort, serialized_event.keys.sort)
+      assert_equal(['de', 'included', 'classifications'].sort, serialized_event.keys.sort)
       main_data = serialized_event['de']
       ['id', 'name', 'image', 'template_name', 'updated_at', 'created_at'].each do |attribute|
         assert(main_data[attribute].present?)
