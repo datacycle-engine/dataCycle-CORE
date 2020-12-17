@@ -14,7 +14,7 @@ module DataCycleCore
               data_correct_linked = transform_linked_keys(data: raw_data[locale].except('included', 'classifications'), lookup: linked_key_translation)
               data_correct_ids = transform_classification_keys(data: data_correct_linked, lookup: classification_key_translation)
               data_correct_embedded = transform_embedded(data_correct_ids, utility_object)
-
+              # byebug if raw_data['de']['template_name'] == 'Event'
               processed_thing = DataCycleCore::Generic::Common::ImportFunctions.process_step(
                 utility_object: utility_object,
                 raw_data: data_correct_embedded,
