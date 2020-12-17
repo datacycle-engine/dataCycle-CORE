@@ -3,7 +3,7 @@
 module DataCycleCore
   module SyncApi
     module V1
-      class WatchListsController < ::DataCycleCore::Api::V4::ContentsController
+      class WatchListsController < ::DataCycleCore::SyncApi::V1::ContentsController
         before_action :prepare_url_parameters
 
         def index
@@ -13,13 +13,13 @@ module DataCycleCore
           else
             @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
           end
-          @watch_lists = apply_paging(@watch_lists)
-          binding.pry
+          # @watch_lists = apply_paging(@watch_lists)
+          render json: @watch_lists.map(&:to_hash)
         end
 
         # method to show a particular WatchList
         def show
-          redirect_to api_v4_stored_filter_path(permitted_params.except(:id).merge(sl: 1))
+          redirect_to sync_api_v1_stored_filter_path(permitted_params.except(:id).merge(sl: 1))
         end
 
         private

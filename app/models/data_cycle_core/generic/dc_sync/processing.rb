@@ -70,7 +70,6 @@ module DataCycleCore
 
         def self.transform_embedded(data, utility_object)
           template = DataCycleCore::Thing.find_by(template_name: data.dig('template_name'), template: true)
-          # byebug
           template.embedded_property_names&.each do |embedded|
             data[embedded] = data[embedded]&.map { |item|
               handle_embedded(item, utility_object)
@@ -154,7 +153,7 @@ module DataCycleCore
           else
             external_system = external_source.id
           end
-          byebug if tree_label_data.dig('name') == 'Ausgabekanäle'
+
           if classification_data[:external_system].present?
             external_system = DataCycleCore::ExternalSystem
               .find_or_create_by(

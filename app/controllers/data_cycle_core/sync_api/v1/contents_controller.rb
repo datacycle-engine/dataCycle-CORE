@@ -89,6 +89,8 @@ module DataCycleCore
           filter.language = @language
           filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
           query = filter.apply
+
+          query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
           query
         end
 

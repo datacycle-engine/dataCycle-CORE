@@ -308,6 +308,9 @@ DataCycleCore::Engine.routes.draw do
                 match 'things', to: 'contents#index', as: 'contents_index', via: [:get, :post]
                 match 'things/:id', to: 'contents#show', as: 'content_show', via: [:get, :post]
 
+                match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
+                match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+
                 match 'collections', to: 'watch_lists#index', via: [:get, :post]
                 match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
               end
