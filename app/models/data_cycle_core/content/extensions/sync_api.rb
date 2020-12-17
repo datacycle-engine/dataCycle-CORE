@@ -69,7 +69,9 @@ module DataCycleCore
             }.inject(:+)&.compact || []
           elsif property_name == 'classifications'
             classification_property_names&.map { |classification_property_name|
-              send(classification_property_name)&.map { |classification|
+              classification_property_name_overlay = classification_property_name
+              classification_property_name_overlay = "#{classification_property_name}_#{overlay_name}" if overlay_property_names.include?(classification_property_name)
+              send(classification_property_name_overlay)&.map { |classification|
                 classification
                   .to_hash
                   .merge({ 'ancestors' => classification.ancestors&.map(&:to_hash) })

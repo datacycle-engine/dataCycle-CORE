@@ -21,18 +21,18 @@ module DataCycleCore
       })
     end
 
-    # def create_event_with_classifications
-    #   item = create_event
-    #   update_event(item, { event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung geplant').id] })
-    # end
-    #
-    # def create_event_with_overlay_classifications
-    #   item = create_event
-    #   update_event(item, {
-    #     event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung geplant').id],
-    #     overlay: [{ name: 'Test Overlay', event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung abgesagt').id] }]
-    #   })
-    # end
+    def create_event_with_classifications
+      item = create_event
+      update_event(item, { event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung geplant').id] })
+    end
+
+    def create_event_with_overlay_classifications
+      item = create_event
+      update_event(item, {
+        event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung geplant').id],
+        overlay: [{ name: 'Test Overlay', event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung abgesagt').id] }]
+      })
+    end
 
     def event_date_range(month)
       { start_date: Time.new(2020, month, 1).in_time_zone, end_date: Time.new(2020, month, 20).in_time_zone }
@@ -161,6 +161,26 @@ module DataCycleCore
       ['id', 'name', 'upload_date', 'template_name', 'updated_at', 'created_at'].each do |attribute|
         assert(included_image_data[attribute].present?)
       end
+    end
+
+    test 'test classifications,set only in event' do
+      event = create_event_with_classifications
+      serialized_event = event.to_sync_data
+      assert_equal(['de', 'included', 'classifications'].sort, serialized_event.keys.sort)
+
+      assert_equal(event.event_status, event.event_status_overlay)
+      serialized_classification = serialized_event.dig('classifications').detect { |i| i.dig('attribute_name') == 'event_status' }
+      assert_equal(event.event_status_overlay.first.name, serialized_classification.dig('name'))
+    end
+
+    test 'test classifications, set differently in event and overlay' do
+      event = create_event_with_overlay_classifications
+      serialized_event = event.to_sync_data
+      assert_equal('Veranstaltung geplant', event.event_status.first.name)
+      assert_equal('Veranstaltung abgesagt', event.event_status_overlay.first.name)
+
+      serialized_classification = serialized_event.dig('classifications').detect { |i| i.dig('attribute_name') == 'event_status' }
+      assert_equal(event.event_status_overlay.first.name, serialized_classification.dig('name'))
     end
   end
 end
