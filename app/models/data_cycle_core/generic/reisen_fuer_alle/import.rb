@@ -25,11 +25,15 @@ module DataCycleCore
           I18n.with_locale(locale) do
             next if raw_data.dig('third_party_ids').blank?
 
-            feratel_key = raw_data['third_party_ids'].detect { |i| i['key'] == 'deskline_id' }&.dig('value')
-            raw_data['feratel'] = { external_system_id: @feratel.id, external_key: feratel_key, limit: 1 } if feratel_key.present?
+            if @feratel
+              feratel_key = raw_data['third_party_ids'].detect { |i| i['key'] == 'deskline_id' }&.dig('value')
+              raw_data['feratel'] = { external_system_id: @feratel.id, external_key: feratel_key, limit: 1 } if feratel_key.present?
+            end
 
-            outdoor_active_key = raw_data['third_party_ids'].detect { |i| i['key'] == 'outdooractive_id' }&.dig('value')
-            raw_data['outdoor_active'] = { external_system_id: @outdoor_active.id, external_key: outdoor_active_key, limit: 1 } if outdoor_active_key.present?
+            if @outdoor_active
+              outdoor_active_key = raw_data['third_party_ids'].detect { |i| i['key'] == 'outdooractive_id' }&.dig('value')
+              raw_data['outdoor_active'] = { external_system_id: @outdoor_active.id, external_key: outdoor_active_key, limit: 1 } if outdoor_active_key.present?
+            end
 
             DataCycleCore::Generic::ReisenFuerAlle::Processing.process_rating(
               utility_object,

@@ -94,6 +94,18 @@ module DataCycleCore
             		}
                 licence_owner
                 sections_count
+                grouped_search_criteria {
+                  guest_group {
+                    key
+                    name_de
+                    name_en
+                  }
+                  search_criteria {
+                    id
+                    name_de
+                    name_en
+                  }
+                }
               }
             }
           EOS
