@@ -27,6 +27,7 @@
               data: {
                 tree_label: definition['tree_label'],
                 max: 20,
+                close_on_select: false,
                 placeholder: '',
                 find_path: find_classifications_path,
                 search_path: search_classifications_path
@@ -63,6 +64,7 @@
               data: {
                 tree_label: definition['tree_label'],
                 max: 20,
+                close_on_select: false,
                 placeholder: ''
               },
               id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}"
