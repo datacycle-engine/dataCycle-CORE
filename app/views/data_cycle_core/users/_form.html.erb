@@ -116,7 +116,7 @@
 
             <div class="v-select">
               <%= f.label :user_group_ids, DataCycleCore::User.human_attribute_name(:user_group_ids, locale: DataCycleCore.ui_language) %>
-              <%= f.collection_select :user_group_ids, DataCycleCore::UserGroup.all, :id, :name, {}, {multiple: true, class: 'multi-select'} %>
+              <%= f.collection_select :user_group_ids, DataCycleCore::UserGroup.all, :id, :name, {}, { multiple: true, class: 'multi-select', data: { close_on_select: false } } %>
             </div>
 
           </div>
