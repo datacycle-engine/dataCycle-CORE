@@ -13,35 +13,12 @@
   <% end %>
 
   <div class="v-select">
-    <% classification_items = DataCycleCore::ClassificationTreeLabel
-        .find_by(name: definition['tree_label'])
-        &.classification_aliases
-        &.includes(
-          :primary_classification, :classification_alias_path, sub_classification_alias: [
-            :primary_classification, :classification_alias_path, sub_classification_alias: [
-              :primary_classification, :classification_alias_path, :sub_classification_alias
-            ]
-          ]
-        )
-        &.order(internal_name: :asc) %>
+    <% classification_items = classification_alias_filter_items(definition['tree_label'], { internal_name: :asc }) %>
     <%= hidden_field_tag key + '[]', nil %>
     <% if classification_items.size > DataCycleCore.max_asynch_classification_items || (DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key)) %>
       <%= select_tag(
             key,
-            value.blank? ? nil : options_for_select(
-              value.map { |c|
-                [
-                  c.primary_classification_alias.try(:internal_name),
-                  c.id,
-                  {
-                    title: [
-                      c.primary_classification_alias.full_path,
-                      c.primary_classification_alias.description
-                    ].reject(&:blank?).join("\n\n")
-                  }
-                ]
-              }, value&.map(&:id)
-            ),
+            async_classification_select_options(value, DataCycleCore::Classification),
             {
               multiple: true,
               include_blank: true,
@@ -50,7 +27,10 @@
               data: {
                 tree_label: definition['tree_label'],
                 max: 20,
-                placeholder: ''
+                close_on_select: false,
+                placeholder: '',
+                find_path: find_classifications_path,
+                search_path: search_classifications_path
               },
               id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}"
             }.merge(definition.dig('ui', 'edit', 'options') || {})
@@ -75,7 +55,7 @@
 
       <%= select_tag(
             key,
-            options_for_select(available_items, value&.map(&:id)),
+            simple_classification_select_options(value, classification_items, DataCycleCore::Classification),
             {
               multiple: true,
               include_blank: true,
@@ -84,6 +64,7 @@
               data: {
                 tree_label: definition['tree_label'],
                 max: 20,
+                close_on_select: false,
                 placeholder: ''
               },
               id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}"

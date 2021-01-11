@@ -40,6 +40,8 @@ module DataCycleCore
               {
                 '@id' => tree.id,
                 '@type' => 'skos:ConceptScheme',
+                'dc:translation' => ['de'],
+                'dc:multilingual' => false,
                 'skos:prefLabel' => tree.name
               }
             end
@@ -80,7 +82,9 @@ module DataCycleCore
             assert_json_attributes(json_validate) do
               {
                 '@id' => tree.id,
-                '@type' => 'skos:ConceptScheme'
+                '@type' => 'skos:ConceptScheme',
+                'dc:translation' => ['de'],
+                'dc:multilingual' => false
               }
             end
 
@@ -131,7 +135,9 @@ module DataCycleCore
             assert_json_attributes(json_validate) do
               {
                 '@id' => tree.id,
-                '@type' => 'skos:ConceptScheme'
+                '@type' => 'skos:ConceptScheme',
+                'dc:translation' => ['de'],
+                'dc:multilingual' => false
               }
             end
 
@@ -190,6 +196,8 @@ module DataCycleCore
               {
                 '@id' => update_tag.id,
                 '@type' => 'skos:Concept',
+                'dc:translation' => update_tag.available_locales.map(&:to_s),
+                'dc:multilingual' => true,
                 'skos:prefLabel' => update_tag.name,
                 'dct:created' => update_tag.created_at.as_json,
                 'dct:modified' => update_tag.updated_at.as_json,
@@ -204,6 +212,8 @@ module DataCycleCore
                 'skos:inScheme' => {
                   '@id' => tree_id,
                   '@type' => 'skos:ConceptScheme',
+                  'dc:translation' => ['de'],
+                  'dc:multilingual' => false,
                   'skos:prefLabel' => tree.name,
                   'dc:entityUrl' => api_v4_concept_scheme_url(id: tree.id, language: 'de'),
                   'dc:hasConcept' => classifications_api_v4_concept_scheme_url(id: tree.id, language: 'de'),
@@ -220,6 +230,8 @@ module DataCycleCore
                 'skos:broader' => {
                   '@id' => broader.id,
                   '@type' => 'skos:Concept',
+                  'dc:translation' => broader.available_locales.map(&:to_s),
+                  'dc:multilingual' => true,
                   'skos:prefLabel' => broader.name,
                   'dct:created' => broader.created_at.as_json,
                   'dct:modified' => broader.updated_at.as_json,
@@ -244,6 +256,8 @@ module DataCycleCore
                   {
                     '@id' => broader.id,
                     '@type' => 'skos:Concept',
+                    'dc:translation' => broader.available_locales.map(&:to_s),
+                    'dc:multilingual' => true,
                     'skos:prefLabel' => broader.name,
                     'dct:created' => broader.created_at.as_json,
                     'dct:modified' => broader.updated_at.as_json,
@@ -299,6 +313,8 @@ module DataCycleCore
                 {
                   '@id' => update_tag.id,
                   '@type' => 'skos:Concept',
+                  'dc:translation' => update_tag.available_locales.map(&:to_s),
+                  'dc:multilingual' => true,
                   'skos:prefLabel' => update_tag.name,
                   'dct:created' => update_tag.created_at.as_json,
                   'dct:modified' => update_tag.updated_at.as_json,
@@ -314,6 +330,8 @@ module DataCycleCore
                 'skos:inScheme' => {
                   '@id' => tree_id,
                   '@type' => 'skos:ConceptScheme',
+                  'dc:translation' => ['de'],
+                  'dc:multilingual' => false,
                   'skos:prefLabel' => [
                     {
                       '@language' => 'de',
@@ -336,6 +354,8 @@ module DataCycleCore
                 'skos:broader' => {
                   '@id' => broader.id,
                   '@type' => 'skos:Concept',
+                  'dc:translation' => broader.available_locales.map(&:to_s),
+                  'dc:multilingual' => true,
                   'skos:prefLabel' => [
                     {
                       '@language' => 'de',
@@ -370,6 +390,8 @@ module DataCycleCore
                   {
                     '@id' => broader.id,
                     '@type' => 'skos:Concept',
+                    'dc:translation' => broader.available_locales.map(&:to_s),
+                    'dc:multilingual' => true,
                     'skos:prefLabel' => [
                       {
                         '@language' => 'de',
@@ -463,6 +485,8 @@ module DataCycleCore
               {
                 '@id' => update_tag.id,
                 '@type' => 'skos:Concept',
+                'dc:translation' => update_tag.available_locales.map(&:to_s),
+                'dc:multilingual' => true,
                 'skos:prefLabel' => pref_label,
                 'dct:created' => update_tag.created_at.as_json,
                 'dct:modified' => update_tag.updated_at.as_json,
@@ -483,6 +507,8 @@ module DataCycleCore
                       '@value' => tree.name
                     }
                   ],
+                  'dc:translation' => ['de'],
+                  'dc:multilingual' => false,
                   'dc:entityUrl' => api_v4_concept_scheme_url(id: tree.id, language: 'en,de'),
                   'dc:hasConcept' => classifications_api_v4_concept_scheme_url(id: tree.id, language: 'en,de'),
                   'dct:created' => tree.created_at.as_json,
@@ -499,6 +525,8 @@ module DataCycleCore
                 'skos:broader' => {
                   '@id' => broader.id,
                   '@type' => 'skos:Concept',
+                  'dc:translation' => broader.available_locales.map(&:to_s),
+                  'dc:multilingual' => true,
                   'skos:prefLabel' => [
                     {
                       '@language' => 'de',
@@ -533,6 +561,8 @@ module DataCycleCore
                   {
                     '@id' => broader.id,
                     '@type' => 'skos:Concept',
+                    'dc:translation' => broader.available_locales.map(&:to_s),
+                    'dc:multilingual' => true,
                     'skos:prefLabel' => [
                       {
                         '@language' => 'de',

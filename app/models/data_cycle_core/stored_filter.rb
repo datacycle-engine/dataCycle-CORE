@@ -20,7 +20,7 @@ module DataCycleCore
     # q => String (Optional)    | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width') || type
 
     def apply(query: nil)
-      query_params = language.include?('all') ? [nil] : [language]
+      query_params = language&.exclude?('all') ? [language] : [nil]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
 
       parameters.presence&.each do |filter|
@@ -94,6 +94,26 @@ module DataCycleCore
           }
         ]
       end
+    end
+
+    def self.combine_with_collections(collections, filter_proc)
+      query1_table = all.arel_table
+      query1 = all.arel
+      query1.projections = []
+      query1 = query1.where(query1_table[:name].not_eq(nil)).project(query1_table[:id], query1_table[:name], Arel::Nodes::SqlLiteral.new("'stored_filter'").as('class_name'))
+
+      query2_table = collections.arel_table
+      query2 = collections.arel
+      query2.projections = []
+      query2 = query2.where(query2_table[:name].not_eq(nil)).project(query2_table[:id], query2_table[:name], Arel::Nodes::SqlLiteral.new("'watch_list'").as('class_name'))
+
+      unless filter_proc.nil?
+        query1 = filter_proc.call(query1, query1_table)
+        query2 = filter_proc.call(query2, query2_table)
+      end
+
+      query = Arel::SelectManager.new(Arel::Nodes::TableAlias.new(query1.union(:all, query2), 'combined_collections_and_searches')).project(Arel.star).order('name ASC')
+      query
     end
   end
 end

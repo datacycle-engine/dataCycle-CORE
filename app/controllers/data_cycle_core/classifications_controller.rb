@@ -56,7 +56,7 @@ module DataCycleCore
     end
 
     def search
-      params.permit(:q, :max, :tree_label)
+      params.permit(:q, :max, :tree_label, :exclude)
 
       query = if params[:tree_label].present? && params[:tree_label] == 'Inhaltstypen'
                 DataCycleCore::ClassificationAlias.for_tree(params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)
@@ -68,6 +68,7 @@ module DataCycleCore
       query = query.search(params[:q])
       query = query.order_by_similarity(params[:q])
       query = query.limit(params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
+      query = query.where.not(id: params[:exclude]) if params[:exclude].present?
       query = query.preload(:primary_classification, :classification_alias_path)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
@@ -76,8 +77,11 @@ module DataCycleCore
           classification_id: a.primary_classification.id,
           classification_alias_id: a.id,
           name: a.internal_name,
-          title: a.full_path,
-          description: a.description,
+          full_path: a.full_path,
+          title: [
+            a.full_path,
+            a.description
+          ].reject(&:blank?).join("\n\n"),
           disabled: !a.assignable
         }
       }.to_json, content_type: 'application/json'
@@ -94,8 +98,11 @@ module DataCycleCore
           classification_id: c.id,
           classification_alias_id: c.primary_classification_alias.id,
           name: c.primary_classification_alias.internal_name,
-          title: c.primary_classification_alias.full_path,
-          description: c.primary_classification_alias.description,
+          full_path: c.primary_classification_alias.full_path,
+          title: [
+            c.primary_classification_alias.full_path,
+            c.primary_classification_alias.description
+          ].reject(&:blank?).join("\n\n"),
           disabled: !c.primary_classification_alias.assignable
         }
       }.to_json, content_type: 'application/json'

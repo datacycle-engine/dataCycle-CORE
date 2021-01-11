@@ -469,6 +469,13 @@ select {
   .button {
     margin: 0;
   }
+
+  .select2-container.select2-loading::after {
+    top: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.2rem;
+    right: 1.2rem;
+  }
 }
 
 #move-to-container-overlay,
@@ -938,6 +945,8 @@ video {
       margin: 0;
       font-weight: normal;
       color: inherit;
+      display: inline-block;
+      position: relative;
     }
 
     &.button.disabled {
@@ -1434,7 +1443,31 @@ ul.translated-locales {
     line-height: 1.5rem;
   }
 
+  .select2-selection--multiple,
+  .select2-selection--single {
+    .select2-selection__choice,
+    .select2-selection__rendered {
+      &.stored_filter::before {
+        content: '\f0b0';
+        font-family: FontAwesome;
+        position: relative;
+        padding: 2px 5px 2px 2px;
+      }
+
+      &.watch_list::before {
+        content: '\f0ca';
+        font-family: FontAwesome;
+        position: relative;
+        padding: 2px 5px 2px 2px;
+      }
+    }
+  }
+
   .select2-dropdown {
+    .select2-results > .select2-results__options {
+      max-height: 400px;
+    }
+
     .select2-results__option {
       > span {
         display: block;
@@ -1453,13 +1486,31 @@ ul.translated-locales {
       &.select2-results__option--highlighted {
         color: $light-gray;
 
-        .select2-option-title {
+        .select2-option-title,
+        .stored_filter::before,
+        .watch_list::before {
           color: white;
         }
       }
 
       .select2-option-title {
         color: $black;
+      }
+
+      .stored_filter::before {
+        content: '\f0b0';
+        font-family: FontAwesome;
+        position: relative;
+        padding: 2px 5px 2px 2px;
+        color: lighten($black, 20%);
+      }
+
+      .watch_list::before {
+        content: '\f0ca';
+        font-family: FontAwesome;
+        position: relative;
+        padding: 2px 5px 2px 2px;
+        color: lighten($black, 20%);
       }
     }
 
@@ -1574,10 +1625,11 @@ select:-moz-focusring {
 
 .thumbnail-tooltip {
   text-align: center;
+  max-width: 90vw;
+  max-width: 90vh;
+
   img {
     width: auto;
-    max-width: 90vw;
-    max-width: 90vh;
   }
 }
 

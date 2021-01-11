@@ -18,7 +18,7 @@ module DataCycleCore
       include UpdateSearch
 
       before_save :set_internal_data
-      before_save_data_hash :add_default_values, if: -> { properties_with_default_values.present? && (@new_content || (translated_locales.present? && translated_locales.exclude?(I18n.locale))) }
+      before_save_data_hash :add_default_values, if: -> { properties_with_default_values.present? }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks, if: -> { !embedded? }
@@ -81,10 +81,17 @@ module DataCycleCore
       end
 
       def add_default_values(force: false)
-        to_set = properties_with_default_values.select { |name, _| @data_hash[name].blank? && !@data_hash[name].is_a?(FalseClass) && try(name).blank? && !try(name).is_a?(FalseClass) }
-        to_set = to_set.slice(*translatable_property_names) if translated_locales.present? && !force
+        if @new_content || force
+          props = properties_with_default_values.select { |k, _| attribute_blank?(k) }
+        elsif translated_locales.presence&.exclude?(I18n.locale)
+          props = properties_with_default_values.select { |k, _| attribute_blank?(k) }.slice(*translatable_property_names)
+        else
+          props = properties_with_default_values.select { |k, _| attribute_blank?(k) }.slice(*@data_hash.keys)
+        end
 
-        to_set.each do |property_name, property_definition|
+        return @data_hash if props.blank?
+
+        props.each do |property_name, property_definition|
           @data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, @data_hash, self)
         end
 
@@ -148,6 +155,15 @@ module DataCycleCore
       end
 
       private
+
+      def attribute_blank?(key, _defininition = nil)
+        return true if key.blank?
+
+        @data_hash[key].blank? &&
+          !@data_hash[key].is_a?(FalseClass) &&
+          try(key).blank? &&
+          !try(key).is_a?(FalseClass)
+      end
 
       def notify_subscribers
         subscriptions.except_user(@current_user).to_notify(version_name.present? && DataCycleCore::Feature::NamedVersion.enabled? ? ['always', 'named_version'] : ['always']).presence&.each do |subscription|

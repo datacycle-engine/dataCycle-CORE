@@ -12,10 +12,7 @@ module DataCycleCore
           external_system = utility_object.external_system
           external_system_data = data.external_system_data(external_system, 'export', nil, false)
           data.add_external_system_data(external_system, nil, 'pending', 'export', nil, false)
-
-          init_logging do |logger|
-            logger.info("update -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
-          end
+          log("update -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
 
           Delayed::Job.enqueue(
             DataCycleCore::Export::OutdoorActive::Webhook.new(
@@ -31,10 +28,7 @@ module DataCycleCore
         def self.update_job_status(utility_object:, data:)
           external_system = utility_object.external_system
           external_system_data = data.external_system_data(external_system, 'export', nil, false)
-
-          init_logging do |logger|
-            logger.info("update_job_status -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
-          end
+          log("update_job_status -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
 
           Delayed::Job.enqueue(
             DataCycleCore::Export::OutdoorActive::Webhook.new(
@@ -51,11 +45,7 @@ module DataCycleCore
           external_system = utility_object.external_system
           external_system_data = data.external_system_data(external_system, 'export', nil, false)
           data.add_external_system_data(external_system, nil, 'deleting', 'export', nil, false)
-
-          init_logging do |logger|
-            logger.info("delete -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
-          end
-
+          log("delete -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
           # utility_object.logging.info("delete -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
 
           Delayed::Job.enqueue(
@@ -100,6 +90,12 @@ module DataCycleCore
             &.select { |c|
             c.external_source_id == external_source_id && c.classification_tree.classification_tree_label.name == tree_label
           }&.map(&:primary_classification)
+        end
+
+        def self.log(message, id)
+          init_logging do |logger|
+            logger.info(message, id)
+          end
         end
 
         def self.init_logging

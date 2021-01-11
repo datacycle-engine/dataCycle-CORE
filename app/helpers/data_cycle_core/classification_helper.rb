@@ -75,7 +75,76 @@ module DataCycleCore
     end
 
     def classification_tooltip(classification_alias)
-      "#{classification_alias.full_path}#{"\n\n#{strip_tags(classification_alias.description)}" if classification_alias.description.present?}".html_safe # rubocop:disable Rails/OutputSafety
+      safe_join([classification_alias.full_path, classification_alias.description.presence].compact, '<br><br>')
+    end
+
+    def expected_classification_alias(c)
+      c.is_a?(DataCycleCore::Classification) ? c&.primary_classification_alias : c
+    end
+
+    def expected_value_id(c, expected_type)
+      if c.is_a?(expected_type) then c&.id
+      elsif expected_type == DataCycleCore::Classification then c&.primary_classification&.id
+      else c&.primary_classification_alias&.id
+      end
+    end
+
+    def classification_alias_filter_items(tree_label, order_by = nil)
+      return DataCycleCore::ClassificationAlias.none if tree_label.blank?
+
+      DataCycleCore::ClassificationAlias
+        .for_tree(tree_label)
+        .includes(
+          :primary_classification, :classification_alias_path, sub_classification_alias: [
+            :primary_classification, :classification_alias_path, sub_classification_alias: [
+              :primary_classification, :classification_alias_path, :sub_classification_alias
+            ]
+          ]
+        )
+        .order(order_by)
+    end
+
+    def async_classification_select_options(value, expected_type = DataCycleCore::ClassificationAlias)
+      return options_for_select([]) if value.blank?
+
+      options_for_select(
+        value.map do |c|
+          [
+            expected_classification_alias(c)&.internal_name,
+            expected_value_id(c, expected_type),
+            {
+              title: [
+                expected_classification_alias(c)&.full_path,
+                expected_classification_alias(c)&.description
+              ].reject(&:blank?).join("\n\n")
+            }
+          ]
+        end,
+        value.pluck(:id)
+      )
+    end
+
+    def simple_classification_select_options(value, classification_items, expected_type = DataCycleCore::ClassificationAlias)
+      options_for_select(
+        classification_items
+          &.where&.not(internal_name: DataCycleCore.excluded_filter_classifications)
+          &.map do |c|
+          [
+            expected_classification_alias(c)&.internal_name,
+            expected_value_id(c, expected_type),
+            {
+              title: [
+                expected_classification_alias(c)&.full_path,
+                expected_classification_alias(c)&.description
+              ].reject(&:blank?).join("\n\n"),
+              data: {
+                title: expected_classification_alias(c)&.full_path
+              }
+            }
+          ]
+        end,
+        value&.pluck(:id)
+      )
     end
   end
 end

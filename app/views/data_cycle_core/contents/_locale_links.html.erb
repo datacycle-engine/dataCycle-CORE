@@ -9,13 +9,12 @@
           <%= link_to_unless locale.first == I18n.locale, locale.last, thing_path(content, watch_list_id: @watch_list, locale: locale.first) %>
           <%= link_to thing_path(content, watch_list_id: @watch_list, locale: locale.first),
                       method: :delete,
-                      class:'delete-translation-link',
+                      class:'delete-translation-link dc-foundation-tooltip',
                       data: {
-                          tooltip: true,
                           confirm: "#{t('actions.delete_translation', data: locale.first, locale: DataCycleCore.ui_language)}?"
                       },
                       title: t('actions.delete_translation', data: locale.first, locale: DataCycleCore.ui_language).capitalize, aria_haspopup: true do %>
-              <i class="fa fa-trash-o" aria-hidden="true"></i>
+            <i class="fa fa-trash-o" aria-hidden="true"></i>
           <% end if can? :destroy, content %>
         </li>
       <% end %>

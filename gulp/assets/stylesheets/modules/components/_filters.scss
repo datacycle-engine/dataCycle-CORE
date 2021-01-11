@@ -134,6 +134,21 @@ $filter-border: #aaa;
             border-radius: 4px;
             border-color: $filter-border;
           }
+
+          .select2-selection--single {
+            min-height: 2.2rem;
+
+            .select2-selection__arrow {
+              height: 32px;
+            }
+            .select2-selection__rendered {
+              line-height: 32px;
+            }
+          }
+
+          .select2-dropdown .select2-search__field {
+            margin: 0;
+          }
         }
 
         .advanced-filter-mode {
@@ -1242,6 +1257,25 @@ $filter-border: #aaa;
     &.active {
       background: white;
       box-shadow: 0 5px 3px rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+.tag-group {
+  &.advanced-tags {
+    .tag {
+      &.stored_filter::before {
+        content: '\f0b0';
+        font-family: FontAwesome;
+        position: relative;
+        padding: 2px 5px 2px 2px;
+      }
+
+      &.watch_list::before {
+        content: '\f0ca';
+        font-family: FontAwesome;
+        position: relative;
+        padding: 2px 5px 2px 2px;
+      }
     }
   }
 }

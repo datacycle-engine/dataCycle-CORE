@@ -17,8 +17,11 @@ module DataCycleCore
           require 'google/cloud/translate'
 
           external_source = DataCycleCore::ExternalSystem.find_by(name: external_source_name)
-          image_annotator = Google::Cloud::Vision::ImageAnnotator.new(credentials: external_source.credentials)
-          translation_service = Google::Cloud::Translate.new(version: :v2, credentials: external_source.credentials)
+          image_annotator = Google::Cloud::Vision.image_annotator
+          translation_service = Google::Cloud::Translate.translation_v2_service(project_id: external_source.credentials.dig('project_id'))
+          # old gem version
+          # image_annotator = Google::Cloud::Vision::ImageAnnotator.new(credentials: external_source.credentials)
+          # translation_service = Google::Cloud::Translate.new(version: :v2, credentials: external_source.credentials)
 
           response = image_annotator.label_detection(
             image: file_path,
@@ -73,7 +76,7 @@ module DataCycleCore
             .where(external_source_id: external_source.id, name: tags)
             .map { |item| item.classifications.first.id }
 
-          set_classification_relation_ids(tag_ids, relation_name, tree_name, nil, true)
+          set_classification_relation_ids(tag_ids, relation_name, tree_name, nil, true, false) # ids: tag_ids, relation_name: relation_name, _tree_label: tree_label, default_value: nil, not_translated: true, universal: false
           tag_ids
         end
       end

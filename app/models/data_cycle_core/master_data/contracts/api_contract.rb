@@ -114,6 +114,11 @@ module DataCycleCore
             optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
             optional(:'dct:modified').hash(ATTRIBUTE_FILTER)
             optional(:schedule).hash(ATTRIBUTE_FILTER)
+            optional(:width).hash(ATTRIBUTE_FILTER)
+            optional(:height).hash(ATTRIBUTE_FILTER)
+            optional(:numberOfRooms).hash(ATTRIBUTE_FILTER)
+            optional(:numberOfMeetingRooms).hash(ATTRIBUTE_FILTER)
+            optional(:maxNumberOfPeople).hash(ATTRIBUTE_FILTER)
           end
         end
 

@@ -16,6 +16,8 @@ module DataCycleCore
         end
 
         DEFAULT_CONCEPT_SCHEME_ATTRIBUTES = Dry::Schema.JSON do
+          optional(:'dc:multilingual').value(:bool)
+          optional(:'dc:translation').array(:str?)
           required(:'dc:entityUrl').value(:string)
           required(:'skos:prefLabel').value(:string)
           required(:'dc:hasConcept').value(:string)
@@ -25,6 +27,8 @@ module DataCycleCore
         end
 
         DEFAULT_CONCEPT_ATTRIBUTES = Dry::Schema.JSON do
+          optional(:'dc:multilingual').value(:bool)
+          optional(:'dc:translation').array(:str?)
           required(:'dc:entityUrl').value(:string)
           required(:'skos:prefLabel').value(:string)
           required(:'dct:created').value(:date_time)

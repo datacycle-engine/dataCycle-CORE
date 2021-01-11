@@ -19,7 +19,7 @@ module DataCycleCore
                   outdoor_active_system_source_keys(content, xml, external_system)
                   # xml.author 'DataCycle'
                   outdoor_active_system_categories(content, xml, external_system)
-                  xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
+                  xml.point outdoor_active_point(content.location) if content.respond_to?(:location) && content.location.present?
                   outdoor_active_contact(content, xml)
                   outdoor_active_descriptons(content, xml)
                   outdoor_active_images(content, xml)

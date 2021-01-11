@@ -23,6 +23,24 @@ CREATE SCHEMA public;
 COMMENT ON SCHEMA public IS 'standard public schema';
 
 
+--
+-- Name: generate_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_schedule_occurences(schedule_ids uuid[]) RETURNS uuid[]
+    LANGUAGE plpgsql
+    AS $$ DECLARE schedule_occurrence_ids UUID[]; BEGIN DELETE FROM schedule_occurrences WHERE schedule_id || '{}'::UUID[] <@ schedule_ids; WITH occurences AS ( SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(get_occurrences(schedules.rrule::rrule, schedules.dtstart)) AS occurence FROM schedules WHERE schedules.relation::text = 'event_schedule'::text AND id || '{}'::UUID[] <@ schedule_ids UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(schedules.rdate) AS occurence FROM schedules WHERE schedules.relation::text = 'event_schedule'::text AND id || '{}'::UUID[] <@ schedule_ids UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, schedules.dtstart AS occurence FROM schedules WHERE schedules.relation::text = 'event_schedule'::text AND schedules.rrule IS NULL AND id || '{}'::UUID[] <@ schedule_ids ) INSERT INTO schedule_occurrences (schedule_id, thing_id, duration, occurrence) SELECT occurences.id, occurences.thing_id, occurences.duration, tstzrange(occurences.occurence, occurences.occurence + occurences.duration) AS occurrence FROM occurences WHERE occurences.id || '{}'::UUID[] <@ schedule_ids; SELECT ARRAY_AGG(id) INTO schedule_occurrence_ids FROM schedule_occurrences WHERE schedule_id || '{}'::UUID[] <@ schedule_ids; RETURN schedule_occurrence_ids; END;$$;
+
+
+--
+-- Name: generate_schedule_occurences_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_schedule_occurences(NEW.id || '{}'::UUID[]); RETURN NEW; END;$$;
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -695,6 +713,19 @@ CREATE TABLE public.schedule_histories (
 
 
 --
+-- Name: schedule_occurrences; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.schedule_occurrences (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    schedule_id uuid NOT NULL,
+    thing_id uuid NOT NULL,
+    duration interval,
+    occurrence tstzrange NOT NULL
+);
+
+
+--
 -- Name: schedules; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1118,6 +1149,14 @@ ALTER TABLE ONLY public.roles
 
 ALTER TABLE ONLY public.schedule_histories
     ADD CONSTRAINT schedule_histories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: schedule_occurrences schedule_occurrences_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.schedule_occurrences
+    ADD CONSTRAINT schedule_occurrences_pkey PRIMARY KEY (id);
 
 
 --
@@ -2111,10 +2150,33 @@ CREATE INDEX words_idx ON public.searches USING gin (full_text public.gin_trgm_o
 
 
 --
+-- Name: schedules generate_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT OR UPDATE ON public.schedules FOR EACH ROW EXECUTE PROCEDURE public.generate_schedule_occurences_trigger();
+
+
+--
 -- Name: searches tsvectorsearchupdate; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER tsvectorsearchupdate BEFORE INSERT OR UPDATE ON public.searches FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('words', 'pg_catalog.simple', 'full_text');
+
+
+--
+-- Name: schedule_occurrences schedule_occurrences_schedule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.schedule_occurrences
+    ADD CONSTRAINT schedule_occurrences_schedule_id_fkey FOREIGN KEY (schedule_id) REFERENCES public.schedules(id) ON DELETE CASCADE;
+
+
+--
+-- Name: schedule_occurrences schedule_occurrences_thing_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.schedule_occurrences
+    ADD CONSTRAINT schedule_occurrences_thing_id_fkey FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
 
 
 --
@@ -2308,6 +2370,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20201022061044'),
 ('20201030111544'),
 ('20201103120727'),
-('20201105145022');
+('20201105145022'),
+('20201201103630'),
+('20201207151843'),
+('20201208210141');
 
 

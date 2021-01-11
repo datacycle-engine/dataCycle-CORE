@@ -272,6 +272,7 @@ de:
     no_selection: keine Auswahl
     external_name: Titel
     external_alternate_name: Alternativer Titel
+    external_locale: Sprache
     external_key: Externe Id
     inverse_linked: Inverse Referenz
     has_overlay: Bei diesem Inhalt ist ein Overlay vorhanden
@@ -400,9 +401,15 @@ de:
       unit: Einheit
     relation_filter:
       contained_in: ist enthalten in
-    related_to: ist verküpft mit
+      not_contained_in: ist nicht enthalten in
+    related_to: ist verknüpft mit
     feratel_content_score: Feratel - Content Score
-    union_filter_ids: in gespeicherten Suche...
+    union_filter_ids: in gespeicherten Suchen / %{collections}
+    related_to_method:
+      related: verknüpft mit
+      not_related: nicht verknüpft mit
+    max_number_of_people: max. Anzahl Personen
+    number_of_meeting_rooms: Anzahl der Zimmer (Tagungsraum)
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
@@ -418,10 +425,10 @@ de:
     geo_within_classification: nach geografischer Lage filtern...
     geo_filter: nach geografischer Lage filtern...
     relation_filter: auf Basis von verknüpften Inhalten filtern ...
-    union_filter_ids: nach gespeicherten Suchen filtern...
+    union_filter_ids: mehrere Sammlungen kombinieren...
     related_to: nach verknüpften Inhalten filtern ...
     in_schedule: nach Termin filtern...
-    inactive_things: Abgelaufenen Inhalten filtern...
+    inactive_things: nach abgelaufenen Inhalten filtern...
 
   sortable:
     default: Standard

@@ -49,10 +49,15 @@ module DataCycleCore
       end
       alias sort_name sort_translated_name
 
-      # TODO: respect date for sorting
-      def sort_by_proximity(_ordering = '', _value = {})
+      def sort_by_proximity(_ordering = '', value = {})
         date = Time.zone.now
-        # date = date_from_single_value(value) || Time.zone.now
+        if value.present? && value.is_a?(::Hash) && value.dig('n') == 'relative'
+          date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
+          date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from').present?
+        elsif value.present? && value.is_a?(::Hash)
+          date = date_from_single_value(value.dig('in', 'min')) if value.dig('in', 'min').present?
+          date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
+        end
         reflect(
           @query.reorder(
             absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
@@ -61,6 +66,38 @@ module DataCycleCore
           )
         )
       end
+      alias sort_proximity_intime sort_by_proximity
+
+      def sort_proximity_geographic(ordering = '', value = {})
+        return self if value&.first.blank? || value&.second.blank?
+        order_string = "things.location <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
+        reflect(
+          @query.reorder(
+            Arel.sql(sanitized_order_string(order_string, ordering, true)),
+            Arel.sql('things.updated_at DESC'),
+            Arel.sql('things.id DESC')
+          )
+        )
+      end
+
+      def sort_by_schedule_proximity(_ordering = '', value = {})
+        return self if value&.dig('in', 'min').blank? || value&.dig('in', 'max').blank?
+        start_date = date_from_single_value(value.dig('in', 'min'))
+        end_date = date_from_single_value(value.dig('in', 'max'))
+        reflect(
+          @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions,
+                                           [
+                                             'LEFT JOIN schedule_occurrences ON schedule_occurrences.thing_id = things.id AND occurrence && TSTZRANGE(?, ?)',
+                                             start_date,
+                                             end_date
+                                           ]))
+            .reorder(
+              Arel.sql('LOWER(schedule_occurrences.occurrence) ASC')
+            )
+        )
+      end
+      alias sort_proximity_occurrence sort_by_schedule_proximity
 
       def sort_fulltext_search(ordering, value)
         return self if value.blank?
@@ -91,6 +128,8 @@ module DataCycleCore
             )
         )
       end
+
+      alias sort_similarity sort_fulltext_search
 
       def sort_fulltext_search_with_cte(ordering)
         reflect(

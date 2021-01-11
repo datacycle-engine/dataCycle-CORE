@@ -5,7 +5,7 @@
 
   <div class="advanced-filter-title">
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name %>
-    <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
+    <span><%= t('filter.union_filter_ids', collections: DataCycleCore::WatchList.model_name.human(count: 2, locale: DataCycleCore.ui_language), default: 'union_filter_ids', locale: DataCycleCore.ui_language) %></span>
   </div>
 
   <div class="advanced-filter-mode">
@@ -14,12 +14,14 @@
 
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{index}][v]",
-      options_for_select(@accessible_stored_filters.select(:id, :name).map{ |e| [e.name, e.id] }, value),
+      union_values_to_options(value),
       {
         multiple: true,
-        class: 'multi-select',
+        class: 'async-select',
         data: {
-          placeholder: ''
+          max: 20,
+          placeholder: '',
+          search_path: select_search_or_collection_stored_filters_path
         }
       }) %>
   </div>

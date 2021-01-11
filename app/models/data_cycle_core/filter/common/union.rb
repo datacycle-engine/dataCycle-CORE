@@ -4,6 +4,34 @@ module DataCycleCore
   module Filter
     module Common
       module Union
+        def union_filter_ids(ids = nil)
+          filter_queries = []
+
+          [:filter_ids_query, :watch_list_ids_query].each do |filter|
+            filter_query_sql_ids = send(filter, ids)
+            next if filter_query_sql_ids.nil?
+
+            union_query = DataCycleCore::StoredFilter.new(language: @locale).apply
+            filter_queries.push(union_query.where(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql))))
+          end
+
+          union_filter(filter_queries)
+        end
+
+        def not_union_filter_ids(ids)
+          filter_queries = []
+
+          [:filter_ids_query, :watch_list_ids_query].each do |filter|
+            filter_query_sql_ids = send(filter, ids)
+            next if filter_query_sql_ids.nil?
+
+            union_query = DataCycleCore::StoredFilter.new(language: @locale).apply
+            filter_queries.push(union_query.where(thing[:id].not_in(Arel.sql(filter_query_sql_ids.to_sql))))
+          end
+
+          union_filter(filter_queries)
+        end
+
         def content_ids(ids = nil)
           return self if ids.blank?
           reflect(
@@ -25,7 +53,6 @@ module DataCycleCore
             @query.where(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql)))
           )
         end
-        alias union_filter_ids filter_ids
 
         def not_filter_ids(ids = nil)
           filter_query_sql_ids = filter_ids_query(ids)
@@ -34,7 +61,6 @@ module DataCycleCore
             @query.where.not(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql)))
           )
         end
-        alias not_union_filter_ids not_filter_ids
 
         def watch_list_ids(ids = nil)
           filter_query_sql_ids = watch_list_ids_query(ids)
@@ -55,31 +81,28 @@ module DataCycleCore
         end
 
         def watch_list_ids_query(ids)
-          return nil if ids.blank?
+          return if ids.blank?
 
           filter_query_sql = nil
-          ids.each do |id|
-            watch_list = DataCycleCore::WatchList.find(id)
-            next if watch_list.blank?
+          DataCycleCore::WatchList.where(id: ids).find_each do |collection|
             if filter_query_sql.nil?
-              filter_query_sql = watch_list.watch_list_data_hashes.select(:hashable_id).except(:order)
+              filter_query_sql = collection.watch_list_data_hashes.select(:hashable_id).except(:order)
             else
-              filter_query_sql = filter_query_sql.or(watch_list.watch_list_data_hashes.select(:hashable_id).except(:order))
+              filter_query_sql = filter_query_sql.or(collection.watch_list_data_hashes.select(:hashable_id).except(:order))
             end
           end
           filter_query_sql
         end
 
         def filter_ids_query(ids)
-          return nil if ids.blank?
+          return if ids.blank?
+
           filter_query_sql = nil
-          ids.each do |filter|
-            stored_filter = DataCycleCore::StoredFilter.find(filter)
-            next if stored_filter.blank?
+          DataCycleCore::StoredFilter.where(id: ids).find_each do |filter|
             if filter_query_sql.nil?
-              filter_query_sql = stored_filter.apply.select(:id).except(:order)
+              filter_query_sql = filter.apply.select(:id).except(:order)
             else
-              filter_query_sql = filter_query_sql.or(stored_filter.apply.select(:id).except(:order))
+              filter_query_sql = filter_query_sql.or(filter.apply.select(:id).except(:order))
             end
           end
           filter_query_sql

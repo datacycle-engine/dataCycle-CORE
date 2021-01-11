@@ -1,7 +1,6 @@
 <a data-toggle="new-object"
-  class="button-prime <%= local_assigns[:button_class] %>"
-  title="<%= local_assigns.fetch(:button_title, t('common.create_new_content', locale: DataCycleCore.ui_language)) %>"
-  data-tooltip>
+  class="button-prime dc-foundation-tooltip <%= local_assigns[:button_class] %>"
+  title="<%= local_assigns.fetch(:button_title, t('common.create_new_content', locale: DataCycleCore.ui_language)) %>">
   <i class="fa fa-plus" aria-hidden="true"></i>
 </a>
 <div class="reveal" id="new-object" data-reveal data-v-offset="auto" data-close-on-click="true">

@@ -67,7 +67,7 @@ describe DataCycleCore::Export::OutdoorActive::Endpoint do
     result = endpoint.parse_job_status_response_body(raw_response_body: JOB_STATUS_WITH_INVALID_CONTENT_ERRORS, job_id: '123456')
 
     assert(result.present?)
-    assert_nil(result['outdoor_active_id'])
+    assert(result['outdoor_active_id'], '39448462')
     assert(result['job_status'], 'failed')
     assert(result['errors'].include?('Invalid data category'))
   end

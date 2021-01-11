@@ -1,55 +1,55 @@
 <div class="detail-header-functions">
-    <ul class="no-bullet">
-        <li class="has-dropdown"><%= render 'history_links', dataCycleObject: content %></li>
+  <ul class="no-bullet">
+    <li class="has-dropdown"><%= render 'history_links', dataCycleObject: content %></li>
 
-        <%= render 'locale_links', local_assigns if content.try(:translated_locales)&.many? %>
+    <%= render 'locale_links', local_assigns if content.try(:translated_locales)&.many? %>
 
-        <% if can?(:index, content) && content.parent.present? && content.try(:siblings).present? %>
-          <li class="has-dropdown">
-            <%= render 'split_sources', contents: content.siblings.includes(:translations).where(template_name: content.template_name), selected: @splitSource, url: compare_thing_path(content), title_text: t('common.compare_contents', locale: DataCycleCore.ui_language) %>
-          </li>
-        <% end %>
-        <% if content.content_type?('container') && I18n.available_locales&.many? && content.try(:children).present? %>
-          <li>
-            <span class="link" data-tooltip data-allow-html="true" title="<%= content.try(:children).presence&.includes(:translations).map(&:translated_locales)&.flatten&.uniq&.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }&.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
-          </li>
-        <% end %>
-        <% if can?(:index, DataCycleCore::DataLink) %>
-            <li class="has-dropdown"><%= render 'data_links', content: content %></li>
-        <% end %>
-        <% if can? :subscribe, content %>
-            <li class="has-dropdown">
-                <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= content.subscriptions.by_user(current_user).size > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i></a>
-                <div class="dropdown-pane align-right no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
-                    <h5><%= t('common.contents', count: 1, locale: DataCycleCore.ui_language) %> <%= content.subscriptions.by_user(current_user).size > 0 ? t('actions.subscribed', locale: DataCycleCore.ui_language) : t('actions.subscribe', locale: DataCycleCore.ui_language) %></h5>
-                    <%= render 'subscriptions', content: content %>
-                </div>
-            </li>
-        <% end %>
-        <% if can?(:index, DataCycleCore::WatchList) %>
-            <li class="has-dropdown"><%= render 'watch_lists', content: content %></li>
-        <% end %>
-        <% if can?(:print, content) %>
-          <li class="buttons">
-            <button class="link" onclick="window.print();"><i aria-hidden="true" class="fa fa-print"></i></button>
-          </li>
-        <% end %>
-      <% if can? :clear_all, :cache %>
-        <li>
-          <%= link_to clear_cache_thing_path(content),
+    <% if can?(:index, content) && content.content_type?('entity') %>
+      <li class="has-dropdown">
+        <%= render 'split_sources', query_params: { exclude: content&.id, template_name: content&.template_name }, value: @splitSource, url: compare_thing_path(content), title_text: t('common.compare_contents', locale: DataCycleCore.ui_language) %>
+      </li>
+    <% end %>
+    <% if content.content_type?('container') && I18n.available_locales&.many? && content.try(:children).present? %>
+      <li>
+        <span class="link dc-foundation-tooltip" data-allow-html="true" title="<%= content.try(:children).presence&.includes(:translations).map(&:translated_locales)&.flatten&.uniq&.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }&.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
+      </li>
+    <% end %>
+    <% if can?(:index, DataCycleCore::DataLink) %>
+      <li class="has-dropdown"><%= render 'data_links', content: content %></li>
+    <% end %>
+    <% if can? :subscribe, content %>
+      <li class="has-dropdown">
+        <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= content.subscriptions.by_user(current_user).size > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i></a>
+        <div class="dropdown-pane align-right no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
+          <h5><%= t('common.contents', count: 1, locale: DataCycleCore.ui_language) %> <%= content.subscriptions.by_user(current_user).size > 0 ? t('actions.subscribed', locale: DataCycleCore.ui_language) : t('actions.subscribe', locale: DataCycleCore.ui_language) %></h5>
+          <%= render 'subscriptions', content: content %>
+        </div>
+      </li>
+    <% end %>
+    <% if can?(:index, DataCycleCore::WatchList) %>
+      <li class="has-dropdown"><%= render 'watch_lists', content: content %></li>
+    <% end %>
+    <% if can?(:print, content) %>
+      <li class="buttons">
+        <button class="link" onclick="window.print();"><i aria-hidden="true" class="fa fa-print"></i></button>
+      </li>
+    <% end %>
+    <% if can? :clear_all, :cache %>
+      <li>
+        <%= link_to clear_cache_thing_path(content),
                       method: :get,
                       data: {
                           confirm: "#{t('common.confirm_delete_cache', locale: DataCycleCore.ui_language) }"
                       },
                       title: t('data_cycle_core.cache.clear', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
-            <span class="icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
-          <% end %>
-        </li>
-      <% end %>
-        <li class="buttons">
-          <%= link_to previous_authorized_crumb.url, class: 'hascontent close-show-button' do %>
-            <i aria-hidden="true" class="fa fa-times"></i>
-          <% end if previous_authorized_crumb.present? %>
-        </li>
-    </ul>
+          <span class="icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
+        <% end %>
+      </li>
+    <% end %>
+    <li class="buttons">
+      <%= link_to previous_authorized_crumb.url, class: 'hascontent close-show-button' do %>
+        <i aria-hidden="true" class="fa fa-times"></i>
+      <% end if previous_authorized_crumb.present? %>
+    </li>
+  </ul>
 </div>

@@ -22,6 +22,9 @@ module DataCycleCore
 
           response_body = Nokogiri::XML(response.body)
           job_id = response_body.children.first.attribute('jobid').value
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("could not parse a valid job_id form the response of this request: #{File.join([@host, @key])}, external_system_data: #{external_system_data}", response) if job_id.blank?
+
           external_system_data.merge(
             {
               'job_id' => job_id,
@@ -68,16 +71,24 @@ module DataCycleCore
               'job_message' => error_msg
             }
           when 'done', 'warning'
-            serious_warning = response_body.xpath('//message').children.first&.content&.include?('AlpInterfaceUpdater has 200 open events')
-            outdoor_active_id = response_body.xpath('//details//content[@type!="imagemeta"]//@cmsId').first.to_s
-            errors = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//invalidContent//text()').map(&:to_s)
+            outdoor_active_id = response_body.xpath('//details//content[@type!="imagemeta"]//@cmsId').first.to_s.presence
+
+            global_warning = response_body.xpath('//message').children.first&.content
+            serious_warning = global_warning&.include?('AlpInterfaceUpdater has 200 open events') # error when too many updates open
+            serious_warning ||= global_warning&.include?('The same job has already been started in') # error when same job was recently startet
             warnings = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//warning//text()').map(&:to_s)
-            warnings = [warnings, response_body.children.first.xpath('//details//message//text()').map(&:to_s)].flatten.compact.join('; ')
+            warnings = [global_warning.presence, warnings.presence, response_body.children.first.xpath('//details//message//text()').to_a.compact.map(&:to_s).join('; ').presence].flatten.compact.join('; ').presence
+
+            errors = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//invalidContent//text()').map(&:to_s)
+            additional_errors = response_body.children.first.to_hash['errors']
+            error_details = response_body.children.first.to_hash['details'] if additional_errors.present?
+            errors = [additional_errors, error_details, errors].compact.flatten.compact.map(&:to_s).join('; ')
+
             {
               'job_id' => nil,
               'last_job_id' => job_id,
               'seen_at' => Time.zone.now,
-              'outdoor_active_id' => errors.empty? ? outdoor_active_id : nil,
+              'outdoor_active_id' => outdoor_active_id,
               'job_status' => errors.present? || serious_warning ? 'failed' : 'done',
               'errors' => errors,
               'warnings' => warnings

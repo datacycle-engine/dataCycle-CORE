@@ -111,9 +111,7 @@ module DataCycleCore
 
     def apply_linked_filters(query, linked_filter)
       linked_filter.each do |linked_name, attribute_filter|
-        linked_stored_filter = DataCycleCore::StoredFilter.new
-        linked_stored_filter.language = @language
-        linked_query = linked_stored_filter.apply
+        linked_query = DataCycleCore::StoredFilter.new(language: @language).apply
 
         # add error handling for invalid methods
         attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId].include?(k) }
@@ -127,9 +125,7 @@ module DataCycleCore
     def apply_union_filters(query, filters)
       all_filters = []
       filters.each do |filter|
-        union_stored_filter = DataCycleCore::StoredFilter.new
-        union_stored_filter.language = @language
-        union_query = union_stored_filter.apply
+        union_query = DataCycleCore::StoredFilter.new(language: @language).apply
 
         filter.each do |filter_k, filter_v|
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
@@ -170,7 +166,9 @@ module DataCycleCore
 
     def query_method_mapping(key)
       date_range = [:'dct:modified', :'dct:created']
+      advanced_numeric = [:width, :height, :numberOfRooms, :numberOfMeetingRooms, :maxNumberOfPeople]
       return 'date_range' if date_range.include?(key)
+      return 'equals_advanced_numeric' if advanced_numeric.include?(key)
       return 'in_schedule' if key == :schedule
       return 'within_box' if key == :box
       return 'geo_radius' if key == :perimeter
@@ -197,7 +195,7 @@ module DataCycleCore
         # currently a hack
         'absolute'
       else
-        attribute_key.to_s
+        attribute_key.to_s.underscore
       end
     end
 
@@ -315,21 +313,25 @@ module DataCycleCore
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
     end
 
-    def apply_order_query(query, order_params, full_text_search = '', schedule = false)
+    def apply_order_query(query, order_params, full_text_search = '', raw_query_params: {})
       order_query = []
       order_params&.split(',')&.each do |sort|
         key, order = key_with_ordering(sort)
-        order_query <<
-          {
-            'm' => key.parameterize(separator: '_'),
-            'o' => order
-          }
+        value = order_value_from_params(key, full_text_search, raw_query_params)
+        order_hash = {
+          'm' => key.parameterize(separator: '_'),
+          'o' => order
+        }
+        order_hash['v'] = value if value.present?
+        order_query << order_hash
       end
       order_query = order_query&.reject(&:blank?)
 
       if order_query.blank?
+        # default order depending on filter parameter
         query = query.sort_fulltext_search('DESC', full_text_search) if full_text_search.present?
-        query = query.sort_by_proximity if schedule.present?
+        query = query.sort_proximity_geographic('ASC', order_value_from_params('proximity.geographic', full_text_search, raw_query_params)) if order_value_from_params('proximity.geographic', full_text_search, raw_query_params)
+        query = query.sort_by_proximity('', order_value_from_params('proximity.inTime', full_text_search, raw_query_params)) if order_value_from_params('proximity.inTime', full_text_search, raw_query_params).present?
         return query
       end
 
@@ -350,10 +352,23 @@ module DataCycleCore
       query
     end
 
+    def order_value_from_params(key, full_text_search, raw_query_params)
+      return raw_query_params.dig(*order_constraints.dig(key)) if order_constraints.dig(key).present? && raw_query_params.dig(*order_constraints.dig(key)).present?
+      return full_text_search if key == 'similarity' && full_text_search.present?
+    end
+
     def key_with_ordering(sort)
       return sort[1..-1], 'DESC' if sort.starts_with?('-')
       return sort[1..-1], 'ASC' if sort.starts_with?('+')
       return sort, 'ASC'
+    end
+
+    def order_constraints
+      {
+        'proximity.geographic' => ['filter', 'geo', 'in', 'perimeter'],
+        'proximity.inTime' => ['filter', 'attribute', 'schedule'],
+        'proximity.occurrence' => ['filter', 'attribute', 'schedule']
+      }
     end
 
     private
