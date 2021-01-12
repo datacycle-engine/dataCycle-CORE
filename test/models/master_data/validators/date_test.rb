@@ -90,7 +90,7 @@ describe DataCycleCore::MasterData::Validators::Date do
 
     it 'produces no warning when an unsupported keyword is used' do
       new_template = template_hash2.deep_dup.merge({ 'validations' => { 'maxi' => 3 } })
-      validator = subject.new(Time.zone.now, new_template)
+      validator = subject.new(Date.current, new_template)
       assert_equal(0, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
