@@ -6,7 +6,7 @@ module DataCycleCore
       external_connections = external_system_syncs&.joins(:external_system)&.select('external_systems.name')&.group('external_systems.name')&.size || {}
       external_connections[external_source.name] = (external_connections[external_source.name] || 0) + 1 unless external_source.nil?
 
-      external_connections.map { |k, v| v > 1 ? "#{k} (#{v})" : k }.compact.uniq.join("\n")
+      external_connections.map { |k, v| v > 1 ? "#{k} (#{v})" : k }.compact.uniq.join('<br>')
     end
 
     def external_systems_with_details(content)

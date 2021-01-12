@@ -108,7 +108,7 @@ module DataCycleCore
       def related_to(filter_id = nil)
         return self if filter_id.blank?
 
-        subquery = related_to_query(filter_id)
+        subquery = related_to_query(filter_id, nil, true)
         return self if subquery.nil?
 
         reflect(
@@ -119,7 +119,7 @@ module DataCycleCore
       def not_related_to(filter_id = nil)
         return self if filter_id.blank?
 
-        subquery = related_to_query(filter_id)
+        subquery = related_to_query(filter_id, nil, true)
         return self if subquery.nil?
 
         reflect(
@@ -195,7 +195,7 @@ module DataCycleCore
 
       private
 
-      def related_to_query(filter, name = nil)
+      def related_to_query(filter, name = nil, inverse = false)
         if filter.is_a?(DataCycleCore::Filter::Search)
           filter_query = filter.select(:id).except(:order)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
@@ -206,8 +206,12 @@ module DataCycleCore
           return
         end
 
-        sub_select = content_content[:content_a_id].eq(thing[:id])
-          .and(content_content[:content_b_id].in(Arel.sql(filter_query.to_sql)))
+        thing_id = :content_a_id
+        related_to_id = :content_b_id
+        thing_id, related_to_id = related_to_id, thing_id if inverse
+
+        sub_select = content_content[thing_id].eq(thing[:id])
+          .and(content_content[related_to_id].in(Arel.sql(filter_query.to_sql)))
 
         sub_select = sub_select.and(content_content[:relation_a].eq(name)) if name.present?
 

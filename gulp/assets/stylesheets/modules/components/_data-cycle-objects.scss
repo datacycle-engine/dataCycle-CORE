@@ -1299,11 +1299,18 @@ ul.list {
         position: relative;
         top: 0;
         right: 0;
+        display: flex;
+        align-items: center;
+        height: 1.5rem;
 
-        > i,
-        > a {
-          margin-left: 3px;
-          vertical-align: middle;
+        > * {
+          position: relative;
+          line-height: inherit;
+          padding: 0 3px;
+
+          &:last-child {
+            padding-right: 0;
+          }
         }
       }
 

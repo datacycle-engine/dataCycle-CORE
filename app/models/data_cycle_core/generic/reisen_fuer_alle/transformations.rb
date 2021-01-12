@@ -25,6 +25,15 @@ module DataCycleCore
           .>> t(:add_links, 'licence_owner', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('licence_owner'))&.map { |i| "reisen-fuer-alle.de - Lizenznehmer - #{i}" } })
           .>> t(:add_field, 'certificate_classification', ->(s) { add_classifications(s) })
           .>> t(:add_field, 'linked_thing', ->(s) { add_external_links(s.slice('feratel', 'outdoor_active')) })
+          .>> t(:add_links, 'search_criteria', DataCycleCore::Classification, external_source_id,
+                lambda { |s|
+                  Array.wrap(s.dig('grouped_search_criteria')).map { |g|
+                    g['search_criteria']
+                  }.flatten.map do |c|
+                    Constants::SEARCH_CRITERIA_CLASSIFICATION_PREFIX + c['id']
+                  end || []
+                })
+          .>> t(:universal_classifications, ->(s) { s.dig('search_criteria') })
           .>> t(:reject_keys, ['base_data', 'deaf', 'mental', 'partially_deaf', 'partially_visual', 'visual', 'walking', 'wheelchair'])
         end
 

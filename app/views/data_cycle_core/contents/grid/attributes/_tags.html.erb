@@ -1,8 +1,9 @@
 <div class="tags">
   <ul class="no-bullet no-format">
     <% item.display_classification_aliases(local_assigns[:classification_tree_visibility] || 'tile').each do |classification_alias| %>
-      <li class="tag has-tip <%= 'mapped' unless item.assigned_classification_aliases.include?(classification_alias) %>"
-          title="<%= classification_tooltip(classification_alias) %>">
+      <li class="tag has-tip dc-foundation-tooltip <%= 'mapped' unless item.assigned_classification_aliases.include?(classification_alias) %>"
+          title="<%= classification_tooltip(classification_alias) %>"
+          data-allow-html="true">
         <%= classification_alias.internal_name %>
       </li>
     <% end %>

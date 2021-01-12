@@ -5,13 +5,11 @@
 
   <%= link_to create_duplication_thing_path(content),
                 method: :get,
-                class: 'button-prime small',
+                class: 'dc-foundation-tooltip button-prime small',
                 data: {
-                    tooltip: true,
                     confirm: "#{content.template_name} #{t('actions.duplicate_content', locale: DataCycleCore.ui_language)}?"
                 },
-                title: t('common.duplicate_content', locale: DataCycleCore.ui_language),
-                'aria-haspopup': true do %>
+                title: t('common.duplicate_content', locale: DataCycleCore.ui_language) do %>
     <i class="fa fa-clone" aria-hidden="true"></i>
   <% end if DataCycleCore::Feature::DuplicateContent.enabled? && can?(:create, content, 'duplicate') && content.content_type?('entity') %>
 
@@ -26,7 +24,7 @@
       button_title: t('actions.create_from_existing', locale: DataCycleCore.ui_language) if can?(:create, content, 'duplicate') && content.content_type?('entity') %>
 
   <% if can?(:move_content, content) && @parents.present? && content.schema_type == 'CreativeWork' %>
-    <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+    <%= link_to "#", class:'dc-foundation-tooltip button-prime small', data: { open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language) do %>
       <i class="fa fa-folder" aria-hidden="true"></i>
     <% end %>
     <%= render 'move_to_container_overlay', content: content %>
@@ -73,12 +71,11 @@
 
   <%= link_to thing_path(content, watch_list_id: @watch_list),
               method: :delete,
-              class:'button-prime small delete-content-link',
+              class:'dc-foundation-tooltip button-prime small delete-content-link',
               data: {
-                  tooltip: true,
                   confirm: "#{content.template_name} #{t('actions.delete', locale: DataCycleCore.ui_language)}? #{(content.try(:children)&.any? || content.try(:is_related?))? t('common.children_present_html', locale: DataCycleCore.ui_language) : '' }"
               },
-              title: t('actions.delete', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+              title: t('actions.delete', locale: DataCycleCore.ui_language) do %>
     <i class="fa fa-trash-o" aria-hidden="true"></i>
   <% end if can? :destroy, content %>
 </div>
