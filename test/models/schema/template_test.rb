@@ -16,9 +16,9 @@ describe DataCycleCore::Schema::Template do
       assert(subject.property_definitions.map { |d| d[:label] }.exclude?('disabledProperty'))
     end
 
-    it 'should contain 3 property definitions' do
+    it 'should contain 4 property definitions' do
       assert(subject.property_definitions.count, 3)
-      assert(subject.property_definitions.map { |d| d[:label] }.sort, ['stringProperty', 'datetimeProperty', 'numberProperty'])
+      assert(subject.property_definitions.map { |d| d[:label] }.sort, ['stringProperty', 'datetimeProperty', 'dateProperty', 'numberProperty'])
     end
 
     it 'should contain correct property definition for "stringProperty"' do
@@ -33,6 +33,13 @@ describe DataCycleCore::Schema::Template do
 
       assert(string_property[:template_type], 'Thing_WithAllSimplePropertyTypes')
       assert(string_property[:data_type], '//schema.org/DateTime')
+    end
+
+    it 'should contain correct property definition for "dateProperty"' do
+      string_property = subject.property_definitions.find { |d| d[:label] == 'dateProperty' }
+
+      assert(string_property[:template_type], 'Thing_WithAllSimplePropertyTypes')
+      assert(string_property[:data_type], '//schema.org/Date')
     end
 
     it 'should contain correct property definition for "numberProperty"' do

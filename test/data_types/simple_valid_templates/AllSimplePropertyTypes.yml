@@ -14,6 +14,9 @@
       :datetime_property:
         :label: DateTime
         :type: datetime
+      :date_property:
+        :label: Datei
+        :type: date
       :number_property:
         :label: Number
         :type: number
