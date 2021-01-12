@@ -44,7 +44,7 @@ Gem::Specification.new do |s|
   # JSON Parser
   s.add_dependency 'multi_json'
   # XML Parser
-  s.add_dependency 'nokogiri', '~> 1.10.3'
+  s.add_dependency 'nokogiri', '~> 1.11'
   # s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'
