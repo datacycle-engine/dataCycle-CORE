@@ -2052,6 +2052,13 @@ select {
   border: none;
 }
 
+.dc-foundation-tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  font-weight: bold;
+}
+
 // Normalizer Styles
 .normalize-content-button {
   outline: none;
