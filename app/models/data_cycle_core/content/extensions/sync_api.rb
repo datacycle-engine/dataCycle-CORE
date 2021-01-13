@@ -61,6 +61,9 @@ module DataCycleCore
             schedule_array.blank? ? [] : schedule_array.compact
           elsif property_name == 'included'
             linked_property_names.map { |linked|
+              present_overlay = overlay_property_names.include?(linked)
+              property_name_with_overlay = linked
+              property_name_with_overlay = "#{linked}_#{overlay_name}" if overlay_property_names.include?(linked)
               linked_array = get_property_value(linked, property_definitions[linked], nil, present_overlay)
               linked_array = linked_array
                 &.map { |i| i.to_sync_data(depth: depth) }
