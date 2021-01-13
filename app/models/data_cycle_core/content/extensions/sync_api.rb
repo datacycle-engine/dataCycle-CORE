@@ -105,7 +105,7 @@ module DataCycleCore
                   'external_key' => i.external_key,
                   'status' => i.status,
                   'last_sync_at' => i.last_sync_at,
-                  'sync_type' => 'import',
+                  'sync_type' => i.sync_type || 'import',
                   'last_successful_sync_at' => i.last_successful_sync_at,
                   'name' => DataCycleCore::ExternalSystem.find(i.external_system_id)&.identifier
                 }

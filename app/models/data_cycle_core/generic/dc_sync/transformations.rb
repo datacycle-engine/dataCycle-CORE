@@ -27,7 +27,7 @@ module DataCycleCore
               'status' => 'success',
               'last_sync_at' => data.dig('updated_at'),
               'last_successful_sync_at' => data.dig('updated_at'),
-              'sync_type' => 'export'
+              'sync_type' => data.dig('sync_type') || 'import'
             }]
           end
           syncs.flatten
