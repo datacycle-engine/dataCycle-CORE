@@ -216,13 +216,6 @@ module DataCycleCore
 
       def normalize_value(value, properties)
         norm_value = value
-        # if properties.key?('default_value') && value.blank?
-        #   if properties['default_value'].is_a?(String) && /{{.*}}/.match?(properties['default_value']) # eval code enclosed in double curly braces: {{ ... }}
-        #     norm_value = eval(properties['default_value'][2..-3]) # rubocop:disable Security/Eval
-        #   else
-        #     norm_value = properties['default_value']
-        #   end
-        # end
         return DataCycleCore::MasterData::DataConverter.string_to_string(norm_value) if properties['type'] == 'string'
         norm_value
       end
@@ -354,19 +347,7 @@ module DataCycleCore
         return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
         present_relation_ids = send(relation_name).pluck(:classification_id) || []
         ids ||= []
-        if is_blank?(ids) && !universal
-          # if default_value.present?
-          #   classification_id = load_default_classification(tree_label, default_value)
-          #   ids = [classification_id] # the convention is: don't delete the default_value
-          #   if present_relation_ids.count.zero?
-          #     DataCycleCore::ClassificationContent.find_or_create_by!(
-          #       'content_data_id' => id,
-          #       classification_id: classification_id,
-          #       relation: relation_name
-          #     )
-          #   end
-          # end
-        else
+        unless is_blank?(ids) && !universal
           ids.each do |classification_id_value|
             next if present_relation_ids.include?(classification_id_value)
             DataCycleCore::ClassificationContent.find_or_create_by!(
