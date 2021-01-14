@@ -89,7 +89,9 @@
               "id": "3ebb8584-b431-4f5e-9b37-653a7528aaba",
               "name": "test",
               "dummy": "do_not_show",
-              "image": [],
+              "image": [
+                "dc5c0a3a-5319-4021-8cc8-06d5d85e93bf"
+              ],
               "description": "<p>Das ist ein Test.</p>",
               "validity_schedule": [],
               "template_name": "Ergänzende Information",
@@ -99,7 +101,86 @@
               "external_source": "pimcore",
               "external_system_syncs": []
             },
-            "included": []
+            "included": [
+              {
+                "de": {
+                  "id": "dc5c0a3a-5319-4021-8cc8-06d5d85e93bf",
+                  "name": "Adventfenster.JPG",
+                  "tags": [],
+                  "access": [],
+                  "author": [],
+                  "data_type": [],
+                  "content_url": "https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "upload_date": "2020-12-03T00:00:00.000+01:00",
+                  "external_key": "Pimcore - EventImage - https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "thumbnail_url": "https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "eyebase_folder": [],
+                  "eyebase_lizenz": [],
+                  "output_channel": [],
+                  "status_eyebase": [],
+                  "content_location": [],
+                  "copyright_holder": [],
+                  "keywords_booking": [],
+                  "keywords_eyebase": [],
+                  "mandatory_license": false,
+                  "wikidata_category": [],
+                  "hrs_image_categories": [],
+                  "keywords_medienarchive": [],
+                  "license_classification": [],
+                  "feratel_creative_commons": [],
+                  "universal_classifications": [],
+                  "wikidata_license_classification": [],
+                  "template_name": "Bild",
+                  "updated_at": "2020-12-03T12:09:59.674+01:00",
+                  "created_at": "2020-12-03T12:09:45.298+01:00",
+                  "external_source_id": "6ef99e65-6e7f-4c80-a3b7-6f9a32a894cd",
+                  "external_source": "pimcore",
+                  "last_sync_at": "2020-12-03T12:09:59.674+01:00",
+                  "last_successful_sync_at": "2020-12-03T12:09:59.674+01:00",
+                  "status": "success",
+                  "external_system_syncs": []
+                },
+                "en": {
+                  "id": "dc5c0a3a-5319-4021-8cc8-06d5d85e93bf",
+                  "name": "Adventfenster.JPG",
+                  "tags": [],
+                  "access": [],
+                  "author": [],
+                  "data_type": [],
+                  "content_url": "https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "upload_date": "2020-12-03T00:00:00.000+01:00",
+                  "external_key": "Pimcore - EventImage - https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "thumbnail_url": "https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "eyebase_folder": [],
+                  "eyebase_lizenz": [],
+                  "output_channel": [],
+                  "status_eyebase": [],
+                  "content_location": [],
+                  "copyright_holder": [],
+                  "keywords_booking": [],
+                  "keywords_eyebase": [],
+                  "mandatory_license": false,
+                  "wikidata_category": [],
+                  "hrs_image_categories": [],
+                  "keywords_medienarchive": [],
+                  "license_classification": [],
+                  "feratel_creative_commons": [],
+                  "universal_classifications": [],
+                  "wikidata_license_classification": [],
+                  "template_name": "Bild",
+                  "updated_at": "2020-12-03T12:09:59.674+01:00",
+                  "created_at": "2020-12-03T12:09:45.298+01:00",
+                  "external_source_id": "6ef99e65-6e7f-4c80-a3b7-6f9a32a894cd",
+                  "external_source": "pimcore",
+                  "last_sync_at": "2020-12-03T12:09:59.674+01:00",
+                  "last_successful_sync_at": "2020-12-03T12:09:59.674+01:00",
+                  "status": "success",
+                  "external_system_syncs": []
+                },
+                "included": [],
+                "attribute_name": "image"
+              }
+            ]
           }
         ],
         "template_name": "Event",
@@ -191,7 +272,9 @@
               "id": "28e17082-c4f7-40cc-a418-805083e33849",
               "name": "additional information",
               "dummy": "do_not_show",
-              "image": [],
+              "image": [
+                "dc5c0a3a-5319-4021-8cc8-06d5d85e93bf"
+              ],
               "description": "<p>No Risk No Fun.</p>",
               "validity_schedule": [],
               "template_name": "Ergänzende Information",
@@ -201,7 +284,84 @@
               "external_source": "pimcore",
               "external_system_syncs": []
             },
-            "included": []
+            "included": [
+              {
+                "de": {
+                  "id": "dc5c0a3a-5319-4021-8cc8-06d5d85e93bf",
+                  "name": "Adventfenster.JPG",
+                  "tags": [],
+                  "access": [],
+                  "author": [],
+                  "data_type": [],
+                  "content_url": "https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "upload_date": "2020-12-03T00:00:00.000+01:00",
+                  "external_key": "Pimcore - EventImage - https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "thumbnail_url": "https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "eyebase_folder": [],
+                  "eyebase_lizenz": [],
+                  "output_channel": [],
+                  "status_eyebase": [],
+                  "content_location": [],
+                  "copyright_holder": [],
+                  "keywords_booking": [],
+                  "keywords_eyebase": [],
+                  "mandatory_license": false,
+                  "wikidata_category": [],
+                  "hrs_image_categories": [],
+                  "keywords_medienarchive": [],
+                  "license_classification": [],
+                  "feratel_creative_commons": [],
+                  "universal_classifications": [],
+                  "wikidata_license_classification": [],
+                  "template_name": "Bild",
+                  "updated_at": "2020-12-03T12:09:59.674+01:00",
+                  "created_at": "2020-12-03T12:09:45.298+01:00",
+                  "external_source_id": "6ef99e65-6e7f-4c80-a3b7-6f9a32a894cd",
+                  "external_source": "pimcore",
+                  "last_sync_at": "2020-12-03T12:09:59.674+01:00",
+                  "last_successful_sync_at": "2020-12-03T12:09:59.674+01:00",
+                  "status": "success",
+                  "external_system_syncs": []
+                },
+                "en": {
+                  "id": "dc5c0a3a-5319-4021-8cc8-06d5d85e93bf",
+                  "name": "Adventfenster.JPG",
+                  "tags": [],
+                  "access": [],
+                  "author": [],
+                  "data_type": [],
+                  "content_url": "https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "upload_date": "2020-12-03T00:00:00.000+01:00",
+                  "external_key": "Pimcore - EventImage - https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "thumbnail_url": "https://www.montafon.at/1-Bilder/2-Events/Ortsmarketing/Adventfenster.JPG",
+                  "eyebase_folder": [],
+                  "eyebase_lizenz": [],
+                  "output_channel": [],
+                  "status_eyebase": [],
+                  "content_location": [],
+                  "copyright_holder": [],
+                  "keywords_booking": [],
+                  "keywords_eyebase": [],
+                  "mandatory_license": false,
+                  "wikidata_category": [],
+                  "hrs_image_categories": [],
+                  "keywords_medienarchive": [],
+                  "license_classification": [],
+                  "feratel_creative_commons": [],
+                  "universal_classifications": [],
+                  "wikidata_license_classification": [],
+                  "template_name": "Bild",
+                  "updated_at": "2020-12-03T12:09:59.674+01:00",
+                  "created_at": "2020-12-03T12:09:45.298+01:00",
+                  "external_source_id": "6ef99e65-6e7f-4c80-a3b7-6f9a32a894cd",
+                  "external_source": "pimcore",
+                  "last_sync_at": "2020-12-03T12:09:59.674+01:00",
+                  "last_successful_sync_at": "2020-12-03T12:09:59.674+01:00",
+                  "status": "success",
+                  "external_system_syncs": []
+                }
+              }
+            ]
           }
         ],
         "template_name": "Event",
@@ -686,7 +846,12 @@
         "external_source": "outdooractive",
         "external_system_syncs": [
           {
-            "name": "toursprung"
+            "external_key": "12345678-0000-0000-0000-000000000001",
+            "status": "success",
+            "last_sync_at": "2020-12-04T11:23:47.921+01:00",
+            "sync_type": "export",
+            "last_successful_sync_at": "2020-12-04T11:23:47.921+01:00",
+            "identifier": "toursprung"
           }
         ]
       },
@@ -770,7 +935,12 @@
         "external_source": "outdooractive",
         "external_system_syncs": [
           {
-            "name": "toursprung"
+            "external_key": "12345678-0000-0000-0000-000000000002",
+            "status": "success",
+            "last_sync_at": "2020-12-04T11:23:47.921+01:00",
+            "sync_type": "export",
+            "last_successful_sync_at": "2020-12-04T11:23:47.921+01:00",
+            "identifier": "toursprung"
           }
         ]
       },
@@ -931,6 +1101,73 @@
     },
     "created_at": {
       "$date": "2020-12-10T10:18:24.238Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5fca2deb2310404622ce1c09"
+    },
+    "external_id": "00000000-0000-0000-0000-000000000001",
+    "dump": {
+      "de": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "name": "test_data1",
+        "template_name": "Event",
+        "updated_at": "2020-12-04T11:23:47.921+01:00",
+        "created_at": "2020-11-22T00:27:28.418+01:00",
+        "last_sync_at": "2020-12-10T13:41:01.827+01:00",
+        "external_source_id": "ffffffff-7e20-4cc2-8697-09f3078fefc9",
+        "external_key": "00000000-0000-0000-0000-000000000001",
+        "external_source": "outdooractive",
+        "external_system_syncs": []
+      }
+    },
+    "seen_at": {
+      "$date": "2020-12-10T09:23:03.379Z"
+    },
+    "updated_at": {
+      "$date": "2020-12-09T16:03:26.803Z"
+    },
+    "created_at": {
+      "$date": "2020-12-04T12:39:07.659Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5fca2deb2310404622ce1c10"
+    },
+    "external_id": "00000000-0000-0000-0000-000000000002",
+    "dump": {
+      "de": {
+        "id": "00000000-0000-0000-0000-000000000002",
+        "name": "test_data1",
+        "template_name": "Event",
+        "updated_at": "2020-12-04T11:23:47.921+01:00",
+        "created_at": "2020-11-22T00:27:28.418+01:00",
+        "last_sync_at": "2020-12-10T13:41:01.827+01:00",
+        "external_source_id": "ffffffff-7e20-4cc2-8697-09f3078fefc9",
+        "external_key": "00000000-0000-0000-0000-000000000002",
+        "external_source": "outdooractive",
+        "external_system_syncs": [
+          {
+            "external_key": "00000000-0000-0000-0000-000000000003",
+            "status": "success",
+            "last_sync_at": "2020-12-04T11:23:47.921+01:00",
+            "sync_type": "import",
+            "last_successful_sync_at": "2020-12-04T11:23:47.921+01:00",
+            "identifier": "feratel"
+          }
+        ]
+      }
+    },
+    "seen_at": {
+      "$date": "2020-12-10T09:23:03.379Z"
+    },
+    "updated_at": {
+      "$date": "2020-12-09T16:03:26.803Z"
+    },
+    "created_at": {
+      "$date": "2020-12-04T12:39:07.659Z"
     }
   }
 ]

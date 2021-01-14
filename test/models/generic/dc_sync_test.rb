@@ -7,6 +7,13 @@ module DataCycleCore
     class DcSyncTest < ActiveSupport::TestCase
       def setup
         @cw_temp = DataCycleCore::Thing.where(template: false).count
+        options = {
+          mode: 'full'
+        }
+
+        external_source = DataCycleCore::ExternalSystem.find_by(identifier: 'data-cycle-base')
+        download_from_local_json(external_source)
+        external_source.import(options)
       end
 
       def download_from_local_json(external_source)
@@ -39,17 +46,10 @@ module DataCycleCore
       end
 
       test 'perform import' do
-        options = {
-          mode: 'full'
-        }
-
         external_source = DataCycleCore::ExternalSystem.find_by(identifier: 'data-cycle-base')
-        download_from_local_json(external_source)
-        external_source.import(options)
-
         # pimcore Event
         assert_equal(
-          ['Bild', 'Event', 'Organization', 'Örtlichkeit'],
+          ['Bild', 'Bild', 'Event', 'Organization', 'Örtlichkeit'],
           DataCycleCore::ExternalSystem.find_by(identifier: 'pimcore').things.pluck(:template_name).sort
         )
 
@@ -67,6 +67,13 @@ module DataCycleCore
         assert_equal(external_source.identifier, event.external_source.identifier)
         assert_equal('pimcore', event.external_system_syncs.first.external_system.identifier)
 
+        # embedded are there
+        assert_equal('Virtuell', event.virtual_location.first.name)
+        assert_equal('https://virtuell.at', event.virtual_location.first.url)
+        assert_equal('test', event.additional_information.first.name)
+        assert_equal('<p>Das ist ein Test.</p>', event.additional_information.first.description)
+        assert_equal(1, event.additional_information.first.image.size)
+
         organization = DataCycleCore::ExternalSystem.find_by(identifier: 'pimcore').things.where(template_name: 'Organization').first
         assert_equal('Bergbahnen Gargellen', organization.name)
         assert_equal(external_source.identifier, organization.external_source.identifier)
@@ -82,6 +89,37 @@ module DataCycleCore
 
         # outdooractive POI
         # DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive').things.first
+      end
+
+      test 'import trivial event originally imported from outdooractive' do
+        event = DataCycleCore::Thing.find_by(external_key: '00000000-0000-0000-0000-000000000001')
+        assert_equal('test_data1', event.name)
+        assert_equal('00000000-0000-0000-0000-000000000001', event.external_key)
+        assert_equal('DataCycle Basic', event.external_source.name)
+        assert_equal('outdooractive', event.external_systems.first.identifier)
+        assert_equal('import', event.external_system_syncs.first.sync_type)
+        assert_equal('00000000-0000-0000-0000-000000000001', event.external_system_syncs.first.external_key)
+      end
+
+      test 'trivial event imported from outdooractive, imported from feratel' do
+        event = DataCycleCore::Thing.find_by(external_key: '00000000-0000-0000-0000-000000000002')
+        assert_equal('test_data1', event.name)
+        assert_equal('00000000-0000-0000-0000-000000000002', event.external_key)
+        assert_equal('DataCycle Basic', event.external_source.name)
+        assert_equal(2, event.external_systems.size)
+        assert_equal(['feratel', 'outdooractive'], event.external_systems.pluck(:identifier).sort)
+
+        outdooractive = DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive')
+        oa_sync_data = event.external_system_syncs.find_by(external_system_id: outdooractive.id)
+        assert_equal('import', oa_sync_data.sync_type)
+        assert_equal('success', oa_sync_data.status)
+        assert_equal('00000000-0000-0000-0000-000000000002', oa_sync_data.external_key)
+
+        feratel = DataCycleCore::ExternalSystem.find_by(identifier: 'feratel')
+        feratel_sync_data = event.external_system_syncs.find_by(external_system_id: feratel.id)
+        assert_equal('import', feratel_sync_data.sync_type)
+        assert_equal('success', feratel_sync_data.status)
+        assert_equal('00000000-0000-0000-0000-000000000003', feratel_sync_data.external_key)
       end
 
       def teardown

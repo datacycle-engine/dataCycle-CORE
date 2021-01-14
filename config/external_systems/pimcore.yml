@@ -1,5 +1,6 @@
 ---
 name: Pimcore
+identifier: pimcore
 credentials:
   host: https://www.montafon.at
   url_part: webservice/imx

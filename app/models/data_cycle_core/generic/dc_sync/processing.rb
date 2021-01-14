@@ -80,7 +80,7 @@ module DataCycleCore
 
         def self.handle_embedded(data, utility_object)
           return nil if data[I18n.locale.to_s].blank?
-          template = DataCycleCore::Thing.find_by(template_name: data.dig(I18n.locale.to_s, 'template_name'))
+          template = get_template(data)
           return nil if template.blank?
           # treat linked
           linked_key_translation = process_included_items(utility_object, template, data.dig('included'))
