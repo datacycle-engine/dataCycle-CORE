@@ -20,7 +20,7 @@ module DataCycleCore
           .>> t(:reject_keys, ['Names', 'Name'])
           .>> t(:unwrap_description, 'ShopItemDescription')
           .>> t(:add_field, 'potential_action', ->(s) { parse_links(get_variation_link(s), external_source_id) })
-          .>> t(:add_field, 'url', ->(s) { Array.wrap(s.dig('Links', 'Link')).first&.dig('URL') })
+          .>> t(:add_field, 'url', ->(s) { parse_url(Array.wrap(s.dig('Links', 'Link')).first&.dig('URL')) })
           .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ShopItemDescription')) })
           .>> t(:universal_classifications, ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Owner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('Details', 'Owner')).hexdigest}"] : [] })
@@ -71,7 +71,7 @@ module DataCycleCore
           .>> t(:add_field, 'fax_number', ->(s) { s.dig('Address', 'Fax') })
           .>> t(:add_field, 'telephone', ->(s) { s.dig('Address', 'Phone') })
           .>> t(:add_field, 'email', ->(s) { s.dig('Address', 'Email') })
-          .>> t(:add_field, 'url', ->(s) { s.dig('Address', 'URL') })
+          .>> t(:add_field, 'url', ->(s) { parse_url(s.dig('Address', 'URL')) })
           .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
           .>> t(:reject_keys, ['Address'])
           .>> t(:add_field, 'currencies_accepted', ->(s) { s.dig('Details', 'CurrencyCode') })
@@ -214,7 +214,7 @@ module DataCycleCore
           .>> t(:add_links, 'marketing_groups', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('MarketingGroups', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
-          .>> t(:map_value, 'url', ->(s) { s.nil? ? '' : (!s.starts_with?('http://') && !s.starts_with?('https://') ? "http://#{s}" : s) })
+          .>> t(:map_value, 'url', ->(s) { parse_url(s) })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
           .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
         end
@@ -235,6 +235,19 @@ module DataCycleCore
             description_ids.push(desc.dig('Id'))
             to_additional_information(external_source_id, type, additional_classifications).call(desc)
           }.compact
+        end
+
+        def self.parse_url(url_string)
+          return '' if url_string.nil?
+          s = url_string&.squish
+          s = s.delete(' ') if s.present?
+          if s.nil?
+            ''
+          elsif !s.starts_with?('http://') && !s.starts_with?('https://')
+            "http://#{s}"
+          else
+            s
+          end
         end
 
         def self.to_additional_information(external_source_id, type, additional_classifications = nil)
@@ -289,7 +302,7 @@ module DataCycleCore
 
         def self.to_view_action(external_source_id)
           t(:rename_keys, { 'URL' => 'url', 'Id' => 'external_key', 'Name' => 'name' })
-          .>> t(:map_value, 'url', ->(s) { s.nil? || s == 'http://' ? '' : (!s.starts_with?('http://') && !s.starts_with?('https://') ? "http://#{s}" : s) })
+          .>> t(:map_value, 'url', ->(s) { parse_url(s) })
           .>> t(:add_field, 'id', ->(s) { t(:find_thing_ids).call(external_system_id: external_source_id, external_key: s.dig('external_key'), limit: 1).first })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
           .>> t(:add_field, 'action_type', ->(_) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'View')) })
@@ -309,6 +322,7 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['AddressContactDocument']))
           .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
+          .>> t(:map_value, 'url', ->(s) { parse_url(s) })
           .>> t(:nest, 'contact_info', ['name', 'email', 'fax_number', 'telephone', 'url'])
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
@@ -358,8 +372,8 @@ module DataCycleCore
           .>> t(:add_field, 'name', lambda { |s|
             s.dig('Names', 'Translation', 'text') || ">> NO NAME << (\##{s.dig('Id')})"
           })
-          .>> t(:add_field, 'content_url', ->(s) { s.dig('URL').is_a?(String) ? s.dig('URL') : s.dig('URL', 'text') })
-          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('URL').is_a?(String) ? s.dig('URL') : s.dig('URL', 'text') })
+          .>> t(:add_field, 'content_url', ->(s) { parse_url(s.dig('URL').is_a?(String) ? s.dig('URL') : s.dig('URL', 'text')) })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { parse_url(s.dig('URL').is_a?(String) ? s.dig('URL') : s.dig('URL', 'text')) })
           .>> t(:rename_keys, {
             'Id' => 'external_key',
             'Width' => 'width',
@@ -395,7 +409,7 @@ module DataCycleCore
                   ].reject(&:blank?).join(' - ')
                 end)
           .>> t(:add_field, 'email', ->(s) { s.dig('Email', 'text') })
-          .>> t(:add_field, 'url', ->(s) { s.dig('URL', 'text') })
+          .>> t(:add_field, 'url', ->(s) { parse_url(s.dig('URL', 'text')) })
           .>> t(:add_field, 'telephone', ->(s) { s.dig('Mobile', 'text') || s.dig('Phone', 'text') })
           .>> t(:add_field, 'fax_number', ->(s) { s.dig('Fax', 'text') })
           .>> t(:nest, 'contact_info', ['name', 'email', 'fax_number', 'telephone', 'url'])
@@ -484,6 +498,7 @@ module DataCycleCore
           .>> t(:unwrap, 'Address', ['AddressLine1', 'Town', 'ZipCode', 'Country', 'Fax', 'Phone', 'Email', 'URL'])
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
+          .>> t(:map_value, 'url', ->(s) { parse_url(s) })
           .>> t(:nest, 'address', ['street_address', 'address_locality', 'address_country', 'postal_code'])
           .>> t(:nest, 'contact_info', ['telephone', 'fax_number', 'email', 'url'])
           .>> t(:unwrap, 'Position')
