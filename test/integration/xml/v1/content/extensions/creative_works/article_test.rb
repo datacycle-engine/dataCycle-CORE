@@ -36,8 +36,8 @@ module DataCycleCore
 
                 # validity period
                 # TODO: (move to generic tests)
-                assert_equal(@content.validity_period.valid_from, xml_data.dig('validityPeriod', 'validFrom'))
-                assert_equal(@content.validity_period.valid_until, xml_data.dig('validityPeriod', 'validUntil'))
+                assert_equal(@content.validity_period.valid_from, xml_data.dig('validityPeriod', 'validFrom').to_date)
+                assert_equal(@content.validity_period.valid_until, xml_data.dig('validityPeriod', 'validUntil').to_date)
 
                 # content data
                 assert_equal(@content.name, xml_data.dig('name'))

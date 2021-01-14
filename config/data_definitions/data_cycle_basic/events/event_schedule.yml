@@ -28,22 +28,32 @@
         :properties:
           :start_date:
             :label: Von
-            :type: date
+            :type: datetime
             :storage_location: column
+            :validations:
+              :format: date_time
             :ui:
               :edit:
+                :type: date
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
           :end_date:
             :label: Bis
-            :type: date
+            :type: datetime
             :storage_location: column
+            :validations:
+              :format: date_time
             :ui:
               :edit:
+                :type: date
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
       :event_time:
         :label: Uhrzeit
         :type: object
