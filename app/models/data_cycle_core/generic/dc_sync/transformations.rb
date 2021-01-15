@@ -30,7 +30,7 @@ module DataCycleCore
               'sync_type' => data.dig('sync_type') || 'import'
             }]
           end
-          syncs.flatten
+          syncs&.flatten
         end
       end
     end

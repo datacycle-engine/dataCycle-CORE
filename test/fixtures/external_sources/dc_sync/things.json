@@ -1169,5 +1169,192 @@
     "created_at": {
       "$date": "2020-12-04T12:39:07.659Z"
     }
+  },
+  {
+    "_id": {
+      "$oid": "5fca2deb2310404622ce1c11"
+    },
+    "external_id": "00000000-0000-0000-0000-000000000004",
+    "dump": {
+      "de": {
+        "id": "00000000-0000-0000-0000-000000000004",
+        "name": "test_data_classification",
+        "template_name": "Event",
+        "data_type": [
+          "3b265dcb-85df-4506-a654-bf507c48fb7d"
+        ],
+        "pimcore_tags": [
+          "90eb82e4-1134-4a2f-aaa9-6e1f975dd7a6"
+        ],
+        "updated_at": "2020-12-04T11:23:47.921+01:00",
+        "created_at": "2020-11-22T00:27:28.418+01:00"
+      },
+      "classifications": [
+        {
+          "class_type": "DataCycleCore::Classification",
+          "external_system": null,
+          "id": "3b265dcb-85df-4506-a654-bf507c48fb7d",
+          "name": "Veranstaltung",
+          "external_source_id": null,
+          "external_key": null,
+          "description": null,
+          "seen_at": "2020-12-01T14:04:25.261+01:00",
+          "location": null,
+          "bbox": null,
+          "shape": null,
+          "external_type": null,
+          "created_at": "2018-05-09T12:32:34.174+02:00",
+          "updated_at": "2020-12-01T14:04:25.263+01:00",
+          "deleted_at": null,
+          "uri": null,
+          "ancestors": [
+            {
+              "class_type": "DataCycleCore::ClassificationAlias",
+              "external_system": null,
+              "id": "36426153-0733-486f-9e56-02bf3023a0fb",
+              "internal_name": "Veranstaltung",
+              "seen_at": "2020-12-01T14:04:25.243+01:00",
+              "created_at": "2018-05-09T12:32:34.133+02:00",
+              "updated_at": "2020-12-01T14:04:25.249+01:00",
+              "external_source_id": null,
+              "internal": true,
+              "deleted_at": null,
+              "assignable": true,
+              "name_i18n": {
+                "de": "Veranstaltung"
+              },
+              "description_i18n": {},
+              "uri": null,
+              "name": "Veranstaltung",
+              "description": null,
+              "primary_classification": {
+                "class_type": "DataCycleCore::Classification",
+                "external_system": null,
+                "id": "3b265dcb-85df-4506-a654-bf507c48fb7d",
+                "name": "Veranstaltung",
+                "external_source_id": null,
+                "external_key": null,
+                "description": null,
+                "seen_at": "2020-12-01T14:04:25.261+01:00",
+                "location": null,
+                "bbox": null,
+                "shape": null,
+                "external_type": null,
+                "created_at": "2018-05-09T12:32:34.174+02:00",
+                "updated_at": "2020-12-01T14:04:25.263+01:00",
+                "deleted_at": null,
+                "uri": null
+              }
+            },
+            {
+              "class_type": "DataCycleCore::ClassificationTreeLabel",
+              "external_system": null,
+              "id": "f6cb1701-f88e-437b-8be2-ddf195694f94",
+              "name": "Inhaltstypen",
+              "external_source_id": null,
+              "seen_at": "2018-05-09T12:32:33.263+02:00",
+              "created_at": "2018-05-09T12:32:33.265+02:00",
+              "updated_at": "2020-01-08T15:48:11.484+01:00",
+              "internal": false,
+              "deleted_at": null,
+              "visibility": [
+                "filter",
+                "tree_view"
+              ]
+            }
+          ],
+          "attribute_name": "data_type"
+        },
+        {
+          "class_type": "DataCycleCore::Classification",
+          "external_system": null,
+          "id": "90eb82e4-1134-4a2f-aaa9-6e1f975dd7a6",
+          "name": "Bergerlebnis",
+          "external_source_id": null,
+          "external_key": null,
+          "description": null,
+          "seen_at": "2020-12-01T14:04:23.915+01:00",
+          "location": null,
+          "bbox": null,
+          "shape": null,
+          "external_type": null,
+          "created_at": "2020-03-26T16:57:11.040+01:00",
+          "updated_at": "2020-12-01T14:04:23.917+01:00",
+          "deleted_at": null,
+          "uri": null,
+          "ancestors": [
+            {
+              "class_type": "DataCycleCore::ClassificationAlias",
+              "external_system": null,
+              "id": "ffca0905-8a57-4fdd-9c19-a4713f9b53f6",
+              "internal_name": "Bergerlebnis",
+              "seen_at": "2020-12-01T14:04:23.900+01:00",
+              "created_at": "2020-03-26T16:57:11.025+01:00",
+              "updated_at": "2020-12-01T14:04:23.904+01:00",
+              "external_source_id": null,
+              "internal": true,
+              "deleted_at": null,
+              "assignable": true,
+              "name_i18n": {
+                "de": "Bergerlebnis"
+              },
+              "description_i18n": {},
+              "uri": null,
+              "name": "Bergerlebnis",
+              "description": null,
+              "primary_classification": {
+                "class_type": "DataCycleCore::Classification",
+                "external_system": null,
+                "id": "90eb82e4-1134-4a2f-aaa9-6e1f975dd7a6",
+                "name": "Bergerlebnis",
+                "external_source_id": null,
+                "external_key": null,
+                "description": null,
+                "seen_at": "2020-12-01T14:04:23.915+01:00",
+                "location": null,
+                "bbox": null,
+                "shape": null,
+                "external_type": null,
+                "created_at": "2020-03-26T16:57:11.040+01:00",
+                "updated_at": "2020-12-01T14:04:23.917+01:00",
+                "deleted_at": null,
+                "uri": null
+              }
+            },
+            {
+              "class_type": "DataCycleCore::ClassificationTreeLabel",
+              "external_system": null,
+              "id": "50a75db2-0886-499a-ba91-cdfd900d99f5",
+              "name": "Pimcore - Tags",
+              "external_source_id": null,
+              "seen_at": "2020-03-26T16:57:10.865+01:00",
+              "created_at": "2020-03-26T16:57:10.866+01:00",
+              "updated_at": "2020-03-26T16:57:10.866+01:00",
+              "internal": false,
+              "deleted_at": null,
+              "visibility": [
+                "show",
+                "edit",
+                "api",
+                "xml",
+                "filter",
+                "tile",
+                "list"
+              ]
+            }
+          ],
+          "attribute_name": "pimcore_tags"
+        }
+      ]
+    },
+    "seen_at": {
+      "$date": "2020-12-10T09:23:03.379Z"
+    },
+    "updated_at": {
+      "$date": "2020-12-09T16:03:26.803Z"
+    },
+    "created_at": {
+      "$date": "2020-12-04T12:39:07.659Z"
+    }
   }
 ]

@@ -122,6 +122,12 @@ module DataCycleCore
         assert_equal('00000000-0000-0000-0000-000000000003', feratel_sync_data.external_key)
       end
 
+      test 'trivial event with classification' do
+        event = DataCycleCore::Thing.find_by(external_key: '00000000-0000-0000-0000-000000000004')
+        assert_equal('test_data_classification', event.name)
+        byebug
+      end
+
       def teardown
         DataCycleCore::MongoHelper.drop_mongo_db('data-cycle-base')
       end
