@@ -238,7 +238,7 @@ module DataCycleCore
         end
 
         def self.parse_url(url_string)
-          return '' if url_string.nil?
+          return nil if url_string.nil?
           s = url_string&.squish
           s = s.delete(' ') if s.present?
           if s.nil?
@@ -295,9 +295,10 @@ module DataCycleCore
 
         def self.parse_links(data, external_source_id)
           return [] if data.blank?
-          Array.wrap(data).map do |link|
+          Array.wrap(data).map { |link|
+            next if link['URL'].blank? || link['URL'] == 'http://'
             to_view_action(external_source_id).call(link)
-          end
+          }.compact
         end
 
         def self.to_view_action(external_source_id)
