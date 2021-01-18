@@ -1189,6 +1189,9 @@
         "feratel_facilities_events": [
           "8d98538b-89aa-45e0-97fc-1268b54cdc88"
         ],
+        "universal_classifications": [
+          "3b265dcb-85df-4506-0000-bf507c48fb7d"
+        ],
         "updated_at": "2020-12-04T11:23:47.921+01:00",
         "created_at": "2020-11-22T00:27:28.418+01:00"
       },
@@ -1461,6 +1464,81 @@
             }
           ],
           "attribute_name": "feratel_facilities_events"
+        },
+        {
+          "class_type": "DataCycleCore::Classification",
+          "external_system": "test_external_source",
+          "id": "3b265dcb-85df-4506-0000-bf507c48fb7d",
+          "name": "Classification Test System",
+          "external_source_id": "3b265dcb-85df-0000-0000-bf507c48fb7d",
+          "external_key": "X1234567890X",
+          "description": null,
+          "seen_at": "2020-12-01T14:04:25.261+01:00",
+          "location": null,
+          "bbox": null,
+          "shape": null,
+          "external_type": null,
+          "created_at": "2018-05-09T12:32:34.174+02:00",
+          "updated_at": "2020-12-01T14:04:25.263+01:00",
+          "deleted_at": null,
+          "uri": null,
+          "ancestors": [
+            {
+              "class_type": "DataCycleCore::ClassificationAlias",
+              "external_system": "test_external_source",
+              "id": "36426153-0733-486f-0000-02bf3023a0fb",
+              "internal_name": "Classification Test System",
+              "seen_at": "2020-12-01T14:04:25.243+01:00",
+              "created_at": "2018-05-09T12:32:34.133+02:00",
+              "updated_at": "2020-12-01T14:04:25.249+01:00",
+              "external_source_id": "3b265dcb-85df-0000-0000-bf507c48fb7d",
+              "internal": true,
+              "deleted_at": null,
+              "assignable": true,
+              "name_i18n": {
+                "de": "Classification Test System"
+              },
+              "description_i18n": {},
+              "uri": null,
+              "name": "Classification Test System",
+              "description": null,
+              "primary_classification": {
+                "class_type": "DataCycleCore::Classification",
+                "external_system": "test_external_source",
+                "id": "3b265dcb-85df-4506-0000-bf507c48fb7d",
+                "name": "Classification Test System",
+                "external_source_id": "3b265dcb-85df-0000-0000-bf507c48fb7d",
+                "external_key": "X1234567890X",
+                "description": null,
+                "seen_at": "2020-12-01T14:04:25.261+01:00",
+                "location": null,
+                "bbox": null,
+                "shape": null,
+                "external_type": null,
+                "created_at": "2018-05-09T12:32:34.174+02:00",
+                "updated_at": "2020-12-01T14:04:25.263+01:00",
+                "deleted_at": null,
+                "uri": null
+              }
+            },
+            {
+              "class_type": "DataCycleCore::ClassificationTreeLabel",
+              "external_system": "test_external_source",
+              "id": "f6cb1701-f88e-437b-8be2-ddf195694f94",
+              "name": "Test Tree",
+              "external_source_id": "3b265dcb-85df-0000-0000-bf507c48fb7d",
+              "seen_at": "2018-05-09T12:32:33.263+02:00",
+              "created_at": "2018-05-09T12:32:33.265+02:00",
+              "updated_at": "2020-01-08T15:48:11.484+01:00",
+              "internal": false,
+              "deleted_at": null,
+              "visibility": [
+                "filter",
+                "tree_view"
+              ]
+            }
+          ],
+          "attribute_name": "universal_classifications"
         }
       ]
     },

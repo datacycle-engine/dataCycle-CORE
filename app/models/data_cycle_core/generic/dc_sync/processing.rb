@@ -134,7 +134,7 @@ module DataCycleCore
             given_source = nil
             if aliases_data['external_system'].present?
               given_source = DataCycleCore::ExternalSystem.find_by(identifier: aliases_data['external_system'])
-              given_source = DataCycleCore::ExternalSystem.create(name: classification_data[:external_system], identifier: classification_data[:external_system]) if given_source.blank?
+              given_source = DataCycleCore::ExternalSystem.create(name: aliases_data[:external_system], identifier: aliases_data[:external_system]) if given_source.blank?
             end
             classification_external_source = given_source || external_source
             parent_id = classification_lookup[parent_data&.dig('id')]

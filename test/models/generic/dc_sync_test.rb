@@ -103,6 +103,7 @@ module DataCycleCore
 
       test 'trivial event imported from outdooractive, imported from feratel' do
         event = DataCycleCore::Thing.find_by(external_key: '00000000-0000-0000-0000-000000000002')
+
         assert_equal('test_data1', event.name)
         assert_equal('00000000-0000-0000-0000-000000000002', event.external_key)
         assert_equal('DataCycle Basic', event.external_source.name)
@@ -126,6 +127,12 @@ module DataCycleCore
         event = DataCycleCore::Thing.find_by(external_key: '00000000-0000-0000-0000-000000000004')
         assert_equal('test_data_classification', event.name)
 
+        # check that no new external_systems have been created
+        assert_equal(1, ExternalSystem.where(identifier: 'outdooractive').count)
+        assert_equal(1, ExternalSystem.where(identifier: 'feratel').count)
+        # check that new external_system is created
+        assert_equal(1, ExternalSystem.where(identifier: 'test_external_source').count)
+
         # uses classification locally when present
         assert_equal('Veranstaltung', event.data_type.first.name)
         assert_equal(1, event.data_type.first.classification_aliases.size)
@@ -142,6 +149,15 @@ module DataCycleCore
         classification = event.classifications.where(name: 'Bergerlebnis').first
         assert_equal(1, classification.classification_aliases.size)
         assert_equal('Pimcore - Tags', classification.primary_classification_alias.classification_tree_label.name)
+
+        # generates a new classification with a formerly unknown external_system
+        assert(event.classifications.find_by(name: 'Classification Test System').present?)
+        classification = event.classifications.find_by(name: 'Classification Test System')
+        assert_equal('test_external_source', classification.external_source.name)
+        assert_equal('test_external_source', classification.external_source.identifier)
+        assert_equal('universal_classifications', classification.classification_contents.first.relation)
+        assert_equal(1, classification.classification_aliases.size)
+        assert_equal('Test Tree', classification.primary_classification_alias.classification_tree_label.name)
       end
 
       def teardown
