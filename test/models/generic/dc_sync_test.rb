@@ -125,7 +125,23 @@ module DataCycleCore
       test 'trivial event with classification' do
         event = DataCycleCore::Thing.find_by(external_key: '00000000-0000-0000-0000-000000000004')
         assert_equal('test_data_classification', event.name)
-        byebug
+
+        # uses classification locally when present
+        assert_equal('Veranstaltung', event.data_type.first.name)
+        assert_equal(1, event.data_type.first.classification_aliases.size)
+        assert_equal('Inhaltstypen', event.data_type.first.primary_classification_alias.classification_tree_label.name)
+
+        # generates entries for locally new classifications (classification_attribute known)
+        assert_equal(1, event.feratel_facilities_events.size)
+        assert_equal('Diverse Veranstaltungen/Feste', event.feratel_facilities_events.first.name)
+        assert_equal(1, event.feratel_facilities_events.first.classification_aliases.size)
+        assert_equal('Feratel - Merkmale - Events', event.feratel_facilities_events.first.primary_classification_alias.classification_tree_label.name)
+
+        # generate entries for a lokally unknown classification where attribute does not iexist in event template
+        assert(event.classifications.pluck(:name).include?('Bergerlebnis'))
+        classification = event.classifications.where(name: 'Bergerlebnis').first
+        assert_equal(1, classification.classification_aliases.size)
+        assert_equal('Pimcore - Tags', classification.primary_classification_alias.classification_tree_label.name)
       end
 
       def teardown

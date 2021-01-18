@@ -131,9 +131,15 @@ module DataCycleCore
           parent_aliases = [nil] + aliases_path.reverse
           parent_aliases.zip(aliases_path.reverse).map do |parent_data, aliases_data|
             next if aliases_data.blank?
+            given_source = nil
+            if aliases_data['external_system'].present?
+              given_source = DataCycleCore::ExternalSystem.find_by(identifier: aliases_data['external_system'])
+              given_source = DataCycleCore::ExternalSystem.create(name: classification_data[:external_system], identifier: classification_data[:external_system]) if given_source.blank?
+            end
+            classification_external_source = given_source || external_source
             parent_id = classification_lookup[parent_data&.dig('id')]
             classification_lookup[aliases_data.dig('id')] = import_classification(
-              external_source: external_source,
+              external_source: classification_external_source,
               classification_data: aliases_data['primary_classification'],
               alias_data: aliases_data.except('primary_classification'),
               tree_label_data: tree_label_data,
@@ -152,14 +158,6 @@ module DataCycleCore
             external_system = tree_label.external_source_id
           else
             external_system = external_source.id
-          end
-
-          if classification_data[:external_system].present?
-            external_system = DataCycleCore::ExternalSystem
-              .find_or_create_by(
-                name: classification_data[:external_system],
-                identifier: classification_data[:external_system]
-              ).id
           end
 
           if classification_data[:external_key].blank?
