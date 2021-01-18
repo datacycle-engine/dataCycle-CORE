@@ -48,12 +48,12 @@ module DataCycleCore
       value_storage_location = 'metadata'
 
       if params[:publications_from].present?
-        query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::timestamptz >= ?", params[:publications_from])
+        query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::date >= ?", params[:publications_from])
       else
-        query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::timestamptz >= ?", Date.current)
+        query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::date >= ?", Date.current)
       end
 
-      query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::timestamptz <= ?", params[:publications_until]) if params[:publications_until].present?
+      query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::date <= ?", params[:publications_until]) if params[:publications_until].present?
 
       @publication_classification_alias_ids = @default_filters.select { |f| @publication_classifications.values&.include?(f['n']) }
 
@@ -70,7 +70,7 @@ module DataCycleCore
         query2 = query2.where(id: content_ids)
       end
 
-      @contents = query2.order(Arel.sql("(#{value_storage_location} ->> 'publish_at')::timestamptz ASC")).page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
+      @contents = query2.order(Arel.sql("(#{value_storage_location} ->> 'publish_at')::date ASC")).page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
 
       @total = @contents.map(&:content_content_b).map { |c| c.first.content_a_id }.uniq.size
 
