@@ -10,7 +10,7 @@ module DataCycleCore
         'translated_value' => 'content',
         'column' => 'column'
       }.freeze
-      PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'datetime', 'boolean', 'geographic'].freeze
+      PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic'].freeze
 
       self.abstract_class = true
 

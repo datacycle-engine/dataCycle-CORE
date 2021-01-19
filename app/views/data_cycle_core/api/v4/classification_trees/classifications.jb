@@ -24,19 +24,16 @@ if @classification_tree_label.present?
   json.merge! render 'context', languages: options[:languages]
 
   if @classification_id.present?
-    if @classification_aliases.first.visible?('api')
-
-      unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
-        json['@graph'] = []
-        json['@graph'] << Rails.cache.fetch(api_v4_cache_key(@classification_aliases.first, options[:languages], options[:include], options[:fields], @api_subversion, options[:full]), expires_in: 1.year + Random.rand(7.days)) do
-          I18n.with_locale(@classification_aliases.first.first_available_locale(options[:languages])) do
-            render 'classification', content: @classification_aliases.first, options: options.dup
-          end
+    unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
+      json['@graph'] = []
+      json['@graph'] << Rails.cache.fetch(api_v4_cache_key(@classification_aliases.first, options[:languages], options[:include], options[:fields], @api_subversion, options[:full]), expires_in: 1.year + Random.rand(7.days)) do
+        I18n.with_locale(@classification_aliases.first.first_available_locale(options[:languages])) do
+          render 'classification', content: @classification_aliases.first, options: options.dup
         end
       end
     end
   else
-    json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options
+    json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options, show_all_concepts: true
 
     json.merge! render 'pagination_links',
                        objects: @classification_aliases,

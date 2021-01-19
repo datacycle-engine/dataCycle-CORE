@@ -184,7 +184,7 @@ module DataCycleCore
           set_linked(key, value, properties)
         when 'embedded'
           set_embedded(key, value, properties['template_name'], properties['translated'])
-        when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
+        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])

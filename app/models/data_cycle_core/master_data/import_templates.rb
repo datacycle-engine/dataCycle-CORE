@@ -207,7 +207,7 @@ module DataCycleCore
           required(:type) do
             str? & included_in?(
               ['key', 'string', 'text', 'number', 'boolean',
-               'datetime', 'geographic',
+               'datetime', 'date', 'geographic',
                'object', 'embedded', 'linked', 'classification',
                'asset', 'computed', 'schedule', 'virtual']
             )
