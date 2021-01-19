@@ -6,7 +6,7 @@
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   <% end %>
 
-  <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }) %>
+  <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }).order(created_at: :asc) %>
 
   <ul class="no-bullet classification-radiobutton-list">
     <li class="radiobutton-wrap">
