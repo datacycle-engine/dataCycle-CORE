@@ -424,7 +424,9 @@ class AssetUploader {
         .fail(data => {
           file.retryUpload = true;
           this.resetFileField(file);
-          this.renderError(file, data.statusText);
+          let error = data.statusText;
+          if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
+          this.renderError(file, error);
         })
         .always(data => {
           this.updateOverlayButtons(file);

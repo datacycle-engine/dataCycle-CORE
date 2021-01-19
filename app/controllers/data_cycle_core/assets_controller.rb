@@ -35,10 +35,14 @@ module DataCycleCore
       @asset.name = asset_params[:file].original_filename if asset_params[:name].blank?
       @asset.creator_id = current_user.try(:id)
 
-      if @asset.save
-        render json: @asset.attributes.merge(duplicateCandidates: Array.wrap(@asset.try(:duplicate_candidates)&.as_json(only: [:id], methods: :thumbnail_url)))
-      else
-        render(json: { error: @asset.errors.full_messages.join(', ') })
+      begin
+        if @asset.save
+          render json: @asset.attributes.merge(duplicateCandidates: Array.wrap(@asset.try(:duplicate_candidates)&.as_json(only: [:id], methods: :thumbnail_url)))
+        else
+          render(json: { error: @asset.errors.full_messages.join(', ') })
+        end
+      rescue StandardError
+        render(json: { error: 'Unprocessable Entity' }, status: :unprocessable_entity)
       end
     end
 
