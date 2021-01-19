@@ -27,28 +27,24 @@ module DataCycleCore
 
         def classifications
           @classification_tree_label = ClassificationTreeLabel.with_deleted.find(permitted_params[:id])
-          if @classification_tree_label.visible?('api')
-            @classification_id = permitted_params[:classification_id] || nil
+          @classification_id = permitted_params[:classification_id] || nil
 
-            if @classification_id.present?
-              @classification_aliases = DataCycleCore::ClassificationAlias.where(id: @classification_id) # .with_descendants
-              raise ActiveRecord::RecordNotFound if @classification_aliases.blank?
-            else
-              @classification_aliases = @classification_tree_label.classification_aliases
-            end
-
-            if permitted_params.dig(:filter, :attribute).present?
-              filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
-              @classification_aliases = @classification_aliases.with_deleted if filter.key?(:'dct:deleted')
-              @classification_aliases = apply_filters(@classification_aliases, filter)
-            end
-
-            @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
-            @classification_aliases = apply_ordering(@classification_aliases)
-            @classification_aliases = apply_paging(@classification_aliases)
+          if @classification_id.present?
+            @classification_aliases = DataCycleCore::ClassificationAlias.where(id: @classification_id) # .with_descendants
+            raise ActiveRecord::RecordNotFound if @classification_aliases.blank?
           else
-            @classification_tree_label = nil
+            @classification_aliases = @classification_tree_label.classification_aliases
           end
+
+          if permitted_params.dig(:filter, :attribute).present?
+            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+            @classification_aliases = @classification_aliases.with_deleted if filter.key?(:'dct:deleted')
+            @classification_aliases = apply_filters(@classification_aliases, filter)
+          end
+
+          @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
+          @classification_aliases = apply_ordering(@classification_aliases)
+          @classification_aliases = apply_paging(@classification_aliases)
         end
 
         def permitted_parameter_keys
