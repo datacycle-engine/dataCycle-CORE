@@ -55,6 +55,18 @@ module DataCycleCore
 
     def self.load_classifications(paths)
       DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: paths)
+      # map classifications (Test1 mapped to Tag 1, Test2 mapped to Tag 2)
+      test_alias = DataCycleCore::ClassificationAlias.find_by(name: 'Test1')
+      unless test_alias.classifications.count == 2
+        test_classification = DataCycleCore::Classification.find_by(name: 'Test1')
+        test_classification1 = DataCycleCore::Classification.find_by(name: 'Test Veranstaltung geplant')
+        test_alias.update(classification_ids: [test_classification.id, test_classification1.id])
+      end
+      test_alias2 = DataCycleCore::ClassificationAlias.find_by(name: 'Test2')
+      return if test_alias2.classifications.count == 2
+      test_classification2 = DataCycleCore::Classification.find_by(name: 'Test2')
+      test_classification3 = DataCycleCore::Classification.find_by(name: 'Test Veranstaltung abgesagt')
+      test_alias2.update(classification_ids: [test_classification2.id, test_classification3.id])
     end
 
     def self.load_templates(paths)

@@ -796,6 +796,8 @@ de:
         classification_ids: Klassifizierungs-Mapping
         internal_name: Sprachneutraler Name
         uri: Externe URI
+        external_keys: Externe Keys
+        mapped_to_string: Klassifizierungen gemapped von
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer

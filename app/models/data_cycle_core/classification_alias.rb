@@ -200,6 +200,14 @@ module DataCycleCore
       classifications.pluck(:external_key)&.join(', ')
     end
 
+    def mapped_to_string
+      primary_classification&.classification_aliases&.where&.not(id: id)&.map(&:name)&.join(',')
+    end
+
+    def mapped_to
+      primary_classification&.classification_aliases&.where&.not(id: id)
+    end
+
     def to_api_default_values
       {
         '@id' => id,

@@ -35,6 +35,10 @@ module DataCycleCore
         .merge(attributes)
     end
 
+    def mapped_to
+      classification_aliases.where.not(id: primary_classification_alias.id)
+    end
+
     def ancestors
       Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 5.days + Random.rand(2.5.days)) do
         [primary_classification_alias] + primary_classification_alias.ancestors
