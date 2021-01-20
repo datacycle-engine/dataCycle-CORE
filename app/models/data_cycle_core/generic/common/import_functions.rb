@@ -206,6 +206,19 @@ module DataCycleCore
           end
         end
 
+        def self.logging_without_mongo(utility_object:, data_processor:, options:)
+          importer_name = options.dig(:import, :name)
+          init_logging(utility_object) do |logging|
+            logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+            items_count = 0
+            begin
+              items_count = data_processor.call(utility_object, options)
+            ensure
+              logging.phase_finished(importer_name, items_count)
+            end
+          end
+        end
+
         def self.init_mongo_db(utility_object)
           Mongoid.override_database("#{utility_object.source_type.database_name}_#{utility_object.external_source.id}")
           yield
