@@ -197,7 +197,7 @@ module DataCycleCore
     end
 
     def external_keys
-      classifications.pluck(:external_key)&.join(', ')
+      classifications.pluck(:external_key)&.compact&.join(', ')
     end
 
     def mapped_to_string

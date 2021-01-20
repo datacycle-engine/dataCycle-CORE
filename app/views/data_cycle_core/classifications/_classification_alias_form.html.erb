@@ -87,15 +87,32 @@
     </div>
   <% end %>
 
-  <div class="ca-input">
-    <%= f.label :external_keys, class: 'ca-label'%>
-    <%= f.text_field :external_keys, class: 'ca-input-field', readonly: true%>
-  </div>
+  <% if can?(:view_all, classification_alias) %>
+    <div class="ca-input">
+      <%= f.label :external_keys, class: 'ca-label'%>
+      <%= f.text_field :external_keys, class: 'ca-input-field', readonly: true%>
+    </div>
 
-  <!-- <div class="ca-input">
     <%# to show classifications mappted to this ClassificationAlias %>
-    <%#= f.label :mapped_to_string, class: 'ca-label' %>
-    <%#= f.text_field :mapped_to_string, class: 'ca-input-field', readonly: true, activate: false %>
-  </div> -->
+    <div class="v-select">
+      <%= f.label :mapped_to %>
+      <%= f.select(:mapped_to,
+        async_classification_select_options(classification_alias.mapped_to),
+        {},
+        {
+          multiple: true,
+          disabled: true,
+          data: {
+            placeholder: '',
+            search_path: search_classifications_path,
+            show_tree_label: true,
+            close_on_select: false,
+            query_params: {
+              exclude: classification_alias.id,
+            }
+          }
+        }) %>
+    </div>
+  <% end %>
   <%= f.submit class: 'success button' %>
 <% end %>
