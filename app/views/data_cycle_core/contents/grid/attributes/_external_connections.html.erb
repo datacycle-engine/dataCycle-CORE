@@ -1,4 +1,7 @@
 <%= tag.i(
-  class: "fa fa-external-link-square has-tip external-connections-icon#{' success' unless content.try(:external_source).nil?} #{content.try(:external_system_syncs)&.pluck(:status)&.compact&.join(' ')}",
-  title: external_systems_tooltip(content.try(:external_source), content.try(:external_system_syncs))
+  class: "dc-foundation-tooltip fa fa-external-link-square has-tip external-connections-icon#{' success' unless content.try(:external_source).nil?} #{content.try(:external_system_syncs)&.pluck(:status)&.compact&.join(' ')}",
+  title: external_systems_tooltip(content.try(:external_source), content.try(:external_system_syncs)),
+  data: {
+    allow_html: true
+  }
   ) if !content.try(:external_source).nil? || content.try(:external_system_syncs)&.any? %>

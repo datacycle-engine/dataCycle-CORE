@@ -37,3 +37,4 @@ data_cycle_vcloud_lech_zuers;DataCycleVcloudLechZuers;git@git.pixelpoint.biz:dat
 data_cycle_vermieterwebsites;DataCycleVermieterWebsites;git@git.pixelpoint.biz:data-cycle/data-cycle-vermieterwebsites.git
 data_cycle_gip4radrouting;DataCycleGIP4Radrouting;git@git.pixelpoint.biz:data-cycle/data-cycle-gip4radrouting.git
 data_cycle_gstaad;DataCycleGstaad;git@git.pixelpoint.biz:data-cycle/data-cycle-gstaad.git
+data_cycle_stadt_villach;DataCycleStadtVillach;git@git.pixelpoint.biz:data-cycle/data-cycle-stadt-villach.git

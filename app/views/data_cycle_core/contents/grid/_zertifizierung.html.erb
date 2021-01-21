@@ -8,9 +8,9 @@
       <% period_value += " - #{l(item.certification_period.certified_to.to_date, locale: DataCycleCore.ui_language)}" %>
     <% end %>
     <div class="event-period">
-      <span class="date"
-            data-tooltip data-allow-html="true" data-tooltip-class="tooltip"
-            aria-haspopup="true" class="event-period"
+      <span data-allow-html="true"
+            aria-haspopup="true"
+            class="data event-period dc-foundation-tooltip"
             title="<%= period_value %>">
         <%= period_value %>
       </span>

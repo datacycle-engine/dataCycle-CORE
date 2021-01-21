@@ -207,7 +207,7 @@ module DataCycleCore
 
               xml.Infrastructure('ShowDataOwner' => true) do
                 xml.Details('DateFrom' => '1980-01-01', 'IncludeMainTopicId' => true)
-                xml.Documents('DateFrom' => '1980-01-01')
+                xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
                 xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                 xml.Links('DateFrom' => '1980-01-01')
                 xml.Addresses('DateFrom' => '1980-01-01')
@@ -283,7 +283,8 @@ module DataCycleCore
                   xml.AdditionalProducts do
                     xml.Details('DateFrom' => '1980-01-01')
                     xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
-                    xml.PriceDetails('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
+                    xml.Prices('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
+                    # xml.PriceDetails('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
                   end
                 end
               end
@@ -333,7 +334,7 @@ module DataCycleCore
 
               xml.Events('ShowDataOwner' => true) do
                 xml.Details('DateFrom' => '1980-01-01')
-                xml.Documents('DateFrom' => '1980-01-01')
+                xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
                 xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                 xml.Links('DateFrom' => '1980-01-01')
                 xml.Facilities('DateFrom' => '1980-01-01')
@@ -341,6 +342,7 @@ module DataCycleCore
                 xml.CustomAttributes('DateFrom' => '1980-01-01')
                 xml.HandicapFacilities('DateFrom' => '1980-01-01')
                 xml.HandicapClassifications('DateFrom' => '1980-01-01')
+                xml.GuestCards('DateFrom' => '1980-01-01')
               end
             end
           end
@@ -400,14 +402,14 @@ module DataCycleCore
                 xml.HousePackageMasters('DateFrom' => '1980-01-01')
                 xml.Services do
                   xml.Details('DateFrom' => '1980-01-01')
-                  # xml.Documents('DateFrom' => '1980-01-01')
+                  # xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
                   xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                   # xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                   xml.Facilities('DateFrom' => '1980-01-01')
                   # xml.HandicapFacilities('DateFrom' => '1980-01-01')
                   xml.Products do
                     xml.Details('DateFrom' => '1980-01-01')
-                    # xml.Documents('DateFrom' => '1980-01-01')
+                    # xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
                     xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                     # xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                     xml.Prices('DateFrom' => '1980-01-01', 'SalesChannel' => @sales_channel_id)
@@ -419,12 +421,12 @@ module DataCycleCore
                 end
                 xml.AdditionalServices do
                   xml.Details('DateFrom' => '1980-01-01')
-                  # xml.Documents('DateFrom' => '1980-01-01')
+                  # xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
                   xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                   xml.Facilities('DateFrom' => '1980-01-01')
                   xml.AdditionalProducts do
                     xml.Details('DateFrom' => '1980-01-01')
-                    # xml.Documents('DateFrom' => '1980-01-01')
+                    # xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
                     # xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                     xml.Prices('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
                     # xml.PriceDetails('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
@@ -451,7 +453,7 @@ module DataCycleCore
 
               xml.Packages do
                 xml.Details('DateFrom' => '1980-01-01')
-                xml.Documents('DateFrom' => '1980-01-01')
+                xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
                 xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                 xml.Links('DateFrom' => '1980-01-01')
                 xml.Prices('DateFrom' => '1980-01-01')
@@ -484,12 +486,12 @@ module DataCycleCore
 
               xml.ShopItems do
                 xml.Details('DateFrom' => '1980-01-01')
-                xml.Documents('DateFrom' => '1980-01-01')
+                xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
                 xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                 xml.Links('DateFrom' => '1980-01-01')
                 xml.Variations do
                   xml.Details('DateFrom' => '1980-01-01')
-                  xml.Documents('DateFrom' => '1980-01-01')
+                  xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
                   xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                   xml.Links('DateFrom' => '1980-01-01')
                 end
@@ -514,7 +516,7 @@ module DataCycleCore
 
               xml.PackageContainers do
                 xml.Details('DateFrom' => '1980-01-01')
-                xml.Documents('DateFrom' => '1980-01-01')
+                xml.Documents('DateFrom' => '1980-01-01', 'IncludeResolution' => true)
                 xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                 xml.Links('DateFrom' => '1980-01-01')
                 xml.AssignedProducts('DateFrom' => '1980-01-01')

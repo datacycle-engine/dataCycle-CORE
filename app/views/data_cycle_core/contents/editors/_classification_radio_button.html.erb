@@ -6,7 +6,7 @@
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   <% end %>
 
-  <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }) %>
+  <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }).order(created_at: :asc) %>
 
   <ul class="no-bullet classification-radiobutton-list">
     <li class="radiobutton-wrap">
@@ -17,7 +17,7 @@
       <li class="radiobutton-wrap">
         <%= rb.radio_button value: rb.value, checked: (value&.ids&.include?(rb.value) || (value.blank? && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))) %>
         <% if rb.object.try(:description).present? %>
-          <%= rb.label title: rb.object.try(:description), data: { tooltip: true, allow_html: true } do %>
+          <%= rb.label title: rb.object.try(:description), class: 'dc-foundation-tooltip', data: { allow_html: true } do %>
             <%= rb.text %> <i class="fa fa-info-circle" aria-hidden="true"></i>
           <% end %>
         <% else %>

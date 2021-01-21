@@ -11,7 +11,7 @@
 				<ul>
 					<li class="buttons">
             <%= link_to previous_authorized_crumb.url do %>
-							<button type="button" class="button discard top" data-tooltip aria-haspopup="true" title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
+							<button type="button" class="button discard top dc-foundation-tooltip" aria-haspopup="true" title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
             <% end if previous_authorized_crumb.present? %>
             <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" title="Änderungen speichern" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"><i class="fa fa-check" aria-hidden="true"></i></button>
 					</li>
@@ -41,7 +41,7 @@
           <div class="v-select">
             <%= f.label :user_ids, DataCycleCore::UserGroup.human_attribute_name(:user_ids, locale: DataCycleCore.ui_language) %>
             <%= hidden_field_tag 'user_group[user_ids][]', nil, id: 'hidden_user_group_user_ids' %>
-            <%= select_tag('user_group[user_ids][]', options_for_select(DataCycleCore::User.all.map { |c| [c.full_name, c.id, { title: c.email }] }, content.users.map(&:id)), { multiple: true, class: 'multi-select' }) %>
+            <%= select_tag('user_group[user_ids][]', options_for_select(DataCycleCore::User.all.map { |c| [c.full_name, c.id, { title: c.email }] }, content.users.map(&:id)), { multiple: true, class: 'multi-select', data: { close_on_select: false } }) %>
           </div>
 
 				</div>

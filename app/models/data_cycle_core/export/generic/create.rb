@@ -4,8 +4,6 @@ module DataCycleCore
   module Export
     module Generic
       module Create
-        include Functions
-
         def self.process(utility_object:, data:)
           return if data.blank?
 

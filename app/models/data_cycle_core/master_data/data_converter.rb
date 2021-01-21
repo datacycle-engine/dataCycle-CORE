@@ -11,6 +11,8 @@ module DataCycleCore
           DataCycleCore::MasterData::DataConverter.string_to_number(data, definition)
         when 'string'
           DataCycleCore::MasterData::DataConverter.string_to_string(data)
+        when 'date'
+          DataCycleCore::MasterData::DataConverter.string_to_date(data)
         when 'datetime'
           DataCycleCore::MasterData::DataConverter.string_to_datetime(data)
         when 'boolean'
@@ -26,6 +28,8 @@ module DataCycleCore
           data&.to_s
         when 'string'
           DataCycleCore::MasterData::DataConverter.string_to_string(data)
+        when 'date'
+          DataCycleCore::MasterData::DataConverter.date_to_string(data)
         when 'datetime'
           DataCycleCore::MasterData::DataConverter.datetime_to_string(data)
         when 'boolean'
@@ -117,6 +121,23 @@ module DataCycleCore
         raise ArgumentError, 'can not convert to a datetime' unless value.is_a?(::String)
         # remove to_datetime when https://bugs.ruby-lang.org/issues/15160 is fixed
         value.in_time_zone&.to_datetime.presence || raise(ArgumentError, 'can not convert to a datetime')
+      end
+
+      def self.date_to_string(value)
+        return nil if value.blank?
+        if value.is_a?(::String)
+          raise ArgumentError, 'expected a date of some sorts' unless value.to_date.acts_like?(:date)
+          return value.squish
+        end
+        raise ArgumentError, 'expected a date of some sorts' unless value.acts_like?(:date)
+        value.to_s
+      end
+
+      def self.string_to_date(value)
+        return nil if value.blank?
+        return value if value.acts_like?(:date)
+        raise ArgumentError, 'can not convert to a date' unless value.is_a?(::String)
+        value.to_date.presence || raise(ArgumentError, 'can not convert to a date')
       end
     end
   end

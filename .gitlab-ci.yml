@@ -2,10 +2,10 @@ image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
 
 variables:
   POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: ""
+  POSTGRES_PASSWORD: 'password'
   POSTGRES_HOST: postgres
   POSTGRES_DB: data-cycle-base_test
-  POSTGRES_PORT: "5432"
+  POSTGRES_PORT: '5432'
   MONGODB_HOST: mongodb
   RAILS_ENV: test
   TZ: Europe/Vienna
@@ -17,18 +17,20 @@ stages:
   - deploy
 
 before_script:
-# uncomment for local testing (via local gitlab-runner)
-# delete me
+  # uncomment for local testing (via local gitlab-runner)
+  # delete me
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-# uncomment for local testing END
+  # uncomment for local testing END
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
 
-  - bundle install --path=cache/bundler
+  - gem install bundler
+  - bundle config set --local path 'cache/bundler'
+  - bundle install
 
   - dpkg-reconfigure -f noninteractive tzdata
   - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -49,7 +51,8 @@ cache:
 services:
   - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
     alias: postgres
-  - name: mvertes/alpine-mongo:3.6.5-0
+    command: ['postgres']
+  - name: mvertes/alpine-mongo:4.0.6-1
     alias: mongodb
 
 ########################################################################
@@ -66,14 +69,16 @@ services:
 .build_caches_config:
   stage: build
   script:
-    - bundle install --path=cache/bundler
+    - gem install bundler
+    - bundle config set --local path 'cache/bundler'
+    - bundle install
     - yarn
     - ./node_modules/gulp/bin/gulp.js production
 
 .rails_test_config:
   extends: .job_cache_config
   artifacts:
-    name: "$CI_JOB_NAME"
+    name: '$CI_JOB_NAME'
     expire_in: 1 week
     paths:
       - coverage/
@@ -188,7 +193,6 @@ rails_review_test:
 code_review_validation:
   <<: *review_ci
   extends: .code_validation_config
-
 #deploy_review:
 #  <<: *review_ci
 #  extends: .job_cache_config

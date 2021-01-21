@@ -2,9 +2,8 @@
 name: OpenStreetMap
 credentials:
   storage_type: local
-#  directory: ./tmp/import_files/files/
-  directory: ./test/fixtures/files/shp
-  #  directory: /home/pixelpoint/data_cycle_core/media
+  # directory: ./test/fixtures/files/shp
+  directory: /home/pixelpoint/geodata-admin-boundaries/administrative_boundaries/OSM/shp/3035
   delete: false
 config:
   download_config:

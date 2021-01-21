@@ -945,6 +945,8 @@ video {
       margin: 0;
       font-weight: normal;
       color: inherit;
+      display: inline-block;
+      position: relative;
     }
 
     &.button.disabled {
@@ -1623,10 +1625,11 @@ select:-moz-focusring {
 
 .thumbnail-tooltip {
   text-align: center;
+  max-width: 90vw;
+  max-width: 90vh;
+
   img {
     width: auto;
-    max-width: 90vw;
-    max-width: 90vh;
   }
 }
 
@@ -2047,6 +2050,13 @@ select {
 
 .has-tip {
   border: none;
+}
+
+.dc-foundation-tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  font-weight: bold;
 }
 
 // Normalizer Styles

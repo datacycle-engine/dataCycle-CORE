@@ -212,6 +212,61 @@ describe DataCycleCore::MasterData::DataConverter do
     end
   end
 
+  describe 'convert date objects' do
+    it 'converts string to date objects' do
+      test_cases = [Date.current, Time.current.to_date, Date.current.to_s, '01.01.2018', '1-1-2018']
+      test_cases.each do |test_case|
+        converted_data = subject.string_to_date(test_case)
+        assert(converted_data.acts_like?(:date))
+        assert(implies(test_case.class == converted_data.class, test_case == converted_data))
+      end
+    end
+
+    it 'converts date data to strings' do
+      test_cases = [Date.current, Time.current.to_date, Date.current.to_s, '01.01.2018', '1-1-2018']
+      test_cases.each do |test_case|
+        converted_data = subject.date_to_string(test_case)
+        assert_equal(test_case.to_s, converted_data)
+      end
+    end
+
+    it 'handles nil correctly when converting a string to a date object' do
+      assert_nil(subject.string_to_date(nil))
+    end
+
+    it 'handles nil correctly when converting a date object to a string' do
+      assert_nil(subject.date_to_string(nil))
+    end
+
+    it 'throws an exception when string can not be converted to a date object' do
+      test_cases = ['servas', 5, 5.5]
+      test_cases.each do |test_case|
+        assert_raises(ArgumentError) { subject.string_to_date(test_case) }
+      end
+    end
+
+    it 'throws an exception when date object is not valid' do
+      test_cases = ['servas', 5, 5.5]
+      test_cases.each do |test_case|
+        assert_raises(ArgumentError) { subject.date_to_string(test_case) }
+      end
+    end
+
+    it 'string_to_date can be called again and gives the same result' do
+      test_cases = [Date.current, Time.current.to_date, Date.current.to_s, '01.01.2018', '1-1-2018']
+      test_cases.each do |test_case|
+        assert_equal(subject.string_to_date(test_case), subject.string_to_date(subject.string_to_date(test_case)))
+      end
+    end
+
+    it 'date_to_string can be called again and gives the same result' do
+      test_cases = [Date.current, Time.current.to_date, Date.current.to_s, '01.01.2018', '1-1-2018']
+      test_cases.each do |test_case|
+        assert_equal(subject.date_to_string(test_case), subject.date_to_string(subject.date_to_string(test_case)))
+      end
+    end
+  end
+
   describe 'convert string to strings' do
     it 'normalizes unicode' do
       a = "Henry\u2163"

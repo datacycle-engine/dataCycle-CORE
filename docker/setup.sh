@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "$(ip route|awk '/default/ { print $3 }') dockerhost" >> /etc/hosts
 gem install bundler
-#bundle update
+# bundle update
 bundle install
 
 cd test/dummy
