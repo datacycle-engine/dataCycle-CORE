@@ -18,6 +18,7 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['ShopItem']))
           .>> t(:reject_keys, ['Names', 'Name'])
+          .>> t(:add_field, 'work_translation', ->(s) { brochure_variations(s.dig('Variations', 'Variation')) })
           .>> t(:unwrap_description, 'ShopItemDescription')
           .>> t(:add_field, 'potential_action', ->(s) { parse_links(get_variation_link(s), external_source_id) })
           .>> t(:add_field, 'url', ->(s) { Array.wrap(s.dig('Links', 'Link')).first&.dig('URL') })
@@ -33,6 +34,18 @@ module DataCycleCore
           .>> t(:universal_classifications, ->(s) { s.dig('language_variations') })
           .>> t(:reject_keys, ['ShopItemDescription', 'feratel_owners', 'feratel_shop_item_groups', 'holiday_themes', 'language_variations'])
           .>> t(:strip_all)
+        end
+
+        def self.brochure_variations(translations_array)
+          translations_array.map do |translation|
+            {
+              'external_key' => translation.dig('Id'),
+              'translated_language' => translation['Language'],
+              'code' => translation['Code'],
+              'stock' => translation['Stock'],
+              'weight' => translation['Weight']
+            }
+          end
         end
 
         def self.get_variation_link(data)

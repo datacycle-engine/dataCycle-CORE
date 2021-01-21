@@ -1,0 +1,50 @@
+---
+- :data:
+    :name: Sprachvariante
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :translated_language:
+        :label: Sprachkürzel
+        :type: string
+        :search: true
+        :storage_location: value
+      :language_name:
+        :label: Sprache
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :code:
+        :label: Code
+        :type: string
+        :storage_location: value
+        :search: true
+      :stock:
+        :label: Stock
+        :type: number
+        :storage_location: value
+      :weight:
+        :label: Gewicht
+        :type: string
+        :storage_location: value
+      :dummy:
+        :label: invisible
+        :type: string
+        :storage_location: translated_value
+        :default_value: do_not_show
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :meta_data:
+        :type: mixin
+        :name: meta_data

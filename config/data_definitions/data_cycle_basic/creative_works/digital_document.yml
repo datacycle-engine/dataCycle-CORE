@@ -30,6 +30,11 @@
       :title:
         :type: mixin
         :name: title
+      :work_translation:
+        :label: Sprachvarianten
+        :type: embedded
+        :template_name: Sprachvariante
+        :translated: true
       :validity_period:
         :type: mixin
         :name: validity_period
