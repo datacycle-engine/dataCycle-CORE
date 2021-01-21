@@ -14,7 +14,7 @@ module DataCycleCore
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :original_id, :synchronous_webhooks
+      attr_accessor :datahash, :webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :original_id, :duplicate_id, :synchronous_webhooks
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
         feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
