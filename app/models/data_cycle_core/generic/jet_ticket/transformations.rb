@@ -27,7 +27,7 @@ module DataCycleCore
         def self.parse_potential_action(data, external_source_id)
           url_translator = {
             '13' => 'Dornbirn',
-            '14' => 'Götzis',
+            '14' => 'Goetzis',
             '15' => 'Feldkirch',
             '16' => 'Landestheater',
             '17' => 'Bludenz',
