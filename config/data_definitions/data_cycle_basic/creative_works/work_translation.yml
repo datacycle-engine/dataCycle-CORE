@@ -8,12 +8,21 @@
       :id:
         :label: id
         :type: key
-      :translated_language:
+      :variant_name:
+        :label: Name
+        :type: string
+        :search: true
+        :storage_location: translated_value
+      :url:
+        :label: Url-Sprachversion
+        :type: string
+        :storage_location: translated_value
+      :variant_language_abbr:
         :label: Sprachkürzel
         :type: string
         :search: true
         :storage_location: value
-      :language_name:
+      :variant_language:
         :label: Sprache
         :type: string
         :storage_location: translated_value
@@ -31,6 +40,13 @@
         :label: Gewicht
         :type: string
         :storage_location: value
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions        
       :dummy:
         :label: invisible
         :type: string
