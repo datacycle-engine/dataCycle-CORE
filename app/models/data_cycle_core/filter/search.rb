@@ -135,14 +135,17 @@ module DataCycleCore
         end
       end
 
-      def duplicate_candidates(value)
-        if value == 'true'
+      def duplicate_candidates(value, score = nil)
+        sub_query = duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))
+        sub_query = sub_query.and(duplicate_candidate[:score].eq(score.to_i)) if score.present?
+
+        if value.to_s == 'true'
           reflect(
-            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))).exists)
+            @query.where(duplicate_candidate.where(sub_query).exists)
           )
         else
           reflect(
-            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))).exists.not)
+            @query.where(duplicate_candidate.where(sub_query).exists.not)
           )
         end
       end
