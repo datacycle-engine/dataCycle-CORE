@@ -27,7 +27,7 @@ module DataCycleCore
         def self.parse_potential_action(data, external_source_id)
           url_translator = {
             '13' => 'Dornbirn',
-            '14' => 'Götzis',
+            '14' => 'Goetzis',
             '15' => 'Feldkirch',
             '16' => 'Landestheater',
             '17' => 'Bludenz',
@@ -42,7 +42,7 @@ module DataCycleCore
               action['name'] = 'Buchungs-URL'
               action['action_type'] = Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'Bestellen'))
               action['external_key'] = "JetTicket OrderAction:#{data.dig('EventID')}"
-              action['url'] = "https://webshop.events-vorarlberg.at/#{url_translator[i.dig('ReleaseID')]}/Events?eventset_id=[#{event_set_id}]"
+              action['url'] = "https://webshop.events-vorarlberg.at/#{url_translator[i.dig('ReleaseID')]}/Events?eventsetid=#{event_set_id}"
               action
             }.compact || []
         end

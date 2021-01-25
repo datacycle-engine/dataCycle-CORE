@@ -57,6 +57,10 @@ server {
     client_max_body_size 4G;
     keepalive_timeout 90;
 
+    # increase proxy buffer size for large headers
+    proxy_buffer_size 16k;
+    proxy_busy_buffers_size 16k;
+
     error_page 500 502 504 /500.html;
     error_page 503 @503;
 

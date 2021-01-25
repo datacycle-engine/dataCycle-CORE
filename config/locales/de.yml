@@ -43,6 +43,7 @@ de:
     user: Benutzer
     standard: Standard
     guest: Gast
+    external_user: Externer Benutzer
 
   view_modes:
     grid: Kacheln
@@ -411,6 +412,9 @@ de:
       not_related: nicht verknüpft mit
     max_number_of_people: max. Anzahl Personen
     number_of_meeting_rooms: Anzahl der Zimmer (Tagungsraum)
+    linked_location: Verknüpfter Ort
+    linked_author: Verknüpfter Author
+    linked_copyright_holder: Verknüpfter Rechteinhaber
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
