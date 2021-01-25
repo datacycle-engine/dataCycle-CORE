@@ -52,19 +52,33 @@ module DataCycleCore
         end
 
         def permitted_filter_parameters
-          {
-            filter: [
-              :search,
-              :q,
-              {
-                attribute: {
-                  'dct:modified': attribute_filter_operations,
-                  'dct:created': attribute_filter_operations,
-                  'dct:deleted': attribute_filter_operations
+          if action_name == 'index'
+            {
+              filter: [
+                {
+                  attribute: {
+                    'dct:modified': attribute_filter_operations,
+                    'dct:created': attribute_filter_operations,
+                    'dct:deleted': attribute_filter_operations
+                  }
                 }
-              }
-            ]
-          }
+              ]
+            }
+          else
+            {
+              filter: [
+                :search,
+                :q,
+                {
+                  attribute: {
+                    'dct:modified': attribute_filter_operations,
+                    'dct:created': attribute_filter_operations,
+                    'dct:deleted': attribute_filter_operations
+                  }
+                }
+              ]
+            }
+          end
         end
 
         private
