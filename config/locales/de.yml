@@ -360,6 +360,7 @@ de:
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
     width: Breite
     height: Höhe
+    order: Reihenfolge
     content_size: Dateigröße
     contact_info_email: E-Mail
     contact_info_telephone: Telefonnummer
