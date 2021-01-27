@@ -13,6 +13,7 @@ module DataCycleCore
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
           .>> t(:add_cc, external_source_id)
+          .>> t(:add_field, 'order', ->(s) { s.dig('Details', 'Order')&.to_i })
           .>> t(:rename_keys, 'Id' => 'external_key')
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Names') || s.dig('Details', 'Name') })
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })

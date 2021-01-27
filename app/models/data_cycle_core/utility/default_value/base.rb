@@ -6,9 +6,9 @@ module DataCycleCore
       module Base
         class << self
           def default_values(key, properties, data_hash, content)
-            if properties['default_value'].is_a?(String) && properties['type'] == 'classification'
+            if properties['default_value'].is_a?(::String) && properties['type'] == 'classification'
               method_name = DataCycleCore::Utility::DefaultValue::Classification.method(:by_name)
-            elsif properties['default_value'].is_a?(String)
+            elsif properties['default_value'].is_a?(::String)
               return properties['default_value']
             else
               module_name = properties.dig('default_value', 'module').classify.safe_constantize

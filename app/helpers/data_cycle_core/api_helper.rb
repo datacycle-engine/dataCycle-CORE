@@ -177,6 +177,10 @@ module DataCycleCore
             '@id' => 'https://schema.datacycle.at/entityUrl',
             '@type' => '@id'
           },
+          'dc:order' => {
+            '@id' => 'https://schema.org/position',
+            '@type' => 'https://schema.org/Number'
+          },
           'dc:classification' => {
             '@id' => 'https://schema.datacycle.at/classification',
             '@container' => '@set'

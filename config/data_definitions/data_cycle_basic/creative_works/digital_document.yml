@@ -35,6 +35,14 @@
         :type: embedded
         :template_name: Sprachvariante
         :translated: true
+      :order:
+        :label: Reihenfolge
+        :type: number
+        :storage_location: value
+        :api:
+          :v4:
+            :name: 'dc:order'
+        :advanced_search: true
       :validity_period:
         :type: mixin
         :name: validity_period

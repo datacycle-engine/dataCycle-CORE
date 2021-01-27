@@ -60,19 +60,23 @@ namespace :dc do
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
 
       contents.find_each do |content|
-        I18n.with_locale(content.first_available_locale) do
-          next if content.properties_with_default_values.blank?
+        next if content.properties_with_default_values.blank?
 
-          content.instance_variable_set(:@data_hash, {})
-          content.add_default_values(force: true)
-          content.prevent_webhooks = args.webhooks&.downcase == 'false'
-          begin
-            content.set_data_hash(data_hash: content.instance_variable_get(:@data_hash), partial_update: true)
-          rescue StandardError => e
-            puts e.message
+        content.translated_locales.each do |locale|
+          I18n.with_locale(locale) do
+            content.instance_variable_set(:@data_hash, {})
+            content.add_default_values(force: true)
+            content.prevent_webhooks = args.webhooks&.downcase == 'false'
+            begin
+              content.set_data_hash(data_hash: content.instance_variable_get(:@data_hash), partial_update: true)
+            rescue StandardError => e
+              puts e.message
+            end
+
+            content.remove_instance_variable(:@data_hash)
           end
-          progressbar.increment
         end
+        progressbar.increment
       end
     end
   end
