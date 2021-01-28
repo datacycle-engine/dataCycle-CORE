@@ -1,8 +1,8 @@
 <span class="calender-leaf">
-  <% if (object.duration&.%(1.day) != 0) && object.try(:dtstart).present? %>
+  <% if object.try(:dtstart).present? %>
     <span class="leaf-duration"><%= l(object.dtstart, format: :time_only, locale: DataCycleCore.ui_language) %>
 
-      <% if object.try(:dtend).present? && l(object.dtstart, format: :time_only, locale: DataCycleCore.ui_language) != l(object.dtend, format: :time_only, locale: DataCycleCore.ui_language) %>
+      <% if object.dtstart&.to_s(:only_date) == object.dtend&.to_s(:only_date) && object.dtstart&.to_s(:only_time) != object.dtend&.to_s(:only_time) %>
         - <%= l(object.dtend, format: :time_only, locale: DataCycleCore.ui_language) %>
       <% end %>
     </span>
