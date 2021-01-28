@@ -292,7 +292,7 @@ module DataCycleCore
     end
 
     def add_things_cache_invalidation_job
-      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_things_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_things_cache", delayed_reference_id: id, locked_at: nil)
+      Delayed::Job.enqueue(DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_things_cache)) if changed? && !Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_things_cache", delayed_reference_id: id, locked_at: nil)
     end
 
     def invalidate_things_cache
