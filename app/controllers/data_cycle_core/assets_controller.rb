@@ -41,8 +41,8 @@ module DataCycleCore
         else
           render(json: { error: @asset.errors.full_messages.join(', ') })
         end
-      rescue StandardError
-        render(json: { error: 'Unprocessable Entity' }, status: :unprocessable_entity)
+      rescue StandardError => e
+        render(json: { error: 'Unprocessable Entity', errorDetail: e.message }, status: :unprocessable_entity)
       end
     end
 
