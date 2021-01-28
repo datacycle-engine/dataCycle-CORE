@@ -30,7 +30,7 @@ module DataCycleCore
     before_destroy -> { primary_classification&.destroy }, prepend: true
     before_destroy :invalidate_things_cache, prepend: true
     after_update :update_primary_classification
-    after_update :add_things_cache_invalidation_job, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'assignable', 'internal', 'description_i18n']).present? || classification_groups.map(&:changed?).inject(&:|) || saved_changes&.dig('description_i18n')&.uniq&.many? }
+    after_update :add_things_cache_invalidation_job, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'assignable', 'internal', 'description_i18n', 'uri']).present? || classification_groups.map(&:changed?).inject(&:|) || saved_changes&.dig('description_i18n')&.uniq&.many? }
 
     attr_accessor :content_template
 
