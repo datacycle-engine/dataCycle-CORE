@@ -143,6 +143,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'bcrypt_pbkdf'
   s.add_dependency 'ed25519'
 
+  # Better distance_of_time_in_words (https://github.com/radar/distance_of_time_in_words)
+  s.add_dependency 'dotiw'
+
   # validation gems
   s.add_development_dependency 'brakeman', '>= 4.5.1'
   s.add_development_dependency 'bundler-audit'

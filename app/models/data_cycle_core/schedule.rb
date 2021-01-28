@@ -67,30 +67,24 @@ module DataCycleCore
       # supports only select features of the rrule spec https://github.com/schemaorg/schemaorg/issues/1457
       start_date = dtstart&.to_s(:only_date)
       start_time = dtstart&.to_s(:only_time)
-      end_date = dtend&.to_s(:only_date)
-      end_time = dtend&.to_s(:only_time)
-      end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
+      end_date = nil
+      end_time = nil
       repeat_count = nil
       repeat_frequency = nil
       by_day = nil
       by_month = nil
       by_month_day = nil
+      iso_duration = duration.present? && @schedule_object.start_time && @schedule_object.end_time ? iso8601_duration(@schedule_object.start_time, @schedule_object.end_time) : nil
       if @schedule_object&.recurrence_rules&.first.present?
         rule = @schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
-        end_time = rule&.until_time&.in_time_zone&.to_s(:only_time) if end_time.blank? && rule&.until_time.present?
+        end_date = @schedule_object&.last&.in_time_zone&.+(@schedule_object&.duration&.presence || 0)&.to_s(:only_date) if end_date.blank? && @schedule_object.terminating?
+        end_time = @schedule_object&.last&.in_time_zone&.+(@schedule_object&.duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && @schedule_object.terminating?
         repeat_count = rule&.occurrence_count
         repeat_frequency = to_repeat_frequency(rule_hash)
         by_day = rule_hash.dig(:validations, :day)
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
-        if rule_hash.dig(:validations, :day_of_year).present?
-          validity_range = Array.wrap(schedule_object&.first(2)) || []
-          start_date = validity_range.first&.to_date
-          end_date = validity_range.last&.to_date
-          start_time = nil
-          end_time = nil
-        end
       end
 
       {
@@ -101,7 +95,7 @@ module DataCycleCore
         'endDate' => end_date,
         'startTime' => start_time,
         'endTime' => end_time,
-        'duration' => duration&.iso8601,
+        'duration' => iso_duration,
         'repeatCount' => repeat_count,
         'exceptDate' => exdate&.map(&:iso8601)&.presence,
         'dc:additionalDate' => rdate&.map(&:iso8601)&.presence,
@@ -269,11 +263,29 @@ module DataCycleCore
       return if @schedule_object.blank?
       self.rrule = @schedule_object.recurrence_rules&.first&.to_ical
       self.dtstart = @schedule_object.start_time
-      self.duration = ActiveSupport::Duration.build(@schedule_object.duration) if @schedule_object.duration.positive?
+      self.duration = @schedule_object.duration if @schedule_object.duration.positive?
       self.dtend = @schedule_object.terminating? ? (@schedule_object.last || @schedule_object.start_time) + (duration || 0) : nil
       self.rdate = @schedule_object.recurrence_times
       self.exdate = @schedule_object.extimes
       self
+    end
+
+    def iso8601_duration(start_time, end_time)
+      time_hash = distance_of_time_in_words_hash(start_time, end_time)
+      return 'PT0S' if time_hash.empty?
+
+      output = +'P'
+      output << "#{time_hash[:years]}Y" if time_hash[:years]&.positive?
+      output << "#{time_hash[:months]}M" if time_hash[:months]&.positive?
+      output << "#{time_hash[:weeks] * 7 + time_hash[:days]}D" if time_hash[:weeks]&.positive? || time_hash[:days]&.positive?
+      if time_hash[:seconds]&.positive? || time_hash[:minutes]&.positive? || time_hash[:hours]&.positive?
+        output << 'T'
+        output << "#{time_hash[:hours]}H" if time_hash[:hours]&.positive?
+        output << "#{time_hash[:minutes]}M" if time_hash[:minutes]&.positive?
+        output << "#{time_hash[:seconds]}S" if time_hash[:seconds]&.positive?
+      end
+
+      output
     end
 
     def occurs_between?(from = dtstart, to = dtend)
@@ -287,6 +299,12 @@ module DataCycleCore
   end
 
   class Schedule < ApplicationRecord
+    require 'dotiw'
+
+    include ActionView::Helpers::DateHelper
+    include ActionView::Helpers::TextHelper
+    include ActionView::Helpers::NumberHelper
+
     class History < ApplicationRecord
       include ScheduleHandler
       belongs_to :thing_history, class_name: 'DataCycleCore::Thing::History'
