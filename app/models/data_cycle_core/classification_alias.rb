@@ -52,7 +52,7 @@ module DataCycleCore
     has_many :sub_classification_alias, through: :sub_classification_trees
 
     has_many :classification_groups, dependent: :destroy
-    has_many :classifications, -> { order(:name) }, through: :classification_groups, after_add: :set_classifications_changed, after_remove: :set_classifications_changed
+    has_many :classifications, -> { order(:name) }, through: :classification_groups, after_add: :classifications_changed, after_remove: :classifications_changed
 
     has_many :descendant_paths, ->(a) { unscope(:where).where('ancestor_ids @> ARRAY[?]::uuid[]', a.id) },
              class_name: 'Path'
@@ -276,7 +276,7 @@ module DataCycleCore
       end
     end
 
-    def set_classifications_changed(_classification = nil)
+    def classifications_changed(_classification = nil)
       @classifications_changed = true
     end
 
