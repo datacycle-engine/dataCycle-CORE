@@ -124,11 +124,32 @@ module DataCycleCore
         'inLanguage' => 'de',
         'startDate' => '2019-11-20',
         'startTime' => '09:00',
-        'endTime' => '16:00',
         'duration' => 'PT7H',
         'repeatFrequency' => 'P1D',
         'scheduleTimezone' => 'Vienna'
       }
+      assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
+    end
+
+    test 'handling non recurring schedule' do
+      dtstart = Time.parse('2019-11-20T9:00').in_time_zone
+      dtend = Time.parse('2020-01-03T16:00').in_time_zone
+
+      schedule = DataCycleCore::Schedule.new
+      schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time: dtend })
+      schedule.save
+      assert_equal(dtstart, schedule.dtstart)
+      assert_equal(dtend, schedule.dtend)
+      expected_serialization = {
+        '@context' => 'https://schema.org/',
+        '@type' => 'Schedule',
+        'inLanguage' => 'de',
+        'startDate' => '2019-11-20',
+        'startTime' => '09:00',
+        'duration' => 'P1M14DT7H',
+        'scheduleTimezone' => 'Vienna'
+      }
+      binding.pry
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
   end
