@@ -31,7 +31,7 @@ module DataCycleCore
     has_many :things, through: :classifications
 
     has_one :statistics, -> { readonly }, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label
-    after_update :add_things_cache_invalidation_job, if: :saved_changes?
+    after_update :add_things_cache_invalidation_job, if: -> { (saved_changes.keys & ['name', 'visibility']).any? }
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
