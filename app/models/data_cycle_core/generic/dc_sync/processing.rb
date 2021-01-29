@@ -9,7 +9,11 @@ module DataCycleCore
           linked_key_translation = process_included_items(utility_object, item_template, raw_data.dig('included'))
           classification_key_translation = process_classifications(utility_object, item_template, raw_data.dig('classifications'))
           processed_thing = nil
-          raw_data.except('included', 'classifications', 'attribute_name', 'include_translation').each_key do |locale|
+          raw_data
+            .except('included', 'classifications', 'attribute_name', 'include_translation')
+            .keys
+            .select { |i| i.to_sym.in?(I18n.available_locales) }
+            .each do |locale|
             I18n.with_locale(locale) do
               data_correct_linked = transform_linked_keys(data: raw_data[locale].except('included', 'classifications'), lookup: linked_key_translation)
               data_correct_ids = transform_classification_keys(data: data_correct_linked, lookup: classification_key_translation)
@@ -177,10 +181,16 @@ module DataCycleCore
           end
 
           if classification.new_record?
+            name_i18n = alias_data['name_i18n']&.slice(*I18n.available_locales.map(&:to_s))
+            description_i18n = alias_data['description_i18n']&.slice(*I18n.available_locales.map(&:to_s))
             classification_alias = DataCycleCore::ClassificationAlias.create!(
               alias_data
-                .slice('name_i18n', 'description_i18n', 'name', 'description', 'internal_name', 'uri')
-                .merge({ 'external_source_id' => external_system })
+                .slice('name', 'description', 'internal_name', 'uri')
+                .merge({
+                  'external_source_id' => external_system,
+                  'name_i18n' => name_i18n,
+                  'description_i18n' => description_i18n
+                })
             )
 
             DataCycleCore::ClassificationGroup.create!(
@@ -208,8 +218,8 @@ module DataCycleCore
           else
             primary_classification_alias = classification.primary_classification_alias
             primary_classification_alias.attributes = alias_data.slice('name_i18n', 'description_i18n', 'uri')
-            primary_classification_alias.name_i18n = alias_data['name_i18n']&.slice(*I18n.available_locales)
-            primary_classification_alias.description_i18n = alias_data['description_i18n']&.slice(*I18n.available_locales)
+            primary_classification_alias.name_i18n = alias_data['name_i18n']&.slice(*I18n.available_locales.map(&:to_s))
+            primary_classification_alias.description_i18n = alias_data['description_i18n']&.slice(*I18n.available_locales.map(&:to_s))
             primary_classification_alias.save!
 
             classification_tree = primary_classification_alias.classification_tree
