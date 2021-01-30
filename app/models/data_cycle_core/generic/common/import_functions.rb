@@ -10,7 +10,7 @@ module DataCycleCore
           attr_reader :errors
 
           def initialize(errors = [])
-            super("Content is invalid")
+            super('Content is invalid')
 
             @errors = errors
           end
