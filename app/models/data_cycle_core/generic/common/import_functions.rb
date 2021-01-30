@@ -6,6 +6,16 @@ module DataCycleCore
       module ImportFunctions
         extend ImportClassifications
 
+        class ImportFailure < ::StandardError
+          attr_reader :errors
+
+          def initialize(errors = [])
+            super("Content is invalid")
+
+            @errors = errors
+          end
+        end
+
         def self.process_step(utility_object:, raw_data:, transformation:, default:, config:)
           template = config&.dig(:template) || default.dig(:template)
           create_or_update_content(
@@ -84,16 +94,20 @@ module DataCycleCore
           invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true) || true
           error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: !created, new_content: created, invalidate_related_cache: invalidate_related_cache)
 
-          if utility_object.logging && error[:error].present?
-            Appsignal.increment_counter("import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.failure", 1)
+          if error[:error].present?
+            Appsignal.increment_counter(
+              "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.failure",
+              1,
+              template_name: content.template_name
+            )
 
-            utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
-          elsif error[:error].present?
-            Appsignal.increment_counter("import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.failure", 1)
-
-            raise error[:error].first
+            raise ImportFailure.new(error[:error])
           else
-            Appsignal.increment_counter("import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.success", 1)
+            Appsignal.increment_counter(
+              "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.success",
+              1,
+              template_name: content.template_name
+            )
           end
 
           content.save!
@@ -130,6 +144,7 @@ module DataCycleCore
 
               each_locale(utility_object.locales) do |locale|
                 item_count = 0
+                failure_count = 0
                 begin
                   logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}
@@ -164,11 +179,26 @@ module DataCycleCore
 
                         session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
 
-                        data_processor.call(
-                          utility_object: utility_object,
-                          raw_data: content[:dump][locale],
-                          locale: locale,
-                          options: options
+                        begin
+                          data_processor.call(
+                            utility_object: utility_object,
+                            raw_data: content[:dump][locale],
+                            locale: locale,
+                            options: options
+                          )
+                        rescue ImportFailure => e
+                          failure_count += 1
+
+                          logging.error('Validating import data', content['external_key'], content[:dump][locale], e.errors.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
+                        end
+
+                        Appsignal.set_gauge(
+                          "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.success_rate",
+                          100.0 * (item_count - failure_count) / item_count
+                        )
+                        Appsignal.set_gauge(
+                          "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.failure_rate",
+                          100.0 * failure_count / item_count
                         )
 
                         next unless (item_count % logging_delta).zero?
@@ -177,7 +207,7 @@ module DataCycleCore
 
                         times << Time.current
 
-                        logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                        logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds (success rate: #{GenericObject.format_float(100.0 * (item_count - failure_count) / item_count, 3, 2)}%)", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                       end
                     end
                   end
@@ -197,6 +227,8 @@ module DataCycleCore
               logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
 
               item_count = 0
+              failure_count = 0
+
               begin
                 logging.phase_started("#{importer_name}(#{phase_name})")
                 source_filter = options&.dig(:import, :source_filter) || {}
@@ -224,11 +256,26 @@ module DataCycleCore
 
                     # session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
 
-                    data_processor.call(
-                      utility_object: utility_object,
-                      raw_data: content[:dump],
-                      locale: nil,
-                      options: options
+                    begin
+                      data_processor.call(
+                        utility_object: utility_object,
+                        raw_data: content[:dump][locale],
+                        locale: locale,
+                        options: options
+                      )
+                    rescue ImportFailure => e
+                      failure_count += 1
+
+                      logging.error('Validating import data', content['external_key'], content[:dump][locale], e.errors.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
+                    end
+
+                    Appsignal.set_gauge(
+                      "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.success_rate",
+                      100.0 * (item_count - failure_count) / item_count
+                    )
+                    Appsignal.set_gauge(
+                      "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.failure_rate",
+                      100.0 * failure_count / item_count
                     )
 
                     next unless (item_count % logging_delta).zero?
@@ -237,7 +284,7 @@ module DataCycleCore
 
                     times << Time.current
 
-                    logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                    logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds (success rate: #{GenericObject.format_float(100.0 * (item_count - failure_count) / item_count, 3, 2)}%)", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                   end
                   # end
                 ensure
