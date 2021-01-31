@@ -83,16 +83,22 @@ module DataCycleCore
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
           error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: !created, new_content: created)
 
-          if utility_object.logging && error[:error].present?
-            Appsignal.increment_counter("import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.failure", 1)
+          if error[:error].present?
+            Appsignal.increment_counter(
+              "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.failure",
+              1,
+              template_name: content.template_name
+            )
 
-            utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
-          elsif error[:error].present?
-            Appsignal.increment_counter("import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.failure", 1)
-
-            raise error[:error].first
+            if utility_object.logging
+              utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
+            end
           else
-            Appsignal.increment_counter("import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.success", 1)
+            Appsignal.increment_counter(
+              "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.success",
+              1,
+              template_name: content.template_name
+            )
           end
 
           content.tap(&:save!)
