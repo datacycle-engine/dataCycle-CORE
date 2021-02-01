@@ -34,7 +34,7 @@ services:
       # - WEBHOOKS=Local-Text-File
       - 'CORE_RAKE_PREFIX=app:'
     command:
-      - ./docker/setup.sh
+      - ./docker/core-dummy-setup.sh
     volumes:
       - 'gems:/gems'
       - '.:/var/www/app'
