@@ -13,6 +13,16 @@ module DataCycleCore
             config: config
           )
         end
+
+        def self.process_icon(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::ReisenFuerAlle::Transformations.to_icon,
+            default: { template: 'Bild' },
+            config: config
+          )
+        end
       end
     end
   end
