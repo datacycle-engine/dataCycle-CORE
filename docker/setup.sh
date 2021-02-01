@@ -5,6 +5,8 @@ gem install bundler
 bundle install
 
 cd test/dummy
+mkdir -p /var/www/app/tmp/{sockets,pids}
+chown -R 1000:1000 /var/www/app/tmp
 rm -f tmp/pids/server.pid
 
 # RUBYOPT="--jit-verbose=1" rails s -b 0.0.0.0 -p 3000

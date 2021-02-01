@@ -30,7 +30,7 @@ module DataCycleCore
     before_destroy -> { primary_classification&.destroy }, prepend: true
     before_destroy :invalidate_things_cache, prepend: true
     after_update :update_primary_classification
-    after_update :add_things_cache_invalidation_job, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'assignable', 'internal', 'description_i18n', 'uri']).present? || classification_groups.map(&:changed?).inject(&:|) || saved_changes&.dig('description_i18n')&.uniq&.many? }
+    after_update :add_things_cache_invalidation_job, if: -> { (saved_changes.keys & ['name_i18n', 'internal_name', 'description_i18n', 'uri']).any? || @classifications_changed }
 
     attr_accessor :content_template
 
@@ -52,7 +52,7 @@ module DataCycleCore
     has_many :sub_classification_alias, through: :sub_classification_trees
 
     has_many :classification_groups, dependent: :destroy
-    has_many :classifications, -> { order(:name) }, through: :classification_groups
+    has_many :classifications, -> { order(:name) }, through: :classification_groups, after_add: :classifications_changed, after_remove: :classifications_changed
 
     has_many :descendant_paths, ->(a) { unscope(:where).where('ancestor_ids @> ARRAY[?]::uuid[]', a.id) },
              class_name: 'Path'
@@ -289,6 +289,10 @@ module DataCycleCore
         c.name = DataCycleCore::MasterData::DataConverter.string_to_string(name&.to_s)
         c.save!
       end
+    end
+
+    def classifications_changed(_classification = nil)
+      @classifications_changed = true
     end
 
     def add_things_cache_invalidation_job
