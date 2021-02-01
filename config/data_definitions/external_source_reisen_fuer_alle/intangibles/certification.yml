@@ -70,6 +70,10 @@
             :label: Symbol
             :type: string
             :storage_location: translated_value
+      :image:
+        :label: Icons
+        :type: linked
+        :template_name: Bild
       :public_pdf:
         :label: Detailberichte zur Barrierefreiheit zum Download
         :type: object
