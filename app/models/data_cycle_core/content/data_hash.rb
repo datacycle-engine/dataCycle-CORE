@@ -23,11 +23,11 @@ module DataCycleCore
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks, if: -> { !embedded? }
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
-      after_saved_data_hash :add_related_cache_invalidation_job, if: -> { !embedded? && has_cached_related_contents? }
+      after_saved_data_hash :add_related_cache_invalidation_job, if: -> { !embedded? && has_cached_related_contents? && @invalidate_related_cache }
       after_created_data_hash :execute_create_webhooks, if: -> { !embedded? }
       after_destroyed_data_hash :execute_delete_webhooks, if: -> { !embedded? }
 
-      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false, version_name: nil)
+      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false, version_name: nil, invalidate_related_cache: true)
         return {} if data_hash.blank? && !force_update
         @data_hash = data_hash.dup.with_indifferent_access
         @current_user = current_user
@@ -36,6 +36,7 @@ module DataCycleCore
         @source = source
         @new_content = new_content
         @partial_update = partial_update
+        @invalidate_related_cache = invalidate_related_cache
         run_callbacks :save_data_hash
 
         partial_schema_hash = nil
@@ -184,7 +185,7 @@ module DataCycleCore
           set_linked(key, value, properties)
         when 'embedded'
           set_embedded(key, value, properties['template_name'], properties['translated'])
-        when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
+        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])

@@ -36,6 +36,8 @@
 
   <%= render 'data_cycle_core/application/downloads/download', content: content if can?(:download, content) %>
 
+  <%= render 'data_cycle_core/contents/preview_links', content: content %>
+
   <% if can? :edit, content %>
     <%= link_to remove_locks_thing_path(content, watch_list_id: @watch_list),
                 method: :delete,

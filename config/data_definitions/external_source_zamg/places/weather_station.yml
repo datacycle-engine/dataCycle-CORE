@@ -73,13 +73,12 @@
         :type: key
       :forecast_date:
         :label: Datum
-        :type: datetime
+        :type: date
         :storage_location: value
         :validations:
           :format: date
         :ui:
           :edit:
-            :type: date
             :options:
               :class: single_date
               :placeholder: "tt.mm.jjjj"

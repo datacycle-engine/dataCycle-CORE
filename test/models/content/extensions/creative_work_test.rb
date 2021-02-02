@@ -21,8 +21,8 @@ module DataCycleCore
       test_hash = {
         'name' => 'Dies ist ein Test!',
         'validity_period' => {
-          'valid_from' => '2017-05-01'.in_time_zone,
-          'valid_until' => '2017-06-01'.in_time_zone
+          'valid_from' => '2017-05-01'.to_date,
+          'valid_until' => '2017-06-01'.to_date
         }
       }
       data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: test_hash)
@@ -33,8 +33,8 @@ module DataCycleCore
       test_hash = {
         'name' => 'Dies ist ein Test!',
         'validity_period' => {
-          'valid_from' => '2017-05-01'.in_time_zone,
-          'valid_until' => '2017-06-01'.in_time_zone
+          'valid_from' => '2017-05-01'.to_date,
+          'valid_until' => '2017-06-01'.to_date
         }
       }
       data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: test_hash)
@@ -47,8 +47,8 @@ module DataCycleCore
       test_hash = {
         'name' => 'Dies ist ein Test!',
         'validity_period' => {
-          'valid_from' => '2017-05-01'.in_time_zone,
-          'valid_until' => '2017-06-01'.in_time_zone
+          'valid_from' => '2017-05-01'.to_date,
+          'valid_until' => '2017-06-01'.to_date
         }
       }
       data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: test_hash)

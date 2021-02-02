@@ -10,6 +10,7 @@ module DataCycleCore
             # 'key' => Differs::Key,
             'string' => Differs::String,
             'number' => Differs::Number,
+            'date' => Differs::Date,
             'datetime' => Differs::Datetime,
             'boolean' => Differs::Boolean,
             'geographic' => Differs::Geographic,

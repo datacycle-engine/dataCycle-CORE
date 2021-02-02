@@ -116,6 +116,8 @@ module DataCycleCore
     mattr_accessor :logo
     self.logo = {}
 
+    mattr_accessor :info_link
+    self.info_link = nil
     # inheritable_attributes
     mattr_accessor :inheritable_attributes
     self.inheritable_attributes = ['validity_period']

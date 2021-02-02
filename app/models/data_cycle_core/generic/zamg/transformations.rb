@@ -29,7 +29,7 @@ module DataCycleCore
           update_item = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: hash['external_key'])
           hash.dig('02_prognose').each do |datum, forecast|
             forecast_hash = {}
-            forecast_hash['forecast_date'] = datum.in_time_zone
+            forecast_hash['forecast_date'] = datum.to_date
             forecast_item = nil
             if update_item.present?
               forecast_item_data = update_item.forecasts.map(&:get_data_hash).detect { |i| i.dig('forecast_date') == forecast_hash.dig('forecast_date') }

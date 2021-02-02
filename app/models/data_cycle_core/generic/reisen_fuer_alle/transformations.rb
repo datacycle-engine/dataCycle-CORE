@@ -8,12 +8,26 @@ module DataCycleCore
           DataCycleCore::Generic::Common::Functions[*args]
         end
 
+        def self.to_icon
+          t(:add_field, 'external_key', ->(s) { ['reisen-fuer-alle.de - icon', s.dig('name')].join(' - ') })
+          .>> t(:add_field, 'content_url', ->(s) { s.dig('url') })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('url') })
+        end
+
         def self.to_rating(external_source_id)
           t(:rename_keys, { 'uuid' => 'external_key' })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { generate_icon_external_keys(s) })
           .>> t(:add_field, 'name', ->(s) { s.dig('base_data', 'name_de') })
-          .>> t(:unwrap, 'public_pdf') # ['url_for_allergic_de', 'url_for_deaf_de', 'url_for_generations_de', 'url_for_mental_de', 'url_for_visual_de', 'url_for_walking_de', 'url_for_wheelchair_de']
-          .>> t(:rename_keys, { 'url_for_allergic_de' => 'allergic', 'url_for_deaf_de' => 'deaf', 'url_for_generations_de' => 'generations', 'url_for_mental_de' => 'mental', 'url_for_visual_de' => 'visual', 'url_for_walking_de' => 'walking', 'url_for_wheelchair_de' => 'wheelchair' })
-          .>> t(:nest, 'public_pdf', ['allergic', 'deaf', 'generations', 'mental', 'visual', 'walking', 'wheelchair'])
+          .>> t(:unwrap, 'public_pdf')
+          .>> t(:add_field, 'short_report', ->(s) { s.dig('url_for_short_report', I18n.locale.to_s) })
+          .>> t(:add_field, 'allergic', ->(s) { s.dig('url_for_allergic', I18n.locale.to_s) })
+          .>> t(:add_field, 'deaf', ->(s) { s.dig('url_for_deaf', I18n.locale.to_s) })
+          .>> t(:add_field, 'generations', ->(s) { s.dig('url_for_generations', I18n.locale.to_s) })
+          .>> t(:add_field, 'mental', ->(s) { s.dig('url_for_mental', I18n.locale.to_s) })
+          .>> t(:add_field, 'visual', ->(s) { s.dig('url_for_visual', I18n.locale.to_s) })
+          .>> t(:add_field, 'walking', ->(s) { s.dig('url_for_walking', I18n.locale.to_s) })
+          .>> t(:add_field, 'wheelchair', ->(s) { s.dig('url_for_wheelchair', I18n.locale.to_s) })
+          .>> t(:nest, 'public_pdf', ['short_report', 'allergic', 'deaf', 'generations', 'mental', 'visual', 'walking', 'wheelchair'])
           .>> t(:unwrap, 'short_report')
           .>> t(:rename_keys, { 'deaf_and_partially_deaf_de' => 'deaf', 'mental_de' => 'mental', 'visual_and_partially_visual_de' => 'visual', 'wheelchair_and_walking_de' => 'walking' })
           .>> t(:nest, 'short_report', ['deaf', 'mental', 'visual', 'walking'])
@@ -80,6 +94,22 @@ module DataCycleCore
           linked_items.push(t(:find_thing_ids).call(**data['feratel'].symbolize_keys).first) if data.dig('feratel').present?
           linked_items.push(t(:find_thing_ids).call(**data['outdoor_active'].symbolize_keys).first) if data.dig('outdoor_active').present?
           linked_items.compact
+        end
+
+        def self.generate_icon_external_keys(data)
+          external_keys = []
+          if data.dig('certificate_data', 'certificate_type').present?
+            type_key = ['reisen-fuer-alle.de - icon', data.dig('certificate_data', 'certificate_type', 'label_de')].join(' - ')
+            external_keys.push(type_key)
+          end
+
+          ['deaf', 'mental', 'partiall_deaf', 'partially_visual', 'visual', 'walking', 'wheelchair'].each do |kind|
+            next if data.dig('certificate_data', kind, 'level') == 'none'
+            next if data.dig('certificate_data', kind, 'icon_url').blank?
+            icon_key = ['reisen-fuer-alle.de - icon', kind, data.dig('certificate_data', kind, 'level')].join(' - ')
+            external_keys.push(icon_key)
+          end
+          external_keys
         end
       end
     end

@@ -14,6 +14,7 @@ module DataCycleCore
           .>> t(:add_field, 'additional_information_hotel', ->(s) { Array.wrap(to_additional_information(external_source_id, 'hotel_description').call(s).compact) if s.dig('hotel_data', 'hotel_description')&.squish.present? })
           .>> t(:add_field, 'additional_information', ->(s) { Array.wrap(to_additional_information(external_source_id, 'hotel_important_information').call(s).compact) if s.dig('hotel_data', 'hotel_important_information')&.squish.present? })
           .>> t(:merge_array_values, 'additional_information', 'additional_information_hotel')
+          .>> t(:add_field, 'universal_classifications', ->(s) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Booking.com - ExactClass', s.dig('hotel_data', 'exact_class').to_s)).compact })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('hotel_id').to_s })
           .>> t(:unwrap, 'hotel_data', ['name', 'hotel_description'])
           .>> t(:rename_keys, { 'hotel_description' => 'description' })

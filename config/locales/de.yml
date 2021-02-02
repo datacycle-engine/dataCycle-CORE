@@ -43,6 +43,7 @@ de:
     user: Benutzer
     standard: Standard
     guest: Gast
+    external_user: Externer Benutzer
 
   view_modes:
     grid: Kacheln
@@ -359,6 +360,7 @@ de:
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
     width: Breite
     height: Höhe
+    order: Reihenfolge
     content_size: Dateigröße
     contact_info_email: E-Mail
     contact_info_telephone: Telefonnummer
@@ -410,13 +412,16 @@ de:
       not_related: nicht verknüpft mit
     max_number_of_people: max. Anzahl Personen
     number_of_meeting_rooms: Anzahl der Zimmer (Tagungsraum)
+    linked_location: Verknüpfter Ort
+    linked_author: Verknüpfter Author
+    linked_copyright_holder: Verknüpfter Rechteinhaber
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
     classification_tree_ids: nach Klassifizierungsbaum filtern...
     creator: nach Personen filtern...
-    external_source: nach Externer Quellen filtern...
-    external_system: nach Externer Verknüpfungen filtern...
+    external_source: nach externen Quellen filtern...
+    external_system: nach externen Verknüpfungen filtern...
     validity_period: nach Gültigkeitszeitraum filtern...
     date_range: nach Datum filtern...
     boolean: nach booleschen Kriterien filtern...
@@ -563,6 +568,7 @@ de:
       min_number: '%{data} zu klein, sollte %{value} sein, ist aber nur %{data}.'
       max_number: '%{data} zu hoch, sollte %{value} sein, ist aber %{data}.'
       min_datetime: 'Zeitpunkt %{data} sollte nach %{min} liegen.'
+      min_date: 'Datum %{data} sollte nach %{min} liegen.'
       match: '%{data} stimmt nicht mit %{expression} überein.'
       format: 'Format-String %{format_string} für %{data} unbekannt.'
       uuid: 'Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0'
@@ -590,6 +596,7 @@ de:
       data_array_format: 'Elemente des Daten-Arrays für %{template} haben falsches Format %{key}.'
       classification: "Keine Classification gefunden für %{key} in classification_tree mit dem Label: '%{label}' und tree_label '%{tree_label}'"
       asset_upload: 'Datei konnte nicht hochgeladen werden'
+      asset_convert: 'Datei konnte nicht verarbeitet werden'
       min_ref: 'Zu wenig Referezen angegeben, %{data} sollte mindestens %{value} sein.'
       max_ref: 'Zu viele Referezen angegeben, %{data} sollte maximal %{value} sein.'
       data_format: 'Elemente des Link-Arrays für %{template} haben das falsche Format %{key}.'
