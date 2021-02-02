@@ -79,6 +79,10 @@
         :type: object
         :storage_location: translated_value
         :properties:
+          :short_report:
+            :label: Kurzbericht
+            :type: string
+            :storage_location: translated_value
           :wheelchair:
             :label: Gehbehinderte/Rollstuhlfahrer
             :type: string
