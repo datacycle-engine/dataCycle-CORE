@@ -28,10 +28,9 @@ module DataCycleCore
     end
 
     has_many :classifications, through: :classification_aliases
-    has_many :things, through: :classifications
-
+    has_many :things, -> { unscope(:order).distinct }, through: :classifications
     has_one :statistics, -> { readonly }, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label
-    after_update :add_things_cache_invalidation_job, if: -> { (saved_changes.keys & ['name', 'visibility']).any? }
+    after_update :add_things_cache_invalidation_job, if: -> { saved_changes.keys.key?('name') || saved_changes.dig('visibility', 0).to_set&.^(saved_changes.dig('visibility', 1).to_set)&.include?('api') }
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
@@ -128,8 +127,8 @@ module DataCycleCore
     end
 
     def invalidate_things_cache
-      things.ids.uniq.each do |item_id|
-        Rails.cache.delete_matched("*#{item_id}*")
+      things.ids.each do |thing_id|
+        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new('DataCycleCore::Thing', thing_id, :invalidate_self) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: 'data_cycle_core/thing_invalidate_self', delayed_reference_id: thing_id, locked_at: nil)
       end
     end
   end
