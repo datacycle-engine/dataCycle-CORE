@@ -655,7 +655,7 @@ module DataCycleCore
         def self.parse_period(data)
           return unless data&.dig('Type') == 'Period'
           dates = Array.wrap(data.dig('ValidDate'))
-            .map { |item| [item['From'].try(:in_time_zone), item['To'].try(:in_time_zone)].compact }.flatten
+            .map { |item| [item['From'].try(:to_date), item['To'].try(:to_date)].compact }.flatten
           {
             'valid_from' => dates.min,
             'valid_through' => dates.max
