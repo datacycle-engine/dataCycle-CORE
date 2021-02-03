@@ -72,6 +72,34 @@ module DataCycleCore
         joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id: external_system_id, external_key: external_key.is_a?(Array) ? external_key.map(&:to_s) : external_key.to_s]))
       end
 
+      def by_external_system(external_system_id, joined_name = 'merged_external_systems')
+        return all if external_system_id.blank?
+
+        join_external_connections_query = <<-SQL.squish
+          INNER JOIN (
+            SELECT
+              external_system_syncs.syncable_id AS thing_id,
+              external_system_syncs.external_system_id AS external_system_id
+            FROM
+              external_system_syncs
+            WHERE
+              external_system_syncs.syncable_type = 'DataCycleCore::Thing'
+              AND external_system_syncs.external_system_id = :external_system_id
+            UNION
+            SELECT
+              things.id AS thing_id,
+              things.external_source_id AS external_system_id
+            FROM
+              things
+            WHERE
+              things.external_source_id = :external_system_id
+          ) #{joined_name}
+          ON #{joined_name}.thing_id = things.id
+        SQL
+
+        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id: external_system_id]))
+      end
+
       # TODO: currently not replaceable: used in PulicationsController
       def with_classification_alias_ids(classification_alias_ids)
         classification_alias_ids = Array(classification_alias_ids).map { |id|
