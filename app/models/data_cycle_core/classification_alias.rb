@@ -30,12 +30,12 @@ module DataCycleCore
     before_destroy -> { primary_classification&.destroy }, prepend: true
     before_destroy :invalidate_things_cache, prepend: true
     after_update :update_primary_classification
-    after_update :add_things_cache_invalidation_job, if: lambda do
+    after_update :add_things_cache_invalidation_job, if: lambda {
       @classifications_changed ||
         (saved_changes.keys & ['internal_name', 'uri']).any? ||
         saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present? ||
         saved_changes.dig('description_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
-    end
+    }
 
     attr_accessor :content_template
 
