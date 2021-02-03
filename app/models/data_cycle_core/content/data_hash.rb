@@ -145,6 +145,10 @@ module DataCycleCore
 
       def invalidate_self_and_update_search
         search_languages(true)
+        invalidate_self
+      end
+
+      def invalidate_self
         Rails.cache.delete_matched("*#{id}*")
         invalidate_related_cache
       end
