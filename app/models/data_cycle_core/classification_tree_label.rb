@@ -32,7 +32,7 @@ module DataCycleCore
     has_one :statistics, -> { readonly }, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label
     after_update :add_things_cache_invalidation_job, if: lambda {
       saved_changes.key?('name') ||
-        saved_changes.dig('visibility', 0)&.to_set&.^(saved_changes.dig('visibility', 1).to_set)&.include?('api')
+        saved_changes.dig('visibility', 0)&.to_set&.^(saved_changes.dig('visibility', 1)&.to_set)&.include?('api')
     }
 
     def create_classification_alias(*classification_attributes)
