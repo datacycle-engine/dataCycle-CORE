@@ -7,72 +7,71 @@ services:
       - POSTGRES_PASSWORD=password
     command: 'postgres'
     ports:
-      - '5446:5432'
+      - ${PUBLIC_POSTGRES_PORT:-5432}:5432
     shm_size: 4gb
   mongodb:
     image: 'mvertes/alpine-mongo:4.0.6-1'
     ports:
-      - '27026:27017'
+      - '${PUBLIC_MONGODB_PORT:-27017}:27017'
   web:
-    build: .
+    build:
+      context: ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}
+      dockerfile: ${COMPOSE_WEB_DOCKER_FILE:-./vendor/gems/data-cycle-core/Dockerfile}
+    env_file:
+      - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}.env
     environment:
-      # - RAILS_ENV=production
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
-      # - POSTGRES_VERSION=11
+      - POSTGRES_VERSION=11
       - MONGODB_HOST=mongodb
       - ALLOW_IP_RANGE=172.18.0.0/12
       - TZ=Europe/Vienna
-      - APP_HOST=localhost:3010
-      - APP_PROTOCOL=http
       - MAILHOG_HOST=mailhog
-      - SSH_AUTH_SOCK=/ssh-agent
-      - RAILS_LOG_TO_STDOUT=true
-      # - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock  # SSH-forwarding for Mac
-      # - WEBHOOKS=Local-Text-File
-      - 'CORE_RAKE_PREFIX=app:'
-      - APPLICATION_ROOT=/var/www/app/test/dummy
+      - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
+      - APP_PROTOCOL=http
+      - APP_HOST=localhost:${PUBLIC_APPLICATION_PORT:-3003}
+      - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
+      - SSH_AUTH_SOCK=${SSH_AUTH_SOCK:-/ssh-agent}
     command:
-      - ./docker/core-dummy-setup.sh
+      - ${COMPOSE_WEB_COMMAND:-./vendor/gems/data-cycle-core/docker/setup.sh}
     volumes:
       - 'gems:/gems'
-      - '.:/var/www/app'
-      - $SSH_AUTH_SOCK:/ssh-agent
-    # - /run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock  # SSH-forwarding for Mac
+      - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
+      - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
     user: root
-    #    ports:
-    #      - '3010:3000'
     links:
       - postgres
       - mongodb
     stdin_open: true
     tty: true
-  #    depends_on:
-  #      - chrome
   mailhog:
     image: yappabe/mailhog
     environment:
       DNSDOCK_ALIAS: localhost
     ports:
-      - '1035:8025'
+      - '${PUBLIC_MAILHOG_PORT:-1025}:8025'
   redis:
     image: 'redis:latest'
     command: redis-server
     volumes:
       - 'redis:/data'
     ports:
-      - '6380:6379'
+      - '${PUBLIC_REDIS_PORT:-6379}:6379'
   nginx:
+    image: nginx:1.19.4-alpine
     ports:
-      - '80:80'
-      - '3010:3010'
-    build:
-      context: ./docker/nginx
+      - '${PUBLIC_NGINX_HTTP_PORT:-80}:80'
+      - '${PUBLIC_APPLICATION_PORT:-3003}:${PUBLIC_APPLICATION_PORT:-3003}'
+    env_file:
+      - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}.env
+    environment:
+      - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
+      - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
     volumes:
-      - '.:/var/www/app'
-      - './docker/nginx/core_dummy_default.conf:/etc/nginx/conf.d/default.conf'
+      - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
+      - './docker/nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template'
     links:
       - web
       - imaginary
@@ -82,7 +81,7 @@ services:
       PORT: 9000
     command: -enable-url-source -concurrency 20
     ports:
-      - '9000:9000'
+      - '${PUBLIC_IMAGINARY_PORT:-9000}:9000'
 volumes:
   gems:
   redis:
