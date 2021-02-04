@@ -25,7 +25,7 @@ module DataCycleCore
 
           if local
             content = DataCycleCore::Thing.new
-          else
+          else # rewrite to use identifier!
             content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first || DataCycleCore::Thing.new(
               external_source_id: utility_object.external_source.id,
               external_key: data['external_key']
