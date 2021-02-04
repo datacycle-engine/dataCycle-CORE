@@ -15,15 +15,15 @@ services:
       - '27026:27017'
   web:
     build:
-      context: $DOCKER_WEB_BUILD_CONTEXT
-      dockerfile: $DOCKER_CORE_PATH/Dockerfile$DOCKER_CORE_POSTFIX
+      context: $COMPOSE_WEB_BUILD_CONTEXT
+      dockerfile: $COMPOSE_WEB_DOCKER_FILE
     env_file:
-      - $DOCKER_WEB_BUILD_CONTEXT/.env
+      - $COMPOSE_WEB_BUILD_CONTEXT/.env
     command:
-      - $DOCKER_CORE_PATH/docker/setup$DOCKER_CORE_POSTFIX.sh
+      - $COMPOSE_WEB_COMMAND
     volumes:
       - 'gems:/gems'
-      - '$DOCKER_WEB_BUILD_CONTEXT:/var/www/app'
+      - '$COMPOSE_WEB_BUILD_CONTEXT:/var/www/app'
       - $SSH_AUTH_SOCK:/ssh-agent
     user: root
     links:
@@ -50,9 +50,9 @@ services:
       - '80:80'
       - '$APPLICATION_PORT:$APPLICATION_PORT'
     env_file:
-      - $DOCKER_WEB_BUILD_CONTEXT/.env
+      - $COMPOSE_WEB_BUILD_CONTEXT/.env
     volumes:
-      - '$DOCKER_WEB_BUILD_CONTEXT:/var/www/app'
+      - '$COMPOSE_WEB_BUILD_CONTEXT:/var/www/app'
       - './docker/nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template'
     links:
       - web
