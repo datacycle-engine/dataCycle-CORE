@@ -7,7 +7,7 @@ services:
       - POSTGRES_PASSWORD=password
     command: 'postgres'
     ports:
-      - '5446:5432'
+      - $POSTGRES_EXTERNAL_PORT:5432
     shm_size: 4gb
   mongodb:
     image: 'mvertes/alpine-mongo:4.0.6-1'
@@ -19,6 +19,18 @@ services:
       dockerfile: $COMPOSE_WEB_DOCKER_FILE
     env_file:
       - $COMPOSE_WEB_BUILD_CONTEXT/.env
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_VERSION=11
+      - MONGODB_HOST=mongodb
+      - ALLOW_IP_RANGE=172.18.0.0/12
+      - TZ=Europe/Vienna
+      - MAILHOG_HOST=mailhog
+      - APP_PROTOCOL=http
+      - APP_HOST=localhost:$APPLICATION_PORT
     command:
       - $COMPOSE_WEB_COMMAND
     volumes:
