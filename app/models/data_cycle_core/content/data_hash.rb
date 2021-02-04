@@ -93,7 +93,7 @@ module DataCycleCore
         return @data_hash if props.blank?
 
         props.each do |property_name, property_definition|
-          @data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, @data_hash, self)
+          @data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, @data_hash, self, @current_user)
         end
 
         @data_hash
@@ -118,9 +118,10 @@ module DataCycleCore
         Webhook::Delete.execute_all(self)
       end
 
-      def validate(data, schema_hash = nil, strict = false, add_defaults = false)
+      def validate(data, schema_hash = nil, strict = false, add_defaults = false, current_user = nil)
         if add_defaults && properties_with_default_values.present?
           @data_hash = data
+          @current_user = current_user
           data = add_default_values.dup
         end
 

@@ -1458,7 +1458,8 @@ body.login-page {
 
 a[data-toggle] {
   display: inline-block;
-  &.has-tip {
+  &.has-tip,
+  &.dc-foundation-tooltip {
     padding-bottom: 0;
   }
 }
@@ -1618,7 +1619,8 @@ a[data-toggle] {
         vertical-align: middle;
         text-align: center;
       }
-      .has-tip {
+      .has-tip,
+      .dc-foundation-tooltip {
         border: none;
       }
     }
@@ -1692,7 +1694,8 @@ ul.no-format {
   line-height: initial;
 }
 
-label.has-tip {
+label.has-tip,
+label.dc-foundation-tooltip {
   font-weight: normal;
 }
 
