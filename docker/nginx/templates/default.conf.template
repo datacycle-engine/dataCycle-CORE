@@ -12,7 +12,7 @@ proxy_cache_path /var/cache/nginx/imaginary_data_cycle_develop
 limit_req_zone $binary_remote_addr zone=req_zone:10m rate=100r/s;
 
 upstream self_data_cycle_develop {
-  server nginx:${APPLICATION_PORT};
+  server nginx:${PUBLIC_APPLICATION_PORT};
 }
 
 upstream docker-imaginary {
@@ -41,8 +41,8 @@ upstream puma_data_cycle_develop {
 }
 
 server {
-  listen ${APPLICATION_PORT}; # managed by Certbot
-  listen [::]:${APPLICATION_PORT};
+  listen ${PUBLIC_APPLICATION_PORT}; # managed by Certbot
+  listen [::]:${PUBLIC_APPLICATION_PORT};
 
   server_name localhost;
   root ${APPLICATION_ROOT}/public;
@@ -162,7 +162,7 @@ server {
   location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<mode>(crop|fit|resize|smartcrop|thumbnail|convert))\/(?<width>\d+)\/(?<height>\d+)\/(.*)\.(?<type>(jpeg|png|webp))$" {
     limit_req zone=req_zone burst=100 nodelay;
 
-    set $rqUrl "http://nginx:${APPLICATION_PORT}/things/$thing/asset/content";
+    set $rqUrl "http://nginx:${PUBLIC_APPLICATION_PORT}/things/$thing/asset/content";
 
     proxy_pass http://docker-imaginary/$mode?width=$width&height=$height&type=$type&url=$rqUrl;
 

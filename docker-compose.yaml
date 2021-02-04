@@ -7,18 +7,18 @@ services:
       - POSTGRES_PASSWORD=password
     command: 'postgres'
     ports:
-      - $POSTGRES_EXTERNAL_PORT:5432
+      - ${PUBLIC_POSTGRES_PORT:-5432}:5432
     shm_size: 4gb
   mongodb:
     image: 'mvertes/alpine-mongo:4.0.6-1'
     ports:
-      - '27026:27017'
+      - '${PUBLIC_MONGODB_PORT:-27017}:27017'
   web:
     build:
-      context: $COMPOSE_WEB_BUILD_CONTEXT
-      dockerfile: $COMPOSE_WEB_DOCKER_FILE
+      context: ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}
+      dockerfile: ${COMPOSE_WEB_DOCKER_FILE:-./vendor/gems/data-cycle-core/Dockerfile}
     env_file:
-      - $COMPOSE_WEB_BUILD_CONTEXT/.env
+      - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}.env
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
@@ -29,14 +29,17 @@ services:
       - ALLOW_IP_RANGE=172.18.0.0/12
       - TZ=Europe/Vienna
       - MAILHOG_HOST=mailhog
+      - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
       - APP_PROTOCOL=http
-      - APP_HOST=localhost:$APPLICATION_PORT
+      - APP_HOST=localhost:${PUBLIC_APPLICATION_PORT:-3003}
+      - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
+      - SSH_AUTH_SOCK=${SSH_AUTH_SOCK:-/ssh-agent}
     command:
-      - $COMPOSE_WEB_COMMAND
+      - ${COMPOSE_WEB_COMMAND:-./vendor/gems/data-cycle-core/docker/setup.sh}
     volumes:
       - 'gems:/gems'
-      - '$COMPOSE_WEB_BUILD_CONTEXT:/var/www/app'
-      - $SSH_AUTH_SOCK:/ssh-agent
+      - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
+      - $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
     user: root
     links:
       - postgres
@@ -48,23 +51,26 @@ services:
     environment:
       DNSDOCK_ALIAS: localhost
     ports:
-      - '1035:8025'
+      - '${PUBLIC_MAILHOG_PORT:-1025}:8025'
   redis:
     image: 'redis:latest'
     command: redis-server
     volumes:
       - 'redis:/data'
     ports:
-      - '6380:6379'
+      - '${PUBLIC_REDIS_PORT:-6379}:6379'
   nginx:
     image: nginx:1.19.4-alpine
     ports:
-      - '80:80'
-      - '$APPLICATION_PORT:$APPLICATION_PORT'
+      - '${PUBLIC_NGINX_HTTP_PORT:-80}:80'
+      - '${PUBLIC_APPLICATION_PORT:-3003}:${PUBLIC_APPLICATION_PORT:-3003}'
     env_file:
-      - $COMPOSE_WEB_BUILD_CONTEXT/.env
+      - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}.env
+    environment:
+      - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
+      - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
     volumes:
-      - '$COMPOSE_WEB_BUILD_CONTEXT:/var/www/app'
+      - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
       - './docker/nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template'
     links:
       - web
@@ -75,7 +81,7 @@ services:
       PORT: 9000
     command: -enable-url-source -concurrency 20
     ports:
-      - '9000:9000'
+      - '${PUBLIC_IMAGINARY_PORT:-9000}:9000'
 volumes:
   gems:
   redis:
