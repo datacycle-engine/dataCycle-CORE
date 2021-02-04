@@ -5,12 +5,12 @@ module DataCycleCore
     module DefaultValue
       module String
         class << self
-          def substitution(content:, property_definition:,  **_additional_args)
+          def substitution(content:, property_definition:, **_additional_args)
             format(property_definition&.dig('default_value', 'substitute_string').to_s, id: content&.id).presence
           end
 
           def current_user(property_definition:, current_user:, **_additional_args)
-            return if property_definition&.dig('default_value', 'condition').present? && !property_definition.dig('default_value', 'condition').all? { |k,v| send("condition_#{k}", current_user, v) }
+            return if property_definition&.dig('default_value', 'condition').present? && !property_definition.dig('default_value', 'condition').all? { |k, v| send("condition_#{k}", current_user, v) }
 
             user_string(current_user)
           end
