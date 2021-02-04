@@ -25,13 +25,48 @@ module DataCycleCore
 
           if local
             content = DataCycleCore::Thing.new
-          else # rewrite to use identifier!
-            content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first || DataCycleCore::Thing.new(
+          else
+            # try to find already present content:
+            content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first
+            if content.blank? && data['external_system_data'].present?
+              data['external_system_data'].each do |external_system_entry|
+                external_system = DataCycleCore::ExternalSystem.find_by(identifier: external_system_entry['identifier'])
+                content ||= DataCycleCore::Thing.by_external_key(external_system&.id, external_system_entry['external_key']).first
+              end
+            end
+
+            # add external_system_syncs where necessary and return
+            if content.present?
+              present_external_systems = content.view_all_external_data
+              all_imported_external_system_data = data['external_system_data'] + [{
+                'external_key' => data['external_key'],
+                'name' => utility_object.external_source.name,
+                'identifier' => utility_object.external_source.identifier,
+                'last_sync_at' => data.dig('updated_at'),
+                'last_successful_sync_at' => data.dig('updated_at')
+              }]
+              all_imported_external_system_data.each do |es|
+                next if present_external_systems.detect { |i| i['external_identifier'] == es['identifier'] && i['external_key'] == es['external_key'] }.present?
+                external_system =
+                  if es['identifier'].present?
+                    DataCycleCore::ExternalSystem.find_by(identifier: es['identifier'])
+                  else
+                    DataCycleCore::ExternalSystem.find_by(name: es['name'])
+                  end
+                external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank?
+                sync_data = content.add_external_system_data(external_system, { external_key: es['external_key'] }, es['status'] || 'success', es['sync_type'] || 'import', es['external_key'], false)
+                update_data = { last_sync_at: es['last_sync_at'], last_successful_sync_at: es['last_successful_sync_at'] }.compact
+                sync_data.update(update_data) if update_data.present?
+              end
+
+              return content
+            end
+
+            # no content found anywhere --> create new thing
+            content = DataCycleCore::Thing.new(
               external_source_id: utility_object.external_source.id,
               external_key: data['external_key']
             )
-
-            return content if content&.external_source_id != utility_object.external_source.id || content&.external_key != data['external_key']
           end
           content.metadata ||= {}
           content.schema = template.schema

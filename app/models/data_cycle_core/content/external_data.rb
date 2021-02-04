@@ -47,6 +47,18 @@ module DataCycleCore
 
         update_columns(external_key: nil, external_source_id: nil)
       end
+
+      def view_all_external_data
+        all_data = []
+        if external_source_id.present? && external_key.present?
+          all_data += [{
+            external_system_id: external_source_id,
+            external_identifier: external_source.identifier,
+            external_key: external_key
+          }.with_indifferent_access]
+        end
+        all_data + external_system_syncs&.map { |i| i.to_hash.with_indifferent_access }
+      end
     end
   end
 end
