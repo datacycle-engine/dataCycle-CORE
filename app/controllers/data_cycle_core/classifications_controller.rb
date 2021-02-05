@@ -219,21 +219,27 @@ module DataCycleCore
     private
 
     def create_params
-      normalize_names(params).permit(
-        :classification_tree_label_id,
-        :classification_tree_id,
-        classification_tree_label: [:id, :name, :internal, visibility: []],
-        classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
-      )
+      return @create_params if defined? @create_params
+      @create_params = begin
+        normalize_names(params).permit(
+          :classification_tree_label_id,
+          :classification_tree_id,
+          classification_tree_label: [:id, :name, :internal, visibility: []],
+          classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
+        )
+      end
     end
 
     def update_params
-      params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
+      return @update_params if defined? @update_params
+      @update_params = begin
+        params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
 
-      normalize_names(params).permit(
-        classification_tree_label: [:id, :name, :internal, visibility: []],
-        classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
-      )
+        normalize_names(params).permit(
+          classification_tree_label: [:id, :name, :internal, visibility: []],
+          classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
+        )
+      end
     end
 
     def locale_params
