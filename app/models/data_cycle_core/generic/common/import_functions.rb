@@ -59,11 +59,11 @@ module DataCycleCore
                 sync_data.update(update_data) if update_data.present?
               end
 
-              return content
+              return content if content&.external_source_id != utility_object.external_source.id || content&.external_key != data['external_key']
             end
 
             # no content found anywhere --> create new thing
-            content = DataCycleCore::Thing.new(
+            content ||= DataCycleCore::Thing.new(
               external_source_id: utility_object.external_source.id,
               external_key: data['external_key']
             )

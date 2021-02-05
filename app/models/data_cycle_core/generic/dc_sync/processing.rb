@@ -4,6 +4,16 @@ module DataCycleCore
   module Generic
     module DcSync
       module Processing
+        def self.process_known_thing(utility_object, raw_data, template, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::DcSync::Transformations.to_thing(utility_object.external_source.id),
+            default: { template: template },
+            config: config
+          )
+        end
+
         def self.process_things(utility_object, raw_data, template, config)
           item_template = get_template(raw_data)
           linked_key_translation = process_included_items(utility_object, item_template, raw_data.dig('included'))
@@ -21,8 +31,8 @@ module DataCycleCore
               # byebug if raw_data['de']['template_name'] == 'Event'
               processed_thing = DataCycleCore::Generic::Common::ImportFunctions.process_step(
                 utility_object: utility_object,
-                raw_data: data_correct_embedded,
-                transformation: DataCycleCore::Generic::DcSync::Transformations.to_thing(utility_object.external_source),
+                raw_data: data_correct_embedded.merge(raw_data.slice(:new)),
+                transformation: DataCycleCore::Generic::DcSync::Transformations.to_thing(utility_object.external_source.id),
                 default: { template: template },
                 config: config
               )

@@ -91,6 +91,8 @@ module DataCycleCore
           query = filter.apply
 
           query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
+
+          query = query.content_ids(parameters[:content_id]) if parameters&.dig(:content_id).present?
           query
         end
 
