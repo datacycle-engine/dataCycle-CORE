@@ -12,7 +12,7 @@ proxy_cache_path /var/cache/nginx/imaginary_data_cycle_develop
 limit_req_zone $binary_remote_addr zone=req_zone:10m rate=100r/s;
 
 upstream self_data_cycle_develop {
-  server nginx:3010;
+  server nginx:${PUBLIC_APPLICATION_PORT};
 }
 
 upstream docker-imaginary {
@@ -36,31 +36,16 @@ map $arg_height $endpoint_height {
 }
 
 upstream puma_data_cycle_develop {
-  #     server web:3000;
-  server unix:/var/www/app/test/dummy/tmp/sockets/puma.sock fail_timeout=0;
+  # server web:3000;
+  server unix:${APPLICATION_ROOT}/tmp/sockets/puma.sock fail_timeout=0;
 }
 
-# enable for https
-# server {
-#     listen 3010;
-#     listen [::]:3010;
-#     server_name localhost;
-#
-#     location ^~ /.well-known {
-#         root /var/www/data_cycle/production/shared/public;
-#         try_files $uri/index.html $uri;
-#     }
-#     return 301 https://$host$request_uri;
-# }
-
 server {
-  listen 3010; # managed by Certbot
-  listen [::]:3010;
-  #     ssl_certificate /etc/letsencrypt/live/<%= fetch(:server_name) %>/fullchain.pem; # managed by Certbot
-  #     ssl_certificate_key /etc/letsencrypt/live/<%= fetch(:server_name) %>/privkey.pem; # managed by Certbot
+  listen ${PUBLIC_APPLICATION_PORT}; # managed by Certbot
+  listen [::]:${PUBLIC_APPLICATION_PORT};
 
   server_name localhost;
-  root /var/www/app/test/dummy/public;
+  root ${APPLICATION_ROOT}/public;
   try_files $uri/index.html $uri @puma_data_cycle_develop;
 
   client_max_body_size 4G;
@@ -73,10 +58,6 @@ server {
   error_page 500 502 504 /500.html;
   error_page 503 @503;
 
-  location ^~ /.well-known {
-    root /var/www/data_cycle/production/shared/public;
-  }
-
   location @puma_data_cycle_develop {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
@@ -86,8 +67,8 @@ server {
     proxy_read_timeout 300;
     proxy_pass http://puma_data_cycle_develop;
     # limit_req zone=one;
-    access_log /var/www/app/test/dummy/log/nginx.access.log;
-    error_log /var/www/app/test/dummy/log/nginx.error.log;
+    access_log ${APPLICATION_ROOT}/log/nginx.access.log;
+    error_log ${APPLICATION_ROOT}/log/nginx.error.log;
   }
 
   location ^~ /assets/ {
@@ -181,7 +162,7 @@ server {
   location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<mode>(crop|fit|resize|smartcrop|thumbnail|convert))\/(?<width>\d+)\/(?<height>\d+)\/(.*)\.(?<type>(jpeg|png|webp))$" {
     limit_req zone=req_zone burst=100 nodelay;
 
-    set $rqUrl "http://nginx:3010/things/$thing/asset/content";
+    set $rqUrl "http://nginx:${PUBLIC_APPLICATION_PORT}/things/$thing/asset/content";
 
     proxy_pass http://docker-imaginary/$mode?width=$width&height=$height&type=$type&url=$rqUrl;
 
@@ -254,47 +235,4 @@ server {
     add_header X-Cache $upstream_cache_status;
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  # Disabled API caching
-  # set $no_cache 1;
-
-  # if ($request_uri ~* '/api/') {
-  #   set $no_cache 0;
-  # }
-
-  # Don't cache or serve pages specified above
-  # proxy_cache_bypass $no_cache;
-  # proxy_no_cache $no_cache;
-
-  # proxy_cache data_cycle_develop;
-  # proxy_cache_lock on;
-  # proxy_cache_valid 200 10s;
-  # proxy_cache_use_stale updating;
-  # proxy_cache_background_update on;
-  # add_header X-Cache $upstream_cache_status;
 }

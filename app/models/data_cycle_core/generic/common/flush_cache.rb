@@ -13,11 +13,7 @@ module DataCycleCore
         end
 
         def self.process_content(*)
-          queued_jobs = Delayed::Jobs.where(queue: 'cache_invalidation')
-          items_count = queued_jobs.count
           Rails.cache.clear
-          queued_jobs.destroy_all
-          items_count
         end
       end
     end

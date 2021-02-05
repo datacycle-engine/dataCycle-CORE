@@ -84,9 +84,7 @@ module DataCycleCore
     end
 
     def remove_animation
-      manipulate! do |img, index|
-        img if index.to_i.zero?
-      end
+      manipulate!(&:collapse!) if content_type == 'image/gif'
     end
 
     def content_type(websave = false)

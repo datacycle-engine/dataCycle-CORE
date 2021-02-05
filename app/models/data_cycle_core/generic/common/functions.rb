@@ -70,7 +70,9 @@ module DataCycleCore
           data_hash
         end
 
-        def self.tags_to_ids(data_hash, attribute, external_source_id, external_prefix)
+        def self.tags_to_ids(data_hash, attribute, external_source_id, external_prefix, condition_function = nil)
+          return data_hash if condition_function.present? && !condition_function.call(data_hash)
+
           if data_hash[attribute].blank?
             data_hash[attribute] = []
           else

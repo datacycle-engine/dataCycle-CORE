@@ -217,7 +217,8 @@ label.agb-link {
     }
     > li {
       position: relative;
-      button.has-tip:not([disabled]) {
+      button.has-tip:not([disabled]),
+      button.dc-foundation-tooltip:not([disabled]) {
         border-bottom: none;
         cursor: pointer;
       }
