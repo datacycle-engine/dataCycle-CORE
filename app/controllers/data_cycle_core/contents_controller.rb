@@ -500,12 +500,15 @@ module DataCycleCore
     end
 
     def source_params
-      if params[:source]
-        ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_locale)
-      elsif params[:source_id].present?
-        params.permit(:source_id, :source_locale)
-      else
-        {}
+      return @source_params if defined? @source_params
+      @source_params = begin
+        if params[:source]
+          ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_locale)
+        elsif params[:source_id].present?
+          params.permit(:source_id, :source_locale)
+        else
+          {}
+        end
       end
     end
   end

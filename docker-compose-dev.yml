@@ -2,11 +2,11 @@ version: '3.8'
 services:
   web:
     volumes:
-      - $COMPOSE_PROJECT_NAME-sync:/var/www/app:nocopy # use different names for different projects
+      - sync:/var/www/app:nocopy
   nginx:
     volumes:
-      - './docker/nginx/templates/default_mac.conf.template:/etc/nginx/templates/default.conf.template' # For now, we are not using puma sockets because the sync does not work correctly
-
+      - sync:/var/www/app:nocopy
 volumes:
-  '$COMPOSE_PROJECT_NAME-sync': # use different names for different projects
+  sync:
+    name: ${COMPOSE_PROJECT_NAME}-sync # using different names for different projects
     external: true
