@@ -109,34 +109,26 @@ module DataCycleCore
     end
 
     def create
-      locale_params = I18n.available_locales.map { |l| [l.to_sym => [:name, :description]] }
-      permitted_params = params.permit(
-        :classification_tree_label_id,
-        :classification_tree_id,
-        classification_tree_label: [:name, :internal, visibility: []],
-        classification_alias: [:name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
-      )
-
       respond_to do |format|
         format.html do
           raise NotImplemented
         end
 
         format.js do
-          if permitted_params[:classification_tree_label]
-            @object = DataCycleCore::ClassificationTreeLabel.create!(permitted_params[:classification_tree_label])
+          if create_params[:classification_tree_label]
+            @object = DataCycleCore::ClassificationTreeLabel.create!(create_params[:classification_tree_label])
           else
-            @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label_id])
+            @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(create_params[:classification_tree_label_id])
 
-            if permitted_params['classification_tree_id']
-              @parent_classification_tree = DataCycleCore::ClassificationTree.find(permitted_params['classification_tree_id'])
+            if create_params['classification_tree_id']
+              @parent_classification_tree = DataCycleCore::ClassificationTree.find(create_params['classification_tree_id'])
             else
               @parent_classification_tree = nil
             end
 
             ActiveRecord::Base.transaction do
-              @classification_alias = DataCycleCore::ClassificationAlias.new(permitted_params[:classification_alias].except(:translation))
-              permitted_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
+              @classification_alias = DataCycleCore::ClassificationAlias.new(create_params[:classification_alias].except(:translation))
+              create_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
                 I18n.with_locale(locale.to_sym) do
                   @classification_alias.attributes = values
                 end
@@ -159,32 +151,25 @@ module DataCycleCore
     end
 
     def update
-      locale_params = I18n.available_locales.map { |l| [l.to_sym => [:name, :description]] }
-      permitted_params = params.permit(
-        classification_tree_label: [:id, :name, :internal, visibility: []],
-        classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
-      )
-      permitted_params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
-
       respond_to do |format|
         format.html do
           raise NotImplemented
         end
 
         format.js do
-          if permitted_params[:classification_tree_label]
-            @object = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label][:id])
-            @object.update!(permitted_params[:classification_tree_label])
+          if update_params[:classification_tree_label]
+            @object = DataCycleCore::ClassificationTreeLabel.find(update_params[:classification_tree_label][:id])
+            @object.update!(update_params[:classification_tree_label])
           else
-            @object = DataCycleCore::ClassificationAlias.find(permitted_params[:classification_alias][:id])
+            @object = DataCycleCore::ClassificationAlias.find(update_params[:classification_alias][:id])
 
-            permitted_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
+            update_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
               I18n.with_locale(locale.to_sym) do
                 @object.attributes = values
               end
             end
 
-            @object.attributes = permitted_params[:classification_alias].except(:translation)
+            @object.attributes = update_params[:classification_alias].except(:translation)
             @object.save!
           end
         end
@@ -229,6 +214,43 @@ module DataCycleCore
                     filename: "#{object.name}.csv"
         end
       end
+    end
+
+    private
+
+    def create_params
+      normalize_names(params).permit(
+        :classification_tree_label_id,
+        :classification_tree_id,
+        classification_tree_label: [:id, :name, :internal, visibility: []],
+        classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
+      )
+    end
+
+    def update_params
+      params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
+
+      normalize_names(params).permit(
+        classification_tree_label: [:id, :name, :internal, visibility: []],
+        classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
+      )
+    end
+
+    def locale_params
+      I18n.available_locales.map { |l| [l.to_sym => [:name, :description]] }
+    end
+
+    def normalize_names(hash)
+      hash.each do |k, v|
+        if v.is_a?(Hash) || v.is_a?(ActionController::Parameters)
+          normalize_names v
+        elsif v.is_a?(Array)
+          v.flatten.each { |x| normalize_names(x) if x.is_a?(Hash) }
+        elsif k.to_s == 'name'
+          v.squish!
+        end
+      end
+      hash
     end
   end
 end
