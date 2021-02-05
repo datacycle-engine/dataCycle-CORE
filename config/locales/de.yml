@@ -668,9 +668,15 @@ de:
       become_user: 'Eingeloggt als %{data}.'
       duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
       merged_with_duplicate: Inhalte werden im Hintergrund zusammengeführt
-      bulk_updated: '<b>%{data}</b> Inhalte wurden aktualisiert'
-      bulk_deleted: '<b>%{data}</b> Inhalte wurden gelöscht'
-      bulk_created: '<b>%{data}</b> Inhalte wurden erstellt'
+      bulk_updated:
+        one: '<b>%{count}</b> Inhalt wurde aktualisiert'
+        other: '<b>%{count}</b> Inhalte wurden aktualisiert'
+      bulk_deleted:
+        one: '<b>%{count}</b> Inhalt wurde gelöscht'
+        other: '<b>%{count}</b> Inhalte wurden gelöscht'
+      bulk_created:
+        one: '<b>%{count}</b> Inhalt wurde erstellt'
+        other: '<b>%{count}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
@@ -678,9 +684,15 @@ de:
       not_modified: '%{data} wurde nicht geändert.'
       created_duplication: '%{data} wurde erfolgreich dupliziert.'
       content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
-      bulk_updated_skipped_html: '<br><b>%{data}</b> Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind.'
-      bulk_deleted_external_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da diese von einem Externen System importiert wurden.'
-      bulk_deleted_not_allowed_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da Sie keine Berechtigung dafür haben.'
+      bulk_updated_skipped_html:
+        one: '<br><b>%{count}</b> Inhalt wurde nicht gespeichert, da dieser in der gewählten Sprache nicht vorhanden sind.'
+        other: '<br><b>%{count}</b> Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind.'
+      bulk_deleted_external_html:
+        one: '<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da dieser von einem externen System importiert wurden.'
+        other: '<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da diese von einem externen System importiert wurden.'
+      bulk_deleted_not_allowed_html:
+        one: '<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da Sie keine Berechtigung dafür haben.'
+        other: '<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da Sie keine Berechtigung dafür haben.'
     job:
       added: '%{data}/%{uuid} zur Job-Queue hinzugefügt.'
       imported: "'%{data}' wurden aus YAML Datei importiert."

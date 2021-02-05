@@ -198,8 +198,8 @@ module DataCycleCore
         if errors.present?
           flash[:error] = errors.join(', ')
         else
-          flash[:success] = I18n.t :bulk_updated, scope: [:controllers, :success], data: item_count, locale: DataCycleCore.ui_language
-          flash[:success] += I18n.t :bulk_updated_skipped_html, scope: [:controllers, :info], data: skip_update_count, locale: DataCycleCore.ui_language if skip_update_count&.positive?
+          flash[:success] = I18n.t :bulk_updated, scope: [:controllers, :success], count: item_count, locale: DataCycleCore.ui_language
+          flash[:success] += I18n.t :bulk_updated_skipped_html, scope: [:controllers, :info], count: skip_update_count, locale: DataCycleCore.ui_language if skip_update_count&.positive?
         end
 
         if params[:new_locale].present?
@@ -237,8 +237,8 @@ module DataCycleCore
         ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: index + 1, items: delete_count
       end
 
-      flash[:success] = I18n.t(:bulk_deleted, scope: [:controllers, :success], data: delete_count, locale: DataCycleCore.ui_language)
-      flash[:success] += I18n.t(:bulk_deleted_not_allowed_html, scope: [:controllers, :info], locale: DataCycleCore.ui_language, data: cant_delete_count) if cant_delete_count.positive?
+      flash[:success] = I18n.t(:bulk_deleted, scope: [:controllers, :success], count: delete_count, locale: DataCycleCore.ui_language)
+      flash[:success] += I18n.t(:bulk_deleted_not_allowed_html, scope: [:controllers, :info], locale: DataCycleCore.ui_language, count: cant_delete_count) if cant_delete_count.positive?
 
       ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
       head(:ok)
