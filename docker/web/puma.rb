@@ -16,7 +16,7 @@ threads 5, 5
 
 bind "unix://#{application_root}/tmp/sockets/puma.sock"
 
-workers 3
+workers 1
 
 preload_app!
 
