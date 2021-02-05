@@ -2,6 +2,8 @@
 
 module DataCycleCore
   module CollectionHelper
+    BulkUpdateType = Struct.new(:value, :text, :checked)
+
     def get_collection_groups(local_assigns, include_data_hashes = false)
       collection_group_index = local_assigns[:collection_group_index] || 0
 
@@ -27,6 +29,21 @@ module DataCycleCore
 
     def selected_collections?(collections, content_id)
       collections.any? { |c| c.watch_list_data_hashes.any? { |w| w.hashable_id == content_id && w.hashable_type == 'DataCycleCore::Thing' } }
+    end
+
+    def bulk_update_types(prop)
+      check_boxes = [
+        BulkUpdateType.new('override', t('common.bulk_update.check_box_labels.override', locale: DataCycleCore.ui_language, data: prop['label']))
+      ]
+
+      return check_boxes unless prop['type'] == 'classification'
+
+      check_boxes.concat(
+        [
+          BulkUpdateType.new('add', t('common.bulk_update.check_box_labels.add', locale: DataCycleCore.ui_language, data: prop['label'])),
+          BulkUpdateType.new('remove', t('common.bulk_update.check_box_labels.remove', locale: DataCycleCore.ui_language, data: prop['label']))
+        ]
+      )
     end
   end
 end
