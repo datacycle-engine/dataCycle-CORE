@@ -21,25 +21,31 @@ module DataCycleCore
           # check if processing is necessary
           first_locale = raw_data.except('included', 'classifications', 'attribute_name', 'include_translation').keys.select { |i| i.to_sym.in?(I18n.available_locales) }&.first
           content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, raw_data[first_locale]['id']).first
-          content ||= DataCycleCore::Thing.by_external_key(DataCycleCore::ExternalSystem.find_by(identifier: raw_data[first_locale]['external_source'])&.id, raw_data[first_locale]['external_key']).first
+          unless raw_data[first_locale]['external_source'].nil? && raw_data[first_locale]['external_key'].nil?
+            content ||= DataCycleCore::Thing.by_external_key(
+              DataCycleCore::ExternalSystem.find_by(identifier: raw_data[first_locale]['external_source'])&.id,
+              raw_data[first_locale]['external_key']
+            ).first
+          end
           if content.blank? && raw_data[first_locale]['external_system_syncs'].present?
             raw_data[first_locale]['external_system_syncs'].each do |external_system_entry|
               external_system = DataCycleCore::ExternalSystem.find_by(identifier: external_system_entry['identifier'])
+              next if external_system.nil?
               content ||= DataCycleCore::Thing.by_external_key(external_system&.id, external_system_entry['external_key']).first
             end
           end
 
           if content.present? && (content&.external_source_id != utility_object.external_source.id || content&.external_key != raw_data[first_locale]['id'])
-            DataCycleCore::Generic::DcSync::Processing.process_known_thing(
+            DataCycleCore::Generic::DcSync::Processing.process_only_sync(
               utility_object,
-              raw_data[first_locale].merge({ new: content.present? }),
+              raw_data[first_locale].merge({ new: false }),
               DataCycleCore::Generic::DcSync::Processing.get_template(raw_data).template_name,
               options.dig(:import, :transformations, :thing)
             )
           else
             DataCycleCore::Generic::DcSync::Processing.process_things(
               utility_object,
-              raw_data.merge({ new: content.present? }),
+              raw_data.merge({ new: content.blank? }),
               DataCycleCore::Generic::DcSync::Processing.get_template(raw_data).template_name,
               options.dig(:import, :transformations, :thing)
             )

@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module DcSync
       module Processing
-        def self.process_known_thing(utility_object, raw_data, template, config)
+        def self.process_only_sync(utility_object, raw_data, template, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,

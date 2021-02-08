@@ -31,6 +31,7 @@ module DataCycleCore
             if content.blank? && data['external_system_data'].present?
               data['external_system_data'].each do |external_system_entry|
                 external_system = DataCycleCore::ExternalSystem.find_by(identifier: external_system_entry['identifier'])
+                next if external_system.blank? || external_system_entry['external_key'].blank?
                 content ||= DataCycleCore::Thing.by_external_key(external_system&.id, external_system_entry['external_key']).first
               end
             end
@@ -38,7 +39,8 @@ module DataCycleCore
             # add external_system_syncs where necessary and return
             if content.present?
               present_external_systems = content.view_all_external_data
-              all_imported_external_system_data = data['external_system_data'] + [{
+              all_imported_external_system_data = data['external_system_data'] || []
+              all_imported_external_system_data += [{
                 'external_key' => data['external_key'],
                 'name' => utility_object.external_source.name,
                 'identifier' => utility_object.external_source.identifier,

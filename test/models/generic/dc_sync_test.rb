@@ -103,7 +103,6 @@ module DataCycleCore
 
       test 'trivial event imported from outdooractive, imported from feratel' do
         event = DataCycleCore::Thing.find_by(external_key: '00000000-0000-0000-0000-000000000002')
-
         assert_equal('test_data1', event.name)
         assert_equal('00000000-0000-0000-0000-000000000002', event.external_key)
         assert_equal('DataCycle Basic', event.external_source.name)
