@@ -36,7 +36,7 @@ module DataCycleCore
             req.headers['Accept'] = 'application/json'
             req.params['apiKey'] = @api_key
             req.params['from'] = '2019-01-01'
-            req.params['to'] = '2020-12-31'
+            req.params['to'] = '2099-12-31'
             req.params['region'] = 1
             req.params['max'] = max
             req.params['page'] = page

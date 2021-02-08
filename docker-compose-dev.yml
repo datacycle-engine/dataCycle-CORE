@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  web:
+    volumes:
+      - sync:/var/www/app:nocopy
+  nginx:
+    volumes:
+      - sync:/var/www/app:nocopy
+volumes:
+  sync:
+    name: ${COMPOSE_PROJECT_NAME}-sync # using different names for different projects
+    external: true

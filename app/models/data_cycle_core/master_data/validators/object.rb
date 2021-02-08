@@ -10,6 +10,7 @@ module DataCycleCore
             'key' => Validators::Key,
             'string' => Validators::String,
             'number' => Validators::Number,
+            'date' => Validators::Date,
             'datetime' => Validators::Datetime,
             'boolean' => Validators::Boolean,
             'geographic' => Validators::Geographic,

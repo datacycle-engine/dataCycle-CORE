@@ -11,17 +11,14 @@
         :type: key
       :publish_at:
         :label: Publikationsdatum
-        :type: datetime
+        :type: date
         :storage_location: value
         :validations:
-          :format: date_time
+          :format: date
         :ui:
           :edit:
-            :type: date
             :options:
               :placeholder: tt.mm.jjjj
-          :show:
-            :type: date
       :output_channel:
         :label: Ausgabekanäle
         :type: classification

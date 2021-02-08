@@ -850,7 +850,8 @@ select {
 a.button,
 a.button-prime,
 button {
-  &.has-tip {
+  &.has-tip,
+  &.dc-foundation-tooltip {
     cursor: pointer;
 
     &:hover,
@@ -860,7 +861,8 @@ button {
   }
 }
 
-a.has-tip {
+a.has-tip,
+a.dc-foundation-tooltip {
   border: none;
   cursor: pointer;
 
@@ -2048,8 +2050,16 @@ select {
   transition: text-shadow ease-in-out 0.25s, color ease-in-out 0.25s;
 }
 
-.has-tip {
+.has-tip,
+.dc-foundation-tooltip {
   border: none;
+}
+
+.dc-foundation-tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  font-weight: bold;
 }
 
 // Normalizer Styles

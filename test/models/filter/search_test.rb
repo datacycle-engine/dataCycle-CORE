@@ -13,7 +13,7 @@ module DataCycleCore
       create_content('Örtlichkeit', { name: 'PLACE 1', location: RGeo::Geographic.spherical_factory(srid: 4326).point(10, 10) })
       create_content('Event', { name: 'DDD', overlay: [{ name: 'EEE' }], sub_event: [{ name: 'FFF' }] })
 
-      validity_period = { valid_from: DateTime.current.beginning_of_day.to_s, valid_until: DateTime.current.end_of_day.to_s }
+      validity_period = { valid_from: Date.current.to_s, valid_until: Date.current.to_s }
       multiling = create_content('Artikel', { name: 'XYZ de', validity_period: validity_period })
       multiling.external_source_id = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive').id
       multiling.created_by = DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
@@ -23,8 +23,8 @@ module DataCycleCore
         multiling.save!
       end
 
-      create_content('Artikel', { name: 'inactive article', validity_period: { valid_from: (DateTime.current - 2.weeks).beginning_of_day.to_s, valid_until: (DateTime.current - 1.week).end_of_day.to_s } })
-      create_content('Artikel', { name: 'future inactive article', validity_period: { valid_from: (DateTime.current + 1.week).beginning_of_day.to_s, valid_until: (DateTime.current + 2.weeks).end_of_day.to_s } })
+      create_content('Artikel', { name: 'inactive article', validity_period: { valid_from: (Date.current - 2.weeks).to_s, valid_until: (Date.current - 1.week).to_s } })
+      create_content('Artikel', { name: 'future inactive article', validity_period: { valid_from: (Date.current + 1.week).to_s, valid_until: (Date.current + 2.weeks).to_s } })
     end
 
     def upload_image(file_name)

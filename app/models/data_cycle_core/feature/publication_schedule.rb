@@ -18,7 +18,7 @@ module DataCycleCore
 
         def publication_date_key(content)
           publication_template(content)&.property_definitions&.select { |_k, v|
-            v['type'] == 'datetime'
+            v['type'] == 'date'
           }&.keys&.first
         end
 

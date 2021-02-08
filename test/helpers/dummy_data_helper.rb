@@ -194,8 +194,8 @@ module DataCycleCore
 
     def validity_period
       {
-        'valid_from' => 10.days.ago,
-        'valid_until' => 10.days.from_now
+        'valid_from' => 10.days.ago.to_date,
+        'valid_until' => 10.days.from_now.to_date
       }
     end
   end

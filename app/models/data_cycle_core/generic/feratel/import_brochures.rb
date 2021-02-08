@@ -34,6 +34,14 @@ module DataCycleCore
               options&.dig(:import, :transformations, :image)
             )
 
+            Array.wrap(raw_data.dig('Variations', 'Variation')).each do |image_data|
+              DataCycleCore::Generic::Feratel::Processing.process_image(
+                utility_object,
+                image_data,
+                options&.dig(:import, :transformations, :image)
+              )
+            end
+
             DataCycleCore::Generic::Feratel::Processing.process_brochure(
               utility_object,
               raw_data,

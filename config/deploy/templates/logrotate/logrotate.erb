@@ -1,7 +1,10 @@
+<%= File.join(fetch(:deploy_to), '/shared/log/appsignal*.log') %>
+<%= File.join(fetch(:deploy_to), '/shared/log/delayed_*.log') %>
+<%= File.join(fetch(:deploy_to), '/shared/log/download*.log') %>
+<%= File.join(fetch(:deploy_to), '/shared/log/export*.log') %>
+<%= File.join(fetch(:deploy_to), '/shared/log/import*.log') %>
+<%= File.join(fetch(:deploy_to), '/shared/log/production*.log') %>
 <%= File.join(fetch(:deploy_to), '/shared/log/puma*.log') %>
-<%= File.join(fetch(:deploy_to), '/shared/log/production.log') %>
-<%= File.join(fetch(:deploy_to), '/shared/log/*_download.log') %>
-<%= File.join(fetch(:deploy_to), '/shared/log/*_import.log') %>
 {
         su <%= fetch(:deploy_user) %> <%= fetch(:deploy_user) %>
         weekly

@@ -15,6 +15,10 @@ module DataCycleCore
             required(:'@id') { eql?('https://schema.datacycle.at/entityUrl') }
             required(:'@type') { eql?('@id') }
           end
+          required(:'dc:order').hash do
+            required(:'@id') { eql?('https://schema.org/position') }
+            required(:'@type') { eql?('https://schema.org/Number') }
+          end
           required(:'dc:classification').hash do
             required(:'@id') { eql?('https://schema.datacycle.at/classification') }
             required(:'@container') { eql?('@set') }

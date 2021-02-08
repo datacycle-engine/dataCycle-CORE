@@ -137,7 +137,7 @@ module DataCycleCore
           success
         end
 
-        def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, delete: nil, _iterator: nil, options:)
+        def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, options:) # rubocop:disable Lint/UnusedMethodArgument
           success = true
           delta = 100
 
@@ -182,7 +182,7 @@ module DataCycleCore
                           data_hash[:last_seen_before_archived] =  item.dump[language].try(:[], 'last_seen_before_archived') if item.dump[language].try(:[], 'last_seen_before_archived').present?
                         end
                         data_hash[:updated_at] = modified.call(data_hash) if modified.present?
-                        item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(locale, 'mark_for_update').present?
+                        item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(language, 'mark_for_update').present?
                         item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_successful_download
                         item.data_has_changed = diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
                         item.dump[language] = data_hash

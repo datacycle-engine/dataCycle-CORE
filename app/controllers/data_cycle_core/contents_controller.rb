@@ -39,7 +39,7 @@ module DataCycleCore
         end
       end
 
-      flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], data: item_count, locale: DataCycleCore.ui_language
+      flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], count: item_count, locale: DataCycleCore.ui_language
 
       ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids
 
@@ -321,7 +321,7 @@ module DataCycleCore
       data_hash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
 
       I18n.with_locale(translation_locale || validation_params[:locale]) do
-        valid = @object.validate(data_hash, nil, validation_params[:strict] == '1', true)
+        valid = @object.validate(data_hash, nil, validation_params[:strict] == '1', true, current_user)
         render json: valid.to_json
       end
     end
@@ -500,12 +500,15 @@ module DataCycleCore
     end
 
     def source_params
-      if params[:source]
-        ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_locale)
-      elsif params[:source_id].present?
-        params.permit(:source_id, :source_locale)
-      else
-        {}
+      return @source_params if defined? @source_params
+      @source_params = begin
+        if params[:source]
+          ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_locale)
+        elsif params[:source_id].present?
+          params.permit(:source_id, :source_locale)
+        else
+          {}
+        end
       end
     end
   end

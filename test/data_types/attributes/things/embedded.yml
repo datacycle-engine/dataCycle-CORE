@@ -206,17 +206,12 @@
         :advanced_search: true
       :publish_at:
         :label: Publikationsdatum
-        :type: datetime
+        :type: date
         :storage_location: value
-        :validations:
-          :format: date_time
         :ui:
           :edit:
-            :type: date
             :options:
               :placeholder: tt.mm.jjjj
-          :show:
-            :type: date
         :advanced_search: true
       :boolean_test:
         :label: boolean_test
