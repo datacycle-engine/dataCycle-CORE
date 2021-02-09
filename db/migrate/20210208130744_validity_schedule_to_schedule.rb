@@ -8,6 +8,7 @@ class ValidityScheduleToSchedule < ActiveRecord::Migration[5.2]
     # transform everything else to schedule
     DataCycleCore::Schedule.where(duration: nil, relation: 'validity_schedule').each do |schedule|
       from_date, to_date = schedule.schedule_object.first(2)
+      to_date += 1.year if from_date > to_date
       from_yday = from_date.in_time_zone.to_date.yday
       to_yday = to_date.in_time_zone.to_date.yday
       to_yday = -366 + to_yday if from_yday > to_yday
