@@ -36,6 +36,8 @@ module DataCycleCore
           end
 
           if content.present? && (content&.external_source_id != utility_object.external_source.id || content&.external_key != raw_data[first_locale]['id'])
+            # puts "only_snyc"
+            # puts "#{raw_data[first_locale]['name']}(#{raw_data[first_locale]['id']}) --> (#{content&.external_source_id}, #{content&.external_key}) --> (#{utility_object.external_source.id}, #{raw_data[first_locale]['id']})"
             DataCycleCore::Generic::DcSync::Processing.process_only_sync(
               utility_object,
               raw_data[first_locale].merge({ new: false }),
@@ -43,6 +45,8 @@ module DataCycleCore
               options.dig(:import, :transformations, :thing)
             )
           else
+            # puts "full import"
+            # puts "#{raw_data[first_locale]['name']}(#{raw_data[first_locale]['id']}) --> (#{content&.external_source_id}, #{content&.external_key}) --> (#{utility_object.external_source.id}, #{raw_data[first_locale]['id']})"
             DataCycleCore::Generic::DcSync::Processing.process_things(
               utility_object,
               raw_data.merge({ new: content.blank? }),

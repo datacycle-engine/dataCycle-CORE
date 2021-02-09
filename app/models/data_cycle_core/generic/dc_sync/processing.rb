@@ -28,7 +28,6 @@ module DataCycleCore
               data_correct_linked = transform_linked_keys(data: raw_data[locale].except('included', 'classifications'), lookup: linked_key_translation)
               data_correct_ids = transform_classification_keys(data: data_correct_linked, lookup: classification_key_translation)
               data_correct_embedded = transform_embedded(data_correct_ids, utility_object)
-              # byebug if raw_data['de']['template_name'] == 'Event'
               processed_thing = DataCycleCore::Generic::Common::ImportFunctions.process_step(
                 utility_object: utility_object,
                 raw_data: data_correct_embedded.merge(raw_data.slice(:new)),
@@ -52,11 +51,10 @@ module DataCycleCore
             found_key = DataCycleCore::Generic::Common::Functions.find_thing_ids(external_system_id: utility_object.external_source.id, external_key: included_item[locale]['id'], content_type: DataCycleCore::Thing, limit: 1)
             linked_key_translation[attribute_name][included_item[locale]['id']] = found_key.first
             if found_key.blank? || found_key.first == included_item[locale]['id']
-              new_item = DataCycleCore::Generic::DcSync::Processing.process_things(
-                utility_object,
-                included_item,
-                get_template(included_item).template_name,
-                utility_object.external_source.import_config.dig(:things, :transformations, :thing)
+              new_item = DataCycleCore::Generic::DcSync::Import.process_content(
+                utility_object: utility_object,
+                raw_data: included_item,
+                options: utility_object.external_source.import_config.dig(:things, :transformations, :thing) || {}
               )
               linked_key_translation[attribute_name][included_item[locale]['id']] = new_item.id
             end

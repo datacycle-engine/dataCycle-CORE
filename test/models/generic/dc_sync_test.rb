@@ -61,8 +61,8 @@ module DataCycleCore
         assert_equal(Time.new(2020, 12, 24, 16, 15).in_time_zone, schedule.schedule_object.first)
         assert_equal(Time.new(2021, 4, 8, 16, 15).in_time_zone, schedule.schedule_object.last)
         assert_equal(
-          'Schneeschuhwandern-Montafon-Tourismus-Daniel-Zangerl-3.jpg',
-          DataCycleCore::ExternalSystem.find_by(identifier: 'pimcore').things.where(template_name: 'Bild').first.name
+          ['Adventfenster.JPG', 'Schneeschuhwandern-Montafon-Tourismus-Daniel-Zangerl-3.jpg'],
+          DataCycleCore::ExternalSystem.find_by(identifier: 'pimcore').things.where(template_name: 'Bild').pluck(:name).sort
         )
         assert_equal(external_source.identifier, event.external_source.identifier)
         assert_equal('pimcore', event.external_system_syncs.first.external_system.identifier)
