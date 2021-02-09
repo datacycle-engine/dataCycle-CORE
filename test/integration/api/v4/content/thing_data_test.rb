@@ -405,17 +405,16 @@ module DataCycleCore
             end
 
             # schedule: event_schedule
-            event_schedule_object = @content.event_schedule.first.to_h
+            event_schedule_object = @content.event_schedule.first
+            event_schedule_object_hash = event_schedule_object.to_h
             event_schedule_api_values = {
-              '@id' => event_schedule_object.dig(:id),
+              '@id' => event_schedule_object_hash.dig(:id),
               '@type' => 'Schedule',
               '@context' => 'https://schema.org/',
               'inLanguage' => 'de',
-              'startDate' => event_schedule_object.dig(:dtstart).to_s(:only_date),
-              'endDate' => event_schedule_object.dig(:dtend).to_s(:only_date),
-              'startTime' => event_schedule_object.dig(:dtstart).to_s(:only_time),
-              'endTime' => event_schedule_object.dig(:dtend).to_s(:only_time),
-              'duration' => event_schedule_object.dig(:duration).iso8601,
+              'startDate' => event_schedule_object_hash.dig(:dtstart).to_s(:only_date),
+              'startTime' => event_schedule_object_hash.dig(:dtstart).to_s(:only_time),
+              'duration' => event_schedule_object.iso8601_duration(event_schedule_object_hash.dig(:dtstart), event_schedule_object_hash.dig(:dtend)),
               'scheduleTimezone' => 'Vienna'
             }
             assert_attributes(json_validate, required_attributes, ['event_schedule']) do

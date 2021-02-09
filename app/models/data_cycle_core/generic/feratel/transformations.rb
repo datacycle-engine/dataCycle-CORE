@@ -276,39 +276,33 @@ module DataCycleCore
           .>> t(:add_field, 'universal_classifications', ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc) } })
           .>> t(:add_links, 'additional_classifications', DataCycleCore::Classification, external_source_id, ->(_s) { additional_classifications || [] })
           .>> t(:merge_array_values, 'universal_classifications', 'additional_classifications')
-          .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
+          .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(s.dig('ShowFrom').is_a?(::Time) && s.dig('ShowTo').is_a?(::Time) ? make_term(s.dig('ShowFrom'), s.dig('ShowTo')) : make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('Id') })
           .>> t(:reject_keys, ['Id', 'Type', 'Language', 'Systems', 'ShowFrom', 'ShowTo', 'ChangeDate'])
         end
 
         def self.make_season(from, to)
           raise ArgumentError if from.blank? || to.blank?
-          return [] if from == '101' && to == '3112' # no schedule, is valid all year long
-
-          from_year = 2010
-          to_year = 2010
-          has_end = false
-          from_year = from.slice!(0..3) if from.length > 4
-          if to.length > 4
-            to_year = to.slice!(0..3)
-            has_end = true
-          end
-
-          from_date = Time.zone.local(from_year, from.to_i / 100, from.to_i % 100, 0, 0)
-          to_date = Time.zone.local(to_year, to.to_i / 100, to.to_i % 100, 0, 0)
+          return [] if from == '101' && to == '1231' # no schedule, is valid all year long
+          from_date = Time.zone.local(2010, from.to_i / 100, from.to_i % 100, 0, 0)
+          to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 23, 59)
+          to_date += 1.year if from_date > to_date
           from_yday = from_date.to_date.yday
           to_yday = to_date.to_date.yday
-          to_yday = -366 + to_yday if from_yday > to_yday && !has_end
+          to_yday = -366 + to_yday if from_yday > to_yday
           rrule = IceCube::Rule.yearly.day_of_year(from_yday, to_yday)
-          options = {}
-          if has_end
-            rrule.until(to_date.end_of_day)
-            options = { end_time: to_date.end_of_day }
-          end
+          options = { end_time: to_date.end_of_day }
           schedule_object = IceCube::Schedule.new(from_date, options) do |s|
             s.add_recurrence_rule(rrule)
           end
           schedule_object.to_hash.merge(dtstart: from_date)
+        end
+
+        def self.make_term(from, to)
+          raise ArgumentError if from.blank? || to.blank?
+          options = { end_time: to }
+          schedule_object = IceCube::Schedule.new(from, options)
+          schedule_object.to_hash.merge(dtstart: from)
         end
 
         def self.parse_links(data, external_source_id)
@@ -404,6 +398,7 @@ module DataCycleCore
           .>> t(:map_value, 'width', ->(v) { v.to_i })
           .>> t(:map_value, 'height', ->(v) { v.to_i })
           .>> t(:map_value, 'content_size', ->(v) { v.to_i.kilobytes })
+          .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(s.dig('ShowFrom').is_a?(::Time) && s.dig('ShowTo').is_a?(::Time) ? make_term(s.dig('ShowFrom'), s.dig('ShowTo')) : make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
           .>> t(:reject_keys, ['Type', 'Class', 'Systems', 'Order', 'ShowFrom',
                                'ShowTo', 'ChangeDate', 'Systems', 'Systems', 'Names'])
           .>> t(:strip_all)
@@ -558,8 +553,8 @@ module DataCycleCore
               description['Type'] = 'GuestCardClassification'
             end
 
-            description['ShowFrom'] = DateTime.parse(item.dig('ValidFrom')).strftime('%Y%-m%d')
-            description['ShowTo'] = DateTime.parse(item.dig('ValidTo')).strftime('%Y%-m%d')
+            description['ShowFrom'] = item.dig('ValidFrom').in_time_zone.beginning_of_day
+            description['ShowTo'] = item.dig('ValidTo').in_time_zone.end_of_day
 
             parsed.push(parse_descriptions(description, external_source_id, 'GuestCards', ["#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}"]).first)
           end
