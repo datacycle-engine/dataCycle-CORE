@@ -45,6 +45,14 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :validity_schedule:
+        :label: Publikationsplan
+        :type: schedule
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :name: dc:validitySchedule
       :content_classifications:
         :type: mixin
         :name: content_classifications

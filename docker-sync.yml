@@ -6,4 +6,4 @@ syncs:
   ${COMPOSE_PROJECT_NAME}-sync: # using different names for different projects
     src: './'
     # sync_strategy: 'native_osx' # not needed, this is the default now
-    sync_excludes: ['node_modules', '.git', '.bundle', 'log/develpment.log']
+    sync_excludes: ['node_modules', '.git', '.bundle', 'development.log']
