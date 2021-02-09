@@ -11,6 +11,12 @@ module DataCycleCore
           mode: 'full'
         }
 
+        # import a event to be from feratel
+        event = DataCycleCore::DummyDataHelper.create_data('event')
+        event.external_source_id = DataCycleCore::ExternalSystem.find_by(identifier: 'Feratel Kärnten').id
+        event.external_key = '00000000-0000-0000-0000-000000000005'
+        event.save
+
         external_source = DataCycleCore::ExternalSystem.find_by(identifier: 'data-cycle-base')
         download_from_local_json(external_source)
         external_source.import(options)
@@ -157,6 +163,17 @@ module DataCycleCore
         assert_equal('universal_classifications', classification.classification_contents.first.relation)
         assert_equal(1, classification.classification_aliases.size)
         assert_equal('Test Tree', classification.primary_classification_alias.classification_tree_label.name)
+      end
+
+      test 'imported data successfully recognizes already present data from feratel' do
+        event = DataCycleCore::Thing.find_by(external_key: '00000000-0000-0000-0000-000000000005')
+        assert_equal('Feratel Kärnten', event.external_source.identifier)
+
+        assert_equal(2, event.external_system_syncs.count)
+        assert_equal(['data-cycle-base', 'outdooractive'], event.external_system_syncs.map(&:external_system).map(&:identifier).sort)
+        assert_equal('00000000-0000-0000-0000-000000000005', event.external_system_syncs.pluck(:external_key).uniq.first)
+
+        assert_equal('Headline', event.name) # make sure the event itself is unchanged by the synced data
       end
 
       def teardown

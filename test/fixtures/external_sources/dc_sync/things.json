@@ -1549,5 +1549,43 @@
     "created_at": {
       "$date": "2020-12-04T12:39:07.659Z"
     }
+  },
+  {
+    "_id": {
+      "$oid": "6fca2deb2310404622ce1c10"
+    },
+    "external_id": "00000000-0000-0000-0000-000000000005",
+    "dump": {
+      "de": {
+        "id": "00000000-0000-0000-0000-000000000005",
+        "name": "test_data1",
+        "template_name": "Event",
+        "updated_at": "2020-12-04T11:23:47.921+01:00",
+        "created_at": "2020-11-22T00:27:28.418+01:00",
+        "last_sync_at": "2020-12-10T13:41:01.827+01:00",
+        "external_source_id": "ffffffff-7e20-4cc2-8697-09f3078fefc9",
+        "external_key": "00000000-0000-0000-0000-000000000005",
+        "external_source": "outdooractive",
+        "external_system_syncs": [
+          {
+            "external_key": "00000000-0000-0000-0000-000000000005",
+            "status": "success",
+            "last_sync_at": "2020-12-04T11:23:47.921+01:00",
+            "sync_type": "import",
+            "last_successful_sync_at": "2020-12-04T11:23:47.921+01:00",
+            "identifier": "Feratel Kärnten"
+          }
+        ]
+      }
+    },
+    "seen_at": {
+      "$date": "2020-12-10T09:23:03.379Z"
+    },
+    "updated_at": {
+      "$date": "2020-12-09T16:03:26.803Z"
+    },
+    "created_at": {
+      "$date": "2020-12-04T12:39:07.659Z"
+    }
   }
 ]

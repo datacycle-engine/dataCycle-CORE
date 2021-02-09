@@ -18,7 +18,6 @@ module DataCycleCore
         end
 
         def self.process_content(utility_object:, raw_data:, options:, **_unused)
-          # check if processing is necessary
           first_locale = raw_data.except('included', 'classifications', 'attribute_name', 'include_translation').keys.select { |i| i.to_sym.in?(I18n.available_locales) }&.first
           content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, raw_data[first_locale]['id']).first
           unless raw_data[first_locale]['external_source'].nil? && raw_data[first_locale]['external_key'].nil?
@@ -40,7 +39,7 @@ module DataCycleCore
             # puts "#{raw_data[first_locale]['name']}(#{raw_data[first_locale]['id']}) --> (#{content&.external_source_id}, #{content&.external_key}) --> (#{utility_object.external_source.id}, #{raw_data[first_locale]['id']})"
             DataCycleCore::Generic::DcSync::Processing.process_only_sync(
               utility_object,
-              raw_data[first_locale].merge({ new: false }),
+              raw_data[first_locale],
               DataCycleCore::Generic::DcSync::Processing.get_template(raw_data).template_name,
               options.dig(:import, :transformations, :thing)
             )
@@ -49,7 +48,7 @@ module DataCycleCore
             # puts "#{raw_data[first_locale]['name']}(#{raw_data[first_locale]['id']}) --> (#{content&.external_source_id}, #{content&.external_key}) --> (#{utility_object.external_source.id}, #{raw_data[first_locale]['id']})"
             DataCycleCore::Generic::DcSync::Processing.process_things(
               utility_object,
-              raw_data.merge({ new: content.blank? }),
+              raw_data,
               DataCycleCore::Generic::DcSync::Processing.get_template(raw_data).template_name,
               options.dig(:import, :transformations, :thing)
             )
