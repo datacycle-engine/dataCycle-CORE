@@ -265,7 +265,7 @@ module DataCycleCore
       output = +'P'
       output << "#{time_hash[:years]}Y" if time_hash[:years]&.positive?
       output << "#{time_hash[:months]}M" if time_hash[:months]&.positive?
-      output << "#{time_hash[:weeks] * 7 + time_hash[:days]}D" if time_hash[:weeks]&.positive? || time_hash[:days]&.positive?
+      output << "#{(time_hash[:weeks] || 0) * 7 + (time_hash[:days] || 0)}D" if time_hash[:weeks]&.positive? || time_hash[:days]&.positive?
       if time_hash[:seconds]&.positive? || time_hash[:minutes]&.positive? || time_hash[:hours]&.positive?
         output << 'T'
         output << "#{time_hash[:hours]}H" if time_hash[:hours]&.positive?

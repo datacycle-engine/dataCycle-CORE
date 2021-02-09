@@ -149,7 +149,6 @@ module DataCycleCore
         'duration' => 'P1M14DT7H',
         'scheduleTimezone' => 'Vienna'
       }
-      binding.pry
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
   end
