@@ -1,138 +1,139 @@
 <% if content.present? %>
 
-    <% if content.overlay? %>
-      <%= render_attribute_viewer key: 'overlay',
+  <% if content.overlay? %>
+    <%= render_attribute_viewer key: 'overlay',
                                   definition: content.schema['properties']['overlay'],
                                   value: content.try('overlay'),
                                   parameters: { options: { } },
                                   content: content %>
-    <% end %>
-    <div class="detail-content imageobject">
+  <% end %>
+  <div class="detail-content imageobject">
 
-        <div class="row align-center">
+    <div class="row align-center">
 
-            <div class="image">
+      <div class="image">
+        <% binding.pry%>
 
-                <%
+        <%
                     thumbnail_url = content.try(:thumbnail_url)
                     if content.try(:asset)&.versions&.key?(:web)
                         thumbnail_url = content.asset.web.url
                     end
                 %>
 
-                <% if thumbnail_url.present? %>
+        <% if thumbnail_url.present? %>
 
-                    <div class="image-container stripes">
-                        <%= render_attribute_viewer key: 'thumbnail_url',
+          <div class="image-container stripes">
+            <%= render_attribute_viewer key: 'thumbnail_url',
                                                     definition: content.schema['properties']['thumbnail_url'],
                                                     value: thumbnail_url,
                                                     parameters: { options: {hide_label: true} },
                                                     content: content %>
-                    </div>
-                <% end %>
-                <div class="image-data">
-                    <h5>Details</h5>
-                    <dl>
-                        <% ['alternative_headline', 'caption', 'description'].each do |property_name| %>
-                            <% next if content.try(property_name.to_sym).blank? %>
-                            <dd>
-                                <%= render_attribute_viewer key: property_name,
+          </div>
+        <% end %>
+        <div class="image-data">
+          <h5>Details</h5>
+          <dl>
+            <% ['alternative_headline', 'caption', 'description'].each do |property_name| %>
+              <% next if content.try(property_name.to_sym).blank? %>
+              <dd>
+                <%= render_attribute_viewer key: property_name,
                                                             definition: content.schema['properties'][property_name],
                                                             value: content.try(property_name.to_sym),
                                                             parameters: { options: {} },
                                                             content: content %>
-                            </dd>
-                        <% end %>
+              </dd>
+            <% end %>
 
-                        <% ['content_location', 'comment', 'source', 'image_id', 'visibility'].each do |property_name| %>
-                            <% next if content.try(property_name.to_sym).blank? %>
-                            <dd>
-                                <%= render_attribute_viewer key: property_name,
+            <% ['content_location', 'comment', 'source', 'image_id', 'visibility', 'validity_schedule'].each do |property_name| %>
+              <% binding.pry%>
+              <% next if content.try(property_name.to_sym).blank? %>
+              <dd>
+                <%= render_attribute_viewer key: property_name,
                                                             definition: content.schema['properties'][property_name],
                                                             value: content.try(property_name.to_sym),
                                                             parameters: {options: {}},
                                                             content: content %>
-                            </dd>
-                        <% end %>
+              </dd>
+            <% end %>
 
-                        <% if ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidelines'].any?{|val| content.try(val.to_sym).present? } %>
-                            <dt>
-                                <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
-                            </dt>
+            <% if ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidelines'].any?{|val| content.try(val.to_sym).present? } %>
+              <dt>
+                <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
+              </dt>
 
-                            <% ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidelines'].each do |property_name| %>
-                                <% next if content.try(property_name.to_sym).blank? %>
-                                <dd>
-                                    <%= render_attribute_viewer key: property_name,
+              <% ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidelines'].each do |property_name| %>
+                <% next if content.try(property_name.to_sym).blank? %>
+                <dd>
+                  <%= render_attribute_viewer key: property_name,
                                                                 definition: content.schema['properties'][property_name],
                                                                 value: content.try(property_name.to_sym),
                                                                 parameters: {options: {}},
                                                                 content: content %>
-                                </dd>
-                            <% end %>
+                </dd>
+              <% end %>
 
-                        <% end %>
+            <% end %>
 
-                        <% if !content.try(:restrictions).nil? && !content.try(:restrictions).blank? %>
-                            <dt><i class="fa fa-info-circle" aria-hidden="true"></i> <%= content.schema['properties']['restrictions']['label'] %></dt>
-                            <dd>
-                                <%= render_attribute_viewer key: 'restrictions',
+            <% if !content.try(:restrictions).nil? && !content.try(:restrictions).blank? %>
+              <dt><i class="fa fa-info-circle" aria-hidden="true"></i> <%= content.schema['properties']['restrictions']['label'] %></dt>
+              <dd>
+                <%= render_attribute_viewer key: 'restrictions',
                                                             definition: content.schema['properties']['restrictions'],
                                                             value: content.restrictions,
                                                             parameters: { options: {hide_label: true}},
                                                             content: content %>
-                            </dd>
-                        <% end %>
+              </dd>
+            <% end %>
 
+            <% if ['width', 'height', 'content_size', 'file_format', 'date_created', 'date_modified', 'upload_date'].any?{|val| content.try(val.to_sym).present? } %>
+              <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
+              <dd>
+                <% if content.width&.to_i&.positive? ||  content.height&.to_i&.positive? %>
+                  <%= content.width&.to_i %>px/<%= content.height&.to_i %>px
+                <% end %>
+                <% if content.content_size&.to_i&.positive? %>
+                  (<%= number_to_human_size(content.content_size) %>)
+                <% end %>
+                <% if content.file_format.present? %>
+                  <br />
+                  <strong>Format:</strong> <%= content.file_format %>
+                <% end %>
+              </dd>
 
-                        <% if ['width', 'height', 'content_size', 'file_format', 'date_created', 'date_modified', 'upload_date'].any?{|val| content.try(val.to_sym).present? } %>
-                            <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
-                            <dd>
-                                <% if content.width&.to_i&.positive? ||  content.height&.to_i&.positive? %>
-                                    <%= content.width&.to_i %>px/<%= content.height&.to_i %>px
-                                <% end %>
-                                <% if content.content_size&.to_i&.positive? %>
-                                    (<%= number_to_human_size(content.content_size) %>)
-                                <% end %>
-                                <% if content.file_format.present? %>
-                                    <br />
-                                    <strong>Format:</strong> <%= content.file_format %>
-                                <% end %>
-                            </dd>
-
-                            <% ['date_created', 'date_modified', 'upload_date'].each do |property_name| %>
-                                <% next if content.try(property_name.to_sym).blank? %>
-                                <dd>
-                                    <%= render_attribute_viewer key: property_name,
+              <% ['date_created', 'date_modified', 'upload_date'].each do |property_name| %>
+                <% next if content.try(property_name.to_sym).blank? %>
+                <dd>
+                  <%= render_attribute_viewer key: property_name,
                                                                 definition: content.schema['properties'][property_name],
                                                                 value: content.try(property_name.to_sym),
                                                                 parameters: {options: {}},
                                                                 content: content %>
-                                </dd>
-                            <% end %>
-                        <% end %>
+                </dd>
+              <% end %>
+            <% end %>
 
-                        <% if content.try(:url).present? %>
+            <% if content.try(:url).present? %>
 
-                            <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Bild-URLs</dt>
-                            <dd>
-                                <a class="button button-small" href="<%= content.url %>" target="_blank">
-                                    <i class="fa fa-external-link" aria-hidden="true"></i>
+              <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Bild-URLs</dt>
+              <dd>
+                <a class="button button-small" href="<%= content.url %>" target="_blank">
+                  <i class="fa fa-external-link" aria-hidden="true"></i>
 
-                                    <%= t('details.bild.open_url', locale: DataCycleCore.ui_language) %>
-                                </a>
-                            </dd>
+                  <%= t('details.bild.open_url', locale: DataCycleCore.ui_language) %>
+                </a>
+              </dd>
 
-                        <% end %>
+            <% end %>
 
-                    </dl>
-
-                </div>
-
-            </div>
+          </dl>
 
         </div>
 
+      </div>
+
     </div>
+
+  </div>
 
 <% end %>

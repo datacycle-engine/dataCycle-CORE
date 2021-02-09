@@ -286,6 +286,7 @@ module DataCycleCore
           return [] if from == '101' && to == '1231' # no schedule, is valid all year long
           from_date = Time.zone.local(2010, from.to_i / 100, from.to_i % 100, 0, 0)
           to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 23, 59)
+          to_date += 1.year if from_date > to_date
           from_yday = from_date.to_date.yday
           to_yday = to_date.to_date.yday
           to_yday = -366 + to_yday if from_yday > to_yday
@@ -397,6 +398,7 @@ module DataCycleCore
           .>> t(:map_value, 'width', ->(v) { v.to_i })
           .>> t(:map_value, 'height', ->(v) { v.to_i })
           .>> t(:map_value, 'content_size', ->(v) { v.to_i.kilobytes })
+          .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(s.dig('ShowFrom').is_a?(::Time) && s.dig('ShowTo').is_a?(::Time) ? make_term(s.dig('ShowFrom'), s.dig('ShowTo')) : make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
           .>> t(:reject_keys, ['Type', 'Class', 'Systems', 'Order', 'ShowFrom',
                                'ShowTo', 'ChangeDate', 'Systems', 'Systems', 'Names'])
           .>> t(:strip_all)

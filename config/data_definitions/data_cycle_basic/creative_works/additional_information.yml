@@ -38,7 +38,7 @@
               :data-size: basic
         :advanced_search: true
       :validity_schedule:
-        :label: Gültigkeitszeitraum
+        :label: Publikationsplan
         :type: schedule
         :api:
           :disabled: true

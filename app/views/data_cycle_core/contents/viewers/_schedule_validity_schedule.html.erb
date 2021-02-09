@@ -23,9 +23,9 @@
     <% date_format = object.try(:schedule_object)&.terminating? ? 'date.formats.long' : 'date.formats.short'%>
 
     <span class="detail-content events-calender-view">
-      <b><%= l(object.try(:schedule_object)&.start_time&.try(:to_date), format: t(date_format, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></b>
-      <b>-</b>
-      <b><%= l(object.try(:schedule_object)&.end_time&.try(:to_date), format: t(date_format, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></b>
+      <span><%= l(object.try(:schedule_object)&.start_time&.try(:to_date), format: t(date_format, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></span>
+      <span>-</span>
+      <span><%= l(object.try(:schedule_object)&.end_time&.try(:to_date), format: t(date_format, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></span>
     </span>
 
   <% end %>
