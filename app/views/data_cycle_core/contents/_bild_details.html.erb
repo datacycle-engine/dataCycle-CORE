@@ -12,7 +12,6 @@
     <div class="row align-center">
 
       <div class="image">
-        <% binding.pry%>
 
         <%
                     thumbnail_url = content.try(:thumbnail_url)
@@ -46,7 +45,6 @@
             <% end %>
 
             <% ['content_location', 'comment', 'source', 'image_id', 'visibility', 'validity_schedule'].each do |property_name| %>
-              <% binding.pry%>
               <% next if content.try(property_name.to_sym).blank? %>
               <dd>
                 <%= render_attribute_viewer key: property_name,
