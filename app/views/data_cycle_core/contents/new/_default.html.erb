@@ -19,7 +19,7 @@
                                     value: a_key.first == 'name' ? local_assigns[:search_param] : nil,
                                     content: template,
                                     parameters: {
-                                      options: local_assigns[:options]
+                                      options: { edit_scope: 'new' }.merge(local_assigns[:options] || {})
                                     } %>
       <% end %>
     <% end %>

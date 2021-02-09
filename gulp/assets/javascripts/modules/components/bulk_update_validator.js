@@ -11,6 +11,7 @@ class BulkUpdateValidator extends Validator {
   setup() {
     this.initActionCable();
     this.form.on('click', '.bulk-update-type :checkbox:checked', this.deselectSiblings.bind(this));
+    this.form.on('change', '.bulk-update-type :checkbox', this.changeActiveClass.bind(this));
     this.form.on('change', '.editor > .form-element', this.checkBulkUpdateType.bind(this));
   }
   initActionCable() {
@@ -44,8 +45,8 @@ class BulkUpdateValidator extends Validator {
         .some(elem => elem.value && elem.value.length)
     ) {
       if (!bulkUpdateTypes.filter(':checked').length)
-        bulkUpdateTypes.filter('[value="override"]').prop('checked', true);
-    } else bulkUpdateTypes.prop('checked', false);
+        bulkUpdateTypes.filter('[value="override"]').prop('checked', true).change();
+    } else bulkUpdateTypes.prop('checked', false).change();
   }
   bulkUpdateTypes(item) {
     return $(item)
@@ -63,6 +64,14 @@ class BulkUpdateValidator extends Validator {
       return;
 
     super.validateItem(validationContainer);
+  }
+  changeActiveClass(event) {
+    const currentFormElement = event.currentTarget.parentNode.nextElementSibling;
+    currentFormElement.classList.remove('bulk-edit-add', 'bulk-edit-remove', 'bulk-edit-override');
+
+    if (event.currentTarget.checked) {
+      currentFormElement.classList.add(`bulk-edit-${event.currentTarget.value}`);
+    }
   }
 }
 

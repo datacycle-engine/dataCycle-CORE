@@ -631,7 +631,7 @@ footer {
     min-width: 280px;
 
     &:hover {
-      box-shadow: 0 0 7px $primary-color; // z-index: 1;
+      box-shadow: 0 0 7px $primary-color;
     }
 
     &:focus {
@@ -704,6 +704,45 @@ footer {
 
     .form-element {
       position: relative;
+
+      &.boolean,
+      &.linked {
+        background: $light-gray;
+        border: 1px solid $light-gray;
+        transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+
+        &:hover {
+          box-shadow: 0 0 7px $primary-color;
+        }
+      }
+
+      &.boolean {
+        input[type='checkbox'] {
+          margin: 1rem 0 1rem 1rem;
+        }
+        input[type='checkbox'] + label[for] {
+          position: relative;
+          top: 0;
+          left: 0;
+        }
+      }
+
+      &.linked {
+        .object-browser {
+          padding: 3rem 1rem 1rem 1rem;
+
+          .object-thumbs.has-items::after {
+            content: '';
+            position: relative;
+            display: block;
+            width: 100%;
+            height: 0;
+            border-bottom: 1px solid $white;
+            margin-bottom: 1rem;
+          }
+        }
+      }
+
       &:not(:last-child) {
         margin-bottom: 1rem;
       }
@@ -1064,14 +1103,64 @@ span.single_warning:before {
   font-weight: normal;
 }
 
-.select2-selection__choice {
-  font-size: 0.9rem;
-  word-break: break-word;
-  white-space: normal;
-}
+.select2 {
+  &.select2-container--disabled {
+    .select2-selection {
+      &.select2-selection--multiple {
+        .select2-selection__choice {
+          padding-right: 0.3rem;
+        }
+        .select2-selection__clear {
+          display: none;
+        }
+      }
+    }
+  }
 
-.select2-selection {
-  line-height: 1.2;
+  .select2-selection {
+    line-height: 1.2;
+
+    &.select2-selection--multiple {
+      .select2-selection__rendered {
+        padding-right: 2rem;
+
+        .select2-selection__clear {
+          position: absolute;
+          right: 10px;
+          height: 22px;
+          line-height: 20px;
+          font-size: 20px;
+          margin: 5px 0 0 0;
+          padding: 0 5px;
+        }
+      }
+
+      .select2-selection__choice {
+        font-size: 0.8rem;
+        word-break: break-word;
+        white-space: normal;
+        padding: 0 1.2rem 0 0.3rem;
+        position: relative;
+
+        .select2-selection__choice__remove {
+          position: absolute;
+          // color: white;
+          right: 0;
+          padding: 0 0.2rem;
+          transition: color 0.1s ease-in;
+
+          &:hover {
+            color: $alert-color;
+          }
+        }
+      }
+    }
+
+    .select2-selection__placeholder {
+      display: block;
+      height: 28px;
+    }
+  }
 }
 
 .tags,

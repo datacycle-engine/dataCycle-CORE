@@ -33,15 +33,15 @@ module DataCycleCore
 
     def bulk_update_types(prop)
       check_boxes = [
-        BulkUpdateType.new('override', t('common.bulk_update.check_box_labels.override', locale: DataCycleCore.ui_language, data: prop['label']))
+        BulkUpdateType.new('override', t('common.bulk_update.check_box_labels.override_html', locale: DataCycleCore.ui_language, data: prop['label']))
       ]
 
-      return check_boxes unless prop['type'] == 'classification'
+      return check_boxes unless prop['type'] == 'classification' && prop.dig('ui', 'edit', 'type').blank? && prop.dig('ui', 'edit', 'options', 'multiple').nil?
 
       check_boxes.concat(
         [
-          BulkUpdateType.new('add', t('common.bulk_update.check_box_labels.add', locale: DataCycleCore.ui_language, data: prop['label'])),
-          BulkUpdateType.new('remove', t('common.bulk_update.check_box_labels.remove', locale: DataCycleCore.ui_language, data: prop['label']))
+          BulkUpdateType.new('add', t('common.bulk_update.check_box_labels.add_html', locale: DataCycleCore.ui_language, data: prop['label'])),
+          BulkUpdateType.new('remove', t('common.bulk_update.check_box_labels.remove_html', locale: DataCycleCore.ui_language, data: prop['label']))
         ]
       )
     end

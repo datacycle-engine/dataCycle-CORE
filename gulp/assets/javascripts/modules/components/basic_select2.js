@@ -26,6 +26,10 @@ class BasicSelect2 {
     this.$element.closest('form').on('reset', this.reset.bind(this));
     this.$element.on('dc:import:data', this.import.bind(this));
     this.$element.on('dc:select:destroy', this.destroy.bind(this));
+    this.$element.parent().on('change', '.select2-search__field', this.suppressChangeEvent.bind(this));
+  }
+  suppressChangeEvent(event) {
+    event.stopPropagation();
   }
   reset(_event) {
     this.$element.val(null).trigger('change', { type: 'reset' });

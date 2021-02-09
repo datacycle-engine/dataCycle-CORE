@@ -5,7 +5,7 @@
   <% object_template = definition['template_name'] %>
 
   <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
-    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
+    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
     <%= definition['label'] %>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   <% end %>
@@ -21,7 +21,7 @@
       data-definition="<%= definition.to_json %>"
       data-options="<%= options.to_json %>"
       data-class="<%= object_class %>"
-      data-editable="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>"
+      data-editable="<%= attribute_editable?(key, definition, options, content) %>"
       data-table="<%= 'things' %>"
       data-per="<%= DataCycleCore.linked_objects_page_size %>"
       data-objects="<%= value&.ids %>"
@@ -31,7 +31,7 @@
       data-min="<%= definition.dig('validations', 'min') || 0 %>"
       data-limited-by="<%= definition.dig('ui', 'edit', 'options', 'limited_by')&.to_json %>">
     <div class="media-thumbs">
-      <ul class="object-thumbs no-bullet">
+      <ul class="object-thumbs no-bullet<%= ' has-items' if objects.present? %>">
         <% if objects.present? %>
           <% objects.each do |object| %>
             <%= render_linked_partial(key: "#{key}[]", definition: definition, parameters: { object: object, prefix: local_assigns.dig(:options, :prefix), options: options, edit_buttons: true }, content: content) %>
@@ -54,7 +54,7 @@
               options: options,
               page: params.fetch(:page, 1).to_i + 1,
               load_more_action: :object_browser,
-              editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
+              editable: attribute_editable?(key, definition, options, content),
               locale: I18n.locale,
               content_id: content.id,
               content_type: content.class.table_name
@@ -66,7 +66,7 @@
               disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_all', locale: DataCycleCore.ui_language)}..."
             } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
 
-        <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
+        <% if attribute_editable?(key, definition, options, content) %>
           <button class="button show-objectbrowser" data-disable id="show-object-browser-<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>" type="button" data-open="object_browser_<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>">
             <i class="fa fa-plus"></i>
           </button>

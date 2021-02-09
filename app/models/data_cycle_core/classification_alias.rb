@@ -27,8 +27,7 @@ module DataCycleCore
     default_scope { i18n }
     before_save :set_internal_data
     after_destroy :clean_stored_filters
-    before_destroy -> { primary_classification&.destroy }, prepend: true
-    before_destroy :add_things_cache_invalidation_job_destroy, :add_things_webhooks_job_destroy, prepend: true
+    before_destroy :add_things_cache_invalidation_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }, prepend: true
     after_update :update_primary_classification
     after_update :add_things_cache_invalidation_job_update, if: :cached_attributes_changed?
     after_update :add_things_webhooks_job_update, if: :main_attributes_changed?
@@ -292,7 +291,7 @@ module DataCycleCore
     end
 
     def add_things_webhooks_job_destroy
-      return unless primary_classification.things.exists?
+      return unless primary_classification&.things.exists?
 
       Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationDestroyJob.new(self.class.name, id, :execute_things_webhooks_destroy, primary_classification.things.ids) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_execute_things_webhooks_destroy", delayed_reference_id: id)
     end

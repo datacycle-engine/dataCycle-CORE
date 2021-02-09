@@ -1,4 +1,3 @@
-<%= puts local_assigns %>
 <%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item is-active",
   id: "#{sanitize_to_id(key)}_item_#{index}",
   data: {
@@ -6,7 +5,7 @@
     index: index,
     accordion_item: true
   } do %>
-  <% readonly = options['readonly'].to_s == 'true' %>
+  <% readonly = !attribute_editable?(key, definition, local_assigns[:options], local_assigns[:object]) %>
 
   <span class="embedded-header">
     <% unless readonly %>

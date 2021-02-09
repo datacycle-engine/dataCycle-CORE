@@ -234,9 +234,9 @@ de:
     bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
     bulk_update:
       check_box_labels:
-        override: '%{data} überschreiben'
-        add: 'An vorhandene %{data} anhängen'
-        remove: 'Ausgewählte %{data} entfernen'
+        override_html: '<span class="attribute-title">%{data}</span> überschreiben'
+        add_html: 'An vorhandene <span class="attribute-title">%{data}</span> anhängen'
+        remove_html: 'Ausgewählte <span class="attribute-title">%{data}</span> entfernen'
     watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
     content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'

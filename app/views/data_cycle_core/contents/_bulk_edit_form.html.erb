@@ -61,7 +61,9 @@
               definition: prop,
               value: nil,
               parameters: {
-                options: {}
+                options: {
+                  edit_scope: 'bulk_edit'
+                }
               },
               content: DataCycleCore::Thing.new { |t|
                 t.id = SecureRandom.uuid
