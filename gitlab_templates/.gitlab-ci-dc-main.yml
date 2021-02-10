@@ -89,7 +89,7 @@ services:
   stage: check
   script:
     - bundle exec bundle-audit update
-    - bundle exec bundle audit check
+    - bundle exec bundle audit check --ignore CVE-2021-21288 CVE-2021-21305
     - bundle exec brakeman
     - bundle exec rubocop --format fuubar
     - bundle exec fasterer
