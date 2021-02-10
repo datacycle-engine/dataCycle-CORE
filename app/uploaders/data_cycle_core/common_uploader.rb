@@ -59,7 +59,7 @@ module DataCycleCore
 
         define_method :full_filename do |for_file|
           basename = File.basename(for_file, File.extname(for_file)).delete_prefix("#{from_version}_")
-          file_ext = options['format'] || MIME::Types.type_for(for_file).first.preferred_extension
+          file_ext = options['format'] || MiniMime.lookup_by_content_type(MiniMime.lookup_by_filename(for_file)&.content_type.to_s)&.extension
 
           "#{name}_#{basename}.#{file_ext}"
         end
@@ -69,19 +69,20 @@ module DataCycleCore
     def dynamic_version(name:, options: nil, process: false)
       return if options&.values.blank?
 
-      new_format = MIME::Types.type_for(options['format']).first
+      new_format = MiniMime.lookup_by_content_type(MiniMime.lookup_by_extension(options['format'].to_s)&.content_type.to_s)&.extension
       if new_format.present? && (
-        extension_white_list.include?(new_format.preferred_extension) ||
-        DataCycleCore::Feature::Serialize.asset_versions(model.thing).dig(name)&.include?(new_format.preferred_extension)
-      ) && MIME::Types.type_for(current_path).first != new_format
-        options['format'] = new_format.preferred_extension
+        extension_white_list.include?(new_format) ||
+        DataCycleCore::Feature::Serialize.asset_versions(model.thing).dig(name)&.include?(new_format)
+      ) && MiniMime.lookup_by_content_type(MiniMime.lookup_by_filename(current_path.to_s)&.content_type.to_s)&.extension != new_format
+        options['format'] = new_format
       else
         options.delete('format')
       end
 
-      version_name = "#{name}_#{options.slice('format', 'width', 'height').to_h.flatten.join('_')}".to_sym
+      version_name = "#{name}_#{options.slice('format', 'width', 'height').to_h.flatten.join('_').presence || 'dynamic'}".to_sym
       version_uploader = self.class.dynamic_version(version_name, options, (name.to_sym == :original ? nil : name))
-      @versions[version_name] = version_uploader[:uploader]&.new(model, mounted_as)
+
+      @versions[version_name] = version_uploader&.new(model, mounted_as)
 
       return if @versions[version_name].nil?
 
@@ -89,6 +90,7 @@ module DataCycleCore
 
       if process && !@versions[version_name].try(:file)&.exists?
         model.process_file_upload = true
+
         recreate_versions!(version_name)
       end
 
@@ -97,7 +99,7 @@ module DataCycleCore
     end
 
     def content_type
-      mime_type = MIME::Types.type_for(current_path).first
+      mime_type = MiniMime.lookup_by_filename(current_path.to_s)&.content_type
       file.instance_variable_set(:@content_type, mime_type.to_s)
     end
 

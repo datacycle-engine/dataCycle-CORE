@@ -18,9 +18,8 @@ gem 'translations', path: 'vendor/gems/translations'
 
 gem 'appsignal'
 
-# NOTE: Axlsx has been pending release for a long time. You must specify the master on github to support Rubyzip 1.2.1.
-# gem 'rubyzip', '>= 1.2.1'
-gem 'caxlsx' # , git: 'https://github.com/randym/caxlsx.git', ref: 'c8ac844'
+# Excel Generator
+gem 'caxlsx'
 gem 'caxlsx_rails'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
@@ -30,8 +29,31 @@ gem 'dotenv-rails'
 
 gem 'jb'
 
+# File Upload
+gem 'mini_mime'
+gem 'carrierwave'
+gem 'carrierwave_backgrounder', github: 'lardawge/carrierwave_backgrounder', ref: 'e1faa5e'
+
 group :test do
   gem 'minitest-hooks'
+end
+
+group :development do
+  gem 'better_errors'
+  gem 'binding_of_caller'
+  gem 'web-console'
+  gem 'brakeman', '>= 4.5.1', require: false
+  gem 'bundler-audit', require: false
+  gem 'faker'
+  gem 'fasterer', require: false
+  gem 'rubocop', '~> 0.84.0', require: false
+  gem 'rubocop-performance', require: false
+  gem 'rubocop-rails', require: false
+
+  # only activate if required for local testing
+  # gem 'bullet'
+  # # rails panel (test)
+  # gem 'meta_request'
 end
 
 group :development, :test, :review do
@@ -39,7 +61,6 @@ group :development, :test, :review do
   gem 'spring'
   gem 'spring-watcher-listen'
 
-  # gem 'byebug'
   gem 'pry'
   gem 'pry-byebug'
   gem 'rb-readline'
@@ -50,8 +71,6 @@ group :development, :test, :review do
   gem 'capistrano3-puma'
 
   gem 'simplecov', require: false
-
-  # gem 'jb'
 
   # activate for performance profiling
   # performance profiling

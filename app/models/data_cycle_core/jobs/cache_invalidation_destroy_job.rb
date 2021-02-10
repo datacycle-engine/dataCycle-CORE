@@ -18,12 +18,16 @@ module DataCycleCore
       end
 
       def execute_things_webhooks_destroy
+        return if things_ids.blank?
+
         DataCycleCore::Thing.where(id: things_ids).find_each do |content|
           content.send(:execute_update_webhooks)
         end
       end
 
       def invalidate_things_cache
+        return if things_ids.blank?
+
         things_ids.each do |thing_id|
           Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new('DataCycleCore::Thing', thing_id, :invalidate_self_and_update_search) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: 'data_cycle_core/thing_invalidate_self_and_update_search', delayed_reference_id: thing_id, locked_at: nil)
         end
