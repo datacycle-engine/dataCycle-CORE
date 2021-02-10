@@ -55,10 +55,8 @@ module DataCycleCore
             schedule_array = send(property_name_with_overlay)
             schedule_array = schedule_array
               .map(&:to_h)
-              .map { |i|
-                i.delete(:thing_id)
-                i
-              }.presence
+              .map { |i| i.tap { |j| j.delete(:thing_id) } }
+              .presence
             schedule_array.blank? ? [] : schedule_array.compact
           elsif property_name == 'included'
             linked_property_names.map { |linked|

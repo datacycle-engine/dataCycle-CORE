@@ -30,7 +30,7 @@ module DataCycleCore
               data_correct_embedded = transform_embedded(data_correct_ids, utility_object)
               processed_thing = DataCycleCore::Generic::Common::ImportFunctions.process_step(
                 utility_object: utility_object,
-                raw_data: data_correct_embedded.merge(raw_data.slice(:new)),
+                raw_data: data_correct_embedded,
                 transformation: DataCycleCore::Generic::DcSync::Transformations.to_thing(utility_object.external_source.id),
                 default: { template: template },
                 config: config
