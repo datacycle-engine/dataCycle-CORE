@@ -81,8 +81,7 @@ module DataCycleCore
 
       version_name = "#{name}_#{options.slice('format', 'width', 'height').to_h.flatten.join('_').presence || 'dynamic'}".to_sym
       version_uploader = self.class.dynamic_version(version_name, options, (name.to_sym == :original ? nil : name))
-
-      @versions[version_name] = version_uploader&.new(model, mounted_as)
+      @versions[version_name] = version_uploader[:uploader]&.new(model, mounted_as)
 
       return if @versions[version_name].nil?
 
@@ -90,7 +89,6 @@ module DataCycleCore
 
       if process && !@versions[version_name].try(:file)&.exists?
         model.process_file_upload = true
-
         recreate_versions!(version_name)
       end
 

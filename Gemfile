@@ -32,7 +32,7 @@ gem 'jb'
 # File Upload
 gem 'mini_mime'
 gem 'carrierwave'
-gem 'carrierwave_backgrounder', github: 'lardawge/carrierwave_backgrounder', ref: 'e1faa5e'
+gem 'carrierwave_backgrounder'
 
 group :test do
   gem 'minitest-hooks'
