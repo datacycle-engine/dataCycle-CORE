@@ -6,7 +6,6 @@
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   <% end %>
   <div class="editor-block">
-
     <%= hidden_field_tag key, value, options.merge(id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}") %>
 
     <% options.merge!({ data: { hidden_field_id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" }.merge(definition&.slice('validations', 'warnings')), class: 'quill-editor', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}-editor" }) %>
@@ -14,7 +13,6 @@
     <%= content_tag :div, options do %>
       <%= value.presence&.html_safe %>
     <% end %>
-
   </div>
 
 <% end %>

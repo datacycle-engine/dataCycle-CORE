@@ -291,19 +291,19 @@ module DataCycleCore
     end
 
     def add_things_webhooks_job_destroy
-      return unless primary_classification&.things.exists?
+      return unless primary_classification&.things&.exists?
 
       Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationDestroyJob.new(self.class.name, id, :execute_things_webhooks_destroy, primary_classification.things.ids) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_execute_things_webhooks_destroy", delayed_reference_id: id)
     end
 
     def add_things_webhooks_job_update
-      return unless primary_classification.things.exists?
+      return unless primary_classification&.things&.exists?
 
       Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :execute_things_webhooks) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_execute_things_webhooks", delayed_reference_id: id, locked_at: nil)
     end
 
     def execute_things_webhooks
-      primary_classification.things.find_each do |content|
+      primary_classification&.things&.find_each do |content|
         content.send(:execute_update_webhooks)
       end
     end
@@ -313,7 +313,7 @@ module DataCycleCore
     end
 
     def add_things_cache_invalidation_job_destroy
-      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationDestroyJob.new(self.class.name, id, :invalidate_things_cache, primary_classification.things.ids) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_things_cache", delayed_reference_id: id)
+      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationDestroyJob.new(self.class.name, id, :invalidate_things_cache, primary_classification&.things&.ids) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_things_cache", delayed_reference_id: id)
     end
 
     def invalidate_things_cache

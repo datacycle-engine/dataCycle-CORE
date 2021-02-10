@@ -54,7 +54,7 @@
           <%= tag.span(t('controllers.error.no_shared_attributes', locale: DataCycleCore.ui_language), class: 'bulk-no-attributes') if @shared_properties.blank? %>
           <% @shared_properties.presence&.each do |key, prop| %>
             <div class="bulk-update-type" data-attribute-key="<%= "#{key_prefix}[#{key}]" %>">
-              <%= f.collection_check_boxes "bulk_update[#{key}]", bulk_update_types(prop), :value, :text %>
+              <%= f.collection_check_boxes "bulk_update[#{key}]", bulk_update_types(prop), :value, :text, { include_hidden: false  } %>
             </div>
 
             <%= render_attribute_editor key: "#{key_prefix}[#{key}]",

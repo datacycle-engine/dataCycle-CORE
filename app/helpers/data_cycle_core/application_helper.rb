@@ -275,6 +275,7 @@ module DataCycleCore
 
       partials = partials.map { |p| "data_cycle_core/contents/editors/#{p}" }
 
+      parameters[:options][:readonly] = !attribute_editable?(key, definition, parameters[:options], content)
       parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end

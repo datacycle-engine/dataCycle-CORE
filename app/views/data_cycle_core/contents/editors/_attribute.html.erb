@@ -8,7 +8,7 @@
     definition.dig('ui', 'edit', 'options', 'class')&.underscore,
     options&.dig('class'),
     ('is-embedded-title' if local_assigns[:parent]&.embedded_title_property_name.present? && key.attribute_name_from_key == local_assigns[:parent].embedded_title_property_name)
-].reject(&:blank?).join(' ') %>" data-key="<%= key %>" data-readonly="<%= attribute_editable?(key, definition, options, content) %>" data-id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>">
+].reject(&:blank?).join(' ') %>" data-key="<%= key %>" data-readonly="<%= !attribute_editable?(key, definition, options, content) %>" data-id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>">
 
   <% if content.try(:translatable_property?, key.attribute_name_from_key, definition) && content.translatable? && I18n.available_locales&.many? %>
     <span class="translated"><i class="fa fa-language" aria-hidden="true"></i></span>
