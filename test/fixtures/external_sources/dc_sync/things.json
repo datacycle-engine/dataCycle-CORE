@@ -357,7 +357,9 @@
                   "last_successful_sync_at": "2020-12-03T12:09:59.674+01:00",
                   "status": "success",
                   "external_system_syncs": []
-                }
+                },
+                "included": [],
+                "attribute_name": "image"
               }
             ]
           }
