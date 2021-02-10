@@ -9,4 +9,5 @@ gem install bundler
 # bundle update
 bundle install
 
+# RAILS_LOG_TO_STDOUT=true RUBYOPT="-W:no-deprecated -W:no-experimental" bundle exec rails s -b 0.0.0.0 -p 3000
 RAILS_LOG_TO_STDOUT=true RUBYOPT="-W:no-deprecated -W:no-experimental" bundle exec puma -C /var/www/app/vendor/gems/data-cycle-core/docker/web/puma.rb

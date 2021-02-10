@@ -38,12 +38,13 @@
               :data-size: basic
         :advanced_search: true
       :validity_schedule:
-        :label: Season
+        :label: Publikationsplan
         :type: schedule
         :api:
           :disabled: true
           :v4:
             :disabled: false
+            :name: dc:validitySchedule
       :image:
         :label: Bilder
         :type: linked

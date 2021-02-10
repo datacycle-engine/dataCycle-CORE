@@ -36,7 +36,7 @@ map $arg_height $endpoint_height {
 }
 
 upstream puma_data_cycle_develop {
-  #     server web:3000;
+  # server web:3000;
   server unix:${APPLICATION_ROOT}/tmp/sockets/puma.sock fail_timeout=0;
 }
 

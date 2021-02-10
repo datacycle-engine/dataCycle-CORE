@@ -105,7 +105,6 @@ module DataCycleCore
                     required(:@id).value(:uuid_v4?)
                     required(:@type).value(:string)
                     required(:startDate).value(:date_time)
-                    required(:endDate).value(:date_time)
                   end
                 )
               end
