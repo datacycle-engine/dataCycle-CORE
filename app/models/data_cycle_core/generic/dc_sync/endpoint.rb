@@ -17,7 +17,7 @@ module DataCycleCore
           if @params[:external_keys].present?
             Enumerator.new do |yielder|
               Array.wrap(@params[:external_keys]).each do |key|
-                yielder << load_thing(key: key)
+                yielder << load_thing(key: key)['@graph'].first
               end
             end
           else
