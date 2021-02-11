@@ -281,9 +281,11 @@ module DataCycleCore
     end
 
     def main_attributes_changed?
-      (saved_changes.keys & ['internal_name', 'uri']).any? ||
-        saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present? ||
-        saved_changes.dig('description_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
+      return @main_attributes_changed if defined? @main_attributes_changed
+
+      @main_attributes_changed = (saved_changes.keys & ['internal_name', 'uri']).any? ||
+                                 saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present? ||
+                                 saved_changes.dig('description_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
     end
 
     def classifications_changed(_classification = nil)

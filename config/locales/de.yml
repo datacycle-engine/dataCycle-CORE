@@ -237,6 +237,8 @@ de:
         override_html: '<span class="attribute-title">%{data}</span> überschreiben'
         add_html: 'An vorhandene <span class="attribute-title">%{data}</span> anhängen'
         remove_html: 'Ausgewählte <span class="attribute-title">%{data}</span> entfernen'
+      button:
+        limited: Es können maximal %{data} Inhalte gleichzeitig bearbeitet werden.
     watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
     content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'

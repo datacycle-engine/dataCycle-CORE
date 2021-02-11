@@ -116,6 +116,9 @@ module DataCycleCore
     mattr_accessor :logo
     self.logo = {}
 
+    mattr_accessor :global_configs
+    self.global_configs = {}
+
     mattr_accessor :info_link
     self.info_link = nil
     # inheritable_attributes

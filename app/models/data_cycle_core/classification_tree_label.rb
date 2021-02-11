@@ -123,8 +123,10 @@ module DataCycleCore
     private
 
     def cached_attributes_changed?
-      saved_changes.key?('name') ||
-        saved_changes.dig('visibility', 0)&.to_set&.^(saved_changes.dig('visibility', 1)&.to_set)&.include?('api')
+      return @cached_attributes_changed if defined? @cached_attributes_changed
+
+      @cached_attributes_changed = saved_changes.key?('name') ||
+                                   saved_changes.dig('visibility', 0)&.to_set&.^(saved_changes.dig('visibility', 1)&.to_set)&.include?('api')
     end
 
     def add_things_webhooks_job_update
