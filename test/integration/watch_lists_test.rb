@@ -3,20 +3,22 @@
 require 'test_helper'
 
 module DataCycleCore
-  class WatchListsTest < ActionDispatch::IntegrationTest
-    include Devise::Test::IntegrationHelpers
-    include Engine.routes.url_helpers
-
-    setup do
+  class WatchListsTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+    before(:all) do
       @routes = Engine.routes
-      @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+      @default_tags = DataCycleCore::Classification.for_tree('Tags').where(name: ['Tag 1', 'Tag 2']).ids
+      @additional_tags = DataCycleCore::Classification.for_tree('Ausgabekanäle').where(name: 'Tag 3').ids
+      @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel', tags: @default_tags })
       @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
       @current_user = User.find_by(email: 'tester@datacycle.at')
-      sign_in(@current_user)
       @organization = DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: { name: 'TestOrganisation' })
       @image_a = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'TestBildA', author: [@organization.id] })
       @image_b = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'TestBildB', author: [@organization.id] })
       @image_c = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'TestBildC', copyright_holder: [@organization.id] })
+    end
+
+    setup do
+      sign_in(@current_user)
     end
 
     test 'create Watchlist' do
@@ -37,7 +39,7 @@ module DataCycleCore
       assert_response :success
       assert_equal response.content_type, 'application/json'
       json_data = JSON.parse response.body
-      assert_equal 1, json_data.dig('collections').count { |w| w['name'] == name }
+      assert_equal(1, json_data.dig('collections').count { |w| w['name'] == name })
     end
 
     test 'update Watchlist' do
@@ -257,7 +259,7 @@ module DataCycleCore
           }
         },
         bulk_update: {
-          name: '1'
+          name: ['override']
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
@@ -275,7 +277,7 @@ module DataCycleCore
           }
         },
         bulk_update: {
-          name: '1'
+          name: ['override']
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
@@ -284,6 +286,81 @@ module DataCycleCore
       assert_response :success
       assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 0, locale: DataCycleCore.ui_language) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], count: 1, locale: DataCycleCore.ui_language), flash[:success]
       assert_equal bulk_name, @content.name
+    end
+
+    test 'bulk update all watch_list items - override classifications' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      bulk_name = 'Test Artikel Bulk Update 1'
+
+      patch bulk_update_watch_list_path(@watch_list), params: {
+        locale: 'de',
+        thing: {
+          datahash: {
+            name: bulk_name,
+            tags: @additional_tags
+          }
+        },
+        bulk_update: {
+          name: ['override'],
+          tags: ['override']
+        }
+      }, headers: {
+        referer: bulk_edit_watch_list_path(@watch_list)
+      }
+
+      assert_response :success
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal @additional_tags.to_set, @content.tags.reload.ids.to_set
+    end
+
+    test 'bulk update all watch_list items - add classifications' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      bulk_name = 'Test Artikel Bulk Update 1'
+
+      patch bulk_update_watch_list_path(@watch_list), params: {
+        locale: 'de',
+        thing: {
+          datahash: {
+            name: bulk_name,
+            tags: @additional_tags
+          }
+        },
+        bulk_update: {
+          name: ['override'],
+          tags: ['add']
+        }
+      }, headers: {
+        referer: bulk_edit_watch_list_path(@watch_list)
+      }
+
+      assert_response :success
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal (@default_tags + @additional_tags).to_set, @content.tags.reload.ids.to_set
+    end
+
+    test 'bulk update all watch_list items - remove classification' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      bulk_name = 'Test Artikel Bulk Update 1'
+
+      patch bulk_update_watch_list_path(@watch_list), params: {
+        locale: 'de',
+        thing: {
+          datahash: {
+            name: bulk_name,
+            tags: [@default_tags.first]
+          }
+        },
+        bulk_update: {
+          name: ['override'],
+          tags: ['remove']
+        }
+      }, headers: {
+        referer: bulk_edit_watch_list_path(@watch_list)
+      }
+
+      assert_response :success
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal [@default_tags.last].to_set, @content.tags.reload.ids.to_set
     end
 
     test 'validate (bulk update) watch_list items' do
@@ -297,7 +374,7 @@ module DataCycleCore
           }
         },
         bulk_update: {
-          name: '1'
+          name: ['override']
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)

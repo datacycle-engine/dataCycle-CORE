@@ -29,11 +29,6 @@ gem 'dotenv-rails'
 
 gem 'jb'
 
-# File Upload
-gem 'mini_mime'
-gem 'carrierwave'
-gem 'carrierwave_backgrounder'
-
 group :test do
   gem 'minitest-hooks'
 end

@@ -9,6 +9,8 @@ PATH
       amazing_print
       bcrypt_pbkdf
       cancancan
+      carrierwave (~> 0.5)
+      carrierwave_backgrounder (~> 0.4.2)
       daemons
       delayed_job_active_record
       devise
@@ -31,6 +33,7 @@ PATH
       jwt
       kaminari
       mini_magick
+      mini_mime
       mongoid (~> 7.0.6)
       multi_json
       nokogiri (~> 1.11.1)
@@ -578,8 +581,6 @@ DEPENDENCIES
   capistrano-rvm
   capistrano3-delayed-job
   capistrano3-puma
-  carrierwave
-  carrierwave_backgrounder
   caxlsx
   caxlsx_rails
   data_cycle_core!
@@ -588,7 +589,6 @@ DEPENDENCIES
   fasterer
   jb
   listen
-  mini_mime
   minitest-hooks
   pry
   pry-byebug
