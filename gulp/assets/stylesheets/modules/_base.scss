@@ -780,32 +780,37 @@ footer {
     }
 
     .daterange {
-      .form-element .icon {
-        i:not(.fa-ban) {
-          display: none;
+      &:not(.schedule-range):not(.special-dates) {
+        padding: 1rem;
+
+        .form-element {
+          display: inline-block;
+          white-space: nowrap;
+          margin: 0;
+
+          input {
+            box-shadow: none !important;
+            border: 0 !important;
+            display: inline-block;
+          }
+
+          .single_error {
+            left: 1rem;
+            top: -2rem;
+            right: auto;
+          }
+
+          .single_warning {
+            left: 1rem;
+            top: -2rem;
+            right: auto;
+          }
         }
       }
 
-      .form-element {
-        display: inline-block;
-        white-space: nowrap;
-
-        input {
-          box-shadow: none !important;
-          border: 0 !important;
-          display: inline-block;
-        }
-
-        .single_error {
-          left: 1rem;
-          top: -2rem;
-          right: auto;
-        }
-
-        .single_warning {
-          left: 1rem;
-          top: -2rem;
-          right: auto;
+      .form-element .icon {
+        i:not(.fa-ban) {
+          display: none;
         }
       }
     }
