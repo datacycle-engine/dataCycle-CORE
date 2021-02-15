@@ -88,9 +88,8 @@ module DataCycleCore
     end
 
     def find
-      params.permit(:ids)
-
-      query = DataCycleCore::Classification.where(id: params[:ids]).preload(primary_classification_alias: :classification_alias_path)
+      query = DataCycleCore::Classification.where(id: find_params[:ids]).preload(primary_classification_alias: :classification_alias_path)
+      query = query.for_tree(find_params[:tree_label]) if find_params[:tree_label].present?
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: query.map { |c|
@@ -240,6 +239,12 @@ module DataCycleCore
           classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
         )
       end
+    end
+
+    def find_params
+      return @find_params if defined? @find_params
+
+      @find_params = params.permit(:tree_label, ids: [])
     end
 
     def locale_params

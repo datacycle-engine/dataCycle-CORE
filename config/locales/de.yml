@@ -566,6 +566,7 @@ de:
     set_all_attributes: 'für alle %{data} übernehmen'
     close_overlay: Overlay schließen
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
+    copyable_from: von %{data} übernehmen
 
   validation:
     errors:

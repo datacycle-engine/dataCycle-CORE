@@ -14,6 +14,8 @@
     <span class="translated"><i class="fa fa-language" aria-hidden="true"></i></span>
   <% end %>
 
+  <%= link_to tag.i(class: 'fa fa-reply', aria_hidden: true), '#', title: t('actions.copyable_from', data: content&.properties_for(definition.dig('ui', 'edit', 'copyable_from'))&.dig('label'), locale: DataCycleCore.ui_language), class: 'copy-from-attribute-button button dc-foundation-tooltip', data: { copy_from: definition.dig('ui', 'edit', 'copyable_from') } if definition.dig('ui', 'edit', 'copyable_from').present? %>
+
   <%= yield %>
 
 </div>

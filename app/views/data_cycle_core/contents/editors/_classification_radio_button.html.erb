@@ -13,7 +13,7 @@
       <%= radio_button_tag key + '[]', '', true, id: sanitize_to_id(key + '[]') %>
       <%= label_tag key + '[]', "#{t("common.no_selection", locale: DataCycleCore.ui_language)}" %>
     </li>
-    <%= collection_radio_buttons(nil, key + '[]', classification_items, :primary_classification_id, :internal_name, {}, { namespace: local_assigns.dig(:options, :prefix) }) do |rb| %>
+    <%= collection_radio_buttons(nil, key + '[]', classification_items, :primary_classification_id, :internal_name, {}, { disabled: !attribute_editable?(key, definition, options, content), namespace: local_assigns.dig(:options, :prefix) }) do |rb| %>
       <li class="radiobutton-wrap">
         <%= rb.radio_button value: rb.value, checked: (value&.ids&.include?(rb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))) %>
         <% if rb.object.try(:description).present? %>
@@ -26,4 +26,8 @@
       </li>
     <% end %>
   </ul>
+
+  <% value.presence&.each do |c| %>
+    <%= hidden_field_tag key + '[]', c.id %>
+  <% end unless attribute_editable?(key, definition, options, content) %>
 <% end if classification_tree_label_has_children?(definition['tree_label']) %>

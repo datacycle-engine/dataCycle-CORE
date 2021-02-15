@@ -66,6 +66,7 @@ initializers.push(require('./modules/initializers/schedule_editor_init'));
 initializers.push(require('./modules/initializers/password_toggle'));
 initializers.push(require('./modules/initializers/datatables_init'));
 initializers.push(require('./modules/initializers/conditional_form_field'));
+initializers.push(require('./modules/initializers/copy_from_init'));
 
 // keep validations and foundation last to ensure everything is intialized before saving form values
 initializers.push(require('./modules/initializers/foundation_init'));

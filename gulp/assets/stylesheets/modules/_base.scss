@@ -98,6 +98,19 @@ button,
 
 .form-element {
   position: relative;
+
+  .copy-from-attribute-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 3rem;
+    width: 3rem;
+    padding: 0.5rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .edit-header {
@@ -1554,11 +1567,9 @@ body.login-page {
   transition: opacity 300ms;
 }
 
-a[data-toggle] {
-  display: inline-block;
-  &.has-tip,
-  &.dc-foundation-tooltip {
-    padding-bottom: 0;
+a {
+  &[data-toggle] {
+    display: inline-block;
   }
 }
 

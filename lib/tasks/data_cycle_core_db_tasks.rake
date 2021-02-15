@@ -142,6 +142,8 @@ namespace :data_cycle_core do
           Rake::Task['db:create'].invoke
           puts cmd
           system cmd
+          ActiveRecord::Base.connection.execute('ANALYZE;')
+          ActiveRecord::Base.connection.execute('VACUUM;')
           puts ''
           puts "Restored from file: #{file}"
           puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"

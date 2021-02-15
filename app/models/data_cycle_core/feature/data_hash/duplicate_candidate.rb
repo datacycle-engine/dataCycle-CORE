@@ -4,6 +4,10 @@ module DataCycleCore
   module Feature
     module DataHash
       module DuplicateCandidate
+        def self.prepended(base)
+          base.after_saved_data_hash :add_check_for_duplicates_job, if: -> { !embedded? && @new_content && @check_for_duplicates }
+        end
+
         def create_duplicate_candidates
           duplicates = duplicate_method
           return if duplicates.blank?
@@ -17,6 +21,12 @@ module DataCycleCore
           DataCycleCore::MergeDuplicateJob.perform_later(id, duplicate.id)
 
           DataCycleCore::Thing.find_by(id: duplicate.id)&.duplicate_candidates&.thing_duplicates&.delete_all
+        end
+
+        private
+
+        def add_check_for_duplicates_job
+          DataCycleCore::CheckForDuplicatesJob.perform_later(id)
         end
       end
     end
