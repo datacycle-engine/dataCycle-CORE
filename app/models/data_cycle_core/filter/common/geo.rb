@@ -50,7 +50,9 @@ module DataCycleCore
           end
 
           reflect(
-            @query.where(contains_queries.reduce(:or))
+            @query
+              .where(overlap(get_box(get_point(-90, -180), get_point(90, 180)), thing[:location]))
+              .where(contains_queries.reduce(:or))
           )
         end
 
