@@ -255,7 +255,7 @@ module DataCycleCore
     end
 
     def render_attribute_editor(key:, definition:, value:, parameters: { options: { edit_scope: 'edit' } }, content: nil, scope: :edit)
-      parameters[:options] ||= {}
+      parameters[:options] = (parameters[:options] || {}).with_indifferent_access
       edit_scope = parameters.dig(:options, :edit_scope)
 
       return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
