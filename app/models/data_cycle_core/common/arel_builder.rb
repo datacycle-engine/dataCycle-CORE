@@ -24,8 +24,12 @@ module DataCycleCore
         Arel::Nodes::InfixOperation.new('@@', tsvector, tsquery)
       end
 
-      def tsquery(string)
-        Arel::Nodes::NamedFunction.new('plainto_tsquery', [quoted('simple'), string])
+      def tsquery(string, dict = nil)
+        Arel::Nodes::NamedFunction.new('plainto_tsquery', [dict || quoted('simple'), string])
+      end
+
+      def get_dict(column)
+        Arel::Nodes::NamedFunction.new('get_dict', [column])
       end
     end
   end

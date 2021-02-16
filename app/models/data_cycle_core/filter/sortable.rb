@@ -111,7 +111,7 @@ module DataCycleCore
               "things.boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
-              2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
+              2 * ts_rank_cd(searches.words, plainto_tsquery(CAST(get_dict(searches.locale) AS regconfig), :search),16) +
               1 * similarity(searches.full_text, :search_string))"
             ),
             search_string: "%#{search_string}%",
