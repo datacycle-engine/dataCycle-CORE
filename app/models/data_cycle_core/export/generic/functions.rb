@@ -4,12 +4,6 @@ module DataCycleCore
   module Export
     module Generic
       module Functions
-        include Transformations
-
-        def self.transformations
-          DataCycleCore::Export::Generic::Transformations
-        end
-
         def self.filter(data:, external_system:, method_name:)
           presence_check = external_system.config.dig('export_config', method_name, 'filter', 'presence') || external_system.config.dig('export_config', 'filter', 'presence')
           presence_check = presence_check.is_a?(Hash) ? Array.wrap(presence_check.dig(data&.template_name)) : Array.wrap(presence_check)

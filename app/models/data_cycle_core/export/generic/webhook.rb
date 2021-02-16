@@ -26,7 +26,7 @@ module DataCycleCore
 
         def perform
           data = DataCycleCore::Thing.find_by(id: @data.id)
-          system_sync = data.try(:external_system_sync_by_system, @utility_object.external_system)
+          system_sync = data.try(:external_system_sync_by_system, external_system: @utility_object.external_system)
           system_sync&.update(last_sync_at: Time.zone.now)
 
           if data || @type == 'delete'
