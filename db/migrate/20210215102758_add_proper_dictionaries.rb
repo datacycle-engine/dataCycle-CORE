@@ -6,9 +6,9 @@ class AddProperDictionaries < ActiveRecord::Migration[5.2]
       DROP TRIGGER IF EXISTS tsvectorsearchupdate
       ON searches;
 
-      CREATE OR REPLACE FUNCTION get_dict(lang varchar) RETURNS varchar LANGUAGE PLPGSQL AS $$
+      CREATE OR REPLACE FUNCTION get_dict(lang varchar) RETURNS regconfig LANGUAGE PLPGSQL AS $$
       DECLARE
-        dict varchar;
+        dict regconfig;
       BEGIN
         SELECT
           CASE
@@ -35,7 +35,7 @@ class AddProperDictionaries < ActiveRecord::Migration[5.2]
 
       CREATE OR REPLACE FUNCTION tsvectorsearchupdate() RETURNS TRIGGER LANGUAGE PLPGSQL AS $$
       BEGIN
-      	NEW.words := pg_catalog.to_tsvector(get_dict(NEW.locale)::regconfig, NEW.full_text::text);
+      	NEW.words := pg_catalog.to_tsvector(get_dict(NEW.locale), NEW.full_text::text);
         RETURN NEW;
       END;$$;
       CREATE TRIGGER tsvectorsearchupdate BEFORE INSERT OR UPDATE
