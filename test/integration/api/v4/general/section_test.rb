@@ -211,6 +211,63 @@ module DataCycleCore
             assert(json_data['meta'].present?)
             assert(json_data['links'].present?)
           end
+
+          test 'POST page offset with paging or limit ' do
+            post api_v4_things_path
+            assert_response :success
+
+            assert_equal(response.content_type, 'application/json')
+            json_data_full = JSON.parse(response.body)
+
+            second = json_data_full['@graph'].second
+            third = json_data_full['@graph'].third
+
+            post api_v4_things_path(page: { size: 1, offset: 1 })
+            assert_response :success
+
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data['@graph'].size)
+            assert_equal(json_data['@graph'].first.dig('@id'), second.dig('@id'))
+            assert(json_data['@context'].present?)
+            assert(json_data['meta'].present?)
+            assert(json_data['links'].present?)
+
+            post api_v4_things_path(page: { size: 1, offset: 1, number: 2 })
+            assert_response :success
+
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data['@graph'].size)
+            assert_equal(json_data['@graph'].first.dig('@id'), third.dig('@id'))
+            assert(json_data['@context'].present?)
+            assert(json_data['meta'].present?)
+            assert(json_data['links'].present?)
+
+            post api_v4_things_path(page: { offset: 2, limit: 1 })
+            assert_response :success
+
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+            assert_equal(1, json_data['@graph'].size)
+            assert_equal(json_data['@graph'].first.dig('@id'), third.dig('@id'))
+            assert(json_data['@context'].present?)
+            assert(json_data['meta'].blank?)
+            assert(json_data['links'].blank?)
+          end
+
+          test 'POST page limit: 1 ' do
+            post api_v4_things_path(page: { limit: 1 })
+            assert_response :success
+
+            assert_equal(response.content_type, 'application/json')
+            json_data = JSON.parse(response.body)
+
+            assert_equal(1, json_data['@graph'].size)
+            assert(json_data['@context'].present?)
+            assert(json_data['meta'].blank?)
+            assert(json_data['links'].blank?)
+          end
         end
       end
     end
