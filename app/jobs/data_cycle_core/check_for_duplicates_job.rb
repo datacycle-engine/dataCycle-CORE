@@ -23,11 +23,11 @@ module DataCycleCore
     end
 
     def delayed_reference_id(content_id)
-      "#{content_id}/check_for_duplicates"
+      content_id
     end
 
     def delayed_reference_type
-      'DataCycleCore::Thing'
+      'check_for_duplicates'
     end
   end
 end

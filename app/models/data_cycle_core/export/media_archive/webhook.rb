@@ -67,6 +67,10 @@ module DataCycleCore
           @data.try(:copyright_holder)&.each do |copyright_holder|
             copyright_holder.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'success')
           end
+
+          @data.try(:content_location)&.each do |content_location|
+            content_location.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'success')
+          end
         end
 
         def reference_type
