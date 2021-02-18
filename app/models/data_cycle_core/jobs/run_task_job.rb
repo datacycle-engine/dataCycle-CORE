@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'rake'
 module DataCycleCore
   module Jobs
     RunTaskJob = Struct.new(:task, :args) do
