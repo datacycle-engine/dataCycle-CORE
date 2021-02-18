@@ -45,11 +45,11 @@ CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS trigger
 -- Name: get_dict(character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.get_dict(lang character varying) RETURNS character varying
+CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig
     LANGUAGE plpgsql
     AS $$
       DECLARE
-        dict varchar;
+        dict regconfig;
       BEGIN
         SELECT
           CASE
@@ -83,7 +83,7 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
       BEGIN
-      	NEW.words := pg_catalog.to_tsvector(get_dict(NEW.locale)::regconfig, NEW.full_text::text);
+      	NEW.words := pg_catalog.to_tsvector(get_dict(NEW.locale), NEW.full_text::text);
         RETURN NEW;
       END;$$;
 
@@ -2422,6 +2422,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20201207151843'),
 ('20201208210141'),
 ('20210208130744'),
-('20210215102758');
+('20210215102758'),
+('20210217125404');
 
 
