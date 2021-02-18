@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 require 'rake'
+
 module DataCycleCore
   module Jobs
     RunTaskJob = Struct.new(:task, :args) do
       def perform
+        Rake::Task.clear
+        Rails.application.load_tasks
         args ||= []
         Rake::Task[task].execute(*args)
       end
