@@ -270,7 +270,7 @@ module DataCycleCore
           # get ridd of most common bullshit
           s = url_string&.squish
           s = s.delete(' ') if s.present?
-          s = s[8..-1] if (s =~ %r{^http://\?})&.zero?
+          s = s[8..-1] if s.start_with?('http://?')
 
           if s.nil?
             ''
