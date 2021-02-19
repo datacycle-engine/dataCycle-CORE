@@ -18,7 +18,7 @@ module DataCycleCore
         end
 
         def self.enqueue_webhook(data, webhook, external_system)
-          data.external_system_sync_by_system(external_system: external_system, use_key: false).update(status: 'pending')
+          data.external_system_sync_by_system(external_system: external_system).update(status: 'pending')
           delayed_job = Delayed::Job.where(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil).order(created_at: :asc).first
           run_at = data.webhook_run_at || Time.zone.now
           priority = data.webhook_priority || Delayed::Worker.default_priority
@@ -64,7 +64,15 @@ module DataCycleCore
         def self.delete(utility_object:, data:)
           external_system = utility_object.external_system
           webhook = (external_system.config.dig('export_config', 'webhook').presence&.safe_constantize || DataCycleCore::Export::Generic::Webhook).new(
-            data: OpenStruct.new(id: data.id, template_name: data.template_name),
+            data: OpenStruct.new(
+              id: data.id,
+              template_name: data.template_name,
+              webhook_data: OpenStruct.new(
+                external_keys: data.external_keys_by_system_id(external_system.id),
+                original_external_keys: data.try(:original)&.external_keys_by_system_id(external_system.id)
+              ),
+              original_id: data.original_id
+            ),
             type: 'delete',
             method: (external_system.config.dig('export_config', __method__.to_s, 'method') || external_system.config.dig('export_config', 'method') || :delete).to_sym,
             transformation: external_system.config.dig('export_config', __method__.to_s, 'transformation') || external_system.config.dig('export_config', 'transformation') || :json_partial,

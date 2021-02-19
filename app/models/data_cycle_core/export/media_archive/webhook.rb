@@ -17,22 +17,24 @@ module DataCycleCore
         def error(_job, exception)
           return unless @data.is_a?(DataCycleCore::Thing)
 
-          @external_system_sync.update(status: 'error', data: { message: exception.message, text: exception.try(:response)&.dig(:body) })
+          @data.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'error', data: { message: exception.message, text: exception.try(:response)&.dig(:body) })
         end
 
         def failure(_job)
           return unless @data.is_a?(DataCycleCore::Thing)
 
-          @external_system_sync.update(status: 'failure')
+          @data.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'failure')
         end
 
         def before(_job)
+          data = @data
           @data = DataCycleCore::Thing.find_by(id: @data.id) || @data
 
           return unless @data.is_a?(DataCycleCore::Thing)
 
-          @external_system_sync = @data.external_system_sync_by_system(external_system: @utility_object.external_system, use_key: false)
-          @external_system_sync.update(last_sync_at: Time.zone.now)
+          @data.webhook_data = data.webhook_data
+          @data.original_id = data.original_id
+          @data.external_system_sync_by_system(external_system: @utility_object.external_system).update(last_sync_at: Time.zone.now)
         end
 
         def perform
@@ -48,6 +50,7 @@ module DataCycleCore
         def success(_job)
           return unless @data.is_a?(DataCycleCore::Thing)
 
+          @external_system_sync = @data.external_system_sync_by_system(external_system: @utility_object.external_system)
           @external_system_sync.update(status: 'success', last_successful_sync_at: @external_system_sync.last_sync_at)
 
           begin

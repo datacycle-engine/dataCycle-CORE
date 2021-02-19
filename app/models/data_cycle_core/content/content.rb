@@ -15,6 +15,7 @@ module DataCycleCore
       self.abstract_class = true
 
       attr_accessor :datahash, :webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :original_id, :duplicate_id, :synchronous_webhooks
+      attr_writer :webhook_data
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
         feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
@@ -32,6 +33,12 @@ module DataCycleCore
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay
+
+      def webhook_data
+        return @webhook_data if defined? @webhook_data
+
+        @webhook_data = OpenStruct.new
+      end
 
       def method_missing(name, *args, &block)
         original_name = name.to_s
