@@ -55,10 +55,16 @@ module DataCycleCore
           page_params = DEFAULT_PAGE_SETTINGS.merge(page_parameters)
           section_params = DEFAULT_SECTION_SETTINGS.merge(section_parameters)
           raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for param page[size]: #{page_params[:size]}" unless page_params[:size].to_i.positive?
-          if section_params[:meta].to_i.zero?
-            query.page(page_params[:number].to_i).per(page_params[:size].to_i).without_count
+          if page_params[:limit].to_i.positive?
+            query.offset(page_params[:offset].to_i).limit(page_params[:limit].to_i)
           else
-            query.page(page_params[:number].to_i).per(page_params[:size].to_i)
+            if section_params[:meta].to_i.zero?
+              query = query.page(page_params[:number].to_i).per(page_params[:size].to_i).without_count
+            else
+              query = query.page(page_params[:number].to_i).per(page_params[:size].to_i)
+            end
+            query = query.padding(page_params[:offset].to_i) if page_params[:offset].to_i.positive?
+            query
           end
         end
 

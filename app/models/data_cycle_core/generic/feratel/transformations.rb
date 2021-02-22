@@ -23,7 +23,7 @@ module DataCycleCore
           .>> t(:unwrap_description, 'ShopItemDescription')
           .>> t(:add_field, 'potential_action', ->(s) { parse_links(s.dig('Links', 'Link'), external_source_id) })
           .>> t(:add_field, 'url', ->(s) { parse_url(Array.wrap(s.dig('Links', 'Link')).first&.dig('URL')) })
-          .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ShopItemDescription')) })
+          .>> t(:add_field, 'description', ->(s) { parse_description(s) })
           .>> t(:universal_classifications, ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Owner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('Details', 'Owner')).hexdigest}"] : [] })
           .>> t(:universal_classifications, ->(s) { s.dig('feratel_owners') })
@@ -37,6 +37,15 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
+        def self.parse_description(s)
+          variation_description = Array.wrap(s.dig('Variations', 'Variation'))
+            .select { |i| i.dig('Descriptions', 'Description').present? && i.dig('Details', 'Language') == I18n.locale.to_s }
+            &.first
+          variation_description = Array.wrap(variation_description.dig('Descriptions', 'Description'))&.first&.dig('text') if variation_description.present?
+          main_description = DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ShopItemDescription'))
+          main_description.presence || DataCycleCore::Utility::Sanitize::String.format_html(variation_description).presence
+        end
+
         def self.to_variation(external_source_id)
           t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: s.dig('Id'))&.id })
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
@@ -44,8 +53,8 @@ module DataCycleCore
           .>> t(:add_field, 'potential_action', ->(s) { parse_links(s.dig('Links', 'Link'), external_source_id) })
           .>> t(:rename_keys, 'Id' => 'external_key')
           .>> t(:add_field, 'url', ->(s) { parse_url(Array.wrap(s.dig('Links', 'Link')).first&.dig('URL')) })
-          .>> t(:add_field, 'variation_name', ->(s) { s.dig('Documents', 'Document', 'Names') })
-          .>> t(:add_field, 'variation_language_abbr', ->(s) { s.dig('Details', 'Language') })
+          .>> t(:add_field, 'variant_name', ->(s) { s.dig('Documents', 'Document', 'Names') })
+          .>> t(:add_field, 'variant_language_abbr', ->(s) { s.dig('Details', 'Language') })
           .>> t(:add_field, 'variant_language', ->(s) { I18n.t("locales.#{s.dig('Details', 'Language').downcase}", default: nil) })
           .>> t(:add_field, 'stock', ->(s) { s.dig('Details', 'Stock')&.to_i })
           .>> t(:add_field, 'weight', ->(s) { s.dig('Details', 'Weight') })
@@ -257,8 +266,12 @@ module DataCycleCore
 
         def self.parse_url(url_string)
           return nil if url_string.nil?
+
+          # get ridd of most common bullshit
           s = url_string&.squish
           s = s.delete(' ') if s.present?
+          s = s[8..-1] if s.start_with?('http://?')
+
           if s.nil?
             ''
           elsif !s.starts_with?('http://') && !s.starts_with?('https://')

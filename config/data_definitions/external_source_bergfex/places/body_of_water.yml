@@ -75,8 +75,8 @@
               :edit:
                 :type: datetime
                 :options:
-                  :class: single_date
-                  :placeholder: "tt.mm.jjjj --:--"
+                  :class: daterange
+                  :placeholder: 'tt.mm.jjjj --:--'
             :advanced_search: true
           :quality:
             :label: Wasserqualität
@@ -154,7 +154,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Badeseen"
+        :default_value: 'Badeseen'
       :meta_data:
         :type: mixin
         :name: meta_data

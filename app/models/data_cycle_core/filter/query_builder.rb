@@ -149,6 +149,17 @@ module DataCycleCore
         )
       end
 
+      def cast(string, type_string)
+        Arel::Nodes::NamedFunction.new(
+          'CAST', [
+            Arel::Nodes::As.new(
+              string,
+              Arel::Nodes::SqlLiteral.new(type_string)
+            )
+          ]
+        )
+      end
+
       def join_classification_alias
         Arel::SelectManager.new
           .project(thing[:id])

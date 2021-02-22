@@ -96,7 +96,7 @@ module DataCycleCore
           .>> t(:map_value, 'landscape_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'technique_rating', ->(s) { s&.to_i })
           .>> t(:add_links, 'poi', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('pois', 'poi')&.map { |item| item&.dig('id') } || [] })
-          .>> t(:add_links, 'primary_image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('primaryImage')&.dig('id') })
+          .>> t(:add_links, 'primary_image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('primaryImage', 'id') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('images', 'image')&.map { |item| item&.dig('id') } || [] })
           .>> t(:load_category, 'tour_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
           .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
@@ -106,14 +106,30 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.outdoor_active_to_image
+        def self.outdoor_active_to_image(external_source_id)
           t(:stringify_keys)
           .>> t(:add_field, 'content_url', ->(s) { "http://img.oastatic.com/img/#{s['id']}/.jpg" })
           .>> t(:add_field, 'thumbnail_url', ->(s) { "http://img.oastatic.com/img/400/400/fit/#{s['id']}/.jpg" })
-          .>> t(:add_field, 'caption', ->(s) { [s.dig('author'), s.dig('source')]&.reject(&:blank?)&.join(' - ') })
+          .>> t(:add_links, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('meta', 'source', 'id') })
+          .>> t(:add_field, 'license_classification', ->(s) { Array.wrap(DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(s.dig('license', 'short')).first&.primary_classification&.id) })
+          .>> t(:add_field, 'caption', ->(s) { [s.dig('author'), s.dig('source').is_a?(::Hash) ? s.dig('source', 'name') : s.dig('source')]&.reject(&:blank?)&.join(' - ') })
           .>> t(:map_value, 'license', ->(s) { s.dig('url') if s.present? })
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
-          .>> t(:reject_keys, ['meta', 'primary', 'gallery', 'author'])
+          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('meta', 'authorFull', 'id') })
+          .>> t(:reject_keys, ['meta', 'primary', 'gallery'])
+          .>> t(:strip_all)
+        end
+
+        def self.to_copyright_holder
+          t(:stringify_keys)
+          .>> t(:rename_keys, { 'id' => 'external_key' })
+          .>> t(:add_field, 'contact_info', ->(s) { { 'url' => s.dig('url') } })
+          .>> t(:strip_all)
+        end
+
+        def self.to_author
+          t(:stringify_keys)
+          .>> t(:rename_keys, { 'id' => 'external_key' })
           .>> t(:strip_all)
         end
 

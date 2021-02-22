@@ -196,6 +196,28 @@ module DataCycleCore
         raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
 
+      # def self.dictionary_hash
+      #   hash = {
+      #     'da' => 'pg_catalog.danish',
+      #     'nl' => 'pg_catalog.dutch',
+      #     'en' => 'pg_catalog.english',
+      #     'fi' => 'pg_catalog.finnish',
+      #     'fr' => 'pg_catalog.french',
+      #     'de' => 'pg_catalog.german',
+      #     'de-CH' => 'pg_catalog.german',
+      #     'hu' => 'pg_catalog.hungarian',
+      #     'it' => 'pg_catalog.italian',
+      #     'no' => 'pg_catalog.norwegian',
+      #     'pt' => 'pg_catalog.portuguese',
+      #     'ru' => 'pg_catalog.russian',
+      #     'es' => 'pg_catalog.spanish',
+      #     'sv' => 'pg_catalog.swedish',
+      #     'tr' => 'pg_catalog.turkish'
+      #   }
+      #   hash.default('pg_catalog.simple')
+      #   hash
+      # end
+
       private
 
       def related_to_query(filter, name = nil, inverse = false)

@@ -13,7 +13,7 @@ module DataCycleCore
               .where(
                 search_exists(
                   search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
-                    .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish))))
+                    .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish), get_dict(search[:locale]))))
                 )
               )
           )
@@ -38,7 +38,7 @@ module DataCycleCore
           JOIN (
             #{search_cte}
             SELECT content_data_id, fulltext_boost FROM cte_search
-          )AS joined_search_cte 
+          )AS joined_search_cte
           ON joined_search_cte.content_data_id = things.id
           SQL
         end
