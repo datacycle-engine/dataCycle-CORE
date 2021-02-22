@@ -144,6 +144,12 @@
     - $$Preis pro Person
     - $$Preis pro Package
 
+- OutdoorActive - Schwierigkeitsgrad | all:
+    - $$unbekannt
+    - $$leicht
+    - $$mittel
+    - $$schwierig
+
 - Länder | all:
     - Andorra
     - Dänemark
