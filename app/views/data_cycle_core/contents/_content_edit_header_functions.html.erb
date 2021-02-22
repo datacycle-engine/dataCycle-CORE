@@ -15,7 +15,7 @@
 
         <%= yield_content! :additional_functions %>
 
-        <% if can?(:index, content) && content.try(:content_type?, 'entity') %>
+        <% if can?(:index, content) && content.try(:content_type?, 'entity') && action_name != 'merge_with_duplicate' %>
           <li class="has-dropdown right">
             <%= render 'split_sources', query_params: { exclude: content&.id }, value: @split_source, url: '', title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
           </li>
