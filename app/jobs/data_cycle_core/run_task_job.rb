@@ -7,7 +7,7 @@ module DataCycleCore
     def perform(task, args = [])
       Rake::Task.clear
       Rails.application.load_tasks
-      Rake::Task[task].execute(*Array.wrap(args))
+      Rake::Task[task].invoke(*Array.wrap(args))
     end
 
     around_enqueue do |_job, block|
@@ -22,7 +22,7 @@ module DataCycleCore
       Delayed::Job.find_by(id: job.provider_job_id)&.update_columns(delayed_reference_id: delayed_reference_id(*arguments), delayed_reference_type: delayed_reference_type)
     end
 
-    def delayed_reference_id(task)
+    def delayed_reference_id(task, *_args)
       task.to_s
     end
 
