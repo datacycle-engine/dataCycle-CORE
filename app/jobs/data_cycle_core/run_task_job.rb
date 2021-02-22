@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake'
+
 module DataCycleCore
   class RunTaskJob < ApplicationJob
     queue_as :default
