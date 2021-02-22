@@ -21,7 +21,7 @@ module DataCycleCore
       before_save_data_hash :add_default_values, if: -> { properties_with_default_values.present? }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
-      after_saved_data_hash :execute_update_webhooks, if: -> { !@new_content && !embedded? }
+      after_saved_data_hash :execute_update_webhooks, if: -> { !embedded? }
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
       after_saved_data_hash :add_related_cache_invalidation_job, if: -> { @invalidate_related_cache && !embedded? && has_cached_related_contents? }
       after_created_data_hash :execute_create_webhooks, if: -> { !embedded? }
@@ -80,8 +80,8 @@ module DataCycleCore
               search_languages(update_search_all) unless id.nil? || embedded?
             end
             reload
-            run_callbacks(:saved_data_hash)
             run_callbacks(:created_data_hash) if @new_content
+            run_callbacks(:saved_data_hash)
           else
             valid_hash[:warning] = I18n.t('controllers.warning.no_changes', locale: DataCycleCore.ui_language)
           end
