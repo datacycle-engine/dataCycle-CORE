@@ -95,8 +95,9 @@ module DataCycleCore
           .>> t(:map_value, 'experience_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'landscape_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'technique_rating', ->(s) { s&.to_i })
+          .>> t(:universal_classifications, ->(s) { Array.wrap(load_difficulty_rating(s.dig('difficulty_rating'))) })
           .>> t(:add_links, 'poi', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('pois', 'poi')&.map { |item| item&.dig('id') } || [] })
-          .>> t(:add_links, 'primary_image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('primaryImage')&.dig('id') })
+          .>> t(:add_links, 'primary_image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('primaryImage', 'id') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('images', 'image')&.map { |item| item&.dig('id') } || [] })
           .>> t(:load_category, 'tour_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
           .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
@@ -106,14 +107,43 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.outdoor_active_to_image
+        def self.load_difficulty_rating(rating)
+          rating_name =
+            case rating
+            when 1
+              'leicht'
+            when 2
+              'mittel'
+            when 3
+              'schwierig'
+            else
+              'unbekannt'
+            end
+          DataCycleCore::ClassificationAlias.classification_for_tree_with_name('OutdoorActive - Schwierigkeitsgrad', rating_name)
+        end
+
+        def self.outdoor_active_to_image(external_source_id)
           t(:stringify_keys)
           .>> t(:add_field, 'content_url', ->(s) { "http://img.oastatic.com/img/#{s['id']}/.jpg" })
           .>> t(:add_field, 'thumbnail_url', ->(s) { "http://img.oastatic.com/img/400/400/fit/#{s['id']}/.jpg" })
-          .>> t(:add_field, 'caption', ->(s) { [s.dig('author'), s.dig('source')]&.reject(&:blank?)&.join(' - ') })
+          .>> t(:add_links, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] }, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] })
+          .>> t(:add_field, 'license_classification', ->(s) { Array.wrap(DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(s.dig('license', 'short')).first&.primary_classification&.id) })
+          .>> t(:add_field, 'caption', ->(s) { [s.dig('author'), s.dig('source').is_a?(::Hash) ? s.dig('source', 'name') : s.dig('source')]&.reject(&:blank?)&.join(' - ') })
           .>> t(:map_value, 'license', ->(s) { s.dig('url') if s.present? })
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
-          .>> t(:reject_keys, ['meta', 'primary', 'gallery', 'author'])
+          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_author_data(s)['external_key'] }, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_author_data(s)['external_key'] })
+          .>> t(:reject_keys, ['meta', 'primary', 'gallery'])
+          .>> t(:strip_all)
+        end
+
+        def self.to_copyright_holder
+          t(:stringify_keys)
+          .>> t(:add_field, 'contact_info', ->(s) { { 'url' => s.dig('url') } })
+          .>> t(:strip_all)
+        end
+
+        def self.to_author
+          t(:stringify_keys)
           .>> t(:strip_all)
         end
 
