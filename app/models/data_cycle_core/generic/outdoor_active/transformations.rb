@@ -150,7 +150,7 @@ module DataCycleCore
         def self.to_additional_information(hash, type)
           ['description', 'text', 'directions', 'directions_public_transport', 'parking',
            'hours_available', 'price', 'instructions', 'safety_instructions',
-           'equipment', 'suggestion', 'additional_information'].map { |desc|
+           'equipment', 'suggestion', 'additional_information', 'maps'].map { |desc|
             next if hash[desc].blank?
             name = I18n.t("import.outdoor_active.#{type}.#{desc}", default: [desc])
             {
