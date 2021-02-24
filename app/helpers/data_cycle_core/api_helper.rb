@@ -177,10 +177,6 @@ module DataCycleCore
             '@id' => 'https://schema.datacycle.at/entityUrl',
             '@type' => '@id'
           },
-          'dc:order' => {
-            '@id' => 'https://schema.org/position',
-            '@type' => 'https://schema.org/Number'
-          },
           'dc:classification' => {
             '@id' => 'https://schema.datacycle.at/classification',
             '@container' => '@set'
@@ -208,6 +204,14 @@ module DataCycleCore
           'dc:translation' => {
             '@id' => 'https://schema.datacycle.at/translation',
             '@container' => '@set'
+          },
+          'dc:order' => {
+            '@id' => 'https://schema.org/position',
+            '@type' => 'https://schema.org/Number'
+          },
+          'dc:totalNumberOfBeds' => {
+            '@id' => 'https://schema.org/numberOfBedrooms',
+            '@type' => 'https://schema.org/Number'
           }
         }.compact
       ]
