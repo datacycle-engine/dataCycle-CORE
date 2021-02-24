@@ -158,7 +158,6 @@ module DataCycleCore
         ca_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
         total_count = total_count.classification_tree_ids(ca_label.id)
       end
-puts total_count.count
       total_count.count
     end
 
