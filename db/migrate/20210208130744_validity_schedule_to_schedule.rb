@@ -6,7 +6,7 @@ class ValidityScheduleToSchedule < ActiveRecord::Migration[5.2]
     DataCycleCore::Schedule.where(rrule: 'FREQ=YEARLY;BYYEARDAY=1,365', relation: 'validity_schedule').delete_all
 
     # transform everything else to schedule
-    DataCycleCore::Schedule.where(duration: nil, relation: 'validity_schedule').each do |schedule|
+    DataCycleCore::Schedule.where(duration: nil, relation: 'validity_schedule').find_each do |schedule|
       from_date, to_date = schedule.schedule_object.first(2)
       to_date += 1.year if from_date > to_date
       from_yday = from_date.in_time_zone.to_date.yday
