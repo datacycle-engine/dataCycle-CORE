@@ -292,6 +292,7 @@ button.button-prime {
 /* Home */
 
 body.login-page {
+  background-color: darkgrey;
   background-position: center bottom;
   background-attachment: fixed;
   background-size: cover;
@@ -306,6 +307,26 @@ body.login-page {
   header,
   .off-canvas-wrapper {
     display: none;
+  }
+
+  ul.footer-links {
+    width: 100%;
+    margin: 0;
+    text-align: center;
+
+    li {
+      display: inline-block;
+      color: white;
+
+      a {
+        color: white;
+        text-decoration: underline;
+      }
+
+      &:not(:last-child)::after {
+        content: ' | ';
+      }
+    }
   }
 }
 

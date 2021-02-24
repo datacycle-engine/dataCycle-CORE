@@ -144,7 +144,7 @@ module DataCycleCore
     private
 
     def set_default_role
-      self.role ||= DataCycleCore::Role.find_by(name: 'standard')
+      self.role ||= DataCycleCore::Feature::UserRegistration.default_role
     end
 
     def ability

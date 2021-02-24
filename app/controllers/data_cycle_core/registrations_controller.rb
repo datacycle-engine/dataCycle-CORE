@@ -30,9 +30,8 @@ module DataCycleCore
     private
 
     def valid_additional_attributes?(additional_attributes)
-      additional_attributes
-        .select { |k, _| I18n.t('user_registration.consents').keys.map(&:to_s).include?(k) }
-        .as_json.values.all? { |v| v == '1' }
+      (DataCycleCore::Feature::UserRegistration.terms_conditions_url.blank? || additional_attributes&.dig('terms_conditions') == '1') &&
+        (DataCycleCore::Feature::UserRegistration.privacy_policy_url.blank? || additional_attributes&.dig('privacy_policy') == '1')
     end
   end
 end
