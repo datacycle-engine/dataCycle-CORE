@@ -127,7 +127,7 @@ module DataCycleCore
           .>> t(:add_field, 'content_url', ->(s) { "http://img.oastatic.com/img/#{s['id']}/.jpg" })
           .>> t(:add_field, 'thumbnail_url', ->(s) { "http://img.oastatic.com/img/400/400/fit/#{s['id']}/.jpg" })
           .>> t(:add_links, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] }, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] })
-          .>> t(:add_field, 'license_classification', ->(s) { Array.wrap(DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(s.dig('license', 'short')).first&.primary_classification&.id) })
+          .>> t(:universal_classifications, ->(s) { Array.wrap(DataCycleCore::ClassificationAlias.for_tree('OutdoorActive - Lizenzen').with_name(s.dig('license', 'short')).first&.primary_classification&.id) })
           .>> t(:add_field, 'caption', ->(s) { [s.dig('author'), s.dig('source').is_a?(::Hash) ? s.dig('source', 'name') : s.dig('source')]&.reject(&:blank?)&.join(' - ') })
           .>> t(:map_value, 'license', ->(s) { s.dig('url') if s.present? })
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
@@ -150,7 +150,7 @@ module DataCycleCore
         def self.to_additional_information(hash, type)
           ['description', 'text', 'directions', 'directions_public_transport', 'parking',
            'hours_available', 'price', 'instructions', 'safety_instructions',
-           'equipment', 'suggestion', 'additional_information'].map { |desc|
+           'equipment', 'suggestion', 'additional_information', 'maps'].map { |desc|
             next if hash[desc].blank?
             name = I18n.t("import.outdoor_active.#{type}.#{desc}", default: [desc])
             {

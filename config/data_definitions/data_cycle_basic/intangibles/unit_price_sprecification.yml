@@ -77,6 +77,10 @@
             :api:
               :name: validThrough
 #            :advanced_search: true
+      :price_category:
+        :label: Preis - Kategorie
+        :type: classification
+        :tree_label: Preis - Kategorien
       :feratel_price_sprecification_classifications:
         :type: mixin
         :name: feratel_price_sprecification_classifications

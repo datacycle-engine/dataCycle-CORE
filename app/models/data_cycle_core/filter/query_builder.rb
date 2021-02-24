@@ -293,6 +293,7 @@ module DataCycleCore
       def search_exists(query_string, with_locale = false)
         if @locale.present? && with_locale
           search
+            .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN (SELECT get_dict(searches.locale) AS config, searches.locale AS locale FROM searches GROUP BY searches.locale) as subquery ON subquery.locale = searches.locale'])))
             .where(
               search[:content_data_id].eq(thing[:id])
                 .and(query_string)
@@ -300,6 +301,7 @@ module DataCycleCore
             ).exists
         else
           search
+            .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN (SELECT get_dict(searches.locale) AS config, searches.locale AS locale FROM searches GROUP BY searches.locale) as subquery ON subquery.locale = searches.locale'])))
             .where(
               search[:content_data_id].eq(thing[:id])
                 .and(query_string)
