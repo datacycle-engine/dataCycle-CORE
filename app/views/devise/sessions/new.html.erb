@@ -1,19 +1,16 @@
-
 <div class="glass home-container">
   <div class="home-container-content">
     <!--[if lt IE 9]>
-    <div class="legacy-ie-fix"></div>
+      <div class="legacy-ie-fix"></div>
     <![endif]-->
     <div class="columns">
       <%= render 'logo' %>
       <h1><%= t('welcome', locale: DataCycleCore.ui_language) %></h1>
     </div>
 
-
     <div class="columns">
-
       <ul class="accordion" data-accordion>
-        <li class="accordion-item is-active" data-accordion-item>
+        <li class="accordion-item<%= ' is-active' if local_assigns[:active_view] != 'new' %>" data-accordion-item>
           <!-- Accordion tab title -->
           <a href="#" class="accordion-title">
             <i class="fa fa-smile-o" aria-hidden="true"></i>
@@ -36,7 +33,7 @@
                 </div>
               </div>
 
-              <div class="row">
+              <div class="row password-field">
                 <div class="small-4 columns">
                   <label for="user_password" class="text-right middle">
                     <%= t('activerecord.attributes.user.password', locale: DataCycleCore.ui_language) %>:
@@ -44,6 +41,10 @@
                 </div>
                 <div class="small-7 columns end">
                   <%= f.input :password, required: false, label: false %>
+                  <span class="password-visibility-toggle">
+                    <i class="fa fa-eye "></i>
+                    <i class="fa fa-eye-slash  hide"></i>
+                  </span>
                 </div>
               </div>
 
@@ -101,9 +102,11 @@
         </li>
 
         <% if DataCycleCore::User.included_modules.include?(Devise::Models::Registerable) %>
-          <li class="accordion-item" data-accordion-item>
+          <li class="accordion-item<%= ' is-active' if local_assigns[:active_view] == 'new' %>" data-accordion-item>
             <!-- Accordion tab title -->
-            <a href="#" class="accordion-title"><i class="fa fa-cogs" aria-hidden="true"></i><span>Registrieren</span></a>
+            <a href="#" class="accordion-title"><i class="fa fa-cogs" aria-hidden="true"></i>
+              <span>Registrieren</span>
+            </a>
 
             <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
             <div class="accordion-content" data-tab-content>
@@ -126,9 +129,9 @@
                   <div class="small-7 columns end">
                     <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length), label: false %>
                     <span class="password-visibility-toggle">
-                                            <i class="fa fa-eye toggle-show"></i>
-                                            <i class="fa fa-eye-slash toggle-hide hide"></i>
-                                        </span>
+                      <i class="fa fa-eye toggle-show"></i>
+                      <i class="fa fa-eye-slash toggle-hide hide"></i>
+                    </span>
                   </div>
                 </div>
 
@@ -141,7 +144,7 @@
                       <label><%= t('common.user_registration.terms_conditions', url: DataCycleCore::Feature::UserRegistration.terms_conditions_url, locale: DataCycleCore.ui_language).html_safe %></label>
                     </div>
                   </div>
-                <%end %>
+                <% end %>
 
                 <% if DataCycleCore::Feature::UserRegistration.privacy_policy_url.present? %>
                   <div class="row login-checkboxes">
@@ -153,12 +156,12 @@
                     </div>
                   </div>
                 <% end %>
+
                 <div class="row">
                   <div class="small-12">&nbsp;</div>
                 </div>
                 <div class="row">
-                  <div class="small-4 columns">&nbsp;
-                  </div>
+                  <div class="small-4 columns">&nbsp;</div>
                   <div class="small-7 columns end">
                     <%- if devise_mapping.confirmable? && controller_name != 'confirmations' %>
                       <%= link_to t('devise.shared.links.didn_t_receive_confirmation_instructions'),

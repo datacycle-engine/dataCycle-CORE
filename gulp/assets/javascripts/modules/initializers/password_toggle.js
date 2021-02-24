@@ -2,10 +2,10 @@ module.exports.initialize = function ($) {
   init();
 
   function init() {
-    $('.password-visibility-toggle').click(event => {
+    $(document).on('click', '.password-visibility-toggle', event => {
       event.preventDefault();
 
-      $(event.currentTarget).find('.svg-inline--fa').toggleClass('hide');
+      $(event.currentTarget).find('.fa').toggleClass('hide');
 
       let input = $(event.currentTarget).siblings('div.input').children('input');
       if (input.attr('type') == 'password') {
@@ -13,6 +13,15 @@ module.exports.initialize = function ($) {
       } else {
         input.attr('type', 'password');
       }
+    });
+
+    $(document).on('input', '.password-field input', event => {
+      event.preventDefault();
+
+      const $visibilityToggle = $(event.currentTarget).closest('.password-field');
+
+      if (event.currentTarget.value) $visibilityToggle.addClass('has-value');
+      else $visibilityToggle.removeClass('has-value');
     });
   }
 };
