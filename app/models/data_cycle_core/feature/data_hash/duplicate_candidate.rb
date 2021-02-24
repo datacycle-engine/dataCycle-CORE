@@ -5,7 +5,7 @@ module DataCycleCore
     module DataHash
       module DuplicateCandidate
         def self.prepended(base)
-          base.after_saved_data_hash :add_check_for_duplicates_job, if: -> { !embedded? && @new_content && @check_for_duplicates }
+          base.after_saved_data_hash :add_check_for_duplicates_job, if: -> { !embedded? && @new_content && @check_for_duplicates && duplicate_method? }
         end
 
         def create_duplicate_candidates
