@@ -11,7 +11,6 @@ module DataCycleCore
         def self.to_event(external_source_id)
           t(:stringify_keys)
           .>> t(:add_field, 'name', ->(s) { s.dig('Name1') })
-          .>> t(:add_field, 'description', ->(s) { s.dig('Comment') })
           .>> t(:add_field, 'external_key', ->(s) { 'JetTicket - EventSeriesID: ' + s.dig('EventSetID') })
           .>> t(:add_field, 'event_schedule', ->(s) { Array.wrap(event_schedule(s)) })
           .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s&.dig('EventManager', 'EventManagerID'))&.map { |i| "JetTicket - EventManagerID: #{i}" } })
