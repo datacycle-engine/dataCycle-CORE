@@ -8,8 +8,8 @@ module DataCycleCore
       def perform
         Rake::Task.clear
         Rails.application.load_tasks
-        args ||= []
-        Rake::Task[task].execute(*args)
+        self.args ||= []
+        Rake::Task[task].invoke(*Array.wrap(self.args))
       end
 
       def enqueue(job)
