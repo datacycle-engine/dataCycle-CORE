@@ -118,6 +118,7 @@ module DataCycleCore
             optional(:height).hash(ATTRIBUTE_FILTER)
             optional(:numberOfRooms).hash(ATTRIBUTE_FILTER)
             optional(:numberOfMeetingRooms).hash(ATTRIBUTE_FILTER)
+            optional(:numberOfAccommodations).hash(ATTRIBUTE_FILTER)
             optional(:maxNumberOfPeople).hash(ATTRIBUTE_FILTER)
           end
         end
