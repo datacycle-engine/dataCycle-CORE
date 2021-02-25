@@ -9,7 +9,7 @@
         :template_name: Ergänzende Information
         :api:
           :v4:
-            :name: dc:additionalInformation  
+            :name: dc:additionalInformation
       :founder:
         :label: Gastgeber
         :type: linked
@@ -23,6 +23,14 @@
         :label: Anzahl Zimmer/Apartments/Stellplätze
         :type: number
         :storage_location: value
+      :total_number_of_beds:
+        :label: Gesamtanzahl Betten
+        :type: number
+        :storage_location: value
+        :api:
+          :v4:
+            :name: dc:totalNumberOfBeds
+        :advanced_search: true
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
