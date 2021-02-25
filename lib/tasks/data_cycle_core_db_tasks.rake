@@ -33,8 +33,7 @@ namespace :data_cycle_core do
         end
       end
 
-      puts cmd
-      system cmd
+      sh cmd
       puts ''
       puts "Dumped to file: #{full_path}"
       puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
