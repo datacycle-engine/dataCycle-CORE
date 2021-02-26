@@ -156,7 +156,7 @@ module DataCycleCore
             'external_key' => external_key
           }
 
-          [data.merge({ 'id' => price_id }.compact)]
+          min_price.nil? ? [] : [data.merge({ 'id' => price_id }.compact)]
         end
 
         def self.to_additional_service(external_source_id)
