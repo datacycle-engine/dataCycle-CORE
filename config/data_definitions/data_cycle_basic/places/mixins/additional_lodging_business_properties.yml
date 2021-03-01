@@ -23,6 +23,7 @@
         :label: Anzahl Zimmer/Apartments/Stellplätze
         :type: number
         :storage_location: value
+        :advanced_search: true
       :total_number_of_beds:
         :label: Gesamtanzahl Betten
         :type: number

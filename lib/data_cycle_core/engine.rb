@@ -96,7 +96,7 @@ module DataCycleCore
     ]
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt', 'Event-Ticket-Angebot', 'Zimmer', 'Zutatengruppe', 'Zutat', 'Rezeptkomponente', 'Angebot', 'Inhaltsblock']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt', 'Event-Ticket-Angebot', 'Zimmer', 'Zutatengruppe', 'Zutat', 'Rezeptkomponente', 'Angebot', 'Inhaltsblock']
 
     mattr_accessor :ui_language
     self.ui_language = :de

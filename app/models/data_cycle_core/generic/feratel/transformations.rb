@@ -127,6 +127,38 @@ module DataCycleCore
           data
         end
 
+        def self.to_offer(external_source_id)
+          t(:stringify_keys)
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:rename_keys, { 'Id' => 'external_key' })
+          .>> t(:add_links, 'item_offered', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('service_id')] })
+          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
+          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
+          .>> t(:unwrap_description, ['ProductDescription'])
+          .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('ProductDescription')) if v&.dig('ProductDescription').present? })
+          .>> t(:add_field, 'price_specification', ->(s) { load_min_price(s, external_source_id) })
+          .>> t(:strip_all)
+        end
+        # .>> t(:add_links, 'offered_by', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('provider_id')] })
+
+        def self.load_min_price(s, external_source_id)
+          external_key = "Price:#{s.dig('external_key')}"
+          price_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: external_key, limit: 1).first
+          min_price = Array.wrap(s.dig('PriceDetail', 'PriceTemplates', 'PriceTemplate'))
+            .map { |i| Array.wrap(i.dig('Prices', 'Prices')) }.flatten
+            .map { |i| Array.wrap(i.dig('PriceValue')) }.flatten
+            .map { |i| i.dig('Price')&.to_f }
+            .min
+
+          data = {
+            'min_price' => min_price,
+            'external_key' => external_key
+          }
+
+          min_price.nil? ? [] : [data.merge({ 'id' => price_id }.compact)]
+        end
+
         def self.to_additional_service(external_source_id)
           t(:stringify_keys)
           .>> t(:flatten_translations)
@@ -169,21 +201,6 @@ module DataCycleCore
           .>> t(:location)
           .>> t(:strip_all)
         end
-
-        def self.to_offer(external_source_id)
-          t(:stringify_keys)
-          .>> t(:flatten_translations)
-          .>> t(:flatten_texts)
-          .>> t(:rename_keys, { 'Id' => 'external_key' })
-          .>> t(:add_links, 'item_offered', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('service_id')] })
-          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
-          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
-          .>> t(:unwrap_description, ['ProductDescription'])
-          .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('ProductDescription')) if v&.dig('ProductDescription').present? })
-          .>> t(:add_field, 'price_specification', ->(s) { load_price(s, external_source_id) })
-          .>> t(:strip_all)
-        end
-        # .>> t(:add_links, 'offered_by', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('provider_id')] })
 
         def self.load_price(s, external_source_id)
           external_key = "Price:#{s.dig('external_key')}"
