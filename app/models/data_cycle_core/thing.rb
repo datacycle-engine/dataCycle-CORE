@@ -34,6 +34,10 @@ module DataCycleCore
         DataCycleCore::ThingDuplicate.where(id: all.pluck(:thing_duplicate_id))
       end
 
+      def self.duplicates
+        DataCycleCore::Thing.where(id: all.pluck(:duplicate_id))
+      end
+
       def self.with_fp
         unscope(where: :false_positive)
       end
