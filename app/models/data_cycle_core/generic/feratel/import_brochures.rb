@@ -19,6 +19,8 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
+            variation_languages = Array.wrap(raw_data.dig('Variations', 'Variation')).map { |i| i.dig('Details', 'Language', 'text') }
+            next unless variation_languages.include?(locale.to_s)
             ['feratel_owners'].each do |name_tag|
               DataCycleCore::Generic::Common::ImportTags.process_content(
                 utility_object: utility_object,

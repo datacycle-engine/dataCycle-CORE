@@ -23,7 +23,7 @@ module DataCycleCore
           .>> t(:unwrap_description, 'ShopItemDescription')
           .>> t(:add_field, 'potential_action', ->(s) { parse_links(s.dig('Links', 'Link'), external_source_id) })
           .>> t(:add_field, 'url', ->(s) { parse_url(Array.wrap(s.dig('Links', 'Link')).first&.dig('URL')) })
-          .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ShopItemDescription')) })
+          .>> t(:add_field, 'description', ->(s) { parse_description(s) })
           .>> t(:universal_classifications, ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Owner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('Details', 'Owner')).hexdigest}"] : [] })
           .>> t(:universal_classifications, ->(s) { s.dig('feratel_owners') })
@@ -35,6 +35,15 @@ module DataCycleCore
           .>> t(:universal_classifications, ->(s) { s.dig('language_variations') })
           .>> t(:reject_keys, ['ShopItemDescription', 'feratel_owners', 'feratel_shop_item_groups', 'holiday_themes', 'language_variations', 'Documents', 'Descriptions', 'Links', 'Variations', 'Details', 'HolidayThemes', 'feratel_documents'])
           .>> t(:strip_all)
+        end
+
+        def self.parse_description(s)
+          variation_description = Array.wrap(s.dig('Variations', 'Variation'))
+            .select { |i| i.dig('Descriptions', 'Description').present? && i.dig('Details', 'Language') == I18n.locale.to_s }
+            &.first
+          variation_description = Array.wrap(variation_description.dig('Descriptions', 'Description'))&.first&.dig('text') if variation_description.present?
+          main_description = DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ShopItemDescription'))
+          main_description.presence || DataCycleCore::Utility::Sanitize::String.format_html(variation_description).presence
         end
 
         def self.to_variation(external_source_id)
@@ -118,6 +127,38 @@ module DataCycleCore
           data
         end
 
+        def self.to_offer(external_source_id)
+          t(:stringify_keys)
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:rename_keys, { 'Id' => 'external_key' })
+          .>> t(:add_links, 'item_offered', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('service_id')] })
+          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
+          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
+          .>> t(:unwrap_description, ['ProductDescription'])
+          .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('ProductDescription')) if v&.dig('ProductDescription').present? })
+          .>> t(:add_field, 'price_specification', ->(s) { load_min_price(s, external_source_id) })
+          .>> t(:strip_all)
+        end
+        # .>> t(:add_links, 'offered_by', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('provider_id')] })
+
+        def self.load_min_price(s, external_source_id)
+          external_key = "Price:#{s.dig('external_key')}"
+          price_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: external_key, limit: 1).first
+          min_price = Array.wrap(s.dig('PriceDetail', 'PriceTemplates', 'PriceTemplate'))
+            .map { |i| Array.wrap(i.dig('Prices', 'Prices')) }.flatten
+            .map { |i| Array.wrap(i.dig('PriceValue')) }.flatten
+            .map { |i| i.dig('Price')&.to_f }
+            .min
+
+          data = {
+            'min_price' => min_price,
+            'external_key' => external_key
+          }
+
+          min_price.nil? ? [] : [data.merge({ 'id' => price_id }.compact)]
+        end
+
         def self.to_additional_service(external_source_id)
           t(:stringify_keys)
           .>> t(:flatten_translations)
@@ -161,21 +202,6 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.to_offer(external_source_id)
-          t(:stringify_keys)
-          .>> t(:flatten_translations)
-          .>> t(:flatten_texts)
-          .>> t(:rename_keys, { 'Id' => 'external_key' })
-          .>> t(:add_links, 'item_offered', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('service_id')] })
-          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
-          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
-          .>> t(:unwrap_description, ['ProductDescription'])
-          .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('ProductDescription')) if v&.dig('ProductDescription').present? })
-          .>> t(:add_field, 'price_specification', ->(s) { load_price(s, external_source_id) })
-          .>> t(:strip_all)
-        end
-        # .>> t(:add_links, 'offered_by', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('provider_id')] })
-
         def self.load_price(s, external_source_id)
           external_key = "Price:#{s.dig('external_key')}"
           price_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: external_key, limit: 1).first
@@ -217,6 +243,8 @@ module DataCycleCore
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
           .>> t(:add_external_system_data, ['MetaRating', 'RatingSystem'], ['MetaRating', 'RatingCode'])
+          .>> t(:add_field, 'number_of_rooms', ->(s) { s.dig('Rooms')&.to_i })
+          .>> t(:add_field, 'total_number_of_beds', ->(s) { s.dig('Beds')&.to_i })
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['ServiceProvider']))
           .>> t(:add_links, 'logo', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['ServiceProviderLogo']))
@@ -257,8 +285,12 @@ module DataCycleCore
 
         def self.parse_url(url_string)
           return nil if url_string.nil?
+
+          # get ridd of most common bullshit
           s = url_string&.squish
           s = s.delete(' ') if s.present?
+          s = s[8..-1] if s.start_with?('http://?')
+
           if s.nil?
             ''
           elsif !s.starts_with?('http://') && !s.starts_with?('https://')
@@ -276,39 +308,33 @@ module DataCycleCore
           .>> t(:add_field, 'universal_classifications', ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc) } })
           .>> t(:add_links, 'additional_classifications', DataCycleCore::Classification, external_source_id, ->(_s) { additional_classifications || [] })
           .>> t(:merge_array_values, 'universal_classifications', 'additional_classifications')
-          .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
+          .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(s.dig('ShowFrom').is_a?(::Time) && s.dig('ShowTo').is_a?(::Time) ? make_term(s.dig('ShowFrom'), s.dig('ShowTo')) : make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('Id') })
           .>> t(:reject_keys, ['Id', 'Type', 'Language', 'Systems', 'ShowFrom', 'ShowTo', 'ChangeDate'])
         end
 
         def self.make_season(from, to)
           raise ArgumentError if from.blank? || to.blank?
-          return [] if from == '101' && to == '3112' # no schedule, is valid all year long
-
-          from_year = 2010
-          to_year = 2010
-          has_end = false
-          from_year = from.slice!(0..3) if from.length > 4
-          if to.length > 4
-            to_year = to.slice!(0..3)
-            has_end = true
-          end
-
-          from_date = Time.zone.local(from_year, from.to_i / 100, from.to_i % 100, 0, 0)
-          to_date = Time.zone.local(to_year, to.to_i / 100, to.to_i % 100, 0, 0)
+          return [] if from == '101' && to == '1231' # no schedule, is valid all year long
+          from_date = Time.zone.local(2010, from.to_i / 100, from.to_i % 100, 0, 0)
+          to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 23, 59)
+          to_date += 1.year if from_date > to_date
           from_yday = from_date.to_date.yday
           to_yday = to_date.to_date.yday
-          to_yday = -366 + to_yday if from_yday > to_yday && !has_end
+          to_yday = -366 + to_yday if from_yday > to_yday
           rrule = IceCube::Rule.yearly.day_of_year(from_yday, to_yday)
-          options = {}
-          if has_end
-            rrule.until(to_date.end_of_day)
-            options = { end_time: to_date.end_of_day }
-          end
+          options = { end_time: to_date.end_of_day }
           schedule_object = IceCube::Schedule.new(from_date, options) do |s|
             s.add_recurrence_rule(rrule)
           end
           schedule_object.to_hash.merge(dtstart: from_date)
+        end
+
+        def self.make_term(from, to)
+          raise ArgumentError if from.blank? || to.blank?
+          options = { end_time: to }
+          schedule_object = IceCube::Schedule.new(from, options)
+          schedule_object.to_hash.merge(dtstart: from)
         end
 
         def self.parse_links(data, external_source_id)
@@ -404,6 +430,7 @@ module DataCycleCore
           .>> t(:map_value, 'width', ->(v) { v.to_i })
           .>> t(:map_value, 'height', ->(v) { v.to_i })
           .>> t(:map_value, 'content_size', ->(v) { v.to_i.kilobytes })
+          .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(s.dig('ShowFrom').is_a?(::Time) && s.dig('ShowTo').is_a?(::Time) ? make_term(s.dig('ShowFrom'), s.dig('ShowTo')) : make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
           .>> t(:reject_keys, ['Type', 'Class', 'Systems', 'Order', 'ShowFrom',
                                'ShowTo', 'ChangeDate', 'Systems', 'Systems', 'Names'])
           .>> t(:strip_all)
@@ -558,8 +585,8 @@ module DataCycleCore
               description['Type'] = 'GuestCardClassification'
             end
 
-            description['ShowFrom'] = DateTime.parse(item.dig('ValidFrom')).strftime('%Y%-m%d')
-            description['ShowTo'] = DateTime.parse(item.dig('ValidTo')).strftime('%Y%-m%d')
+            description['ShowFrom'] = item.dig('ValidFrom').in_time_zone.beginning_of_day
+            description['ShowTo'] = item.dig('ValidTo').in_time_zone.end_of_day
 
             parsed.push(parse_descriptions(description, external_source_id, 'GuestCards', ["#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}"]).first)
           end

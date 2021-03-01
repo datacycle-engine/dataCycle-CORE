@@ -15,6 +15,7 @@ PATH
       daemons
       delayed_job_active_record
       devise
+      dotiw
       dry-transformer
       dry-validation
       ed25519
@@ -208,6 +209,9 @@ GEM
     dotenv-rails (2.7.6)
       dotenv (= 2.7.6)
       railties (>= 3.2)
+    dotiw (5.2.0)
+      activesupport
+      i18n
     dry-configurable (0.12.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.5, >= 0.5.0)
@@ -602,4 +606,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.2.7
+   2.2.9

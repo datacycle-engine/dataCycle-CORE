@@ -221,7 +221,7 @@
         :template_name: Ergänzende Information
         :api:
           :v4:
-            :name: dc:additionalInformation            
+            :name: dc:additionalInformation
       :image:
         :label: Bilder
         :type: linked

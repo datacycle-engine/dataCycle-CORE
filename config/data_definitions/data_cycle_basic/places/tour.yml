@@ -140,6 +140,11 @@
         :type: string
         :storage_location: translated_value
         :search: true
+      :maps:
+        :label: Literatur
+        :type: string
+        :storage_location: translated_value
+        :search: true
       # :additional_information:
       #   :label: Zusatzinformation
       #   :type: string

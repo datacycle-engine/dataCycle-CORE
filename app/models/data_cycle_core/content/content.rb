@@ -338,7 +338,7 @@ module DataCycleCore
             elsif linked_property_names(true).include?(key[0])
               load_linked_objects(key[0], key[3], false, [I18n.locale], key[4])
             elsif embedded_property_names(true).include?(key[0])
-              load_embedded_objects(key[0], key[3], true, [I18n.locale], key[4])
+              load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [I18n.locale], key[4])
             elsif asset_property_names.include?(key[0]) # no overlay
               load_asset_relation(key[0])
             elsif computed_property_names(true).include?(key[0])

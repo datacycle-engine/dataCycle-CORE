@@ -46,9 +46,9 @@
         :type: mixin
         :name: content_classifications
       :bergfex_status_icon:
-        :label: "Status-Icon"
+        :label: 'Status-Icon'
         :type: classification
-        :tree_label: "Bergfex - Status - Icon"
+        :tree_label: 'Bergfex - Status - Icon'
         :external: true
         :ui:
           :show:
@@ -69,8 +69,8 @@
           :edit:
             :type: datetime
             :options:
-              :class: single_date
-              :placeholder: "tt.mm.jjjj --:--"
+              :class: daterange
+              :placeholder: 'tt.mm.jjjj --:--'
       :date_last_snowfall:
         :label: Letzter Schneefall
         :type: datetime
@@ -87,8 +87,8 @@
           :edit:
             :type: date
             :options:
-              :class: single_date
-              :placeholder: "tt.mm.jjjj"
+              :class: daterange
+              :placeholder: 'tt.mm.jjjj'
           :show:
             :type: date
       :lifts:
@@ -227,49 +227,49 @@
         :type: linked
         :template_name: Bild
       :condition_avalanche_warning_level:
-        :label: "Lawinenwarnlevel"
+        :label: 'Lawinenwarnlevel'
         :type: classification
-        :tree_label: "Bergfex - Lawinenwarnlevel"
+        :tree_label: 'Bergfex - Lawinenwarnlevel'
         :external: true
         :ui:
           :show:
             :content_area: header
       :condition_nordic_classic:
-        :label: "NordicClassic - Meldung"
+        :label: 'NordicClassic - Meldung'
         :type: classification
-        :tree_label: "Bergfex - NordicClassic - Meldung"
+        :tree_label: 'Bergfex - NordicClassic - Meldung'
         :external: true
         :ui:
           :show:
             :content_area: header
       :condition_nordic_skating:
-        :label: "NordicSkating - Meldung"
+        :label: 'NordicSkating - Meldung'
         :type: classification
-        :tree_label: "Bergfex - NordicClassic - Meldung"
+        :tree_label: 'Bergfex - NordicClassic - Meldung'
         :external: true
         :ui:
           :show:
             :content_area: header
       :condition_run_to_valley:
-        :label: "Talfahrt - Meldung"
+        :label: 'Talfahrt - Meldung'
         :type: classification
-        :tree_label: "Bergfex - Talfahrt - Meldung"
+        :tree_label: 'Bergfex - Talfahrt - Meldung'
         :external: true
         :ui:
           :show:
             :content_area: header
       :condition_slopes:
-        :label: "Pisten - Meldung"
+        :label: 'Pisten - Meldung'
         :type: classification
-        :tree_label: "Bergfex - Pisten - Meldung"
+        :tree_label: 'Bergfex - Pisten - Meldung'
         :external: true
         :ui:
           :show:
             :content_area: header
       :condition_snow:
-        :label: "Schnee - Meldung"
+        :label: 'Schnee - Meldung'
         :type: classification
-        :tree_label: "Bergfex - Schnee - Meldung"
+        :tree_label: 'Bergfex - Schnee - Meldung'
         :external: true
         :ui:
           :show:
@@ -278,7 +278,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Skigebiet"
+        :default_value: 'Skigebiet'
       :meta_data:
         :type: mixin
         :name: meta_data

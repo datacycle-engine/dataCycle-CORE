@@ -12,7 +12,12 @@
   } do %>
 
   <span class="detail-content">
-    <%= options.dig(:item_diff, 0) == '+' ? options.dig(:item_diff, 1).presence&.try(:html_safe) : value.try(:html_safe) %>
+    <%
+      value = options.dig(:item_diff, 1).presence if options.dig(:item_diff, 0) == '+'
+      value = value.try(:html_safe) if definition.dig('ui', 'edit', 'type').try(:underscore) == 'text_editor'
+    %>
+
+    <%= value %>
   </span>
 
 <% end %>

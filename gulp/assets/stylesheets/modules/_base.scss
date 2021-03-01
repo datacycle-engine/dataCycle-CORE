@@ -780,32 +780,37 @@ footer {
     }
 
     .daterange {
-      .form-element .icon {
-        i:not(.fa-ban) {
-          display: none;
+      &:not(.schedule-range):not(.special-dates) {
+        padding: 1rem;
+
+        .form-element {
+          display: inline-block;
+          white-space: nowrap;
+          margin: 0;
+
+          input {
+            box-shadow: none !important;
+            border: 0 !important;
+            display: inline-block;
+          }
+
+          .single_error {
+            left: 1rem;
+            top: -2rem;
+            right: auto;
+          }
+
+          .single_warning {
+            left: 1rem;
+            top: -2rem;
+            right: auto;
+          }
         }
       }
 
-      .form-element {
-        display: inline-block;
-        white-space: nowrap;
-
-        input {
-          box-shadow: none !important;
-          border: 0 !important;
-          display: inline-block;
-        }
-
-        .single_error {
-          left: 1rem;
-          top: -2rem;
-          right: auto;
-        }
-
-        .single_warning {
-          left: 1rem;
-          top: -2rem;
-          right: auto;
+      .form-element .icon {
+        i:not(.fa-ban) {
+          display: none;
         }
       }
     }
@@ -1253,6 +1258,10 @@ body .v-select {
       box-shadow: 0 0 3px $dark-gray;
     }
     fieldset {
+      > li {
+        list-style: none;
+      }
+
       &.active:first-of-type ~ .buttons {
         .prev {
           display: none;
@@ -1424,10 +1433,6 @@ body .v-select {
   }
 }
 
-body.login-page {
-  background-color: darkgrey;
-}
-
 /* tabs  */
 .tabs {
   border: 0;
@@ -1458,7 +1463,8 @@ body.login-page {
 
 a[data-toggle] {
   display: inline-block;
-  &.has-tip {
+  &.has-tip,
+  &.dc-foundation-tooltip {
     padding-bottom: 0;
   }
 }
@@ -1618,7 +1624,8 @@ a[data-toggle] {
         vertical-align: middle;
         text-align: center;
       }
-      .has-tip {
+      .has-tip,
+      .dc-foundation-tooltip {
         border: none;
       }
     }
@@ -1692,7 +1699,8 @@ ul.no-format {
   line-height: initial;
 }
 
-label.has-tip {
+label.has-tip,
+label.dc-foundation-tooltip {
   font-weight: normal;
 }
 

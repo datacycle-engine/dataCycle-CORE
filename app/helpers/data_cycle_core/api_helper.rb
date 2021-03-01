@@ -106,6 +106,26 @@ module DataCycleCore
       data_value
     end
 
+    def load_object_value_object(content, key, o_key, value, languages, definition)
+      data_value = nil
+      api_property_definition = api_definition(definition)
+
+      single_value = definition['storage_location'] != 'translated_value' || (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
+      if single_value
+        data_value = api_value_format(value, api_property_definition)
+      else
+        data_value = []
+
+        content.translations.where(locale: languages).each do |translation|
+          I18n.with_locale(translation.locale) do
+            o_value = content.send(key + '_overlay')&.try(o_key)
+            data_value << { '@language' => I18n.locale, '@value' => api_value_format(o_value, api_property_definition) } if o_value.present?
+          end
+        end
+      end
+      data_value
+    end
+
     def load_embedded_object(content, key, languages, definition)
       return nil if languages.blank?
 
@@ -177,10 +197,6 @@ module DataCycleCore
             '@id' => 'https://schema.datacycle.at/entityUrl',
             '@type' => '@id'
           },
-          'dc:order' => {
-            '@id' => 'https://schema.org/position',
-            '@type' => 'https://schema.org/Number'
-          },
           'dc:classification' => {
             '@id' => 'https://schema.datacycle.at/classification',
             '@container' => '@set'
@@ -208,6 +224,14 @@ module DataCycleCore
           'dc:translation' => {
             '@id' => 'https://schema.datacycle.at/translation',
             '@container' => '@set'
+          },
+          'dc:order' => {
+            '@id' => 'https://schema.org/position',
+            '@type' => 'https://schema.org/Number'
+          },
+          'dc:totalNumberOfBeds' => {
+            '@id' => 'https://schema.org/numberOfBedrooms',
+            '@type' => 'https://schema.org/Number'
           }
         }.compact
       ]
