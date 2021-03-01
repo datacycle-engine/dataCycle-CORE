@@ -292,7 +292,7 @@ module DataCycleCore
             price_specification_api_values = {
               '@id' => price_specification_object.id,
               '@type' => 'UnitPriceSpecification',
-              'dc:multilingual' => false,
+              'dc:multilingual' => true,
               'dc:translation' => [
                 'de'
               ],
