@@ -31,17 +31,19 @@ module DataCycleCore
       end
 
       def after_save_data_hash(options)
-        # trigger create webhooks if is newly created content
-        execute_create_webhooks if options.new_content && !embedded?
+        unless embedded?
+          # trigger create webhooks if is newly created content
+          execute_create_webhooks if options.new_content
 
-        # trigger update webhooks
-        execute_update_webhooks unless embedded?
+          # trigger update webhooks
+          execute_update_webhooks
 
-        # trigger Subscriber Mailer
-        notify_subscribers(current_user: options.current_user) unless options.current_user.nil?
+          # trigger Subscriber Mailer
+          notify_subscribers(current_user: options.current_user) unless options.current_user.nil?
 
-        # trigger cache_invalidation for related contents
-        add_related_cache_invalidation_job if options.invalidate_related_cache && !embedded? && has_cached_related_contents?
+          # trigger cache_invalidation for related contents
+          add_related_cache_invalidation_job if options.invalidate_related_cache && has_cached_related_contents?
+        end
       end
 
       def before_destroy_data_hash(_options)
