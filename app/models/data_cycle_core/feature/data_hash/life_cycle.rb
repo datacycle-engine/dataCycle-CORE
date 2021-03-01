@@ -15,7 +15,7 @@ module DataCycleCore
         end
 
         def after_save_data_hash(_options)
-          remove_instance_variable(:@life_cycle_stage)
+          remove_instance_variable(:@life_cycle_stage) if instance_variable_defined?(:@life_cycle_stage)
 
           super
         end
