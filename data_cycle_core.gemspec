@@ -146,6 +146,9 @@ Gem::Specification.new do |s|
   # Better distance_of_time_in_words (https://github.com/radar/distance_of_time_in_words)
   s.add_dependency 'dotiw'
 
+  # Frontend Asset Handling
+  s.add_dependency 'vite_rails'
+
   # validation gems
   s.add_development_dependency 'brakeman', '>= 4.5.1'
   s.add_development_dependency 'bundler-audit'

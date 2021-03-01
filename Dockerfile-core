@@ -15,6 +15,8 @@ ADD Gemfile.lock /var/www/app/Gemfile.lock
 
 ADD data_cycle_core.gemspec /var/www/app/data_cycle_core.gemspec
 
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && apt -y install nodejs
+
 ADD . /var/www/app
 RUN chown -R nobody:nogroup /var/www/app
 USER nobody

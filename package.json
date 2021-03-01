@@ -1,87 +1,10 @@
 {
   "name": "data-cycle-core",
-  "version": "1.0.0",
-  "description": "data-cycle-core gulp build",
+  "version": "2.0.0",
+  "description": "data-cycle-core assets",
   "author": "Patrick Rainer",
-  "scripts": {
-    "postinstall": "gulp build"
-  },
-  "browser": {
-    "jquery": "./node_modules/jquery/dist/jquery.js",
-    "foundation": "./node_modules/foundation-sites/js/foundation.js",
-    "select2": "./node_modules/select2/dist/js/select2.js",
-    "select2/i18n/de": "./node_modules/select2/dist/js/i18n/de.js"
-  },
-  "browserify-shim": {
-    "jquery": "$",
-    "foundation": "foundation"
-  },
-  "browserify": {
-    "transform": [
-      "browserify-shim"
-    ]
-  },
-  "dependencies": {
-    "@tmcw/togeojson": "4.0.0",
-    "actioncable": "5.2.3",
-    "babel-core": "6.26.3",
-    "babel-preset-env": "1.7.0",
-    "babel-preset-es2015": "6.24.1",
-    "babel-preset-stage-2": "6.24.1",
-    "babelify": "8",
-    "browser": "0.2.6",
-    "browser-sync": "2.18.12",
-    "browserify": "14.4.0",
-    "browserify-shim": "3.8.14",
-    "coffeeify": "2.1.0",
-    "datatables.net": "^1.10.20",
-    "datatables.net-buttons": "^1.6.1",
-    "datatables.net-buttons-zf": "^1.6.1",
-    "datatables.net-zf": "^1.10.20",
-    "del": "2.2.2",
-    "flatpickr": "4.3.2",
-    "font-awesome": "4.7.0",
-    "foundation-sites": "6.3.1",
-    "gulp": "3.9.1",
-    "gulp-autoprefixer": "3.1.1",
-    "gulp-babel": "6.1.2",
-    "gulp-changed": "2.0.0",
-    "gulp-clean-css": "3.4.2",
-    "gulp-concat": "2.6.1",
-    "gulp-filesize": "0.0.6",
-    "gulp-fontello": "0.4.6",
-    "gulp-iconfont": "8.0.1",
-    "gulp-imagemin": "3.3.0",
-    "gulp-jshint": "2.0.4",
-    "gulp-notify": "3.0.0",
-    "gulp-print": "2.0.1",
-    "gulp-rename": "1.2.2",
-    "gulp-rev": "7.1.2",
-    "gulp-rev-collector": "1.2.2",
-    "gulp-sass": "3.1.0",
-    "gulp-sequence": "0.4.6",
-    "gulp-sourcemaps": "2.6.0",
-    "gulp-uglify": "2.1.2",
-    "gulp-util": "3.0.8",
-    "gulp-watch": "4.3.11",
-    "htmldiff": "0.0.4",
-    "jquery-serializejson": "2.8.1",
-    "jquery-ujs": "1.2.2",
-    "jshint": "2.9.5",
-    "lazysizes": "4.1.6",
-    "lodash": "4.17.4",
-    "merge-stream": "1.0.1",
-    "mime-types": "2.1.26",
-    "ol": "4.6.5",
-    "pretty-hrtime": "1.0.3",
-    "quill": "1.3.6",
-    "require-dir": "0.3.2",
-    "select2": "4.0.3",
-    "sortablejs": "1.7.0",
-    "turbolinks": "5.0.3",
-    "vinyl-source-stream": "1.1.0",
-    "watchify": "3.9.0",
-    "wkx": "0.5.0",
-    "yarn": "^1.15.2"
+  "devDependencies": {
+    "vite": "^2.0.4",
+    "vite-plugin-ruby": "^1.0.13"
   }
 }

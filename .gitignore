@@ -27,3 +27,9 @@ benchmark/
 test/fixtures/files/shp
 
 .DS_Store
+
+# Vite Ruby
+/public/vite
+/public/vite-dev
+/public/vite-test
+*.local

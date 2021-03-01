@@ -58,6 +58,7 @@ PATH
       streamio-ffmpeg
       taglib-ruby (~> 1.0.0)
       transproc (~> 1.0)
+      vite_rails
       whenever
 
 PATH
@@ -212,6 +213,8 @@ GEM
     dotiw (5.2.0)
       activesupport
       i18n
+    dry-cli (0.6.0)
+      concurrent-ruby (~> 1.0)
     dry-configurable (0.12.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.5, >= 0.5.0)
@@ -446,6 +449,8 @@ GEM
       puma (>= 2.7)
     racc (1.5.2)
     rack (2.2.3)
+    rack-proxy (0.6.5)
+      rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails (5.2.4.5)
@@ -554,6 +559,13 @@ GEM
     tzinfo (1.2.9)
       thread_safe (~> 0.1)
     unicode-display_width (1.7.0)
+    vite_rails (2.0.2)
+      railties (>= 5.1)
+      vite_ruby
+    vite_ruby (1.0.4)
+      dry-cli (~> 0.6)
+      rack-proxy (>= 0.6.1)
+      zeitwerk
     warden (1.2.9)
       rack (>= 2.0.9)
     web-console (3.7.0)
@@ -566,6 +578,7 @@ GEM
     websocket-extensions (0.1.5)
     whenever (1.0.0)
       chronic (>= 0.6.3)
+    zeitwerk (2.4.2)
 
 PLATFORMS
   ruby
@@ -606,4 +619,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.2.9
+   2.2.11
