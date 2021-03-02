@@ -7,9 +7,11 @@
   <link href="https://fonts.googleapis.com/css?family=Noto+Sans+SC|Noto+Sans+TC&display=swap&subset=chinese-simplified,chinese-traditional,vietnamese" rel="stylesheet">
 <% end %>
 <%= stylesheet_link_tag 'application', media: 'all' %>
-<%= javascript_include_tag 'application' %>
+<%#= javascript_include_tag 'application' %>
 <%= csrf_meta_tags %>
 <%= action_cable_meta_tag %>
+<%#= vite_client_tag %>
+<%= vite_javascript_tag 'application' %>
 <% if DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>
   <link href="https://static.maptoolkit.net/api/v8.9/mtk.css" rel="stylesheet" type="text/css"  />
   <script src="https://static.maptoolkit.net/api/v8.9/mtk.<%= DataCycleCore.ui_language %>.js"></script>

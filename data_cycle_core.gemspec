@@ -147,7 +147,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'dotiw'
 
   # Frontend Asset Handling
-  # s.add_dependency 'vite_rails'
+  s.add_dependency 'vite_rails'
 
   # validation gems
   s.add_development_dependency 'brakeman', '>= 4.5.1'

@@ -67,6 +67,9 @@ require 'premailer'
 require 'image_optim'
 require 'dotenv/load'
 
+# Frontend Asset Loader
+require 'vite_rails'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
