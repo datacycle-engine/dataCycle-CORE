@@ -9,7 +9,7 @@ gem install bundler
 # bundle update
 bundle install
 
-/var/www/app/bin/vite dev
+# /var/www/app/bin/vite dev
 
 # RUBYOPT="--jit-verbose=1" rails s -b 0.0.0.0 -p 3000
 #rails s -b 0.0.0.0 -p 3000
