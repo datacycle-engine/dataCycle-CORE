@@ -290,10 +290,29 @@ module DataCycleCore
         DataCycleCore::Subscription.arel_table
       end
 
+      # HOTFIX(2021-03-03): code before remove get_dict
+      # def search_exists(query_string, with_locale = false)
+      #   if @locale.present? && with_locale
+      #     search
+      #       .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN (SELECT get_dict(searches.locale) AS config, searches.locale AS locale FROM searches GROUP BY searches.locale) as subquery ON subquery.locale = searches.locale'])))
+      #       .where(
+      #         search[:content_data_id].eq(thing[:id])
+      #           .and(query_string)
+      #           .and(search[:locale].in(@locale))
+      #       ).exists
+      #   else
+      #     search
+      #       .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN (SELECT get_dict(searches.locale) AS config, searches.locale AS locale FROM searches GROUP BY searches.locale) as subquery ON subquery.locale = searches.locale'])))
+      #       .where(
+      #         search[:content_data_id].eq(thing[:id])
+      #           .and(query_string)
+      #       ).exists
+      #   end
+      # end
+
       def search_exists(query_string, with_locale = false)
         if @locale.present? && with_locale
           search
-            .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN (SELECT get_dict(searches.locale) AS config, searches.locale AS locale FROM searches GROUP BY searches.locale) as subquery ON subquery.locale = searches.locale'])))
             .where(
               search[:content_data_id].eq(thing[:id])
                 .and(query_string)
@@ -301,7 +320,6 @@ module DataCycleCore
             ).exists
         else
           search
-            .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN (SELECT get_dict(searches.locale) AS config, searches.locale AS locale FROM searches GROUP BY searches.locale) as subquery ON subquery.locale = searches.locale'])))
             .where(
               search[:content_data_id].eq(thing[:id])
                 .and(query_string)

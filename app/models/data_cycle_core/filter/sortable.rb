@@ -99,6 +99,37 @@ module DataCycleCore
       end
       alias sort_proximity_occurrence sort_by_schedule_proximity
 
+      # HOTFIX(2021-03-03): code before remove get_dict
+      # def sort_fulltext_search(ordering, value)
+      #   return self if value.blank?
+      #   locale = @locale&.first || I18n.available_locales.first.to_s
+      #   search_string = (value || '').split(' ').join('%')
+      #
+      #   order_string = ActiveRecord::Base.send(
+      #     :sanitize_sql_array,
+      #     [
+      #       Arel.sql(
+      #         "things.boost * (
+      #         8 * similarity(searches.classification_string, :search_string) +
+      #         4 * similarity(searches.headline, :search_string) +
+      #         2 * ts_rank_cd(searches.words, plainto_tsquery(get_dict(searches.locale), :search),16) +
+      #         1 * similarity(searches.full_text, :search_string))"
+      #       ),
+      #       search_string: "%#{search_string}%",
+      #       search: (value || '').squish
+      #     ]
+      #   )
+      #   reflect(
+      #     @query
+      #       .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
+      #       .reorder(
+      #         Arel.sql(sanitized_order_string(order_string, ordering, true)),
+      #         Arel.sql('things.updated_at DESC'),
+      #         Arel.sql('things.id DESC')
+      #       )
+      #   )
+      # end
+
       def sort_fulltext_search(ordering, value)
         return self if value.blank?
         locale = @locale&.first || I18n.available_locales.first.to_s
@@ -111,7 +142,7 @@ module DataCycleCore
               "things.boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
-              2 * ts_rank_cd(searches.words, plainto_tsquery(get_dict(searches.locale), :search),16) +
+              2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
               1 * similarity(searches.full_text, :search_string))"
             ),
             search_string: "%#{search_string}%",
