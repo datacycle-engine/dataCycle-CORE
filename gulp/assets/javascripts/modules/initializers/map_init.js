@@ -1,4 +1,5 @@
-var OpenLayerMap = require('./../components/open_layer_map');
+var OpenLayersViewer = require('./../components/open_layers_viewer');
+var OpenLayersEditor = require('./../components/open_layers_editor');
 var TourSprungEditor = require('./../components/tour_sprung_editor');
 
 // Map Configuration
@@ -20,9 +21,11 @@ module.exports.initialize = function ($) {
 };
 
 function initMap(item) {
-  let editor = $(item).data('map-options').editor;
-  let newMap;
-  if (editor == 'TourSprung') newMap = new TourSprungEditor(item);
-  else newMap = new OpenLayerMap(item);
-  return newMap;
+  if ($(item).hasClass('editor')) {
+    let editor = $(item).data('map-options').editor;
+    if (editor == 'TourSprung') return new TourSprungEditor(item);
+    else return new OpenLayersEditor(item);
+  } else {
+    return new OpenLayersViewer(item);
+  }
 }

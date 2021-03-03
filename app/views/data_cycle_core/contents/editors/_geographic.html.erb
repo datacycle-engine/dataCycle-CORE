@@ -6,7 +6,7 @@
   <% if value.try(:geometry_type) == RGeo::Feature::LineString || definition.dig('ui', 'edit', 'type') == 'LineString' %>
     <div class="edit-type geographic <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>">
       <div id="map_<%= SecureRandom.hex(16) %>"
-            class="geographic-map linestring"
+            class="geographic-map editor linestring"
             data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
             data-icon-paths="<%= { default: image_path('location.svg'), before: image_path('location_before.svg'), after: image_path('location_after.svg') }.to_json %>"
             data-type="<%= (value.presence&.geometry_type || RGeo::Feature::LineString).to_s %>"
@@ -17,7 +17,7 @@
   <% elsif value.try(:geometry_type) == RGeo::Feature::Point || value.blank? %>
     <div class="edit-type geographic <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>">
       <div id="map_<%= SecureRandom.hex(16) %>"
-            class="geographic-map point"
+            class="geographic-map editor point"
             data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
             data-icon-paths="<%= { default: image_path('location.svg'), before: image_path('location_before.svg'), after: image_path('location_after.svg') }.to_json %>"
             data-type="<%= (value.presence&.geometry_type || RGeo::Feature::Point).to_s %>"

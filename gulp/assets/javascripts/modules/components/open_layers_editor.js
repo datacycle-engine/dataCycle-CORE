@@ -1,5 +1,5 @@
 var ConfirmationModal = require('./confirmation_modal');
-var ObjectHelpers = require('./../helpers/object_helpers');
+var ObjectHelpers = require('../helpers/object_helpers');
 var togeojson = require('@tmcw/togeojson');
 var wkx = require('wkx');
 
