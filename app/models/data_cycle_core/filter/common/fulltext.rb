@@ -13,8 +13,7 @@ module DataCycleCore
               .where(
                 search_exists(
                   search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
-                    .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql('subquery.config')))),
-                  true
+                    .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql('subquery.config'))))
                 )
               )
           )
