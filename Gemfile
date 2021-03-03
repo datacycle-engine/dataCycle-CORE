@@ -23,6 +23,9 @@ gem 'appsignal'
 gem 'caxlsx' # , git: 'https://github.com/randym/caxlsx.git', ref: 'c8ac844'
 gem 'caxlsx_rails'
 
+gem 'rgeo'
+gem 'rgeo-proj4'
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 

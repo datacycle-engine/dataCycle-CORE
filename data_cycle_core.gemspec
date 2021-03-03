@@ -33,9 +33,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
   s.add_dependency 'pg', '~> 0.21'
-  s.add_dependency 'rgeo'
   s.add_dependency 'rgeo-geojson'
   s.add_dependency 'rgeo-shapefile'
+  s.add_dependency 'rgeo-proj4'
+  s.add_dependency 'rgeo'
   # mongoDB driver
   s.add_dependency 'mongoid', '~> 7.0.6'
   # REST Client

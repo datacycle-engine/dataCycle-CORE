@@ -1,0 +1,136 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module Generic
+    module Gip
+      class Endpoint
+        def initialize(host: nil, end_point: nil, **_options)
+          @host = host
+          @end_point = end_point
+          @max_retry = 5
+          @page_size = 20
+        end
+
+        def measures(*)
+          Enumerator.new do |yielder|
+            [1159, 1160, 1161, 1170, 2053, 2054, 2088].each do |cat_number|
+              lookup_params = {
+                'method' => 'NameSearch',
+                'params' => {
+                  'nameClass' => 2,
+                  'nameCat' => cat_number,
+                  'noDatabaseRestriction' => true
+                }
+              }
+              object_ids = []
+              load_object_ids(['gip-service/gipservlet'], lookup_params, 0)['items'].each do |object|
+                object_id = object.dig('value')
+                object_data = load_feature(['gip-service/vipfeatures'], object_id, 0)
+                new_object_ids = Array.wrap(object_data.dig('featureMember', 'GeoName', 'refs', 'ReferenceItem')).map { |i| i.dig('fid')&.split('_')&.last&.to_i }
+                object_ids += new_object_ids if new_object_ids.present?
+              end
+              next if object_ids.blank?
+
+              object_ids.each_slice(@page_size) do |objects|
+                params = {
+                  'layers' => ['ANY'],
+                  'objectIds' => objects
+                }
+                load_data(['get_measure'], params, 0)['features'].each do |feature|
+                  yielder << feature
+                end
+              end
+            end
+          end
+        end
+
+        def routes_at(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'GEONAME_ATROUTE', 0)['items'].each do |route|
+              yielder << route
+            end
+          end
+        end
+
+        def routes_euro(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'GEONAME_EUROVELO', 0)['items'].each do |route|
+              yielder << route
+            end
+          end
+        end
+
+        protected
+
+        def look_up(url_path, table, retry_count = 0)
+          params = {
+            'method' => 'lookup',
+            'params' => {
+              'table' => table,
+              'select' => 'all'
+            }
+          }
+
+          response = Faraday.new.post do |req|
+            req.url File.join([@host] + url_path)
+            req.headers['Content-Type'] = 'application/json'
+            req.body = params.to_json
+          end
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("DataCycle::Generic::Gip -> error loading data from #{File.join([@host] + url_path)} / params:#{params}", response) unless response.success?
+          JSON.parse(response.body.delete("\t").force_encoding('UTF-8')[4..-1]) # get rid of {}&&
+        rescue StandardError
+          raise if retry_count > @max_retry
+          load_object_ids(url_path, params, retry_count + 1)
+        end
+
+        def load_object_ids(url_path, params, retry_count = 0)
+          response = Faraday.new.post do |req|
+            req.url File.join([@host] + url_path)
+            req.headers['Content-Type'] = 'application/json'
+            req.body = params.to_json
+          end
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("DataCycle::Generic::Gip -> error loading data from #{File.join([@host] + url_path)} / params:#{params}", response) unless response.success?
+          JSON.parse(response.body.delete("\t").force_encoding('UTF-8')[4..-1]) # get rid of {}&&
+        rescue StandardError
+          raise if retry_count > @max_retry
+          load_object_ids(url_path, params, retry_count + 1)
+        end
+
+        def load_feature(url_path, object_id, retry_count = 0)
+          response = Faraday.new.get do |req|
+            req.url File.join([@host] + url_path)
+            req.params['command'] = 'getfeature'
+            req.params['objectid'] = object_id
+          end
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("DataCycle::Generic::Gip -> error loading data from #{File.join([@host] + url_path)} / params:#{params}", response) unless response.success?
+          xml_data = Nokogiri::XML.parse(response.body)
+
+          # puts Nokogiri::XML(response.body, &:noblanks).to_xml(indent: 2)
+
+          xml_data.children.first.to_hash
+        rescue StandardError
+          raise if retry_count > @max_retry
+          load_feature(url_path, object_id, retry_count + 1)
+        end
+
+        def load_data(url_path, params, retry_count = 0)
+          response = Faraday.new.post do |req|
+            req.url File.join([@host, @end_point] + url_path)
+            req.options[:timeout] = 1000 # open/read timeout in seconds
+            req.options[:open_timeout] = 1000
+            req.headers['Content-Type'] = 'application/json'
+            req.body = params.to_json
+          end
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("DataCycle::Generic::Gip -> error loading data from #{File.join([@host, @end_point] + url_path)} / params:#{params}", response) unless response.success?
+          JSON.parse(response.body)
+        rescue StandardError
+          raise if retry_count > @max_retry
+          load_data(url_path, params, retry_count + 1)
+        end
+      end
+    end
+  end
+end
