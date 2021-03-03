@@ -1,26 +1,3 @@
-// To see this message, add the following to the `<head>` section in your
-// views/layouts/application.html.erb
-//
-//    <%= vite_client_tag %>
-//    <%= vite_javascript_tag 'application' %>
-console.log('Vite ⚡️ Rails245');
-
-// Example: Load Rails libraries in Vite.
-//
-import '@rails/ujs';
-//
-// import Turbolinks from 'turbolinks'
-// import ActiveStorage from '@rails/activestorage'
-//
-// // Import all channels.
-// import.meta.globEager('./**/*_channel.js')
-//
-// Turbolinks.start()
-// ActiveStorage.start()
-
-// Example: Import a stylesheet in app/frontend/index.css
-// import '~/index.css'
-
 // app.js - Data cylce Core
 window.DATA_CYCLE_ENGINE_PATH = window.DATA_CYCLE_ENGINE_PATH || '';
 window.EDITORSELECTORS = [
@@ -41,9 +18,17 @@ window.EDITORSELECTORS = [
   '> .duration-slider > div > input[type="number"]'
 ];
 
-import $ from 'jquery';
+import jQuery from 'jquery';
+window.$ = window.jQuery = jQuery;
+global.jQuery = jQuery;
+
+import _ from 'lodash';
+window._ = _;
+
 import 'jquery-serializejson';
-// import 'jquery-ujs';
+import 'jquery-ujs';
+
+// import Rails from '@rails/ujs';
 import 'lazysizes';
 import 'lazysizes/plugins/unveilhooks/ls.unveilhooks.js';
 import CalloutHelpers from '~/javascripts/helpers/callout_helpers';
@@ -54,48 +39,20 @@ import ActionCable from 'actioncable';
 
 window.actionCable = ActionCable.createConsumer();
 
-import '~/javascripts/initializers/rails_confirmation_init';
-import '~/javascripts/initializers/masonry_init';
-import '~/javascripts/initializers/quill_init';
-import '~/javascripts/initializers/filter_init';
-import '~/javascripts/initializers/blur_init';
-import '~/javascripts/initializers/detailheader_init';
-import '~/javascripts/initializers/focus_init';
-import '~/javascripts/initializers/flash_init';
-import '~/javascripts/initializers/counter_init';
-import '~/javascripts/initializers/date_picker_init';
-import '~/javascripts/initializers/slider_init';
-import '~/javascripts/initializers/split_contents_init';
-import '~/javascripts/initializers/map_init';
-import '~/javascripts/initializers/classifications';
-import '~/javascripts/initializers/classification_select_init';
-import '~/javascripts/initializers/lazyloading_init';
-import '~/javascripts/initializers/datalist_init';
-import '~/javascripts/initializers/object_browser_init';
-import '~/javascripts/initializers/embedded_objects_init';
-import '~/javascripts/initializers/iframe_init';
-import '~/javascripts/initializers/assets_init';
-import '~/javascripts/initializers/publication_init';
-import '~/javascripts/initializers/stored_filters_init';
-import '~/javascripts/initializers/dropdown_pane_init';
-import '~/javascripts/initializers/htmldiff_init';
-import '~/javascripts/initializers/remote_render_init';
-import '~/javascripts/initializers/new_contents_init';
-import '~/javascripts/initializers/admin_panel_init';
-import '~/javascripts/initializers/collection';
-import '~/javascripts/initializers/reload_required_init';
-import '~/javascripts/initializers/bulk_delete_init';
-import '~/javascripts/initializers/content_lock_init';
-import '~/javascripts/initializers/schedule_editor_init';
-import '~/javascripts/initializers/password_toggle';
-import '~/javascripts/initializers/datatables_init';
-import '~/javascripts/initializers/conditional_form_field';
-
-// keep validations and foundation last to ensure everything is intialized before saving form values
-import '~/javascripts/initializers/foundation_init';
-import '~/javascripts/initializers/validation_init';
+import * as initializers from '~/javascripts/initializers';
 
 $(function () {
+  _.chain(initializers)
+    .omit(['foundationInit', 'validationInit'])
+    .values()
+    .forEach(value => value())
+    .value();
+
+  initializers.foundationInit();
+  initializers.validationInit();
+
+  // Rails.start();
+
   // HOME RANDOMIZED IMAGES AND GLASSHACK!
   if ($('.home-container').length) {
     $('.home-container').appendTo('body');

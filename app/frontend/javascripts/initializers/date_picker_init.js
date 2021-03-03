@@ -1,11 +1,11 @@
-import Deutsch from 'flatpickr/dist/l10n/de.js';
+import { Deutsch } from 'flatpickr/dist/l10n/de.js';
 import ConfirmationModal from '~/javascripts/components/confirmation_modal';
 
 export default function () {
   var calenders = [];
 
   let flatPickrOptions = {
-    locale: Deutsch.default.de,
+    locale: Deutsch,
     altFormat: 'd.m.Y',
     enableTime: false,
     altInput: true,

@@ -7,8 +7,6 @@ export default function () {
   Foundation.Reveal.defaults.multipleOpened = true;
   $('body').foundation().addClass('dc-fd-initialized');
 
-  console.log('foundation initialized');
-
   $(document).on('dc:html:changed dc:contents:added', '*:not(.dc-fd-initialized)', event => {
     event.stopPropagation();
 
