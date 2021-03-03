@@ -20,15 +20,14 @@ window.EDITORSELECTORS = [
 
 import jQuery from 'jquery';
 window.$ = window.jQuery = jQuery;
-global.jQuery = jQuery;
 
 import _ from 'lodash';
 window._ = _;
 
 import 'jquery-serializejson';
-import 'jquery-ujs';
+// import 'jquery-ujs';
 
-// import Rails from '@rails/ujs';
+import Rails from '@rails/ujs';
 import 'lazysizes';
 import 'lazysizes/plugins/unveilhooks/ls.unveilhooks.js';
 import CalloutHelpers from '~/javascripts/helpers/callout_helpers';
@@ -51,7 +50,7 @@ $(function () {
   initializers.foundationInit();
   initializers.validationInit();
 
-  // Rails.start();
+  Rails.start();
 
   // HOME RANDOMIZED IMAGES AND GLASSHACK!
   if ($('.home-container').length) {
