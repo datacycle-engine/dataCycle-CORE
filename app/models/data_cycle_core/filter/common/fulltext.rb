@@ -4,23 +4,6 @@ module DataCycleCore
   module Filter
     module Common
       module Fulltext
-        # HOTFIX(2021-03-03): code before remove get_dict
-        # def fulltext_search(name)
-        #   return self if name.blank?
-        #   normalized_name = name.unicode_normalize(:nfkc)
-        #
-        #   reflect(
-        #     @query
-        #       .where(
-        #         search_exists(
-        #           search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
-        #             .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql('subquery.config')))),
-        #           true
-        #         )
-        #       )
-        #   )
-        # end
-        #
         def fulltext_search(name)
           return self if name.blank?
           normalized_name = name.unicode_normalize(:nfkc)
@@ -30,7 +13,7 @@ module DataCycleCore
               .where(
                 search_exists(
                   search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
-                    .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish))))
+                    .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql('subquery.config'))))
                 )
               )
           )
