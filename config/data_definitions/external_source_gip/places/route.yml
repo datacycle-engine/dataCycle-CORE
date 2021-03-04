@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Teilstrecke
+    :name: Route
     :type: object
     :schema_type: Place
     :content_type: entity
@@ -67,6 +67,12 @@
             :options:
               :data-size: basic
         :advanced_search: true
+      :sections:
+        :label: Teilstrecken
+        :type: linked
+        :template_name: Section
+        :api:
+          minimal: true
       :image:
         :label: Bilder
         :type: linked
@@ -93,7 +99,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Teilstrecke'
+        :default_value: 'Route'
       :cc_rel:
         :type: mixin
         :name: cc_rel

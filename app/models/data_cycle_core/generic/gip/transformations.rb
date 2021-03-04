@@ -8,12 +8,34 @@ module DataCycleCore
           DataCycleCore::Generic::Common::Functions[*args]
         end
 
-        def self.to_section
+        def self.to_route(prefix)
+          t(:stringify_keys)
+          .>> t(:add_field, 'external_key', ->(s) { s.dig('value') })
+          .>> t(:add_field, 'sections', ->(s) { load_sections(s, prefix) })
+          .>> t(:strip_all)
+        end
+
+        def self.load_sections(data, prefix)
+          DataCycleCore::Classification
+            .find_by(external_key: prefix + data['external_key'])
+            &.things
+            &.ids
+        end
+
+        def self.to_section(external_source_id)
           t(:stringify_keys)
           .>> t(:rename_keys, { 'id' => 'external_key', 'caption' => 'name' })
           .>> t(:add_field, 'section', ->(s) { parse_section(s.dig('geometry')) })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att8', 'GEONAME - EUROVELO - ', external_source_id) })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att9', 'GEONAME - ATROUTE - ', external_source_id) })
           .>> t(:reject_keys, ['bbox', 'geometry', 'properties'])
           .>> t(:strip_all)
+        end
+
+        def self.value_of_attribute(data, attribute, prefix, external_source_id)
+          value = data.detect { |i| i.dig('id') == "StringAttribute_#{attribute}" }&.dig('properties', 'stringvalue')
+          value = DataCycleCore::Classification.where(external_key: prefix + value, external_source_id: external_source_id)&.ids if value.present?
+          value.presence
         end
 
         def self.parse_section(geometry)
@@ -25,14 +47,22 @@ module DataCycleCore
           coordinates = geometry['coordinates']
           source_coordinates =
             if geometry['type'] == 'LineString'
-              factory_source.line_string(coordinates.map { |i| factory_source.point(*i) })
+              factory_source.line_string(
+                coordinates.map { |i| factory_source.point(*i) }
+              )
             elsif geometry['type'] == 'MultiLineString'
-              factory_source.multi_line_string(coordinates.map { |j| factory_source.line_string(j.map { |i| factory_source.point(*i) }) })
+              factory_source.multi_line_string(
+                coordinates.map do |j|
+                  factory_source.line_string(
+                    j.map { |i| factory_source.point(*i) }
+                  )
+                end
+              )
             else
               raise EndpointError "unknown geometry type found in Gip importer: #{geometry['type']}"
             end
 
-          RGeo::Feature.cast(source_coordinates, factory: longlat, project: true)
+          RGeo::Feature.cast(source_coordinates, factory: longlat, project: true) # convert to longlat
         end
       end
     end
