@@ -1838,6 +1838,22 @@ select {
         align-items: center;
         background-color: rgba(black, 0.5);
       }
+
+      .ol-attribution:not(.ol-collapsed) {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+
+        ul {
+          display: flex;
+          align-items: center;
+          flex-flow: row nowrap;
+
+          li {
+            margin-right: 0.3rem;
+          }
+        }
+      }
     }
   }
 

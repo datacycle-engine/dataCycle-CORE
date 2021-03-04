@@ -1,72 +1,13 @@
-var ConfirmationModal = require('./confirmation_modal');
-var ObjectHelpers = require('../helpers/object_helpers');
+var OpenLayersViewer = require('./open_layers_viewer');
 var togeojson = require('@tmcw/togeojson');
 var wkx = require('wkx');
 
-var ol = {
-  Map: require('ol/map').default,
-  layer: {
-    Tile: require('ol/layer/tile').default,
-    Vector: require('ol/layer/vector').default
-  },
-  Feature: require('ol/feature').default,
-  format: {
-    WKT: require('ol/format/wkt').default
-  },
-  geom: {
-    Point: require('ol/geom/point').default,
-    LineString: require('ol/geom/linestring').default,
-    MultiLineString: require('ol/geom/multilinestring').default
-  },
-  source: {
-    OSM: require('ol/source/osm').default,
-    Vector: require('ol/source/vector').default
-  },
-  style: {
-    Style: require('ol/style/style').default,
-    Stroke: require('ol/style/stroke').default,
-    Circle: require('ol/style/circle').default,
-    Fill: require('ol/style/fill').default,
-    Text: require('ol/style/text').default,
-    Icon: require('ol/style/icon').default
-  },
-  View: require('ol/view').default,
-  extent: require('ol/extent').default,
-  interaction: {
-    Draw: require('ol/interaction/draw').default,
-    Modify: require('ol/interaction/modify').default,
-    Snap: require('ol/interaction/snap').default,
-    MouseWheelZoom: require('ol/interaction/mousewheelzoom').default
-  },
-  interactions: require('ol/interaction').default,
-  proj: require('ol/proj').default
-};
-
-class OpenLayerMap {
+class OpenLayersEditor extends OpenLayersViewer {
   constructor(container) {
-    this.container = $(container);
-    this.target = this.container.attr('id');
-    this.value = this.container.data('value');
-    this.beforeValue = this.container.data('before-position');
-    this.afterValue = this.container.data('after-position');
-    this.type = this.container.data('type');
-    this.iconPaths = this.container.data('icon-paths');
-    this.editable = this.container.parent('.geographic').hasClass('editable');
-    this.feature;
-    this.featureOld;
+    super(container);
+
     this.drawable = true;
-    this.iconStyle;
-    this.redIconStyle;
-    this.greenIconStyle;
-    this.redLineStyle;
-    this.defaultLineStyle;
-    this.greenLineStyle;
-    this.options = {};
-    this.features = [];
     this.source;
-    this.layerLines;
-    this.mouseWheelZoom = new ol.interaction.MouseWheelZoom();
-    this.mouseZoomTimeout;
     this.map;
     this.modify;
     this.draw;
@@ -74,124 +15,26 @@ class OpenLayerMap {
     this.geoCodeButton = $('.geocode-address-button');
     this.uploadButton = this.container.parent('.geographic').siblings('.map-edit').children('.upload-gpx-button');
     this.uploadInput = this.container.parent('.geographic').siblings('.map-edit').children('.upload-gpx-input');
-    this.mapOptions = this.container.data('map-options');
-    this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
-
-    this.setup();
   }
   setup() {
+    this.setZoomMethod();
     this.initIconStyles();
     this.initFeatures();
     this.initEventHandlers();
     this.configureFeatures();
     this.configureLayerLines();
     this.initMouseWheelZoom();
-    this.initMap();
-    this.initMapActions();
-    this.initUploadActions();
-    this.setDefaultPosition();
-  }
-  initIconStyles() {
-    if (this.iconPaths !== undefined) {
-      this.iconStyle = new ol.style.Style({
-        image: new ol.style.Icon({
-          anchor: [16, 32],
-          anchorXUnits: 'pixels',
-          anchorYUnits: 'pixels',
-          src: this.iconPaths.default
-        })
-      });
-    } else {
-      this.iconStyle = new ol.style.Style({
-        image: new ol.style.Circle({
-          radius: 7,
-          fill: new ol.style.Fill({
-            color: '#1779ba'
-          }),
-          stroke: new ol.style.Stroke({
-            color: [0, 0, 0, 0.75],
-            width: 1.5
-          })
-        }),
-        zIndex: 100000
-      });
-    }
-    this.redIconStyle = new ol.style.Style({
-      image: new ol.style.Circle({
-        radius: 7,
-        fill: new ol.style.Fill({
-          color: '#cc4b37'
-        }),
-        stroke: new ol.style.Stroke({
-          color: [0, 0, 0, 0.75],
-          width: 1.5
-        })
-      }),
-      zIndex: 100000
-    });
 
-    this.greenIconStyle = new ol.style.Style({
-      image: new ol.style.Circle({
-        radius: 7,
-        fill: new ol.style.Fill({
-          color: '#90c062'
-        }),
-        stroke: new ol.style.Stroke({
-          color: [0, 0, 0, 0.75],
-          width: 1.5
-        })
-      }),
-      zIndex: 100000
-    });
-    this.defaultLineStyle = new ol.style.Style({
-      stroke: new ol.style.Stroke({ color: '#1779ba', width: 5 })
-    });
-    this.redLineStyle = new ol.style.Style({
-      stroke: new ol.style.Stroke({ color: '#cc4b37', width: 5 })
-    });
-    this.greenLineStyle = new ol.style.Style({
-      stroke: new ol.style.Stroke({ color: '#90c062', width: 5 })
+    this.initMap().then(() => {
+      this.initMapActions();
+      this.initUploadActions();
+      this.setDefaultPosition();
     });
   }
   initFeatures() {
-    if (
-      this.type == 'Point' &&
-      ((this.afterValue !== undefined && this.afterValue.length) ||
-        (this.beforeValue !== undefined && this.beforeValue.length))
-    ) {
-      this.drawable = false;
-      if (this.afterValue !== undefined && this.afterValue.length > 0) {
-        this.feature = this.createFeaturefromWkt(this.afterValue);
-        this.feature.setStyle(this.greenIconStyle);
-      }
-      if (this.beforeValue !== undefined && this.beforeValue.length > 0) {
-        this.featureOld = this.createFeaturefromWkt(this.beforeValue);
-        this.featureOld.setStyle(this.redIconStyle);
-      }
-    } else if (this.type == 'Point' && this.value.length > 0) {
-      this.drawable = false;
-      this.feature = this.createFeaturefromWkt(this.value);
-      if (this.iconStyle !== undefined) this.feature.setStyle(this.iconStyle);
-    } else if (
-      this.type == 'LineString' &&
-      ((this.afterValue !== undefined && this.afterValue.length) ||
-        (this.beforeValue !== undefined && this.beforeValue.length))
-    ) {
-      if (this.afterValue !== undefined && this.afterValue.length > 0) {
-        this.feature = this.createFeaturefromWkt(this.afterValue);
-        this.feature.setStyle(this.greenLineStyle);
-      }
-      if (this.beforeValue !== undefined && this.beforeValue.length > 0) {
-        this.featureOld = this.createFeaturefromWkt(this.beforeValue);
-        this.featureOld.setStyle(this.redLineStyle);
-      }
-    } else if (this.type == 'LineString' && this.value !== undefined && this.value.length) {
-      this.feature = this.createFeaturefromWkt(this.value);
-      this.feature.setStyle(this.defaultLineStyle);
-    } else if (this.type == 'MultiLineString' && this.value !== undefined && this.value.length) {
-      this.feature = this.createFeaturefromWkt(this.value);
-      this.feature.setStyle(this.defaultLineStyle);
-    }
+    super.initFeatures();
+
+    if (this.feature || this.featureBefore) this.drawable = false;
   }
   initEventHandlers() {
     this.container.on('dc:import:data', this.importData.bind(this));
@@ -210,7 +53,7 @@ class OpenLayerMap {
       form_fields.find('.form-element.latitude > input').val(data.value.y).trigger('change');
       form_fields.find('.form-element.longitude > input').val(data.value.x).trigger('change');
     } else {
-      var confirmationModal = new ConfirmationModal({
+      new ConfirmationModal({
         text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
         confirmationText: 'Ja',
         cancelText: 'Nein',
@@ -299,26 +142,6 @@ class OpenLayerMap {
 
       oldFn.call(this, e);
     };
-  }
-  initMap() {
-    this.map = new ol.Map({
-      interactions: ol.interactions
-        .defaults({
-          mouseWheelZoom: false
-        })
-        .extend([this.mouseWheelZoom]),
-      target: this.target,
-      layers: [
-        new ol.layer.Tile({
-          source: new ol.source.OSM()
-        }),
-        this.layerLines
-      ],
-      view: new ol.View({
-        center: [0, 0],
-        zoom: 10
-      })
-    });
   }
   initMapActions() {
     this.map.on('pointermove', evt => {
@@ -582,4 +405,4 @@ class OpenLayerMap {
   }
 }
 
-module.exports = OpenLayerMap;
+module.exports = OpenLayersEditor;

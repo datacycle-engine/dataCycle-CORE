@@ -23,9 +23,9 @@ module.exports.initialize = function ($) {
 function initMap(item) {
   if ($(item).hasClass('editor')) {
     let editor = $(item).data('map-options').editor;
-    if (editor == 'TourSprung') return new TourSprungEditor(item);
-    else return new OpenLayersEditor(item);
+    if (editor == 'TourSprung') return new TourSprungEditor(item).setup();
+    else return new OpenLayersEditor(item).setup();
   } else {
-    return new OpenLayersViewer(item);
+    return new OpenLayersViewer(item).setup();
   }
 }

@@ -25,8 +25,6 @@ class TourSprungEditor {
     this.routeMarkers = [];
     this.map;
     this.geoCodeButton = $('.geocode-address-button');
-
-    this.setup();
   }
   setup() {
     MTK.init({ apiKey: this.credentials.api_key });
