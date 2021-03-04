@@ -35,7 +35,13 @@ module DataCycleCore
       options[:mode] = mode if mode.present?
       pid = Process.fork do
         external_source = ExternalSystem.find(uuid)
-        success = external_source.download(options)
+
+        if external_source.config.key?('download_config')
+          success = external_source.download(options)
+        else
+          success = true
+        end
+
         external_source.import(options) if success
       rescue StandardError => e
         Appsignal.send_error(e, nil, "download import job failed - #{external_source.id}")
