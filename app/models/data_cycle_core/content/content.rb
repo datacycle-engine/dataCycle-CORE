@@ -61,6 +61,11 @@ module DataCycleCore
           linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
 
+      def content_template
+        return @content_template if defined? @content_template
+        @content_template = DataCycleCore::Thing.find_by(template: true, template_name: template_name)
+      end
+
       def content_type?(*types)
         types&.flatten&.map(&:to_s)&.include?(content_type)
       end
