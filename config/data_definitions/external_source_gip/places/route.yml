@@ -79,10 +79,17 @@
         :template_name: Bild
         :api:
           :minimal: true
-      :section:
-        :label: Teilstrecke
-        :type: geographic
-        :storage_location: value
+      :all_sections:
+        :label: Gesamtstrecke
+        :storage_location: virtual
+        :type: virtual
+        :virtual:
+          :type: geographic
+          :module: Utility::Virtual::Geographic
+          :method: line_string_union
+          :parameters:
+            :0: sections
+            :1: section
       :potential_actions:
         :type: mixin
         :name: potential_actions

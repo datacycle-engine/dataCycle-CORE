@@ -8,16 +8,36 @@ module DataCycleCore
           DataCycleCore::Generic::Common::Functions[*args]
         end
 
+        def self.to_route_feature(external_source_id)
+          t(:stringify_keys)
+          .>> t(:add_field, 'external_key', ->(s) { s.dig('featureMember', 'GeoName', 'fid') })
+          .>> t(:reject_keys, ['name'])
+          .>> t(:add_field, 'name', ->(s) { s.dig('featureMember', 'GeoName', 'caption') })
+          .>> t(:add_field, 'sections', ->(s) { load_feature_sections(s.dig('featureMember', 'GeoName', 'refs', 'ReferenceItem'), external_source_id) })
+          .>> t(:reject_keys, ['boundedBy', 'schemaLocation', 'featureMember']) # 'featureMember'
+          .>> t(:strip_all)
+        end
+
         def self.to_route(prefix)
           t(:stringify_keys)
-          .>> t(:add_field, 'external_key', ->(s) { s.dig('value') })
+          .>> t(:add_field, 'external_key', ->(s) { prefix + s.dig('value') })
           .>> t(:add_field, 'sections', ->(s) { load_sections(s, prefix) })
+          .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: prefix + s['value'])&.ids })
           .>> t(:strip_all)
+        end
+
+        def self.load_feature_sections(refs, external_source_id)
+          return [] if refs.blank?
+          external_keys = Array.wrap(refs)
+            .map { |i| i.dig('fid') }
+            .map { |i| i.split('_').last }
+            .map { |i| "Event_#{i}" }
+          DataCycleCore::Thing.where(external_key: external_keys, external_source_id: external_source_id)&.ids
         end
 
         def self.load_sections(data, prefix)
           DataCycleCore::Classification
-            .find_by(external_key: prefix + data['external_key'])
+            .find_by(external_key: prefix + data['value'])
             &.things
             &.ids
         end

@@ -4,14 +4,15 @@ module DataCycleCore
   module Generic
     module Gip
       class Endpoint
-        def initialize(host: nil, end_point: nil, **_options)
+        def initialize(host: nil, end_point: nil, **options)
           @host = host
           @end_point = end_point
+          @read_type = options[:read_type] if options[:read_type].present?
           @max_retry = 5
           @page_size = 20
         end
 
-        def measures(*)
+        def routes(*)
           Enumerator.new do |yielder|
             [1159, 1160, 1161, 1170, 2053, 2054, 2088].each do |cat_number|
               lookup_params = {
@@ -22,23 +23,22 @@ module DataCycleCore
                   'noDatabaseRestriction' => true
                 }
               }
-              object_ids = []
               load_object_ids(['gip-service/gipservlet'], lookup_params, 0)['items'].each do |object|
-                object_id = object.dig('value')
-                object_data = load_feature(['gip-service/vipfeatures'], object_id, 0)
-                new_object_ids = Array.wrap(object_data.dig('featureMember', 'GeoName', 'refs', 'ReferenceItem')).map { |i| i.dig('fid')&.split('_')&.last&.to_i }
-                object_ids += new_object_ids if new_object_ids.present?
+                yielder << load_feature(['gip-service/vipfeatures'], object['value'], 0)
               end
-              next if object_ids.blank?
+            end
+          end
+        end
 
-              object_ids.each_slice(@page_size) do |objects|
-                params = {
-                  'layers' => ['ANY'],
-                  'objectIds' => objects
-                }
-                load_data(['get_measure'], params, 0)['features'].each do |feature|
-                  yielder << feature
-                end
+        def measures(*)
+          Enumerator.new do |yielder|
+            load_routes.each_slice(@page_size) do |objects|
+              params = {
+                'layers' => ['ANY'],
+                'objectIds' => objects
+              }
+              load_data(['get_measure'], params, 0)['features'].each do |feature|
+                yielder << feature
               end
             end
           end
@@ -80,7 +80,7 @@ module DataCycleCore
           JSON.parse(response.body.delete("\t").force_encoding('UTF-8')[4..-1]) # get rid of {}&&
         rescue StandardError
           raise if retry_count > @max_retry
-          load_object_ids(url_path, params, retry_count + 1)
+          look_up(url_path, table, retry_count + 1)
         end
 
         def load_object_ids(url_path, params, retry_count = 0)
@@ -129,6 +129,21 @@ module DataCycleCore
         rescue StandardError
           raise if retry_count > @max_retry
           load_data(url_path, params, retry_count + 1)
+        end
+
+        def load_routes
+          raise ArgumentError, 'missing read_type for routes collection' if @read_type.nil?
+          data = []
+          DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
+            aggregation_array = [
+              { '$match':   { 'dump.de.featureMember.GeoName.refs': { '$exists': true } } },
+              { '$unwind':  '$dump.de.featureMember.GeoName.refs.ReferenceItem' },
+              { '$project': { 'id': '$dump.de.featureMember.GeoName.refs.ReferenceItem.fid' } },
+              { '$group':   { '_id': '$id' } }
+            ]
+            data = mongo.collection.aggregate(aggregation_array).to_a
+          end
+          data.map { |i| i['_id'].split('_').last&.to_i }
         end
       end
     end

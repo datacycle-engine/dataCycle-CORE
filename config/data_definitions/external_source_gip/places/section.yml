@@ -77,6 +77,9 @@
         :label: Teilstrecke
         :type: geographic
         :storage_location: value
+        :ui:
+          :edit:
+            :disabled: true        
       :potential_actions:
         :type: mixin
         :name: potential_actions
