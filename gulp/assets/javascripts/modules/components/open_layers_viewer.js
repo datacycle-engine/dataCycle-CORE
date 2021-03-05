@@ -48,6 +48,7 @@ class OpenLayersViewer {
   constructor(container) {
     this.container = $(container);
     this.containerId = this.container.attr('id');
+    this.ol = ol;
     this.value = this.container.data('value');
     this.beforeValue = this.container.data('before-position');
     this.afterValue = this.container.data('after-position');
@@ -68,12 +69,13 @@ class OpenLayersViewer {
     this.options = {};
     this.features = [];
     this.layerLines;
-    this.mouseWheelZoom = new ol.interaction.MouseWheelZoom();
+    this.mouseWheelZoom = new this.ol.interaction.MouseWheelZoom();
     this.mouseZoomTimeout;
     this.mapOptions = this.container.data('map-options');
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.highDpi = window.devicePixelRatio > 1;
+    this.source;
   }
   setup() {
     this.setZoomMethod();
@@ -94,7 +96,7 @@ class OpenLayersViewer {
     return fetch('https://maps.wien.gv.at/basemap/1.0.0/WMTSCapabilities.xml')
       .then(response => response.text())
       .then(text => {
-        let result = new ol.WMTSCapabilities().read(text);
+        let result = new this.ol.WMTSCapabilities().read(text);
         let options = optionsFromCapabilities(result, {
           layer: this.highDpi ? 'bmaphidpi' : 'geolandbasemap',
           matrixSet: 'google3857',
@@ -104,22 +106,22 @@ class OpenLayersViewer {
         options.attributions = '© <a href="https://www.basemap.at" target="_blank">basemap.at</a>';
         options.tilePixelRatio = this.hiDPI ? 2 : 1;
 
-        return new ol.layer.Tile({
-          source: new ol.source.WMTS(options)
+        return new this.ol.layer.Tile({
+          source: new this.ol.source.WMTS(options)
         });
       });
   }
   baseLayerOpenStreetMap() {
     return Promise.resolve(
-      new ol.layer.Tile({
-        source: new ol.source.OSM()
+      new this.ol.layer.Tile({
+        source: new this.ol.source.OSM()
       })
     );
   }
   baseLayerTourSprung() {
     return Promise.resolve(
-      new ol.layer.Tile({
-        source: new ol.source.XYZ({
+      new this.ol.layer.Tile({
+        source: new this.ol.source.XYZ({
           attributions:
             '© <a href="http://www.toursprung.com" target="_blank">Toursprung</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OSM Contributors</a>',
           url:
@@ -133,13 +135,13 @@ class OpenLayersViewer {
     );
   }
   generateIconStyle(color) {
-    return new ol.style.Style({
-      image: new ol.style.Circle({
+    return new this.ol.style.Style({
+      image: new this.ol.style.Circle({
         radius: 7,
-        fill: new ol.style.Fill({
+        fill: new this.ol.style.Fill({
           color: color
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new this.ol.style.Stroke({
           color: [0, 0, 0, 0.75],
           width: 1.5
         })
@@ -148,14 +150,14 @@ class OpenLayersViewer {
     });
   }
   generateLineStyle(color) {
-    return new ol.style.Style({
-      stroke: new ol.style.Stroke({ color: color, width: 5 })
+    return new this.ol.style.Style({
+      stroke: new this.ol.style.Stroke({ color: color, width: 5 })
     });
   }
   initIconStyles() {
     if (this.iconPaths !== undefined) {
-      this.styles.icon.default = new ol.style.Style({
-        image: new ol.style.Icon({
+      this.styles.icon.default = new this.ol.style.Style({
+        image: new this.ol.style.Icon({
           anchor: [16, 32],
           anchorXUnits: 'pixels',
           anchorYUnits: 'pixels',
@@ -182,7 +184,7 @@ class OpenLayersViewer {
       this.featureBefore = this.createFeaturefromWkt(this.beforeValue);
       this.featureBefore.setStyle(this.styles[featureType].red);
     }
-    if (!this.afterValue || !this.afterValue.length) {
+    if (!this.feature && this.value && this.value.length) {
       this.feature = this.createFeaturefromWkt(this.value);
       this.feature.setStyle(this.styles[featureType].default);
     }
@@ -199,7 +201,7 @@ class OpenLayersViewer {
     }
   }
   createFeaturefromWkt(wkt) {
-    let format = new ol.format.WKT();
+    let format = new this.ol.format.WKT();
 
     return format.readFeature(wkt, {
       dataProjection: 'EPSG:4326',
@@ -217,20 +219,22 @@ class OpenLayersViewer {
     }
   }
   configureLayerLines() {
-    this.layerLines = new ol.layer.Vector({
-      source: new ol.source.Vector(this.options),
+    this.source = new this.ol.source.Vector(this.options);
+
+    this.layerLines = new this.ol.layer.Vector({
+      source: this.source,
       style: [
-        new ol.style.Style({
-          stroke: new ol.style.Stroke({
+        new this.ol.style.Style({
+          stroke: new this.ol.style.Stroke({
             color: '#c30000',
             width: 3
           }),
-          image: new ol.style.Circle({
+          image: new this.ol.style.Circle({
             radius: 3,
-            fill: new ol.style.Fill({
+            fill: new this.ol.style.Fill({
               color: '#c30000'
             }),
-            stroke: new ol.style.Stroke({
+            stroke: new this.ol.style.Stroke({
               color: '#c30000',
               width: 3
             })
@@ -285,15 +289,15 @@ class OpenLayersViewer {
   }
   initMap() {
     return this.mapBaseLayer().then(baseLayer => {
-      this.map = new ol.Map({
-        interactions: ol.interactions
+      this.map = new this.ol.Map({
+        interactions: this.ol.interactions
           .defaults({
             mouseWheelZoom: false
           })
           .extend([this.mouseWheelZoom]),
         target: this.containerId,
         layers: [baseLayer, this.layerLines],
-        view: new ol.View({
+        view: new this.ol.View({
           center: [0, 0],
           zoom: 10
         })
@@ -302,7 +306,7 @@ class OpenLayersViewer {
   }
   setConfiguredDefaultPosition() {
     if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude) {
-      let newCoords = new ol.geom.Point([this.defaultPosition.longitude, this.defaultPosition.latitude]).transform(
+      let newCoords = new this.ol.geom.Point([this.defaultPosition.longitude, this.defaultPosition.latitude]).transform(
         'EPSG:4326',
         'EPSG:3857'
       );
@@ -310,16 +314,15 @@ class OpenLayersViewer {
     }
     if (this.defaultPosition && this.defaultPosition.zoom) this.map.getView().setZoom(this.defaultPosition.zoom);
   }
-
   setDefaultPosition() {
     if (!this.feature && !this.featureBefore) {
       this.setConfiguredDefaultPosition();
       return;
     }
 
-    let extent = new ol.extent.createEmpty();
-    if (this.feature) extent = new ol.extent.extend(extent, this.feature.getGeometry().getExtent());
-    if (this.featureBefore) extent = new ol.extent.extend(extent, this.featureBefore.getGeometry().getExtent());
+    let extent = new this.ol.extent.createEmpty();
+    if (this.feature) extent = new this.ol.extent.extend(extent, this.feature.getGeometry().getExtent());
+    if (this.featureBefore) extent = new this.ol.extent.extend(extent, this.featureBefore.getGeometry().getExtent());
 
     this.map.getView().fit(extent, { padding: [50, 50, 50, 50], maxZoom: 15 });
   }
