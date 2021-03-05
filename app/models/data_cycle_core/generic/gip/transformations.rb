@@ -14,6 +14,7 @@ module DataCycleCore
           .>> t(:reject_keys, ['name'])
           .>> t(:add_field, 'name', ->(s) { s.dig('featureMember', 'GeoName', 'caption') })
           .>> t(:add_field, 'sections', ->(s) { load_feature_sections(s.dig('featureMember', 'GeoName', 'refs', 'ReferenceItem'), external_source_id) })
+          .>> t(:add_field, 'line', ->(s) { load_temp_all_sections(s.dig('sections')) })
           .>> t(:reject_keys, ['boundedBy', 'schemaLocation', 'featureMember']) # 'featureMember'
           .>> t(:strip_all)
         end
@@ -22,6 +23,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { prefix + s.dig('value') })
           .>> t(:add_field, 'sections', ->(s) { load_sections(s, prefix) })
+          .>> t(:add_field, 'line', ->(s) { load_temp_all_sections(s.dig('sections')) })
           .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: prefix + s['value'])&.ids })
           .>> t(:strip_all)
         end
@@ -35,10 +37,23 @@ module DataCycleCore
           DataCycleCore::Thing.where(external_key: external_keys, external_source_id: external_source_id)&.ids
         end
 
+        def self.load_temp_all_sections(data)
+          return nil if data.blank?
+          byebug
+          factory = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')
+          all_line_strings = DataCycleCore::Thing
+            .where(id: data)
+            .map(&:section)
+            .map { |i| i.is_a?(RGeo::Feature::MultiLineString) ? i.to_a : i }
+            .flatten
+          factory.multi_line_string(all_line_strings) if all_line_strings.present?
+        end
+
         def self.load_sections(data, prefix)
           DataCycleCore::Classification
             .find_by(external_key: prefix + data['value'])
             &.things
+            &.where(template_name: 'Teilstrecke')
             &.ids
         end
 

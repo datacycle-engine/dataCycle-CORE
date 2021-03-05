@@ -79,6 +79,10 @@
         :template_name: Bild
         :api:
           :minimal: true
+      :line:
+        :label: temp_all_sections
+        :storage_location: column
+        :type: geographic
       :all_sections:
         :label: Gesamtstrecke
         :storage_location: virtual
