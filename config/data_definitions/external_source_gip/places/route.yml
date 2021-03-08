@@ -93,7 +93,7 @@
       #     :method: line_string_union
       #     :parameters:
       #       :0: sections
-      #       :1: section
+      #       :1: line
       :potential_actions:
         :type: mixin
         :name: potential_actions

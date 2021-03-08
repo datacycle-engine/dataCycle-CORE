@@ -23,7 +23,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { prefix + s.dig('value') })
           .>> t(:add_field, 'sections', ->(s) { load_sections(s, prefix) })
-          .>> t(:add_field, 'line', ->(s) { load_temp_all_sections(s.dig('sections')) })
+          .>> t(:add_field, 'line', ->(s) { load_all_sections(s.dig('sections')) })
           .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: prefix + s['value'])&.ids })
           .>> t(:strip_all)
         end
@@ -42,8 +42,8 @@ module DataCycleCore
           factory = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true)
           all_line_strings = DataCycleCore::Thing
             .where(id: data)
-            .map(&:section)
-            .map { |i| i.is_a?(RGeo::Feature::MultiLineString) ? i.to_a : i }
+            .map(&:line)
+            .map(&:to_a) # import all sections as multi_line_string
             .flatten
           factory.multi_line_string(all_line_strings) if all_line_strings.present?
         end
@@ -59,7 +59,7 @@ module DataCycleCore
         def self.to_section(external_source_id)
           t(:stringify_keys)
           .>> t(:rename_keys, { 'id' => 'external_key', 'caption' => 'name' })
-          .>> t(:add_field, 'section', ->(s) { parse_section(s.dig('geometry')) })
+          .>> t(:add_field, 'line', ->(s) { parse_section(s.dig('geometry')) })
           .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att8', 'GEONAME - EUROVELO - ', external_source_id) })
           .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att9', 'GEONAME - ATROUTE - ', external_source_id) })
           .>> t(:reject_keys, ['bbox', 'geometry', 'properties'])
@@ -81,8 +81,12 @@ module DataCycleCore
           coordinates = geometry['coordinates']
           source_coordinates =
             if geometry['type'] == 'LineString'
-              factory_source.line_string(
-                coordinates.map { |i| factory_source.point(*i) }
+              factory_source.multi_line_string(
+                Array.wrap(
+                  factory_source.line_string(
+                    coordinates.map { |i| factory_source.point(*i) }
+                  )
+                )
               )
             elsif geometry['type'] == 'MultiLineString'
               factory_source.multi_line_string(

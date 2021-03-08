@@ -73,13 +73,10 @@
         :template_name: Bild
         :api:
           :minimal: true
-      :section:
+      :line:
         :label: Teilstrecke
+        :storage_location: column
         :type: geographic
-        :storage_location: value
-        :ui:
-          :edit:
-            :disabled: true        
       :potential_actions:
         :type: mixin
         :name: potential_actions
