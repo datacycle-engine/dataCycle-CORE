@@ -58,6 +58,12 @@
             :type: text_editor
             :options:
               :data-size: basic
+      :bookable:
+        :label: Buchbar
+        :type: boolean
+        :storage_location: value
+        # :advanced_search: true
+        :default_value: 'false'
       :aggregate_rating:
         :label: Durchschnittswertung
         :type: embedded
