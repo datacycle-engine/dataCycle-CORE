@@ -580,7 +580,7 @@ module DataCycleCore
 
             if description.blank?
               description = {}
-              description['Id'] = "#{parent_id} - #{item.dig('Id')} - #{item.dig('ValidFrom')} - #{item.dig('ValidTo')} - #{item.dig('UsageType')} - #{I18n.locale}"
+              description['Id'] = "#{parent_id} - #{item.dig('Id')} - #{item.dig('ValidFrom')} - #{item.dig('ValidTo')} - #{item.dig('UsageType')} - #{item.dig('ChangeDate')} - #{I18n.locale}"
               description['ChangeDate'] = item.dig('ChangeDate')
               description['Type'] = 'GuestCardClassification'
             end
