@@ -60,13 +60,14 @@
                         <% end %>
 
                         <% @advanced_filters.presence&.each_with_index do |filter, idx| %>
-                          <%= render "data_cycle_core/application/filters/#{filter['t']}",
+                          <%= render_advanced_filter_partial({
+                              filter_type: filter['t'],
                               filter_title: filter['n'],
                               filter_name: filter['n'].presence&.parameterize(separator: '_'),
                               filter_method: filter['m'],
                               filter_advanced_type: filter['q'],
                               value: filter['v'],
-                              index: idx + index %>
+                              index: idx + index}) %>
                         <% end %>
                       <% end %>
 

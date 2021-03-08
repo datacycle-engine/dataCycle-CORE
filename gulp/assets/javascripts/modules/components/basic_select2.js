@@ -24,6 +24,7 @@ class BasicSelect2 {
   }
   initEventHandlers() {
     this.$element.closest('form').on('reset', this.reset.bind(this));
+    this.$element.closest('.form-element').on('dc:field:reset', this.reset.bind(this));
     this.$element.on('dc:import:data', this.import.bind(this));
     this.$element.on('dc:select:destroy', this.destroy.bind(this));
     this.$element.parent().on('change', '.select2-search__field', this.suppressChangeEvent.bind(this));
@@ -39,6 +40,7 @@ class BasicSelect2 {
     this.$element.closest('form').off('reset');
     this.$element.off('dc:import:data');
     this.$element.off('dc:select:destroy');
+    this.$element.closest('.form-element').off('dc:field:reset');
   }
   initSpecificEventHandlers() {}
   import(_event, data) {

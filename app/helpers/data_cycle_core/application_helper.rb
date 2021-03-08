@@ -410,6 +410,16 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
+    def render_advanced_filter_partial(parameters = {})
+      partials = [
+        ("#{parameters[:filter_type]}_#{parameters[:filter_advanced_type]}" if parameters[:filter_advanced_type].present?),
+        parameters[:filter_type],
+        'default'
+      ].compact.map { |p| "data_cycle_core/application/filters/#{p}" }
+
+      render_first_existing_partial(partials, parameters)
+    end
+
     def render_new_form(template: nil, parameters: {})
       partials = [
         template&.template_name&.underscore_blanks,

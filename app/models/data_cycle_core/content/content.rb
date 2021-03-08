@@ -233,15 +233,17 @@ module DataCycleCore
       end
 
       def advanced_search_property_names
-        property_definitions.select { |_, definition|
-          !['embedded', 'object', 'linked'].include?(definition['type']) && definition['advanced_search'] == true
-        }.keys
+        name_property_selector { |definition| !['embedded', 'object', 'linked', 'classification'].include?(definition['type']) && definition['advanced_search'] == true }
       end
 
       def advanced_included_search_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'object' && definition['advanced_search'] == true
         }.keys
+      end
+
+      def advanced_classification_property_names
+        name_property_selector { |definition| definition['type'] == 'classification' && definition['advanced_search'] == true }
       end
 
       def geo_properties(include_overlay = false)

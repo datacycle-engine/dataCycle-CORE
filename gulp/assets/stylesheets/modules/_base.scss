@@ -99,17 +99,28 @@ button,
 .form-element {
   position: relative;
 
-  .copy-from-attribute-button {
+  .copy-from-attribute-feature {
     position: absolute;
     right: 0;
     top: 0;
-    height: 3rem;
-    width: 3rem;
-    padding: 0.5rem;
     margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+
+    .button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 3rem;
+      width: 3rem;
+      padding: 0.5rem;
+      margin: 0;
+
+      &.copy-from-attribute-clear-button {
+        background-color: $alert-color;
+      }
+    }
   }
 }
 

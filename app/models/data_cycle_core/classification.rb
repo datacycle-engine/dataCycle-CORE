@@ -29,6 +29,10 @@ module DataCycleCore
         })
     end
 
+    def self.classification_aliases
+      DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: all&.pluck(:id) })
+    end
+
     def self.primary_classification_aliases
       DataCycleCore::ClassificationAlias.includes(:primary_classification).where(classifications: { id: all&.pluck(:id) })
     end
