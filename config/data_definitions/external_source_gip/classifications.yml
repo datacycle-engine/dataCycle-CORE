@@ -2,3 +2,14 @@
     - $$Ort:
         - $$Teilstrecke
         - $$Route
+    - $$Text:
+        - $$Radroutenbeschreibung
+
+- Gemeinde | all:
+    - Villach Stadt
+    - Villach Land
+
+- Wegpunkttyp | all:
+    - Start
+    - Ziel
+    - Sonstiges

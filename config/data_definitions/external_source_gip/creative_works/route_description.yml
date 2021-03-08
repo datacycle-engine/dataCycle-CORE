@@ -52,7 +52,7 @@
       :primary_responsible:
         :label: Hauptverantwortlicher
         :type: linked
-        :template_name: Orgnaization
+        :template_name: Organization
       :length:
         :label: Länge (m)
         :type: number
@@ -84,6 +84,11 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
+      :way_point:
+        :label: Wegpunkt
+        :type: embedded
+        :template_name: Wegpunkt
+        :translated: true
       :data_type:
         :label: Inhaltstyp
         :type: classification

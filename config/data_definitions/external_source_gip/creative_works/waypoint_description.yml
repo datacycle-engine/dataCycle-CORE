@@ -28,7 +28,7 @@
       :community:
         :label: Gemeinde
         :type: classification
-        :tree_label: Wegpunkttyp
+        :tree_label: Gemeinde
         :ui:
           :show:
             :content_area: header

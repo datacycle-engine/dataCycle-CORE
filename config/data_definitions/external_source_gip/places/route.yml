@@ -83,6 +83,9 @@
         :label: Gesamtstrecke
         :storage_location: column
         :type: geographic
+        :ui:
+          :edit:
+            :disabled: true
       # :all_sections:
       #   :label: Gesamtstrecke
       #   :storage_location: virtual
