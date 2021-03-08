@@ -80,20 +80,20 @@
         :api:
           :minimal: true
       :line:
-        :label: temp_all_sections
+        :label: Gesamtstrecke
         :storage_location: column
         :type: geographic
-      :all_sections:
-        :label: Gesamtstrecke
-        :storage_location: virtual
-        :type: virtual
-        :virtual:
-          :type: geographic
-          :module: Utility::Virtual::Geographic
-          :method: line_string_union
-          :parameters:
-            :0: sections
-            :1: section
+      # :all_sections:
+      #   :label: Gesamtstrecke
+      #   :storage_location: virtual
+      #   :type: virtual
+      #   :virtual:
+      #     :type: geographic
+      #     :module: Utility::Virtual::Geographic
+      #     :method: line_string_union
+      #     :parameters:
+      #       :0: sections
+      #       :1: section
       :potential_actions:
         :type: mixin
         :name: potential_actions

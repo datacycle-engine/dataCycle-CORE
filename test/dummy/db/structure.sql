@@ -553,7 +553,6 @@ CREATE TABLE public.things (
     latitude double precision,
     elevation double precision,
     location public.geometry(Point,4326),
-    line public.geography(LineStringZ,4326),
     address_locality character varying,
     street_address character varying,
     postal_code character varying,
@@ -566,7 +565,8 @@ CREATE TABLE public.things (
     boost numeric,
     content_type character varying,
     representation_of_id uuid,
-    version_name character varying
+    version_name character varying,
+    line public.geometry(MultiLineStringZ,4326)
 );
 
 
@@ -2423,6 +2423,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20201208210141'),
 ('20210208130744'),
 ('20210215102758'),
-('20210217125404');
+('20210217125404'),
+('20210305080429');
 
 
