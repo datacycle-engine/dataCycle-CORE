@@ -364,6 +364,8 @@ de:
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
+    bookable: buchbar
+    not_bookable: nicht buchbar
     width: Breite
     height: Höhe
     order: Reihenfolge

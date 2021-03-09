@@ -22,6 +22,8 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
+            return if raw_data.except(:Facilities).empty?
+
             ['feratel_owners'].each do |name_tag|
               DataCycleCore::Generic::Common::ImportTags.process_content(
                 utility_object: utility_object,
