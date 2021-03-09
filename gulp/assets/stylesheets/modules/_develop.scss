@@ -1838,6 +1838,22 @@ select {
         align-items: center;
         background-color: rgba(black, 0.5);
       }
+
+      .ol-attribution:not(.ol-collapsed) {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+
+        ul {
+          display: flex;
+          align-items: center;
+          flex-flow: row nowrap;
+
+          li {
+            margin-right: 0.3rem;
+          }
+        }
+      }
     }
   }
 
@@ -1861,11 +1877,22 @@ select {
 }
 
 .form-element.geographic {
-  .content-object-item {
-    padding: 3rem 1rem 3.5rem 1rem;
+  .map-info {
+    .content-object-item {
+      padding: 1rem;
 
-    input {
-      padding: 2.5rem 1rem 1rem 1rem;
+      .embedded-header {
+        display: block;
+        margin-bottom: 1rem;
+      }
+
+      input {
+        padding: 2.5rem 1rem 1rem 1rem;
+      }
+    }
+
+    &.linestring-info .content-object-item .embedded-header {
+      margin-bottom: 0;
     }
   }
 
@@ -1907,16 +1934,35 @@ select {
   .map-edit {
     position: absolute;
     z-index: 999;
-    top: 6rem;
-    left: 1.2rem;
+    top: 6em;
+    left: 1em;
     margin: 0;
-    padding: 0;
     border: none;
     pointer-events: all;
     background: transparent;
-    display: flex;
-    flex-flow: row;
-    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+    padding: 2px;
+
+    .upload-gpx-button {
+      background-color: rgba(0, 60, 136, 0.5);
+      border-radius: 2px;
+      margin: 1px;
+      font-size: 1.14em;
+      color: white;
+      text-align: center;
+      height: 1.375em;
+      width: 1.375em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.14em;
+
+      &:hover {
+        text-decoration: none;
+        background-color: rgba(0, 60, 136, 0.7);
+      }
+    }
   }
 }
 
