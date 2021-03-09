@@ -92,25 +92,30 @@
                       buttons: 'd' %>
 
                   <% @default_filters.presence&.each do |filter| %>
-                    <%= render_first_existing_partial(["data_cycle_core/application/filters/tag_groups/#{filter['t']}", "data_cycle_core/application/filters/tag_groups/default"], {
+                    <%= render_advanced_filter_tags_partial({
+                        filter_type: filter['t'],
                         title: filter['n'],
                         key: filter['n'].presence&.parameterize(separator: '_'),
                         target: filter['n'].presence&.parameterize(separator: '_'),
                         value: filter['v'],
                         classification_aliases: @selected_classification_aliases&.slice(*filter['v']),
-                        buttons: 'd' }) %>
+                        buttons: 'd'
+                    }) %>
                   <% end %>
 
                   <% @advanced_filters.presence&.each_with_index do |filter, idx| %>
-                    <%= render_first_existing_partial(["data_cycle_core/application/filters/tag_groups/#{filter['t']}", "data_cycle_core/application/filters/tag_groups/default"], {
+                    <%= render_advanced_filter_tags_partial({
                         title: filter['n'],
                         key: filter['n'].presence&.parameterize(separator: '_'),
                         target: filter['n'].presence&.parameterize(separator: '_') + "_#{idx + index}",
                         filter_method: filter['m'],
+                        filter_type: filter['t'],
                         value: filter['v'],
+                        filter_advanced_type: filter['q'],
                         container_classes: 'advanced-tags',
                         classification_aliases: @selected_classification_aliases&.slice(*filter['v']),
-                        buttons: 'a' }) %>
+                        buttons: 'a'
+                    }) %>
                   <% end %>
                 </span>
 

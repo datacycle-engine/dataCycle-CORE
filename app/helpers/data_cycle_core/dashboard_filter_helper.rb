@@ -40,7 +40,7 @@ module DataCycleCore
           [t('common.blank', locale: DataCycleCore.ui_language), 'b'],
           [t('common.present', locale: DataCycleCore.ui_language), 'p']
         ]
-      when 'classification'
+      when 'classification_alias_ids'
         [
           [t('common.has', locale: DataCycleCore.ui_language), 'i'],
           [t('common.has_not', locale: DataCycleCore.ui_language), 'e']

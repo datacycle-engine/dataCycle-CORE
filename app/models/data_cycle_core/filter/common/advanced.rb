@@ -121,16 +121,20 @@ module DataCycleCore
           advanced_string(value, attribute_path, :not_exists)
         end
 
-        def equals_advanced_classification(value = nil, attribute_path = nil)
+        def equals_advanced_classification_alias_ids(value = nil, attribute_path = nil)
           return self if value.blank?
 
-          query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(searches.advanced_attributes -> ?) pil WHERE ARRAY[?]::uuid[] && (pil)::uuid[])', attribute_path, value])
+          query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['ARRAY(SELECT jsonb_array_elements_text(searches.advanced_attributes -> ?))::uuid[] && ARRAY[?]::uuid[]', attribute_path, value])
 
           advanced_query(query_string, attribute_path)
         end
 
-        def not_equals_advanced_classification(value = nil, attribute_path = nil)
-          # advanced_numeric(value, attribute_path, :not_equal)
+        def not_equals_advanced_classification_alias_ids(value = nil, attribute_path = nil)
+          return self if value.blank?
+
+          query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(ARRAY(SELECT jsonb_array_elements_text(searches.advanced_attributes -> ?))::uuid[] && ARRAY[?]::uuid[])', attribute_path, value])
+
+          advanced_query(query_string, attribute_path, false)
         end
 
         private
