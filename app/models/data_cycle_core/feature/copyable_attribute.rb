@@ -4,7 +4,7 @@ module DataCycleCore
   module Feature
     class CopyableAttribute < Base
       class << self
-        def is_copyable_attribute?(content, key)
+        def copyable_attribute?(content, key)
           enabled? && includes_attribute_key(content, key)
         end
 
