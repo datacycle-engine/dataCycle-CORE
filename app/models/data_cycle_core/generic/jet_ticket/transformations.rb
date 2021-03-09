@@ -35,7 +35,7 @@ module DataCycleCore
             '18' => 'Symphonieorchester'
           }
           event_set_id = data.dig('EventSetID')
-          Array.wrap(data.dig('Releases', 'Release').detect { |i| i.dig('ReleaseID')&.to_i&.in?((13..18).to_a) })
+          Array.wrap(data.dig('Releases', 'Release').detect { |i| i.dig('ReleaseID')&.in?(url_translator.keys) })
             .map { |i|
               action = {}
               action_id = DataCycleCore::Thing.find_by(external_key: "JetTicket OrderAction:#{data.dig('EventID')}", external_source_id: external_source_id)&.id
