@@ -86,6 +86,7 @@
         :ui:
           :edit:
             :disabled: true
+            # :type: LineString
       # :all_sections:
       #   :label: Gesamtstrecke
       #   :storage_location: virtual

@@ -217,18 +217,12 @@ module DataCycleCore
       end
 
       def save_to_column(key, value, properties)
-        send("#{key}=", normalize_value(value, properties))
+        save_data = convert_to_type(properties['type'], normalize_value(value, properties))
+        send("#{key}=", save_data)
       end
 
       def normalize_value(value, properties)
         norm_value = value
-        # if properties.key?('default_value') && value.blank?
-        #   if properties['default_value'].is_a?(String) && /{{.*}}/.match?(properties['default_value']) # eval code enclosed in double curly braces: {{ ... }}
-        #     norm_value = eval(properties['default_value'][2..-3]) # rubocop:disable Security/Eval
-        #   else
-        #     norm_value = properties['default_value']
-        #   end
-        # end
         return DataCycleCore::MasterData::DataConverter.string_to_string(norm_value) if properties['type'] == 'string'
         norm_value
       end
