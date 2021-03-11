@@ -1,0 +1,60 @@
+<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+
+  <%= hidden_field_tag "f[#{index}][c]", 'a' %>
+  <%= hidden_field_tag "f[#{index}][t]", 'advanced_attributes' %>
+  <%= hidden_field_tag "f[#{index}][n]", filter_title %>
+  <%= hidden_field_tag "f[#{index}][q]", filter_advanced_type %>
+
+  <div class="advanced-filter-title">
+    <span class="icon"><i class="fa fa-th" aria-hidden="true"></i></span>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
+  </div>
+
+  <div class="advanced-filter-mode">
+    <%= select_tag "f[#{index}][m]", options_for_select(advanced_attribute_filter_options(filter_advanced_type), filter_method), { class: 'advanced-filter-mode-selector' } %>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <% tree_label = DataCycleCore::Feature::AdvancedFilter.advanced_attribute_classification_tree_label(filter_title) %>
+    <% classification_items = classification_alias_filter_items(tree_label) %>
+
+    <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
+      <%= select_tag(
+            "f[#{index}][v]",
+            async_classification_select_options(@selected_classification_aliases&.values_at(*value)&.compact),
+            {
+              multiple: true,
+              class: 'async-select',
+              data: {
+                tree_label: tree_label,
+                max: 20,
+                placeholder: '',
+                alias_ids: true,
+                find_path: find_classifications_path,
+                search_path: search_classifications_path
+              }
+            }
+          ) %>
+    <% else %>
+      <%= select_tag(
+            "f[#{index}][v]",
+            simple_classification_select_options(@selected_classification_aliases&.values_at(*value)&.compact, classification_items),
+            {
+              multiple: true,
+              class: 'multi-select',
+              data: {
+                tree_label: tree_label,
+                max: 20,
+                placeholder: ''
+              }
+            }
+          ) %>
+    <% end %>
+  </div>
+
+  <% if can?(:advanced_filter, :backend) %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

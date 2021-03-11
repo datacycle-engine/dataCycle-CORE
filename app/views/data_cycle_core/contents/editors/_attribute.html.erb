@@ -2,16 +2,24 @@
     'clearfix',
     'form-element',
     key.attribute_name_from_key,
-    definition.dig('validations').present? ? 'validation-container' : '',
-    definition.dig('type').try(:underscore),
-    definition.dig('ui', 'edit', 'type').try(:underscore),
-    definition.dig('ui', 'edit', 'options', 'class').try(:underscore),
-    options.try(:[], 'class'),
-    local_assigns[:parent]&.embedded_title_property_name.present? && key.attribute_name_from_key == local_assigns[:parent].embedded_title_property_name ? 'is-embedded-title' : nil
-].reject(&:blank?).uniq.join(' ') %>" data-key="<%= key %>" data-readonly="<%= options['readonly'].to_s == 'true' %>" data-id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>">
+    ('validation-container' if definition.dig('validations').present?),
+    definition.dig('type')&.underscore,
+    (definition.dig('ui', 'edit', 'type')&.underscore if definition&.dig('ui', options[:edit_scope], 'partial').blank?),
+    definition.dig('ui', 'edit', 'options', 'class')&.underscore,
+    options&.dig('class'),
+    ('is-embedded-title' if local_assigns[:parent]&.embedded_title_property_name.present? && key.attribute_name_from_key == local_assigns[:parent].embedded_title_property_name)
+].reject(&:blank?).uniq.join(' ') %>" data-key="<%= key %>" data-readonly="<%= !attribute_editable?(key, definition, options, content) %>" data-id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>">
 
   <% if content.try(:translatable_property?, key.attribute_name_from_key, definition) && content.translatable? && I18n.available_locales&.many? %>
     <span class="translated"><i class="fa fa-language" aria-hidden="true"></i></span>
+  <% end %>
+
+  <% if DataCycleCore::Feature::CopyableAttribute.copyable_attribute?(content, key) %>
+    <span class="copy-from-attribute-feature">
+      <%= link_to tag.i(class: 'fa fa-reply', aria_hidden: true), '#', title: DataCycleCore::Feature::CopyableAttribute.link_title(content), class: 'copy-from-attribute-button button dc-foundation-tooltip', data: { copy_from: DataCycleCore::Feature::CopyableAttribute.from_attribute(content), clear_from_attribute: DataCycleCore::Feature::CopyableAttribute.clear_from_attribute?(content) } %>
+
+      <%= link_to tag.i(class: 'fa fa-times', aria_hidden: true), '#', title: DataCycleCore::Feature::CopyableAttribute.clear_title(content), class: 'copy-from-attribute-clear-button button dc-foundation-tooltip', data: { clear_attribute: DataCycleCore::Feature::CopyableAttribute.from_attribute(content) } if DataCycleCore::Feature::CopyableAttribute.clear_from_attribute?(content) %>
+    </span>
   <% end %>
 
   <%= yield %>
