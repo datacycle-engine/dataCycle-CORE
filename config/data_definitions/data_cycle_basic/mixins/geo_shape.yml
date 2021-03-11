@@ -11,6 +11,8 @@
           :edit:
             :type: LineString
             :disabled: true
+            :options:
+              :data_upload: true
         :api:
           :minimal: true
           :disabled: false

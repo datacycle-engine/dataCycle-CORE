@@ -12,9 +12,6 @@
             :type: LineString
             :options:
               :data_upload: true
-              :additional_value_paths:
-                - - poi
-                  - location
         :api:
           :disabled: false
           :v4:

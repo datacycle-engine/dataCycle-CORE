@@ -185,10 +185,3 @@
 
 :named_version:
   :enabled: true
-
-:geocode:
-  :enabled: true
-  :attribute_keys:
-    - address
-  :external_source: 'Toursprung Geocoding'
-  :endpoint: DataCycleCore::Generic::ToursprungGeocoding::Endpoint
