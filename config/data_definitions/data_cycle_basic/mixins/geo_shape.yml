@@ -3,12 +3,13 @@
     :name: geo_shape
     :type: mixin
     :properties:
-      :tour:
+      :line:
         :label: Route
         :type: geographic
-        :storage_location: value
+        :storage_location: column
         :ui:
           :edit:
+            :type: LineString
             :disabled: true
         :api:
           :minimal: true

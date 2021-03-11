@@ -46,16 +46,30 @@ var { optionsFromCapabilities } = require('ol/source/wmts').default;
 
 class OpenLayersViewer {
   constructor(container) {
-    this.container = $(container);
-    this.containerId = this.container.attr('id');
+    this.$container = $(container);
+    this.containerId = this.$container.attr('id');
     this.ol = ol;
-    this.value = this.container.data('value');
-    this.beforeValue = this.container.data('before-position');
-    this.afterValue = this.container.data('after-position');
-    this.type = this.container.data('type');
-    this.iconPaths = this.container.data('icon-paths');
+    this.value = this.$container.data('value');
+    this.beforeValue = this.$container.data('before-position');
+    this.afterValue = this.$container.data('after-position');
+    this.type = this.$container.data('type');
+    this.additionalValues = this.$container.data('additionalValues');
     this.feature;
     this.featureBefore;
+    this.icons = {
+      default:
+        'data:image/svg+xml;utf8,<svg width="20.889" height="32.571" version="1.1" viewBox="0 0 20.889 32.571" xmlns="http://www.w3.org/2000/svg"><path d="m10.889 0c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 16c-3.314 0-6-2.686-6-6s2.686-6 6-6 6 2.686 6 6-2.686 6-6 6z" fill-opacity=".5"/><path d="m10 0.57142c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 16c-3.314 0-6-2.686-6-6 0-3.314 2.686-6 6-6s6 2.686 6 6c0 3.314-2.686 6-6 6z" fill="${markerColor}"/></svg>',
+      start:
+        'data:image/svg+xml;utf8,<svg width="20.875" height="32.42" version="1.1" viewBox="0 0 20.875 32.42" xmlns="http://www.w3.org/2000/svg"><path d="m10.875 0c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm-3.9593 11.721c0.14697-8.0447 2.867-5.8185 9.2881-0.47458-6.2 5.5496-9.1109 8.1994-9.2881 0.47458z" opacity=".5"/><path d="m10 0.41968c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm-3.9593 11.721c0.14697-8.0447 2.867-5.8185 9.2881-0.47458-6.2 5.5496-9.1109 8.1994-9.2881 0.47458z" fill="${markerColor}"/></svg>',
+      end:
+        'data:image/svg+xml;utf8,<svg width="20.963" height="32.525" version="1.1" viewBox="0 0 20.963 32.525" xmlns="http://www.w3.org/2000/svg"><path d="m10.963 0c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 14.036c-4.4239 0.04459-3.9455 0.32896-3.8531-4.0358 9.9e-4 -4.8216-0.62981-4.1587 3.8531-4.2185 4.5744-0.01416 4.0456-0.67578 4.0815 4.3099 0.12766 4.5017 0.45258 3.9004-4.0815 3.9445z" fill="${markerColor}" opacity=".5"/><path d="m10 0.52489c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 14.036c-4.4239 0.044587-3.9455 0.32896-3.8531-4.0358 9.905e-4 -4.8216-0.62981-4.1587 3.8531-4.2185 4.5744-0.01416 4.0456-0.67578 4.0815 4.3099 0.12766 4.5017 0.45258 3.9004-4.0815 3.9445z" fill="${markerColor}"/></svg>'
+    };
+    this.markerColors = {
+      default: '#111111',
+      red: '#cc4b37',
+      green: '#90c062',
+      defaultLine: '#1779ba'
+    };
     this.styles = {
       icon: {},
       line: {}
@@ -71,10 +85,11 @@ class OpenLayersViewer {
     this.layerLines;
     this.mouseWheelZoom = new this.ol.interaction.MouseWheelZoom();
     this.mouseZoomTimeout;
-    this.mapOptions = this.container.data('map-options');
+    this.mapOptions = this.$container.data('map-options');
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.highDpi = window.devicePixelRatio > 1;
+    this.wktFormat = new this.ol.format.WKT();
     this.source;
   }
   setup() {
@@ -87,6 +102,12 @@ class OpenLayersViewer {
     this.initMap().then(() => {
       this.setDefaultPosition();
     });
+  }
+  isPoint() {
+    return this.type.includes('Point');
+  }
+  isLineString() {
+    return this.type.includes('LineString');
   }
   mapBaseLayer() {
     if (typeof this['baseLayer' + this.mapBackend] == 'function') return this['baseLayer' + this.mapBackend]();
@@ -134,83 +155,103 @@ class OpenLayersViewer {
       })
     );
   }
-  generateIconStyle(color) {
-    return new this.ol.style.Style({
-      image: new this.ol.style.Circle({
-        radius: 7,
-        fill: new this.ol.style.Fill({
-          color: color
-        }),
-        stroke: new this.ol.style.Stroke({
-          color: [0, 0, 0, 0.75],
-          width: 1.5
-        })
-      }),
-      zIndex: 100000
-    });
+  generateIconStyle(type, color, additionalParameters = {}) {
+    return new this.ol.style.Style(
+      Object.assign(
+        {
+          image: new this.ol.style.Icon({
+            anchor: [0.5, 1],
+            opacity: 0.8,
+            scale: 1,
+            src: this.icons[type].interpolate({ markerColor: escape(this.markerColors[color]) })
+          })
+        },
+        additionalParameters
+      )
+    );
   }
-  generateLineStyle(color) {
+  generateLineStyle(color, width = 5) {
     return new this.ol.style.Style({
-      stroke: new this.ol.style.Stroke({ color: color, width: 5 })
+      stroke: new this.ol.style.Stroke({ color: this.markerColors[color], width: width })
     });
   }
   initIconStyles() {
-    if (this.iconPaths !== undefined) {
-      this.styles.icon.default = new this.ol.style.Style({
-        image: new this.ol.style.Icon({
-          anchor: [16, 32],
-          anchorXUnits: 'pixels',
-          anchorYUnits: 'pixels',
-          src: this.iconPaths.default
-        })
-      });
-    } else {
-      this.styles.icon.default = this.generateIconStyle('#1779ba');
-    }
-
-    this.styles.icon.red = this.generateIconStyle('#cc4b37');
-    this.styles.icon.green = this.generateIconStyle('#90c062');
-
-    this.styles.line.default = this.generateLineStyle('#1779ba');
-    this.styles.line.red = this.generateLineStyle('#cc4b37');
-    this.styles.line.green = this.generateLineStyle('#90c062');
+    this.styles.icon.default = this.generateIconStyle('default', 'default');
+    this.styles.icon.red = this.generateIconStyle('default', 'red');
+    this.styles.icon.green = this.generateIconStyle('default', 'green');
+    this.styles.line.default = this.generateLineStyle('defaultLine');
+    this.styles.line.red = this.generateLineStyle('red');
+    this.styles.line.green = this.generateLineStyle('green');
   }
-  setFeatures(featureType) {
-    if (this.afterValue && this.afterValue.length) {
-      this.feature = this.createFeaturefromWkt(this.afterValue);
-      this.feature.setStyle(this.styles[featureType].green);
-    }
+  initFeatures() {
     if (this.beforeValue && this.beforeValue.length) {
       this.featureBefore = this.createFeaturefromWkt(this.beforeValue);
-      this.featureBefore.setStyle(this.styles[featureType].red);
+      this.featureBefore.setStyle((feature, _) => this.styleFunction(feature, 'red', 'red', 7));
+    }
+    if (this.afterValue && this.afterValue.length) {
+      this.feature = this.createFeaturefromWkt(this.afterValue);
+      this.feature.setStyle((feature, _) => this.styleFunction(feature, 'green', 'green'));
     }
     if (!this.feature && this.value && this.value.length) {
       this.feature = this.createFeaturefromWkt(this.value);
-      this.feature.setStyle(this.styles[featureType].default);
+      this.feature.setStyle((feature, _) => this.styleFunction(feature, 'defaultLine', 'default'));
     }
   }
-  initFeatures() {
-    switch (this.type) {
-      case 'Point':
-        this.setFeatures('icon');
-        break;
-      case 'LineString':
-      case 'MultiLineString':
-        this.setFeatures('line');
-        break;
+  styleFunction(feature, lineColor, color, width = 5) {
+    var geometry = feature.getGeometry();
+    var styles = [this.generateLineStyle(lineColor, width)];
+
+    if (geometry.constructor.name.includes('MultiLineString')) {
+      geometry.getLineStrings().forEach(lineString => {
+        styles.push(
+          this.generateIconStyle('start', color, {
+            geometry: new this.ol.geom.Point(lineString.getFirstCoordinate())
+          })
+        );
+        styles.push(
+          this.generateIconStyle('end', color, {
+            geometry: new this.ol.geom.Point(lineString.getLastCoordinate())
+          })
+        );
+      });
+    } else if (geometry.constructor.name.includes('LineString')) {
+      styles.push(
+        this.generateIconStyle('start', color, {
+          geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
+        })
+      );
+      styles.push(
+        this.generateIconStyle('end', color, {
+          geometry: new this.ol.geom.Point(geometry.getLastCoordinate())
+        })
+      );
+    } else {
+      styles.push(
+        this.generateIconStyle('default', color, {
+          geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
+        })
+      );
     }
+
+    return styles;
+  }
+  drawAdditionalFeatures() {
+    this.additionalValues.forEach(additionalFeature => {
+      let feature = this.createFeaturefromWkt(additionalFeature);
+      feature.setStyle((feature, _) => this.styleFunction(feature, 'defaultLine', 'default'));
+      this.features.push(feature);
+    });
   }
   createFeaturefromWkt(wkt) {
-    let format = new this.ol.format.WKT();
-
-    return format.readFeature(wkt, {
+    return this.wktFormat.readFeature(wkt, {
       dataProjection: 'EPSG:4326',
       featureProjection: 'EPSG:3857'
     });
   }
   configureFeatures() {
-    if (this.feature !== undefined) this.features.push(this.feature);
-    if (this.featureBefore !== undefined) this.features.push(this.featureBefore);
+    if (this.feature) this.features.push(this.feature);
+    if (this.featureBefore) this.features.push(this.featureBefore);
+    if (this.additionalValues && this.additionalValues.length) this.drawAdditionalFeatures();
 
     if (this.features.length) {
       this.options = {
