@@ -85,6 +85,9 @@ namespace :datacycle do
         print_message 'Reloading services'
         invoke 'datacycle:monit:reload'
 
+        print_message 'Upload proxmox backup exclude file'
+        invoke 'datacycle:proxmox:deploy_config'
+
         # invoke('datacycle:nginx:deploy_config', 'production.conf')
         # invoke 'datacycle:nginx:reload'
 
