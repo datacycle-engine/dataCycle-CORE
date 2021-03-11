@@ -29,6 +29,14 @@ module DataCycleCore
         })
     end
 
+    def self.classification_aliases
+      DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: all&.pluck(:id) })
+    end
+
+    def self.primary_classification_aliases
+      DataCycleCore::ClassificationAlias.includes(:primary_classification).where(classifications: { id: all&.pluck(:id) })
+    end
+
     def ancestors
       Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 5.days + Random.rand(2.5.days)) do
         [primary_classification_alias] + primary_classification_alias.ancestors

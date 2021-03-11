@@ -18,9 +18,9 @@
         content_id: content.id,
         content_type: content.class.table_name,
         url: thing_path(content),
-        write: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
+        write: attribute_editable?(key, definition, options, content),
       }.merge(local_assigns[:no_accordion] ? {} : {
-        accordion: true,
+        accordion: local_assigns.dig(:options, 'closable') == false ? nil : true,
         allow_all_closed: true,
         multi_expand: true
       }) do %>
@@ -55,7 +55,7 @@
               options: options,
               page: params.fetch(:page, 1).to_i + 1,
               load_more_action: :embedded_object,
-              editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
+              editable: attribute_editable?(key, definition, options, content),
               content_id: content.id,
               content_type: content.class.table_name,
               locale: I18n.locale
@@ -66,7 +66,7 @@
             data: {
               disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_all', locale: DataCycleCore.ui_language)}..."
             } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
-      <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
+      <% if attribute_editable?(key, definition, options, content) %>
         <button id="add_<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>" type="button" class="button addContentObject" style="display: none;"><%= definition['label'] %>
           hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
       <% end %>

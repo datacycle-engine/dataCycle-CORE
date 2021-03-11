@@ -231,6 +231,7 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] } })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
+          .>> t(:add_field, 'bookable', ->(s) { s&.dig('Bookable') == 'true' })
           .>> t(:transform_name, 'name')
           .>> t(:unwrap, 'Position')
           .>> t(:rename_keys, 'Latitude' => 'latitude', 'Longitude' => 'longitude')
@@ -586,7 +587,7 @@ module DataCycleCore
 
             if description.blank?
               description = {}
-              description['Id'] = "#{parent_id} - #{item.dig('Id')} - #{item.dig('ValidFrom')} - #{item.dig('ValidTo')} - #{item.dig('UsageType')} - #{I18n.locale}"
+              description['Id'] = "#{parent_id} - #{item.dig('Id')} - #{item.dig('ValidFrom')} - #{item.dig('ValidTo')} - #{item.dig('UsageType')} - #{item.dig('ChangeDate')} - #{I18n.locale}"
               description['ChangeDate'] = item.dig('ChangeDate')
               description['Type'] = 'GuestCardClassification'
             end

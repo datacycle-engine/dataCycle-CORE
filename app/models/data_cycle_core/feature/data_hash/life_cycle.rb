@@ -4,15 +4,20 @@ module DataCycleCore
   module Feature
     module DataHash
       module LifeCycle
-        def self.prepended(base)
-          base.before_save_data_hash :set_changed_life_cycle_stage, if: proc {
-            @data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.present? &&
-              life_cycle_stage&.id != @data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first
-          }
-          base.before_save_data_hash :inherit_life_cycle_attributes, if: proc {
-            @new_content &&
-              parent.present?
-          }
+        attr_accessor :life_cycle_changed
+
+        def before_save_data_hash(options)
+          super
+
+          inherit_life_cycle_attributes(data_hash: options.data_hash) if options.new_content && !parent.nil?
+
+          self.life_cycle_changed = true unless life_cycle_stage?(options.data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first)
+        end
+
+        def after_save_data_hash(_options)
+          remove_instance_variable(:@life_cycle_stage) if instance_variable_defined?(:@life_cycle_stage)
+
+          super
         end
 
         def set_life_cycle_classification(classification_id, user)
@@ -37,16 +42,13 @@ module DataCycleCore
 
         private
 
-        def inherit_life_cycle_attributes
+        def inherit_life_cycle_attributes(data_hash:)
           I18n.with_locale(parent.first_available_locale) do
-            source_data_hash = {}
-            source_data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys(self).first] = parent.try(DataCycleCore::Feature::LifeCycle.attribute_keys(parent).first)&.ids
-            @data_hash = source_data_hash.merge(@data_hash)
-          end
-        end
+            key = DataCycleCore::Feature::LifeCycle.attribute_keys(self).first
+            value = parent.try(DataCycleCore::Feature::LifeCycle.attribute_keys(parent).first)&.ids
 
-        def set_changed_life_cycle_stage
-          @changed_life_cycle_stage = @data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first
+            data_hash[key] = value if key.present? && value.present?
+          end
         end
       end
     end

@@ -8,7 +8,7 @@ module DataCycleCore
           def computed_values(key, properties, data_hash, content)
             module_name = ('DataCycleCore::' + properties.dig('compute', 'module').classify).safe_constantize
             method_name = module_name.method(properties.dig('compute', 'method'))
-            computed_parameters = properties.dig('compute', 'parameters').values.map { |value| data_hash.dig(value) }
+            computed_parameters = properties.dig('compute', 'parameters').values.map { |value| value.is_a?(::String) ? data_hash.dig(value) : value }
 
             return unless validate_computed(data_hash: data_hash, content: content, computed_definition: properties)
 

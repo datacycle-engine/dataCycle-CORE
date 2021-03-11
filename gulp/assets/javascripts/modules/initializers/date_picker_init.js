@@ -92,16 +92,16 @@ module.exports.initialize = function () {
     }
   }
 
-  function init($element) {
+  function init(element) {
     let newCals = [];
-    $($element)
+    $(element)
       .find('input[type=datetime-local]')
       .each((_, elem) => {
         if (!$(elem).attr('readonly'))
           newCals.push(initDatePicker(elem, $(elem).data('disable-time') ? flatPickrOptions : flatPickrTimeOptions));
       });
 
-    $($element)
+    $(element)
       .find('input[type=date]')
       .each((_, elem) => {
         if (!$(elem).attr('readonly')) newCals.push(initDatePicker(elem));

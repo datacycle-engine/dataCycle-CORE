@@ -3,31 +3,28 @@ require('select2');
 require('select2/i18n/de');
 var SimpleSelect2 = require('../components/simple_select2');
 var AsyncSelect2 = require('../components/async_select2');
+var CheckBoxSelector = require('../components/check_box_selector');
+var RadioButtonSelector = require('../components/radio_button_selector');
 $.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'));
 
 module.exports.initialize = function ($) {
-  let asyncSelects = [];
-  let simpleSelects = [];
+  let editors = [];
 
   let init = function (element) {
     $(element)
       .find('.form-element.classification.check_box > ul.classification-checkbox-list')
-      .on('dc:import:data', function (event, data) {
-        $(event.target)
-          .find('> li > :checkbox')
-          .each((_, item) => {
-            $(item).prop('checked', data.value !== undefined && data.value.includes($(item).val()));
-          });
+      .each((_, item) => {
+        let newCheckBoxSelector = new CheckBoxSelector(item);
+        newCheckBoxSelector.init();
+        editors.push(newCheckBoxSelector);
       });
 
     $(element)
       .find('.form-element.classification.radio_button > ul.classification-radiobutton-list')
-      .on('dc:import:data', function (event, data) {
-        $(event.target)
-          .find('> li > :radio')
-          .each((_, item) => {
-            if (data.value !== undefined && data.value.includes($(item).val())) $(item).prop('checked', true);
-          });
+      .each((_, item) => {
+        let newRadioButtonSelector = new RadioButtonSelector(item);
+        newRadioButtonSelector.init();
+        editors.push(newRadioButtonSelector);
       });
 
     $('.auto-tagging-button').on('click', event => {
@@ -39,7 +36,7 @@ module.exports.initialize = function ($) {
       .each((_index, item) => {
         let newAsyncSelect = new AsyncSelect2(item);
         newAsyncSelect.init();
-        asyncSelects.push(newAsyncSelect);
+        editors.push(newAsyncSelect);
       });
 
     $(element)
@@ -47,7 +44,7 @@ module.exports.initialize = function ($) {
       .each((_index, item) => {
         let newSimpleSelect = new SimpleSelect2(item);
         newSimpleSelect.init();
-        simpleSelects.push(newSimpleSelect);
+        editors.push(newSimpleSelect);
       });
   };
 

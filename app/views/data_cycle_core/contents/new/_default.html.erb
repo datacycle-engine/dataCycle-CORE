@@ -12,14 +12,14 @@
       <% a_definition = template.schema.dig('properties', *a_key)&.deep_reject{ |k, v| k == 'readonly' } %>
       <% next unless a_definition.present? %>
       <% if template.translatable? && template.translatable_property?(a_key.last, a_definition) %>
-        <%= render 'data_cycle_core/contents/editors/translatable_field', local_assigns.merge(key: a_key, value: a_key.first == 'name' ? local_assigns[:search_param] : nil) %>
+        <%= render 'data_cycle_core/contents/editors/translatable_field', local_assigns.merge(key: a_key, value: a_key.first == 'name' ? local_assigns[:search_param] : nil, options: { edit_scope: 'new' }.merge(local_assigns[:options] || {})) %>
       <% else %>
         <%= render_attribute_editor key: 'thing[datahash]' + a_key.map{ |k| "[#{k}]" if k != 'properties' }.join,
                                     definition: a_definition,
                                     value: a_key.first == 'name' ? local_assigns[:search_param] : nil,
                                     content: template,
                                     parameters: {
-                                      options: local_assigns[:options]
+                                      options: { edit_scope: 'new' }.merge(local_assigns[:options] || {})
                                     } %>
       <% end %>
     <% end %>

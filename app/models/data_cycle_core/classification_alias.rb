@@ -27,15 +27,10 @@ module DataCycleCore
     default_scope { i18n }
     before_save :set_internal_data
     after_destroy :clean_stored_filters
-    before_destroy -> { primary_classification&.destroy }, prepend: true
-    before_destroy :invalidate_things_cache, prepend: true
+    before_destroy :add_things_cache_invalidation_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }, prepend: true
     after_update :update_primary_classification
-    after_update :add_things_cache_invalidation_job, if: lambda {
-      @classifications_changed ||
-        (saved_changes.keys & ['internal_name', 'uri']).any? ||
-        saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present? ||
-        saved_changes.dig('description_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
-    }
+    after_update :add_things_cache_invalidation_job_update, if: :cached_attributes_changed?
+    after_update :add_things_webhooks_job_update, if: :main_attributes_changed?
 
     attr_accessor :content_template
 
@@ -284,12 +279,46 @@ module DataCycleCore
       end
     end
 
+    def cached_attributes_changed?
+      main_attributes_changed? || @classifications_changed
+    end
+
+    def main_attributes_changed?
+      return @main_attributes_changed if defined? @main_attributes_changed
+
+      @main_attributes_changed = (saved_changes.keys & ['internal_name', 'uri']).any? ||
+                                 saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present? ||
+                                 saved_changes.dig('description_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
+    end
+
     def classifications_changed(_classification = nil)
       @classifications_changed = true
     end
 
-    def add_things_cache_invalidation_job
+    def add_things_webhooks_job_destroy
+      return unless primary_classification&.things&.exists?
+
+      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationDestroyJob.new(self.class.name, id, :execute_things_webhooks_destroy, primary_classification.things.ids) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_execute_things_webhooks_destroy", delayed_reference_id: id)
+    end
+
+    def add_things_webhooks_job_update
+      return unless primary_classification&.things&.exists?
+
+      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :execute_things_webhooks) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_execute_things_webhooks", delayed_reference_id: id, locked_at: nil)
+    end
+
+    def execute_things_webhooks
+      primary_classification&.things&.find_each do |content|
+        content.send(:execute_update_webhooks)
+      end
+    end
+
+    def add_things_cache_invalidation_job_update
       Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_things_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_things_cache", delayed_reference_id: id, locked_at: nil)
+    end
+
+    def add_things_cache_invalidation_job_destroy
+      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationDestroyJob.new(self.class.name, id, :invalidate_things_cache, primary_classification&.things&.ids) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_things_cache", delayed_reference_id: id)
     end
 
     def invalidate_things_cache

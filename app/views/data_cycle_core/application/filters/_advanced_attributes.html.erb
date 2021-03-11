@@ -9,22 +9,8 @@
     <span class="icon"><i class="fa fa-th" aria-hidden="true"></i></span>
     <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
   </div>
-  <%
-        if filter_advanced_type == 'string'
-          filter_mode_options =[
-              [t("common.like", locale: DataCycleCore.ui_language), 's'],
-              [t("common.not_like", locale: DataCycleCore.ui_language), 'u'],
-              [t("common.blank", locale: DataCycleCore.ui_language), 'b'],
-              [t("common.present", locale: DataCycleCore.ui_language), 'p', ]
-          ]
-        else
-          filter_mode_options =[
-              [t("common.is", locale: DataCycleCore.ui_language), 'i'],
-              [t("common.is_not", locale: DataCycleCore.ui_language), 'e']
-          ]
-        end
 
-    %>
+  <% filter_mode_options = advanced_attribute_filter_options(filter_advanced_type) %>
   <% if filter_advanced_type == 'boolean' %>
     <%= hidden_field_tag "f[#{index}][m]", 'n' %>
   <% else %>

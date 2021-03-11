@@ -18,56 +18,74 @@ module DataCycleCore
       include UpdateSearch
 
       before_save :set_internal_data
-      before_save_data_hash :add_default_values, if: -> { properties_with_default_values.present? }
-      before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
-      before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
-      after_saved_data_hash :execute_update_webhooks, if: -> { !embedded? }
-      after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
-      after_saved_data_hash :add_related_cache_invalidation_job, if: -> { !embedded? && has_cached_related_contents? && @invalidate_related_cache }
-      after_created_data_hash :execute_create_webhooks, if: -> { !embedded? }
-      after_destroyed_data_hash :execute_delete_webhooks, if: -> { !embedded? }
 
-      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false, version_name: nil, invalidate_related_cache: true)
-        return {} if data_hash.blank? && !force_update
-        @data_hash = data_hash.dup.with_indifferent_access
-        @current_user = current_user
-        @save_time = save_time
-        @prevent_history = prevent_history
-        @source = source
-        @new_content = new_content
-        @partial_update = partial_update
-        @invalidate_related_cache = invalidate_related_cache
-        run_callbacks :save_data_hash
+      def before_save_data_hash(options)
+        # inherit attributes if source content is present
+        inherit_source_attributes(**options.to_h.slice(:data_hash, :source)) if options.new_content && !options.source.nil?
 
-        partial_schema_hash = nil
-        if @partial_update
-          partial_schema_hash = schema.dup
-          partial_schema_hash['properties'] = property_definitions&.slice(*@data_hash.keys)
+        # add default value
+        add_default_values(**options.to_h.slice(:data_hash, :current_user, :new_content)) if properties_with_default_values.present?
+
+        # add computed values
+        set_computed_values(data_hash: options.data_hash) if computed_property_names.present?
+      end
+
+      def after_save_data_hash(options)
+        return if embedded?
+
+        # trigger create webhooks if is newly created content
+        execute_create_webhooks if options.new_content
+
+        # trigger update webhooks
+        execute_update_webhooks
+
+        # trigger Subscriber Mailer
+        notify_subscribers(current_user: options.current_user) unless options.current_user.nil?
+
+        # trigger cache_invalidation for related contents
+        add_related_cache_invalidation_job if options.invalidate_related_cache && has_cached_related_contents?
+      end
+
+      def before_destroy_data_hash(_options)
+        # trigger delete webhooks
+        execute_delete_webhooks unless embedded?
+      end
+
+      def set_data_hash(**args) # rubocop:disable Naming/AccessorMethodName
+        options = DataCycleCore::Content::DataHashOptions.new(**args)
+        return {} if options.data_hash.blank? && !options.force_update
+
+        before_save_data_hash(options)
+
+        if options.partial_update
+          partial_schema = schema.dup
+          partial_schema['properties'] = property_definitions&.slice(*options.data_hash.keys)
         end
 
-        valid_hash = validate(@data_hash.dup, partial_schema_hash || schema)
+        valid_hash = validate(options.data_hash.dup, partial_schema || schema)
 
         if validate?(valid_hash)
-          if diff?(@data_hash.dup, partial_schema_hash) || force_update
+          if diff?(options.data_hash.dup, partial_schema) || options.force_update
             ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-              to_history(save_time: @save_time) unless id.nil? || prevent_history
+              to_history(save_time: options.save_time) unless id.nil? || options.prevent_history
 
-              set_template_data_hash(@data_hash, partial_schema_hash&.dig('properties') || property_definitions)
+              set_template_data_hash(options, partial_schema&.dig('properties') || property_definitions)
 
-              self.updated_at = @save_time
-              self.updated_by = @current_user&.id
-              self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? version_name.presence : nil
+              self.updated_at = options.save_time
+              self.updated_by = options.current_user&.id
+              self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? options.version_name.presence : nil
 
               if id.nil?
-                self.created_at = @save_time
-                self.created_by = @current_user&.id
+                self.created_at = options.save_time
+                self.created_by = options.current_user&.id
               end
+
               save(touch: false)
-              search_languages(update_search_all) unless id.nil? || embedded?
+              search_languages(options.update_search_all) unless id.nil? || embedded?
             end
+
             reload
-            run_callbacks(:saved_data_hash)
-            run_callbacks(:created_data_hash) if @new_content
+            after_save_data_hash(options)
           else
             valid_hash[:warning] = I18n.t('controllers.warning.no_changes', locale: DataCycleCore.ui_language)
           end
@@ -75,34 +93,34 @@ module DataCycleCore
         valid_hash
       end
 
-      def set_computed_values
+      def set_computed_values(data_hash:) # rubocop:disable Naming/AccessorMethodName
         computed_property_names.each do |computed_property|
-          @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(computed_property, properties_for(computed_property), @data_hash, self)
+          data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(computed_property, properties_for(computed_property), data_hash, self)
         end
       end
 
-      def add_default_values(force: false)
-        if @new_content || force
-          props = properties_with_default_values.select { |k, _| attribute_blank?(k) }
+      def add_default_values(data_hash:, current_user: nil, new_content: false, force: false)
+        if new_content || force
+          props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }
         elsif translated_locales.presence&.exclude?(I18n.locale)
-          props = properties_with_default_values.select { |k, _| attribute_blank?(k) }.slice(*translatable_property_names)
+          props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }.slice(*translatable_property_names)
         else
-          props = properties_with_default_values.select { |k, _| attribute_blank?(k) }.slice(*@data_hash.keys)
+          props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }.slice(*data_hash.keys)
         end
 
-        return @data_hash if props.blank?
+        return data_hash if props.blank?
 
         props.each do |property_name, property_definition|
-          @data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, @data_hash, self, @current_user)
+          data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, data_hash, self, current_user)
         end
 
-        @data_hash
+        data_hash
       end
 
-      def inherit_source_attributes
-        I18n.with_locale(@source.first_available_locale) do
-          source_data_hash = @source.get_data_hash
-          @data_hash = source_data_hash.slice(*DataCycleCore.inheritable_attributes).merge(@data_hash)
+      def inherit_source_attributes(data_hash:, source:)
+        I18n.with_locale(source.first_available_locale) do
+          source_data_hash = source.get_data_hash
+          data_hash.reverse_merge!(source_data_hash.slice(*DataCycleCore.inheritable_attributes))
         end
       end
 
@@ -119,11 +137,7 @@ module DataCycleCore
       end
 
       def validate(data, schema_hash = nil, strict = false, add_defaults = false, current_user = nil)
-        if add_defaults && properties_with_default_values.present?
-          @data_hash = data
-          @current_user = current_user
-          data = add_default_values.dup
-        end
+        data = add_default_values(data_hash: data, current_user: current_user).dup if add_defaults && properties_with_default_values.present?
 
         validator = DataCycleCore::MasterData::ValidateData.new
         validator.validate(data, schema_hash || schema, strict)
@@ -162,34 +176,35 @@ module DataCycleCore
 
       private
 
-      def attribute_blank?(key, _defininition = nil)
+      def attribute_blank?(data_hash, key, _defininition = nil)
         return true if key.blank?
 
-        @data_hash[key].blank? &&
-          !@data_hash[key].is_a?(FalseClass) &&
+        data_hash[key].blank? &&
+          !data_hash[key].is_a?(FalseClass) &&
           try(key).blank? &&
           !try(key).is_a?(FalseClass)
       end
 
-      def notify_subscribers
-        subscriptions.except_user(@current_user).to_notify(version_name.present? && DataCycleCore::Feature::NamedVersion.enabled? ? ['always', 'named_version'] : ['always']).presence&.each do |subscription|
+      def notify_subscribers(current_user:)
+        subscriptions.except_user(current_user).to_notify(version_name.present? && DataCycleCore::Feature::NamedVersion.enabled? ? ['always', 'named_version'] : ['always']).presence&.each do |subscription|
           DataCycleCore::SubscriptionMailer.notify(subscription.user, [self]).deliver_later
         end
       end
 
-      def set_template_data_hash(data_hash, properties)
+      def set_template_data_hash(options, properties)
         properties.each do |key, value|
-          storage_cases_set(key, data_hash[key], value)
+          storage_cases_set(options, key, value)
         end
       end
 
-      def storage_cases_set(key, value, properties)
+      def storage_cases_set(options, key, properties)
+        value = options.data_hash[key]
         # puts "#{key}, #{value}, #{properties.dig('type')}"
         case properties['type']
         when 'linked'
           set_linked(key, value, properties)
         when 'embedded'
-          set_embedded(key, value, properties['template_name'], properties['translated'])
+          set_embedded(key, value, properties['template_name'], properties['translated'], options.current_user, options.save_time)
         when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
@@ -297,7 +312,7 @@ module DataCycleCore
         data
       end
 
-      def set_embedded(field_name, input_data, name, translated)
+      def set_embedded(field_name, input_data, name, translated, current_user, save_time)
         updated_item_keys = []
         available_update_item_keys = load_embedded_objects(field_name, nil, !translated).ids.uniq
         data = input_data || []
@@ -305,7 +320,7 @@ module DataCycleCore
         data.each_index do |index|
           item = data[index]
           if item.key?('id') && item['id'].present?
-            upsert_content(name, item) if item.keys.size > 1
+            upsert_content(name, item, current_user, save_time) if item.keys.size > 1
 
             if available_update_item_keys[index] != item['id']
               upsert_relation = DataCycleCore::ContentContent.find_or_create_by!({
@@ -319,7 +334,7 @@ module DataCycleCore
 
             updated_item_keys << item['id']
           else
-            insert_item = upsert_content(name, item)
+            insert_item = upsert_content(name, item, current_user, save_time)
             DataCycleCore::ContentContent.create!({
               content_a_id: id,
               relation_a: field_name,
@@ -334,12 +349,12 @@ module DataCycleCore
         potentially_delete.each do |key|
           # fully destroy all remaining embedded!
           item = DataCycleCore::Thing.find_by(id: key)
-          item.destroy_children(current_user: @current_user, save_time: @save_time, destroy_locale: false)
+          item.destroy_children(current_user: current_user, save_time: save_time, destroy_locale: false)
           item.destroy
         end
       end
 
-      def upsert_content(name, item)
+      def upsert_content(name, item, current_user, save_time)
         template = DataCycleCore::Thing.find_by(template: true, template_name: name)
         if item['id'].present?
           upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item['id'])
@@ -352,7 +367,7 @@ module DataCycleCore
         upsert_item.external_source_id = external_source_id
         created = upsert_item.new_record?
         upsert_item.save
-        upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true, new_content: created)
+        upsert_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time, prevent_history: true, new_content: created)
         upsert_item
       end
 
