@@ -207,3 +207,6 @@
 
 :named_version:
   :enabled: false
+
+:copyable_attribute:
+  :enabled: false

@@ -7,6 +7,7 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
     include DataCycleCore::Feature::ControllerFunctions::ContentLock if DataCycleCore::Feature::ContentLock.enabled?
+    include DataCycleCore::BulkUpdateTypes
 
     load_and_authorize_resource only: [:index, :show, :new, :create, :edit, :update, :destroy, :remove_item, :add_item, :download] # from cancancan (authorize)
 
@@ -160,8 +161,9 @@ module DataCycleCore
 
       @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
       @shared_template_features = @watch_list.things.shared_template_features
+      bulk_edit_types = params['bulk_update'] || {}
 
-      template_hash = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties.slice(*params['bulk_update']&.keys) }.stringify_keys
+      template_hash = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties.slice(*bulk_edit_types.keys) }.stringify_keys
       object_params = content_params(template_hash)
 
       if object_params.dig(:datahash).blank?
@@ -190,7 +192,7 @@ module DataCycleCore
 
         ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", progress: 0, items: item_count
         update_items.find_each.with_index do |content, index|
-          valid = content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true)
+          valid = content.set_data_hash(data_hash: transform_exisiting_values(bulk_edit_types, template_hash, datahash.dup, content), current_user: current_user, partial_update: true)
           errors << valid[:error] if valid[:error].present?
           ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", progress: index + 1, items: item_count
         end

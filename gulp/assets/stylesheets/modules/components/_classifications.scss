@@ -408,7 +408,6 @@ ul.backend-treeview-list,
 
       .select2-container--default .select2-selection--multiple .select2-selection__choice {
         border-radius: 5px;
-        padding: 0 1rem 0 0.3rem;
         background-color: rgba($primary-color, 0.5);
         border: 0;
         margin: 0 0.1rem;
@@ -416,7 +415,7 @@ ul.backend-treeview-list,
         word-break: break-word;
         white-space: normal;
 
-        span {
+        span:not(.select2-selection__choice__remove) {
           color: white;
           position: absolute;
           padding-right: 0.5rem;

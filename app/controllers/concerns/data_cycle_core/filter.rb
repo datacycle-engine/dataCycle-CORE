@@ -29,7 +29,10 @@ module DataCycleCore
       @selected_classification_aliases = DataCycleCore::ClassificationAlias
         .where(
           id: @filters
-            .select { |f| f['t'].in?(['classification_alias_ids', 'geo_within_classification']) }
+            .select { |f|
+              f['t'].in?(['classification_alias_ids', 'geo_within_classification']) ||
+                (f['t'] == 'advanced_attributes' && f['q'] == 'classification_alias_ids')
+            }
             .map { |f| f['v'] }
             .flatten
             .compact

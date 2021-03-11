@@ -4,8 +4,6 @@ module DataCycleCore
   module Export
     module MediaArchive
       module Update
-        include DataCycleCore::Export::Generic::Functions
-
         def self.process(utility_object:, data:)
           return if data.blank?
 
@@ -20,7 +18,7 @@ module DataCycleCore
         end
 
         def self.filter(data, external_system)
-          DataCycleCore::Export::Generic::Functions.filter(data: data, external_system: external_system, method_name: name.demodulize.underscore) && (data.classifications.ids.include?(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Ausgabekanäle', ['Medienarchiv'])) || data.external_system_syncs.find_by(external_system_id: external_system.id).present?)
+          DataCycleCore::Export::Generic::Functions.filter(data: data, external_system: external_system, method_name: name.demodulize.underscore) && (data.classifications.ids.include?(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Ausgabekanäle', ['Medienarchiv'])) || data.external_system_syncs.where(external_system_id: external_system.id).exists?)
         end
       end
     end

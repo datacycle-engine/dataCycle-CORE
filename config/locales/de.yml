@@ -232,7 +232,13 @@ de:
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
     additional_classifications: weitere Klassifizierungen
     bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
-    bulk_update_check_box_label: '%{data} überschreiben?'
+    bulk_update:
+      check_box_labels:
+        override_html: '<span class="attribute-title">%{data}</span> überschreiben'
+        add_html: 'An vorhandene <span class="attribute-title">%{data}</span> anhängen'
+        remove_html: 'Ausgewählte <span class="attribute-title">%{data}</span> entfernen'
+      button:
+        limited: Es können maximal %{data} Inhalte gleichzeitig bearbeitet werden.
     watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
     content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
@@ -564,6 +570,8 @@ de:
     set_all_attributes: 'für alle %{data} übernehmen'
     close_overlay: Overlay schließen
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
+    copyable_from: '%{data} übernehmen'
+    copyable_from_clear: '%{data} verwerfen'
 
   validation:
     errors:

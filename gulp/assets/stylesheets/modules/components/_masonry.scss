@@ -93,14 +93,16 @@
         position: relative;
         line-height: inherit;
         padding: 0 3px;
+        vertical-align: middle;
+
         &:last-child {
           padding-right: 0;
         }
+
         &.has-tip,
         &.dc-foundation-tooltip {
           border: none;
         }
-        vertical-align: middle;
       }
 
       > a.button-prime.small,

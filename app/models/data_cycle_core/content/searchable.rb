@@ -41,7 +41,7 @@ module DataCycleCore
       end
 
       def by_external_key(external_system_id, external_key, joined_name = 'merged_external_systems')
-        return all if external_system_id.blank? || external_key.blank?
+        return all.none if external_system_id.blank? || external_key.blank?
 
         join_external_connections_query = <<-SQL.squish
           INNER JOIN (
@@ -73,7 +73,7 @@ module DataCycleCore
       end
 
       def by_external_system(external_system_id, joined_name = 'merged_external_systems')
-        return all if external_system_id.blank?
+        return all.none if external_system_id.blank?
 
         join_external_connections_query = <<-SQL.squish
           INNER JOIN (

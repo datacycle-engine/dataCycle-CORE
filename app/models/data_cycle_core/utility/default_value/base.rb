@@ -6,6 +6,7 @@ module DataCycleCore
       module Base
         class << self
           def default_values(key, properties, data_hash, content, current_user = nil)
+            properties = properties&.with_indifferent_access
             return if properties['default_value'].is_a?(::Hash) && properties.dig('default_value', 'condition').present? && !properties.dig('default_value', 'condition').all? { |k, v| send("condition_#{k}", current_user, v) }
 
             if properties['default_value'].is_a?(::String) && properties['type'] == 'classification'

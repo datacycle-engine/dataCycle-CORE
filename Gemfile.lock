@@ -11,7 +11,6 @@ PATH
       cancancan
       carrierwave (~> 0.5)
       carrierwave_backgrounder (~> 0.4.2)
-      caxlsx_rails
       daemons
       delayed_job_active_record
       devise
@@ -34,6 +33,7 @@ PATH
       jwt
       kaminari
       mini_magick
+      mini_mime
       mongoid (~> 7.0.6)
       multi_json
       nokogiri (~> 1.11.1)
@@ -41,7 +41,7 @@ PATH
       pdf-reader
       pg (~> 0.21)
       premailer
-      puma
+      puma (~> 4.3.6)
       puma-status
       puma_worker_killer
       rails (~> 5.2.4)
@@ -264,7 +264,7 @@ GEM
     fasterer (0.8.3)
       colorize (~> 0.7)
       ruby_parser (>= 3.14.1)
-    ffi (1.13.1)
+    ffi (1.14.2)
     fspath (3.1.2)
     gapic-common (0.3.4)
       google-protobuf (~> 3.12, >= 3.12.2)
@@ -435,7 +435,7 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.13.0)
     public_suffix (4.0.6)
-    puma (4.3.6)
+    puma (4.3.7)
       nio4r (~> 2.0)
     puma-status (1.1)
       colorize (~> 0.8)
