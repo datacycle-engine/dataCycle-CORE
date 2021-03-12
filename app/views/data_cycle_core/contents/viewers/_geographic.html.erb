@@ -2,7 +2,7 @@
   key: key,
   definition: definition,
   value: value,
-  options: options,
+  options: (options || {}).merge(definition&.dig('ui', 'edit', 'options', 'additional_value_paths').present? ? { force_render: true }: {}),
   content: content,
   data_attributes: {
     value: { x: value.try(:x), y: value.try(:y), elevation: content&.try(:elevation) }.to_json,
@@ -10,50 +10,23 @@
   } do %>
 
     <% value ||= options.dig(:item_diff, 1) %>
+    <% is_line_string = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type')).to_s.include?('LineString') %>
 
-    <% if value.try(:geometry_type) == RGeo::Feature::Point %> <%# only show points for now, not the lines %>
-        <div class="geographic">
-            <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map point <%= changes_mode(options.dig(:item_diff)) %>"
-              data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
-              data-icon-paths="<%= { default: image_path('location.svg'), before: image_path('location_before.svg'), after: image_path('location_after.svg') }.to_json %>"
-              data-before-position="<%= options.dig(:item_diff, 1).presence&.to_s if options.dig(:item_diff, 0) == '~' %>"
-              data-after-position="<%= options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2).presence&.to_s : options.dig(:item_diff, 1).presence&.to_s %>"
-              data-type="<%= value.geometry_type.to_s %>"
-              data-value="<%= value.presence&.to_s %>">
-            </div>
+    <div class="geographic">
+        <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map <%= is_line_string ? 'linestring' : 'point' %> <%= changes_mode(options.dig(:item_diff)) %>"
+          data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+          data-before-position="<%= options.dig(:item_diff, 1).presence&.to_s if options.dig(:item_diff, 0) == '~' %>"
+          data-after-position="<%= options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2).presence&.to_s : options.dig(:item_diff, 1).presence&.to_s %>"
+          data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
+          data-value="<%= value.presence&.to_s %>"
+          data-additional-values="<%= additional_map_values([content], Array.wrap(definition&.dig('ui', 'edit', 'options', 'additional_value_paths')))&.to_json %>">
         </div>
-    <% elsif value.try(:geometry_type) == RGeo::Feature::LineString %> <%# only show points for now, not the lines %>
-        <div class="geographic">
-            <div id="map_<%= SecureRandom.hex(16) %>"
-              class="geographic-map linestring"
-              data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
-              data-icon-paths="<%= { default: image_path('location.svg'), before: image_path('location_before.svg'), after: image_path('location_after.svg') }.to_json %>"
-              data-before-position="<%= options.dig(:item_diff, 1).presence&.to_s if options.dig(:item_diff, 0) == '~' %>"
-              data-after-position="<%= options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2).presence&.to_s : options.dig(:item_diff, 1).presence&.to_s %>"
-              data-type="<%= value.geometry_type.to_s %>"
-              data-value="<%= value.presence&.to_s %>"
-              data-marker-path="<%= definition&.dig('ui', 'edit', 'options', 'marker_path')&.to_json || [].to_json %>">
-            </div>
-        </div>
-    <% elsif value.try(:geometry_type) == RGeo::Feature::MultiLineString %>
-        <div class="geographic">
-            <div id="map_<%= SecureRandom.hex(16) %>"
-              class="geographic-map linestring"
-              data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
-              data-icon-paths="<%= { default: image_path('location.svg'), before: image_path('location_before.svg'), after: image_path('location_after.svg') }.to_json %>"
-              data-before-position="<%= options.dig(:item_diff, 1).presence&.to_s if options.dig(:item_diff, 0) == '~' %>"
-              data-after-position="<%= options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2).presence&.to_s : options.dig(:item_diff, 1).presence&.to_s %>"
-              data-type="MultiLineString"
-              data-value="<%= value.presence&.to_s %>"
-              data-marker-path="<%= definition&.dig('ui', 'edit', 'options', 'marker_path')&.to_json || [].to_json %>">
-            </div>
-        </div>
-    <% end %>
+    </div>
 
-    <div class="map-info <%= 'linestring-info' if value.try(:geometry_type) == RGeo::Feature::LineString || definition.dig('ui', 'edit', 'type') == 'LineString' %>">
+    <div class="map-info <%= 'linestring-info' if is_line_string %>">
       <span class="detail-label"><%= definition['label'] %></span>
 
-      <% if value.try(:geometry_type) == RGeo::Feature::Point %>
+      <% if !is_line_string %>
         <% case options.dig(:item_diff, 0) %>
         <% when '~' %>
           <% x_html = "<del>#{options.dig(:item_diff, 1).presence&.x}</del><ins>#{options.dig(:item_diff, 2).presence&.x}</ins>" %>
