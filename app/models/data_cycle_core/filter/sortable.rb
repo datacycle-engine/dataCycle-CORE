@@ -97,7 +97,7 @@ module DataCycleCore
 
         return self if start_date.nil? && end_date.nil?
 
-        order_parameter_join = %Q{
+        order_parameter_join = %{
           JOIN (
           	SELECT thing_id, MIN(LOWER(schedule_occurrences.occurrence)) "min_start_date"
           	FROM schedule_occurrences
