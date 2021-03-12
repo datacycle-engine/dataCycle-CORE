@@ -27,8 +27,6 @@
           :edit:
             :type: LineString
             :disabled: true
-            :options:
-              :data_upload: true
         :api:
           :name: tour
           :minimal: true
