@@ -4,6 +4,10 @@ module DataCycleCore
   module Feature
     module Content
       module LifeCycle
+        def life_cycle_changed?
+          life_cycle_changed
+        end
+
         def life_cycle_stage
           @life_cycle_stage ||= try(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first
         end

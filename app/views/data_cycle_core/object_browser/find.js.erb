@@ -8,6 +8,6 @@
 
 var html_content = '<%= j yield(:rendered_items) %>';
 
-$('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser .object-thumbs').append(html_content);
+$('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser .object-thumbs').append(html_content).addClass('has-items');
 $('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %> .chosen-items-container').append(html_content);
 $('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser').trigger('dc:update:chosen', { chosen: <%= Array(@objects&.ids).to_json.html_safe %> });

@@ -23,7 +23,7 @@ module DataCycleCore
     end
 
     def convert_to_type(type)
-      type = MIME::Types.type_for(type).first.preferred_extension
+      type = MiniMime.lookup_by_content_type(MiniMime.lookup_by_extension(type.to_s)&.content_type.to_s)&.extension
       dirname = File.dirname(current_path)
       thumb_path = "#{File.join(dirname, File.basename(path, File.extname(path)))}.#{type}"
       current_extension = File.extname(current_path).delete('.')
@@ -42,7 +42,7 @@ module DataCycleCore
     end
 
     def convert_format(new_format)
-      if MIME::Types.type_for(current_path).first == 'application/pdf'
+      if MiniMime.lookup_by_filename(current_path.to_s)&.content_type == 'application/pdf'
         convert_to_type(new_format)
       else
         convert(new_format)

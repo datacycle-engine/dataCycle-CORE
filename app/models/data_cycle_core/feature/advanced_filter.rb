@@ -12,6 +12,10 @@ module DataCycleCore
           filters
         end
 
+        def advanced_attribute_classification_tree_label(specific_type)
+          configuration.dig('advanced_attributes', specific_type, 'tree_label')
+        end
+
         def classification_alias_ids(value)
           return [] unless value
 
