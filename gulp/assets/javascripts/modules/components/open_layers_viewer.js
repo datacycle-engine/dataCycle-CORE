@@ -39,7 +39,8 @@ var ol = {
   },
   interactions: require('ol/interaction').default,
   proj: require('ol/proj').default,
-  WMTSCapabilities: require('ol/format/wmtscapabilities').default
+  WMTSCapabilities: require('ol/format/wmtscapabilities').default,
+  deviceCapabilities: require('ol/has').default
 };
 
 var { optionsFromCapabilities } = require('ol/source/wmts').default;
@@ -88,7 +89,7 @@ class OpenLayersViewer {
     this.mapOptions = this.$container.data('map-options');
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
-    this.highDpi = window.devicePixelRatio > 1;
+    this.highDpi = this.ol.deviceCapabilities.DEVICE_PIXEL_RATIO > 1;
     this.wktFormat = new this.ol.format.WKT();
     this.source;
   }
@@ -125,7 +126,7 @@ class OpenLayersViewer {
         });
 
         options.attributions = '© <a href="https://www.basemap.at" target="_blank">basemap.at</a>';
-        options.tilePixelRatio = this.hiDPI ? 2 : 1;
+        options.tilePixelRatio = this.highDpi ? 2 : 1;
 
         return new this.ol.layer.Tile({
           source: new this.ol.source.WMTS(options)
@@ -361,11 +362,7 @@ class OpenLayersViewer {
       return;
     }
 
-    let extent = new this.ol.extent.createEmpty();
-    if (this.feature) extent = new this.ol.extent.extend(extent, this.feature.getGeometry().getExtent());
-    if (this.featureBefore) extent = new this.ol.extent.extend(extent, this.featureBefore.getGeometry().getExtent());
-
-    this.map.getView().fit(extent, { padding: [50, 50, 50, 50], maxZoom: 15 });
+    this.map.getView().fit(this.source.getExtent(), { padding: [50, 50, 50, 50], maxZoom: 15 });
   }
 }
 

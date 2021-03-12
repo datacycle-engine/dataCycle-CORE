@@ -8,7 +8,6 @@ class OpenLayersEditor extends OpenLayersViewer {
     super(container);
 
     this.drawable = this.type == 'Point';
-    this.source;
     this.map;
     this.modify;
     this.draw;
@@ -230,7 +229,6 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.features.push(this.feature);
 
     this.source.addFeature(this.feature);
-
     this.map.getView().fit(this.feature.getGeometry().getExtent(), { padding: [50, 50, 50, 50], maxZoom: 15 });
   }
   updateMapMarker(_event) {
@@ -251,8 +249,11 @@ class OpenLayersEditor extends OpenLayersViewer {
       this.source.addFeature(this.feature);
       this.disableDrawableFeature();
     } else {
-      this.source.clear();
-      this.feature = undefined;
+      if (this.feature) {
+        this.features = this.features.filter(feature => feature.ol_uid != this.feature.ol_uid);
+        this.source.removeFeature(this.feature);
+        this.feature = undefined;
+      }
       if (!this.draw) this.initMapDrawableActions();
     }
 
