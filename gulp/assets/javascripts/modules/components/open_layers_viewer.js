@@ -59,17 +59,16 @@ class OpenLayersViewer {
     this.featureBefore;
     this.icons = {
       default:
-        'data:image/svg+xml;utf8,<svg width="20.889" height="32.571" version="1.1" viewBox="0 0 20.889 32.571" xmlns="http://www.w3.org/2000/svg"><path d="m10.889 0c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 16c-3.314 0-6-2.686-6-6s2.686-6 6-6 6 2.686 6 6-2.686 6-6 6z" fill-opacity=".5"/><path d="m10 0.57142c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 16c-3.314 0-6-2.686-6-6 0-3.314 2.686-6 6-6s6 2.686 6 6c0 3.314-2.686 6-6 6z" fill="${markerColor}"/></svg>',
+        'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${markerColor}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><circle cx="10.574" cy="10.771" r="4.4524" fill-opacity=".8" fill="%23111"/></svg>',
       start:
-        'data:image/svg+xml;utf8,<svg width="20.875" height="32.42" version="1.1" viewBox="0 0 20.875 32.42" xmlns="http://www.w3.org/2000/svg"><path d="m10.875 0c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm-3.9593 11.721c0.14697-8.0447 2.867-5.8185 9.2881-0.47458-6.2 5.5496-9.1109 8.1994-9.2881 0.47458z" opacity=".5"/><path d="m10 0.41968c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm-3.9593 11.721c0.14697-8.0447 2.867-5.8185 9.2881-0.47458-6.2 5.5496-9.1109 8.1994-9.2881 0.47458z" fill="${markerColor}"/></svg>',
+        'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${markerColor}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><path d="m16.253 11.621-8.9451 5.0275 0.11862-10.26z" fill="%23111" fill-opacity=".8"/></svg>',
       end:
-        'data:image/svg+xml;utf8,<svg width="20.963" height="32.525" version="1.1" viewBox="0 0 20.963 32.525" xmlns="http://www.w3.org/2000/svg"><path d="m10.963 0c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 14.036c-4.4239 0.04459-3.9455 0.32896-3.8531-4.0358 9.9e-4 -4.8216-0.62981-4.1587 3.8531-4.2185 4.5744-0.01416 4.0456-0.67578 4.0815 4.3099 0.12766 4.5017 0.45258 3.9004-4.0815 3.9445z" fill="${markerColor}" opacity=".5"/><path d="m10 0.52489c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 14.036c-4.4239 0.044587-3.9455 0.32896-3.8531-4.0358 9.905e-4 -4.8216-0.62981-4.1587 3.8531-4.2185 4.5744-0.01416 4.0456-0.67578 4.0815 4.3099 0.12766 4.5017 0.45258 3.9004-4.0815 3.9445z" fill="${markerColor}"/></svg>'
+        'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${markerColor}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><rect x="6.042" y="7.3383" width="9.1903" height="8.3106" ry="0" fill="%23111" fill-opacity=".8"/></svg>'
     };
     this.markerColors = {
-      default: '#111111',
+      default: '#1779ba',
       red: '#cc4b37',
-      green: '#90c062',
-      defaultLine: '#1779ba'
+      green: '#90c062'
     };
     this.styles = {
       icon: {},
@@ -156,31 +155,41 @@ class OpenLayersViewer {
       })
     );
   }
-  generateIconStyle(type, color, additionalParameters = {}) {
+  generateIconStyle(type, color, additionalParameters = {}, additionalImageParameters = {}) {
     return new this.ol.style.Style(
       Object.assign(
         {
-          image: new this.ol.style.Icon({
-            anchor: [0.5, 1],
-            opacity: 0.8,
-            scale: 1,
-            src: this.icons[type].interpolate({ markerColor: escape(this.markerColors[color]) })
-          })
+          image: new this.ol.style.Icon(
+            Object.assign(
+              {
+                anchor: [0.5, 1],
+                opacity: 0.9,
+                scale: 1,
+                src: this.icons[type].interpolate({ markerColor: escape(this.markerColors[color]) })
+              },
+              additionalImageParameters
+            )
+          )
         },
         additionalParameters
       )
     );
   }
   generateLineStyle(color, width = 5) {
-    return new this.ol.style.Style({
-      stroke: new this.ol.style.Stroke({ color: this.markerColors[color], width: width })
-    });
+    return [
+      new this.ol.style.Style({
+        stroke: new this.ol.style.Stroke({ color: '#ffffff', width: width + 2 })
+      }),
+      new this.ol.style.Style({
+        stroke: new this.ol.style.Stroke({ color: this.markerColors[color], width: width })
+      })
+    ];
   }
   initIconStyles() {
     this.styles.icon.default = this.generateIconStyle('default', 'default');
     this.styles.icon.red = this.generateIconStyle('default', 'red');
     this.styles.icon.green = this.generateIconStyle('default', 'green');
-    this.styles.line.default = this.generateLineStyle('defaultLine');
+    this.styles.line.default = this.generateLineStyle('default');
     this.styles.line.red = this.generateLineStyle('red');
     this.styles.line.green = this.generateLineStyle('green');
   }
@@ -195,36 +204,56 @@ class OpenLayersViewer {
     }
     if (!this.feature && this.value && this.value.length) {
       this.feature = this.createFeaturefromWkt(this.value);
-      this.feature.setStyle((feature, _) => this.styleFunction(feature, 'defaultLine', 'default'));
+      this.feature.setStyle((feature, _) => this.styleFunction(feature, 'default', 'default'));
     }
   }
   styleFunction(feature, lineColor, color, width = 5) {
     var geometry = feature.getGeometry();
-    var styles = [this.generateLineStyle(lineColor, width)];
+    var styles = this.generateLineStyle(lineColor, width);
 
     if (geometry.constructor.name.includes('MultiLineString')) {
       geometry.getLineStrings().forEach(lineString => {
         styles.push(
-          this.generateIconStyle('start', color, {
-            geometry: new this.ol.geom.Point(lineString.getFirstCoordinate())
-          })
+          this.generateIconStyle(
+            'start',
+            'green',
+            {
+              geometry: new this.ol.geom.Point(lineString.getFirstCoordinate())
+            },
+            { scale: 0.7 }
+          )
         );
         styles.push(
-          this.generateIconStyle('end', color, {
-            geometry: new this.ol.geom.Point(lineString.getLastCoordinate())
-          })
+          this.generateIconStyle(
+            'end',
+            'red',
+            {
+              geometry: new this.ol.geom.Point(lineString.getLastCoordinate())
+            },
+            { scale: 0.7 }
+          )
         );
       });
     } else if (geometry.constructor.name.includes('LineString')) {
       styles.push(
-        this.generateIconStyle('start', color, {
-          geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
-        })
+        this.generateIconStyle(
+          'start',
+          'green',
+          {
+            geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
+          },
+          { scale: 0.7 }
+        )
       );
       styles.push(
-        this.generateIconStyle('end', color, {
-          geometry: new this.ol.geom.Point(geometry.getLastCoordinate())
-        })
+        this.generateIconStyle(
+          'end',
+          'red',
+          {
+            geometry: new this.ol.geom.Point(geometry.getLastCoordinate())
+          },
+          { scale: 0.7 }
+        )
       );
     } else {
       styles.push(
@@ -239,7 +268,7 @@ class OpenLayersViewer {
   drawAdditionalFeatures() {
     this.additionalValues.forEach(additionalFeature => {
       let feature = this.createFeaturefromWkt(additionalFeature);
-      feature.setStyle((feature, _) => this.styleFunction(feature, 'defaultLine', 'default'));
+      feature.setStyle((feature, _) => this.styleFunction(feature, 'default', 'default'));
       this.features.push(feature);
     });
   }
