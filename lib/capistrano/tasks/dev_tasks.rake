@@ -183,6 +183,31 @@ end
 
 namespace :dc do
   namespace :dev do
+    desc 'import remote mongo db'
+    task :import_remote_mongo, [:external_system_id] do |_, args|
+      local_rails_env = ENV.fetch('RAILS_ENV', 'development')
+
+      on roles(:all) do
+        within release_path do
+          with rails_env: fetch(:rails_env) do
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:mongo:dump[#{args[:external_system_id]}]"
+          end
+        end
+        within shared_path do
+          download! "#{fetch(:application_root_path, '')}db/backups/#{fetch(:rails_env, 'staging')}/dev_db.#{dump_suffix}", "#{fetch(:application_root_path, '')}tmp/", recursive: true
+        end
+        print_message 'download complete'
+      end
+
+      sh "mkdir -p db/backups/#{local_rails_env}/"
+      sh "rsync -c -r tmp/dev_db.#{dump_suffix} db/backups/#{local_rails_env}/"
+      sh "rm -r tmp/dev_db.#{dump_suffix}"
+      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump'" if local_rails_env != 'development'
+      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore[dev_db.#{dump_suffix}]'"
+
+      puts "Successfully imported DB from #{fetch(:rails_env)}"
+    end
+
     desc 'import remote db'
     task :import_remote_db, [:history, :format] do |_, args|
       dump_format = ensure_format(args.format)

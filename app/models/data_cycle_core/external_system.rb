@@ -207,6 +207,10 @@ module DataCycleCore
       Mongoid.override_database(nil)
     end
 
+    def database_name
+      "#{Generic::Collection.database_name}_#{id}"
+    end
+
     def reset
       update!(last_import: nil, last_successful_import: nil, last_download: nil, last_successful_download: nil)
       reload
