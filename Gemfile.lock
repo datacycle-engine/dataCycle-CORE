@@ -130,6 +130,7 @@ GEM
       rack
     arel (9.0.0)
     ast (2.4.1)
+    awesome_print (1.8.0)
     bcrypt (3.1.16)
     bcrypt_pbkdf (1.1.0)
     better_errors (2.7.1)
@@ -569,6 +570,7 @@ PLATFORMS
 
 DEPENDENCIES
   appsignal
+  awesome_print
   better_errors
   binding_of_caller
   brakeman (>= 4.5.1)
@@ -597,6 +599,7 @@ DEPENDENCIES
   spring
   spring-watcher-listen
   translations!
+  tzinfo-data
   web-console
 
 RUBY VERSION
