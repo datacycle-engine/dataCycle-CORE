@@ -23,7 +23,7 @@ gem 'caxlsx'
 gem 'caxlsx_rails'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-# gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'dotenv-rails'
 
@@ -44,6 +44,7 @@ group :development do
   gem 'rubocop', '~> 0.84.0', require: false
   gem 'rubocop-performance', require: false
   gem 'rubocop-rails', require: false
+  gem 'awesome_print'
 
   # only activate if required for local testing
   # gem 'bullet'
