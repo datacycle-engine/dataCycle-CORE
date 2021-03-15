@@ -215,16 +215,6 @@ class OpenLayersViewer {
       geometry.getLineStrings().forEach(lineString => {
         styles.push(
           this.generateIconStyle(
-            'start',
-            'green',
-            {
-              geometry: new this.ol.geom.Point(lineString.getFirstCoordinate())
-            },
-            { scale: 0.7 }
-          )
-        );
-        styles.push(
-          this.generateIconStyle(
             'end',
             'red',
             {
@@ -233,24 +223,34 @@ class OpenLayersViewer {
             { scale: 0.7 }
           )
         );
+        styles.push(
+          this.generateIconStyle(
+            'start',
+            'green',
+            {
+              geometry: new this.ol.geom.Point(lineString.getFirstCoordinate())
+            },
+            { scale: 0.7 }
+          )
+        );
       });
     } else if (geometry.constructor.name.includes('LineString')) {
-      styles.push(
-        this.generateIconStyle(
-          'start',
-          'green',
-          {
-            geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
-          },
-          { scale: 0.7 }
-        )
-      );
       styles.push(
         this.generateIconStyle(
           'end',
           'red',
           {
             geometry: new this.ol.geom.Point(geometry.getLastCoordinate())
+          },
+          { scale: 0.7 }
+        )
+      );
+      styles.push(
+        this.generateIconStyle(
+          'start',
+          'green',
+          {
+            geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
           },
           { scale: 0.7 }
         )
