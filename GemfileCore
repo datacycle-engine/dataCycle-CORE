@@ -9,12 +9,6 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-# Declare your gem's dependencies in data_cycle_core.gemspec.
-# Bundler will treat runtime dependencies like base dependencies, and
-# development dependencies will be added by default to the :development group.
-
-# gemspec
-
 gem 'translations', path: 'vendor/gems/translations'
 
 gem 'appsignal'
