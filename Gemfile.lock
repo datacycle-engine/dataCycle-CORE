@@ -130,11 +130,7 @@ GEM
       rack
     arel (9.0.0)
     ast (2.4.1)
-<<<<<<< HEAD
-    awesome_print (1.8.0)
-=======
     awesome_print (1.9.2)
->>>>>>> 2022d249cc4fe7d8c2dfa0865243bccfbbd380f4
     bcrypt (3.1.16)
     bcrypt_pbkdf (1.1.0)
     better_errors (2.7.1)
