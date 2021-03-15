@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
-source 'https://rubygems.org'
-
 eval_gemfile File.join(File.dirname(__FILE__), 'GemfileCore')
 
-ruby '~> 2.7.1'
-
-git_source(:github) do |repo_name|
-  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
-  "https://github.com/#{repo_name}.git"
-end
+gemspec
 
 # ruby '~> 2.7.1'
 

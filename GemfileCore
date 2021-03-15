@@ -1,11 +1,20 @@
 # frozen_string_literal: true
 
+source 'https://rubygems.org'
+
+ruby '~> 2.7.1'
+
+git_source(:github) do |repo_name|
+  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
+  "https://github.com/#{repo_name}.git"
+end
+
 # Declare your gem's dependencies in data_cycle_core.gemspec.
 # Bundler will treat runtime dependencies like base dependencies, and
 # development dependencies will be added by default to the :development group.
+
 # gemspec
 
-gem 'data_cycle_core', path: './'
 gem 'translations', path: 'vendor/gems/translations'
 
 gem 'appsignal'
