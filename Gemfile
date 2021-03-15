@@ -52,6 +52,7 @@ group :development do
 end
 
 group :development, :test, :review do
+  gem 'seed_dump'
   gem 'listen'
   gem 'spring'
   gem 'spring-watcher-listen'
