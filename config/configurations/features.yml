@@ -210,3 +210,7 @@
 
 :copyable_attribute:
   :enabled: false
+
+:gip_key_figure:
+  :enabled: false
+  :attribute_keys:

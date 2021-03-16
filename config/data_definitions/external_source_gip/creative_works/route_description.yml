@@ -20,6 +20,8 @@
           :xml: true
           :json: true
           :indesign: true
+      :gip_key_figure:
+        :allowed: true
     :properties:
       :id:
         :label: id
@@ -35,7 +37,7 @@
           :show:
             :content_area: none
       :about:
-        :label: About
+        :label: Radroute / Teilstrecke
         :type: linked
         :inverse_of: subject_of
         :stored_filter:
@@ -53,22 +55,48 @@
         :label: Hauptverantwortlicher
         :type: linked
         :template_name: Organization
-      :length:
-        :label: Länge (m)
-        :type: number
+      :key_figures:
+        :label: Kennzahlen
+        :type: object
         :storage_location: value
-      :duration:
-        :label: Fahrzeit (min)
-        :type: number
-        :storage_location: value
-      :ascent:
-        :label: Aufstieg (m)
-        :type: number
-        :storage_location: value
-      :descent:
-        :label: Abstieg (m)
-        :type: number
-        :storage_location: value
+        :properties:
+          :length:
+            :label: Länge (m)
+            :type: number
+            :storage_location: value
+            :features:
+              :gip_key_figure:
+                :part_id_path:
+                  - about
+          :duration:
+            :label: Fahrzeit (min)
+            :type: number
+            :storage_location: value
+            :validations:
+              :max: 1000
+            :features:
+              :gip_key_figure:
+                :part_id_path:
+                  - about
+            :ui:
+              :edit:
+                :partial: number
+          :ascent:
+            :label: Aufstieg (m)
+            :type: number
+            :storage_location: value
+            :features:
+              :gip_key_figure:
+                :part_id_path:
+                  - about
+          :descent:
+            :label: Abstieg (m)
+            :type: number
+            :storage_location: value
+            :features:
+              :gip_key_figure:
+                :part_id_path:
+                  - about
       :description:
         :label: Text
         :type: string
