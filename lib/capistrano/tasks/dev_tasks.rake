@@ -186,23 +186,26 @@ namespace :dc do
     desc 'import remote mongo db'
     task :import_remote_mongo, [:external_system_id] do |_, args|
       local_rails_env = ENV.fetch('RAILS_ENV', 'development')
-      date = Time.zone.now.to_s(:compact_datetime)
+      date = Time.now.strftime('%Y-%m-%dT%H-%M')
+      remote_file_name = nil
+
 
       on roles(:all) do
         within release_path do
           with rails_env: fetch(:rails_env) do
-            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:mongo:dump[#{args[:external_system_id]}]"
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:mongo:dump[#{args[:external_system_id]},true]"
+            remote_file_name = capture(:ls, "#{fetch(:application_root_path, '')}db/backups/#{fetch(:rails_env, 'staging')}/mongo/download/*")
           end
         end
         within shared_path do
-          download! "#{fetch(:application_root_path, '')}db/backups/#{fetch(:rails_env, 'staging')}/*#{args[:external_system_id]}_#{date}.archive", "#{fetch(:application_root_path, '')}tmp/", recursive: true
+          download! remote_file_name, "#{fetch(:application_root_path, '')}tmp/"
         end
         print_message 'download complete'
       end
 
-      sh "mkdir -p db/backups/#{local_rails_env}/mongo"
-      sh "rsync -c -r tmp/*#{args[:external_system_id]}_#{date}.archive db/backups/#{local_rails_env}/mongo"
-      sh "rm -r tmp/*#{args[:external_system_id]}_#{date}.archive"
+      sh "mkdir -p db/backups/#{local_rails_env}/mongo/download"
+      sh "rsync -c tmp/*#{args[:external_system_id]}_#{date}.archive db/backups/#{local_rails_env}/mongo/download"
+      sh "rm tmp/*#{args[:external_system_id]}_#{date}.archive"
       file_name = Dir("db/backups/#{local_rails_env}/mongo/*#{args[:external_system_id]}_#{date}.archive").first
       sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump[#{args[:external_system_id]}]'" if local_rails_env != 'development'
       sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore[#{file_name}]'"

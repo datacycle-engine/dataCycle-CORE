@@ -42,10 +42,12 @@ namespace :data_cycle_core do
     end
 
     desc 'Dump a mongo db'
-    task :dump, [:external_system_id] => [:environment] do |_, args|
+    task :dump, [:external_system_id, :download] => [:environment] do |_, args|
       temp = Time.zone.now
       backup_dir = backup_directory([Rails.env, 'mongo'], create: true)
+      download_dir = backup_directory([Rails.env, 'mongo', 'download'], create: true)
       date = Time.zone.now.to_s(:compact_datetime)
+      file_name = nil
 
       external_system = DataCycleCore::ExternalSystem.find(args[:external_system_id])
       if external_system.blank?
@@ -54,11 +56,16 @@ namespace :data_cycle_core do
       end
 
       db_name = external_system.database_name
-      cmd = "mongodump --db #{db_name} --archive > #{backup_dir}/#{db_name}_#{date}.archive"
+      if args[:download] == 'true'
+        file_name = "#{download_dir}/#{db_name}_download.archive"
+      else
+        file_name = "#{backup_dir}/#{db_name}_#{date}.archive"
+      end
 
+      cmd = "mongodump --db #{db_name} --archive > #{file_name}"
       sh cmd
       puts ''
-      puts "Dumped to file: #{backup_dir}/#{db_name}_#{date}.archive"
+      puts "Dumped to file: #{file_name}"
       puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
       puts ''
     end
