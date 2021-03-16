@@ -92,6 +92,22 @@ module DataCycleCore
           end
         end
 
+        def signages(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'SIGNAGE', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
+        def bikecomforts(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'BIKECOMFORT', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
         protected
 
         def look_up(url_path, table, retry_count = 0)

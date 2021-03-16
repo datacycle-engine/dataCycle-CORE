@@ -60,10 +60,22 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:rename_keys, { 'id' => 'external_key', 'caption' => 'name' })
           .>> t(:add_field, 'line', ->(s) { parse_section(s.dig('geometry')) })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att1', 'Gip - BIKEROUTE - ', external_source_id, '1') })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att4', 'Gip - BIKECOMFORT - ', external_source_id) })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att5', 'Gip - BIKEROUTESTATE - ', external_source_id, '0') })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att6', 'Gip - SIGNAGE - ', external_source_id, '-1') })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att7', 'Gip - MINORTYPEREF - ', external_source_id, '110') })
           .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att8', 'GEONAME - EUROVELO - ', external_source_id) })
           .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att9', 'GEONAME - ATROUTE - ', external_source_id) })
+          .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: 'Gip - ORGCODE - ' + s.dig('properties', 'externalorgcode'), external_source_id: external_source_id)&.ids })
           .>> t(:reject_keys, ['bbox', 'geometry', 'properties'])
           .>> t(:strip_all)
+        end
+
+        def self.value_of_attribute_with_default(data, attribute, prefix, external_source_id, default)
+          value = value_of_attribute(data, attribute, prefix, external_source_id)
+          value = DataCycleCore::Classification.where(external_key: prefix + default, external_source_id: external_source_id)&.ids if value.blank?
+          value
         end
 
         def self.value_of_attribute(data, attribute, prefix, external_source_id)
