@@ -5,10 +5,7 @@ module DataCycleCore
     module Content
       module DuplicateCandidate
         def duplicate_method?
-          case template_name
-          when 'Bild'
-            true
-          end
+          template_name.in?(['Bild'])
         end
 
         def duplicate_method

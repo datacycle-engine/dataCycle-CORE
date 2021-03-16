@@ -46,7 +46,7 @@ DataCycleCore::Engine.routes.draw do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
-      get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
+      get 'external/:external_system_id/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :load_more_related, on: :member
       get :download_zip, on: :member
