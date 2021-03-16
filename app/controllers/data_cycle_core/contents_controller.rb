@@ -156,9 +156,12 @@ module DataCycleCore
     end
 
     def edit_by_external_key
-      return if params[:external_key].blank?
+      raise ActionController::BadRequest if params[:external_key].blank? || params[:external_system_id].blank?
 
-      @content = DataCycleCore::Thing.find_by(external_key: params[:external_key])
+      @content = DataCycleCore::Thing.by_external_key(params[:external_system_id], params[:external_key]).first
+
+      raise ActiveRecord::RecordNotFound if @content.nil?
+
       authorize!(:edit, @content)
 
       redirect_to edit_thing_path(@content, watch_list_params)
