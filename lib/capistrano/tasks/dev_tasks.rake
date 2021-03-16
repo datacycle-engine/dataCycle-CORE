@@ -186,9 +186,7 @@ namespace :dc do
     desc 'import remote mongo db'
     task :import_remote_mongo, [:external_system_id] do |_, args|
       local_rails_env = ENV.fetch('RAILS_ENV', 'development')
-      date = Time.now.strftime('%Y-%m-%dT%H-%M')
       remote_file_name = nil
-
 
       on roles(:all) do
         within release_path do
