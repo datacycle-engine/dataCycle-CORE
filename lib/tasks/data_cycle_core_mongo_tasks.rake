@@ -71,22 +71,24 @@ namespace :data_cycle_core do
     end
 
     desc 'Restores a mongo db from a backup archive'
-    task :restore, [:file_name] => [:environment] do |_, args|
+    task :restore, [:file_name, :downloaded] => [:environment] do |_, args|
       temp = Time.zone.now
       file_name = args[:file_name]
-      backup_dir = backup_directory([Rails.env, 'mongo'], create: true)
+
+      dir = backup_directory([Rails.env, 'mongo'], create: true)
+      dir = backup_directory([Rails.env, 'mongo', 'download'], create: true) if args[:downloaded] == 'true'
 
       origin_db_name = file_name.split('_')[0..-2].join('_')
       external_system_id = file_name.split('_')[-2]
       external_system = DataCycleCore::ExternalSystem.find(external_system_id)
       db_name = external_system.database_name
 
-      cmd = "mongorestore --archive=#{backup_dir}/#{file_name} --drop --nsFrom='#{origin_db_name}.*' --nsTo='#{db_name}.*'"
+      cmd = "mongorestore --archive=#{dir}/#{file_name} --drop --nsFrom='#{origin_db_name}.*' --nsTo='#{db_name}.*'"
       sh cmd
       puts ''
       puts "DB source: #{origin_db_name}"
       puts "DB target: #{db_name}"
-      puts "reloaded: #{backup_dir}/#{file_name}"
+      puts "reloaded: #{dir}/#{file_name}"
       puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
       puts ''
     end

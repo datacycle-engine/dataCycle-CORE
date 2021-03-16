@@ -201,12 +201,13 @@ namespace :dc do
         print_message 'download complete'
       end
 
+      file_name = remote_file_name.split('/').last
+
       sh "mkdir -p db/backups/#{local_rails_env}/mongo/download"
-      sh "rsync -c tmp/*#{args[:external_system_id]}_#{date}.archive db/backups/#{local_rails_env}/mongo/download"
-      sh "rm tmp/*#{args[:external_system_id]}_#{date}.archive"
-      file_name = Dir("db/backups/#{local_rails_env}/mongo/*#{args[:external_system_id]}_#{date}.archive").first
-      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump[#{args[:external_system_id]}]'" if local_rails_env != 'development'
-      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore[#{file_name}]'"
+      sh "rsync -c tmp/#{file_name} db/backups/#{local_rails_env}/mongo/download"
+      sh "rm tmp/#{file_name}"
+      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:dump[#{args[:external_system_id]}]'" if local_rails_env != 'development'
+      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:restore[#{file_name},true]'"
 
       puts "Successfully imported mongo DB #{file_name} from #{fetch(:rails_env)}"
     end
