@@ -80,7 +80,7 @@
         :ui:
           :edit:
             :disabled: true
-            # :type: LineString
+            :type: LineString
       :potential_actions:
         :type: mixin
         :name: potential_actions

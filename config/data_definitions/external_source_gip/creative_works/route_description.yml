@@ -47,6 +47,21 @@
               :aliases:
                 - Route
                 - Teilstrecke
+      :map_view:
+        :label: Gesamtstrecke
+        :storage_location: value
+        :type: geographic
+        :api:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+            :type: LineString
+            :options:
+              :additional_value_paths:
+                :about:
+                  - line
+                  - title
       :owner:
         :label: Besitzer
         :type: linked
