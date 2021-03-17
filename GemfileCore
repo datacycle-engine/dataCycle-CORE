@@ -40,6 +40,7 @@ group :development do
   gem 'faker'
   gem 'fasterer', require: false
   gem 'rubocop', '~> 0.84.0', require: false
+  gem 'rubocop-ast', '~> 0.3.0'
   gem 'rubocop-performance', require: false
   gem 'rubocop-rails', require: false
   gem 'awesome_print'
