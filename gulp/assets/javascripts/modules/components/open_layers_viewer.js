@@ -212,49 +212,49 @@ class OpenLayersViewer {
     var styles = this.generateLineStyle(lineColor, width);
 
     if (geometry.constructor.name.includes('MultiLineString')) {
-      geometry.getLineStrings().forEach(lineString => {
-        styles.push(
-          this.generateIconStyle(
-            'end',
-            'red',
-            {
-              geometry: new this.ol.geom.Point(lineString.getLastCoordinate())
-            },
-            { scale: 0.7 }
-          )
-        );
-        styles.push(
-          this.generateIconStyle(
-            'start',
-            'green',
-            {
-              geometry: new this.ol.geom.Point(lineString.getFirstCoordinate())
-            },
-            { scale: 0.7 }
-          )
-        );
-      });
+      // geometry.getLineStrings().forEach(lineString => {
+      //   styles.push(
+      //     this.generateIconStyle(
+      //       'end',
+      //       'red',
+      //       {
+      //         geometry: new this.ol.geom.Point(lineString.getLastCoordinate())
+      //       },
+      //       { scale: 0.7 }
+      //     )
+      //   );
+      //   styles.push(
+      //     this.generateIconStyle(
+      //       'start',
+      //       'green',
+      //       {
+      //         geometry: new this.ol.geom.Point(lineString.getFirstCoordinate())
+      //       },
+      //       { scale: 0.7 }
+      //     )
+      //   );
+      // });
     } else if (geometry.constructor.name.includes('LineString')) {
-      styles.push(
-        this.generateIconStyle(
-          'end',
-          'red',
-          {
-            geometry: new this.ol.geom.Point(geometry.getLastCoordinate())
-          },
-          { scale: 0.7 }
-        )
-      );
-      styles.push(
-        this.generateIconStyle(
-          'start',
-          'green',
-          {
-            geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
-          },
-          { scale: 0.7 }
-        )
-      );
+      // styles.push(
+      //   this.generateIconStyle(
+      //     'end',
+      //     'red',
+      //     {
+      //       geometry: new this.ol.geom.Point(geometry.getLastCoordinate())
+      //     },
+      //     { scale: 0.7 }
+      //   )
+      // );
+      // styles.push(
+      //   this.generateIconStyle(
+      //     'start',
+      //     'green',
+      //     {
+      //       geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
+      //     },
+      //     { scale: 0.7 }
+      //   )
+      // );
     } else {
       styles.push(
         this.generateIconStyle('default', color, {
