@@ -11,7 +11,7 @@ module DataCycleCore
         def self.to_event(external_source_id)
           t(:stringify_keys)
           .>> t(:add_field, 'name', ->(s) { s.dig('Name1') })
-          .>> t(:add_field, 'description', ->(s) { s.dig('Comment') })
+          .>> t(:add_field, 'description', ->(*) { '' }) # delete former s.dig('Comment')
           .>> t(:add_field, 'external_key', ->(s) { 'JetTicket - EventSeriesID: ' + s.dig('EventSetID') })
           .>> t(:add_field, 'event_schedule', ->(s) { Array.wrap(event_schedule(s)) })
           .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s&.dig('EventManager', 'EventManagerID'))&.map { |i| "JetTicket - EventManagerID: #{i}" } })
@@ -26,6 +26,7 @@ module DataCycleCore
 
         def self.parse_potential_action(data, external_source_id)
           url_translator = {
+            '9' => 'Bregenz',
             '13' => 'Dornbirn',
             '14' => 'Goetzis',
             '15' => 'Feldkirch',
@@ -34,7 +35,7 @@ module DataCycleCore
             '18' => 'Symphonieorchester'
           }
           event_set_id = data.dig('EventSetID')
-          Array.wrap(data.dig('Releases', 'Release').detect { |i| i.dig('ReleaseID')&.to_i&.in?((13..18).to_a) })
+          Array.wrap(data.dig('Releases', 'Release').detect { |i| i.dig('ReleaseID')&.in?(url_translator.keys) })
             .map { |i|
               action = {}
               action_id = DataCycleCore::Thing.find_by(external_key: "JetTicket OrderAction:#{data.dig('EventID')}", external_source_id: external_source_id)&.id

@@ -6,6 +6,7 @@ Time::DATE_FORMATS[:long_msec] = '%Y-%m-%dT%H:%M:%S.%3N%:z'
 Time::DATE_FORMATS[:long_datetime] = '%Y-%m-%dT%H:%M:%S'
 Time::DATE_FORMATS[:only_date] = '%Y-%m-%d'
 Time::DATE_FORMATS[:only_time] = '%H:%M'
+Time::DATE_FORMATS[:compact_datetime] = '%Y-%m-%dT%H-%M'
 
 class Time
   LONG_AGO = Time.zone.local(1400, 1, 1, 0, 0)

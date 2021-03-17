@@ -127,6 +127,38 @@ module DataCycleCore
           data
         end
 
+        def self.to_offer(external_source_id)
+          t(:stringify_keys)
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:rename_keys, { 'Id' => 'external_key' })
+          .>> t(:add_links, 'item_offered', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('service_id')] })
+          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
+          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
+          .>> t(:unwrap_description, ['ProductDescription'])
+          .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('ProductDescription')) if v&.dig('ProductDescription').present? })
+          .>> t(:add_field, 'price_specification', ->(s) { load_min_price(s, external_source_id) })
+          .>> t(:strip_all)
+        end
+        # .>> t(:add_links, 'offered_by', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('provider_id')] })
+
+        def self.load_min_price(s, external_source_id)
+          external_key = "Price:#{s.dig('external_key')}"
+          price_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: external_key, limit: 1).first
+          min_price = Array.wrap(s.dig('PriceDetail', 'PriceTemplates', 'PriceTemplate'))
+            .map { |i| Array.wrap(i.dig('Prices', 'Prices')) }.flatten
+            .map { |i| Array.wrap(i.dig('PriceValue')) }.flatten
+            .map { |i| i.dig('Price')&.to_f }
+            .min
+
+          data = {
+            'min_price' => min_price,
+            'external_key' => external_key
+          }
+
+          min_price.nil? ? [] : [data.merge({ 'id' => price_id }.compact)]
+        end
+
         def self.to_additional_service(external_source_id)
           t(:stringify_keys)
           .>> t(:flatten_translations)
@@ -170,21 +202,6 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.to_offer(external_source_id)
-          t(:stringify_keys)
-          .>> t(:flatten_translations)
-          .>> t(:flatten_texts)
-          .>> t(:rename_keys, { 'Id' => 'external_key' })
-          .>> t(:add_links, 'item_offered', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('service_id')] })
-          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
-          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
-          .>> t(:unwrap_description, ['ProductDescription'])
-          .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('ProductDescription')) if v&.dig('ProductDescription').present? })
-          .>> t(:add_field, 'price_specification', ->(s) { load_price(s, external_source_id) })
-          .>> t(:strip_all)
-        end
-        # .>> t(:add_links, 'offered_by', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('provider_id')] })
-
         def self.load_price(s, external_source_id)
           external_key = "Price:#{s.dig('external_key')}"
           price_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: external_key, limit: 1).first
@@ -214,6 +231,7 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] } })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
+          .>> t(:add_field, 'bookable', ->(s) { s&.dig('Bookable') == 'true' })
           .>> t(:transform_name, 'name')
           .>> t(:unwrap, 'Position')
           .>> t(:rename_keys, 'Latitude' => 'latitude', 'Longitude' => 'longitude')
@@ -226,6 +244,8 @@ module DataCycleCore
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
           .>> t(:add_external_system_data, ['MetaRating', 'RatingSystem'], ['MetaRating', 'RatingCode'])
+          .>> t(:add_field, 'number_of_rooms', ->(s) { s.dig('Rooms')&.to_i })
+          .>> t(:add_field, 'total_number_of_beds', ->(s) { s.dig('Beds')&.to_i })
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['ServiceProvider']))
           .>> t(:add_links, 'logo', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['ServiceProviderLogo']))
@@ -242,6 +262,12 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
           .>> t(:map_value, 'url', ->(s) { parse_url(s) })
+          .>> t(:add_links, 'contains_place_service', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('Services', 'Service')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+          .>> t(:add_links, 'contains_place_additional_service', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('AdditionalServices', 'AdditionalService')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+          .>> t(:add_field, 'contains_place', ->(s) { s.dig('contains_place_service') + s.dig('contains_place_additional_service') })
+          .>> t(:add_field, 'makes_offer_service', ->(s) { parse_products([s.dig('Services', 'Service')]&.flatten&.compact, external_source_id) })
+          .>> t(:add_field, 'makes_offer_package', ->(s) { parse_packages([s.dig('HousePackageMasters', 'HousePackageMaster')]&.flatten&.compact, external_source_id) })
+          .>> t(:add_field, 'makes_offer', ->(s) { Array(s.dig('makes_offer_package')) + Array(s.dig('makes_offer_service')) })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
           .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
         end
@@ -561,7 +587,7 @@ module DataCycleCore
 
             if description.blank?
               description = {}
-              description['Id'] = "#{parent_id} - #{item.dig('Id')} - #{item.dig('ValidFrom')} - #{item.dig('ValidTo')} - #{item.dig('UsageType')} - #{I18n.locale}"
+              description['Id'] = "#{parent_id} - #{item.dig('Id')} - #{item.dig('ValidFrom')} - #{item.dig('ValidTo')} - #{item.dig('UsageType')} - #{item.dig('ChangeDate')} - #{I18n.locale}"
               description['ChangeDate'] = item.dig('ChangeDate')
               description['Type'] = 'GuestCardClassification'
             end

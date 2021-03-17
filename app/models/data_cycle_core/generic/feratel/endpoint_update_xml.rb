@@ -61,10 +61,10 @@ module DataCycleCore
                     xml.Details
                     xml.Descriptions
                     xml.Links
+                    xml.PriceDetails
                     xml.Availabilities
                     xml.Gaps
                     # not working properties
-                    # xml.PriceDetails
                     # xml.ArrivalDepartureTemplates
                     # xml.SalesRuleTemplates
                   end
@@ -112,6 +112,7 @@ module DataCycleCore
                   xml.Facilities
                   xml.AdditionalProducts do
                     xml.Details
+                    xml.PriceDetails
                   end
                 end
               end

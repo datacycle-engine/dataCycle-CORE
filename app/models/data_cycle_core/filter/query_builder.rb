@@ -290,16 +290,19 @@ module DataCycleCore
         DataCycleCore::Subscription.arel_table
       end
 
-      def search_exists(query_string, with_locale = false)
+      def search_exists(query_string, with_locale = false, fulltext_search = false)
+        search_query = search
+        search_query = search_query.join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN (SELECT get_dict(searches.locale) AS config, searches.locale AS locale FROM searches GROUP BY searches.locale) as subquery ON subquery.locale = searches.locale']))) if fulltext_search
+
         if @locale.present? && with_locale
-          search
+          search_query
             .where(
               search[:content_data_id].eq(thing[:id])
                 .and(query_string)
                 .and(search[:locale].in(@locale))
             ).exists
         else
-          search
+          search_query
             .where(
               search[:content_data_id].eq(thing[:id])
                 .and(query_string)

@@ -33,8 +33,7 @@ namespace :data_cycle_core do
         end
       end
 
-      puts cmd
-      system cmd
+      sh cmd
       puts ''
       puts "Dumped to file: #{full_path}"
       puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
@@ -142,6 +141,8 @@ namespace :data_cycle_core do
           Rake::Task['db:create'].invoke
           puts cmd
           system cmd
+          ActiveRecord::Base.connection.execute('VACUUM;')
+          ActiveRecord::Base.connection.execute('ANALYZE;')
           puts ''
           puts "Restored from file: #{file}"
           puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"

@@ -6,7 +6,7 @@
     accordion_item: true
   } do %>
 
-  <% readonly = options['readonly'].to_s == 'true' %>
+  <% readonly = !attribute_editable?(key, definition, local_assigns[:options], local_assigns[:object]) %>
 
   <span class="embedded-header">
     <% unless readonly %>

@@ -9,7 +9,7 @@
         :template_name: Ergänzende Information
         :api:
           :v4:
-            :name: dc:additionalInformation  
+            :name: dc:additionalInformation
       :founder:
         :label: Gastgeber
         :type: linked
@@ -23,6 +23,15 @@
         :label: Anzahl Zimmer/Apartments/Stellplätze
         :type: number
         :storage_location: value
+        :advanced_search: true
+      :total_number_of_beds:
+        :label: Gesamtanzahl Betten
+        :type: number
+        :storage_location: value
+        :api:
+          :v4:
+            :name: dc:totalNumberOfBeds
+        :advanced_search: true
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
@@ -49,6 +58,12 @@
             :type: text_editor
             :options:
               :data-size: basic
+      :bookable:
+        :label: Buchbar
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true
+        :default_value: 'false'
       :aggregate_rating:
         :label: Durchschnittswertung
         :type: embedded

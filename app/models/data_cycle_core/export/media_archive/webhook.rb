@@ -15,52 +15,69 @@ module DataCycleCore
         end
 
         def error(_job, exception)
-          data = DataCycleCore::Thing.find_by(id: @data.id)
-          data&.add_external_system_data(@utility_object.external_system, { message: exception.message, text: exception.try(:response)&.dig(:body) }, 'error')
+          return unless @data.is_a?(DataCycleCore::Thing)
+
+          @data.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'error', data: { message: exception.message, text: exception.try(:response)&.dig(:body) })
         end
 
         def failure(_job)
-          data = DataCycleCore::Thing.find_by(id: @data.id)
-          data&.add_external_system_data(@utility_object.external_system, nil, 'failure')
+          return unless @data.is_a?(DataCycleCore::Thing)
+
+          @data.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'failure')
+        end
+
+        def before(_job)
+          data = @data
+          @data = DataCycleCore::Thing.find_by(id: @data.id) || @data
+
+          return unless @data.is_a?(DataCycleCore::Thing)
+
+          @data.webhook_data = data.webhook_data
+          @data.original_id = data.original_id
+          @data.external_system_sync_by_system(external_system: @utility_object.external_system).update(last_sync_at: Time.zone.now)
         end
 
         def perform
-          data = DataCycleCore::Thing.find_by(id: @data.id)
-          system_sync = data.try(:external_system_sync_by_system, @utility_object.external_system)
-          system_sync&.update(last_sync_at: Time.zone.now)
+          @response = @utility_object.endpoint.content_request(
+            transformation: @transformation,
+            method: @method,
+            path: @path,
+            utility_object: @utility_object,
+            data: @data
+          )
+        end
 
-          if data || @type == 'delete'
-            @response = @utility_object.endpoint.content_request(
-              transformation: @transformation,
-              method: @method,
-              path: @path,
-              utility_object: @utility_object,
-              data: data || @data
-            )
-          end
+        def success(_job)
+          return unless @data.is_a?(DataCycleCore::Thing)
 
-          data&.add_external_system_data(@utility_object.external_system, nil, 'success')
-          system_sync&.update(last_successful_sync_at: system_sync.last_sync_at)
+          @external_system_sync = @data.external_system_sync_by_system(external_system: @utility_object.external_system)
+          @external_system_sync.update(status: 'success', last_successful_sync_at: @external_system_sync.last_sync_at)
 
           begin
-            json_body = JSON.parse(@response.body)
+            @json_body = JSON.parse(@response.body)
 
-            system_sync&.update(data: (system_sync&.data || {}).merge('external_key' => json_body['id'])) if json_body&.dig('id').present?
+            return if @json_body.blank? || @json_body['id'].blank?
+
+            @external_system_sync.update(external_key: @json_body['id'])
           rescue JSON::ParserError
             nil
           end
 
-          data.try(:author)&.each do |author|
-            author&.add_external_system_data(@utility_object.external_system, nil, 'success')
+          @data.try(:author)&.each do |author|
+            author.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'success')
           end
 
-          data.try(:copyright_holder)&.each do |copyright_holder|
-            copyright_holder&.add_external_system_data(@utility_object.external_system, nil, 'success')
+          @data.try(:copyright_holder)&.each do |copyright_holder|
+            copyright_holder.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'success')
+          end
+
+          @data.try(:content_location)&.each do |content_location|
+            content_location.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'success')
           end
         end
 
         def reference_type
-          "#{@utility_object.external_system.name.underscore_blanks}_#{@type}"
+          "#{@utility_object.external_system.identifier.underscore_blanks}_#{@type}"
         end
       end
     end

@@ -1,0 +1,130 @@
+---
+- :data:
+    :name: Radroutenbeschreibung
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: entity
+    :boost: 100.0
+    :api:
+      :type: Article
+    :features:
+      :releasable:
+        :allowed: true
+      :creatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :indesign: true
+      :gip_key_figure:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :ui:
+          :show:
+            :content_area: none
+      :about:
+        :label: Radroute / Teilstrecke
+        :type: linked
+        :inverse_of: subject_of
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Route
+                - Teilstrecke
+      :owner:
+        :label: Besitzer
+        :type: linked
+        :template_name: Organization
+      :primary_responsible:
+        :label: Hauptverantwortlicher
+        :type: linked
+        :template_name: Organization
+      :key_figures:
+        :label: Kennzahlen
+        :type: object
+        :storage_location: value
+        :properties:
+          :length:
+            :label: Länge (m)
+            :type: number
+            :storage_location: value
+            :features:
+              :gip_key_figure:
+                :part_id_path:
+                  - about
+          :duration:
+            :label: Fahrzeit (min)
+            :type: number
+            :storage_location: value
+            :validations:
+              :max: 1000
+            :features:
+              :gip_key_figure:
+                :part_id_path:
+                  - about
+            :ui:
+              :edit:
+                :partial: number
+          :ascent:
+            :label: Aufstieg (m)
+            :type: number
+            :storage_location: value
+            :features:
+              :gip_key_figure:
+                :part_id_path:
+                  - about
+          :descent:
+            :label: Abstieg (m)
+            :type: number
+            :storage_location: value
+            :features:
+              :gip_key_figure:
+                :part_id_path:
+                  - about
+      :description:
+        :label: Text
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :way_point:
+        :label: Wegpunkt
+        :type: embedded
+        :template_name: Wegpunkt
+        :translated: true
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Beschreibungstext"
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

@@ -82,7 +82,7 @@ module DataCycleCore
           assert_equal([:de, :en, :fr], data_set.available_locales.sort)
           I18n.with_locale(:de) do
             assert_equal(1, data_set.embedded_creative_work.count) # default get data of any language
-            assert_equal(1, data_set.load_embedded_objects('embedded_creative_work').count) # default get data of any language
+            assert_equal(1, data_set.load_embedded_objects('embedded_creative_work', nil, !data_set.properties_for('embedded_creative_work')&.dig('translated')).count) # default get data of any language
             assert_equal(0, data_set.load_relation('embedded_creative_work', nil, true, [I18n.locale]).count)
           end
           I18n.with_locale(:en) do
@@ -97,7 +97,7 @@ module DataCycleCore
           end
           I18n.with_locale(:xx) do
             assert_equal(1, data_set.embedded_creative_work.count)
-            assert_equal(1, data_set.load_embedded_objects('embedded_creative_work').count)
+            assert_equal(1, data_set.load_embedded_objects('embedded_creative_work', nil, !data_set.properties_for('embedded_creative_work')&.dig('translated')).count)
             assert_equal(0, data_set.load_relation('embedded_creative_work', nil, true, [I18n.locale]).count)
           end
 

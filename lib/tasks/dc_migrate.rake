@@ -39,7 +39,7 @@ namespace :dc do
           asset_type = content.schema&.dig('properties', 'asset', 'asset_type')
           logger.warn("missing asset_type for #{content.id}") && next if asset_type.blank?
 
-          file_url = content.try(:content_url)&.gsub('localhost', 'dockerhost')
+          file_url = content.try(:content_url)
           logger.warn("missing content_url for #{content.id}") && next if file_url.blank?
 
           asset = DataCycleCore.asset_objects.find { |a| a == "DataCycleCore::#{asset_type.classify}" }&.safe_constantize&.new(name: content.title, remote_file_url: file_url)

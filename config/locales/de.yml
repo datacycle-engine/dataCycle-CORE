@@ -66,7 +66,7 @@ de:
     import_full: Import (full)
     import: Import
     download: Download
-    download_import: Download&Import
+    download_import: Download & Import
     delete: delete
 
   notification:
@@ -232,7 +232,13 @@ de:
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
     additional_classifications: weitere Klassifizierungen
     bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
-    bulk_update_check_box_label: '%{data} überschreiben?'
+    bulk_update:
+      check_box_labels:
+        override_html: '<span class="attribute-title">%{data}</span> überschreiben'
+        add_html: 'An vorhandene <span class="attribute-title">%{data}</span> anhängen'
+        remove_html: 'Ausgewählte <span class="attribute-title">%{data}</span> entfernen'
+      button:
+        limited: Es können maximal %{data} Inhalte gleichzeitig bearbeitet werden.
     watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
     content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
@@ -322,6 +328,8 @@ de:
       version_name_removed: Der Versionsname wurde entfernt!
     download:
       missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
+    gip_key_figure:
+      button_title: Ermittlung des Wertes für %{data} über ein Web-Service der GIP auf Basis der zugrundeliegenden Geo-Daten
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -359,6 +367,8 @@ de:
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
+    bookable: buchbar
+    not_bookable: nicht buchbar
     width: Breite
     height: Höhe
     order: Reihenfolge
@@ -412,7 +422,9 @@ de:
       related: verknüpft mit
       not_related: nicht verknüpft mit
     max_number_of_people: max. Anzahl Personen
-    number_of_meeting_rooms: Anzahl der Zimmer (Tagungsraum)
+    total_number_of_beds: Gesamtanzahl Betten
+    number_of_rooms: Gesamtanzahl Einheiten
+    number_of_accommodations: Anzahl der Wohneinheiten
     linked_location: Verknüpfter Ort
     linked_author: Verknüpfter Fotograf
     linked_copyright_holder: Verknüpfter Rechteinhaber
@@ -561,6 +573,8 @@ de:
     set_all_attributes: 'für alle %{data} übernehmen'
     close_overlay: Overlay schließen
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
+    copyable_from: '%{data} übernehmen'
+    copyable_from_clear: '%{data} verwerfen'
 
   validation:
     errors:
@@ -1025,6 +1039,7 @@ de:
         equipment: Ausrüstung
         suggestion: Tipps
         additional_information: Zusatzinformationen
+        maps: Literatur
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

@@ -9,14 +9,14 @@ namespace :dc do
       data_object = DataCycleCore::Thing.where(template: false, external_source_id: nil, external_key: nil).where.not(content_type: 'embedded')
       total_items = data_object.size
 
-      puts "RECREATE Duplicate Candidates (#{total_items}) - (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+      puts "RECREATE Duplicate Candidates (#{total_items})"
+
+      progress = ProgressBar.create(total: total_items, format: '%t |%w>%i| %a - %c/%C', title: 'Items')
 
       duplicate_count = 0
-      DataCycleCore::ProgressBarService.for_shell(total_items) do |pb|
-        data_object.find_each do |content|
-          pb.inc
-          duplicate_count += content.create_duplicate_candidates&.size.to_i
-        end
+      data_object.find_each do |content|
+        duplicate_count += content.create_duplicate_candidates&.size.to_i
+        progress.increment
       end
 
       puts "RECREATED Duplicate Candidates - #{duplicate_count} duplicates found"
