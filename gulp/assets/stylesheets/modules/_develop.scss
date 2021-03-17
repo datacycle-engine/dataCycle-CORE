@@ -1909,6 +1909,23 @@ select {
           }
         }
       }
+
+      .ol-overlay-container {
+        pointer-events: none;
+        .ol-popup {
+          background: white;
+          padding: 0.65rem;
+          box-shadow: 0 0 1px rgba($black, 0.8);
+          min-width: 200px;
+
+          .ol-popup-closer,
+          .ol-popup-content .ol-popup-detail-link {
+            pointer-events: auto;
+            float: right;
+            margin-left: 0.5rem;
+          }
+        }
+      }
     }
   }
 
