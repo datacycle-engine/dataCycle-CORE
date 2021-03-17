@@ -84,10 +84,6 @@ class OpenLayersViewer {
       red: '#cc4b37',
       green: '#90c062'
     };
-    // this.styles = {
-    //   icon: {},
-    //   line: {}
-    // };
     this.scrollTexts = {
       ctrlKey: 'Strg+Scrollen zum Zoomen',
       metaKey: '⌘+Scrollen zum Zoomen',
@@ -95,7 +91,6 @@ class OpenLayersViewer {
     };
     this.zoomMethod = 'ctrlKey';
     this.options = {};
-    // this.features = [];
     this.featureLayer;
     this.mouseWheelZoom = new this.ol.interaction.MouseWheelZoom();
     this.mouseZoomTimeout;
@@ -111,9 +106,7 @@ class OpenLayersViewer {
   }
   setup() {
     this.setZoomMethod();
-    // this.initIconStyles();
     this.initFeatures();
-    // this.configureFeatures();
     this.initMouseWheelZoom();
 
     this.initMap().then(() => {
@@ -257,7 +250,7 @@ class OpenLayersViewer {
     });
 
     this.map.on('pointermove', this.highlightFeature.bind(this));
-    this.map.on('singleclick', this.showInfoOverlay.bind(this));
+    if (this.$popupContainer.length) this.map.on('singleclick', this.showInfoOverlay.bind(this));
   }
   showInfoOverlay(evt) {
     const coordinate = evt.coordinate;
