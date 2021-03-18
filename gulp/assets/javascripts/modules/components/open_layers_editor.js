@@ -7,12 +7,10 @@ class OpenLayersEditor extends OpenLayersViewer {
   constructor(container) {
     super(container);
 
-    this.drawable = this.type == 'Point';
-    this.map;
-    this.modify;
-    this.draw;
-    this.modifying = false;
     this.uploadable = this.$container.data('allowUpload');
+    this.modify;
+    this.modifying = false;
+    this.draw;
     this.$geoCodeButton = $('.geocode-address-button').first();
     this.$mapEditContainer = this.$parentContainer.siblings('.map-edit').first();
     this.$mapInfoContainer = this.$parentContainer.siblings('.map-info').first();
@@ -35,11 +33,6 @@ class OpenLayersEditor extends OpenLayersViewer {
       if (this.uploadable) this.initUploadActions();
       this.updateMapPosition();
     });
-  }
-  initFeatures() {
-    super.initFeatures();
-
-    if (this.geoJSON.features && this.geoJSON.features.length) this.drawable = false;
   }
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this));
@@ -76,6 +69,25 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     if (this.type.includes('Point')) this.initMapEditActions();
   }
+  initMapEditActions() {
+    if (this.feature) this.initModifyableActions();
+
+    if (!this.feature && this.type == 'Point') this.initMapDrawableActions();
+
+    let snap = new this.ol.interaction.Snap({
+      source: this.source
+    });
+    this.map.addInteraction(snap);
+
+    this.map.on('pointerdrag', _event => {
+      if (this.modifying && this.feature) this.setCoordinates();
+    });
+
+    if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.initGeoCodingActions.bind(this));
+
+    this.$latitudeField.on('change', this.updateMapMarker.bind(this));
+    this.$longitudeField.on('change', this.updateMapMarker.bind(this));
+  }
   initMapDrawableActions() {
     this.draw = new this.ol.interaction.Draw({
       source: this.source,
@@ -84,17 +96,34 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.map.addInteraction(this.draw);
 
     this.draw.on('drawend', event => {
-      this.drawable = false;
       this.feature = event.feature;
-
+      this.feature.setStyle();
       this.disableDrawableFeature();
       this.setCoordinates();
       this.setHiddenFieldValue(this.getGeoJsonFromFeature());
+      this.initModifyableActions();
     });
   }
   disableDrawableFeature() {
     this.map.removeInteraction(this.draw);
     this.draw = undefined;
+  }
+  initModifyableActions() {
+    const features = new this.ol.collection([this.feature]);
+    this.modify = new this.ol.interaction.Modify({
+      features: features
+    });
+    this.map.addInteraction(this.modify);
+
+    this.modify.on('modifystart', () => {
+      this.modifying = true;
+    });
+
+    this.modify.on('modifyend', () => {
+      this.modifying = false;
+
+      if (this.feature) this.setHiddenFieldValue(this.getGeoJsonFromFeature());
+    });
   }
   initGeoCodingActions(event) {
     event.preventDefault();
@@ -215,6 +244,8 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.updateFeature(geoJSON);
   }
   updateFeature(newGometry) {
+    console.log(newGometry);
+
     this.geoJSON.features.shift();
     this.geoJSON.features.unshift({
       type: 'Feature',
@@ -243,9 +274,9 @@ class OpenLayersEditor extends OpenLayersViewer {
 
       this.source.addFeature(this.feature);
       this.disableDrawableFeature();
+      this.initModifyableActions();
     } else {
       if (this.feature) {
-        this.features = this.features.filter(feature => feature.ol_uid != this.feature.ol_uid);
         this.source.removeFeature(this.feature);
         this.feature = undefined;
       }
@@ -253,37 +284,6 @@ class OpenLayersEditor extends OpenLayersViewer {
     }
 
     this.setNewCoordinates();
-  }
-  initMapEditActions() {
-    this.modify = new this.ol.interaction.Modify({
-      source: this.source
-    });
-    this.map.addInteraction(this.modify);
-    if (this.drawable) this.initMapDrawableActions();
-
-    let snap = new this.ol.interaction.Snap({
-      source: this.source
-    });
-    this.map.addInteraction(snap);
-
-    this.modify.on('modifystart', () => {
-      this.modifying = true;
-    });
-
-    this.modify.on('modifyend', () => {
-      this.modifying = false;
-
-      if (this.feature) this.setHiddenFieldValue(this.getGeoJsonFromFeature());
-    });
-
-    this.map.on('pointerdrag', _event => {
-      if (this.modifying && this.feature) this.setCoordinates();
-    });
-
-    if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.initGeoCodingActions.bind(this));
-
-    this.$latitudeField.on('change', this.updateMapMarker.bind(this));
-    this.$longitudeField.on('change', this.updateMapMarker.bind(this));
   }
   initUploadActions() {
     if (this.$uploadButton) this.$uploadButton.on('click', this.relayUploadClick.bind(this));
