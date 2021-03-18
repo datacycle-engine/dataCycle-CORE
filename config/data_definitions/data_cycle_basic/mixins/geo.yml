@@ -66,13 +66,3 @@
         :storage_location: column
         :api:
           :disabled: true
-        :ui:
-          :edit:
-            :options:
-              :additional_value_paths:
-                :about:
-                  :sections:
-                    :geo: line
-                    :title: title
-                  :geo: line
-                  :title: title

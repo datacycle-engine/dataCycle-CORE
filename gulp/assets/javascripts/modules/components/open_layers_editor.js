@@ -83,7 +83,7 @@ class OpenLayersEditor extends OpenLayersViewer {
       if (this.modifying && this.feature) this.setCoordinates();
     });
 
-    if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.initGeoCodingActions.bind(this));
+    if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.geoCodeAddress.bind(this));
 
     this.$latitudeField.on('change', this.updateMapMarker.bind(this));
     this.$longitudeField.on('change', this.updateMapMarker.bind(this));
@@ -125,13 +125,16 @@ class OpenLayersEditor extends OpenLayersViewer {
       if (this.feature) this.setHiddenFieldValue(this.getGeoJsonFromFeature());
     });
   }
-  initGeoCodingActions(event) {
+  geoCodeAddress(event) {
     event.preventDefault();
 
-    $(event.currentTarget).append(' <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
+    if (this.$geoCodeButton.hasClass('disabled')) return;
 
-    let addressKey = $(event.currentTarget).data('address-key');
-    let locale = $(event.currentTarget).data('locale');
+    this.$geoCodeButton.append(' <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
+    this.$geoCodeButton.addClass('disabled');
+
+    let addressKey = this.$geoCodeButton.data('address-key');
+    let locale = this.$geoCodeButton.data('locale');
     let address = {
       locale: locale
     };
@@ -157,13 +160,15 @@ class OpenLayersEditor extends OpenLayersViewer {
         console.error(textStatus + ', ' + error);
       })
       .always(() => {
-        $(event.currentTarget).find('i.fa').remove();
+        this.$geoCodeButton.find('i.fa').remove();
+        this.$geoCodeButton.removeClass('disabled');
       });
   }
   setGeocodedValue(data) {
     if (!this.feature) {
       this.feature = new this.ol.Feature();
       this.source.addFeature(this.feature);
+      this.initModifyableActions();
     }
 
     this.feature.setGeometry(new this.ol.geom.Point(data).transform('EPSG:4326', 'EPSG:3857'));
@@ -244,18 +249,14 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.updateFeature(geoJSON);
   }
   updateFeature(newGometry) {
-    console.log(newGometry);
+    if (this.feature) this.source.removeFeature(this.feature);
 
-    this.geoJSON.features.shift();
-    this.geoJSON.features.unshift({
+    this.feature = this.featureFromGeoJSON({
       type: 'Feature',
       geometry: newGometry
     });
 
-    this.reloadFeaturesFromGeoJSON();
-
-    this.source.clear();
-    this.source.addFeatures(this.features);
+    this.source.addFeature(this.feature);
     this.updateMapPosition();
   }
   updateMapMarker(_event) {

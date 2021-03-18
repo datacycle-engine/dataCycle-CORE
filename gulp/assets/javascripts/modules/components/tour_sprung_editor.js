@@ -28,13 +28,11 @@ class TourSprungEditor extends OpenLayersEditor {
     };
   }
   setup() {
-    this.transformInitialValue();
     MTK.init({ apiKey: this.credentials.api_key });
     this.initMap();
     this.initEventHandlers();
   }
   initMap() {
-    let defaultMapPosition = this.calculateCenter();
     let controls = [];
 
     if (this.isLineString()) {
@@ -46,7 +44,7 @@ class TourSprungEditor extends OpenLayersEditor {
       this.containerId,
       {
         map: {
-          location: defaultMapPosition,
+          location: this.defaultView(),
           mapType: 'terrain_v2',
           controls: controls,
           options: {
@@ -58,19 +56,11 @@ class TourSprungEditor extends OpenLayersEditor {
       this.configureMap.bind(this)
     );
   }
-  transformInitialValue() {
-    this.geoJSON = {
-      type: 'FeatureCollection',
-      features: []
-    };
-
-    if (this.value) this.geoJSON.features.push(this.value);
-  }
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this));
 
     if (this.isPoint()) {
-      if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.initGeoCodingActions.bind(this));
+      if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.geoCodeAddress.bind(this));
 
       this.$latitudeField.on('change', this.updateMapMarker.bind(this));
       this.$longitudeField.on('change', this.updateMapMarker.bind(this));
@@ -133,6 +123,8 @@ class TourSprungEditor extends OpenLayersEditor {
     });
   }
   drawInitialMarker() {
+    console.log(this.value);
+
     let coords = L.GeoJSON.coordsToLatLng(this.geoJSON.features[0].geometry.coordinates);
     this.drawMarker(coords);
     this.map.leaflet.fitBounds([coords], { padding: [50, 50], maxZoom: 15 });
@@ -191,13 +183,17 @@ class TourSprungEditor extends OpenLayersEditor {
       });
     }
   }
-  calculateCenter() {
-    if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude) {
-      return {
-        center: $P(this.defaultPosition.latitude, this.defaultPosition.longitude),
-        zoom: this.defaultPosition.zoom || 10
-      };
-    }
+  defaultView() {
+    const viewOptions = {
+      zoom: 7,
+      center: [47.69642, 13.34576]
+    };
+
+    if (this.defaultPosition && this.defaultPosition.zoom) viewOptions.zoom = this.defaultPosition.zoom;
+    if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude)
+      viewOptions.center = [this.defaultPosition.latitude, this.defaultPosition.longitude];
+
+    return viewOptions;
   }
   getFeatureLatLon() {
     let coords = this.feature.getLatLng();
