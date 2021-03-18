@@ -1004,6 +1004,8 @@ de:
         InfrastructureOpeningTimes: Öffnungszeiten
         InfrastructurePriceInfo: Preisinformation
         InfrastructureShort: Kurzbeschreibung
+      GuestCards:
+        GuestCardClassification: Gästekartenleistungen
       accommodation:
         CurrentInformation: Aktuelle Informationen
         SEOKeywords: SEO-Schlagwörter
