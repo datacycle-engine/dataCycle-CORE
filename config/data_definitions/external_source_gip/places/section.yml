@@ -79,7 +79,8 @@
         :type: geographic
         :ui:
           :edit:
-            :disabled: true        
+            :disabled: true
+            :type: LineString
       :potential_actions:
         :type: mixin
         :name: potential_actions

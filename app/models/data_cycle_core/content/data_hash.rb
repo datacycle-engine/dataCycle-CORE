@@ -232,7 +232,8 @@ module DataCycleCore
       end
 
       def save_to_column(key, value, properties)
-        save_data = convert_to_type(properties['type'], normalize_value(value, properties))
+        save_data = normalize_value(value, properties)
+        save_data = convert_to_type(properties['type'], save_data) if properties['type'] == 'geographic'
         send("#{key}=", save_data)
       end
 

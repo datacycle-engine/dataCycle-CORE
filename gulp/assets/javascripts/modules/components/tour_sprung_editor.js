@@ -59,11 +59,12 @@ class TourSprungEditor extends OpenLayersEditor {
     );
   }
   transformInitialValue() {
-    if (!this.value && !this.value.length) this.value = null;
-    else {
-      let geoJson = this.wktToGeoJson(this.value);
-      if (geoJson.coordinates && geoJson.coordinates.length) this.value = geoJson;
-    }
+    this.geoJSON = {
+      type: 'FeatureCollection',
+      features: []
+    };
+
+    if (this.value) this.geoJSON.features.push(this.value);
   }
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this));
@@ -132,12 +133,15 @@ class TourSprungEditor extends OpenLayersEditor {
     });
   }
   drawInitialMarker() {
-    let coords = L.GeoJSON.coordsToLatLng(this.value.coordinates);
+    let coords = L.GeoJSON.coordsToLatLng(this.geoJSON.features[0].geometry.coordinates);
     this.drawMarker(coords);
     this.map.leaflet.fitBounds([coords], { padding: [50, 50], maxZoom: 15 });
   }
   drawInitialRoute() {
-    let coords = L.GeoJSON.coordsToLatLngs(this.value.coordinates, this.value.type.startsWith('Multi') ? 1 : 0);
+    let coords = L.GeoJSON.coordsToLatLngs(
+      this.geoJSON.features[0].geometry.coordinates,
+      this.geoJSON.features[0].geometry.type.startsWith('Multi') ? 1 : 0
+    );
     this.map.editor.setSerializedData({ routeVertices: coords });
     this.map.leaflet.fitBounds(coords, { padding: [50, 50], maxZoom: 15 });
   }
@@ -145,7 +149,7 @@ class TourSprungEditor extends OpenLayersEditor {
     this.feature = new L.Marker($P(coords.lat, coords.lng), {
       draggable: true,
       icon: L.icon({
-        iconUrl: this.icons.default.interpolate({ markerColor: escape(this.markerColors['default']) }),
+        iconUrl: this.icons.default.interpolate({ color: escape(this.colors['default']) }),
         iconAnchor: [16, 32]
       })
     })
@@ -163,7 +167,7 @@ class TourSprungEditor extends OpenLayersEditor {
         return new L.Marker(latlng, {
           draggable: false,
           icon: L.icon({
-            iconUrl: this.icons.default.interpolate({ markerColor: escape(this.markerColors['default']) }),
+            iconUrl: this.icons.default.interpolate({ color: escape(this.colors['default']) }),
             iconAnchor: [16, 32]
           })
         });
@@ -172,7 +176,7 @@ class TourSprungEditor extends OpenLayersEditor {
   }
   drawAdditionalFeatures() {
     this.additionalValues.forEach(additionalFeature => {
-      this.drawFeature(this.wktToGeoJson(additionalFeature));
+      this.drawFeature(additionalFeature.geometry);
     });
   }
   configureEditor() {

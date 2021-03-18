@@ -3,6 +3,22 @@
     :name: geo_shape
     :type: mixin
     :properties:
+      # :tour:
+      #   :label: Route
+      #   :type: geographic
+      #   :storage_location: value
+      #   :ui:
+      #     :edit:
+      #       :disabled: true
+      #   :api:
+      #     :minimal: true
+      #     :disabled: false
+      #     :v4:
+      #       :name: line
+      #       :transformation:
+      #         :method: nest
+      #         :name: geo
+      #         :type: GeoShape
       :line:
         :label: Route
         :type: geographic
@@ -11,9 +27,8 @@
           :edit:
             :type: LineString
             :disabled: true
-            :options:
-              :data_upload: true
         :api:
+          :name: tour
           :minimal: true
           :disabled: false
           :v4:

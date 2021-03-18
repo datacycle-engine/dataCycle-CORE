@@ -60,6 +60,54 @@ module DataCycleCore
           end
         end
 
+        def orgcodes(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'ORGCODE', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
+        def minortyperefs(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'MINORTYPEREF', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
+        def bikeroutes(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'BIKEROUTE', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
+        def bikeroutestates(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'BIKEROUTESTATE', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
+        def signages(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'SIGNAGE', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
+        def bikecomforts(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'BIKECOMFORT', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
         protected
 
         def look_up(url_path, table, retry_count = 0)

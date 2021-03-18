@@ -84,19 +84,25 @@
         :storage_location: column
         :type: geographic
         :ui:
+          :show:
+            :disabled: true
           :edit:
             :disabled: true
-      # :all_sections:
-      #   :label: Gesamtstrecke
-      #   :storage_location: virtual
-      #   :type: virtual
-      #   :virtual:
-      #     :type: geographic
-      #     :module: Utility::Virtual::Geographic
-      #     :method: line_string_union
-      #     :parameters:
-      #       :0: sections
-      #       :1: line
+      :all_sections:
+        :label: Gesamtstrecke
+        :storage_location: value
+        :type: geographic
+        :api:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+            :type: LineString
+            :options:
+              :additional_value_paths:
+                :sections:
+                  :geo: line
+                  :title: title
       :potential_actions:
         :type: mixin
         :name: potential_actions

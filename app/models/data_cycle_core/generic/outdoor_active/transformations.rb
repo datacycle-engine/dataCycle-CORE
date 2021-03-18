@@ -55,7 +55,7 @@ module DataCycleCore
           .>> t(:add_field, 'latitude', ->(s) { s.dig('startingPoint', 'lon')&.to_f })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('startingPoint', 'lat')&.to_f })
           .>> t(:add_field, 'start_location', ->(s) { RGeo::Geographic.spherical_factory(srid: 4326).point(s['latitude'], s['longitude']) if s['longitude'] && s['latitude'] })
-          .>> t(:add_field, 'tour', ->(s) { tour(s&.dig('geometry')) })
+          .>> t(:add_field, 'line', ->(s) { tour(s&.dig('geometry')) })
           .>> t(:unwrap, 'elevation', ['ascent', 'descent', 'minAltitude', 'maxAltitude'])
           .>> t(:unwrap, 'time', ['min'])
           .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape', 'technique'])
@@ -164,10 +164,14 @@ module DataCycleCore
         def self.tour(geometry)
           return nil if geometry.blank?
           factory = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
-          factory.line_string(
-            geometry&.split(' ')
-              &.map { |p| p.split(',').map(&:to_f) }
-              &.map { |p| factory.point(*p) }
+          factory.multi_line_string(
+            Array.wrap(
+              factory.line_string(
+                geometry&.split(' ')
+                  &.map { |p| p.split(',').map(&:to_f) }
+                  &.map { |p| factory.point(*p) }
+              )
+            )
           )
         end
 

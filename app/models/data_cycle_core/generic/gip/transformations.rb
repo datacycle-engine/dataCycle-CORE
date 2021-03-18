@@ -60,10 +60,22 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:rename_keys, { 'id' => 'external_key', 'caption' => 'name' })
           .>> t(:add_field, 'line', ->(s) { parse_section(s.dig('geometry')) })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att1', 'Gip - BIKEROUTE - ', external_source_id, '1') })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att4', 'Gip - BIKECOMFORT - ', external_source_id) })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att5', 'Gip - BIKEROUTESTATE - ', external_source_id, '0') })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att6', 'Gip - SIGNAGE - ', external_source_id, '-1') })
+          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att7', 'Gip - MINORTYPEREF - ', external_source_id, '110') })
           .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att8', 'GEONAME - EUROVELO - ', external_source_id) })
           .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att9', 'GEONAME - ATROUTE - ', external_source_id) })
+          .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: 'Gip - ORGCODE - ' + s.dig('properties', 'externalorgcode'), external_source_id: external_source_id)&.ids })
           .>> t(:reject_keys, ['bbox', 'geometry', 'properties'])
           .>> t(:strip_all)
+        end
+
+        def self.value_of_attribute_with_default(data, attribute, prefix, external_source_id, default)
+          value = value_of_attribute(data, attribute, prefix, external_source_id)
+          value = DataCycleCore::Classification.where(external_key: prefix + default, external_source_id: external_source_id)&.ids if value.blank?
+          value
         end
 
         def self.value_of_attribute(data, attribute, prefix, external_source_id)
@@ -75,10 +87,8 @@ module DataCycleCore
         def self.parse_section(geometry)
           return nil if geometry.blank? || geometry.dig('coordinates').blank? || geometry.dig('SRID').blank?
           return if geometry.dig('SRID') != 31_256 # Österreich Ost
-          # factory_source = RGeo::Cartesian.factory(srid: 31_256, proj4: '+proj=tmerc +lat_0=0 +lon_0=16.33333333333333 +k=1 +x_0=0 +y_0=-5000000 +ellps=bessel +towgs84=577.326,90.129,463.919,5.137,1.474,5.297,2.4232 +units=m +no_defs ')
-          factory_source = RGeo::Geographic.spherical_factory(srid: 31_256, proj4: '+proj=tmerc +lat_0=0 +lon_0=16.33333333333333 +k=1 +x_0=0 +y_0=-5000000 +ellps=bessel +towgs84=577.326,90.129,463.919,5.137,1.474,5.297,2.4232 +units=m +no_defs ')
-          # longlat = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true)
-          longlat = RGeo::Geographic.spherical_factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true)
+          factory_source = RGeo::Cartesian.factory(srid: 31_256, proj4: '+proj=tmerc +lat_0=0 +lon_0=16.33333333333333 +k=1 +x_0=0 +y_0=-5000000 +ellps=bessel +towgs84=577.326,90.129,463.919,5.137,1.474,5.297,2.4232 +units=m +no_defs ')
+          longlat = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true)
 
           coordinates = geometry['coordinates']
           source_coordinates =

@@ -1,12 +1,12 @@
 ---
-- :data:
+- :data: # used for Donau-Tourismus
     :name: geo_shape
     :type: mixin
     :properties:
-      :line:
+      :tour:
         :label: Route
         :type: geographic
-        :storage_location: column
+        :storage_location: value
         :ui:
           :edit:
             :type: LineString

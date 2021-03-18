@@ -15,11 +15,15 @@
     <div class="geographic">
         <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map <%= is_line_string ? 'linestring' : 'point' %> <%= changes_mode(options.dig(:item_diff)) %>"
           data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
-          data-before-position="<%= options.dig(:item_diff, 1).presence&.to_s if options.dig(:item_diff, 0) == '~' %>"
-          data-after-position="<%= options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2).presence&.to_s : options.dig(:item_diff, 1).presence&.to_s %>"
+          data-before-position="<%= value_to_geojson(options.dig(:item_diff, 1), { style: { color: 'red', width: 6 } })&.to_json if options.dig(:item_diff, 0) == '~' %>"
+          data-after-position="<%= value_to_geojson(options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2) : options.dig(:item_diff, 1), { style: { color: 'green' } })&.to_json %>"
           data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
-          data-value="<%= value.presence&.to_s %>"
-          data-additional-values="<%= additional_map_values([content], Array.wrap(definition&.dig('ui', 'edit', 'options', 'additional_value_paths')))&.to_json %>">
+          data-value="<%= value_to_geojson(value)&.to_json %>"
+          data-additional-values="<%= additional_map_values(content, definition&.dig('ui', 'edit', 'options', 'additional_value_paths'))&.to_json %>">
+        </div>
+        <div class="ol-popup">
+          <a href="#" class="ol-popup-closer"><i class="fa fa-times" aria-hidden="true"></i></a>
+          <div class="ol-popup-content"></div>
         </div>
     </div>
 

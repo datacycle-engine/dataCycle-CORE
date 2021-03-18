@@ -13,6 +13,21 @@
   }
 
   .form-element {
+    .gip-key-figure-button {
+      font-size: 1.1rem;
+      position: absolute;
+      right: 0.5rem;
+      top: 0.5rem;
+      z-index: 1;
+      line-height: 1.2rem;
+      width: 1.2rem;
+      height: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
     label + select {
       margin-top: 3rem;
     }
@@ -1894,6 +1909,23 @@ select {
           }
         }
       }
+
+      .ol-overlay-container {
+        pointer-events: none;
+        .ol-popup {
+          background: white;
+          padding: 0.65rem;
+          box-shadow: 0 0 1px rgba($black, 0.8);
+          min-width: 200px;
+
+          .ol-popup-closer,
+          .ol-popup-content .ol-popup-detail-link {
+            pointer-events: auto;
+            float: right;
+            margin-left: 0.5rem;
+          }
+        }
+      }
     }
   }
 
@@ -2065,7 +2097,6 @@ select {
         position: relative;
         left: 0;
         top: 0;
-        pointer-events: all;
         box-shadow: none;
         height: auto;
         padding: 0.2rem 0.5rem;

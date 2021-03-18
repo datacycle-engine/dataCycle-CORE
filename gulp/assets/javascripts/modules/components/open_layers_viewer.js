@@ -8,7 +8,8 @@ var ol = {
   },
   Feature: require('ol/feature').default,
   format: {
-    WKT: require('ol/format/wkt').default
+    WKT: require('ol/format/wkt').default,
+    GeoJSON: require('ol/format/geojson').default
   },
   geom: {
     Point: require('ol/geom/point').default,
@@ -35,19 +36,34 @@ var ol = {
     Draw: require('ol/interaction/draw').default,
     Modify: require('ol/interaction/modify').default,
     Snap: require('ol/interaction/snap').default,
-    MouseWheelZoom: require('ol/interaction/mousewheelzoom').default
+    MouseWheelZoom: require('ol/interaction/mousewheelzoom').default,
+    Select: require('ol/interaction/select').default
+  },
+  events: {
+    condition: require('ol/events/condition').default
   },
   interactions: require('ol/interaction').default,
   proj: require('ol/proj').default,
   WMTSCapabilities: require('ol/format/wmtscapabilities').default,
-  deviceCapabilities: require('ol/has').default
+  deviceCapabilities: require('ol/has').default,
+  overlay: require('ol/overlay').default
 };
 
-var { optionsFromCapabilities } = require('ol/source/wmts').default;
+const { optionsFromCapabilities } = require('ol/source/wmts').default;
+
+const iconPaths = {
+  default:
+    'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${color}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><circle cx="10.574" cy="10.771" r="4.4524" fill-opacity=".8" fill="%23111"/></svg>',
+  start:
+    'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${color}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><path d="m16.253 11.621-8.9451 5.0275 0.11862-10.26z" fill="%23111" fill-opacity=".8"/></svg>',
+  end:
+    'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${color}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><rect x="6.042" y="7.3383" width="9.1903" height="8.3106" ry="0" fill="%23111" fill-opacity=".8"/></svg>'
+};
 
 class OpenLayersViewer {
   constructor(container) {
     this.$container = $(container);
+    this.$parentContainer = this.$container.parent('.geographic');
     this.containerId = this.$container.attr('id');
     this.ol = ol;
     this.value = this.$container.data('value');
@@ -55,25 +71,18 @@ class OpenLayersViewer {
     this.afterValue = this.$container.data('after-position');
     this.type = this.$container.data('type');
     this.additionalValues = this.$container.data('additionalValues');
+    this.geoJSON;
     this.feature;
-    this.featureBefore;
-    this.icons = {
-      default:
-        'data:image/svg+xml;utf8,<svg width="20.889" height="32.571" version="1.1" viewBox="0 0 20.889 32.571" xmlns="http://www.w3.org/2000/svg"><path d="m10.889 0c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 16c-3.314 0-6-2.686-6-6s2.686-6 6-6 6 2.686 6 6-2.686 6-6 6z" fill-opacity=".5"/><path d="m10 0.57142c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 16c-3.314 0-6-2.686-6-6 0-3.314 2.686-6 6-6s6 2.686 6 6c0 3.314-2.686 6-6 6z" fill="${markerColor}"/></svg>',
-      start:
-        'data:image/svg+xml;utf8,<svg width="20.875" height="32.42" version="1.1" viewBox="0 0 20.875 32.42" xmlns="http://www.w3.org/2000/svg"><path d="m10.875 0c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm-3.9593 11.721c0.14697-8.0447 2.867-5.8185 9.2881-0.47458-6.2 5.5496-9.1109 8.1994-9.2881 0.47458z" opacity=".5"/><path d="m10 0.41968c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm-3.9593 11.721c0.14697-8.0447 2.867-5.8185 9.2881-0.47458-6.2 5.5496-9.1109 8.1994-9.2881 0.47458z" fill="${markerColor}"/></svg>',
-      end:
-        'data:image/svg+xml;utf8,<svg width="20.963" height="32.525" version="1.1" viewBox="0 0 20.963 32.525" xmlns="http://www.w3.org/2000/svg"><path d="m10.963 0c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 14.036c-4.4239 0.04459-3.9455 0.32896-3.8531-4.0358 9.9e-4 -4.8216-0.62981-4.1587 3.8531-4.2185 4.5744-0.01416 4.0456-0.67578 4.0815 4.3099 0.12766 4.5017 0.45258 3.9004-4.0815 3.9445z" fill="${markerColor}" opacity=".5"/><path d="m10 0.52489c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zm0 14.036c-4.4239 0.044587-3.9455 0.32896-3.8531-4.0358 9.905e-4 -4.8216-0.62981-4.1587 3.8531-4.2185 4.5744-0.01416 4.0456-0.67578 4.0815 4.3099 0.12766 4.5017 0.45258 3.9004-4.0815 3.9445z" fill="${markerColor}"/></svg>'
-    };
-    this.markerColors = {
-      default: '#111111',
+    this.features;
+    this.infoOverlay;
+    this.featureOverlay;
+    this.featureOverlaySource;
+    this.highlightedFeature;
+    this.icons = iconPaths;
+    this.colors = {
+      default: '#1779ba',
       red: '#cc4b37',
-      green: '#90c062',
-      defaultLine: '#1779ba'
-    };
-    this.styles = {
-      icon: {},
-      line: {}
+      green: '#90c062'
     };
     this.scrollTexts = {
       ctrlKey: 'Strg+Scrollen zum Zoomen',
@@ -82,8 +91,7 @@ class OpenLayersViewer {
     };
     this.zoomMethod = 'ctrlKey';
     this.options = {};
-    this.features = [];
-    this.layerLines;
+    this.featureLayer;
     this.mouseWheelZoom = new this.ol.interaction.MouseWheelZoom();
     this.mouseZoomTimeout;
     this.mapOptions = this.$container.data('map-options');
@@ -92,16 +100,18 @@ class OpenLayersViewer {
     this.highDpi = this.ol.deviceCapabilities.DEVICE_PIXEL_RATIO > 1;
     this.wktFormat = new this.ol.format.WKT();
     this.source;
+    this.$popupContainer = this.$parentContainer.find('.ol-popup').first();
+    this.$popupContent = this.$parentContainer.find('.ol-popup-content').first();
+    this.$popupCloser = this.$parentContainer.find('.ol-popup-closer').first();
   }
   setup() {
     this.setZoomMethod();
-    this.initIconStyles();
     this.initFeatures();
-    this.configureFeatures();
-    this.configureLayerLines();
     this.initMouseWheelZoom();
+
     this.initMap().then(() => {
-      this.setDefaultPosition();
+      this.initMapHoverActions();
+      this.updateMapPosition();
     });
   }
   isPoint() {
@@ -156,79 +166,160 @@ class OpenLayersViewer {
       })
     );
   }
-  generateIconStyle(type, color, additionalParameters = {}) {
+  generateIconStyle(type, color, additionalParameters = {}, additionalImageParameters = {}) {
     return new this.ol.style.Style(
       Object.assign(
         {
-          image: new this.ol.style.Icon({
-            anchor: [0.5, 1],
-            opacity: 0.8,
-            scale: 1,
-            src: this.icons[type].interpolate({ markerColor: escape(this.markerColors[color]) })
-          })
+          image: new this.ol.style.Icon(
+            Object.assign(
+              {
+                anchor: [0.5, 1],
+                opacity: 0.9,
+                scale: 1,
+                src: this.icons[type].interpolate({ color: escape(this.colors[color]) })
+              },
+              additionalImageParameters
+            )
+          )
         },
         additionalParameters
       )
     );
   }
-  generateLineStyle(color, width = 5) {
-    return new this.ol.style.Style({
-      stroke: new this.ol.style.Stroke({ color: this.markerColors[color], width: width })
-    });
-  }
-  initIconStyles() {
-    this.styles.icon.default = this.generateIconStyle('default', 'default');
-    this.styles.icon.red = this.generateIconStyle('default', 'red');
-    this.styles.icon.green = this.generateIconStyle('default', 'green');
-    this.styles.line.default = this.generateLineStyle('defaultLine');
-    this.styles.line.red = this.generateLineStyle('red');
-    this.styles.line.green = this.generateLineStyle('green');
-  }
-  initFeatures() {
-    if (this.beforeValue && this.beforeValue.length) {
-      this.featureBefore = this.createFeaturefromWkt(this.beforeValue);
-      this.featureBefore.setStyle((feature, _) => this.styleFunction(feature, 'red', 'red', 7));
-    }
-    if (this.afterValue && this.afterValue.length) {
-      this.feature = this.createFeaturefromWkt(this.afterValue);
-      this.feature.setStyle((feature, _) => this.styleFunction(feature, 'green', 'green'));
-    }
-    if (!this.feature && this.value && this.value.length) {
-      this.feature = this.createFeaturefromWkt(this.value);
-      this.feature.setStyle((feature, _) => this.styleFunction(feature, 'defaultLine', 'default'));
-    }
-  }
-  styleFunction(feature, lineColor, color, width = 5) {
-    var geometry = feature.getGeometry();
-    var styles = [this.generateLineStyle(lineColor, width)];
+  generateLineStyle(props = {}) {
+    props = Object.assign(
+      {
+        color: 'default',
+        width: 5,
+        background: false,
+        backgroundColor: '#ffffff',
+        backgroundWidth: (props.width || 5) + 2
+      },
+      props
+    );
 
-    if (geometry.constructor.name.includes('MultiLineString')) {
-      geometry.getLineStrings().forEach(lineString => {
-        styles.push(
-          this.generateIconStyle('start', color, {
-            geometry: new this.ol.geom.Point(lineString.getFirstCoordinate())
-          })
-        );
-        styles.push(
-          this.generateIconStyle('end', color, {
-            geometry: new this.ol.geom.Point(lineString.getLastCoordinate())
-          })
-        );
-      });
-    } else if (geometry.constructor.name.includes('LineString')) {
-      styles.push(
-        this.generateIconStyle('start', color, {
-          geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
+    let styles = [
+      new this.ol.style.Style({
+        stroke: new this.ol.style.Stroke({ color: this.colors[props.color], width: props.width })
+      })
+    ];
+
+    if (props.background)
+      styles.unshift(
+        new this.ol.style.Style({
+          stroke: new this.ol.style.Stroke({ color: props.backgroundColor, width: props.backgroundWidth })
         })
       );
+
+    return styles;
+  }
+  initFeatures() {
+    this.geoJSON = {
+      type: 'FeatureCollection',
+      features: []
+    };
+
+    if (this.afterValue) this.geoJSON.features.push(this.afterValue);
+    if (!this.afterValue && this.value) this.geoJSON.features.push(this.value);
+    if (this.beforeValue) this.geoJSON.features.push(this.beforeValue);
+    if (this.additionalValues && this.additionalValues.length) this.geoJSON.features.push(...this.additionalValues);
+
+    if (this.$popupContainer.length) this.initInfoOverlay();
+    this.initFeatureLayer();
+  }
+  initInfoOverlay() {
+    this.infoOverlay = new this.ol.overlay({
+      element: this.$popupContainer.get(0),
+      autoPan: true
+    });
+
+    this.$popupCloser.on('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      this.infoOverlay.setPosition(undefined);
+      this.$popupCloser.blur();
+    });
+  }
+  initMapHoverActions() {
+    this.featureOverlaySource = new this.ol.source.Vector();
+    this.featureOverlay = new this.ol.layer.Vector({
+      source: this.featureOverlaySource,
+      map: this.map,
+      style: this.highlightStyleFunction.bind(this)
+    });
+
+    this.map.on('pointermove', this.highlightFeature.bind(this));
+    if (this.$popupContainer.length) this.map.on('singleclick', this.showInfoOverlay.bind(this));
+  }
+  showInfoOverlay(evt) {
+    const coordinate = evt.coordinate;
+    const pixel = this.map.getEventPixel(evt.originalEvent);
+    const feature = this.map.forEachFeatureAtPixel(pixel, feature => feature);
+
+    if (feature && feature.getProperties() && feature.getProperties().thingPath) {
+      this.$popupContent.html(this.infoOverlayHtml(feature.getProperties()));
+      this.infoOverlay.setPosition(coordinate);
+    } else {
+      this.infoOverlay.setPosition(undefined);
+      this.$popupCloser.blur();
+    }
+  }
+  infoOverlayHtml(featureProperties) {
+    let html = '';
+
+    if (featureProperties.thingPath && featureProperties.thingPath.length) {
+      html += `<a href="${featureProperties.thingPath}" target="_blank" class="ol-popup-detail-link"><i class="fa fa-eye" aria-hidden="true"></i></a>`;
+    }
+
+    if (featureProperties.title && featureProperties.title.length) html += `<p>${featureProperties.title}</p>`;
+
+    return html;
+  }
+  highlightFeature(evt) {
+    if (evt.dragging) {
+      return;
+    }
+    const pixel = this.map.getEventPixel(evt.originalEvent);
+    const feature = this.map.forEachFeatureAtPixel(pixel, feature => feature);
+
+    if (feature !== this.highlightedFeature) {
+      if (this.highlightedFeature) this.featureOverlaySource.removeFeature(this.highlightedFeature);
+      if (feature) this.featureOverlaySource.addFeature(feature);
+
+      this.highlightedFeature = feature;
+    }
+  }
+  getFeatureStyle(feature) {
+    let featureStyle = {
+      color: 'default',
+      width: 5,
+      showStartEnd: false
+    };
+    const featureStyleProperties = feature.get('style');
+    if (featureStyleProperties && featureStyleProperties.color) featureStyle.color = featureStyleProperties.color;
+    if (featureStyleProperties && featureStyleProperties.width) featureStyle.width = featureStyleProperties.width;
+
+    return featureStyle;
+  }
+  getStyles(feature, featureStyle) {
+    const geometry = feature.getGeometry();
+    let styles = [];
+
+    if (featureStyle.showStartEnd && geometry.getType().includes('LineString')) {
       styles.push(
-        this.generateIconStyle('end', color, {
+        this.generateIconStyle('end', featureStyle.color, {
           geometry: new this.ol.geom.Point(geometry.getLastCoordinate())
         })
       );
-    } else {
       styles.push(
-        this.generateIconStyle('default', color, {
+        this.generateIconStyle('start', featureStyle.color, {
+          geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
+        })
+      );
+    } else if (geometry.getType() == 'Point') {
+      styles.push(
+        this.generateIconStyle('default', featureStyle.color, {
           geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
         })
       );
@@ -236,53 +327,45 @@ class OpenLayersViewer {
 
     return styles;
   }
-  drawAdditionalFeatures() {
-    this.additionalValues.forEach(additionalFeature => {
-      let feature = this.createFeaturefromWkt(additionalFeature);
-      feature.setStyle((feature, _) => this.styleFunction(feature, 'defaultLine', 'default'));
-      this.features.push(feature);
-    });
+  highlightStyleFunction(feature) {
+    const featureStyle = this.getFeatureStyle(feature);
+    featureStyle.background = true;
+    featureStyle.backgroundWidth = featureStyle.width + 4;
+    featureStyle.showStartEnd = true;
+
+    const styles = this.generateLineStyle(featureStyle);
+    styles.push(...this.getStyles(feature, featureStyle));
+
+    return styles;
   }
-  createFeaturefromWkt(wkt) {
-    return this.wktFormat.readFeature(wkt, {
+  styleFunction(feature) {
+    const featureStyle = this.getFeatureStyle(feature);
+    const styles = this.generateLineStyle(featureStyle);
+    styles.push(...this.getStyles(feature, featureStyle));
+
+    return styles;
+  }
+  featuresFromGeoJSON(geoJSON) {
+    return new this.ol.format.GeoJSON().readFeatures(geoJSON, {
       dataProjection: 'EPSG:4326',
       featureProjection: 'EPSG:3857'
     });
   }
-  configureFeatures() {
-    if (this.feature) this.features.push(this.feature);
-    if (this.featureBefore) this.features.push(this.featureBefore);
-    if (this.additionalValues && this.additionalValues.length) this.drawAdditionalFeatures();
+  reloadFeaturesFromGeoJSON() {
+    this.features = this.featuresFromGeoJSON(this.geoJSON);
 
-    if (this.features.length) {
-      this.options = {
-        features: this.features
-      };
-    }
+    if (this.features && this.features.length) this.feature = this.features[0];
   }
-  configureLayerLines() {
-    this.source = new this.ol.source.Vector(this.options);
+  initFeatureLayer() {
+    this.reloadFeaturesFromGeoJSON();
 
-    this.layerLines = new this.ol.layer.Vector({
+    this.source = new this.ol.source.Vector({
+      features: this.features
+    });
+
+    this.featureLayer = new this.ol.layer.Vector({
       source: this.source,
-      style: [
-        new this.ol.style.Style({
-          stroke: new this.ol.style.Stroke({
-            color: '#c30000',
-            width: 3
-          }),
-          image: new this.ol.style.Circle({
-            radius: 3,
-            fill: new this.ol.style.Fill({
-              color: '#c30000'
-            }),
-            stroke: new this.ol.style.Stroke({
-              color: '#c30000',
-              width: 3
-            })
-          })
-        })
-      ]
+      style: this.styleFunction.bind(this)
     });
   }
   setZoomMethod() {
@@ -331,6 +414,9 @@ class OpenLayersViewer {
   }
   initMap() {
     return this.mapBaseLayer().then(baseLayer => {
+      const overlays = [];
+      if (this.infoOverlay) overlays.push(this.infoOverlay);
+
       this.map = new this.ol.Map({
         interactions: this.ol.interactions
           .defaults({
@@ -338,31 +424,32 @@ class OpenLayersViewer {
           })
           .extend([this.mouseWheelZoom]),
         target: this.containerId,
-        layers: [baseLayer, this.layerLines],
-        view: new this.ol.View({
-          center: [0, 0],
-          zoom: 10
-        })
+        overlays: overlays,
+        layers: [baseLayer, this.featureLayer],
+        view: this.defaultView()
       });
     });
   }
-  setConfiguredDefaultPosition() {
+  defaultView() {
+    const viewOptions = {
+      zoom: 7,
+      center: [1485643.2074492387, 6056497.724133261]
+    };
+
+    if (this.defaultPosition && this.defaultPosition.zoom) viewOptions.zoom = this.defaultPosition.zoom;
     if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude) {
       let newCoords = new this.ol.geom.Point([this.defaultPosition.longitude, this.defaultPosition.latitude]).transform(
         'EPSG:4326',
         'EPSG:3857'
       );
-      this.map.getView().setCenter(newCoords.getCoordinates());
-    }
-    if (this.defaultPosition && this.defaultPosition.zoom) this.map.getView().setZoom(this.defaultPosition.zoom);
-  }
-  setDefaultPosition() {
-    if (!this.feature && !this.featureBefore) {
-      this.setConfiguredDefaultPosition();
-      return;
+      viewOptions.center = newCoords.getCoordinates();
     }
 
-    this.map.getView().fit(this.source.getExtent(), { padding: [50, 50, 50, 50], maxZoom: 15 });
+    return new this.ol.View(viewOptions);
+  }
+  updateMapPosition() {
+    if (this.source.getFeatures().length)
+      this.map.getView().fit(this.source.getExtent(), { padding: [50, 50, 50, 50], maxZoom: 15 });
   }
 }
 
