@@ -14,34 +14,32 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.modifying = false;
     this.uploadable = this.$container.data('allowUpload');
     this.$geoCodeButton = $('.geocode-address-button').first();
-    this.$mapEditContainer = this.$container.parent('.geographic').siblings('.map-edit').first();
-    this.$mapInfoContainer = this.$container.parent('.geographic').siblings('.map-info').first();
+    this.$mapEditContainer = this.$parentContainer.siblings('.map-edit').first();
+    this.$mapInfoContainer = this.$parentContainer.siblings('.map-info').first();
     this.$uploadButton = this.$mapEditContainer.children('.upload-gpx-button').first();
     this.$uploadInput = this.$mapEditContainer.children('.upload-gpx-input').first();
     this.$latitudeField = this.$mapInfoContainer.find('.latitude input').first();
     this.$longitudeField = this.$mapInfoContainer.find('.longitude input').first();
     this.$elevationField = this.$mapInfoContainer.find('.elevation input').first();
-    this.$locationField = this.$container.parent('.geographic').siblings('input.location-data:hidden').first();
+    this.$locationField = this.$parentContainer.siblings('input.location-data:hidden').first();
   }
   setup() {
     this.setZoomMethod();
-    this.initIconStyles();
     this.initFeatures();
     this.initEventHandlers();
-    this.configureFeatures();
-    this.configureLayerLines();
     this.initMouseWheelZoom();
 
     this.initMap().then(() => {
+      this.initMapHoverActions();
       this.initMapActions();
       if (this.uploadable) this.initUploadActions();
-      this.setDefaultPosition();
+      this.updateMapPosition();
     });
   }
   initFeatures() {
     super.initFeatures();
 
-    if (this.feature || this.featureBefore) this.drawable = false;
+    if (this.geoJSON.features && this.geoJSON.features.length) this.drawable = false;
   }
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this));
@@ -72,7 +70,7 @@ class OpenLayersEditor extends OpenLayersViewer {
   }
   initMapActions() {
     this.map.on('pointermove', evt => {
-      let hit = evt.map.hasFeatureAtPixel(evt.pixel);
+      const hit = evt.map.hasFeatureAtPixel(evt.pixel);
       evt.map.getTargetElement().firstElementChild.style.cursor = evt.dragging ? 'grabbing' : hit ? 'pointer' : '';
     });
 
@@ -88,8 +86,6 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.draw.on('drawend', event => {
       this.drawable = false;
       this.feature = event.feature;
-
-      if (this.styles.icon.default !== undefined) this.feature.setStyle(this.styles.icon.default);
 
       this.disableDrawableFeature();
       this.setCoordinates();
@@ -129,7 +125,7 @@ class OpenLayersEditor extends OpenLayersViewer {
         }
       })
       .fail((_jqxhr, textStatus, error) => {
-        console.log(textStatus + ', ' + error);
+        console.error(textStatus + ', ' + error);
       })
       .always(() => {
         $(event.currentTarget).find('i.fa').remove();
@@ -138,7 +134,6 @@ class OpenLayersEditor extends OpenLayersViewer {
   setGeocodedValue(data) {
     if (!this.feature) {
       this.feature = new this.ol.Feature();
-      if (this.styles.icon.default) this.feature.setStyle(this.styles.icon.default);
       this.source.addFeature(this.feature);
     }
 
@@ -174,13 +169,13 @@ class OpenLayersEditor extends OpenLayersViewer {
           if (geoJSON && geoJSON.features && geoJSON.features.length) {
             geoJSON.features.forEach(feature => {
               if (feature.geometry.type.includes('MultiLineString'))
-                features.coordinates = features.coordinates.concat(feature.geometry.coordinates);
+                features.coordinates.push(...feature.geometry.coordinates);
               else if (feature.geometry.type.includes('LineString'))
                 features.coordinates.push(feature.geometry.coordinates);
             });
           }
 
-          if (!features.coordinates) {
+          if (!features.coordinates || !features.coordinates.length) {
             new ConfirmationModal({
               text: 'Die GPX-Datei beinhaltet keinen Track.',
               confirmationText: 'Ok'
@@ -217,19 +212,20 @@ class OpenLayersEditor extends OpenLayersViewer {
   }
   setUploadedFeature(geoJSON) {
     this.setHiddenFieldValue(geoJSON);
-    this.updateFeature(this.geoJsonToWkt(geoJSON));
+    this.updateFeature(geoJSON);
   }
-  updateFeature(newFeature) {
-    if (this.feature) {
-      this.features = this.features.filter(feature => feature.ol_uid != this.feature.ol_uid);
-      this.source.removeFeature(this.feature);
-    }
-    this.feature = this.createFeaturefromWkt(newFeature);
-    this.feature.setStyle((feature, _) => this.styleFunction(feature, 'defaultLine', 'default'));
-    this.features.push(this.feature);
+  updateFeature(newGometry) {
+    this.geoJSON.features.shift();
+    this.geoJSON.features.unshift({
+      type: 'Feature',
+      geometry: newGometry
+    });
 
-    this.source.addFeature(this.feature);
-    this.map.getView().fit(this.feature.getGeometry().getExtent(), { padding: [50, 50, 50, 50], maxZoom: 15 });
+    this.reloadFeaturesFromGeoJSON();
+
+    this.source.clear();
+    this.source.addFeatures(this.features);
+    this.updateMapPosition();
   }
   updateMapMarker(_event) {
     let valid = true;
@@ -245,7 +241,6 @@ class OpenLayersEditor extends OpenLayersViewer {
         geometry: new this.ol.geom.Point(coords).transform('EPSG:4326', 'EPSG:3857')
       });
 
-      this.feature.setStyle(this.styles.icon.default);
       this.source.addFeature(this.feature);
       this.disableDrawableFeature();
     } else {

@@ -5,21 +5,29 @@ module DataCycleCore
     def additional_map_values(contents, paths)
       return if paths.blank? || contents.blank?
 
-      contents = Array.wrap(contents)
-      paths = Array.wrap(paths)
+      Array.wrap(contents).map! { |c|
+        child_keys = (paths.keys & (c.linked_property_names | c.embedded_property_names))
 
-      while paths.present?
-        attribute_name = paths.shift
+        next child_keys.map! { |ck| additional_map_values(c.try(ck)&.includes(:translations), paths[ck]) }.flatten.compact if child_keys.present?
 
-        if attribute_name.is_a?(Array)
-          contents.map! { |c| additional_map_values(c, attribute_name) }
-        else
-          contents.map! { |c| c.try(attribute_name) }.flatten!
-          contents.compact!
-        end
-      end
+        value_to_geojson(
+          c.try(paths['geo'].to_s),
+          {
+            title: I18n.with_locale(c.first_available_locale) { c.try(paths['title'].to_s) },
+            thingPath: thing_path(c)
+          }
+        )
+      }.flatten.compact.uniq
+    end
 
-      contents.flatten.compact
+    def value_to_geojson(value, properties = {})
+      return if value.blank?
+
+      {
+        type: 'Feature',
+        geometry: RGeo::GeoJSON.encode(value),
+        properties: properties.reject { |_, v| v.blank? }.presence
+      }.compact
     end
   end
 end
