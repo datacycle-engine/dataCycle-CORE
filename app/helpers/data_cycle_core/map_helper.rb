@@ -17,7 +17,7 @@ module DataCycleCore
             thingPath: thing_path(c)
           }
         )
-      }.flatten.compact
+      }.flatten.compact.uniq
     end
 
     def value_to_geojson(value, properties = {})
@@ -26,7 +26,7 @@ module DataCycleCore
       {
         type: 'Feature',
         geometry: RGeo::GeoJSON.encode(value),
-        properties: properties.presence
+        properties: properties.reject { |_, v| v.blank? }.presence
       }.compact
     end
   end
