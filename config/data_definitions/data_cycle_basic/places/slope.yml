@@ -53,6 +53,15 @@
       :geo:
         :type: mixin
         :name: geo
+      :length:
+        :label: Länge (m)
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :geo_shape:
+        :type: mixin
+        :name: geo_shape        
       :contact_info:
         :type: mixin
         :name: contact_info
