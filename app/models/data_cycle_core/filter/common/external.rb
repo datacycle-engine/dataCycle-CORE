@@ -6,9 +6,11 @@ module DataCycleCore
       module External
         def external_source(ids = nil)
           return self if ids.blank?
-
+          dc_created = ids.detect { |i| i == 'nil' }
+          filter_external_source = thing[:external_source_id].in(ids)
+          filter_external_source = thing[:external_source_id].in(ids).or(thing[:external_source_id].eq(nil)) if dc_created.present?
           reflect(
-            @query.where(thing[:external_source_id].in(ids))
+            @query.where(filter_external_source)
           )
         end
 
