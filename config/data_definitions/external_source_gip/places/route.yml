@@ -101,8 +101,8 @@
             :options:
               :additional_value_paths:
                 :sections:
-                  - line
-                  - title
+                  :geo: line
+                  :title: title
       :potential_actions:
         :type: mixin
         :name: potential_actions

@@ -41,8 +41,7 @@
         :type: linked
         :inverse_of: subject_of
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Route
@@ -60,8 +59,11 @@
             :options:
               :additional_value_paths:
                 :about:
-                  - line
-                  - title
+                  :sections:
+                    :geo: line
+                    :title: title
+                  :geo: line
+                  :title: title
       :owner:
         :label: Besitzer
         :type: linked
@@ -87,8 +89,6 @@
             :label: Fahrzeit (min)
             :type: number
             :storage_location: value
-            :validations:
-              :max: 1000
             :features:
               :gip_key_figure:
                 :part_id_path:
@@ -136,7 +136,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Beschreibungstext"
+        :default_value: 'Beschreibungstext'
       :meta_data:
         :type: mixin
         :name: meta_data
