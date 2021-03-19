@@ -22,6 +22,7 @@ module DataCycleCore
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Bezirk - ', s.dig('district'), external_source_id) })
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Gemeinde - ', s.dig('commune'), external_source_id) })
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Region - ', s.dig('region'), external_source_id) })
+          .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Land - ', s.dig('country'), external_source_id) })
           .>> t(:reject_keys, ['id'])
           .>> t(:strip_all)
         end
@@ -42,6 +43,7 @@ module DataCycleCore
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Bezirk - ', s.dig('district'), external_source_id) })
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Gemeinde - ', s.dig('commune'), external_source_id) })
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Region - ', s.dig('region'), external_source_id) })
+          .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Land - ', s.dig('country'), external_source_id) })
           .>> t(:reject_keys, ['id'])
           .>> t(:strip_all)
         end
