@@ -11,6 +11,7 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.modify;
     this.modifying = false;
     this.draw;
+    this.precision = 5;
     this.$geoCodeButton = $('.geocode-address-button').first();
     this.$mapEditContainer = this.$parentContainer.siblings('.map-edit').first();
     this.$mapInfoContainer = this.$parentContainer.siblings('.map-info').first();
@@ -244,16 +245,16 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     return coords;
   }
-  setUploadedFeature(geoJSON) {
-    this.setHiddenFieldValue(geoJSON);
-    this.updateFeature(geoJSON);
+  setUploadedFeature(geometry) {
+    this.setHiddenFieldValue(geometry);
+    this.updateFeature(geometry);
   }
-  updateFeature(newGometry) {
+  updateFeature(newGeometry) {
     if (this.feature) this.source.removeFeature(this.feature);
 
     this.feature = this.featureFromGeoJSON({
       type: 'Feature',
-      geometry: newGometry
+      geometry: newGeometry
     });
 
     this.source.addFeature(this.feature);
@@ -293,7 +294,7 @@ class OpenLayersEditor extends OpenLayersViewer {
   shortenCoordinates(coords) {
     for (let i = 0; i < coords.length; i++) {
       if (Array.isArray(coords[i])) coords[i] = this.shortenCoordinates(coords[i]);
-      else coords[i] = Number(coords[i].toFixed(5));
+      else coords[i] = Number(coords[i].toFixed(this.precision));
     }
 
     return coords;
