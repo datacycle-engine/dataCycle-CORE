@@ -110,6 +110,9 @@
       :geo_shape:
         :type: mixin
         :name: geo_shape
+      :geo_contains:
+        :type: mixin
+        :name: geo_contains
       :poi:
         :label: POIS
         :type: linked
