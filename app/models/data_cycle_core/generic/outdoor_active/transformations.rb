@@ -26,6 +26,7 @@ module DataCycleCore
               'gettingThere' => 'directions'
             }
           )
+          .>> t(:add_field, 'content_score', ->(s) { s.dig('ranking')&.to_f || nil })
           .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'place') })
           .>> t(:map_value, 'elevation', ->(s) { s.try(:to_f) })
           .>> t(:add_field, 'latitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
@@ -52,6 +53,7 @@ module DataCycleCore
 
         def self.outdoor_active_to_tour(external_source_id)
           t(:stringify_keys)
+          .>> t(:add_field, 'content_score', ->(s) { s.dig('ranking')&.to_f || nil })
           .>> t(:add_field, 'latitude', ->(s) { s.dig('startingPoint', 'lon')&.to_f })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('startingPoint', 'lat')&.to_f })
           .>> t(:add_field, 'start_location', ->(s) { RGeo::Geographic.spherical_factory(srid: 4326).point(s['latitude'], s['longitude']) if s['longitude'] && s['latitude'] })
