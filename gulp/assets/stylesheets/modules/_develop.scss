@@ -1868,6 +1868,10 @@ select {
     cursor: crosshair;
   }
 
+  .ol-popup {
+    display: none;
+  }
+
   .geographic-map {
     position: relative;
     max-height: 450px;
@@ -1913,6 +1917,7 @@ select {
       .ol-overlay-container {
         pointer-events: none;
         .ol-popup {
+          display: block;
           background: white;
           padding: 0.65rem;
           box-shadow: 0 0 1px rgba($black, 0.8);

@@ -1,3 +1,5 @@
+var HttpRequestMixin = require('../mixins/http_request');
+
 class GipKeyFigure {
   constructor(element) {
     this.$element = $(element);
@@ -38,7 +40,7 @@ class GipKeyFigure {
     if (ids && ids.length) {
       const fullUrl = `${this.url}?key=${this.key}&${ids.map(v => 'part_ids[]=' + v)}`;
 
-      this.getRequest(fullUrl)
+      this.httpRequest(fullUrl)
         .then(data => {
           if (data && data.newValue) this.setNewValue(data.newValue);
         })
@@ -48,15 +50,6 @@ class GipKeyFigure {
   reEnableButon() {
     $.rails.enableElement(this.$element);
   }
-  async getRequest(url) {
-    const response = await fetch(url, {
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    return response.json();
-  }
   setNewValue(value) {
     this.$formElement.find(window.EDITORSELECTORS.join(', ')).trigger('dc:import:data', {
       label: this.label,
@@ -65,5 +58,7 @@ class GipKeyFigure {
     });
   }
 }
+
+Object.assign(GipKeyFigure.prototype, HttpRequestMixin);
 
 module.exports = GipKeyFigure;

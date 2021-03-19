@@ -8,7 +8,6 @@ var ol = {
   },
   Feature: require('ol/feature').default,
   format: {
-    WKT: require('ol/format/wkt').default,
     GeoJSON: require('ol/format/geojson').default
   },
   geom: {
@@ -46,7 +45,8 @@ var ol = {
   proj: require('ol/proj').default,
   WMTSCapabilities: require('ol/format/wmtscapabilities').default,
   deviceCapabilities: require('ol/has').default,
-  overlay: require('ol/overlay').default
+  overlay: require('ol/overlay').default,
+  collection: require('ol/collection').default
 };
 
 const { optionsFromCapabilities } = require('ol/source/wmts').default;
@@ -66,14 +66,14 @@ class OpenLayersViewer {
     this.$parentContainer = this.$container.parent('.geographic');
     this.containerId = this.$container.attr('id');
     this.ol = ol;
+    this.map;
     this.value = this.$container.data('value');
     this.beforeValue = this.$container.data('before-position');
     this.afterValue = this.$container.data('after-position');
     this.type = this.$container.data('type');
     this.additionalValues = this.$container.data('additionalValues');
-    this.geoJSON;
     this.feature;
-    this.features;
+    this.additionalFeatures = [];
     this.infoOverlay;
     this.featureOverlay;
     this.featureOverlaySource;
@@ -90,7 +90,6 @@ class OpenLayersViewer {
       pinch: 'zwei Finger zum Zoomen/Scrollen'
     };
     this.zoomMethod = 'ctrlKey';
-    this.options = {};
     this.featureLayer;
     this.mouseWheelZoom = new this.ol.interaction.MouseWheelZoom();
     this.mouseZoomTimeout;
@@ -98,11 +97,15 @@ class OpenLayersViewer {
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.highDpi = this.ol.deviceCapabilities.DEVICE_PIXEL_RATIO > 1;
-    this.wktFormat = new this.ol.format.WKT();
     this.source;
     this.$popupContainer = this.$parentContainer.find('.ol-popup').first();
     this.$popupContent = this.$parentContainer.find('.ol-popup-content').first();
     this.$popupCloser = this.$parentContainer.find('.ol-popup-closer').first();
+    this.featureProjection = {
+      dataProjection: 'EPSG:4326',
+      featureProjection: 'EPSG:3857'
+    };
+    this.geoJsonFormat = new this.ol.format.GeoJSON();
   }
   setup() {
     this.setZoomMethod();
@@ -214,15 +217,16 @@ class OpenLayersViewer {
     return styles;
   }
   initFeatures() {
-    this.geoJSON = {
-      type: 'FeatureCollection',
-      features: []
-    };
-
-    if (this.afterValue) this.geoJSON.features.push(this.afterValue);
-    if (!this.afterValue && this.value) this.geoJSON.features.push(this.value);
-    if (this.beforeValue) this.geoJSON.features.push(this.beforeValue);
-    if (this.additionalValues && this.additionalValues.length) this.geoJSON.features.push(...this.additionalValues);
+    if (this.afterValue) this.feature = this.featureFromGeoJSON(this.afterValue);
+    if (!this.feature && this.value) this.feature = this.featureFromGeoJSON(this.value);
+    if (this.beforeValue) this.additionalFeatures = this.featuresFromGeoJSON(this.beforeValue);
+    if (this.additionalValues && this.additionalValues.length)
+      this.additionalFeatures.push(
+        ...this.featuresFromGeoJSON({
+          type: 'FeatureCollection',
+          features: this.additionalValues
+        })
+      );
 
     if (this.$popupContainer.length) this.initInfoOverlay();
     this.initFeatureLayer();
@@ -253,14 +257,14 @@ class OpenLayersViewer {
     if (this.$popupContainer.length) this.map.on('singleclick', this.showInfoOverlay.bind(this));
   }
   showInfoOverlay(evt) {
-    const coordinate = evt.coordinate;
     const pixel = this.map.getEventPixel(evt.originalEvent);
-    const feature = this.map.forEachFeatureAtPixel(pixel, feature => feature);
+    let feature = this.map.getFeaturesAtPixel(pixel);
+    feature = feature && feature[0];
 
     if (feature && feature.getProperties() && feature.getProperties().thingPath) {
       this.$popupContent.html(this.infoOverlayHtml(feature.getProperties()));
-      this.infoOverlay.setPosition(coordinate);
-    } else {
+      this.infoOverlay.setPosition(evt.coordinate);
+    } else if (this.infoOverlay.getPosition()) {
       this.infoOverlay.setPosition(undefined);
       this.$popupCloser.blur();
     }
@@ -277,11 +281,11 @@ class OpenLayersViewer {
     return html;
   }
   highlightFeature(evt) {
-    if (evt.dragging) {
-      return;
-    }
+    if (evt.dragging) return;
+
     const pixel = this.map.getEventPixel(evt.originalEvent);
-    const feature = this.map.forEachFeatureAtPixel(pixel, feature => feature);
+    let feature = this.map.getFeaturesAtPixel(pixel);
+    feature = feature && feature.find(f => f.getGeometry().getType().includes('LineString'));
 
     if (feature !== this.highlightedFeature) {
       if (this.highlightedFeature) this.featureOverlaySource.removeFeature(this.highlightedFeature);
@@ -346,21 +350,18 @@ class OpenLayersViewer {
     return styles;
   }
   featuresFromGeoJSON(geoJSON) {
-    return new this.ol.format.GeoJSON().readFeatures(geoJSON, {
-      dataProjection: 'EPSG:4326',
-      featureProjection: 'EPSG:3857'
-    });
+    return this.geoJsonFormat.readFeatures(geoJSON, this.featureProjection);
   }
-  reloadFeaturesFromGeoJSON() {
-    this.features = this.featuresFromGeoJSON(this.geoJSON);
-
-    if (this.features && this.features.length) this.feature = this.features[0];
+  featureFromGeoJSON(geoJSON) {
+    return this.geoJsonFormat.readFeature(geoJSON, this.featureProjection);
   }
   initFeatureLayer() {
-    this.reloadFeaturesFromGeoJSON();
+    let allFeatures = [];
+    if (this.feature) allFeatures.push(this.feature);
+    if (this.additionalFeatures && this.additionalFeatures.length) allFeatures.push(...this.additionalFeatures);
 
     this.source = new this.ol.source.Vector({
-      features: this.features
+      features: allFeatures
     });
 
     this.featureLayer = new this.ol.layer.Vector({
