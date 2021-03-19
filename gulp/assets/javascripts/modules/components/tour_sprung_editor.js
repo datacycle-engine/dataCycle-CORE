@@ -11,30 +11,27 @@ class TourSprungEditor extends OpenLayersEditor {
     this.map;
     this.toursrpungIcons = {
       start: {
-        iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/start.png',
-        iconSize: [30, 40],
-        iconAnchor: [15, 40]
+        iconUrl: this.icons.start.interpolate({ color: escape(this.colors.default) }),
+        iconSize: [21, 33],
+        iconAnchor: [10, 33]
       },
       end: {
-        iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/end.png',
-        iconSize: [30, 40],
-        iconAnchor: [15, 40]
+        iconUrl: this.icons.end.interpolate({ color: escape(this.colors.default) }),
+        iconSize: [21, 33],
+        iconAnchor: [10, 33]
       },
       vertex: {
-        iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/vertex.png',
-        iconSize: [10, 16],
-        iconAnchor: [5, 16]
+        iconUrl:
+          'data:image/svg+xml;utf8,<svg width="0" height="0" version="1.1" viewBox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>'
       }
     };
   }
   setup() {
-    this.transformInitialValue();
     MTK.init({ apiKey: this.credentials.api_key });
     this.initMap();
     this.initEventHandlers();
   }
   initMap() {
-    let defaultMapPosition = this.calculateCenter();
     let controls = [];
 
     if (this.isLineString()) {
@@ -46,7 +43,7 @@ class TourSprungEditor extends OpenLayersEditor {
       this.containerId,
       {
         map: {
-          location: defaultMapPosition,
+          location: this.defaultView(),
           mapType: 'terrain_v2',
           controls: controls,
           options: {
@@ -58,19 +55,11 @@ class TourSprungEditor extends OpenLayersEditor {
       this.configureMap.bind(this)
     );
   }
-  transformInitialValue() {
-    this.geoJSON = {
-      type: 'FeatureCollection',
-      features: []
-    };
-
-    if (this.value) this.geoJSON.features.push(this.value);
-  }
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this));
 
     if (this.isPoint()) {
-      if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.initGeoCodingActions.bind(this));
+      if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.geoCodeAddress.bind(this));
 
       this.$latitudeField.on('change', this.updateMapMarker.bind(this));
       this.$longitudeField.on('change', this.updateMapMarker.bind(this));
@@ -86,7 +75,7 @@ class TourSprungEditor extends OpenLayersEditor {
     if (valid && this.feature) {
       this.feature.setLatLng(L.GeoJSON.coordsToLatLng(geoJson.coordinates));
     } else if (valid && !this.feature) {
-      this.drawMarker(L.GeoJSON.coordsToLatLng(geoJson.coordinates));
+      this.drawMarkerFeature(L.GeoJSON.coordsToLatLng(geoJson.coordinates));
       MTK.event.removeListener(this.drawableEvent);
     } else if (this.feature) {
       this.feature.remove();
@@ -104,19 +93,33 @@ class TourSprungEditor extends OpenLayersEditor {
     else if (this.isLineString()) {
       if (this.value) this.drawInitialRoute();
 
-      MTK.event.addListener(this.map.editor, 'update', data => {
-        let coords = this.reverseCoordinates(data.routeVertices);
-        this.setHiddenFieldValue({ type: 'MultiLineString', coordinates: coords });
-      });
+      this.initMtkEvents();
     }
 
     if (this.additionalValues && this.additionalValues.length) this.drawAdditionalFeatures();
   }
-  reverseCoordinates(coords) {
+  initMtkEvents() {
+    MTK.event.addListener(this.map.editor, 'update', data => {
+      this.setMtkLineStyle();
+      let coords = this.reverseCoordinates(data.routeVertices);
+      this.setHiddenFieldValue({ type: 'MultiLineString', coordinates: coords });
+    });
+  }
+  setMtkLineStyle() {
+    this.map.editor._polyline().setStyle({
+      color: this.colors.default,
+      opacity: 1,
+      weight: 5
+    });
+  }
+  reverseCoordinates(coords, removeZAt = 2) {
     for (let i = 0; i < coords.length; i++) {
       if (Array.isArray(coords[i]) && coords[i].length == 2 && !Array.isArray(coords[i][0])) coords[i].reverse();
-      else if (Array.isArray(coords[i])) coords[i] = this.reverseCoordinates(coords[i]);
-      else coords[i] = Number(coords[i].toFixed(5));
+      else if (Array.isArray(coords[i]) && coords[i].length == 3 && !Array.isArray(coords[i][0])) {
+        coords[i].splice(removeZAt, 1);
+        coords[i].reverse();
+      } else if (Array.isArray(coords[i])) coords[i] = this.reverseCoordinates(coords[i]);
+      else coords[i] = Number(coords[i].toFixed(this.precision));
     }
 
     return coords;
@@ -128,55 +131,51 @@ class TourSprungEditor extends OpenLayersEditor {
       MTK.event.removeListener(this.drawableEvent);
       this.drawableEvent = undefined;
 
-      this.drawMarker(event.latlng);
+      this.drawMarkerFeature(event.latlng);
       this.setNewCoordinates();
     });
   }
   drawInitialMarker() {
-    let coords = L.GeoJSON.coordsToLatLng(this.geoJSON.features[0].geometry.coordinates);
-    this.drawMarker(coords);
+    let coords = L.GeoJSON.coordsToLatLng(this.value.geometry.coordinates);
+    this.drawMarkerFeature(coords);
     this.map.leaflet.fitBounds([coords], { padding: [50, 50], maxZoom: 15 });
   }
   drawInitialRoute() {
     let coords = L.GeoJSON.coordsToLatLngs(
-      this.geoJSON.features[0].geometry.coordinates,
-      this.geoJSON.features[0].geometry.type.startsWith('Multi') ? 1 : 0
+      this.value.geometry.coordinates,
+      this.value.geometry.type.startsWith('Multi') ? 1 : 0
     );
     this.map.editor.setSerializedData({ routeVertices: coords });
+    this.setMtkLineStyle();
     this.map.leaflet.fitBounds(coords, { padding: [50, 50], maxZoom: 15 });
   }
-  drawMarker(coords) {
-    this.feature = new L.Marker($P(coords.lat, coords.lng), {
-      draggable: true,
-      icon: L.icon({
-        iconUrl: this.icons.default.interpolate({ color: escape(this.colors['default']) }),
-        iconAnchor: [16, 32]
-      })
-    })
+  drawMarkerFeature(coords) {
+    this.feature = this.singleMarker(coords, true)
       .addTo(this.map.leaflet)
       .on('dragend', () => {
         this.setNewCoordinates();
       });
   }
-  drawFeature(geoJson) {
-    L.geoJSON(geoJson, {
+  singleMarker(latlng, draggable = false) {
+    return new L.Marker(latlng, {
+      draggable: draggable,
+      icon: L.icon({
+        iconUrl: this.icons.default.interpolate({ color: escape(this.colors.default) }),
+        iconAnchor: [16, 32]
+      })
+    });
+  }
+  drawFeatureFromGeoJson(geoJson) {
+    return L.geoJSON(geoJson, {
       style: {
-        color: '#1779ba'
+        color: this.colors.default
       },
-      pointToLayer: (_feature, latlng) => {
-        return new L.Marker(latlng, {
-          draggable: false,
-          icon: L.icon({
-            iconUrl: this.icons.default.interpolate({ color: escape(this.colors['default']) }),
-            iconAnchor: [16, 32]
-          })
-        });
-      }
+      pointToLayer: (_feature, latlng) => this.singleMarker(latlng)
     }).addTo(this.map.leaflet);
   }
   drawAdditionalFeatures() {
     this.additionalValues.forEach(additionalFeature => {
-      this.drawFeature(additionalFeature.geometry);
+      this.drawFeatureFromGeoJson(additionalFeature.geometry);
     });
   }
   configureEditor() {
@@ -191,13 +190,17 @@ class TourSprungEditor extends OpenLayersEditor {
       });
     }
   }
-  calculateCenter() {
-    if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude) {
-      return {
-        center: $P(this.defaultPosition.latitude, this.defaultPosition.longitude),
-        zoom: this.defaultPosition.zoom || 10
-      };
-    }
+  defaultView() {
+    const viewOptions = {
+      zoom: 7,
+      center: [47.69642, 13.34576]
+    };
+
+    if (this.defaultPosition && this.defaultPosition.zoom) viewOptions.zoom = this.defaultPosition.zoom;
+    if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude)
+      viewOptions.center = [this.defaultPosition.latitude, this.defaultPosition.longitude];
+
+    return viewOptions;
   }
   getFeatureLatLon() {
     let coords = this.feature.getLatLng();
@@ -206,10 +209,10 @@ class TourSprungEditor extends OpenLayersEditor {
   getGeoJsonFromFeature() {
     if (!this.feature) return;
 
-    return {
-      type: this.type,
-      coordinates: this.getFeatureLatLon()
-    };
+    let geometry = this.feature.toGeoJSON(this.precision).geometry;
+    geometry.coordinates = this.shortenCoordinates(geometry.coordinates);
+
+    return geometry;
   }
   setNewCoordinates() {
     this.setCoordinates();
@@ -224,21 +227,12 @@ class TourSprungEditor extends OpenLayersEditor {
     this.$latitudeField.val(latLon[1]);
     this.$longitudeField.val(latLon[0]);
   }
-  setHiddenFieldValue(geoJSON) {
-    this.value = geoJSON;
-    super.setHiddenFieldValue(geoJSON);
-  }
-  setLengthFieldValue(length) {
-    if (length === undefined) length = 0;
-    else length = Number(length.toFixed(0));
-
-    this.$container.closest('.geographic.form-element').siblings('.form-element.length').find(':input').val(length);
-  }
-  wktToGeoJson(wkt) {
-    return wkx.Geometry.parse(wkt).toGeoJSON();
+  setHiddenFieldValue(geometry) {
+    this.value = geometry;
+    super.setHiddenFieldValue(geometry);
   }
   setGeocodedValue(data) {
-    if (!this.feature) this.drawMarker({ lng: data[0], lat: data[1] });
+    if (!this.feature) this.drawMarkerFeature({ lng: data[0], lat: data[1] });
     else this.feature.setLatLng({ lng: data[0], lat: data[1] });
 
     this.setNewCoordinates();
