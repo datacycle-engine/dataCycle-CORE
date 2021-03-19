@@ -8,7 +8,7 @@
         :type: linked
         :template_name: Tour
         :inverse_of: contained_in_place
-      :containend_in_place:
+      :contained_in_place:
         :label: Tour
         :type: linked
         :template_name: Tour
