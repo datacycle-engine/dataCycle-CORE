@@ -208,7 +208,7 @@ module DataCycleCore
             end
 
             # same_as => additionalProperty
-            assert_translated_attributes(json_validate, required_attributes, ['same_as', 'feratel_content_score']) do
+            assert_translated_attributes(json_validate, required_attributes, ['same_as', 'feratel_content_score', 'content_score']) do
               {
                 'additionalProperty' => [
                   {
@@ -222,6 +222,12 @@ module DataCycleCore
                     'identifier' => 'feratelContentScore',
                     'name' => 'ContentScore',
                     'value' => translated_value(@content, 'feratel_content_score', ['de'])
+                  },
+                  {
+                    '@type' => 'PropertyValue',
+                    'identifier' => 'contentScore',
+                    'name' => 'ContentScore',
+                    'value' => translated_value(@content, 'content_score', ['de'])
                   }
                 ]
               }
@@ -590,7 +596,7 @@ module DataCycleCore
             end
 
             # same_as => additionalProperty
-            assert_translated_attributes(json_validate, required_attributes, ['same_as', 'feratel_content_score']) do
+            assert_translated_attributes(json_validate, required_attributes, ['same_as', 'feratel_content_score', 'content_score']) do
               {
                 'additionalProperty' => [
                   {
@@ -604,6 +610,12 @@ module DataCycleCore
                     'identifier' => 'feratelContentScore',
                     'name' => 'ContentScore',
                     'value' => translated_value(@content, 'feratel_content_score', ['de', 'en'])
+                  },
+                  {
+                    '@type' => 'PropertyValue',
+                    'identifier' => 'contentScore',
+                    'name' => 'ContentScore',
+                    'value' => translated_value(@content, 'content_score', ['de', 'en'])
                   }
                 ]
               }
