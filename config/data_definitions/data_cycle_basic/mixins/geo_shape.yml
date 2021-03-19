@@ -27,6 +27,12 @@
           :edit:
             :type: LineString
             :disabled: true
+            :options:
+              :additional_value_paths:
+                :poi:
+                  :geo: location
+                  :title: title
+
         :api:
           :name: tour
           :minimal: true
