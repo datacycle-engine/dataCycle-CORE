@@ -1,6 +1,6 @@
-var ObjectHelpers = require('../helpers/object_helpers');
+const ObjectHelpers = require('../helpers/object_helpers');
 
-var ol = {
+const ol = {
   Map: require('ol/map').default,
   layer: {
     Tile: require('ol/layer/tile').default,

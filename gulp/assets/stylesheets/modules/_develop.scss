@@ -1916,10 +1916,11 @@ select {
 
       .ol-overlay-container {
         pointer-events: none;
+
         .ol-popup {
           display: block;
           background: white;
-          padding: 0.65rem;
+          padding: 0.5rem 0.75rem;
           box-shadow: 0 0 1px rgba($black, 0.8);
           min-width: 200px;
 
@@ -1929,7 +1930,65 @@ select {
             float: right;
             margin-left: 0.5rem;
           }
+
+          .ol-popup-content {
+            p:last-child {
+              margin-bottom: 0;
+            }
+          }
         }
+      }
+    }
+    .leaflet-popup {
+      pointer-events: none;
+      margin-bottom: 0;
+
+      .leaflet-popup-tip-container {
+        display: none;
+      }
+
+      .leaflet-popup-content-wrapper {
+        display: block;
+        font-size: 1rem;
+        background: white;
+        box-shadow: 0 0 1px rgba($black, 0.8);
+        min-width: 200px;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0;
+
+        .leaflet-popup-content {
+          margin: 0;
+          padding: 0;
+
+          p {
+            margin: 0 0 0.5rem 0;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+
+      .leaflet-popup-close-button {
+        margin-top: 0.5rem;
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+        padding: 0;
+        height: 1.2rem;
+        width: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $primary-color;
+      }
+
+      .leaflet-popup-close-button,
+      .ol-popup-detail-link {
+        position: relative;
+        pointer-events: auto;
+        float: right;
+        margin-left: 0.5rem;
       }
     }
   }

@@ -279,6 +279,8 @@ class OpenLayersEditor extends OpenLayersViewer {
       this.initModifyableActions();
     } else {
       if (this.feature) {
+        this.map.removeInteraction(this.modify);
+        this.modify = undefined;
         this.source.removeFeature(this.feature);
         this.feature = undefined;
       }

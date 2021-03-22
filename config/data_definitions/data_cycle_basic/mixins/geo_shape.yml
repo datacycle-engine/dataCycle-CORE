@@ -32,7 +32,6 @@
                 :poi:
                   :geo: location
                   :title: title
-
         :api:
           :name: tour
           :minimal: true

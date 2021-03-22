@@ -97,10 +97,12 @@ class TourSprungEditor extends OpenLayersEditor {
     }
 
     if (this.additionalValues && this.additionalValues.length) this.drawAdditionalFeatures();
+    this.updateMapPosition();
   }
   initMtkEvents() {
     MTK.event.addListener(this.map.editor, 'update', data => {
       this.setMtkLineStyle();
+      this.feature = this.map.editor._polyline();
       let coords = this.reverseCoordinates(data.routeVertices);
       this.setHiddenFieldValue({ type: 'MultiLineString', coordinates: coords });
     });
@@ -138,7 +140,6 @@ class TourSprungEditor extends OpenLayersEditor {
   drawInitialMarker() {
     let coords = L.GeoJSON.coordsToLatLng(this.value.geometry.coordinates);
     this.drawMarkerFeature(coords);
-    this.map.leaflet.fitBounds([coords], { padding: [50, 50], maxZoom: 15 });
   }
   drawInitialRoute() {
     let coords = L.GeoJSON.coordsToLatLngs(
@@ -147,7 +148,7 @@ class TourSprungEditor extends OpenLayersEditor {
     );
     this.map.editor.setSerializedData({ routeVertices: coords });
     this.setMtkLineStyle();
-    this.map.leaflet.fitBounds(coords, { padding: [50, 50], maxZoom: 15 });
+    this.feature = this.map.editor._polyline();
   }
   drawMarkerFeature(coords) {
     this.feature = this.singleMarker(coords, true)
@@ -161,21 +162,33 @@ class TourSprungEditor extends OpenLayersEditor {
       draggable: draggable,
       icon: L.icon({
         iconUrl: this.icons.default.interpolate({ color: escape(this.colors.default) }),
-        iconAnchor: [16, 32]
+        iconAnchor: [16, 32],
+        popupAnchor: [0, 38]
       })
     });
   }
   drawFeatureFromGeoJson(geoJson) {
     return L.geoJSON(geoJson, {
       style: {
-        color: this.colors.default
+        color: this.colors.default,
+        opacity: 1,
+        weight: 5
       },
-      pointToLayer: (_feature, latlng) => this.singleMarker(latlng)
+      pointToLayer: (_feature, latlng) => this.singleMarker(latlng),
+      onEachFeature: (feature, layer) => {
+        this.additionalFeatures.push(layer);
+        if (feature && feature.properties && feature.properties.thingPath)
+          layer.bindPopup(this.showInfoOverlay.bind(this));
+      }
     }).addTo(this.map.leaflet);
   }
+  showInfoOverlay(layer) {
+    return this.infoOverlayHtml(layer.feature.properties);
+  }
   drawAdditionalFeatures() {
-    this.additionalValues.forEach(additionalFeature => {
-      this.drawFeatureFromGeoJson(additionalFeature.geometry);
+    this.drawFeatureFromGeoJson({
+      type: 'FeatureCollection',
+      features: this.additionalValues
     });
   }
   configureEditor() {
@@ -236,6 +249,15 @@ class TourSprungEditor extends OpenLayersEditor {
     else this.feature.setLatLng({ lng: data[0], lat: data[1] });
 
     this.setNewCoordinates();
+  }
+  updateMapPosition() {
+    let featureGroup = L.featureGroup();
+    if (this.feature) featureGroup.addLayer(this.feature);
+    if (this.additionalFeatures && this.additionalFeatures.length)
+      this.additionalFeatures.forEach(feature => featureGroup.addLayer(feature));
+
+    if (featureGroup.getLayers().length)
+      this.map.leaflet.fitBounds(featureGroup.getBounds(), { padding: [50, 50], maxZoom: 15 });
   }
 }
 

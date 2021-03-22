@@ -84,17 +84,6 @@
         :storage_location: column
         :type: geographic
         :ui:
-          :show:
-            :disabled: true
-          :edit:
-            :disabled: true
-      :all_sections:
-        :label: Gesamtstrecke
-        :storage_location: value
-        :type: geographic
-        :api:
-          :disabled: true
-        :ui:
           :edit:
             :disabled: true
             :type: LineString
