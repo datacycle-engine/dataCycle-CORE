@@ -1,5 +1,4 @@
-var OpenLayersEditor = require('./open_layers_editor');
-var wkx = require('wkx');
+const OpenLayersEditor = require('./open_layers_editor');
 
 class TourSprungEditor extends OpenLayersEditor {
   constructor(container) {
