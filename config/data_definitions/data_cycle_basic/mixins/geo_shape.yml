@@ -32,6 +32,9 @@
                 :poi:
                   :geo: location
                   :title: title
+                :contains_place:
+                  :geo: line
+                  :title: title
         :api:
           :name: tour
           :minimal: true
