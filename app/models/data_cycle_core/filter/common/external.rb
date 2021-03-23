@@ -7,7 +7,7 @@ module DataCycleCore
         def external_source(ids = nil)
           return self if ids.blank?
 
-          dc_or_nil = ids.delete('nil')
+          dc_or_nil = Array.wrap(ids).delete('nil')
           where_clause = thing[:external_source_id].in(ids)
           where_clause = where_clause.or(thing[:external_source_id].eq(nil)) if dc_or_nil.present?
 
