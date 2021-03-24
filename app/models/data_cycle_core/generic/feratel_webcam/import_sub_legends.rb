@@ -30,6 +30,7 @@ module DataCycleCore
             child_classification_data = {
               external_key: prefix + classification_data['_id'],
               name: classification_data['name'],
+              uri: classification_data['uri'],
               tree_name: tree_name
             }
 
@@ -61,6 +62,7 @@ module DataCycleCore
                 '$project': {
                   'id': "$dump.#{locale}.cid.t",
                   'name': "$dump.#{locale}.cid.c",
+                  'uri': "$dump.#{locale}.cid.is",
                   'parent_id': "$dump.#{locale}.t",
                   'parent_name': "$dump.#{locale}.c"
                 }
@@ -69,6 +71,7 @@ module DataCycleCore
                 '$group': {
                   _id: '$id',
                   name: { '$first': '$name' },
+                  uri: { '$first': '$uri' },
                   parent_id: { '$first': '$parent_id' },
                   parent_name: { '$first': '$parent_name' }
                 }
