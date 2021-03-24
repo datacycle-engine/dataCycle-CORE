@@ -1,8 +1,10 @@
+<% additional_values = additional_map_values(content, definition&.dig('ui', 'edit', 'options', 'additional_value_paths')) %>
+
 <%= render 'data_cycle_core/contents/viewers/attribute',
   key: key,
   definition: definition,
   value: value,
-  options: (options || {}).merge(definition&.dig('ui', 'edit', 'options', 'additional_value_paths').present? ? { force_render: true }: {}),
+  options: (options || {}).merge(additional_values.present? ? { force_render: true }: {}),
   content: content,
   data_attributes: {
     value: { x: value.try(:x), y: value.try(:y), elevation: content&.try(:elevation) }.to_json,
@@ -19,7 +21,7 @@
           data-after-position="<%= value_to_geojson(options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2) : options.dig(:item_diff, 1), { style: { color: 'green' } })&.to_json %>"
           data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
           data-value="<%= value_to_geojson(value)&.to_json %>"
-          data-additional-values="<%= additional_map_values(content, definition&.dig('ui', 'edit', 'options', 'additional_value_paths'))&.to_json %>">
+          data-additional-values="<%= additional_values&.to_json %>">
         </div>
         <div class="ol-popup">
           <a href="#" class="ol-popup-closer"><i class="fa fa-times" aria-hidden="true"></i></a>
