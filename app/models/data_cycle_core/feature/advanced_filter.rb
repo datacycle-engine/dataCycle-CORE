@@ -144,7 +144,7 @@ module DataCycleCore
           return [] unless value
           value.map do |k, _v|
             [
-              I18n.t("filter.in_schedule.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'inactive_things',
               data: { name: k }
             ]
@@ -155,7 +155,7 @@ module DataCycleCore
           return [] unless value
           value.map do |k, _v|
             [
-              I18n.t("filter.in_schedule.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'in_schedule',
               data: { name: k }
             ]
@@ -166,7 +166,7 @@ module DataCycleCore
           return [] unless value
           value.map do |k, _v|
             [
-              I18n.t("filter.in_schedule.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'validity_period',
               data: { name: k }
             ]

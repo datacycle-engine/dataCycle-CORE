@@ -404,13 +404,7 @@ de:
     geo_within_classification: Lage
     event_location: Veranstaltungsort
     inactive_things: Abgelaufene Inhalte
-    in_schedule:
-      absolute: Fester Zeitraum
-      relative: Relativer Zeitraum
-      before: vor
-      in: in
-      num: Anzahl
-      unit: Einheit
+    in_schedule: Termin
     relation_filter:
       contained_in: ist enthalten in
       not_contained_in: ist nicht enthalten in
@@ -427,6 +421,13 @@ de:
     linked_location: Verknüpfter Ort
     linked_author: Verknüpfter Fotograf
     linked_copyright_holder: Verknüpfter Rechteinhaber
+    in_schedule_types:
+      absolute: Fester Zeitraum
+      relative: Relativer Zeitraum
+      before: vor
+      in: in
+      num: Anzahl
+      unit: Einheit
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...

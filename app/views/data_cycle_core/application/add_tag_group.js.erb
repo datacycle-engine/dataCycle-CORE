@@ -1,13 +1,13 @@
-<% target = (params['n'].presence&.parameterize(separator: '_') || '') + (params['index'].present? ? "_#{params['index']}" : '') %>
+<% target = (@params['n'].presence&.parameterize(separator: '_') || '') + (@params['index'].present? ? "_#{@params['index']}" : '') %>
 
 var new_html = '<%= j render_advanced_filter_tags_partial({
-  filter_type: params['t'],
-  title: params['n'],
-  key: params['n'].presence&.parameterize(separator: '_'),
+  filter_type: @params['t'],
+  title: @params['n'],
+  key: @params['n'].presence&.parameterize(separator: '_'),
   target: target,
-  value: params['v'] || [],
-  filter_advanced_type: params['q'],
-  filter_method: params['m'] || 'i',
+  value: @params['v'] || [],
+  filter_advanced_type: @params['q'],
+  filter_method: @params['m'] || 'i',
   container_classes: 'advanced-tags',
   buttons: 'a'
 }) %>';

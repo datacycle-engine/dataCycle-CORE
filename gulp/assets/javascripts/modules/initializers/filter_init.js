@@ -130,37 +130,34 @@ module.exports.initialize = function ($) {
         });
     });
 
-    $('.filters .advanced-filters').on('change', ' .advanced-filter', event => {
+    $('.filters .advanced-filters').on('change', '.advanced-filter', event => {
       $(event.currentTarget)
         .removeClass('i e n q')
         .addClass($(event.currentTarget).find(':input[name*="[m]"]').first().val());
 
-      let value;
-      let value_fields = $(event.currentTarget).find(':input[name*="[v]"]');
-      if (value_fields.is(':checkbox')) {
-        if (value_fields.filter(':checkbox').first().prop('checked'))
-          value = value_fields.filter(':checkbox').first().val();
-        else value = value_fields.filter(':hidden').first().val();
-      } else if (value_fields.is(':radio')) {
-        value = value_fields.filter(':checked').first().val();
-      } else if (value_fields.length > 1) {
-        value = {};
-        value_fields.each((index, elem) => {
-          value[$(elem).prop('name').getKey()] = $(elem).val();
-        });
-      } else if (value_fields.length == 1) value = value_fields.val();
+      const type = $(event.currentTarget).find(':input[name*="[t]"]').first().val();
+
+      if (type == 'advanced_attributes') {
+        let newTarget = $(event.currentTarget).find('> .advanced-filter-selector');
+        let selectValue = $(event.currentTarget).find('> .advanced-filter-mode select').val();
+
+        console.log(selectValue, newTarget);
+
+        if (selectValue == 'b' || selectValue == 'p') {
+          newTarget.find(':input[type=hidden]').prop('disabled', false);
+          newTarget.find(':input:not([type=hidden])').prop('disabled', true);
+        } else {
+          newTarget.find(':input[type=hidden]').prop('disabled', true);
+          newTarget.find(':input:not([type=hidden])').prop('disabled', false);
+        }
+      }
+
+      const params = $(event.currentTarget).find(':input').serializeJSON();
 
       $.ajax({
         url: window.DATA_CYCLE_ENGINE_PATH + '/add_tag_group',
         method: 'GET',
-        data: {
-          t: $(event.currentTarget).find(':input[name*="[t]"]').first().val(),
-          n: $(event.currentTarget).find(':input[name*="[n]"]').first().val(),
-          q: $(event.currentTarget).find(':input[name*="[q]"]').first().val(),
-          v: value,
-          m: $(event.currentTarget).find(':input[name*="[m]"]').first().val(),
-          index: $(event.currentTarget).data('index')
-        },
+        data: params,
         dataType: 'script',
         contentType: 'application/json'
       });
@@ -218,18 +215,6 @@ module.exports.initialize = function ($) {
       });
 
       accordion.foundation('down', accordion.find('> .accordion-item > .accordion-content'));
-    });
-    $(document).on('change', '.filters .advanced-filter .advanced-filter-mode select', event => {
-      event.preventDefault();
-      let newTarget = $(event.currentTarget).parent().siblings('.advanced-filter-selector');
-      let selectValue = $(event.currentTarget).val();
-      if (selectValue == 'b' || selectValue == 'p'){
-        newTarget.find(':input[type=hidden]').attr('disabled', false);
-        newTarget.find(':input:not([type=hidden])').attr('disabled', true);
-      }else{
-        newTarget.find(':input[type=hidden]').attr('disabled', true);
-        newTarget.find(':input:not([type=hidden])').attr('disabled', false);
-      }
     });
   };
 
