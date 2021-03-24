@@ -52,6 +52,14 @@ module DataCycleCore
           end
         end
 
+        def lift_details(lang: :de)
+          Enumerator.new do |yielder|
+            load_cam_ids.each do |cam_id|
+              yielder << load_data(cam: cam_id, pc: 4, lang: lang, pccd: 0)
+            end
+          end
+        end
+
         def slope_details(lang: :de)
           Enumerator.new do |yielder|
             load_cam_ids.each do |cam_id|
@@ -60,10 +68,10 @@ module DataCycleCore
           end
         end
 
-        def lift_details(lang: :de)
+        def infrastructure_details(lang: :de)
           Enumerator.new do |yielder|
             load_cam_ids.each do |cam_id|
-              yielder << load_data(cam: cam_id, pc: 4, lang: lang, pccd: 0)
+              yielder << load_data(cam: cam_id, pc: 4, lang: lang, pccd: 2)
             end
           end
         end

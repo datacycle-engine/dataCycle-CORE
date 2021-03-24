@@ -1,10 +1,9 @@
----
 - :data:
-    :name: Skigebiet
+    :name: Zusatzangebot
     :type: object
     :schema_type: Place
     :content_type: entity
-    :boost: 100.0
+    :boost: 0.0
     :features:
       :translatable:
         :allowed: true
@@ -17,7 +16,7 @@
           :json: true
           :indesign: true
     :api:
-      :type: SkiResort
+      :type: amenityFeature
     :properties:
       :id:
         :label: id
@@ -25,32 +24,11 @@
       :title:
         :type: mixin
         :name: title
-      :lifts:
-        :label: Lifte
-        :type: linked
-        :template_name: Lift
-      :slopes:
-        :label: Pisten
-        :type: linked
-        :template_name: Piste
-      :amenity_feature:
-        :label: Zusatzangebot
-        :type: linked
-        :template_name: Zusatzangebot
-        :api:
-          :name: amenityFeature
-      :geo:
-        :type: mixin
-        :name: geo
-      :image:
-        :label: Bilder
-        :type: linked
-        :template_name: Bild
       :data_type:
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Skigebiet'
+        :default_value: 'Zusatzangebot'
       :meta_data:
         :type: mixin
         :name: meta_data
