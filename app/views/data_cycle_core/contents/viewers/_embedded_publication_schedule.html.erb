@@ -14,7 +14,7 @@
                 <div class="publication-row title-row">
                     <span class="publication-attribute publication-date"><span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span> <%= t('data_cycle_core.publication_date', locale: DataCycleCore.ui_language) %></span>
                     <% classification_attributes.presence&.each_value do |c_attribute| %>
-                        <span class="publication-attribute"><%= render 'data_cycle_core/shared/icon', icon_type: c_attribute.downcase %><%= c_attribute %></span>
+                        <span class="publication-attribute"><%= render 'data_cycle_core/shared/icon', icon_type: c_attribute.underscore_blanks, icon_class: 'classification_tree_label' %><%= c_attribute %></span>
                     <% end %>
                 </div>
             <% end %>

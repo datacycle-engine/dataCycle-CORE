@@ -36,7 +36,9 @@ module DataCycleCore
         BulkUpdateType.new('override', t('common.bulk_update.check_box_labels.override_html', locale: DataCycleCore.ui_language, data: prop['label']))
       ]
 
-      return check_boxes unless prop['type'] == 'classification' && prop.dig('ui', 'edit', 'type').blank? && prop.dig('ui', 'edit', 'options', 'multiple').nil?
+      type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
+
+      return check_boxes unless type == 'classification' && prop.dig('ui', 'edit', 'options', 'multiple').nil?
 
       check_boxes.concat(
         [
