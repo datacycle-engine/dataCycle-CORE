@@ -18,7 +18,7 @@
 
     <div class="accordion-title">
       <span class="title">
-        <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %>
+        <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.class.name.demodulize.underscore %>
         <span class="embedded-label"><%= definition['label'] %></span>
         <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
         <%= tag.span object.try(object.embedded_title_property_name), title: object.try(object.embedded_title_property_name), class: "embedded-title#{' visible' if object.try(object.embedded_title_property_name).present?}" if object.embedded_title_property_name.present? %>
