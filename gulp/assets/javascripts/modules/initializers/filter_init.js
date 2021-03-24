@@ -141,8 +141,6 @@ module.exports.initialize = function ($) {
         let newTarget = $(event.currentTarget).find('> .advanced-filter-selector');
         let selectValue = $(event.currentTarget).find('> .advanced-filter-mode select').val();
 
-        console.log(selectValue, newTarget);
-
         if (selectValue == 'b' || selectValue == 'p') {
           newTarget.find(':input[type=hidden]').prop('disabled', false);
           newTarget.find(':input:not([type=hidden])').prop('disabled', true);
