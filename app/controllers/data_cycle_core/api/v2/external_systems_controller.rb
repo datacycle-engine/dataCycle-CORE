@@ -8,7 +8,7 @@ module DataCycleCore
 
         def show
           external_system = DataCycleCore::ExternalSystem.find(read_id(permitted_params.dig(:id)))
-          raise unless external_system.name == 'OutdoorActive'
+          raise unless external_system.identifier == 'outdooractive'
 
           ids = permitted_params.dig(:ids).split(',')
           content = DataCycleCore::Thing.where(id: ids)
