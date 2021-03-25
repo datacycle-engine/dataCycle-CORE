@@ -21,8 +21,8 @@
   <%= render_advanced_filter_tags_partial({
     filter_type: filter['t'],
     title: filter['n'],
-    key: filter['n'].presence&.parameterize(separator: '_'),
-    target: filter['n'].presence&.parameterize(separator: '_'),
+    key: filter['n'].presence&.underscore_blanks,
+    target: filter['n'].presence&.underscore_blanks,
     filter_advanced_type: filter['q'],
     value: filter['v'],
     filter_method: filter['m'],
