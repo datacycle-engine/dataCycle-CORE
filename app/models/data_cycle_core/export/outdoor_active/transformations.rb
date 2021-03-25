@@ -69,7 +69,7 @@ module DataCycleCore
                 xml.description('lang' => translation.locale) do
                   xml.title content.name
                   xml.abstract ActionView::Base.full_sanitizer.sanitize(content.description) if content.description.present?
-                  xml.text ActionView::Base.full_sanitizer.sanitize(content.text) if content.text.present?
+                  xml.text_ ActionView::Base.full_sanitizer.sanitize(content.text) if content.text.present?
                 end
               end
             end

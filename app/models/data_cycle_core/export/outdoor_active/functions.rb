@@ -84,8 +84,10 @@ module DataCycleCore
 
         def self.outdoor_active_categories(data, external_system, tree_label)
           if tree_label == 'OutdoorActive - System - Kategorien' && (classifications = data.try(:outdoor_active_system_categories)).present?
+            # used by Spielberg (for POI)
             classifications
           else
+            # used by KW (Unterknunft)
             external_source_id = external_system&.id
             data.classifications.includes(:classification_aliases)
               .map(&:classification_aliases).flatten.uniq
