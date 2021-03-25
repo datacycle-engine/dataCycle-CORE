@@ -83,13 +83,16 @@ module DataCycleCore
         end
 
         def self.outdoor_active_categories(data, external_system, tree_label)
-          external_source_id = external_system&.id
-
-          data.classifications.includes(:classification_aliases)
-            .map(&:classification_aliases).flatten.uniq
-            &.select { |c|
-            c.external_source_id == external_source_id && c.classification_tree.classification_tree_label.name == tree_label
-          }&.map(&:primary_classification)
+          if tree_label == 'OutdoorActive - System - Kategorien' && (classifications = data.try(:outdoor_active_system_categories)).present?
+            classifications
+          else
+            external_source_id = external_system&.id
+            data.classifications.includes(:classification_aliases)
+              .map(&:classification_aliases).flatten.uniq
+              &.select { |c|
+              c.external_source_id == external_source_id && c.classification_tree.classification_tree_label.name == tree_label
+            }&.map(&:primary_classification)
+          end
         end
 
         def self.log(message, id)
