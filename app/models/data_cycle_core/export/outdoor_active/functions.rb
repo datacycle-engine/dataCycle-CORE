@@ -73,7 +73,7 @@ module DataCycleCore
 
           if statuses.blank? ||
              outdoor_active_system_categories(data, external_system).blank? ||
-             (outdoor_active_system_source_keys(data, external_system).blank? && external_system.configuration('export').dig('xml', 'owner').blank?)
+             (outdoor_active_system_source_keys(data, external_system).blank? && external_system.credentials('export').dig('xml', 'owner').blank?)
 
             'offline'
           elsif statuses.size == 1
