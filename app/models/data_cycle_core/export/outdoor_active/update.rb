@@ -20,7 +20,7 @@ module DataCycleCore
             (data.template_name == 'POI' || data.template_name == 'Unterkunft') &&
             data&.external_source&.identifier == 'feratel' &&
             Functions.outdoor_active_system_categories(data, external_system).size.positive? &&
-            (Functions.outdoor_active_system_source_keys(data, external_system).size.positive? | source_key.present?) &&
+            (Functions.outdoor_active_system_source_keys(data, external_system).size.positive? || source_key.present?) &&
             (job_id.blank? || updated_at + 2.days < Time.zone.now)
           )
         end
