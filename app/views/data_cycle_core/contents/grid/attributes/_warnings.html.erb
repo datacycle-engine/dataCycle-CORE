@@ -6,13 +6,11 @@
       <%= content.content_warnings.join(', ') %>
     </p>
   <% elsif content.content_warnings? %>
-    <%= tag.i class: 'fa fa-exclamation-triangle content-warning',
+    <%= tag.i class: 'fa fa-exclamation-triangle content-warning dc-foundation-tooltip',
       aria_hidden: true,
       title: content.content_warnings.join('<br>'),
       data: {
-        tooltip: true,
         allow_html: true,
-        click_open: false,
         title: content.content_warnings.join('<br>')
       } %>
   <% end %>

@@ -43,6 +43,7 @@ de:
     user: Benutzer
     standard: Standard
     guest: Gast
+    external_user: Externer Benutzer
 
   view_modes:
     grid: Kacheln
@@ -65,7 +66,7 @@ de:
     import_full: Import (full)
     import: Import
     download: Download
-    download_import: Download&Import
+    download_import: Download & Import
     delete: delete
 
   notification:
@@ -231,7 +232,13 @@ de:
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
     additional_classifications: weitere Klassifizierungen
     bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
-    bulk_update_check_box_label: '%{data} überschreiben?'
+    bulk_update:
+      check_box_labels:
+        override_html: '<span class="attribute-title">%{data}</span> überschreiben'
+        add_html: 'An vorhandene <span class="attribute-title">%{data}</span> anhängen'
+        remove_html: 'Ausgewählte <span class="attribute-title">%{data}</span> entfernen'
+      button:
+        limited: Es können maximal %{data} Inhalte gleichzeitig bearbeitet werden.
     watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
     content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
@@ -321,6 +328,8 @@ de:
       version_name_removed: Der Versionsname wurde entfernt!
     download:
       missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
+    gip_key_figure:
+      button_title: Ermittlung des Wertes für %{data} über ein Web-Service der GIP auf Basis der zugrundeliegenden Geo-Daten
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -358,8 +367,11 @@ de:
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
+    bookable: buchbar
+    not_bookable: nicht buchbar
     width: Breite
     height: Höhe
+    order: Reihenfolge
     content_size: Dateigröße
     contact_info_email: E-Mail
     contact_info_telephone: Telefonnummer
@@ -393,13 +405,7 @@ de:
     geo_within_classification: Lage
     event_location: Veranstaltungsort
     inactive_things: Abgelaufene Inhalte
-    in_schedule:
-      absolute: Fester Zeitraum
-      relative: Relativer Zeitraum
-      before: vor
-      in: in
-      num: Anzahl
-      unit: Einheit
+    in_schedule: Termin
     relation_filter:
       contained_in: ist enthalten in
       not_contained_in: ist nicht enthalten in
@@ -410,14 +416,26 @@ de:
       related: verknüpft mit
       not_related: nicht verknüpft mit
     max_number_of_people: max. Anzahl Personen
-    number_of_meeting_rooms: Anzahl der Zimmer (Tagungsraum)
+    total_number_of_beds: Gesamtanzahl Betten
+    number_of_rooms: Gesamtanzahl Einheiten
+    number_of_accommodations: Anzahl der Wohneinheiten
+    linked_location: Verknüpfter Ort
+    linked_author: Verknüpfter Fotograf
+    linked_copyright_holder: Verknüpfter Rechteinhaber
+    in_schedule_types:
+      absolute: Fester Zeitraum
+      relative: Relativer Zeitraum
+      before: vor
+      in: in
+      num: Anzahl
+      unit: Einheit
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
     classification_tree_ids: nach Klassifizierungsbaum filtern...
     creator: nach Personen filtern...
-    external_source: nach Externer Quellen filtern...
-    external_system: nach Externer Verknüpfungen filtern...
+    external_source: nach externen Quellen filtern...
+    external_system: nach externen Verknüpfungen filtern...
     validity_period: nach Gültigkeitszeitraum filtern...
     date_range: nach Datum filtern...
     boolean: nach booleschen Kriterien filtern...
@@ -556,6 +574,8 @@ de:
     set_all_attributes: 'für alle %{data} übernehmen'
     close_overlay: Overlay schließen
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
+    copyable_from: '%{data} übernehmen'
+    copyable_from_clear: '%{data} verwerfen'
 
   validation:
     errors:
@@ -564,6 +584,7 @@ de:
       min_number: '%{data} zu klein, sollte %{value} sein, ist aber nur %{data}.'
       max_number: '%{data} zu hoch, sollte %{value} sein, ist aber %{data}.'
       min_datetime: 'Zeitpunkt %{data} sollte nach %{min} liegen.'
+      min_date: 'Datum %{data} sollte nach %{min} liegen.'
       match: '%{data} stimmt nicht mit %{expression} überein.'
       format: 'Format-String %{format_string} für %{data} unbekannt.'
       uuid: 'Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0'
@@ -591,6 +612,7 @@ de:
       data_array_format: 'Elemente des Daten-Arrays für %{template} haben falsches Format %{key}.'
       classification: "Keine Classification gefunden für %{key} in classification_tree mit dem Label: '%{label}' und tree_label '%{tree_label}'"
       asset_upload: 'Datei konnte nicht hochgeladen werden'
+      asset_convert: 'Datei konnte nicht verarbeitet werden'
       min_ref: 'Zu wenig Referezen angegeben, %{data} sollte mindestens %{value} sein.'
       max_ref: 'Zu viele Referezen angegeben, %{data} sollte maximal %{value} sein.'
       data_format: 'Elemente des Link-Arrays für %{template} haben das falsche Format %{key}.'
@@ -662,9 +684,15 @@ de:
       become_user: 'Eingeloggt als %{data}.'
       duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
       merged_with_duplicate: Inhalte werden im Hintergrund zusammengeführt
-      bulk_updated: '<b>%{data}</b> Inhalte wurden aktualisiert'
-      bulk_deleted: '<b>%{data}</b> Inhalte wurden gelöscht'
-      bulk_created: '<b>%{data}</b> Inhalte wurden erstellt'
+      bulk_updated:
+        one: '<b>%{count}</b> Inhalt wurde aktualisiert'
+        other: '<b>%{count}</b> Inhalte wurden aktualisiert'
+      bulk_deleted:
+        one: '<b>%{count}</b> Inhalt wurde gelöscht'
+        other: '<b>%{count}</b> Inhalte wurden gelöscht'
+      bulk_created:
+        one: '<b>%{count}</b> Inhalt wurde erstellt'
+        other: '<b>%{count}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
@@ -672,9 +700,15 @@ de:
       not_modified: '%{data} wurde nicht geändert.'
       created_duplication: '%{data} wurde erfolgreich dupliziert.'
       content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
-      bulk_updated_skipped_html: '<br><b>%{data}</b> Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind.'
-      bulk_deleted_external_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da diese von einem Externen System importiert wurden.'
-      bulk_deleted_not_allowed_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da Sie keine Berechtigung dafür haben.'
+      bulk_updated_skipped_html:
+        one: '<br><b>%{count}</b> Inhalt wurde nicht gespeichert, da dieser in der gewählten Sprache nicht vorhanden sind.'
+        other: '<br><b>%{count}</b> Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind.'
+      bulk_deleted_external_html:
+        one: '<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da dieser von einem externen System importiert wurden.'
+        other: '<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da diese von einem externen System importiert wurden.'
+      bulk_deleted_not_allowed_html:
+        one: '<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da Sie keine Berechtigung dafür haben.'
+        other: '<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da Sie keine Berechtigung dafür haben.'
     job:
       added: '%{data}/%{uuid} zur Job-Queue hinzugefügt.'
       imported: "'%{data}' wurden aus YAML Datei importiert."
@@ -972,6 +1006,8 @@ de:
         InfrastructureOpeningTimes: Öffnungszeiten
         InfrastructurePriceInfo: Preisinformation
         InfrastructureShort: Kurzbeschreibung
+      GuestCards:
+        GuestCardClassification: Gästekartenleistungen
       accommodation:
         CurrentInformation: Aktuelle Informationen
         SEOKeywords: SEO-Schlagwörter
@@ -1004,6 +1040,7 @@ de:
         equipment: Ausrüstung
         suggestion: Tipps
         additional_information: Zusatzinformationen
+        maps: Literatur
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

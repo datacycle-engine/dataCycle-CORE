@@ -2,7 +2,7 @@
 
   <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
     <span class="icon <%= key.attribute_name_from_key %>">
-      <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
+      <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
       <i aria-hidden="true" class="fa fa-clock-o"></i>
     </span>
     <%= definition['label'] %>
@@ -11,7 +11,7 @@
   <div class="duration-slider">
     <div class="small-10 columns">
       <%= tag.div tag.span(class: 'slider-handle', role: 'slider', tabindex: 1, aria: { controls: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" }, data: { slider_handle: true }),
-        class: "slider#{' disabled' unless can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) }",
+        class: "slider#{' disabled' unless attribute_editable?(key, definition, options, content) }",
         data: {
           slider: true,
           initial_start: value.try(:to_i) || 0,

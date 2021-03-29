@@ -65,7 +65,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
               properties: {
                 valid_from: {
                   label: 'Gültigkeit',
-                  type: 'datetime',
+                  type: 'date',
                   storage_location: 'translated_value',
                   ui: {
                     edit: {
@@ -78,7 +78,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
                 },
                 valid_until: {
                   label: 'bis',
-                  type: 'datetime',
+                  type: 'date',
                   storage_location: 'translated_value',
                   ui: {
                     edit: {

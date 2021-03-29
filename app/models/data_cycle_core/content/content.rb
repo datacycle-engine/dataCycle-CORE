@@ -10,11 +10,12 @@ module DataCycleCore
         'translated_value' => 'content',
         'column' => 'column'
       }.freeze
-      PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'datetime', 'boolean', 'geographic'].freeze
+      PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic'].freeze
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :original_id, :synchronous_webhooks
+      attr_accessor :datahash, :webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :original_id, :duplicate_id, :synchronous_webhooks
+      attr_writer :webhook_data
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
         feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
@@ -33,6 +34,12 @@ module DataCycleCore
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay
+
+      def webhook_data
+        return @webhook_data if defined? @webhook_data
+
+        @webhook_data = OpenStruct.new
+      end
 
       def method_missing(name, *args, &block)
         original_name = name.to_s
@@ -60,6 +67,11 @@ module DataCycleCore
       def respond_to?(method_name, include_all = false)
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym, (item.to_s + "_#{overlay_name}").to_sym] }.flatten +
           linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
+      end
+
+      def content_template
+        return @content_template if defined? @content_template
+        @content_template = DataCycleCore::Thing.find_by(template: true, template_name: template_name)
       end
 
       def content_type?(*types)
@@ -227,15 +239,17 @@ module DataCycleCore
       end
 
       def advanced_search_property_names
-        property_definitions.select { |_, definition|
-          !['embedded', 'object', 'linked'].include?(definition['type']) && definition['advanced_search'] == true
-        }.keys
+        name_property_selector { |definition| !['embedded', 'object', 'linked', 'classification'].include?(definition['type']) && definition['advanced_search'] == true }
       end
 
       def advanced_included_search_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'object' && definition['advanced_search'] == true
         }.keys
+      end
+
+      def advanced_classification_property_names
+        name_property_selector { |definition| definition['type'] == 'classification' && definition['advanced_search'] == true }
       end
 
       def geo_properties(include_overlay = false)
@@ -339,7 +353,7 @@ module DataCycleCore
             elsif linked_property_names(true).include?(key[0])
               load_linked_objects(key[0], key[3], false, [I18n.locale], key[4])
             elsif embedded_property_names(true).include?(key[0])
-              load_embedded_objects(key[0], key[3], true, [I18n.locale], key[4])
+              load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [I18n.locale], key[4])
             elsif asset_property_names.include?(key[0]) # no overlay
               load_asset_relation(key[0])
             elsif computed_property_names(true).include?(key[0])
@@ -451,7 +465,7 @@ module DataCycleCore
           t.schema.dig('properties')
             .except(*(DataCycleCore.internal_data_attributes + ['id']))
             .select { |k, v|
-              ['computed', 'asset'].exclude?(v['type']) &&
+              ['computed', 'virtual', 'asset'].exclude?(v['type']) &&
                 user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
                 user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
                 t.allowed_feature_attribute?(k.attribute_name_from_key)

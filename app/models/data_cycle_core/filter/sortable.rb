@@ -51,7 +51,10 @@ module DataCycleCore
 
       def sort_by_proximity(_ordering = '', value = {})
         date = Time.zone.now
-        if value.present? && value.is_a?(::Hash)
+        if value.present? && value.is_a?(::Hash) && value.dig('n') == 'relative'
+          date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
+          date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from').present?
+        elsif value.present? && value.is_a?(::Hash)
           date = date_from_single_value(value.dig('in', 'min')) if value.dig('in', 'min').present?
           date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
         end
@@ -77,20 +80,39 @@ module DataCycleCore
         )
       end
 
-      def sort_by_schedule_proximity(_ordering = '', value = {})
-        return self if value&.dig('in', 'min').blank? || value&.dig('in', 'max').blank?
-        start_date = date_from_single_value(value.dig('in', 'min'))
-        end_date = date_from_single_value(value.dig('in', 'max'))
+      def sort_by_schedule_proximity(ordering = '', value = {})
+        if value.present? && value.is_a?(::Hash) && value.dig('n') == 'relative'
+          start_date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
+          start_date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from').present?
+
+          end_date = relative_to_absolute_date(value.dig('in', 'max')) if value.dig('in', 'max').present?
+          end_date = relative_to_absolute_date(value.dig('v', 'until')) if value.dig('v', 'until').present?
+        elsif value.present? && value.is_a?(::Hash)
+          start_date = date_from_single_value(value.dig('in', 'min')) if value.dig('in', 'min').present?
+          start_date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
+
+          end_date = date_from_single_value(value.dig('in', 'max')) if value.dig('in', 'max').present?
+          end_date = date_from_single_value(value.dig('v', 'until')) if value.dig('v', 'until').present?
+        end
+
+        return self if start_date.nil? && end_date.nil?
+
+        order_parameter_join = %{
+          JOIN (
+          	SELECT thing_id, MIN(LOWER(schedule_occurrences.occurrence)) "min_start_date"
+          	FROM schedule_occurrences
+          	WHERE schedule_occurrences.occurrence && TSTZRANGE(?, ?)
+          	GROUP BY thing_id
+          ) "schedule_occurrences" ON schedule_occurrences.thing_id = things.id
+        }
+
         reflect(
           @query
-            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions,
-                                           [
-                                             'LEFT JOIN schedule_occurrences ON schedule_occurrences.thing_id = things.id AND occurrence && TSTZRANGE(?, ?)',
-                                             start_date,
-                                             end_date
-                                           ]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
             .reorder(
-              Arel.sql('LOWER(schedule_occurrences.occurrence) ASC')
+              Arel.sql(sanitized_order_string('min_start_date', ordering, true)),
+              Arel.sql('things.updated_at DESC'),
+              Arel.sql('things.id DESC')
             )
         )
       end
@@ -108,7 +130,7 @@ module DataCycleCore
               "things.boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
-              2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
+              2 * ts_rank_cd(searches.words, plainto_tsquery(get_dict(searches.locale), :search),16) +
               1 * similarity(searches.full_text, :search_string))"
             ),
             search_string: "%#{search_string}%",

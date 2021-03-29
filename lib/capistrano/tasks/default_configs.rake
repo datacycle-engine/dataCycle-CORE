@@ -18,6 +18,8 @@ namespace :datacycle do
         'default' => 1
       }
 
+      set :default_env, { SKIP_POST_DEPLOYMENT_MIGRATIONS: true }
+
       set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
 
       append :linked_files, '.env'
@@ -25,7 +27,7 @@ namespace :datacycle do
 
       namespace :deploy do
         after 'deploy:started', :add_special_tasks do
-          after 'puma:restart', 'datacycle:dev:migrate_project_with_new_configs'
+          after 'puma:restart', 'deploy:post_deploy_migrations'
           before 'puma:restart', 'datacycle:puma:deploy_config' unless fetch(:skip_deploy_configs)
         end
 

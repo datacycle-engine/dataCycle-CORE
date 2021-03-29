@@ -182,33 +182,23 @@
         :properties:
           :valid_from:
             :label: 'Zeitraum von'
-            :type: datetime
+            :type: date
             :storage_location: value
-            :validations:
-              :format: date_time
             :ui:
               :edit:
-                :type: date
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
-              :show:
-                :type: date
           #            :advanced_search: true
           :valid_through:
             :label: 'bis'
-            :type: datetime
+            :type: date
             :storage_location: value
-            :validations:
-              :format: date_time
             :ui:
               :edit:
-                :type: date
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
-              :show:
-                :type: date
       #            :advanced_search: true
       :potentialAction:
         :label: Buchungs-Url
@@ -231,7 +221,7 @@
         :template_name: Ergänzende Information
         :api:
           :v4:
-            :name: dc:additionalInformation            
+            :name: dc:additionalInformation
       :image:
         :label: Bilder
         :type: linked

@@ -41,6 +41,53 @@ CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS trigger
     AS $$ BEGIN PERFORM generate_schedule_occurences(NEW.id || '{}'::UUID[]); RETURN NEW; END;$$;
 
 
+--
+-- Name: get_dict(character varying); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig
+    LANGUAGE plpgsql
+    AS $$
+      DECLARE
+        dict regconfig;
+      BEGIN
+        SELECT
+          CASE
+            WHEN lang = 'da' THEN 'pg_catalog.danish'
+            WHEN lang = 'nl' THEN 'pg_catalog.dutch'
+            WHEN lang = 'en' THEN 'pg_catalog.english'
+            WHEN lang = 'fi' THEN 'pg_catalog.finnish'
+            WHEN lang = 'fr' THEN 'pg_catalog.french'
+            WHEN lang = 'de' THEN 'pg_catalog.german'
+            WHEN lang = 'de-CH' THEN 'pg_catalog.german'
+            WHEN lang = 'hu' THEN 'pg_catalog.hungarian'
+            WHEN lang = 'it' THEN 'pg_catalog.italian'
+            WHEN lang = 'no' THEN 'pg_catalog.norwegian'
+            WHEN lang = 'pt' THEN 'pg_catalog.portuguese'
+            WHEN lang = 'ru' THEN 'pg_catalog.russian'
+            WHEN lang = 'es' THEN 'pg_catalog.spanish'
+            WHEN lang = 'sv' THEN 'pg_catalog.swedish'
+            WHEN lang = 'tr' THEN 'pg_catalog.turkish'
+            ELSE 'pg_catalog.simple'
+          END
+        INTO dict;
+        RETURN dict;
+      END; $$;
+
+
+--
+-- Name: tsvectorsearchupdate(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+      BEGIN
+      	NEW.words := pg_catalog.to_tsvector(get_dict(NEW.locale), NEW.full_text::text);
+        RETURN NEW;
+      END;$$;
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -506,7 +553,6 @@ CREATE TABLE public.things (
     latitude double precision,
     elevation double precision,
     location public.geometry(Point,4326),
-    line public.geography(LineStringZ,4326),
     address_locality character varying,
     street_address character varying,
     postal_code character varying,
@@ -519,7 +565,8 @@ CREATE TABLE public.things (
     boost numeric,
     content_type character varying,
     representation_of_id uuid,
-    version_name character varying
+    version_name character varying,
+    line public.geometry(MultiLineStringZ,4326)
 );
 
 
@@ -844,7 +891,6 @@ CREATE TABLE public.thing_histories (
     latitude double precision,
     elevation double precision,
     location public.geometry(Point,4326),
-    line public.geography(LineStringZ,4326),
     address_locality character varying,
     street_address character varying,
     postal_code character varying,
@@ -857,7 +903,8 @@ CREATE TABLE public.thing_histories (
     boost numeric,
     content_type character varying,
     representation_of_id uuid,
-    version_name character varying
+    version_name character varying,
+    line public.geometry(MultiLineStringZ,4326)
 );
 
 
@@ -2160,7 +2207,7 @@ CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT OR UPDATE ON pu
 -- Name: searches tsvectorsearchupdate; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectorsearchupdate BEFORE INSERT OR UPDATE ON public.searches FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('words', 'pg_catalog.simple', 'full_text');
+CREATE TRIGGER tsvectorsearchupdate BEFORE INSERT OR UPDATE ON public.searches FOR EACH ROW EXECUTE PROCEDURE public.tsvectorsearchupdate();
 
 
 --
@@ -2373,6 +2420,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20201105145022'),
 ('20201201103630'),
 ('20201207151843'),
-('20201208210141');
-
-
+('20201208210141'),
+('20210208130744'),
+('20210215102758'),
+('20210217125404'),
+('20210305080429'),
+('20210310141132');

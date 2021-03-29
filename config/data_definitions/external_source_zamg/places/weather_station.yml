@@ -5,6 +5,9 @@
     :schema_type: Place
     :content_type: entity
     :boost: 100.0
+    :features:
+      :translatable:
+        :allowed: true
     :api:
       :type:
         - Place
@@ -39,7 +42,7 @@
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Wetterstation"
+        :default_value: 'Wetterstation'
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -52,7 +55,6 @@
       :additional_properties:
         :type: mixin
         :name: additional_properties
-
 
 - :data:
     :name: Wettervorhersage
@@ -70,16 +72,15 @@
         :type: key
       :forecast_date:
         :label: Datum
-        :type: datetime
+        :type: date
         :storage_location: value
         :validations:
           :format: date
         :ui:
           :edit:
-            :type: date
             :options:
-              :class: single_date
-              :placeholder: "tt.mm.jjjj"
+              :class: daterange
+              :placeholder: 'tt.mm.jjjj'
       :temperature_forecasts:
         :label: Wetterbericht
         :type: embedded
@@ -88,7 +89,6 @@
       :meta_data:
         :type: mixin
         :name: meta_data
-
 
 - :data:
     :name: Wetterbericht
@@ -176,7 +176,6 @@
       :cc_rel:
         :type: mixin
         :name: cc_rel
-
 
 - :data:
     :name: Tagesprognose

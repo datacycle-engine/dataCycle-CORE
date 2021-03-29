@@ -20,8 +20,17 @@ module DataCycleCore
         external_data.update(data: nil)
       end
 
-      def external_system_sync_by_system(external_system, sync_type = 'export', external_key = nil)
-        external_system_syncs.find_or_create_by(external_system_id: external_system.id, sync_type: sync_type, external_key: external_key)
+      def external_system_sync_by_system(external_system:, sync_type: 'export', external_key: nil, use_key: false)
+        find_by_hash = { external_system_id: external_system.id, sync_type: sync_type }
+        find_by_hash[:external_key] = external_key if use_key && external_key.present?
+
+        begin
+          external_system_syncs.find_or_create_by(find_by_hash) do |s|
+            s.external_key = external_key
+          end
+        rescue ActiveRecord::RecordNotUnique
+          retry
+        end
       end
 
       def external_system_data_all(external_system, sync_type = 'export', external_key = nil, use_key = true)
@@ -46,6 +55,15 @@ module DataCycleCore
         external_system_syncs.where(external_system_id: external_source_id, sync_type: 'import', external_key: external_key).first_or_create
 
         update_columns(external_key: nil, external_source_id: nil)
+      end
+
+      def external_keys_by_system_id(external_system_id)
+        return [] if external_system_id.blank?
+
+        [
+          (external_key if external_source_id == external_system_id),
+          external_system_syncs.where(external_system_id: external_system_id).pluck(:external_key)
+        ].flatten.compact
       end
     end
   end

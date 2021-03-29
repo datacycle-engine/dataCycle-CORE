@@ -91,6 +91,15 @@ module DataCycleCore
           data.merge({ attribute_name => description })
         end
 
+        def self.remove_description(data, description_types)
+          raise ArgumentError unless data.is_a?(Array) || data.is_a?(Hash)
+
+          description_types = Array.wrap(description_types)
+
+          Array.wrap(data&.dig('Descriptions', 'Description')).delete_if { |i| i['Type'].in?(description_types) }
+          data
+        end
+
         def self.add_cc(data, external_source_id)
           if data.dig('CCId').present?
             classification = DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: data.dig('CCId'))

@@ -37,15 +37,22 @@ unless content.schema.nil?
     end
 
     value = nil
+    value_blank = false
 
     if prop['type'] == 'embedded' && prop['translated']
       value = load_embedded_object(content, key, options[:languages], prop)
+      value_blank = value.blank?
     else
-      value = I18n.with_locale(content.first_available_locale) { content.try((key + '_overlay').to_sym) }
+      value = I18n.with_locale(content.first_available_locale) { content.try(key + '_overlay') }
+      value_blank = load_value_object(content, key, value, options[:languages], api_definition(prop)).blank?
     end
 
-    value = virtual_attribute(content, key, prop, options[:languages]) if value.blank? && prop.dig('type') == 'virtual'
-    next if value.blank?
+    if value.blank? && prop.dig('type') == 'virtual'
+      value = virtual_attribute(content, key, prop, options[:languages])
+      value_blank = value.blank?
+    end
+
+    next if value_blank
 
     partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content
     if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present?

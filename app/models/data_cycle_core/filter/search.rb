@@ -108,7 +108,7 @@ module DataCycleCore
       def related_to(filter_id = nil)
         return self if filter_id.blank?
 
-        subquery = related_to_query(filter_id)
+        subquery = related_to_query(filter_id, nil, true)
         return self if subquery.nil?
 
         reflect(
@@ -119,7 +119,7 @@ module DataCycleCore
       def not_related_to(filter_id = nil)
         return self if filter_id.blank?
 
-        subquery = related_to_query(filter_id)
+        subquery = related_to_query(filter_id, nil, true)
         return self if subquery.nil?
 
         reflect(
@@ -135,14 +135,17 @@ module DataCycleCore
         end
       end
 
-      def duplicate_candidates(value)
-        if value == 'true'
+      def duplicate_candidates(value, score = nil)
+        sub_query = duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))
+        sub_query = sub_query.and(duplicate_candidate[:score].gteq(score.to_i)) if score.present?
+
+        if value.to_s == 'true'
           reflect(
-            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))).exists)
+            @query.where(duplicate_candidate.where(sub_query).exists)
           )
         else
           reflect(
-            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))).exists.not)
+            @query.where(duplicate_candidate.where(sub_query).exists.not)
           )
         end
       end
@@ -193,9 +196,31 @@ module DataCycleCore
         raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
 
+      # def self.dictionary_hash
+      #   hash = {
+      #     'da' => 'pg_catalog.danish',
+      #     'nl' => 'pg_catalog.dutch',
+      #     'en' => 'pg_catalog.english',
+      #     'fi' => 'pg_catalog.finnish',
+      #     'fr' => 'pg_catalog.french',
+      #     'de' => 'pg_catalog.german',
+      #     'de-CH' => 'pg_catalog.german',
+      #     'hu' => 'pg_catalog.hungarian',
+      #     'it' => 'pg_catalog.italian',
+      #     'no' => 'pg_catalog.norwegian',
+      #     'pt' => 'pg_catalog.portuguese',
+      #     'ru' => 'pg_catalog.russian',
+      #     'es' => 'pg_catalog.spanish',
+      #     'sv' => 'pg_catalog.swedish',
+      #     'tr' => 'pg_catalog.turkish'
+      #   }
+      #   hash.default('pg_catalog.simple')
+      #   hash
+      # end
+
       private
 
-      def related_to_query(filter, name = nil)
+      def related_to_query(filter, name = nil, inverse = false)
         if filter.is_a?(DataCycleCore::Filter::Search)
           filter_query = filter.select(:id).except(:order)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
@@ -206,8 +231,12 @@ module DataCycleCore
           return
         end
 
-        sub_select = content_content[:content_a_id].eq(thing[:id])
-          .and(content_content[:content_b_id].in(Arel.sql(filter_query.to_sql)))
+        thing_id = :content_a_id
+        related_to_id = :content_b_id
+        thing_id, related_to_id = related_to_id, thing_id if inverse
+
+        sub_select = content_content[thing_id].eq(thing[:id])
+          .and(content_content[related_to_id].in(Arel.sql(filter_query.to_sql)))
 
         sub_select = sub_select.and(content_content[:relation_a].eq(name)) if name.present?
 

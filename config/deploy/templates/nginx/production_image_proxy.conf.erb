@@ -57,6 +57,10 @@ server {
     client_max_body_size 4G;
     keepalive_timeout 90;
 
+    # increase proxy buffer size for large headers
+    proxy_buffer_size 16k;
+    proxy_busy_buffers_size 16k;
+
     error_page 500 502 504 /500.html;
     error_page 503 @503;
 
@@ -197,7 +201,7 @@ server {
         error_page 502 = $rqUrl;
     }
 
-    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/original\/.(?<file_name>(.*))\.(?<type>(.*))"{
+    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/original\/.(?<file_name>(.*))"{
         limit_req zone=req_zone burst=100 nodelay;
 
         set $type "original";

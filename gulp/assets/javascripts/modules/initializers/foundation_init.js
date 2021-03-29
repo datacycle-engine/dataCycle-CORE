@@ -71,4 +71,14 @@ module.exports.initialize = function ($) {
       .closest('[data-accordion]')
       .foundation('toggle', $(event.currentTarget).closest('.accordion-title').siblings('.accordion-content'));
   });
+
+  $(document).on('mouseenter', '.dc-foundation-tooltip', event => {
+    let $target = $(event.currentTarget);
+    $target.removeClass('dc-foundation-tooltip');
+
+    if ($target.prop('title').length) {
+      new Foundation.Tooltip($target);
+      $target.trigger('mouseenter');
+    }
+  });
 };

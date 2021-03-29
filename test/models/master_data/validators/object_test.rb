@@ -40,12 +40,12 @@ describe DataCycleCore::MasterData::Validators::Object do
           'properties' => {
             'valid_from' => {
               'label' => 'Gültigkeit',
-              'type' => 'datetime',
+              'type' => 'date',
               'storage_location' => 'value'
             },
             'valid_until' => {
               'label' => 'bis',
-              'type' => 'datetime',
+              'type' => 'date',
               'storage_location' => 'value'
             }
           }

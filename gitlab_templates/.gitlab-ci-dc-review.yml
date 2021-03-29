@@ -58,14 +58,16 @@ stop_review:
     - git reset origin/develop
     - git checkout -t origin/develop
     - git reset origin/develop --hard
-#    - git clone -b develop $CI_REPOSITORY_URL .
+    #    - git clone -b develop $CI_REPOSITORY_URL .
 
     - rm -Rf vendor/gems/data-cycle-core
     - git submodule sync --recursive
     - git submodule update --init --recursive --force
 
-    - bundle install --path=cache/bundler
-    - cd vendor/gems/data-cycle-core && bundle install --path=cache/bundler
+    - gem install bundler
+    - bundle config set --local path 'cache/bundler'
+    - bundle install
+    - cd vendor/gems/data-cycle-core && bundle install
 
     - cd $CI_PROJECT_DIR
   script:

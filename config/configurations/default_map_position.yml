@@ -1,4 +1,8 @@
-:longitude: 14.128417968749998
-:latitude: 47.41520280002081
+:longitude: 13.34576
+:latitude: 47.69642
 :zoom: 7
-:editor: 'OpenLayers'
+:editor: 'BaseMap'
+# :editor: 'OpenStreetMap'
+# :editor: 'TourSprung'
+# :credentials:
+#   :api_key: 'sandbox'

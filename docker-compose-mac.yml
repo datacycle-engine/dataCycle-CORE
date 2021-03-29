@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  web:
+    environment:
+      - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
+    volumes:
+      - sync:/var/www/app:nocopy
+      - /run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock
+  nginx:
+    volumes:
+      - sync:/var/www/app:nocopy
+volumes:
+  sync:
+    name: ${COMPOSE_PROJECT_NAME}-sync # using different names for different projects
+    external: true

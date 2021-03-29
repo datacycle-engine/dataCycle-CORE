@@ -1,21 +1,22 @@
 #!/usr/bin/env puma
 # frozen_string_literal: true
 
-directory '/var/www/app/test/dummy/'
-rackup '/var/www/app/test/dummy/config.ru'
+application_root = ENV['APPLICATION_ROOT']&.delete_suffix('/') || '/var/www/app'
+directory "#{application_root}/"
+rackup "#{application_root}/config.ru"
 environment 'development'
 
 tag ''
 
-pidfile '/var/www/app/test/dummy/tmp/pids/puma.pid'
-state_path '/var/www/app/test/dummy/tmp/pids/puma.state'
+pidfile "#{application_root}/tmp/pids/puma.pid"
+state_path "#{application_root}/tmp/pids/puma.state"
 stdout_redirect '/dev/stdout', '/dev/stderr', true
 
 threads 5, 5
 
-bind 'unix:///var/www/app/test/dummy/tmp/sockets/puma.sock'
+bind "unix://#{application_root}/tmp/sockets/puma.sock"
 
-workers 3
+workers 1
 
 preload_app!
 
@@ -24,7 +25,7 @@ before_fork do
   require 'puma_worker_killer'
 
   PumaWorkerKiller.config do |config|
-    config.ram = 4096 # mb
+    config.ram = 2048 # mb
     config.frequency = 3600 # seconds
     config.percent_usage = 0.9
     config.rolling_restart_frequency = false

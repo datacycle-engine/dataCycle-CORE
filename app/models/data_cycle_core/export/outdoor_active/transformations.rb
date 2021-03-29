@@ -11,7 +11,6 @@ module DataCycleCore
           builder = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
             xml.pois('xmlns' => 'http://www.outdooractive.com/api/schema/alp.interface', 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation' => 'http://www.outdooractive.com/api/schema/alp.interface alp.interface.pois.xsd') do
               xml.source @source
-              # xml.owner @owner
               contents.each do |content|
                 xml.poi('id' => content.id,
                         'workflow' => Functions.outdoor_active_system_status(content, external_system),
@@ -69,7 +68,7 @@ module DataCycleCore
                 xml.description('lang' => translation.locale) do
                   xml.title content.name
                   xml.abstract ActionView::Base.full_sanitizer.sanitize(content.description) if content.description.present?
-                  xml.text ActionView::Base.full_sanitizer.sanitize(content.text) if content.text.present?
+                  xml.text_ ActionView::Base.full_sanitizer.sanitize(content.text) if content.text.present?
                 end
               end
             end
@@ -119,8 +118,11 @@ module DataCycleCore
 
         def self.outdoor_active_system_source_keys(content, xml, external_system)
           categories = Functions.outdoor_active_system_source_keys(content, external_system)
-          return if categories.blank?
-          xml.owner categories.first.external_key.split(':').last
+          if categories.blank?
+            xml.owner @owner if @owner.present?
+          else
+            xml.owner categories.first.external_key.split(':').last
+          end
         end
       end
     end

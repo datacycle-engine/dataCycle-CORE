@@ -1,23 +1,21 @@
 <div class="detail-header-info">
-    <div class="type <%= content.template_name.downcase %>">
-        <%= render 'data_cycle_core/shared/icon', icon_type: content.template_name.downcase %>
+  <div class="type <%= content.template_name.underscore_blanks %>">
+    <%= render 'data_cycle_core/shared/icon', icon_type: content.template_name.underscore_blanks, icon_class: content.class.name.demodulize.underscore %>
 
-        <span class="title"><%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %></span>
-        <span class="language">(<%= I18n.locale %>)</span>
+    <span class="title"><%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %></span>
+    <span class="language">(<%= I18n.locale %>)</span>
 
-        <%= link_to(
+    <%= link_to(
           tag.i(
             class: 'fa fa-link',
             aria_hidden: true
           ),
           users_path(q: content.representation_of.email),
           target: :_blank,
-          title: "#{content.representation_of.full_name} <#{content.representation_of.email}>",
-            data: {
-              tooltip: true
-            }
+          class: 'dc-foundation-tooltip',
+          title: "#{content.representation_of.full_name} <#{content.representation_of.email}>"
         ) if can?(:show_representation_of, DataCycleCore::User) && content.representation_of.present? %>
-    </div>
+  </div>
 </div>
 
 <%= render_content_partial 'header_functions', content: content %>

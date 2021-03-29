@@ -40,8 +40,8 @@ module DataCycleCore
 
         # validity_period
         validity_period = {
-          'valid_from' => 10.days.ago,
-          'valid_until' => 10.days.from_now
+          'valid_from' => 10.days.ago.to_date,
+          'valid_until' => 10.days.from_now.to_date
         }
         creative_work_data_hash[:validity_period] = validity_period
 
@@ -119,8 +119,8 @@ module DataCycleCore
 
         # validity_period
         validity_period = {
-          'valid_from' => 10.days.ago,
-          'valid_until' => 10.days.from_now
+          'valid_from' => 10.days.ago.to_date,
+          'valid_until' => 10.days.from_now.to_date
         }
         creative_work_data_hash[:validity_period] = validity_period
         creative_work_data_hash['image'] = @image.id

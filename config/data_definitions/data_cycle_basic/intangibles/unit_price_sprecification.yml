@@ -57,36 +57,30 @@
         :properties:
           :valid_from:
             :label: "Gültig ab"
-            :type: datetime
+            :type: date
             :storage_location: value
-            :validations:
-              :format: date_time
             :ui:
               :edit:
-                :type: date
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
-              :show:
-                :type: date
 #            :advanced_search: true
           :valid_through:
             :label: "bis"
-            :type: datetime
+            :type: date
             :storage_location: value
-            :validations:
-              :format: date_time
             :ui:
               :edit:
-                :type: date
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
-              :show:
-                :type: date
             :api:
               :name: validThrough
 #            :advanced_search: true
+      :price_category:
+        :label: Preis - Kategorie
+        :type: classification
+        :tree_label: Preis - Kategorien
       :feratel_price_sprecification_classifications:
         :type: mixin
         :name: feratel_price_sprecification_classifications

@@ -137,7 +137,7 @@ module DataCycleCore
           success
         end
 
-        def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, delete: nil, options:, **_unused)
+        def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, options:) # rubocop:disable Lint/UnusedMethodArgument
           success = true
           delta = 100
 

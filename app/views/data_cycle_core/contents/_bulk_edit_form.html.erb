@@ -12,12 +12,9 @@
         <li class="buttons">
           <%= link_to tag.button(
             tag.i(class: 'fa fa-times', aria_hidden: true),
-            class: 'button discard top',
+            class: 'dc-foundation-tooltip button discard top',
             type: :button,
-            title: t('actions.discard_changes', locale: DataCycleCore.ui_language),
-            data: {
-              tooltip: true
-            }), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
+            title: t('actions.discard_changes', locale: DataCycleCore.ui_language)), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
 
           <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? watch_list.things.includes(:translations, :lock).map(&:lock).compact.sort_by(&:updated_at).reverse! : nil %>
 
@@ -56,16 +53,17 @@
           <% schema = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys %>
           <%= tag.span(t('controllers.error.no_shared_attributes', locale: DataCycleCore.ui_language), class: 'bulk-no-attributes') if @shared_properties.blank? %>
           <% @shared_properties.presence&.each do |key, prop| %>
-            <div class="bulk-update-check" data-attribute-key="<%= "#{key_prefix}[#{key}]" %>">
-              <%= check_box_tag "bulk_update[#{key}]" %>
-              <%= label_tag "bulk_update[#{key}]", t('common.bulk_update_check_box_label', locale: DataCycleCore.ui_language, data: prop['label']) %>
+            <div class="bulk-update-type" data-attribute-key="<%= "#{key_prefix}[#{key}]" %>">
+              <%= f.collection_check_boxes "bulk_update[#{key}]", bulk_update_types(prop), :value, :text, { include_hidden: false  } %>
             </div>
 
             <%= render_attribute_editor key: "#{key_prefix}[#{key}]",
               definition: prop,
               value: nil,
               parameters: {
-                options: {}
+                options: {
+                  edit_scope: 'bulk_edit'
+                }
               },
               content: DataCycleCore::Thing.new { |t|
                 t.id = SecureRandom.uuid

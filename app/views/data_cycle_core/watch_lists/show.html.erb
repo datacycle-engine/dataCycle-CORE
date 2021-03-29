@@ -18,9 +18,8 @@
 
           <li>
             <%= tag.span tag.i(class: 'fa fa-language', aria_hidden: true),
-                                     class: 'link',
+                                     class: 'link dc-foundation-tooltip',
                                      data: {
-                                         tooltip: @watch_list.things.exists? ? true : nil,
                                          allow_html: true
                                      },
                                      title: @watch_list
@@ -32,9 +31,8 @@
             <li>
               <span class="link" aria_hidden="true">
                 <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
-                                            class: 'copy-to-clipboard',
+                                            class: 'copy-to-clipboard dc-foundation-tooltip',
                                             data: {
-                                                tooltip: true,
                                                 value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_url", api_subversion: nil, id: @watch_list)
                                             },
                                             title: t('actions.copy_to_clipboard',
@@ -61,10 +59,10 @@
 
       <div class="detail-header-info">
         <div class="type watchlist">
-          <%= render 'data_cycle_core/shared/icon', icon_type: 'merkliste' %>
+          <%= render 'data_cycle_core/shared/icon', icon_class: @watch_list&.class&.name&.demodulize&.underscore_blanks %>
           <span class="title"><%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %></span>
           <% if can?(:edit, @watch_list) && !can?(:remove_item, @watch_list) %>
-            <i class="fa fa-exclamation-circle" data-tooltip title="<%= t('data_cycle_core.watch_list.locked_by_data_link', locale: DataCycleCore.ui_language) %>" aria-hidden="true"></i>
+            <i class="fa fa-exclamation-circle dc-foundation-tooltip" title="<%= t('data_cycle_core.watch_list.locked_by_data_link', locale: DataCycleCore.ui_language) %>" aria-hidden="true"></i>
           <% end %>
         </div>
       </div>
@@ -96,17 +94,17 @@
 
         <%= render 'data_cycle_core/application/downloads/download', content: @watch_list if can?(:download, @watch_list) %>
 
-        <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link', data: { tooltip: true }, title: t('actions.edit', locale: DataCycleCore.ui_language) do %>
+        <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link dc-foundation-tooltip', title: t('actions.edit', locale: DataCycleCore.ui_language) do %>
           <i class="fa fa-pencil" aria-hidden="true"></i>
         <% end if can?(:edit, @watch_list) %>
 
         <% if can?(:bulk_edit, @watch_list) %>
           <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? @watch_list.things.locks.includes(:user, activitiable: [:translations]) : nil %>
 
-          <span title="<%= t('actions.bulk_edit', locale: DataCycleCore.ui_language) + (content_locks.present? ? tag.span(tag.br + tag.br + t('common.multiple_content_locks_html', data: content_locks.size, locale: DataCycleCore.ui_language), id: 'content-lock-multiple', class: "content-locked-text #{'hidden' if content_locks.size < 50}") + safe_join(content_locks.map { |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale){ cl.activitiable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{cl.id}", class: "content-locked-text #{'hidden' if content_locks.size >= 50}") }) : '') %>" data-tooltip data-allow-html="true">
+          <span title="<%= bulk_edit_button_title(content_locks, @watch_list) %>" data-tooltip data-allow-html="true">
             <%= button_to bulk_edit_watch_list_path(@watch_list),
                   method: :get,
-                  disabled: content_locks.present?,
+                  disabled: content_locks.present? || @watch_list.things.size > DataCycleCore.global_configs[:bulk_update_limit],
                   class: "button-prime small bulk-edit-link #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked show-pie-text' if content_locks.present?}",
                   data: {
                     disable: true
@@ -126,12 +124,12 @@
           </span>
         <% end %>
 
-        <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { tooltip: true, confirm: "#{@watch_list.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" }, title: t('actions.delete', locale: DataCycleCore.ui_language) do %>
+        <%= link_to @watch_list, method: :delete, class:'button-prime small alert dc-foundation-tooltip', data: { confirm: "#{@watch_list.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" }, title: t('actions.delete', locale: DataCycleCore.ui_language) do %>
           <i class="fa fa-trash-o" aria-hidden="true"></i>
         <% end if can? :destroy, @watch_list %>
 
         <% if can?(:bulk_delete, @watch_list) %>
-          <span title="<%= t('actions.delete_items_in_watch_list', locale: DataCycleCore.ui_language) %>" data-tooltip="true" data-allow-html="true">
+          <span title="<%= t('actions.delete_items_in_watch_list', locale: DataCycleCore.ui_language) %>" data-allow-html="true" class="dc-foundation-tooltip">
             <%= button_to bulk_delete_watch_list_path(@watch_list),
                     method: :delete,
                     remote: true,

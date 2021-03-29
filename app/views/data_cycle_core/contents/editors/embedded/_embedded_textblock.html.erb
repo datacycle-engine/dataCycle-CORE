@@ -11,7 +11,7 @@
     <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless object.template || local_assigns[:duplicated_content] %>
 
     <span class="embedded-header form-element validation-container">
-      <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, object, :edit)) %>
+      <% if attribute_editable?(key, definition, options, content) %>
         <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
         <span class="swap-prev swap-button disabled" title="<%= t('embedded.move_up', locale: DataCycleCore.ui_language) %>"><i class="fa fa-arrow-up" aria-hidden="true"></i></span>
         <span class="swap-next swap-button disabled" title="<%= t('embedded.move_down', locale: DataCycleCore.ui_language) %>"><i class="fa fa-arrow-down" aria-hidden="true"></i></span>
@@ -25,10 +25,14 @@
         <%= validation_properties.dig('name', 'label') %>
         <%= render 'data_cycle_core/contents/helper_text', { content: content, key: "#{key}[#{index}][name]", definition: validation_properties['name'] } %>
       <% end %>
-      <%= text_field_tag "#{key}[#{index}][name]", I18n.with_locale(local_assigns[:attribute_locale]){ object.try(:name) } , class: 'form-control', placeholder: validation_properties.dig('name', 'label'), readonly: (options['readonly'].to_s == 'true') || !can?(:edit, DataCycleCore::DataAttribute.new("#{key}[#{index}][name]", definition, options, object, :edit)) %>
+      <%= text_field_tag "#{key}[#{index}][name]",
+          I18n.with_locale(local_assigns[:attribute_locale]){ object.try(:name) },
+          class: 'form-control',
+          placeholder: validation_properties.dig('name', 'label'),
+          readonly: !attribute_editable?("#{key}[#{index}][name]", definition, options, content) %>
     </span>
 
-    <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, object, :edit)) %>
+    <% if attribute_editable?(key, definition, options, content) %>
       <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
     <% end %>
 

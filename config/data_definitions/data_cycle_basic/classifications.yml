@@ -75,7 +75,7 @@
 
 - Informationstypen | all:
 
-- Externe Informationstypen | all:
+- $$Externe Informationstypen | all:
     - description | OutdoorActive
     - text | OutdoorActive
     - directions | OutdoorActive
@@ -88,6 +88,7 @@
     - equipment | OutdoorActive
     - suggestion | OutdoorActive
     - additional_information | OutdoorActive
+    - maps | OutdoorActive
     - AdditionalService | Feratel
     - CurrentInformation | Feratel
     - EventHeader | Feratel
@@ -143,6 +144,12 @@
 - Feratel - Preis - Typ | all:
     - $$Preis pro Person
     - $$Preis pro Package
+
+- OutdoorActive - Schwierigkeitsgrad | all:
+    - $$unbekannt
+    - $$leicht
+    - $$mittel
+    - $$schwierig
 
 - Länder | all:
     - Andorra
@@ -463,3 +470,5 @@
     - Vorbestellen **https://schema.org/PreOrder
     - Vorverkauf **https://schema.org/PreSale
     - Ausverkauft **https://schema.org/SoldOut
+
+- Preis - Kategorien | all:

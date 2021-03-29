@@ -40,8 +40,10 @@ module DataCycleCore
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
-        file_ext = MIME::Types.type_for(for_file).first.preferred_extension
-        file_ext = MIME::Types[DEFAULT_MIME_TYPE].first.preferred_extension if WEB_SAVE_MIME_TYPES.exclude?(MIME::Types.type_for(for_file).first.to_s)
+        MiniMime.lookup_by_content_type(MiniMime.lookup_by_filename(for_file.to_s)&.content_type.to_s)&.extension
+
+        file_ext = MiniMime.lookup_by_content_type(MiniMime.lookup_by_filename(for_file.to_s)&.content_type.to_s)&.extension
+        file_ext = MiniMime.lookup_by_content_type(DEFAULT_MIME_TYPE)&.extension if WEB_SAVE_MIME_TYPES.exclude?(MiniMime.lookup_by_filename(for_file.to_s)&.content_type.to_s)
 
         "#{version_name}_#{basename}.#{file_ext}"
       end
@@ -84,14 +86,12 @@ module DataCycleCore
     end
 
     def remove_animation
-      manipulate! do |img, index|
-        img if index.to_i.zero?
-      end
+      manipulate!(&:collapse!) if content_type == 'image/gif'
     end
 
     def content_type(websave = false)
-      mime_type = MIME::Types.type_for(current_path).first
-      mime_type = MIME::Types[DEFAULT_MIME_TYPE].first if websave && WEB_SAVE_MIME_TYPES.exclude?(mime_type.to_s)
+      mime_type = MiniMime.lookup_by_filename(current_path.to_s)&.content_type
+      mime_type = MiniMime.lookup_by_content_type(DEFAULT_MIME_TYPE) if websave && WEB_SAVE_MIME_TYPES.exclude?(mime_type.to_s)
       file.instance_variable_set(:@content_type, mime_type.to_s)
     end
 
@@ -107,7 +107,7 @@ module DataCycleCore
 
     def convert_for_web
       manipulate! do |img|
-        img.format(MIME::Types[DEFAULT_MIME_TYPE].first.preferred_extension) unless WEB_SAVE_MIME_TYPES.include?(file.content_type)
+        img.format(MiniMime.lookup_by_content_type(DEFAULT_MIME_TYPE)&.extension) unless WEB_SAVE_MIME_TYPES.include?(file.content_type)
         img.density 96
         img
       end

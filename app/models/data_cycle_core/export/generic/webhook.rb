@@ -15,32 +15,43 @@ module DataCycleCore
         end
 
         def error(_job, exception)
-          data = DataCycleCore::Thing.find_by(id: @data.id)
-          data&.add_external_system_data(@utility_object.external_system, { message: exception.message, text: exception.try(:response)&.dig(:body) }, 'error')
+          return unless @data.is_a?(DataCycleCore::Thing)
+
+          @data.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'error', data: { message: exception.message, text: exception.try(:response)&.dig(:body) })
         end
 
         def failure(_job)
-          data = DataCycleCore::Thing.find_by(id: @data.id)
-          data&.add_external_system_data(@utility_object.external_system, nil, 'failure')
+          return unless @data.is_a?(DataCycleCore::Thing)
+
+          @data.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'failure')
+        end
+
+        def before(_job)
+          data = @data
+          @data = DataCycleCore::Thing.find_by(id: @data.id) || @data
+
+          return unless @data.is_a?(DataCycleCore::Thing)
+
+          @data.webhook_data = data.webhook_data
+          @data.original_id = data.original_id
+          @data.external_system_sync_by_system(external_system: @utility_object.external_system).update(last_sync_at: Time.zone.now)
         end
 
         def perform
-          data = DataCycleCore::Thing.find_by(id: @data.id)
-          system_sync = data.try(:external_system_sync_by_system, @utility_object.external_system)
-          system_sync&.update(last_sync_at: Time.zone.now)
+          @response = @utility_object.endpoint.content_request(
+            transformation: @transformation,
+            method: @method,
+            path: @path,
+            utility_object: @utility_object,
+            data: @data
+          )
+        end
 
-          if data || @type == 'delete'
-            @response = @utility_object.endpoint.content_request(
-              transformation: @transformation,
-              method: @method,
-              path: @path,
-              utility_object: @utility_object,
-              data: data || @data
-            )
-          end
+        def success(_job)
+          return unless @data.is_a?(DataCycleCore::Thing)
 
-          data&.add_external_system_data(@utility_object.external_system, nil, 'success')
-          system_sync&.update(last_successful_sync_at: system_sync.last_sync_at)
+          @external_system_sync = @data.external_system_sync_by_system(external_system: @utility_object.external_system)
+          @external_system_sync.update(status: 'success', last_successful_sync_at: @external_system_sync.last_sync_at)
         end
 
         def reference_type

@@ -14,6 +14,9 @@ if @content.is_a?(DataCycleCore::Thing)
 end
 
 json['token'] = @token if @token.present?
-json['webhookSource'] = @webhook_source if @webhook_source.present?
+json['webhookSource'] = @content.webhook_source if @content.webhook_source.present?
+json['externalKeys'] = @content.webhook_data.external_keys if @content.webhook_data&.external_keys.present?
+json['originalId'] = @content.original_id if @content.original_id.present?
+json['originalExternalKeys'] = @content.webhook_data.original_external_keys if @content.webhook_data&.original_external_keys.present?
 
 json

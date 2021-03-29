@@ -7,6 +7,7 @@ module DataCycleCore
         class << self
           def proxy_url(**args)
             transformations = args.dig(:virtual_definition, 'virtual', 'transformation')
+            name = args.dig(:content).name&.parameterize(separator: '_') || args.dig(:content).id
             if transformations.dig('version') == 'original'
               content = args.dig(:content)
               if content.respond_to?(:asset) && content.send(:asset).present?
@@ -19,7 +20,7 @@ module DataCycleCore
                 'asset',
                 args.dig(:content).id,
                 transformations.dig('version'),
-                "#{args.dig(:content).name.parameterize(separator: '_')}#{orig_url.present? ? File.extname(orig_url) : ''}"
+                "#{name}#{orig_url.present? ? File.extname(orig_url) : ''}"
               ].join('/')
             elsif transformations.dig('version') == 'dynamic'
               [
@@ -29,7 +30,7 @@ module DataCycleCore
                 transformations.dig('type'),
                 transformations.dig('width'),
                 transformations.dig('height'),
-                "#{args.dig(:content).name.parameterize(separator: '_')}.#{transformations.dig('format')}"
+                "#{name}.#{transformations.dig('format')}"
               ].join('/')
             else
               [
@@ -37,7 +38,7 @@ module DataCycleCore
                 'asset',
                 args.dig(:content).id,
                 transformations.dig('version'),
-                "#{args.dig(:content).name.parameterize(separator: '_')}.#{transformations.dig('format')}"
+                "#{name}.#{transformations.dig('format')}"
               ].join('/')
             end
           end

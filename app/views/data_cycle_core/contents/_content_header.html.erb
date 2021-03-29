@@ -13,7 +13,7 @@
     <% end %>
 
     <%= render 'header_properties', content: content %>
-    <%= render 'data_cycle_core/contents/viewers/object_event_period', value: OpenStruct.new(start_date: content.try(:start_date), end_date: content.try(:end_date)) if content.try(:start_date).present? || content.try(:end_date).present? %>
+    <%= render 'data_cycle_core/contents/viewers/object_event_period', value: OpenStruct.new(start_date: content.try(:start_date), end_date: content.try(:end_date), event_schedule: content.try(:event_schedule)) if content.try(:start_date).present? || content.try(:end_date).present? %>
 
     <% content.assigned_classification_aliases.includes(:classification_tree_label).in_context('show_more').group_by(&:classification_tree_label).each do |tree, classification_aliases| %>
       <% content_for :mapped_hidden_classifications do %>
@@ -25,7 +25,7 @@
 
           <span class="detail-content tags">
             <% classification_aliases.uniq.each do |classification_alias| %>
-              <span class="tag has-tip" title="<%= classification_tooltip(classification_alias) %>">
+              <span class="tag has-tip dc-foundation-tooltip" data-allow-html="true" title="<%= classification_tooltip(classification_alias) %>">
                 <%= classification_alias.name || classification_alias.internal_name %>
               </span>
             <% end %>
@@ -44,7 +44,7 @@
 
           <span class="detail-content tags">
             <% classification_aliases.uniq.each do |classification_alias| %>
-              <span class="tag has-tip" title="<%= classification_tooltip(classification_alias) %>">
+              <span class="tag has-tip dc-foundation-tooltip" data-allow-html="true" title="<%= classification_tooltip(classification_alias) %>">
                 <%= classification_alias.name || classification_alias.internal_name %>
               </span>
             <% end %>

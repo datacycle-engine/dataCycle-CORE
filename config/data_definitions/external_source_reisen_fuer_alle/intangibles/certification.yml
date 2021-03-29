@@ -35,25 +35,19 @@
         :properties:
           :certified_from:
             :label: Zertifizierung
-            :type: datetime
+            :type: date
             :storage_location: value
-            :validations:
-              :format: date_time
             :ui:
               :edit:
-                :type: date
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
           :certified_to:
             :label: bis
-            :type: datetime
+            :type: date
             :storage_location: value
-            :validations:
-              :format: date_time
             :ui:
               :edit:
-                :type: date
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
@@ -76,11 +70,19 @@
             :label: Symbol
             :type: string
             :storage_location: translated_value
+      :image:
+        :label: Icons
+        :type: linked
+        :template_name: Bild
       :public_pdf:
         :label: Detailberichte zur Barrierefreiheit zum Download
         :type: object
         :storage_location: translated_value
         :properties:
+          :short_report:
+            :label: Kurzbericht
+            :type: string
+            :storage_location: translated_value
           :wheelchair:
             :label: Gehbehinderte/Rollstuhlfahrer
             :type: string

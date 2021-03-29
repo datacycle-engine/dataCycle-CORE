@@ -1,19 +1,19 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
 
   <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
-    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
+    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
     <%= definition['label'] %>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   <% end %>
 
-  <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }) %>
+  <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }).order(created_at: :asc) %>
 
   <ul class="no-bullet classification-checkbox-list">
-    <%= collection_check_boxes(nil, key, classification_items, :primary_classification_id, :internal_name, {}, { namespace: local_assigns.dig(:options, :prefix) }) do |cb| %>
+    <%= collection_check_boxes(nil, key, classification_items, :primary_classification_id, :internal_name, {}, { disabled: !attribute_editable?(key, definition, options, content), namespace: local_assigns.dig(:options, :prefix) }) do |cb| %>
       <li class="checkbox-wrap">
-        <%= cb.check_box value: cb.value, checked: (value&.ids&.include?(cb.value) || (value.blank? && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(cb.value))) %>
+        <%= cb.check_box value: cb.value, checked: (value&.ids&.include?(cb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(cb.value))) %>
         <% if cb.object.try(:description).present? %>
-          <%= cb.label title: cb.object.try(:description), data: { tooltip: true, allow_html: true } do %>
+          <%= cb.label title: cb.object.try(:description), class: 'dc-foundation-tooltip', data: { allow_html: true } do %>
             <%= cb.text %> <i class="fa fa-info-circle" aria-hidden="true"></i>
           <% end %>
         <% else %>
@@ -22,4 +22,9 @@
       </li>
     <% end %>
   </ul>
+
+  <% value.presence&.each do |c| %>
+    <%= hidden_field_tag key + '[]', c.id %>
+  <% end unless attribute_editable?(key, definition, options, content) %>
+
 <% end if classification_tree_label_has_children?(definition['tree_label']) %>

@@ -129,7 +129,7 @@ module DataCycleCore
                   }
                 end
 
-                assert_attributes(json_validate, required_attributes, ['text', 'price_range', 'author', 'price', 'directions', 'parking', 'hours_available', 'feratel_content_score']) do
+                assert_attributes(json_validate, required_attributes, ['text', 'price_range', 'author', 'price', 'directions', 'parking', 'hours_available', 'feratel_content_score', 'content_score']) do
                   {
                     'additionalProperty' => [
                       {
@@ -179,6 +179,12 @@ module DataCycleCore
                         'identifier' => 'feratelContentScore',
                         'name' => 'ContentScore',
                         'value' => @content.feratel_content_score
+                      },
+                      {
+                        '@type' => 'PropertyValue',
+                        'identifier' => 'contentScore',
+                        'name' => 'ContentScore',
+                        'value' => @content.content_score
                       }
                     ]
                   }

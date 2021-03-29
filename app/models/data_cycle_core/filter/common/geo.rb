@@ -24,7 +24,11 @@ module DataCycleCore
           return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
 
           reflect(
-            @query.where(st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
+            @query
+              .where(
+                st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i)
+                .or(st_dwithin(cast_geography(thing[:line]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
+              )
           )
         end
 
@@ -32,7 +36,11 @@ module DataCycleCore
           return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
 
           reflect(
-            @query.where.not(st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
+            @query
+              .where.not(
+                st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i)
+                .and(st_dwithin(cast_geography(thing[:line]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
+              )
           )
         end
 
@@ -50,7 +58,9 @@ module DataCycleCore
           end
 
           reflect(
-            @query.where(contains_queries.reduce(:or))
+            @query
+              .where(overlap(get_box(get_point(-90, -180), get_point(90, 180)), thing[:location]))
+              .where(contains_queries.reduce(:or))
           )
         end
 
@@ -68,7 +78,9 @@ module DataCycleCore
           end
 
           reflect(
-            @query.where(contains_queries.reduce(:or))
+            @query
+              .where(overlap(get_box(get_point(-90, -180), get_point(90, 180)), thing[:location]))
+              .where(contains_queries.reduce(:or))
           )
         end
       end

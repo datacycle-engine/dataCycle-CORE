@@ -75,7 +75,7 @@ module DataCycleCore
     end
 
     def classification_tooltip(classification_alias)
-      "#{classification_alias.full_path}#{"\n\n#{strip_tags(classification_alias.description)}" if classification_alias.description.present?}".html_safe # rubocop:disable Rails/OutputSafety
+      safe_join([classification_alias.full_path, classification_alias.description.presence].compact, '<br><br>')
     end
 
     def expected_classification_alias(c)

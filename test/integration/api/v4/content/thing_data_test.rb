@@ -122,7 +122,7 @@ module DataCycleCore
             end
 
             # same_as => additionalProperty
-            assert_attributes(json_validate, required_attributes, ['same_as', 'feratel_content_score']) do
+            assert_attributes(json_validate, required_attributes, ['same_as', 'feratel_content_score', 'content_score']) do
               {
                 'additionalProperty' => [
                   {
@@ -136,6 +136,12 @@ module DataCycleCore
                     'identifier' => 'feratelContentScore',
                     'name' => 'ContentScore',
                     'value' => @content.feratel_content_score
+                  },
+                  {
+                    '@type' => 'PropertyValue',
+                    'identifier' => 'contentScore',
+                    'name' => 'ContentScore',
+                    'value' => @content.content_score
                   }
                 ]
               }
@@ -292,7 +298,7 @@ module DataCycleCore
             price_specification_api_values = {
               '@id' => price_specification_object.id,
               '@type' => 'UnitPriceSpecification',
-              'dc:multilingual' => false,
+              'dc:multilingual' => true,
               'dc:translation' => [
                 'de'
               ],
@@ -377,7 +383,7 @@ module DataCycleCore
             end
 
             # same_as => potentialAction
-            assert_attributes(json_validate, required_attributes, ['same_as', 'feratel_content_score']) do
+            assert_attributes(json_validate, required_attributes, ['same_as', 'feratel_content_score', 'content_score']) do
               {
                 'additionalProperty' => [
                   {
@@ -391,6 +397,12 @@ module DataCycleCore
                     'identifier' => 'feratelContentScore',
                     'name' => 'ContentScore',
                     'value' => @content.feratel_content_score
+                  },
+                  {
+                    '@type' => 'PropertyValue',
+                    'identifier' => 'contentScore',
+                    'name' => 'ContentScore',
+                    'value' => @content.content_score
                   }
                 ]
               }
@@ -405,17 +417,16 @@ module DataCycleCore
             end
 
             # schedule: event_schedule
-            event_schedule_object = @content.event_schedule.first.to_h
+            event_schedule_object = @content.event_schedule.first
+            event_schedule_object_hash = event_schedule_object.to_h
             event_schedule_api_values = {
-              '@id' => event_schedule_object.dig(:id),
+              '@id' => event_schedule_object_hash.dig(:id),
               '@type' => 'Schedule',
               '@context' => 'https://schema.org/',
               'inLanguage' => 'de',
-              'startDate' => event_schedule_object.dig(:dtstart).to_s(:only_date),
-              'endDate' => event_schedule_object.dig(:dtend).to_s(:only_date),
-              'startTime' => event_schedule_object.dig(:dtstart).to_s(:only_time),
-              'endTime' => event_schedule_object.dig(:dtend).to_s(:only_time),
-              'duration' => event_schedule_object.dig(:duration).iso8601,
+              'startDate' => event_schedule_object_hash.dig(:dtstart).to_s(:only_date),
+              'startTime' => event_schedule_object_hash.dig(:dtstart).to_s(:only_time),
+              'duration' => event_schedule_object.iso8601_duration(event_schedule_object_hash.dig(:dtstart), event_schedule_object_hash.dig(:dtend)),
               'scheduleTimezone' => 'Vienna'
             }
             assert_attributes(json_validate, required_attributes, ['event_schedule']) do

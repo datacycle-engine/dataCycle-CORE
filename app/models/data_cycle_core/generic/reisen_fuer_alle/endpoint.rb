@@ -35,13 +35,14 @@ module DataCycleCore
                   name_de
                 }
                 public_pdf {
-                  url_for_allergic_de
-                  url_for_deaf_de
-                  url_for_generations_de
-                  url_for_mental_de
-                  url_for_visual_de
-                  url_for_walking_de
-                  url_for_wheelchair_de
+                  url_for_short_report { de }
+                  url_for_allergic { de }
+                  url_for_deaf { de }
+                  url_for_generations { de }
+                  url_for_mental { de }
+                  url_for_visual { de }
+                  url_for_walking { de }
+                  url_for_wheelchair { de }
                 }
                 short_report {
                   deaf_and_partially_deaf_de
@@ -94,6 +95,18 @@ module DataCycleCore
             		}
                 licence_owner
                 sections_count
+                grouped_search_criteria {
+                  guest_group {
+                    key
+                    name_de
+                    name_en
+                  }
+                  search_criteria {
+                    id
+                    name_de
+                    name_en
+                  }
+                }
               }
             }
           EOS

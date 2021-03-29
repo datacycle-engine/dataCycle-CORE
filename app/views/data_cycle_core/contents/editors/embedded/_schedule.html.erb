@@ -6,16 +6,16 @@
     accordion_item: true
   } do %>
 
-  <% readonly = options['readonly'].to_s == 'true' %>
+  <% readonly = !attribute_editable?(key, definition, local_assigns[:options], local_assigns[:object]) %>
 
   <span class="embedded-header">
     <% unless readonly %>
       <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
-      <span class="swap-prev swap-button disabled"
-        title="<%= t('embedded.move_up', locale: DataCycleCore.ui_language) %>" data-tooltip><i
+      <span class="swap-prev swap-button disabled dc-foundation-tooltip"
+        title="<%= t('embedded.move_up', locale: DataCycleCore.ui_language) %>"><i
           class="fa fa-arrow-up" aria-hidden="true"></i></span>
-      <span class="swap-next swap-button disabled"
-        title="<%= t('embedded.move_down', locale: DataCycleCore.ui_language) %>" data-tooltip><i
+      <span class="swap-next swap-button disabled dc-foundation-tooltip"
+        title="<%= t('embedded.move_down', locale: DataCycleCore.ui_language) %>"><i
           class="fa fa-arrow-down" aria-hidden="true"></i></span>
     <% end %>
   </span>

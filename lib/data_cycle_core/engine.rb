@@ -96,7 +96,7 @@ module DataCycleCore
     ]
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt', 'Event-Ticket-Angebot', 'Zimmer', 'Zutatengruppe', 'Zutat', 'Rezeptkomponente', 'Angebot', 'Inhaltsblock']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Zeitleiste-Eintrag', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt', 'Event-Ticket-Angebot', 'Zimmer', 'Zutatengruppe', 'Zutat', 'Rezeptkomponente', 'Angebot', 'Inhaltsblock']
 
     mattr_accessor :ui_language
     self.ui_language = :de
@@ -116,6 +116,11 @@ module DataCycleCore
     mattr_accessor :logo
     self.logo = {}
 
+    mattr_accessor :global_configs
+    self.global_configs = {}
+
+    mattr_accessor :info_link
+    self.info_link = nil
     # inheritable_attributes
     mattr_accessor :inheritable_attributes
     self.inheritable_attributes = ['validity_period']

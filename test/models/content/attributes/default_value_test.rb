@@ -14,56 +14,56 @@ module DataCycleCore
         end
 
         test 'set data property (stored as json root value) with default_value does not overwrite original value' do
-          set_default_value('Bild', 'upload_date', Time.zone.now.beginning_of_day.to_s)
+          set_default_value('Bild', 'upload_date', Date.current.to_s)
 
-          data = { 'name' => 'Testbild', 'upload_date' => 2.days.ago.beginning_of_day }
+          data = { 'name' => 'Testbild', 'upload_date' => 2.days.ago.to_date }
           data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
 
-          assert_equal(2.days.ago.beginning_of_day, data_set.upload_date)
-          assert_equal(2.days.ago.beginning_of_day, data_set.get_data_hash.dig('upload_date'))
+          assert_equal(2.days.ago.to_date, data_set.upload_date)
+          assert_equal(2.days.ago.to_date, data_set.get_data_hash.dig('upload_date'))
         end
 
         test 'set data property (stored as root translated_value) with default_value does not overwrite original value' do
-          template = set_default_value('Bild', 'upload_date', Time.zone.now.beginning_of_day.to_s)
+          template = set_default_value('Bild', 'upload_date', Date.current.to_s)
           template.schema['properties']['upload_date']['storage_location'] = 'translated_value'
           template.save
 
-          data = { 'name' => 'Testbild', 'upload_date' => 2.days.ago.beginning_of_day }
+          data = { 'name' => 'Testbild', 'upload_date' => 2.days.ago.to_date }
           data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
 
-          assert_equal(2.days.ago.beginning_of_day, data_set.upload_date)
-          assert_equal(2.days.ago.beginning_of_day, data_set.get_data_hash.dig('upload_date'))
+          assert_equal(2.days.ago.to_date, data_set.upload_date)
+          assert_equal(2.days.ago.to_date, data_set.get_data_hash.dig('upload_date'))
         end
 
         test 'set data property (stored as object in value) with default_value, does not overwrite original value' do
           template = DataCycleCore::Thing.find_by(template: true, template_name: 'Artikel')
-          template.schema['properties']['validity_period']['properties']['valid_from']['default_value'] = Time.zone.now.beginning_of_day.to_s
+          template.schema['properties']['validity_period']['properties']['valid_from']['default_value'] = Date.current.to_s
           template.save
 
-          data = { 'name' => 'TestArtikel', 'validity_period' => { 'valid_from' => 2.days.ago.beginning_of_day } }
+          data = { 'name' => 'TestArtikel', 'validity_period' => { 'valid_from' => 2.days.ago.to_date } }
           data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
 
-          assert_equal(2.days.ago.beginning_of_day, data_set.validity_period.valid_from)
-          assert_equal(2.days.ago.beginning_of_day, data_set.get_data_hash.dig('validity_period', 'valid_from'))
+          assert_equal(2.days.ago.to_date, data_set.validity_period.valid_from)
+          assert_equal(2.days.ago.to_date, data_set.get_data_hash.dig('validity_period', 'valid_from'))
         end
 
         test 'set data property (stored as object in translated_value) with default_value, does not overwrite original data' do
           template = DataCycleCore::Thing.find_by(template: true, template_name: 'Artikel')
-          template.schema['properties']['validity_period']['properties']['valid_from']['default_value'] = Time.zone.now.beginning_of_day.to_s
+          template.schema['properties']['validity_period']['properties']['valid_from']['default_value'] = Date.current.to_s
           template.schema['properties']['validity_period']['storage_location'] = 'translated_value'
           template.schema['properties']['validity_period']['properties']['valid_from']['storage_location'] = 'translated_value'
           template.schema['properties']['validity_period']['properties']['valid_until']['storage_location'] = 'translated_value'
           template.save
 
-          data = { 'name' => 'TestArtikel', 'validity_period' => { 'valid_from' => 2.days.ago.beginning_of_day } }
+          data = { 'name' => 'TestArtikel', 'validity_period' => { 'valid_from' => 2.days.ago.to_date } }
           data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
 
-          assert_equal(2.days.ago.beginning_of_day, data_set.validity_period.valid_from)
-          assert_equal(2.days.ago.beginning_of_day, data_set.get_data_hash.dig('validity_period', 'valid_from'))
+          assert_equal(2.days.ago.to_date, data_set.validity_period.valid_from)
+          assert_equal(2.days.ago.to_date, data_set.get_data_hash.dig('validity_period', 'valid_from'))
         end
 
         test 'set data property (stored in column) with default_value does not overwrite original data' do
-          set_default_value('Bild', 'description', Time.zone.now.beginning_of_day.to_s)
+          set_default_value('Bild', 'description', Date.current.to_s)
 
           data = { 'name' => 'Testbild', 'description' => 'Hallo' }
           data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
@@ -110,8 +110,8 @@ module DataCycleCore
         end
 
         test 'setting default_value again does not override existing value' do
-          upload_date = 2.days.ago.beginning_of_day
-          set_default_value('Bild', 'upload_date', Time.zone.now.beginning_of_day.to_s)
+          upload_date = 2.days.ago.to_date
+          set_default_value('Bild', 'upload_date', Date.current.to_s)
 
           data = { 'name' => 'Testbild', 'upload_date' => upload_date }
           data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data)
@@ -119,9 +119,9 @@ module DataCycleCore
           assert_equal(upload_date, data_set.upload_date)
           assert_equal(upload_date, data_set.get_data_hash.dig('upload_date'))
 
-          data_set.instance_variable_set(:@data_hash, {})
-          data_set.add_default_values(force: true)
-          data_set.set_data_hash(data_hash: data_set.instance_variable_get(:@data_hash), partial_update: true)
+          data_hash = {}
+          data_set.add_default_values(data_hash: data_hash, force: true)
+          data_set.set_data_hash(data_hash: data_hash, partial_update: true)
 
           assert_equal(upload_date, data_set.upload_date)
           assert_equal(upload_date, data_set.get_data_hash.dig('upload_date'))
