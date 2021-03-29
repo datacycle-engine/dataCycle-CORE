@@ -50,10 +50,12 @@ module DataCycleCore
 
         def password
           authorize! :reset_password, :user_api
+          raise CanCan::AccessDenied, 'not_recoverable' unless DataCycleCore::Feature::UserApi.enabled?
 
           user = User.find_by!(email: password_params[:email])
-
-          raise CanCan::AccessDenied, 'not_recoverable' unless user.respond_to?(:recoverable?) && user.recoverable?
+          user.mailer_layout = password_params[:mailerLayout].presence&.prepend('data_cycle_core/')
+          user.viewer_layout = password_params[:viewerLayout].presence&.prepend('data_cycle_core/')
+          user.redirect_url = password_params[:redirectUrl].presence
 
           user.send_reset_password_instructions
         end
@@ -61,7 +63,7 @@ module DataCycleCore
         private
 
         def password_params
-          params.permit(:email)
+          params.permit(:email, :mailerLayout, :viewerLayout, :redirectUrl)
         end
 
         def user_params
