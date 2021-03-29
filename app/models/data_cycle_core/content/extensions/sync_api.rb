@@ -65,9 +65,8 @@ module DataCycleCore
               property_name_with_overlay = "#{linked}_#{overlay_name}" if overlay_property_names.include?(linked)
               linked_array = get_property_value(linked, property_definitions[linked], nil, present_overlay)
               linked_array = linked_array
-                &.map { |i| i.to_sync_data(depth: depth) }
-                &.map { |i| i.merge({ attribute_name: linked }) }
-              linked_array.presence || []
+                &.map { |i| i.to_sync_data(depth: depth)&.merge({ attribute_name: linked }) }
+              linked_array.compact.presence || []
             }.inject(:+)&.compact || []
           elsif property_name == 'classifications'
             classification_property_names&.map { |classification_property_name|
