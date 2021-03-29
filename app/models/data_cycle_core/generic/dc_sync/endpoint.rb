@@ -17,7 +17,7 @@ module DataCycleCore
           if @params[:external_keys].present?
             Enumerator.new do |yielder|
               Array.wrap(@params[:external_keys]).each do |key|
-                yielder << load_thing(key: key)
+                yielder << load_thing(key: key)['@graph'].first
               end
             end
           else
@@ -25,7 +25,7 @@ module DataCycleCore
             min_pages = 1
             min_pages = (@params[:min_count] / @per) + 1 if @params[:min_count].present?
             max_pages = (@params[:max_count] / @per) + 1 if @params[:max_count].present?
-            max_pages = [max_pages, first_page.dig('meta', 'pages')].min
+            max_pages = max_pages.present? ? [max_pages || 1, first_page.dig('meta', 'pages') || 1].min : first_page.dig('meta', 'pages') || 1
             item_pos = [(min_pages - 1) * @per, 1].max - 1
             min_count = @params[:min_count] || 1
             max_count = @params[:max_count] || first_page.dig('meta', 'total')

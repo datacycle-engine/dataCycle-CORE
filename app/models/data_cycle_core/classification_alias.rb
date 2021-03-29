@@ -200,7 +200,15 @@ module DataCycleCore
     end
 
     def external_keys
-      classifications.pluck(:external_key)&.join(', ')
+      classifications.pluck(:external_key)&.compact&.join(', ')
+    end
+
+    def mapped_to_string
+      primary_classification&.classification_aliases&.where&.not(id: id)&.map(&:name)&.join(',')
+    end
+
+    def mapped_to
+      primary_classification&.classification_aliases&.where&.not(id: id)
     end
 
     def to_api_default_values

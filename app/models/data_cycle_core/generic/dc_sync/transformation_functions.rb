@@ -11,7 +11,7 @@ module DataCycleCore
         import DataCycleCore::Generic::Common::Functions
 
         def self.create_main_thing(data, external_source_id)
-          if DataCycleCore::Thing.find_by(id: data.dig('id')).blank?
+          if data[:new] && DataCycleCore::Thing.find_by(id: data.dig('id')).blank?
             create_thing(
               data.dig('id'),
               DataCycleCore::Thing.find_by(template_name: data.dig('template_name'), template: true),

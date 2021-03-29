@@ -23,6 +23,7 @@ module DataCycleCore
             .inject(&:merge)
             .merge(sync_metadata)
             .compact
+            .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', depth: depth, locales: locales) }
             .deep_stringify_keys
         end
 
@@ -54,13 +55,14 @@ module DataCycleCore
             schedule_array = send(property_name_with_overlay)
             schedule_array = schedule_array
               .map(&:to_h)
-              .map { |i|
-                i.delete('thing_id')
-                i
-              }.presence
+              .map { |i| i.tap { |j| j.delete(:thing_id) } }
+              .presence
             schedule_array.blank? ? [] : schedule_array.compact
           elsif property_name == 'included'
             linked_property_names.map { |linked|
+              present_overlay = overlay_property_names.include?(linked)
+              property_name_with_overlay = linked
+              property_name_with_overlay = "#{linked}_#{overlay_name}" if overlay_property_names.include?(linked)
               linked_array = get_property_value(linked, property_definitions[linked], nil, present_overlay)
               linked_array = linked_array
                 &.map { |i| i.to_sync_data(depth: depth) }
@@ -72,10 +74,29 @@ module DataCycleCore
               classification_property_name_overlay = classification_property_name
               classification_property_name_overlay = "#{classification_property_name}_#{overlay_name}" if overlay_property_names.include?(classification_property_name)
               send(classification_property_name_overlay)&.map { |classification|
-                classification
+                classification_data = classification
                   .to_hash
-                  .merge({ 'ancestors' => classification.ancestors&.map(&:to_hash) })
+                  .merge({ 'ancestors' => classification.ancestors.map(&:to_hash) })
                   .merge({ 'attribute_name' => classification_property_name })
+
+                classification_mappings = classification.mapped_to&.map do |alias_data|
+                  primary_classification = alias_data.primary_classification
+                  primary_classification
+                    .to_hash
+                    .merge({ 'ancestors' => primary_classification.ancestors&.map(&:to_hash) })
+                    .merge({ 'attribute_name' => 'universal_classifications' })
+                end
+                Array.wrap(classification_data) + classification_mappings
+              }.presence&.flatten
+            }&.compact&.flatten
+          elsif property_name == 'mapped_classifications'
+            classification_property_names&.map { |classification_property_name|
+              classification_property_name_overlay = classification_property_name
+              classification_property_name_overlay = "#{classification_property_name}_#{overlay_name}" if overlay_property_names.include?(classification_property_name)
+              send(classification_property_name_overlay)&.map { |classification|
+                classification.mapped_to&.map do |alias_data|
+                  alias_data.primary_classification.id
+                end
               }.presence&.flatten
             }&.compact&.flatten
           else
@@ -102,7 +123,7 @@ module DataCycleCore
                   'external_key' => i.external_key,
                   'status' => i.status,
                   'last_sync_at' => i.last_sync_at,
-                  'sync_type' => 'import',
+                  'sync_type' => i.sync_type || 'import',
                   'last_successful_sync_at' => i.last_successful_sync_at,
                   'name' => DataCycleCore::ExternalSystem.find(i.external_system_id)&.identifier
                 }

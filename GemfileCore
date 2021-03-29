@@ -35,11 +35,12 @@ group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'web-console'
-  gem 'brakeman', '>= 4.5.1', require: false
+  gem 'brakeman', '~> 4.9.1', require: false
   gem 'bundler-audit', require: false
   gem 'faker'
   gem 'fasterer', require: false
   gem 'rubocop', '~> 0.84.0', require: false
+  gem 'rubocop-ast', '~> 0.3.0'
   gem 'rubocop-performance', require: false
   gem 'rubocop-rails', require: false
   gem 'awesome_print'

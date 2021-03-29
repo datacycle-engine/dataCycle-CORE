@@ -11,7 +11,6 @@ module DataCycleCore
             computed_parameters = properties.dig('compute', 'parameters').values.map { |value| value.is_a?(::String) ? data_hash.dig(value) : value }
 
             return unless validate_computed(data_hash: data_hash, content: content, computed_definition: properties)
-
             computed_value = method_name.try(:call, { computed_parameters: computed_parameters, key: key, data_hash: data_hash, content: content, computed_definition: properties })
             computed_value
           end

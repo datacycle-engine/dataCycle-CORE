@@ -4,7 +4,7 @@ module DataCycleCore
   module SyncApi
     module V1
       class ContentsController < ::DataCycleCore::SyncApi::V1::BaseController
-        PUMA_MAX_TIMEOUT = 60
+        PUMA_MAX_TIMEOUT = 600
         include DataCycleCore::Filter
         before_action :prepare_url_parameters
 
@@ -91,6 +91,8 @@ module DataCycleCore
           query = filter.apply
 
           query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
+
+          query = query.content_ids(params[:content_id]) if params&.dig(:content_id).present?
           query
         end
 
