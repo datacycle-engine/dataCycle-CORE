@@ -48,7 +48,21 @@ module DataCycleCore
           end
         end
 
+        def password
+          authorize! :reset_password, :user_api
+
+          user = User.find_by!(email: password_params[:email])
+
+          raise CanCan::AccessDenied, 'not_recoverable' unless user.respond_to?(:recoverable?) && user.recoverable?
+
+          user.send_reset_password_instructions
+        end
+
         private
+
+        def password_params
+          params.permit(:email)
+        end
 
         def user_params
           user_keys = DataCycleCore.features.dig(:user_api, :user_params).deep_transform_keys { |k| k.camelize(:lower) }

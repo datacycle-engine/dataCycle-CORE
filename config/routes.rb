@@ -283,6 +283,7 @@ DataCycleCore::Engine.routes.draw do
               post 'users/create', to: 'users#create'
               match 'users', to: 'users#index', via: [:get, :post]
               match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
+              post 'user/password', to: 'users#password'
 
               scope 'external_sources/:external_source_id' do
                 match '(/:external_key)', via: :get, to: 'external_systems#show'
