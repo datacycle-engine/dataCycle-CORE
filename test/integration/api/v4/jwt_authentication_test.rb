@@ -221,7 +221,7 @@ module DataCycleCore
           rsa_private = generate_private_key
           token = DataCycleCore::JsonWebToken.encode(payload: { token: @current_user.access_token }, alg: 'RS256', key: rsa_private)
 
-          post api_v4_user_password_path, headers: {
+          post api_v4_users_password_path, headers: {
             Authorization: "Bearer #{token}"
           }, params: {
             email: @new_user.email
