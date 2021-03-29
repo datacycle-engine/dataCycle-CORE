@@ -173,11 +173,17 @@ module DataCycleCore
           end
 
           if classification_data[:external_key].blank?
-            classification = DataCycleCore::Classification
-              .find_or_initialize_by(
+            # in case multiple classifications have the same name
+            classification = DataCycleCore::ClassificationAlias
+              .for_tree(tree_label.name)
+              .find_by(name: classification_data['name'])
+              &.primary_classification
+            if classification.blank?
+              classification = DataCycleCore::Classification.new(
                 external_source_id: external_system,
                 name: classification_data[:name]
               )
+            end
           else
             classification = DataCycleCore::Classification
               .find_or_initialize_by(
