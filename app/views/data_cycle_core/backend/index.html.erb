@@ -17,8 +17,11 @@
       language: true,
       store: true,
       add_items_to_watch_list: true,
-      advanced: DataCycleCore::Feature::AdvancedFilter.enabled? ? DataCycleCore::Feature::AdvancedFilter.available_filters.select { |k, v| can?(:advanced_filter, :backend, k, v) } : false
+      advanced: DataCycleCore::Feature::AdvancedFilter.enabled? ? DataCycleCore::Feature::AdvancedFilter.available_filters.select { |k, v| can?(:advanced_filter, :backend, k, v) } : false,
+      mode_selector: true,
+      additional_mode_selector_classes: 'column-padding',
+      sortable: DataCycleCore::Feature::Sortable.enabled? ? DataCycleCore::Feature::Sortable.available_options.select { |k, v| can?(:sortable, :backend, k, v) } : false
   } if user_signed_in? %>
 <% end %>
 
-<%= render 'data_cycle_core/application/results', contents: @contents, modes: DataCycleCore::Feature::ViewMode.allowed_modes(current_user), sortable: DataCycleCore::Feature::Sortable.enabled? ? DataCycleCore::Feature::Sortable.available_options.select { |k, v| can?(:sortable, :backend, k, v) } : false %>
+<%= render 'data_cycle_core/application/results', contents: @contents %>

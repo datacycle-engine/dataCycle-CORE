@@ -13,6 +13,10 @@ class DashboardFilter {
     this.categoryFilterHeights = [];
     this.addFilterPath = this.$searchForm.data('addFilterPath');
     this.addTagGroupPath = this.$searchForm.data('addTagGroupPath');
+    this.$sortableTypeSelect = this.$searchForm.find('.mode-container .filter-sortable select').first();
+    this.$sortableOrderInputs = this.$searchForm.find(
+      '.mode-container .filter-sortable .filter-sortable-checkbox-wrapper :input'
+    );
 
     this.defaultFilterOptions = {
       splitListClass: 'split-list',
@@ -28,7 +32,6 @@ class DashboardFilter {
     this.initEventHandlers();
     this.initSearchForm();
     this.initClickableMenu();
-    this.initLanguageEvents();
   }
   initDefaultFilters() {
     if (!this.$defaultFilterContainer.length) return;
@@ -62,46 +65,37 @@ class DashboardFilter {
   }
   initEventHandlers() {
     this.$defaultFilterContainer.on('change', '.filter ul :checkbox', this.markDefaultFilterAsChecked.bind(this));
+    if (this.$languageSelectContainer.length)
+      this.$languageSelectContainer.on('change', '.filter ul :checkbox', this.toggleLanguages.bind(this));
 
     this.$advancedFilterContainer.on('change', '.advanced-filter', this.advancedFilterChange.bind(this));
     this.$addAdvancedFilterSelect.on('change', this.addAdvancedFilter.bind(this));
     this.$advancedFilterContainer.on('click', '.remove-advanced-filter', this.removeAdvancedFilter.bind(this));
     this.$filterTagsContainer.on('click', '.remove-advanced-filter', this.removeAdvancedFilter.bind(this));
     this.$filterTagsContainer.on('click', '.focus-advanced-filter', this.focusAdvancedFilter.bind(this));
+    this.$sortableTypeSelect.on('change', this.toggleSortableOrderEditability.bind(this));
+    this.$sortableOrderInputs.on('change', this.triggerSearch.bind(this));
   }
-  initLanguageEvents() {
-    if (!this.$languageSelectContainer.length) return;
-
-    this.$languageSelectContainer.on('change', ':checkbox', this.setSelectedLanguage.bind(this));
-
-    this.$languageTags.on('click', 'label', event => {
-      event.stopPropagation();
-    });
+  toggleSortableOrderEditability(_event) {
+    this.$sortableOrderInputs.prop('disabled', !this.$sortableTypeSelect.val());
+    this.triggerSearch();
   }
-  setSelectedLanguage(event) {
+  toggleLanguages(event) {
     event.preventDefault();
-    event.stopImmediatePropagation();
+    event.stopPropagation();
 
-    console.log('setSelectedLanguage');
-
-    $(event.currentTarget)
-      .closest('.filter')
-      .find(':checkbox:checked')
-      .each((_, elem) => {
-        if (!this.$languageTags.find(`label[for="${elem.value}"]`).length) {
-          this.$languageTags.append(
-            `<label for="${elem.value}"><a class="tag">${elem.dataset.title}<i class="fa fa-times" aria-hidden="true"></i></a></label>`
-          );
-        }
-      });
+    this.languageHandler($(event.currentTarget), $(event.currentTarget).is(':checked'));
+    this.markDefaultFilterAsChecked(event);
   }
   markDefaultFilterAsChecked(event) {
     event.preventDefault();
     event.stopPropagation();
 
     const $parent = $(event.currentTarget).closest('.filter');
+    let value = $parent.find(':input').serializeJSON();
+    if (!Object.keys(value).length) value[$parent.data('id')] = null;
 
-    this.addTagGroup($parent.find(':input').serializeJSON());
+    this.addTagGroup(value);
   }
   defaultFilterMouseEnter(event) {
     let childList = $(event.currentTarget).find('ul').first();
@@ -197,25 +191,29 @@ class DashboardFilter {
 
     const target = $(event.currentTarget).data('target');
 
+    if (target == 'fulltext_search') this.$searchInput.val(null).trigger('change');
+
     $(`.advanced-filter[data-id="${target}"], .filters .tag-group[data-id="${target}"]`).remove();
   }
   focusAdvancedFilter(event) {
     event.preventDefault();
     event.stopPropagation();
 
+    const target = $(event.currentTarget).data('target');
+
+    if (target == 'fulltext_search') return this.$searchInput.focus();
+
     let accordion = $(event.currentTarget).closest('.filters').find('.advanced-filters.accordion');
 
     accordion.one('down.zf.accordion', e => {
       e.stopPropagation();
 
-      $('.advanced-filter[data-id="' + $(event.currentTarget).data('target') + '"]')
-        .addClass('highlight')
-        .get(0)
-        .scrollIntoView({
-          behavior: 'smooth'
-        });
+      $(`.advanced-filter[data-id="${target}"]`).addClass('highlight').get(0).scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
       setTimeout(() => {
-        $('.advanced-filter[data-id="' + $(event.currentTarget).data('target') + '"]').removeClass('highlight');
+        $(`.advanced-filter[data-id="${target}"]`).removeClass('highlight');
       }, 1000);
     });
 
@@ -224,16 +222,17 @@ class DashboardFilter {
   initSearchForm() {
     if (!this.$searchInput.length) return;
 
-    this.$searchInput.on('change', _event => {
-      this.$searchForm.submit();
-    });
+    this.$searchInput.on('change', this.triggerSearch.bind(this));
+  }
+  triggerSearch(_) {
+    this.$searchForm.submit();
   }
   initClickableMenu() {
     if (!this.$clickableMenus.length) return;
 
     this.$primaryClickableMenu.on('mouseenter', 'li.active, li.active li', this.defaultFilterMouseEnter.bind(this));
     this.$primaryClickableMenu.on('mouseleave', 'li.active, li.active li', this.defaultFilterMouseLeave.bind(this));
-    this.$primaryClickableMenu.on('click', 'input', this.clickMainFilterInput.bind(this));
+    this.$clickableMenus.on('click', 'input', this.clickMainFilterInput.bind(this));
     this.$clickableMenus.on('click', '> li', this.clickOnMainFilter.bind(this));
     this.$clickableMenus.on('mouseleave', '> li.active', this.leaveMainFilter.bind(this));
   }
@@ -263,9 +262,9 @@ class DashboardFilter {
   }
   languageHandler(item, checked) {
     if ($(item).val() == 'all' && checked) {
-      $(item).parents('.filter').find(':checkbox').not(item).prop('checked', false).trigger('change');
+      $(item).parents('.filter').find(':checkbox').not(item).prop('checked', false);
     } else if (checked && $(item).parents('.filter').find(':checkbox#all').is(':checked')) {
-      $(item).parents('.filter').find(':checkbox#all').prop('checked', false).trigger('change');
+      $(item).parents('.filter').find(':checkbox#all').prop('checked', false);
     }
   }
 }

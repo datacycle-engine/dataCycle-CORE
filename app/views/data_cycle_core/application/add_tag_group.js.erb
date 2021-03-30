@@ -1,7 +1,7 @@
 <% target = (@params['n'].presence&.underscore_blanks || '') + (@params['index'].present? ? "_#{@params['index']}" : '') %>
 
 <% if @params['v'].present? %>
-var new_html = '<%= j render_advanced_filter_tags_partial({
+  var new_html = '<%= j render_advanced_filter_tags_partial({
   filter_type: @params['t'],
   title: @params['n'],
   key: @params['n'].presence&.underscore_blanks,
@@ -16,7 +16,11 @@ var new_html = '<%= j render_advanced_filter_tags_partial({
 if($('.filters .tag-group[data-id="<%= target %>"]').length){
   $('.filters .tag-group[data-id="<%= target %>"]').replaceWith(new_html);
 } else {
+  <% if target == 'language' %>
+  $('.filters .languagetags').append(new_html);
+  <% else %>
   $('.filters .filtertags .filter-groups').append(new_html);
+  <% end %>
 }
 <% else %>
 if($('.filters .tag-group[data-id="<%= target %>"]').length){
