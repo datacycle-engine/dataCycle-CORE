@@ -30,6 +30,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::Content
       include DataCycleCore::Content::Extensions::ContentWarnings
       include DataCycleCore::Content::Extensions::Api
+      include DataCycleCore::Content::Extensions::SyncApi
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay

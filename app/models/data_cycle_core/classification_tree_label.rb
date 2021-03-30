@@ -120,6 +120,12 @@ module DataCycleCore
       }
     end
 
+    def to_hash
+      { 'class_type' => self.class.to_s }
+        .merge({ 'external_system' => external_source&.identifier })
+        .merge(attributes)
+    end
+
     private
 
     def cached_attributes_changed?

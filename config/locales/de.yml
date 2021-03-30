@@ -302,6 +302,7 @@ de:
     pending: wird synchronisiert
     error: "Es ist ein Fehler aufgetreten.\nDie Synchronisation wird in bestimmten Intervallen erneut versucht."
     failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nich synchronisiert werden."
+    export: Externes System
 
   duplicate:
     candidates: Mögliche Duplikate
@@ -829,6 +830,8 @@ de:
         classification_ids: Klassifizierungs-Mapping
         internal_name: Sprachneutraler Name
         uri: Externe URI
+        external_keys: Externe Keys
+        mapped_to_string: Klassifizierungen gemapped von
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer

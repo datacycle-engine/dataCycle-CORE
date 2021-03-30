@@ -26,12 +26,49 @@ module DataCycleCore
           if local
             content = DataCycleCore::Thing.new
           else
-            content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first || DataCycleCore::Thing.new(
+            # try to find already present content:
+            content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first
+            if content.blank? && data['external_system_data'].present?
+              data['external_system_data'].each do |external_system_entry|
+                external_system = DataCycleCore::ExternalSystem.find_by(identifier: external_system_entry['identifier'])
+                next if external_system.blank? || external_system_entry['external_key'].blank?
+                content ||= DataCycleCore::Thing.by_external_key(external_system&.id, external_system_entry['external_key']).first
+              end
+            end
+
+            # add external_system_syncs where necessary and return
+            if content.present?
+              present_external_systems = content.view_all_external_data
+              all_imported_external_system_data = data['external_system_data'] || []
+              all_imported_external_system_data += [{
+                'external_key' => data['external_key'],
+                'name' => utility_object.external_source.name,
+                'identifier' => utility_object.external_source.identifier,
+                'last_sync_at' => data.dig('updated_at'),
+                'last_successful_sync_at' => data.dig('updated_at')
+              }]
+              all_imported_external_system_data.each do |es|
+                next if present_external_systems.detect { |i| i['external_identifier'] == es['identifier'] && i['external_key'] == es['external_key'] }.present?
+                external_system =
+                  if es['identifier'].present?
+                    DataCycleCore::ExternalSystem.find_by(identifier: es['identifier'])
+                  else
+                    DataCycleCore::ExternalSystem.find_by(name: es['name'])
+                  end
+                external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank?
+                sync_data = content.add_external_system_data(external_system, { external_key: es['external_key'] }, es['status'] || 'success', es['sync_type'] || 'import', es['external_key'], false)
+                update_data = { last_sync_at: es['last_sync_at'], last_successful_sync_at: es['last_successful_sync_at'] }.compact
+                sync_data.update(update_data) if update_data.present?
+              end
+
+              return content if content&.external_source_id != utility_object.external_source.id || content&.external_key != data['external_key']
+            end
+
+            # no content found anywhere --> create new thing
+            content ||= DataCycleCore::Thing.new(
               external_source_id: utility_object.external_source.id,
               external_key: data['external_key']
             )
-
-            return content if content&.external_source_id != utility_object.external_source.id || content&.external_key != data['external_key']
           end
           content.metadata ||= {}
           content.schema = template.schema
@@ -81,7 +118,8 @@ module DataCycleCore
           end
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
-          error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: !created, new_content: created)
+          invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true) || true
+          error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: !created, new_content: created, invalidate_related_cache: invalidate_related_cache)
 
           if error[:error].present?
             Appsignal.increment_counter(
@@ -99,11 +137,18 @@ module DataCycleCore
             )
           end
 
-          content.tap(&:save!)
-
+          content.save!
           data.dig('external_system_data')&.each do |es|
-            external_system = DataCycleCore::ExternalSystem.find_by(name: es['name'])
-            content.add_external_system_data(external_system, { external_key: es['external_key'] }, 'export', es['external_key'], false)
+            external_system =
+              if es['identifier'].present?
+                DataCycleCore::ExternalSystem.find_by(identifier: es['identifier'])
+              else
+                DataCycleCore::ExternalSystem.find_by(name: es['name'])
+              end
+            external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank?
+            sync_data = content.add_external_system_data(external_system, { external_key: es['external_key'] }, es['status'] || 'success', es['sync_type'] || 'export', es['external_key'], false)
+            update_data = { last_sync_at: es['last_sync_at'], last_successful_sync_at: es['last_successful_sync_at'] }.compact
+            sync_data.update(update_data) if update_data.present?
           end
 
           content
@@ -118,8 +163,6 @@ module DataCycleCore
         end
 
         def self.import_sequential(utility_object:, iterator:, data_processor:, options:)
-          delta = 100
-          fixnum_max = (2**(0.size * 4 - 2) - 1)
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               importer_name = options.dig(:import, :name)
@@ -169,7 +212,7 @@ module DataCycleCore
                           options: options
                         )
 
-                        next unless (item_count % delta).zero?
+                        next unless (item_count % logging_delta).zero?
 
                         GC.start
 
@@ -181,6 +224,65 @@ module DataCycleCore
                   end
                 ensure
                   logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
+                end
+              end
+            end
+          end
+        end
+
+        def self.import_all(utility_object:, iterator:, data_processor:, options:)
+          init_logging(utility_object) do |logging|
+            init_mongo_db(utility_object) do
+              importer_name = options.dig(:import, :name)
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+
+              item_count = 0
+              begin
+                logging.phase_started("#{importer_name}(#{phase_name})")
+                source_filter = options&.dig(:import, :source_filter) || {}
+                source_filter = source_filter.with_evaluated_values
+                # source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
+                # if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
+                #   source_filter = source_filter.merge({
+                #     '$or' => [{
+                #       'updated_at' => { '$gte' => utility_object.external_source.last_successful_import }
+                #     }, {
+                #       "dump.#{locale}.updated_at" => { '$gte' => utility_object.external_source.last_successful_import }
+                #     }]
+                #   })
+                # end
+
+                GC.start
+
+                times = [Time.current]
+                utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                  # mongo_item.with_session do |session|
+                  iterator.call(mongo_item, nil, source_filter).all.no_timeout.max_time_ms(fixnum_max).each do |content|
+                    item_count += 1
+                    break if options[:max_count].present? && item_count > options[:max_count]
+                    next if options[:min_count].present? && item_count < options[:min_count]
+
+                    # session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
+
+                    data_processor.call(
+                      utility_object: utility_object,
+                      raw_data: content[:dump],
+                      locale: nil,
+                      options: options
+                    )
+
+                    next unless (item_count % logging_delta).zero?
+
+                    GC.start
+
+                    times << Time.current
+
+                    logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                  end
+                  # end
+                ensure
+                  logging.phase_finished("#{importer_name}(#{phase_name})", item_count)
                 end
               end
             end
@@ -278,6 +380,14 @@ module DataCycleCore
           new_hash = {}
           new_hash = load_default_values(config.dig(:default_values)) if config&.dig(:default_values).present?
           new_hash.merge(data_hash)
+        end
+
+        def self.fixnum_max
+          (2**(0.size * 4 - 2) - 1)
+        end
+
+        def self.logging_delta
+          100
         end
       end
     end

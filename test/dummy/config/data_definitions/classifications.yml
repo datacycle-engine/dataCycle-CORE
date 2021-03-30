@@ -91,6 +91,10 @@
         - Nested Tag 1 | Nested Tag 1 - Beschreibung **https://nestedtag1.com/
         - Nested Tag 2 | Nested Tag 2 - Beschreibung **https://nestedtag1.com/
 
+- Test Mapping | all:
+    - Test1
+    - Test2
+
 - Ausgabekanäle | all:
     - Web
     - Print
@@ -401,6 +405,8 @@
     - Veranstaltung auf unbekannten Zeitpunkt vertagt **https://schema.org/EventPostponed
     - Veranstaltung verschoben **https://schema.org/EventRescheduled
     - Veranstaltung geplant **https://schema.org/EventScheduled
+    - Test Veranstaltung geplant
+    - Test Veranstaltung abgesagt
 
 - ActionTypes | all:
     - Download **https://schema.org/DownloadAction
