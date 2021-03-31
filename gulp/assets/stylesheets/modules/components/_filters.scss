@@ -557,6 +557,7 @@ $filter-border: #aaa;
         margin-right: 0.5rem;
         color: $primary-color;
         font-weight: bold;
+        padding-top: 1px;
 
         i {
           font-size: 1rem;
@@ -569,12 +570,14 @@ $filter-border: #aaa;
   .filtertags {
     font-size: 0.8rem;
     display: flex;
+
     > .filter-groups {
       flex: auto;
     }
     > .icon {
       white-space: nowrap;
       margin: 0 0.5rem 0.5rem 0;
+      padding-top: 2px;
     }
 
     .fa-check {
