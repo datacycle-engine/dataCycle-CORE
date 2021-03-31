@@ -53,11 +53,13 @@ const { optionsFromCapabilities } = require('ol/source/wmts').default;
 
 const iconPaths = {
   default:
-    'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${color}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><circle cx="10.574" cy="10.771" r="4.4524" fill-opacity=".9" fill="%23fff"/></svg>',
+    'data:image/svg+xml;utf8,<svg width="21.09" height="33.144" version="1.1" viewBox="0 0 21.09 33.144" xmlns="http://www.w3.org/2000/svg"><path d="m10.545 1c-5.2717 0-9.5449 4.2784-9.5449 9.5565 0 9.5565 9.5449 21.024 9.5449 21.024s9.5449-11.468 9.5449-21.024c0-5.2781-4.2733-9.5565-9.5449-9.5565z" fill="${color}" stroke="${color}" stroke-width="2" style="paint-order:normal"/><circle cx="10.545" cy="10.312" r="4.5249" fill="%23fff" fill-opacity=".9"/></svg>',
   start:
-    'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${color}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><path d="m16.253 11.621-8.9451 5.0275 0.11862-10.26z" fill="%23fff" fill-opacity=".9"/></svg>',
+    'data:image/svg+xml;utf8,<svg width="21.091" height="33.117" version="1.1" viewBox="0 0 21.091 33.117" xmlns="http://www.w3.org/2000/svg"><path d="m10.545 1c-5.2719 0-9.5453 4.2748-9.5453 9.5484 0 9.5484 9.5453 21.006 9.5453 21.006s9.5453-11.458 9.5453-21.006c0-5.2736-4.2734-9.5484-9.5453-9.5484z" fill="${color}" stroke="%23fff" stroke-width="2" style="paint-order:normal"/><path d="m15.944 11.969-8.9451 5.0275 0.11862-10.26z" fill="%23fff"/></svg>',
   end:
-    'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${color}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><rect x="6.042" y="7.3383" width="9.1903" height="8.3106" ry="0" fill="%23fff" fill-opacity=".9"/></svg>'
+    'data:image/svg+xml;utf8,<svg width="21.092" height="33.07" version="1.1" viewBox="0 0 21.092 33.07" xmlns="http://www.w3.org/2000/svg"><path d="m10.546 1c-5.2722 0-9.546 4.2685-9.546 9.5342 0 9.5342 9.546 20.975 9.546 20.975s9.546-11.441 9.546-20.975c0-5.2658-4.2737-9.5342-9.546-9.5342z" fill="${color}" stroke="%23fff" stroke-width="2" style="paint-order:normal"/><rect x="5.9508" y="6.8043" width="9.1903" height="8.3106" ry="0" fill="%23fff"/></svg>',
+  defaultHover:
+    'data:image/svg+xml;utf8,<svg width="21.09" height="33.144" version="1.1" viewBox="0 0 21.09 33.144" xmlns="http://www.w3.org/2000/svg"><path d="m10.545 1c-5.2717 0-9.5449 4.2784-9.5449 9.5565 0 9.5565 9.5449 21.024 9.5449 21.024s9.5449-11.468 9.5449-21.024c0-5.2781-4.2733-9.5565-9.5449-9.5565z" fill="${color}" stroke="%23fff" stroke-width="2" style="paint-order:normal"/><circle cx="10.545" cy="10.312" r="4.5249" fill="%23fff"/></svg>'
 };
 
 class OpenLayersViewer {
@@ -106,6 +108,7 @@ class OpenLayersViewer {
       featureProjection: 'EPSG:3857'
     };
     this.geoJsonFormat = new this.ol.format.GeoJSON();
+    this.resizeObserver;
   }
   setup() {
     this.setZoomMethod();
@@ -178,7 +181,6 @@ class OpenLayersViewer {
               {
                 anchor: [0.5, 1],
                 opacity: 0.9,
-                scale: 1,
                 src: this.icons[type].interpolate({ color: escape(this.colors[color]) })
               },
               additionalImageParameters
@@ -246,6 +248,7 @@ class OpenLayersViewer {
     });
   }
   initMapHoverActions() {
+    this.initResizeObserver();
     this.featureOverlaySource = new this.ol.source.Vector();
     this.featureOverlay = new this.ol.layer.Vector({
       source: this.featureOverlaySource,
@@ -255,6 +258,10 @@ class OpenLayersViewer {
 
     this.map.on('pointermove', this.highlightFeature.bind(this));
     if (this.$popupContainer.length) this.map.on('singleclick', this.showInfoOverlay.bind(this));
+  }
+  initResizeObserver() {
+    this.resizeObserver = new ResizeObserver(_ => this.map.updateSize());
+    this.resizeObserver.observe(document.body);
   }
   showInfoOverlay(evt) {
     const pixel = this.map.getEventPixel(evt.originalEvent);
@@ -281,11 +288,10 @@ class OpenLayersViewer {
     return html;
   }
   highlightFeature(evt) {
-    if (evt.dragging) return;
+    const feature = this.map.forEachFeatureAtPixel(evt.pixel, f => f);
+    this.map.getTargetElement().firstElementChild.style.cursor = evt.dragging ? 'grabbing' : feature ? 'pointer' : '';
 
-    const pixel = this.map.getEventPixel(evt.originalEvent);
-    let feature = this.map.getFeaturesAtPixel(pixel);
-    feature = feature && feature.find(f => f.getGeometry().getType().includes('LineString'));
+    if (evt.dragging) return;
 
     if (feature !== this.highlightedFeature) {
       if (this.highlightedFeature) this.featureOverlaySource.removeFeature(this.highlightedFeature);
@@ -323,7 +329,7 @@ class OpenLayersViewer {
       );
     } else if (geometry.getType() == 'Point') {
       styles.push(
-        this.generateIconStyle('default', featureStyle.color, {
+        this.generateIconStyle(featureStyle.background ? 'defaultHover' : 'default', featureStyle.color, {
           geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
         })
       );

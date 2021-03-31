@@ -63,11 +63,6 @@ class OpenLayersEditor extends OpenLayersViewer {
     }
   }
   initMapActions() {
-    this.map.on('pointermove', evt => {
-      const hit = evt.map.hasFeatureAtPixel(evt.pixel);
-      evt.map.getTargetElement().firstElementChild.style.cursor = evt.dragging ? 'grabbing' : hit ? 'pointer' : '';
-    });
-
     if (this.type.includes('Point')) this.initMapEditActions();
   }
   initMapEditActions() {
