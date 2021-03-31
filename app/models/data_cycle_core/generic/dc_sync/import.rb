@@ -28,8 +28,9 @@ module DataCycleCore
           end
           if content.blank? && raw_data[first_locale]['external_system_syncs'].present?
             raw_data[first_locale]['external_system_syncs'].each do |external_system_entry|
-              external_system = DataCycleCore::ExternalSystem.find_by(identifier: external_system_entry['identifier'])
+              external_system = DataCycleCore::ExternalSystem.find_by(identifier: external_system_entry['identifier'] || external_system_entry['name'])
               next if external_system.nil?
+              next if external_system_entry['external_key'].blank?
               content ||= DataCycleCore::Thing.by_external_key(external_system&.id, external_system_entry['external_key']).first
             end
           end
