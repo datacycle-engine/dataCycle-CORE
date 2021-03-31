@@ -4,30 +4,30 @@ module DataCycleCore
   module Content
     module Extensions
       module SyncApi
-        def to_sync_data(depth: 0, locales: nil, translated: false)
+        def to_sync_data(depth: 0, locales: nil, translated: false, max_depth: DataCycleCore.main_config.dig(:sync_api, :max_depth))
           depth += 1
-          return if depth > DataCycleCore.main_config.dig(:sync_api, :max_depth)
+          return if depth > max_depth
           languages = available_locales.presence || [I18n.locale]
           languages = locales if locales.present? && translated
           languages.map { |lang|
-            { lang => I18n.with_locale(lang) { to_sync_h(locales: locales) } }
+            { lang => I18n.with_locale(lang) { to_sync_h(locales: locales, depth: depth, max_depth: max_depth) } }
           }.inject(&:merge)
-          &.merge({ included: attribute_to_sync_h('included', depth: depth) })
-          &.merge({ classifications: attribute_to_sync_h('classifications') })
+          &.merge({ included: attribute_to_sync_h('included', depth: depth, max_depth: max_depth) })
+          &.merge({ classifications: attribute_to_sync_h('classifications', depth: depth, max_depth: max_depth) })
           &.deep_stringify_keys
         end
 
-        def to_sync_h(depth = 0, locales: nil)
+        def to_sync_h(depth: 0, max_depth: DataCycleCore.main_config.dig(:sync_api, :max_depth), locales: nil)
           (property_names - virtual_property_names)
-            .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth: depth, locales: locales) } }
+            .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth: depth, max_depth: max_depth, locales: locales) } }
             .inject(&:merge)
             .merge(sync_metadata)
             .compact
-            .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', depth: depth, locales: locales) }
+            .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', depth: depth, max_depth: max_depth, locales: locales) }
             .deep_stringify_keys
         end
 
-        def attribute_to_sync_h(property_name, depth: 0, locales: nil)
+        def attribute_to_sync_h(property_name, depth: 0, max_depth:, locales: nil)
           present_overlay = overlay_property_names.include?(property_name)
           property_name_with_overlay = property_name
           property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
@@ -36,6 +36,7 @@ module DataCycleCore
           elsif classification_property_names.include?(property_name)
             send(property_name).try(:pluck, :id)
           elsif linked_property_names.include?(property_name)
+            return [] if depth >= max_depth
             linked_array = get_property_value(property_name, property_definitions[property_name], nil, present_overlay).pluck(:id)
             linked_array.presence || []
           elsif included_property_names.include?(property_name)
@@ -122,7 +123,7 @@ module DataCycleCore
                   'external_key' => i.external_key,
                   'status' => i.status,
                   'last_sync_at' => i.last_sync_at,
-                  'sync_type' => i.sync_type || 'import',
+                  'sync_type' => i.sync_type || 'duplicate',
                   'last_successful_sync_at' => i.last_successful_sync_at,
                   'name' => DataCycleCore::ExternalSystem.find(i.external_system_id)&.identifier
                 }
