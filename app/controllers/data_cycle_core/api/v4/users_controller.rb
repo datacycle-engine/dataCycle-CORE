@@ -40,6 +40,8 @@ module DataCycleCore
           @user.jti = SecureRandom.uuid
 
           if @user.save
+            DataCycleCore::Feature::UserApi.notify_users(@user) if DataCycleCore::Feature::UserApi.new_user_notification?
+
             render json: @user.as_user_api_json.merge({
               token: DataCycleCore::JsonWebToken.encode(payload: { user_id: @user.id, jti: @user.jti })
             }).deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :created
