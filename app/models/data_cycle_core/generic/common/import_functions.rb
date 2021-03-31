@@ -57,7 +57,7 @@ module DataCycleCore
                     DataCycleCore::ExternalSystem.find_by(identifier: es['name']) || DataCycleCore::ExternalSystem.find_by(name: es['name'])
                   end
                 external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank?
-                sync_data = content.add_external_system_data(external_system, { external_key: es['external_key'] }, es['status'] || 'success', es['sync_type'] || 'import', es['external_key'], false)
+                sync_data = content.add_external_system_data(external_system, { external_key: es['external_key'] }, es['status'] || 'success', 'duplicate', es['external_key'], false)
                 update_data = { last_sync_at: es['last_sync_at'], last_successful_sync_at: es['last_successful_sync_at'] }.compact
                 sync_data.update(update_data) if update_data.present?
               end

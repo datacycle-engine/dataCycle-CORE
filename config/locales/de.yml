@@ -330,6 +330,11 @@ de:
       missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
     gip_key_figure:
       button_title: Ermittlung des Wertes für %{data} über ein Web-Service der GIP auf Basis der zugrundeliegenden Geo-Daten
+    user_api:
+      mailer:
+        subject: Ein neuer Benutzer wurde erstellt
+        text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
+        user_link: Benutzer bearbeiten
 
   history:
     latest_edits: Letzte Bearbeitungen

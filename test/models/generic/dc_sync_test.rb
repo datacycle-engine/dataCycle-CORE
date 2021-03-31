@@ -103,7 +103,7 @@ module DataCycleCore
         assert_equal('00000000-0000-0000-0000-000000000001', event.external_key)
         assert_equal('DataCycle Basic', event.external_source.name)
         assert_equal('outdooractive', event.external_systems.first.identifier)
-        assert_equal('import', event.external_system_syncs.first.sync_type)
+        assert_equal('duplicate', event.external_system_syncs.first.sync_type)
         assert_equal('00000000-0000-0000-0000-000000000001', event.external_system_syncs.first.external_key)
       end
 
@@ -117,7 +117,7 @@ module DataCycleCore
 
         outdooractive = DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive')
         oa_sync_data = event.external_system_syncs.find_by(external_system_id: outdooractive.id)
-        assert_equal('import', oa_sync_data.sync_type)
+        assert_equal('duplicate', oa_sync_data.sync_type)
         assert_equal('success', oa_sync_data.status)
         assert_equal('00000000-0000-0000-0000-000000000002', oa_sync_data.external_key)
 
