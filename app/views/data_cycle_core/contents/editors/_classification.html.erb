@@ -14,6 +14,7 @@
 
   <div class="v-select">
     <% classification_items = classification_alias_filter_items(definition['tree_label'], { internal_name: :asc }) %>
+    <% single_select = definition.dig('ui', 'edit', 'options', 'multiple') == false %>
     <%= hidden_field_tag key + '[]', nil %>
     <% if classification_items.size > DataCycleCore.max_asynch_classification_items || (DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key)) %>
       <%= select_tag(
@@ -21,12 +22,13 @@
             async_classification_select_options(value, DataCycleCore::Classification),
             {
               multiple: true,
+              include_blank: single_select,
               disabled: !attribute_editable?(key, definition, options, content),
               class: 'async-select',
               data: {
                 tree_label: definition['tree_label'],
                 max: 20,
-                close_on_select: false,
+                close_on_select: single_select,
                 placeholder: '',
                 find_path: find_classifications_path,
                 search_path: search_classifications_path
@@ -57,12 +59,13 @@
             simple_classification_select_options(value, classification_items, DataCycleCore::Classification),
             {
               multiple: true,
+              include_blank: single_select,
               disabled: !attribute_editable?(key, definition, options, content),
               class: 'multi-select',
               data: {
                 tree_label: definition['tree_label'],
                 max: 20,
-                close_on_select: false,
+                close_on_select: single_select,
                 placeholder: ''
               },
               id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}"
