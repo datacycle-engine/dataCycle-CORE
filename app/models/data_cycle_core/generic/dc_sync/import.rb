@@ -22,7 +22,7 @@ module DataCycleCore
           content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, raw_data[first_locale]['id']).first
           unless raw_data[first_locale]['external_source'].nil? && raw_data[first_locale]['external_key'].nil?
             content ||= DataCycleCore::Thing.by_external_key(
-              DataCycleCore::ExternalSystem.find_by(identifier: raw_data[first_locale]['external_source'])&.id,
+              DataCycleCore::ExternalSystem.find_by('identifier = ? OR name = ?', raw_data[first_locale]['external_source'], raw_data[first_locale]['external_source'])&.id,
               raw_data[first_locale]['external_key']
             ).first
           end
