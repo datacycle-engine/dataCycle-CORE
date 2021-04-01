@@ -48,15 +48,17 @@ module DataCycleCore
         end
 
         def configuration(content = nil)
-          Rails.cache.fetch(cache_key(content)) do
+          @configuration ||= Hash.new do |h, key|
             config = ActiveSupport::HashWithIndifferentAccess.new
             config.merge!(DataCycleCore.features.dig(name.demodulize.underscore.to_sym) || {})
-            config.merge!(content&.schema&.dig('features', name.demodulize.underscore) || {})
-            config.merge!(content&.collect_properties&.map { |key|
-              content&.schema&.dig('properties', *key, 'features', name.demodulize.underscore).presence&.merge({ 'attribute_keys': (key.is_a?(Array) ? [key.last] : [key]), 'tree_label': content&.schema&.dig('properties', *key, 'tree_label') })
+            config.merge!(key[3]&.dig('features', name.demodulize.underscore) || {})
+            config.merge!(key[4]&.map { |k|
+              key[3]&.dig('properties', *k, 'features', name.demodulize.underscore).presence&.merge({ 'attribute_keys': (k.is_a?(Array) ? [k.last] : [k]), 'tree_label': key[3]&.dig('properties', *k, 'tree_label') })
             }&.compact&.reduce({}) { |old, new| old.deep_merge(new) { |_, v1, v2| v1.is_a?(Array) && v2.is_a?(Array) ? v1 | v2 : v2 } } || {})
-            config.compact
+
+            h[key] = config.compact
           end
+          @configuration[cache_key(content)]
         end
 
         def content_module
@@ -76,7 +78,7 @@ module DataCycleCore
         end
 
         def cache_key(content)
-          "#{name.underscore}_configuration_#{content&.id}_#{content&.updated_at}"
+          [name.underscore, 'configuration', content&.id, content&.schema, content&.collect_properties]
         end
       end
     end
