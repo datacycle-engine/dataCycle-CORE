@@ -76,4 +76,22 @@
     </div>
   </div>
 
+  <div class="row">
+    <div class="small-12 columns">
+      <br/>
+      <br/>
+      <h4>
+        <i class='fa fa-arrow-circle-o-down' aria-hidden='true'></i>&nbsp; sync foreign modules<br/>
+        &nbsp;
+      </h4>
+    </div>
+  </div>
+  <div class="grid-external-modules">
+    <% external_systems = DataCycleCore::ExternalSystem.all %>
+    <% grid_class = external_systems.where("credentials IS NULL").size < 3 ? 'grid-parent-few' : 'grid-parent' %>
+    <div class="<%=grid_class%>">
+      <%= render partial: 'export_modules', collection: external_systems.where("credentials IS NULL"), as: 'external_system' %>
+    </div>
+  </div>
+
 </section>

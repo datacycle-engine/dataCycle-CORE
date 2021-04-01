@@ -200,7 +200,15 @@ module DataCycleCore
     end
 
     def external_keys
-      classifications.pluck(:external_key)&.join(', ')
+      classifications.pluck(:external_key)&.compact&.join(', ')
+    end
+
+    def mapped_to_string
+      primary_classification&.classification_aliases&.where&.not(id: id)&.map(&:name)&.join(',')
+    end
+
+    def mapped_to
+      primary_classification&.classification_aliases&.where&.not(id: id)
     end
 
     def to_api_default_values
@@ -257,6 +265,13 @@ module DataCycleCore
       DataCycleCore::StoredFilter.update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")
 
       destroy
+    end
+
+    def to_hash
+      { 'class_type' => self.class.to_s }
+        .merge({ 'external_system' => external_source&.identifier })
+        .merge(attributes)
+        .merge({ 'primary_classification' => primary_classification.to_hash })
     end
 
     private

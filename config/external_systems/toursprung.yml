@@ -1,5 +1,6 @@
 ---
 name: Toursprung
+identifier: toursprung
 credentials:
   host: https://maptoolkit.net
   username: sandbox

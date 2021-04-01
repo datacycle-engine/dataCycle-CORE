@@ -8,7 +8,7 @@ module DataCycleCore
 
         def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, options:)
           iteration_strategy = options.dig(:iteration_strategy) || :download_sequential
-          raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel].include?(iteration_strategy)
+          raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all].include?(iteration_strategy)
           send(iteration_strategy, download_object: download_object, data_id: data_id, data_name: data_name, modified: modified, delete: delete, iterator: iterator, options: options)
         end
 
@@ -179,7 +179,7 @@ module DataCycleCore
                           data_hash[:last_seen_before_delete] = item.dump[language].try(:[], 'last_seen_before_delete') if item.dump[language].try(:[], 'last_seen_before_delete').present?
                           data_hash[:archived_at] = item.dump[language].try(:[], 'archived_at') if item.dump[language].try(:[], 'archived_at').present?
                           data_hash[:archive_reason] = item.dump[language].try(:[], 'archive_reason') if item.dump[language].try(:[], 'archive_reason').present?
-                          data_hash[:last_seen_before_archived] =  item.dump[language].try(:[], 'last_seen_before_archived') if item.dump[language].try(:[], 'last_seen_before_archived').present?
+                          data_hash[:last_seen_before_archived] = item.dump[language].try(:[], 'last_seen_before_archived') if item.dump[language].try(:[], 'last_seen_before_archived').present?
                         end
                         data_hash[:updated_at] = modified.call(data_hash) if modified.present?
                         item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(language, 'mark_for_update').present?
@@ -214,6 +214,110 @@ module DataCycleCore
             end
           end
           success
+        end
+
+        def self.download_all(download_object:, data_id:, data_name:, modified: nil, delete: nil, options:, **_unused)
+          success = true
+          delta = 100
+
+          init_mongo_db(download_object) do
+            init_logging(download_object) do |logging|
+              locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
+
+              logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name}")
+              item_count = 0
+
+              begin
+                download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
+                  items = download_object.endpoint.send(endpoint_method)
+
+                  max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
+                  logging.phase_started(download_object.source_type.collection_name.to_s, max_string)
+
+                  GC.start
+
+                  times = [Time.current]
+
+                  items.each do |item_data|
+                    break if options[:max_count] && item_count >= options[:max_count]
+
+                    item_count += 1
+                    next if item_data.nil?
+                    begin
+                      item_id = data_id.call(item_data.first[1])
+                      item_name = data_name.call(item_data.first[1])
+                      item = mongo_item.find_or_initialize_by('external_id': item_id)
+                      item.dump ||= {}
+
+                      item_data.each do |key, data_hash|
+                        if locales.include?(key.to_sym)
+                          if delete.present? && delete.call(data_hash, key)
+                            data_hash[:deleted_at] = item.dump[key].try(:[], 'deleted_at') || Time.zone.now
+                            data_hash[:delete_reason] = item.dump[key].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                            data_hash[:last_seen_before_delete] = item.dump[key].try(:[], 'last_seen_before_delete') if item.dump[key].try(:[], 'last_seen_before_delete').present?
+                            data_hash[:archived_at] = item.dump[key].try(:[], 'archived_at') if item.dump[key].try(:[], 'archived_at').present?
+                            data_hash[:archive_reason] = item.dump[key].try(:[], 'archive_reason') if item.dump[key].try(:[], 'archive_reason').present?
+                            data_hash[:last_seen_before_archived] = item.dump[key].try(:[], 'last_seen_before_archived') if item.dump[key].try(:[], 'last_seen_before_archived').present?
+                          end
+                          data_hash[:updated_at] = modified.call(data_hash) if modified.present?
+                          item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(key, 'mark_for_update').present?
+                          item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_successful_download
+                          item.data_has_changed = diff?(bson_to_hash(item.dump[key]), data_hash, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
+                          item.dump[key] = data_hash
+                        elsif ['included', 'classifications'].include?(key)
+                          item.dump[key] = data_hash
+                        else
+                          next
+                        end
+                        logging.item_processed(item_name, item_id, item_count, max_string)
+                      end
+                      item.save!
+                    rescue StandardError => e
+                      Appsignal.send_error(e, nil, 'background')
+                      logging.error(item_name, item_id, item_data, e)
+                      success = false
+                    end
+
+                    next unless (item_count % delta).zero?
+
+                    GC.start
+
+                    times << Time.current
+
+                    logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                  end
+                end
+              rescue StandardError => e
+                Appsignal.send_error(e, nil, 'background')
+                logging.error(nil, nil, nil, e)
+                success = false
+              ensure
+                logging.phase_finished(download_object.source_type.collection_name.to_s, item_count)
+              end
+            end
+          end
+          success
+        end
+
+        def self.download_test(download_object:, data_id:, data_name:, raw_data:)
+          init_mongo_db(download_object) do
+            init_logging(download_object) do |logging|
+              download_object.source_object.with(download_object.source_type) do |mongo_item|
+                item_id = data_id.call(raw_data.first[1])
+                item_name = data_name.call(raw_data.first[1])
+                item = mongo_item.find_or_initialize_by('external_id': item_id)
+                item.dump = raw_data
+                item.save!
+                GC.start
+                logging.info("Single download_all item #{item_name}", item_id)
+              rescue StandardError => e
+                Appsignal.send_error(e, nil, 'background')
+                logging.error(nil, nil, nil, e)
+              end
+            end
+          end
+          true
         end
 
         def self.mark_deleted(download_object:, data_id:, options:)

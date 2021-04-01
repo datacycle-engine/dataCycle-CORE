@@ -31,6 +31,10 @@ module DataCycleCore
       all.where('watch_lists.full_path ILIKE ?', "%#{q}%")
     end
 
+    def to_hash
+      attributes.except('user_id')
+    end
+
     private
 
     def split_full_path

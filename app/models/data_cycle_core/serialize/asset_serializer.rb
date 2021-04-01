@@ -23,7 +23,10 @@ module DataCycleCore
         end
 
         def file_extension(mime_type)
-          MiniMime.lookup_by_content_type(mime_type.to_s)&.extension
+          ext = MiniMime.lookup_by_content_type(mime_type.to_s)&.extension
+          return if ext.blank?
+
+          ".#{ext}"
         end
 
         def serialize(content, _language, version, transformation = nil)

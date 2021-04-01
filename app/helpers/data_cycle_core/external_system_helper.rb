@@ -18,6 +18,7 @@ module DataCycleCore
           sync_type: 'import',
           date: [content.updated_at, content.external_source.last_successful_import].compact.min,
           external_key: content.external_key || content.id,
+          external_detail_url: content.external_source.external_detail_url(content),
           external_edit_url: content.external_source.external_url(content),
           title: "#{t('common.external_key', locale: DataCycleCore.ui_language)}: #{(content.external_key || content.id)}"
         }]

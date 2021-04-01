@@ -526,7 +526,8 @@ $filter-border: #aaa;
       margin: 0 0.5rem 0.5rem 0;
       box-shadow: 0 0 2px lighten($color: $black, $amount: 20%);
 
-      &.e {
+      &.e,
+      &.u {
         box-shadow: 0 0 2px 1px rgba($alert-color, 0.8);
         .tag {
           position: relative;
@@ -543,7 +544,8 @@ $filter-border: #aaa;
         }
       }
 
-      &.i {
+      &.i,
+      &.s {
         box-shadow: 0 0 2px 1px $success-color;
       }
 

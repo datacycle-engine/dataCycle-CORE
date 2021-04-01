@@ -370,19 +370,7 @@ module DataCycleCore
         return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
         present_relation_ids = send(relation_name).pluck(:classification_id) || []
         ids ||= []
-        if is_blank?(ids) && !universal
-          # if default_value.present?
-          #   classification_id = load_default_classification(tree_label, default_value)
-          #   ids = [classification_id] # the convention is: don't delete the default_value
-          #   if present_relation_ids.count.zero?
-          #     DataCycleCore::ClassificationContent.find_or_create_by!(
-          #       'content_data_id' => id,
-          #       classification_id: classification_id,
-          #       relation: relation_name
-          #     )
-          #   end
-          # end
-        else
+        unless is_blank?(ids) && !universal
           ids.each do |classification_id_value|
             next if present_relation_ids.include?(classification_id_value)
             DataCycleCore::ClassificationContent.find_or_create_by!(
@@ -433,11 +421,14 @@ module DataCycleCore
 
         data.each do |item|
           schedule =
-            if item['id'].present?
-              DataCycleCore::Schedule.find_by(id: item['id'], thing_id: id, relation: relation_name)
+            if item['id'].present? && DataCycleCore::Schedule.find_by(id: item['id']).present?
+              DataCycleCore::Schedule.find_by(id: item['id'])
             else
-              DataCycleCore::Schedule.new(thing_id: id, relation: relation_name)
+              DataCycleCore::Schedule.new
             end
+          schedule.id = item['id'] if item['id'].present?
+          schedule.thing_id = id
+          schedule.relation = relation_name
           schedule.from_hash(item.with_indifferent_access)
           schedule.save!
           updated_item_keys << schedule.id

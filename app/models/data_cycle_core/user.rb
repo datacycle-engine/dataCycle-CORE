@@ -7,7 +7,7 @@ module DataCycleCore
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
     devise :registerable, :confirmable if DataCycleCore::Feature::UserRegistration.enabled?
 
-    attr_accessor :raw_password, :skip_callbacks, :synchronous_webhooks
+    attr_accessor :raw_password, :skip_callbacks, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url
 
     WEBHOOKS_ATTRIBUTES = [
       'access_token',

@@ -2,6 +2,14 @@
 
 module DataCycleCore
   class PasswordsController < Devise::PasswordsController
+    layout -> { params[:viewer_layout].presence || 'data_cycle_core/application' }
+
+    def edit
+      @redirect_url = params[:redirect_url]
+
+      super
+    end
+
     def create
       resource = resource_class.find_or_initialize_with_errors(resource_class.reset_password_keys, resource_params, :not_found)
 
@@ -16,6 +24,8 @@ module DataCycleCore
     protected
 
     def after_resetting_password_path_for(_resource)
+      return params[:redirect_url] if params[:redirect_url].present?
+
       Devise.sign_in_after_reset_password ? root_path : new_session_path(resource_name)
     end
   end

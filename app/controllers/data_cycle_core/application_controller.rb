@@ -37,6 +37,8 @@ module DataCycleCore
     end
 
     def add_tag_group
+      @params = tag_group_params
+
       respond_to(:js)
     end
 
@@ -96,6 +98,13 @@ module DataCycleCore
         flash[k] = v
       end
       redirect_to request.path, params: params.delete(:flash)
+    end
+
+    def tag_group_params
+      permitted_params = params.permit(f: {}).to_h
+      options = permitted_params&.dig(:f)&.values&.first || {}
+      options[:index] = permitted_params&.dig(:f)&.keys&.first
+      options
     end
   end
 end

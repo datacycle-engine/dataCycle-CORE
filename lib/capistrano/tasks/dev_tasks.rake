@@ -206,7 +206,7 @@ namespace :dc do
       sh "mkdir -p db/backups/#{local_rails_env}/mongo/download"
       sh "rsync -c tmp/#{file_name} db/backups/#{local_rails_env}/mongo/download"
       sh "rm tmp/#{file_name}"
-      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:dump[#{args[:external_system_id]}]'" if local_rails_env != 'development'
+      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:dump[#{args[:external_system_id]},true]'" if local_rails_env != 'development'
       sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:restore[#{file_name},true]'"
 
       puts "Successfully imported mongo DB #{file_name} from #{fetch(:rails_env)}"

@@ -29,6 +29,16 @@ module DataCycleCore
         })
     end
 
+    def to_hash
+      { 'class_type' => self.class.to_s }
+        .merge({ 'external_system' => external_source&.identifier })
+        .merge(attributes)
+    end
+
+    def mapped_to
+      classification_aliases.where.not(id: primary_classification_alias.id)
+    end
+
     def self.classification_aliases
       DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: all&.pluck(:id) })
     end
