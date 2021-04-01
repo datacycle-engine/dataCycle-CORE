@@ -14,6 +14,7 @@ class NewContentDialog {
     this.locale = this.form.find(':input[name="locale"]').val() || 'de';
     this.activeLocale = this.locale;
     this.reveal = this.form.closest('.reveal.new-content-reveal');
+    this.primaryAttributeKey = this.form.data('primary-attribute-key');
     this.referencedAssetField;
     this.nextAssetButton;
     this.prevAssetButton;
@@ -81,7 +82,7 @@ class NewContentDialog {
 
     this.parseFormData(formData, null, config && config.allFiles);
   }
-  copyToAllReferenceFields(event) {
+  copyToAllReferenceFields(_event) {
     this.form.trigger('submit', { allFiles: true });
   }
   copySingleToAllReferenceFields(event) {
@@ -122,7 +123,8 @@ class NewContentDialog {
   setUploaderFormFields(formData, target = null, allFiles = false) {
     this.referencedAssetField.trigger('dc:upload:setFormFields', {
       formData: formData,
-      allFiles: allFiles
+      allFiles: allFiles,
+      primaryAttributeKey: this.primaryAttributeKey
     });
 
     if (target) {
