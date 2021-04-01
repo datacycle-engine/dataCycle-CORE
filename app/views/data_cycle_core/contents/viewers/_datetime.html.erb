@@ -5,7 +5,7 @@
   options: options,
   content: content,
   data_attributes: {
-    value: value.present? ? l(value, locale: DataCycleCore.ui_language, format: :edit) : nil, editor: "date_picker"
+    value: value.present? ? l(value, format: :edit, locale: DataCycleCore.ui_language) : nil, editor: "date_picker"
   } do %>
 
     <span class="detail-content">

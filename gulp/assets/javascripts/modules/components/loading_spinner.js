@@ -7,9 +7,7 @@ class Spinner {
     $(this.selector).append('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
   }
   hide() {
-    $(this.selector)
-      .find('.loading')
-      .remove();
+    $(this.selector).find('.loading').remove();
   }
 }
 
