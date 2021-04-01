@@ -384,6 +384,20 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { s.dig('Company') || [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
         end
 
+        def self.to_organizer
+          t(:flatten_texts)
+          .>> t(:add_field, 'external_key', ->(s) { "Organizer:#{s.dig('Id')}" })
+          .>> t(:reject_keys, ['Id'])
+          .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
+          .>> t(:add_field, 'name', ->(s) { [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
+          .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
+          .>> t(:map_value, 'url', ->(s) { parse_url(s) })
+          .>> t(:nest, 'contact_info', ['name', 'email', 'fax_number', 'telephone', 'url'])
+          .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
+          .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
+          .>> t(:add_field, 'name', ->(s) { s.dig('Company') || [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
+        end
+
         def self.feratel_to_aggregate_offer(external_source_id)
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:flatten_translations)
@@ -510,7 +524,14 @@ module DataCycleCore
           .>> t(:ensure_classification_tree, 'feratel_facilities', 'Feratel - Ausstattungsmerkmale')
           .>> t(:add_links, 'feratel_facilities_events', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:ensure_classification_tree, 'feratel_facilities_events', 'Feratel - Merkmale - Events')
-          .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventServiceProvider' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
+          .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id,
+                lambda do |s|
+                  [
+                    s.dig('connected_entries')&.select { |c| c['Type'] == 'EventServiceProvider' }&.map { |c| c['Id'] },
+                    s.dig('Addresses', 'Address')&.select { |c| c['Type'] == 'Organizer' }&.map { |c| "Organizer:#{c['Id']}" }
+                  ].flatten.compact
+                end,
+                ->(s) { s.dig('connected_entries').present? || s.dig('Addresses', 'Address').present? })
           .>> t(:add_links, 'connected_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventInfrastructure' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
           .>> t(:add_links, 'feratel_guest_cards', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}" } || [] })
           .>> t(:universal_classifications, ->(s) { s.dig('feratel_guest_cards') })
