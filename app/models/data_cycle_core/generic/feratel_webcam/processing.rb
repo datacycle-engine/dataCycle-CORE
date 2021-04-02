@@ -68,6 +68,26 @@ module DataCycleCore
             config: config
           )
         end
+
+        def self.process_weather_details(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::FeratelWebcam::Transformations.to_weather_station(utility_object.external_source.id),
+            default: { template: 'Wetterstation Feratel' },
+            config: config
+          )
+        end
+
+        def self.process_image(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::FeratelWebcam::Transformations.to_image,
+            default: { template: 'Bild' },
+            config: config
+          )
+        end
       end
     end
   end

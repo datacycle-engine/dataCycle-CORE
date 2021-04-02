@@ -238,6 +238,19 @@
     }
   }
 
+  &.wetterstation, // ZAMG
+  &.wettervorhersage,
+  &.wetterbericht,
+  &.tagesprognose,
+  &.prognose,
+  &.wetterstation_feratel, // FeratelWebcam
+  &.wetterprognose_wetter_at,
+  &.wetterprognose_oberlandwetter_at {
+    &::before {
+      content: '\f185';
+    }
+  }
+
   &.data_cycle_file-icon::before {
     content: '\f15b';
   }
