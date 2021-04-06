@@ -5,7 +5,6 @@ let RandomNumber = require('./../helpers/random_number_helpers');
 let MimeTypes = require('mime-types');
 let ActionCable = require('actioncable');
 let AssetValidator = require('./asset_validator');
-const { forEach } = require('lodash');
 
 class AssetUploader {
   constructor(reveal) {

@@ -32,7 +32,7 @@ module DataCycleCore
             json_data[:geojson] = RGeo::GeoJSON.encode(data.try(line_property_key))&.to_json
           end
 
-          json_data
+          json_data.compact
         end
 
         def self.delete_json_partial(utility_object, data)

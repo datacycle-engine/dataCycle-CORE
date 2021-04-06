@@ -1434,6 +1434,10 @@ body .v-select {
             display: none;
           }
         }
+
+        &.primary-attribute-button {
+          background-color: $warning-color;
+        }
       }
 
       .copy-attribute-notice {
