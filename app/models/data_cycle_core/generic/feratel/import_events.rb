@@ -22,6 +22,14 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
+            Array.wrap(raw_data.dig('Addresses', 'Address')).select { |i| i['Type'] == 'Organizer' }.each do |organizer_data|
+              DataCycleCore::Generic::Feratel::Processing.process_organizer(
+                utility_object,
+                organizer_data,
+                options.dig(:import, :transformations, :organizer)
+              )
+            end
+
             DataCycleCore::Generic::Feratel::Processing.process_image(
               utility_object,
               raw_data,
