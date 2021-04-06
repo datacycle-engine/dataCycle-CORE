@@ -88,6 +88,52 @@ module DataCycleCore
             config: config
           )
         end
+
+        def self.process_weather_classifications(utility_object, raw_data, _config)
+          weather_prediction = raw_data
+          weather_provider = weather_prediction.dig('pc')
+          classifications = weather_prediction.dig('wi').map { |ii|
+            key = ii.dig('wid').detect { |item| item.dig('t') == '5' }&.dig('v')
+            name = ii.dig('wid').detect { |item| item.dig('t') == '6' }&.dig('v')
+            {
+              name: name,
+              external_key: "Feratel Webcams - #{weather_provider} - #{key}",
+              tree_name: "Fertael Webcams - #{weather_provider}"
+            }
+          }.uniq
+
+          classifications_details = weather_prediction.dig('wi').map { |ii|
+            detail = ii.dig('wid').detect { |item| item.dig('t') == '8' }
+            next if detail.blank?
+            ['00', '03', '06', '09', '12', '15', '18', '21'].map { |index|
+              next if detail["s#{index}"].blank?
+              {
+                name: detail["s#{index}t"],
+                external_key: "Feratel Webcams - #{weather_provider} - #{detail['s' + index]}",
+                tree_name: "Fertael Webcams - #{weather_provider}"
+              }
+            }.compact
+          }.compact.flatten.uniq
+          classifications += classifications_details
+
+          classifications.compact.uniq.each do |classification_data|
+            DataCycleCore::Generic::Common::ImportFunctions.import_classification(
+              utility_object: utility_object,
+              classification_data: classification_data,
+              parent_classification_alias: nil
+            )
+          end
+        end
+
+        def self.process_weather_forecast(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::FeratelWebcam::Transformations.to_weather_forecast(utility_object.external_source.id),
+            default: { template: 'Wetterprognose' },
+            config: config
+          )
+        end
       end
     end
   end

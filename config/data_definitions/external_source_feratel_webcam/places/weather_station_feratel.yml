@@ -11,7 +11,7 @@
     :api:
       :type:
         - Place
-        - 'dcls:WeatherStation'
+        - 'dcls:Wetterstation Feratel'
     :properties:
       :id:
         :label: id
@@ -32,14 +32,8 @@
       :forecasts:
         :label: Wettervorhersage
         :type: linked
-        :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Wetterprognose (wetter.at)
-                - Wetterprognose (oberlandwetter.at)
-                - Wetterprognose (SRF Meteo)
+        :inverse_of: weather_station
+        :template_name: Wetterprognose
       :image:
         :label: Bilder
         :type: linked

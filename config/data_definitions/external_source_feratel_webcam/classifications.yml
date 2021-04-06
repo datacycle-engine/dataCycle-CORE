@@ -4,7 +4,4 @@
         - $$Zusatzangebot
     - $$Wetter:
         - $$Wetterstation Feratel
-        - $$Wetterprognose:
-            - $$Wetterprognose (wetter.at)
-            - $$Wetterprognose (oberlandwetter.at)
-            - $$Wetterprognose (SRF Meteo)
+        - $$Wetterprognose

@@ -70,11 +70,44 @@ module DataCycleCore
           .>> t(:nest, 'contact_info', ['telephone', 'url', 'email'])
           .>> t(:add_field, 'name', ->(s) { s.dig('pci', '1') || s.dig('pci', '2') || s.dig('pci', '4') })
           .>> t(:add_field, 'url', ->(s) { s.dig('pci', '26', 'v') })
+          .>> t(:add_links, 'forecasts', DataCycleCore::Thing, external_source_id, ->(s) { generate_forecast_keys(s) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { ["Feratel Webcams - Image - is - #{s.dig('rid')}", "Feratel Webcams - Image - h - #{s.dig('rid')}"] })
+        end
+
+        def self.to_weather_forecast(external_source_id)
+          t(:stringify_keys)
+          .>> t(:hashify_data, 'pci')
+          .>> t(:hashify_data, 'wid')
+          .>> t(:rename_keys, { 'ss' => 'sunset', 'sr' => 'sunrise', 'd' => 'forecast_date' })
+          .>> t(:add_field, 'name', ->(s) { "#{s.dig('pci', '1') || s.dig('pci', '2') || s.dig('pci', '4')} - #{s.dig('forecast_date').split('T').first} (#{s.dig('elevation')} m)" })
+          .>> t(:add_field, 'external_key', ->(s) { s.dig('name') })
+          .>> t(:map_value, 'forecast_date', ->(v) { v&.to_date })
+          .>> t(:map_value, 'sunset', ->(v) { v&.in_time_zone })
+          .>> t(:map_value, 'sunrise', ->(v) { v&.in_time_zone })
+          .>> t(:map_value, 'elevation', ->(v) { v&.to_f })
+          .>> t(:universal_classifications, ->(s) { day_index(s.dig('wid', '0')).present? ? Array.wrap(DataCycleCore::Classification.find_by(external_source_id: external_source_id, external_key: "Feratel Webcams - Wochentag - #{day_index(s.dig('wid', '0'))}")&.id) : [] })
+          .>> t(:add_field, 'minimum_temperature', ->(s) { s.dig('wid', '3')&.to_i })
+          .>> t(:add_field, 'maximum_temperature', ->(s) { s.dig('wid', '4')&.to_i })
+          .>> t(:universal_classifications, ->(s) { Array.wrap(DataCycleCore::Classification.find_by(external_source_id: external_source_id, external_key: "Feratel Webcams - #{s.dig('weather_provider')} - #{s.dig('wid', '5')}")&.id) })
+          .>> t(:add_field, 'debug', ->(s) { debug(s) })
         end
 
         def self.debug(data)
           # byebug
+        end
+
+        def self.generate_forecast_keys(s)
+          forecast_data = s.dig('w').detect { |i| i['t'] == '10' }
+          return [] if forecast_data.blank?
+          elevation = forecast_data&.dig('h')
+          dates = forecast_data.dig('wi').map { |i| i['d']&.to_date }
+          return [] if dates.blank?
+          dates.map { |i| "#{s.dig('name')} - #{i} (#{elevation} m)" }
+        end
+
+        def self.day_index(day_name)
+          index = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'].index(day_name)
+          index || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].index(day_name)
         end
       end
     end

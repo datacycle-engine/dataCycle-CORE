@@ -34,6 +34,24 @@ module DataCycleCore
                 options.dig(:import, :transformations, :image)
               )
 
+              ['10'].each do |item|
+                weather_prediction = weather_details.dig('w').detect { |i| i.dig('t') == item }
+                next if weather_prediction&.dig('wi').blank?
+                DataCycleCore::Generic::FeratelWebcam::Processing.process_weather_classifications(
+                  utility_object,
+                  weather_prediction,
+                  options.dig(:import, :transformations, :weather_classification)
+                )
+
+                weather_prediction.dig('wi').each do |forecast|
+                  DataCycleCore::Generic::FeratelWebcam::Processing.process_weather_forecast(
+                    utility_object,
+                    forecast.merge({ 'pci' => weather_details['pci'], 'elevation' => weather_prediction['h'], 'weather_provider' => weather_prediction['pc'] }),
+                    options.dig(:import, :transformations, :weather_forecast)
+                  )
+                end
+              end
+
               DataCycleCore::Generic::FeratelWebcam::Processing.process_weather_details(
                 utility_object,
                 weather_details,

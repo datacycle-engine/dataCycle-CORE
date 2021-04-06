@@ -244,9 +244,7 @@
   &.tagesprognose,
   &.prognose,
   &.wetterstation_feratel, // FeratelWebcam
-  &.wetterprognose_wetter_at,
-  &.wetterprognose_oberlandwetter_at,
-  &.wetterprognose_srf_meteo {
+  &.wetterprognose {
     &::before {
       content: '\f185';
     }
