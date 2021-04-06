@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class PasswordsController < Devise::PasswordsController
-    layout -> { params[:viewer_layout].presence || 'data_cycle_core/application' }
+    layout -> { params[:viewer_layout].presence || 'data_cycle_core/devise' }
 
     def edit
       @redirect_url = params[:redirect_url]
