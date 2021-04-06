@@ -82,15 +82,6 @@ $(function () {
     }
   });
 
-  // HOME RANDOMIZED IMAGES AND GLASSHACK!
-  if ($('.home-container').length) {
-    $('.home-container').appendTo('body');
-    setTimeout(function () {
-      $('.home-container').addClass('show');
-    }, 500);
-    $('body').addClass('login-page');
-  }
-
   // FIXME: move to OEW with event triggers working
   if ($('#import-content-form').length) {
     $('#import-content-form form').on('submit', event => {

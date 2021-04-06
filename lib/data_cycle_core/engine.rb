@@ -250,6 +250,11 @@ module DataCycleCore
       end
 
       Devise::Mailer.layout 'data_cycle_core/email' # email.haml or email.erb
+      Devise::SessionsController.layout "data_cycle_core/devise"
+      Devise::RegistrationsController.layout "data_cycle_core/devise"
+      Devise::ConfirmationsController.layout "data_cycle_core/devise"
+      Devise::UnlocksController.layout "data_cycle_core/devise"
+      Devise::PasswordsController.layout "data_cycle_core/devise"
     end
   end
 end
