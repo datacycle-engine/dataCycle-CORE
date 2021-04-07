@@ -4,7 +4,7 @@
     :type: mixin
     :properties:
       :minimum_temperature:
-        :label: Tagestiefsttemperatur
+        :label: Temperatur (min)
         :type: number
         :storage_location: value
         :validations:
@@ -17,7 +17,7 @@
             :options:
               :data-unit: °C
       :maximum_temperature:
-        :label: Tageshöchsttemperatur
+        :label: Temperatur (max)
         :type: number
         :storage_location: value
         :validations:

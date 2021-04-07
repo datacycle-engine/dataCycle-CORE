@@ -1,7 +1,8 @@
 - Inhaltstypen | filter:
+    - $$Asset:
+        - $$Webcam
     - $$Ort:
         - $$Skigebiet
         - $$Zusatzangebot
-    - $$Wetter:
         - $$Wetterstation Feratel
         - $$Wetterprognose

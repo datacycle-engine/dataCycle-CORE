@@ -35,7 +35,7 @@
         :template_name: 'Wetterstation Feratel'
         link_direction: inverse
       :forecast_date:
-        :label: Datum
+        :label: Wetterprognose für
         :type: date
         :storage_location: value
         :validations:
@@ -70,6 +70,11 @@
       :meteorologic_data:
         :type: mixin
         :name: meteorologic_data
+      :forecast_details:
+        :label: Wetterdetailprognose
+        :type: embedded
+        :template_name: Wetterdetailprognose
+        :translated: true
       :forecast:
         :label: Bericht
         :type: string
@@ -95,3 +100,27 @@
       :additional_properties:
         :type: mixin
         :name: additional_properties
+
+
+- :data:
+    :name: Wetterdetailprognose
+    :type: object
+    :schema_type: Intangible
+    :content_type: embedded
+    :boost: 1.0
+    :api:
+      :type:
+        - 'dcls:Wetterdetailprognose'
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :temperatures:
+        :type: mixin
+        :name: temperatures
+      :wind:
+        :type: mixin
+        :name: wind
+      :meta_data:
+        :type: mixin
+        :name: meta_data

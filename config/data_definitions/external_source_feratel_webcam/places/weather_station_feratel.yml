@@ -19,12 +19,6 @@
       :title:
         :type: mixin
         :name: title
-      :geo:
-        :type: mixin
-        :name: geo
-      :contact:
-        :type: mixin
-        :name: contact_info
       :url:
         :label: Content URL
         :type: string
@@ -38,6 +32,17 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
+      :content_location:
+        :label: Ort
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :validations:
+          :max: 1
       :data_type:
         :label: Inhaltstype
         :type: classification

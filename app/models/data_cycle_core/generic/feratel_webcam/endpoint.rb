@@ -39,7 +39,7 @@ module DataCycleCore
         def cam_details(lang: :de)
           Enumerator.new do |yielder|
             load_cam_ids.each do |cam_id|
-              yielder << load_data(cam: cam_id, pc: 0, lang: lang)
+              yielder << load_data(cam: cam_id, pc: 1, lang: lang)
             end
           end
         end

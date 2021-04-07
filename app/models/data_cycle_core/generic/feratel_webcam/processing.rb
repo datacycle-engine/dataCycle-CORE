@@ -79,6 +79,26 @@ module DataCycleCore
           )
         end
 
+        def self.process_place(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::FeratelWebcam::Transformations.to_place(utility_object.external_source.id),
+            default: { template: 'Örtlichkeit' },
+            config: config
+          )
+        end
+
+        def self.process_video(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::FeratelWebcam::Transformations.to_video,
+            default: { template: 'Video' },
+            config: config
+          )
+        end
+
         def self.process_image(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
@@ -131,6 +151,16 @@ module DataCycleCore
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::FeratelWebcam::Transformations.to_weather_forecast(utility_object.external_source.id),
             default: { template: 'Wetterprognose' },
+            config: config
+          )
+        end
+
+        def self.process_webcam(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::FeratelWebcam::Transformations.to_webcam(utility_object.external_source.id),
+            default: { template: 'Webcam' },
             config: config
           )
         end

@@ -158,6 +158,7 @@
 
     &.video,
     &.video_serie,
+    &.webcam,
     &.youtube_video {
       &::before {
         content: '\f03d';

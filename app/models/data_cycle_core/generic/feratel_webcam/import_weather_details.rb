@@ -20,22 +20,26 @@ module DataCycleCore
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
             weather_details = raw_data.dig('co', 'pl', 'pcs', 'pc').detect { |i| i.dig('t') == '3' }
-
+            return unless weather_details.dig('pci').is_a?(::Array)
             if weather_details.present?
-              DataCycleCore::Generic::FeratelWebcam::Processing.process_image(
-                utility_object,
-                weather_details.dig('is').merge({ 'rid' => weather_details['rid'], 'type' => 'is', 'url_key' => 'is' }),
-                options.dig(:import, :transformations, :image)
-              )
+              if weather_details.dig('is').present?
+                DataCycleCore::Generic::FeratelWebcam::Processing.process_image(
+                  utility_object,
+                  weather_details.dig('is').merge({ 'rid' => weather_details['rid'], 'type' => 'is', 'url_key' => 'is' }),
+                  options.dig(:import, :transformations, :image)
+                )
+              end
 
-              DataCycleCore::Generic::FeratelWebcam::Processing.process_image(
-                utility_object,
-                weather_details.dig('h').merge({ 'rid' => weather_details['rid'], 'type' => 'h', 'url_key' => 's' }),
-                options.dig(:import, :transformations, :image)
-              )
+              if weather_details.dig('h').present?
+                DataCycleCore::Generic::FeratelWebcam::Processing.process_image(
+                  utility_object,
+                  weather_details.dig('h').merge({ 'rid' => weather_details['rid'], 'type' => 'h', 'url_key' => 's' }),
+                  options.dig(:import, :transformations, :image)
+                )
+              end
 
               ['10'].each do |item|
-                weather_prediction = weather_details.dig('w').detect { |i| i.dig('t') == item }
+                weather_prediction = Array.wrap(weather_details.dig('w')).detect { |i| i.dig('t') == item }
                 next if weather_prediction&.dig('wi').blank?
                 DataCycleCore::Generic::FeratelWebcam::Processing.process_weather_classifications(
                   utility_object,
@@ -51,6 +55,12 @@ module DataCycleCore
                   )
                 end
               end
+
+              DataCycleCore::Generic::FeratelWebcam::Processing.process_place(
+                utility_object,
+                weather_details,
+                options.dig(:import, :transformations, :place)
+              )
 
               DataCycleCore::Generic::FeratelWebcam::Processing.process_weather_details(
                 utility_object,
