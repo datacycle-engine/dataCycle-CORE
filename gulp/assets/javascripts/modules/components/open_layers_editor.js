@@ -9,7 +9,6 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     this.uploadable = this.$container.data('allowUpload');
     this.modify;
-    this.modifying = false;
     this.draw;
     this.precision = 5;
     this.$geoCodeButton = $('.geocode-address-button').first();
@@ -75,10 +74,6 @@ class OpenLayersEditor extends OpenLayersViewer {
     });
     this.map.addInteraction(snap);
 
-    this.map.on('pointerdrag', _event => {
-      if (this.modifying && this.feature) this.setCoordinates();
-    });
-
     if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.geoCodeAddress.bind(this));
 
     this.$latitudeField.on('change', this.updateMapMarker.bind(this));
@@ -105,20 +100,17 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.draw = undefined;
   }
   initModifyableActions() {
-    const features = new this.ol.collection([this.feature]);
     this.modify = new this.ol.interaction.Modify({
-      features: features
+      features: new this.ol.collection([this.feature])
     });
+
     this.map.addInteraction(this.modify);
 
-    this.modify.on('modifystart', () => {
-      this.modifying = true;
-    });
-
     this.modify.on('modifyend', () => {
-      this.modifying = false;
-
-      if (this.feature) this.setHiddenFieldValue(this.getGeoJsonFromFeature());
+      if (this.feature) {
+        this.setCoordinates();
+        this.setHiddenFieldValue(this.getGeoJsonFromFeature());
+      }
     });
   }
   geoCodeAddress(event) {
