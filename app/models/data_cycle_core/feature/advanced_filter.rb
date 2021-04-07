@@ -6,7 +6,7 @@ module DataCycleCore
       class << self
         def available_filters
           filters = []
-          DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled)&.each do |key, value|
+          DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled, :config)&.each do |key, value|
             filters.concat(try(key.to_sym, value) || default(key.to_s, value) || [])
           end
           filters
@@ -171,6 +171,10 @@ module DataCycleCore
               data: { name: k }
             ]
           end
+        end
+
+        def always_visible?
+          !!configuration.dig(:config, :visible)
         end
       end
     end
