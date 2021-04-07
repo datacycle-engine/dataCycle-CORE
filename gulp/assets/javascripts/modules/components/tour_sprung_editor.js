@@ -7,18 +7,12 @@ class TourSprungEditor extends OpenLayersEditor {
     this.credentials = this.mapOptions.credentials;
     this.drawableEvent;
     this.routeMarkers = [];
+    this.highlightedFeatures = L.layerGroup();
     this.map;
+    this.draggingMarker;
     this.toursrpungIcons = {
-      start: {
-        iconUrl: this.icons.start.interpolate({ color: escape(this.colors.default) }),
-        iconSize: [21, 33],
-        iconAnchor: [10, 33]
-      },
-      end: {
-        iconUrl: this.icons.end.interpolate({ color: escape(this.colors.default) }),
-        iconSize: [21, 33],
-        iconAnchor: [10, 33]
-      },
+      start: this.iconOptions('start'),
+      end: this.iconOptions('end'),
       vertex: {
         iconUrl:
           'data:image/svg+xml;utf8,<svg width="0" height="0" version="1.1" viewBox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>'
@@ -107,11 +101,7 @@ class TourSprungEditor extends OpenLayersEditor {
     });
   }
   setMtkLineStyle() {
-    this.map.editor._polyline().setStyle({
-      color: this.colors.default,
-      opacity: 1,
-      weight: 5
-    });
+    this.map.editor._polyline().setStyle(this.lineStyle());
   }
   reverseCoordinates(coords, removeZAt = 2) {
     for (let i = 0; i < coords.length; i++) {
@@ -152,32 +142,96 @@ class TourSprungEditor extends OpenLayersEditor {
   drawMarkerFeature(coords) {
     this.feature = this.singleMarker(coords, true)
       .addTo(this.map.leaflet)
-      .on('dragend', () => {
+      .on('dragstart', _ => {
+        this.draggingMarker = this.feature;
+      })
+      .on('dragend', _ => {
+        this.draggingMarker = null;
         this.setNewCoordinates();
       });
   }
-  singleMarker(latlng, draggable = false) {
-    return new L.Marker(latlng, {
-      draggable: draggable,
-      icon: L.icon({
-        iconUrl: this.icons.default.interpolate({ color: escape(this.colors.default) }),
-        iconAnchor: [16, 32],
-        popupAnchor: [0, 38]
-      })
-    });
+  iconOptions(type = 'default', hover = false) {
+    return {
+      iconUrl: this.icons[type].interpolate({
+        color: escape(this.colors.default),
+        strokeColor: escape(this.colors[hover ? 'white' : 'default']),
+        opacity: hover ? 1 : 0.9
+      }),
+      iconAnchor: [10.5, 33],
+      popupAnchor: [0, 38]
+    };
   }
-  drawFeatureFromGeoJson(geoJson) {
-    return L.geoJSON(geoJson, {
-      style: {
+  singleMarker(latlng, draggable = false) {
+    const marker = new L.Marker(latlng, {
+      draggable: draggable,
+      opacity: 0.9,
+      icon: L.icon(this.iconOptions())
+    })
+      .on('mouseover', _ => this.highlightFeature(marker))
+      .on('mouseout', _ => this.resetHighlightedFeature(marker));
+
+    return marker;
+  }
+  lineStyle(options = {}) {
+    return Object.assign(
+      {
         color: this.colors.default,
         opacity: 1,
         weight: 5
       },
+      options
+    );
+  }
+  isLineStringLayer(layer) {
+    return !(layer instanceof L.Marker);
+  }
+  pointFromPoints(points, method = 'shift') {
+    if (Array.isArray(points)) return this.pointFromPoints(points[method](), method);
+
+    return points;
+  }
+  highlightFeature(layer) {
+    if (this.draggingMarker && this.draggingMarker._leaflet_id == layer._leaflet_id) return;
+    if (this.highlightedFeatures) this.highlightedFeatures.clearLayers();
+
+    if (this.isLineStringLayer(layer)) {
+      const points = layer.getLatLngs();
+      this.highlightedFeatures.addLayer(new L.polyline(points, this.lineStyle({ color: '#fff', weight: 9 })));
+      this.highlightedFeatures.addLayer(
+        new L.Marker(this.pointFromPoints(points.slice()), {
+          opacity: 0.9,
+          icon: L.icon(this.iconOptions('start', true))
+        })
+      );
+      this.highlightedFeatures.addLayer(
+        new L.Marker(this.pointFromPoints(points.slice(), 'pop'), {
+          opacity: 0.9,
+          icon: L.icon(this.iconOptions('end', true))
+        })
+      );
+      this.highlightedFeatures.addTo(this.map.leaflet);
+      layer.bringToFront();
+    } else {
+      layer.setIcon(L.icon(this.iconOptions('default', true)));
+    }
+  }
+  resetHighlightedFeature(layer) {
+    if (this.draggingMarker && this.draggingMarker._leaflet_id == layer._leaflet_id) return;
+    if (this.highlightedFeatures) this.highlightedFeatures.clearLayers();
+
+    if (!this.isLineStringLayer(layer)) layer.setIcon(L.icon(this.iconOptions()));
+  }
+  drawFeatureFromGeoJson(geoJson) {
+    return L.geoJSON(geoJson, {
+      style: this.lineStyle(),
       pointToLayer: (_feature, latlng) => this.singleMarker(latlng),
       onEachFeature: (feature, layer) => {
         this.additionalFeatures.push(layer);
         if (feature && feature.properties && feature.properties.thingPath)
           layer.bindPopup(this.showInfoOverlay.bind(this));
+
+        layer.on('mouseover', _ => this.highlightFeature(layer));
+        layer.on('mouseout', _ => this.resetHighlightedFeature(layer));
       }
     }).addTo(this.map.leaflet);
   }
