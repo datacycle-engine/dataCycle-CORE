@@ -8,8 +8,9 @@ class OpenLayersEditor extends OpenLayersViewer {
     super(container);
 
     this.uploadable = this.$container.data('allowUpload');
-    this.modify;
-    this.draw;
+    this.translateInteraction;
+    this.drawableInteraction;
+    this.drawing = false;
     this.precision = 5;
     this.$geoCodeButton = $('.geocode-address-button').first();
     this.$mapEditContainer = this.$parentContainer.siblings('.map-edit').first();
@@ -65,7 +66,7 @@ class OpenLayersEditor extends OpenLayersViewer {
     if (this.type.includes('Point')) this.initMapEditActions();
   }
   initMapEditActions() {
-    if (this.feature) this.initModifyableActions();
+    if (this.feature) this.initTranslatableActions();
 
     if (!this.feature && this.type == 'Point') this.initMapDrawableActions();
 
@@ -80,36 +81,41 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.$longitudeField.on('change', this.updateMapMarker.bind(this));
   }
   initMapDrawableActions() {
-    this.draw = new this.ol.interaction.Draw({
+    this.drawing = true;
+    this.drawableInteraction = new this.ol.interaction.Draw({
       source: this.source,
-      type: this.type
+      type: this.type,
+      style: this.highlightStyleFunction.bind(this)
     });
-    this.map.addInteraction(this.draw);
+    this.map.addInteraction(this.drawableInteraction);
 
-    this.draw.on('drawend', event => {
+    this.drawableInteraction.on('drawend', event => {
       this.feature = event.feature;
       this.feature.setStyle();
       this.disableDrawableFeature();
       this.setCoordinates();
       this.setHiddenFieldValue(this.getGeoJsonFromFeature());
-      this.initModifyableActions();
+      this.initTranslatableActions();
     });
   }
   disableDrawableFeature() {
-    this.map.removeInteraction(this.draw);
-    this.draw = undefined;
+    this.map.removeInteraction(this.drawableInteraction);
+    this.drawing = false;
+    this.drawableInteraction = undefined;
   }
-  initModifyableActions() {
-    this.modify = new this.ol.interaction.Modify({
-      features: new this.ol.collection([this.feature])
+  initTranslatableActions() {
+    this.translateInteraction = new this.ol.interaction.Translate({
+      features: new this.ol.collection([this.feature]),
+      hitTolerance: 1
     });
 
-    this.map.addInteraction(this.modify);
+    this.map.addInteraction(this.translateInteraction);
 
-    this.modify.on('modifyend', () => {
+    this.translateInteraction.on('translateend', () => {
       if (this.feature) {
         this.setCoordinates();
         this.setHiddenFieldValue(this.getGeoJsonFromFeature());
+        this.map.getView().animate({ duration: 300, center: this.feature.getGeometry().getCoordinates() });
       }
     });
   }
@@ -156,7 +162,7 @@ class OpenLayersEditor extends OpenLayersViewer {
     if (!this.feature) {
       this.feature = new this.ol.Feature();
       this.source.addFeature(this.feature);
-      this.initModifyableActions();
+      this.initTranslatableActions();
     }
 
     this.feature.setGeometry(new this.ol.geom.Point(data).transform('EPSG:4326', 'EPSG:3857'));
@@ -263,15 +269,15 @@ class OpenLayersEditor extends OpenLayersViewer {
 
       this.source.addFeature(this.feature);
       this.disableDrawableFeature();
-      this.initModifyableActions();
+      this.initTranslatableActions();
     } else {
       if (this.feature) {
-        this.map.removeInteraction(this.modify);
-        this.modify = undefined;
+        this.map.removeInteraction(this.translateInteraction);
+        this.translateInteraction = undefined;
         this.source.removeFeature(this.feature);
         this.feature = undefined;
       }
-      if (!this.draw) this.initMapDrawableActions();
+      if (!this.drawableInteraction) this.initMapDrawableActions();
     }
 
     this.setNewCoordinates();
@@ -297,7 +303,8 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.setCoordinates();
     this.setHiddenFieldValue(this.getGeoJsonFromFeature());
 
-    if (this.feature) this.map.getView().setCenter(this.feature.getGeometry().getCoordinates());
+    if (this.feature)
+      this.map.getView().animate({ duration: 300, center: this.feature.getGeometry().getCoordinates() });
   }
   setCoordinates() {
     if (!this.feature || this.type != 'Point') return;

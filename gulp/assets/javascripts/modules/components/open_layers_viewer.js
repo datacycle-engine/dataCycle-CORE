@@ -33,7 +33,7 @@ const ol = {
   extent: require('ol/extent').default,
   interaction: {
     Draw: require('ol/interaction/draw').default,
-    Modify: require('ol/interaction/modify').default,
+    Translate: require('ol/interaction/translate').default,
     Snap: require('ol/interaction/snap').default,
     MouseWheelZoom: require('ol/interaction/mousewheelzoom').default,
     Select: require('ol/interaction/select').default
@@ -41,7 +41,11 @@ const ol = {
   events: {
     condition: require('ol/events/condition').default
   },
+  control: {
+    FullScreen: require('ol/control/fullscreen').default
+  },
   interactions: require('ol/interaction').default,
+  controls: require('ol/control').default,
   proj: require('ol/proj').default,
   WMTSCapabilities: require('ol/format/wmtscapabilities').default,
   deviceCapabilities: require('ol/has').default,
@@ -286,11 +290,7 @@ class OpenLayersViewer {
     return html;
   }
   cursor(feature) {
-    if (
-      feature &&
-      (!(this instanceof OpenLayersViewer) || (feature.getProperties() && feature.getProperties().thingPath))
-    )
-      return 'pointer';
+    if (this.drawing || (feature && feature.getProperties() && feature.getProperties().thingPath)) return 'pointer';
 
     return '';
   }
@@ -453,6 +453,7 @@ class OpenLayersViewer {
           })
           .extend([this.mouseWheelZoom]),
         target: this.containerId,
+        controls: this.ol.controls.defaults().extend([new this.ol.control.FullScreen()]),
         overlays: overlays,
         layers: [baseLayer, this.featureLayer],
         view: this.defaultView()

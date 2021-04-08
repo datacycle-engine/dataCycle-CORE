@@ -1865,6 +1865,12 @@ select {
   overflow-y: auto;
 }
 
+.ol-control {
+  button {
+    font-family: sans-serif;
+  }
+}
+
 .detail-type.geographic,
 .form-element.geographic {
   display: flex;
