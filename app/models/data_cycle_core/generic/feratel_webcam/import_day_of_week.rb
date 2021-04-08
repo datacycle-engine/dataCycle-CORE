@@ -7,13 +7,15 @@ module DataCycleCore
         def self.import_data(utility_object:, options:)
           options.dig(:locales).each do |locale|
             I18n.with_locale(locale) do
-              next unless locale.to_s.in?(['de', 'en'])
+              next unless locale.to_s.in?(['de', 'en', 'fr'])
               day_list =
                 case locale.to_s
                 when 'de'
                   ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
                 when 'en'
                   ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                when 'fr'
+                  ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
                 end
               day_list.each_with_index do |day, index|
                 classification_data = {
