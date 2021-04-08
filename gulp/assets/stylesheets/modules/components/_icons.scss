@@ -158,6 +158,7 @@
 
     &.video,
     &.video_serie,
+    &.webcam,
     &.youtube_video {
       &::before {
         content: '\f03d';
@@ -235,6 +236,18 @@
       &::before {
         content: '\f153';
       }
+    }
+  }
+
+  &.wetterstation, // ZAMG
+  &.wettervorhersage,
+  &.wetterbericht,
+  &.tagesprognose,
+  &.prognose,
+  &.wetterstation_feratel, // FeratelWebcam
+  &.wetterprognose {
+    &::before {
+      content: '\f185';
     }
   }
 
