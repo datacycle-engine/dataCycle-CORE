@@ -4,11 +4,12 @@ module DataCycleCore
   module Generic
     module FeratelWebcam
       class Endpoint
-        def initialize(host: nil, pg: nil, d: nil, cams: [], **options)
+        def initialize(host: nil, pg: nil, d: nil, cam_host: nil, cams: [], **options)
           @host = host
           @pg = pg
           @d = d
           @cams = cams
+          @cam_host = cam_host
           @read_type = options[:read_type] if options[:read_type].present?
         end
 
@@ -39,7 +40,7 @@ module DataCycleCore
         def cam_details(lang: :de)
           Enumerator.new do |yielder|
             load_cam_ids.each do |cam_id|
-              yielder << load_data(cam: cam_id, pc: 1, lang: lang)
+              yielder << load_data(cam: cam_id, pc: 1, lang: lang).merge({ 'config' => { 'cam_host' => @cam_host, 'pg' => @pg } })
             end
           end
         end

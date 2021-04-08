@@ -115,6 +115,7 @@ module DataCycleCore
           .>> t(:add_links, 'video', DataCycleCore::Thing, external_source_id, ->(s) { ["Feratel Webcams - Webcam - Small - #{s.dig('rid')}", "Feratel Webcams - Webcam - Large - #{s.dig('rid')}"] })
           .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { ["Feratel Webcams - Standort - #{s.dig('rid')}"] })
           .>> t(:add_field, 'name', ->(s) { 'Webcam: ' + (s.dig('pci', '1') || s.dig('pci', '2') || s.dig('pci', '4')) })
+          .>> t(:add_field, 'content_url', ->(s) { "#{s.dig('cam_host')}&pg=#{s.dig('pg')}&cam=#{s.dig('rid')}" })
           .>> t(:add_field, 'url', ->(s) { s.dig('pci', '26', 'v') })
           .>> t(:add_field, 'debug', ->(s) { debug(s) })
         end

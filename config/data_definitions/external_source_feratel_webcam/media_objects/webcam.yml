@@ -61,6 +61,8 @@
         :label: Video URL
         :storage_location: value
         :type: computed
+        :validations:
+          :format: url        
         :compute:
           :type: string
           :module: Utility::Compute::Asset
@@ -69,9 +71,6 @@
             :0: asset
         :api:
           :minimal: true
-        :ui:
-          :show:
-            :disabled: true
       :thumbnail_url:
         :label: Teaserbild
         :storage_location: value

@@ -19,6 +19,8 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
+            pg = raw_data.dig('config', 'pg')
+            cam_host = raw_data.dig('config', 'cam_host')
             cam_details = raw_data.dig('co', 'pl', 'pcs', 'pc').detect { |i| i.dig('t') == '1' }
             return if cam_details.blank?
             return unless cam_details.dig('pci').is_a?(::Array)
@@ -66,7 +68,7 @@ module DataCycleCore
 
             DataCycleCore::Generic::FeratelWebcam::Processing.process_webcam(
               utility_object,
-              cam_details,
+              cam_details.merge({ 'pg' => pg, 'cam_host' => cam_host }),
               options.dig(:import, :transformations, :webcam)
             )
           end
