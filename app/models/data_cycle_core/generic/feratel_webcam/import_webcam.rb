@@ -58,6 +58,12 @@ module DataCycleCore
               )
             end
 
+            DataCycleCore::Generic::FeratelWebcam::Processing.process_place(
+              utility_object,
+              cam_details,
+              options.dig(:import, :transformations, :place)
+            )
+
             DataCycleCore::Generic::FeratelWebcam::Processing.process_webcam(
               utility_object,
               cam_details,
