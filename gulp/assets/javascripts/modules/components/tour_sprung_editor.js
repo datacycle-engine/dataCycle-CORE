@@ -40,6 +40,7 @@ class TourSprungEditor extends OpenLayersEditor {
           mapType: 'terrain_v2',
           controls: controls,
           options: {
+            fullscreenControl: true,
             scrollWheelZoom: false,
             gestureHandling: true
           }
