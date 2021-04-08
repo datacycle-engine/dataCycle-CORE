@@ -9,7 +9,8 @@ class NewContentDialog {
     this.resetButton = this.form.find('.button.reset');
     this.crumbs = this.form.find('.form-crumbs');
     this.contentUploader = this.form.data('content-uploader');
-    this.id = this.form.closest('.new-content-form').attr('id');
+    this.$formWrapper = this.form.closest('.new-content-form');
+    this.id = this.$formWrapper.attr('id');
     this.locale = this.form.find(':input[name="locale"]').val() || 'de';
     this.activeLocale = this.locale;
     this.reveal = this.form.closest('.reveal.new-content-reveal');
@@ -61,7 +62,12 @@ class NewContentDialog {
         this.addCopyAttributeButtons(event.currentTarget);
         this.triggerSyncWithContentUploader(event);
       });
-      this.triggerSyncWithContentUploader();
+
+      this.$formWrapper.on('dc:html:initialized', event => {
+        event.stopPropagation();
+
+        this.triggerSyncWithContentUploader();
+      });
     }
   }
   copyToReferenceField(event, config = {}) {
@@ -97,7 +103,7 @@ class NewContentDialog {
     formData.forEach((v, i) => {
       if (v && v.value.isUuid()) {
         requests.push(
-          $.get('/api/v4/universal/' + v.value + '?fields=name,skos:prefLabel').done(data => {
+          $.post(`/api/v4/universal/${v.value}`, { fields: 'name,skos:prefLabel' }).done(data => {
             v.text =
               data &&
               data['@graph'] &&
@@ -108,15 +114,17 @@ class NewContentDialog {
       }
     });
 
-    Promise.all(requests)
-      .then(data => this.setUploaderFormFields(formData, target, allFiles))
-      .catch(error => this.setUploaderFormFields(formData, target, allFiles));
+    Promise.all(requests).then(
+      _data => this.setUploaderFormFields(formData, target, allFiles),
+      _error => this.setUploaderFormFields(formData, target, allFiles)
+    );
   }
   setUploaderFormFields(formData, target = null, allFiles = false) {
     this.referencedAssetField.trigger('dc:upload:setFormFields', {
       formData: formData,
       allFiles: allFiles
     });
+
     if (target) {
       target.removeClass('disabled');
       this.showNotice(target, 'Attribut wurde übernommen!');

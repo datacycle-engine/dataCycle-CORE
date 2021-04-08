@@ -604,8 +604,6 @@ select {
 }
 
 #edit-form {
-  margin-bottom: 10rem;
-
   .detail-header-info {
     text-align: left;
     display: flex;
@@ -852,6 +850,18 @@ select {
         display: inline-block;
         vertical-align: middle;
         text-overflow: ellipsis;
+      }
+    }
+  }
+
+  .edit-form-content {
+    margin-bottom: 10rem;
+
+    &.flex-box {
+      margin-bottom: 0;
+
+      .edit-content > .column {
+        margin-bottom: 10rem;
       }
     }
   }

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <%= render 'head' %>
+  </head>
+  <body class="<%= controller_name %> devise with-glass">
+    <%= display_flash_messages_new %>
+
+    <%= yield %>
+  </body>
+</html>

@@ -285,8 +285,8 @@ DataCycleCore::Engine.routes.draw do
               post 'users/password', to: 'users#password'
               match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
 
-              scope 'external_sources/:external_source_id' do
-                match '(/:external_key)', via: :get, to: 'external_systems#show'
+              scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do
+                match '/:external_key', via: :get, to: 'external_systems#show', as: 'external_sources'
                 match '', via: :post, to: 'external_systems#create'
                 match '(/:external_key)', via: [:put, :patch], to: 'external_systems#update', as: 'external_sources_update'
                 match '(/:external_key)', via: [:delete], to: 'external_systems#destroy', as: 'external_sources_delete'

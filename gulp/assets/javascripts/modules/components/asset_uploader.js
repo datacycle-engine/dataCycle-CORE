@@ -41,7 +41,6 @@ class AssetUploader {
     this.reveal.on('dc:upload:setFiles', (e, files) => {
       this.validateFiles(e, files.fileList);
     });
-    // prevent leaving Site while uploading!
     $(window).on('beforeunload', event => {
       if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
     });
@@ -246,6 +245,7 @@ class AssetUploader {
     this.globalFieldValues = this.globalFieldValues.mergeUnique(
       data.formData.filter(elem => elem.name.indexOf('thing') !== 0)
     );
+
     this.renderSpecificFields(
       data.formData.filter(elem => elem.name.indexOf('thing') === 0),
       data.allFiles,
@@ -257,8 +257,11 @@ class AssetUploader {
       this.files.forEach(file => {
         this.updateFileField(file, fields);
       });
+
       this.updateNeighborForms(selectedFile);
-    } else this.updateFileField(selectedFile, fields);
+    } else {
+      this.updateFileField(selectedFile, fields);
+    }
   }
   updateFileField(file, fields) {
     if (!file.valid.valid) return;
@@ -267,10 +270,13 @@ class AssetUploader {
       file.attributeFieldValues = file.attributeFieldValues
         .filter(v => !fields.find(f => f.name == v.name))
         .concat(ObjectHelpers.deepCopy(fields));
-    } else file.attributeFieldValues = ObjectHelpers.deepCopy(fields);
+    } else {
+      file.attributeFieldValues = ObjectHelpers.deepCopy(fields);
+    }
 
     this.setAttributeValues(file);
     this.validateAttributes(file);
+
     Object.keys(file.attributeValues).forEach((field, i, arr) => {
       this.renderSpecificField(file.attributeValues[field], file, file.attributeValues[arr[i - 1]]);
     });
@@ -280,7 +286,9 @@ class AssetUploader {
     if (selectedFile) neighbors = neighbors.filter(file => file.id != selectedFile.id);
 
     neighbors.forEach(file => {
-      file.fileField.trigger('dc:form:importAttributeValues', { attributes: file.attributeFieldValues });
+      file.fileField.trigger('dc:form:importAttributeValues', {
+        attributes: file.attributeFieldValues
+      });
     });
   }
   setAttributeValues(file) {
