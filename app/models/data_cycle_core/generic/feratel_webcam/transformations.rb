@@ -103,7 +103,7 @@ module DataCycleCore
           .>> t(:add_field, 'wind_direction_text', ->(s) { I18n.locale == :de ? s.dig('wid', '10') : s.dig('wid', '11') })
           .>> t(:add_field, 'wind_velocity', ->(s) { s.dig('wid', '12')&.to_i })
           .>> t(:add_field, 'wind_velocity_knots', ->(s) { s.dig('wid', '13')&.to_i })
-          .>> t(:add_field, 'forecast_details', ->(s) { parse_forecast_details(s.dig('wid', '8'), s.dig('weather_provider'), external_source_id) })
+          .>> t(:add_field, 'forecast_details', ->(s) { parse_forecast_details(s.dig('wid', '8'), s.dig('weather_provider'), external_source_id, "#{s.dig('external_key')} - #{s.dig('forecast_date')}") })
           .>> t(:add_field, 'debug', ->(s) { debug(s) })
         end
 
@@ -132,21 +132,26 @@ module DataCycleCore
           # byebug
         end
 
-        def self.parse_forecast_details(s, provider, external_source_id)
+        def self.parse_forecast_details(s, provider, external_source_id, parent_external_key)
           return [] if s.blank?
           ['00', '03', '06', '09', '12', '15', '18', '21'].map { |time|
             next if s["t#{time}"].blank?
             universal_classifications = DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: "Feratel Webcams - #{provider} - #{s["s#{time}"]}")&.ids
             universal_classifications += DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: "Feratel Webcams - Tageszeit - #{time}")&.ids
-            {
+            external_key = "#{parent_external_key} - #{time}"
+            id = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)&.id
+            data = {}
+            data = { 'id' => id } if id.present?
+            data.merge({
               'minimum_temperature' => s.dig("t#{time}m")&.to_i,
               'maximum_temperature' => s.dig("t#{time}")&.to_i,
               'universal_classifications' => universal_classifications,
               'wind_direction_degrees' => s.dig("w#{time}r")&.to_i,
               'wind_direction_text' => I18n.locale == :de ? s.dig("w#{time}rk") : s.dig("w#{time}rt"),
               'wind_velocity' => s.dig("w#{time}g")&.to_i,
-              'wind_velocity_knots' => s.dig("w#{time}gk")&.to_i
-            }
+              'wind_velocity_knots' => s.dig("w#{time}gk")&.to_i,
+              'external_key' => external_key
+            })
           }.compact
         end
 
