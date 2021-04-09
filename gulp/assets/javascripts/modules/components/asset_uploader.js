@@ -304,7 +304,10 @@ class AssetUploader {
       let attribute = file.attributeValues[key];
 
       if (attribute.type == 'boolean') {
-        let value = values && values.length && values.pop().value == 'true' ? 'ja' : 'nein';
+        let value = ObjectHelpers.get(['ui', 'create', 'false_value'], attribute) || 'false';
+        if (values && values.length) value = values.pop().value;
+
+        value = value == 'true' ? 'ja' : 'nein';
 
         Object.assign(attribute, {
           name: key,
