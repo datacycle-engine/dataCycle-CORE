@@ -53,7 +53,7 @@ Die Nutzung von HTTP-POST bringt vor allem im Zusammenhang mit komplexen Abfrage
       }
     },
     "attribute": {
-      "createdAt": {
+      "dct:created": {
         "in": {
           "min": "2020-03-16",
           "max": "2020-05-14"
@@ -323,7 +323,86 @@ Bei der Filterung von Inhalten auf Basis von Klassifizierungen, Attributen oder 
 }
 ```
 
-Der Filter besteht dabei aus einem äußeren und einem inneren Teil. Im inneren Teil können alle Filter verwendet werden, die sich direkt auf einen Inhalt beziehen, es können also alle geobasierten, attributbasierten und klassifizierungsbasierten Filter verwendet werden. Auch eine Kombination von verschiedenen Filtern ist möglich. Im äußeren Teil wird festgelegt, wie die Inhalte aus dem inneren Filter mit den eigentlich abgefragten Inhalten verknüpft sein müssen. Die Art der Verknüpfung wird dabei über den Namen der Relation festgelegt, also z.B. *filter\[linked\]\[__location__\]\[...\]*.
+Der Filter besteht dabei aus einem äußeren und einem inneren Teil. Im inneren Teil können alle Filter verwendet werden, die sich direkt auf einen Inhalt beziehen, es können also alle geobasierten, attributbasierten und klassifizierungsbasierten Filter verwendet werden. Auch eine Kombination von verschiedenen Filtern ist möglich.
+
+Im äußeren Teil wird festgelegt, wie die Inhalte aus dem inneren Filter mit den eigentlich abgefragten Inhalten verknüpft sein müssen. Die Art der Verknüpfung wird dabei über den Namen der Relation festgelegt, also z.B. *filter\[linked\]\[__location__\]\[...\]*.
+
+#### Filterung auf Basis von Verknüpfungen mit einzelnen, ausgewählten Inhalten - **filter\[linked\]\[RELATION\]\[contentId\]**
+
+Oft kann es sinnvoll sein, verknüpfte Inhalte direkt auswählen bzw. ausschließen zu können. Damit können z.B. Veranstaltung ausgewählt werden, die an einem bestimmten Veranstaltungsort stattfinden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "linked": {
+      "location": { // Name der Relation
+        "contentId": {
+          "in": [
+            "d419e7bf-1dc6-4689-8e2b-b6e689f81f73" // Großer Musikvereinssaal
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+Analog dazu können über eine ausschließende Filterung beispielsweise Bilder ausgewählt werden, die **nicht** von einer bestimmten Gruppe von Fotografen gemacht worden sind:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "linked": {
+      "author": { // Name der Relation
+        "contentId": {
+          "notIn": [
+            "9f06a2a1-3413-4d8c-be5d-ebeecdf0b3a6", // Alexandra Baader
+            "98d80f8b-aa85-4437-ad73-e19f30af6aab" // Yannick Steinhauer
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+
+## Fusionieren von Ergebnissen von unterschiedlichen Filtern
+
+Die bisher vorgestellten Filter ergeben, wenn sie kombiniert werden, immer eine UND-Verknüpfung der unterschiedlichen Filterkriterien. Oft ist es aber wünschenswert, unterschiedliche Filterkriterien über ein logisches ODER miteinander zu verknüpfen. Aus diesem Grund bietet die Datenschnittstelle von dataCycle einen sogenannten *union*-Filter. Damit können z.B. Veranstaltungen kombiniert werden, die an unterschiedlichen, nicht zusammenhängenden Tagen stattfinden:
+
+```javascript
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "union": [
+      {
+        "attribute": {
+          "schedule": {
+            "in": {
+              "min": "2021-03-01",
+              "max": "2021-03-01"
+            }
+          }      
+        }
+      }, {
+        "attribute": {
+          "schedule": {
+            "in": {
+              "min": "2021-03-21",
+              "max": "2021-03-21"
+            }
+          }      
+        }
+      }
+    ]
+  }
+}
+```
+
+Innerhalb des *union*-Filters können alle anderen, bereits bekannten Filter verwendet werden. Wichtig dabei ist, sich im Vorfeld über die möglichen Performance-Implikationen im Klaren zu sein. Da alle Teile eines *union*-Filters unabhängig voneinander verarbeitet werden müssen, um eine maximale Flexibilität zu erreichen, können damit unter Umständen sehr komplexe und damit langsame Filterkombinationen erzeugt werden.
 
 
 ## Sortieren von Inhalten
@@ -352,18 +431,19 @@ Neben den automatisch angewendeten impliziten Sortierungen, gibt es die Möglich
 ```javascript
 {
   "token": "YOUR_ACCESS_TOKEN",
-  "sort": "created"
+  "sort": "dct:created"
 }
 ```
 
 Alternativ kann die Sortierung auch bei einer Abfrage über **HTTP-GET** angewendet werden:
 
-_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN,sort=created_
+_/api/v4/endpoints/ffa78ef5-6e6a-47fa-a817-a771390d48dc?token=YOUR_ACCESS_TOKEN,sort=dct:created_
 
 Die Attribute, die für die Filterung nutzbar sind, können pro Installation individuell eingeschränkt werden. Prinzipiell stehen aber die folgenden Attribute zur Verfügung:
 
-* **created**
-* **modified**
+* **dct:created**
+* **dct:modified**
+* **name**
 
 
 ### Zufallssortierung
