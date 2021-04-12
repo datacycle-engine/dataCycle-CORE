@@ -48,6 +48,7 @@ module DataCycleCore
       locale = I18n.locale
       translations = object_params[:translations]&.to_h&.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }
       locale = translations.keys.first if translations&.keys&.present?
+      save_time = Time.zone.now
 
       I18n.with_locale(locale) do
         template = get_internal_template(template_name)
@@ -55,13 +56,14 @@ module DataCycleCore
         object.template_name = template.template_name
         object.created_by = current_user&.id
         object.is_part_of = is_part_of if is_part_of.present?
+        object.created_at = save_time
+        object.updated_at = save_time
         object.save
       end
 
       return object if object_params[:datahash].nil? && translations.nil?
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translations&.delete(locale.to_s) || {}), object.schema)
-      save_time = Time.zone.now
 
       I18n.with_locale(locale) do
         valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true, save_time: save_time, check_for_duplicates: true)
