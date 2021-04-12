@@ -21,6 +21,13 @@ module DataCycleCore
           @new_user = DataCycleCore::User.create(@user_data)
         end
 
+        def generate_private_key
+          rsa_private = OpenSSL::PKey::RSA.generate 2048
+          rsa_public = rsa_private.public_key
+          DataCycleCore.features[:user_api][:public_keys] = { 'datacycle.at': rsa_public.to_s }
+          rsa_private
+        end
+
         test '/api/v4/auth/login - login with token' do
           post api_v4_authentication_login_path, params: {}, headers: {}
           assert_response 401
@@ -99,11 +106,7 @@ module DataCycleCore
         end
 
         test '/api/v4/auth/login - login with JWT, signed with Private Key ' do
-          rsa_private = OpenSSL::PKey::RSA.generate 2048
-          rsa_public = rsa_private.public_key
-
-          DataCycleCore.features[:user_api][:public_keys] = { 'datacycle.at': rsa_public.to_s }
-
+          rsa_private = generate_private_key
           token = DataCycleCore::JsonWebToken.encode(payload: { token: @current_user.access_token }, alg: 'RS256', key: rsa_private)
 
           post api_v4_authentication_login_path, headers: {
@@ -183,11 +186,7 @@ module DataCycleCore
             email: "tester_3_#{Time.now.getutc.to_i}@datacycle.at",
             confirmed_at: Time.zone.now - 1.day
           })
-          rsa_private = OpenSSL::PKey::RSA.generate 2048
-          rsa_public = rsa_private.public_key
-
-          DataCycleCore.features[:user_api][:public_keys] = { 'datacycle.at': rsa_public.to_s }
-
+          rsa_private = generate_private_key
           token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) } }, alg: 'RS256', key: rsa_private)
 
           get api_v4_users_path, headers: {
@@ -216,6 +215,21 @@ module DataCycleCore
           assert_equal user_data['family_name'], DataCycleCore::User.find_by(email: user_data['email']).family_name
 
           DataCycleCore.features[:user_api].delete(:public_keys)
+        end
+
+        test 'POST /api/v4/users/password - reset password for user - not found' do
+          rsa_private = generate_private_key
+          token = DataCycleCore::JsonWebToken.encode(payload: { token: @current_user.access_token }, alg: 'RS256', key: rsa_private)
+
+          post api_v4_users_password_path, headers: {
+            Authorization: "Bearer #{token}"
+          }, params: {
+            email: @new_user.email
+          }
+
+          assert_response :success
+
+          assert @new_user.reload.reset_password_period_valid?
         end
       end
     end

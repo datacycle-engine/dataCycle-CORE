@@ -30,10 +30,7 @@ module DataCycleCore
     has_many :classifications, through: :classification_aliases
     has_many :things, -> { unscope(:order).distinct }, through: :classifications
     has_one :statistics, -> { readonly }, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label
-    after_update :add_things_cache_invalidation_job, if: lambda {
-      saved_changes.key?('name') ||
-        saved_changes.dig('visibility', 0)&.to_set&.^(saved_changes.dig('visibility', 1)&.to_set)&.include?('api')
-    }
+    after_update :add_things_cache_invalidation_job_update, :add_things_webhooks_job_update, if: :cached_attributes_changed?
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
@@ -123,9 +120,34 @@ module DataCycleCore
       }
     end
 
+    def to_hash
+      { 'class_type' => self.class.to_s }
+        .merge({ 'external_system' => external_source&.identifier })
+        .merge(attributes)
+    end
+
     private
 
-    def add_things_cache_invalidation_job
+    def cached_attributes_changed?
+      return @cached_attributes_changed if defined? @cached_attributes_changed
+
+      @cached_attributes_changed = saved_changes.key?('name') ||
+                                   saved_changes.dig('visibility', 0)&.to_set&.^(saved_changes.dig('visibility', 1)&.to_set)&.include?('api')
+    end
+
+    def add_things_webhooks_job_update
+      return unless things.exists?
+
+      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :execute_things_webhooks) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_execute_things_webhooks", delayed_reference_id: id, locked_at: nil)
+    end
+
+    def execute_things_webhooks
+      things.find_each do |content|
+        content.send(:execute_update_webhooks)
+      end
+    end
+
+    def add_things_cache_invalidation_job_update
       Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_things_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_things_cache", delayed_reference_id: id, locked_at: nil)
     end
 

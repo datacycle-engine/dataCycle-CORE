@@ -46,7 +46,7 @@ DataCycleCore::Engine.routes.draw do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
-      get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
+      get 'external/:external_system_id/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :load_more_related, on: :member
       get :download_zip, on: :member
@@ -282,13 +282,38 @@ DataCycleCore::Engine.routes.draw do
 
               post 'users/create', to: 'users#create'
               match 'users', to: 'users#index', via: [:get, :post]
+              post 'users/password', to: 'users#password'
               match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
 
-              scope 'external_sources/:external_source_id' do
-                match '(/:external_key)', via: :get, to: 'external_systems#show'
+              scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do
+                match '/:external_key', via: :get, to: 'external_systems#show', as: 'external_sources'
                 match '', via: :post, to: 'external_systems#create'
                 match '(/:external_key)', via: [:put, :patch], to: 'external_systems#update', as: 'external_sources_update'
                 match '(/:external_key)', via: [:delete], to: 'external_systems#destroy', as: 'external_sources_delete'
+              end
+            end
+          end
+        end
+      end
+    end
+
+    if DataCycleCore.main_config.dig(:sync_api, :enabled)
+      defaults format: :json do
+        namespace :sync_api do
+          if DataCycleCore.main_config.dig(:sync_api, :v1, :enabled)
+            namespace :v1 do
+              scope path: '(/:sync_api_subversion)' do
+                match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
+                match 'things/select(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
+
+                match 'things', to: 'contents#index', as: 'contents_index', via: [:get, :post]
+                match 'things/:id', to: 'contents#show', as: 'content_show', via: [:get, :post]
+
+                match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
+                match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+
+                match 'collections', to: 'watch_lists#index', via: [:get, :post]
+                match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
               end
             end
           end

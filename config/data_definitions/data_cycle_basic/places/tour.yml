@@ -110,6 +110,9 @@
       :geo_shape:
         :type: mixin
         :name: geo_shape
+      :geo_contains:
+        :type: mixin
+        :name: geo_contains
       :poi:
         :label: POIS
         :type: linked
@@ -219,6 +222,9 @@
       :cc_rel:
         :type: mixin
         :name: cc_rel
+      :external_source_attributes:
+        :type: mixin
+        :name: external_source_attributes
       :meta_data:
         :type: mixin
         :name: meta_data

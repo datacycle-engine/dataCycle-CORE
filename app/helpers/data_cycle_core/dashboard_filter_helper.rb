@@ -30,5 +30,29 @@ module DataCycleCore
         value
       )
     end
+
+    def advanced_attribute_filter_options(filter_advanced_type)
+      case filter_advanced_type
+      when 'string'
+        [
+          [t('common.like', locale: DataCycleCore.ui_language), 's'],
+          [t('common.not_like', locale: DataCycleCore.ui_language), 'u'],
+          [t('common.blank', locale: DataCycleCore.ui_language), 'b'],
+          [t('common.present', locale: DataCycleCore.ui_language), 'p']
+        ]
+      when 'classification_alias_ids'
+        [
+          [t('common.has', locale: DataCycleCore.ui_language), 'i'],
+          [t('common.has_not', locale: DataCycleCore.ui_language), 'e']
+        ]
+      when 'boolean'
+        nil
+      else
+        [
+          [t('common.is', locale: DataCycleCore.ui_language), 'i'],
+          [t('common.is_not', locale: DataCycleCore.ui_language), 'e']
+        ]
+      end
+    end
   end
 end

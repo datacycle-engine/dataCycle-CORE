@@ -20,7 +20,7 @@
       parents: @parents,
       button_class: 'small',
       scope: 'duplicate',
-      template: content,
+      template: content.content_template,
       button_title: t('actions.create_from_existing', locale: DataCycleCore.ui_language) if can?(:create, content, 'duplicate') && content.content_type?('entity') %>
 
   <% if can?(:move_content, content) && @parents.present? && content.schema_type == 'CreativeWork' %>

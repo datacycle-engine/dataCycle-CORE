@@ -69,10 +69,11 @@ module DataCycleCore
 
         def self.outdoor_active_system_status(data, external_system)
           statuses = outdoor_active_categories(data, external_system, 'OutdoorActive - System - Stati')
+          statuses = data.try(:outdoor_active_system_status) if data.try(:outdoor_active_system_status).present?
 
           if statuses.blank? ||
              outdoor_active_system_categories(data, external_system).blank? ||
-             outdoor_active_system_source_keys(data, external_system).blank?
+             (outdoor_active_system_source_keys(data, external_system).blank? && external_system.credentials('export').dig('xml', 'owner').blank?)
 
             'offline'
           elsif statuses.size == 1
@@ -83,13 +84,18 @@ module DataCycleCore
         end
 
         def self.outdoor_active_categories(data, external_system, tree_label)
-          external_source_id = external_system&.id
-
-          data.classifications.includes(:classification_aliases)
-            .map(&:classification_aliases).flatten.uniq
-            &.select { |c|
-            c.external_source_id == external_source_id && c.classification_tree.classification_tree_label.name == tree_label
-          }&.map(&:primary_classification)
+          if tree_label == 'OutdoorActive - System - Kategorien' && (classifications = data.try(:outdoor_active_system_categories)).present?
+            # used by Spielberg (for POI)
+            classifications
+          else
+            # used by KW (Unterknunft)
+            external_source_id = external_system&.id
+            data.classifications.includes(:classification_aliases)
+              .map(&:classification_aliases).flatten.uniq
+              &.select { |c|
+              c.external_source_id == external_source_id && c.classification_tree.classification_tree_label.name == tree_label
+            }&.map(&:primary_classification)
+          end
         end
 
         def self.log(message, id)

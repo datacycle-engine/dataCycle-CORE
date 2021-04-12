@@ -97,10 +97,13 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Örtlichkeit"
+        :default_value: 'Örtlichkeit'
       :cc_rel:
         :type: mixin
         :name: cc_rel
+      :external_source_attributes:
+        :type: mixin
+        :name: external_source_attributes
       :meta_data:
         :type: mixin
         :name: meta_data

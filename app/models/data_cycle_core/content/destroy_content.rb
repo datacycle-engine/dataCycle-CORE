@@ -18,9 +18,9 @@ module DataCycleCore
           destroy_linked_data(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked) if destroy_linked
           if destroy_locale && available_locales.many?
             destroy_translation(I18n.locale)
-            run_callbacks(:saved_data_hash) unless history?
+            after_save_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user: current_user, save_time: save_time)) unless history?
           else
-            run_callbacks(:destroyed_data_hash) unless history?
+            before_destroy_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user: current_user, save_time: save_time)) unless history?
             destroy
           end
         end

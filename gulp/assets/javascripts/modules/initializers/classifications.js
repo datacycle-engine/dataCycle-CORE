@@ -88,6 +88,13 @@ module.exports.initialize = function ($) {
         newAsyncSelect.init();
       }
 
+      var select = $(event.target).closest('li').find('select[name="classification_alias[mapped_to][]"]');
+
+      if (!select.data('select2')) {
+        let newAsyncSelect = new AsyncSelect2(select);
+        newAsyncSelect.init();
+      }
+
       return false;
     });
     $('#classification-administration').on('click', '.discard', function (event) {

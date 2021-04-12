@@ -5,7 +5,7 @@
   <%= hidden_field_tag "f[#{index}][c]", 'a' %>
 
   <div class="advanced-filter-title">
-    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name %>
+    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
     <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
   </div>
   <div class="advanced-filter-mode">

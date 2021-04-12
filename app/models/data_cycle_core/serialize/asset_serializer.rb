@@ -15,14 +15,18 @@ module DataCycleCore
         def mime_type(serialized_content, content)
           (
             serialized_content.try(:content_type) ||
-              (MIME::Types.type_for(".#{content.try(:file_format)&.downcase}").first || content.try(:file_format)) ||
-              MIME::Types.type_for(File.extname(content.content_url)).first ||
-              MIME::Types.type_for(File.basename(content.content_url)).first
+            MiniMime.lookup_by_extension(content.try(:file_format)&.downcase.to_s)&.content_type ||
+            content.try(:file_format) ||
+            MiniMime.lookup_by_extension(File.extname(content.content_url).delete_prefix('.'))&.content_type ||
+            MiniMime.lookup_by_filename(File.basename(content.content_url))&.content_type
           )
         end
 
         def file_extension(mime_type)
-          ".#{MIME::Types[mime_type].first&.preferred_extension}" if MIME::Types[mime_type].present?
+          ext = MiniMime.lookup_by_content_type(mime_type.to_s)&.extension
+          return if ext.blank?
+
+          ".#{ext}"
         end
 
         def serialize(content, _language, version, transformation = nil)

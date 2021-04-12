@@ -1,29 +1,20 @@
+const ConditionalField = require('../components/conditional_field');
+
 module.exports.initialize = function ($) {
-  $('.conditional-form-field').each((index, elem) => {
-    initConditionalField(elem);
-  });
+  let conditionalFields = [];
+
+  initConditionalField();
 
   $(document).on('dc:html:changed', '*', event => {
     event.stopPropagation();
-    $(event.currentTarget)
-      .find('.conditional-form-field')
-      .each((_, elem) => {
-        initConditionalField(elem);
-      });
+    initConditionalField(event.currentTarget);
   });
 
-  function initConditionalField(field) {
-    $(field)
-      .find('.conditional-field-selector > label > :radio')
-      .off('click')
-      .on('click', event => {
-        $(field).find('.conditional-field-content').removeClass('active').find(':input').prop('disabled', true);
-
-        $(field)
-          .find('.conditional-' + $(event.currentTarget).val() + '-content')
-          .addClass('active')
-          .find(':input')
-          .prop('disabled', false);
+  function initConditionalField(element = document) {
+    $(element)
+      .find('.conditional-form-field')
+      .each((_, elem) => {
+        conditionalFields.push(new ConditionalField(elem));
       });
   }
 };

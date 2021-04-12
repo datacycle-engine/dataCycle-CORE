@@ -119,9 +119,9 @@ module DataCycleCore
           assert_equal(upload_date, data_set.upload_date)
           assert_equal(upload_date, data_set.get_data_hash.dig('upload_date'))
 
-          data_set.instance_variable_set(:@data_hash, {})
-          data_set.add_default_values(force: true)
-          data_set.set_data_hash(data_hash: data_set.instance_variable_get(:@data_hash), partial_update: true)
+          data_hash = {}
+          data_set.add_default_values(data_hash: data_hash, force: true)
+          data_set.set_data_hash(data_hash: data_hash, partial_update: true)
 
           assert_equal(upload_date, data_set.upload_date)
           assert_equal(upload_date, data_set.get_data_hash.dig('upload_date'))

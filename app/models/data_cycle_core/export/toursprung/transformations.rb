@@ -18,18 +18,21 @@ module DataCycleCore
             data: content_data.reject { |_k, v| v.blank? }.to_json
           }
 
-          if data.try(:tour).is_a?(RGeo::Geographic::SphericalLineStringImpl)
-            json_data.merge({
-              lat: data.try(:tour)&.points&.first&.y,
-              lng: data.try(:tour)&.points&.first&.x,
-              points: data.try(:tour)&.points&.map { |p| [p.y, p.x] }&.to_json
-            })
-          else
-            json_data.merge({
-              lat: data.location&.y,
-              lng: data.location&.x
-            })
+          line_property_key = data&.geo_properties&.select { |_, v| v&.dig('ui', 'edit', 'type') == 'LineString' }&.keys&.first
+          point_property_key = data&.geo_properties&.select { |_, v| v&.dig('ui', 'edit', 'type') != 'LineString' }&.keys&.first
+
+          if point_property_key.present?
+            json_data[:lat] = data.try(point_property_key)&.y
+            json_data[:lng] = data.try(point_property_key)&.x
           end
+
+          if line_property_key.present?
+            json_data[:lat] = data.try(line_property_key)&.geometry_type.to_s.include?('MultiLineString') ? data.try(line_property_key)&.first&.points&.first&.y : data.try(line_property_key)&.points&.first&.y
+            json_data[:lng] = data.try(line_property_key)&.geometry_type.to_s.include?('MultiLineString') ? data.try(line_property_key)&.first&.points&.first&.x : data.try(line_property_key)&.points&.first&.x
+            json_data[:geojson] = RGeo::GeoJSON.encode(data.try(line_property_key))&.to_json
+          end
+
+          json_data
         end
 
         def self.delete_json_partial(utility_object, data)

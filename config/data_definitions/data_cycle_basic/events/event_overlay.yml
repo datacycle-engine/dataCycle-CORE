@@ -40,7 +40,7 @@
           :show:
             :content_area: none
       :description:
-        :label: Teasertext
+        :label: Beschreibung
         :type: string
         :storage_location: column
         :search: true

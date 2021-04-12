@@ -1,0 +1,7 @@
+---
+name: Toursprung Geocoding
+credentials:
+  host: https://geocoder.maptoolkit.net
+  end_point: search
+  key: 'df50dd4a6df40d101c6199376b7624bf'
+  allow_ambiguous_address: true

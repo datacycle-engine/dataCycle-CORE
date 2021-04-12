@@ -66,6 +66,8 @@ initializers.push(require('./modules/initializers/schedule_editor_init'));
 initializers.push(require('./modules/initializers/password_toggle'));
 initializers.push(require('./modules/initializers/datatables_init'));
 initializers.push(require('./modules/initializers/conditional_form_field'));
+initializers.push(require('./modules/initializers/copy_from_init'));
+initializers.push(require('./modules/initializers/gip_key_figure'));
 
 // keep validations and foundation last to ensure everything is intialized before saving form values
 initializers.push(require('./modules/initializers/foundation_init'));
@@ -79,15 +81,6 @@ $(function () {
       console.log(err);
     }
   });
-
-  // HOME RANDOMIZED IMAGES AND GLASSHACK!
-  if ($('.home-container').length) {
-    $('.home-container').appendTo('body');
-    setTimeout(function () {
-      $('.home-container').addClass('show');
-    }, 500);
-    $('body').addClass('login-page');
-  }
 
   // FIXME: move to OEW with event triggers working
   if ($('#import-content-form').length) {

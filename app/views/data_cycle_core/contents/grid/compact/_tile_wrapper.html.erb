@@ -13,7 +13,7 @@
     local_assigns[:tile_classes],
     object.id.in?(local_assigns[:objects] || []) ? 'active' : nil,
     object.hard_content_warnings? ? 'hard-warnings' : nil,
-    DataCycleCore::Feature::TileBorderColor.enabled? ? DataCycleCore::Feature::TileBorderColor.class_string(object) : nil
+    DataCycleCore::Feature::TileBorderColor.class_string(object)
   ].compact.join(' ') %>" data-id="<%= local_assigns[:object_id] || object.id %>">
   <div class="content-link">
     <i class="fa fa-check object-browser-tile-checkbox" aria-hidden="true"></i>

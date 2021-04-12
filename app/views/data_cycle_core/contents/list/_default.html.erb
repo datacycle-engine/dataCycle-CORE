@@ -4,15 +4,15 @@
     <div class="content-row">
       <%= link_to thing_path(item, watch_list_id: @watch_list&.id, locale: I18n.locale) do %>
         <span class="type <%= item.template_name.downcase %>">
-          <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.parameterize(separator: '_') %>
+          <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.underscore_blanks, icon_class: item.class.name.demodulize.underscore_blanks %>
           <span><%= t("content_type.#{item.template_name.underscore_blanks}", default: item.template_name, locale: DataCycleCore.ui_language) %></span>
           <span class="locale">(<%= I18n.locale.to_s %>)</span>
         </span>
         <span class="title" title="<%= item.title %>"><%= item.title %></span>
         <% if item.respond_to?(:internal_name) && item.internal_name.present? %>
-            <span class="title working-title" title="<%= item.internal_name %>">
-                (<%= sanitize(strip_links(truncate(item.internal_name, length: 70, separator: " ", escape: false))) %>)
-            </span>
+          <span class="title working-title" title="<%= item.internal_name %>">
+            (<%= sanitize(strip_links(truncate(item.internal_name, length: 70, separator: " ", escape: false))) %>)
+          </span>
         <% end %>
         <% if item.respond_to?(:is_valid?) && !item.try(:is_valid?) %>
           <span class="validity_period">

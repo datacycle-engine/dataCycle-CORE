@@ -22,6 +22,7 @@ module DataCycleCore
         'overlay' => [],
         'primary_image' => [],
         'marketing_groups' => [],
+        'external_status' => [],
         'feratel_facilities_accommodations' => [],
         'feratel_facilities_additional_services' => []
       }
@@ -55,6 +56,7 @@ module DataCycleCore
         'overlay' => [],
         'primary_image' => [],
         'marketing_groups' => [],
+        'external_status' => [],
         'feratel_facilities_accommodations' => [],
         'feratel_facilities_additional_services' => []
       }

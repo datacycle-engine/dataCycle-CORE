@@ -1,30 +1,18 @@
 var Validator = require('./../components/validator');
+var BulkUpdateValidator = require('./../components/bulk_update_validator');
 var DataCycleNormalizer = require('./../components/normalizer');
 
 // Add Validation to Form Elements
 module.exports.initialize = function ($) {
-  // multi-edit
-  $(document).on('change', '.bulk-edit-form .editor > .form-element', event => {
-    let updateCheckbox = $(event.currentTarget)
-      .siblings('.bulk-update-check[data-attribute-key="' + $(event.currentTarget).data('key') + '"]')
-      .find(':checkbox');
-    if (
-      $(event.currentTarget)
-        .find(':input')
-        .serializeArray()
-        .some(elem => elem.value && elem.value.length)
-    )
-      updateCheckbox.prop('checked', true);
-    else updateCheckbox.prop('checked', false);
-  });
-
   let validation_forms = [];
 
   function init(container = document) {
     $(container)
       .find('.validation-form')
       .each((i, elem) => {
-        validation_forms.push(new Validator(elem));
+        if ($(elem).hasClass('bulk-edit-form') && window.actionCable !== undefined)
+          validation_forms.push(new BulkUpdateValidator(elem));
+        else validation_forms.push(new Validator(elem));
       });
   }
 

@@ -1,0 +1,16 @@
+---
+- :data:
+    :name: geo_contains
+    :type: mixin
+    :properties:
+      :contains_place:
+        :label: Etappe
+        :type: linked
+        :template_name: Tour
+        :inverse_of: contained_in_place
+      :contained_in_place:
+        :label: Tour
+        :type: linked
+        :template_name: Tour
+        :inverse_of: contains_place
+        :link_direction: inverse
