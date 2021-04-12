@@ -50,7 +50,7 @@ module DataCycleCore
 
       ActiveRecord::Base.transaction do
         duplicate.original_id = original.id
-        duplicate_sync_query(original.external_source_id, original.external_key, duplicate.id, original.id).update_all(syncable_id: original.id)
+        duplicate_sync_query(duplicate.id, original.id).update_all(syncable_id: original.id, sync_type: 'duplicate')
         duplicate.destroy_content
 
         if duplicate_external_source_id.present? && duplicate_external_key.present? && (original.external_source_id != duplicate_external_source_id || original.external_key != duplicate_external_key)
@@ -63,50 +63,21 @@ module DataCycleCore
 
     private
 
-    def duplicate_sync_query(external_system_id, external_key, duplicate_id, original_id)
-      syncs_sql = <<-SQL
-        WITH syncs_table AS (
-          SELECT
-            s1.id
-          FROM
-            external_system_syncs s1
-          WHERE
-            s1.syncable_type = 'DataCycleCore::Thing'
-            AND s1.syncable_id = :id
-            AND s1.sync_type != 'export'
-            AND s1.external_system_id != :external_system_id
-            AND NOT EXISTS (
-              SELECT 1 FROM external_system_syncs s2
-              WHERE s2.syncable_type = s1.syncable_type
-              AND s2.syncable_id = :new_id
-              AND s2.sync_type = s1.sync_type
-              AND s2.external_system_id = s1.external_system_id
-              AND s2.external_key = s1.external_key
-            )
-          UNION
-          SELECT
-            s3.id
-          FROM
-            external_system_syncs s3
-          WHERE
-            s3.syncable_type = 'DataCycleCore::Thing'
-            AND s3.syncable_id = :id
-            AND s3.sync_type != 'export'
-            AND s3.external_key != :external_key
-            AND s3.external_system_id IS NOT NULL
-            AND NOT EXISTS (
-              SELECT 1 FROM external_system_syncs s4
-              WHERE s4.syncable_type = s3.syncable_type
-              AND s4.syncable_id = :new_id
-              AND s4.sync_type = s3.sync_type
-              AND s4.external_system_id = s3.external_system_id
-              AND s4.external_key = s3.external_key
-            )
+    def duplicate_sync_query(duplicate_id, original_id)
+      where_sql = <<-SQL
+        external_system_syncs.syncable_type = 'DataCycleCore::Thing'
+        AND external_system_syncs.syncable_id = :id
+        AND NOT EXISTS (
+          SELECT 1 FROM external_system_syncs s2
+          WHERE s2.syncable_type = external_system_syncs.syncable_type
+          AND s2.syncable_id = :new_id
+          AND s2.sync_type = external_system_syncs.sync_type
+          AND s2.external_system_id = external_system_syncs.external_system_id
+          AND s2.external_key = external_system_syncs.external_key
         )
-        SELECT id FROM syncs_table
       SQL
 
-      DataCycleCore::ExternalSystemSync.where("external_system_syncs.id IN (#{syncs_sql})", external_system_id: external_system_id, external_key: external_key, id: duplicate_id, new_id: original_id)
+      DataCycleCore::ExternalSystemSync.where(where_sql, id: duplicate_id, new_id: original_id)
     end
   end
 end

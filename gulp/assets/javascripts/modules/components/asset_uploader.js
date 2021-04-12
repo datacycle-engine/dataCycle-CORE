@@ -241,7 +241,7 @@ class AssetUploader {
 
     let selectedFile = this.files.find(file => file.id == $(event.currentTarget).data('id'));
 
-    this.globalFieldValues = this.globalFieldValues.mergeUnique(
+    this.globalFieldValues = this.globalFieldValues.mergeUniqueFormValues(
       data.formData.filter(elem => elem.name.indexOf('thing') !== 0)
     );
 

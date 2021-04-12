@@ -167,7 +167,7 @@ module.exports.initialize = function () {
     $(input).on('dc:flatpickr:setDate', (e, value) => {
       e.preventDefault();
       e.stopImmediatePropagation();
-      cal.setDate(value, true, cal.config.altFormat);
+      cal.setDate(value, true);
       cal.close();
     });
 
