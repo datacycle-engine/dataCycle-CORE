@@ -20,10 +20,7 @@ module DataCycleCore
             locale: I18n.locale
           )
 
-          return if Delayed::Job.exists?(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil)
-
-          data.add_external_system_data(external_system, nil, 'pending')
-          Delayed::Job.enqueue(webhook)
+          DataCycleCore::Export::Generic::Functions.enqueue_webhook(data, webhook, external_system)
         end
 
         def self.delete_person(utility_object:, data:, type:)
@@ -46,10 +43,7 @@ module DataCycleCore
             locale: I18n.locale
           )
 
-          return if Delayed::Job.exists?(queue: 'webhooks', delayed_reference_type: webhook.reference_type, delayed_reference_id: data.id, locked_at: nil)
-
-          data.add_external_system_data(external_system, nil, 'pending')
-          Delayed::Job.enqueue(webhook)
+          DataCycleCore::Export::Generic::Functions.enqueue_webhook(data, webhook, external_system)
         end
       end
     end
