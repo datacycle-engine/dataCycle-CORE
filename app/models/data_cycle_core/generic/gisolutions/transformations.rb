@@ -8,13 +8,23 @@ module DataCycleCore
           DataCycleCore::Generic::Common::Functions[*args]
         end
 
+        def self.to_snow_resort
+          t(:stringify_keys)
+          .>> t(:add_field, 'external_key', ->(s) { "Gisolutions - Skigebiet - #{s.dig('name')}" })
+          .>> t(:reject_keys, ['id'])
+          .>> t(:reject_keys, ['geometry', 'geom', 'kategorie', 'state', 'district', 'date', 'nr', 'region'])
+        end
+
         def self.to_lift(external_source_id)
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { 'Gisolutions - Lift - ' + s.dig('id_gisolutions').to_s })
           .>> t(:add_field, 'name', ->(s) { s.dig('prim_name') || '__NO_NAME__' })
-          .>> t(:add_field, 'description', ->(s) { s.dig('ski_area_gisolutions') })
           .>> t(:add_field, 'line', ->(s) { geometry(s.dig('geometry')) })
           .>> t(:add_field, 'length', ->(s) { s.dig('length_2d') })
+          .>> t(:add_field, 'man_per_t', ->(s) { s.dig('man_per_t')&.to_f })
+          .>> t(:add_field, 'man_per_h', ->(s) { s.dig('man_per_h')&.to_f })
+          .>> t(:add_field, 'order_string', ->(s) { s.dig('nr') })
+          .>> t(:add_links, 'snow_resort', DataCycleCore::Thing, external_source_id, ->(s) { ["Gisolutions - Skigebiet - #{s.dig('ski_area_gisolutions')}"] })
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Kategorie - Lift - ', s.dig('kategorie'), external_source_id) })
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Unterkategorie - Lift - ', s.dig('unterkat'), external_source_id) })
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Kategorie - ', s.dig('kat_gisolutions'), external_source_id) })
@@ -31,9 +41,12 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { 'Gisolutions - Piste - ' + s.dig('id_gisolutions').to_s })
           .>> t(:add_field, 'name', ->(s) { s.dig('prim_name') || '__NO_NAME__' })
-          .>> t(:add_field, 'description', ->(s) { s.dig('ski_area_gisolution') })
           .>> t(:add_field, 'line', ->(s) { geometry(s.dig('geometry')) })
           .>> t(:add_field, 'length', ->(s) { s.dig('length_2d') })
+          .>> t(:add_field, 'order_string', ->(s) { s.dig('nr') })
+          .>> t(:add_links, 'snow_resort', DataCycleCore::Thing, external_source_id, ->(s) { ["Gisolutions - Skigebiet - #{s.dig('ski_area_gisolution')}"] })
+          .>> t(:universal_classifications, ->(s) { lookup_bool(s, 'artif_snow', external_source_id) })
+          .>> t(:universal_classifications, ->(s) { lookup_bool(s, 'floodlight', external_source_id) })
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Kategorie - Piste - ', s.dig('kategorie'), external_source_id) })
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Unterkategorie - Piste - ', s.dig('unterkat'), external_source_id) })
           .>> t(:universal_classifications, ->(s) { lookup('Gisolutions - Schwierigkeitsgrad - Piste - ', s.dig('difficulty_osm'), external_source_id) })
@@ -51,6 +64,11 @@ module DataCycleCore
         def self.lookup(prefix, key, external_source_id)
           return [] if key.blank?
           DataCycleCore::Classification.where(external_key: prefix + key, external_source_id: external_source_id)&.ids
+        end
+
+        def self.lookup_bool(data, key, external_source_id)
+          return [] unless data[key] == 'yes'
+          DataCycleCore::Classification.where(external_key: 'Gisolutions - Pistenausstattung - ' + key, external_source_id: external_source_id)&.ids
         end
 
         def self.geometry(geometry)

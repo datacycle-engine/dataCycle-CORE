@@ -61,13 +61,22 @@
           :format: float
       :geo_shape:
         :type: mixin
-        :name: geo_shape        
+        :name: geo_shape
       :contact_info:
         :type: mixin
         :name: contact_info
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :order_string:
+        :label: nr
+        :type: string
+        :storage_location: value
+      :snow_resort:
+        :label: Skigebiet
+        :template_name: Skigebiet
+        :type: linked
+        :inverse_of: slope_details
       :linked_data:
         :type: mixin
         :name: linked_data
