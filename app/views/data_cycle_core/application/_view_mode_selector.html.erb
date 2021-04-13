@@ -27,7 +27,7 @@
         <%= check_box nil,
                               "s[v][o]",
                               {
-                                  checked: @sort_params.presence&.first&.dig('o') == 'ASC',
+                                  checked: @sort_params.presence&.first&.dig('o') != 'DESC',
                                   disabled: @sort_params.presence&.first&.dig('m').blank?
                               },
                               'ASC',
