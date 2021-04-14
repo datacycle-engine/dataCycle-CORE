@@ -91,18 +91,6 @@
               :placeholder: 'tt.mm.jjjj'
           :show:
             :type: date
-      :lift_details:
-        :label: Lifte
-        :template_name: Lift
-        :type: linked
-        :inverse_of: snow_resort
-        :link_direction: inverse
-      :slope_details:
-        :label: Pisten
-        :template_name: Piste
-        :type: linked
-        :inverse_of: snow_resort
-        :link_direction: inverse
       :line:
         :label: Pisten/Lifte
         :storage_location: column
@@ -119,6 +107,18 @@
                 :slope_details:
                   :geo: line
                   :title: title
+      :lift_details:
+        :label: Lifte
+        :template_name: Lift
+        :type: linked
+        :inverse_of: snow_resort
+        :link_direction: inverse
+      :slope_details:
+        :label: Pisten
+        :template_name: Piste
+        :type: linked
+        :inverse_of: snow_resort
+        :link_direction: inverse
       :lifts:
         :label: Lifte
         :type: object
