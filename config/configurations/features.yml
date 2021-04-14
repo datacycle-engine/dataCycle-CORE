@@ -139,7 +139,7 @@
     :jpegtran:
       :copy_chunks: true
     :jpegoptim:
-      :strip: :comments
+      :strip: :com
     :pngquant:
       :speed: 10
 

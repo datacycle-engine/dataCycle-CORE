@@ -23,7 +23,9 @@ module DataCycleCore
           data = RGeo::GeoJSON.decode(File.read(Rails.root.join(@file)), geo_factory: factory)
           Enumerator.new do |yielder|
             data.each do |slope_data|
-              yielder << slope_data.properties.merge({ 'geometry' => slope_data.geometry.as_text })
+              slope_hash = slope_data.properties.merge({ 'geometry' => slope_data.geometry.as_text })
+              slope_hash['ski_area_gisolutions'] = slope_hash['ski_area_gisolution'] if slope_hash.key?('ski_area_gisolution')
+              yielder << slope_hash
             end
           end
         end

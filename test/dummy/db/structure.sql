@@ -1378,6 +1378,13 @@ CREATE INDEX by_external_connection_and_type ON public.external_system_syncs USI
 
 
 --
+-- Name: by_external_system_id_syncable_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX by_external_system_id_syncable_id ON public.external_system_syncs USING btree (external_system_id, syncable_id);
+
+
+--
 -- Name: by_template_name_template; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2425,6 +2432,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210215102758'),
 ('20210217125404'),
 ('20210305080429'),
-('20210310141132');
+('20210310141132'),
+('20210413105611');
 
 
