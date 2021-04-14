@@ -103,6 +103,22 @@
         :type: linked
         :inverse_of: snow_resort
         :link_direction: inverse
+      :line:
+        :label: Pisten/Lifte
+        :storage_location: column
+        :type: geographic
+        :ui:
+          :edit:
+            :disabled: true
+            :type: LineString
+            :options:
+              :additional_value_paths:
+                :lift_details:
+                  :geo: line
+                  :title: title
+                :slope_details:
+                  :geo: line
+                  :title: title
       :lifts:
         :label: Lifte
         :type: object
