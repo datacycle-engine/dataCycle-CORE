@@ -20,6 +20,7 @@ module DataCycleCore
         'primary_image' => [],
         'output_channel' => [],
         'marketing_groups' => [],
+        'external_status' => [],
         'feratel_facilities_accommodations' => [],
         'feratel_facilities_additional_services' => []
       }

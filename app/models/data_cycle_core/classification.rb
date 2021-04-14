@@ -29,6 +29,24 @@ module DataCycleCore
         })
     end
 
+    def to_hash
+      { 'class_type' => self.class.to_s }
+        .merge({ 'external_system' => external_source&.identifier })
+        .merge(attributes)
+    end
+
+    def mapped_to
+      classification_aliases.where.not(id: primary_classification_alias.id)
+    end
+
+    def self.classification_aliases
+      DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: all&.pluck(:id) })
+    end
+
+    def self.primary_classification_aliases
+      DataCycleCore::ClassificationAlias.includes(:primary_classification).where(classifications: { id: all&.pluck(:id) })
+    end
+
     def ancestors
       Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 5.days + Random.rand(2.5.days)) do
         [primary_classification_alias] + primary_classification_alias.ancestors

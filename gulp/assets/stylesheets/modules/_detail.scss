@@ -158,26 +158,26 @@
             &.new {
               .geographic,
               .map-info {
-                &::after {
-                  content: '\f067';
-                  color: rgba($success-color, 0.7);
-                }
-
                 background-color: rgba($success-color, 0.1) !important;
                 box-shadow: 0 0 1px darken($success-color, 20%);
+              }
+
+              .map-info::after {
+                content: '\f067';
+                color: rgba($success-color, 0.7);
               }
             }
 
             &.remove {
               .geographic,
               .map-info {
-                &::after {
-                  content: '\f1f8';
-                  color: rgba($alert-color, 0.7);
-                }
-
                 background-color: rgba($alert-color, 0.1) !important;
                 box-shadow: 0 0 1px $alert-color;
+              }
+
+              .map-info::after {
+                content: '\f1f8';
+                color: rgba($alert-color, 0.7);
               }
             }
           }

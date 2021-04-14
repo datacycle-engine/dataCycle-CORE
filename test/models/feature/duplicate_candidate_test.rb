@@ -164,11 +164,9 @@ module DataCycleCore
       assert_nil DataCycleCore::Thing.find_by(id: image_oa.id)
 
       assert_equal external_source_f.id, image_f.external_source.id
-      assert_equal 4, image_f.external_system_syncs.size
-      assert_empty image_f.external_system_syncs.where(sync_type: 'duplicate').pluck(:external_system_id).difference([external_source_v.id, external_source_oa.id])
-      assert_empty image_f.external_system_syncs.where(sync_type: 'duplicate').pluck(:external_key).difference([external_key_v, external_key_oa])
-      assert_empty image_f.external_system_syncs.where(sync_type: 'link').pluck(:external_system_id).difference([external_source_m.id, external_source_f.id])
-      assert_empty image_f.external_system_syncs.where(sync_type: 'link').pluck(:external_key).difference([external_key_m, external_key_v])
+      assert_equal 6, image_f.external_system_syncs.size
+      assert_equal 6, image_f.external_system_syncs.where(sync_type: 'duplicate').size
+      assert_equal 0, image_f.external_system_syncs.where(sync_type: 'link').size
       assert_equal 0, image_f.external_system_syncs.where(sync_type: 'export').size
     end
   end

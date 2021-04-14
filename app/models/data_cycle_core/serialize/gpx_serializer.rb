@@ -49,6 +49,21 @@ module DataCycleCore
                       end
                     end
                   end
+                elsif geo.try(:geometry_type) == RGeo::Feature::MultiLineString
+                  xml.rte do
+                    xml.name value['label']
+                    geo.each do |t|
+                      xml.trk do
+                        xml.trkseg do
+                          t.points.each do |l|
+                            xml.trkpt(lat: l.y, lon: l.x) do
+                              xml.ele l.z if l.z
+                            end
+                          end
+                        end
+                      end
+                    end
+                  end
                 end
               end
             end

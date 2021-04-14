@@ -119,19 +119,6 @@ module DataCycleCore
       "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}"
     end
 
-    def filterable_classification_aliases(allowed_labels, excluded = [])
-      query = DataCycleCore::ClassificationAlias
-        .includes(:classification_tree_label, :parent_classification_alias, sub_classification_alias: [
-                    sub_classification_alias: [
-                      sub_classification_alias: :sub_classification_alias
-                    ]
-                  ])
-        .where(classification_tree_labels: { name: allowed_labels }, classification_trees: { parent_classification_alias: nil })
-      query = query.where.not(classification_tree_labels: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded))
-
-      query.group_by { |ca| ca.classification_tree_label&.name }
-    end
-
     def new_content_select_options(query: DataCycleCore::Thing.all, query_methods: [], content: nil, scope: nil, limit: nil, ordered_array: nil)
       query = query.where(template: true)
       query_methods.presence&.map(&:stringify_keys)&.each do |query_method|
@@ -247,8 +234,16 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters)
     end
 
-    def render_attribute_editor(key:, definition:, value:, parameters: { options: {} }, content: nil, scope: :edit)
-      parameters[:options] ||= {}
+    def attribute_editable?(key, definition, options, content)
+      @attribute_editable ||= Hash.new do |h, k|
+        h[k] = can?(:edit, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :edit))
+      end
+      @attribute_editable[[key, definition, options, content]]
+    end
+
+    def render_attribute_editor(key:, definition:, value:, parameters: { options: { edit_scope: 'edit' } }, content: nil, scope: :edit)
+      parameters[:options] = (parameters[:options] || {}).with_indifferent_access
+      edit_scope = parameters.dig(:options, :edit_scope)
 
       return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
 
@@ -257,18 +252,17 @@ module DataCycleCore
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
       partials = [
+        definition&.dig('ui', edit_scope, 'partial').presence,
         definition&.dig('ui', 'edit', 'partial').presence,
         "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
         *feature_templates(key, definition, content),
-        ("#{definition['type'].underscore_blanks}_#{definition&.dig('ui', 'edit', 'type')&.underscore_blanks}" if definition&.dig('ui', 'edit', 'type').present?),
+        definition&.dig('ui', 'edit', 'type')&.underscore_blanks&.prepend(definition['type'].underscore_blanks, '_').presence,
         definition['type'].underscore_blanks.to_s
       ].compact
 
       partials = partials.map { |p| "data_cycle_core/contents/editors/#{p}" }
 
-      # TODO: check if required ? refactor readonly
-      parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope))
-
+      parameters[:options][:readonly] = !attribute_editable?(key, definition, parameters[:options], content)
       parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
@@ -285,8 +279,8 @@ module DataCycleCore
         definition&.dig('ui', 'show', 'partial').presence,
         "#{type}_#{key.attribute_name_from_key}",
         *feature_templates(key, definition, content),
-        ("#{type}_#{definition.dig('ui', 'show', 'type').underscore_blanks}" if definition&.dig('ui', 'show', 'type').present?),
-        ("#{type}_#{definition.dig('validations', 'format').underscore_blanks}" if definition&.dig('validations', 'format').present?),
+        definition.dig('ui', 'show', 'type')&.underscore_blanks&.prepend(type, '_').presence,
+        definition.dig('validations', 'format')&.underscore_blanks&.prepend(type, '_').presence,
         type.to_s
       ].compact
 
@@ -401,6 +395,26 @@ module DataCycleCore
       ].compact.map { |p| "data_cycle_core/contents/editors/embedded/#{p}" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
+    end
+
+    def render_advanced_filter_partial(parameters = {})
+      partials = [
+        ("#{parameters[:filter_type]}_#{parameters[:filter_advanced_type]}" if parameters[:filter_advanced_type].present?),
+        parameters[:filter_type],
+        'default'
+      ].compact.map { |p| "data_cycle_core/application/filters/#{p}" }
+
+      render_first_existing_partial(partials, parameters)
+    end
+
+    def render_advanced_filter_tags_partial(parameters = {})
+      partials = [
+        ("#{parameters[:filter_type]}_#{parameters[:filter_advanced_type]}" if parameters[:filter_advanced_type].present?),
+        parameters[:filter_type],
+        'default'
+      ].compact.map { |p| "data_cycle_core/application/filters/tag_groups/#{p}" }
+
+      render_first_existing_partial(partials, parameters)
     end
 
     def render_new_form(template: nil, parameters: {})

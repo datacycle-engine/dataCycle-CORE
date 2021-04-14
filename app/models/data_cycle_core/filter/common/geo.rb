@@ -24,7 +24,11 @@ module DataCycleCore
           return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
 
           reflect(
-            @query.where(st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
+            @query
+              .where(
+                st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i)
+                .or(st_dwithin(cast_geography(thing[:line]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
+              )
           )
         end
 
@@ -32,7 +36,11 @@ module DataCycleCore
           return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
 
           reflect(
-            @query.where.not(st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
+            @query
+              .where.not(
+                st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i)
+                .and(st_dwithin(cast_geography(thing[:line]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
+              )
           )
         end
 

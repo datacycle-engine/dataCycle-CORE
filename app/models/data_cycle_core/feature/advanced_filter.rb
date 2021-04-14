@@ -6,10 +6,14 @@ module DataCycleCore
       class << self
         def available_filters
           filters = []
-          DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled)&.each do |key, value|
+          DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled, :config)&.each do |key, value|
             filters.concat(try(key.to_sym, value) || default(key.to_s, value) || [])
           end
           filters
+        end
+
+        def advanced_attribute_classification_tree_label(specific_type)
+          configuration.dig('advanced_attributes', specific_type, 'tree_label')
         end
 
         def classification_alias_ids(value)
@@ -140,7 +144,7 @@ module DataCycleCore
           return [] unless value
           value.map do |k, _v|
             [
-              I18n.t("filter.in_schedule.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'inactive_things',
               data: { name: k }
             ]
@@ -151,7 +155,7 @@ module DataCycleCore
           return [] unless value
           value.map do |k, _v|
             [
-              I18n.t("filter.in_schedule.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'in_schedule',
               data: { name: k }
             ]
@@ -162,11 +166,15 @@ module DataCycleCore
           return [] unless value
           value.map do |k, _v|
             [
-              I18n.t("filter.in_schedule.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'validity_period',
               data: { name: k }
             ]
           end
+        end
+
+        def always_visible?
+          !!configuration.dig(:config, :visible)
         end
       end
     end

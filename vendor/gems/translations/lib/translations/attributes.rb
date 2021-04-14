@@ -107,7 +107,7 @@ module Translations
 
       def available_locales
         raise NotImplementedError, 'available_locales is only available for :table backend' unless respond_to?(:translations)
-        translations.pluck(:locale).map(&:to_sym).sort_by { |t| I18n.available_locales.index t }
+        translations.pluck(:locale).map(&:to_sym).select { |i| i.in?(I18n.available_locales) }.sort_by { |t| I18n.available_locales.index t }
       end
       alias translated_locales available_locales
 

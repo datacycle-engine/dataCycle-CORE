@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <%= render 'head' %>
+  </head>
+  <body class="<%= controller_name %> devise with-glass" style="--dc-background-image-url: url('<%= image_url(Array.wrap(DataCycleCore.logo.dig('background_images')).sample.to_s) %>');">
+    <%= display_flash_messages_new %>
+
+    <%= yield %>
+  </body>
+</html>

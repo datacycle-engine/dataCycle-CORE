@@ -1,5 +1,3 @@
-var ConfirmationModal = require('./confirmation_modal');
-
 // Asset Selector
 class AssetSelector {
   constructor(selector) {
@@ -85,11 +83,7 @@ class AssetSelector {
     }
     if (
       this.assetList.children('li').length < this.total &&
-      this.assetList
-        .children('li')
-        .last()
-        .offset().top -
-        this.assetList.offset().top <
+      this.assetList.children('li').last().offset().top - this.assetList.offset().top <
         this.assetList.parent().outerHeight()
     ) {
       this.loadAssets();
@@ -110,9 +104,7 @@ class AssetSelector {
           this.selectedAssetIds = this.selectedAssetIds.filter(v => v !== $(event.currentTarget).data('id'));
           if (!this.selectedAssetIds.length) this.selectButton.attr('disabled', true).removeData('value');
         } else {
-          $(event.currentTarget)
-            .siblings('li')
-            .removeClass('active');
+          $(event.currentTarget).siblings('li').removeClass('active');
           this.selectedAssetIds = [];
           this.selectButton.attr('disabled', true).removeData('value');
         }
@@ -122,9 +114,7 @@ class AssetSelector {
         if (this.multiSelect) {
           this.selectedAssetIds.push($(event.currentTarget).data('id'));
         } else {
-          $(event.currentTarget)
-            .siblings('li')
-            .removeClass('active');
+          $(event.currentTarget).siblings('li').removeClass('active');
           this.selectedAssetIds = [$(event.currentTarget).data('id')];
         }
         this.selectButton.attr('disabled', false).data('value', $(event.currentTarget).data('id'));
@@ -146,9 +136,7 @@ class AssetSelector {
   }
   deselect(event) {
     event.preventDefault();
-    $(event.target)
-      .closest('li')
-      .remove();
+    $(event.target).closest('li').remove();
   }
 }
 

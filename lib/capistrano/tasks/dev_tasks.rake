@@ -29,19 +29,6 @@ namespace :datacycle do
       end
     end
 
-    desc 'migrates project via rake task after new rails application is booted'
-    task :migrate_project_with_new_configs do
-      on roles(:all) do
-        within release_path do
-          with rails_env: fetch(:rails_env) do
-            print_message 'Migrating Project after puma:restart'
-            print_message 'No pending migrations found'
-            # execute :rake, "#{fetch(:cmd_prefix, '')}dc:update_data:migrate_collections"
-          end
-        end
-      end
-    end
-
     desc 'dump database'
     task :dump_db do
       on roles(:all) do
@@ -84,6 +71,9 @@ namespace :datacycle do
 
         print_message 'Reloading services'
         invoke 'datacycle:monit:reload'
+
+        print_message 'Upload proxmox backup exclude file'
+        invoke 'datacycle:proxmox:deploy_config'
 
         # invoke('datacycle:nginx:deploy_config', 'production.conf')
         # invoke 'datacycle:nginx:reload'
@@ -193,6 +183,35 @@ end
 
 namespace :dc do
   namespace :dev do
+    desc 'import remote mongo db'
+    task :import_remote_mongo, [:external_system_id] do |_, args|
+      local_rails_env = ENV.fetch('RAILS_ENV', 'development')
+      remote_file_name = nil
+
+      on roles(:all) do
+        within release_path do
+          with rails_env: fetch(:rails_env) do
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:mongo:dump[#{args[:external_system_id]},true]"
+            remote_file_name = capture(:ls, "#{fetch(:application_root_path, '')}db/backups/#{fetch(:rails_env, 'staging')}/mongo/download/*")
+          end
+        end
+        within shared_path do
+          download! remote_file_name, "#{fetch(:application_root_path, '')}tmp/"
+        end
+        print_message 'download complete'
+      end
+
+      file_name = remote_file_name.split('/').last
+
+      sh "mkdir -p db/backups/#{local_rails_env}/mongo/download"
+      sh "rsync -c tmp/#{file_name} db/backups/#{local_rails_env}/mongo/download"
+      sh "rm tmp/#{file_name}"
+      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:dump[#{args[:external_system_id]},true]'" if local_rails_env != 'development'
+      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:restore[#{file_name},true]'"
+
+      puts "Successfully imported mongo DB #{file_name} from #{fetch(:rails_env)}"
+    end
+
     desc 'import remote db'
     task :import_remote_db, [:history, :format] do |_, args|
       dump_format = ensure_format(args.format)

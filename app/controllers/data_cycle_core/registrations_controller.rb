@@ -4,6 +4,8 @@ module DataCycleCore
   class RegistrationsController < Devise::RegistrationsController
     include DataCycleCore::ErrorHandler
 
+    layout 'data_cycle_core/devise'
+
     # POST /resource
     def create
       build_resource(sign_up_params)

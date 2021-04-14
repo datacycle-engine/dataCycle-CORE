@@ -5,7 +5,6 @@ let RandomNumber = require('./../helpers/random_number_helpers');
 let MimeTypes = require('mime-types');
 let ActionCable = require('actioncable');
 let AssetValidator = require('./asset_validator');
-const { forEach } = require('lodash');
 
 class AssetUploader {
   constructor(reveal) {
@@ -41,7 +40,6 @@ class AssetUploader {
     this.reveal.on('dc:upload:setFiles', (e, files) => {
       this.validateFiles(e, files.fileList);
     });
-    // prevent leaving Site while uploading!
     $(window).on('beforeunload', event => {
       if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
     });
@@ -243,22 +241,32 @@ class AssetUploader {
 
     let selectedFile = this.files.find(file => file.id == $(event.currentTarget).data('id'));
 
-    this.globalFieldValues = this.globalFieldValues.mergeUnique(
+    this.globalFieldValues = this.globalFieldValues.mergeUniqueFormValues(
       data.formData.filter(elem => elem.name.indexOf('thing') !== 0)
     );
+
     this.renderSpecificFields(
       data.formData.filter(elem => elem.name.indexOf('thing') === 0),
       data.allFiles,
-      selectedFile
+      selectedFile,
+      data.primaryAttributeKey
     );
   }
-  renderSpecificFields(fields, all = false, selectedFile = null) {
+  renderSpecificFields(fields, all = false, selectedFile = null, primaryAttributeKey = null) {
     if (all) {
       this.files.forEach(file => {
-        this.updateFileField(file, fields);
+        this.updateFileField(
+          file,
+          selectedFile && file.id == selectedFile.id
+            ? fields
+            : fields.filter(v => !v.name.includes(`[${primaryAttributeKey}]`))
+        );
       });
+
       this.updateNeighborForms(selectedFile);
-    } else this.updateFileField(selectedFile, fields);
+    } else {
+      this.updateFileField(selectedFile, fields);
+    }
   }
   updateFileField(file, fields) {
     if (!file.valid.valid) return;
@@ -267,10 +275,13 @@ class AssetUploader {
       file.attributeFieldValues = file.attributeFieldValues
         .filter(v => !fields.find(f => f.name == v.name))
         .concat(ObjectHelpers.deepCopy(fields));
-    } else file.attributeFieldValues = ObjectHelpers.deepCopy(fields);
+    } else {
+      file.attributeFieldValues = ObjectHelpers.deepCopy(fields);
+    }
 
     this.setAttributeValues(file);
     this.validateAttributes(file);
+
     Object.keys(file.attributeValues).forEach((field, i, arr) => {
       this.renderSpecificField(file.attributeValues[field], file, file.attributeValues[arr[i - 1]]);
     });
@@ -280,7 +291,9 @@ class AssetUploader {
     if (selectedFile) neighbors = neighbors.filter(file => file.id != selectedFile.id);
 
     neighbors.forEach(file => {
-      file.fileField.trigger('dc:form:importAttributeValues', { attributes: file.attributeFieldValues });
+      file.fileField.trigger('dc:form:importAttributeValues', {
+        attributes: file.attributeFieldValues
+      });
     });
   }
   setAttributeValues(file) {
@@ -296,7 +309,10 @@ class AssetUploader {
       let attribute = file.attributeValues[key];
 
       if (attribute.type == 'boolean') {
-        let value = values && values.length && values.pop().value == 'true' ? 'ja' : 'nein';
+        let value = ObjectHelpers.get(['ui', 'create', 'false_value'], attribute) || 'false';
+        if (values && values.length) value = values.pop().value;
+
+        value = value == 'true' ? 'ja' : 'nein';
 
         Object.assign(attribute, {
           name: key,

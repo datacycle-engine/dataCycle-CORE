@@ -1,12 +1,12 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
 
   <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
-    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
+    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
     <%= definition['label'] %>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   <% end %>
 
-  <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key) %>
+  <% if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key) %>
     <%= link_to auto_tagging_thing_path(id: content.id, key: sanitize_to_id(key)), class: 'auto-tagging-button', remote: true, data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>' } do %>
       <i class="fa fa-cloud-download"></i>
     <% end %>
@@ -14,6 +14,7 @@
 
   <div class="v-select">
     <% classification_items = classification_alias_filter_items(definition['tree_label'], { internal_name: :asc }) %>
+    <% single_select = definition.dig('ui', 'edit', 'options', 'multiple') == false %>
     <%= hidden_field_tag key + '[]', nil %>
     <% if classification_items.size > DataCycleCore.max_asynch_classification_items || (DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key)) %>
       <%= select_tag(
@@ -21,13 +22,13 @@
             async_classification_select_options(value, DataCycleCore::Classification),
             {
               multiple: true,
-              include_blank: true,
-              disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
+              include_blank: single_select,
+              disabled: !attribute_editable?(key, definition, options, content),
               class: 'async-select',
               data: {
                 tree_label: definition['tree_label'],
                 max: 20,
-                close_on_select: false,
+                close_on_select: single_select,
                 placeholder: '',
                 find_path: find_classifications_path,
                 search_path: search_classifications_path
@@ -58,13 +59,13 @@
             simple_classification_select_options(value, classification_items, DataCycleCore::Classification),
             {
               multiple: true,
-              include_blank: true,
-              disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
+              include_blank: single_select,
+              disabled: !attribute_editable?(key, definition, options, content),
               class: 'multi-select',
               data: {
                 tree_label: definition['tree_label'],
                 max: 20,
-                close_on_select: false,
+                close_on_select: single_select,
                 placeholder: ''
               },
               id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}"
@@ -74,6 +75,6 @@
 
     <% value.presence&.each do |c| %>
       <%= hidden_field_tag key + '[]', c.id %>
-    <% end unless can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
+    <% end unless attribute_editable?(key, definition, options, content) %>
   </div>
 <% end if classification_tree_label_has_children?(definition['tree_label']) %>

@@ -14,7 +14,7 @@
 <% end %>
 
 <% contents&.each do |content| %>
-  <li class="grid-item data-cycle-object<%= ' expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %><%= " #{DataCycleCore::Feature::TileBorderColor.class_string(content)}" if DataCycleCore::Feature::TileBorderColor.enabled? %>" id="grid-item-<%= content.id %>">
+  <li class="grid-item data-cycle-object<%= ' expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %> <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>" id="grid-item-<%= content.id %>">
     <% if content.is_a?(DataCycleCore::Thing) %>
 
       <% cache(content_view_cache_key(item: content, locale: params[:language] || @language, mode: 'grid', watch_list: @watch_list), expires_in: 1.year + Random.rand(7.days)) do %>
@@ -47,6 +47,6 @@
 
 <% unless contents.last_page? || local_assigns[:direction] == 'prev' %>
   <li class="pagination-container text-center next" data-page="<%= contents.next_page %>">
-    <%= link_to t('pagination.next', locale: DataCycleCore.ui_language), path_to_next_page(contents, params: { direction: 'next' }), class: 'button pagination-link', remote: (contents.next_page % 10) != 0, data: { disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin') + " #{t('common.loading', locale: DataCycleCore.ui_language)}" } %>
+    <%= link_to t('pagination.next', locale: DataCycleCore.ui_language), path_to_next_page(contents, params: { direction: 'next' }), class: 'button pagination-link', remote: (contents.next_page.to_i % 10) != 0, data: { disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin') + " #{t('common.loading', locale: DataCycleCore.ui_language)}" } %>
   </li>
 <% end %>

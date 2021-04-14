@@ -1,0 +1,42 @@
+---
+- :data:
+    :name: wind
+    :type: mixin
+    :properties:
+      :wind_direction_degrees:
+        :label: Windrichting in Grad
+        :type: number
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :data-unit: °
+          :show:
+            :options:
+              :data-unit: °
+      :wind_direction_text:
+        :label: Windrichtung
+        :type: string
+        :storage_location: translated_value
+      :wind_velocity:
+        :label: Mittlere Windgeschwindigkeit
+        :type: number
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :data-unit: km/h
+          :show:
+            :options:
+              :data-unit: km/h
+      :wind_velocity_knots:
+        :label: Windgeschwindigkeit (Knoten)
+        :type: number
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :data-unit: knots
+          :show:
+            :options:
+              :data-unit: knots

@@ -1,4 +1,4 @@
-<%= form_tag('', :method => "get", id: "search-form") do %>
+<%= form_tag('', :method => "get", id: "search-form", data: { add_filter_path: add_filter_path, add_tag_group_path: add_tag_group_path }) do %>
   <section class="filters">
     <div class="row">
       <div class="column">
@@ -18,7 +18,7 @@
           <div class="main-filters">
             <nav id="primary_nav_wrap">
               <ul class="clickable-menu">
-                <li class="filter" data-tree-label="user_roles">
+                <li class="filter" data-id="roles">
                   <span class="icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
                   <span class="title"><%= DataCycleCore::Role.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></span>
                   <div>
@@ -37,7 +37,7 @@
                   </div>
                 </li>
                 <% if DataCycleCore::UserGroup.any? %>
-                  <li class="filter" data-tree-label="user_groups">
+                  <li class="filter" data-id="user_groups">
                     <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
                     <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></span>
                     <div>
@@ -67,44 +67,16 @@
               <i class="fa fa-check" aria-hidden="true"></i> <b><%= t('common.active_filters', locale: DataCycleCore.ui_language) %>:</b>
             </span>
             <span class="filter-groups">
-              <% if filter_model == DataCycleCore::User && @roles.present? %>
-                <span class="tag-group tags user_roles">
-                  <span class="tag-group-label">
-                    <i class="fa fa-tags" aria-hidden="true"></i>
-                    <%= DataCycleCore::Role.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>:
-                  </span>
-                  <span class="tags-container">
-                    <% @roles.presence&.each do |item| %>
-                      <label for="<%= item.id %>">
-                        <a class="tag">
-                          <%= t('roles.'+item.name, locale: DataCycleCore.ui_language) %>
-                          <i class="fa fa-times" aria-hidden="true"></i>
-                        </a>
-                      </label>
-                    <% end %>
-                  </span>
-
-                </span>
-              <% end %>
-              <% if filter_model == DataCycleCore::User && @user_groups.present? %>
-                <span class="tag-group tags user_groups">
-                  <span class="tag-group-label">
-                    <i class="fa fa-tags" aria-hidden="true"></i>
-                    <%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>:
-                  </span>
-                  <span class="tags-container">
-                    <% @user_groups.presence&.each do |item| %>
-                      <label for="<%= item.id %>">
-                        <a class="tag">
-                          <%= item.name %>
-                          <i class="fa fa-times" aria-hidden="true"></i>
-                        </a>
-                      </label>
-                    <% end %>
-                  </span>
-
-                </span>
-              <% end %>
+              <%= render 'data_cycle_core/application/filters/tag_groups/roles',
+                  value: @roles,
+                  buttons: 'd',
+                  key: 'roles',
+                  target: 'roles' if filter_model == DataCycleCore::User && @roles.present? %>
+              <%= render 'data_cycle_core/application/filters/tag_groups/user_groups',
+                  value: @user_groups,
+                  buttons: 'd',
+                  key: 'user_groups',
+                  target: 'user_groups' if filter_model == DataCycleCore::User && @user_groups.present? %>
             </span>
           </div>
         <% end %>
@@ -118,13 +90,19 @@
               <%= t('actions.filter', locale: DataCycleCore.ui_language) %>
             <% end %>
 
-            <%= link_to request.path, class: 'button', id: 'reset-filter' do %>
-              <i class="fa fa-times" aria-hidden="true"></i>
-              <%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %>
-            <% end %>
+            <div class="expandable-buttons">
+              <%= link_to request.path, class: 'button', id: 'reset-filter' do %>
+                <i class="fa fa-times" aria-hidden="true"></i>
+                <span class="expandable">
+                  <%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %>
+                </span>
+              <% end %>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
+
+  <%= render 'data_cycle_core/application/view_mode_selector', additional_classes: 'column-padding' %>
 <% end %>

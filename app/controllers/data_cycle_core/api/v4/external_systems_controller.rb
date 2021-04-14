@@ -5,9 +5,13 @@ module DataCycleCore
     module V4
       class ExternalSystemsController < ApiBaseController
         def show
-          @content = DataCycleCore::Thing.find_by!(external_source_id: permitted_params[:external_source_id], external_key: permitted_params[:external_key])
+          external_system_id = DataCycleCore::ExternalSystem.find_by(identifier: permitted_params[:external_source_id])&.id || permitted_params[:external_source_id]
 
-          redirect_to api_v4_thing_path({ id: @content.id }.merge(params.except(:external_key, :external_source_id, :controller, :action).to_unsafe_hash))
+          content = DataCycleCore::Thing.by_external_key(external_system_id, permitted_params[:external_key]).first
+
+          raise ActiveRecord::RecordNotFound if content.nil?
+
+          redirect_to api_v4_thing_path({ id: content.id }.merge(params.except(:external_key, :external_source_id, :controller, :action, :format).to_unsafe_hash))
         end
 
         def permitted_params

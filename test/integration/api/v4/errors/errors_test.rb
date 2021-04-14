@@ -89,7 +89,7 @@ module DataCycleCore
               'source' => {
                 'parameter' => 'my_field'
               },
-              'title' => 'Unknown Query Parameter',
+              'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
             assert_equal(error_object, json_data.dig('errors').first)
@@ -109,7 +109,7 @@ module DataCycleCore
               'source' => {
                 'parameter' => 'filter[classifica2tions]'
               },
-              'title' => 'Unknown Query Parameter',
+              'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
             assert_equal(error_object, json_data.dig('errors').first)
@@ -135,7 +135,7 @@ module DataCycleCore
               'source' => {
                 'parameter' => 'filter[attribute][dct:created][in][asdf]'
               },
-              'title' => 'Unknown Query Parameter',
+              'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
             assert_equal(error_object, json_data.dig('errors').first)
@@ -168,7 +168,7 @@ module DataCycleCore
               'source' => {
                 'parameter' => 'filter[linked][contentLocation][attribute][mod2ifiedAt][in][min]'
               },
-              'title' => 'Unknown Query Parameter',
+              'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
             assert_equal(error_object, json_data.dig('errors').first)
@@ -236,7 +236,7 @@ module DataCycleCore
               'source' => {
                 'parameter' => 'filter[linked][contentLocation][linked][image][attribute][dct:modified][in][min]'
               },
-              'title' => 'Unknown Query Parameter',
+              'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'
             }
             assert_equal(error_object, json_data.dig('errors').first)

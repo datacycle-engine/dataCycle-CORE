@@ -53,12 +53,45 @@
       :geo:
         :type: mixin
         :name: geo
+      :length:
+        :label: Länge (m)
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :geo_shape:
+        :type: mixin
+        :name: geo_shape
       :contact_info:
         :type: mixin
         :name: contact_info
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :man_per_h:
+        :label: Personen pro Stunde
+        :type: number
+        :storage_location: value
+      :man_per_t:
+        :label: Personen pro Fahrt
+        :type: number
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :data-unit: Personen
+          :show:
+            :options:
+              :data-unit: Personen
+      :order_string:
+        :label: nr
+        :type: string
+        :storage_location: value
+      :snow_resort:
+        :label: Skigebiet
+        :template_name: Skigebiet
+        :type: linked
+        :inverse_of: lift_details
       :linked_data:
         :type: mixin
         :name: linked_data

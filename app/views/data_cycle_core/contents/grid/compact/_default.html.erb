@@ -7,7 +7,7 @@
       <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
 
       <%= yield_content!(:tile_links) %>
-      <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.parameterize(separator: '_') %>
+      <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.class.name.demodulize.underscore_blanks %>
 
       <%= tag.span "#{object.title} (#{I18n.locale.to_s})", class: 'name' if object.try(:title).present? %>
       <% if object.respond_to?(:internal_name) && object.internal_name.present? %>

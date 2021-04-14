@@ -2,7 +2,7 @@
   <div class="inner-item">
     <div class="type <%= item.template_name.downcase %>">
       <span class="tree-link toggle-details">
-        <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.parameterize(separator: '_') %>
+        <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.underscore_blanks, icon_class: item.class.name.demodulize.underscore_blanks %>
         <span><%= t("content_type.#{item.template_name.underscore_blanks}", default: item.template_name, locale: DataCycleCore.ui_language) %></span>
         <span class="locale">(<%= item.translated_locales.join(', ') %>) - </span>
         <span class="title" title="<%= item.title %>"><%= item.title %></span>

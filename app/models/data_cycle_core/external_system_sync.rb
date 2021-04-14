@@ -30,5 +30,15 @@ module DataCycleCore
     def self.with_external_system(external_system_id)
       find_by(external_system_id: external_system_id)
     end
+
+    def to_hash
+      {
+        external_system_id: external_system_id,
+        external_identifier: external_system.identifier,
+        created_at: created_at,
+        updated_at: updated_at,
+        external_key: external_key
+      }
+    end
   end
 end

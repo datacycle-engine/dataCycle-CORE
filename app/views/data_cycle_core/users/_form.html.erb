@@ -23,13 +23,14 @@
 	<div class="row">
 		<div class="column">
 			<div class="detail-header editor">
-
-				<div class="detail-header-info">
-          <span class="icon">
+        <div class="detail-header-info">
+          <div class="metadata">
+            <span class="icon">
               <i class="fa fa-user" aria-hidden="true"></i>
-          </span>
-          <span class="title"><%= content.model_name.human(locale: DataCycleCore.ui_language) %></span>
-				</div>
+            </span>
+            <span class="title"><%= content.model_name.human(locale: DataCycleCore.ui_language) %></span>
+          </div>
+        </div>
 
         <% if content.is_a?(DataCycleCore::UserOrganization) %>
           <div class="form-element input">

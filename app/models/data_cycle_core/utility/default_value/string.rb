@@ -9,9 +9,7 @@ module DataCycleCore
             format(property_definition&.dig('default_value', 'substitute_string').to_s, id: content&.id).presence
           end
 
-          def current_user(property_definition:, current_user:, **_additional_args)
-            return if property_definition&.dig('default_value', 'condition').present? && !property_definition.dig('default_value', 'condition').all? { |k, v| send("condition_#{k}", current_user, v) }
-
+          def current_user(current_user:, **_additional_args)
             user_string(current_user)
           end
 
@@ -21,10 +19,6 @@ module DataCycleCore
             return if user.nil?
 
             "#{user.given_name} #{user.family_name} <#{user.email}>".squish
-          end
-
-          def condition_rank(user, rank)
-            user&.is_rank?(rank.to_i)
           end
         end
       end

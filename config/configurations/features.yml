@@ -70,6 +70,8 @@
 
 :advanced_filter:
   :enabled: true
+  :config:
+    :visible: false
   :classification_alias_ids: all
   :external_source: true
   :external_system: false
@@ -137,7 +139,7 @@
     :jpegtran:
       :copy_chunks: true
     :jpegoptim:
-      :strip: :comments
+      :strip: :com
     :pngquant:
       :speed: 10
 
@@ -207,3 +209,10 @@
 
 :named_version:
   :enabled: false
+
+:copyable_attribute:
+  :enabled: false
+
+:gip_key_figure:
+  :enabled: false
+  :attribute_keys:

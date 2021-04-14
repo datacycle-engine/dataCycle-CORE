@@ -37,6 +37,8 @@ module DataCycleCore
     end
 
     def add_tag_group
+      @params = tag_group_params
+
       respond_to(:js)
     end
 
@@ -96,6 +98,24 @@ module DataCycleCore
         flash[k] = v
       end
       redirect_to request.path, params: params.delete(:flash)
+    end
+
+    def tag_group_params
+      options = {}
+      key, filter = params.permit(:language_filter, :language, :roles, :user_groups, f: {}, language: [], roles: [], user_groups: []).to_h.first
+
+      if key == 'f'
+        index, value = filter&.first
+        options = value || {}
+        options[:index] = index
+      else
+        options[:n] = key
+        options[:t] = key
+        options[:c] = 'd'
+        options[:v] = filter
+      end
+
+      options.with_indifferent_access
     end
   end
 end

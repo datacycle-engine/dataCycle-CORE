@@ -1,0 +1,126 @@
+---
+- :data:
+    :name: Wetterprognose
+    :type: object
+    :schema_type: Intangible
+    :content_type: entity
+    :boost: 1.0
+    :features:
+      :translatable:
+        :allowed: true
+    :api:
+      :type:
+        - Intangibles
+        - 'dcls:Wetterprognose'
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :api:
+          :minimal: true
+        :ui:
+          :show:
+            :content_area: none
+      :weather_station:
+        :label: Wetterstation
+        :type: linked
+        :inverse_of: forecasts
+        :template_name: 'Wetterstation Feratel'
+        link_direction: inverse
+      :forecast_date:
+        :label: Wetterprognose für
+        :type: date
+        :storage_location: value
+        :validations:
+          :format: date
+        :ui:
+          :edit:
+            :options:
+              :class: daterange
+              :placeholder: 'tt.mm.jjjj'
+      :elevation:
+        :label: Meereshöhe (m)
+        :type: number
+        :storage_location: column
+        :validations:
+          :format: float
+        :ui:
+          :edit:
+            :options:
+              :data-unit: h
+          :show:
+            :options:
+              :data-unit: h
+      :temperatures:
+        :type: mixin
+        :name: temperatures
+      :sunshine:
+        :type: mixin
+        :name: sunshine
+      :wind:
+        :type: mixin
+        :name: wind
+      :meteorologic_data:
+        :type: mixin
+        :name: meteorologic_data
+      :forecast_details:
+        :label: Wetterdetailprognose
+        :type: embedded
+        :template_name: Wetterdetailprognose
+        :translated: true
+      :forecast:
+        :label: Bericht
+        :type: string
+        :storage_location: translated_value
+      :weather_provider:
+        :label: Wetterprovider
+        :type: string
+        :storage_location: value
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Wetterprognose'
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
+
+
+- :data:
+    :name: Wetterdetailprognose
+    :type: object
+    :schema_type: Intangible
+    :content_type: embedded
+    :boost: 1.0
+    :api:
+      :type:
+        - 'dcls:Wetterdetailprognose'
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :temperatures:
+        :type: mixin
+        :name: temperatures
+      :wind:
+        :type: mixin
+        :name: wind
+      :meta_data:
+        :type: mixin
+        :name: meta_data

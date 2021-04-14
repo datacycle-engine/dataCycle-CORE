@@ -26,6 +26,7 @@ module DataCycleCore
               'gettingThere' => 'directions'
             }
           )
+          .>> t(:add_field, 'content_score', ->(s) { s.dig('ranking')&.to_f || 0 })
           .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'place') })
           .>> t(:map_value, 'elevation', ->(s) { s.try(:to_f) })
           .>> t(:add_field, 'latitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
@@ -52,10 +53,11 @@ module DataCycleCore
 
         def self.outdoor_active_to_tour(external_source_id)
           t(:stringify_keys)
+          .>> t(:add_field, 'content_score', ->(s) { s.dig('ranking')&.to_f || 0 })
           .>> t(:add_field, 'latitude', ->(s) { s.dig('startingPoint', 'lon')&.to_f })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('startingPoint', 'lat')&.to_f })
           .>> t(:add_field, 'start_location', ->(s) { RGeo::Geographic.spherical_factory(srid: 4326).point(s['latitude'], s['longitude']) if s['longitude'] && s['latitude'] })
-          .>> t(:add_field, 'tour', ->(s) { tour(s&.dig('geometry')) })
+          .>> t(:add_field, 'line', ->(s) { tour(s&.dig('geometry')) })
           .>> t(:unwrap, 'elevation', ['ascent', 'descent', 'minAltitude', 'maxAltitude'])
           .>> t(:unwrap, 'time', ['min'])
           .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape', 'technique'])
@@ -97,6 +99,8 @@ module DataCycleCore
           .>> t(:map_value, 'technique_rating', ->(s) { s&.to_i })
           .>> t(:universal_classifications, ->(s) { Array.wrap(load_difficulty_rating(s.dig('difficulty_rating'))) })
           .>> t(:add_links, 'poi', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('pois', 'poi')&.map { |item| item&.dig('id') } || [] })
+          .>> t(:add_links, 'contains_place', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('stageTours')&.map { |item| item&.dig('id') } || [] })
+          .>> t(:add_links, 'contained_in_place', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('stageTour')).compact })
           .>> t(:add_links, 'primary_image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('primaryImage', 'id') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('images', 'image')&.map { |item| item&.dig('id') } || [] })
           .>> t(:load_category, 'tour_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
@@ -164,10 +168,14 @@ module DataCycleCore
         def self.tour(geometry)
           return nil if geometry.blank?
           factory = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
-          factory.line_string(
-            geometry&.split(' ')
-              &.map { |p| p.split(',').map(&:to_f) }
-              &.map { |p| factory.point(*p) }
+          factory.multi_line_string(
+            Array.wrap(
+              factory.line_string(
+                geometry&.split(' ')
+                  &.map { |p| p.split(',').map(&:to_f) }
+                  &.map { |p| factory.point(*p) }
+              )
+            )
           )
         end
 

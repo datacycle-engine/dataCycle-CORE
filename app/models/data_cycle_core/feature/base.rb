@@ -38,17 +38,27 @@ module DataCycleCore
           allowed?(content) ? attribute_keys(content) : []
         end
 
+        def allowed_attribute_key?(content, key)
+          allowed?(content) && includes_attribute_key(content, key)
+        end
+
         def includes_attribute_key(content, key)
           template_keys = attribute_keys(content)
           (key.scan(/\[(.*?)\]/).flatten & template_keys).any?
         end
 
         def configuration(content = nil)
-          config = {}
-          config = config.merge(DataCycleCore.features.dig(name.demodulize.underscore.to_sym) || {})
-          config = config.merge(content&.schema&.dig('features', name.demodulize.underscore) || {})
-          config = config.merge(content&.collect_properties&.map { |k| content&.schema&.dig('properties', *k, 'features', name.demodulize.underscore).presence&.merge({ 'attribute_keys': (k.is_a?(Array) ? [k.last] : [k]), 'tree_label': content&.schema&.dig('properties', *k, 'tree_label') }) }.presence&.compact&.first || {})
-          config&.with_indifferent_access
+          @configuration ||= Hash.new do |h, key|
+            config = ActiveSupport::HashWithIndifferentAccess.new
+            config.merge!(DataCycleCore.features.dig(name.demodulize.underscore.to_sym) || {})
+            config.merge!(key[3]&.dig('features', name.demodulize.underscore) || {})
+            config.merge!(key[4]&.map { |k|
+              key[3]&.dig('properties', *k, 'features', name.demodulize.underscore).presence&.merge({ 'attribute_keys': (k.is_a?(Array) ? [k.last] : [k]), 'tree_label': key[3]&.dig('properties', *k, 'tree_label') })
+            }&.compact&.reduce({}) { |old, new| old.deep_merge(new) { |_, v1, v2| v1.is_a?(Array) && v2.is_a?(Array) ? v1 | v2 : v2 } } || {})
+
+            h[key] = config.compact
+          end
+          @configuration[cache_key(content)]
         end
 
         def content_module
@@ -65,6 +75,10 @@ module DataCycleCore
 
         def controller_module
           false
+        end
+
+        def cache_key(content)
+          [name.underscore, 'configuration', content&.id, content&.schema, content&.collect_properties]
         end
       end
     end

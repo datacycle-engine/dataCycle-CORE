@@ -35,6 +35,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'pg', '~> 0.21'
   s.add_dependency 'rgeo'
   s.add_dependency 'rgeo-geojson'
+  s.add_dependency 'rgeo-proj4'
   s.add_dependency 'rgeo-shapefile'
   # mongoDB driver
   s.add_dependency 'mongoid', '~> 7.0.6'
@@ -45,7 +46,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'multi_json'
   # XML Parser
   s.add_dependency 'nokogiri', '~> 1.11.1'
-  # s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'
   s.add_dependency 'jwt'
@@ -54,7 +54,6 @@ Gem::Specification.new do |s|
   # pagination
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes
-  # s.add_dependency 'awesome_print'
   s.add_dependency 'amazing_print'
   # validator for json data
   s.add_dependency 'json-schema'
@@ -72,12 +71,13 @@ Gem::Specification.new do |s|
   s.add_dependency 'acts_as_paranoid', '~> 0.6.0'
   s.add_dependency 'dry-transformer'
   s.add_dependency 'dry-validation'
-  # s.add_dependency 'dry-validation', '~> 0.11'
   s.add_dependency 'hashdiff', '>= 0.4.0'
   s.add_dependency 'transproc', '~> 1.0'
 
   # gems for event-schedules
   s.add_dependency 'ice_cube'
+
+  s.add_dependency 'mini_mime'
 
   # File Upload
   s.add_dependency 'carrierwave', '~> 0.5'
@@ -90,8 +90,6 @@ Gem::Specification.new do |s|
   # Image Optimization
   s.add_dependency 'image_optim'
   s.add_dependency 'image_optim_pack'
-
-  # s.add_dependency 'translate', path: 'vendor/gems/translate'
 
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # cron jobs gem
@@ -112,25 +110,9 @@ Gem::Specification.new do |s|
   # URI (https://tools.ietf.org/html/rfc3986) and IRI (https://tools.ietf.org/html/rfc3987) Parser
   s.add_dependency 'addressable'
 
-  # jb gem for APIv3
-  # s.add_dependency 'jb'
-
-  # development gems
-  s.add_development_dependency 'better_errors'
-  s.add_development_dependency 'binding_of_caller'
-  # s.add_development_dependency 'listen'
-  # s.add_development_dependency 'spring'
-  s.add_development_dependency 'web-console'
-
-  # s.add_dependency 'dotenv-rails'
-  s.add_dependency 'puma' # , '~> 3.12.1'
+  s.add_dependency 'puma', '~> 4.3.6'
   s.add_dependency 'puma-status'
   s.add_dependency 'puma_worker_killer'
-
-  # Excel Generator
-  # s.add_dependency 'rubyzip', '>= 1.2.1'
-  # s.add_dependency 'caxlsx'
-  s.add_dependency 'caxlsx_rails'
 
   # Google Cloud Services
   s.add_dependency 'google-cloud-translate'
@@ -145,26 +127,6 @@ Gem::Specification.new do |s|
 
   # Better distance_of_time_in_words (https://github.com/radar/distance_of_time_in_words)
   s.add_dependency 'dotiw'
-
   # Frontend Asset Handling
   s.add_dependency 'vite_rails'
-
-  # validation gems
-  s.add_development_dependency 'brakeman', '>= 4.5.1'
-  s.add_development_dependency 'bundler-audit'
-  s.add_development_dependency 'faker'
-  s.add_development_dependency 'fasterer'
-  # s.add_development_dependency 'gemsurance'
-  # s.add_development_dependency 'rubocop', '~> 0.63.1'
-  s.add_development_dependency 'rubocop', '~> 0.84.0'
-  s.add_development_dependency 'rubocop-performance'
-  s.add_development_dependency 'rubocop-rails'
-  # s.add_development_dependency 'capybara'
-  # s.add_development_dependency 'selenium-webdriver'
-  # s.add_development_dependency 'chromedriver-helper'
-
-  # only activate if required for local testing
-  # s.add_development_dependency 'bullet'
-  # # rails panel (test)
-  # s.add_development_dependency 'meta_request'
 end
