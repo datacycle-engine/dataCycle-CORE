@@ -22,6 +22,7 @@
     "lodash": "^4.17.15",
     "mime-types": "2.1.26",
     "ol": "4.6.5",
+    "path": "^0.12.7",
     "pretty-hrtime": "1.0.3",
     "quill": "1.3.6",
     "require-dir": "0.3.2",
