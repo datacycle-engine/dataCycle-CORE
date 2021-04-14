@@ -215,6 +215,8 @@ GEM
     dotiw (5.2.0)
       activesupport
       i18n
+    dry-cli (0.6.0)
+      concurrent-ruby (~> 1.0)
     dry-configurable (0.12.1)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.5, >= 0.5.0)
@@ -574,13 +576,13 @@ GEM
     tzinfo (1.2.9)
       thread_safe (~> 0.1)
     unicode-display_width (1.7.0)
-    vite_rails (2.0.2)
-      railties (>= 5.1)
-      vite_ruby
-    vite_ruby (1.0.4)
+    vite_rails (2.0.8)
+      railties (>= 5.1, < 8)
+      vite_ruby (~> 1.0)
+    vite_ruby (1.2.2)
       dry-cli (~> 0.6)
-      rack-proxy (>= 0.6.1)
-      zeitwerk
+      rack-proxy (~> 0.6, >= 0.6.1)
+      zeitwerk (~> 2.2)
     warden (1.2.9)
       rack (>= 2.0.9)
     web-console (3.7.0)
@@ -641,4 +643,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.2.15
+   2.2.16
