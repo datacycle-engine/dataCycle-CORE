@@ -1,5 +1,5 @@
-import AssetSelector from '~/javascripts/components/asset_selector';
-import AssetUploader from '~/javascripts/components/asset_uploader';
+import AssetSelector from '../components/asset_selector';
+import AssetUploader from '../components/asset_uploader';
 
 export default function () {
   var assetSelectors = [];

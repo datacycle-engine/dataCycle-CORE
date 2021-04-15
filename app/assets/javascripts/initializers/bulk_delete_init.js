@@ -1,4 +1,3 @@
-// Bulk Delete with Action Cable
 import ActionCable from 'actioncable';
 
 export default function () {

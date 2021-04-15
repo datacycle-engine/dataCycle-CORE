@@ -3,6 +3,17 @@
 # rails essentials
 require 'rails'
 
+require 'active_model/railtie'
+require 'active_job/railtie'
+require 'active_record/railtie'
+require 'active_storage/engine'
+require 'action_controller/railtie'
+require 'action_mailer/railtie'
+# require 'action_mailbox/engine'
+# require 'action_text/engine'
+require 'action_view/railtie'
+require 'action_cable/engine'
+
 # Databases
 require 'pg'
 require 'activerecord-postgis-adapter'
@@ -187,18 +198,24 @@ module DataCycleCore
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
-    config.assets.version = '1.0'
-    config.assets.precompile += [
-      'data_cycle_core/*',
-      'eml-datacycle-border.png',
-      'eml-datacycle.png',
-      'location_after.svg',
-      'location_before.svg',
-      'location.svg',
-      'dc-logo_inverted.svg',
-      'dc-logo.svg',
-      'dc-logo.png'
-    ]
+    # config.assets.enabled = false
+
+    # config.generators do |g|
+    #   g.assets false
+    # end
+
+    # config.assets.version = '1.0'
+    # config.assets.precompile += [
+    #   'data_cycle_core/*',
+    #   'eml-datacycle-border.png',
+    #   'eml-datacycle.png',
+    #   'location_after.svg',
+    #   'location_before.svg',
+    #   'location.svg',
+    #   'dc-logo_inverted.svg',
+    #   'dc-logo.svg',
+    #   'dc-logo.png'
+    # ]
     config.action_dispatch.cookies_serializer = :json
     # TODO: check: raise_on_unfiltered_parameters never worked in main application
     # config.action_controller.raise_on_unfiltered_parameters = true

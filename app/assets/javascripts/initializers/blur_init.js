@@ -1,4 +1,3 @@
-// Reveal Blur
 export default function () {
   if ($('.edit-header').length > 0) {
     var edit_header_offset = $('.edit-header').offset().top;

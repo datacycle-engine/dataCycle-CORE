@@ -1,4 +1,3 @@
-// Reveal Blur
 export default function () {
   $('.copy-to-admin-clipboard').on('click', function (event) {
     event.preventDefault();
