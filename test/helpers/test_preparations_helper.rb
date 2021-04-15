@@ -197,6 +197,11 @@ module DataCycleCore
       @dummy_data_hash.dig(model.to_sym, name.to_sym).dup
     end
 
+    def self.load_dictionaries
+      Rails.application.load_tasks
+      Rake::Task['app:dc:update:dictionaries'].invoke
+    end
+
     # def self.data_set_object(template_name)
     #   template = DataCycleCore::Thing.where(template: true, template_name: template_name).first
     #   data_set = DataCycleCore::Thing.new

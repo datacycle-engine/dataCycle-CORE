@@ -250,6 +250,11 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Filter::Search.new(:de).geo_within_classification(alias_id).count)
     end
 
+    # test 'test thesaurus is installed' do
+    #   result = ActiveRecord::Base.connection.exec_query("SELECT to_tsvector('german', 'DataCycle') as akronym")
+    #   assert_equal("'dc':1", result.first['akronym'])
+    # end
+
     private
 
     def create_content(template_name, data = {})
