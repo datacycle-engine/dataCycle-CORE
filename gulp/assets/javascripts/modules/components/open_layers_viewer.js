@@ -33,7 +33,7 @@ const ol = {
   extent: require('ol/extent').default,
   interaction: {
     Draw: require('ol/interaction/draw').default,
-    Modify: require('ol/interaction/modify').default,
+    Translate: require('ol/interaction/translate').default,
     Snap: require('ol/interaction/snap').default,
     MouseWheelZoom: require('ol/interaction/mousewheelzoom').default,
     Select: require('ol/interaction/select').default
@@ -41,7 +41,11 @@ const ol = {
   events: {
     condition: require('ol/events/condition').default
   },
+  control: {
+    FullScreen: require('ol/control/fullscreen').default
+  },
   interactions: require('ol/interaction').default,
+  controls: require('ol/control').default,
   proj: require('ol/proj').default,
   WMTSCapabilities: require('ol/format/wmtscapabilities').default,
   deviceCapabilities: require('ol/has').default,
@@ -53,11 +57,11 @@ const { optionsFromCapabilities } = require('ol/source/wmts').default;
 
 const iconPaths = {
   default:
-    'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${color}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><circle cx="10.574" cy="10.771" r="4.4524" fill-opacity=".9" fill="%23fff"/></svg>',
+    'data:image/svg+xml;utf8,<svg width="21.09" height="33.144" version="1.1" viewBox="0 0 21.09 33.144" xmlns="http://www.w3.org/2000/svg"><path d="m10.545 1c-5.2717 0-9.5449 4.2784-9.5449 9.5565 0 9.5565 9.5449 21.024 9.5449 21.024s9.5449-11.468 9.5449-21.024c0-5.2781-4.2733-9.5565-9.5449-9.5565z" fill="${color}" stroke="${strokeColor}" stroke-width="2" style="paint-order:normal"/><circle cx="10.545" cy="10.312" r="4.5249" fill="%23fff" fill-opacity="${opacity}"/></svg>',
   start:
-    'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${color}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><path d="m16.253 11.621-8.9451 5.0275 0.11862-10.26z" fill="%23fff" fill-opacity=".9"/></svg>',
+    'data:image/svg+xml;utf8,<svg width="21.091" height="33.117" version="1.1" viewBox="0 0 21.091 33.117" xmlns="http://www.w3.org/2000/svg"><path d="m10.545 1c-5.2719 0-9.5453 4.2748-9.5453 9.5484 0 9.5484 9.5453 21.006 9.5453 21.006s9.5453-11.458 9.5453-21.006c0-5.2736-4.2734-9.5484-9.5453-9.5484z" fill="${color}" stroke="${strokeColor}" stroke-width="2" style="paint-order:normal"/><path d="m15.944 11.969-8.9451 5.0275 0.11862-10.26z" fill="%23fff" fill-opacity="${opacity}"/></svg>',
   end:
-    'data:image/svg+xml;utf8,<svg width="21" height="33" version="1.1" viewBox="0 0 21 33" xmlns="http://www.w3.org/2000/svg"><path d="m10.5 0.5c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10z" fill="${color}" stroke="%23fff" stroke-linejoin="round" stroke-opacity=".8" style="paint-order:stroke markers fill"/><rect x="6.042" y="7.3383" width="9.1903" height="8.3106" ry="0" fill="%23fff" fill-opacity=".9"/></svg>'
+    'data:image/svg+xml;utf8,<svg width="21.092" height="33.07" version="1.1" viewBox="0 0 21.092 33.07" xmlns="http://www.w3.org/2000/svg"><path d="m10.546 1c-5.2722 0-9.546 4.2685-9.546 9.5342 0 9.5342 9.546 20.975 9.546 20.975s9.546-11.441 9.546-20.975c0-5.2658-4.2737-9.5342-9.546-9.5342z" fill="${color}" stroke="${strokeColor}" stroke-width="2" style="paint-order:normal"/><rect x="5.9508" y="6.8043" width="9.1903" height="8.3106" ry="0" fill="%23fff" fill-opacity="${opacity}"/></svg>'
 };
 
 class OpenLayersViewer {
@@ -82,7 +86,8 @@ class OpenLayersViewer {
     this.colors = {
       default: '#1779ba',
       red: '#cc4b37',
-      green: '#90c062'
+      green: '#90c062',
+      white: '#ffffff'
     };
     this.scrollTexts = {
       ctrlKey: 'Strg+Scrollen zum Zoomen',
@@ -106,6 +111,7 @@ class OpenLayersViewer {
       featureProjection: 'EPSG:3857'
     };
     this.geoJsonFormat = new this.ol.format.GeoJSON();
+    this.resizeObserver;
   }
   setup() {
     this.setZoomMethod();
@@ -169,21 +175,19 @@ class OpenLayersViewer {
       })
     );
   }
-  generateIconStyle(type, color, additionalParameters = {}, additionalImageParameters = {}) {
+  generateIconStyle(type, color, additionalParameters = {}, hover = false) {
     return new this.ol.style.Style(
       Object.assign(
         {
-          image: new this.ol.style.Icon(
-            Object.assign(
-              {
-                anchor: [0.5, 1],
-                opacity: 0.9,
-                scale: 1,
-                src: this.icons[type].interpolate({ color: escape(this.colors[color]) })
-              },
-              additionalImageParameters
-            )
-          )
+          image: new this.ol.style.Icon({
+            anchor: [0.5, 1],
+            opacity: 0.9,
+            src: this.icons[type].interpolate({
+              color: escape(this.colors[color]),
+              strokeColor: escape(this.colors[hover ? 'white' : color]),
+              opacity: hover ? 1 : 0.9
+            })
+          })
         },
         additionalParameters
       )
@@ -246,6 +250,7 @@ class OpenLayersViewer {
     });
   }
   initMapHoverActions() {
+    this.initResizeObserver();
     this.featureOverlaySource = new this.ol.source.Vector();
     this.featureOverlay = new this.ol.layer.Vector({
       source: this.featureOverlaySource,
@@ -255,6 +260,10 @@ class OpenLayersViewer {
 
     this.map.on('pointermove', this.highlightFeature.bind(this));
     if (this.$popupContainer.length) this.map.on('singleclick', this.showInfoOverlay.bind(this));
+  }
+  initResizeObserver() {
+    this.resizeObserver = new ResizeObserver(_ => this.map.updateSize());
+    this.resizeObserver.observe(document.body);
   }
   showInfoOverlay(evt) {
     const pixel = this.map.getEventPixel(evt.originalEvent);
@@ -280,12 +289,16 @@ class OpenLayersViewer {
 
     return html;
   }
-  highlightFeature(evt) {
-    if (evt.dragging) return;
+  cursor(feature) {
+    if (this.drawing || (feature && feature.getProperties() && feature.getProperties().thingPath)) return 'pointer';
 
-    const pixel = this.map.getEventPixel(evt.originalEvent);
-    let feature = this.map.getFeaturesAtPixel(pixel);
-    feature = feature && feature.find(f => f.getGeometry().getType().includes('LineString'));
+    return '';
+  }
+  highlightFeature(evt) {
+    if (evt.dragging) return (this.map.getTargetElement().firstElementChild.style.cursor = 'grabbing');
+
+    const feature = this.map.forEachFeatureAtPixel(evt.pixel, f => f);
+    this.map.getTargetElement().firstElementChild.style.cursor = this.cursor(feature);
 
     if (feature !== this.highlightedFeature) {
       if (this.highlightedFeature) this.featureOverlaySource.removeFeature(this.highlightedFeature);
@@ -312,20 +325,35 @@ class OpenLayersViewer {
 
     if (featureStyle.showStartEnd && geometry.getType().includes('LineString')) {
       styles.push(
-        this.generateIconStyle('end', featureStyle.color, {
-          geometry: new this.ol.geom.Point(geometry.getLastCoordinate())
-        })
+        this.generateIconStyle(
+          'end',
+          featureStyle.color,
+          {
+            geometry: new this.ol.geom.Point(geometry.getLastCoordinate())
+          },
+          true
+        )
       );
       styles.push(
-        this.generateIconStyle('start', featureStyle.color, {
-          geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
-        })
+        this.generateIconStyle(
+          'start',
+          featureStyle.color,
+          {
+            geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
+          },
+          true
+        )
       );
     } else if (geometry.getType() == 'Point') {
       styles.push(
-        this.generateIconStyle('default', featureStyle.color, {
-          geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
-        })
+        this.generateIconStyle(
+          'default',
+          featureStyle.color,
+          {
+            geometry: new this.ol.geom.Point(geometry.getFirstCoordinate())
+          },
+          featureStyle.background
+        )
       );
     }
 
@@ -425,6 +453,7 @@ class OpenLayersViewer {
           })
           .extend([this.mouseWheelZoom]),
         target: this.containerId,
+        controls: this.ol.controls.defaults().extend([new this.ol.control.FullScreen()]),
         overlays: overlays,
         layers: [baseLayer, this.featureLayer],
         view: this.defaultView()

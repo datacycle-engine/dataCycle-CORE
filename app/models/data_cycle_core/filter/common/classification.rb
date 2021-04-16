@@ -41,23 +41,26 @@ module DataCycleCore
           raise StandardError, 'Missing data definition: treeLabel' if definition.dig('treeLabel').blank?
           raise StandardError, 'Missing data definition: aliases' if definition.dig('aliases').blank?
 
-          with_classification_aliases(definition.dig('treeLabel'), definition.dig('aliases'))
+          classification_alias_ids_with_subtree(DataCycleCore::ClassificationAlias
+            .for_tree(definition.dig('treeLabel'))
+            .with_internal_name(definition.dig('aliases')).pluck(:id))
         end
 
-        def with_classification_aliases(tree_name, *aliases)
-          sub_query = DataCycleCore::Thing
-            .joins(:classification_aliases)
-            .merge(
-              DataCycleCore::ClassificationAlias
-                .for_tree(tree_name)
-                .with_internal_name(aliases)
-                .with_descendants
-            )
+        # TODO: Delete if not used anymore
+        # def with_classification_aliases(tree_name, *aliases)
+        #   sub_query = DataCycleCore::Thing
+        #     .joins(:classification_aliases)
+        #     .merge(
+        #       DataCycleCore::ClassificationAlias
+        #         .for_tree(tree_name)
+        #         .with_internal_name(aliases)
+        #         .with_descendants
+        #     )
 
-          reflect(
-            @query.where(id: sub_query)
-          )
-        end
+        #   reflect(
+        #     @query.where(id: sub_query)
+        #   )
+        # end
 
         # TODO: Update with classification refactoring: SO SLOW !!!
         def classification_tree_ids(ids = nil)

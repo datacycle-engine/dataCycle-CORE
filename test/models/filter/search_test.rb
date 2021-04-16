@@ -101,7 +101,7 @@ module DataCycleCore
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
-        .with_classification_aliases('Tags', 'Tag 3')
+        .with_classification_aliases_and_treename({ 'treeLabel' => 'Tags', 'aliases' => ['Tag 3'] })
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
