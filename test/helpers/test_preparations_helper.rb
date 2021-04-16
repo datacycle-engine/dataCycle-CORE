@@ -199,7 +199,7 @@ module DataCycleCore
 
     def self.load_dictionaries
       Rails.application.load_tasks
-      Rake::Task['app:dc:update:dictionaries'].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:dictionaries"].invoke
     end
 
     # def self.data_set_object(template_name)

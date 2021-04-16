@@ -7,7 +7,7 @@ namespace :datacycle do
       on roles(:all) do
         with rails_env: fetch(:rails_env) do
           files = Dir.pwd + '/config/configuration/ts_search/*.ths'
-          execute "sudo mv #{files} /usr/share/postgresql/11/tsearch/" if File.exist?(files)
+          execute "sudo mv #{files} /usr/share/postgresql/#{ENV.fetch('POSTGRES_VERSION', '11')}/tsearch/" if File.exist?(files)
         end
       end
     end
