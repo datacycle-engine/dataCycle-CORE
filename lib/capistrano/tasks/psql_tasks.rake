@@ -6,7 +6,10 @@ namespace :datacycle do
     task :deploy_dict do
       on roles(:all) do
         with rails_env: fetch(:rails_env) do
-          files = Dir.pwd + '/config/configurations/ts_search/*.ths'
+          files = nil
+          within release_path do
+            files = Dir.pwd + '/config/configurations/ts_search/*.ths'
+          end
           print_message "files exist: #{File.exist?(files)}"
           print_message "copy files #{files}"
           execute "sudo cp #{files} /usr/share/postgresql/#{ENV.fetch('POSTGRES_VERSION', '11')}/tsearch/" if File.exist?(files)
