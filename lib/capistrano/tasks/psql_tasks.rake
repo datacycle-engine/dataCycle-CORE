@@ -5,14 +5,19 @@ namespace :datacycle do
     desc 'copy thesaurus data for postgresql server'
     task :deploy_dict do
       on roles(:all) do
-        with rails_env: fetch(:rails_env) do
-          files = nil
-          within release_path do
-            files = Dir.pwd + '/config/configurations/ts_search/*.ths'
+        within release_path do
+          with rails_env: fetch(:rails_env) do
+            source_path = release_path.join('config/configurations/ts_search/*.ths')
+            target_path = "/usr/share/postgresql/#{ENV.fetch('POSTGRES_VERSION', '11')}/tsearch/"
+            print_message "check for files: #{source_path}"
+            if test("[ -f #{source_path} ]")
+              print_message "files exist"
+              unless test ("[ -d #{target_path} ]")
+                execute "sudo mkdir -p /usr/share/postgresql/#{ENV.fetch('POSTGRES_VERSION', '11')}/tsearch/"
+              end
+              execute "sudo cp #{source_path} /usr/share/postgresql/#{ENV.fetch('POSTGRES_VERSION', '11')}/tsearch/"
+            end
           end
-          print_message "files exist: #{File.exist?(files)}"
-          print_message "copy files #{files}"
-          execute "sudo cp #{files} /usr/share/postgresql/#{ENV.fetch('POSTGRES_VERSION', '11')}/tsearch/" if File.exist?(files)
         end
       end
     end
