@@ -1,4 +1,3 @@
-// Progressbar Helper
 export default {
   progress: (event, container) => {
     var percentage = (event.loaded * 100) / event.total;

@@ -1,32 +1,23 @@
-import ConfirmationModal from '~/javascripts/components/confirmation_modal';
-import ObjectHelpers from '~/javascripts/helpers/object_helpers';
-import wkx from 'wkx';
+import OpenLayersEditor from './open_layers_editor';
 
-class TourSprungEditor {
+class TourSprungEditor extends OpenLayersEditor {
   constructor(container) {
-    this.container = $(container);
-    this.target = this.container.attr('id');
-    this.value = this.container.data('value');
-    this.beforeValue = this.container.data('before-position');
-    this.afterValue = this.container.data('after-position');
-    this.markerPath = this.container.data('marker-path') || [];
-    this.type = this.container.data('type');
-    this.iconPaths = this.container.data('icon-paths');
-    this.editable = this.container.parent('.geographic').hasClass('editable');
-    this.mapOptions = this.container.data('map-options');
-    this.routeDataField = this.container
-      .closest('.form-element')
-      .find(':hidden[name="thing[datahash][route_data]"]')
-      .first();
-    this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
+    super(container);
+
     this.credentials = this.mapOptions.credentials;
     this.drawableEvent;
-    this.marker;
     this.routeMarkers = [];
+    this.highlightedFeatures = L.layerGroup();
     this.map;
-    this.geoCodeButton = $('.geocode-address-button');
-
-    this.setup();
+    this.draggingMarker;
+    this.toursrpungIcons = {
+      start: this.iconOptions('start'),
+      end: this.iconOptions('end'),
+      vertex: {
+        iconUrl:
+          'data:image/svg+xml;utf8,<svg width="0" height="0" version="1.1" viewBox="0 0 0 0" xmlns="http://www.w3.org/2000/svg"></svg>'
+      }
+    };
   }
   setup() {
     MTK.init({ apiKey: this.credentials.api_key });
@@ -34,22 +25,22 @@ class TourSprungEditor {
     this.initEventHandlers();
   }
   initMap() {
-    let defaultMapPosition = this.calculateCenter();
     let controls = [];
 
-    if (this.editable && this.type == 'LineString') {
+    if (this.isLineString()) {
       let editor = this.configureEditor();
       if (editor !== undefined) controls.push(editor);
     }
 
     MTK.createMap(
-      this.target,
+      this.containerId,
       {
         map: {
-          location: defaultMapPosition,
+          location: this.defaultView(),
           mapType: 'terrain_v2',
           controls: controls,
           options: {
+            fullscreenControl: true,
             scrollWheelZoom: false,
             gestureHandling: true
           }
@@ -59,92 +50,71 @@ class TourSprungEditor {
     );
   }
   initEventHandlers() {
-    this.container.on('dc:import:data', this.importData.bind(this));
+    this.$container.on('dc:import:data', this.importData.bind(this));
 
-    if (this.geoCodeButton !== undefined) this.geoCodeButton.on('click', this.initGeoCodingActions.bind(this));
+    if (this.isPoint()) {
+      if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.geoCodeAddress.bind(this));
 
-    this.container
-      .parent('.geographic')
-      .siblings('.map-info')
-      .first()
-      .find('.longitude input, .latitude  input')
-      .on('change', this.updateMapMarker.bind(this));
-  }
-  importData(event, data) {
-    let form_fields = this.container.parent('.geographic').siblings('.map-info').first();
-
-    let elevationField = form_fields.find('.form-element.elevation > input');
-
-    if (
-      ((!elevationField.val() || elevationField.val().length == 0) &&
-        this.container.parent('.geographic').siblings('input.location-data:hidden').first().val().length == 0) ||
-      (data && data.force)
-    ) {
-      elevationField.val(data.value.elevation);
-      form_fields.find('.form-element.latitude > input').val(data.value.y).trigger('change');
-      form_fields.find('.form-element.longitude > input').val(data.value.x).trigger('change');
-    } else {
-      var confirmationModal = new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: function () {
-          elevationField.val(data.value.elevation);
-          form_fields.find('.form-element.latitude > input').val(data.value.y).trigger('change');
-          form_fields.find('.form-element.longitude > input').val(data.value.x).trigger('change');
-        }.bind(this)
-      });
+      this.$latitudeField.on('change', this.updateMapMarker.bind(this));
+      this.$longitudeField.on('change', this.updateMapMarker.bind(this));
     }
   }
-  getCoordinates() {
-    return {
-      lng: parseFloat(
-        this.container.parent('.geographic').siblings('.map-info').first().find('.longitude input').val()
-      ),
-      lat: parseFloat(this.container.parent('.geographic').siblings('.map-info').first().find('.latitude input').val())
-    };
-  }
-  updateMapMarker(event) {
+  updateMapMarker(_event) {
     let valid = true;
-    let coords = this.getCoordinates();
-    Object.keys(coords).forEach(element => {
-      valid = valid && !isNaN(coords[element]);
+    let geoJson = this.getGeoJsonFromInputs();
+    geoJson.coordinates.forEach(element => {
+      valid = valid && !isNaN(element);
     });
 
-    if (valid && this.marker !== undefined) {
-      this.marker.setLatLng(coords);
-      this.map.leaflet.setView(this.marker.getLatLng());
-      this.setHiddenFieldValue(coords);
-    } else if (valid && this.marker === undefined) {
-      this.drawMarker(coords);
+    if (valid && this.feature) {
+      this.feature.setLatLng(L.GeoJSON.coordsToLatLng(geoJson.coordinates));
+    } else if (valid && !this.feature) {
+      this.drawMarkerFeature(L.GeoJSON.coordsToLatLng(geoJson.coordinates));
       MTK.event.removeListener(this.drawableEvent);
-      this.setHiddenFieldValue(coords);
+    } else if (this.feature) {
+      this.feature.remove();
+      this.feature = undefined;
+      this.drawableMarker();
     }
+
+    this.setNewCoordinates();
   }
   configureMap(map) {
     this.map = map;
 
-    if (this.type == 'Point' && this.value.length > 0) this.drawInitialMarker();
-    else if (this.type == 'Point') this.drawableMarker();
-    else if (this.type == 'LineString' && this.editable) {
-      if (this.value.length > 0) this.drawInitialRoute();
+    if (this.isPoint() && this.value) this.drawInitialMarker();
+    else if (this.isPoint()) this.drawableMarker();
+    else if (this.isLineString()) {
+      if (this.value) this.drawInitialRoute();
 
-      if (this.markerPath !== undefined && this.markerPath.length) {
-        this.addRouteMarkerEvents();
-        this.drawRouteMarkers();
-      }
-
-      MTK.event.addListener(this.map.editor, 'update', data => {
-        this.setRouteDataFieldValue(data);
-        this.setHiddenFieldValue(data.routeVertices[0]);
-      });
-    } else if (this.type == 'LineString' && this.value.length > 0) {
-      this.drawInitialLineString();
-
-      if (this.markerPath !== undefined && this.markerPath.length) this.drawRouteMarkers(undefined, 'content-tiles');
+      this.initMtkEvents();
     }
+
+    if (this.additionalValues && this.additionalValues.length) this.drawAdditionalFeatures();
+    this.updateMapPosition();
+  }
+  initMtkEvents() {
+    MTK.event.addListener(this.map.editor, 'update', data => {
+      this.setMtkLineStyle();
+      this.feature = this.map.editor._polyline();
+      let coords = this.reverseCoordinates(data.routeVertices);
+      this.setHiddenFieldValue({ type: 'MultiLineString', coordinates: coords });
+    });
+  }
+  setMtkLineStyle() {
+    this.map.editor._polyline().setStyle(this.lineStyle());
+  }
+  reverseCoordinates(coords, removeZAt = 2) {
+    for (let i = 0; i < coords.length; i++) {
+      if (Array.isArray(coords[i]) && coords[i].length == 2 && !Array.isArray(coords[i][0])) coords[i].reverse();
+      else if (Array.isArray(coords[i]) && coords[i].length == 3 && !Array.isArray(coords[i][0])) {
+        coords[i].splice(removeZAt, 1);
+        coords[i].reverse();
+      } else if (Array.isArray(coords[i])) coords[i] = this.reverseCoordinates(coords[i]);
+      else coords[i] = Number(coords[i].toFixed(this.precision));
+    }
+
+    return coords;
   }
   drawableMarker() {
     this.drawableEvent = MTK.event.addListener(this.map, 'click', event => {
@@ -153,301 +123,195 @@ class TourSprungEditor {
       MTK.event.removeListener(this.drawableEvent);
       this.drawableEvent = undefined;
 
-      this.drawMarker(event.latlng);
-      this.setCoordinates(event.latlng);
+      this.drawMarkerFeature(event.latlng);
+      this.setNewCoordinates();
     });
+  }
+  drawInitialMarker() {
+    let coords = L.GeoJSON.coordsToLatLng(this.value.geometry.coordinates);
+    this.drawMarkerFeature(coords);
   }
   drawInitialRoute() {
-    if (this.routeDataField !== undefined) {
-      let routeData = this.routeDataField.val();
-      if (routeData !== undefined && routeData.length > 0) routeData = JSON.parse(routeData);
-      else routeData = {};
-      this.map.editor.setSerializedData(routeData);
-    } else {
-      let points = this.value.map(item => [item[1], item[0]]);
-      this.map.editor.setSerializedData({ routeVertices: [points] });
-      this.map.leaflet.fitBounds(points, { padding: [50, 50] });
-    }
+    let coords = L.GeoJSON.coordsToLatLngs(
+      this.value.geometry.coordinates,
+      this.value.geometry.type.startsWith('Multi') ? 1 : 0
+    );
+    this.map.editor.setSerializedData({ routeVertices: coords });
+    this.setMtkLineStyle();
+    this.feature = this.map.editor._polyline();
   }
-  drawInitialLineString() {
-    if (
-      (this.afterValue !== undefined && this.afterValue.length) ||
-      (this.beforeValue !== undefined && this.beforeValue.length)
-    ) {
-      let lines = [];
-      if (this.afterValue !== undefined && this.afterValue.length > 0) {
-        lines.push(this.drawLineString(this.afterValue, { color: '#90c062', weight: 6 }));
-      }
-      if (this.beforeValue !== undefined && this.beforeValue.length > 0) {
-        lines.push(this.drawLineString(this.beforeValue, { color: '#cc4b37' }));
-      }
-      let group = new L.featureGroup(lines);
-      this.map.leaflet.fitBounds(group.getBounds(), { padding: [50, 50] });
-    } else {
-      let line = this.drawLineString(this.value);
-      this.map.leaflet.fitBounds(line.getBounds(), { padding: [50, 50] });
-    }
-  }
-  drawLineString(wkt, options = { color: '#1779ba' }) {
-    let geojson = this.wktToGeoJson(wkt);
-    let line = new L.geoJSON(geojson, options);
-    line.addTo(this.map.leaflet);
-    let startPoint = geojson.coordinates.shift();
-    let endPoint = geojson.coordinates.pop();
-
-    new L.Marker([startPoint[1], startPoint[0]], {
-      draggable: false,
-      icon: L.icon({
-        iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/start.png',
-        iconSize: [30, 40],
-        iconAnchor: [15, 40]
+  drawMarkerFeature(coords) {
+    this.feature = this.singleMarker(coords, true)
+      .addTo(this.map.leaflet)
+      .on('dragstart', _ => {
+        this.draggingMarker = this.feature;
       })
-    }).addTo(this.map.leaflet);
-    if (endPoint !== startPoint)
-      new L.Marker([endPoint[1], endPoint[0]], {
-        draggable: false,
-        icon: L.icon({
-          iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/end.png',
-          iconSize: [30, 40],
-          iconAnchor: [15, 40]
-        })
-      }).addTo(this.map.leaflet);
-    return line;
-  }
-  addRouteMarkerEvents() {
-    let identifier =
-      '.form-element.linked[data-key*="thing[datahash]"]' +
-      this.markerPath.map(p => '[data-key*="[' + p + ']"]').join('');
-
-    $(document).on('change', identifier, event => {
-      event.stopPropagation();
-      this.drawRouteMarkers();
-    });
-
-    let embeddedIdentifiers = [];
-
-    this.markerPath.forEach(v => {
-      embeddedIdentifiers.push(
-        (embeddedIdentifiers[embeddedIdentifiers.length - 1] || '') + '[data-key*="[' + v + ']"]'
-      );
-    });
-
-    embeddedIdentifiers.forEach(v => {
-      $(document).on(
-        'dc:html:remove',
-        '.embedded-object[data-key*="thing[datahash]"]' + v + ' > .content-object-item',
-        event => {
-          event.stopPropagation();
-          this.drawRouteMarkers(event.currentTarget);
-        }
-      );
-    });
-  }
-  drawRouteMarkers(except = undefined, parentClass = 'media-thumbs') {
-    this.routeMarkers.forEach(m => m.remove());
-
-    let markerIdentifier =
-      '.' +
-      parentClass +
-      ' [data-location-for*="thing[datahash]"]' +
-      this.markerPath.map(p => '[data-location-for*="[' + p + ']"]').join('');
-
-    let markers = $(markerIdentifier);
-
-    if (except !== undefined) markers = markers.not($(except).find(markerIdentifier));
-
-    let points = [];
-
-    if (this.value.length) {
-      let geoJsonCoords = this.wktToGeoJson(this.value).coordinates;
-      points = geoJsonCoords.map(item => [item[1], item[0]]);
-    }
-
-    if (markers.length) {
-      markers.each((_, v) => {
-        let coords = $(v).data('location-data');
-        points.push([coords.lat, coords.lng]);
-
-        this.routeMarkers.push(
-          new L.Marker($P(coords.lat, coords.lng), {
-            draggable: false,
-            icon: L.icon({
-              iconUrl: this.iconPaths.default,
-              iconAnchor: [16, 32]
-            })
-          }).addTo(this.map.leaflet)
-        );
+      .on('dragend', _ => {
+        this.draggingMarker = null;
+        this.setNewCoordinates();
       });
-    }
+  }
+  iconOptions(type = 'default', hover = false) {
+    return {
+      iconUrl: this.icons[type].interpolate({
+        color: escape(this.colors.default),
+        strokeColor: escape(this.colors[hover ? 'white' : 'default']),
+        opacity: hover ? 1 : 0.9
+      }),
+      iconAnchor: [10.5, 33],
+      popupAnchor: [0, 38]
+    };
+  }
+  singleMarker(latlng, draggable = false) {
+    const marker = new L.Marker(latlng, {
+      draggable: draggable,
+      opacity: 0.9,
+      icon: L.icon(this.iconOptions())
+    })
+      .on('mouseover', _ => this.highlightFeature(marker))
+      .on('mouseout', _ => this.resetHighlightedFeature(marker));
 
-    if (points.length) this.map.leaflet.fitBounds(points, { padding: [50, 50] });
+    return marker;
+  }
+  lineStyle(options = {}) {
+    return Object.assign(
+      {
+        color: this.colors.default,
+        opacity: 1,
+        weight: 5
+      },
+      options
+    );
+  }
+  isLineStringLayer(layer) {
+    return !(layer instanceof L.Marker);
+  }
+  pointFromPoints(points, method = 'shift') {
+    if (Array.isArray(points)) return this.pointFromPoints(points[method](), method);
+
+    return points;
+  }
+  highlightFeature(layer) {
+    if (this.draggingMarker && this.draggingMarker._leaflet_id == layer._leaflet_id) return;
+    if (this.highlightedFeatures) this.highlightedFeatures.clearLayers();
+
+    if (this.isLineStringLayer(layer)) {
+      const points = layer.getLatLngs();
+      this.highlightedFeatures.addLayer(new L.polyline(points, this.lineStyle({ color: '#fff', weight: 9 })));
+      this.highlightedFeatures.addLayer(
+        new L.Marker(this.pointFromPoints(points.slice()), {
+          opacity: 0.9,
+          icon: L.icon(this.iconOptions('start', true))
+        })
+      );
+      this.highlightedFeatures.addLayer(
+        new L.Marker(this.pointFromPoints(points.slice(), 'pop'), {
+          opacity: 0.9,
+          icon: L.icon(this.iconOptions('end', true))
+        })
+      );
+      this.highlightedFeatures.addTo(this.map.leaflet);
+      layer.bringToFront();
+    } else {
+      layer.setIcon(L.icon(this.iconOptions('default', true)));
+    }
+  }
+  resetHighlightedFeature(layer) {
+    if (this.draggingMarker && this.draggingMarker._leaflet_id == layer._leaflet_id) return;
+    if (this.highlightedFeatures) this.highlightedFeatures.clearLayers();
+
+    if (!this.isLineStringLayer(layer)) layer.setIcon(L.icon(this.iconOptions()));
+  }
+  drawFeatureFromGeoJson(geoJson) {
+    return L.geoJSON(geoJson, {
+      style: this.lineStyle(),
+      pointToLayer: (_feature, latlng) => this.singleMarker(latlng),
+      onEachFeature: (feature, layer) => {
+        this.additionalFeatures.push(layer);
+        if (feature && feature.properties && feature.properties.thingPath)
+          layer.bindPopup(this.showInfoOverlay.bind(this));
+
+        layer.on('mouseover', _ => this.highlightFeature(layer));
+        layer.on('mouseout', _ => this.resetHighlightedFeature(layer));
+      }
+    }).addTo(this.map.leaflet);
+  }
+  showInfoOverlay(layer) {
+    return this.infoOverlayHtml(layer.feature.properties);
+  }
+  drawAdditionalFeatures() {
+    this.drawFeatureFromGeoJson({
+      type: 'FeatureCollection',
+      features: this.additionalValues
+    });
   }
   configureEditor() {
-    if (this.type == 'LineString') {
+    if (this.isLineString()) {
       return new MTK.Control.Editor({
         undo: true,
-        upload: true,
+        upload: this.uploadable,
         poi: false,
         wikipedia: false,
         elevationProfile: false,
-        icons: {
-          start: {
-            iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/start.png',
-            iconSize: [30, 40],
-            iconAnchor: [15, 40]
-          },
-          end: {
-            iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/end.png',
-            iconSize: [30, 40],
-            iconAnchor: [15, 40]
-          },
-          vertex: {
-            iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/vertex.png',
-            iconSize: [10, 16],
-            iconAnchor: [5, 16]
-          }
-        }
+        icons: this.toursrpungIcons
       });
     }
   }
-  calculateCenter() {
-    if (
-      this.defaultPosition !== undefined &&
-      this.defaultPosition.longitude !== undefined &&
-      this.defaultPosition.latitude !== undefined
-    ) {
-      return {
-        center: $P(this.defaultPosition.latitude, this.defaultPosition.longitude),
-        zoom: this.defaultPosition.zoom || 7
-      };
-    }
-  }
-  drawInitialMarker() {
-    if (
-      (this.afterValue !== undefined && this.afterValue.length) ||
-      (this.beforeValue !== undefined && this.beforeValue.length)
-    ) {
-      let points = [];
-      if (this.afterValue !== undefined && this.afterValue.length > 0) {
-        let coords = this.wktToGeoJson(this.afterValue).coordinates;
-        let afterPoints = { lat: coords[1], lng: coords[0] };
-        points.push(afterPoints);
-        this.drawMarker(afterPoints, this.iconPaths.after);
-      }
-      if (this.beforeValue !== undefined && this.beforeValue.length > 0) {
-        let coords = this.wktToGeoJson(this.beforeValue).coordinates;
-        let beforePoints = { lat: coords[1], lng: coords[0] };
-        points.push(beforePoints);
-        this.drawMarker(beforePoints, this.iconPaths.before);
-      }
-      this.map.leaflet.fitBounds(points, { padding: [50, 50] });
-    } else {
-      let coords = this.wktToGeoJson(this.value).coordinates;
-      let point = { lat: coords[1], lng: coords[0] };
-      this.drawMarker(point);
-      this.map.leaflet.setView(point);
-    }
-  }
-  drawMarker(coords, iconPath = this.iconPaths.default) {
-    this.marker = new L.Marker($P(coords.lat, coords.lng), {
-      draggable: this.editable,
-      icon: L.icon({
-        iconUrl: iconPath,
-        iconAnchor: [16, 32]
-      })
-    })
-      .addTo(this.map.leaflet)
-      .on('dragend', () => {
-        this.map.leaflet.setView(this.marker.getLatLng());
-        this.setCoordinates(this.marker.getLatLng());
-      });
-  }
-  setCoordinates(coords) {
-    coords.lat = Number(coords.lat.toFixed(5));
-    coords.lng = Number(coords.lng.toFixed(5));
-    this.container.parent('.geographic').siblings('.map-info').first().find('.longitude input').val(coords.lng);
-    this.container.parent('.geographic').siblings('.map-info').first().find('.latitude input').val(coords.lat);
-    this.setHiddenFieldValue(coords);
-  }
-  setHiddenFieldValue(coords) {
-    if (coords === undefined) {
-      this.container.parent('.geographic').siblings('.location-data').first().removeAttr('value');
-      this.value = undefined;
-    } else {
-      let parsedCoords = coords;
-      if (Array.isArray(coords)) {
-        parsedCoords = coords.map(item => Number(item[1].toFixed(5)) + ' ' + Number(item[0].toFixed(5)));
-        this.value = coords.map(item => [item[1], item[0]]);
-      } else {
-        parsedCoords = [Number(coords.lng.toFixed(5)) + ' ' + Number(coords.lat.toFixed(5))];
-        this.value = [coords.lat, coords.lng];
-      }
-      this.container
-        .parent('.geographic')
-        .siblings('.location-data')
-        .first()
-        .val(this.type.toUpperCase() + ' (' + parsedCoords.join(', ') + ')');
-    }
-  }
-  setLengthFieldValue(length) {
-    if (length === undefined) length = 0;
-    else length = Number(length.toFixed(0));
-
-    this.container.closest('.geographic.form-element').siblings('.form-element.length').find(':input').val(length);
-  }
-  setRouteDataFieldValue(data) {
-    if (data === undefined) data = {};
-
-    if (this.routeDataField === undefined || !this.routeDataField.length) {
-      let routeField = '<input type="hidden" name="thing[datahash][route_data]">';
-      this.routeDataField = $(routeField).appendTo(this.container.closest('.geographic.form-element'));
-    }
-
-    this.routeDataField.val(JSON.stringify(data));
-  }
-  wktToGeoJson(wkt) {
-    return wkx.Geometry.parse(wkt).toGeoJSON();
-  }
-  initGeoCodingActions(event) {
-    event.preventDefault();
-
-    $(event.currentTarget).append(' <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
-
-    let addressKey = $(event.currentTarget).data('address-key');
-    let locale = $(event.currentTarget).data('locale');
-    let address = {
-      locale: locale
+  defaultView() {
+    const viewOptions = {
+      zoom: 7,
+      center: [47.69642, 13.34576]
     };
 
-    $('.form-element.object.' + addressKey)
-      .find('.form-element')
-      .find('input')
-      .each((index, elem) => {
-        address[elem.name.getKey()] = elem.value;
-      });
+    if (this.defaultPosition && this.defaultPosition.zoom) viewOptions.zoom = this.defaultPosition.zoom;
+    if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude)
+      viewOptions.center = [this.defaultPosition.latitude, this.defaultPosition.longitude];
 
-    $.getJSON('/things/geocode_address/', address)
-      .done(data => {
-        if (data.error !== undefined) {
-          new ConfirmationModal({
-            text: data.error
-          });
-        } else if (data && data.length == 2 && this.marker !== undefined) {
-          this.marker.setLatLng({ lng: data[0], lat: data[1] });
-          this.map.leaflet.setView(this.marker.getLatLng());
-          this.setCoordinates(this.marker.getLatLng());
-        } else if (data && data.length == 2 && this.marker === undefined) {
-          this.drawMarker({ lng: data[0], lat: data[1] });
-          this.map.leaflet.setView(this.marker.getLatLng());
-          this.setCoordinates(this.marker.getLatLng());
-        }
-      })
-      .fail((jqxhr, textStatus, error) => {
-        console.log(textStatus + ', ' + error);
-      })
-      .always(() => {
-        $(event.currentTarget).find('i.fa').remove();
-      });
+    return viewOptions;
+  }
+  getFeatureLatLon() {
+    let coords = this.feature.getLatLng();
+    return this.shortenCoordinates([coords.lng, coords.lat]);
+  }
+  getGeoJsonFromFeature() {
+    if (!this.feature) return;
+
+    let geometry = this.feature.toGeoJSON(this.precision).geometry;
+    geometry.coordinates = this.shortenCoordinates(geometry.coordinates);
+
+    return geometry;
+  }
+  setNewCoordinates() {
+    this.setCoordinates();
+    this.setHiddenFieldValue(this.getGeoJsonFromFeature());
+
+    if (this.feature) this.map.leaflet.setView(this.feature.getLatLng());
+  }
+  setCoordinates() {
+    if (!this.feature || this.type != 'Point') return;
+
+    const latLon = this.getFeatureLatLon();
+    this.$latitudeField.val(latLon[1]);
+    this.$longitudeField.val(latLon[0]);
+  }
+  setHiddenFieldValue(geometry) {
+    this.value = geometry;
+    super.setHiddenFieldValue(geometry);
+  }
+  setGeocodedValue(data) {
+    if (!this.feature) this.drawMarkerFeature({ lng: data[0], lat: data[1] });
+    else this.feature.setLatLng({ lng: data[0], lat: data[1] });
+
+    this.setNewCoordinates();
+  }
+  updateMapPosition() {
+    let featureGroup = L.featureGroup();
+    if (this.feature) featureGroup.addLayer(this.feature);
+    if (this.additionalFeatures && this.additionalFeatures.length)
+      this.additionalFeatures.forEach(feature => featureGroup.addLayer(feature));
+
+    if (featureGroup.getLayers().length)
+      this.map.leaflet.fitBounds(featureGroup.getBounds(), { padding: [50, 50], maxZoom: 15 });
   }
 }
 

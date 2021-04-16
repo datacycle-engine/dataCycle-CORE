@@ -1,10 +1,9 @@
 import dataTables from 'datatables.net-zf';
-import dataTableButtons from 'datatables.net-buttons-zf';
+import buttons from 'datatables.net-buttons-zf';
 
-// Word Counter
 export default function () {
   dataTables();
-  dataTableButtons(window, $);
+  buttons(window, $);
 
   $('#activity_list').DataTable({
     ajax: '/admin/activity_details/summary',

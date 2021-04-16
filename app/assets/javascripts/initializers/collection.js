@@ -1,4 +1,4 @@
-import CollectionFilter from '~/javascripts/components/collection_filter';
+import CollectionFilter from '../components/collection_filter';
 
 export default function () {
   let collectionLists = [];

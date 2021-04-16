@@ -1,10 +1,8 @@
-// Asset Uploader
-import DurationHelpers from '~/javascripts/helpers/duration_helpers';
-import ObjectHelpers from '~/javascripts/helpers/object_helpers';
-import RandomNumber from '~/javascripts/helpers/random_number_helpers';
+import DurationHelpers from './../helpers/duration_helpers';
+import ObjectHelpers from './../helpers/object_helpers';
+import RandomNumber from './../helpers/random_number_helpers';
 import MimeTypes from 'mime-types';
-import ActionCable from 'actioncable';
-import AssetValidator from '~/javascripts/components/asset_validator';
+import AssetValidator from './asset_validator';
 
 class AssetUploader {
   constructor(reveal) {
@@ -28,6 +26,7 @@ class AssetUploader {
     this.globalFieldValues = [];
     this.ajaxRequests = [];
     this.autocompleteRequests = {};
+    this.bulkCreateChannel;
     this.files = [];
     this.saving = false;
     this.init();
@@ -40,7 +39,6 @@ class AssetUploader {
     this.reveal.on('dc:upload:setFiles', (e, files) => {
       this.validateFiles(e, files.fileList);
     });
-    // prevent leaving Site while uploading!
     $(window).on('beforeunload', event => {
       if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
     });
@@ -117,8 +115,7 @@ class AssetUploader {
     $('.asset-selector-reveal:visible').trigger('open.zf.reveal');
   }
   initActionCable() {
-    let actionCable = ActionCable.createConsumer();
-    let bulkCreateChannel = actionCable.subscriptions.create(
+    this.bulkCreateChannel = window.actionCable.subscriptions.create(
       {
         channel: 'DataCycleCore::BulkCreateChannel',
         overlay_id: this.overlayId
@@ -242,22 +239,32 @@ class AssetUploader {
 
     let selectedFile = this.files.find(file => file.id == $(event.currentTarget).data('id'));
 
-    this.globalFieldValues = this.globalFieldValues.mergeUnique(
+    this.globalFieldValues = this.globalFieldValues.mergeUniqueFormValues(
       data.formData.filter(elem => elem.name.indexOf('thing') !== 0)
     );
+
     this.renderSpecificFields(
       data.formData.filter(elem => elem.name.indexOf('thing') === 0),
       data.allFiles,
-      selectedFile
+      selectedFile,
+      data.primaryAttributeKey
     );
   }
-  renderSpecificFields(fields, all = false, selectedFile = null) {
+  renderSpecificFields(fields, all = false, selectedFile = null, primaryAttributeKey = null) {
     if (all) {
       this.files.forEach(file => {
-        this.updateFileField(file, fields);
+        this.updateFileField(
+          file,
+          selectedFile && file.id == selectedFile.id
+            ? fields
+            : fields.filter(v => !v.name.includes(`[${primaryAttributeKey}]`))
+        );
       });
+
       this.updateNeighborForms(selectedFile);
-    } else this.updateFileField(selectedFile, fields);
+    } else {
+      this.updateFileField(selectedFile, fields);
+    }
   }
   updateFileField(file, fields) {
     if (!file.valid.valid) return;
@@ -266,10 +273,13 @@ class AssetUploader {
       file.attributeFieldValues = file.attributeFieldValues
         .filter(v => !fields.find(f => f.name == v.name))
         .concat(ObjectHelpers.deepCopy(fields));
-    } else file.attributeFieldValues = ObjectHelpers.deepCopy(fields);
+    } else {
+      file.attributeFieldValues = ObjectHelpers.deepCopy(fields);
+    }
 
     this.setAttributeValues(file);
     this.validateAttributes(file);
+
     Object.keys(file.attributeValues).forEach((field, i, arr) => {
       this.renderSpecificField(file.attributeValues[field], file, file.attributeValues[arr[i - 1]]);
     });
@@ -279,7 +289,9 @@ class AssetUploader {
     if (selectedFile) neighbors = neighbors.filter(file => file.id != selectedFile.id);
 
     neighbors.forEach(file => {
-      file.fileField.trigger('dc:form:importAttributeValues', { attributes: file.attributeFieldValues });
+      file.fileField.trigger('dc:form:importAttributeValues', {
+        attributes: file.attributeFieldValues
+      });
     });
   }
   setAttributeValues(file) {
@@ -295,7 +307,10 @@ class AssetUploader {
       let attribute = file.attributeValues[key];
 
       if (attribute.type == 'boolean') {
-        let value = values && values.length && values.pop().value == 'true' ? 'ja' : 'nein';
+        let value = ObjectHelpers.get(['ui', 'create', 'false_value'], attribute) || 'false';
+        if (values && values.length) value = values.pop().value;
+
+        value = value == 'true' ? 'ja' : 'nein';
 
         Object.assign(attribute, {
           name: key,

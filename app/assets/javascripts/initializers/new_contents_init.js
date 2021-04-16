@@ -1,6 +1,5 @@
-// New Content Form
-import NewContentDialog from '~/javascripts/components/new_content_dialog';
-import DragAndDropField from '~/javascripts/components/drag_and_drop_field';
+import NewContentDialog from './../components/new_content_dialog';
+import DragAndDropField from '../components/drag_and_drop_field';
 
 export default function () {
   $(document).on('dc:html:changed', '*', event => {

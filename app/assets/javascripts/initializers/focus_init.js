@@ -1,4 +1,3 @@
-// Add Focus Class to DOM Element on focus
 export default function () {
   $(document).on('focusout', '.form-element', function (ev) {
     setTimeout(

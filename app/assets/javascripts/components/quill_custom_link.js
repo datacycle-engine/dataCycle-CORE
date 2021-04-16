@@ -1,8 +1,8 @@
 import Quill from 'quill';
 const QuillModule = Quill.import('core/module');
 const InlineBlot = Quill.import('blots/inline');
-import { QuillTooltip, Range } from '~/javascripts/components/quill_tooltip';
-var icons = Quill.import('ui/icons');
+import { QuillTooltip, Range } from './quill_tooltip';
+const icons = Quill.import('ui/icons');
 icons['customlink'] = icons['link'];
 
 class LinkTooltip extends QuillTooltip {

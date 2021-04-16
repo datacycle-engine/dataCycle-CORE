@@ -1,4 +1,4 @@
-import RandomHelpers from '~/javascripts/helpers/random_number_helpers';
+import RandomHelpers from './../helpers/random_number_helpers';
 
 class RemoteRenderer {
   constructor(selector) {

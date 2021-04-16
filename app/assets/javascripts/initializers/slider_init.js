@@ -1,6 +1,5 @@
-import ConfirmationModal from '~/javascripts/components/confirmation_modal';
+import ConfirmationModal from './../components/confirmation_modal';
 
-// Foundation Slider
 export default function () {
   var SliderArray = [];
 

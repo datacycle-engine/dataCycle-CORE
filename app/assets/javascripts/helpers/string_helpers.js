@@ -1,4 +1,4 @@
-export default (() => {
+export default (function () {
   String.prototype.getKey = function () {
     return this.split(/[\[\]]+/)
       .filter(elem => elem && elem.length)

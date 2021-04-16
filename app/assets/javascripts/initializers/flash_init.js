@@ -1,5 +1,4 @@
-// Add Timeout to slideup Flash Messages
-import CalloutHelpers from '~/javascripts/helpers/callout_helpers';
+import CalloutHelpers from './../helpers/callout_helpers';
 
 export default function () {
   //schickt flash callout success nach oben

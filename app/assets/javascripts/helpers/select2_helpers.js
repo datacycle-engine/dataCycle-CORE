@@ -1,4 +1,3 @@
-// Select2 Helpermethods
 export default {
   markMatch: function (text, term) {
     // Find where the match is

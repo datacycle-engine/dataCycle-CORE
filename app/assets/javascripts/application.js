@@ -17,11 +17,13 @@ window.EDITORSELECTORS = [
   '> .duration-slider > div > input[type="number"]'
 ];
 
+import 'vite/dynamic-import-polyfill';
 import jQuery from 'jquery';
 import _ from 'lodash';
 import Rails from '@rails/ujs';
+import ActionCable from 'actioncable';
 
-Object.assign(window, { $: jQuery, jQuery, Rails, _ });
+Object.assign(window, { $: jQuery, jQuery, Rails, _, actionCable: ActionCable.createConsumer() });
 
 import 'jquery-serializejson';
 import 'lazysizes';
@@ -30,12 +32,18 @@ import './helpers/array_helpers';
 import './helpers/number_helpers';
 import './helpers/string_helpers';
 
-import ActionCable from 'actioncable';
-window.actionCable = ActionCable.createConsumer();
-
 const initializers = import.meta.glob('./initializers/*.js', { ignore: ['foundation_init.js', 'validation_init.js'] });
+import foundationInit from './initializers/foundation_init';
+import validationInit from './initializers/validation_init';
 
 export default (() => {
+  for (const path in initializers) {
+    initializers[path]();
+  }
+
+  foundationInit();
+  validationInit();
+
   // try {
   //   Rails.start();
   // } catch (e) {

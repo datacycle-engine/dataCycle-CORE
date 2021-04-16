@@ -1,4 +1,4 @@
-import BasicSelect2 from '~/javascripts/components/basic_select2';
+import BasicSelect2 from './basic_select2';
 
 class SimpleSelect2 extends BasicSelect2 {
   constructor(element) {

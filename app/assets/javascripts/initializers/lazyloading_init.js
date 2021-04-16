@@ -1,4 +1,3 @@
-// Add Lazyloading + fixes
 export default function () {
   // reposition reveal after it is loaded
   $(document).on('dc:html:changed lazyloaded', '*', event => {

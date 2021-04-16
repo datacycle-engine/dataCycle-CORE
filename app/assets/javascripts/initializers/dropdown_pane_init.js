@@ -1,4 +1,3 @@
-// Dropdown Pane Overflow Fix
 export default function () {
   $(document).on('dc:html:changed', '*', event => {
     event.stopPropagation();

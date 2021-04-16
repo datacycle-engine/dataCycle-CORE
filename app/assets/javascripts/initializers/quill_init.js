@@ -1,15 +1,15 @@
 import Quill from 'quill';
-import Counter from '~/javascripts/components/quill_counter';
-import { QuillContentlinkModule, ContentlinkBlot } from '~/javascripts/components/quill_content_link';
-import { QuillLinkFormat, QuillLinkModule } from '~/javascripts/components/quill_custom_link';
-import ConfirmationModal from '~/javascripts/components/confirmation_modal';
-import quill_helpers from '~/javascripts/helpers/quill_helpers';
-var icons = Quill.import('ui/icons');
+import Counter from './../components/quill_counter';
+import { QuillContentlinkModule, ContentlinkBlot } from './../components/quill_content_link';
+import { QuillLinkFormat, QuillLinkModule } from '../components/quill_custom_link';
+import ConfirmationModal from './../components/confirmation_modal';
+import quill_helpers from './../helpers/quill_helpers';
+const icons = Quill.import('ui/icons');
 
-var Delta = Quill.import('delta');
-let Break = Quill.import('blots/break');
-let Embed = Quill.import('blots/embed');
-let Parchment = Quill.import('parchment');
+const Delta = Quill.import('delta');
+const Break = Quill.import('blots/break');
+const Embed = Quill.import('blots/embed');
+const Parchment = Quill.import('parchment');
 
 icons['insertnbsp'] = '<span title="Geschütztes Leerzeichen einfügen">␣</span>';
 
@@ -30,14 +30,13 @@ Break.prototype.length = function () {
 Break.prototype.value = function () {
   return '\n';
 };
-// Quill.debug('error');
+
 Quill.register(Break);
 Quill.register('modules/contentlink', QuillContentlinkModule);
 Quill.register('formats/contentlink', ContentlinkBlot);
 Quill.register('modules/customlink', QuillLinkModule);
 Quill.register('formats/customlink', QuillLinkFormat);
 
-// Quill Config
 export default function () {
   var formats = {
     none: ['break'],

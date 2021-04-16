@@ -1,5 +1,3 @@
-// Drag and Drop
-
 class DragAndDropField {
   constructor(container) {
     this.container = $(container);

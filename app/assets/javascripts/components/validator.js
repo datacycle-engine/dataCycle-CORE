@@ -1,6 +1,5 @@
-// Form Validator
-import ConfirmationModal from '~/javascripts/components/confirmation_modal';
-import QuillHelpers from '~/javascripts/helpers/quill_helpers';
+import ConfirmationModal from './confirmation_modal';
+import QuillHelpers from './../helpers/quill_helpers';
 
 class Validator {
   constructor(formElement) {
@@ -15,8 +14,6 @@ class Validator {
     this.requests = [];
     this.queryCount = 0;
     this.valid = true;
-    this.uuid = this.form.find(':hidden#uuid').val();
-    this.bulkUpdateChannel;
     this.addEventHandlers();
   }
   addEventHandlers() {
@@ -49,32 +46,8 @@ class Validator {
     this.form.on('dc:form:disable', this.disable.bind(this));
     this.form.on('dc:form:enable', this.enable.bind(this));
     this.form.on('dc:html:initialized', '*', this.updateInitialFormData.bind(this));
+  }
 
-    if (this.form.hasClass('bulk-edit-form') && window.actionCable !== undefined) {
-      this.initActionCable();
-    }
-  }
-  initActionCable() {
-    this.bulkUpdateChannel = window.actionCable.subscriptions.create(
-      {
-        channel: 'DataCycleCore::WatchListBulkUpdateChannel',
-        watch_list_id: this.uuid
-      },
-      {
-        received: data => {
-          if (!this.submitButton.prop('disabled')) this.disable();
-          if (data.progress !== undefined) {
-            let progress = Math.round((data.progress * 100) / data.items);
-            this.submitButton.find('.progress-value').text(progress + '%');
-            this.submitButton.find('.progress-bar > .progress-filled').css('width', 'calc(' + progress + '% - 1rem)');
-          }
-          if (data.redirect_path !== undefined) {
-            window.location.href = data.redirect_path;
-          }
-        }
-      }
-    );
-  }
   closeError(event) {
     event.preventDefault();
     $(event.target).closest('.single_error').remove();
@@ -276,15 +249,6 @@ class Validator {
         resolve(this.validateAgbs(validationContainer));
       });
     }
-
-    if (
-      this.form.hasClass('bulk-edit-form') &&
-      !$(validationContainer)
-        .siblings('.bulk-update-check[data-attribute-key="' + $(validationContainer).data('key') + '"]')
-        .find(':checkbox')
-        .prop('checked')
-    )
-      return;
 
     let items = this.findItemsForField(validationContainer);
     if (!items.length) return;

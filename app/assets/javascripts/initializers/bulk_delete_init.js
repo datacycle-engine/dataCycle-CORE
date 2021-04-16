@@ -1,10 +1,7 @@
-import ActionCable from 'actioncable';
-
 export default function () {
   if ($('.bulk-delete-button').length) {
     let deleteButton = $('.bulk-delete-button');
-    let actionCable = ActionCable.createConsumer();
-    let bulkDeleteChannel = actionCable.subscriptions.create(
+    window.actionCable.subscriptions.create(
       {
         channel: 'DataCycleCore::WatchListBulkDeleteChannel',
         watch_list_id: deleteButton.data('id')

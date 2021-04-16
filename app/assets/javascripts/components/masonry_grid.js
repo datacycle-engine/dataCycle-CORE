@@ -1,4 +1,3 @@
-// Masonry Grid View
 class MasonryGrid {
   constructor(selector, config = null) {
     this.grid = $(selector);

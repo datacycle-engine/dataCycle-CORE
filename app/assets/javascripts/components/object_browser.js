@@ -1,10 +1,10 @@
-import ConfirmationModal from '~/javascripts/components/confirmation_modal';
+import ConfirmationModal from './../components/confirmation_modal';
 import Sortable from 'sortablejs';
 
-// Object Browser Module
 class ObjectBrowser {
   constructor(selector) {
     this.element = selector;
+    this.objectListElement = this.element.find('> .media-thumbs > .object-thumbs').get(0);
     this.id = selector.prop('id');
     this.scrollTop = 0;
     this.overlay = $('#object_browser_' + this.id);
@@ -262,6 +262,7 @@ class ObjectBrowser {
     if (triggerChange) this.element.closest('.form-element').trigger('change');
   }
   renderHiddenField() {
+    this.objectListElement.classList.remove('has-items');
     this.element
       .find('> .media-thumbs > .object-thumbs')
       .html('<input type="hidden" id="' + this.hidden_field_id + '" name="' + this.key + '[]">');
@@ -300,8 +301,10 @@ class ObjectBrowser {
     return true;
   }
   setChosen() {
-    if (this.chosen.length == 0) this.renderHiddenField();
-    else {
+    if (this.chosen.length == 0) {
+      this.renderHiddenField();
+    } else {
+      this.objectListElement.classList.add('has-items');
       this.element
         .children('.media-thumbs')
         .children('.object-thumbs')

@@ -1,6 +1,5 @@
-import Counter from '~/javascripts/components/word_counter';
+import Counter from './../components/word_counter';
 
-// Word Counter
 export default function () {
   var CounterArray = {};
 

@@ -1,4 +1,4 @@
-export default (() => {
+export default (function () {
   Object.defineProperty(Number.prototype, 'file_size', {
     value: function (a, b, c, d) {
       return (

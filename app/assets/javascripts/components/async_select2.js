@@ -1,4 +1,4 @@
-import BasicSelect2 from '~/javascripts/components/basic_select2';
+import BasicSelect2 from './basic_select2';
 
 class AsyncSelect2 extends BasicSelect2 {
   constructor(element) {
@@ -16,12 +16,16 @@ class AsyncSelect2 extends BasicSelect2 {
     });
   }
   loadNewOptions(_value, ids) {
+    let queryParams = {
+      ids: ids
+    };
+
+    if (this.config.treeLabel) Object.assign(queryParams, { tree_label: this.config.treeLabel });
+
     $.ajax({
       type: 'GET',
       url: window.DATA_CYCLE_ENGINE_PATH + this.config.findPath,
-      data: {
-        ids: ids
-      },
+      data: queryParams,
       dataType: 'json',
       contentType: 'application/json'
     }).then(data => {

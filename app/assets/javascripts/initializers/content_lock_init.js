@@ -1,5 +1,4 @@
-// Lock Content when accessing the edit view
-import ContentLock from '~/javascripts/components/content_lock';
+import ContentLock from '../components/content_lock';
 
 export default function () {
   let locks = [];

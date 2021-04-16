@@ -1,4 +1,3 @@
-// Ajax Callback Queue
 class AjaxQueue {
   constructor() {
     this.requests = [];

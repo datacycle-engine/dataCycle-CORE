@@ -1,10 +1,11 @@
-// Initialize Foundation for all elements
-import Foundation from 'foundation-sites';
+import 'foundation-sites';
 
 export default function () {
   Foundation.Tooltip.defaults.clickOpen = false;
   Foundation.Reveal.defaults.closeOnClick = false;
   Foundation.Reveal.defaults.multipleOpened = true;
+  Foundation.addToJquery($);
+
   $('body').foundation().addClass('dc-fd-initialized');
 
   $(document).on('dc:html:changed dc:contents:added', '*:not(.dc-fd-initialized)', event => {

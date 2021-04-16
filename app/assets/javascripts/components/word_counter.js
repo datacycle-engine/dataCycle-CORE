@@ -1,4 +1,3 @@
-// Word Counter Module
 class Counter {
   constructor(selector = '') {
     this.parentElem = $(selector);

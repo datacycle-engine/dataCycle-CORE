@@ -44,6 +44,8 @@ services:
       - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
       - $SSH_AUTH_SOCK:/ssh-agent
     user: root
+    ports:
+      - '${PUBLIC_VITE_PORT:-3036}:3036'
     links:
       - postgres
       - mongodb

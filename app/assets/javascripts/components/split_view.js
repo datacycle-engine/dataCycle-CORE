@@ -1,6 +1,5 @@
-import calloutHelpers from '~/javascripts/helpers/callout_helpers';
+import CalloutHelpers from './../helpers/callout_helpers';
 
-// Split View
 class SplitView {
   constructor(container = document) {
     this.container = $(container);
@@ -236,7 +235,7 @@ class SplitView {
         this.copyContents(data.text, label, key);
       })
       .fail(data => {
-        calloutHelpers.show('Fehler beim Laden der Übersetzung', 'alert');
+        CalloutHelpers.show('Fehler beim Laden der Übersetzung', 'alert');
       })
       .always(() => {
         $.rails.enableElement(elem);

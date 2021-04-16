@@ -1,4 +1,3 @@
-// Normalizer
 class DataCycleNormalizer {
   constructor(button, form_element) {
     this.normalize_button = $(button);

@@ -1,6 +1,5 @@
-import ScheduleEditor from '~/javascripts/components/schedule_editor';
+import ScheduleEditor from '../components/schedule_editor';
 
-// Word Counter
 export default function () {
   var schedule_editors = [];
 

@@ -1,5 +1,6 @@
+import 'flatpickr';
 import { Deutsch } from 'flatpickr/dist/l10n/de.js';
-import ConfirmationModal from '~/javascripts/components/confirmation_modal';
+import ConfirmationModal from './../components/confirmation_modal';
 
 export default function () {
   var calenders = [];
@@ -32,24 +33,41 @@ export default function () {
     reInit(event.target, data);
   });
 
-  $(document).on('dc:import:data', '.form-element.datetime input.flatpickr-input', function (event, data) {
+  $(document).on('dc:import:data', '.form-element.datetime input.flatpickr-input', (event, data) => {
     event.stopImmediatePropagation();
+    const $element = $(event.currentTarget);
+    const $conditionalFormField = $element.closest('.conditional-form-field');
 
-    if ($(event.target).val().length === 0 || (data && data.force)) {
-      $(event.target).trigger('dc:flatpickr:setDate', data.value);
+    if ($element.val().length === 0 || (data && data.force)) {
+      $element.trigger('dc:flatpickr:setDate', data.value);
+      updateConditionalField($conditionalFormField, data.value);
     } else {
-      var confirmationModal = new ConfirmationModal({
+      new ConfirmationModal({
         text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
         confirmationText: 'Ja',
         cancelText: 'Nein',
         confirmationClass: 'success',
         cancelable: true,
-        confirmationCallback: function () {
-          $(event.target).trigger('dc:flatpickr:setDate', data.value);
-        }.bind(this)
+        confirmationCallback: () => {
+          $element.trigger('dc:flatpickr:setDate', data.value);
+          updateConditionalField($conditionalFormField, data.value);
+        }
       });
     }
   });
+
+  function updateConditionalField($conditionalFormField, value) {
+    if ($conditionalFormField.length) {
+      $conditionalFormField.trigger('dc:conditionalField:refresh', {
+        value:
+          (value && value.length) ||
+          $conditionalFormField
+            .find('.conditional-field-content :input')
+            .serializeArray()
+            .filter(v => v && v.value && v.value.trim().length).length
+      });
+    }
+  }
 
   function removeEventHandlers(event) {
     event.preventDefault();
@@ -61,7 +79,7 @@ export default function () {
     return instance.element.id.replace(/_from|_until|_start|_end/gi, '');
   }
 
-  function setSibling(selectedDates, dateStr, instance) {
+  function setSibling(_selectedDates, dateStr, instance) {
     if (calenders.indexOf(instance) >= 0) {
       var siblings = calenders.filter(function (val) {
         return getIdFromCalender(val) == getIdFromCalender(instance);
@@ -91,16 +109,16 @@ export default function () {
     }
   }
 
-  function init($element) {
+  function init(element) {
     let newCals = [];
-    $($element)
+    $(element)
       .find('input[type=datetime-local]')
       .each((_, elem) => {
         if (!$(elem).attr('readonly'))
           newCals.push(initDatePicker(elem, $(elem).data('disable-time') ? flatPickrOptions : flatPickrTimeOptions));
       });
 
-    $($element)
+    $(element)
       .find('input[type=date]')
       .each((_, elem) => {
         if (!$(elem).attr('readonly')) newCals.push(initDatePicker(elem));
@@ -150,6 +168,7 @@ export default function () {
       e.preventDefault();
       e.stopImmediatePropagation();
       cal.setDate(value, true);
+      cal.close();
     });
 
     return cal;

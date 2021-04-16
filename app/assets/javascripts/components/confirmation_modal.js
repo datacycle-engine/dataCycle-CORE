@@ -1,4 +1,3 @@
-// confirmation modal
 class ConfirmationModal {
   constructor(config = {}) {
     this.confirmationCallback = config.confirmationCallback;

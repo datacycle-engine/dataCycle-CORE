@@ -1,6 +1,5 @@
-import ConfirmationModal from '~/javascripts/components/confirmation_modal';
+import ConfirmationModal from './../components/confirmation_modal';
 
-// Datalist
 export default function () {
   var field_requests = {};
 

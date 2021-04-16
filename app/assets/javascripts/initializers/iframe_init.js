@@ -1,4 +1,3 @@
-// Configure Iframe Events
 export default function () {
   $(window).on('message onmessage', event => {
     if (

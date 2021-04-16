@@ -1,4 +1,3 @@
-// Flash Callout Helpermethods
 export default {
   show: function (text, type = '') {
     let temp = $(

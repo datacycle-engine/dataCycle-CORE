@@ -1,7 +1,6 @@
-import ConfirmationModal from '~/javascripts/components/confirmation_modal';
+import ConfirmationModal from './../components/confirmation_modal';
 import Sortable from 'sortablejs';
 
-// Embedded Object Module
 class EmbeddedObject {
   constructor(selector) {
     this.element = selector;

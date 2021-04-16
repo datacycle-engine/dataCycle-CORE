@@ -1,4 +1,3 @@
-// Asset Selector
 class AssetSelector {
   constructor(selector) {
     this.reveal = $(selector);

@@ -1,4 +1,3 @@
-// Loading Spinner
 class Spinner {
   constructor(selector) {
     this.selector = selector;

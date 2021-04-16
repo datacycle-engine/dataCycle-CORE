@@ -1,7 +1,6 @@
-import ConfirmationModal from '~/javascripts/components/confirmation_modal';
-import SplitView from '~/javascripts/components/split_view';
+import ConfirmationModal from './../components/confirmation_modal';
+import SplitView from './../components/split_view';
 
-// Split View Inhalte kopieren
 export default function () {
   init('.flex-box .detail-content .properties');
 

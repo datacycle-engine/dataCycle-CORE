@@ -1,6 +1,5 @@
-import ConfirmationModal from '~/javascripts/components/confirmation_modal';
+import ConfirmationModal from './../components/confirmation_modal';
 
-// Check if user is still logged in
 export default function () {
   if ($('.edit-content-form').length) {
     let today = new Date();

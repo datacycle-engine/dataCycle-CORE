@@ -1,6 +1,5 @@
-import MasonryGrid from '~/javascripts/components/masonry_grid';
+import MasonryGrid from './../components/masonry_grid';
 
-// Masonry Config
 export default function () {
   init();
 

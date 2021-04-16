@@ -1,6 +1,5 @@
-import Counter from '~/javascripts/components/word_counter';
+import Counter from './word_counter';
 
-// QuillJS Word Counter Module
 class QuillCounter extends Counter {
   constructor(quill, _options) {
     super(quill.container);

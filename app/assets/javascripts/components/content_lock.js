@@ -1,6 +1,5 @@
-// Content Lock
-import ConfirmationModal from '~/javascripts/components/confirmation_modal';
-import DurationHelpers from '~/javascripts/helpers/duration_helpers';
+import ConfirmationModal from './../components/confirmation_modal';
+import DurationHelpers from './../helpers/duration_helpers';
 
 class ContentLock {
   constructor(button) {

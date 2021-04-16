@@ -1,5 +1,5 @@
-import AsyncSelect2 from '~/javascripts/components/async_select2';
-import quill_helpers from '~/javascripts/helpers/quill_helpers';
+import AsyncSelect2 from '../components/async_select2';
+import QuillHelpers from './../helpers/quill_helpers';
 
 export default function () {
   let load_sub_classifications = function (location_array, index) {
@@ -67,7 +67,7 @@ export default function () {
       'ajax:before',
       '.edit_classification_alias, .new_classification_alias',
       (event, xhr, options) => {
-        quill_helpers.updateEditors(event.target);
+        QuillHelpers.updateEditors(event.target);
       }
     );
 
@@ -77,6 +77,13 @@ export default function () {
       $(event.target).closest('li').addClass('active');
 
       var select = $(event.target).closest('li').find('select[name="classification_alias[classification_ids][]"]');
+
+      if (!select.data('select2')) {
+        let newAsyncSelect = new AsyncSelect2(select);
+        newAsyncSelect.init();
+      }
+
+      var select = $(event.target).closest('li').find('select[name="classification_alias[mapped_to][]"]');
 
       if (!select.data('select2')) {
         let newAsyncSelect = new AsyncSelect2(select);

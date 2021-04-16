@@ -1,6 +1,5 @@
-import ObjectBrowser from '~/javascripts/components/object_browser';
+import ObjectBrowser from './../components/object_browser';
 
-// Word Counter
 export default function () {
   var object_browsers = [];
 

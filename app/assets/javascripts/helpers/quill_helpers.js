@@ -1,10 +1,9 @@
-// QuillJS Helpermethods
 export default {
   updateEditors: (container = document) => {
     $(container)
       .find('.quill-editor')
       .addBack('.quill-editor')
-      .each((index, elem) => {
+      .each((_, elem) => {
         var hidden_field = $('#' + $(elem).attr('data-hidden-field-id'));
         var text = $(elem).find('.ql-editor').html() || '';
         if (text == '<p><br></p>') text = '';

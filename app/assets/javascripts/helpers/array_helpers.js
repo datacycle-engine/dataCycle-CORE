@@ -1,4 +1,4 @@
-export default (() => {
+export default (function () {
   Array.prototype.diff = function (a) {
     if (!a || typeof a.indexOf !== 'function') return this;
     return this.filter(i => a.indexOf(i) === -1);

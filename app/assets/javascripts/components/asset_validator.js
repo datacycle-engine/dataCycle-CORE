@@ -1,7 +1,6 @@
 import MimeTypes from 'mime-types';
-import ObjectHelpers from '~/javascripts/helpers/object_helpers';
+import ObjectHelpers from './../helpers/object_helpers';
 
-// Ajax Callback Queue
 class AssetValidator {
   constructor(file) {
     this.file = file;

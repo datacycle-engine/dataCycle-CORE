@@ -1,10 +1,9 @@
-import EmbeddedObject from '~/javascripts/components/embedded_object';
-import AccordionExtension from '~/javascripts/components/accordion_extension';
+import EmbeddedObject from './../components/embedded_object';
+import AccordionExtension from './../components/accordion_extension';
 
-// Word Counter
 export default function () {
   var embedded_objects = [];
-  var accorion_extension = new AccordionExtension();
+  new AccordionExtension();
 
   $('.edit-content-form .embedded-object').each((index, element) => {
     embedded_objects.push(new EmbeddedObject($(element)));

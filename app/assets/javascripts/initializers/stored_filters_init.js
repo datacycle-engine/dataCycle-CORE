@@ -1,4 +1,4 @@
-import Spinner from '~/javascripts/components/loading_spinner';
+import Spinner from './../components/loading_spinner';
 
 export default function () {
   if ($('.search-history-list').length) {
