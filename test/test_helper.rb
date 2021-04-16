@@ -55,7 +55,7 @@ require 'helpers/api_v4_helper'
 if DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
   Rails.backtrace_cleaner.remove_silencers!
 else
-  DataCycleCore::TestPreparations.load_dictionaries
+  # DataCycleCore::TestPreparations.load_dictionaries
   DataCycleCore::TestPreparations.load_classifications(
     [
       Rails.root.join('..', 'dummy', 'config', 'data_definitions')
