@@ -3,8 +3,8 @@
 namespace :deploy do
   task :psql do
     on roles(:all) do
-      invoke 'datacycle.psql.deploy_dict'
-      invoke 'datacycle.psql.reload'
+      invoke 'datacycle:psql:deploy_dict'
+      invoke 'datacycle:psql:reload'
     end
   end
 
