@@ -74,10 +74,22 @@ header {
   }
 
   ul.menu {
-    line-height: 4rem;
+    line-height: 4.1rem;
+    height: 4.1rem;
+
+    > li {
+      height: 4.1rem;
+
+      a,
+      button {
+        height: 100%;
+        line-height: 4.1rem;
+      }
+    }
 
     li {
       vertical-align: top;
+
       a,
       button {
         color: $white;

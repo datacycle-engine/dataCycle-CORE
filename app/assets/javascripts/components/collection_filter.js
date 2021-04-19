@@ -33,13 +33,13 @@ class CollectionFilter {
     this.filterCollection();
   }
   filterCollection() {
-    $.rails.disableFormElement(this.filterResetButton);
+    Rails.disableElement(this.filterResetButton.get(0));
     let q = (this.filterInput.val() || '').trim().toLowerCase();
 
     this.toggleResetButton(q.length > 0);
     this.collection.trigger('dc:remote:reload', { options: { q: q } });
 
-    $.rails.enableFormElement(this.filterResetButton);
+    Rails.enableElement(this.filterResetButton.get(0));
     this.syncFilterInputs(q);
   }
   syncFilterInputs(q) {

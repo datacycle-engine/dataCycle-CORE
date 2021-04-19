@@ -119,15 +119,15 @@ class Validator {
     return error;
   }
   disable() {
-    $.rails.disableFormElement(this.submitButton);
-    $.rails.disableFormElement(this.saveButton);
-    $.rails.disableFormElements(this.form);
+    Rails.disableElement(this.submitButton.get(0));
+    Rails.disableElement(this.saveButton.get(0));
+    Rails.disableElement(this.form.get(0));
   }
   enable() {
     if (this.queryCount == 0 && !this.form.hasClass('disabled')) {
-      $.rails.enableFormElement(this.submitButton);
-      $.rails.enableFormElement(this.saveButton);
-      $.rails.enableFormElements(this.form);
+      Rails.enableElement(this.submitButton.get(0));
+      Rails.enableElement(this.saveButton.get(0));
+      Rails.enableElement(this.form.get(0));
       this.form.find('input#duplicate_id').remove();
     }
   }
@@ -261,7 +261,7 @@ class Validator {
     let uuid = this.form.find(':input[name="uuid"]').val();
     let locale = this.form.find(':input[name="locale"]').val() || this.form.find(':input[name="thing[locale]"]').val();
     let table = this.form.find(':input[name="table"]').val() || 'things';
-    let url = window.DATA_CYCLE_ENGINE_PATH + '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
+    let url = DataCycle.enginePath + '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
     let template = this.form.find(':input[name="template"]').val();
     if (template != undefined) {
       form_data.push({

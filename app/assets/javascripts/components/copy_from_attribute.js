@@ -32,7 +32,7 @@ class CopyFromAttribute {
 
     if (!this.$target.length) return;
 
-    this.$formElement.find(window.EDITORSELECTORS.join(', ')).trigger('dc:import:data', {
+    this.$formElement.find(DataCycle.editorSelectors.join(', ')).trigger('dc:import:data', {
       label: this.label,
       value: this.getTargetValue(),
       locale: this.locale

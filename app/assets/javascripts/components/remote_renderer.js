@@ -1,5 +1,3 @@
-import RandomHelpers from './../helpers/random_number_helpers';
-
 class RemoteRenderer {
   constructor(selector) {
     this.selector = $(selector);
@@ -82,7 +80,7 @@ class RemoteRenderer {
     let id = $(element).data('remote-render-id');
 
     if (id === undefined) {
-      id = RandomHelpers.generateRandomId();
+      id = _.uniqueId('remote_render_');
       element.setAttribute('data-remote-render-id', id);
     }
 
@@ -106,13 +104,13 @@ class RemoteRenderer {
       .addClass('remote-rendering')
       .html('<div class="loading show"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
 
-    $.ajax({
+    DataCycle.httpRequest({
       type: 'POST',
-      url: window.DATA_CYCLE_ENGINE_PATH + '/remote_render',
+      url: DataCycle.enginePath + '/remote_render',
       data: JSON.stringify(params),
       dataType: 'script',
       contentType: 'application/json'
-    }).fail(data => {
+    }).catch(error => {
       $(element)
         .html(
           '<div class="remote-render-error">Fehler beim Laden des Inhalts.<a href="#" class="remote-reload-link"><i class="fa fa-repeat" aria-hidden="true"></i> Neu laden</a></div>'

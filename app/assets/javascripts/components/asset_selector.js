@@ -50,7 +50,7 @@ class AssetSelector {
     });
     this.requests.push(
       $.ajax({
-        url: window.DATA_CYCLE_ENGINE_PATH + '/files/assets',
+        url: DataCycle.enginePath + '/files/assets',
         method: 'GET',
         data: {
           html_target: this.assetList.prop('id'),

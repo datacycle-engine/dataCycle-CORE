@@ -1,31 +1,19 @@
 import ConfirmationModal from './../components/confirmation_modal';
 
 export default function () {
-  $.rails.allowAction = function (link) {
-    if (link.data('confirm') == undefined) {
-      return true;
-    }
-    $.rails.showConfirmationDialog(link);
-    return false;
-  };
+  Rails.confirm = function (message, element) {
+    if (element.dataset.confirmed) return true;
 
-  //User click confirm button
-  $.rails.confirmed = function (link) {
-    link.data('confirm', null);
-    link.trigger('click.rails');
-  };
-
-  //Display the confirmation dialog
-  $.rails.showConfirmationDialog = function (link) {
-    var message = link.data('confirm');
-
-    var confirmationModal = new ConfirmationModal({
+    new ConfirmationModal({
       text: message,
       confirmationClass: 'alert',
       cancelable: true,
-      confirmationCallback: function () {
-        $.rails.confirmed(link);
+      confirmationCallback: () => {
+        element.dataset.confirmed = true;
+        element.click();
       }
     });
+
+    return false;
   };
 }

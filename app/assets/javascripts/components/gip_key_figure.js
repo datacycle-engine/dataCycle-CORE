@@ -1,5 +1,3 @@
-import HttpRequestMixin from '../mixins/http_request';
-
 class GipKeyFigure {
   constructor(element) {
     this.$element = $(element);
@@ -33,14 +31,14 @@ class GipKeyFigure {
     event.preventDefault();
     event.stopPropagation();
 
-    $.rails.disableElement(this.$element);
+    Rails.disableElement(this.$element.get(0));
 
     const ids = this.getValues();
 
     if (ids && ids.length) {
       const fullUrl = `${this.url}?key=${this.key}&${ids.map(v => 'part_ids[]=' + v)}`;
 
-      this.httpRequest(fullUrl)
+      DataCycle.httpRequest(fullUrl)
         .then(data => {
           if (data && data.newValue) this.setNewValue(data.newValue);
         })
@@ -48,17 +46,15 @@ class GipKeyFigure {
     }
   }
   reEnableButon() {
-    $.rails.enableElement(this.$element);
+    Rails.enableElement(this.$element.get(0));
   }
   setNewValue(value) {
-    this.$formElement.find(window.EDITORSELECTORS.join(', ')).trigger('dc:import:data', {
+    this.$formElement.find(DataCycle.editorSelectors.join(', ')).trigger('dc:import:data', {
       label: this.label,
       value: value,
       locale: this.locale
     });
   }
 }
-
-Object.assign(GipKeyFigure.prototype, HttpRequestMixin);
 
 export default GipKeyFigure;

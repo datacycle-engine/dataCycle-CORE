@@ -194,7 +194,7 @@ class NewContentDialog {
     for (let key in groupedAttributes) {
       this.form
         .find('[data-key="' + key + '"]')
-        .find(window.EDITORSELECTORS.join(', '))
+        .find(DataCycle.editorSelectors.join(', '))
         .trigger('dc:import:data', {
           label: key.getKey(),
           value: typeof groupedAttributes[key] == 'string' ? groupedAttributes[key].trim() : groupedAttributes[key],
@@ -281,9 +281,14 @@ class NewContentDialog {
     )
       this.form.find('.search-warning').show();
     else this.form.find('.search-warning').hide();
-    if (activeFieldset.hasClass('template') || activeFieldset.hasClass('no-search-warning'))
-      $.rails.enableFormElements(this.form);
-    else if (this.form.hasClass('disabled')) $.rails.disableFormElements(this.form);
+    if (activeFieldset.hasClass('template') || activeFieldset.hasClass('no-search-warning')) {
+      console.log('enable element');
+      Rails.enableElement(this.form.get(0));
+    } else if (this.form.hasClass('disabled')) {
+      console.log('disable element');
+
+      Rails.disableElement(this.form.get(0));
+    }
   }
   changeTranslation(target) {
     this.activeLocale = $(target).data('locale');
@@ -368,13 +373,13 @@ class NewContentDialog {
       .before(
         '<fieldset class="content-fields"><div class="form-loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div></fieldset>'
       );
-    $.rails.disableFormElements(this.form);
+    Rails.disableFormElements(this.form);
     let template = this.form.find(':input[name="template"]').val();
     let params = this.form.data();
     params['template'] = template;
     params['key'] = this.id;
     $.ajax({
-      url: window.DATA_CYCLE_ENGINE_PATH + '/things/new',
+      url: DataCycle.enginePath + '/things/new',
       method: 'GET',
       data: params,
       dataType: 'script',
@@ -386,7 +391,7 @@ class NewContentDialog {
   }
   resetForm(_) {
     this.form.find(':input').blur();
-    $.rails.enableFormElements(this.form);
+    Rails.enableFormElements(this.form);
     this.form.find('.single_error').remove();
     this.form.removeData('template');
     this.changeTranslation(this.form.find('.translated-attribute-locale[data-locale="' + this.locale + '"]'));

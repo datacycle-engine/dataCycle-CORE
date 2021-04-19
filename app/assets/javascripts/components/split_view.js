@@ -210,7 +210,7 @@ class SplitView {
 
     let target = $('.flex-box .edit-content [data-key="' + key + '"]');
 
-    target.find(window.EDITORSELECTORS.join(', ')).trigger('dc:import:data', {
+    target.find(DataCycle.editorSelectors.join(', ')).trigger('dc:import:data', {
       label: label,
       value: typeof value == 'string' ? value.trim() : value,
       locale: this.embedLocale ? this.leftLocale : ''
@@ -238,7 +238,7 @@ class SplitView {
         CalloutHelpers.show('Fehler beim Laden der Übersetzung', 'alert');
       })
       .always(() => {
-        $.rails.enableElement(elem);
+        Rails.enableElement(elem.get(0));
       });
   }
 }

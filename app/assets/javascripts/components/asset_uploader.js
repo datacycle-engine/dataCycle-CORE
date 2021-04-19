@@ -1,6 +1,5 @@
 import DurationHelpers from './../helpers/duration_helpers';
 import ObjectHelpers from './../helpers/object_helpers';
-import RandomNumber from './../helpers/random_number_helpers';
 import MimeTypes from 'mime-types';
 import AssetValidator from './asset_validator';
 
@@ -157,7 +156,7 @@ class AssetUploader {
   createAssets(event) {
     event.preventDefault();
     this.saving = true;
-    if (this.contentUploader && !this.createButton.prop('disabled')) $.rails.disableFormElement(this.createButton);
+    if (this.contentUploader && !this.createButton.prop('disabled')) Rails.disableElement(this.createButton.get(0));
     if (!this.files.length) return;
 
     let formData = this.globalFieldValues;
@@ -179,7 +178,7 @@ class AssetUploader {
     });
 
     $.ajax({
-      url: window.DATA_CYCLE_ENGINE_PATH + '/things/bulk_create',
+      url: DataCycle.enginePath + '/things/bulk_create',
       method: 'POST',
       data: formData,
       dataType: 'json',
@@ -201,7 +200,7 @@ class AssetUploader {
     formData = formData.concat(file.attributeFieldValues || []);
 
     $.ajax({
-      url: window.DATA_CYCLE_ENGINE_PATH + '/things/validate',
+      url: DataCycle.enginePath + '/things/validate',
       method: 'POST',
       data: formData,
       dataType: 'json',
@@ -480,7 +479,7 @@ class AssetUploader {
     this.updateCreateButton(error);
   }
   renderDuplicateHtml(duplicates) {
-    let id = RandomNumber.generateRandomId();
+    let id = _.uniqueId('duplicate_');
 
     let duplicateHtml =
       '<a class="possible-duplicates" data-toggle="' +
@@ -549,7 +548,7 @@ class AssetUploader {
 
       fileFormInfoField
         .find('.' + cssClass)
-        .html(this.updateIdsInClonedErros(message))
+        .html(this.updateIdsInClonedErrors(message))
         .foundation();
     }
   }
@@ -578,7 +577,7 @@ class AssetUploader {
   checkFileAndQueue(file, fileOptions = {}) {
     if (this.files.find(f => f.file.name == file.name)) return;
 
-    let id = RandomNumber.generateRandomId();
+    let id = _.uniqueId('asset_');
     fileOptions = Object.assign(
       {
         id: id,
@@ -745,9 +744,9 @@ class AssetUploader {
   }
   updateCreateButton(error = null) {
     if (this.files.length && !this.files.filter(f => !f.attributeFieldsValidated || !f.uploaded).length) {
-      $.rails.enableFormElement(this.createButton);
+      Rails.enableElement(this.createButton.get(0));
     } else {
-      $.rails.disableFormElement(this.createButton);
+      Rails.disableElement(this.createButton.get(0));
       if (!error) error = 'Fehlende Metadaten!';
     }
 
@@ -781,8 +780,8 @@ class AssetUploader {
 
     return html;
   }
-  updateIdsInClonedErros(errorText) {
-    let newId = RandomNumber.generateRandomId();
+  updateIdsInClonedErrors(errorText) {
+    let newId = _.uniqueId('cloned_asset_');
     errorText = errorText.replaceAll(/(")([^"-]*)(-duplicates-list)/gi, '$1' + newId + '$3');
     return errorText;
   }

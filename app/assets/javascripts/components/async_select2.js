@@ -24,7 +24,7 @@ class AsyncSelect2 extends BasicSelect2 {
 
     $.ajax({
       type: 'GET',
-      url: window.DATA_CYCLE_ENGINE_PATH + this.config.findPath,
+      url: DataCycle.enginePath + this.config.findPath,
       data: queryParams,
       dataType: 'json',
       contentType: 'application/json'
@@ -75,7 +75,7 @@ class AsyncSelect2 extends BasicSelect2 {
   }
   ajaxOptions() {
     return {
-      url: window.DATA_CYCLE_ENGINE_PATH + this.config.searchPath,
+      url: DataCycle.enginePath + this.config.searchPath,
       delay: 250,
       data: this.ajaxDataHandler.bind(this),
       processResults: this.ajaxProcessResults.bind(this)

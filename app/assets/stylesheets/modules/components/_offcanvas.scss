@@ -117,6 +117,10 @@
   }
 }
 
-.position-right.is-transition-push::after {
-  display: none;
+.position-right.is-transition-push {
+  box-shadow: 13px 0 20px -13px rgba($black, 0.25);
+
+  &::after {
+    display: none;
+  }
 }

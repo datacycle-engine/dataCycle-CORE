@@ -1,4 +1,5 @@
 import ConfirmationModal from './../components/confirmation_modal';
+import DataList from './../components/data_list';
 
 export default function () {
   var field_requests = {};
@@ -65,6 +66,8 @@ export default function () {
     default_success(input_field, list, data);
     let form = $(input_field).closest('form');
 
+    console.log('search_history');
+
     if (filter_ci(list, $(input_field).val()).length) {
       let option_id = filter_ci(list, $(input_field).val()).data('id');
       form.find('input[name="stored_filter[id]"]').remove();
@@ -88,7 +91,7 @@ export default function () {
 
   let show_confirmation = function (event) {
     event.preventDefault();
-    let confirmationModal = new ConfirmationModal({
+    new ConfirmationModal({
       text:
         'Filterparameter aktualisieren?<br /><br />Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.',
       confirmationClass: 'success',
@@ -96,7 +99,10 @@ export default function () {
       confirmationCallback: () => {
         append_stored_filter_data(event);
       },
-      cancelCallback: () => $.rails.enableFormElements($(event.currentTarget))
+      cancelCallback: () => {
+        console.log('cancel datalist');
+        Rails.enableElement(event.currentTarget);
+      }
     });
   };
 
@@ -132,8 +138,8 @@ export default function () {
     $(container)
       .find('.ajax-datalist')
       .each((idx, element) => {
-        let list = $(element).prop('list');
-        let list_id = $(element).attr('list');
+        new DataList(element);
+
         $(list).html('');
         let field_id = $(element).prop('id');
         field_requests[field_id] = [];
@@ -146,7 +152,7 @@ export default function () {
           });
           field_requests[field_id].push(
             $.get(
-              '/' + list_id + '/search',
+              DataCycle.engingePath + '/' + list_id + '/search',
               {
                 q: $(event.currentTarget).val()
               },

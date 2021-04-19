@@ -17,7 +17,7 @@ export default function () {
 
         let more_link = $('#' + prev_id + ' > .children > .load-more-link > .inner-item > a').last();
 
-        more_link.on('ajax:complete', (event, xhr, options) => {
+        more_link.on('ajax:complete', event => {
           more_link.off('ajax:complete');
           if ($('#' + id + ' > .inner-item > .tree-link').length) {
             document.getElementById(id).scrollIntoView({
@@ -36,7 +36,7 @@ export default function () {
 
         more_link.click();
       } else {
-        link.on('ajax:complete', (event, xhr, options) => {
+        link.on('ajax:complete', event => {
           link.off('ajax:complete');
           document.getElementById(id).scrollIntoView({
             behavior: 'smooth'
@@ -53,10 +53,10 @@ export default function () {
   };
 
   if ($('#classification-administration').length) {
-    $('#classification-administration').on('ajax:beforeSend', 'a:not(.destroy)', function (event, xhr, options) {
+    $('#classification-administration').on('ajax:beforeSend', 'a:not(.destroy)', function (event) {
       var childrenContainer = $(event.target).closest('li').children('ul:not(.classifications)');
 
-      if (childrenContainer.children().length > 0 && options.type != 'POST') {
+      if (childrenContainer.children().length > 0 && event.detail[1].type != 'POST') {
         childrenContainer.toggle();
 
         return false;
@@ -66,7 +66,7 @@ export default function () {
     $('#classification-administration').on(
       'ajax:before',
       '.edit_classification_alias, .new_classification_alias',
-      (event, xhr, options) => {
+      event => {
         QuillHelpers.updateEditors(event.target);
       }
     );
@@ -117,12 +117,12 @@ export default function () {
   // Themenbaum
 
   if ($('#classification-tree-label-list, #search-results > .tree').length) {
-    $('#classification-tree-label-list, #search-results').on('ajax:beforeSend', 'a', function (event, xhr, options) {
+    $('#classification-tree-label-list, #search-results').on('ajax:beforeSend', 'a', function (event) {
       var childrenContainer = $(event.target).closest('li').children('ul.children, ul.contents');
 
       childrenContainer.siblings('.inner-item').toggleClass('open');
 
-      if (childrenContainer.hasClass('loaded') && options.type != 'POST') {
+      if (childrenContainer.hasClass('loaded') && event.detail[1].type != 'POST') {
         childrenContainer.toggle();
 
         return false;

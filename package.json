@@ -15,8 +15,8 @@
     "font-awesome": "4.7.0",
     "foundation-sites": "6.4.3",
     "htmldiff": "0.0.4",
+    "jquery": "^3.6.0",
     "jquery-serializejson": "2.8.1",
-    "jquery-ujs": "^1.2.2",
     "jshint": "2.9.5",
     "lazysizes": "4.1.6",
     "lodash": "^4.17.15",
@@ -31,7 +31,7 @@
     "sass": "^1.32.8",
     "select2": "4.0.3",
     "sortablejs": "1.7.0",
-    "vite": "^2.0.3",
-    "vite-plugin-ruby": "^1.0.13"
+    "vite": "^2.1.5",
+    "vite-plugin-ruby": "^2.0.0"
   }
 }

@@ -15,7 +15,7 @@ export default function () {
           .on('focus.dc_edit_page', event => {
             $.ajax({
               type: 'GET',
-              url: window.DATA_CYCLE_ENGINE_PATH + '/reload_required',
+              url: DataCycle.enginePath + '/reload_required',
               data: {
                 id: id,
                 table: table,
