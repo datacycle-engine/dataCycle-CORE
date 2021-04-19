@@ -1,3 +1,13 @@
 <% breadcrumb :index, 'subscriptions' %>
 
-<%= render 'results', contents: @contents, modes: DataCycleCore::Feature::ViewMode.allowed_modes(current_user) %>
+<% content_for :top_content do %>
+  <%= render 'filter', filter: {
+      classification_trees: [],
+      search: true,
+      language: true,
+      mode_selector: true,
+      additional_mode_selector_classes: 'column-padding'
+  } %>
+<% end %>
+
+<%= render 'data_cycle_core/application/results', contents: @contents %>

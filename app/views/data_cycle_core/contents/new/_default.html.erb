@@ -1,4 +1,5 @@
 <%= render 'data_cycle_core/contents/new/shared/locales_list', local_assigns if template.translatable? && I18n.available_locales&.many? %>
+
 <% new_dialog_config(template, 'asset')&.each_with_index do |(field_title, a_keys), index| %>
   <fieldset>
     <% if index === 0 %>

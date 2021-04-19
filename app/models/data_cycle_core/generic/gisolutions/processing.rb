@@ -23,6 +23,16 @@ module DataCycleCore
             config: config
           )
         end
+
+        def self.process_snow_resort(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Gisolutions::Transformations.to_snow_resort,
+            default: { template: 'Skigebiet' },
+            config: config
+          )
+        end
       end
     end
   end

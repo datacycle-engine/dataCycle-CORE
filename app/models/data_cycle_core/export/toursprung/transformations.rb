@@ -14,7 +14,7 @@ module DataCycleCore
           json_data = {
             resource: utility_object.external_system.credentials(:export).dig('resources', data.template_name),
             id: data.id,
-            description: data&.title,
+            description: I18n.with_locale(data&.first_available_locale) { data&.title },
             data: content_data.reject { |_k, v| v.blank? }.to_json
           }
 
@@ -29,10 +29,10 @@ module DataCycleCore
           if line_property_key.present?
             json_data[:lat] = data.try(line_property_key)&.geometry_type.to_s.include?('MultiLineString') ? data.try(line_property_key)&.first&.points&.first&.y : data.try(line_property_key)&.points&.first&.y
             json_data[:lng] = data.try(line_property_key)&.geometry_type.to_s.include?('MultiLineString') ? data.try(line_property_key)&.first&.points&.first&.x : data.try(line_property_key)&.points&.first&.x
-            json_data[:geojson] = RGeo::GeoJSON.encode(data.try(line_property_key))&.to_json
+            json_data[:geojson] = RGeo::GeoJSON.encode(data.try(line_property_key)).to_h.to_json
           end
 
-          json_data
+          json_data.compact
         end
 
         def self.delete_json_partial(utility_object, data)

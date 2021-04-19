@@ -101,7 +101,7 @@ module DataCycleCore
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
-        .with_classification_aliases('Tags', 'Tag 3')
+        .with_classification_aliases_and_treename({ 'treeLabel' => 'Tags', 'aliases' => ['Tag 3'] })
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
@@ -249,6 +249,11 @@ module DataCycleCore
 
       assert_equal(0, DataCycleCore::Filter::Search.new(:de).geo_within_classification(alias_id).count)
     end
+
+    # test 'test thesaurus is installed' do
+    #   result = ActiveRecord::Base.connection.exec_query("SELECT to_tsvector('german', 'DataCycle') as akronym")
+    #   assert_equal("'dc':1", result.first['akronym'])
+    # end
 
     private
 

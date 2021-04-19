@@ -3,9 +3,12 @@
     <i class="fa fa-tags" aria-hidden="true"></i>
     <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
   </span>
-  <% value.each do |tag| %>
-    <span class="tag"><%= tag %></span>
-  <% end %>
+
+  <span class="tags-container">
+    <% value.each do |tag| %>
+      <span class="tag"><%= tag %></span>
+    <% end %>
+  </span>
 
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
 </span>

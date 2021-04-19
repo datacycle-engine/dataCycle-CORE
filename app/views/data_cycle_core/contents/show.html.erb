@@ -1,43 +1,48 @@
 <% breadcrumb :content, @content, @watch_list %>
 
 <% content_for :top_content do %>
-    <%= render_content_partial 'header', content: @content %>
+  <%= render_content_partial 'header', content: @content %>
 <% end %>
 
 <% if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container') %>
-    <ul class="accordion container-details" data-accordion data-allow-all-closed="true">
-        <li class="accordion-item is-active" data-accordion-item>
-            <div class="accordion-content" data-tab-content>
-                <%= render_content_partial 'details', content: @content %>
-            </div>
-            <a href="#" class="accordion-title"><span><i class="fa fa-chevron-down" aria-hidden="true"></i><span class="closed"><%= t('common.details.show') %></span><span class="open"><%= t('common.details.hide') %></span> </span></a>
-        </li>
-    </ul>
+  <ul class="accordion container-details" data-accordion data-allow-all-closed="true">
+    <li class="accordion-item is-active" data-accordion-item>
+      <div class="accordion-content" data-tab-content>
+        <%= render_content_partial 'details', content: @content %>
+      </div>
+      <a href="#" class="accordion-title">
+        <span><i class="fa fa-chevron-down" aria-hidden="true"></i>
+          <span class="closed"><%= t('common.details.show') %></span>
+          <span class="open"><%= t('common.details.hide') %></span>
+        </span>
+      </a>
+    </li>
+  </ul>
 
-    <%= render 'data_cycle_core/application/filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true } %>
-    <%= render 'data_cycle_core/application/results', contents: @contents, modes: DataCycleCore::Feature::ViewMode.allowed_modes(current_user) %>
+  <%= render 'data_cycle_core/application/filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true, mode_selector: true } %>
+  <%= render 'data_cycle_core/application/results', contents: @contents %>
 
-    <% content_for :new_button do %>
-        <%= render 'new_content_button',
+  <% content_for :new_button do %>
+    <%= render 'new_content_button',
                    query_methods: DataCycleCore::Feature::Container.query_methods(@content),
                    content: @content,
                    parent: @content.content_type?(:container) ? @content : nil,
                    scope: 'container',
                    button_class: 'new-object-circle' if new_content_select_options(query_methods: DataCycleCore::Feature::Container.query_methods(@content), scope: 'container').present? %>
-    <% end %>
+  <% end %>
 <% else %>
-    <%= render_content_partial 'details', content: @content %>
-    <%= render 'duplicate_candidates', content: @content if DataCycleCore::Feature::DuplicateCandidate.enabled? && can?(:merge_duplicates, @content) && @content.duplicates.any? %>
+  <%= render_content_partial 'details', content: @content %>
+  <%= render 'duplicate_candidates', content: @content if DataCycleCore::Feature::DuplicateCandidate.enabled? && can?(:merge_duplicates, @content) && @content.duplicates.any? %>
 
-    <% if @content.related_contents.exists? %>
-      <div id="related-contents-<%= @content&.id %>"
+  <% if @content.related_contents.exists? %>
+    <div id="related-contents-<%= @content&.id %>"
         class="remote-render"
         data-remote-path="data_cycle_core/contents/related"
         data-remote-options="<%= to_query_params({content: @content, options: options ||= {}}).to_json %>">
-      </div>
-    <% end %>
+    </div>
+  <% end %>
 <% end %>
 
 <% content_for :admin_panel do %>
-    <%= render 'data_cycle_core/application/admin_panel/default', content: @content %>
+  <%= render 'data_cycle_core/application/admin_panel/default', content: @content %>
 <% end %>

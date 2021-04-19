@@ -38,13 +38,15 @@ module DataCycleCore
         end
 
         def perform
-          @response = @utility_object.endpoint.content_request(
-            transformation: @transformation,
-            method: @method,
-            path: @path,
-            utility_object: @utility_object,
-            data: @data
-          )
+          I18n.with_locale(@data.try(:first_available_locale, @locale)) do
+            @response = @utility_object.endpoint.content_request(
+              transformation: @transformation,
+              method: @method,
+              path: @path,
+              utility_object: @utility_object,
+              data: @data
+            )
+          end
         end
 
         def success(_job)

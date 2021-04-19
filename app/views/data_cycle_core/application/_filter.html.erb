@@ -1,8 +1,5 @@
-<%= form_tag('', :method => "get", id: "search-form") do %>
-  <% excluded_types = DataCycleCore.excluded_filter_classifications %>
-  <% (filter ||= {})[:classification_trees] ||= DataCycleCore::Feature::MainFilter.available_filters %>
-  <% index = filter[:classification_trees].size %>
-  <% classification_trees = filterable_classification_aliases(filter[:classification_trees], excluded_types) %>
+<%= form_tag('', :method => "get", id: "search-form", data: { add_filter_path: add_filter_path, add_tag_group_path: add_tag_group_path }) do %>
+  <% filter = local_filter_options(filter, @filters) %>
   <%= hidden_field_tag 'mode', @mode %>
   <%= hidden_field_tag 'ct_id', @classification_tree&.id %>
   <%= hidden_field_tag 'ctl_id', @classification_tree_label&.id %>
@@ -17,32 +14,29 @@
 
           <div class="row">
             <div class="column">
-              <%= render 'data_cycle_core/application/filters/fulltext_search',
-                  filters: @filters if filter[:search] %>
+              <%= render 'data_cycle_core/application/filters/fulltext_search', fulltext_search: filter[:fulltext_search] if filter[:search] %>
 
               <div class="main-filters">
                 <nav id="primary_nav_wrap">
                   <ul class="clickable-menu">
-                    <% if classification_trees.present? %>
+                    <% if filter[:classification_tree_data].present? %>
                       <% filter[:classification_trees].presence&.each_with_index do |tree_label, idx| %>
                         <%= render 'data_cycle_core/application/filters/classification_tree',
                             tree_label: tree_label,
-                            display_label: t("filter.#{tree_label.presence&.parameterize(separator: '_')}", default: tree_label, locale: DataCycleCore.ui_language),
-                            excluded_types: tree_label == 'Inhaltstypen' ? excluded_types : [],
-                            classification_tree: classification_trees[tree_label],
-                            index: idx unless classification_trees[tree_label].nil? %>
+                            display_label: t("filter.#{tree_label.presence&.underscore_blanks}", default: tree_label, locale: DataCycleCore.ui_language),
+                            excluded_types: tree_label == 'Inhaltstypen' ? filter[:excluded_types] : [],
+                            classification_tree: filter.dig(:classification_tree_data, tree_label),
+                            index: idx unless filter.dig(:classification_tree_data, tree_label).nil? %>
                       <% end %>
                     <% end %>
-
-                    <%= render 'data_cycle_core/application/filters/language' if filter[:language] %>
                   </ul>
                 </nav>
               </div>
 
               <% if content_for?(:advanced_filters) || filter[:advanced].present? %>
                 <div class="advanced-filters accordion" data-accordion data-allow-all-closed="true">
-                  <div class="accordion-item <%= 'is-active' if @advanced_filters.present? %>" data-accordion-item>
-                    <div class="accordion-content" data-tab-content style="<%= 'display: block;' if @advanced_filters.present? %>">
+                  <div class="accordion-item <%= 'is-active' if DataCycleCore::Feature::AdvancedFilter.always_visible? %>" data-accordion-item>
+                    <div class="accordion-content" data-tab-content style="<%= 'display: block;' if DataCycleCore::Feature::AdvancedFilter.always_visible? %>">
                       <%= yield :advanced_filters %>
                       <% if filter[:advanced].present? %>
                         <% if can?(:advanced_filter, :backend) %>
@@ -52,22 +46,21 @@
                                 prompt: t("filter.add", locale: DataCycleCore.ui_language),
                                 class: 'single-select',
                                 data: {
-                                  url: add_filter_path,
-                                  index: index + (@advanced_filters.presence&.size || 0),
+                                  index: filter[:index] + (@advanced_filters.presence&.size || 0),
                                   allow_clear: false
                                 } %>
                           </div>
                         <% end %>
 
-                        <% @advanced_filters.presence&.each_with_index do |filter, idx| %>
+                        <% @advanced_filters.presence&.each_with_index do |advanced_filter, idx| %>
                           <%= render_advanced_filter_partial({
-                              filter_type: filter['t'],
-                              filter_title: filter['n'],
-                              filter_name: filter['n'].presence&.parameterize(separator: '_'),
-                              filter_method: filter['m'],
-                              filter_advanced_type: filter['q'],
-                              value: filter['v'],
-                              index: idx + index}) %>
+                              filter_type: advanced_filter['t'],
+                              filter_title: advanced_filter['n'],
+                              filter_name: advanced_filter['n'].presence&.underscore_blanks,
+                              filter_method: advanced_filter['m'],
+                              filter_advanced_type: advanced_filter['q'],
+                              value: advanced_filter['v'],
+                              index: idx + filter[:index]}) %>
                         <% end %>
                       <% end %>
 
@@ -84,70 +77,48 @@
                   <i class="fa fa-check" aria-hidden="true"></i> <b><%= t('common.active_filters', locale: DataCycleCore.ui_language) %>:</b>
                 </span>
                 <span class="filter-groups">
-                  <%= render 'data_cycle_core/application/filters/tag_groups/language',
-                      title: 'Sprache',
-                      key: 'language',
-                      target: 'language',
-                      value: @language,
-                      buttons: 'd' %>
+                  <%= render 'data_cycle_core/application/filters/tag_groups/fulltext_search',
+                    value: filter[:fulltext_search],
+                    buttons: 'a',
+                    key: 'fulltext_search',
+                    target: 'fulltext_search' if filter[:fulltext_search].present? %>
 
-                  <% @default_filters.presence&.each do |filter| %>
+                  <% @default_filters.presence&.each do |default_filter| %>
                     <%= render_advanced_filter_tags_partial({
-                        filter_type: filter['t'],
-                        title: filter['n'],
-                        key: filter['n'].presence&.parameterize(separator: '_'),
-                        target: filter['n'].presence&.parameterize(separator: '_'),
-                        value: filter['v'],
-                        classification_aliases: @selected_classification_aliases&.slice(*filter['v']),
+                        filter_type: default_filter['t'],
+                        title: default_filter['n'],
+                        key: default_filter['n'].presence&.underscore_blanks,
+                        target: default_filter['n'].presence&.underscore_blanks + "_#{filter[:classification_trees]&.index(default_filter['n']).to_i}",
+                        value: default_filter['v'],
+                        classification_aliases: @selected_classification_aliases&.slice(*default_filter['v']),
                         buttons: 'd'
                     }) %>
                   <% end %>
 
-                  <% @advanced_filters.presence&.each_with_index do |filter, idx| %>
+                  <% @advanced_filters.presence&.each_with_index do |advanced_filter, idx| %>
                     <%= render_advanced_filter_tags_partial({
-                        title: filter['n'],
-                        key: filter['n'].presence&.parameterize(separator: '_'),
-                        target: filter['n'].presence&.parameterize(separator: '_') + "_#{idx + index}",
-                        filter_method: filter['m'],
-                        filter_type: filter['t'],
-                        value: filter['v'],
-                        filter_advanced_type: filter['q'],
+                        title: advanced_filter['n'],
+                        key: advanced_filter['n'].presence&.underscore_blanks,
+                        target: advanced_filter['n'].presence&.underscore_blanks + "_#{idx + filter[:index]}",
+                        filter_method: advanced_filter['m'],
+                        filter_type: advanced_filter['t'],
+                        value: advanced_filter['v'],
+                        filter_advanced_type: advanced_filter['q'],
                         container_classes: 'advanced-tags',
-                        classification_aliases: @selected_classification_aliases&.slice(*filter['v']),
+                        classification_aliases: @selected_classification_aliases&.slice(*advanced_filter['v']),
                         buttons: 'a'
                     }) %>
                   <% end %>
                 </span>
+              </div>
 
-                <% if content_for?(:sortable) || filter[:sortable].present? %>
-                  <%= yield :sortable %>
-                  <span class="filter-sortable">
-                    <span class="filter-sortable-select-wrapper">
-                      <%= select_tag(
-                                    "s[v][m]",
-                                    options_for_select(
-                                        filter[:sortable].map { |sortable|
-                                          [
-                                              sortable.dig(:label),
-                                              sortable.dig(:method)
-                                          ]
-                                        }, @sort_params.presence&.first&.dig('m')
-                                    ),
-                                    {:include_blank => I18n.t('sortable.default', default: 'default', locale: DataCycleCore.ui_language)}
-                                ) %>
-                    </span>
-                    <span class="filter-sortable-checkbox-wrapper">
-                      <%= check_box nil,
-                                          "s[v][o]",
-                                          {
-                                              checked: @sort_params.presence&.first&.dig('o') == 'ASC'
-                                          },
-                                          'ASC',
-                                          'DESC' %>
-                      <label for="s[v][o]">&nbsp;</label>
-                    </span>
-                  </span>
-                <% end %>
+              <div class="languagetags">
+                <%= render 'data_cycle_core/application/filters/tag_groups/language',
+                    title: 'Sprache',
+                    key: 'language',
+                    target: 'language',
+                    value: @language,
+                    buttons: 'd' %>
               </div>
 
               <div class=" filterbuttons clearfix">
@@ -159,20 +130,32 @@
                     <%= t('actions.filter', locale: DataCycleCore.ui_language) %>
                   <% end %>
 
-                  <%= button_tag type: :button, id: 'save-filter', data: { open: 'save-filter-with-name' } do %>
-                    <i class="fa fa-floppy-o" aria-hidden="true"></i>
-                    <%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %>
-                  <% end if can?(:create, DataCycleCore::StoredFilter) && filter[:store] %>
+                  <ul class="clickable-menu language-filter">
+                    <%= render 'data_cycle_core/application/filters/language' if filter[:language] %>
+                  </ul>
 
-                  <%= link_to request.path + '?reset=true', class: 'button', id: 'reset-filter' do %>
-                    <i class="fa fa-times" aria-hidden="true"></i>
-                    <%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %>
-                  <% end %>
+                  <div class="expandable-buttons">
+                    <%= button_tag type: :button, id: 'save-filter', data: { open: 'save-filter-with-name' } do %>
+                      <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                      <span class="expandable">
+                        <%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %>
+                      </span>
+                    <% end if can?(:create, DataCycleCore::StoredFilter) && filter[:store] %>
 
-                  <%= button_tag type: :button, id: 'add-items-to-watch-list', data: { open: 'add-items-to-watch-list-overlay' } do %>
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                    <%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %>
-                  <% end if can?(:add_item, DataCycleCore::WatchList) && filter[:add_items_to_watch_list] %>
+                    <%= link_to request.path + '?reset=true', class: 'button', id: 'reset-filter' do %>
+                      <i class="fa fa-times" aria-hidden="true"></i>
+                      <span class="expandable">
+                        <%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %>
+                      </span>
+                    <% end %>
+
+                    <%= button_tag type: :button, id: 'add-items-to-watch-list', data: { open: 'add-items-to-watch-list-overlay' } do %>
+                      <i class="fa fa-plus" aria-hidden="true"></i>
+                      <span class="expandable">
+                        <%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %>
+                      </span>
+                    <% end if can?(:add_item, DataCycleCore::WatchList) && filter[:add_items_to_watch_list] %>
+                  </div>
                 </div>
 
                 <div class="filterbuttons-right">
@@ -194,6 +177,7 @@
       </div>
     <% end %>
 
+    <%= render 'data_cycle_core/application/view_mode_selector', sortable: filter[:sortable], mode_selector: filter[:mode_selector], additional_classes: filter[:additional_mode_selector_classes] %>
   <% end %>
 
   <% if can?(:create, DataCycleCore::StoredFilter) && filter[:store] %>

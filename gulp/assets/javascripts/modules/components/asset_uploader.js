@@ -5,7 +5,6 @@ let RandomNumber = require('./../helpers/random_number_helpers');
 let MimeTypes = require('mime-types');
 let ActionCable = require('actioncable');
 let AssetValidator = require('./asset_validator');
-const { forEach } = require('lodash');
 
 class AssetUploader {
   constructor(reveal) {
@@ -249,13 +248,19 @@ class AssetUploader {
     this.renderSpecificFields(
       data.formData.filter(elem => elem.name.indexOf('thing') === 0),
       data.allFiles,
-      selectedFile
+      selectedFile,
+      data.primaryAttributeKey
     );
   }
-  renderSpecificFields(fields, all = false, selectedFile = null) {
+  renderSpecificFields(fields, all = false, selectedFile = null, primaryAttributeKey = null) {
     if (all) {
       this.files.forEach(file => {
-        this.updateFileField(file, fields);
+        this.updateFileField(
+          file,
+          selectedFile && file.id == selectedFile.id
+            ? fields
+            : fields.filter(v => !v.name.includes(`[${primaryAttributeKey}]`))
+        );
       });
 
       this.updateNeighborForms(selectedFile);

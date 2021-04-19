@@ -511,9 +511,9 @@ module DataCycleCore
                   iterate.each do |item|
                     affected = false
                     item.dump.each_key do |locale|
-                      next if affected
                       next unless locales.include?(locale)
                       next if item.nil? || item.dump[locale].blank?
+                      next if item.dump[locale]['deleted_at'].present? || item.dump[locale]['archived_at'].present?
                       break if options[:max_count].present? && item_count >= options[:max_count]
                       next if options[:min_count].present? && item_count < options[:min_count]
 
