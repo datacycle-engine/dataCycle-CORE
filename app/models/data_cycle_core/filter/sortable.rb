@@ -53,7 +53,7 @@ module DataCycleCore
         date = Time.zone.now
         if value.present? && value.is_a?(::Hash) && value.dig('n') == 'relative'
           date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
-          date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from').present?
+          date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from', 'n').present?
         elsif value.present? && value.is_a?(::Hash)
           date = date_from_single_value(value.dig('in', 'min')) if value.dig('in', 'min').present?
           date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
