@@ -5,12 +5,14 @@ services:
     environment:
       - ALLOW_IP_RANGE=0.0.0.0/0
       - POSTGRES_PASSWORD=password
-    command: 'postgres -c config_file=/etc/postgresql.conf'
+    command: /tmp/postgres/setup-postgres.sh
     ports:
       - ${PUBLIC_POSTGRES_PORT:-5432}:5432
     shm_size: 4gb
     volumes:
       - ./docker/postgres/postgresql.conf:/etc/postgresql.conf
+      - ./docker/setup-postgres.sh:/tmp/postgres/setup-postgres.sh
+      - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}config/configurations/ts_search:/tmp/postgres/ts_search
   mongodb:
     image: 'mvertes/alpine-mongo:4.0.6-1'
     ports:
