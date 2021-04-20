@@ -29,7 +29,7 @@ COMMENT ON SCHEMA public IS 'standard public schema';
 
 CREATE FUNCTION public.generate_classification_alias_paths(classification_alias_ids uuid[]) RETURNS uuid[]
     LANGUAGE plpgsql
-    AS $$ DECLARE classification_alias_path_ids UUID[]; BEGIN DELETE FROM classification_alias_paths WHERE id || '{}'::UUID[] <@ classification_alias_ids; WITH RECURSIVE paths(id, ancestor_ids, full_path_ids, full_path_names) AS ( SELECT classification_aliases.id, ARRAY[]::uuid[] AS ancestor_ids, ARRAY[classification_aliases.id] AS full_path_ids, ARRAY[classification_aliases.internal_name, classification_tree_labels.name] AS full_path_names FROM classification_trees JOIN classification_aliases ON classification_aliases.id = classification_alias_id JOIN classification_tree_labels ON classification_tree_labels.id = classification_tree_label_id WHERE parent_classification_alias_id IS NULL UNION ALL SELECT classification_aliases.id, paths.id || ancestor_ids AS ancestor_ids, classification_aliases.id || full_path_ids AS full_path_ids, classification_aliases.internal_name || full_path_names AS full_path_names FROM classification_trees JOIN paths ON paths.id = classification_trees.parent_classification_alias_id JOIN classification_aliases ON classification_aliases.id = classification_alias_id ) INSERT INTO classification_alias_paths(id, ancestor_ids, full_path_ids, full_path_names) SELECT * FROM paths WHERE paths.id || '{}'::UUID[] <@ classification_alias_ids; SELECT ARRAY_AGG(id) INTO classification_alias_path_ids FROM classification_alias_paths WHERE id || '{}'::UUID[] <@ classification_alias_ids; RETURN classification_alias_path_ids; END;$$;
+    AS $$ DECLARE classification_alias_path_ids UUID[]; BEGIN DELETE FROM classification_alias_paths WHERE id = ANY(classification_alias_ids); WITH RECURSIVE paths( id, parent_id,ancestor_ids,full_path_ids,full_path_names, tree_label_id) AS ( SELECT classification_aliases.id, classification_trees.parent_classification_alias_id, ARRAY[]::uuid[], ARRAY[classification_aliases.id], ARRAY[classification_aliases.internal_name], classification_trees.classification_tree_label_id FROM classification_trees JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id WHERE classification_trees.classification_alias_id = ANY(classification_alias_ids) UNION ALL SELECT paths.id, classification_trees.parent_classification_alias_id, ancestor_ids || classification_aliases.id, full_path_ids || classification_aliases.id , full_path_names || classification_aliases.internal_name, classification_trees.classification_tree_label_id FROM classification_trees JOIN paths ON paths.parent_id = classification_trees.classification_alias_id JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id ) INSERT INTO classification_alias_paths(id, ancestor_ids, full_path_ids, full_path_names) SELECT paths.id, paths.ancestor_ids, paths.full_path_ids, paths.full_path_names || classification_tree_labels.name FROM paths JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id WHERE paths.parent_id IS NULL; SELECT ARRAY_AGG(id) INTO classification_alias_path_ids FROM classification_alias_paths WHERE id = ANY(classification_alias_ids); RETURN classification_alias_path_ids; END;$$;
 
 
 --
@@ -2481,6 +2481,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210305080429'),
 ('20210310141132'),
 ('20210410183240'),
-('20210413105611');
+('20210413105611'),
+('20210416120714');
 
 

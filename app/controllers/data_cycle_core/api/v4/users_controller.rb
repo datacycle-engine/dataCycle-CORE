@@ -37,7 +37,7 @@ module DataCycleCore
           end
 
           @user.role = DataCycleCore::Role.find_by(rank: rank)
-          @user.user_groups = DataCycleCore::Feature::UserApi.default_user_groups
+          @user.user_groups = DataCycleCore::Feature::UserApi.default_user_groups unless DataCycleCore::Feature::UserApi.default_user_groups.nil?
           @user.jti = SecureRandom.uuid
 
           if @user.save
