@@ -132,42 +132,42 @@
                 },
                 "attribute": {
                     "{attributeName}": {
-                    "in": {
-                        "max": "Integer|Float|Date|DateTime",
-                        "min": "Integer|Float|Date|DateTime",
-                        "equals": "String",
-                        "like": "String",
-                        "bool": "Boolean"
-                    },
-                    "notIn": {
-                        "max": "Integer|Float|Date|DateTime",
-                        "min": "Integer|Float|Date|DateTime",
-                        "equals": "String",
-                        "like": "String",
-                        "bool": "Boolean"
-                    }
+                        "in": {
+                            "max": "Integer|Float|Date|DateTime",
+                            "min": "Integer|Float|Date|DateTime",
+                            "equals": "String",
+                            "like": "String",
+                            "bool": "Boolean"
+                        },
+                        "notIn": {
+                            "max": "Integer|Float|Date|DateTime",
+                            "min": "Integer|Float|Date|DateTime",
+                            "equals": "String",
+                            "like": "String",
+                            "bool": "Boolean"
+                        }
                     }
                 },
                 "classifications|dc:classification": {
                     "in": {
-                    "withSubtree": "[UUID]",
-                    "withoutSubtree": "[UUID]"
+                        "withSubtree": "[UUID]",
+                        "withoutSubtree": "[UUID]"
                     },
                     "notIn": {
-                    "withSubtree": "[UUID]",
-                    "withoutSubtree": "[UUID]"
+                        "withSubtree": "[UUID]",
+                        "withoutSubtree": "[UUID]"
                     }
                 },
                 "geo": {
                     "in": {
-                    "box": ["swLon", "swLat", "neLon", "neLat"],
-                    "perimeter": ["lon", "lat", "distance"],
-                    "shapes": "[UUID]"
+                        "box": ["swLon", "swLat", "neLon", "neLat"],
+                        "perimeter": ["lon", "lat", "distance"],
+                        "shapes": "[UUID]"
                     },
                     "notIn": {
-                    "box": ["swLon", "swLat", "neLon", "neLat"],
-                    "perimeter": ["lon", "lat", "distance"],
-                    "shapes": "[UUID]"
+                        "box": ["swLon", "swLat", "neLon", "neLat"],
+                        "perimeter": ["lon", "lat", "distance"],
+                        "shapes": "[UUID]"
                     }
                 },
                 "search": "String",
@@ -188,42 +188,42 @@
                         },
                         "attribute": {
                             "{attributeName}": {
-                            "in": {
-                                "max": "Integer|Float|Date|DateTime",
-                                "min": "Integer|Float|Date|DateTime",
-                                "equals": "String",
-                                "like": "String",
-                                "bool": "Boolean"
-                            },
-                            "notIn": {
-                                "max": "Integer|Float|Date|DateTime",
-                                "min": "Integer|Float|Date|DateTime",
-                                "equals": "String",
-                                "like": "String",
-                                "bool": "Boolean"
-                            }
+                                "in": {
+                                    "max": "Integer|Float|Date|DateTime",
+                                    "min": "Integer|Float|Date|DateTime",
+                                    "equals": "String",
+                                    "like": "String",
+                                    "bool": "Boolean"
+                                },
+                                "notIn": {
+                                    "max": "Integer|Float|Date|DateTime",
+                                    "min": "Integer|Float|Date|DateTime",
+                                    "equals": "String",
+                                    "like": "String",
+                                    "bool": "Boolean"
+                                }
                             }
                         },
                         "classifications|dc:classification": {
                             "in": {
-                            "withSubtree": "[UUID]",
-                            "withoutSubtree": "[UUID]"
+                                "withSubtree": "[UUID]",
+                                "withoutSubtree": "[UUID]"
                             },
                             "notIn": {
-                            "withSubtree": "[UUID]",
-                            "withoutSubtree": "[UUID]"
+                                "withSubtree": "[UUID]",
+                                "withoutSubtree": "[UUID]"
                             }
                         },
                         "geo": {
                             "in": {
-                            "box": ["swLon", "swLat", "neLon", "neLat"],
-                            "perimeter": ["lon", "lat", "distance"],
-                            "shapes": "[UUID]"
+                                "box": ["swLon", "swLat", "neLon", "neLat"],
+                                "perimeter": ["lon", "lat", "distance"],
+                                "shapes": "[UUID]"
                             },
                             "notIn": {
-                            "box": ["swLon", "swLat", "neLon", "neLat"],
-                            "perimeter": ["lon", "lat", "distance"],
-                            "shapes": "[UUID]"
+                                "box": ["swLon", "swLat", "neLon", "neLat"],
+                                "perimeter": ["lon", "lat", "distance"],
+                                "shapes": "[UUID]"
                             }
                         },
                         "search": "String",
