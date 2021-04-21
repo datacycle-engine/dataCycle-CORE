@@ -24,6 +24,42 @@ COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 --
+-- Name: generate_classification_alias_paths(uuid[]); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_classification_alias_paths(classification_alias_ids uuid[]) RETURNS uuid[]
+    LANGUAGE plpgsql
+    AS $$ DECLARE classification_alias_path_ids UUID[]; BEGIN DELETE FROM classification_alias_paths WHERE id = ANY(classification_alias_ids); WITH RECURSIVE paths( id, parent_id,ancestor_ids,full_path_ids,full_path_names, tree_label_id) AS ( SELECT classification_aliases.id, classification_trees.parent_classification_alias_id, ARRAY[]::uuid[], ARRAY[classification_aliases.id], ARRAY[classification_aliases.internal_name], classification_trees.classification_tree_label_id FROM classification_trees JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id WHERE classification_trees.classification_alias_id = ANY(classification_alias_ids) UNION ALL SELECT paths.id, classification_trees.parent_classification_alias_id, ancestor_ids || classification_aliases.id, full_path_ids || classification_aliases.id , full_path_names || classification_aliases.internal_name, classification_trees.classification_tree_label_id FROM classification_trees JOIN paths ON paths.parent_id = classification_trees.classification_alias_id JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id ) INSERT INTO classification_alias_paths(id, ancestor_ids, full_path_ids, full_path_names) SELECT paths.id, paths.ancestor_ids, paths.full_path_ids, paths.full_path_names || classification_tree_labels.name FROM paths JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id WHERE paths.parent_id IS NULL; SELECT ARRAY_AGG(id) INTO classification_alias_path_ids FROM classification_alias_paths WHERE id = ANY(classification_alias_ids); RETURN classification_alias_path_ids; END;$$;
+
+
+--
+-- Name: generate_classification_alias_paths_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_classification_alias_paths_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_classification_alias_paths(NEW.id || '{}'::UUID[]); RETURN NEW; END;$$;
+
+
+--
+-- Name: generate_classification_alias_paths_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_classification_alias_paths_trigger_2() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_classification_alias_paths(NEW.parent_classification_alias_id || (NEW.classification_alias_id || '{}'::UUID[])); RETURN NEW; END;$$;
+
+
+--
+-- Name: generate_classification_alias_paths_trigger_3(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ DECLARE classification_alias_ids UUID[]; BEGIN SELECT ARRAY_AGG(classification_trees.classification_alias_id) INTO classification_alias_ids FROM classification_trees WHERE classification_trees.classification_tree_label_id = NEW.id; PERFORM generate_classification_alias_paths(classification_alias_ids); RETURN NEW; END;$$;
+
+
+--
 -- Name: generate_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -158,6 +194,18 @@ CREATE TABLE public.assets (
 
 
 --
+-- Name: classification_alias_paths; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_alias_paths (
+    id uuid NOT NULL,
+    ancestor_ids uuid[],
+    full_path_ids uuid[],
+    full_path_names character varying[]
+);
+
+
+--
 -- Name: classification_aliases; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -175,71 +223,6 @@ CREATE TABLE public.classification_aliases (
     description_i18n jsonb DEFAULT '{}'::jsonb,
     uri character varying
 );
-
-
---
--- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_tree_labels (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name character varying,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    internal boolean DEFAULT false,
-    deleted_at timestamp without time zone,
-    visibility character varying[] DEFAULT '{}'::character varying[]
-);
-
-
---
--- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_trees (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    external_source_id uuid,
-    parent_classification_alias_id uuid,
-    classification_alias_id uuid,
-    relationship_label character varying,
-    classification_tree_label_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: classification_alias_paths; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.classification_alias_paths AS
- WITH RECURSIVE classification_alias_paths(id, ancestor_ids, full_path_ids, full_path_names) AS (
-         SELECT classification_aliases.id,
-            ARRAY[]::uuid[] AS ancestor_ids,
-            ARRAY[classification_aliases.id] AS full_path_ids,
-            ARRAY[classification_aliases.internal_name, classification_tree_labels.name] AS full_path_names
-           FROM ((public.classification_trees
-             JOIN public.classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
-             JOIN public.classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
-          WHERE (classification_trees.parent_classification_alias_id IS NULL)
-        UNION ALL
-         SELECT classification_aliases.id,
-            (classification_alias_paths_1.id || classification_alias_paths_1.ancestor_ids) AS ancestor_ids,
-            (classification_aliases.id || classification_alias_paths_1.full_path_ids) AS full_path_ids,
-            (classification_aliases.internal_name || classification_alias_paths_1.full_path_names) AS full_path_names
-           FROM ((public.classification_trees
-             JOIN classification_alias_paths classification_alias_paths_1 ON ((classification_alias_paths_1.id = classification_trees.parent_classification_alias_id)))
-             JOIN public.classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
-        )
- SELECT classification_alias_paths.id,
-    classification_alias_paths.ancestor_ids,
-    classification_alias_paths.full_path_ids,
-    classification_alias_paths.full_path_names
-   FROM classification_alias_paths;
 
 
 --
@@ -353,6 +336,41 @@ CREATE TABLE public.classification_polygons (
     geog public.geography(MultiPolygon,4326),
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_tree_labels (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    name character varying,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    internal boolean DEFAULT false,
+    deleted_at timestamp without time zone,
+    visibility character varying[] DEFAULT '{}'::character varying[]
+);
+
+
+--
+-- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_trees (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    external_source_id uuid,
+    parent_classification_alias_id uuid,
+    classification_alias_id uuid,
+    relationship_label character varying,
+    classification_tree_label_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone
 );
 
 
@@ -1076,6 +1094,14 @@ ALTER TABLE ONLY public.asset_contents
 
 ALTER TABLE ONLY public.assets
     ADD CONSTRAINT assets_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: classification_alias_paths classification_alias_paths_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.classification_alias_paths
+    ADD CONSTRAINT classification_alias_paths_pkey PRIMARY KEY (id);
 
 
 --
@@ -2204,6 +2230,27 @@ CREATE INDEX words_idx ON public.searches USING gin (full_text public.gin_trgm_o
 
 
 --
+-- Name: classification_aliases generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDATE ON public.classification_aliases FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_1();
+
+
+--
+-- Name: classification_tree_labels generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDATE ON public.classification_tree_labels FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_3();
+
+
+--
+-- Name: classification_trees generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDATE ON public.classification_trees FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_2();
+
+
+--
 -- Name: schedules generate_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -2433,6 +2480,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210217125404'),
 ('20210305080429'),
 ('20210310141132'),
-('20210413105611');
+('20210410183240'),
+('20210413105611'),
+('20210416120714');
 
 

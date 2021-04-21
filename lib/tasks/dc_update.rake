@@ -76,13 +76,22 @@ namespace :dc do
 
     desc 'create all dictionaries in postgresql'
     task dictionaries: :environment do
-      loaded_dictionaries = ActiveRecord::Base.connection.exec_query('SELECT dictname FROM pg_ts_dict').pluck('dictname')
       present_dictionaries = Dir[Rails.root.join('config', 'configurations', 'ts_search', '*.ths')].sort
       file_names = present_dictionaries.map { |f| f.split('/').last.split('.').first }
 
       file_names.each do |dict|
-        next if loaded_dictionaries.include?(dict)
         dict_language = dict.split('_').last
+
+        ActiveRecord::Base.connection.exec_query("
+          ALTER TEXT SEARCH CONFIGURATION #{dict_language}
+             ALTER MAPPING FOR asciihword, asciiword, hword, word
+             WITH #{dict_language}_stem;
+        ")
+
+        ActiveRecord::Base.connection.exec_query("
+          DROP TEXT SEARCH DICTIONARY IF EXISTS #{dict};
+        ")
+
         ActiveRecord::Base.connection.exec_query("
           CREATE TEXT SEARCH DICTIONARY #{dict} (
             TEMPLATE = thesaurus,

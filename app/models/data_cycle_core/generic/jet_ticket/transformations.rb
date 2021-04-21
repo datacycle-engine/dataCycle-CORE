@@ -8,12 +8,21 @@ module DataCycleCore
           DataCycleCore::Generic::Common::Functions[*args]
         end
 
+        def self.to_event_series(external_source_id)
+          t(:stringify_keys)
+          .>> t(:add_field, 'name', ->(s) { s.dig('Name1') })
+          .>> t(:add_field, 'external_key', ->(s) { ['JetTicket - EventSeriesID: ', s.dig('EventSetID')].join })
+          .>> t(:add_links, 'sub_event', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Thing.where(external_source_id: external_source_id, template_name: 'Event').where('external_key ILIKE ?', "#{s.dig('external_key')}%").pluck(:external_key) })
+          .>> t(:strip_all)
+        end
+
         def self.to_event(external_source_id)
           t(:stringify_keys)
           .>> t(:add_field, 'name', ->(s) { s.dig('Name1') })
           .>> t(:add_field, 'description', ->(*) { '' }) # delete former s.dig('Comment')
-          .>> t(:add_field, 'external_key', ->(s) { 'JetTicket - EventSeriesID: ' + s.dig('EventSetID') })
+          .>> t(:add_field, 'external_key', ->(s) { ['JetTicket - EventSeriesID: ', s.dig('EventSetID'), ' - ', s.dig('Name1')].join })
           .>> t(:add_field, 'event_schedule', ->(s) { Array.wrap(event_schedule(s)) })
+          .>> t(:add_links, 'super_event', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(['JetTicket - EventSeriesID: ', s.dig('EventSetID')].join) })
           .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s&.dig('EventManager', 'EventManagerID'))&.map { |i| "JetTicket - EventManagerID: #{i}" } })
           .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s&.dig('Venue', 'VenueID'))&.map { |i| "JetTicket - VenueID: #{i}" } })
           .>> t(:add_field, 'dc_potential_action', ->(s) { parse_potential_action(s, external_source_id) })

@@ -21,6 +21,12 @@ module DataCycleCore
         def notify_users(new_user)
           DataCycleCore::UserApiMailer.notify(users_to_notify, new_user).deliver_later
         end
+
+        def default_user_groups
+          return if configuration.dig(:default_user_groups).blank?
+
+          DataCycleCore::UserGroup.where(name: configuration[:default_user_groups])
+        end
       end
     end
   end

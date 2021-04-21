@@ -14,6 +14,16 @@ module DataCycleCore
           )
         end
 
+        def self.process_event_series(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::JetTicket::Transformations.to_event_series(utility_object.external_source.id),
+            default: { template: 'Eventserie' },
+            config: config
+          )
+        end
+
         def self.process_event_manager(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
