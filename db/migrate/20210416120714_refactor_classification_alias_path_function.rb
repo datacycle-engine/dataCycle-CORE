@@ -54,6 +54,8 @@ class RefactorClassificationAliasPathFunction < ActiveRecord::Migration[5.2]
         RETURN classification_alias_path_ids;
       END;$$;
     SQL
+    execute('VACUUM classification_alias_paths;')
+    execute('ANALYZE classification_alias_paths;')
   end
 
   def down
