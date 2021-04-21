@@ -105,7 +105,11 @@ class SimpleSelect2 extends BasicSelect2 {
 
     if (!reloadPath || !reloadPath.length || !type || !type.length) return;
 
-    $.getJSON(DataCycle.enginePath + reloadPath, { type: type }).done(data => {
+    DataCycle.httpRequest({
+      url: DataCycle.enginePath + reloadPath,
+      dataType: 'json',
+      data: { type: type }
+    }).done(data => {
       if (!data || !data.length) return;
 
       data.forEach(d => {

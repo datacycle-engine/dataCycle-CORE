@@ -202,7 +202,7 @@ class ObjectBrowser {
           objects: this.chosen,
           new_overlay_id: '#new_' + this.id
         });
-        $.ajax({
+        DataCycle.httpRequest({
           url: $(event.target).prop('action'),
           method: 'POST',
           data: JSON.stringify(form_data),
@@ -217,7 +217,7 @@ class ObjectBrowser {
 
         if (!data || !data.contentIds || !data.contentIds.length) return;
 
-        $.ajax({
+        DataCycle.httpRequest({
           url: this.url + '/render_in_overlay',
           method: 'POST',
           dataType: 'script',
@@ -268,7 +268,7 @@ class ObjectBrowser {
       .html('<input type="hidden" id="' + this.hidden_field_id + '" name="' + this.key + '[]">');
   }
   findObjects(ids, external) {
-    $.ajax({
+    DataCycle.httpRequest({
       url: this.url + '/find',
       method: 'POST',
       dataType: 'script',
@@ -366,7 +366,7 @@ class ObjectBrowser {
     this.overlay.find('.chosen-counter').html(html);
   }
   loadMore(loaded_ids) {
-    $.ajax({
+    DataCycle.httpRequest({
       url: DataCycle.enginePath + '/' + this.content_type + '/' + this.content_id + '/load_more_linked_objects',
       method: 'GET',
       dataType: 'script',
@@ -394,7 +394,7 @@ class ObjectBrowser {
   }
   loadDetails(id) {
     this.selected = id;
-    $.ajax({
+    DataCycle.httpRequest({
       url: this.url + '/details',
       method: 'POST',
       dataType: 'script',
@@ -471,7 +471,7 @@ class ObjectBrowser {
   import(event) {
     if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
       let authToken = $('meta[name=csrf-token]').attr('content');
-      $.ajax({
+      DataCycle.httpRequest({
         type: 'POST',
         url: DataCycle.enginePath + '/things/import',
         dataType: 'script',
@@ -517,7 +517,7 @@ class ObjectBrowser {
       this.requests = this.requests.filter(r => r != request);
     });
     this.requests.push(
-      $.ajax({
+      DataCycle.httpRequest({
         url: this.url + '/show',
         method: 'POST',
         dataType: 'script',

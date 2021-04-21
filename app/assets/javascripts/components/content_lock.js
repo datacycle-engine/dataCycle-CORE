@@ -53,7 +53,10 @@ class ContentLock {
     if (!this.editable) this.checkInitialLockState();
   }
   checkInitialLockState() {
-    $.getJSON(this.checkLockPath).done(data => {
+    DataCycle.httpRequest({
+      url: this.checkLockPath,
+      dataType: 'json'
+    }).done(data => {
       if (data !== undefined) this.updateLocks(data.locks, data.texts);
     });
   }
@@ -197,7 +200,7 @@ class ContentLock {
   }
   triggerRenewLock() {
     this.removeConfirmationModal(null);
-    $.ajax({
+    DataCycle.httpRequest({
       url: this.lockPath,
       data: {
         token: this.token

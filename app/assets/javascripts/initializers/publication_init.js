@@ -35,7 +35,7 @@ export default function () {
       loading = true;
       var spinner = new Spinner($('.publications-list'));
       spinner.show();
-      $.ajax({
+      DataCycle.httpRequest({
         url: url,
         method: method,
         data: form_data,

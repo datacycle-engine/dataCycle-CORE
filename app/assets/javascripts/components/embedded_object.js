@@ -108,7 +108,7 @@ class EmbeddedObject {
     else if (type == 'new') this.index++;
 
     this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
-    $.ajax({
+    DataCycle.httpRequest({
       url: this.url + '/render_embedded_object',
       method: 'GET',
       dataType: 'script',

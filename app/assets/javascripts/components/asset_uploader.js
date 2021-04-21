@@ -1,7 +1,8 @@
 import DurationHelpers from './../helpers/duration_helpers';
 import ObjectHelpers from './../helpers/object_helpers';
-import MimeTypes from 'mime-types';
-import AssetValidator from './asset_validator';
+import MimeTypes from 'mime-types/index';
+// import AssetValidator from './asset_validator';
+console.log(MimeTypes);
 
 class AssetUploader {
   constructor(reveal) {
@@ -31,30 +32,29 @@ class AssetUploader {
     this.init();
   }
   init() {
-    this.reveal.addClass('initialized');
-    this.reveal.on('open.zf.reveal', this.openReveal.bind(this));
-    this.reveal.on('closed.zf.reveal', this.closeReveal.bind(this));
-    this.fileField.on('change', this.validateFiles.bind(this));
-    this.reveal.on('dc:upload:setFiles', (e, files) => {
-      this.validateFiles(e, files.fileList);
-    });
-    $(window).on('beforeunload', event => {
-      if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
-    });
-    this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
-    this.reveal.on(
-      'click',
-      '.file-for-upload:not(.uploading) .cancel-upload-button',
-      this.removeFileHandler.bind(this)
-    );
-    this.reveal.on('click', '.file-for-upload:not(.uploading) .retry-upload-button', this.retryUpload.bind(this));
-
-    if (this.contentUploader) {
-      this.reveal.on('dc:upload:setFormFields', '.file-for-upload', this.setFormFieldValues.bind(this));
-      this.reveal.on('dc:upload:syncWithForm', '.file-for-upload', this.syncWithForm.bind(this));
-      this.createButton.on('click', this.createAssets.bind(this));
-    }
-    this.initActionCable();
+    // this.reveal.addClass('initialized');
+    // this.reveal.on('open.zf.reveal', this.openReveal.bind(this));
+    // this.reveal.on('closed.zf.reveal', this.closeReveal.bind(this));
+    // this.fileField.on('change', this.validateFiles.bind(this));
+    // this.reveal.on('dc:upload:setFiles', (e, files) => {
+    //   this.validateFiles(e, files.fileList);
+    // });
+    // $(window).on('beforeunload', event => {
+    //   if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
+    // });
+    // this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
+    // this.reveal.on(
+    //   'click',
+    //   '.file-for-upload:not(.uploading) .cancel-upload-button',
+    //   this.removeFileHandler.bind(this)
+    // );
+    // this.reveal.on('click', '.file-for-upload:not(.uploading) .retry-upload-button', this.retryUpload.bind(this));
+    // if (this.contentUploader) {
+    //   this.reveal.on('dc:upload:setFormFields', '.file-for-upload', this.setFormFieldValues.bind(this));
+    //   this.reveal.on('dc:upload:syncWithForm', '.file-for-upload', this.syncWithForm.bind(this));
+    //   this.createButton.on('click', this.createAssets.bind(this));
+    // }
+    // this.initActionCable();
   }
   removeFileHandler(event) {
     event.preventDefault();
@@ -177,7 +177,7 @@ class AssetUploader {
       formData = formData.concat(attributeValues);
     });
 
-    $.ajax({
+    DataCycle.httpRequest({
       url: DataCycle.enginePath + '/things/bulk_create',
       method: 'POST',
       data: formData,
@@ -199,7 +199,7 @@ class AssetUploader {
 
     formData = formData.concat(file.attributeFieldValues || []);
 
-    $.ajax({
+    DataCycle.httpRequest({
       url: DataCycle.enginePath + '/things/validate',
       method: 'POST',
       data: formData,
@@ -386,7 +386,7 @@ class AssetUploader {
     this.prepareFileForUpload(file);
     var startTime = new Date().getTime();
     this.ajaxRequests.push(
-      $.ajax({
+      DataCycle.httpRequest({
         url: url,
         type: type,
         enctype: 'multipart/form-data',
@@ -396,7 +396,7 @@ class AssetUploader {
         contentType: false,
         cache: false,
         xhr: function () {
-          var myXhr = $.ajaxSettings.xhr();
+          var myXhr = DataCycle.httpRequestSettings.xhr();
           if (myXhr.upload) {
             myXhr.upload.addEventListener(
               'progress',

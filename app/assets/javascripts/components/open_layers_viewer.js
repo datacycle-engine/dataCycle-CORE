@@ -1,59 +1,94 @@
 import ObjectHelpers from '../helpers/object_helpers';
 
+import Map from 'ol/map';
+import Feature from 'ol/feature';
+import View from 'ol/view';
+import extent from 'ol/extent';
+import interactions from 'ol/interaction';
+import controls from 'ol/control';
+import proj from 'ol/proj';
+import overlay from 'ol/overlay';
+import collection from 'ol/collection';
+import Tile from 'ol/layer/tile';
+import VectorLayer from 'ol/layer/vector';
+import GeoJSON from 'ol/format/geojson';
+import WKT from 'ol/format/wkt';
+import Point from 'ol/geom/point';
+import LineString from 'ol/geom/linestring';
+import MultiLineString from 'ol/geom/multilinestring';
+import OSM from 'ol/source/osm';
+import Vector from 'ol/source/vector';
+import WMTS from 'ol/source/wmts';
+import XYZ from 'ol/source/xyz';
+import Style from 'ol/style/style';
+import Stroke from 'ol/style/stroke';
+import Circle from 'ol/style/circle';
+import Fill from 'ol/style/fill';
+import Text from 'ol/style/text';
+import Icon from 'ol/style/icon';
+import Draw from 'ol/interaction/draw';
+import Translate from 'ol/interaction/translate';
+import Snap from 'ol/interaction/snap';
+import MouseWheelZoom from 'ol/interaction/mousewheelzoom';
+import Select from 'ol/interaction/select';
+import condition from 'ol/events/condition';
+import FullScreen from 'ol/control/fullscreen';
+import WMTSCapabilities from 'ol/format/wmtscapabilities';
+import deviceCapabilities from 'ol/has';
+
 const ol = {
-  Map: import 'ol/map'.default,
+  Map: Map,
   layer: {
-    Tile: import 'ol/layer/tile'.default,
-    Vector: import 'ol/layer/vector'.default
+    Tile,
+    Vector: VectorLayer
   },
-  Feature: import 'ol/feature'.default,
+  Feature,
   format: {
-    GeoJSON: import 'ol/format/geojson'.default
+    GeoJSON,
+    WKT
   },
   geom: {
-    Point: import 'ol/geom/point'.default,
-    LineString: import 'ol/geom/linestring'.default,
-    MultiLineString: import 'ol/geom/multilinestring'.default
+    Point,
+    LineString,
+    MultiLineString
   },
   source: {
-    OSM: import 'ol/source/osm'.default,
-    Vector: import 'ol/source/vector'.default,
-    WMTS: import 'ol/source/wmts'.default,
-    XYZ: import 'ol/source/xyz'.default
+    OSM,
+    Vector,
+    WMTS,
+    XYZ
   },
   style: {
-    Style: import 'ol/style/style'.default,
-    Stroke: import 'ol/style/stroke'.default,
-    Circle: import 'ol/style/circle'.default,
-    Fill: import 'ol/style/fill'.default,
-    Text: import 'ol/style/text'.default,
-    Icon: import 'ol/style/icon'.default
+    Style,
+    Stroke,
+    Circle,
+    Fill,
+    Text,
+    Icon
   },
-  View: import 'ol/view'.default,
-  extent: import 'ol/extent'.default,
+  View,
+  extent,
   interaction: {
-    Draw: import 'ol/interaction/draw'.default,
-    Translate: import 'ol/interaction/translate'.default,
-    Snap: import 'ol/interaction/snap'.default,
-    MouseWheelZoom: import 'ol/interaction/mousewheelzoom'.default,
-    Select: import 'ol/interaction/select'.default
+    Draw,
+    Translate,
+    Snap,
+    MouseWheelZoom,
+    Select
   },
   events: {
-    condition: import 'ol/events/condition'.default
+    condition
   },
   control: {
-    FullScreen: import 'ol/control/fullscreen'.default
+    FullScreen
   },
-  interactions: import 'ol/interaction'.default,
-  controls: import 'ol/control'.default,
-  proj: import 'ol/proj'.default,
-  WMTSCapabilities: import 'ol/format/wmtscapabilities'.default,
-  deviceCapabilities: import 'ol/has'.default,
-  overlay: import 'ol/overlay'.default,
-  collection: import 'ol/collection'.default
+  interactions,
+  controls,
+  proj,
+  WMTSCapabilities,
+  deviceCapabilities,
+  overlay,
+  collection
 };
-
-import { optionsFromCapabilities } from 'ol/source/wmts'.default;
 
 const iconPaths = {
   default:
@@ -111,6 +146,7 @@ class OpenLayersViewer {
       featureProjection: 'EPSG:3857'
     };
     this.geoJsonFormat = new this.ol.format.GeoJSON();
+    this.wktFormat = new this.ol.format.WKT();
     this.resizeObserver;
   }
   setup() {
@@ -138,7 +174,7 @@ class OpenLayersViewer {
       .then(response => response.text())
       .then(text => {
         let result = new this.ol.WMTSCapabilities().read(text);
-        let options = optionsFromCapabilities(result, {
+        let options = this.ol.source.WMTS.optionsFromCapabilities(result, {
           layer: this.highDpi ? 'bmaphidpi' : 'geolandbasemap',
           matrixSet: 'google3857',
           style: 'normal'
@@ -483,4 +519,4 @@ class OpenLayersViewer {
   }
 }
 
-export default  OpenLayersViewer;
+export default OpenLayersViewer;

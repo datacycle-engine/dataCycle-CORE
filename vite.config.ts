@@ -9,15 +9,17 @@ export default defineConfig({
     RubyPlugin(),
     DelPlugin({
       targets: ['app/assets/entrypoints/images'],
-      hook: 'buildStart'
+      hook: 'buildStart',
+      runOnce: true
     }),
     CopyPlugin({
       targets: [
-        { src: 'app/assets/images/*', dest: 'app/assets/entrypoints/images' },
         { src: resolve(__dirname, 'app/assets/images/*'), dest: 'app/assets/entrypoints/images' },
-        { src: resolve(__dirname, 'app/assets/fonts/*'), dest: 'public/assets/fonts' }
+        { src: resolve(__dirname, 'app/assets/fonts/*'), dest: 'public/assets/fonts' },
+        { src: 'app/assets/images/*', dest: 'app/assets/entrypoints/images' }
       ],
-      hook: 'generateBundle'
+      hook: 'generateBundle',
+      copyOnce: true
     })
   ]
 });

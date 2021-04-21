@@ -277,7 +277,7 @@ class Validator {
       });
     }
 
-    return $.ajax({
+    return DataCycle.httpRequest({
       type: 'POST',
       url: url,
       data: $.param(form_data),

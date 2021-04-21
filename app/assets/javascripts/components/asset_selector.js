@@ -49,7 +49,7 @@ class AssetSelector {
       this.requests = this.requests.filter(r => r != request);
     });
     this.requests.push(
-      $.ajax({
+      DataCycle.httpRequest({
         url: DataCycle.enginePath + '/files/assets',
         method: 'GET',
         data: {

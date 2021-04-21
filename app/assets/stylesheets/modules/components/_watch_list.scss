@@ -55,6 +55,8 @@
       color: $black;
     }
     li {
+      display: block;
+
       .watch-list-item {
         padding: 0;
         .watchlist-name {

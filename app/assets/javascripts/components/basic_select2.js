@@ -76,6 +76,9 @@ class BasicSelect2 {
     return $result;
   }
   copySelect2Classes(data, container) {
+    if (this.select2Object && (container == undefined || $(container).hasClass('select2-selection__rendered')))
+      this.select2Object.$selection.find('.select2-selection__rendered').prop('class', 'select2-selection__rendered');
+
     if (data.class) {
       $(container).addClass(data.class);
     } else if (data.element) {

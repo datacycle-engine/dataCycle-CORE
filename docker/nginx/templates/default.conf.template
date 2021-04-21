@@ -162,7 +162,8 @@ server {
   location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<mode>(crop|fit|resize|smartcrop|thumbnail|convert))\/(?<width>\d+)\/(?<height>\d+)\/(.*)\.(?<type>(jpeg|png|webp))$" {
     limit_req zone=req_zone burst=100 nodelay;
 
-    set $rqUrl "http://nginx:${PUBLIC_APPLICATION_PORT}/things/$thing/asset/content";
+    set $rqUrl
+      "http://nginx:${PUBLIC_APPLICATION_PORT}/things/$thing/asset/content";
 
     proxy_pass http://docker-imaginary/$mode?width=$width&height=$height&type=$type&url=$rqUrl;
 

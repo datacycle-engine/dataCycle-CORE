@@ -13,7 +13,7 @@ export default function () {
         $(window)
           .off('focus.dc_edit_page')
           .on('focus.dc_edit_page', event => {
-            $.ajax({
+            DataCycle.httpRequest({
               type: 'GET',
               url: DataCycle.enginePath + '/reload_required',
               data: {

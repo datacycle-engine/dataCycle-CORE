@@ -22,7 +22,7 @@ class AsyncSelect2 extends BasicSelect2 {
 
     if (this.config.treeLabel) Object.assign(queryParams, { tree_label: this.config.treeLabel });
 
-    $.ajax({
+    DataCycle.httpRequest({
       type: 'GET',
       url: DataCycle.enginePath + this.config.findPath,
       data: queryParams,

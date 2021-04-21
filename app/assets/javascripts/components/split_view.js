@@ -224,7 +224,7 @@ class SplitView {
       source_locale: this.leftLocale,
       target_locale: this.rightLocale
     };
-    $.ajax({
+    DataCycle.httpRequest({
       url: '/things/translate_text',
       method: 'POST',
       data: formData,

@@ -121,7 +121,11 @@ class NewContentDialog {
     formData.forEach((v, i) => {
       if (v && v.value.isUuid()) {
         requests.push(
-          $.post(`/api/v4/universal/${v.value}`, { fields: 'name,skos:prefLabel' }).done(data => {
+          DataCycle.httpRequest({
+            url: `${DataCycle.enginePath}/api/v4/universal/${v.value}`,
+            method: 'POST',
+            data: { fields: 'name,skos:prefLabel' }
+          }).done(data => {
             v.text =
               data &&
               data['@graph'] &&
@@ -378,7 +382,7 @@ class NewContentDialog {
     let params = this.form.data();
     params['template'] = template;
     params['key'] = this.id;
-    $.ajax({
+    DataCycle.httpRequest({
       url: DataCycle.enginePath + '/things/new',
       method: 'GET',
       data: params,

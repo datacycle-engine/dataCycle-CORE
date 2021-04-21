@@ -155,7 +155,7 @@ class DashboardFilter {
     this.addTagGroup(params);
   }
   addTagGroup(params) {
-    return $.ajax({
+    return DataCycle.httpRequest({
       url: this.addTagGroupPath,
       method: 'GET',
       data: params,
@@ -168,7 +168,7 @@ class DashboardFilter {
     event.stopPropagation();
 
     $(event.target).prop('disabled', true);
-    $.ajax({
+    DataCycle.httpRequest({
       url: this.addFilterPath,
       method: 'GET',
       data: {

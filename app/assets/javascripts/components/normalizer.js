@@ -17,7 +17,7 @@ class DataCycleNormalizer {
     this.form_data = this.form_element.serializeArray().filter(value => {
       return value.name != '_method';
     });
-    $.ajax({
+    DataCycle.httpRequest({
       type: 'POST',
       url: this.normalize_url,
       data: $.param(this.form_data),

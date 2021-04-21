@@ -70,34 +70,27 @@ class DataList {
         );
     });
 
-    console.log('users');
+    const selectedOption = this.selectedOption();
+    const userIdInput = this.form.querySelector('input[name="data_link[receiver][id]"]');
+    const givenNameField = this.form.querySelector('input[id$=given_name]');
+    const familyNameField = this.form.querySelector('input[id$=family_name]');
 
-    if (this.selectedOption()) {
-      let user = filter_ci(list, $(input_field).val());
-      this.form.find('input[name="data_link[receiver][id]"]').remove();
-      this.form.append(
-        '<input type="hidden" id="' +
-          $(input_field).prop('id').replace('email', 'id') +
-          '" name="data_link[receiver][id]" value="' +
-          user.data('id') +
-          '">'
-      );
-      $(input_field)
-        .closest('form')
-        .find('input[id$=given_name]')
-        .first()
-        .val(user.data('givenname'))
-        .prop('readonly', true);
-      $(input_field)
-        .closest('form')
-        .find('input[id$=family_name]')
-        .first()
-        .val(user.data('familyname'))
-        .prop('readonly', true);
+    if (selectedOption) {
+      if (!userIdInput)
+        this.form.insertAdjacentHTML(
+          'beforeend',
+          `<input type="hidden" id="${this.element.id.replace('email', 'id')}" name="data_link[receiver][id]" value="${
+            selectedOption.dataset.id
+          }">`
+        );
+      else userIdInput.value = selectedOption.dataset.id;
+
+      if (givenNameField) givenNameField.setAttribute('readonly', true);
+      if (familyNameField) familyNameField.setAttribute('readonly', true);
     } else {
-      this.form.find('input[name="data_link[receiver][id]"]').remove();
-      $(input_field).closest('form').find('input[id$=given_name]').first().prop('readonly', false);
-      $(input_field).closest('form').find('input[id$=family_name]').first().prop('readonly', false);
+      if (userIdInput) userIdInput.remove();
+      if (givenNameField) givenNameField.removeAttribute('readonly');
+      if (familyNameField) familyNameField.removeAttribute('readonly');
     }
   }
   search_history_callback_method(data) {
@@ -141,42 +134,44 @@ class DataList {
         'Filterparameter aktualisieren?<br /><br />Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.',
       confirmationClass: 'success',
       cancelable: true,
-      confirmationCallback: this.eventListeners.appendStoredFilterData,
+      confirmationCallback: () => {
+        this.eventListeners.appendStoredFilterData(event);
+      },
       cancelCallback: () => {
         Rails.enableElement(event.target);
       }
     });
   }
-  appendStoredFilterData(event = null) {
-    if (event) event.preventDefault();
+  appendStoredFilterData(event) {
+    event.preventDefault();
 
-    this.searchForm.setAttribute('action', this.form.getAttribute('action'));
-    this.searchForm.setAttribute('method', this.form.getAttribute('method'));
-    this.form.querySelectorAll('input[type="hidden"]').forEach(node => {
+    this.searchForm.setAttribute('action', event.target.getAttribute('action'));
+    this.searchForm.setAttribute('method', event.target.getAttribute('method'));
+    event.target.querySelectorAll('input[type="hidden"]').forEach(node => {
       this.searchForm.appendChild(node.cloneNode());
     });
 
-    if (this.form.querySelector('#stored_filter_name'))
+    if (event.target.querySelector('#stored_filter_name'))
       this.searchForm.insertAdjacentHTML(
         'beforeend',
         `<input type="hidden" name="stored_filter[name]" value="${
-          this.form.querySelector('#stored_filter_name').value
+          event.target.querySelector('#stored_filter_name').value
         }">`
       );
 
-    if (this.form.querySelector('#stored_filter_system'))
+    if (event.target.querySelector('#stored_filter_system'))
       this.searchForm.insertAdjacentHTML(
         'beforeend',
         `<input type="hidden" name="stored_filter[system]" value="${
-          this.form.querySelector('#stored_filter_system').checked
+          event.target.querySelector('#stored_filter_system').checked
         }">`
       );
 
-    if (this.form.querySelector('#add-items-to-watch-list-select'))
+    if (event.target.querySelector('#add-items-to-watch-list-select'))
       this.searchForm.insertAdjacentHTML(
         'beforeend',
         `<input type="hidden" name="watch_list_id" value="${
-          this.form.querySelector('#add-items-to-watch-list-select').value
+          event.target.querySelector('#add-items-to-watch-list-select').value
         }">`
       );
 

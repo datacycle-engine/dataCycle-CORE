@@ -1,7 +1,6 @@
 import OpenLayersViewer from './open_layers_viewer';
-import togeojson from '@tmcw/togeojson';
+import { gpx } from '@tmcw/togeojson';
 import ConfirmationModal from './confirmation_modal';
-import wkx from 'wkx';
 
 class OpenLayersEditor extends OpenLayersViewer {
   constructor(container) {
@@ -140,7 +139,11 @@ class OpenLayersEditor extends OpenLayersViewer {
         address[elem.name.getKey()] = elem.value;
       });
 
-    $.getJSON('/things/geocode_address/', address)
+    DataCycle.httpRequest({
+      url: `${DataCycle.enginePath}/things/geocode_address`,
+      dataType: 'json',
+      data: address
+    })
       .done(data => {
         if (data.error) {
           new ConfirmationModal({
@@ -189,7 +192,7 @@ class OpenLayersEditor extends OpenLayersViewer {
           let xmlString = e.target.result;
           let parser = new DOMParser();
           let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
-          let geoJSON = togeojson.gpx(xmlDoc);
+          let geoJSON = gpx(xmlDoc);
           let features = {
             type: 'MultiLineString',
             coordinates: []
@@ -228,7 +231,7 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     if (geometry.type.includes('LineString')) geometry.coordinates = this.addZCoordinate(geometry.coordinates);
 
-    return wkx.Geometry.parseGeoJSON(geometry).toWkt();
+    return this.wktFormat.writeGeometry(this.geoJsonFormat.readGeometry(geometry));
   }
   addZCoordinate(coords) {
     for (let i = 0; i < coords.length; i++) {

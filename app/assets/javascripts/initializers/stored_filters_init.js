@@ -24,7 +24,7 @@ export default function () {
       loading = true;
       let spinner = new Spinner($('.search-history-list'));
       spinner.show();
-      $.ajax({
+      DataCycle.httpRequest({
         url: DataCycle.enginePath + '',
         method: 'GET',
         data: form_data,

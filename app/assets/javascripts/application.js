@@ -19,18 +19,18 @@ import foundationInit from './initializers/foundation_init';
 import validationInit from './initializers/validation_init';
 
 export default (() => {
-  for (const path in initializers) {
-    if (!path.includes('foundation_init') && !path.includes('validation_init')) {
-      try {
-        initializers[path].default();
-      } catch (err) {
-        console.log(err);
+  $(function () {
+    for (const path in initializers) {
+      if (!path.includes('foundation_init') && !path.includes('validation_init')) {
+        try {
+          initializers[path].default();
+        } catch (err) {
+          console.log(err);
+        }
       }
     }
-  }
 
-  foundationInit();
-  validationInit();
-
-  console.log('initialized...');
+    foundationInit();
+    validationInit();
+  });
 })();

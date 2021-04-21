@@ -1,18 +1,19 @@
-import 'flatpickr';
-import { Deutsch } from 'flatpickr/dist/l10n/de.js';
+import Flatpickr from 'flatpickr';
+import { German } from 'flatpickr/dist/l10n/de.js';
 import ConfirmationModal from './../components/confirmation_modal';
 
 export default function () {
   var calenders = [];
 
   let flatPickrOptions = {
-    locale: Deutsch,
+    locale: German,
     altFormat: 'd.m.Y',
     enableTime: false,
     altInput: true,
     time_24hr: true,
     allowInput: true,
     static: true,
+    altInputClass: 'flatpickr-input',
     onClose: setSibling
   };
 
@@ -143,7 +144,7 @@ export default function () {
   }
 
   function initDatePicker(elem, options = {}) {
-    var cal = $(elem).flatpickr(Object.assign({}, flatPickrOptions, options));
+    var cal = Flatpickr(elem, Object.assign({}, flatPickrOptions, options));
 
     var input = $(elem).next('input');
     $(input).on('change', e => {
