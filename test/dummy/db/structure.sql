@@ -126,6 +126,8 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
 
 SET default_tablespace = '';
 
+SET default_with_oids = false;
+
 --
 -- Name: activities; Type: TABLE; Schema: public; Owner: -
 --
@@ -907,6 +909,7 @@ CREATE TABLE public.thing_histories (
     latitude double precision,
     elevation double precision,
     location public.geometry(Point,4326),
+    line public.geography(LineStringZ,4326),
     address_locality character varying,
     street_address character varying,
     postal_code character varying,
@@ -919,8 +922,7 @@ CREATE TABLE public.thing_histories (
     boost numeric,
     content_type character varying,
     representation_of_id uuid,
-    version_name character varying,
-    line public.geometry(MultiLineStringZ,4326)
+    version_name character varying
 );
 
 
@@ -1787,6 +1789,13 @@ CREATE UNIQUE INDEX index_external_systems_on_id ON public.external_systems USIN
 
 
 --
+-- Name: index_occurrence; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_occurrence ON public.schedule_occurrences USING gist (occurrence);
+
+
+--
 -- Name: index_roles_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2481,6 +2490,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210410183240'),
 ('20210413105611'),
 ('20210416120714'),
-('20210421180706');
+('20210421180706'),
+('20210422111740');
 
 
