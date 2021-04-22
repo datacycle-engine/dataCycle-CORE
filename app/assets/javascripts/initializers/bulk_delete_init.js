@@ -8,7 +8,7 @@ export default function () {
       },
       {
         received: data => {
-          if (!deleteButton.prop('disabled')) Rails.disableElement(deleteButton.get(0));
+          if (!deleteButton.prop('disabled')) DataCycle.disableElement(deleteButton);
           if (data.progress !== undefined) {
             let progress = Math.round((data.progress * 100) / data.items);
             deleteButton.find('.progress-value').text(progress + '%');

@@ -31,22 +31,21 @@ class GipKeyFigure {
     event.preventDefault();
     event.stopPropagation();
 
-    Rails.disableElement(this.$element.get(0));
+    DataCycle.disableElement(this.$element);
 
     const ids = this.getValues();
 
     if (ids && ids.length) {
       const fullUrl = `${this.url}?key=${this.key}&${ids.map(v => 'part_ids[]=' + v)}`;
 
-      DataCycle.httpRequest(fullUrl)
-        .then(data => {
+      DataCycle.httpRequest({ url: fullUrl })
+        .done(data => {
           if (data && data.newValue) this.setNewValue(data.newValue);
         })
-        .then(this.reEnableButon.bind(this), this.reEnableButon.bind(this));
+        .always(() => {
+          DataCycle.enableElement(this.$element);
+        });
     }
-  }
-  reEnableButon() {
-    Rails.enableElement(this.$element.get(0));
   }
   setNewValue(value) {
     this.$formElement.find(DataCycle.editorSelectors.join(', ')).trigger('dc:import:data', {

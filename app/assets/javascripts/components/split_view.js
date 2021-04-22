@@ -238,7 +238,7 @@ class SplitView {
         CalloutHelpers.show('Fehler beim Laden der Übersetzung', 'alert');
       })
       .always(() => {
-        Rails.enableElement(elem.get(0));
+        DataCycle.enableElement(elem);
       });
   }
 }

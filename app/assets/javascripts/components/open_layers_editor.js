@@ -219,7 +219,7 @@ class OpenLayersEditor extends OpenLayersViewer {
       })(file);
       reader.readAsText(file);
     }
-    Rails.enableElement(this.$uploadButton.get(0));
+    DataCycle.enableElement(this.$uploadButton);
   }
   geoJsonToWkt(geometry) {
     if (!geometry || !geometry.coordinates || !geometry.coordinates.length) return;

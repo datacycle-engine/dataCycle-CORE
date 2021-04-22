@@ -65,7 +65,7 @@ services:
   nginx:
     image: nginx:1.19.4-alpine
     ports:
-      - '${PUBLIC_NGINX_HTTP_PORT:-80}:80'
+      # - '${PUBLIC_NGINX_HTTP_PORT:-80}:80'
       - '${PUBLIC_APPLICATION_PORT:-3003}:${PUBLIC_APPLICATION_PORT:-3003}'
     env_file:
       - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}.env

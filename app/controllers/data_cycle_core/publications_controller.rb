@@ -70,13 +70,22 @@ module DataCycleCore
         query2 = query2.where(id: content_ids)
       end
 
-      @contents = query2.order(Arel.sql("(#{value_storage_location} ->> 'publish_at')::date ASC")).page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
+      if params[:count_only]
+        @content_class = params[:content_class]
+        @target = params[:target]
+        @count_only = true
+        @total_count = query2.includes(:content_content_b).map(&:content_content_b).map { |c| c.first.content_a_id }.size
 
-      @total = @contents.map(&:content_content_b).map { |c| c.first.content_a_id }.uniq.size
+        render 'data_cycle_core/application/more_results'
+      else
+        @contents = query2.order(Arel.sql("(#{value_storage_location} ->> 'publish_at')::date ASC")).page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
 
-      @pages = @contents.total_pages
+        @total = @contents.map(&:content_content_b).map { |c| c.first.content_a_id }.uniq.size
 
-      respond_to(:html, :js)
+        @pages = @contents.total_pages
+
+        respond_to(:html, :js)
+      end
     end
   end
 end

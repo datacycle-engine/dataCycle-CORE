@@ -25,5 +25,13 @@ export default {
     };
 
     return $.ajax(_.merge(defaultOptions, options));
+  },
+  disableElement(element) {
+    if (element instanceof $) element = element[0];
+    if (element) Rails.disableElement(element);
+  },
+  enableElement(element) {
+    if (element instanceof $) element = element[0];
+    if (element) Rails.enableElement(element);
   }
 };

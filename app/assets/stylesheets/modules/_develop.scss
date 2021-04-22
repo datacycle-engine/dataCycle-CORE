@@ -2474,17 +2474,17 @@ input.normalized {
   top: 0.5rem;
   padding: 0.3rem 0;
 
-  .dropdown-pane:not(.left) {
-    left: -45px !important;
+  // .dropdown-pane:not(.left) {
+  //   left: -45px !important;
 
-    &::before {
-      left: 35px;
-    }
-  }
+  //   &::before {
+  //     left: 35px;
+  //   }
+  // }
 
-  .dropdown-pane.left {
-    right: -18px !important;
-  }
+  // .dropdown-pane.left {
+  //   right: -18px !important;
+  // }
 
   .translated-attribute-locale {
     &.active {

@@ -138,7 +138,7 @@ class DataList {
         this.eventListeners.appendStoredFilterData(event);
       },
       cancelCallback: () => {
-        Rails.enableElement(event.target);
+        DataCycle.enableElement(event.target);
       }
     });
   }

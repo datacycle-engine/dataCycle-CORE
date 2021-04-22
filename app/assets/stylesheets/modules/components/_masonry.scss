@@ -131,18 +131,18 @@
       display: none;
     }
 
-    .dropdown-pane {
-      left: -22px !important;
+    // .dropdown-pane {
+    //   left: -22px !important;
 
-      &::before {
-        left: calc(var(--dropdown-arrow-left-offset) - 8px);
-      }
+    //   &::before {
+    //     left: calc(var(--dropdown-arrow-left-offset) - 8px);
+    //   }
 
-      &.left {
-        left: auto !important;
-        right: -22px !important;
-      }
-    }
+    //   &.left {
+    //     left: auto !important;
+    //     right: -22px !important;
+    //   }
+    // }
 
     .status {
       &.expired {

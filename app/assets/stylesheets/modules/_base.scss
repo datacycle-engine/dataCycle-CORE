@@ -1596,7 +1596,7 @@ a {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
   z-index: 1006;
-  top: calc(100% + 1rem) !important;
+  // top: calc(100% + 1rem) !important;
   min-width: 250px;
   max-width: 50vw;
   width: auto !important;
@@ -1759,34 +1759,36 @@ a {
     }
   }
 
-  &.bottom:not(.left-auto):not(.left) {
-    left: -22px !important;
+  // &.bottom:not(.left-auto):not(.left):not(.has-alignment-left) {
+  //   left: -22px !important;
 
-    &::before {
-      left: var(--dropdown-arrow-left-offset);
-    }
-  }
+  //   &::before {
+  //     left: var(--dropdown-arrow-left-offset);
+  //   }
+  // }
 
-  &.left {
-    right: -5px !important;
-    left: unset !important;
+  // &.left,
+  // &.has-alignment-left {
+  //   right: -5px !important;
+  //   left: unset !important;
 
-    &::before {
-      left: auto;
-      right: 10px;
-    }
-  }
+  //   &::before {
+  //     left: auto;
+  //     right: 10px;
+  //   }
+  // }
 
-  &.top {
-    top: auto !important;
-    bottom: calc(100% + 1rem) !important;
+  // &.top,
+  // &.has-position-top {
+  //   top: auto !important;
+  //   bottom: calc(100% + 1rem) !important;
 
-    &:before {
-      top: auto;
-      bottom: -17px;
-      transform: scaleX(3) rotate(180deg);
-    }
-  }
+  //   &:before {
+  //     top: auto;
+  //     bottom: -17px;
+  //     transform: scaleX(3) rotate(180deg);
+  //   }
+  // }
 }
 
 .button.progress-button {

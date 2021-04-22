@@ -1,4 +1,4 @@
-import MimeTypes from 'mime-types';
+import MimeTypes from 'mime/lite';
 import ObjectHelpers from './../helpers/object_helpers';
 
 class AssetValidator {
@@ -39,8 +39,8 @@ class AssetValidator {
   }
   validateFormat(validations) {
     validations.forEach(format => {
-      let mimeType = MimeTypes.lookup(format);
-      if (mimeType) validations = validations.concat(MimeTypes.extensions[mimeType]);
+      let mimeType = MimeTypes.getType(format);
+      if (mimeType) validations = validations.concat(MimeTypes.getExtension(mimeType));
     });
 
     var valid = validations.indexOf(this.file.fileExtension) !== -1;

@@ -119,15 +119,15 @@ class Validator {
     return error;
   }
   disable() {
-    Rails.disableElement(this.submitButton.get(0));
-    Rails.disableElement(this.saveButton.get(0));
-    Rails.disableElement(this.form.get(0));
+    DataCycle.disableElement(this.submitButton);
+    DataCycle.disableElement(this.saveButton);
+    DataCycle.disableElement(this.form);
   }
   enable() {
     if (this.queryCount == 0 && !this.form.hasClass('disabled')) {
-      Rails.enableElement(this.submitButton.get(0));
-      Rails.enableElement(this.saveButton.get(0));
-      Rails.enableElement(this.form.get(0));
+      DataCycle.enableElement(this.submitButton);
+      DataCycle.enableElement(this.saveButton);
+      DataCycle.enableElement(this.form);
       this.form.find('input#duplicate_id').remove();
     }
   }

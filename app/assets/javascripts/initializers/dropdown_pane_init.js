@@ -12,9 +12,7 @@ export default function () {
   function resizeDropdown(element) {
     element.style.setProperty('--dropdown-arrow-left-offset', Math.abs($(element).position().left) + 'px');
     let linked_item = $('[data-toggle="' + $(element).prop('id') + '"]');
-
     if (!linked_item.length) return;
-
     if (
       linked_item.offset().top + linked_item.outerHeight() - $(document).scrollTop() + $(element).outerHeight() + 20 >=
         $(window).height() &&
@@ -22,10 +20,8 @@ export default function () {
         $(window).height() - (linked_item.offset().top - $(document).scrollTop() + linked_item.outerHeight())
     ) {
       $(element).addClass('top');
-
       if ($(element).children('.list-items').length) {
         $(element).children('.list-items').first().css('max-height', '');
-
         if (
           $(document).scrollTop() < $('header').outerHeight() + 5 &&
           linked_item.offset().top - $(document).scrollTop() - $(element).outerHeight() <= $('header').outerHeight()
@@ -58,7 +54,6 @@ export default function () {
       $(element).removeClass('top');
       if ($(element).children('.list-items').length) {
         $(element).children('.list-items').first().css('max-height', '');
-
         if (
           $(window).height() -
             (linked_item.offset().top +

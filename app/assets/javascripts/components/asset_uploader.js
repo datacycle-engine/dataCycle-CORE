@@ -1,8 +1,7 @@
 import DurationHelpers from './../helpers/duration_helpers';
 import ObjectHelpers from './../helpers/object_helpers';
-import MimeTypes from 'mime-types/index';
-// import AssetValidator from './asset_validator';
-console.log(MimeTypes);
+import MimeTypes from 'mime/lite';
+import AssetValidator from './asset_validator';
 
 class AssetUploader {
   constructor(reveal) {
@@ -32,29 +31,29 @@ class AssetUploader {
     this.init();
   }
   init() {
-    // this.reveal.addClass('initialized');
-    // this.reveal.on('open.zf.reveal', this.openReveal.bind(this));
-    // this.reveal.on('closed.zf.reveal', this.closeReveal.bind(this));
-    // this.fileField.on('change', this.validateFiles.bind(this));
-    // this.reveal.on('dc:upload:setFiles', (e, files) => {
-    //   this.validateFiles(e, files.fileList);
-    // });
-    // $(window).on('beforeunload', event => {
-    //   if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
-    // });
-    // this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
-    // this.reveal.on(
-    //   'click',
-    //   '.file-for-upload:not(.uploading) .cancel-upload-button',
-    //   this.removeFileHandler.bind(this)
-    // );
-    // this.reveal.on('click', '.file-for-upload:not(.uploading) .retry-upload-button', this.retryUpload.bind(this));
-    // if (this.contentUploader) {
-    //   this.reveal.on('dc:upload:setFormFields', '.file-for-upload', this.setFormFieldValues.bind(this));
-    //   this.reveal.on('dc:upload:syncWithForm', '.file-for-upload', this.syncWithForm.bind(this));
-    //   this.createButton.on('click', this.createAssets.bind(this));
-    // }
-    // this.initActionCable();
+    this.reveal.addClass('initialized');
+    this.reveal.on('open.zf.reveal', this.openReveal.bind(this));
+    this.reveal.on('closed.zf.reveal', this.closeReveal.bind(this));
+    this.fileField.on('change', this.validateFiles.bind(this));
+    this.reveal.on('dc:upload:setFiles', (e, files) => {
+      this.validateFiles(e, files.fileList);
+    });
+    $(window).on('beforeunload', event => {
+      if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
+    });
+    this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
+    this.reveal.on(
+      'click',
+      '.file-for-upload:not(.uploading) .cancel-upload-button',
+      this.removeFileHandler.bind(this)
+    );
+    this.reveal.on('click', '.file-for-upload:not(.uploading) .retry-upload-button', this.retryUpload.bind(this));
+    if (this.contentUploader) {
+      this.reveal.on('dc:upload:setFormFields', '.file-for-upload', this.setFormFieldValues.bind(this));
+      this.reveal.on('dc:upload:syncWithForm', '.file-for-upload', this.syncWithForm.bind(this));
+      this.createButton.on('click', this.createAssets.bind(this));
+    }
+    this.initActionCable();
   }
   removeFileHandler(event) {
     event.preventDefault();
@@ -156,7 +155,7 @@ class AssetUploader {
   createAssets(event) {
     event.preventDefault();
     this.saving = true;
-    if (this.contentUploader && !this.createButton.prop('disabled')) Rails.disableElement(this.createButton.get(0));
+    if (this.contentUploader && !this.createButton.prop('disabled')) DataCycle.disableElement(this.createButton);
     if (!this.files.length) return;
 
     let formData = this.globalFieldValues;
@@ -396,7 +395,7 @@ class AssetUploader {
         contentType: false,
         cache: false,
         xhr: function () {
-          var myXhr = DataCycle.httpRequestSettings.xhr();
+          var myXhr = $.ajaxSettings.xhr();
           if (myXhr.upload) {
             myXhr.upload.addEventListener(
               'progress',
@@ -600,12 +599,12 @@ class AssetUploader {
     return fileOptions;
   }
   getFileExtension(file) {
-    let mimeType = MimeTypes.lookup(file.name) || file.type;
-    let nameExtension = file.name.split('.').pop();
+    let mimeType = MimeTypes.getType(file.name) || file.type;
+    // let nameExtension = file.name.split('.').pop();
 
-    if (MimeTypes.extensions[mimeType] && MimeTypes.extensions[mimeType].includes(nameExtension)) return nameExtension;
+    // if (MimeTypes.getExtension(mimeType) && MimeTypes.extensions[mimeType].includes(nameExtension)) return nameExtension;
 
-    return MimeTypes.extension(mimeType) || file.type.split('/').pop();
+    return MimeTypes.getExtension(mimeType) || file.type.split('/').pop();
   }
   fileThumbHtml(thumbHtml) {
     return (
@@ -744,9 +743,9 @@ class AssetUploader {
   }
   updateCreateButton(error = null) {
     if (this.files.length && !this.files.filter(f => !f.attributeFieldsValidated || !f.uploaded).length) {
-      Rails.enableElement(this.createButton.get(0));
+      DataCycle.enableElement(this.createButton);
     } else {
-      Rails.disableElement(this.createButton.get(0));
+      DataCycle.disableElement(this.createButton);
       if (!error) error = 'Fehlende Metadaten!';
     }
 
