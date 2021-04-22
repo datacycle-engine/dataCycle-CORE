@@ -22,7 +22,7 @@ class FixGenerateScheduleOccurences < ActiveRecord::Migration[5.2]
                 END AS duration,
               unnest(get_occurrences(schedules.rrule::rrule, schedules.dtstart)) AS occurence
           FROM schedules
-          WHERE rrule LIKE '%UNTIL%' AND id || '{}'::UUID[] <@ schedule_ids
+          WHERE schedules.relation IS NOT NULL AND rrule LIKE '%UNTIL%' AND id || '{}'::UUID[] <@ schedule_ids
           UNION
           SELECT
             schedules.id,
@@ -34,7 +34,7 @@ class FixGenerateScheduleOccurences < ActiveRecord::Migration[5.2]
                 END AS duration,
               unnest(get_occurrences((schedules.rrule || ';UNTIL=2037-12-31')::rrule, schedules.dtstart)) AS occurence
           FROM schedules
-          WHERE rrule NOT LIKE '%UNTIL%' AND id || '{}'::UUID[] <@ schedule_ids
+          WHERE schedules.relation IS NOT NULL AND rrule NOT LIKE '%UNTIL%' AND id || '{}'::UUID[] <@ schedule_ids
           UNION
           SELECT
             schedules.id,
@@ -46,7 +46,7 @@ class FixGenerateScheduleOccurences < ActiveRecord::Migration[5.2]
                 END AS duration,
               schedules.dtstart AS occurence
           FROM schedules
-          WHERE schedules.rrule IS NULL AND id || '{}'::UUID[] <@ schedule_ids
+          WHERE schedules.relation IS NOT NULL AND schedules.rrule IS NULL AND id || '{}'::UUID[] <@ schedule_ids
           UNION
           SELECT
             schedules.id,
@@ -58,7 +58,7 @@ class FixGenerateScheduleOccurences < ActiveRecord::Migration[5.2]
                 END AS duration,
               unnest(schedules.rdate) AS occurence
           FROM schedules
-          WHERE id || '{}'::UUID[] <@ schedule_ids
+          WHERE schedules.relation IS NOT NULL AND id || '{}'::UUID[] <@ schedule_ids
         )
         INSERT INTO schedule_occurrences (schedule_id, thing_id, duration, occurrence)
           SELECT
