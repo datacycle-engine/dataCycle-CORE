@@ -18,18 +18,18 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              overlap(tstzrange(from_node, to_node), tstzrange(thing[:start_date], thing[:end_date]))
-              .and(
-                Arel::Nodes::Exists.new(
-                  Arel::SelectManager.new(schedule)
-                    .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN schedule_occurrences on schedules.id = schedule_occurrences.schedule_id'])))
-                    .where(
-                      (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : Arel::Nodes::True.new)
-                      .and(overlap(tstzrange(from_node, to_node), Arel::Nodes::SqlLiteral.new('schedule_occurrences.occurrence')))
-                      .and(thing[:id].eq(schedule[:thing_id]))
-                    )
-                )
+              # overlap(tstzrange(from_node, to_node), tstzrange(thing[:start_date], thing[:end_date]))
+              # .and(
+              Arel::Nodes::Exists.new(
+                Arel::SelectManager.new(schedule)
+                  .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN schedule_occurrences on schedules.id = schedule_occurrences.schedule_id'])))
+                  .where(
+                    (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : Arel::Nodes::True.new)
+                    .and(overlap(tstzrange(from_node, to_node), Arel::Nodes::SqlLiteral.new('schedule_occurrences.occurrence')))
+                    .and(thing[:id].eq(schedule[:thing_id]))
+                  )
               )
+              # )
             )
           )
         end
