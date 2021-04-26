@@ -199,6 +199,12 @@ namespace :dc do
           download! remote_file_name, "#{fetch(:application_root_path, '')}tmp/"
         end
         print_message 'download complete'
+
+        print_message remote_file_name
+
+        within release_path do
+          execute "rm #{release_path}/#{remote_file_name}"
+        end
       end
 
       file_name = remote_file_name.split('/').last
