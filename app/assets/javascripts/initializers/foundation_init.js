@@ -4,6 +4,10 @@ export default function () {
   Foundation.Tooltip.defaults.clickOpen = false;
   Foundation.Reveal.defaults.closeOnClick = false;
   Foundation.Reveal.defaults.multipleOpened = true;
+  Foundation.Dropdown.defaults.position = 'bottom';
+  Foundation.Dropdown.defaults.alignment = 'left';
+  Foundation.Dropdown.defaults.hover = true;
+  Foundation.Dropdown.defaults.hoverPane = true;
   Foundation.addToJquery($);
 
   $('body').foundation().addClass('dc-fd-initialized');

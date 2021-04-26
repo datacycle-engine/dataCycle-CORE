@@ -1220,6 +1220,11 @@ $filter-border: #aaa;
     padding: 0.6rem;
     border: 1px solid $light-gray;
 
+    #tree-view-selector::before {
+      left: unset;
+      right: 28px;
+    }
+
     .fa {
       font-size: 1.5rem;
       line-height: 1.5rem;
@@ -1390,7 +1395,7 @@ $filter-border: #aaa;
               &:before {
                 content: '';
               }
-              // top: calc(100% + 0.5rem) !important;
+              top: calc(100% + 0.5rem) !important;
             }
           }
 

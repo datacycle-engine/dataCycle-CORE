@@ -1596,7 +1596,7 @@ a {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
   z-index: 1006;
-  // top: calc(100% + 1rem) !important;
+  top: calc(100% + 1rem) !important;
   min-width: 250px;
   max-width: 50vw;
   width: auto !important;
@@ -1609,8 +1609,8 @@ a {
     transform: scaleX(3);
     text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
     position: absolute;
-    left: calc(20px + var(--dropdown-arrow-left-offset));
-    width: 2rem;
+    left: calc(var(--dropdown-arrow-left-offset));
+    width: 1.3rem;
     height: 1.1rem;
     line-height: 1rem;
     display: block;
@@ -1620,6 +1620,16 @@ a {
 
   &.watch-lists {
     min-width: 300px;
+
+    &.is-open {
+      &.has-position-bottom,
+      &.has-position-left {
+        &.has-alignment-right,
+        &.has-alignment-top {
+          right: -22px !important;
+        }
+      }
+    }
   }
 
   > .loading {
@@ -1759,36 +1769,35 @@ a {
     }
   }
 
-  // &.bottom:not(.left-auto):not(.left):not(.has-alignment-left) {
-  //   left: -22px !important;
+  &.is-open {
+    &.has-position-bottom,
+    &.has-position-left {
+      &.has-alignment-left {
+        left: -22px !important;
 
-  //   &::before {
-  //     left: var(--dropdown-arrow-left-offset);
-  //   }
-  // }
+        &::before {
+          left: calc(var(--dropdown-arrow-left-offset));
+        }
+      }
 
-  // &.left,
-  // &.has-alignment-left {
-  //   right: -5px !important;
-  //   left: unset !important;
+      &.has-alignment-right,
+      &.has-alignment-top {
+        right: -16px !important;
+        left: unset !important;
+      }
+    }
 
-  //   &::before {
-  //     left: auto;
-  //     right: 10px;
-  //   }
-  // }
+    &.top {
+      top: unset !important;
+      bottom: calc(100% + 1rem) !important;
 
-  // &.top,
-  // &.has-position-top {
-  //   top: auto !important;
-  //   bottom: calc(100% + 1rem) !important;
-
-  //   &:before {
-  //     top: auto;
-  //     bottom: -17px;
-  //     transform: scaleX(3) rotate(180deg);
-  //   }
-  // }
+      &:before {
+        top: unset;
+        bottom: -17px;
+        transform: scaleX(3) rotate(180deg);
+      }
+    }
+  }
 }
 
 .button.progress-button {

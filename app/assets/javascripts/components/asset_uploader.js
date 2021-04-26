@@ -600,9 +600,6 @@ class AssetUploader {
   }
   getFileExtension(file) {
     let mimeType = MimeTypes.getType(file.name) || file.type;
-    // let nameExtension = file.name.split('.').pop();
-
-    // if (MimeTypes.getExtension(mimeType) && MimeTypes.extensions[mimeType].includes(nameExtension)) return nameExtension;
 
     return MimeTypes.getExtension(mimeType) || file.type.split('/').pop();
   }

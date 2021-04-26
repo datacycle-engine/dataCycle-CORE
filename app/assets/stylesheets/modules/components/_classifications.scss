@@ -3,6 +3,22 @@ ul.backend-treeview-list,
   list-style-type: none;
   margin: 2rem 0;
 
+  .dropdown-pane {
+    &.watch-lists {
+      &.is-open {
+        &.has-position-bottom,
+        &.has-position-left {
+          &.has-alignment-right,
+          &.has-alignment-top {
+            &::before {
+              left: calc(var(--dropdown-arrow-left-offset) - 5px);
+            }
+          }
+        }
+      }
+    }
+  }
+
   .edit_classification_alias {
     margin-left: 1rem;
 
@@ -304,7 +320,7 @@ ul.backend-treeview-list,
     display: none;
   }
 
-  form {
+  form:not(.add-watchlist-form) {
     label:first-of-type {
       display: none;
     }

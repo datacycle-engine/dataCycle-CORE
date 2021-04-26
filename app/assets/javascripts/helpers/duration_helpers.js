@@ -1,4 +1,3 @@
-// Duration Helper
 export default {
   seconds_to_human_time: secs => {
     var hours = Math.floor(secs / 3600);

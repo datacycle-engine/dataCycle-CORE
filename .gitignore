@@ -20,7 +20,6 @@ gemsurance_report.html
 **/.idea
 rdoc/
 **/package-lock.json
-**/yarn.lock
 coverage
 .env
 benchmark/

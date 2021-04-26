@@ -207,7 +207,7 @@ class ContentLock {
       },
       type: 'PATCH'
     }).fail(() => {
-      console.log('error renewing the lock');
+      console.error('error renewing the lock');
     });
   }
   renewLock(lockId, lockedUntil, token) {
