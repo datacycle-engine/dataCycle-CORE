@@ -64,7 +64,7 @@ class Validator {
   pageLeaveWarning() {
     QuillHelpers.updateEditors(this.form);
     this.initialFormData = this.form.serializeArray().uniqFieldValues();
-    $(window).on('beforeunload', event => {
+    $(window).on('beforeunload', _event => {
       QuillHelpers.updateEditors(this.form);
       this.submitFormData = this.form.serializeArray().uniqFieldValues();
 
