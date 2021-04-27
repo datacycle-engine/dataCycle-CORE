@@ -31,15 +31,16 @@ namespace :datacycle do
           before 'puma:restart', 'datacycle:puma:deploy_config' unless fetch(:skip_deploy_configs)
         end
 
-        before 'assets:precompile', 'deploy:npm'
-        after 'deploy:npm', 'deploy:gulp'
-        after 'assets:precompile', 'deploy:iconfonts'
+        # before 'assets:precompile', 'deploy:npm'
+        # after 'deploy:npm', 'deploy:gulp'
+        # after 'assets:precompile', 'deploy:iconfonts'
+        after 'deploy:updated', 'deploy:assets:precompile'
 
         after 'deploy:migrate', 'datacycle:dev:update_project'
         after 'datacycle:dev:update_project', 'datacycle:dev:migrate_project'
         after 'deploy:cleanup', 'datacycle:dev:update_configs' unless fetch(:skip_deploy_configs)
 
-        before 'deploy:reverted', 'deploy:npm'
+        before 'deploy:reverted', 'deploy:assets:precompile'
       end
     end
   end
