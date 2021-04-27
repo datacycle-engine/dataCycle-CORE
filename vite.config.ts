@@ -5,6 +5,9 @@ import CopyPlugin from 'rollup-plugin-copy';
 import DelPlugin from 'rollup-plugin-delete';
 
 export default defineConfig({
+  build: {
+    brotliSize: false
+  },
   plugins: [
     RubyPlugin(),
     DelPlugin({
