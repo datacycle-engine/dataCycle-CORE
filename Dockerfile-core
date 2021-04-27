@@ -1,8 +1,6 @@
-FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
+FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:vite
 
 RUN mkdir -p /var/www/app
-
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && apt -y install nodejs
 
 ENV GEM_HOME /gems
 ENV BUNDLE_PATH $GEM_HOME
