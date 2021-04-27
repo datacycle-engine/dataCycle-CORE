@@ -6,7 +6,7 @@ import DelPlugin from 'rollup-plugin-delete';
 
 export default defineConfig({
   build: {
-    brotliSize: false
+    chunkSizeWarningLimit: 5000
   },
   plugins: [
     RubyPlugin(),
