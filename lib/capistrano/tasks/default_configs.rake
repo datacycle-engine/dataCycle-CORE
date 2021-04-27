@@ -34,7 +34,7 @@ namespace :datacycle do
         # before 'assets:precompile', 'deploy:npm'
         # after 'deploy:npm', 'deploy:gulp'
         # after 'assets:precompile', 'deploy:iconfonts'
-        after 'deploy:updated', 'deploy:assets:precompile'
+        after 'bundler:install', 'deploy:assets:precompile'
 
         before 'deploy:migrate', 'deploy:psql'
         after 'deploy:psql', 'deploy:load_dict'
