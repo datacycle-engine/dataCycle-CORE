@@ -1,6 +1,23 @@
 # frozen_string_literal: true
 
 namespace :deploy do
+  task :psql do
+    on roles(:all) do
+      invoke 'datacycle:psql:deploy_dict'
+      invoke 'datacycle:psql:reload'
+    end
+  end
+
+  task :load_dict do
+    on roles(:db) do
+      within release_path do
+        with rails_env: fetch(:rails_env) do
+          execute :rake, "#{fetch(:cmd_prefix, '')}dc:update:dictionaries"
+        end
+      end
+    end
+  end
+
   # task :npm do
   #   on roles(:all) do
   #     execute "cd #{release_path}/vendor/gems/data-cycle-core/ && yarn --production"
@@ -39,7 +56,7 @@ namespace :deploy do
     end
   end
 
-  desc 'runs rake db:seed and import classifications and templates'
+  desc 'runs rake db:seed and import classifications and templates, updates dictionaries'
   task :seed do
     on roles(:db) do
       within release_path do

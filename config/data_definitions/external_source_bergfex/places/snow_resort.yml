@@ -91,6 +91,22 @@
               :placeholder: 'tt.mm.jjjj'
           :show:
             :type: date
+      :line:
+        :label: Pisten/Lifte
+        :storage_location: column
+        :type: geographic
+        :ui:
+          :edit:
+            :disabled: true
+            :type: LineString
+            :options:
+              :additional_value_paths:
+                :lift_details:
+                  :geo: line
+                  :title: title
+                :slope_details:
+                  :geo: line
+                  :title: title
       :lift_details:
         :label: Lifte
         :template_name: Lift

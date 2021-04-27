@@ -36,6 +36,8 @@ namespace :datacycle do
         # after 'assets:precompile', 'deploy:iconfonts'
         after 'deploy:updated', 'deploy:assets:precompile'
 
+        before 'deploy:migrate', 'deploy:psql'
+        after 'deploy:psql', 'deploy:load_dict'
         after 'deploy:migrate', 'datacycle:dev:update_project'
         after 'datacycle:dev:update_project', 'datacycle:dev:migrate_project'
         after 'deploy:cleanup', 'datacycle:dev:update_configs' unless fetch(:skip_deploy_configs)

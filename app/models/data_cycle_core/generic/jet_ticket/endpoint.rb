@@ -43,6 +43,17 @@ module DataCycleCore
           end
         end
 
+        def event_sets(*)
+          from = '2020-01-01'
+          to = "#{Time.zone.now.year + 1}-12-31"
+          Enumerator.new do |yielder|
+            load_data(service_name: 'EventService', method_name: 'getEventSets', xml_generator: 'event_request_xml', path: 'EventSet', options: { from: from, to: to }).each do |xml_data|
+              data_hash = Hash.from_xml(xml_data.to_xml).dig('EventSet')
+              yielder << data_hash
+            end
+          end
+        end
+
         def articles(*)
           item_loader(service_name: 'EventService', method_name: 'getArticles', xml_generator: 'simple_request_xml', path: 'Article')
         end

@@ -15,60 +15,22 @@ module DataCycleCore
 
           from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from&.beginning_of_day)
           to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to&.end_of_day)
-          occurrence_from = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_date(from&.to_date)
-          occurrence_to = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_date(to&.to_date)
-
-          sub_select = Arel::SelectManager.new(schedule).where(
-            (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : Arel::Nodes::True.new)
-            .and(
-              overlap(tstzrange(from_node, to_node), tstzrange(schedule[:dtstart], schedule[:dtend]))
-            )
-            .and(
-              thing[:id]
-              .eq(schedule[:thing_id])
-            )
-          )
-
-          occurrence_string = "get_occurrences(schedules.rrule::rrule, #{from.blank? ? 'schedules.dtstart' : occurrence_from.to_sql}"
-          occurrence_string += ", #{occurrence_to.to_sql}" if to.present?
-          occurrence_string += ')'
 
           reflect(
-            @query
-              .where(
-                overlap(
-                  tstzrange(from_node, to_node),
-                  tstzrange(thing[:start_date], thing[:end_date])
-                )
-                .and(
-                  Arel::Nodes::Exists.new(
-                    Arel::Nodes::Except.new(
-                      Arel::Nodes::UnionAll.new(
-                        sub_select.dup.where(
-                          in_range(
-                            tstzrange(from_node, to_node),
-                            any(schedule[:rdate])
-                          ).or(
-                            schedule[:rrule].eq(nil)
-                          )
-                        ),
-                        sub_select.dup.where(
-                          in_range(
-                            tstzrange(from_node, to_node),
-                            any(Arel::Nodes::SqlLiteral.new(occurrence_string))
-                          )
-                        )
-                      ),
-                      sub_select.dup.where(
-                        in_range(
-                          tstzrange(from_node, to_node),
-                          any(schedule[:exdate])
-                        )
-                      )
-                    )
+            @query.where(
+              # overlap(tstzrange(from_node, to_node), tstzrange(thing[:start_date], thing[:end_date]))
+              # .and(
+              Arel::Nodes::Exists.new(
+                Arel::SelectManager.new(schedule)
+                  .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN schedule_occurrences on schedules.id = schedule_occurrences.schedule_id'])))
+                  .where(
+                    (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : Arel::Nodes::True.new)
+                    .and(overlap(tstzrange(from_node, to_node), Arel::Nodes::SqlLiteral.new('schedule_occurrences.occurrence')))
+                    .and(thing[:id].eq(schedule[:thing_id]))
                   )
-                )
               )
+              # )
+            )
           )
         end
 
