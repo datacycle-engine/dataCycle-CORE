@@ -1,5 +1,8 @@
 #!/bin/bash
 echo "$(ip route|awk '/default/ { print $3 }') dockerhost" >> /etc/hosts
+
+(yarn; yarn upgrade data-cycle-core) &> log/yarn.log &
+
 cd test/dummy
 mkdir -p /var/www/app/test/dummy/tmp/{sockets,pids}
 chown -R 1000:1000 /var/www/app/test/dummy/tmp

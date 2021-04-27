@@ -9,8 +9,7 @@ pkg/
 **/public/downloads/*
 **/public/uploads
 **/public/assets
-**/log/**
-!/log/.keep
+**/log/
 *.log
 .byebug_history
 .irb-history
@@ -23,12 +22,12 @@ rdoc/
 coverage
 .env
 benchmark/
-test/fixtures/files/shp
 
 # Vite Ruby
 /public/vite
 /public/vite-dev
 /public/vite-test
+/app/assets/entrypoints/images
 node_modules
 *.local
 .DS_Store

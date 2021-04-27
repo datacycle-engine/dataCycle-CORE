@@ -1,7 +1,6 @@
 {
   "all": {
     "sourceCodeDir": "app/assets",
-    "watchAdditionalPaths": ["../../../app/assets/**/*"],
     "publicOutputDir": "assets/build",
     "assetsDir": ""
   },
