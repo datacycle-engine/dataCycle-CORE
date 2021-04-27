@@ -24,16 +24,5 @@ namespace :deploy do
 
       `RAILS_ENV=#{fetch(:rails_env)} bundle exec vite clobber`
     end
-
-    # desc 'remove old assets'
-    # task :clean do
-    #   on roles(:web) do
-    #     within release_path do
-    #       with rails_env: fetch(:rails_env) do
-    #         execute :bundle, 'exec vite clean'
-    #       end
-    #     end
-    #   end
-    # end
   end
 end
