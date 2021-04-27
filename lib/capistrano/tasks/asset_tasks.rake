@@ -18,8 +18,8 @@ namespace :deploy do
       end
 
       on roles(:web) do |server|
-        `rsync -avr --exclude='.DS_Store' ./public/assets/build/ #{server.user}@#{server.hostname}:#{release_path}/public/assets/build/`
-        `rsync -avr --exclude='.DS_Store' ./public/assets/fonts/ #{server.user}@#{server.hostname}:#{release_path}/public/assets/fonts/`
+        `rsync -avr --exclude='.DS_Store' --relative ./public/assets/build/ #{server.user}@#{server.hostname}:#{release_path}`
+        `rsync -avr --exclude='.DS_Store' --relative ./public/assets/fonts/ #{server.user}@#{server.hostname}:#{release_path}`
       end
 
       `RAILS_ENV=#{fetch(:rails_env)} bundle exec vite clobber`
