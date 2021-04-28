@@ -2,12 +2,14 @@ class DragAndDropField {
   constructor(container) {
     this.container = $(container);
     this.uploaderRevealId = this.container.data('asset-uploader');
+    this.uploaderReveal = $('#' + this.container.data('asset-uploader'));
     this.fileField = this.container.find('input.content-upload-field');
     this.dragAndDropField = this.container.find('.drag-and-drop-field');
     this.init();
   }
   init() {
     if (!this.isAdvancedUpload) return;
+    if (!this.fileField.length) this.fileField = this.uploaderReveal.find('input[type="file"].upload-file');
 
     this.dragAndDropField
       .on('drag dragstart dragend dragover dragenter dragleave drop', e => {
