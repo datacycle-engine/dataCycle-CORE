@@ -331,7 +331,8 @@ module DataCycleCore
         # default order depending on filter parameter
         query = query.sort_fulltext_search('DESC', full_text_search) if full_text_search.present?
         query = query.sort_proximity_geographic('ASC', order_value_from_params('proximity.geographic', full_text_search, raw_query_params)) if order_value_from_params('proximity.geographic', full_text_search, raw_query_params)
-        query = query.sort_by_proximity('', order_value_from_params('proximity.inTime', full_text_search, raw_query_params)) if order_value_from_params('proximity.inTime', full_text_search, raw_query_params).present?
+        # query = query.sort_by_proximity('', order_value_from_params('proximity.inTime', full_text_search, raw_query_params)) if order_value_from_params('proximity.inTime', full_text_search, raw_query_params).present?
+        query = query.sort_by_schedule_proximity('', order_value_from_params('proximity.inTime', full_text_search, raw_query_params)) if order_value_from_params('proximity.inTime', full_text_search, raw_query_params).present?
         return query
       end
 
