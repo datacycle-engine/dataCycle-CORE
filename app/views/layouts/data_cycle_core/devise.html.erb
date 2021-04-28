@@ -3,7 +3,7 @@
   <head>
     <%= render 'head' %>
   </head>
-  <body class="<%= controller_name %> devise with-glass" style="--dc-background-image-url: url('<%= vite_asset_path("images/#{Array.wrap(DataCycleCore.logo.dig('background_images')).sample.to_s}") %>');">
+  <body class="<%= controller_name %> devise with-glass" style="<%= dc_background_image_style %>">
     <%= display_flash_messages_new %>
 
     <%= yield %>

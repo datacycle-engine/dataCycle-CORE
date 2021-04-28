@@ -8,3 +8,4 @@ mail_dimensions:
 customercolor: '#009fe3'
 background_images:
   - dc-bg.jpg
+# footer_logo: 'eml-datacycle.png'

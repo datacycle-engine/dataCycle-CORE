@@ -1,7 +1,7 @@
-<!--
-<div class="home-container-content footer">
-    <div class="columns">
-        <%#= image_tag 'logo.png', alt: 'dataCycle Logo' %>
+<% if DataCycleCore.logo.dig('footer_logo').present? %>
+  <div class="home-container-content footer">
+    <div class="columns footer-image">
+      <img src="<%= dc_image_path(DataCycleCore.logo.dig('footer_logo')) %>" alt="<%= DataCycleCore.logo.dig('footer_logo_alt') %>" />
     </div>
-</div>
--->
+  </div>
+<% end %>

@@ -1,4 +1,4 @@
-image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
+image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:vite
 
 variables:
   POSTGRES_USER: postgres
@@ -46,7 +46,6 @@ cache:
   paths:
     - cache/bundler
     - node_modules
-    - lib/assets
 
 services:
   - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
@@ -63,7 +62,6 @@ services:
     paths:
       - cache/bundler
       - node_modules
-      - lib/assets
     policy: pull
 
 .build_caches_config:
@@ -73,7 +71,7 @@ services:
     - bundle config set --local path 'cache/bundler'
     - bundle install
     - yarn
-    - ./node_modules/gulp/bin/gulp.js production
+    - yarn upgrade
 
 .rails_test_config:
   extends: .job_cache_config

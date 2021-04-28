@@ -374,6 +374,15 @@ body.with-glass {
   .home-container-content {
     padding: rem-calc(15) 0;
 
+    &.footer {
+      .footer-image {
+        display: flex;
+        float: none;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
     .centered-text {
       text-align: center;
     }
