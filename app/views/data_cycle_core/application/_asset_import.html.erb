@@ -34,7 +34,7 @@
         accept: uploader_validation[:format].presence&.map{ |e| ".#{e}" }&.join(', '),
         class: 'upload-file' %>
       <span class="buttons">
-        <button type="button" class="button success content-create-button" disabled="disabled">
+        <button type="button" class="button success content-create-button" disabled="disabled" data-disable="true">
           <span class="progress-bar">
             <span class="progress-filled"></span>
           </span>
@@ -51,10 +51,7 @@
       <%= t('upload.drag_and_drop_html', locale: DataCycleCore.ui_language, type: type_translation) %>
     </div>
   </div>
-  <button class="close-button"
-    data-close
-    aria-label="Close modal"
-    type="button">
+  <button class="close-button" data-close aria-label="Close modal" type="button">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>

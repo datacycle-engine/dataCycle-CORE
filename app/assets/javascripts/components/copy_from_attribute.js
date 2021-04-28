@@ -9,7 +9,6 @@ class CopyFromAttribute {
     this.label = this.$formElement.data('label');
     this.$target = this.$formElement.siblings('[data-key*="' + this.copyFrom + '"]').first();
     this.locale = this.$formElement.closest('form').find(':hidden[name="locale"]').val() || '';
-
     this.init();
   }
   init() {
