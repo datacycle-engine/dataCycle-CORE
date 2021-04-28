@@ -47,7 +47,7 @@
                               "s[v][o]",
                               {
                                   checked: @sort_params.presence&.first&.dig('o') != 'DESC',
-                                  disabled: @sort_params.presence&.first&.dig('m').blank?
+                                  disabled: !@sort_params.presence&.first&.dig('m')&.in?(sortable.map{ |v| v[:method] })
                               },
                               'ASC',
                               'DESC' %>

@@ -46,6 +46,8 @@ cache:
   paths:
     - cache/bundler
     - node_modules
+    - public/assets
+    - tmp/cache/vite
 
 services:
   - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
@@ -62,6 +64,8 @@ services:
     paths:
       - cache/bundler
       - node_modules
+      - public/assets
+      - tmp/cache/vite
     policy: pull
 
 .build_caches_config:
