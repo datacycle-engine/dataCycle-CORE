@@ -6,7 +6,6 @@ class ObjectBrowser {
     this.element = selector;
     this.objectListElement = this.element.find('> .media-thumbs > .object-thumbs').get(0);
     this.id = selector.prop('id');
-    this.scrollTop = 0;
     this.overlay = $('#object_browser_' + this.id);
     this.label = $('[for=' + this.id + ']').text();
     this.overlay_per = 25;
@@ -434,8 +433,10 @@ class ObjectBrowser {
       });
     this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
   }
-  openOverlay(ev) {
+  openOverlay(_ev) {
     if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
+    else if (this.overlay.data('overlay') === false) document.body.classList.add('object-browser-overlay-open');
+
     this.resetOverlay();
     this.setPreselected();
     this.updateChosenCounter();
@@ -458,8 +459,12 @@ class ObjectBrowser {
     if (this.ids.diff(loaded).length > 0) this.loadMore(loaded);
     else this.loadObjects(false);
   }
-  closeOverlay(ev) {
+  closeOverlay(_ev) {
     this.overlay.removeClass('full-height');
+
+    if (!$('.reveal.object-browser-overlay:visible').not(this.overlay).length && this.overlay.data('overlay') === false)
+      document.body.classList.remove('object-browser-overlay-open');
+
     $('.breadcrumb ul li:last-child').remove();
     var text = $('.breadcrumb ul li:last-child a.close-object-browser').html();
     $('.breadcrumb ul li:last-child').html(text);

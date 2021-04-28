@@ -536,7 +536,7 @@ de:
     save: Speichern
     update: Aktualisieren
     upload: Dateien hochladen
-    become: 'Als %{data} einloggen'
+    become: 'Als %{data} anmelden'
     create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
     move_to_container: 'Inhalt verschieben'
     move: verschieben

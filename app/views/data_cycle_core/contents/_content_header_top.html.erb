@@ -12,7 +12,6 @@
           ),
           users_path(q: content.representation_of.email),
           target: :_blank,
-          class: 'dc-foundation-tooltip',
           title: "#{content.representation_of.full_name} <#{content.representation_of.email}>"
         ) if can?(:show_representation_of, DataCycleCore::User) && content.representation_of.present? %>
   </div>

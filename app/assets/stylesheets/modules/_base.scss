@@ -1856,3 +1856,26 @@ label.dc-foundation-tooltip {
     }
   }
 }
+
+body.object-browser-overlay-open {
+  #main-menu {
+    .watch-lists-link,
+    .show-sidebar {
+      pointer-events: none;
+    }
+  }
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1007;
+  }
+  section.breadcrumb {
+    position: fixed;
+    top: 4.1rem;
+    left: 0;
+    width: 100%;
+    z-index: 1007;
+  }
+}
