@@ -2,9 +2,11 @@ class AssetSelector {
   constructor(selector) {
     this.reveal = $(selector);
     this.contentUploaderId = this.reveal.data('content-uploader-id');
+    this.hiddenFieldId = this.reveal.data('hidden-field-id');
+    this.hiddenFieldKey = this.reveal.data('hidden-field-key');
     this.assetList = this.reveal.find('ul.asset-list');
     this.selectButton = this.reveal.find('.select-asset-link');
-    this.multiSelect = $('#' + this.reveal.data('multi-select'));
+    this.multiSelect = this.reveal.data('multi-select');
     this.selectedAssetIds = [];
     this.page = 1;
     this.loading = false;
@@ -13,15 +15,70 @@ class AssetSelector {
     this.per = 25;
     this.lastAssetType = '';
     this.assets = [];
+    this.editableList = $(`#${this.reveal.data('editable-list-id')}`);
+    this.editableFormElement = this.editableList.closest('.form-element');
+    this.loaderIcon = '<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>';
+    this.editButton = $(`#${this.reveal.prop('id')}`);
     this.init();
   }
   init() {
     this.reveal.addClass('initialized');
     this.reveal.on('open.zf.reveal', _ => this.loadAssets(false));
     this.assetList.on('click', 'li:not(.locked)', this.clickOnAsset.bind(this));
-    this.reveal.on('click', '.select-asset-link:not([disabled])', this.selectAssets.bind(this));
+    this.reveal.on('click', '.select-asset-link:not(.disabled)', this.selectAssets.bind(this));
     this.assetList.on('dc:asset_list:changed', this.updateButtons.bind(this));
     this.assetList.parent().on('scroll', this.loadMoreOnScroll.bind(this));
+
+    if (this.editableList.length) {
+      this.initEdtiableList();
+      this.editableList.on('dc:asset_list:changed', this.updateHiddenField.bind(this));
+    }
+  }
+  initEdtiableList() {
+    this.editableList.on('click', '.asset-deselect', this.deselectAsset.bind(this));
+  }
+  deselectAsset(event) {
+    event.preventDefault();
+
+    const selectedItem = event.target.closest('li');
+    this.selectedAssetIds = this.selectedAssetIds.filter(v => v !== selectedItem.dataset.id);
+    selectedItem.remove();
+
+    this.updateHiddenField();
+  }
+  setSelectedAssets() {
+    this.editableList.html(this.loaderIcon);
+    DataCycle.disableElement(this.editButton);
+    DataCycle.httpRequest({
+      url: DataCycle.enginePath + '/files/assets',
+      method: 'GET',
+      data: {
+        html_target: this.editableList.prop('id'),
+        types: this.editableList.data('asset-types'),
+        asset_ids: this.selectedAssetIds
+      },
+      dataType: 'script',
+      contentType: 'application/json'
+    }).always((_data, _text, _jqXHR) => {
+      DataCycle.enableElement(this.editButton);
+    });
+  }
+  updateHiddenField() {
+    if (!this.editableFormElement.length) return;
+
+    this.editableFormElement.children(':hidden').remove();
+
+    if (this.selectedAssetIds && this.selectedAssetIds.length) {
+      this.selectedAssetIds.forEach(selected => {
+        this.editableFormElement.append(
+          `<input type="hidden" id="${this.hiddenFieldId}_${selected}" name="${this.hiddenFieldKey}" value="${selected}">`
+        );
+      });
+    } else {
+      this.editableFormElement.append(
+        `<input type="hidden" id="${this.hiddenFieldId}_default" name="${this.hiddenFieldKey}">`
+      );
+    }
   }
   loadMoreOnScroll(event) {
     event.preventDefault();
@@ -37,12 +94,11 @@ class AssetSelector {
     }
   }
   loadAssets(append = true) {
-    let loader = '<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>';
     if (!append) {
       this.page = 1;
-      this.assetList.html(loader);
-    } else this.assetList.append(loader);
-    this.selectButton.attr('disabled', true);
+      this.assetList.html(this.loaderIcon);
+    } else this.assetList.append(this.loaderIcon);
+    DataCycle.disableElement(this.selectButton);
     this.loading = true;
     this.requests.forEach(request => {
       request.abort();
@@ -62,20 +118,23 @@ class AssetSelector {
         },
         dataType: 'script',
         contentType: 'application/json'
-      }).always((data, text, jqXHR) => {
+      }).always((_data, _text, jqXHR) => {
         this.requests = this.requests.filter(r => r != jqXHR);
       })
     );
   }
-  updateButtons(event, data) {
+  updateButtons(_event, data) {
     if (data && data.assets && data.assets.length) {
       if (data.append) this.assets = this.assets.concat(data.assets);
       else this.assets = data.assets;
     }
 
     if (data !== undefined) {
-      if (data.selected && data.selected.length && data.total != 0)
-        this.selectButton.attr('disabled', false).data('value', data.selected[0]);
+      if (data.selected && data.selected.length && data.total != 0) {
+        DataCycle.enableElement(this.selectButton);
+        this.selectButton.data('value', data.selected[0]);
+      }
+
       if (data.total !== undefined) this.total = data.total;
       if (data.page !== undefined) this.page = data.page + 1;
       if (data.last_asset_type !== undefined) this.lastAssetType = data.last_asset_type;
@@ -91,37 +150,38 @@ class AssetSelector {
     }
   }
   clickOnAsset(event) {
-    if (
-      $(event.target).closest('.asset-file-link-tag').length == 0 &&
-      $(event.target).closest('.asset-destroy').length == 0 &&
-      $(event.target).closest('.asset-duplicate-warning').length == 0
-    ) {
-      if ($(event.currentTarget).hasClass('active')) {
-        $(event.currentTarget).removeClass('active');
+    if (event.target.closest('a')) return;
 
-        if (this.multiSelect) {
-          this.selectedAssetIds = this.selectedAssetIds.filter(v => v !== $(event.currentTarget).data('id'));
-          if (!this.selectedAssetIds.length) this.selectButton.attr('disabled', true).removeData('value');
-        } else {
-          $(event.currentTarget).siblings('li').removeClass('active');
-          this.selectedAssetIds = [];
-          this.selectButton.attr('disabled', true).removeData('value');
+    const $selectedItem = $(event.currentTarget);
+
+    if ($selectedItem.hasClass('active')) {
+      $selectedItem.removeClass('active');
+
+      if (this.multiSelect) {
+        this.selectedAssetIds = this.selectedAssetIds.filter(v => v !== $selectedItem.data('id'));
+        if (!this.selectedAssetIds.length) {
+          DataCycle.disableElement(this.selectButton);
+          this.selectButton.removeData('value');
         }
       } else {
-        $(event.currentTarget).addClass('active');
-
-        if (this.multiSelect) {
-          this.selectedAssetIds.push($(event.currentTarget).data('id'));
-        } else {
-          $(event.currentTarget).siblings('li').removeClass('active');
-          this.selectedAssetIds = [$(event.currentTarget).data('id')];
-        }
-        this.selectButton.attr('disabled', false).data('value', $(event.currentTarget).data('id'));
+        $selectedItem.siblings('li').removeClass('active');
+        this.selectedAssetIds = [];
+        DataCycle.disableElement(this.selectButton);
+        this.selectButton.removeData('value');
       }
+    } else {
+      $selectedItem.addClass('active');
+
+      if (this.multiSelect) {
+        this.selectedAssetIds.push($selectedItem.data('id'));
+      } else {
+        $selectedItem.siblings('li').removeClass('active');
+        this.selectedAssetIds = [$selectedItem.data('id')];
+      }
+
+      DataCycle.enableElement(this.selectButton);
+      this.selectButton.data('value', $selectedItem.data('id'));
     }
-  }
-  setAssetId(_, data) {
-    if (data && data.id) this.selectedAssetIds = [data.id];
   }
   selectAssets(event) {
     event.preventDefault();
@@ -131,11 +191,9 @@ class AssetSelector {
         assets: this.assets.filter(a => this.selectedAssetIds.includes(a.id))
       });
     }
+    if (this.editableList.length) this.setSelectedAssets();
+
     this.reveal.foundation('close');
-  }
-  deselect(event) {
-    event.preventDefault();
-    $(event.target).closest('li').remove();
   }
 }
 

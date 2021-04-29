@@ -1,6 +1,20 @@
 .edit-content-form {
   .asset {
+    background: $light-gray;
+    border: 1px solid $light-gray;
     padding: 2.5rem 0.5rem 1rem 0.5rem;
+    transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+
+    &:hover {
+      box-shadow: 0 0 7px $primary-color;
+    }
+
+    .content-uploader {
+      .asset-selector-button {
+        width: auto;
+        margin: 0 0 0 0.5rem;
+      }
+    }
   }
 }
 
@@ -131,6 +145,7 @@ ul.asset-list {
     max-width: 300px;
     padding: 0.5rem;
     margin: 0.5rem;
+    background-color: rgba($white, 0.5);
     box-shadow: 0 0 1px rgba($black, 0.9);
     transition: all 0.1s;
 
@@ -141,6 +156,7 @@ ul.asset-list {
       float: right;
       line-height: 1;
       font-size: 1.2rem;
+      line-height: 1.3rem;
       margin-left: 5px;
       color: $alert-color;
     }
@@ -186,6 +202,8 @@ ul.asset-list {
     li {
       .asset-deselect {
         display: block;
+        font-size: 1.2rem;
+        line-height: 1.3rem;
       }
     }
   }

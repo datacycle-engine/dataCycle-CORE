@@ -28,6 +28,14 @@
         </div>
       </li>
     </ul>
+    <% if local_assigns[:uploader_validation_text] && uploader_validation.present? %>
+      <li class="callout primary content-uploader-validations">
+        <%= tag.i class: 'fa fa-info-circle', aria_hidden: true, title: uploader_validation[:translation_description] if uploader_validation[:translation_description].present? %>
+        <ul>
+          <%= uploader_validation_to_text(uploader_validation&.except(:translation, :translation_description, :class)).html_safe %>
+        </ul>
+      </li>
+    <% end %>
     <div id="content-upload-form-<%= local_assigns[:key] || 'default' %>" class="content-upload-form" data-url="<%= assets_path %>">
       <%= file_field_tag "files-#{local_assigns[:key] || 'default'}",
         multiple: true,

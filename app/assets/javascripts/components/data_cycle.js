@@ -26,12 +26,25 @@ export default {
 
     return $.ajax(_.merge(defaultOptions, options));
   },
-  disableElement(element) {
+  _prepareElement(element) {
     if (element instanceof $) element = element[0];
-    if (element) Rails.disableElement(element);
+    if (element.nodeName == 'A' && !element.dataset.disableWith) element.dataset.disableWith = element.innerHTML;
+    else if (element.nodeName == 'BUTTON' && !element.dataset.disable && !element.dataset.disableWith)
+      element.dataset.disable = true;
+    return element;
+  },
+  disableElement(element) {
+    element = this._prepareElement(element);
+    if (!element) return;
+
+    Rails.disableElement(element);
+    if (element.nodeName == 'A') element.classList.add('disabled');
   },
   enableElement(element) {
-    if (element instanceof $) element = element[0];
-    if (element) Rails.enableElement(element);
+    element = this._prepareElement(element);
+    if (!element) return;
+
+    Rails.enableElement(element);
+    if (element.nodeName == 'A') element.classList.remove('disabled');
   }
 };

@@ -24,12 +24,19 @@
     }
   }
 }
-.content-uploader {
-  .content-uploader-validations {
-    .value {
-      font-weight: bold;
-    }
+.content-uploader-validations {
+  font-size: 0.9rem;
+
+  .value {
+    font-weight: bold;
   }
+}
+
+.callout {
+  font-size: 0.9rem;
+}
+
+.content-uploader {
   .separator {
     display: block;
     margin: 1rem 0;
@@ -72,7 +79,6 @@
     width: 100%;
   }
   .callout {
-    font-size: 0.9rem;
     margin-top: 0.5rem;
   }
 }

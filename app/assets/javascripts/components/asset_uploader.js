@@ -15,6 +15,7 @@ class AssetUploader {
     this.fileField = this.reveal.find('input[type="file"].upload-file');
     this.uploadForm = this.reveal.find('.content-upload-form');
     this.createButton = this.uploadForm.find('.content-create-button');
+    this.assetReloadButton = this.uploadForm.find('.asset-reload-button');
     this.renderedAttributes = this.reveal.data('rendered-attributes') || {};
     this.formAttributes = this.reveal.data('form-attributes') || {};
     this.showNewForm = Object.keys(this.formAttributes).length > 0;
@@ -741,8 +742,10 @@ class AssetUploader {
   updateCreateButton(error = null) {
     if (this.files.length && !this.files.filter(f => !f.attributeFieldsValidated || !f.uploaded).length) {
       DataCycle.enableElement(this.createButton);
+      DataCycle.enableElement(this.assetReloadButton);
     } else {
       DataCycle.disableElement(this.createButton);
+      DataCycle.disableElement(this.assetReloadButton);
       if (!error) error = 'Fehlende Metadaten!';
     }
 

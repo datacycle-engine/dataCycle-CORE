@@ -382,7 +382,9 @@ module DataCycleCore
         end
 
         to_delete = present_relation_ids - ids
+
         return if to_delete.empty?
+
         DataCycleCore::ClassificationContent
           .with_content(id)
           .with_classification_ids(to_delete)
@@ -393,6 +395,7 @@ module DataCycleCore
       def set_asset_id(asset_id, relation_name, asset_type)
         asset_id = asset_id.first.id if asset_id.is_a?(ActiveRecord::Relation) || asset_id.is_a?(::Array)
         asset_id = asset_id.id if asset_id.is_a?(DataCycleCore::Asset)
+        old_ids = load_asset_relation(relation_name).ids
 
         if id.present? && asset_id.present?
           DataCycleCore::AssetContent.find_or_create_by(
@@ -404,12 +407,13 @@ module DataCycleCore
           )
         end
 
-        # delete old asset if necessary
-        old_id = load_asset_relation(relation_name)&.id
-        return if old_id == asset_id
+        to_delete = old_ids - Array.wrap(asset_id)
+
+        return if to_delete.empty?
+
         DataCycleCore::AssetContent
           .with_content(id, self.class.to_s)
-          .with_assets(old_id, asset_type)
+          .with_assets(to_delete, asset_type)
           .with_relation(relation_name)
           .destroy_all
       end
