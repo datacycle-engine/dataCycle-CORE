@@ -1,6 +1,6 @@
 import DurationHelpers from './../helpers/duration_helpers';
 import ObjectHelpers from './../helpers/object_helpers';
-import MimeTypes from 'mime/lite';
+import MimeTypes from 'mime';
 import AssetValidator from './asset_validator';
 
 class AssetUploader {
@@ -376,6 +376,7 @@ class AssetUploader {
     }
 
     this.uploadForm.find('.upload-file').attr('disabled', true);
+    DataCycle.disableElement(this.assetReloadButton);
 
     var data = new FormData();
     data.append('asset[file]', file.file);
@@ -441,8 +442,9 @@ class AssetUploader {
           if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
           this.renderError(file, error);
         })
-        .always(data => {
+        .always(_data => {
           this.updateOverlayButtons(file);
+          DataCycle.enableElement(this.assetReloadButton);
         })
     );
     this.checkRequests();
@@ -540,6 +542,8 @@ class AssetUploader {
         .html(message)
         .foundation();
     else fileInfoField.append('<span class="' + cssClass + '">' + message + '</span>').foundation();
+
+    if (!file.fileFormField) return;
 
     let fileFormInfoField = file.fileFormField.find('.file-info');
     if (fileFormInfoField.length) {
@@ -742,10 +746,8 @@ class AssetUploader {
   updateCreateButton(error = null) {
     if (this.files.length && !this.files.filter(f => !f.attributeFieldsValidated || !f.uploaded).length) {
       DataCycle.enableElement(this.createButton);
-      DataCycle.enableElement(this.assetReloadButton);
     } else {
       DataCycle.disableElement(this.createButton);
-      DataCycle.disableElement(this.assetReloadButton);
       if (!error) error = 'Fehlende Metadaten!';
     }
 

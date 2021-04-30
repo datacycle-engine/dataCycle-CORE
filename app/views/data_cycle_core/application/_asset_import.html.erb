@@ -14,7 +14,7 @@
   data-type="<%= local_assigns[:asset_type] %>"
   data-template="<%= template&.template_name if local_assigns[:create_content] %>"
   data-multiple-opened="true" data-v-offset="0">
-  <h2><%= t('data_cycle_core.upload') %></h2>
+  <h2><%= t('data_cycle_core.upload', locale: DataCycleCore.ui_language) %></h2>
   <div class="uploader-flex">
     <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
       <li class="upload-warning accordion-item is-active callout warning" data-accordion-item>

@@ -92,7 +92,15 @@ module DataCycleCore
     self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of']
 
     mattr_accessor :asset_objects
-    self.asset_objects = ['DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::Audio', 'DataCycleCore::Pdf', 'DataCycleCore::DataCycleFile', 'DataCycleCore::TextFile']
+    self.asset_objects = [
+      'DataCycleCore::Image',
+      'DataCycleCore::Video',
+      'DataCycleCore::Audio',
+      'DataCycleCore::Pdf',
+      'DataCycleCore::DataCycleFile',
+      'DataCycleCore::TextFile',
+      'DataCycleCore::SrtFile'
+    ]
 
     # mattr_accessor :content_tables
     # self.content_tables = ['things']

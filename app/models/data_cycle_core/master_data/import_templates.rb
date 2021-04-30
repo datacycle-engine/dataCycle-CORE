@@ -278,7 +278,7 @@ module DataCycleCore
           # for type asset
           optional(:asset_type) do
             str? & included_in?(
-              ['asset', 'audio', 'image', 'video', 'pdf', 'data_cycle_file']
+              ['asset', 'audio', 'image', 'video', 'pdf', 'data_cycle_file', 'srt_file']
             )
           end
 

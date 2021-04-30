@@ -46,7 +46,7 @@ services:
       - 'gems:/gems'
       - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
       - $SSH_AUTH_SOCK:/ssh-agent
-      - ./docker/bash:/root/bash
+      - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}docker/bash:/root/bash
     user: root
     links:
       - postgres

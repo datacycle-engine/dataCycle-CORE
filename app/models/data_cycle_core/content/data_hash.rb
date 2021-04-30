@@ -204,7 +204,7 @@ module DataCycleCore
         when 'linked'
           set_linked(key, value, properties)
         when 'embedded'
-          set_embedded(key, value, properties['template_name'], properties['translated'], options.current_user, options.save_time)
+          set_embedded(key, value, properties['template_name'], properties['translated'], options)
         when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
@@ -307,7 +307,7 @@ module DataCycleCore
         data
       end
 
-      def set_embedded(field_name, input_data, name, translated, current_user, save_time)
+      def set_embedded(field_name, input_data, name, translated, options)
         updated_item_keys = []
         available_update_item_keys = load_embedded_objects(field_name, nil, !translated).ids.uniq
         data = input_data || []
@@ -315,7 +315,7 @@ module DataCycleCore
         data.each_index do |index|
           item = data[index]
           if item.key?('id') && item['id'].present?
-            upsert_content(name, item, current_user, save_time) if item.keys.size > 1
+            upsert_content(name, item, options) if item.keys.size > 1
 
             if available_update_item_keys[index] != item['id']
               upsert_relation = DataCycleCore::ContentContent.find_or_create_by!({
@@ -329,7 +329,7 @@ module DataCycleCore
 
             updated_item_keys << item['id']
           else
-            insert_item = upsert_content(name, item, current_user, save_time)
+            insert_item = upsert_content(name, item, options)
             DataCycleCore::ContentContent.create!({
               content_a_id: id,
               relation_a: field_name,
@@ -344,12 +344,12 @@ module DataCycleCore
         potentially_delete.each do |key|
           # fully destroy all remaining embedded!
           item = DataCycleCore::Thing.find_by(id: key)
-          item.destroy_children(current_user: current_user, save_time: save_time, destroy_locale: false)
+          item.destroy_children(current_user: options.current_user, save_time: options.save_time, destroy_locale: false)
           item.destroy
         end
       end
 
-      def upsert_content(name, item, current_user, save_time)
+      def upsert_content(name, item, options)
         template = DataCycleCore::Thing.find_by(template: true, template_name: name)
         if item['id'].present?
           upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item['id'])
@@ -362,7 +362,7 @@ module DataCycleCore
         upsert_item.external_source_id = external_source_id
         created = upsert_item.new_record?
         upsert_item.save
-        upsert_item.set_data_hash(data_hash: item, current_user: current_user, save_time: save_time, prevent_history: true, new_content: created)
+        upsert_item.set_data_hash(data_hash: item, current_user: options.current_user, save_time: options.save_time, prevent_history: true, new_content: created, partial_update: options.partial_update)
         upsert_item
       end
 

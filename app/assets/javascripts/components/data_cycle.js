@@ -28,9 +28,12 @@ export default {
   },
   _prepareElement(element) {
     if (element instanceof $) element = element[0];
+    if (!element) return;
+
     if (element.nodeName == 'A' && !element.dataset.disableWith) element.dataset.disableWith = element.innerHTML;
     else if (element.nodeName == 'BUTTON' && !element.dataset.disable && !element.dataset.disableWith)
       element.dataset.disable = true;
+
     return element;
   },
   disableElement(element) {
