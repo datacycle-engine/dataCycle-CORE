@@ -127,7 +127,7 @@ server {
 
     # image proxy settings
     # custom image verison
-    # location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/content\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))"{
+    # location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/content\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))$"{
     #    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     #    proxy_set_header Host $http_host;
     #    proxy_set_header X-Forwarded-Proto $scheme;
@@ -155,7 +155,7 @@ server {
         proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$endpoint/1500/1500/$file_name.$type;
     }
 
-    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/custom\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))$"{
+    location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/custom\/(?<width>\d+)\/(?<height>\d+)\/.(?<file_name>(.*))\.(?<type>(jpeg|png|webp))$"{
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $http_host;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -210,6 +210,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $http_host;
         proxy_set_header X-Forwarded-Proto $scheme;
+
         proxy_pass $proxyUrl;
 
         proxy_intercept_errors on;
