@@ -98,20 +98,22 @@ module DataCycleCore
 
         return self if start_date.nil? && end_date.nil?
 
-        order_parameter_join = %{
+        joined_table_name = "schedule_occurrences_#{SecureRandom.hex(10)}"
+
+        order_parameter_join = <<-SQL.squish
           JOIN (
           	SELECT thing_id, MIN(LOWER(schedule_occurrences.occurrence)) "min_start_date"
           	FROM schedule_occurrences
           	WHERE schedule_occurrences.occurrence && TSTZRANGE(?, ?)
           	GROUP BY thing_id
-          ) "schedule_occurrences" ON schedule_occurrences.thing_id = things.id
-        }
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+        SQL
 
         reflect(
           @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
             .reorder(
-              Arel.sql(sanitized_order_string('min_start_date', ordering, true)),
+              Arel.sql(sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true)),
               Arel.sql('things.updated_at DESC'),
               Arel.sql('things.id DESC')
             )
