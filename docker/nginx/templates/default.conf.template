@@ -184,7 +184,7 @@ server {
   location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif)))?$"{
     limit_req zone=req_zone burst=100 nodelay;
 
-    set $rqUrl "http://localhost:${PUBLIC_APPLICATION_PORT}/things/$thing/asset/content";
+    set $rqUrl "http://nginx:${PUBLIC_APPLICATION_PORT}/things/$thing/asset/content";
 
     # the filename is always ignored by the proxy to avoid DOS attachs. If required the name can be set via Content-Disposition header.
     # when no target type is set, the image will be processed with the source type

@@ -94,7 +94,8 @@ module DataCycleCore
             key = [Rails.application.secrets.imgproxy_key].pack("H*")
             salt = [Rails.application.secrets.imgproxy_salt].pack("H*")
             url = [
-              Rails.application.config.asset_host,
+              # Rails.application.config.asset_host,
+              'http://nginx:3003',
               'things',
               content_id,
               'asset',
@@ -113,10 +114,6 @@ module DataCycleCore
             digest = OpenSSL::Digest.new("sha256")
             hmac = Base64.urlsafe_encode64(OpenSSL::HMAC.digest(digest, key, "#{salt}#{path}")).tr("=", "")
             hmac
-            # signed_path = "/#{hmac}#{path}"
-            # "/resize:fit:0:0:0/gravity:ce/filename:2ba622ac-cfc5-4e23-953f-2bc3e22c5d47/plain/http://localhost:3007/things/2ba622ac-cfc5-4e23-953f-2bc3e22c5d47/asset/content@jpeg"
-            # "/resize:fit:0:0:0/gravity:ce/filename:2ba622ac-cfc5-4e23-953f-2bc3e22c5d47/plain/http://localhost:3007/things/2ba622ac-cfc5-4e23-953f-2bc3e22c5d47/asset/content@jpg
-            # "/resize:fit:0:0:0/gravity:ce/filename:2ba622ac-cfc5-4e23-953f-2bc3e22c5d47/plain/http://localhost:3007/things/2ba622ac-cfc5-4e23-953f-2bc3e22c5d47/asset/content@"
           end
 
         end
