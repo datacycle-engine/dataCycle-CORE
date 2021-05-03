@@ -9,9 +9,10 @@ module DataCycleCore
         end
 
         def allowed_modes(user = nil)
-          return [] unless enabled? && !user.nil?
+          modes = ['grid']
+          return modes unless enabled? && !user.nil?
 
-          Array(configuration.dig('allowed')&.select { |mode| user.can?(mode.to_sym, :view_mode) })
+          Array.wrap(configuration.dig('allowed')&.select { |mode| user.can?(mode.to_sym, :view_mode) }).presence || modes
         end
       end
     end

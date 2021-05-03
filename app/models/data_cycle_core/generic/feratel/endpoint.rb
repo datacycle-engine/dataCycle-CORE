@@ -76,6 +76,10 @@ module DataCycleCore
           enumerate_items(:handicap_types, '//HandicapType', lang: lang)
         end
 
+        def handicap_classifications(lang: :de)
+          enumerate_items(:handicap_classifications, '//HandicapClassification', lang: lang)
+        end
+
         def handicap_facility_groups(lang: :de)
           enumerate_items(:handicap_facility_groups, '//HandicapFacilityGroup', lang: lang)
         end

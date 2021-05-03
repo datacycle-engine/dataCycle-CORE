@@ -22,7 +22,7 @@ module DataCycleCore
                 }.merge(source_filter.with_evaluated_values)
               }, {
                 '$group': {
-                  _id: "$dump.#{locale}.EventSetID",
+                  _id: { '$concat': ["$dump.#{locale}.EventSetID", ' - ', "$dump.#{locale}.Name1"] },
                   'dates': { '$addToSet': "$dump.#{locale}.DateTime" },
                   'dump': { '$first': '$dump' }
                 }

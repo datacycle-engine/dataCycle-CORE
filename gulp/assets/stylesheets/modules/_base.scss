@@ -1257,6 +1257,7 @@ body .v-select {
   }
 
   .tag {
+    font-weight: 600;
     background-color: rgba($dark-gray, 0.8);
 
     &.mapped {
@@ -1432,6 +1433,10 @@ body .v-select {
           .copy-icon {
             display: none;
           }
+        }
+
+        &.primary-attribute-button {
+          background-color: $warning-color;
         }
       }
 

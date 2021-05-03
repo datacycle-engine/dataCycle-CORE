@@ -53,7 +53,7 @@ header {
       float: left;
 
       img {
-        max-height: 80px;
+        height: 50px;
         width: auto;
       }
     }
@@ -307,6 +307,7 @@ body.with-glass {
   background-position: center bottom;
   background-attachment: fixed;
   background-size: cover;
+  background-image: var(--dc-background-image-url);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -349,6 +350,14 @@ body.with-glass {
   padding: 0;
   animation: 1s ease-in-out 500ms 1 fadeInGlassContainer;
   animation-fill-mode: both;
+
+  .logo {
+    img {
+      max-height: 60px;
+      max-width: 75%;
+      width: auto;
+    }
+  }
 
   .home-container-content {
     padding: rem-calc(15) 0;
@@ -500,6 +509,7 @@ body.with-glass {
     background-position: center bottom;
     background-attachment: fixed;
     background-size: cover;
+    background-image: var(--dc-background-image-url);
     content: '';
     transition: all 1s ease-out;
     filter: blur(5px);

@@ -466,6 +466,7 @@ module DataCycleCore
             .except(*(DataCycleCore.internal_data_attributes + ['id']))
             .select { |k, v|
               ['computed', 'virtual', 'asset'].exclude?(v['type']) &&
+                (v['type'] != 'linked' || v['link_direction'] != 'inverse') &&
                 user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
                 user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
                 t.allowed_feature_attribute?(k.attribute_name_from_key)

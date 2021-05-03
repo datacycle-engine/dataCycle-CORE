@@ -114,7 +114,7 @@ de:
     all: Alle
     choose_language: 'Sprache wählen'
     searchterm: 'Suchbegriff'
-    active_filters: 'Aktuelle Suche'
+    active_filters: Aktive Filter
     no_results: 'Es wurden keine Inhalte für Ihre Filterkriterien gefunden.'
     additional_filters:
       show: weitere Filter anzeigen

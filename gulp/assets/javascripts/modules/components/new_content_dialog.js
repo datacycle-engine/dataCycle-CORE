@@ -1,4 +1,5 @@
-let QuillHelpers = require('./../helpers/quill_helpers');
+const QuillHelpers = require('./../helpers/quill_helpers');
+const ConfirmationModal = require('./../components/confirmation_modal');
 
 // New Content Dialog
 class NewContentDialog {
@@ -14,6 +15,8 @@ class NewContentDialog {
     this.locale = this.form.find(':input[name="locale"]').val() || 'de';
     this.activeLocale = this.locale;
     this.reveal = this.form.closest('.reveal.new-content-reveal');
+    this.primaryAttributeKey = this.form.data('primary-attribute-key');
+    this.templateTranslationPlural = this.form.data('template-translation');
     this.referencedAssetField;
     this.nextAssetButton;
     this.prevAssetButton;
@@ -79,25 +82,41 @@ class NewContentDialog {
     if (config && config.allFiles) this.reveal.foundation('close');
     else this.nextAssetForm(event);
 
-    this.parseFormData(formData, null, config && config.allFiles);
+    this.processFormData(formData, null, config && config.allFiles);
   }
-  copyToAllReferenceFields(event) {
+  copyToAllReferenceFields(_event) {
     this.form.trigger('submit', { allFiles: true });
   }
   copySingleToAllReferenceFields(event) {
-    $(event.currentTarget).addClass('disabled');
     event.preventDefault();
     event.stopImmediatePropagation();
 
-    let formElementKey = $(event.currentTarget).next('.form-element').data('key');
-    let target = $(event.currentTarget);
+    const formElement = $(event.currentTarget).next('.form-element');
+    const formElementKey = formElement.data('key');
+
+    if (formElementKey.includes(`[${this.primaryAttributeKey}]`)) {
+      new ConfirmationModal({
+        text: `${formElement.data('label')} wirklich für alle ${this.templateTranslationPlural} übernehmen?`,
+        confirmationText: 'Ja',
+        cancelText: 'Nein',
+        confirmationClass: 'warning',
+        cancelable: true,
+        confirmationCallback: () => this.processSingleFormData(formElementKey, $(event.currentTarget))
+      });
+    } else {
+      this.processSingleFormData(formElementKey, $(event.currentTarget));
+    }
+  }
+  processSingleFormData(formElementKey, target) {
+    target.addClass('disabled');
+
     QuillHelpers.updateEditors(this.form);
     let formData = this.form.serializeArray();
     formData = formData.filter(f => f.name.includes(formElementKey) || !f.name.includes('thing'));
 
-    this.parseFormData(formData, target, true);
+    this.processFormData(formData, target, true, true);
   }
-  parseFormData(formData, target = null, allFiles = false) {
+  processFormData(formData, target = null, allFiles = false, copyPrimary = false) {
     let requests = [];
 
     formData.forEach((v, i) => {
@@ -115,14 +134,15 @@ class NewContentDialog {
     });
 
     Promise.all(requests).then(
-      _data => this.setUploaderFormFields(formData, target, allFiles),
-      _error => this.setUploaderFormFields(formData, target, allFiles)
+      _data => this.setUploaderFormFields(formData, target, allFiles, copyPrimary),
+      _error => this.setUploaderFormFields(formData, target, allFiles, copyPrimary)
     );
   }
-  setUploaderFormFields(formData, target = null, allFiles = false) {
+  setUploaderFormFields(formData, target = null, allFiles = false, copyPrimary = false) {
     this.referencedAssetField.trigger('dc:upload:setFormFields', {
       formData: formData,
-      allFiles: allFiles
+      allFiles: allFiles,
+      primaryAttributeKey: copyPrimary ? null : this.primaryAttributeKey
     });
 
     if (target) {
@@ -143,13 +163,19 @@ class NewContentDialog {
     );
   }
   addCopyAttributeButtons(container) {
-    let formFields = $(container).find('> fieldset > .form-element, > .form-element').addBack('.form-element');
+    const formFields = $(container).find('> fieldset > .form-element, > .form-element').addBack('.form-element');
 
     let button = $(
-      '<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle Bilder übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-circle-o-notch fa-spin"></i></button>'
+      `<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle ${this.templateTranslationPlural} übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-circle-o-notch fa-spin"></i></button>`
     );
 
     button.insertBefore(formFields);
+
+    if (this.primaryAttributeKey && this.primaryAttributeKey.length)
+      formFields
+        .filter(`[data-key*="[${this.primaryAttributeKey}]"]`)
+        .prev('.copy-attribute-to-all')
+        .addClass('primary-attribute-button');
   }
   triggerSyncWithContentUploader(event = null) {
     let key;

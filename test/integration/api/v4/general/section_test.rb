@@ -252,7 +252,7 @@ module DataCycleCore
             assert_equal(1, json_data['@graph'].size)
             assert_equal(json_data['@graph'].first.dig('@id'), third.dig('@id'))
             assert(json_data['@context'].present?)
-            assert(json_data['meta'].blank?)
+            assert(json_data['meta'].present?)
             assert(json_data['links'].blank?)
           end
 
@@ -265,7 +265,7 @@ module DataCycleCore
 
             assert_equal(1, json_data['@graph'].size)
             assert(json_data['@context'].present?)
-            assert(json_data['meta'].blank?)
+            assert(json_data['meta'].present?)
             assert(json_data['links'].blank?)
           end
         end

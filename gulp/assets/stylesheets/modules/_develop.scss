@@ -1865,6 +1865,12 @@ select {
   overflow-y: auto;
 }
 
+.ol-control {
+  button {
+    font-family: sans-serif;
+  }
+}
+
 .detail-type.geographic,
 .form-element.geographic {
   display: flex;
@@ -3117,90 +3123,6 @@ button.button-prime.small.bulk-delete-button {
 
   .loading .fa {
     color: $light-gray;
-  }
-}
-
-.filter-sortable {
-  display: inline-flex;
-  justify-content: right;
-  .filter-sortable-select-wrapper {
-    position: relative;
-    select {
-      font-size: 0.8rem;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      display: block;
-      padding: 2px 4px;
-      background: #f8f8f8;
-      border: 1px solid rgba(60, 60, 60, 0.26);
-      border-radius: 4px;
-      white-space: normal;
-      transition: border-radius 0.25s;
-      height: auto;
-      box-shadow: 0 0 2px #666666;
-      width: auto;
-      padding-right: 1.5rem;
-    }
-
-    &::before {
-      content: '\f0dc';
-      font-family: FontAwesome;
-      font-size: 1.5rem;
-      font-weight: normal;
-      font-style: normal;
-      margin: 0;
-      text-decoration: none;
-      position: absolute;
-      top: 0.1rem;
-      right: 0.2rem;
-      color: darken($light-gray, 10%);
-      line-height: 1;
-    }
-  }
-  .filter-sortable-checkbox-wrapper {
-    position: relative;
-    padding-left: 0.5rem;
-    input {
-      display: none;
-    }
-    label {
-      font-size: 0.8rem;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      display: block;
-      padding: 2px 4px;
-      background: #f8f8f8;
-      border: 1px solid rgba(60, 60, 60, 0.26);
-      border-radius: 4px;
-      white-space: normal;
-      transition: border-radius 0.25s;
-      height: auto;
-      box-shadow: 0 0 2px #666666;
-      width: 2rem;
-      cursor: pointer;
-      margin: 0;
-      line-height: 1.6;
-    }
-    input + label:before {
-      content: '\f063';
-      font-family: FontAwesome;
-      font-size: 1.3rem;
-      font-weight: normal;
-      font-style: normal;
-      margin: 0;
-      text-decoration: none;
-      position: absolute;
-      top: 0.2rem;
-      left: 0.9rem;
-      color: darken($light-gray, 10%);
-      line-height: 1;
-    }
-    input:checked + label:before {
-      content: '\f062';
-      font-family: FontAwesome;
-    }
   }
 }
 
