@@ -1,3 +1,5 @@
+import { difference } from 'lodash';
+
 class BasicSelect2 {
   constructor(element) {
     this.$element = $(element);
@@ -52,7 +54,7 @@ class BasicSelect2 {
 
     value = value.filter(Boolean);
     data.value = data.value.filter(Boolean);
-    let diff = data.value.diff(value);
+    let diff = difference(data.value, value);
 
     if (diff.length) this.loadNewOptions(value, diff);
   }

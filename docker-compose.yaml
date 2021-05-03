@@ -39,14 +39,14 @@ services:
       - APP_HOST=localhost:${PUBLIC_APPLICATION_PORT:-3003}
       - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
       - SSH_AUTH_SOCK=/ssh-agent
-      - HISTFILE=/root/bash/.bash_history
+      - HISTFILE=/root/hist/.bash_history
     command:
       - ${COMPOSE_WEB_COMMAND:-./vendor/gems/data-cycle-core/docker/setup.sh}
     volumes:
       - 'gems:/gems'
       - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
       - $SSH_AUTH_SOCK:/ssh-agent
-      - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}docker/bash:/root/bash
+      - bashhistory:/root/hist
     user: root
     links:
       - postgres
@@ -93,3 +93,4 @@ volumes:
   gems:
   redis:
   nginx:
+  bashhistory:

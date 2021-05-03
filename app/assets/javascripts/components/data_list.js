@@ -48,7 +48,7 @@ class DataList {
     this.requests.push(
       DataCycle.httpRequest({
         type: 'GET',
-        url: `${DataCycle.enginePath}/${this.listId}/search`,
+        url: `${DataCycle.config.EnginePath}/${this.listId}/search`,
         data: {
           q: this.element.value
         }

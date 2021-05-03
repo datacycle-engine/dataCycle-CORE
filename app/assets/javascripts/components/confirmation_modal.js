@@ -13,6 +13,7 @@ class ConfirmationModal {
     this.overlay;
     this.closed = false;
     this.section;
+
     this.setup();
   }
   setup() {

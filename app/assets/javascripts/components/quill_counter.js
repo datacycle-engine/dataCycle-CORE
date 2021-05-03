@@ -4,6 +4,7 @@ class QuillCounter extends Counter {
   constructor(quill, _options) {
     super(quill.container);
     this.quill = quill;
+
     this.start();
   }
   addEventHandlers() {

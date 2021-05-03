@@ -19,6 +19,7 @@ class AssetSelector {
     this.editableFormElement = this.editableList.closest('.form-element');
     this.loaderIcon = '<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>';
     this.editButton = $(`#${this.reveal.prop('id')}`);
+
     this.init();
   }
   init() {
@@ -50,7 +51,7 @@ class AssetSelector {
     this.editableList.html(this.loaderIcon);
     DataCycle.disableElement(this.editButton);
     DataCycle.httpRequest({
-      url: DataCycle.enginePath + '/files/assets',
+      url: DataCycle.config.EnginePath + '/files/assets',
       method: 'GET',
       data: {
         html_target: this.editableList.prop('id'),
@@ -106,7 +107,7 @@ class AssetSelector {
     });
     this.requests.push(
       DataCycle.httpRequest({
-        url: DataCycle.enginePath + '/files/assets',
+        url: DataCycle.config.EnginePath + '/files/assets',
         method: 'GET',
         data: {
           html_target: this.assetList.prop('id'),

@@ -1,5 +1,6 @@
 import ConfirmationModal from './../components/confirmation_modal';
 import Sortable from 'sortablejs';
+import { difference, union, intersection } from 'lodash';
 
 class EmbeddedObject {
   constructor(selector) {
@@ -23,6 +24,7 @@ class EmbeddedObject {
     this.content_id = this.element.data('content-id');
     this.content_type = this.element.data('content-type');
     this.locationArray = location.hash.substr(1).split('+').filter(Boolean);
+
     this.setup();
   }
   setup() {
@@ -44,22 +46,22 @@ class EmbeddedObject {
 
     this.element.off('dc:import:data').on(
       'dc:import:data',
-      function (event, data) {
-        let page = data.page || 1;
-        let new_items = data.value.diff(
+      function (_event, data) {
+        let newItems = difference(
+          data.value,
           this.element
             .children('.content-object-item')
-            .map((index, elem) => $(elem).data('id'))
+            .map((_index, elem) => $(elem).data('id'))
             .get()
         );
         if (
           this.write &&
           (this.max == 0 || this.element.children('.content-object-item').length < this.max) &&
-          new_items.length > 0
+          newItems.length > 0
         ) {
-          this.renderEmbeddedObjects('split_view', new_items, data.locale);
-        } else if (this.write && this.max != 0 && ids.length + new_items.length > this.max) {
-          var confirmationModal = new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
+          this.renderEmbeddedObjects('split_view', newItems, data.locale);
+        } else if (this.write && this.max != 0 && ids.length + newItems.length > this.max) {
+          new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
         }
       }.bind(this)
     );
@@ -104,7 +106,7 @@ class EmbeddedObject {
   }
   renderEmbeddedObjects(type, ids = [], locale = null) {
     let index = this.index;
-    if (type == 'split_view') this.index += ids.diff(this.ids).length;
+    if (type == 'split_view') this.index += difference(ids, this.ids).length;
     else if (type == 'new') this.index++;
 
     this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
@@ -125,21 +127,20 @@ class EmbeddedObject {
         object_ids: ids,
         duplicated_content: type == 'split_view'
       }
-    }).done(data => {
-      if (ids.length > 0) this.ids = this.ids.concat(ids.diff(this.ids));
+    }).done(_data => {
+      if (ids.length > 0) this.ids = union(this.ids, ids);
       this.update();
       this.addEventHandlers();
     });
   }
   addEventHandlers() {
-    var self = this;
     this.element
       .find('> .buttons > #add_' + this.id)
       .off('click')
-      .on('click', event => {
+      .on('click', _event => {
         this.renderEmbeddedObjects('new');
       });
-    this.element.children('.content-object-item').each((index, element) => {
+    this.element.children('.content-object-item').each((_index, element) => {
       $(element).children('.removeContentObject').off('click').on('click', this.handleRemoveEvent.bind(this));
     });
 
@@ -195,7 +196,7 @@ class EmbeddedObject {
 
     if (!this.locationArray || !this.locationArray.length || !this.ids || !this.ids.length) return;
 
-    let embeddedId = this.locationArray.intersect(this.ids)[0];
+    let embeddedId = intersection(this.locationArray, this.ids)[0];
 
     if (!embeddedId) return;
 

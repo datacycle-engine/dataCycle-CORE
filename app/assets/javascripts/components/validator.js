@@ -1,5 +1,6 @@
 import ConfirmationModal from './confirmation_modal';
 import QuillHelpers from './../helpers/quill_helpers';
+import { isEqual, uniqWith } from 'lodash';
 
 class Validator {
   constructor(formElement) {
@@ -14,6 +15,7 @@ class Validator {
     this.requests = [];
     this.queryCount = 0;
     this.valid = true;
+
     this.addEventHandlers();
   }
   addEventHandlers() {
@@ -63,19 +65,20 @@ class Validator {
   }
   pageLeaveWarning() {
     QuillHelpers.updateEditors(this.form);
-    this.initialFormData = this.form.serializeArray().uniqFieldValues();
+    this.initialFormData = uniqWith(this.form.serializeArray(), isEqual).sort();
+
     $(window).on('beforeunload', _event => {
       QuillHelpers.updateEditors(this.form);
-      this.submitFormData = this.form.serializeArray().uniqFieldValues();
+      this.submitFormData = uniqWith(this.form.serializeArray(), isEqual);
 
-      if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData))
+      if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
     if (this.languageMenu.length) {
       this.languageMenu.on('click', '.list-items > li > a', event => {
         QuillHelpers.updateEditors(this.form);
-        this.submitFormData = this.form.serializeArray().uniqFieldValues();
-        if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData)) {
+        this.submitFormData = uniqWith(this.form.serializeArray(), isEqual);
+        if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData)) {
           event.preventDefault();
           new ConfirmationModal({
             text: 'Wollen Sie speichern und auf die neue Sprache wechseln?',
@@ -94,11 +97,9 @@ class Validator {
   }
   updateInitialFormData(event, data = {}) {
     event.preventDefault();
+    event.stopPropagation();
 
-    if (!data || !data.newContent)
-      this.initialFormData = this.initialFormData.mergeUniqueFormValues(
-        $(event.target).find(':input').serializeArray()
-      );
+    if (!data || !data.newContent) this.initialFormData = uniqWith(this.form.serializeArray(), isEqual).sort();
   }
   validateAgbs(validationContainer) {
     let error = {
@@ -261,7 +262,7 @@ class Validator {
     let uuid = this.form.find(':input[name="uuid"]').val();
     let locale = this.form.find(':input[name="locale"]').val() || this.form.find(':input[name="thing[locale]"]').val();
     let table = this.form.find(':input[name="table"]').val() || 'things';
-    let url = DataCycle.enginePath + '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
+    let url = DataCycle.config.EnginePath + '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
     let template = this.form.find(':input[name="template"]').val();
     if (template != undefined) {
       form_data.push({

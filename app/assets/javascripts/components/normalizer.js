@@ -5,6 +5,7 @@ class DataCycleNormalizer {
     this.form_element = $(form_element);
     this.form_data = [];
     this.normalized_data = {};
+
     this.init();
   }
   init() {

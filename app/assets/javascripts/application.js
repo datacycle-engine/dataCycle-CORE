@@ -10,7 +10,6 @@ Object.assign(window, { $: jQuery, jQuery, Rails, _, actionCable: ActionCable.cr
 import 'jquery-serializejson';
 import 'lazysizes';
 import 'lazysizes/plugins/unveilhooks/ls.unveilhooks.js';
-import './helpers/array_helpers';
 import './helpers/number_helpers';
 import './helpers/string_helpers';
 
@@ -18,7 +17,9 @@ const initializers = import.meta.globEager('./initializers/*.js');
 import foundationInit from './initializers/foundation_init';
 import validationInit from './initializers/validation_init';
 
-export default (() => {
+export default (dataCycleConfig = {}) => {
+  DataCycle.init(dataCycleConfig);
+
   $(function () {
     for (const path in initializers) {
       if (!path.includes('foundation_init') && !path.includes('validation_init')) {
@@ -33,4 +34,4 @@ export default (() => {
     foundationInit();
     validationInit();
   });
-})();
+};

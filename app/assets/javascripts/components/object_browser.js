@@ -1,5 +1,6 @@
 import ConfirmationModal from './../components/confirmation_modal';
 import Sortable from 'sortablejs';
+import { union, difference, castArray } from 'lodash';
 
 class ObjectBrowser {
   constructor(selector) {
@@ -28,7 +29,7 @@ class ObjectBrowser {
     this.page = 1;
     this.loading = false;
     this.search = '';
-    this.url = DataCycle.enginePath + '/object_browser';
+    this.url = DataCycle.config.EnginePath + '/object_browser';
     this.total = 0;
     this.ids = selector.data('objects') || [];
     this.chosen = this.ids.slice(0);
@@ -39,6 +40,7 @@ class ObjectBrowser {
     this.content_type = this.element.data('content-type');
     this.prefix = selector.data('prefix');
     this.requests = [];
+
     this.setup();
   }
   setup() {
@@ -47,8 +49,9 @@ class ObjectBrowser {
       handle: '.draggable-handle',
       draggable: 'li.item'
     });
-    this.ids = this.ids.diff(
-      $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'))
+    this.ids = difference(
+      this.ids,
+      $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
     );
     // initialize all eventhandlers
     this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
@@ -116,8 +119,8 @@ class ObjectBrowser {
         this.element.closest('.form-element').trigger('change');
       }
     });
-    this.element.on('dc:update:chosen', (event, data) => {
-      this.chosen = this.chosen.concat(data.chosen.diff(this.chosen));
+    this.element.on('dc:update:chosen', (_event, data) => {
+      this.chosen = union(this.chosen, data.chosen);
       $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) =>
         $(elem).remove()
       );
@@ -129,20 +132,21 @@ class ObjectBrowser {
         $(element).foundation().addClass('dc-fd-initialized');
       });
     });
-    this.element.on('dc:import:data', (event, data) => {
-      let new_items = [];
-      if (data.external_ids != undefined) new_items = data.external_ids;
+    this.element.on('dc:import:data', (_event, data) => {
+      let newItems = [];
+      if (data.external_ids != undefined) newItems = data.external_ids;
       else if (data.value && data.value.length) {
-        new_items = data.value.diff(
-          $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'))
+        newItems = difference(
+          data.value,
+          $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
         );
       }
-      if (new_items.length > 0 && this.validate('+', this.chosen.length + new_items.length)) {
-        this.findObjects(new_items, data.external_ids != undefined);
+      if (newItems.length > 0 && this.validate('+', this.chosen.length + newItems.length)) {
+        this.findObjects(newItems, data.external_ids != undefined);
       }
     });
     this.overlay.on('dc:import:complete', (event, data) => {
-      this.excluded = this.excluded.mergeUnique(data && data.ids);
+      this.excluded = union(this.excluded, data && data.ids);
       this.overlay
         .children('.items')
         .find('[data-id=' + data.ids[0] + ']')
@@ -240,20 +244,20 @@ class ObjectBrowser {
       });
   }
   removeThumbObject(element, triggerChange = true) {
-    let item, elem_id;
+    let item, elemId;
 
     if ($(element).is(':input[type="hidden"]')) {
       item = $(element);
-      elem_id = item.val();
+      elemId = item.val();
     } else {
       item = $(element).closest('li.item');
-      elem_id = item.data('id');
+      elemId = item.data('id');
     }
 
-    this.chosen = this.chosen.diff(elem_id);
-    this.ids = this.ids.diff(elem_id);
-    this.element.children('input:hidden[value="' + elem_id + '"]').remove();
-    $('.reveal-overlay > #media_reveal_' + elem_id)
+    this.chosen = difference(this.chosen, castArray(elemId));
+    this.ids = difference(this.ids, castArray(elemId));
+    this.element.children('input:hidden[value="' + elemId + '"]').remove();
+    $('.reveal-overlay > #media_reveal_' + elemId)
       .parent('.reveal-overlay')
       .remove();
     item.remove();
@@ -347,8 +351,8 @@ class ObjectBrowser {
       this.updateChosenCounter();
     }
   }
-  removeObject(id, event) {
-    this.chosen = this.chosen.diff(id);
+  removeObject(id, _event) {
+    this.chosen = difference(this.chosen, castArray(id));
     this.element.children('input:hidden[value="' + id + '"]').remove();
     this.overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
     this.overlay
@@ -364,9 +368,9 @@ class ObjectBrowser {
     else html = 'Keine Elemente auswählen';
     this.overlay.find('.chosen-counter').html(html);
   }
-  loadMore(loaded_ids) {
+  loadMore(_loaded_ids) {
     DataCycle.httpRequest({
-      url: DataCycle.enginePath + '/' + this.content_type + '/' + this.content_id + '/load_more_linked_objects',
+      url: DataCycle.config.EnginePath + '/' + this.content_type + '/' + this.content_id + '/load_more_linked_objects',
       method: 'GET',
       dataType: 'script',
       data: {
@@ -385,7 +389,7 @@ class ObjectBrowser {
       },
       contentType: 'application/json'
     }).done(() => {
-      this.chosen = this.chosen.concat(this.ids.diff(this.chosen));
+      this.chosen = union(this.chosen, this.ids);
       this.updateChosenCounter();
       this.ids = [];
       this.loadObjects(false);
@@ -456,7 +460,7 @@ class ObjectBrowser {
     });
     $(window).on('message.object_browser onmessage.object_browser', this.import.bind(this));
     let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
-    if (this.ids.diff(loaded).length > 0) this.loadMore(loaded);
+    if (difference(this.ids, loaded).length) this.loadMore(loaded);
     else this.loadObjects(false);
   }
   closeOverlay(_ev) {
@@ -478,7 +482,7 @@ class ObjectBrowser {
       let authToken = $('meta[name=csrf-token]').attr('content');
       DataCycle.httpRequest({
         type: 'POST',
-        url: DataCycle.enginePath + '/things/import',
+        url: DataCycle.config.EnginePath + '/things/import',
         dataType: 'script',
         data: JSON.stringify({
           authenticity_token: authToken,
@@ -495,13 +499,11 @@ class ObjectBrowser {
         }),
         contentType: 'application/json'
       })
-        .done(
-          function (data) {
-            this.overlay.find('.items li.item .reveal.media-preview').each(function () {
-              if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
-            });
-          }.bind(this)
-        )
+        .done(_data => {
+          this.overlay.find('.items li.item .reveal.media-preview').each(function () {
+            if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+          });
+        })
         .always(() => {
           $('#new_' + this.id).foundation('close');
         });
@@ -546,7 +548,7 @@ class ObjectBrowser {
         }),
         contentType: 'application/json'
       })
-        .done(data => {
+        .done(_data => {
           this.total = this.overlay.data('total');
           this.overlay.find('.items li.item .reveal.media-preview').each(function () {
             if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
@@ -562,7 +564,7 @@ class ObjectBrowser {
             this.loadObjects();
           }
         })
-        .always((data, text, jqXHR) => {
+        .always((_data, _text, jqXHR) => {
           this.requests = this.requests.filter(r => r != jqXHR);
         })
     );
@@ -570,7 +572,7 @@ class ObjectBrowser {
   removeDeletedItem() {
     if (!this.chosen.length) return;
 
-    let toRemove = this.chosen.diff(this.filteredIds());
+    let toRemove = difference(this.chosen, this.filteredIds());
     if (toRemove.length) {
       toRemove.forEach(item => {
         this.removeThumbObject(

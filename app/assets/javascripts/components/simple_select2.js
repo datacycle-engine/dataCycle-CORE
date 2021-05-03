@@ -106,7 +106,7 @@ class SimpleSelect2 extends BasicSelect2 {
     if (!reloadPath || !reloadPath.length || !type || !type.length) return;
 
     DataCycle.httpRequest({
-      url: DataCycle.enginePath + reloadPath,
+      url: DataCycle.config.EnginePath + reloadPath,
       dataType: 'json',
       data: { type: type }
     }).done(data => {

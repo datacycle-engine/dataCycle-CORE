@@ -7,6 +7,7 @@ class SplitView {
     this.leftLocale = this.container.closest('.split-content').data('locale');
     this.enableTranslateButtons = this.container.closest('.split-content').data('enable-translate-buttons');
     this.rightLocale = this.container.closest('form').find('input#locale:hidden').val();
+
     this.setup();
   }
   setup() {
@@ -210,7 +211,7 @@ class SplitView {
 
     let target = $('.flex-box .edit-content [data-key="' + key + '"]');
 
-    target.find(DataCycle.editorSelectors.join(', ')).trigger('dc:import:data', {
+    target.find(DataCycle.config.EditorSelectors.join(', ')).trigger('dc:import:data', {
       label: label,
       value: typeof value == 'string' ? value.trim() : value,
       locale: this.embedLocale ? this.leftLocale : ''

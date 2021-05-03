@@ -9,6 +9,7 @@ class CopyFromAttribute {
     this.label = this.$formElement.data('label');
     this.$target = this.$formElement.siblings('[data-key*="' + this.copyFrom + '"]').first();
     this.locale = this.$formElement.closest('form').find(':hidden[name="locale"]').val() || '';
+
     this.init();
   }
   init() {
@@ -31,7 +32,7 @@ class CopyFromAttribute {
 
     if (!this.$target.length) return;
 
-    this.$formElement.find(DataCycle.editorSelectors.join(', ')).trigger('dc:import:data', {
+    this.$formElement.find(DataCycle.config.EditorSelectors.join(', ')).trigger('dc:import:data', {
       label: this.label,
       value: this.getTargetValue(),
       locale: this.locale

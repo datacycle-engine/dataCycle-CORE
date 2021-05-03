@@ -2,36 +2,15 @@ import Quill from 'quill';
 import Counter from './../components/quill_counter';
 import { QuillContentlinkModule, ContentlinkBlot } from './../components/quill_content_link';
 import { QuillLinkFormat, QuillLinkModule } from '../components/quill_custom_link';
+import { SmartBreak, lineBreakMatcher, lineBreakHandler } from '../components/quill_smart_break';
+import handleEnter from '../components/quill_enter_handler';
 import ConfirmationModal from './../components/confirmation_modal';
 import quill_helpers from './../helpers/quill_helpers';
 const icons = Quill.import('ui/icons');
 
-const Delta = Quill.import('delta');
-const Break = Quill.import('blots/break');
-const Embed = Quill.import('blots/embed');
-const Parchment = Quill.import('parchment');
-
 icons['insertnbsp'] = '<span title="Geschütztes Leerzeichen einfügen">␣</span>';
 
-function lineBreakMatcher() {
-  var newDelta = new Delta();
-  newDelta.insert({
-    break: ''
-  });
-  return newDelta;
-}
-
-Break.prototype.insertInto = function (parent, ref) {
-  Embed.prototype.insertInto.call(this, parent, ref);
-};
-Break.prototype.length = function () {
-  return 1;
-};
-Break.prototype.value = function () {
-  return '\n';
-};
-
-Quill.register(Break);
+Quill.register(SmartBreak);
 Quill.register('modules/contentlink', QuillContentlinkModule);
 Quill.register('formats/contentlink', ContentlinkBlot);
 Quill.register('modules/customlink', QuillLinkModule);
@@ -130,7 +109,7 @@ export default function () {
   function init(container = document) {
     $(container)
       .find('.quill-editor')
-      .each((i, node) => {
+      .each((_, node) => {
         // set edit mode
         let mode = 'full';
         if ($(node).data('size') != undefined && $(node).data('size') != false) mode = $(node).data('size');
@@ -161,14 +140,14 @@ export default function () {
 
           $(editor.container)
             .closest('form')
-            .on('reset', event => {
+            .on('reset', _event => {
               editor.clipboard.dangerouslyPasteHTML($(editor.container).data('default-value') || '');
               quill_helpers.updateEditors(editor.container);
             });
 
           $(editor.container).on('dc:import:data', function (event, data) {
             if (editor.getText().trim().length > 1 && (!data || !data.force)) {
-              var confirmationModal = new ConfirmationModal({
+              new ConfirmationModal({
                 text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
                 confirmationText: 'Ja',
                 cancelText: 'Nein',
@@ -183,56 +162,13 @@ export default function () {
             }
           });
         } catch (err) {
-          console.log(err);
+          console.warn(err);
+          // if (window.appsignal) appsignal.sendError(err);
         }
       });
   }
 
-  function handleEnter(range, context) {
-    if (range.length > 0) {
-      this.quill.scroll.deleteAt(range.index, range.length); // So we do not trigger text-change
-    }
-    let lineFormats = Object.keys(context.format).reduce(function (lineFormats, format) {
-      if (Parchment.query(format, Parchment.Scope.BLOCK) && !Array.isArray(context.format[format])) {
-        lineFormats[format] = context.format[format];
-      }
-      return lineFormats;
-    }, {});
-    var previousChar = this.quill.getText(range.index - 1, 1);
-    // Earlier scroll.deleteAt might have messed up our selection,
-    // so insertText's built in selection preservation is not reliable
-    this.quill.insertText(range.index, '\n', lineFormats, Quill.sources.USER);
-    if (previousChar == '' || previousChar == '\n') {
-      this.quill.setSelection(range.index + 2, Quill.sources.SILENT);
-    } else {
-      this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
-    }
-    // this.quill.selection.scrollIntoView();
-    Object.keys(context.format).forEach(name => {
-      if (lineFormats[name] != null) return;
-      if (Array.isArray(context.format[name])) return;
-      if (name === 'link') return;
-      this.quill.format(name, context.format[name], Quill.sources.USER);
-    });
-  }
-
-  function lineBreakHandler(range) {
-    let currentLeaf = this.quill.getLeaf(range.index)[0];
-    let nextLeaf = this.quill.getLeaf(range.index + 1)[0];
-
-    this.quill.insertEmbed(range.index, 'break', true, 'user');
-
-    // Insert a second break if:
-    // At the end of the editor, OR next leaf has a different parent (<p>)
-    if (nextLeaf === null || currentLeaf.parent !== nextLeaf.parent) {
-      this.quill.insertEmbed(range.index, 'break', true, 'user');
-    }
-
-    // Now that we've inserted a line break, move the cursor forward
-    this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
-  }
-
-  function position_editor_toolbar(element, fixed_class = '') {
+  function positionEditorToolbar(element, fixed_class = '') {
     var right = $(window).width() - ($(element).offset().left + $(element).width());
     var rest_width = right + $(element).offset().left;
     $(element)
@@ -273,7 +209,7 @@ export default function () {
       .css('left', $(element).offset().left + 30);
   }
 
-  let reset_editor_toolbar = function (element, fixed_class = '') {
+  let resetEditorToolbar = function (element, fixed_class = '') {
     $(element).find('.ql-toolbar').removeClass(fixed_class).removeAttr('style');
     $(element).siblings('label, .translated').removeClass(fixed_class).removeAttr('style');
     if ($(element).siblings('label[for*="textblock"]').length)
@@ -290,9 +226,9 @@ export default function () {
         $('.editor-block').each(function () {
           var pos = $(this).offset().top - $(window).scrollTop();
           if (pos < 182 && pos > -$(this).height() + 230) {
-            position_editor_toolbar(this, 'fixed-split-toolbar');
+            positionEditorToolbar(this, 'fixed-split-toolbar');
           } else {
-            reset_editor_toolbar(this, 'fixed-split-toolbar');
+            resetEditorToolbar(this, 'fixed-split-toolbar');
           }
         });
       });
@@ -301,9 +237,9 @@ export default function () {
         $('.editor-block').each(function () {
           var pos = $(this).offset().top - $(window).scrollTop();
           if (pos < 55 && pos > -$(this).height() + 130) {
-            position_editor_toolbar(this, 'fixed-toolbar');
+            positionEditorToolbar(this, 'fixed-toolbar');
           } else {
-            reset_editor_toolbar(this, 'fixed-toolbar');
+            resetEditorToolbar(this, 'fixed-toolbar');
           }
         });
       });

@@ -1,22 +1,29 @@
-export default {
-  enginePath: '',
-  editorSelectors: [
-    '> .object-browser',
-    '> .embedded-object',
-    '> input[type=text]',
-    '> .editor-block > .quill-editor',
-    '> .v-select > select.multi-select',
-    '> .v-select > select.single-select',
-    '> .v-select > select.async-select',
-    '> ul.classification-checkbox-list',
-    '> ul.classification-radiobutton-list',
-    '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
-    '> .geographic > .geographic-map',
-    '> :checkbox',
-    '> :radio',
-    '> :input[type="number"]',
-    '> .duration-slider > div > input[type="number"]'
-  ],
+const DataCycle = {
+  config: {
+    EnginePath: '',
+    EditorSelectors: [
+      '> .object-browser',
+      '> .embedded-object',
+      '> input[type=text]',
+      '> .editor-block > .quill-editor',
+      '> .v-select > select.multi-select',
+      '> .v-select > select.single-select',
+      '> .v-select > select.async-select',
+      '> ul.classification-checkbox-list',
+      '> ul.classification-radiobutton-list',
+      '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
+      '> .geographic > .geographic-map',
+      '> :checkbox',
+      '> :radio',
+      '> :input[type="number"]',
+      '> .duration-slider > div > input[type="number"]'
+    ],
+    AppSignalFrontEndKey: null
+  },
+  init(config = {}) {
+    Object.assign(this.config, config);
+    Object.freeze(this.config);
+  },
   httpRequest(options = {}) {
     const defaultOptions = {
       headers: {
@@ -51,3 +58,7 @@ export default {
     if (element.nodeName == 'A') element.classList.remove('disabled');
   }
 };
+
+Object.freeze(DataCycle);
+
+export default DataCycle;

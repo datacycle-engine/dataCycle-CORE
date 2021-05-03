@@ -15,7 +15,7 @@ export default function () {
           .on('focus.dc_edit_page', event => {
             DataCycle.httpRequest({
               type: 'GET',
-              url: DataCycle.enginePath + '/reload_required',
+              url: DataCycle.config.EnginePath + '/reload_required',
               data: {
                 id: id,
                 table: table,

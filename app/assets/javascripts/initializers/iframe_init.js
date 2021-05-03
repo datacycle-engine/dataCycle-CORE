@@ -8,7 +8,7 @@ export default function () {
       var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
       DataCycle.httpRequest({
         type: 'POST',
-        url: DataCycle.enginePath + '/things/import',
+        url: DataCycle.config.EnginePath + '/things/import',
         data: JSON.stringify({
           authenticity_token: AUTH_TOKEN,
           data: event.originalEvent.data.data,

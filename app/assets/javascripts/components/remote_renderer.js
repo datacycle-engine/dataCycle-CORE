@@ -106,7 +106,7 @@ class RemoteRenderer {
 
     DataCycle.httpRequest({
       type: 'POST',
-      url: DataCycle.enginePath + '/remote_render',
+      url: DataCycle.config.EnginePath + '/remote_render',
       data: JSON.stringify(params),
       dataType: 'script',
       contentType: 'application/json'

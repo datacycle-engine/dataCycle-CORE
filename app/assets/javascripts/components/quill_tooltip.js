@@ -5,6 +5,7 @@ class QuillTooltip extends Tooltip {
   constructor(quill, boundsContainer) {
     super(quill, boundsContainer);
     this.textbox = this.root.querySelector('input[type="text"]');
+
     this.listen();
   }
 

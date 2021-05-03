@@ -25,7 +25,7 @@ export default function () {
       let spinner = new Spinner($('.search-history-list'));
       spinner.show();
       DataCycle.httpRequest({
-        url: DataCycle.enginePath + '',
+        url: DataCycle.config.EnginePath + '',
         method: 'GET',
         data: form_data,
         dataType: 'script'

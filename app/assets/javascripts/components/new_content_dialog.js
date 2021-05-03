@@ -19,6 +19,7 @@ class NewContentDialog {
     this.referencedAssetField;
     this.nextAssetButton;
     this.prevAssetButton;
+
     this.init();
     this.initEventHandlers();
     this.updateForm();
@@ -122,7 +123,7 @@ class NewContentDialog {
       if (v && v.value.isUuid()) {
         requests.push(
           DataCycle.httpRequest({
-            url: `${DataCycle.enginePath}/api/v4/universal/${v.value}`,
+            url: `${DataCycle.config.EnginePath}/api/v4/universal/${v.value}`,
             method: 'POST',
             data: { fields: 'name,skos:prefLabel' }
           }).done(data => {
@@ -198,7 +199,7 @@ class NewContentDialog {
     for (let key in groupedAttributes) {
       this.form
         .find('[data-key="' + key + '"]')
-        .find(DataCycle.editorSelectors.join(', '))
+        .find(DataCycle.config.EditorSelectors.join(', '))
         .trigger('dc:import:data', {
           label: key.getKey(),
           value: typeof groupedAttributes[key] == 'string' ? groupedAttributes[key].trim() : groupedAttributes[key],
@@ -380,7 +381,7 @@ class NewContentDialog {
     params['template'] = template;
     params['key'] = this.id;
     DataCycle.httpRequest({
-      url: DataCycle.enginePath + '/things/new',
+      url: DataCycle.config.EnginePath + '/things/new',
       method: 'GET',
       data: params,
       dataType: 'script',

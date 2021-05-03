@@ -5,6 +5,7 @@ class DragAndDropField {
     this.uploaderReveal = $('#' + this.container.data('asset-uploader'));
     this.fileField = this.container.find('input.content-upload-field');
     this.dragAndDropField = this.container.find('.drag-and-drop-field');
+
     this.init();
   }
   init() {

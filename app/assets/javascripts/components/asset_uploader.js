@@ -2,6 +2,7 @@ import DurationHelpers from './../helpers/duration_helpers';
 import ObjectHelpers from './../helpers/object_helpers';
 import MimeTypes from 'mime';
 import AssetValidator from './asset_validator';
+import { unionBy } from 'lodash';
 
 class AssetUploader {
   constructor(reveal) {
@@ -29,6 +30,7 @@ class AssetUploader {
     this.bulkCreateChannel;
     this.files = [];
     this.saving = false;
+
     this.init();
   }
   init() {
@@ -178,7 +180,7 @@ class AssetUploader {
     });
 
     DataCycle.httpRequest({
-      url: DataCycle.enginePath + '/things/bulk_create',
+      url: DataCycle.config.EnginePath + '/things/bulk_create',
       method: 'POST',
       data: formData,
       dataType: 'json',
@@ -200,7 +202,7 @@ class AssetUploader {
     formData = formData.concat(file.attributeFieldValues || []);
 
     DataCycle.httpRequest({
-      url: DataCycle.enginePath + '/things/validate',
+      url: DataCycle.config.EnginePath + '/things/validate',
       method: 'POST',
       data: formData,
       dataType: 'json',
@@ -238,8 +240,10 @@ class AssetUploader {
 
     let selectedFile = this.files.find(file => file.id == $(event.currentTarget).data('id'));
 
-    this.globalFieldValues = this.globalFieldValues.mergeUniqueFormValues(
-      data.formData.filter(elem => elem.name.indexOf('thing') !== 0)
+    this.globalFieldValues = unionBy(
+      this.globalFieldValues,
+      data.formData.filter(elem => elem.name.indexOf('thing') !== 0),
+      'name'
     );
 
     this.renderSpecificFields(
