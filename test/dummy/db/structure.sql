@@ -909,7 +909,6 @@ CREATE TABLE public.thing_histories (
     latitude double precision,
     elevation double precision,
     location public.geometry(Point,4326),
-    line public.geography(LineStringZ,4326),
     address_locality character varying,
     street_address character varying,
     postal_code character varying,
@@ -922,7 +921,8 @@ CREATE TABLE public.thing_histories (
     boost numeric,
     content_type character varying,
     representation_of_id uuid,
-    version_name character varying
+    version_name character varying,
+    line public.geometry(MultiLineStringZ,4326)
 );
 
 

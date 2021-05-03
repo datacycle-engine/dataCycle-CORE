@@ -35,11 +35,11 @@ module DataCycleCore
         end
 
         def self.load_parent_classification_alias(raw_data, external_source_id)
-          external_key = 'Feratel - HandicapFacilityGroup - ' + raw_data.dig('GroupID') if raw_data.dig('GroupID').present?
+          return nil if raw_data.dig('GroupID').blank?
           DataCycleCore::Classification
             .find_by(
               external_source_id: external_source_id,
-              external_key: external_key
+              external_key: 'Feratel - HandicapFacilityGroup - ' + raw_data.dig('GroupID')
             )
             .try(:primary_classification_alias)
         end
