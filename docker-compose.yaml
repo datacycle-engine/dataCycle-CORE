@@ -74,19 +74,28 @@ services:
     environment:
       - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
       - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
+      - PUBLIC_IMGPROXY_PORT=${PUBLIC_IMGPROXY_PORT:-9000}
     volumes:
       - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
       - './docker/nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template'
     links:
       - web
-      - imaginary
-  imaginary:
-    image: h2non/imaginary:latest
+      - imgproxy
+#  imaginary:
+#    image: h2non/imaginary:latest
+#    environment:
+#      PORT: 9000
+#    command: -enable-url-source -concurrency 20
+#    ports:
+#      - '${PUBLIC_IMAGINARY_PORT:-9000}:9000'
+  imgproxy:
+    image: darthsim/imgproxy
+    env_file:
+      - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}.env
     environment:
-      PORT: 9000
-    command: -enable-url-source -concurrency 20
+      PORT: '${PUBLIC_IMGPROXY_PORT:-9000}'
     ports:
-      - '${PUBLIC_IMAGINARY_PORT:-9000}:9000'
+      - '${PUBLIC_IMGPROXY_PORT:-9000}:9000'
 volumes:
   gems:
   redis:

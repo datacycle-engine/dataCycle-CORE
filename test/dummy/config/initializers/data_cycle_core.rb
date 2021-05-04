@@ -38,7 +38,7 @@ DataCycleCore.setup do |config|
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_jet_ticket'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_reisen_fuer_alle'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_image_proxy')
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_imgproxy')
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_container')
     ].freeze
