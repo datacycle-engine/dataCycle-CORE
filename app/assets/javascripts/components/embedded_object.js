@@ -1,6 +1,8 @@
 import ConfirmationModal from './../components/confirmation_modal';
-import Sortable from 'sortablejs';
-import { difference, union, intersection } from 'lodash';
+import Sortable from 'sortablejs/modular/sortable.core.esm.js';
+import difference from 'lodash/difference';
+import union from 'lodash/union';
+import intersection from 'lodash/intersection';
 
 class EmbeddedObject {
   constructor(selector) {

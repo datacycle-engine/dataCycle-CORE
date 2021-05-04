@@ -2,7 +2,8 @@ import DurationHelpers from './../helpers/duration_helpers';
 import ObjectHelpers from './../helpers/object_helpers';
 import MimeTypes from 'mime';
 import AssetValidator from './asset_validator';
-import { unionBy } from 'lodash';
+import unionBy from 'lodash/unionBy';
+import uniqueId from 'lodash/uniqueId';
 
 class AssetUploader {
   constructor(reveal) {
@@ -485,7 +486,7 @@ class AssetUploader {
     this.updateCreateButton(error);
   }
   renderDuplicateHtml(duplicates) {
-    let id = _.uniqueId('duplicate_');
+    let id = uniqueId('duplicate_');
 
     let duplicateHtml =
       '<a class="possible-duplicates" data-toggle="' +
@@ -585,7 +586,7 @@ class AssetUploader {
   checkFileAndQueue(file, fileOptions = {}) {
     if (this.files.find(f => f.file.name == file.name)) return;
 
-    let id = _.uniqueId('asset_');
+    let id = uniqueId('asset_');
     fileOptions = Object.assign(
       {
         id: id,
@@ -786,7 +787,7 @@ class AssetUploader {
     return html;
   }
   updateIdsInClonedErrors(errorText) {
-    let newId = _.uniqueId('cloned_asset_');
+    let newId = uniqueId('cloned_asset_');
     errorText = errorText.replaceAll(/(")([^"-]*)(-duplicates-list)/gi, '$1' + newId + '$3');
     return errorText;
   }

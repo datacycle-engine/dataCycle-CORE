@@ -1,13 +1,13 @@
-import Appsignal from '@appsignal/javascript';
+import AppSignal from '@appsignal/javascript';
 import { plugin } from '@appsignal/plugin-window-events';
 
 export default function () {
   if (['production', 'staging'].includes(import.meta.env.MODE) && DataCycle.config.AppSignalFrontEndKey) {
-    const appsignal = new Appsignal({
+    const appSignal = new AppSignal({
       key: DataCycle.config.AppSignalFrontEndKey
     });
 
-    appsignal.use(plugin());
-    window.appsignal = appsignal;
+    appSignal.use(plugin());
+    window.appSignal = appSignal;
   }
 }

@@ -1,4 +1,4 @@
-import { difference } from 'lodash';
+import difference from 'lodash/difference';
 
 class BasicSelect2 {
   constructor(element) {

@@ -1,4 +1,5 @@
 import ConfirmationModal from './confirmation_modal';
+import pull from 'lodash/pull';
 
 class DataList {
   constructor(element) {
@@ -30,7 +31,7 @@ class DataList {
   abortRunningRequests() {
     this.requests.forEach(request => {
       request.abort();
-      _.pull(this.requests, request);
+      pull(this.requests, request);
     });
   }
   callSuccessMethod(data) {

@@ -40,6 +40,8 @@ module DataCycleCore
       end
 
       def self.string_to_string(value)
+        return if value&.strip_tags.blank?
+
         value
           &.unicode_normalize(:nfc)
           &.delete("\u0000") # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)

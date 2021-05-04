@@ -162,8 +162,8 @@ export default function () {
             }
           });
         } catch (err) {
-          console.warn(err);
-          // if (window.appsignal) appsignal.sendError(err);
+          console.error(err);
+          if (window.appSignal) appSignal.sendError(err);
         }
       });
   }

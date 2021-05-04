@@ -1,6 +1,7 @@
 import ConfirmationModal from './confirmation_modal';
 import QuillHelpers from './../helpers/quill_helpers';
-import { isEqual, uniqWith } from 'lodash';
+import isEqual from 'lodash/isEqual';
+import uniqWith from 'lodash/uniqWith';
 
 class Validator {
   constructor(formElement) {

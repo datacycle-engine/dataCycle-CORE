@@ -1,3 +1,5 @@
+import uniqueId from 'lodash/uniqueId';
+
 class RemoteRenderer {
   constructor(selector) {
     this.selector = $(selector);
@@ -80,7 +82,7 @@ class RemoteRenderer {
     let id = $(element).data('remote-render-id');
 
     if (id === undefined) {
-      id = _.uniqueId('remote_render_');
+      id = uniqueId('remote_render_');
       element.setAttribute('data-remote-render-id', id);
     }
 

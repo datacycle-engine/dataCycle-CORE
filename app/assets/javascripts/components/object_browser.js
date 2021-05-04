@@ -1,6 +1,8 @@
 import ConfirmationModal from './../components/confirmation_modal';
-import Sortable from 'sortablejs';
-import { union, difference, castArray } from 'lodash';
+import Sortable from 'sortablejs/modular/sortable.core.esm.js';
+import difference from 'lodash/difference';
+import union from 'lodash/union';
+import castArray from 'lodash/castArray';
 
 class ObjectBrowser {
   constructor(selector) {

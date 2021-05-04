@@ -1,3 +1,5 @@
+import merge from 'lodash/merge';
+
 const DataCycle = {
   config: {
     EnginePath: '',
@@ -31,7 +33,7 @@ const DataCycle = {
       }
     };
 
-    return $.ajax(_.merge(defaultOptions, options));
+    return $.ajax(merge(defaultOptions, options));
   },
   _prepareElement(element) {
     if (element instanceof $) element = element[0];
