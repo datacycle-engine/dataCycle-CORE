@@ -74,6 +74,7 @@ services:
     environment:
       - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
       - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
+      - PUBLIC_IMGPROXY_PORT=${PUBLIC_IMGPROXY_PORT:-9000}
     volumes:
       - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
       - './docker/nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template'
