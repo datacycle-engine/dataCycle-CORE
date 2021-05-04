@@ -174,7 +174,7 @@ server {
   # get the image with original with and height
   # the image is still processed so it is not the original image
   # the following processing options will be applied: strip_metadata, strip_color_profile, auto_rotate, quality
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/orig\/(?<filename>(.*?))$"{
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/default\/(?<filename>(.*?))$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
