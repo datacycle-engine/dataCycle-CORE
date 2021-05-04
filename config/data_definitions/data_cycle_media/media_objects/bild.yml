@@ -269,6 +269,9 @@
       :wikidata:
         :type: mixin
         :name: wikidata
+      :feratel:
+        :type: mixin
+        :name: feratel_images        
       :data_type:
         :label: Inhaltstyp
         :type: classification
