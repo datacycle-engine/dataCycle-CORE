@@ -28,7 +28,7 @@
             uploader_validation_text: true,
             type_translation: "data_cycle_core/#{asset_type}".classify.constantize.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>
 
-        <a class="select-asset-link button disabled">
+        <a class="select-asset-link success button disabled">
           2. <%= t('common.select_asset', data: label, locale: DataCycleCore.ui_language) %>
         </a>
       </div>

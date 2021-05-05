@@ -2,6 +2,9 @@ import ConfirmationModal from './confirmation_modal';
 import QuillHelpers from './../helpers/quill_helpers';
 import isEqual from 'lodash/isEqual';
 import uniqWith from 'lodash/uniqWith';
+import unionWith from 'lodash/unionWith';
+import sortBy from 'lodash/sortBy';
+import collectionReject from 'lodash/reject';
 
 class Validator {
   constructor(formElement) {
@@ -64,13 +67,18 @@ class Validator {
     this.requests = [this.validateItem(event.currentTarget)];
     this.resolveRequests(false, data);
   }
+  sortedFormData() {
+    return collectionReject(sortBy(uniqWith(this.form.serializeArray(), isEqual), ['name', 'value']), {
+      name: 'authenticity_token'
+    });
+  }
   pageLeaveWarning() {
     QuillHelpers.updateEditors(this.form);
-    this.initialFormData = uniqWith(this.form.serializeArray(), isEqual).sort();
+    this.initialFormData = this.sortedFormData();
 
     $(window).on('beforeunload', _event => {
       QuillHelpers.updateEditors(this.form);
-      this.submitFormData = uniqWith(this.form.serializeArray(), isEqual);
+      this.submitFormData = this.sortedFormData();
 
       if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
@@ -78,7 +86,8 @@ class Validator {
     if (this.languageMenu.length) {
       this.languageMenu.on('click', '.list-items > li > a', event => {
         QuillHelpers.updateEditors(this.form);
-        this.submitFormData = uniqWith(this.form.serializeArray(), isEqual);
+        this.submitFormData = this.sortedFormData();
+
         if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData)) {
           event.preventDefault();
           new ConfirmationModal({
@@ -100,7 +109,17 @@ class Validator {
     event.preventDefault();
     event.stopPropagation();
 
-    if (!data || !data.newContent) this.initialFormData = uniqWith(this.form.serializeArray(), isEqual).sort();
+    if (!data || !data.newContent) {
+      this.initialFormData = collectionReject(
+        sortBy(unionWith(this.initialFormData, $(event.target).find(':input').serializeArray(), isEqual), [
+          'name',
+          'value'
+        ]),
+        {
+          name: 'authenticity_token'
+        }
+      );
+    }
   }
   validateAgbs(validationContainer) {
     let error = {

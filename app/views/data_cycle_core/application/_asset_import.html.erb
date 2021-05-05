@@ -29,12 +29,12 @@
       </li>
     </ul>
     <% if local_assigns[:uploader_validation_text] && uploader_validation.present? %>
-      <li class="callout primary content-uploader-validations">
+      <div class="callout primary content-uploader-validations">
         <%= tag.i class: 'fa fa-info-circle', aria_hidden: true, title: uploader_validation[:translation_description] if uploader_validation[:translation_description].present? %>
         <ul>
           <%= uploader_validation_to_text(uploader_validation&.except(:translation, :translation_description, :class)).html_safe %>
         </ul>
-      </li>
+      </div>
     <% end %>
     <div id="content-upload-form-<%= local_assigns[:key] || 'default' %>" class="content-upload-form" data-url="<%= assets_path %>">
       <%= file_field_tag "files-#{local_assigns[:key] || 'default'}",
@@ -52,7 +52,7 @@
             <span class="progress-value"></span>
           </span>
         </button>
-        <button type="button" data-close class="button asset-reload-button"><%= t('actions.close_overlay', locale: DataCycleCore.ui_language) %></button>
+        <button type="button" data-close class="button success asset-reload-button"><%= t('actions.close_overlay', locale: DataCycleCore.ui_language) %></button>
       </span>
     </div>
     <div class="drag-and-drop-field">

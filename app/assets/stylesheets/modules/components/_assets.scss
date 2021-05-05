@@ -29,17 +29,31 @@
   display: flex;
   flex-flow: column;
   height: calc(100vh - 2rem);
+
+  > h3 {
+    margin: 0;
+    box-shadow: 0 15px 10px #fff;
+    z-index: 1;
+  }
+
   .content-upload-link {
     position: absolute;
     right: 3rem;
     top: 0.8rem;
   }
+
   .scrollable-asset-list {
     overflow-y: auto;
     flex: 1;
+    padding-top: 1rem;
   }
+
   .buttons {
     display: flex;
+    padding-top: 1rem;
+    box-shadow: 0 -10px 10px #fff;
+    z-index: 1;
+
     .button,
     button {
       flex: 1;
