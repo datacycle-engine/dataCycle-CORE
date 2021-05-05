@@ -236,8 +236,9 @@ module DataCycleCore
 
     def attribute_editable?(key, definition, options, content)
       @attribute_editable ||= Hash.new do |h, k|
-        h[k] = can?(:edit, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :edit))
+        h[k] = can?(:edit, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :edit, k.dig(2, 'edit_scope')))
       end
+
       @attribute_editable[[key, definition, options, content]]
     end
 
@@ -247,7 +248,7 @@ module DataCycleCore
 
       return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
 
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && (content.nil? || content&.allowed_feature_attribute?(key.attribute_name_from_key))
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope, edit_scope)) && (content.nil? || content&.allowed_feature_attribute?(key.attribute_name_from_key))
 
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
