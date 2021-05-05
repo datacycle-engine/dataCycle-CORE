@@ -12,16 +12,7 @@ module DataCycleCore
         end
 
         def self.filter(data, external_system)
-          sync_data = data.external_system_data_all(external_system, 'export', nil, false)
-          job_id = sync_data&.data&.dig('job_id')
-          updated_at = sync_data&.updated_at || Time::LONG_AGO
-          (
-            (data.template_name == 'POI' || data.template_name == 'Unterkunft') &&
-            data&.external_source&.identifier == 'feratel' &&
-            Functions.outdoor_active_system_categories(data, external_system).size.positive? &&
-            Functions.outdoor_active_system_source_keys(data, external_system).size.positive? &&
-            (job_id.blank? || updated_at + 2.days < Time.zone.now)
-          )
+          Functions.filter(data: data, external_system: external_system, method_name: name.demodulize.underscore)
         end
       end
     end
