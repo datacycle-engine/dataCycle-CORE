@@ -25,10 +25,9 @@ coverage
 benchmark/
 
 # Vite Ruby
-/public/vite
-/public/vite-dev
-/public/vite-test
-/app/assets/entrypoints/images
-node_modules
-*.local
+**/public/vite
+**/public/vite-dev
+**/public/vite-test
+**/app/assets/entrypoints/images
+**/*.local
 .DS_Store

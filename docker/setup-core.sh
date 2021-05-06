@@ -4,6 +4,7 @@ echo "$(hostname -i|sed -r 's/([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)[0-9]{1,3}/\11/
 (yarn; yarn upgrade) &> log/yarn.log &
 
 cd test/dummy
+
 mkdir -p /var/www/app/test/dummy/tmp/{sockets,pids}
 chown -R 1000:1000 /var/www/app/test/dummy/tmp
 rm -f tmp/pids/server.pid
