@@ -1,3 +1,5 @@
 import '../../../../../app/assets/stylesheets/application.scss';
 
-import '../../../../../app/assets/javascripts/application';
+import DataCycleInit from '../../../../../app/assets/javascripts/application';
+
+DataCycleInit();
