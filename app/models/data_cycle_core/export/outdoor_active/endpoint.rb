@@ -29,7 +29,7 @@ module DataCycleCore
             {
               'job_id' => job_id,
               'job_status' => 'waiting',
-              'external_source_id' => data.external_source.id
+              'external_source_id' => data.external_source&.id
             }
           ).reject { |_k, v| v.blank? }
         end
@@ -43,7 +43,7 @@ module DataCycleCore
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error sending data to #{File.join([@host, job_id])} ", response) unless response.success?
 
-          parse_job_status_response_body(raw_response_body: response.body, job_id: job_id).merge({ 'external_source_id' => data.external_source.id })
+          parse_job_status_response_body(raw_response_body: response.body, job_id: job_id).merge({ 'external_source_id' => data.external_source&.id })
         end
 
         def parse_job_status_response_body(raw_response_body:, job_id:)
