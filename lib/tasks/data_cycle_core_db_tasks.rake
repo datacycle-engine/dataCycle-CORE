@@ -124,7 +124,7 @@ namespace :data_cycle_core do
             when 'p'
               cmd = "psql --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
             else
-              cmd = "#{pgclusters}pg_restore -F #{fmt}#{' -j 2' if fmt == 'd'} -O -v --disable-triggers --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
+              cmd = "#{pgclusters}pg_restore -F #{fmt}#{' -j 2' if fmt == 'd'} -O -v --disable-triggers --superuser=#{user} --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
             end
           else
             puts "Too many files match the pattern '#{pattern}':"
