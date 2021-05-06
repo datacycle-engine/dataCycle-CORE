@@ -59,6 +59,18 @@ module DataCycleCore
           )
         end
 
+        def self.filter(data:, external_system:, method_name:)
+          source_key = external_system.credentials('export')&.dig('xml', 'owner') # == in this context the owner
+          sync_data = data.external_system_data_all(external_system, 'export', nil, false)
+          job_id = sync_data&.data&.dig('job_id')
+          updated_at = sync_data&.updated_at || Time::LONG_AGO
+          (
+            DataCycleCore::Export::Generic::Functions.filter(data: data, external_system: external_system, method_name: method_name) &&
+            (Functions.outdoor_active_system_source_keys(data, external_system).size.positive? || source_key.present?) &&
+            (job_id.blank? || updated_at + 2.days < Time.zone.now)
+          )
+        end
+
         def self.outdoor_active_system_categories(data, external_system)
           outdoor_active_categories(data, external_system, 'OutdoorActive - System - Kategorien')
         end

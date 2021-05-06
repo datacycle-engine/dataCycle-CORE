@@ -24,8 +24,8 @@ module DataCycleCore
           Array.wrap(data.dig('Details', 'Names', 'Translation')).first.try(:[], 'text')
         end
 
-        def self.load_contents(mongo_item, locale)
-          mongo_item.where({ "dump.#{locale}.mark_for_update".to_sym => { '$exists' => true } })
+        def self.load_contents(mongo_item, locale, external_keys)
+          mongo_item.where({ '$or' => [{ "dump.#{locale}.mark_for_update".to_sym => { '$exists' => true } }, { 'external_id' => { '$in' => external_keys } }] })
         end
 
         def self.modified(data)

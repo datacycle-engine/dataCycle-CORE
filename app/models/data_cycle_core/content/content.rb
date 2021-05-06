@@ -456,6 +456,7 @@ module DataCycleCore
         @allowed_feature_attribute ||= Hash.new do |h, k|
           h[k] = feature_attributes.include?(key) ? feature_attributes('allowed_').include?(key) : true
         end
+
         @allowed_feature_attribute[key]
       end
 
@@ -467,7 +468,7 @@ module DataCycleCore
             .select { |k, v|
               ['computed', 'virtual', 'asset'].exclude?(v['type']) &&
                 (v['type'] != 'linked' || v['link_direction'] != 'inverse') &&
-                user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
+                user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit, :bulk_edit)) &&
                 user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
                 t.allowed_feature_attribute?(k.attribute_name_from_key)
             }

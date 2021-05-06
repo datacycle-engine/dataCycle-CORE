@@ -75,7 +75,8 @@ module DataCycleCore
                     endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
                     external_keys =
                       if iterator.present? && options[:mode] != 'full'
-                        iterator.call(mongo_item, locale).find_all.map { |i| [i.external_id, i.dump.dig(locale, '_RangeCode'), i.dump.dig(locale, '_RangeId')] }.select { |i| i[1].present? && i[2].present? }
+                        external_keys = options[:external_keys] || []
+                        iterator.call(mongo_item, locale, external_keys).find_all.map { |i| [i.external_id, i.dump.dig(locale, '_RangeCode'), i.dump.dig(locale, '_RangeId')] }.select { |i| i[1].present? && i[2].present? }
                       else
                         []
                       end
