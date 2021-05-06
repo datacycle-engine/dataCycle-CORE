@@ -9,7 +9,7 @@ pkg/
 **/public/downloads/*
 **/public/uploads
 **/public/assets
-**/docker/bash
+**/docker/hist
 **/log/
 *.log
 .byebug_history

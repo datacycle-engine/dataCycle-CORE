@@ -46,7 +46,7 @@ services:
       - 'gems:/gems'
       - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
       - $SSH_AUTH_SOCK:/ssh-agent
-      - bashhistory:/root/hist
+      - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}docker/hist:/root/hist
     user: root
     links:
       - postgres
@@ -83,13 +83,13 @@ services:
     links:
       - web
       - imgproxy
-#  imaginary:
-#    image: h2non/imaginary:latest
-#    environment:
-#      PORT: 9000
-#    command: -enable-url-source -concurrency 20
-#    ports:
-#      - '${PUBLIC_IMAGINARY_PORT:-9000}:9000'
+  #  imaginary:
+  #    image: h2non/imaginary:latest
+  #    environment:
+  #      PORT: 9000
+  #    command: -enable-url-source -concurrency 20
+  #    ports:
+  #      - '${PUBLIC_IMAGINARY_PORT:-9000}:9000'
   imgproxy:
     image: darthsim/imgproxy
     env_file:
@@ -102,4 +102,3 @@ volumes:
   gems:
   redis:
   nginx:
-  bashhistory:

@@ -2,6 +2,9 @@
 
 FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:vite
 
+RUN echo "shopt -s histappend" >> /root/.bashrc
+RUN echo "PROMPT_COMMAND=\"\${PROMPT_COMMAND}\${PROMPT_COMMAND:+;}history -a; history -n\"" >> /root/.bashrc
+
 RUN mkdir -p /var/www/app
 RUN mkdir -p /var/www/app/vendor/gems
 
