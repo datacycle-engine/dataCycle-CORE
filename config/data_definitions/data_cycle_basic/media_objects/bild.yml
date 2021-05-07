@@ -62,6 +62,9 @@
         :asset_type: image
         :api:
           :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
       :alternative_headline:
         :label: Alt-Label
         :type: string

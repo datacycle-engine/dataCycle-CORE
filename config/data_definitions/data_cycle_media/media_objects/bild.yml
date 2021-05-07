@@ -54,6 +54,9 @@
         :asset_type: image
         :api:
           :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
       :alternative_headline:
         :label: Alt-Label
         :type: string
@@ -271,7 +274,7 @@
         :name: wikidata
       :feratel:
         :type: mixin
-        :name: feratel_images        
+        :name: feratel_images
       :data_type:
         :label: Inhaltstyp
         :type: classification

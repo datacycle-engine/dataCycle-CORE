@@ -40,6 +40,9 @@
         :asset_type: audio
         :api:
           :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
       :description:
         :label: Beschreibung
         :type: string

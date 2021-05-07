@@ -40,6 +40,9 @@
         :asset_type: video
         :api:
           :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
       :caption:
         :label: Alt-Label
         :type: string
