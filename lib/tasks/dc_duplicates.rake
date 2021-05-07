@@ -22,6 +22,34 @@ namespace :dc do
       puts "RECREATED Duplicate Candidates - #{duplicate_count} duplicates found"
     end
 
+    desc 'Create Duplicate-Candidates from a StoredFilter'
+    task :create_duplicates, [:stored_filter] => [:environment] do |_, args|
+      abort('Feature DuplicateCandidate has to be enabled!') unless DataCycleCore::Feature::DuplicateCandidate.enabled?
+
+      filter_param = args.fetch(:stored_filter, nil)
+      abort('A stored filter ID, or a stored filter Name has to be specified') if filter_param.blank?
+
+      stored_filter = DataCycleCore::StoredFilter.find_by(id: filter_param)
+      stored_filter = DataCycleCore::StoredFilter.find_by(name: filter_param) if stored_filter.blank?
+      abort("stored filter #{filter_param} does not exist!") if stored_filter.blank?
+
+      stored_filter.language = Array(I18n.available_locales).map(&:to_s)
+      query = stored_filter.apply
+
+      total_items = query.count
+      puts "(RE)CREATE Duplicate Candidates (#{total_items})"
+
+      progress = ProgressBar.create(total: total_items, format: '%t |%w>%i| %a - %c/%C', title: 'Items')
+
+      duplicate_count = 0
+      query.each do |content|
+        duplicate_count += content.create_duplicate_candidates&.size.to_i
+        progress.increment
+      end
+
+      puts "(RE)CREATED Duplicate Candidates - #{duplicate_count} duplicates found"
+    end
+
     desc 'delete duplicates with <score> and above'
     task :delete_duplicates, [:min_score, :stored_filter_id, :dry_run] => [:environment] do |_, args|
       abort('Feature DuplicateCandidate has to be enabled!') unless DataCycleCore::Feature::DuplicateCandidate.enabled?
