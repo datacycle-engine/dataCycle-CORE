@@ -3,7 +3,7 @@
     <div class="columns footer-links-container">
       <ul class="footer-links">
         <% DataCycleCore.logo.dig('footer_links').each do |url, text| %>
-          <li><%= link_to text, url, target: :_blank %></li>
+          <li><%= link_to url, text, target: :_blank %></li>
         <% end %>
       </ul>
     </div>

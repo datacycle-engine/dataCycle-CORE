@@ -204,6 +204,7 @@ footer {
     background-size: 180px;
     opacity: 0.33;
     background-image: var(--dc-footer-image-url);
+    z-index: -1;
   }
 }
 
