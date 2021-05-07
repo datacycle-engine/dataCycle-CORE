@@ -8,4 +8,6 @@ mail_dimensions:
 customercolor: '#009fe3'
 background_images:
   - dc-bg.jpg
-# footer_logo: 'eml-datacycle.png'
+# footer_logo: 'dc-logo.svg'
+# footer_links:
+#   url: text

@@ -333,23 +333,26 @@ body.with-glass {
     display: none;
   }
 
-  ul.footer-links {
-    width: 100%;
-    margin: 0;
-    text-align: center;
+  ul.footer-links li {
+    color: white;
 
-    li {
-      display: inline-block;
+    a {
       color: white;
+      text-decoration: underline;
+    }
+  }
+}
 
-      a {
-        color: white;
-        text-decoration: underline;
-      }
+ul.footer-links {
+  width: 100%;
+  margin: 0;
+  text-align: center;
 
-      &:not(:last-child)::after {
-        content: ' | ';
-      }
+  li {
+    display: inline-block;
+
+    &:not(:last-child)::after {
+      content: ' | ';
     }
   }
 }

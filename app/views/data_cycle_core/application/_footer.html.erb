@@ -1,3 +1,11 @@
-<footer style="background-image: url(<%= vite_asset_path('images/dc-logo.svg') %>)">
-
+<footer style="--dc-footer-image-url: url('<%= vite_asset_path('images/dc-logo.svg') %>');">
+  <% if DataCycleCore.logo.dig('footer_links').present? %>
+    <div class="columns footer-links-container">
+      <ul class="footer-links">
+        <% DataCycleCore.logo.dig('footer_links').each do |url, text| %>
+          <li><%= link_to text, url, target: :_blank %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 </footer>
