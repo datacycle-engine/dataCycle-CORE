@@ -23,7 +23,7 @@ namespace :datacycle do
       set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
 
       append :linked_files, '.env'
-      append :linked_dirs, 'node_modules', 'vendor/gems/data-cycle-core/node_modules', 'log', 'db/backups', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'public/uploads', 'public/eyebase', 'public/filmcommission'
+      append :linked_dirs, 'log', 'db/backups', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'public/uploads', 'public/eyebase', 'public/filmcommission'
 
       namespace :deploy do
         after 'deploy:started', :add_special_tasks do
@@ -31,17 +31,12 @@ namespace :datacycle do
           before 'puma:restart', 'datacycle:puma:deploy_config' unless fetch(:skip_deploy_configs)
         end
 
-        before 'assets:precompile', 'deploy:npm'
-        after 'deploy:npm', 'deploy:gulp'
-        after 'assets:precompile', 'deploy:iconfonts'
-
+        after 'bundler:install', 'deploy:assets:precompile'
         before 'deploy:migrate', 'deploy:psql'
         after 'deploy:psql', 'deploy:load_dict'
         after 'deploy:migrate', 'datacycle:dev:update_project'
         after 'datacycle:dev:update_project', 'datacycle:dev:migrate_project'
         after 'deploy:cleanup', 'datacycle:dev:update_configs' unless fetch(:skip_deploy_configs)
-
-        before 'deploy:reverted', 'deploy:npm'
       end
     end
   end

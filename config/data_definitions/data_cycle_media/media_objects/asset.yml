@@ -38,6 +38,9 @@
         :asset_type: data_cycle_file
         :api:
           :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
       :description:
         :label: Beschreibung
         :type: string

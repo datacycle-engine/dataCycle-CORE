@@ -2,10 +2,29 @@
 
 <div class="mode-container <%= local_assigns[:additional_classes] %>">
   <span class="result-count">
-    <span class="count-full remote-render"
-          id="count-full-results"
-          data-remote-render-params="<%= to_query_params(request.params.slice(:language, :f, :stored_filter, :watch_list_id, :id, :q, :roles, :user_groups).merge({ action: controller.action_name, controller: controller.controller_name, mode: @mode, count_only: true, ctl_id: @classification_tree_label&.id, content_class: local_assigns[:content_class] || 'things', count_mode: @classification_tree_label.nil? ? nil : 'classification_tree_label' })).to_json %>"
-          >-</span>
+    <%= tag.span('-',
+      class: 'count-full remote-render',
+      id: 'count-full-results',
+      data: {
+        remote_render_params: to_query_params(
+          request.params.slice(
+            *[:language, :f, :stored_filter, :watch_list_id, :id, :q, :roles, :user_groups].concat(
+              Array.wrap(local_assigns[:additional_request_params])
+            )
+          ).merge(
+            {
+              action: controller.action_name,
+              controller: controller.controller_name,
+              mode: @mode,
+              count_only: true,
+              ctl_id: @classification_tree_label&.id,
+              content_class: local_assigns[:content_class] || 'things',
+              count_mode: @classification_tree_label.nil? ? nil : 'classification_tree_label'
+            }
+          )
+        ).to_json
+      }
+    ) %>
   </span>
 
   <% if content_for?(:sortable) || local_assigns[:sortable].present? %>
@@ -28,7 +47,7 @@
                               "s[v][o]",
                               {
                                   checked: @sort_params.presence&.first&.dig('o') != 'DESC',
-                                  disabled: @sort_params.presence&.first&.dig('m').blank?
+                                  disabled: !@sort_params.presence&.first&.dig('m')&.in?(sortable.map{ |v| v[:method] })
                               },
                               'ASC',
                               'DESC' %>

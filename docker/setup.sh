@@ -1,13 +1,14 @@
 #!/bin/bash
-echo "$(ip route|awk '/default/ { print $3 }') dockerhost" >> /etc/hosts
+echo "$(hostname -i|sed -r 's/([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)[0-9]{1,3}/\11/') dockerhost" >> /etc/hosts
 
 mkdir -p /var/www/app/tmp/{sockets,pids}
 chown -R 1000:1000 /var/www/app/tmp
 rm -f tmp/pids/server.pid
 
 gem install bundler
-# bundle update
+bundle update rails
 bundle install
+(yarn; yarn upgrade data-cycle-core) &> log/yarn.log &
 
 # update project dictionaries if existing in main projects config/configurations/ts_search/
 bundle exec rake dc:update:dictionaries

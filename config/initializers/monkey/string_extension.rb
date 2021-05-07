@@ -18,6 +18,10 @@ module DataCycleCore
     def transliterate_german
       gsub GERMAN_REGEXP, GERMAN_HASH
     end
+
+    def strip_tags
+      ActionController::Base.helpers.strip_tags(self)
+    end
   end
 end
 

@@ -19,7 +19,7 @@ module DataCycleCore
     delegate :versions, to: :file
 
     def custom_validators
-      DataCycleCore.uploader_validations.dig(file.class.name.demodulize.underscore.remove('_uploader').to_sym)&.except(:format)&.presence&.each do |validator, options|
+      DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
         try("#{validator}_validation", options)
       end
     end

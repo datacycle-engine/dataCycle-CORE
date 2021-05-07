@@ -536,7 +536,7 @@ de:
     save: Speichern
     update: Aktualisieren
     upload: Dateien hochladen
-    become: 'Als %{data} einloggen'
+    become: 'Als %{data} anmelden'
     create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
     move_to_container: 'Inhalt verschieben'
     move: verschieben
@@ -577,7 +577,7 @@ de:
     save_without_redirect: Zwischenspeichern
     set_and_next: 'übernehmen und weiter'
     set_all_attributes: 'für alle %{data} übernehmen'
-    close_overlay: Overlay schließen
+    close_overlay: schließen
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
     copyable_from: '%{data} übernehmen'
     copyable_from_clear: '%{data} verwerfen'

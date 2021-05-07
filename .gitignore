@@ -9,8 +9,8 @@ pkg/
 **/public/downloads/*
 **/public/uploads
 **/public/assets
-**/log/**
-!/log/.keep
+**/docker/hist
+**/log/
 *.log
 .byebug_history
 .irb-history
@@ -20,10 +20,14 @@ gemsurance_report.html
 **/.idea
 rdoc/
 **/package-lock.json
-**/yarn.lock
 coverage
 .env
 benchmark/
-test/fixtures/files/shp
 
+# Vite Ruby
+**/public/vite
+**/public/vite-dev
+**/public/vite-test
+**/app/assets/entrypoints/images
+**/*.local
 .DS_Store

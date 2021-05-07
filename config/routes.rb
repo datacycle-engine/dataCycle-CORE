@@ -20,7 +20,7 @@ DataCycleCore::Engine.routes.draw do
   get :clear_all_caches, controller: :application
 
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', as: 'local_asset', constraints: {
-    klass: /(image|audio|video|pdf|text_file|data_cycle_file)/,
+    klass: /(image|audio|video|pdf|text_file|data_cycle_file|srt_file)/,
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
     file: /.*/
   }

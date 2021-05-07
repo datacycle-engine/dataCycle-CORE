@@ -2,4 +2,4 @@
 
 <%= tag.i class: 'fa fa-info-circle dc-foundation-tooltip', title: helper_text, data: { allow_html: true } if helper_text.present? %>
 
-<%= tag.i '*', class: 'required-field-marker dc-foundation-tooltip', title: t('common.required_field', locale: DataCycleCore.ui_language), data: { allow_html: true } if local_assigns[:definition]&.dig('validations', 'required') %>
+<%= tag.i '*', class: 'required-field-marker', title: t('common.required_field', locale: DataCycleCore.ui_language) if local_assigns[:definition]&.dig('validations', 'required') %>

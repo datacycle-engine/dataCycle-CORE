@@ -19,7 +19,7 @@ module DataCycleCore
     end
 
     def extension_white_list
-      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore.remove('_uploader').to_sym, :format).presence || ['pdf']
+      DataCycleCore.uploader_validations.dig(self.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym }, :format).presence || ['pdf']
     end
 
     def convert_to_type(type)

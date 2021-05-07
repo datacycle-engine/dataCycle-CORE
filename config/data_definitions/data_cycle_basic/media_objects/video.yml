@@ -39,6 +39,9 @@
         :asset_type: video
         :api:
           :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
       :caption:
         :label: Alt-Label
         :type: string
@@ -233,8 +236,7 @@
         :label: Ort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
@@ -259,7 +261,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Video"
+        :default_value: 'Video'
       :cc_rel:
         :type: mixin
         :name: cc_rel

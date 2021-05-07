@@ -1,4 +1,4 @@
-image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
+image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:vite
 
 variables:
   POSTGRES_USER: postgres
@@ -46,10 +46,12 @@ cache:
   paths:
     - cache/bundler
     - node_modules
-    - lib/assets
+    - public/assets
+    - tmp/cache/vite
+    # - lib/assets
     # Enable for local rails test
-    - vendor/gems/data-cycle-core/node_modules
-    - vendor/gems/data-cycle-core/lib/assets
+    # - vendor/gems/data-cycle-core/node_modules
+    # - vendor/gems/data-cycle-core/lib/assets
 
 services:
   - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
@@ -66,10 +68,12 @@ services:
     paths:
       - cache/bundler
       - node_modules
-      - lib/assets
+      - public/assets
+      - tmp/cache/vite
+      # - lib/assets
       # Enable for local rails test
-      - vendor/gems/data-cycle-core/node_modules
-      - vendor/gems/data-cycle-core/lib/assets
+      # - vendor/gems/data-cycle-core/node_modules
+      # - vendor/gems/data-cycle-core/lib/assets
     policy: pull
 
 .build_caches_config:
@@ -78,11 +82,8 @@ services:
     - gem install bundler
     - bundle config set --local path 'cache/bundler'
     - bundle install
-    # Enable for local rails test
-    - cd vendor/gems/data-cycle-core && yarn && ./node_modules/gulp/bin/gulp.js production
     - cd $CI_PROJECT_DIR
-    - yarn
-    - ./node_modules/gulp/bin/gulp.js production
+    - yarn && yarn upgrade data-cycle-core
 
 .code_validation_config:
   extends: .job_cache_config
