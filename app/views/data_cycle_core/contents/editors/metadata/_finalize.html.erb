@@ -3,7 +3,7 @@
   <hr />
   <div class="finalize-button-container">
     <%= check_box_tag 'finalize', true %>
-    <%= label_tag 'finalize', t('actions.finalize', locale: DataCycleCore.ui_language), class: 'dc-foundation-tooltip', title: t('common.content_not_editable', locale: DataCycleCore.ui_language) %>
+    <%= label_tag 'finalize', t('actions.finalize', locale: DataCycleCore.ui_language), title: t('common.content_not_editable', locale: DataCycleCore.ui_language) %>
   </div>
 
   <% if content.indirect_data_links.by_receiver(current_user).valid.map(&:text_file).compact.present? %>

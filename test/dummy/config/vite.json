@@ -1,0 +1,17 @@
+{
+  "all": {
+    "sourceCodeDir": "app/assets",
+    "watchAdditionalPaths": ["../../app/assets/**/*"],
+    "publicOutputDir": "assets/build",
+    "assetsDir": ""
+  },
+  "development": {
+    "autoBuild": true,
+    "publicOutputDir": "assets/dev-build",
+    "port": 3036
+  },
+  "test": {
+    "autoBuild": true,
+    "publicOutputDir": "assets/dev-build"
+  }
+}

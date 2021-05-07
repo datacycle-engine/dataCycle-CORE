@@ -11,10 +11,10 @@
 				<ul>
 					<li class="buttons">
             <%= link_to previous_authorized_crumb.url do %>
-							<button type="button" class="button discard top dc-foundation-tooltip" aria-haspopup="true" title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
+							<button type="button" class="button discard top" title="<%= t('actions.discard_changes', locale: DataCycleCore.ui_language) %>"><i class="fa fa-times" aria-hidden="true"></i></button>
             <% end if previous_authorized_crumb.present? %>
 
-            <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" title="<%= t('actions.save_changes', locale: DataCycleCore.ui_language) %>" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"><i class="fa fa-check" aria-hidden="true"></i></button>
+            <button class="button-prime submit submit-edit-form" title="<%= t('actions.save_changes', locale: DataCycleCore.ui_language) %>" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"><i class="fa fa-check" aria-hidden="true"></i></button>
 					</li>
 				</ul>
 
@@ -36,7 +36,7 @@
 				<div class="form-element input name validation-container">
           <%= f.label :full_path do %>
             <%= DataCycleCore::WatchList.human_attribute_name(:full_path, locale: DataCycleCore.ui_language) %>
-            <%= tag.i '*', class: 'required-field-marker dc-foundation-tooltip', aria_hidden: true, title: t('common.required_field', locale: DataCycleCore.ui_language), data: { allow_html: true } %>
+            <%= tag.i '*', class: 'required-field-marker', title: t('common.required_field', locale: DataCycleCore.ui_language) %>
           <% end %>
 
           <%= f.text_field :full_path, data: { validate: 'text' } %>

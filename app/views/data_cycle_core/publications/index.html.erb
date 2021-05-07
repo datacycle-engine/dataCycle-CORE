@@ -13,7 +13,12 @@
 <% end %>
 
 <% content_for :top_content do %>
-  <%= render 'filter', filter: { classification_trees: ['Inhaltstypen'] + @publication_classifications.values, language: true } %>
+  <%= render 'filter', filter: {
+    classification_trees: ['Inhaltstypen'] + @publication_classifications.values,
+    language: true,
+    additional_mode_selector_classes: 'column-padding',
+    additional_request_params: [:publications_from, :publications_until]
+  } %>
 <% end %>
 
 <section class="search-results publications-list" data-pages="<%= @pages %>">

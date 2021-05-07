@@ -18,25 +18,25 @@ namespace :deploy do
     end
   end
 
-  task :npm do
-    on roles(:all) do
-      execute "cd #{release_path}/vendor/gems/data-cycle-core/ && yarn --production"
-      execute "cd #{release_path} && yarn --production"
-    end
-  end
+  # task :npm do
+  #   on roles(:all) do
+  #     execute "cd #{release_path}/vendor/gems/data-cycle-core/ && yarn --production"
+  #     execute "cd #{release_path} && yarn --production"
+  #   end
+  # end
 
-  task :gulp do
-    on roles(:all) do
-      execute "cd #{release_path}/vendor/gems/data-cycle-core/ && ./node_modules/gulp/bin/gulp.js production"
-      execute "cd #{release_path} && ./node_modules/gulp/bin/gulp.js production"
-    end
-  end
+  # task :gulp do
+  #   on roles(:all) do
+  #     execute "cd #{release_path}/vendor/gems/data-cycle-core/ && ./node_modules/gulp/bin/gulp.js production"
+  #     execute "cd #{release_path} && ./node_modules/gulp/bin/gulp.js production"
+  #   end
+  # end
 
-  task :iconfonts do
-    on roles(:all) do
-      execute "cd #{release_path} && cp -Rf ./lib/assets/fonts/. ./public/assets"
-    end
-  end
+  # task :iconfonts do
+  #   on roles(:all) do
+  #     execute "cd #{release_path} && cp -Rf ./lib/assets/fonts/. ./public/assets"
+  #   end
+  # end
 
   desc 'performs initial deployment'
   task :initial do

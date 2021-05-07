@@ -9,7 +9,7 @@
           <%= link_to_unless locale.first == I18n.locale, locale.last, thing_path(content, watch_list_id: @watch_list, locale: locale.first) %>
           <%= link_to thing_path(content, watch_list_id: @watch_list, locale: locale.first),
                       method: :delete,
-                      class:'delete-translation-link dc-foundation-tooltip',
+                      class:'delete-translation-link',
                       data: {
                           confirm: "#{t('actions.delete_translation', data: locale.first, locale: DataCycleCore.ui_language)}?"
                       },

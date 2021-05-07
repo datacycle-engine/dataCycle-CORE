@@ -7,5 +7,19 @@
   <% end %>
 
   <% value = value.first if value.is_a?(Array) || value.is_a?(ActiveRecord::Relation) %>
-  <%= render 'data_cycle_core/assets/asset_list', assets: Array(value) %>
+  <%# value = value.duplicate if local_assigns[:new_content] && !value.nil? %>
+  <%#= hidden_field_tag key, value&.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+  <%= render 'data_cycle_core/assets/asset_list',
+      assets: Array(value),
+      class: 'editable',
+      key: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_editable" %>
+
+  <% if attribute_editable?(key, definition, options, content) %>
+    <%= render 'data_cycle_core/application/new_asset_form',
+        key: key,
+        key_id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}",
+        editable_list_key: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_editable_asset_list",
+        asset_type: definition&.dig('asset_type'),
+        label: definition['label'] %>
+  <% end %>
 <% end %>

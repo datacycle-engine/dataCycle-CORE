@@ -355,7 +355,7 @@ module DataCycleCore
             elsif embedded_property_names(true).include?(key[0])
               load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [I18n.locale], key[4])
             elsif asset_property_names.include?(key[0]) # no overlay
-              load_asset_relation(key[0])
+              load_asset_relation(key[0])&.first
             elsif computed_property_names(true).include?(key[0])
               load_computed_attribute(key[0], key[1], key[4])
             elsif schedule_property_names(true).include?(key[0])

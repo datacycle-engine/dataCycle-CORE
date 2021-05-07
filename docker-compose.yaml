@@ -39,12 +39,14 @@ services:
       - APP_HOST=localhost:${PUBLIC_APPLICATION_PORT:-3003}
       - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
       - SSH_AUTH_SOCK=/ssh-agent
+      - HISTFILE=/root/hist/.bash_history
     command:
       - ${COMPOSE_WEB_COMMAND:-./vendor/gems/data-cycle-core/docker/setup.sh}
     volumes:
       - 'gems:/gems'
       - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
       - $SSH_AUTH_SOCK:/ssh-agent
+      - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}docker/hist:/root/hist
     user: root
     links:
       - postgres
@@ -67,7 +69,7 @@ services:
   nginx:
     image: nginx:1.19.4-alpine
     ports:
-      - '${PUBLIC_NGINX_HTTP_PORT:-80}:80'
+      # - '${PUBLIC_NGINX_HTTP_PORT:-80}:80'
       - '${PUBLIC_APPLICATION_PORT:-3003}:${PUBLIC_APPLICATION_PORT:-3003}'
     env_file:
       - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}.env
@@ -81,13 +83,13 @@ services:
     links:
       - web
       - imgproxy
-#  imaginary:
-#    image: h2non/imaginary:latest
-#    environment:
-#      PORT: 9000
-#    command: -enable-url-source -concurrency 20
-#    ports:
-#      - '${PUBLIC_IMAGINARY_PORT:-9000}:9000'
+  #  imaginary:
+  #    image: h2non/imaginary:latest
+  #    environment:
+  #      PORT: 9000
+  #    command: -enable-url-source -concurrency 20
+  #    ports:
+  #      - '${PUBLIC_IMAGINARY_PORT:-9000}:9000'
   imgproxy:
     image: darthsim/imgproxy
     env_file:
