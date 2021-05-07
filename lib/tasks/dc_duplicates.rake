@@ -54,5 +54,38 @@ namespace :dc do
         exit(-1)
       end
     end
+
+    desc 'consolidate duplicates with <score> and above'
+    task :merge_duplicates, [:min_score, :stored_filter_id, :dry_run] => [:environment] do |_, args|
+      abort('Feature DuplicateCandidate has to be enabled!') unless DataCycleCore::Feature::DuplicateCandidate.enabled?
+
+      dry_run = args.fetch(:dry_run, false)
+      stored_filter_id = args.fetch(:stored_filter_id, nil)
+      score = args.fetch(:min_score, nil)&.to_i
+
+      stored_filter = stored_filter_id.present? ? DataCycleCore::StoredFilter.find(stored_filter_id) : DataCycleCore::StoredFilter.new
+      stored_filter.language = Array(I18n.available_locales).map(&:to_s)
+      query = stored_filter.apply
+      query = query.duplicate_candidates(true, score)
+
+      items = query.all
+      progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      items.find_each do |item|
+        next(progressbar.increment) if dry_run
+
+        duplicates = (item.duplicate_candidates.where('score >= ?', score).duplicates + [item]).sort
+        original = duplicates.pop
+
+        duplicates.each { |duplicate| original.merge_with_duplicate(duplicate) }
+
+        progressbar.increment
+      end
+
+      if dry_run
+        puts 'Dry run: no database changes made'
+        exit(-1)
+      end
+    end
   end
 end
