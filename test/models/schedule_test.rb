@@ -81,7 +81,7 @@ module DataCycleCore
         'endTime' => '16:00',
         'duration' => 'PT7H',
         'repeatFrequency' => 'P1D',
-        'scheduleTimezone' => 'Vienna'
+        'scheduleTimezone' => 'Europe/Vienna'
       }
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
@@ -105,7 +105,7 @@ module DataCycleCore
         'endTime' => '16:00',
         'duration' => 'PT7H',
         'repeatFrequency' => 'P1D',
-        'scheduleTimezone' => 'Vienna'
+        'scheduleTimezone' => 'Europe/Vienna'
       }
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
@@ -126,7 +126,7 @@ module DataCycleCore
         'startTime' => '09:00',
         'duration' => 'PT7H',
         'repeatFrequency' => 'P1D',
-        'scheduleTimezone' => 'Vienna'
+        'scheduleTimezone' => 'Europe/Vienna'
       }
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
@@ -147,7 +147,7 @@ module DataCycleCore
         'startDate' => '2019-11-20',
         'startTime' => '09:00',
         'duration' => 'P1M14DT7H',
-        'scheduleTimezone' => 'Vienna'
+        'scheduleTimezone' => 'Europe/Vienna'
       }
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
