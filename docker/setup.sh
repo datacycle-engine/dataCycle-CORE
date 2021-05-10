@@ -6,7 +6,7 @@ chown -R 1000:1000 /var/www/app/tmp
 rm -f tmp/pids/server.pid
 
 gem install bundler
-bundle update rails
+# bundle update
 bundle install
 (yarn; yarn upgrade data-cycle-core) &> log/yarn.log &
 
