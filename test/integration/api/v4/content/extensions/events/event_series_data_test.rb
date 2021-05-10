@@ -32,7 +32,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['id', 'name']) do
                   {
                     '@id' => @content.id,
-                    '@type' => 'EventSeries',
+                    '@type' => @content.api_type,
                     'name' => @content.name
                   }
                 end

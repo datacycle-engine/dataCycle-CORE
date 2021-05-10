@@ -6,7 +6,7 @@ module DataCycleCore
       class Thing
         DEFAULT_HEADER = Dry::Schema.JSON do
           required(:@id).value(:uuid_v4?)
-          required(:@type).value(:string)
+          required(:@type) { array? | str? }
           optional(:name).value(:string)
         end
 

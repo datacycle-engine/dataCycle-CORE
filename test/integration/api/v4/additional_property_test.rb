@@ -28,7 +28,7 @@ module DataCycleCore
 
           json_data = json_data.dig('@graph').first
           assert_equal(@content.id, json_data['@id'])
-          assert_equal(@content.schema['schema_type'], json_data['@type'])
+          assert_equal(@content.api_type, json_data['@type'])
           assert_equal(@content.name, json_data['name'])
 
           assert_equal(1, json_data['additionalProperty'].count)
@@ -41,7 +41,7 @@ module DataCycleCore
           assert_equal(1, json_data['embeddedData'].count)
           embedded_data = @content.embedded_data.first
           json_ed = json_data['embeddedData'].first
-          assert_equal(embedded_data.schema['schema_type'], json_ed['@type'])
+          assert_equal(embedded_data.api_type, json_ed['@type'])
           assert_equal(embedded_data.name, json_ed['name'])
 
           assert_equal(2, json_ed['additionalProperty'].count)

@@ -32,7 +32,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Event',
+                '@type' => @content.api_type,
                 'dc:multilingual' => true,
                 'dc:translation' => [
                   'de'
@@ -146,7 +146,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Event'
+                '@type' => @content.api_type
               }
             end
 
@@ -343,7 +343,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Event'
+                '@type' => @content.api_type
               }
             end
 
@@ -440,7 +440,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Event'
+                '@type' => @content.api_type
               }
             end
 
@@ -533,7 +533,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Event'
+                '@type' => @content.api_type
               }
             end
 
@@ -754,7 +754,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Event'
+                '@type' => @content.api_type
               }
             end
 
@@ -947,7 +947,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Event'
+                '@type' => @content.api_type
               }
             end
 

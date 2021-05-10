@@ -33,7 +33,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['id', 'name']) do
                   {
                     '@id' => @content.id,
-                    '@type' => 'TouristAttraction',
+                    '@type' => @content.api_type,
                     'name' => @content.name
                   }
                 end
@@ -110,7 +110,7 @@ module DataCycleCore
                   {
                     'potentialAction' => [
                       {
-                        '@type' => 'Action',
+                        '@type' => @content.potential_action.first.api_type,
                         'dc:multilingual' => true,
                         'dc:translation' => [
                           'de'

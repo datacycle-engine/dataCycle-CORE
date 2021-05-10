@@ -33,7 +33,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['id', 'name', 'legal_name']) do
                   {
                     '@id' => @content.id,
-                    '@type' => 'Organization',
+                    '@type' => @content.api_type,
                     'name' => @content.name,
                     'legalName' => @content.name
                   }

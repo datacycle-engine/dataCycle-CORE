@@ -31,7 +31,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['id', 'name']) do
                   {
                     '@id' => @content.id,
-                    '@type' => 'Person',
+                    '@type' => @content.api_type,
                     'name' => @content.name
                   }
                 end
@@ -231,7 +231,7 @@ module DataCycleCore
                   assert_attributes(json_validate, required_attributes, ['id', 'name']) do
                     {
                       '@id' => @content.id,
-                      '@type' => 'Person',
+                      '@type' => @content.api_type,
                       'name' => @content.name
                     }
                   end
@@ -337,7 +337,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['id', 'given_name', 'family_name']) do
                   {
                     '@id' => @content.id,
-                    '@type' => 'Person',
+                    '@type' => @content.api_type,
                     'givenName' => @content.given_name,
                     'familyName' => @content.family_name
                   }
@@ -439,7 +439,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['id']) do
                   {
                     '@id' => @content.id,
-                    '@type' => 'Person'
+                    '@type' => @content.api_type
                   }
                 end
 
@@ -552,7 +552,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['id']) do
                   {
                     '@id' => @content.id,
-                    '@type' => 'Person'
+                    '@type' => @content.api_type
                   }
                 end
 
