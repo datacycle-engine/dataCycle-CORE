@@ -270,6 +270,10 @@ module DataCycleCore
       Dir[File.join(File.dirname(__FILE__), 'tasks/*.rake')].each { |f| load f }
     end
 
+    config.before_initialize do |app|
+      app.config.time_zone = 'Europe/Vienna'
+    end
+
     config.to_prepare do
       Dir.glob(
         [
