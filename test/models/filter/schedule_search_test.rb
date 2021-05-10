@@ -9,7 +9,7 @@ module DataCycleCore
       [{
         'start_time' => {
           'time' => start_time,
-          'zone' => 'Vienna'
+          'zone' => 'Europe/Vienna'
         },
         'rtimes' => [],
         'duration' => 1.hour.to_i,

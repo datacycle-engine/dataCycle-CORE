@@ -304,7 +304,7 @@ module DataCycleCore
         {
           'start_time' => {
             'time' => 8.days.ago.to_s,
-            'zone' => 'Vienna'
+            'zone' => 'Europe/Vienna'
           },
           'duration' => 10.days.to_i
         }
