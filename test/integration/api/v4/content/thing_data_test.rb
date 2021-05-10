@@ -427,7 +427,7 @@ module DataCycleCore
               'startDate' => event_schedule_object_hash.dig(:dtstart).to_s(:only_date),
               'startTime' => event_schedule_object_hash.dig(:dtstart).to_s(:only_time),
               'duration' => event_schedule_object.iso8601_duration(event_schedule_object_hash.dig(:dtstart), event_schedule_object_hash.dig(:dtend)),
-              'scheduleTimezone' => 'Vienna'
+              'scheduleTimezone' => 'Europe/Vienna'
             }
             assert_attributes(json_validate, required_attributes, ['event_schedule']) do
               {

@@ -20,14 +20,14 @@ module DataCycleCore
                 event_schedule['event_schedule'] = [{
                   'start_time' => {
                     'time' => Time.new(2019, 10, 10).in_time_zone,
-                    'zone' => 'Vienna'
+                    'zone' => 'Europe/Vienna'
                   },
                   'rtimes' => [{
                     'time' => Time.new(2019, 10, 10).in_time_zone,
-                    'zone' => 'Vienna'
+                    'zone' => 'Europe/Vienna'
                   }, {
                     'time' => Time.new(2019, 10, 20).in_time_zone,
-                    'zone' => 'Vienna'
+                    'zone' => 'Europe/Vienna'
                   }],
                   'duration' => 5.days.to_i
                 }]
@@ -123,7 +123,7 @@ module DataCycleCore
                           'start_time' =>
                           {
                             'time' => '2019-11-10T00:00:00.000+01:00'.in_time_zone.to_s,
-                            'zone' => 'Vienna'
+                            'zone' => 'Europe/Vienna'
                           },
                           'duration' => 10.days.to_i
                         }

@@ -39,7 +39,7 @@ module DataCycleCore
                   'event_schedule' => [{
                     'start_time' => {
                       'time' => Time.new(2019, 11, 10).in_time_zone,
-                      'zone' => 'Vienna'
+                      'zone' => 'Europe/Vienna'
                     },
                     'duration' => 10.days.to_i
                   }]
