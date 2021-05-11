@@ -19,6 +19,10 @@ module DataCycleCore
       gsub GERMAN_REGEXP, GERMAN_HASH
     end
 
+    def to_slug
+      I18n.transliterate(self).parameterize(preserve_case: true, separator: '-')
+    end
+
     def strip_tags
       ActionController::Base.helpers.strip_tags(self)
     end

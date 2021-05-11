@@ -3,7 +3,7 @@
 module DataCycleCore
   module MasterData
     module DataConverter
-      def self.convert_to_type(type, data, definition = nil)
+      def self.convert_to_type(type, data, definition = nil, content = nil)
         case type
         when 'key'
           data
@@ -19,10 +19,12 @@ module DataCycleCore
           DataCycleCore::MasterData::DataConverter.string_to_boolean(data)
         when 'geographic'
           DataCycleCore::MasterData::DataConverter.string_to_geographic(data)
+        when 'slug'
+          DataCycleCore::MasterData::DataConverter.string_to_slug(data, content)
         end
       end
 
-      def self.convert_to_string(type, data)
+      def self.convert_to_string(type, data, content = nil)
         case type
         when 'key', 'number'
           data&.to_s
@@ -36,6 +38,8 @@ module DataCycleCore
           DataCycleCore::MasterData::DataConverter.boolean_to_string(data)
         when 'geographic'
           DataCycleCore::MasterData::DataConverter.geographic_to_string(data)
+        when 'slug'
+          DataCycleCore::MasterData::DataConverter.slug_to_string(data, content)
         end
       end
 
@@ -140,6 +144,32 @@ module DataCycleCore
         return value if value.acts_like?(:date)
         raise ArgumentError, 'can not convert to a date' unless value.is_a?(::String)
         value.to_date.presence || raise(ArgumentError, 'can not convert to a date')
+      end
+
+      def self.string_to_slug(value, content = nil, data_hash = nil)
+        generate_slug(value, content, data_hash)
+      end
+
+      def self.slug_to_string(value, content = nil, data_hash = nil)
+        generate_slug(value, content, data_hash)
+      end
+
+      def self.generate_slug(value, content, data_hash = nil)
+        base_slug = value&.to_slug
+        base_slug ||= content.title(data_hash: data_hash)&.to_slug
+        slug = base_slug
+        uniq_slug = nil
+        count = 0
+        while uniq_slug.nil?
+          found = DataCycleCore::Thing::Translation.find_by(slug: slug)
+          if found.blank? || (found.present? && found.thing_id == content.id && found.locale == I18n.locale.to_s)
+            uniq_slug = slug
+            break
+          end
+          count += 1
+          slug = "#{base_slug}-#{count}"
+        end
+        uniq_slug
       end
     end
   end
