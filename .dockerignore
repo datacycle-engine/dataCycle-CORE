@@ -20,6 +20,7 @@
 **/.idea
 **/db/backups
 **/rdoc/
+**/package-lock.json
 **/coverage
 **/.env
 **/benchmark/

@@ -74,8 +74,8 @@ services:
     - gem install bundler
     - bundle config set --local path 'cache/bundler'
     - bundle install
-    - npm install
-    - npm update
+    - yarn --ignore-scripts
+    - yarn upgrade --ignore-scripts
 
 .rails_test_config:
   extends: .job_cache_config

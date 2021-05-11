@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 SSHKit.config.command_map[:vite_local] = 'bundle exec vite'
-SSHKit.config.command_map[:npm_local] = 'npm'
+SSHKit.config.command_map[:yarn_local] = 'yarn'
 
 namespace :deploy do
   namespace :assets do
@@ -10,8 +10,8 @@ namespace :deploy do
       on roles(:web) do
         run_locally do
           with rails_env: fetch(:rails_env) do
-            execute :npm_local, 'install'
-            execute :npm_local, 'update data-cycle-core'
+            execute :yarn_local, '--ignore-scripts'
+            execute :yarn_local, 'upgrade --ignore-scripts data-cycle-core'
             execute :vite_local, 'build -f'
           end
         end

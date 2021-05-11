@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "$(hostname -i|sed -r 's/([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)[0-9]{1,3}/\11/') dockerhost" >> /etc/hosts
 
-(npm install && npm update) &> log/node.log &
+(yarn --ignore-scripts && yarn upgrade --ignore-scripts) &> log/yarn.log &
 
 cd test/dummy
 
