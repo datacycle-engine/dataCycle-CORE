@@ -8,7 +8,6 @@ module DataCycleCore
           {
             'object' => Validators::Object,
             'key' => Validators::Key,
-            'slug' => Validators::Slug,
             'string' => Validators::String,
             'number' => Validators::Number,
             'date' => Validators::Date,
