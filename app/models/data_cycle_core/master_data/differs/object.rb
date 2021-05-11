@@ -25,8 +25,8 @@ module DataCycleCore
 
         def diff(a, b, template)
           @diff_hash = {}
-          cleaned_a = a&.deep_reject! { |_k, v| v.blank? && !v.is_a?(FalseClass) }
-          cleaned_b = b&.deep_reject! { |_k, v| v.blank? && !v.is_a?(FalseClass) }
+          cleaned_a = a&.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }
+          cleaned_b = b&.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }
           template.each do |key, key_item|
             next if key_item&.dig('type') == 'key' || key_item&.dig('type') == 'virtual'
             item_template = key_item['type'] == 'object' ? key_item&.dig('properties') : key_item

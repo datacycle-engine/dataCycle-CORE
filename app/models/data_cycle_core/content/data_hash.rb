@@ -58,14 +58,14 @@ module DataCycleCore
         before_save_data_hash(options)
 
         if options.partial_update
-          partial_schema = schema.deep_dup
+          partial_schema = schema.dup
           partial_schema['properties'] = property_definitions&.slice(*options.data_hash.keys)
         end
 
-        valid_hash = validate(options.data_hash.deep_dup, partial_schema || schema)
+        valid_hash = validate(options.data_hash.dup, partial_schema || schema)
 
         if validate?(valid_hash)
-          if diff?(options.data_hash.deep_dup, partial_schema) || options.force_update
+          if diff?(options.data_hash.dup, partial_schema) || options.force_update
             ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
               to_history(save_time: options.save_time) unless id.nil? || options.prevent_history
 
@@ -137,7 +137,7 @@ module DataCycleCore
       end
 
       def validate(data, schema_hash = nil, strict = false, add_defaults = false, current_user = nil)
-        data = add_default_values(data_hash: data, current_user: current_user).deep_dup if add_defaults && properties_with_default_values.present?
+        data = add_default_values(data_hash: data, current_user: current_user).dup if add_defaults && properties_with_default_values.present?
 
         validator = DataCycleCore::MasterData::ValidateData.new
         validator.validate(data, schema_hash || schema, strict)
