@@ -19,7 +19,6 @@ lib/assets
 gemsurance_report.html
 **/.idea
 rdoc/
-**/package-lock.json
 coverage
 .env
 benchmark/

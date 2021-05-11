@@ -83,7 +83,8 @@ services:
     - bundle config set --local path 'cache/bundler'
     - bundle install
     - cd $CI_PROJECT_DIR
-    - yarn && yarn upgrade data-cycle-core
+    - npm install
+    - npm update data-cycle-core
 
 .code_validation_config:
   extends: .job_cache_config
