@@ -8,7 +8,7 @@ rm -f tmp/pids/server.pid
 gem install bundler
 # bundle update
 bundle install
-(yarn --ignore-scripts && yarn upgrade data-cycle-core) &> log/yarn.log &
+(yarn --ignore-scripts && yarn upgrade) &> log/yarn.log &
 
 # update project dictionaries if existing in main projects config/configurations/ts_search/
 bundle exec rake dc:update:dictionaries
