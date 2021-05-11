@@ -1,4 +1,5 @@
 import Quill from 'quill';
+import Parchment from 'parchment';
 
 export default function (range, context) {
   if (range.length > 0) {
