@@ -37,7 +37,7 @@ module DataCycleCore
 
           if Array.wrap(ids).map(&:uuid?).inject(&:&)
             reflect(
-              @query.where(thing[:id].in(ids).exists)
+              @query.where(thing[:id].in(ids))
             )
           else
             reflect(
@@ -55,7 +55,7 @@ module DataCycleCore
           return self if ids.blank?
           if Array.wrap(ids).map(&:uuid?).inject(&:&)
             reflect(
-              @query.where.not(thing[:id].in(ids).exists)
+              @query.where.not(thing[:id].in(ids))
             )
           else
             reflect(
