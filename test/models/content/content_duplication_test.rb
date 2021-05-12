@@ -29,7 +29,7 @@ module DataCycleCore
 
         new_content = DataCycleCore::DataHashService.create_duplicate(content: content, current_user: @test_user)
 
-        excepted_properties = ['id']
+        excepted_properties = ['id', 'slug']
         content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
         assert_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
       end
@@ -49,7 +49,7 @@ module DataCycleCore
 
         new_content = DataCycleCore::DataHashService.create_duplicate(content: content, current_user: @test_user)
 
-        excepted_properties = ['id']
+        excepted_properties = ['id', 'slug']
         content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
         assert_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
       end
@@ -63,7 +63,7 @@ module DataCycleCore
 
         new_content = DataCycleCore::DataHashService.create_duplicate(content: content, current_user: @test_user)
 
-        excepted_properties = ['id', 'author', 'image']
+        excepted_properties = ['id', 'author', 'image', 'slug']
 
         content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
         assert_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
@@ -77,7 +77,7 @@ module DataCycleCore
 
         new_content = DataCycleCore::DataHashService.create_duplicate(content: content, current_user: @test_user)
 
-        excepted_properties = ['id']
+        excepted_properties = ['id', 'slug']
         content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
         assert_not_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
         assert_not_equal(content.question.first.id, new_content.question.first.id)
@@ -101,7 +101,7 @@ module DataCycleCore
 
         new_content = DataCycleCore::DataHashService.create_duplicate(content: content, current_user: @test_user)
 
-        excepted_properties = ['id'] + content.asset_property_names + content.computed_property_names
+        excepted_properties = ['id', 'slug'] + content.asset_property_names + content.computed_property_names
 
         content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}")
         assert_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
@@ -142,7 +142,7 @@ module DataCycleCore
 
         new_content = DataCycleCore::DataHashService.create_duplicate(content: content, current_user: @test_user)
 
-        excepted_properties = ['id', 'author', 'image']
+        excepted_properties = ['id', 'author', 'image', 'slug']
 
         I18n.with_locale(:de) do
           content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")
@@ -178,7 +178,7 @@ module DataCycleCore
 
         new_content = DataCycleCore::DataHashService.create_duplicate(content: content, current_user: @test_user)
 
-        excepted_properties = ['id']
+        excepted_properties = ['id', 'slug']
 
         I18n.with_locale(:de) do
           content_data_hash_properties = content.get_data_hash.except(*excepted_properties).merge('name' => "DUPLICATE: #{content.name}", 'headline' => "DUPLICATE: #{content.name}")

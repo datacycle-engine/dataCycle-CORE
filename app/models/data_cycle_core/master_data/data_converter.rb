@@ -155,8 +155,10 @@ module DataCycleCore
       end
 
       def self.generate_slug(value, content, data_hash = nil)
+        return nil if content.embedded?
         base_slug = value&.to_slug
         base_slug ||= content.title(data_hash: data_hash)&.to_slug
+        base_slug ||= I18n.t('common.no_name')
         slug = base_slug
         uniq_slug = nil
         count = 0
