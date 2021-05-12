@@ -173,6 +173,7 @@ module DataCycleCore
       return 'within_box' if key == :box
       return 'geo_radius' if key == :perimeter
       return 'geo_within_classification' if key == :shapes
+      return 'equals_advanced_slug' if key == :slug
       key.to_s
     end
 
