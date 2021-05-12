@@ -282,7 +282,7 @@ class Validator {
     let uuid = this.form.find(':input[name="uuid"]').val();
     let locale = this.form.find(':input[name="locale"]').val() || this.form.find(':input[name="thing[locale]"]').val();
     let table = this.form.find(':input[name="table"]').val() || 'things';
-    let url = DataCycle.config.EnginePath + '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
+    let url = `/${table}${uuid ? '/' + uuid : ''}/validate`;
     let template = this.form.find(':input[name="template"]').val();
     if (template != undefined) {
       form_data.push({

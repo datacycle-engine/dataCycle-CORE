@@ -49,7 +49,7 @@ class DataList {
     this.requests.push(
       DataCycle.httpRequest({
         type: 'GET',
-        url: `${DataCycle.config.EnginePath}/${this.listId}/search`,
+        url: `/${this.listId}/search`,
         data: {
           q: this.element.value
         }
@@ -131,8 +131,7 @@ class DataList {
     event.preventDefault();
 
     new ConfirmationModal({
-      text:
-        'Filterparameter aktualisieren?<br /><br />Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.',
+      text: 'Filterparameter aktualisieren?<br /><br />Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.',
       confirmationClass: 'success',
       cancelable: true,
       confirmationCallback: () => {

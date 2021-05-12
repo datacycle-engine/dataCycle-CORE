@@ -25,6 +25,7 @@ PATH
       gretel
       hashdiff (>= 0.4.0)
       hiredis
+      holidays
       ice_cube
       image_optim
       image_optim_pack
@@ -339,6 +340,7 @@ GEM
     hashdiff (1.0.1)
     hashery (2.1.2)
     hiredis (0.6.3)
+    holidays (8.4.1)
     htmlentities (4.3.4)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
@@ -642,4 +644,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.2.16
+   2.2.17

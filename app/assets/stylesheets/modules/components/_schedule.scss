@@ -16,7 +16,7 @@
     padding: 0;
     display: flex;
     flex-flow: row wrap;
-    align-items: center;
+    // align-items: center;
 
     > * {
       margin-bottom: 1rem;
@@ -25,10 +25,25 @@
     .fullday {
       position: relative;
       flex: auto;
+      display: flex;
+      align-items: center;
+      background: $light-gray;
+      border: 1px solid $light-gray;
+      transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+
+      &:hover {
+        color: $primary-color;
+      }
 
       label {
-        position: absolute;
+        position: relative;
+        left: 0 !important;
+        top: 0 !important;
         line-height: 1.2rem;
+
+        &:hover {
+          color: $primary-color;
+        }
       }
     }
   }

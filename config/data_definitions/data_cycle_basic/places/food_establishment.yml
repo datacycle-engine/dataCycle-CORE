@@ -39,7 +39,7 @@
           :max: 1
       :additional_food_establishment_properties:
         :type: mixin
-        :name: additional_food_establishment_properties          
+        :name: additional_food_establishment_properties
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -50,6 +50,11 @@
         :ui:
           :show:
             :content_area: header
+      :opening_hours_specification_new:
+        :label: Öffnungszeit Neu
+        :type: schedule
+        :validations:
+          valid_dates: true
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
@@ -106,7 +111,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Gastronomischer Betrieb"
+        :default_value: 'Gastronomischer Betrieb'
       :feratel:
         :type: mixin
         :name: feratel_categories
