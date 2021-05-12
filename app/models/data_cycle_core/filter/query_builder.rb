@@ -274,6 +274,10 @@ module DataCycleCore
         DataCycleCore::Thing.arel_table
       end
 
+      def thing_translations
+        DataCycleCore::Thing::Translation.arel_table
+      end
+
       def classification_polygon
         DataCycleCore::ClassificationPolygon.arel_table
       end
