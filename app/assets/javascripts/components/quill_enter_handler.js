@@ -1,5 +1,5 @@
 import Quill from 'quill';
-import Parchment from 'parchment';
+const Parchment = Quill.import('parchment');
 
 export default function (range, context) {
   if (range.length > 0) {
