@@ -104,7 +104,7 @@ module DataCycleCore
             'url' => "http://www.example.com/things/#{@content.id}",
             'inLanguage' => 'de',
             'name' => 'TestArtikel',
-            'slug' => 'TestArtikel'
+            'slug' => 'testartikel'
           }
           v1_except = ['dateCreated', 'dateModified', 'classifications']
 
