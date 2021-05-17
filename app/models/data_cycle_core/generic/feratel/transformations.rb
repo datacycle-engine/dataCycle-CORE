@@ -503,10 +503,6 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.debug(hash, external_source_id)
-          byebug
-        end
-
         def self.feratel_to_event(external_source_id)
           t(:stringify_keys)
           .>> t(:flatten_translations)
