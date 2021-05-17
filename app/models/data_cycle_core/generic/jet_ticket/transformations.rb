@@ -49,7 +49,7 @@ module DataCycleCore
               action = {}
               action_id = DataCycleCore::Thing.find_by(external_key: "JetTicket OrderAction:#{data.dig('EventID')}", external_source_id: external_source_id)&.id
               action['id'] = action_id if action_id.present?
-              action['name'] = 'Buchungs-URL'
+              action['name'] = 'zum WEBSHOP'
               action['action_type'] = Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'Bestellen'))
               action['external_key'] = "JetTicket OrderAction:#{data.dig('EventID')}"
               action['url'] = "https://webshop.events-vorarlberg.at/#{url_translator[i.dig('ReleaseID')]}/Events?eventsetid=#{event_set_id}"
