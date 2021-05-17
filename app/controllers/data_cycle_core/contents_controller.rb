@@ -186,6 +186,7 @@ module DataCycleCore
         authorize!(:update, @content)
 
         object_params = content_params(@content.template_name)
+        binding.pry
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
         valid = @content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true, version_name: object_params[:version_name])
@@ -321,6 +322,7 @@ module DataCycleCore
       object_params = content_params(@object.template_name)
       translation_locale = object_params[:translations]&.keys&.first
       translation_values = object_params[:translations]&.dig(translation_locale) || {}
+      # binding.pry
       data_hash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
 
       I18n.with_locale(translation_locale || validation_params[:locale]) do

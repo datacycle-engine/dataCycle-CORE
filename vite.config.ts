@@ -1,4 +1,3 @@
-import { defineConfig } from 'vite';
 import RubyPlugin from 'vite-plugin-ruby';
 import { resolve } from 'path';
 import CopyPlugin from 'rollup-plugin-copy';

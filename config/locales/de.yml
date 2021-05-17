@@ -103,6 +103,15 @@ de:
     exdate: Ausgenommene Termine
     ongoing: fortlaufend
 
+  opening_time:
+    valid_from: Gültigkeit von
+    valid_until: bis
+    weekday: Wochentag
+    holiday: Feiertag
+    time: Zeit
+    opens: geöffnet von
+    closes: bis
+
   common:
     'true': Ja
     'false': Nein

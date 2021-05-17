@@ -4,7 +4,7 @@ import ConfirmationModal from './../components/confirmation_modal';
 import DataCycle from './data_cycle';
 
 class DatePicker {
-  constructor(element, additionalOptions = {}) {
+  constructor(element) {
     this.element = element;
     this.elementName = this.element.getAttribute('name');
     this.calType = 'single';
@@ -27,7 +27,13 @@ class DatePicker {
       altFormat: 'd.m.Y H:i',
       enableTime: true
     };
-    this.additionalOptions = additionalOptions;
+    this.timeOnlyOptions = {
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: 'H:i',
+      time_24hr: true
+    };
+    this.configs = {};
     this.startKeys = {
       _from: '_until',
       _start: '_end',
@@ -48,11 +54,18 @@ class DatePicker {
     this.setCalType();
     this.findSibling();
     this.initCalInstance();
-
+  }
+  initEvents() {
     $(this.calInstance.altInput).on('change', this.updateDatePicker.bind(this));
-    $(this.calInstance.altInput).on('dc:date:destroy', this.destroyDatePicker.bind(this));
+    $(this.calInstance.altInput).on('dc:flatpickr:reInit', this.reInit.bind(this));
     $(this.calInstance.altInput).on('dc:flatpickr:setDate', this.setDate.bind(this));
     $(this.calInstance.altInput).on('dc:import:data', this.importData.bind(this));
+  }
+  removeEvents() {
+    $(this.calInstance.altInput).off('change', this.updateDatePicker.bind(this));
+    $(this.calInstance.altInput).off('dc:flatpickr:reInit', this.reInit.bind(this));
+    $(this.calInstance.altInput).off('dc:flatpickr:setDate', this.setDate.bind(this));
+    $(this.calInstance.altInput).off('dc:import:data', this.importData.bind(this));
   }
   setupCache() {
     if (!DataCycle.cache.holidays) {
@@ -65,9 +78,9 @@ class DatePicker {
   initCalInstance() {
     this.calInstance = Flatpickr(this.element, this.options());
 
-    console.log('initCalInstance', this.calInstance, this.element._flatpickr);
+    this.getLimitFromSibling();
 
-    this.updateSibling(null, this.calInstance.altInput.value, null);
+    this.initEvents();
   }
   setCalType() {
     if (this.elementName.match(new RegExp(`(${Object.keys(this.startKeys).join('|')})`, 'gi'))) this.calType = 'start';
@@ -80,10 +93,18 @@ class DatePicker {
     this.calInstance.setDate(this.calInstance.altInput.value, true, this.calInstance.config.altFormat);
     this.calInstance.close();
   }
-  destroyDatePicker(event) {
-    event.preventDefault();
-
+  destroy() {
+    this.removeEvents();
     this.calInstance.destroy();
+  }
+  reInit(event, configs) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    this.configs = configs || {};
+
+    this.destroy();
+    this.initCalInstance();
   }
   setDate(event, value) {
     if (event) {
@@ -101,9 +122,12 @@ class DatePicker {
   updateSibling(_selectedDates, dateStr, _instance) {
     if (this.calType == 'single' || !this.sibling || !this.sibling._flatpickr) return;
 
-    console.log('updateSibling', dateStr, this.sibling._flatpickr);
-
     this.sibling._flatpickr.set(this.calType == 'start' ? 'minDate' : 'maxDate', dateStr);
+  }
+  getLimitFromSibling() {
+    if (this.calType == 'single' || !this.sibling) return;
+
+    this.calInstance.set(this.calType == 'start' ? 'maxDate' : 'minDate', this.sibling.value);
   }
   loadHolidays(year) {
     if (DataCycle.cache.holidays[year]) return;
@@ -140,7 +164,7 @@ class DatePicker {
   }
   markHoliday(dayElem) {
     const holiday = DataCycle.cache.holidays[dayElem.dateObj.getFullYear()].find(
-      v => v.date === this.toLocaleDateString(dayElem.dateObj)
+      v => v.date === Flatpickr.formatDate(dayElem.dateObj, 'Y-m-d')
     );
 
     if (holiday) {
@@ -148,19 +172,15 @@ class DatePicker {
       dayElem.title = holiday.name;
     }
   }
-  toLocaleDateString(dateObject) {
-    return `${dateObject.getFullYear()}-${(dateObject.getMonth() + 1).toString().padStart(2, '0')}-${dateObject
-      .getDate()
-      .toString()
-      .padStart(2, '0')}`;
-  }
   options() {
-    let options = this.defaultOptions;
+    if (this.element.dataset.type == 'timepicker') return this.timeOnlyOptions;
+
+    let options = Object.assign({}, this.defaultOptions);
 
     if (this.element.getAttribute('type') == 'datetime-local' && this.element.dataset.disableTime != 'true')
       Object.assign(options, this.defaultTimeOptions);
 
-    if (this.additionalOptions && this.additionalOptions.enableTime) Object.assign(options, this.defaultTimeOptions);
+    if (this.configs && this.configs.enableTime) Object.assign(options, this.defaultTimeOptions);
 
     return options;
   }

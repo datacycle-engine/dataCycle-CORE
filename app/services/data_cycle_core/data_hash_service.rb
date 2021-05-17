@@ -92,6 +92,8 @@ module DataCycleCore
       template_hash['properties'].each do |key, value|
         if value['type'] == 'schedule'
           key = { key.to_sym => [:id, :full_day, :rtimes, :extimes, start_time: [:time], end_time: [:time], yearly_end: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]] }
+        elsif value['type'] == 'opening_time'
+          key = { key.to_sym => [:valid_from, :valid_until, :holiday, time: [:opens, :closes], rrules: [validations: [day: []]]] }
         elsif value['type'] == 'embedded'
           object_properties = get_internal_template(value['template_name'])
           key = { key.to_sym => get_params_from_hash(object_properties.schema) }

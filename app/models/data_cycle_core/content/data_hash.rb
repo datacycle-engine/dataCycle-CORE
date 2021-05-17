@@ -211,7 +211,7 @@ module DataCycleCore
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
-        when 'schedule'
+        when 'schedule', 'opening_time'
           set_schedule(value, key)
         when 'computed'
           save_values(key, value, properties)

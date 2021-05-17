@@ -52,7 +52,7 @@
             :content_area: header
       :opening_hours_specification_new:
         :label: Öffnungszeit Neu
-        :type: schedule
+        :type: opening_time
         :validations:
           valid_dates: true
       :opening_hours_specification:

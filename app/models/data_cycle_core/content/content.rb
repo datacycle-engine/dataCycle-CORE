@@ -217,7 +217,7 @@ module DataCycleCore
       end
 
       def schedule_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'schedule' }
+        name_property_selector(include_overlay) { |definition| definition['type'].in?(['schedule', 'opening_time']) }
       end
 
       def external_property_names

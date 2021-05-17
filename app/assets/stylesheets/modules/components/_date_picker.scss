@@ -16,3 +16,17 @@
     }
   }
 }
+
+.flatpickr-time {
+  .flatpickr-hour,
+  .flatpickr-minute {
+    box-shadow: none;
+    background: none;
+
+    &:hover,
+    &:focus {
+      box-shadow: none;
+      background: none;
+    }
+  }
+}
