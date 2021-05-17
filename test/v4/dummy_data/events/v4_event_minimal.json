@@ -1,5 +1,6 @@
 {
   "name": "Headline",
   "description": "<p>Description</p>",
-  "text": "Text"
+  "text": "Text",
+  "slug": "Headline"
 }

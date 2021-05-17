@@ -939,7 +939,8 @@ CREATE TABLE public.thing_history_translations (
     description text,
     history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    slug character varying
 );
 
 
@@ -955,7 +956,8 @@ CREATE TABLE public.thing_translations (
     name character varying,
     description text,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    slug character varying
 );
 
 
@@ -1985,6 +1987,13 @@ CREATE INDEX index_thing_translations_on_locale ON public.thing_translations USI
 
 
 --
+-- Name: index_thing_translations_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_thing_translations_on_slug ON public.thing_translations USING btree (slug);
+
+
+--
 -- Name: index_thing_translations_on_thing_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2491,6 +2500,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210413105611'),
 ('20210416120714'),
 ('20210421180706'),
-('20210422111740');
+('20210422111740'),
+('20210510120343');
 
 

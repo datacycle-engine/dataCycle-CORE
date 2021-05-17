@@ -13,21 +13,21 @@ export default ({ mode }) => {
     },
     plugins: [
       RubyPlugin(),
-      DelPlugin({
-        targets: ['app/assets/entrypoints/images'],
-        hook: 'buildStart',
-        runOnce: true
-      }),
       CopyPlugin({
         targets: [
           { src: resolve(__dirname, 'app/assets/images/*'), dest: 'app/assets/entrypoints/images' },
           { src: resolve(__dirname, 'app/assets/fonts/*'), dest: 'public/assets/fonts' },
           { src: 'app/assets/images/*', dest: 'app/assets/entrypoints/images' }
         ],
-        hook: 'generateBundle',
+        hook: 'buildStart',
         copyOnce: true
       }),
-      gzipPlugin()
+      DelPlugin({
+        targets: ['app/assets/entrypoints/images'],
+        hook: 'closeBundle',
+        runOnce: true
+      }),
+      ...(mode == 'development' ? [] : [gzipPlugin()])
     ]
   };
 };

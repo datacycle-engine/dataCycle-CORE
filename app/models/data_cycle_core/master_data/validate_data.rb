@@ -5,7 +5,8 @@ module DataCycleCore
     class ValidateData
       attr_reader :error
 
-      def initialize
+      def initialize(content = nil)
+        @content = content
         @error = { error: {}, warning: {} }
       end
 
@@ -23,7 +24,7 @@ module DataCycleCore
         ap data if verbose
         ap validation_hash if verbose
 
-        validation_object = Validators::Object.new(data, validation_hash['properties'], '', strict)
+        validation_object = Validators::Object.new(data, validation_hash['properties'], '', strict, @content)
         @error = validation_object.error
       end
 

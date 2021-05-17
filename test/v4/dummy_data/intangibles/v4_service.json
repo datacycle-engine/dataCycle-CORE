@@ -6,6 +6,8 @@
   "meeting_point": "<p>Meeting Point juhu</p>",
   "additional_information": [{
     "name": "equipment",
-    "description": "<p>equipment juhu</p>"
-  }]
+    "description": "<p>equipment juhu</p>",
+    "slug": "equipment"
+  }],
+  "slug": "Service"
 }

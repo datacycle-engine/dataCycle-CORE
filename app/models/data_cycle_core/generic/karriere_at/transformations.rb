@@ -34,6 +34,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { ['Company:', s.dig('id', 'text')].join('') })
           .>> t(:add_field, 'name', ->(s) { s.dig('name', '#cdata-section') })
+          .>> t(:add_field, 'slug', ->(s) { s.dig('slug', '#cdata-section') })
           .>> t(:reject_keys, ['id'])
           .>> t(:strip_all)
         end

@@ -19,6 +19,15 @@ module DataCycleCore
       gsub GERMAN_REGEXP, GERMAN_HASH
     end
 
+    def to_slug
+      I18n.transliterate(self).parameterize(preserve_case: false, separator: '-')
+    end
+
+    def uuid?
+      uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
+      length == 36 && !(downcase =~ uuid).nil?
+    end
+
     def strip_tags
       ActionController::Base.helpers.strip_tags(self)
     end

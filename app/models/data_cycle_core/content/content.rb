@@ -10,7 +10,7 @@ module DataCycleCore
         'translated_value' => 'content',
         'column' => 'column'
       }.freeze
-      PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic'].freeze
+      PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
 
       self.abstract_class = true
 
@@ -425,12 +425,12 @@ module DataCycleCore
         }.inject(&:merge)
       end
 
-      def convert_to_type(type, value, definition = nil)
-        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value, definition)
+      def convert_to_type(type, value, definition = nil, content = nil)
+        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value, definition, self || content)
       end
 
-      def convert_to_string(type, value)
-        DataCycleCore::MasterData::DataConverter.convert_to_string(type, value)
+      def convert_to_string(type, value, content = nil)
+        DataCycleCore::MasterData::DataConverter.convert_to_string(type, value, self || content)
       end
 
       def parent_templates

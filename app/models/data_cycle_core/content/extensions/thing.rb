@@ -6,14 +6,15 @@ module DataCycleCore
       module Thing
         extend ActiveSupport::Concern
 
-        def title
+        def title(data_hash: nil)
+          data_hash ||= {}
           case schema_type
           when 'Organization', 'Event', 'CreativeWork', 'Product', 'Intangible'
-            name
+            data_hash['name'].presence || name
           when 'Person'
-            "#{given_name} #{family_name}"
+            "#{data_hash['given_name']} #{data_hash['family_name']}".presence || "#{given_name} #{family_name}"
           when 'Place'
-            name.presence || I18n.t('common.no_translation', locale: DataCycleCore.ui_language)
+            data_hash['name'].presence || name.presence || I18n.t('common.no_translation', locale: DataCycleCore.ui_language)
           end
         end
 

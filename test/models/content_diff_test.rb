@@ -20,6 +20,7 @@ module DataCycleCore
 
       diff = content_data.diff(data_hash)
       diff_hash_if_defaults_are_not_considered = {
+        'slug' => ['-', content_data.slug],
         'data_type' => [['-', content_data.data_type.ids]],
         'data_pool' => [['-', content_data.data_pool.ids]],
         'upload_date' => ['-', content_data.upload_date]
