@@ -11,7 +11,7 @@ namespace :deploy do
         run_locally do
           with rails_env: fetch(:rails_env) do
             execute :yarn_local
-            execute :yarn_local, 'upgrade data-cycle-core'
+            execute :yarn_local, 'upgrade'
             execute :vite_local, 'build -f'
           end
         end

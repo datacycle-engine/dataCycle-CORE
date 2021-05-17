@@ -17,7 +17,19 @@ module DataCycleCore
     end
 
     def deep_reject(&block)
-      dup.deep_reject!(&block)
+      each_with_object({}) do |(k, v), memo|
+        if v.is_a?(Hash)
+          memo[k] = v.deep_reject(&block)
+        elsif v.is_a?(Array)
+          memo[k] = v.map { |val|
+            val.is_a?(Hash) ? val.deep_reject(&block) : val
+          }.reject { |val| yield(k, val) }
+        else
+          memo[k] = v
+        end
+
+        memo.delete(k) if yield(k, memo[k])
+      end
     end
 
     def deep_reject!(&block)
@@ -25,9 +37,9 @@ module DataCycleCore
         v.deep_reject!(&block) if v.is_a?(Hash)
 
         if v.is_a?(Array)
-          v.each do |val|
+          v.each { |val|
             val.deep_reject!(&block) if val.is_a?(Hash)
-          end
+          }.reject! { |val| yield(k, val) }
         end
 
         delete(k) if yield(k, v)
