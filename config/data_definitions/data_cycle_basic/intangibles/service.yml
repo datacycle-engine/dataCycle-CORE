@@ -111,6 +111,9 @@
       :feratel_service_classifications:
         :type: mixin
         :name: feratel_service_classifications
+      :linked_data:
+        :type: mixin
+        :name: linked_data        
       :data_type:
         :label: Inhaltstype
         :type: classification

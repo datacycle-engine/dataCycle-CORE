@@ -111,6 +111,8 @@ module DataCycleCore
           .>> t(:ensure_classification_tree, 'feratel_facilities_additional_services', 'Feratel - Merkmale - Services')
           .>> t(:add_links, 'marketing_groups', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Details', 'MarketingGroups', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_field, 'makes_offer', ->(s) { load_offers(s, external_source_id) })
+          .>> t(:add_links, 'fdbcode', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'DBCode'))&.flatten&.reject(&:nil?)&.map { |item| "Feratel - DBCode - #{item}" } || [] })
+          .>> t(:universal_classifications, ->(s) { s.dig('fdbcode') })
           .>> t(:reject_keys, ['Link', 'Details', 'CustomAttributes', 'QualityDetails'])
           .>> t(:strip_all)
         end
@@ -232,6 +234,8 @@ module DataCycleCore
           .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
           .>> t(:add_amenity_features, external_source_id)
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] } })
+          .>> t(:add_links, 'fdbcode', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'DBCode'))&.flatten&.reject(&:nil?)&.map { |item| "Feratel - DBCode - #{item}" } || [] })
+          .>> t(:universal_classifications, ->(s) { s.dig('fdbcode') })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name', 'DBCode' => 'feratel_db_code')
           .>> t(:add_field, 'bookable', ->(s) { s&.dig('Bookable') == 'true' })
@@ -405,6 +409,8 @@ module DataCycleCore
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
+          .>> t(:add_links, 'fdbcode', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'DBCode'))&.flatten&.reject(&:nil?)&.map { |item| "Feratel - DBCode - #{item}" } || [] })
+          .>> t(:universal_classifications, ->(s) { s.dig('fdbcode') })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, { 'Id' => 'external_key', 'Name' => 'name', 'DBCode' => 'feratel_db_code' })
           .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description'), external_source_id, 'package') })
@@ -498,11 +504,16 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
+        def self.debug(hash, external_source_id)
+          byebug
+        end
+
         def self.feratel_to_event(external_source_id)
           t(:stringify_keys)
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
           .>> t(:add_cc, external_source_id)
+          .>> t(:add_links, 'linked_thing', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('Details', 'ConnectedEntries'))&.flatten&.map { |item| item&.dig('ConnectedEntry', 'Id') } || [] })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap_description, ['EventHeader'])
