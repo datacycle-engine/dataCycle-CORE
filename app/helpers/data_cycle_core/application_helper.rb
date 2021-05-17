@@ -246,6 +246,8 @@ module DataCycleCore
       parameters[:options] = (parameters[:options] || {}).with_indifferent_access
       edit_scope = parameters.dig(:options, :edit_scope)
 
+      return if definition['type'] == 'slug' && parameters[:parent]&.embedded?
+
       return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
 
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope, edit_scope)) && (content.nil? || content&.allowed_feature_attribute?(key.attribute_name_from_key))
@@ -272,6 +274,8 @@ module DataCycleCore
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
 
       return if definition['type'] == 'classification' && !definition['universal'] && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(scope.to_s) } : scope.to_s)
+
+      return if definition['type'] == 'slug' && parameters[:parent]&.embedded?
 
       type = definition['type'].underscore_blanks
       type = definition.dig('compute', 'type').underscore_blanks.to_s if definition.dig('compute', 'type').present?

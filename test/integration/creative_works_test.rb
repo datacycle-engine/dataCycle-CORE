@@ -83,7 +83,7 @@ module DataCycleCore
       assert_select '.detail-header > .title', @content.title
       get history_thing_path(@content, history_id: @content.histories&.first&.id)
       assert_response :success
-      assert_select('.detail-content .type.properties .has-changes', count: 1)
+      assert_select('.detail-content .type.properties .has-changes', count: 2) # title & slug
     end
 
     test 'delete content' do

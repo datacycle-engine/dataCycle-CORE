@@ -47,14 +47,15 @@ module DataCycleCore
                 end
 
                 # plain attributes without transformation
-                assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'given_name', 'family_name', 'honorific_prefix', 'honorific_suffix']) do
+                assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'given_name', 'family_name', 'honorific_prefix', 'honorific_suffix', 'slug']) do
                   {
                     'description' => @content.description,
                     'jobTitle' => @content.job_title,
                     'givenName' => @content.given_name,
                     'familyName' => @content.family_name,
                     'honorificPrefix' => @content.honorific_prefix,
-                    'honorificSuffix' => @content.honorific_suffix
+                    'honorificSuffix' => @content.honorific_suffix,
+                    'slug' => @content.slug
                   }
                 end
 
@@ -248,14 +249,15 @@ module DataCycleCore
                   end
 
                   # plain attributes without transformation
-                  assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'given_name', 'family_name', 'honorific_prefix', 'honorific_suffix']) do
+                  assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'given_name', 'family_name', 'honorific_prefix', 'honorific_suffix', 'slug']) do
                     {
                       'description' => @content.description,
                       'jobTitle' => @content.job_title,
                       'givenName' => @content.given_name,
                       'familyName' => @content.family_name,
                       'honorificPrefix' => @content.honorific_prefix,
-                      'honorificSuffix' => @content.honorific_suffix
+                      'honorificSuffix' => @content.honorific_suffix,
+                      'slug' => @content.slug
                     }
                   end
 
@@ -355,14 +357,15 @@ module DataCycleCore
                 end
 
                 # plain attributes without transformation
-                assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'job_title', 'honorific_prefix', 'honorific_suffix', 'use_guidelines']) do
+                assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'job_title', 'honorific_prefix', 'honorific_suffix', 'use_guidelines', 'slug']) do
                   {
                     'name' => translated_value(@content, 'name', ['de', 'en']),
                     'description' => translated_value(@content, 'description', ['de', 'en']),
                     'jobTitle' => translated_value(@content, 'job_title', ['de', 'en']),
                     'honorificPrefix' => translated_value(@content, 'honorific_prefix', ['de', 'en']),
                     'honorificSuffix' => translated_value(@content, 'honorific_suffix', ['de', 'en']),
-                    'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de', 'en'])
+                    'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de', 'en']),
+                    'slug' => translated_value(@content, 'slug', ['de', 'en'])
                   }
                 end
 
@@ -454,12 +457,13 @@ module DataCycleCore
                 end
 
                 # plain attributes without transformation
-                assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'honorific_prefix', 'honorific_suffix']) do
+                assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'honorific_prefix', 'honorific_suffix', 'slug']) do
                   {
                     'description' => @content.description,
                     'jobTitle' => @content.job_title,
                     'honorificPrefix' => @content.honorific_prefix,
-                    'honorificSuffix' => @content.honorific_suffix
+                    'honorificSuffix' => @content.honorific_suffix,
+                    'slug' => @content.slug
                   }
                 end
 
@@ -567,12 +571,13 @@ module DataCycleCore
                 end
 
                 # plain attributes without transformation
-                assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'honorific_prefix', 'honorific_suffix']) do
+                assert_attributes(json_validate, required_attributes, ['description', 'job_title', 'honorific_prefix', 'honorific_suffix', 'slug']) do
                   {
                     'description' => @content.description,
                     'jobTitle' => @content.job_title,
                     'honorificPrefix' => @content.honorific_prefix,
-                    'honorificSuffix' => @content.honorific_suffix
+                    'honorificSuffix' => @content.honorific_suffix,
+                    'slug' => @content.slug
                   }
                 end
 

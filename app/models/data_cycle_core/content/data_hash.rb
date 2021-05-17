@@ -139,7 +139,7 @@ module DataCycleCore
       def validate(data, schema_hash = nil, strict = false, add_defaults = false, current_user = nil)
         data = add_default_values(data_hash: data, current_user: current_user).dup if add_defaults && properties_with_default_values.present?
 
-        validator = DataCycleCore::MasterData::ValidateData.new
+        validator = DataCycleCore::MasterData::ValidateData.new(self)
         validator.validate(data, schema_hash || schema, strict)
       end
 
@@ -215,9 +215,15 @@ module DataCycleCore
           set_schedule(value, key)
         when 'computed'
           save_values(key, value, properties)
+        when 'slug'
+          save_slug(key, value, options.data_hash)
         when 'key'
           true # do nothing
         end
+      end
+
+      def save_slug(key, value, data_hash)
+        send("#{key}=", DataCycleCore::MasterData::DataConverter.string_to_slug(value, self, data_hash))
       end
 
       def save_values(key, value, properties)

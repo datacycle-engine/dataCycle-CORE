@@ -16,7 +16,9 @@
   "potential_action": [
     {
       "url": "https://booking.link",
-      "name": "booking.link"
+      "name": "booking.link",
+      "sluck": "booking-link"
     }
-  ]
+  ],
+  "sluck": "Test-Article-1"
 }
