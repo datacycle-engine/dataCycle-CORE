@@ -2050,6 +2050,20 @@ CREATE INDEX index_things_on_is_part_of ON public.things USING btree (is_part_of
 
 
 --
+-- Name: index_things_on_line_geography_cast; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_line_geography_cast ON public.things USING gist (public.geography(line));
+
+
+--
+-- Name: index_things_on_line_spatial; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_line_spatial ON public.things USING gist (line);
+
+
+--
 -- Name: index_things_on_location_geography_cast; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2501,6 +2515,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210416120714'),
 ('20210421180706'),
 ('20210422111740'),
-('20210510120343');
+('20210510120343'),
+('20210518074537');
 
 
