@@ -508,7 +508,7 @@ module DataCycleCore
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
           .>> t(:add_cc, external_source_id)
-          .>> t(:add_links, 'linked_thing', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('Details', 'ConnectedEntries'))&.flatten&.map { |item| item&.dig('ConnectedEntry', 'Id') } || [] })
+          .>> t(:add_links, 'linked_thing', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('Details', 'ConnectedEntries', 'ConnectedEntry'))&.flatten&.map { |item| item&.dig('Id') } || [] })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap_description, ['EventHeader'])
