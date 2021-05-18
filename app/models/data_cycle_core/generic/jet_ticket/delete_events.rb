@@ -36,8 +36,6 @@ module DataCycleCore
             raise "JetTicket delete Events: No external id found! Item:#{raw_data.dig('EventSetID')}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
             external_key = [options.dig(:import, :external_key_prefix), raw_data.dig(*external_key_path), ' - ', raw_data.dig('Name1')].join
 
-            byebug
-
             content = DataCycleCore::Thing.find_by(external_source_id: utility_object.external_source.id, external_key: external_key)
             return if content.blank?
 
