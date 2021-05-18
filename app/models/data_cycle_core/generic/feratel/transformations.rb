@@ -411,7 +411,7 @@ module DataCycleCore
           .>> t(:add_links, 'fdbcode', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'DBCode'))&.flatten&.reject(&:nil?)&.map { |item| "Feratel - DBCode - #{item}" } || [] })
           .>> t(:universal_classifications, ->(s) { s.dig('fdbcode') })
           .>> t(:unwrap, 'Details')
-          .>> t(:rename_keys, { 'Id' => 'external_key', 'Name' => 'name'})
+          .>> t(:rename_keys, { 'Id' => 'external_key', 'Name' => 'name' })
           .>> t(:add_field, 'additional_information', ->(s) { parse_descriptions(s.dig('Descriptions', 'Description'), external_source_id, 'package') })
           .>> t(:unwrap_description, ['Package', 'PackageShortText'])
           .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('Package')) })
