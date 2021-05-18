@@ -2,6 +2,10 @@
 
 module DataCycleCore
   module ScheduleHandler
+    def self.included(klass)
+      klass.extend(ClassMethods)
+    end
+
     def to_h
       item_hash = @schedule_object&.to_hash || {}
       item_hash[:duration] = duration
@@ -9,6 +13,7 @@ module DataCycleCore
       item_hash[:relation] = relation
       item_hash[:dtstart] = dtstart if dtstart.present?
       item_hash[:dtend] = dtend if dtstart.present?
+      item_hash[:holidays] = holidays if holidays
       item_hash
     end
 
@@ -283,6 +288,89 @@ module DataCycleCore
     def generate_uuid(data_hash)
       uuid = Digest::MD5.hexdigest(data_hash.to_s)
       [uuid[0..7], '-', uuid[8..11], '-', uuid[12..15], '-', uuid[16..19], '-', uuid[20..32]].join
+    end
+
+    module ClassMethods
+      def to_h_from_schedule_params(value)
+        return nil if value.blank? || value.values.blank?
+
+        value.values.map { |s|
+          next nil if s.dig('start_time', 'time').blank?
+
+          start_time = s.dig('start_time', 'time')&.in_time_zone
+          end_time = s.dig('end_time', 'time')&.in_time_zone
+          end_time ||= start_time if s.dig('yearly_end').blank?
+
+          if s['full_day'] == '1'
+            start_time = start_time.beginning_of_day
+            s['duration'] = (end_time.beginning_of_day - start_time.beginning_of_day) + 1.day
+          elsif end_time.present?
+            s['duration'] = end_time - start_time
+          end
+
+          s['start_time'] = {
+            time: start_time.to_s,
+            zone: start_time.time_zone.name
+          }
+
+          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day if s.dig('rrules', 0, 'until').present?
+          s['rrules'][0]['validations'] ||= {}
+          s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present? && s.dig('yearly_end').blank?
+          s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
+          s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+          s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+
+          case s.dig('rrules', 0, 'rule_type')
+          when 'IceCube::WeeklyRule'
+            s.dig('rrules', 0, 'validations', 'day')&.map!(&:to_i)
+          when 'IceCube::SingleOccurrenceRule'
+            s.except!('rrules')
+          when 'IceCube::YearlyRule'
+            from_yday = start_time&.to_date&.yday
+            to_yday = s.dig('yearly_end', 'time')&.to_date&.yday
+            if to_yday.present?
+              to_yday = -366 + to_yday if from_yday > to_yday
+              s['rrules'][0]['validations']['day_of_year'] = [from_yday, to_yday]
+            else
+              s.dig('rrules', 0, 'validations')&.delete('day')
+            end
+          else
+            s.dig('rrules', 0, 'validations')&.delete('day')
+          end
+
+          DataCycleCore::Schedule.new.from_hash(s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| v.blank? }).to_hash.except(:relation, :thing_id).merge(id: s['id']).deep_stringify_keys.compact
+        }.compact
+      end
+
+      def to_h_from_opening_time_params(value)
+        return if value.blank? || value.values.blank?
+
+        value.values.map { |s|
+          next unless s&.dig('time').present? && s['time'].values.present? && s['valid_from'].present? && s.dig('rrules', 0, 'validations', 'day').present?
+
+          s['time'].values.map do |t|
+            next if t.blank? || t['opens'].blank? || t['closes'].blank?
+
+            start_time = "#{s['valid_from']} #{t['opens']}".in_time_zone
+            end_time = "#{s['valid_from']} #{t['closes']}".in_time_zone
+
+            {
+              id: t['id'],
+              start_time: {
+                time: start_time.to_s,
+                zone: start_time.time_zone.name
+              },
+              holidays: s['holiday'],
+              duration: end_time - start_time,
+              rrules: s['rrules'].each do |r|
+                r['rule_type'] = 'IceCube::WeeklyRule'
+                r.dig('validations', 'day').map!(&:to_i)
+                r['until'] = s['valid_until']&.in_time_zone&.end_of_day
+              end
+            }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access
+          end
+        }.flatten.compact
+      end
     end
   end
 

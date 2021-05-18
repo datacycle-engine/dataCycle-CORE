@@ -20,7 +20,8 @@ module DataCycleCore
             'asset' => Differs::Asset,
             'classification' => Differs::Classification,
             'computed' => Differs::Computed,
-            'schedule' => Differs::Schedule
+            'schedule' => Differs::Schedule,
+            'opening_time' => Differs::Schedule
           }
         end
 

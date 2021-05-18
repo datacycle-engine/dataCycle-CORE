@@ -10,7 +10,7 @@
         <ul class="no-bullet">
           <li>
             <div id="show-history-link" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
-              <%= t('history.created_at', locale: DataCycleCore.ui_language) %> <%= l(Time.zone.at(Time.zone.at(@watch_list&.created_at)), locale: DataCycleCore.ui_language) %>
+              <%= t('history.created_at', locale: DataCycleCore.ui_language) %> <%= l(@watch_list&.created_at&.in_time_zone, locale: DataCycleCore.ui_language) %>
               <span> <%= t('terms.from', locale: DataCycleCore.ui_language) %> </span>
               <span><strong><a class="email-link" title="<%= @watch_list&.user&.full_name %>" href="mailto:<%= "#{@watch_list&.user&.email}" %>"><%= @watch_list&.user&.full_name %></a></strong></span>
             </div>

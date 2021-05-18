@@ -48,11 +48,11 @@
         <% end %>
         <% if readonly %>
           <%= text_field_tag "#{new_key}[opens]",
-            value[:opens].blank? ? nil : l(value[:opens].in_time_zone, format: :time_only, locale: DataCycleCore.ui_language),
+            l(value.dig(:start_time, :time)&.in_time_zone, format: :time_only, locale: DataCycleCore.ui_language),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[opens]")}", readonly: true %>
         <% else %>
-          <%= time_field_tag "#{new_key}[opens]", value[:opens].blank? ? nil : l(value[:opens].in_time_zone, format: :time_only, locale: DataCycleCore.ui_language), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[opens]")}", data: { type: 'timepicker' } %>
+          <%= time_field_tag "#{new_key}[opens]", l(value.dig(:start_time, :time)&.in_time_zone, format: :time_only, locale: DataCycleCore.ui_language), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[opens]")}", data: { type: 'timepicker' } %>
         <% end %>
       </div>
 
@@ -64,11 +64,11 @@
 
         <% if readonly %>
           <%= text_field_tag "#{new_key}[closes]",
-            value[:closes].blank? ? nil : l(value[:closes].in_time_zone, format: :time_only, locale: DataCycleCore.ui_language),
+            l(value.dig(:end_time, :time)&.in_time_zone, format: :time_only, locale: DataCycleCore.ui_language),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[closes]")}", readonly: true %>
         <% else %>
-          <%= time_field_tag "#{new_key}[closes]", value[:closes].blank? ? nil : l(value[:closes].in_time_zone, format: :time_only, locale: DataCycleCore.ui_language), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[closes]")}", data: { type: 'timepicker' } %>
+          <%= time_field_tag "#{new_key}[closes]", l(value.dig(:end_time, :time)&.in_time_zone, format: :time_only, locale: DataCycleCore.ui_language), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[closes]")}", data: { type: 'timepicker' } %>
         <% end %>
       </div>
     </div>

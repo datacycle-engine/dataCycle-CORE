@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "$(hostname -i|sed -r 's/([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)[0-9]{1,3}/\11/') dockerhost" >> /etc/hosts
 
-(yarn --ignore-scripts; yarn upgrade) &> log/yarn.log &
+(yarn --ignore-scripts; yarn upgrade; chown -R 1000:1000 /var/www/app/yarn.lock) &> log/yarn.log &
 
 cd test/dummy
 

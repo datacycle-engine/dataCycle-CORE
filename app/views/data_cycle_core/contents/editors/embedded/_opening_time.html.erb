@@ -1,14 +1,16 @@
 <%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item is-active",
   id: "#{sanitize_to_id(key)}_item_#{index}",
   data: {
-    id: local_assigns[:object]&.id,
     index: index,
     accordion_item: true
   } do %>
 
   <%
-    readonly = !attribute_editable?(key, definition, local_assigns[:options], local_assigns[:object])
+    readonly = !attribute_editable?(key, definition, local_assigns[:options], content)
     new_key = "#{key}[#{index}]"
+    time_key = "#{new_key}[time]"
+    time_objects = local_assigns[:object]
+    time_definition = opening_time_time_definition
   %>
 
   <span class="embedded-header">
@@ -30,14 +32,10 @@
   </a>
 
   <% unless readonly %>
-    <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject', data: {
-          confirm_delete: definition&.dig('translated') && local_assigns[:object]&.translations&.many? ? t('actions.delete_with_translated_html', locale: DataCycleCore.ui_language) : nil
-        } %>
+    <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject' %>
   <% end %>
 
-  <%= hidden_field_tag("#{new_key}[id]", local_assigns[:object].id) unless local_assigns[:duplicated_content] || local_assigns[:object].nil? %>
-
-  <% value = local_assigns[:object]&.to_h || {} %>
+  <% value = time_objects&.first.to_h %>
 
   <div class="opening-time-editor embedded-properties accordion-content" data-tab-content>
     <div class="opening-time-range">
@@ -48,11 +46,11 @@
         <% end %>
         <% if readonly %>
           <%= text_field_tag "#{new_key}[valid_from]",
-            value[:valid_from].blank? ? nil : l(value[:valid_from]&.in_time_zone&.to_date, format: :edit, locale: DataCycleCore.ui_language),
+            l(value.dig(:start_time, :time)&.in_time_zone&.to_date, format: :edit, locale: DataCycleCore.ui_language),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_from]")}", readonly: true %>
         <% else %>
-          <%= date_field_tag "#{new_key}[valid_from]", value[:valid_from]&.in_time_zone&.to_date, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_from]")}", data: { type: 'datepicker' } %>
+          <%= date_field_tag "#{new_key}[valid_from]", value.dig(:start_time, :time)&.in_time_zone&.to_date, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_from]")}", data: { type: 'datepicker' } %>
         <% end %>
       </div>
 
@@ -64,11 +62,11 @@
 
         <% if readonly %>
           <%= text_field_tag "#{new_key}[valid_until]",
-            value[:valid_until].blank? ? nil : l(value[:valid_until]&.in_time_zone&.to_date, format: :edit, locale: DataCycleCore.ui_language),
+            l(value.dig(:rrules, 0, :until)&.in_time_zone&.to_date, format: :edit, locale: DataCycleCore.ui_language),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_until]")}", readonly: true %>
         <% else %>
-          <%= date_field_tag "#{new_key}[valid_until]", value[:valid_until]&.in_time_zone&.to_date, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_until]")}", data: { type: 'datepicker' } %>
+          <%= date_field_tag "#{new_key}[valid_until]", value.dig(:rrules, 0, :until)&.in_time_zone&.to_date, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_until]")}", data: { type: 'datepicker' } %>
         <% end %>
       </div>
 
@@ -86,25 +84,25 @@
         <% end %>
 
         <span class="weekday-checkbox holiday">
-          <%= hidden_field_tag "#{new_key}[holiday]", value&.dig(:holiday) if readonly %>
-          <%= check_box_tag "#{new_key}[holiday]", '1', value&.dig(:holiday), id: sanitize_to_id("#{new_key}[holiday]"), disabled: readonly %>
+          <%= hidden_field_tag "#{new_key}[holiday]", value&.dig(:holidays) if readonly %>
+          <%= check_box_tag "#{new_key}[holiday]", '1', value&.dig(:holidays), id: sanitize_to_id("#{new_key}[holiday]"), disabled: readonly %>
           <%= label_tag sanitize_to_id("#{new_key}[holiday]"), t('opening_time.holiday', locale: DataCycleCore.ui_language) %>
         </span>
       </div>
     </div>
 
-    <%
-      time_key = "#{new_key}[time]"
-      time_objects = []
-      time_definition = opening_time_time_definition
-    %>
-    <%= render 'data_cycle_core/contents/editors/attribute', key: time_key, definition: {}, value: nil, options: options.merge('class' => 'object embedded_object'), content: content, parent: local_assigns[:parent] do %>
+    <%= render 'data_cycle_core/contents/editors/attribute', key: time_key, definition: {}, value: nil, options: options.merge('class' => 'object embedded_object'), content: content do %>
 
       <div class="embedded-object" id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(time_key)}" %>"
-        data-locale="<%= I18n.locale.to_s %>" data-key="<%= time_key %>" data-label="<%= time_definition['label'] %>"
-        data-definition="<%= time_definition.to_json %>" data-options="<%= options.to_json %>"
-        data-total="<%= value.presence&.size %>" data-ids="<%= value.presence&.ids %>"
-        data-content-type="<%= content.class.table_name %>" data-url="<%= thing_path(content) %>"
+        data-locale="<%= I18n.locale.to_s %>"
+        data-key="<%= time_key %>"
+        data-label="<%= time_definition['label'] %>"
+        data-definition="<%= time_definition.to_json %>"
+        data-options="<%= options.to_json %>"
+        data-total="<%= time_objects.presence&.size %>"
+        data-ids="<%= time_objects.presence&.pluck(:id) %>"
+        data-content-type="<%= content.class.table_name %>"
+        data-url="<%= thing_path(content) %>"
         data-write="<%= attribute_editable?(time_key, time_definition, options, content) %>"
         data-accordion
         data-allow-all-closed="true"
@@ -124,10 +122,6 @@
               },
               content: content
             ) %>
-          <% end %>
-
-          <% value.presence&.ids&.reject {|v| time_objects.presence&.ids&.include?(v)}&.each_with_index do |id, index| %>
-            <%= hidden_field_tag "#{time_key}[#{index + time_objects.size}][id]", id %>
           <% end %>
         <% else %>
           <%= hidden_field_tag time_key + '[]', nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(time_key)}_default" %>

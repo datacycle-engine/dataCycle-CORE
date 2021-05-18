@@ -93,7 +93,7 @@ module DataCycleCore
         if value['type'] == 'schedule'
           key = { key.to_sym => [:id, :full_day, :rtimes, :extimes, start_time: [:time], end_time: [:time], yearly_end: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]] }
         elsif value['type'] == 'opening_time'
-          key = { key.to_sym => [:valid_from, :valid_until, :holiday, time: [:opens, :closes], rrules: [validations: [day: []]]] }
+          key = { key.to_sym => [:valid_from, :valid_until, :holiday, time: [:id, :opens, :closes], rrules: [validations: [day: []]]] }
         elsif value['type'] == 'embedded'
           object_properties = get_internal_template(value['template_name'])
           key = { key.to_sym => get_params_from_hash(object_properties.schema) }
@@ -113,57 +113,6 @@ module DataCycleCore
 
     class << self
       private
-
-      def schedule_values(value)
-        return nil if value.blank? || value.values.blank?
-
-        value.values.map { |s|
-          next nil if s.dig('start_time', 'time').blank?
-
-          start_time = s.dig('start_time', 'time')&.in_time_zone
-          end_time = s.dig('end_time', 'time')&.in_time_zone
-          end_time ||= start_time if s.dig('yearly_end').blank?
-
-          if s['full_day'] == '1'
-            start_time = start_time.beginning_of_day
-            s['duration'] = (end_time.beginning_of_day - start_time.beginning_of_day) + 1.day
-          elsif end_time.present?
-            s['duration'] = end_time - start_time
-          end
-
-          s['start_time'] = {
-            time: start_time.to_s,
-            zone: start_time.time_zone.name
-          }
-
-          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day if s.dig('rrules', 0, 'until').present?
-          s['rrules'][0]['validations'] ||= {}
-          s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present? && s.dig('yearly_end').blank?
-          s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
-          s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
-          s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
-
-          case s.dig('rrules', 0, 'rule_type')
-          when 'IceCube::WeeklyRule'
-            s.dig('rrules', 0, 'validations', 'day')&.map!(&:to_i)
-          when 'IceCube::SingleOccurrenceRule'
-            s.except!('rrules')
-          when 'IceCube::YearlyRule'
-            from_yday = start_time&.to_date&.yday
-            to_yday = s.dig('yearly_end', 'time')&.to_date&.yday
-            if to_yday.present?
-              to_yday = -366 + to_yday if from_yday > to_yday
-              s['rrules'][0]['validations']['day_of_year'] = [from_yday, to_yday]
-            else
-              s.dig('rrules', 0, 'validations')&.delete('day')
-            end
-          else
-            s.dig('rrules', 0, 'validations')&.delete('day')
-          end
-
-          DataCycleCore::Schedule.new.from_hash(s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| v.blank? }).to_hash.except(:relation, :thing_id).merge(id: s['id']).deep_stringify_keys.compact
-        }.compact
-      end
 
       def flatten_recursive(datahash, template_hash)
         temp_datahash = {}
@@ -192,7 +141,9 @@ module DataCycleCore
 
               value = temp_value
             elsif type == 'schedule'
-              value = schedule_values value
+              value = DataCycleCore::Schedule.to_h_from_schedule_params value
+            elsif type == 'opening_time'
+              value = DataCycleCore::Schedule.to_h_from_opening_time_params value
             elsif value['value'].is_a?(::Array)
               value['value'] = value['value'].reject(&:blank?)
             end

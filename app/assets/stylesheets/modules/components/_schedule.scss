@@ -301,3 +301,21 @@
     }
   }
 }
+
+.detail-type.opening_time {
+  .opening-time-group {
+    padding-top: 1rem;
+    margin: 0 !important;
+
+    .opening-time-validity-period {
+      font-weight: 600;
+      border-bottom: 1px solid $dark-gray;
+    }
+
+    .opening-time-opening-hours {
+      display: block;
+      padding: 0.5rem 0 0 1rem;
+      font-size: 0.9rem;
+    }
+  }
+}

@@ -439,6 +439,7 @@ module DataCycleCore
           schedule.id = item['id'] if item['id'].present?
           schedule.thing_id = id
           schedule.relation = relation_name
+          schedule.holidays = item['holidays']
           schedule.from_hash(item.with_indifferent_access)
           schedule.save!
           updated_item_keys << schedule.id

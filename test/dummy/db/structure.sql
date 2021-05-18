@@ -773,7 +773,8 @@ CREATE TABLE public.schedule_histories (
     external_key character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    holidays boolean
 );
 
 
@@ -808,7 +809,8 @@ CREATE TABLE public.schedules (
     external_key character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    holidays boolean
 );
 
 
@@ -2501,6 +2503,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210416120714'),
 ('20210421180706'),
 ('20210422111740'),
-('20210510120343');
+('20210510120343'),
+('20210518133349');
 
 

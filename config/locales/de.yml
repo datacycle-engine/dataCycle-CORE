@@ -303,6 +303,8 @@ de:
     inverse_linked: Inverse Referenz
     has_overlay: Bei diesem Inhalt ist ein Overlay vorhanden
     no_name: unbenannt
+    o_clock: Uhr
+    and: und
 
   embedded:
     move_down: nach unten verschieben

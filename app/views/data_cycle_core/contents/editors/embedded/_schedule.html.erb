@@ -47,7 +47,7 @@
         <% end %>
         <% if readonly %>
           <%= text_field_tag "#{key}[#{index}][start_time][time]",
-            value&.dig(:start_time, :time).blank? ? nil : l(value&.dig(:start_time, :time)&.in_time_zone.try(full_day ? :to_date : :to_datetime), format: :edit, locale: DataCycleCore.ui_language),
+            l(value&.dig(:start_time, :time)&.in_time_zone.try(full_day ? :to_date : :to_datetime), format: :edit, locale: DataCycleCore.ui_language),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][start_time][time]")}", readonly: true %>
         <% else %>
@@ -65,7 +65,7 @@
 
         <% if readonly %>
           <%= text_field_tag "#{key}[#{index}][end_time][time]",
-            end_time.blank? ? nil : l(end_time, format: :edit, locale: DataCycleCore.ui_language),
+            l(end_time, format: :edit, locale: DataCycleCore.ui_language),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][end_time][time]")}", readonly: true %>
         <% else %>
@@ -129,7 +129,7 @@
         <% end %>
         <% if readonly %>
           <%= text_field_tag "#{key}[#{index}][rrules][][until]",
-            value&.dig(:rrules, 0, :until).blank? ? nil : l(value.dig(:rrules, 0, :until).in_time_zone.to_date, locale: DataCycleCore.ui_language),
+            l(value.dig(:rrules, 0, :until)&.in_time_zone.to_date, locale: DataCycleCore.ui_language),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rrules][until]")}", readonly: true %>
         <% else %>
@@ -144,7 +144,7 @@
       </div>
 
       <div class="special-dates daterange single_occurrence daily weekly monthly yearly">
-        <%= hidden_field_tag "#{key}[#{index}][rtimes]", value&.dig(:rtimes).blank? ? nil : value&.dig(:rtimes)&.map{ |t| l(t[:time]&.in_time_zone, format: :edit, locale: DataCycleCore.ui_language) }&.join(', ') %>
+        <%= hidden_field_tag "#{key}[#{index}][rtimes]", value&.dig(:rtimes)&.map{ |t| l(t[:time]&.in_time_zone, format: :edit, locale: DataCycleCore.ui_language) }&.join(', ') %>
 
         <div class="form-element exdate">
           <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][extimes]")}" do %>
@@ -153,7 +153,7 @@
           <% end %>
           <% if readonly %>
             <%= text_field_tag "#{key}[#{index}][extimes]",
-              value&.dig(:extimes).blank? ? nil : value&.dig(:extimes)&.map{ |t| l(t[:time].in_time_zone, format: :edit, locale: DataCycleCore.ui_language) }&.join(', '),
+              value&.dig(:extimes)&.map{ |t| l(t[:time]&.in_time_zone, format: :edit, locale: DataCycleCore.ui_language) }&.join(', '),
               class: 'read-only date',
               id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][extimes]")}", readonly: true %>
           <% else %>
