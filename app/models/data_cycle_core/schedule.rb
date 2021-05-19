@@ -34,13 +34,14 @@ module DataCycleCore
 
     def dow(day)
       {
-        1 => 'https://schema.org/Monday',
-        2 => 'https://schema.org/Tuesday',
-        3 => 'https://schema.org/Wednesday',
-        4 => 'https://schema.org/Thursday',
-        5 => 'https://schema.org/Friday',
-        6 => 'https://schema.org/Saturday',
-        0 => 'https://schema.org/Sunday'
+        1 => 'Monday',
+        2 => 'Tuesday',
+        3 => 'Wednesday',
+        4 => 'Thursday',
+        5 => 'Friday',
+        6 => 'Saturday',
+        0 => 'Sunday',
+        99 => 'PublicHolidays'
       }[day]
     end
 
@@ -66,6 +67,26 @@ module DataCycleCore
         '@id' => id,
         '@type' => 'Schedule'
       }
+    end
+
+    def to_opening_hours_specification_schema_org
+      rule = @schedule_object&.recurrence_rules&.first
+      rule_hash = rule&.to_hash
+
+      {
+        '@type' => 'OpeningHoursSpecification',
+        'validFrom' => @schedule_object&.start_time&.in_time_zone&.to_s(:only_date),
+        'validThrough' => rule_hash&.dig(:until)&.in_time_zone&.to_s(:only_date),
+        'opens' => dtstart&.to_s(:only_time),
+        'closes' => dtend&.to_s(:only_time),
+        'dayOfWeek' => Array.wrap(rule_hash&.dig(:validations, :day)&.map { |day| dow(day) }).concat(holidays ? [dow(99)] : []).presence
+      }.compact
+    end
+
+    def to_opening_hours_specification_schema_org_api_v3
+      to_opening_hours_specification_schema_org&.merge({
+        'contentType' => 'Öffnungszeit'
+      })
     end
 
     def to_schedule_schema_org
@@ -346,13 +367,17 @@ module DataCycleCore
         return if value.blank? || value.values.blank?
 
         value.values.map { |s|
-          next unless s&.dig('time').present? && s['time'].values.present? && s['valid_from'].present? && s.dig('rrules', 0, 'validations', 'day').present?
+          next unless s&.dig('time').present? && s['time'].values.present? && s['valid_from'].present? && (s.dig('rrules', 0, 'validations', 'day').present? || s['holiday'])
 
           s['time'].values.map do |t|
             next if t.blank? || t['opens'].blank? || t['closes'].blank?
 
             start_time = "#{s['valid_from']} #{t['opens']}".in_time_zone
             end_time = "#{s['valid_from']} #{t['closes']}".in_time_zone
+
+            holidays = Holidays
+              .between(start_time, s['valid_until']&.in_time_zone&.end_of_day || Time.zone.now.end_of_year, Array.wrap(DataCycleCore.holidays_country_code))
+              .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
 
             {
               id: t['id'],
@@ -362,11 +387,15 @@ module DataCycleCore
               },
               holidays: s['holiday'],
               duration: end_time - start_time,
-              rrules: s['rrules'].each do |r|
-                r['rule_type'] = 'IceCube::WeeklyRule'
-                r.dig('validations', 'day').map!(&:to_i)
-                r['until'] = s['valid_until']&.in_time_zone&.end_of_day
-              end
+              rtimes: s['holiday'] ? holidays : [],
+              extimes: s['holiday'] ? [] : holidays,
+              rrules: [{
+                rule_type: 'IceCube::WeeklyRule',
+                validations: {
+                  day: s.dig('rrules', 0, 'validations', 'day')&.map(&:to_i)
+                },
+                until: s['valid_until']&.in_time_zone&.end_of_day
+              }]
             }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access
           end
         }.flatten.compact

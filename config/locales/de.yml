@@ -632,6 +632,7 @@ de:
         thing_id: 'thing_id ist ein Pflichtfeld.'
         relation: 'relation ist ein Pflichtfeld.'
         invalid: 'Der Eintrag mit Startzeitpunkt %{data} enthält keine gültigen Termine'
+        until_missing: 'Für den Eintrag mit Startzeitpunkt %{data} muss ein Endzeitpunkt angegeben werden'
       number: '%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data}).'
       no_data: 'Keine Daten angegeben.'
       no_validation: 'Keine Validierungs-Daten angegeben.'

@@ -2,6 +2,7 @@ import Flatpickr from 'flatpickr';
 import { German } from 'flatpickr/dist/l10n/de.js';
 import ConfirmationModal from './../components/confirmation_modal';
 import DataCycle from './data_cycle';
+import castArray from 'lodash/castArray';
 
 class DatePicker {
   constructor(element) {
@@ -13,36 +14,39 @@ class DatePicker {
     this.conditionalFormField = this.element.closest('.conditional-form-field');
     this.defaultOptions = {
       locale: German,
-      altFormat: 'd.m.Y',
-      enableTime: false,
       altInput: true,
       time_24hr: true,
       allowInput: true,
       static: true,
+      altFormat: 'd.m.Y',
+      enableTime: false,
       altInputClass: 'flatpickr-input',
       onClose: this.updateSibling.bind(this),
       onDayCreate: this.createDayElement.bind(this)
     };
-    this.defaultTimeOptions = {
+    this.dateTimeOptions = {
       altFormat: 'd.m.Y H:i',
       enableTime: true
     };
-    this.timeOnlyOptions = {
+    this.timeOptions = {
       enableTime: true,
       noCalendar: true,
       dateFormat: 'H:i',
-      time_24hr: true
+      altFormat: 'H:i'
     };
     this.configs = {};
     this.startKeys = {
-      _from: '_until',
+      _from: ['_until', '_through'],
       _start: '_end',
-      start_time: 'end_time'
+      start_time: 'end_time',
+      opens: 'closes'
     };
     this.endKeys = {
+      _through: '_from',
       _until: '_from',
       _end: '_start',
-      end_time: 'start_time'
+      end_time: 'start_time',
+      closes: 'opens'
     };
     this.keyMappings = Object.assign({}, this.startKeys, this.endKeys);
     this.keyRegExp = new RegExp(`(${Object.keys(this.keyMappings).join('|')})`, 'gi');
@@ -116,8 +120,11 @@ class DatePicker {
     this.calInstance.close();
   }
   findSibling() {
-    const siblingName = this.elementName.replace(this.keyRegExp, m => this.keyMappings[m]);
-    this.sibling = document.getElementsByName(siblingName)[0];
+    const foundMatch = this.elementName.match(this.keyRegExp);
+    this.sibling = castArray(this.keyMappings[foundMatch]).reduce(
+      (a, v) => a || document.getElementsByName(this.elementName.replace(foundMatch, v))[0],
+      null
+    );
   }
   updateSibling(_selectedDates, dateStr, _instance) {
     if (this.calType == 'single' || !this.sibling || !this.sibling._flatpickr) return;
@@ -173,14 +180,15 @@ class DatePicker {
     }
   }
   options() {
-    if (this.element.dataset.type == 'timepicker') return this.timeOnlyOptions;
-
     let options = Object.assign({}, this.defaultOptions);
 
-    if (this.element.getAttribute('type') == 'datetime-local' && this.element.dataset.disableTime != 'true')
-      Object.assign(options, this.defaultTimeOptions);
+    if (
+      (this.element.getAttribute('type') == 'datetime-local' && this.element.dataset.disableTime != 'true') ||
+      (this.configs && this.configs.enableTime)
+    )
+      Object.assign(options, this.dateTimeOptions);
 
-    if (this.configs && this.configs.enableTime) Object.assign(options, this.defaultTimeOptions);
+    if (this.element.dataset.type == 'timepicker') Object.assign(options, this.timeOptions);
 
     return options;
   }

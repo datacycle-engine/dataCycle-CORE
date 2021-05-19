@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class Schedule < BasicValidator
         def keywords
-          ['valid_dates']
+          ['valid_dates', 'closed_range']
         end
 
         def validate(data, template, _strict = false)
@@ -57,7 +57,7 @@ module DataCycleCore
 
           return if schedule.nil?
 
-          (@error[:error][@template_key] ||= []) << I18n.t(:invalid, scope: [:validation, :errors, :schedule], data: I18n.l(schedule&.start_time, locale: DataCycleCore.ui_language, format: :short), locale: DataCycleCore.ui_language) if schedule.terminating? && schedule.all_occurrences.blank?
+          (@error[:error][@template_key] ||= []) << I18n.t(:invalid, scope: [:validation, :errors, :schedule], data: I18n.l(schedule&.start_time, locale: DataCycleCore.ui_language, format: :edit), locale: DataCycleCore.ui_language) if schedule.first.blank?
         end
 
         def valid_dates(data, value)
@@ -65,6 +65,18 @@ module DataCycleCore
 
           data.each do |data_item|
             check_valid_dates(data_item)
+          end
+        end
+
+        def check_closed_range(schedule_hash)
+          (@error[:error][@template_key] ||= []) << I18n.t(:until_missing, scope: [:validation, :errors, :schedule], data: I18n.l(schedule_hash.dig('start_time', 'time')&.in_time_zone, locale: DataCycleCore.ui_language, format: :edit), locale: DataCycleCore.ui_language) if schedule_hash.dig('rrules', 0, 'until').blank?
+        end
+
+        def closed_range(data, value)
+          return unless value
+
+          data.each do |data_item|
+            check_closed_range(data_item)
           end
         end
 

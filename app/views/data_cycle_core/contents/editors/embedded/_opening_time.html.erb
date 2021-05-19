@@ -50,7 +50,7 @@
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_from]")}", readonly: true %>
         <% else %>
-          <%= date_field_tag "#{new_key}[valid_from]", value.dig(:start_time, :time)&.in_time_zone&.to_date, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_from]")}", data: { type: 'datepicker' } %>
+          <%= date_field_tag "#{new_key}[valid_from]", value.dig(:start_time, :time)&.in_time_zone&.to_date || Date.current, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_from]")}", data: { type: 'datepicker' } %>
         <% end %>
       </div>
 

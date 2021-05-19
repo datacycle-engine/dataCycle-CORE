@@ -165,15 +165,16 @@ class Validator {
     button_text = '<span id="button_' + item_id + '" class="tooltip-error">';
     out = "<span id='" + item_id + "' class='single_error'>";
     for (let key in data.error) {
+      const errorMessage = Array.isArray(data.error[key]) ? data.error[key].join('<br>') : data.error[key];
+
       if (
-        ($(validationContainer).data('id') != undefined &&
-          $(validationContainer).data('id').search(new RegExp(key, 'i')) != -1) ||
-        ($(validationContainer).data('id') == undefined &&
-          $(item_label).attr('for') != undefined &&
+        ($(validationContainer).data('id') && $(validationContainer).data('id').search(new RegExp(key, 'i')) != -1) ||
+        ($(validationContainer).data('id') &&
+          $(item_label).attr('for') &&
           $(item_label).attr('for').search(new RegExp(key, 'i')) != -1)
       ) {
-        button_text += '<strong>' + ($(item_label).text() || 'Fehler') + ':</strong><br>' + data.error[key] + '<br>';
-        out += '<strong>' + ($(item_label).text() || 'Fehler') + ':</strong> ' + data.error[key] + '</br>';
+        button_text += '<b>' + ($(item_label).text() || 'Fehler') + ':</b><br>' + errorMessage + '<br>';
+        out += '<b>' + ($(item_label).text() || 'Fehler') + ':</b> ' + errorMessage + '</br>';
       }
     }
     out += '<i class="fa fa-times close-error" aria-hidden="true"></i></span>';
