@@ -29,7 +29,7 @@ module DataCycleCore
           " #{t('common.and', locale: DataCycleCore.ui_language)} "
         ).presence
           &.prepend("#{v == 99 ? t('opening_time.holiday', locale: DataCycleCore.ui_language) : t('date.abbr_day_names', locale: DataCycleCore.ui_language)[v]}: ")
-      }.compact, '<br>')
+      }.compact, tag.br)
     end
   end
 end
