@@ -10,7 +10,7 @@ module DataCycleCore
 
         def self.to_webpage
           t(:stringify_keys)
-          .>> t(:rename_keys, { 'uid' => 'external_key' })
+          .>> t(:rename_keys, { 'uid' => 'external_key', 'alternativeHeadline' => 'alternative_headline' })
           .>> t(:map_value, 'external_key', ->(s) { s&.to_s })
           .>> t(:add_field, 'date_created', ->(s) { Time.zone.at(s.dig('createdAt')) })
           .>> t(:add_field, 'date_modified', ->(s) { Time.zone.at(s.dig('updatedAt')) })
@@ -21,7 +21,7 @@ module DataCycleCore
 
         def self.to_website
           t(:stringify_keys)
-          .>> t(:rename_keys, { 'uid' => 'external_key' })
+          .>> t(:rename_keys, { 'uid' => 'external_key', 'alternativeHeadline' => 'alternative_headline' })
           .>> t(:map_value, 'external_key', ->(s) { s&.to_s })
           .>> t(:add_field, 'date_created', ->(s) { Time.zone.at(s.dig('createdAt')) })
           .>> t(:add_field, 'date_modified', ->(s) { Time.zone.at(s.dig('updatedAt')) })
