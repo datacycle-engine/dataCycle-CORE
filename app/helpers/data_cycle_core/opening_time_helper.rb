@@ -22,13 +22,13 @@ module DataCycleCore
           opening_times.filter { |o| o.dig(:rrules, 0, :validations, :day)&.include?(v) || (v == 99 && o[:holidays]) }
             .map do |o|
             safe_join([
-              o.dig(:start_time, :time).present? ? tag.b(l(o.dig(:start_time, :time)&.in_time_zone, format: :time_only, locale: DataCycleCore.ui_language)&.delete_suffix(':00')&.delete_prefix('0')) : nil,
-              o.dig(:end_time, :time).present? ? tag.b("#{l(o.dig(:end_time, :time)&.in_time_zone, format: :time_only, locale: DataCycleCore.ui_language)&.delete_suffix(':00')&.delete_prefix('0')} #{t('common.o_clock', locale: DataCycleCore.ui_language)}") : nil
-            ].compact, '-').presence
+              o.dig(:start_time, :time).present? ? tag.b(l(o.dig(:start_time, :time)&.in_time_zone, format: :time_only, locale: DataCycleCore.ui_language)) : nil,
+              o.dig(:end_time, :time).present? ? tag.b("#{l(o.dig(:end_time, :time)&.in_time_zone, format: :time_only, locale: DataCycleCore.ui_language)} #{t('common.o_clock', locale: DataCycleCore.ui_language)}") : nil
+            ].compact, ' - ').presence
           end,
           " #{t('common.and', locale: DataCycleCore.ui_language)} "
         ).presence
-          &.prepend("#{v == 99 ? t('opening_time.holiday', locale: DataCycleCore.ui_language) : t('date.abbr_day_names', locale: DataCycleCore.ui_language)[v]}: ")
+          &.prepend("#{v == 99 ? t('opening_time.holiday', locale: DataCycleCore.ui_language) : t('date.day_names', locale: DataCycleCore.ui_language)[v]}: ")
       }.compact, tag.br)
     end
   end

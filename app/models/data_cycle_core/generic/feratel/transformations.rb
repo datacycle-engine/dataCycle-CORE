@@ -596,6 +596,7 @@ module DataCycleCore
           .>> t(:map_value, 'longitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
           .>> t(:location)
           .>> t(:add_field, 'opening_hours_specification', ->(s) { parse_opening_hours(s.dig('OpeningHours', 'OpeningHour')) })
+          .>> t(:add_field, 'opening_hours_specification_new', ->(s) { parse_opening_times(s.dig('OpeningHours', 'OpeningHour')) })
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['Infrastructure']))
           .>> t(:add_links, 'logo', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['InfrastructureLogo']))
@@ -782,6 +783,36 @@ module DataCycleCore
             &.map(&:to_f)
             &.reject { |item| item == 0.0 }
             &.min
+        end
+
+        def self.parse_opening_times(data)
+          return nil if data.blank?
+
+          day_keys = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].freeze
+
+          value = Array.wrap(data).map do |item|
+            next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
+
+            start_time = "#{item['DateFrom']} #{item['TimeFrom']}".in_time_zone
+            duration = DataCycleCore::Schedule.opening_time_duration(item['TimeFrom'], item['TimeTo'])
+
+            {
+              start_time: {
+                time: start_time.to_s,
+                zone: start_time.time_zone.name
+              },
+              duration: duration,
+              rrules: [{
+                rule_type: 'IceCube::WeeklyRule',
+                validations: {
+                  day: day_keys.map { |d| next unless item[d] == 'true'; day_keys.index(d) }.compact
+                },
+                until: item['DateTo']&.in_time_zone&.end_of_day
+              }]
+            }.deep_reject { |_, v| v.blank? }.with_indifferent_access
+          end
+
+          value
         end
 
         def self.parse_opening_hours(data)

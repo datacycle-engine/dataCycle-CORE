@@ -400,6 +400,16 @@ module DataCycleCore
           end
         }.flatten.compact
       end
+
+      def opening_time_duration(start_time, end_time)
+        return 0.minutes if start_time.blank? || end_time.blank?
+
+        start_time = start_time.to_datetime
+        end_time = end_time.to_datetime
+        end_time += 1.day if end_time < start_time
+
+        ((end_time - start_time) * 24 * 60 * 60)
+      end
     end
   end
 
