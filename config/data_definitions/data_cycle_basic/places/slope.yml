@@ -44,9 +44,18 @@
         :name: content_classifications
       :opening_hours_specification:
         :label: Öffnungszeit
+        :type: opening_time
+        :validations:
+          valid_dates: true
+          closed_range: true
+      :opening_hours_description:
+        :label: Öffnungszeit - Beschreibung
         :type: embedded
-        :template_name: Öffnungszeit
+        :template_name: Öffnungszeit - Beschreibung
         :translated: true
+        :ui:
+          :edit:
+            :disabled: true
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -87,7 +96,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Piste"
+        :default_value: 'Piste'
       :feratel_cps:
         :type: mixin
         :name: feratel_cps

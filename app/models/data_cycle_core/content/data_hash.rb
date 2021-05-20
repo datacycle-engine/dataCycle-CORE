@@ -437,6 +437,8 @@ module DataCycleCore
               DataCycleCore::Schedule.new
             end
           schedule.id = item['id'] if item['id'].present?
+          schedule.external_source_id = item['external_source_id'] if item['external_source_id'].present?
+          schedule.external_key = item['external_key'] if item['external_key'].present?
           schedule.thing_id = id
           schedule.relation = relation_name
           schedule.holidays = item['holidays']

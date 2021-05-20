@@ -2,6 +2,17 @@
 
 module DataCycleCore
   module ScheduleHandler
+    DAY_OF_WEEK_MAPPING = {
+      1 => 'https://schema.org/Monday',
+      2 => 'https://schema.org/Tuesday',
+      3 => 'https://schema.org/Wednesday',
+      4 => 'https://schema.org/Thursday',
+      5 => 'https://schema.org/Friday',
+      6 => 'https://schema.org/Saturday',
+      0 => 'https://schema.org/Sunday',
+      99 => 'https://schema.org/PublicHolidays'
+    }.freeze
+
     def self.included(klass)
       klass.extend(ClassMethods)
     end
@@ -33,16 +44,7 @@ module DataCycleCore
     end
 
     def dow(day)
-      {
-        1 => 'Monday',
-        2 => 'Tuesday',
-        3 => 'Wednesday',
-        4 => 'Thursday',
-        5 => 'Friday',
-        6 => 'Saturday',
-        0 => 'Sunday',
-        99 => 'PublicHolidays'
-      }[day]
+      DAY_OF_WEEK_MAPPING[day]
     end
 
     def to_repeat_frequency(rule_hash)
@@ -326,7 +328,7 @@ module DataCycleCore
             start_time = start_time.beginning_of_day
             s['duration'] = (end_time.beginning_of_day - start_time.beginning_of_day) + 1.day
           elsif end_time.present?
-            s['duration'] = end_time - start_time
+            s['duration'] = time_to_duration(start_time.strftime('%H:%M'), end_time.strftime('%H:%M'))
           end
 
           s['start_time'] = {
@@ -373,7 +375,7 @@ module DataCycleCore
             next if t.blank? || t['opens'].blank? || t['closes'].blank?
 
             start_time = "#{s['valid_from']} #{t['opens']}".in_time_zone
-            end_time = "#{s['valid_from']} #{t['closes']}".in_time_zone
+            duration = time_to_duration(t['opens'], t['closes'])
 
             holidays = Holidays
               .between(start_time, s['valid_until']&.in_time_zone&.end_of_day || Time.zone.now.end_of_year, Array.wrap(DataCycleCore.holidays_country_code))
@@ -386,7 +388,7 @@ module DataCycleCore
                 zone: start_time.time_zone.name
               },
               holidays: s['holiday'],
-              duration: end_time - start_time,
+              duration: duration,
               rtimes: s['holiday'] ? holidays : [],
               extimes: s['holiday'] ? [] : holidays,
               rrules: [{
@@ -401,14 +403,14 @@ module DataCycleCore
         }.flatten.compact
       end
 
-      def opening_time_duration(start_time, end_time)
-        return 0.minutes if start_time.blank? || end_time.blank?
+      def time_to_duration(start_time, end_time)
+        return 0 if start_time.blank? || end_time.blank?
 
         start_time = start_time.to_datetime
         end_time = end_time.to_datetime
         end_time += 1.day if end_time < start_time
 
-        ((end_time - start_time) * 24 * 60 * 60)
+        ((end_time - start_time) * 24 * 60 * 60).to_i
       end
     end
   end

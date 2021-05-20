@@ -32,7 +32,9 @@ class DatePicker {
       enableTime: true,
       noCalendar: true,
       dateFormat: 'H:i',
-      altFormat: 'H:i'
+      altFormat: 'H:i',
+      onClose: null,
+      onDayCreate: null
     };
     this.configs = {};
     this.startKeys = {
@@ -74,15 +76,15 @@ class DatePicker {
   setupCache() {
     if (!DataCycle.cache.holidays) {
       DataCycle.cache['holidays'] = {
-        loadingHolidays: false,
-        loadingHolidaysRequest: null
+        loadingHolidays: {},
+        loadingHolidaysRequest: {}
       };
     }
   }
   initCalInstance() {
     this.calInstance = Flatpickr(this.element, this.options());
 
-    this.getLimitFromSibling();
+    if (this.element.dataset.type != 'timepicker') this.getLimitFromSibling();
 
     this.initEvents();
   }
@@ -139,8 +141,8 @@ class DatePicker {
   loadHolidays(year) {
     if (DataCycle.cache.holidays[year]) return;
 
-    DataCycle.cache.holidays.loadingHolidays = true;
-    DataCycle.cache.holidays.loadingHolidaysRequest = DataCycle.httpRequest({
+    DataCycle.cache.holidays.loadingHolidays[year] = true;
+    DataCycle.cache.holidays.loadingHolidaysRequest[year] = DataCycle.httpRequest({
       url: '/holidays',
       method: 'GET',
       data: {
@@ -153,26 +155,25 @@ class DatePicker {
         DataCycle.cache.holidays[year] = data || [];
       })
       .always(_ => {
-        DataCycle.cache.holidays.loadingHolidays = false;
-        DataCycle.cache.holidays.loadingHolidaysRequest = null;
+        DataCycle.cache.holidays.loadingHolidays[year] = false;
+        DataCycle.cache.holidays.loadingHolidaysRequest[year] = null;
       });
   }
   createDayElement(_dObj, _dStr, _fp, dayElem) {
     if (dayElem.classList.contains('dc-holidays-initialized')) return;
 
-    if (!DataCycle.cache.holidays[dayElem.dateObj.getFullYear()] && !DataCycle.cache.holidays.loadingHolidays)
-      this.loadHolidays(dayElem.dateObj.getFullYear());
+    const year = dayElem.dateObj.getFullYear();
 
-    if (!DataCycle.cache.holidays[dayElem.dateObj.getFullYear()] && DataCycle.cache.holidays.loadingHolidays)
-      DataCycle.cache.holidays.loadingHolidaysRequest.done(_ => this.markHoliday(dayElem));
-    else this.markHoliday(dayElem);
+    if (!DataCycle.cache.holidays[year] && !DataCycle.cache.holidays.loadingHolidays[year]) this.loadHolidays(year);
 
+    this.markHoliday(dayElem, year);
     dayElem.classList.add('dc-holidays-initialized');
   }
-  markHoliday(dayElem) {
-    const holiday = DataCycle.cache.holidays[dayElem.dateObj.getFullYear()].find(
-      v => v.date === Flatpickr.formatDate(dayElem.dateObj, 'Y-m-d')
-    );
+  markHoliday(dayElem, year) {
+    if (!DataCycle.cache.holidays[year] && DataCycle.cache.holidays.loadingHolidays[year])
+      return DataCycle.cache.holidays.loadingHolidaysRequest[year].done(_ => this.markHoliday(dayElem, year));
+
+    const holiday = DataCycle.cache.holidays[year].find(v => v.date === Flatpickr.formatDate(dayElem.dateObj, 'Y-m-d'));
 
     if (holiday) {
       dayElem.classList.add('holiday');

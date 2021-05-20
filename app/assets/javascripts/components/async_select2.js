@@ -76,7 +76,7 @@ class AsyncSelect2 extends BasicSelect2 {
   }
   ajaxOptions() {
     return {
-      url: DataCycle.joinPath(DataCycle.config.EnginePath, this.config.searchPath),
+      url: this.config.searchPath,
       delay: 250,
       data: this.ajaxDataHandler.bind(this),
       processResults: this.ajaxProcessResults.bind(this)

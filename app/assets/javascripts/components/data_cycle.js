@@ -29,23 +29,27 @@ const DataCycle = {
   },
   joinPath(...segments) {
     const parts = segments.reduce((parts, segment) => {
-      if (parts.length > 0) {
-        segment = segment.replace(/^\//, '');
-      }
+      if (!segment) return parts;
+
+      if (parts.length > 0) segment = segment.replace(/^\//, '');
+
       segment = segment.replace(/\/$/, '');
+
       return parts.concat(segment.split('/'));
     }, []);
+
     const resultParts = [];
+
     for (const part of parts) {
-      if (part === '.') {
-        continue;
-      }
+      if (part === '.') continue;
       if (part === '..') {
         resultParts.pop();
         continue;
       }
+
       resultParts.push(part);
     }
+
     return resultParts.join('/');
   },
   httpRequest(options = {}) {
