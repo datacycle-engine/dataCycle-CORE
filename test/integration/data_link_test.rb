@@ -189,7 +189,7 @@ module DataCycleCore
       }, headers: {
         referer: thing_url(@content)
       }
-      assert_redirected_to thing_path(@content)
+      assert_redirected_to root_path
       assert_equal I18n.t('unauthorized.manage.all', locale: DataCycleCore.ui_language), flash[:alert]
       assert_nil @data_link.reload.comment
     end
