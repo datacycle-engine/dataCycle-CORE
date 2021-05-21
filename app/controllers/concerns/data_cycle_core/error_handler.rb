@@ -95,7 +95,7 @@ module DataCycleCore
     def redirect_back_with_error(exception, status_code)
       exception_message = exception&.message&.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       respond_to do |format|
-        format.html { redirect_back fallback_location: authorized_root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language), allow_other_host: false }
+        format.html { redirect_to authorized_root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language), allow_other_host: false }
         format.json { render status: status_code, json: { errors: content_api_error(exception) } }
         format.js { render status: status_code, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language)}')" }
         format.any { head status_code }
