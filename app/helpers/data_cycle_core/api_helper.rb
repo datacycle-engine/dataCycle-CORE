@@ -129,6 +129,8 @@ module DataCycleCore
     def load_embedded_object(content, key, languages, definition)
       return nil if languages.blank?
 
+      binding.pry if key == 'opening_hours_description'
+
       return content.load_embedded_objects(key, nil, false, languages, true).includes(:translations, :classifications) unless definition['translated']
 
       languages.map(&:to_sym).reduce(nil) do |v, locale|

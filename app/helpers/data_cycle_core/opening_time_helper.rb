@@ -28,7 +28,7 @@ module DataCycleCore
           end,
           " #{t('common.and', locale: DataCycleCore.ui_language)} "
         ).presence
-          &.prepend("#{v == 99 ? t('opening_time.holiday', locale: DataCycleCore.ui_language) : t('date.day_names', locale: DataCycleCore.ui_language)[v]}: ")
+          &.prepend(tag.span("#{v == 99 ? t('opening_time.holiday', locale: DataCycleCore.ui_language) : t('date.day_names', locale: DataCycleCore.ui_language)[v]}: ", class: 'opening-time-day'))
       }.compact, tag.br)
     end
   end

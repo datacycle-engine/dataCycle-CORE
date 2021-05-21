@@ -14,7 +14,7 @@
       content: content do %>
 
     <span class="detail-label">
-      <%= render 'data_cycle_core/shared/icon', icon_type: definition.dig('label')&.underscore_blanks, icon_class: 'property' %><strong><%= definition['label'].titleize %> <%= content_tag(:span, (local_assigns.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %></strong>
+      <%= render 'data_cycle_core/shared/icon', icon_type: definition.dig('label')&.underscore_blanks, icon_class: 'property' %><strong><%= definition['label'] %> <%= content_tag(:span, (local_assigns.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %></strong>
       <i><%=object.try(:schedule_object)&.terminating? ? "#{t('schedule.single_occurrence', locale: DataCycleCore.ui_language)}" : "#{t('schedule.ongoing', locale: DataCycleCore.ui_language)}" %></i>
     </span>
 

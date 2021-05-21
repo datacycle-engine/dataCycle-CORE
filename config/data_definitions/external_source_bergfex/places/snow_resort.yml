@@ -215,19 +215,8 @@
             :name: additionalProperty
         :advanced_search: true
       :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: opening_time
-        :validations:
-          valid_dates: true
-          closed_range: true
-      :opening_hours_description:
-        :label: Öffnungszeit - Beschreibung
-        :type: embedded
-        :template_name: Öffnungszeit - Beschreibung
-        :translated: true
-        :ui:
-          :edit:
-            :disabled: true
+        :type: mixin
+        :name: opening_hours_specification
       :addons:
         :label: Addons
         :type: embedded

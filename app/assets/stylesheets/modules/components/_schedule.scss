@@ -307,14 +307,22 @@
     padding-top: 1rem;
     margin: 0 !important;
 
-    .opening-time-validity-period {
-      border-bottom: 1px solid $dark-gray;
-    }
-
     .opening-time-opening-hours {
+      color: $dark-gray;
       display: block;
-      padding: 0.5rem 0 0 1rem;
+      padding: 0.5rem 0 0 0;
       font-size: 0.9rem;
+
+      b {
+        color: $black;
+      }
+
+      .opening-time-day {
+        width: 100px;
+        display: inline-block;
+        text-align: right;
+        margin-right: 0.3rem;
+      }
     }
   }
 }

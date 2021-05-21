@@ -302,10 +302,20 @@ module DataCycleCore
           return [] if data.blank?
           description_ids = [] # ids for descriptions are not uniq in Feratel DSI
 
-          Array.wrap(data).compact.filter{ |d| d['Type'] == 'InfrastructureOpeningTimes' }.map { |desc|
-            next if description_ids.include?(desc.dig('Id'))
-            description_ids.push(desc.dig('Id'))
-            to_opening_hours_description(external_source_id).call(desc)
+          Array.wrap(data).compact.filter { |d| d['Type'] == 'InfrastructureOpeningTimes' }.map { |desc|
+            next if description_ids.include?(desc['Id'])
+            description_ids.push(desc['Id'])
+
+            old_type = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: desc['Id'])
+
+            if !old_type.nil? && old_type.embedded? && old_type.template_name != 'Öffnungszeit - Beschreibung'
+              old_type.destroy_children(destroy_locale: false)
+              old_type.destroy
+            elsif !old_type.nil? && old_type.template_name == 'Öffnungszeit - Beschreibung'
+              desc['id'] = old_type.id
+            end
+
+            to_opening_hours_description.call(desc)
           }.compact
         end
 
@@ -326,9 +336,8 @@ module DataCycleCore
           end
         end
 
-        def self.to_opening_hours_description(external_source_id)
+        def self.to_opening_hours_description
           t(:rename_keys, { 'text' => 'description' })
-          .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: s.dig('Id'))&.id })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate').in_time_zone })
           .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(s.dig('ShowFrom').is_a?(::Time) && s.dig('ShowTo').is_a?(::Time) ? make_term(s.dig('ShowFrom'), s.dig('ShowTo')) : make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('Id') })
