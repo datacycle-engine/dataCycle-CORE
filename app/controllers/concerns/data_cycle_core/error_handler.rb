@@ -21,15 +21,15 @@ module DataCycleCore
     private
 
     def forbidden(exception)
-      redirect_back_with_error exception, :forbidden
+      redirect_to_root_with_error exception, :forbidden
     end
 
     def unauthorized(exception)
-      redirect_back_with_error exception, :unauthorized
+      redirect_to_root_with_error exception, :unauthorized
     end
 
     def unprocessable_entity(exception)
-      redirect_back_with_error exception, :unprocessable_entity
+      redirect_to_root_with_error exception, :unprocessable_entity
     end
 
     def bad_request_api_error(exception)
@@ -92,7 +92,7 @@ module DataCycleCore
       end
     end
 
-    def redirect_back_with_error(exception, status_code)
+    def redirect_to_root_with_error(exception, status_code)
       exception_message = exception&.message&.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       respond_to do |format|
         format.html { redirect_to authorized_root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language), allow_other_host: false }
