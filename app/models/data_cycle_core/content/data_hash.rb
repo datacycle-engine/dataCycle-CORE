@@ -44,6 +44,9 @@ module DataCycleCore
 
         # trigger cache_invalidation for related contents
         add_related_cache_invalidation_job if options.invalidate_related_cache && has_cached_related_contents?
+
+        # trigger update of dependent computed properties
+        add_update_dependent_computed_properties_job
       end
 
       def before_destroy_data_hash(_options)
@@ -156,6 +159,17 @@ module DataCycleCore
 
       def add_related_cache_invalidation_job
         Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_related_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_related_cache", delayed_reference_id: id, locked_at: nil)
+      end
+
+      def add_update_dependent_computed_properties_job
+        job = DataCycleCore::Jobs::UpdateComputedPropertiesJob.new(self.class.name, id)
+
+        Delayed::Job.enqueue(job) unless Delayed::Job.exists?(
+          queue: job.queue_name,
+          delayed_reference_type: self.class.name,
+          delayed_reference_id: id,
+          locked_at: nil
+        )
       end
 
       def invalidate_self_and_update_search

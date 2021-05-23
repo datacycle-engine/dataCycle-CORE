@@ -2,27 +2,42 @@
 
 module DataCycleCore
   module Jobs
-    UpdateComputedPropertiesJob = Struct.new(:content_id) do
-      def perform
-        # SELECT DISTINCT content_id
-        # FROM content_property_dependencies
-        # WHERE dependent_content_id = '36e86de6-8104-4584-bd72-3ae6fa6dccb5';
+    UpdateComputedPropertiesJob = Struct.new(:content_class, :content_id) do
+      QUEUE_NAME = 'cache_invalidation'
 
-        # items.each do |item|
-        #   item.available_locales.each do |locale|
-        #     I18n.with_locale(locale) do
-        #       item.set_data_hash(data_hash: item.get_data_hash.except(*template.computed_property_names)) }
-        #     end
-        #   end
-        # end
+      PRIORITY = 12
+
+      def perform
+        query = ActiveRecord::Base.send(:sanitize_sql_array, [
+            'SELECT DISTINCT content_id FROM content_property_dependencies WHERE dependent_content_id = ?',
+            content_id
+          ])
+
+        dependent_content_ids = ActiveRecord::Base.connection.execute(query).values
+
+        DataCycleCore::Thing.where(id: dependent_content_ids).each do |item|
+          if (item.computed_property_names & item.translatable_property_names).present?
+            item.available_locales.each do |locale|
+              I18n.with_locale(locale) do
+                item.set_data_hash(data_hash: item.get_data_hash.except(*item.computed_property_names))
+              end
+            end
+          else
+            I18n.with_locale(item.first_available_locale) do
+              item.set_data_hash(data_hash: item.get_data_hash.except(*item.computed_property_names))
+            end
+          end
+        end
       end
 
       def queue_name
-        'cache_invalidation'
+        QUEUE_NAME
       end
 
       def enqueue(job)
-        job.priority = 12
+        job.priority = PRIORITY
+        job.delayed_reference_id = content_id
+        job.delayed_reference_type = content_class
       end
     end
   end
