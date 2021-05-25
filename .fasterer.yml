@@ -10,6 +10,7 @@ exclude_paths:
   - 'app/models/data_cycle_core/generic/xamoom/transformations.rb'
   - 'app/models/data_cycle_core/generic/karriere_at/transformations.rb'
   - 'app/models/data_cycle_core/generic/bergfex/import_snow_resorts.rb'
+  - 'app/models/data_cycle_core/generic/bergfex/import_ski_resorts_new.rb'
   - 'app/models/data_cycle_core/generic/pimcore/import_event_images.rb'
   - 'app/models/data_cycle_core/generic/feratel_webcam/import_day_of_week.rb'
   - 'app/models/data_cycle_core/external_source.rb'

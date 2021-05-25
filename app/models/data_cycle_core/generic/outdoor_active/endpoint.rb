@@ -9,7 +9,16 @@ module DataCycleCore
           @end_point = end_point
           @project = project
           @key = key
-          @max_retry = 5
+          @max_retry = 10
+        end
+
+        def faraday
+          Faraday.new(request: { timeout: 1200 }) do |f|
+            f.request :url_encoded
+            f.request :retry, max: @max_retry, interval: 3, backoff_factor: 2, exceptions: [StandardError]
+
+            f.response :follow_redirects
+          end
         end
 
         def tour_categories(lang: :de)
@@ -22,7 +31,7 @@ module DataCycleCore
               end
             end
 
-            load_data(['category', 'tree', 'tour'], lang, 0)['category'].each do |category_data|
+            load_data(['category', 'tree', 'tour'], lang)['category'].each do |category_data|
               process_category.call(category_data)
             end
           end
@@ -38,7 +47,7 @@ module DataCycleCore
               end
             end
 
-            load_data(['category', 'tree', 'poi'], lang, 0)['category'].each do |category_data|
+            load_data(['category', 'tree', 'poi'], lang)['category'].each do |category_data|
               process_category.call(category_data)
             end
           end
@@ -54,7 +63,7 @@ module DataCycleCore
               end
             end
 
-            load_data(['category', 'tree'], lang, 0)['category'].each do |category_data|
+            load_data(['category', 'tree'], lang)['category'].each do |category_data|
               process_category.call(category_data)
             end
           end
@@ -70,7 +79,7 @@ module DataCycleCore
               end
             end
 
-            load_data(['region', 'tree'], lang, 0)['region'].each do |region_data|
+            load_data(['region', 'tree'], lang)['region'].each do |region_data|
               process_region.call(region_data)
             end
           end
@@ -78,10 +87,10 @@ module DataCycleCore
 
         def places(lang: :de)
           Enumerator.new do |yielder|
-            pois = load_data(['pois'], lang, 0)
+            pois = load_data(['pois'], lang)
             raise "DataCycle::Generic::OutdoorActive (not data received from Endpoint) -> error loading data from #{File.join([@host, @end_point, @project, 'pois'])} / lang:#{lang}" if pois['data'].blank?
             pois['data'].each do |poi_id_container|
-              raw_data_item = load_data(['oois', poi_id_container['id']], lang, 0)
+              raw_data_item = load_data(['oois', poi_id_container['id']], lang)
               next if raw_data_item.blank?
               raw_data = raw_data_item['poi'][0]
               sleep(0.1)
@@ -92,10 +101,10 @@ module DataCycleCore
 
         def tours(lang: :de)
           Enumerator.new do |yielder|
-            tours = load_data(['tours'], lang, 0)
+            tours = load_data(['tours'], lang)
             raise "DataCycle::Generic::OutdoorActive (not data received from Endpoint) -> error loading data from #{File.join([@host, @end_point, @project, 'tours'])} / lang:#{lang}" if tours['data'].blank?
             tours['data'].each do |tour_id_container|
-              raw_data_item = load_data(['oois', tour_id_container['id']], lang, 0)
+              raw_data_item = load_data(['oois', tour_id_container['id']], lang)
               next if raw_data_item.blank?
               raw_data = raw_data_item['tour'][0]
               sleep(0.1)
@@ -106,8 +115,8 @@ module DataCycleCore
 
         protected
 
-        def load_data(url_path, lang = :de, retry_count = 0)
-          response = Faraday.new.get do |req|
+        def load_data(url_path, lang = :de)
+          response = faraday.get do |req|
             req.url File.join([@host, @end_point, @project] + url_path)
 
             req.headers['Accept'] = 'application/json'
@@ -118,11 +127,8 @@ module DataCycleCore
           end
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("DataCycle::Generic::OutdoorActive -> error loading data from #{File.join([@host, @end_point, @project] + url_path)} / lang:#{lang}", response) unless response.success?
+
           JSON.parse(response.body)
-        rescue StandardError
-          raise if retry_count > @max_retry
-          sleep(0.1)
-          load_data(url_path, lang, retry_count + 1)
         end
       end
     end
