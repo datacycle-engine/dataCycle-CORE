@@ -15,7 +15,7 @@ module DataCycleCore
     end
 
     def delayed_reference_type
-      DataCycleCore::Thing.class.name
+      DataCycleCore::Thing.name
     end
 
     def perform(content_id)
