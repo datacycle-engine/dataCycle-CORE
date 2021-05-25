@@ -69,7 +69,7 @@ module DataCycleCore
         end
 
         def check_closed_range(schedule_hash)
-          (@error[:error][@template_key] ||= []) << I18n.t(:until_missing, scope: [:validation, :errors, :schedule], data: I18n.l(schedule_hash.dig('start_time', 'time')&.in_time_zone, locale: DataCycleCore.ui_language, format: :edit), locale: DataCycleCore.ui_language) if schedule_hash.dig('rrules', 0, 'until').blank?
+          (@error[:error][@template_key] ||= []) << I18n.t(:until_missing, scope: [:validation, :errors, :schedule], data: I18n.localize(schedule_hash.dig('start_time', 'time')&.in_time_zone, locale: DataCycleCore.ui_language, format: :edit), locale: DataCycleCore.ui_language) if schedule_hash.dig('rrules', 0, 'until').blank?
         end
 
         def closed_range(data, value)

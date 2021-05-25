@@ -1408,6 +1408,13 @@ CREATE INDEX by_external_connection_and_type ON public.external_system_syncs USI
 
 
 --
+-- Name: by_external_source_id_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX by_external_source_id_external_key ON public.schedules USING btree (external_source_id, external_key);
+
+
+--
 -- Name: by_external_system_id_syncable_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2518,7 +2525,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210421180706'),
 ('20210422111740'),
 ('20210510120343'),
-('20210518074537');
-('20210518133349');
+('20210518074537'),
+('20210518133349'),
+('20210520123323');
 
 

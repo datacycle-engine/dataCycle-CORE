@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-def serialize_opening_hours_description(description, filter, fields, include = [], options)
+def serialize_opening_hours_description(description, filter, fields, options, include = [])
   I18n.with_locale(description.first_available_locale) do
     schedule_hash = description&.validity_schedule&.first&.schedule_object&.to_hash || {}
 
@@ -33,9 +33,9 @@ if data.present?
 
   json[key_name] = data.map do |description|
     if options[:field_filter] && new_fields.present?
-      serialize_opening_hours_description(description, options[:field_filter], new_fields, new_include, options)
+      serialize_opening_hours_description(description, options[:field_filter], new_fields, options, new_include)
     else
-      serialize_opening_hours_description(description, false, new_fields, new_include, options)
+      serialize_opening_hours_description(description, false, new_fields, options, new_include)
     end
   end
 end

@@ -87,7 +87,8 @@ module DataCycleCore
 
     def to_opening_hours_specification_schema_org_api_v3
       to_opening_hours_specification_schema_org&.merge({
-        'contentType' => 'Öffnungszeit'
+        'contentType' => 'Öffnungszeit',
+        '@context' => 'http://schema.org'
       })
     end
 

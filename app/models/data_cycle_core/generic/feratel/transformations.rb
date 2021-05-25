@@ -625,7 +625,7 @@ module DataCycleCore
           .>> t(:map_value, 'latitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
           .>> t(:map_value, 'longitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
           .>> t(:location)
-          .>> t(:add_field, 'opening_hours_specification', ->(s) { parse_opening_times(s.dig('OpeningHours', 'OpeningHour'), external_source_id, s['external_key']) })
+          .>> t(:add_field, 'opening_hours_specification', ->(s) { parse_opening_times(s.dig('OpeningHours', 'OpeningHour'), external_source_id, s['external_key'], day_transformation) })
           .>> t(:add_field, 'opening_hours_description', ->(s) { parse_opening_hours_descriptions(s.dig('Descriptions', 'Description'), external_source_id) })
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['Infrastructure']))
@@ -644,6 +644,16 @@ module DataCycleCore
           .>> t(:load_category, 'feratel_types', external_source_id, ->(v) { 'Feratel - Infrastrukturtyp - ' + v&.dig('Topics', 'Type').to_s })
           .>> t(:reject_keys, ['Links', 'OpeningHours', 'Towns', 'CustomAttributes', 'FoodAndBeverage', 'ConnectedEntries', 'HolidayThemes', 'DataOwner', 'Active', 'Address', 'Topics', 'ChangeDate', 'Systems', '_Type'])
           .>> t(:strip_all)
+        end
+
+        def self.day_transformation(days)
+          day_keys = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].freeze
+
+          day_keys.map { |d|
+            next unless days[d] == 'true'
+
+            day_keys.index(d)
+          }.compact
         end
 
         def self.parse_guest_card_descriptions(data, parent_id, external_source_id)
@@ -844,7 +854,11 @@ module DataCycleCore
               rrules: [{
                 rule_type: 'IceCube::WeeklyRule',
                 validations: {
-                  day: day_keys.map { |d| next unless item[d] == 'true'; day_keys.index(d) }.compact
+                  day: day_keys.map { |d|
+                    next unless item[d] == 'true'
+
+                    day_keys.index(d)
+                  }.compact
                 },
                 until: until_time
               }]
