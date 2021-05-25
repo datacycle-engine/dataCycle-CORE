@@ -162,14 +162,7 @@ module DataCycleCore
       end
 
       def add_update_dependent_computed_properties_job
-        job = DataCycleCore::Jobs::UpdateComputedPropertiesJob.new(self.class.name, id)
-
-        Delayed::Job.enqueue(job) unless Delayed::Job.exists?(
-          queue: job.queue_name,
-          delayed_reference_type: self.class.name,
-          delayed_reference_id: id,
-          locked_at: nil
-        )
+        DataCycleCore::UpdateComputedPropertiesJob.perform_later(id)
       end
 
       def invalidate_self_and_update_search
