@@ -20,7 +20,7 @@
 
     <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
 
-    <% date_format = object.try(:schedule_object)&.terminating? ? 'date.formats.long' : 'date.formats.short'%>
+    <% date_format = object.try(:schedule_object)&.terminating? ? 'date.formats.long' : 'date.formats.short' %>
 
     <span class="detail-content events-calender-view">
       <span><%= l(object.try(:schedule_object)&.start_time&.try(:to_date), format: t(date_format, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></span>

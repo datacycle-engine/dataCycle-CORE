@@ -841,7 +841,7 @@ module DataCycleCore
                 validations: {
                   day: day_keys.map { |d| next unless item[d] == 'true'; day_keys.index(d) }.compact
                 },
-                until: item['DateTo']&.in_time_zone&.end_of_day
+                until: item['DateTo']&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
               }]
             }.deep_reject { |_, v| v.blank? }.with_indifferent_access
           end

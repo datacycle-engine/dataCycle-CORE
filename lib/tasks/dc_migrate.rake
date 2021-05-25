@@ -73,7 +73,7 @@ namespace :dc do
       contents.find_each do |content|
         next progressbar.increment unless content.embedded?
 
-        thing_relation = content.content_content_b.find_by(relation_a: 'opening_hours_specification')
+        thing_relation = content.content_content_b.find_by(relation_a: ['opening_hours_specification', 'dining_hours_specification'])
 
         next progressbar.increment if thing_relation.nil?
 
@@ -97,28 +97,32 @@ namespace :dc do
               validations: {
                 day: content.day_of_week&.pluck(:uri)&.map { |d| DataCycleCore::Schedule::DAY_OF_WEEK_MAPPING.key(d) }
               },
-              until: content.validity.valid_through&.in_time_zone&.end_of_day
+              until: content.validity.valid_through&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
             }]
           }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access)
 
           schedule.save!
         end
 
-        description_content = nil
-
         content.available_locales.each do |locale|
           I18n.with_locale(locale) do
             next if content.description.blank?
 
-            if description_content.nil?
-              description_content = DataCycleCore::Thing.new
-              description_content.schema = description_template.schema
-              description_content.template_name = description_template.template_name
-              description_content.save!
-            end
+            description_content = DataCycleCore::Thing.new
+            description_content.schema = description_template.schema
+            description_content.template_name = description_template.template_name
+            description_content.save!
 
             from_date = content.validity&.valid_from&.in_time_zone&.beginning_of_day || Time.zone.now.beginning_of_day
             duration = 1.day.to_i
+
+            if content.validity&.valid_through.present?
+              duration = content.validity.valid_through.in_time_zone.end_of_day - from_date
+            else
+              rrules = [{
+                rule_type: 'IceCube::DailyRule'
+              }]
+            end
 
             description_content.set_data_hash(data_hash: {
               description: content.description,
@@ -128,22 +132,19 @@ namespace :dc do
                   zone: from_date.time_zone.name
                 },
                 duration: duration,
-                rrules: [{
-                  rule_type: 'IceCube::DailyRule',
-                  until: content.validity&.valid_through&.in_time_zone&.end_of_day
-                }.compact]
+                rrules: rrules
               }.with_indifferent_access]
             }, prevent_history: true, new_content: true)
-          end
-        end
 
-        unless description_content.nil?
-          DataCycleCore::ContentContent.create!({
-            content_a_id: thing_relation.content_a_id,
-            relation_a: 'opening_hours_description',
-            order_a: thing_relation.order_a,
-            content_b_id: description_content.id
-          })
+            relation_a = thing_relation.relation_a == 'opening_hours_specification' ? 'opening_hours_description' : 'dining_hours_description'
+
+            DataCycleCore::ContentContent.create!({
+              content_a_id: thing_relation.content_a_id,
+              relation_a: relation_a,
+              order_a: thing_relation.order_a,
+              content_b_id: description_content.id
+            })
+          end
         end
 
         content.destroy_children
