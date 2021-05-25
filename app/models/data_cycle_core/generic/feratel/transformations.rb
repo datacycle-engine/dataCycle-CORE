@@ -826,6 +826,10 @@ module DataCycleCore
             external_schedule_key = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
             start_time = "#{item['DateFrom']} #{item['TimeFrom']}".in_time_zone
             duration = DataCycleCore::Schedule.time_to_duration(item['TimeFrom'], item['TimeTo'])
+            until_time = item['DateTo']&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
+            holidays = Holidays
+              .between(start_time, until_time, Array.wrap(DataCycleCore.holidays_country_code))
+              .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
 
             {
               id: DataCycleCore::Schedule.find_by(external_source_id: external_source_id, external_key: external_schedule_key)&.id,
@@ -836,12 +840,13 @@ module DataCycleCore
                 zone: start_time.time_zone.name
               },
               duration: duration,
+              extimes: holidays,
               rrules: [{
                 rule_type: 'IceCube::WeeklyRule',
                 validations: {
                   day: day_keys.map { |d| next unless item[d] == 'true'; day_keys.index(d) }.compact
                 },
-                until: item['DateTo']&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
+                until: until_time
               }]
             }.deep_reject { |_, v| v.blank? }.with_indifferent_access
           end

@@ -85,6 +85,10 @@ namespace :dc do
 
           start_time = "#{content.validity&.valid_from} #{time_content.opens}".in_time_zone
           duration = DataCycleCore::Schedule.time_to_duration(time_content.opens, time_content.closes)
+          until_time = content.validity.valid_through&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
+          holidays = Holidays
+            .between(start_time, until_time, Array.wrap(DataCycleCore.holidays_country_code))
+            .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
 
           schedule.from_hash({
             start_time: {
@@ -92,12 +96,13 @@ namespace :dc do
               zone: start_time.time_zone.name
             },
             duration: duration,
+            extimes: holidays,
             rrules: [{
               rule_type: 'IceCube::WeeklyRule',
               validations: {
                 day: content.day_of_week&.pluck(:uri)&.map { |d| DataCycleCore::Schedule::DAY_OF_WEEK_MAPPING.key(d) }
               },
-              until: content.validity.valid_through&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
+              until: until_time
             }]
           }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access)
 
