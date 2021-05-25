@@ -169,6 +169,25 @@ module DataCycleCore
       end
 
       def invalidate_related_cache
+        # WITH RECURSIVE content_dependencies AS (
+        # 	SELECT
+        # 		ARRAY[content_contents.content_a_id, content_contents.content_b_id] "content_ids",
+        # 		ARRAY[content_contents.relation_a] "content_property_names"
+        # 	FROM content_contents
+        # 	UNION ALL
+        # 	SELECT
+        # 		content_dependencies.content_ids || content_contents.content_b_id "content_ids",
+        # 		content_dependencies.content_property_names || content_contents.relation_a "content_property_names"
+        # 	FROM content_contents
+        # 	JOIN content_dependencies ON
+        # 		content_dependencies.content_ids[ARRAY_LENGTH(content_dependencies.content_ids, 1)] = content_contents.content_a_id AND
+        # 		content_contents.content_b_id <> ALL(content_dependencies.content_ids)
+        # ) SELECT first_things.id, first_things.template_name, content_ids, content_property_names, last_things.id, last_things.template_name
+        # FROM content_dependencies
+        # JOIN things "first_things" ON first_things.id = content_ids[1]
+        # JOIN things "last_things" ON last_things.id = content_ids[ARRAY_LENGTH(content_ids, 1)]
+        # WHERE '#{self.id}'::uuid = ANY(content_ids);
+
         cached_related_contents.ids.each do |item_id|
           Rails.cache.delete_matched("*#{item_id}*")
         end

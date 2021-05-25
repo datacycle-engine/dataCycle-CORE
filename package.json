@@ -34,7 +34,7 @@
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-gzip": "^2.5.0",
-    "sass": "^1.32.8",
+    "sass": "1.32.13",
     "select2": "^4.0.3",
     "sortablejs": "^1.7.0",
     "vite": "^2.3.0",

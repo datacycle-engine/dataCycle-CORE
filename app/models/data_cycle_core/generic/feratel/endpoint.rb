@@ -23,6 +23,15 @@ module DataCycleCore
           @endpoint_url = options[:endpoint_url] || 'http://interface.deskline.net'
         end
 
+        def faraday
+          Faraday.new(request: { timeout: 1200 }) do |f|
+            f.request :url_encoded
+            f.request :retry, max: 7, interval: 60, backoff_factor: 2, exceptions: [StandardError]
+
+            f.response :follow_redirects
+          end
+        end
+
         # basic download of data
         def additional_service_types(lang: :de)
           enumerate_items(:additional_service_types, '//AdditionalServiceTypes/AdditionalServiceType', lang: lang)
@@ -206,9 +215,8 @@ module DataCycleCore
           # puts
           # puts
 
-          response = Faraday.new.post do |req|
+          response = faraday.post(url) do |req|
             req.url url
-            req.options.timeout = 1200
             req.body = { 'xmlString' => request_parameters }
           end
 
@@ -361,9 +369,8 @@ module DataCycleCore
           # puts
           # puts
 
-          response = Faraday.new.post do |req|
+          response = faraday.post do |req|
             req.url url
-            req.options.timeout = 1200
             req.body = { 'xmlString' => request_parameters }
           end
 
@@ -396,9 +403,8 @@ module DataCycleCore
           # puts
           # puts
 
-          response = Faraday.new.post do |req|
+          response = faraday.post(url) do |req|
             req.url url
-            req.options.timeout = 1200
             req.body = { 'xmlString' => request_parameters }
           end
 
@@ -436,9 +442,8 @@ module DataCycleCore
           # puts
           # puts
 
-          response = Faraday.new.post do |req|
+          response = faraday.post(url) do |req|
             req.url url
-            req.options.timeout = 1200
             req.body = { 'xmlString' => request_parameters }
           end
 
@@ -471,9 +476,8 @@ module DataCycleCore
           # puts
           # puts
 
-          response = Faraday.new.post do |req|
+          response = faraday.post(url) do |req|
             req.url url
-            req.options.timeout = 1200
             req.body = { 'xmlString' => request_parameters }
           end
 
