@@ -4,7 +4,7 @@ module DataCycleCore
   module MasterData
     module Differs
       class Linked < UuidSet
-        def diff(a, b, _template)
+        def diff(a, b, _template, _partial_update)
           ids_a = parse_uuids(a)
           ids_b = parse_uuids(b)
           @diff_hash = (

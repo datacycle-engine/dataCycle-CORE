@@ -25,14 +25,14 @@ module DataCycleCore
           }
         end
 
-        def diff(a, b, template)
+        def diff(a, b, template, partial_update)
           @diff_hash = {}
           cleaned_a = a&.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }
           cleaned_b = b&.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }
           template.each do |key, key_item|
             next if key_item&.dig('type')&.in?(['key', 'virtual'])
             item_template = key_item['type'] == 'object' ? key_item&.dig('properties') : key_item
-            diff_key = basic_types[key_item['type']].new(cleaned_a&.dig(key), cleaned_b&.dig(key), item_template).diff_hash
+            diff_key = basic_types[key_item['type']].new(cleaned_a&.dig(key), cleaned_b&.dig(key), item_template, '', partial_update).diff_hash
             @diff_hash[key] = diff_key if diff_key.present?
           end
           diff_hash

@@ -65,7 +65,7 @@ module DataCycleCore
         valid_hash = validate(options.data_hash.dup, partial_schema || schema)
 
         if validate?(valid_hash)
-          if diff?(options.data_hash.dup, partial_schema) || options.force_update
+          if diff?(options.data_hash.dup, partial_schema, options.partial_update) || options.force_update
             ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
               to_history(save_time: options.save_time) unless id.nil? || options.prevent_history
 

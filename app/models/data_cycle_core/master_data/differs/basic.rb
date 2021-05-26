@@ -6,13 +6,13 @@ module DataCycleCore
       class Basic
         attr_reader :diff_hash
 
-        def initialize(a, b, template = nil, parent_key = '')
+        def initialize(a, b, template = nil, parent_key = '', partial_update = false)
           @diff_hash = nil
           @parent_key = parent_key
-          diff(a, b, template)
+          diff(a, b, template, partial_update)
         end
 
-        def diff(a, b, _template)
+        def diff(a, b, _template, _partial_update)
           @diff_hash = basic_diff(a, b)
         end
 

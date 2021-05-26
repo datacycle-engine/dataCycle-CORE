@@ -12,7 +12,7 @@ module DataCycleCore
         @errors = { error: [], info: [] }
       end
 
-      def diff(a:, schema_a:, b:, schema_b: nil)
+      def diff(a:, schema_a:, b:, schema_b: nil, partial_update: false)
         schema_b = schema_a if schema_b.blank?
         if schema_a.blank? || schema_a&.dig('name').blank? || schema_b&.dig('name').blank? || schema_a&.dig('name') != schema_b&.dig('name')
           errors[:error] << "The data compared are not of the same type. #{schema_a&.dig('name')} =/= #{schema_b&.dig('name')}"
@@ -26,13 +26,13 @@ module DataCycleCore
         end
         cleaned_a = a.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }
         cleaned_b = b.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }
-        diff_object = Differs::Object.new(cleaned_a, cleaned_b, schema_a&.dig('properties'))
+        diff_object = Differs::Object.new(cleaned_a, cleaned_b, schema_a&.dig('properties'), '', partial_update)
         @diff_hash = diff_object.diff_hash
         self
       end
 
-      def diff?(a:, schema_a:, b:, schema_b: nil)
-        diff(a: a, b: b, schema_a: schema_a, schema_b: schema_b)
+      def diff?(a:, schema_a:, b:, schema_b: nil, partial_update: false)
+        diff(a: a, b: b, schema_a: schema_a, schema_b: schema_b, partial_update: partial_update)
         !(diff_hash.blank? && errors[:error].blank?)
       end
     end
