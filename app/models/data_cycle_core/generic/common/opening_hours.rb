@@ -77,7 +77,7 @@ module DataCycleCore
             start_time = "#{item['DateFrom']} #{item['TimeFrom']}".in_time_zone
             duration = DataCycleCore::Schedule.time_to_duration(item['TimeFrom'], item['TimeTo'])
             until_time = item['DateTo']&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
-            days = day_transformation.present? ? day_transformation&.call(item['WeekDays']) : item['WeekDays']
+            days = day_transformation.present? ? day_transformation&.call(item) : item['WeekDays']
             days = (0...7).to_a if days.blank?
 
             if (item['Holiday'] == true && (0...7).to_a.difference(days).present?) || item['Holiday'] == false
@@ -105,7 +105,7 @@ module DataCycleCore
                 },
                 until: until_time
               }]
-            }.deep_reject { |_, v| v.blank? }.with_indifferent_access
+            }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access
           }.compact
         end
 

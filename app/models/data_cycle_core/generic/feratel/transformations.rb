@@ -625,7 +625,7 @@ module DataCycleCore
           .>> t(:map_value, 'latitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
           .>> t(:map_value, 'longitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
           .>> t(:location)
-          .>> t(:add_field, 'opening_hours_specification', ->(s) { parse_opening_times(s.dig('OpeningHours', 'OpeningHour'), external_source_id, s['external_key'], day_transformation) })
+          .>> t(:add_field, 'opening_hours_specification', ->(s) { DataCycleCore::Generic::Common::OpeningHours.parse_opening_times(s.dig('OpeningHours', 'OpeningHour'), external_source_id, s['external_key'], ->(d) { day_transformation(d) }) })
           .>> t(:add_field, 'opening_hours_description', ->(s) { parse_opening_hours_descriptions(s.dig('Descriptions', 'Description'), external_source_id) })
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['Infrastructure']))
@@ -823,49 +823,6 @@ module DataCycleCore
             &.map(&:to_f)
             &.reject { |item| item == 0.0 }
             &.min
-        end
-
-        def self.parse_opening_times(data, external_source_id, external_key)
-          return nil if data.blank?
-
-          day_keys = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].freeze
-
-          value = Array.wrap(data).map do |item|
-            next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
-
-            external_schedule_key = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
-            start_time = "#{item['DateFrom']} #{item['TimeFrom']}".in_time_zone
-            duration = DataCycleCore::Schedule.time_to_duration(item['TimeFrom'], item['TimeTo'])
-            until_time = item['DateTo']&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
-            holidays = Holidays
-              .between(start_time, until_time, Array.wrap(DataCycleCore.holidays_country_code))
-              .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
-
-            {
-              id: DataCycleCore::Schedule.find_by(external_source_id: external_source_id, external_key: external_schedule_key)&.id,
-              external_source_id: external_source_id,
-              external_key: external_schedule_key,
-              start_time: {
-                time: start_time.to_s,
-                zone: start_time.time_zone.name
-              },
-              duration: duration,
-              extimes: holidays,
-              rrules: [{
-                rule_type: 'IceCube::WeeklyRule',
-                validations: {
-                  day: day_keys.map { |d|
-                    next unless item[d] == 'true'
-
-                    day_keys.index(d)
-                  }.compact
-                },
-                until: until_time
-              }]
-            }.deep_reject { |_, v| v.blank? }.with_indifferent_access
-          end
-
-          value
         end
 
         def self.load_day_of_week_id(day)
