@@ -18,8 +18,9 @@ module DataCycleCore
 
     def opening_time_opening_hours(opening_times)
       safe_join([*(1..6), 0, 99].map { |v|
-        safe_join(
+        (safe_join(
           opening_times.filter { |o| o.dig(:rrules, 0, :validations, :day)&.include?(v) || (v == 99 && o[:holidays]) }
+            .sort_by { |o| o.dig(:start_time, :time) }
             .map do |o|
             safe_join([
               o.dig(:start_time, :time).present? ? tag.b(l(o.dig(:start_time, :time)&.in_time_zone, format: :time_only, locale: DataCycleCore.ui_language)) : nil,
@@ -27,7 +28,7 @@ module DataCycleCore
             ].compact, ' - ').presence
           end,
           " #{t('common.and', locale: DataCycleCore.ui_language)} "
-        ).presence
+        ).presence || tag.span(t('opening_time.closed', locale: DataCycleCore.ui_language)))
           &.prepend(tag.span("#{v == 99 ? t('opening_time.holiday', locale: DataCycleCore.ui_language) : t('date.day_names', locale: DataCycleCore.ui_language)[v]}: ", class: 'opening-time-day'))
       }.compact, tag.br)
     end

@@ -121,6 +121,7 @@ de:
     time: Zeit
     opens: geöffnet von
     closes: bis
+    closed: geschlossen
 
   common:
     'true': Ja
