@@ -24,7 +24,7 @@ module DataCycleCore
       item_hash[:relation] = relation
       item_hash[:dtstart] = dtstart if dtstart.present?
       item_hash[:dtend] = dtend if dtstart.present?
-      item_hash[:holidays] = holidays if holidays
+      item_hash[:holidays] = holidays
       item_hash
     end
 
@@ -370,17 +370,20 @@ module DataCycleCore
         return if value.blank? || value.values.blank?
 
         value.values.map { |s|
-          next unless s&.dig('time').present? && s['time'].values.present? && s['valid_from'].present? && (s.dig('rrules', 0, 'validations', 'day').present? || s['holiday'])
+          next unless s&.dig('time').present? && s['time'].values.present? && s['valid_from'].present? && (s.dig('rrules', 0, 'validations', 'day').present? || s['holiday'] == 'true')
 
           s['time'].values.map do |t|
             next if t.blank? || t['opens'].blank? || t['closes'].blank?
 
             start_time = "#{s['valid_from']} #{t['opens']}".in_time_zone
             duration = time_to_duration(t['opens'], t['closes'])
+            days = Array.wrap(s.dig('rrules', 0, 'validations', 'day')).map(&:to_i)
 
-            holidays = Holidays
-              .between(start_time, s['valid_until']&.in_time_zone&.end_of_day || Time.zone.now.end_of_year, Array.wrap(DataCycleCore.holidays_country_code))
-              .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+            if s['valid_until'].present? && ((s['holiday'] == 'true' && (0...7).to_a.difference(days).present?) || s['holiday'] == 'false')
+              holidays = Holidays
+                .between(start_time, s['valid_until'].in_time_zone.end_of_day, Array.wrap(DataCycleCore.holidays_country_code))
+                .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+            end
 
             {
               id: t['id'],
@@ -388,14 +391,14 @@ module DataCycleCore
                 time: start_time.to_s,
                 zone: start_time.time_zone.name
               },
-              holidays: s['holiday'],
+              holidays: s['holiday'] == 'ignore' ? nil : s['holiday'] == 'true',
               duration: duration,
-              rtimes: s['holiday'] ? holidays : [],
-              extimes: s['holiday'] ? [] : holidays,
+              rtimes: s['holiday'] == 'true' ? holidays : nil,
+              extimes: s['holiday'] == 'false' ? holidays : nil,
               rrules: [{
                 rule_type: 'IceCube::WeeklyRule',
                 validations: {
-                  day: s.dig('rrules', 0, 'validations', 'day')&.map(&:to_i)
+                  day: days
                 },
                 until: s['valid_until']&.in_time_zone&.end_of_day
               }]

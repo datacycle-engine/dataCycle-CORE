@@ -84,9 +84,11 @@
         <% end %>
 
         <span class="weekday-checkbox holiday">
-          <%= hidden_field_tag "#{new_key}[holiday]", value&.dig(:holidays) if readonly %>
-          <%= check_box_tag "#{new_key}[holiday]", '1', value&.dig(:holidays), id: sanitize_to_id("#{new_key}[holiday]"), disabled: readonly %>
-          <%= label_tag sanitize_to_id("#{new_key}[holiday]"), t('opening_time.holiday', locale: DataCycleCore.ui_language) %>
+          <%= hidden_field_tag "#{new_key}[holiday]", value&.dig(:holidays) || 'ignore' if readonly %>
+          <%= radio_button_tag "#{new_key}[holiday]", 'true', value&.dig(:holidays) == true, id: sanitize_to_id("#{new_key}[holiday][true]"), class: 'dc-multi-value-button true_option', disabled: readonly %>
+          <%= radio_button_tag "#{new_key}[holiday]", 'false', value&.dig(:holidays) == false, id: sanitize_to_id("#{new_key}[holiday][false]"), class: 'dc-multi-value-button false_option', disabled: readonly %>
+          <%= radio_button_tag "#{new_key}[holiday]", 'ignore', value&.dig(:holidays).nil?, id: sanitize_to_id("#{new_key}[holiday][ignore]"), class: 'dc-multi-value-button ignore_option', disabled: readonly %>
+          <%= label_tag sanitize_to_id("#{new_key}[holiday]"), t('opening_time.holiday', locale: DataCycleCore.ui_language), class: 'dc-multi-value-label' %>
         </span>
       </div>
     </div>

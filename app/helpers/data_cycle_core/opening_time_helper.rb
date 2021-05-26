@@ -17,7 +17,10 @@ module DataCycleCore
     end
 
     def opening_time_opening_hours(opening_times)
-      safe_join([*(1..6), 0, 99].map { |v|
+      days = [*(1..6), 0]
+      days.push(99) if opening_times.any? { |d| !d.dig(:holidays).nil? }
+
+      safe_join(days.map { |v|
         (safe_join(
           opening_times.filter { |o| o.dig(:rrules, 0, :validations, :day)&.include?(v) || (v == 99 && o[:holidays]) }
             .sort_by { |o| o.dig(:start_time, :time) }

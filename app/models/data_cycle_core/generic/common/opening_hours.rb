@@ -77,9 +77,14 @@ module DataCycleCore
             start_time = "#{item['DateFrom']} #{item['TimeFrom']}".in_time_zone
             duration = DataCycleCore::Schedule.time_to_duration(item['TimeFrom'], item['TimeTo'])
             until_time = item['DateTo']&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
-            holidays = Holidays
-              .between(start_time, until_time, Array.wrap(DataCycleCore.holidays_country_code))
-              .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+            days = day_transformation.present? ? day_transformation&.call(item['WeekDays']) : item['WeekDays']
+            days = (0...7).to_a if days.blank?
+
+            if (item['Holiday'] == true && (0...7).to_a.difference(days).present?) || item['Holiday'] == false
+              holidays = Holidays
+                .between(start_time, until_time, Array.wrap(DataCycleCore.holidays_country_code))
+                .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+            end
 
             {
               id: DataCycleCore::Schedule.find_by(external_source_id: external_source_id, external_key: external_schedule_key)&.id,
@@ -89,14 +94,14 @@ module DataCycleCore
                 time: start_time.to_s,
                 zone: start_time.time_zone.name
               },
-              holidays: item['Holidays'],
+              holidays: item['Holiday'],
               duration: duration,
-              rtimes: item['Holidays'] ? holidays : [],
-              extimes: item['Holidays'] ? [] : holidays,
+              rtimes: item['Holiday'] == true ? holidays : nil,
+              extimes: item['Holiday'] == false ? holidays : nil,
               rrules: [{
                 rule_type: 'IceCube::WeeklyRule',
                 validations: {
-                  day: day_transformation.present? ? day_transformation&.call(item) : item['WeekDays']
+                  day: days
                 },
                 until: until_time
               }]
