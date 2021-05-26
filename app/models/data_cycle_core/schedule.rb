@@ -24,7 +24,7 @@ module DataCycleCore
       item_hash[:relation] = relation
       item_hash[:dtstart] = dtstart if dtstart.present?
       item_hash[:dtend] = dtend if dtstart.present?
-      item_hash[:holidays] = holidays
+      item_hash[:holidays] = holidays unless holidays.nil?
       item_hash
     end
 
@@ -34,6 +34,7 @@ module DataCycleCore
       self.duration = hash[:duration]
       self.dtstart = hash[:dtstart]
       self.dtend = hash[:dtend]
+      self.holidays = hash[:holidays]
       self.relation = hash[:relation] || relation
       serialize_schedule_object
       self
@@ -337,7 +338,7 @@ module DataCycleCore
             zone: start_time.time_zone.name
           }
 
-          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day if s.dig('rrules', 0, 'until').present?
+          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day.to_s(:iso8601) if s.dig('rrules', 0, 'until').present?
           s['rrules'][0]['validations'] ||= {}
           s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present? && s.dig('yearly_end').blank?
           s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
@@ -362,7 +363,7 @@ module DataCycleCore
             s.dig('rrules', 0, 'validations')&.delete('day')
           end
 
-          DataCycleCore::Schedule.new.from_hash(s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| v.blank? }).to_hash.except(:relation, :thing_id).merge(id: s['id']).deep_stringify_keys.compact
+          DataCycleCore::Schedule.new.from_hash(s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| v.blank? }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: s['id']).with_indifferent_access.compact
         }.compact
       end
 
@@ -385,7 +386,7 @@ module DataCycleCore
                 .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
             end
 
-            {
+            DataCycleCore::Schedule.new.from_hash({
               id: t['id'],
               start_time: {
                 time: start_time.to_s,
@@ -400,9 +401,9 @@ module DataCycleCore
                 validations: {
                   day: days
                 },
-                until: s['valid_until']&.in_time_zone&.end_of_day
+                until: s['valid_until']&.in_time_zone&.end_of_day&.to_s(:iso8601)
               }]
-            }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access
+            }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: t['id']).with_indifferent_access.compact
           end
         }.flatten.compact
       end
