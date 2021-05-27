@@ -2,6 +2,10 @@
 
 module DataCycleCore
   module ApiService
+    API_SCHEDULE_ATTRIBUTES = [:validitySchedule, :eventSchedule, :hoursAvailable, :openingHoursSpecification, :'dc:diningHoursSpecification', :schedule].freeze
+    API_DATE_RANGE_ATTRIBUTES = [:'dct:modified', :'dct:created'].freeze
+    API_NUMERIC_ATTRIBUTES = [:width, :height, :numberOfRooms, :numberOfAccommodations, :numberOfMeetingRooms, :maxNumberOfPeople, :totalNumberOfBeds].freeze
+
     def list_api_request(contents = nil)
       contents ||= @contents
       json_context = api_plain_context(@language)
@@ -50,7 +54,7 @@ module DataCycleCore
         else
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
           next if filter_v.blank?
-          filter_method_name = ('apply_' + filter_k.to_s.underscore.parameterize(separator: '_') + '_filters')
+          filter_method_name = "apply_#{filter_k.to_s.underscore_blanks}_filters"
           # TODO: add API error
           next unless respond_to?(filter_method_name)
           query = send(filter_method_name, query, filter_v)
@@ -96,6 +100,10 @@ module DataCycleCore
       query
     end
 
+    def apply_schedule_filters(query, filters)
+      query.in_schedule(filters&.dig(:in), 'absolute')
+    end
+
     def apply_attribute_filters(query, filters)
       filters.each do |attribute_key, operator|
         attribute_path = attribute_path_mapping(attribute_key)
@@ -103,7 +111,12 @@ module DataCycleCore
         operator.each do |k, v|
           query_method = 'not_' + query_method if k == :notIn
           next unless query.respond_to?(query_method)
-          query = query.send(query_method, v, attribute_path)
+
+          if query.method(query_method)&.parameters&.size == 3
+            query = query.send(query_method, v, attribute_path, attribute_key.to_s.underscore_blanks)
+          else
+            query = query.send(query_method, v, attribute_path)
+          end
         end
       end
       query
@@ -165,11 +178,9 @@ module DataCycleCore
     end
 
     def query_method_mapping(key)
-      date_range = [:'dct:modified', :'dct:created']
-      advanced_numeric = [:width, :height, :numberOfRooms, :numberOfAccommodations, :numberOfMeetingRooms, :maxNumberOfPeople]
-      return 'date_range' if date_range.include?(key)
-      return 'equals_advanced_numeric' if advanced_numeric.include?(key)
-      return 'in_schedule' if key == :schedule
+      return 'date_range' if API_DATE_RANGE_ATTRIBUTES.include?(key)
+      return 'equals_advanced_numeric' if API_NUMERIC_ATTRIBUTES.include?(key)
+      return 'in_schedule' if API_SCHEDULE_ATTRIBUTES.include?(key)
       return 'within_box' if key == :box
       return 'geo_radius' if key == :perimeter
       return 'geo_within_classification' if key == :shapes
@@ -187,13 +198,11 @@ module DataCycleCore
     end
 
     def attribute_path_mapping(attribute_key)
-      case attribute_key
-      when :'dct:modified'
+      if attribute_key == :'dct:modified'
         'updated_at'
-      when :'dct:created'
+      elsif attribute_key == :'dct:created'
         'created_at'
-      when :schedule
-        # currently a hack
+      elsif attribute_key.in?(API_SCHEDULE_ATTRIBUTES)
         'absolute'
       else
         attribute_key.to_s.underscore

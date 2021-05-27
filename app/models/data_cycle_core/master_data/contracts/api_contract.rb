@@ -110,18 +110,15 @@ module DataCycleCore
             optional(:notIn).hash(GEO_FILTER)
           end
           optional(:attribute).hash do
-            optional(:'dct:created').hash(ATTRIBUTE_FILTER)
             optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
-            optional(:'dct:modified').hash(ATTRIBUTE_FILTER)
-            optional(:schedule).hash(ATTRIBUTE_FILTER)
-            optional(:width).hash(ATTRIBUTE_FILTER)
-            optional(:height).hash(ATTRIBUTE_FILTER)
-            optional(:numberOfAccommodations).hash(ATTRIBUTE_FILTER)
-            optional(:numberOfRooms).hash(ATTRIBUTE_FILTER)
-            optional(:maxNumberOfPeople).hash(ATTRIBUTE_FILTER)
-            optional(:totalNumberOfBeds).hash(ATTRIBUTE_FILTER)
+            (DataCycleCore::ApiService::API_SCHEDULE_ATTRIBUTES +
+              DataCycleCore::ApiService::API_DATE_RANGE_ATTRIBUTES +
+              DataCycleCore::ApiService::API_NUMERIC_ATTRIBUTES).each do |a|
+              optional(a).hash(ATTRIBUTE_FILTER)
+            end
             optional(:slug).hash(ATTRIBUTE_FILTER)
           end
+          optional(:schedule).hash(ATTRIBUTE_FILTER)
         end
 
         params(BASE, BASE_JSON_API, WATCHLIST, CLASSIFICATIONS, CONTENT) do

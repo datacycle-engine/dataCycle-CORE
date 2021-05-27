@@ -4,10 +4,11 @@ module DataCycleCore
   module Filter
     module Common
       module Date
-        def in_schedule(value = nil, mode = nil)
+        def in_schedule(value = nil, mode = nil, attribute_key = nil)
           return if value.blank?
+          attribute_key = 'event_schedule' if attribute_key == 'schedule' # keep backwards compatibity for APIv4 filter[attribute][schedule]
           from_date, to_date = date_from_filter_object(value, mode)
-          schedule_search(from_date, to_date, 'event_schedule')
+          schedule_search(from_date, to_date, attribute_key)
         end
 
         def schedule_search(from, to, relation = nil)
@@ -24,7 +25,7 @@ module DataCycleCore
                 Arel::SelectManager.new(schedule)
                   .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN schedule_occurrences on schedules.id = schedule_occurrences.schedule_id'])))
                   .where(
-                    (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : Arel::Nodes::True.new)
+                    (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : schedule[:relation].not_in(DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions))
                     .and(overlap(tstzrange(from_node, to_node), Arel::Nodes::SqlLiteral.new('schedule_occurrences.occurrence')))
                     .and(thing[:id].eq(schedule[:thing_id]))
                   )
