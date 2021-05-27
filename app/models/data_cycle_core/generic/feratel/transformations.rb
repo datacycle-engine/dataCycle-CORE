@@ -320,7 +320,8 @@ module DataCycleCore
           .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: s.dig('Id'))&.id })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate').in_time_zone })
           .>> t(:add_field, 'name', ->(s) { I18n.t("import.feratel.#{type}.#{s.dig('Name') || s.dig('Type')}", default: [s.dig('Name') || s.dig('Type')]) })
-          .>> t(:add_field, 'universal_classifications', ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc) } })
+          .>> t(:universal_classifications, ->(s) { parse_system_letters(s.dig('Systems')) })
+          .>> t(:universal_classifications, ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc) } })
           .>> t(:add_links, 'additional_classifications', DataCycleCore::Classification, external_source_id, ->(_s) { additional_classifications || [] })
           .>> t(:merge_array_values, 'universal_classifications', 'additional_classifications')
           .>> t(:merge_array_values, 'universal_classifications', 'feratel_creative_commons')
@@ -446,6 +447,7 @@ module DataCycleCore
         def self.feratel_to_image(external_source_id)
           t(:stringify_keys)
           .>> t(:add_cc, external_source_id)
+          .>> t(:universal_classifications, ->(s) { parse_system_letters(s.dig('Systems')) })
           .>> t(:add_field, 'name', lambda { |s|
             s.dig('Names', 'Translation', 'text') || ">> NO NAME << (\##{s.dig('Id')})"
           })
@@ -544,6 +546,7 @@ module DataCycleCore
           .>> t(:add_links, 'connected_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventInfrastructure' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
           .>> t(:add_links, 'feratel_guest_cards', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}" } || [] })
           .>> t(:universal_classifications, ->(s) { s.dig('feratel_guest_cards') })
+          .>> t(:universal_classifications, ->(s) { parse_system_letters(s.dig('Systems')) })
           .>> t(:add_field, 'feratel_guest_cards_descriptions', ->(s) { parse_guest_card_descriptions(Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?), s&.dig('external_key'), external_source_id) || [] })
           .>> t(:merge_array_values, 'additional_information', 'feratel_guest_cards_descriptions')
           .>> t(:merge_array_values, 'content_location', 'connected_location')
@@ -605,6 +608,7 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Towns', 'Item')]&.flatten&.map { |item| item&.dig('Id') } || [] })
           .>> t(:add_links, 'feratel_guest_cards', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}" } || [] })
           .>> t(:universal_classifications, ->(s) { s.dig('feratel_guest_cards') })
+          .>> t(:universal_classifications, ->(s) { parse_system_letters(s.dig('Systems')) })
           .>> t(:add_field, 'feratel_guest_cards_descriptions', ->(s) { parse_guest_card_descriptions(Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?), s&.dig('external_key'), external_source_id) || [] })
           .>> t(:merge_array_values, 'additional_information', 'feratel_guest_cards_descriptions')
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
@@ -1031,6 +1035,19 @@ module DataCycleCore
           else
             raise "Unknown duration type '#{type}'"
           end
+        end
+
+        def self.systems_hash
+          @systems_hash ||= ['L', 'T', 'I', 'C', 'P'].map { |i|
+            { i => DataCycleCore::ClassificationAlias.for_tree('Feratel - Systeme').find_by(description: i)&.primary_classification&.id }
+          }.inject(&:merge)
+        end
+
+        def self.parse_system_letters(string)
+          return [] if string.blank? || string.strip.blank?
+          systems = []
+          string.strip.delete(' ').each_char { |i| systems.push(systems_hash[i]) if systems_hash[i].present? }
+          systems
         end
       end
     end

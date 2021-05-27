@@ -45,7 +45,35 @@ module DataCycleCore
           end
         end
 
+        # def deleted_assets(*)
+        #   Enumerator.new do |yielder|
+        #     delete.each do |item|
+        #       yielder << item
+        #     end
+        #   end
+        # end
+
         protected
+
+        def delete(days = 365)
+          conn = Faraday::Connection.new(File.join([@host, @end_point])) do |f|
+            f.request :retry, @retry_options
+            f.response :logger
+            f.adapter Faraday.default_adapter
+          end
+
+          response = conn.get do |req|
+            req.headers['cookie'] = @cookie_values.map { |k, v| "#{k}=#{v}" }.join('; ') if @cookie_values.present?
+
+            req.params['fx'] = 'api'
+            req.params['token'] = @token
+            req.params['qt'] = 'xdel'
+            req.params['days'] = days
+          end
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from url: #{File.join([@host, @end_point])}, params: token=#{@token}, qt=#{parameters.dig(:qt)}, keyfolder=#{parameters.dig(:keyfolder)}", response) unless response.success?
+          Nokogiri::XML(response.body)
+        end
 
         def load_folders
           load(qt: 'ftree')
