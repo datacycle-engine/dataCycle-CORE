@@ -546,7 +546,7 @@ module DataCycleCore
           .>> t(:add_links, 'connected_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventInfrastructure' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
           .>> t(:add_links, 'feratel_guest_cards', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}" } || [] })
           .>> t(:universal_classifications, ->(s) { s.dig('feratel_guest_cards') })
-          .>> t(:universal_classifications, ->(s) { parse_system_letters(s.dig('Systems')) })          
+          .>> t(:universal_classifications, ->(s) { parse_system_letters(s.dig('Systems')) })
           .>> t(:add_field, 'feratel_guest_cards_descriptions', ->(s) { parse_guest_card_descriptions(Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?), s&.dig('external_key'), external_source_id) || [] })
           .>> t(:merge_array_values, 'additional_information', 'feratel_guest_cards_descriptions')
           .>> t(:merge_array_values, 'content_location', 'connected_location')
