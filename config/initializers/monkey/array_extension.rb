@@ -17,6 +17,20 @@ module DataCycleCore
     def except(value)
       self - Array(value)
     end
+
+    def deep_freeze
+      each do |v|
+        v.deep_freeze if v.respond_to?(:deep_freeze)
+      end
+
+      freeze
+    end
+
+    def dc_deep_dup
+      dup.map do |v|
+        v.respond_to?(:dc_deep_dup) ? v.dc_deep_dup : v
+      end
+    end
   end
 end
 

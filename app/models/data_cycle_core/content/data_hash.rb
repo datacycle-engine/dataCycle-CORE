@@ -62,10 +62,11 @@ module DataCycleCore
           partial_schema['properties'] = property_definitions&.slice(*options.data_hash.keys)
         end
 
-        valid_hash = validate(options.data_hash.dup, partial_schema || schema)
+        options.data_hash.deep_freeze # ensure data_hash doesn't get changed
+        valid_hash = validate(options.data_hash, partial_schema || schema)
 
         if validate?(valid_hash)
-          if diff?(options.data_hash.dup, partial_schema, options.partial_update) || options.force_update
+          if diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
             ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
               to_history(save_time: options.save_time) unless id.nil? || options.prevent_history
 

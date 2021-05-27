@@ -19,7 +19,7 @@ module DataCycleCore
 
     def to_h
       item_hash = @schedule_object&.to_hash || {}
-      item_hash[:duration] = duration
+      item_hash[:duration] = duration.to_f
       item_hash[:id] = id
       item_hash[:relation] = relation
       item_hash[:dtstart] = dtstart if dtstart.present?
@@ -363,7 +363,7 @@ module DataCycleCore
             s.dig('rrules', 0, 'validations')&.delete('day')
           end
 
-          DataCycleCore::Schedule.new.from_hash(s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| v.blank? }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: s['id']).with_indifferent_access.compact
+          DataCycleCore::Schedule.new.from_hash(s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: s['id']).with_indifferent_access.compact
         }.compact
       end
 
