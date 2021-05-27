@@ -38,6 +38,33 @@ module DataCycleCore
               .call(raw_data)
           ).with_indifferent_access
         end
+
+        def self.process_ski_resort_new(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Bergfex::Transformations.to_ski_resort_new(utility_object.external_source.id),
+            default: { template: 'Skigebiet Bergfex' },
+            config: config
+          )
+        end
+
+        def self.process_snow_report_new(utility_object, raw_data, config, locale)
+          raw_data.dig('snow', 'itemSnow').each do |snow_measure|
+            snow_report = snow_measure
+            snow_report['resort'] = raw_data['resort']
+            snow_report['datetime'] = raw_data['datetime']
+            snow_report['id'] = raw_data['id']
+
+            DataCycleCore::Generic::Common::ImportFunctions.process_step(
+              utility_object: utility_object,
+              raw_data: snow_report,
+              transformation: DataCycleCore::Generic::Bergfex::Transformations.to_snow_report_new(utility_object.external_source.id, locale),
+              default: { template: 'Schneehöhe - Messpunkt Bergfex' },
+              config: config
+            )
+          end
+        end
       end
     end
   end
