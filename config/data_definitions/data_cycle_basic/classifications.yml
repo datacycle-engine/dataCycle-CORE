@@ -145,6 +145,13 @@
     - $$Preis pro Person
     - $$Preis pro Package
 
+- Feratel - Systeme | all:
+    - $$Lokaler ExpertClient | L
+    - $$Internet | T
+    - $$Infomedia/Informator | I
+    - $$Katalog | C
+    - $$PIA | P
+
 - OutdoorActive - Schwierigkeitsgrad | all:
     - $$unbekannt
     - $$leicht
