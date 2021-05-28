@@ -14,8 +14,8 @@ module DataCycleCore
         def schedule_search(from, to, relation = nil)
           return self if from.blank? && to.blank?
 
-          from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from&.beginning_of_day)
-          to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to&.end_of_day)
+          from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from)
+          to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to)
 
           reflect(
             @query.where(
@@ -39,7 +39,7 @@ module DataCycleCore
           return if value.blank?
           from_date, to_date = date_from_filter_object(value, mode)
 
-          date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
+          date_range = "[#{from_date},#{to_date}]"
           query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
           reflect(
             @query.where(query_string)
@@ -56,7 +56,7 @@ module DataCycleCore
           return if value.blank?
           from_date, to_date = date_from_filter_object(value, mode)
 
-          date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
+          date_range = "[#{from_date},#{to_date}]"
           # "interval 1 second" is required because upper(RANGE) 01-01-2000 23:59:59 in Ruby is 02-01-2000 00:00:00 in Postgresql
           query_string = Thing.send(:sanitize_sql_for_conditions, ['upper(things.validity_range) <> \'infinity\' AND (upper(things.validity_range) - interval \'1 second\') <@ ?::tstzrange', date_range])
 
@@ -68,7 +68,7 @@ module DataCycleCore
         def not_validity_period(value = nil, mode = nil)
           from_date, to_date = date_from_filter_object(value, mode)
 
-          date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
+          date_range = "[#{from_date},#{to_date}]"
           query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
           reflect(
             @query.where.not(query_string)
@@ -78,7 +78,7 @@ module DataCycleCore
         def date_range(d = nil, attribute_path = nil)
           from_date, to_date = date_from_filter_object(d, nil)
 
-          date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
+          date_range = "[#{from_date},#{to_date}]"
           query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
 
           reflect(
@@ -89,7 +89,7 @@ module DataCycleCore
         def not_date_range(d = nil, attribute_path = nil)
           from_date, to_date = date_from_filter_object(d, nil)
 
-          date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
+          date_range = "[#{from_date},#{to_date}]"
           query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
 
           reflect(
@@ -139,6 +139,7 @@ module DataCycleCore
           if mode == 'absolute'
             from_date = date_from_single_value(min)
             to_date = date_from_single_value(max)
+            to_date = to_date.end_of_day if to_date.to_s(:only_time) == '00:00'
           else
             from_date = relative_to_absolute_date(min)
             to_date = relative_to_absolute_date(max)

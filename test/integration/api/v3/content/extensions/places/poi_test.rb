@@ -89,7 +89,7 @@ module DataCycleCore
                 expected_opening_hours_description_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description_result')
 
                 assert_equal(expected_opening_hours_specification_hash, json_data.dig('openingHoursSpecification'))
-                assert_equal(expected_opening_hours_description_hash, json_data.dig('openingHoursDescription'))
+                assert_equal(expected_opening_hours_description_hash, json_data.dig('dc:openingHoursDescription'))
               end
 
               test 'testing PlaceOverlay' do
