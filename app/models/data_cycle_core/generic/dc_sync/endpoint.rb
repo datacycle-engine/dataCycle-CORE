@@ -44,8 +44,12 @@ module DataCycleCore
         protected
 
         def load_things(page: 1, retry_count: 0)
-          response = Faraday.new.post do |req|
-            req.url File.join([@host, @end_point])
+          url = File.join([@host, @end_point])
+          connection = Faraday.new(url) do |con|
+            con.use FaradayMiddleware::FollowRedirects, limit: 5
+            con.adapter Faraday.default_adapter
+          end
+          response = connection.post do |req|
             req.headers['Content-Type'] = 'application/json'
             req.params['token'] = @token
             req.params['page'] = { number: page, size: @per }
@@ -59,8 +63,12 @@ module DataCycleCore
         end
 
         def load_thing(key: nil, retry_count: 0)
-          response = Faraday.new.post do |req|
-            req.url File.join([@host, @end_point, key])
+          url = File.join([@host, @end_point, key])
+          connection = Faraday.new(url) do |con|
+            con.use FaradayMiddleware::FollowRedirects, limit: 5
+            con.adapter Faraday.default_adapter
+          end
+          response = connection.post do |req|
             req.headers['Content-Type'] = 'application/json'
             req.params['token'] = @token
           end
