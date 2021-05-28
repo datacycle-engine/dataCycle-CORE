@@ -35,7 +35,7 @@ module DataCycleCore
             content_id
           ]
         )
-      ).values
+      ).values.flatten
     end
 
     def update_computed_properties(content)
