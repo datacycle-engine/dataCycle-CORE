@@ -19,17 +19,13 @@ module DataCycleCore
     end
 
     def deep_freeze
-      each do |v|
-        v.deep_freeze if v.respond_to?(:deep_freeze)
-      end
+      each { |v| v.deep_freeze if v.respond_to?(:deep_freeze) }
 
       freeze
     end
 
     def dc_deep_dup
-      dup.map do |v|
-        v.respond_to?(:dc_deep_dup) ? v.dc_deep_dup : v
-      end
+      dup.map { |v| v.respond_to?(:dc_deep_dup) ? v.dc_deep_dup : v }
     end
   end
 end

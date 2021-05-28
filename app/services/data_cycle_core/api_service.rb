@@ -113,7 +113,7 @@ module DataCycleCore
           next unless query.respond_to?(query_method)
 
           if query.method(query_method)&.parameters&.size == 3
-            query = query.send(query_method, v, attribute_path, attribute_key.to_s.underscore_blanks)
+            query = query.send(query_method, v, attribute_path, attribute_key.to_s.delete_prefix('dc:').underscore_blanks)
           else
             query = query.send(query_method, v, attribute_path)
           end

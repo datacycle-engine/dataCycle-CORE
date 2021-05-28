@@ -38,14 +38,14 @@ class DatePicker {
     };
     this.configs = {};
     this.startKeys = {
-      _from: ['_until', '_through'],
+      from: ['until', '_through'],
       _start: '_end',
       start_time: 'end_time',
       opens: 'closes'
     };
     this.endKeys = {
-      _through: '_from',
-      _until: '_from',
+      _through: 'from',
+      until: 'from',
       _end: '_start',
       end_time: 'start_time',
       closes: 'opens'
