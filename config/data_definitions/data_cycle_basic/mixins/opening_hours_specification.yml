@@ -19,6 +19,7 @@
           :edit:
             :disabled: true
         :api:
+          :name: dc:openingHoursDescription
           :v4:
             :transformation:
               :method: append
