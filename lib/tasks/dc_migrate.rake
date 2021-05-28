@@ -118,7 +118,7 @@ namespace :dc do
             duration = 1.day.to_i
 
             if content.validity&.valid_through.present?
-              duration = content.validity.valid_through.in_time_zone.end_of_day - from_date
+              duration = content.validity.valid_through.in_time_zone.change({ hour: 23, minute: 59 }) - from_date
             else
               rrules = [{
                 rule_type: 'IceCube::DailyRule'
