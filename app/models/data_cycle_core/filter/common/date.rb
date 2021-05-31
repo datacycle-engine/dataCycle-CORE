@@ -14,8 +14,8 @@ module DataCycleCore
         def schedule_search(from, to, relation = nil)
           return self if from.blank? && to.blank?
 
-          from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from)
-          to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to)
+          from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from.is_a?(::Date) ? from.beginning_of_day : from)
+          to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to.is_a?(::Date) ? to.end_of_day : to)
 
           reflect(
             @query.where(
@@ -139,7 +139,7 @@ module DataCycleCore
           if mode == 'absolute'
             from_date = date_from_single_value(min)
             to_date = date_from_single_value(max)
-            to_date = to_date.end_of_day if to_date.to_s(:only_time) == '00:00'
+            to_date = to_date.end_of_day if to_date&.to_s(:only_time) == '00:00'
           else
             from_date = relative_to_absolute_date(min)
             to_date = relative_to_absolute_date(max)
