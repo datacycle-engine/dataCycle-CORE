@@ -629,10 +629,10 @@ $filter-border: #aaa;
         }
 
         &.focus-advanced-filter {
-          color: $black;
+          color: lighten($black, 25%);
 
           &:hover {
-            color: lighten($black, 10%);
+            color: lighten($black, 40%);
           }
         }
 
