@@ -16,7 +16,7 @@
     "closes": "14:00"
   },
   {
-    "@type": "OpeningHoursSpecification",
+    "@type": ["OpeningHoursSpecification", "dcls:Öffnungszeit - Beschreibung"],
     "validFrom": "2019-10-10",
     "description": "Description - Test",
     "dc:multilingual": false,
