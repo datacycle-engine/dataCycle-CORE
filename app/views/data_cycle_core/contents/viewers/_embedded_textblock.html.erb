@@ -16,7 +16,7 @@
                     mode: changes_class(options.dig(:item_diff), object.id)
                    }),
         content: content,
-        data_attributes: { editor: 'embedded_object', id: [object.id] },
+        data_attributes: { editor: 'embedded_object', id: [object.id], translatable: !definition['translated'] || @content.id != @split_source&.id },
         data_label: 'Textblock' do %>
       <span class="detail-content"><%= object.try(:text).try(:html_safe) %></span>
     <% end %>

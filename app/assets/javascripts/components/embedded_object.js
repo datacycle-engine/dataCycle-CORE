@@ -153,10 +153,12 @@ class EmbeddedObject {
   }
   handleRemoveEvent(event) {
     event.preventDefault();
-    let element = $(event.target).closest('.content-object-item');
-    if ($(event.target).data('confirm-delete') != undefined) {
+
+    const element = $(event.currentTarget).closest('.content-object-item');
+
+    if ($(event.currentTarget).data('confirm-delete') != undefined) {
       new ConfirmationModal({
-        text: $(event.target).data('confirm-delete'),
+        text: $(event.currentTarget).data('confirm-delete'),
         confirmationClass: 'alert',
         cancelable: true,
         confirmationCallback: () => {
