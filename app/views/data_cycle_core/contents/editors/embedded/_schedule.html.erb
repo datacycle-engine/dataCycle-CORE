@@ -28,7 +28,7 @@
 
   <% unless readonly %>
     <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject', data: {
-          confirm_delete: definition&.dig('translated') && local_assigns[:object]&.translations&.many? ? t('actions.delete_with_translated_html', locale: DataCycleCore.ui_language) : nil
+          confirm_delete: !local_assigns[:object]&.template && local_assigns[:content]&.translatable? && definition&.dig('translated').to_s == 'true' && local_assigns[:object]&.translations&.many? ? t('actions.delete_with_translated_html', locale: DataCycleCore.ui_language) : nil
         } %>
   <% end %>
 

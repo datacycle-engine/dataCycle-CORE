@@ -63,7 +63,7 @@ $filter-border: #aaa;
         background-color: darken($medium-gray, 10%);
         transition: background-color 1s ease;
         border-radius: 5px;
-        box-shadow: 0 0 2px lighten($color: $black, $amount: 20%);
+        box-shadow: 0 0 5px lighten($color: $black, $amount: 20%);
 
         .separator {
           padding: 0 1rem;
@@ -76,11 +76,11 @@ $filter-border: #aaa;
         }
 
         &.i {
-          box-shadow: 0 0 0 1px $success-color, 0 0 2px 1px $success-color;
+          box-shadow: 0 0 0 1px $success-color, 0 0 5px 3px $success-color;
         }
 
         &.e {
-          box-shadow: 0 0 2px 1px rgba($alert-color, 0.8);
+          box-shadow: 0 0 4px 2px rgba($alert-color, 0.8);
         }
 
         &.highlight {
@@ -590,11 +590,11 @@ $filter-border: #aaa;
       border-radius: 5px;
       padding: 2px 4px;
       margin: 0 0.5rem 0.5rem 0;
-      box-shadow: 0 0 2px lighten($color: $black, $amount: 20%);
+      box-shadow: 0 0 5px lighten($color: $black, $amount: 20%);
 
       &.e,
       &.u {
-        box-shadow: 0 0 2px 1px rgba($alert-color, 0.8);
+        box-shadow: 0 0 5px 2px rgba($alert-color, 0.8);
         .tag {
           position: relative;
           &::after {
@@ -612,7 +612,7 @@ $filter-border: #aaa;
 
       &.i,
       &.s {
-        box-shadow: 0 0 2px 1px $success-color;
+        box-shadow: 0 0 5px 3px $success-color;
       }
 
       .tag-container {
@@ -629,10 +629,10 @@ $filter-border: #aaa;
         }
 
         &.focus-advanced-filter {
-          color: $black;
+          color: lighten($black, 25%);
 
           &:hover {
-            color: lighten($black, 10%);
+            color: lighten($black, 40%);
           }
         }
 

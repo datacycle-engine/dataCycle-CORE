@@ -320,11 +320,15 @@ ul.backend-treeview-list,
     display: none;
   }
 
-  form:not(.add-watchlist-form) {
-    label:first-of-type {
-      display: none;
+  &:not(.classification_trees) {
+    form:not(.add-watchlist-form) {
+      label:first-of-type {
+        display: none;
+      }
     }
+  }
 
+  form:not(.add-watchlist-form) {
     &.edit_classification_tree_label,
     &.new_classification_tree_label {
       padding: 1rem;

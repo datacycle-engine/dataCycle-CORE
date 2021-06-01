@@ -12,6 +12,9 @@
         :allowed: true
       :download:
         :allowed: true
+      :duplicate_candidate:
+        :allowed: true
+        :method: :bild_duplicate
       :serialize:
         :allowed: true
         :serializers:

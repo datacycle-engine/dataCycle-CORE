@@ -29,7 +29,7 @@ module DataCycleCore
         end
 
         def translate_text(translate_hash)
-          return {} if endpoint.blank? || translate_hash.blank? || translate_hash.values.all?(&:blank?)
+          return {} if endpoint.blank? || translate_hash.blank? || translate_hash.values.all?(&:blank?) || translate_hash['text'].blank?
 
           endpoint.translate(translate_hash.to_h)
         end

@@ -4,6 +4,18 @@
   }
   counter-reset: embedded;
 
+  > .dc-copyable-field {
+    > .accordion-title {
+      padding-right: 2.5rem;
+    }
+
+    &.dc-translatable-field {
+      > .accordion-title {
+        padding-right: 4rem;
+      }
+    }
+  }
+
   .accordion-title {
     background: transparent;
     color: $dark-gray;
