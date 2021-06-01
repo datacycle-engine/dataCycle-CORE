@@ -5,21 +5,14 @@ class SplitView {
     this.container = $(container);
     this.embedLocale = this.container.closest('.split-content').data('embed-locale');
     this.leftLocale = this.container.closest('.split-content').data('locale');
-    this.enableTranslateButtons = this.container.closest('.split-content').data('enable-translate-buttons');
     this.rightLocale = this.container.closest('form').find('input#locale:hidden').val();
+    this.enableTranslateButtons = this.container.closest('.split-content').data('enable-translate-buttons');
+    this.translatableTypes = ['string', 'text_editor'];
 
     this.setup();
   }
   setup() {
-    this.setupObjectBrowserButtons();
-    this.setupEmbeddedObjectButtons();
-    this.setupClassificationButtons();
-    this.setupTextFieldButtons();
-    this.setupDateTimeButtons();
-    this.setupGeographicButtons();
-    this.setupBooleanButtons();
-    this.setupNumberButtons();
-    this.setupUrlButtons();
+    this.setupButtons();
 
     this.setupCopyAllButtons(this.container.closest('.split-content'));
     this.setupCopyAllButtons(this.availableEditors(['included-object']));
@@ -34,6 +27,17 @@ class SplitView {
       .closest('.split-content')
       .find('.close-subscribe-notice')
       .on('click', this.dismissSubscribeNotice.bind(this));
+  }
+  setupButtons() {
+    this.setupObjectBrowserButtons();
+    this.setupEmbeddedObjectButtons();
+    this.setupClassificationButtons();
+    this.setupTextFieldButtons();
+    this.setupDateTimeButtons();
+    this.setupGeographicButtons();
+    this.setupBooleanButtons();
+    this.setupNumberButtons();
+    this.setupUrlButtons();
   }
   setupAdditionalButtons(event, data) {
     let item = $(event.target);
@@ -141,19 +145,29 @@ class SplitView {
     if (!single && !$(element).children('.buttons').length) $(element).append('<div class="buttons"></div');
     if ($(element).find('> .content-link > .buttons').length) element = $(element).find('> .content-link > .buttons');
     if ($(element).children('.buttons').length) element = $(element).children('.buttons');
+    const field = element.parents('[data-editor]').first();
 
-    if (this.enableTranslateButtons && this.isTranslatableField(element)) {
-      $(element).append(
-        '<a class="button-prime small translate' +
-          (single ? ' translate-single-button' : '') + //??
-          '" data-copy-attribute="' +
-          copy_attr +
-          '" data-translate-attribute="true"' +
-          ' data-disable-with="<i class=\'fa fa-circle-o-notch fa-spin\'></i>"' +
-          ' title="übersetzen"><i class="fa fa-language aria-hidden="true"></i></a>'
-      );
-    }
+    if (
+      this.enableTranslateButtons &&
+      (this.translatableTypes.includes(field.data('editor')) ||
+        (field.data('editor') == 'embedded_object' && $(field).data('translatable')))
+    )
+      this.addTranslationButton(element, field, copy_attr, single);
 
+    this.addCopyButton(element, field, copy_attr, single);
+  }
+  addTranslationButton(element, field, copy_attr, single) {
+    $(element).append(
+      `<a class="button-prime small translate${
+        single ? ' translate-single-button' : ''
+      }" data-copy-attribute="${copy_attr}" data-translate-attribute="${
+        this.translatableTypes.includes(field.data('editor')) ? 'direct' : 'indirect'
+      }" data-disable-with="<i class=\'fa fa-circle-o-notch fa-spin\'></i>" title="übersetzen"><i class="fa fa-language aria-hidden="true"></i></a>`
+    );
+
+    $(field).addClass('dc-translatable-field');
+  }
+  addCopyButton(element, field, copy_attr, single) {
     $(element).append(
       '<a class="button-prime small copy' +
         (single ? ' copy-single-button' : '') +
@@ -161,10 +175,8 @@ class SplitView {
         copy_attr +
         '" title="übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
     );
-  }
-  isTranslatableField(element) {
-    let field = element.parents('[data-editor]').first();
-    return field.hasClass('string') && (field.data('editor') === 'text_editor' || field.data('editor') === 'string');
+
+    $(field).addClass('dc-copyable-field');
   }
   handleButtonClick(event) {
     event.preventDefault();
@@ -206,41 +218,50 @@ class SplitView {
 
     $(event.currentTarget).parent('.split-content, [data-editor="included-object"]').find(selector).trigger('click');
   }
-  copyContents(value, label, key) {
+  copyContents(value, label, key, translate = false) {
     if ($('.edit-header .submit-edit-form').prop('disabled')) return;
 
-    let target = $('.flex-box .edit-content [data-key="' + key + '"]');
+    const target = $('.flex-box .edit-content [data-key="' + key + '"]');
 
     target.find(DataCycle.config.EditorSelectors.join(', ')).trigger('dc:import:data', {
       label: label,
       value: typeof value == 'string' ? value.trim() : value,
-      locale: this.embedLocale ? this.leftLocale : ''
+      locale: this.embedLocale ? this.leftLocale : '',
+      translate: translate
     });
 
     target.get(0).scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
   translateText(elem, value, label, key) {
-    let formData = {
-      text: value.trim(),
-      source_locale: this.leftLocale,
-      target_locale: this.rightLocale
-    };
-    DataCycle.httpRequest({
-      url: '/things/translate_text',
-      method: 'POST',
-      data: formData,
-      dataType: 'json',
-      contentType: 'application/x-www-form-urlencoded'
-    })
-      .done(data => {
-        this.copyContents(data.text, label, key);
+    if ($(elem).data('translate-attribute') == 'direct') {
+      DataCycle.disableElement(elem);
+
+      let formData = {
+        text: value.trim(),
+        source_locale: this.leftLocale,
+        target_locale: this.rightLocale
+      };
+      DataCycle.httpRequest({
+        url: '/things/translate_text',
+        method: 'POST',
+        data: formData,
+        dataType: 'json',
+        contentType: 'application/x-www-form-urlencoded'
       })
-      .fail(data => {
-        CalloutHelpers.show('Fehler beim Laden der Übersetzung', 'alert');
-      })
-      .always(() => {
-        DataCycle.enableElement(elem);
-      });
+        .done(data => {
+          this.copyContents(data.text, label, key);
+        })
+        .fail(_data => {
+          CalloutHelpers.show('Fehler beim Laden der Übersetzung', 'alert');
+        })
+        .always(() => {
+          DataCycle.enableElement(elem);
+        });
+    } else {
+      DataCycle.disableElement(elem);
+      this.copyContents(value, label, key, true);
+      DataCycle.enableElement(elem);
+    }
   }
 }
 
