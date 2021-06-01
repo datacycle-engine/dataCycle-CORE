@@ -7,14 +7,11 @@ module DataCycleCore
         include Comparable
 
         def duplicate_method?
-          template_name.in?(['Bild'])
+          DataCycleCore::Feature::DuplicateCandidate.duplicate_method(self).present?
         end
 
         def duplicate_method
-          case template_name
-          when 'Bild'
-            asset&.duplicate_candidates_with_score
-          end
+          DataCycleCore::Feature::DuplicateCandidate.find_duplicates(self)
         end
 
         def <=>(other)
@@ -28,7 +25,7 @@ module DataCycleCore
             return -1 if other.width * other.height > width * height
           end
 
-          # more connections ale better
+          # more connections are better
           return 1 if linked_contents.size > other.linked_contents.size
           return -1 if linked_contents.size < other.linked_contents.size
           0 # equivalent
