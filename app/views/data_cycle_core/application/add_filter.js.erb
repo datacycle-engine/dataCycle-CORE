@@ -5,6 +5,6 @@ $('<%= j render_advanced_filter_partial({
   filter_advanced_type: params['q'],
   filter_type: params['t'],
   value: nil,
-  index: params[:index] }) %>').appendTo('.filters .advanced-filters > .accordion-item > .accordion-content').trigger('dc:html:changed').trigger('dc:html:initialized');
+  index: params[:index] }) %>').insertBefore('.filters .advanced-filters > .accordion-item > .accordion-content > .add-advanced-filter-container').trigger('dc:html:changed').trigger('dc:html:initialized');
 
 $('.filters #add_advanced_filter').data('index', $('.filters #add_advanced_filter').data('index') + 1);
