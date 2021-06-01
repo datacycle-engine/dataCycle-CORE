@@ -29,7 +29,7 @@
 
     <% if attribute_editable?(key, definition, options, content) %>
       <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject', data: {
-                confirm_delete: !object.template && content&.translatable? && definition&.dig('translated').to_s == 'true' && object&.translations&.many? ? t('actions.delete_with_translated_html', locale: DataCycleCore.ui_language) : nil
+                confirm_delete: !object&.template && content&.translatable? && definition&.dig('translated').to_s == 'true' && object&.translations&.many? ? t('actions.delete_with_translated_html', locale: DataCycleCore.ui_language) : nil
               } %>
     <% end %>
 
