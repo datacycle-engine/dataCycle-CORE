@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 SSHKit.config.command_map[:vite_local] = 'bundle exec vite'
-SSHKit.config.command_map[:yarn_local] = 'yarn'
+SSHKit.config.command_map[:yarn_local] = 'yarn --ignore-scripts'
 
 namespace :deploy do
   namespace :assets do
