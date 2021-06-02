@@ -11,7 +11,7 @@ module DataCycleCore
           if save_history && !history?
             self.deleted_at = save_time
             self.deleted_by = current_user&.id
-            to_history(save_time: save_time, delete: true)
+            to_history(save_time: save_time, delete: true, all_translations: !(destroy_locale && available_locales.many?))
           end
 
           destroy_children(current_user: current_user, save_time: save_time, destroy_linked: destroy_linked, destroy_locale: destroy_locale)
