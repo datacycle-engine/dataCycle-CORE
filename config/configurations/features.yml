@@ -58,10 +58,31 @@
 
 :main_filter:
   :enabled: true
-  :classification_alias_ids:
-    - Inhaltstypen
   :autoload_last_filter: true
-
+  :config:
+    :backend_view:
+      :search: true
+      :language: true
+      :store: true
+      :add_items_to_watch_list: true
+      :advanced: true
+      :mode_selector: true
+      :sortable: true
+      :classification_trees:
+        - Inhaltstypen
+    :classification_tree_view:
+      :language: true
+      :classification_trees:
+        - Inhaltstypen
+        - Märkte
+    :publication_view:
+      :classification_trees:
+        - Inhaltstypen
+      :language: true
+    :subscriptions_view:
+      :search: true
+      :language: true
+      :mode_selector: true
 :sortable:
   :enabled: false
   :updated_at: true

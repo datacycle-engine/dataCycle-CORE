@@ -4,8 +4,8 @@ module DataCycleCore
   module Feature
     class MainFilter < Base
       class << self
-        def available_filters
-          DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :classification_alias_ids) || []
+        def available_filters(view:, user:)
+          configuration.dig(:config, "#{view}_view").filter { |k, v| v.present? && user.can?(k, view, v) }
         end
 
         def autoload_last_filter?

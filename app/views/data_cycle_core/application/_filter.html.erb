@@ -1,4 +1,5 @@
 <%= form_tag('', :method => "get", id: "search-form", data: { add_filter_path: add_filter_path, add_tag_group_path: add_tag_group_path }) do %>
+  <% filter = DataCycleCore::Feature::MainFilter.available_filters(view: 'backend', user: current_user) %>
   <% filter = local_filter_options(filter, @filters) %>
   <%= hidden_field_tag 'mode', @mode %>
   <%= hidden_field_tag 'ct_id', @classification_tree&.id %>
@@ -177,7 +178,7 @@
       </div>
     <% end %>
 
-    <%= render 'data_cycle_core/application/view_mode_selector', sortable: filter[:sortable], mode_selector: filter[:mode_selector], additional_classes: filter[:additional_mode_selector_classes], additional_request_params: filter[:additional_request_params] %>
+    <%= render 'data_cycle_core/application/view_mode_selector', sortable: filter[:sortable], mode_selector: filter[:mode_selector], additional_classes: 'column-padding', additional_request_params: filter[:additional_request_params] %>
   <% end %>
 
   <% if can?(:create, DataCycleCore::StoredFilter) && filter[:store] %>
