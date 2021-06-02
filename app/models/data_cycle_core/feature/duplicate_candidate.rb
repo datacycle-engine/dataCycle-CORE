@@ -30,6 +30,17 @@ module DataCycleCore
         def bild_duplicate(content)
           content.asset&.duplicate_candidates_with_score
         end
+
+        def only_title_duplicate(content)
+          DataCycleCore::Thing.where(
+            template: false,
+            template_name: content.template_name,
+            name: content.name
+          ).where.not(id: content.id)
+            .map { |d|
+              { content: d, method: 'only_title', score: 83 }
+            }.compact
+        end
       end
     end
   end
