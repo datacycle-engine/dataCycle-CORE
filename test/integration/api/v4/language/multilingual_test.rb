@@ -161,12 +161,12 @@ module DataCycleCore
             end
 
             # plain attributes without transformation
-            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'url', 'slug']) do
+            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'url', 'dc:slug']) do
               {
                 'description' => translated_value(@content, 'description', ['de']),
                 'name' => translated_value(@content, 'name', ['de']),
                 'sameAs' => translated_value(@content, 'url', ['de']),
-                'slug' => translated_value(@content, 'slug', ['de'])
+                'dc:slug' => translated_value(@content, 'slug', ['de'])
               }
             end
 
@@ -550,12 +550,12 @@ module DataCycleCore
             end
 
             # plain attributes without transformation
-            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'url', 'slug']) do
+            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'url', 'dc:slug']) do
               {
                 'description' => translated_value(@content, 'description', ['de', 'en']),
                 'name' => translated_value(@content, 'name', ['de', 'en']),
                 'sameAs' => translated_value(@content, 'url', ['de', 'en']),
-                'slug' => translated_value(@content, 'slug', ['de', 'en'])
+                'dc:slug' => translated_value(@content, 'slug', ['de', 'en'])
               }
             end
 

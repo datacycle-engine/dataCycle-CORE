@@ -75,7 +75,7 @@ module DataCycleCore
             end
 
             # plain attributes without transformation
-            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'use_guidelines', 'text', 'url', 'text', 'keywords', 'headline', 'alternative_headline', 'slug']) do
+            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'use_guidelines', 'text', 'url', 'text', 'keywords', 'headline', 'alternative_headline', 'dc:slug']) do
               {
                 'name' => translated_value(@content, 'name', ['de']),
                 'headline' => translated_value(@content, 'headline', ['de']),
@@ -85,7 +85,7 @@ module DataCycleCore
                 'sameAs' => translated_value(@content, 'url', ['de']),
                 'alternativeHeadline' => translated_value(@content, 'alternative_headline', ['de']),
                 'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de']),
-                'slug' => translated_value(@content, 'slug', ['de'])
+                'dc:slug' => translated_value(@content, 'slug', ['de'])
               }
             end
 
@@ -275,7 +275,7 @@ module DataCycleCore
             end
 
             # plain attributes without transformation
-            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'use_guidelines', 'text', 'url', 'text', 'keywords', 'headline', 'alternative_headline', 'slug']) do
+            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'use_guidelines', 'text', 'url', 'text', 'keywords', 'headline', 'alternative_headline', 'dc:slug']) do
               {
                 'name' => translated_value(@content, 'name', ['de']),
                 'headline' => translated_value(@content, 'headline', ['de']),
@@ -285,7 +285,7 @@ module DataCycleCore
                 'sameAs' => translated_value(@content, 'url', ['de']),
                 'alternativeHeadline' => translated_value(@content, 'alternative_headline', ['de']),
                 'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de']),
-                'slug' => translated_value(@content, 'slug', ['de'])
+                'dc:slug' => translated_value(@content, 'slug', ['de'])
               }
             end
 

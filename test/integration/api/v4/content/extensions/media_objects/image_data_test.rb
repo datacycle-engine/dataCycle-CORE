@@ -47,7 +47,7 @@ module DataCycleCore
                 end
 
                 # plain attributes without transformation
-                assert_attributes(json_validate, required_attributes, ['description', 'url', 'caption', 'keywords', 'content_url', 'thumbnail_url', 'file_format', 'upload_date', 'content_size', 'copyright_year', 'slug']) do
+                assert_attributes(json_validate, required_attributes, ['description', 'url', 'caption', 'keywords', 'content_url', 'thumbnail_url', 'file_format', 'upload_date', 'content_size', 'copyright_year', 'dc:slug']) do
                   {
                     'description' => @content.description,
                     'keywords' => @content.keywords,
@@ -59,7 +59,7 @@ module DataCycleCore
                     'copyrightYear' => @content.copyright_year,
                     'caption' => @content.caption,
                     'sameAs' => @content.url,
-                    'slug' => @content.slug
+                    'dc:slug' => @content.slug
                   }
                 end
 
