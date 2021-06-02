@@ -61,7 +61,7 @@ class EmbeddedObject {
           (this.max == 0 || this.element.children('.content-object-item').length < this.max) &&
           newItems.length > 0
         ) {
-          this.renderEmbeddedObjects('split_view', newItems, data.locale);
+          this.renderEmbeddedObjects('split_view', newItems, data.locale, data.translate);
         } else if (this.write && this.max != 0 && ids.length + newItems.length > this.max) {
           new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
         }
@@ -106,7 +106,7 @@ class EmbeddedObject {
 
     this.element.children('.content-object-item').each((_, elem) => this.setSwapClasses(elem));
   }
-  renderEmbeddedObjects(type, ids = [], locale = null) {
+  renderEmbeddedObjects(type, ids = [], locale = null, translate = false) {
     let index = this.index;
     if (type == 'split_view') this.index += difference(ids, this.ids).length;
     else if (type == 'new') this.index++;
@@ -127,7 +127,8 @@ class EmbeddedObject {
         content_id: this.content_id,
         content_type: this.content_type,
         object_ids: ids,
-        duplicated_content: type == 'split_view'
+        duplicated_content: type == 'split_view',
+        translate: translate
       }
     }).done(_data => {
       if (ids.length > 0) this.ids = union(this.ids, ids);
@@ -152,10 +153,12 @@ class EmbeddedObject {
   }
   handleRemoveEvent(event) {
     event.preventDefault();
-    let element = $(event.target).closest('.content-object-item');
-    if ($(event.target).data('confirm-delete') != undefined) {
+
+    const element = $(event.currentTarget).closest('.content-object-item');
+
+    if ($(event.currentTarget).data('confirm-delete') != undefined) {
       new ConfirmationModal({
-        text: $(event.target).data('confirm-delete'),
+        text: $(event.currentTarget).data('confirm-delete'),
         confirmationClass: 'alert',
         cancelable: true,
         confirmationCallback: () => {

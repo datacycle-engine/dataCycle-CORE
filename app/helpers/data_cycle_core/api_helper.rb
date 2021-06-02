@@ -234,6 +234,10 @@ module DataCycleCore
           'dc:totalNumberOfBeds' => {
             '@id' => 'https://schema.org/numberOfBedrooms',
             '@type' => 'https://schema.org/Number'
+          },
+          'dc:slug' => {
+            '@id' => 'https://schema.datacycle.at/slug',
+            '@type' => 'https://schema.org/url'
           }
         }.compact
       ]

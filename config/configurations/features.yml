@@ -114,6 +114,31 @@
 
 :translate:
   :enabled: false
+  :allowed_languages:
+    - bg
+    - zh
+    - da
+    - de
+    - en
+    - et
+    - fi
+    - fr
+    - el
+    - it
+    - ja
+    - lv
+    - lt
+    - nl
+    - pl
+    - pt
+    - ro
+    - ru
+    - sv
+    - sk
+    - sl
+    - es
+    - cs
+    - hu
 
 :external_media_archive:
   :enabled: false

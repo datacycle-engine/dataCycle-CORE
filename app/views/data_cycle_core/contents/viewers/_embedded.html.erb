@@ -12,9 +12,9 @@
           hide_label: true,
           item_diff: changes_by_value(options.dig(:item_diff), object.try('thing_id') || object.id),
           mode: changes_class(options.dig(:item_diff), object.try('thing_id') || object.id),
-          class: definition.dig('ui', 'show', 'hide_onload') ? 'accordion-item' : 'accordion-item is-active'
+          class: "accordion-item #{'is-active' unless definition.dig('ui', 'show', 'hide_onload')}"
         }).with_indifferent_access,
-        data_attributes: { id: [object.id], editor: 'embedded_object', accordion_item: true },
+        data_attributes: { id: [object.id], editor: 'embedded_object', accordion_item: true, translatable: !definition['translated'] || @content&.id != @split_source&.id },
         content: content do %>
 
         <div class="accordion-title">
