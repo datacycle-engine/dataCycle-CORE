@@ -233,12 +233,9 @@ CREATE TABLE public.classification_contents (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_id uuid,
     classification_id uuid,
-    tag boolean,
-    classification boolean,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
     relation character varying
 );
 
@@ -314,12 +311,9 @@ CREATE TABLE public.classification_content_histories (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_history_id uuid,
     classification_id uuid,
-    tag boolean,
-    classification boolean,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
     relation character varying
 );
 
@@ -2516,6 +2510,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210421180706'),
 ('20210422111740'),
 ('20210510120343'),
-('20210518074537');
+('20210518074537'),
+('20210602112830');
 
 
