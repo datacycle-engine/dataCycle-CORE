@@ -66,10 +66,10 @@ module DataCycleCore
             end
 
             # plain external attributes without transformation
-            assert_attributes(json_validate, required_attributes, ['url', 'slug']) do
+            assert_attributes(json_validate, required_attributes, ['url', 'dc:slug']) do
               {
                 'sameAs' => @content.url,
-                'slug' => @content.slug
+                'dc:slug' => @content.slug
               }
             end
 
@@ -241,10 +241,10 @@ module DataCycleCore
             end
 
             # plain external attributes without transformation
-            assert_attributes(json_validate, required_attributes, ['url', 'slug']) do
+            assert_attributes(json_validate, required_attributes, ['url', 'dc:slug']) do
               {
                 'sameAs' => @content.url,
-                'slug' => @content.slug
+                'dc:slug' => @content.slug
               }
             end
 
@@ -329,7 +329,7 @@ module DataCycleCore
               'hoursAvailable' => [
                 item_offered_object.hours_available.first.to_api_default_values
               ],
-              'slug' => item_offered_object.slug,
+              'dc:slug' => item_offered_object.slug,
               'additionalProperty' => [
                 {
                   '@type' => 'PropertyValue',

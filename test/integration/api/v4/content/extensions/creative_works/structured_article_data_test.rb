@@ -38,7 +38,7 @@ module DataCycleCore
                 end
 
                 # plain attributes without transformation
-                assert_attributes(json_validate, required_attributes, ['name', 'headline', 'description', 'url', 'text', 'keywords', 'alternative_headline', 'slug']) do
+                assert_attributes(json_validate, required_attributes, ['name', 'headline', 'description', 'url', 'text', 'keywords', 'alternative_headline', 'dc:slug']) do
                   {
                     'name' => @content.name,
                     'headline' => @content.headline,
@@ -47,7 +47,7 @@ module DataCycleCore
                     'text' => @content.text,
                     'keywords' => @content.keywords,
                     'alternativeHeadline' => @content.alternative_headline,
-                    'slug' => @content.slug
+                    'dc:slug' => @content.slug
                   }
                 end
 

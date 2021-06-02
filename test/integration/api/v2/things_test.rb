@@ -116,7 +116,7 @@ module DataCycleCore
             'url' => data_hash['url'],
             'inLanguage' => data_hash['inLanguage'],
             'name' => data_hash['headline'],
-            'slug' => data_hash['slug']
+            'slug' => 'testartikel'
           }
 
           # APIv2: release-stati has been removed

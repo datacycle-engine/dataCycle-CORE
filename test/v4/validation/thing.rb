@@ -78,7 +78,7 @@ module DataCycleCore
           optional(:'cc:attributionName').value(:string)
           optional(:'cc:attributionUrl').value(:string)
           optional(:'cc:useGuidelines').value(:string)
-          optional(:slug).value(:string)
+          optional(:'dc:slug').value(:string)
         end
 
         # Test with Author
@@ -117,7 +117,7 @@ module DataCycleCore
           optional(:'cc:attributionName').value(:string)
           optional(:'cc:attributionUrl').value(:string)
           optional(:'cc:useGuidelines').value(:string)
-          optional(:slug).value(:string)
+          optional(:'dc:slug').value(:string)
         end
 
         def self.build_thing_validation(fields, include)
