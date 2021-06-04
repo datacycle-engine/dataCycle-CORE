@@ -126,8 +126,6 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
-
 --
 -- Name: activities; Type: TABLE; Schema: public; Owner: -
 --
@@ -194,6 +192,62 @@ CREATE TABLE public.assets (
 
 
 --
+-- Name: classification_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_groups (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    classification_id uuid,
+    classification_alias_id uuid,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_trees (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    external_source_id uuid,
+    parent_classification_alias_id uuid,
+    classification_alias_id uuid,
+    relationship_label character varying,
+    classification_tree_label_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: classification_alias_links; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.classification_alias_links AS
+ WITH primary_classification_groups AS (
+         SELECT DISTINCT classification_groups.classification_alias_id,
+            first_value(classification_groups.classification_id) OVER (PARTITION BY classification_groups.classification_alias_id ORDER BY classification_groups.created_at) AS classification_id
+           FROM public.classification_groups
+        )
+ SELECT primary_classification_groups.classification_alias_id AS parent_classification_alias_id,
+    additional_classification_groups.classification_alias_id AS child_classification_alias_id,
+    'related'::text AS link_type
+   FROM (primary_classification_groups
+     JOIN public.classification_groups additional_classification_groups ON (((primary_classification_groups.classification_id = additional_classification_groups.classification_id) AND (additional_classification_groups.classification_alias_id <> primary_classification_groups.classification_alias_id))))
+UNION
+ SELECT classification_trees.parent_classification_alias_id,
+    classification_trees.classification_alias_id AS child_classification_alias_id,
+    'broader'::text AS link_type
+   FROM public.classification_trees;
+
+
+--
 -- Name: classification_alias_paths; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -226,6 +280,58 @@ CREATE TABLE public.classification_aliases (
 
 
 --
+-- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_tree_labels (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    name character varying,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    internal boolean DEFAULT false,
+    deleted_at timestamp without time zone,
+    visibility character varying[] DEFAULT '{}'::character varying[]
+);
+
+
+--
+-- Name: classification_alias_paths_transitive; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.classification_alias_paths_transitive AS
+ WITH RECURSIVE classification_alias_paths_transitive(id, ancestors_ids, full_path_ids, full_path_names, link_types) AS (
+         SELECT classification_alias_links.child_classification_alias_id AS id,
+            ARRAY[]::uuid[] AS ancestors_ids,
+            ARRAY[classification_alias_links.child_classification_alias_id] AS full_path_ids,
+            ARRAY[classification_aliases.internal_name, classification_tree_labels.name] AS full_path_names,
+            ARRAY[]::text[] AS link_types
+           FROM (((public.classification_alias_links
+             JOIN public.classification_aliases ON ((classification_aliases.id = classification_alias_links.child_classification_alias_id)))
+             JOIN public.classification_trees ON (((classification_trees.parent_classification_alias_id IS NULL) AND (classification_trees.classification_alias_id = classification_aliases.id))))
+             JOIN public.classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
+          WHERE (classification_alias_links.parent_classification_alias_id IS NULL)
+        UNION ALL
+         SELECT classification_alias_links.child_classification_alias_id AS id,
+            (classification_alias_links.parent_classification_alias_id || classification_alias_paths_transitive_1.ancestors_ids) AS ancestors_ids,
+            (classification_aliases.id || classification_alias_paths_transitive_1.full_path_ids) AS full_path_ids,
+            (classification_aliases.internal_name || classification_alias_paths_transitive_1.full_path_names) AS full_path_names,
+            (classification_alias_links.link_type || classification_alias_paths_transitive_1.link_types) AS link_types
+           FROM ((public.classification_alias_links
+             JOIN public.classification_aliases ON ((classification_aliases.id = classification_alias_links.child_classification_alias_id)))
+             JOIN classification_alias_paths_transitive classification_alias_paths_transitive_1 ON ((classification_alias_paths_transitive_1.id = classification_alias_links.parent_classification_alias_id)))
+          WHERE (classification_alias_links.child_classification_alias_id <> ALL (classification_alias_paths_transitive_1.full_path_ids))
+        )
+ SELECT classification_alias_paths_transitive.id,
+    classification_alias_paths_transitive.ancestors_ids,
+    classification_alias_paths_transitive.full_path_ids,
+    classification_alias_paths_transitive.full_path_names,
+    classification_alias_paths_transitive.link_types
+   FROM classification_alias_paths_transitive;
+
+
+--
 -- Name: classification_contents; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -237,22 +343,6 @@ CREATE TABLE public.classification_contents (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     relation character varying
-);
-
-
---
--- Name: classification_groups; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_groups (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    classification_id uuid,
-    classification_alias_id uuid,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
 );
 
 
@@ -330,41 +420,6 @@ CREATE TABLE public.classification_polygons (
     geog public.geography(MultiPolygon,4326),
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_tree_labels (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name character varying,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    internal boolean DEFAULT false,
-    deleted_at timestamp without time zone,
-    visibility character varying[] DEFAULT '{}'::character varying[]
-);
-
-
---
--- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_trees (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    external_source_id uuid,
-    parent_classification_alias_id uuid,
-    classification_alias_id uuid,
-    relationship_label character varying,
-    classification_tree_label_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
 );
 
 
@@ -2511,6 +2566,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210422111740'),
 ('20210510120343'),
 ('20210518074537'),
-('20210602112830');
+('20210602112830'),
+('20210604072054');
 
 
