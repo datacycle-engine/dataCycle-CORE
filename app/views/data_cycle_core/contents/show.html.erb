@@ -19,7 +19,7 @@
     </li>
   </ul>
 
-  <%= render 'data_cycle_core/application/filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true, mode_selector: true } %>
+  <%= render 'data_cycle_core/application/filter', view_type: 'things' %>
   <%= render 'data_cycle_core/application/results', contents: @contents %>
 
   <% content_for :new_button do %>

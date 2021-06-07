@@ -33,6 +33,8 @@ module DataCycleCore
     end
 
     def add_filter
+      @params = add_filter_params
+
       respond_to(:js)
     end
 
@@ -116,6 +118,10 @@ module DataCycleCore
       end
 
       options.with_indifferent_access
+    end
+
+    def add_filter_params
+      params.permit(:n, :m, :q, :t, :index)
     end
   end
 end

@@ -167,23 +167,27 @@ class DashboardFilter {
     event.preventDefault();
     event.stopPropagation();
 
-    $(event.target).prop('disabled', true);
+    if (!this.$addAdvancedFilterSelect.val()) return;
+
+    this.$addAdvancedFilterSelect.prop('disabled', true);
+
     DataCycle.httpRequest({
       url: this.addFilterPath,
       method: 'GET',
       data: {
-        t: $(event.target).val(),
-        n: $(event.target).find(':selected').data('name'),
-        q: $(event.target).find(':selected').data('advancedtype'),
-        m: $(event.target).data('method'),
-        index: $(event.target).data('index')
+        t: this.$addAdvancedFilterSelect.val(),
+        n: this.$addAdvancedFilterSelect.find(':selected').data('name'),
+        q: this.$addAdvancedFilterSelect.find(':selected').data('advancedtype'),
+        m: this.$addAdvancedFilterSelect.data('method'),
+        index: this.$addAdvancedFilterSelect.data('index')
       },
       dataType: 'script',
       contentType: 'application/json'
     }).always(() => {
-      $(event.target).prop('disabled', false);
+      this.$addAdvancedFilterSelect.prop('disabled', false);
     });
-    $(event.target).val('');
+
+    this.$addAdvancedFilterSelect.val(null).trigger('change');
   }
   removeAdvancedFilter(event) {
     event.preventDefault();

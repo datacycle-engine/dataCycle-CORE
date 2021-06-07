@@ -25,6 +25,7 @@ module DataCycleCore
       @filters = @stored_filter.parameters
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }
+      @selected_specific_classifications = @filters.select { |f| f['c'] == 's' && f['t'] == 'classification_alias_ids' }.map { |c| c['v'] }.flatten.compact.uniq
       @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
       @selected_classification_aliases = DataCycleCore::ClassificationAlias
         .where(
@@ -38,6 +39,7 @@ module DataCycleCore
             .compact
             .uniq
         )
+        .includes(:classification_alias_path)
         .index_by(&:id)
 
       query

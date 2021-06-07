@@ -6,7 +6,7 @@
     <%= hidden_field_tag "f[s][n]", t('common.searchterm', locale: DataCycleCore.ui_language) %>
     <%= hidden_field_tag "f[s][t]", :fulltext_search %>
     <%= text_field_tag 'f[s][v]',
-        fulltext_search,
+        value.is_a?(String) ? value : nil,
         placeholder: t('common.searchterm', locale: DataCycleCore.ui_language),
         class:"input-group-field fulltext-search-field" %>
   </div>

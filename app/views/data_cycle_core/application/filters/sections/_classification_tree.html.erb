@@ -1,0 +1,19 @@
+<div class="classification-tree-filter" data-id="classification-tree-<%= value&.keys&.first&.underscore_blanks %>">
+  <%= hidden_field_tag "f[classification_tree][c]", 's' %>
+  <%= hidden_field_tag "f[classification_tree][t]", :classification_alias_ids %>
+  <%= hidden_field_tag "f[classification_tree][n]", value&.keys&.first %>
+  <%= hidden_field_tag "f[classification_tree][m]", 'i' %>
+
+  <ul class="no-bullet">
+    <% value&.values&.first.presence&.each do |item| %>
+      <li>
+        <input type="checkbox" name="f[classification_tree][v][]" value="<%= item.id %>" id="classification_tree-<%= item.id %>" <%= 'checked' if @selected_specific_classifications.presence&.include?(item.id) %> />
+        <label for="classification_tree-<%= item.id %>">
+          <span class="title">
+            <span class="inner-title"><%= item.internal_name %></span>
+          </span>
+        </label>
+      </li>
+    <% end %>
+  </ul>
+</div>

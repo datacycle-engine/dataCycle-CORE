@@ -1,0 +1,32 @@
+<div class="advanced-filters accordion" data-accordion data-allow-all-closed="true">
+  <div class="accordion-item <%= 'is-active' if DataCycleCore::Feature::AdvancedFilter.always_visible? %>" data-accordion-item>
+    <div class="accordion-content" data-tab-content style="<%= 'display: block;' if DataCycleCore::Feature::AdvancedFilter.always_visible? %>">
+      <% value.presence&.each_with_index do |advanced_filter, idx| %>
+        <%= render_advanced_filter_partial({
+                              filter_type: advanced_filter['t'],
+                              filter_title: advanced_filter['n'],
+                              filter_name: advanced_filter['n'].presence&.underscore_blanks,
+                              filter_method: advanced_filter['m'],
+                              filter_advanced_type: advanced_filter['q'],
+                              value: advanced_filter['v'],
+                              index: idx + config[:index] }) %>
+      <% end %>
+
+      <% if can?(:advanced_filter, :backend) %>
+        <div class="add-advanced-filter-container">
+          <%= select_tag :add_advanced_filter,
+                                grouped_options_for_select(DataCycleCore::Feature::AdvancedFilter.available_filters.select { |k, v| can?(:advanced_filter, config[:view_type]&.to_sym, k, v) }&.sort&.group_by{ |f| f[1] }&.transform_keys { |k| t("filter_groups.#{k}", default: k, locale: DataCycleCore.ui_language) }),
+                                prompt: t("filter.add", locale: DataCycleCore.ui_language),
+                                class: 'single-select',
+                                data: {
+                                  index: config[:index] + (value.presence&.size || 0),
+                                  allow_clear: false
+                                } %>
+        </div>
+      <% end %>
+    </div>
+    <a href="#" class="accordion-title">
+      <span><i class="fa fa-chevron-down" aria-hidden="true"></i></span>
+    </a>
+  </div>
+</div>

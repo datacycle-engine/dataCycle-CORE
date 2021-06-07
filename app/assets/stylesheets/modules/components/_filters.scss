@@ -6,6 +6,18 @@ $filter-border: #aaa;
     position: relative;
     background: $light-gray;
 
+    .filter-body {
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      padding-bottom: 1rem;
+
+      > * {
+        width: 100%;
+        margin: 1rem 0 0 0;
+      }
+    }
+
     .main-filters {
       li[data-children] > label:after {
         content: '\f105';
@@ -26,7 +38,8 @@ $filter-border: #aaa;
       }
     }
 
-    .advanced-filters {
+    .advanced-filters,
+    .publication-date-filter {
       .accordion-content {
         border-top: 1px solid white;
         background: inherit;
@@ -48,7 +61,8 @@ $filter-border: #aaa;
       margin: 0;
     }
 
-    .advanced-filters {
+    .advanced-filters,
+    .publication-date-filter {
       .add-advanced-filter-container {
         background-color: darken($medium-gray, 10%);
         box-shadow: 0 0 2px $dark-gray;
@@ -205,10 +219,6 @@ $filter-border: #aaa;
       input {
         margin: 0;
       }
-    }
-
-    > .row > .column > div {
-      margin: 1rem 0;
     }
 
     strong,
@@ -500,15 +510,6 @@ $filter-border: #aaa;
 
     .split-list li {
       background: white;
-    }
-  }
-
-  .filters > .row > .column {
-    .filtertags {
-      margin: 1rem 0 0.5rem 0;
-    }
-    .languagetags {
-      margin: 0.5rem 0 1rem 0;
     }
   }
 
