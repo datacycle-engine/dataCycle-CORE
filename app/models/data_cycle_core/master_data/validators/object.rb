@@ -37,7 +37,7 @@ module DataCycleCore
 
             next if !strict && data_keys.exclude?(key)
 
-            next if key_item['type'] == 'virtual'
+            next if key_item['type'].in?(['virtual', 'slug'])
 
             unless basic_types.include?(key_item['type'])
               (@error[:error][key] ||= []) << I18n.t(:object_type, scope: [:validation, :errors], data: key_item, type: key_item['type'], locale: DataCycleCore.ui_language)
@@ -46,7 +46,7 @@ module DataCycleCore
 
             unless key_item['type'] == 'object'
               # puts "validate(#{key}/#{key_item['type']}) -> #{data[key]} // #{key_item}"
-              validator_object = basic_types[key_item['type']].new(data[key], key_item, key, strict)
+              validator_object = basic_types[key_item['type']].new(data[key], key_item, key, strict, @content)
               merge_errors(validator_object.error) unless validator_object.nil?
               next
             end

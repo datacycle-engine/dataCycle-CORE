@@ -6,7 +6,7 @@ module DataCycleCore
       class Thing
         DEFAULT_HEADER = Dry::Schema.JSON do
           required(:@id).value(:uuid_v4?)
-          required(:@type).value(:string)
+          required(:@type) { array? | str? }
           optional(:name).value(:string)
         end
 
@@ -78,6 +78,7 @@ module DataCycleCore
           optional(:'cc:attributionName').value(:string)
           optional(:'cc:attributionUrl').value(:string)
           optional(:'cc:useGuidelines').value(:string)
+          optional(:'dc:slug').value(:string)
         end
 
         # Test with Author
@@ -116,6 +117,7 @@ module DataCycleCore
           optional(:'cc:attributionName').value(:string)
           optional(:'cc:attributionUrl').value(:string)
           optional(:'cc:useGuidelines').value(:string)
+          optional(:'dc:slug').value(:string)
         end
 
         def self.build_thing_validation(fields, include)

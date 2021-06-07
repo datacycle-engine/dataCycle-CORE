@@ -28,7 +28,7 @@ module DataCycleCore
         end
 
         def api_type
-          schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize
+          [schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize, 'dcls:' + template_name].flatten
         end
       end
     end

@@ -38,7 +38,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Article',
+                '@type' => @content.api_type,
                 'dc:multilingual' => false,
                 'dc:translation' => [
                   'de'
@@ -66,7 +66,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Article',
+                '@type' => @content.api_type,
                 'dc:multilingual' => false,
                 'dc:translation' => [
                   'de'
@@ -75,7 +75,7 @@ module DataCycleCore
             end
 
             # plain attributes without transformation
-            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'use_guidelines', 'text', 'url', 'text', 'keywords', 'headline', 'alternative_headline']) do
+            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'use_guidelines', 'text', 'url', 'text', 'keywords', 'headline', 'alternative_headline', 'dc:slug']) do
               {
                 'name' => translated_value(@content, 'name', ['de']),
                 'headline' => translated_value(@content, 'headline', ['de']),
@@ -84,7 +84,8 @@ module DataCycleCore
                 'keywords' => translated_value(@content, 'keywords', ['de']),
                 'sameAs' => translated_value(@content, 'url', ['de']),
                 'alternativeHeadline' => translated_value(@content, 'alternative_headline', ['de']),
-                'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de'])
+                'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de']),
+                'dc:slug' => translated_value(@content, 'slug', ['de'])
               }
             end
 
@@ -130,7 +131,7 @@ module DataCycleCore
               {
                 'potentialAction' => [
                   {
-                    '@type' => 'Action',
+                    '@type' => @content.potential_action.first.api_type,
                     'dc:multilingual' => true,
                     'dc:translation' => [
                       'de'
@@ -193,7 +194,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Article',
+                '@type' => @content.api_type,
                 'dc:multilingual' => false,
                 'dc:translation' => [
                   'de'
@@ -265,7 +266,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Article',
+                '@type' => @content.api_type,
                 'dc:multilingual' => false,
                 'dc:translation' => [
                   'de'
@@ -274,7 +275,7 @@ module DataCycleCore
             end
 
             # plain attributes without transformation
-            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'use_guidelines', 'text', 'url', 'text', 'keywords', 'headline', 'alternative_headline']) do
+            assert_translated_attributes(json_validate, required_attributes, ['name', 'description', 'use_guidelines', 'text', 'url', 'text', 'keywords', 'headline', 'alternative_headline', 'dc:slug']) do
               {
                 'name' => translated_value(@content, 'name', ['de']),
                 'headline' => translated_value(@content, 'headline', ['de']),
@@ -283,7 +284,8 @@ module DataCycleCore
                 'keywords' => translated_value(@content, 'keywords', ['de']),
                 'sameAs' => translated_value(@content, 'url', ['de']),
                 'alternativeHeadline' => translated_value(@content, 'alternative_headline', ['de']),
-                'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de'])
+                'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de']),
+                'dc:slug' => translated_value(@content, 'slug', ['de'])
               }
             end
 
@@ -326,7 +328,7 @@ module DataCycleCore
               {
                 'potentialAction' => [
                   {
-                    '@type' => 'Action',
+                    '@type' => @content.potential_action.first.api_type,
                     'dc:multilingual' => true,
                     'dc:translation' => [
                       'de'

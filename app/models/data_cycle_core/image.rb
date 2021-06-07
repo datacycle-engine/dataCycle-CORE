@@ -44,7 +44,11 @@ module DataCycleCore
       @duplicate_candidates_with_score ||= begin
         return [] if duplicate_check&.dig('phash').blank?
 
-        DataCycleCore::Image.select("(100 - (100 * phash_hamming('#{duplicate_check['phash']}', assets.duplicate_check ->> 'phash') / 255)) AS score, *").where("assets.duplicate_check IS NOT NULL AND assets.duplicate_check ->> 'phash' IS NOT NULL AND assets.duplicate_check ->> 'phash' != '0' AND phash_hamming(?, assets.duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id).map { |d| { content: d.thing, method: 'phash', score: d.try(:score) } if d.thing.present? }.compact
+        DataCycleCore::Image
+          .select("(100 - (100 * phash_hamming('#{duplicate_check['phash']}', assets.duplicate_check ->> 'phash') / 255)) AS score, *")
+          .where("assets.duplicate_check IS NOT NULL AND assets.duplicate_check ->> 'phash' IS NOT NULL AND assets.duplicate_check ->> 'phash' != '0' AND phash_hamming(?, assets.duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id)
+          .map { |d| { content: d.thing, method: 'phash', score: d.try(:score) } if d.thing.present? }
+          .compact
       end
     end
 

@@ -15,6 +15,32 @@ module DataCycleCore
         def controller_module
           DataCycleCore::Feature::ControllerFunctions::DuplicateCandidate
         end
+
+        def find_duplicates(content)
+          method = duplicate_method(content)
+          return nil if method.blank?
+          send(method, content)
+        end
+
+        def duplicate_method(content)
+          configuration(content).dig('method') || nil
+        end
+
+        # specific implementiations of duplicatemethods
+        def bild_duplicate(content)
+          content.asset&.duplicate_candidates_with_score
+        end
+
+        def only_title_duplicate(content)
+          DataCycleCore::Thing.where(
+            template: false,
+            template_name: content.template_name,
+            name: content.name
+          ).where.not(id: content.id)
+            .map { |d|
+              { content: d, method: 'only_title', score: 83 }
+            }.compact
+        end
       end
     end
   end

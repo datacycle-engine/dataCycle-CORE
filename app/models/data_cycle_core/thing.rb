@@ -8,9 +8,10 @@ module DataCycleCore
 
     class History < Content::Content
       include Content::ContentHistoryLoader
+      include Content::Restorable
 
       extend ::Translations
-      translates :name, :description, :content, :history_valid, backend: :table
+      translates :name, :description, :slug, :content, :history_valid, backend: :table
       default_scope { i18n }
 
       content_relations table_name: 'things', postfix: 'history'
@@ -58,7 +59,7 @@ module DataCycleCore
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
 
     extend ::Translations
-    translates :name, :description, :content, backend: :table
+    translates :name, :description, :slug, :content, backend: :table
     default_scope { i18n }
 
     content_relations table_name: table_name

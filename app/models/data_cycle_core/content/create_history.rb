@@ -3,14 +3,27 @@
 module DataCycleCore
   module Content
     module CreateHistory
-      def to_history(save_time:, delete: false)
+      def to_history(save_time:, delete: false, all_translations: false)
         origin_table = self.class.to_s.split('::')[1].tableize
         data_set_history = (self.class.to_s + '::History').safe_constantize.new
 
         # cc self to history
         data_set_history.send(origin_table.singularize.foreign_key + '=', id)
-        attributes.except('id', 'created_at', 'updated_at').each do |key, value|
-          data_set_history.send("#{key}=", value)
+
+        if all_translations
+          available_locales.each do |locale|
+            I18n.with_locale(locale) do
+              attributes.except('id', 'created_at', 'updated_at').each do |key, value|
+                data_set_history.send("#{key}=", value)
+              end
+              lower_translated_bound = histories.includes(:translations).find_by(thing_history_translations: { locale: I18n.locale })&.history_valid&.last
+              data_set_history.history_valid = ((lower_translated_bound || created_at)...save_time)
+            end
+          end
+        else
+          attributes.except('id', 'created_at', 'updated_at').each do |key, value|
+            data_set_history.send("#{key}=", value)
+          end
         end
 
         lower_bound = histories.includes(:translations).find_by(thing_history_translations: { locale: I18n.locale })&.history_valid&.last

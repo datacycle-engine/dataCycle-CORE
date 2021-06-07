@@ -17,7 +17,9 @@ module DataCycleCore
           mongo_item.collection.aggregate(
             [
               { '$match': { "dump.#{locale}.deleted_at": { '$exists': true } } },
-              { '$group': { _id: "$dump.#{locale}.EventSetID", 'dates': { '$addToSet': "$dump.#{locale}.DateTime" }, 'dump': { '$first': '$dump' } } },
+              { '$group': { _id: { '$concat': ["$dump.#{locale}.EventSetID", ' - ', "$dump.#{locale}.Name1"] },
+                            'dates': { '$addToSet': "$dump.#{locale}.DateTime" },
+                            'dump': { '$first': '$dump' } } },
               { '$addFields': { "dump.#{locale}.dates": '$dates' } }
             ]
           )
@@ -32,7 +34,7 @@ module DataCycleCore
           I18n.with_locale(locale) do
             external_key_path = options.dig(:import, :external_key_path).split('.')
             raise "JetTicket delete Events: No external id found! Item:#{raw_data.dig('EventSetID')}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
-            external_key = [options.dig(:import, :external_key_prefix), raw_data.dig(*external_key_path)].join
+            external_key = [options.dig(:import, :external_key_prefix), raw_data.dig(*external_key_path), ' - ', raw_data.dig('Name1')].join
 
             content = DataCycleCore::Thing.find_by(external_source_id: utility_object.external_source.id, external_key: external_key)
             return if content.blank?

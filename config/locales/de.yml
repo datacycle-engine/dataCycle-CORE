@@ -1,4 +1,14 @@
 de:
+  i18n:
+    transliterate:
+      rule:
+        Ä: "Ae"
+        ä: "ae"
+        Ö: "Oe"
+        ö: "oe"
+        Ü: "Ue"
+        ü: "ue"
+        ß: "ss"
   title: dataCycle
   hello: 'Guten Tag!'
   welcome: 'Willkommen!'
@@ -283,6 +293,7 @@ de:
     external_key: Externe Id
     inverse_linked: Inverse Referenz
     has_overlay: Bei diesem Inhalt ist ein Overlay vorhanden
+    no_name: unbenannt
 
   embedded:
     move_down: nach unten verschieben
@@ -344,6 +355,7 @@ de:
     differences_to_version: Unterschiede zu Version
     active_version: Aktuelle Version
     look_at_version: Aktuellen Inhalt mit dieser Version vergleichen
+    restored: Wiederhergestellt am %{date}
 
   data_link_mailer:
     content_download: Inhalt herunterladen
@@ -584,6 +596,7 @@ de:
 
   validation:
     errors:
+      slug: '%{data} ist bereits der slug von einem anderen Datensatz.'
       min: '%{data} zu kurz, sollte mindestens %{min} lang sein, ist aber nur %{length} lang.'
       max: '%{data} zu lang, sollte maximal %{max} lang sein, ist aber %{length} lang.'
       min_number: '%{data} zu klein, sollte %{value} sein, ist aber nur %{data}.'

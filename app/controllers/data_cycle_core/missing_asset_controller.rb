@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class MissingAssetController < ActionController::Base
+  class MissingAssetController < ApplicationController
     include DataCycleCore::ErrorHandler
     protect_from_forgery with: :exception
 
@@ -20,6 +20,8 @@ module DataCycleCore
 
       headers['ETag'] = %("#{File.mtime(@asset_path)}-#{@asset_version.try(:size)}")
       headers['Last-Modified'] = File.mtime(@asset_path).httpdate
+      headers.delete 'X-Frame-Options'
+
       send_file @asset_path, disposition: 'inline', filename: @asset_version.file_name, type: @asset_version.content_type
     rescue StandardError => e
       not_found(e)

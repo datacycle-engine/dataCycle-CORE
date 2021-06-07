@@ -31,7 +31,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['id', 'name']) do
                   {
                     '@id' => @content.id,
-                    '@type' => 'ImageObject',
+                    '@type' => @content.api_type,
                     'name' => @content.name
                   }
                 end
@@ -47,7 +47,7 @@ module DataCycleCore
                 end
 
                 # plain attributes without transformation
-                assert_attributes(json_validate, required_attributes, ['description', 'url', 'caption', 'keywords', 'content_url', 'thumbnail_url', 'file_format', 'upload_date', 'content_size', 'copyright_year']) do
+                assert_attributes(json_validate, required_attributes, ['description', 'url', 'caption', 'keywords', 'content_url', 'thumbnail_url', 'file_format', 'upload_date', 'content_size', 'copyright_year', 'dc:slug']) do
                   {
                     'description' => @content.description,
                     'keywords' => @content.keywords,
@@ -58,7 +58,8 @@ module DataCycleCore
                     'contentSize' => @content.content_size,
                     'copyrightYear' => @content.copyright_year,
                     'caption' => @content.caption,
-                    'sameAs' => @content.url
+                    'sameAs' => @content.url,
+                    'dc:slug' => @content.slug
                   }
                 end
 

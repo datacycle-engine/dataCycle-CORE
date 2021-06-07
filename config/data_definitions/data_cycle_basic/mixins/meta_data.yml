@@ -39,6 +39,17 @@
            disabled: true
          :show:
            :type: date
+      :slug:
+        :label: slug
+        :storage_location: column
+        :type: slug
+        :default_value:
+          module: DataCycleCore::Utility::DefaultValue::Slug
+          method: generate_slug
+        :advanced_search: true
+        :search: true
+        :api:
+          :name: dc:slug        
       :external_key:
         :label: external_key
         :type: string

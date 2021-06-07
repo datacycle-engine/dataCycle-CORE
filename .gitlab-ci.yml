@@ -1,4 +1,4 @@
-image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:vite
+image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
 
 variables:
   POSTGRES_USER: postgres

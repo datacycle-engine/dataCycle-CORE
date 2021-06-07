@@ -25,6 +25,13 @@ module DataCycleCore
           @error
         end
 
+        def uuid(data)
+          data_uuid = data.downcase
+          uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
+          check_uuid = data.length == 36 && !(data_uuid =~ uuid).nil?
+          (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
+        end
+
         private
 
         # given string validations
@@ -79,13 +86,6 @@ module DataCycleCore
         #     end
         #   end
         # end
-
-        def uuid(data)
-          data_uuid = data.downcase
-          uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          check_uuid = data.length == 36 && !(data_uuid =~ uuid).nil?
-          (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
-        end
 
         def telephone_din5008(data)
           din5008 = /^(\+[1-9]\d+) ([1-9]\d*) ([1-9]\d+)(\-\d+){0,1}$|^(0\d+) ([1-9]\d+)(\-\d+){0,1}$|^([1-9]\d+)(\-\d+){0,1}$|^(\+[1-9]\d+) ([1-9]\d+)(\-\d+){0,1}$/

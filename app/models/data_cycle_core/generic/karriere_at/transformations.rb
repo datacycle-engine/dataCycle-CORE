@@ -12,7 +12,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { s.dig('id', 'text') })
           .>> t(:add_field, 'name', ->(s) { s.dig('title', '#cdata-section') })
-          .>> t(:add_field, 'description', ->(s) { s.dig('contentText', '#cdata-section').gsub(/\n/, '<br/>') })
+          .>> t(:add_field, 'description', ->(s) { s.dig('contentText', '#cdata-section')&.gsub(/\n/, '<br/>') })
           .>> t(:add_field, 'same_as', ->(s) { s.dig('staticUrl', '#cdata-section') })
           .>> t(:add_field, 'potential_action', ->(s) { { 'url' => s.dig('url', '#cdata-section') } })
           .>> t(:add_field, 'snippet', ->(s) { unescape_html(s.dig('snippet', '#cdata-section')) })
@@ -34,6 +34,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { ['Company:', s.dig('id', 'text')].join('') })
           .>> t(:add_field, 'name', ->(s) { s.dig('name', '#cdata-section') })
+          .>> t(:add_field, 'slug', ->(s) { s.dig('slug', '#cdata-section') })
           .>> t(:reject_keys, ['id'])
           .>> t(:strip_all)
         end

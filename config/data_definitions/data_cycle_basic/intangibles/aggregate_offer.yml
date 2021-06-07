@@ -256,13 +256,6 @@
       :cc_rel:
         :type: mixin
         :name: cc_rel
-      :feratel_db_code:
-        :label: DBCode
-        :type: string
-        :storage_location: value
-        :search: true
-        :api:
-          :name: dcls:feratel_db_code
       :meta_data:
         :type: mixin
         :name: meta_data

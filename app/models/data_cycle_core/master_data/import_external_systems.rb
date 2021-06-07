@@ -21,7 +21,7 @@ module DataCycleCore
           data = YAML.safe_load(File.open(file_name), [Symbol])
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
-            external_system = DataCycleCore::ExternalSystem.find_or_initialize_by(name: data['name'])
+            external_system = DataCycleCore::ExternalSystem.find_by(identifier: data['identifier']) || DataCycleCore::ExternalSystem.find_or_initialize_by(name: data['name'])
             data['identifier'] ||= data['name']
             external_system.attributes = data.slice('name', 'identifier', 'credentials', 'config', 'default_options')
             external_system.save

@@ -36,7 +36,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id', 'name']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Event',
+                '@type' => @content.api_type,
                 'name' => @content.name
               }
             end
@@ -66,9 +66,10 @@ module DataCycleCore
             end
 
             # plain external attributes without transformation
-            assert_attributes(json_validate, required_attributes, ['url']) do
+            assert_attributes(json_validate, required_attributes, ['url', 'dc:slug']) do
               {
-                'sameAs' => @content.url
+                'sameAs' => @content.url,
+                'dc:slug' => @content.slug
               }
             end
 
@@ -210,7 +211,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['id', 'name']) do
               {
                 '@id' => @content.id,
-                '@type' => 'Event',
+                '@type' => @content.api_type,
                 'name' => @content.name
               }
             end
@@ -240,9 +241,10 @@ module DataCycleCore
             end
 
             # plain external attributes without transformation
-            assert_attributes(json_validate, required_attributes, ['url']) do
+            assert_attributes(json_validate, required_attributes, ['url', 'dc:slug']) do
               {
-                'sameAs' => @content.url
+                'sameAs' => @content.url,
+                'dc:slug' => @content.slug
               }
             end
 
@@ -297,7 +299,7 @@ module DataCycleCore
 
             price_specification_api_values = {
               '@id' => price_specification_object.id,
-              '@type' => 'UnitPriceSpecification',
+              '@type' => price_specification_object.api_type,
               'dc:multilingual' => true,
               'dc:translation' => [
                 'de'
@@ -312,7 +314,7 @@ module DataCycleCore
 
             item_offered_api_values = {
               '@id' => item_offered_object.id,
-              '@type' => 'Intangible',
+              '@type' => item_offered_object.api_type,
               'dc:multilingual' => true,
               'dc:translation' => [
                 'de'
@@ -321,12 +323,13 @@ module DataCycleCore
               'description' => item_offered_object.description,
               'dc:additionalInformation' => [{
                 '@id' => item_offered_object.additional_information.first.id,
-                '@type' => 'CreativeWork'
+                '@type' => item_offered_object.additional_information.first.api_type
               }],
               'sameAs' => item_offered_object.url,
               'hoursAvailable' => [
                 item_offered_object.hours_available.first.to_api_default_values
               ],
+              'dc:slug' => item_offered_object.slug,
               'additionalProperty' => [
                 {
                   '@type' => 'PropertyValue',
@@ -339,7 +342,7 @@ module DataCycleCore
 
             offer_api_values = {
               '@id' => offer_object.id,
-              '@type' => 'Offer',
+              '@type' => offer_object.api_type,
               'dc:multilingual' => true,
               'dc:translation' => [
                 'de'
@@ -444,7 +447,7 @@ module DataCycleCore
             virtual_location_object = @content.virtual_location.first
             virtual_location_api_values = {
               '@id' => virtual_location_object.id,
-              '@type' => 'VirtualLocation',
+              '@type' => virtual_location_object.api_type,
               'dc:multilingual' => false,
               'dc:translation' => [
                 'de'

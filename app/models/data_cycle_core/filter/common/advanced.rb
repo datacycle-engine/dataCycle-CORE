@@ -121,6 +121,17 @@ module DataCycleCore
           advanced_string(value, attribute_path, :not_exists)
         end
 
+        def equals_advanced_slug(value = nil, _attribute_path = nil)
+          reflect(
+            @query.where(
+              DataCycleCore::Thing::Translation.where(
+                thing_translations[:slug].eq(value[:equals])
+                  .and(thing[:id].eq(thing_translations[:thing_id]))
+              ).arel.exists
+            )
+          )
+        end
+
         def equals_advanced_classification_alias_ids(value = nil, attribute_path = nil)
           return self if value.blank?
 

@@ -6,9 +6,9 @@ chown -R 1000:1000 /var/www/app/tmp
 rm -f tmp/pids/server.pid
 
 gem install bundler
-bundle update rails
+# bundle update
 bundle install
-(yarn; yarn upgrade data-cycle-core) &> log/yarn.log &
+(yarn --ignore-scripts; yarn upgrade) &> log/yarn.log &
 
 # update project dictionaries if existing in main projects config/configurations/ts_search/
 bundle exec rake dc:update:dictionaries

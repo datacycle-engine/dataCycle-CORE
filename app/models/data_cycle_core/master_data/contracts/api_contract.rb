@@ -120,6 +120,7 @@ module DataCycleCore
             optional(:numberOfRooms).hash(ATTRIBUTE_FILTER)
             optional(:maxNumberOfPeople).hash(ATTRIBUTE_FILTER)
             optional(:totalNumberOfBeds).hash(ATTRIBUTE_FILTER)
+            optional(:slug).hash(ATTRIBUTE_FILTER)
           end
         end
 

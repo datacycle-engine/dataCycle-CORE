@@ -37,18 +37,11 @@
     </div>
   </div>
   <div class="form-element">
-  <%= f.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: DataCycleCore.ui_language) %>
-  <% data_link_modes = [OpenStruct.new(type: :read)] %>
-  <% data_link_modes.push(OpenStruct.new(type: :write)) if (
-    content.is_a?(DataCycleCore::WatchList) &&
-    content.try(:things)&.all? { |thing| can?(:edit, thing) } &&
-    can?(:add_item, content)
-  ) || can?(:edit, content) %>
-  <% data_link_modes.unshift(OpenStruct.new(type: :download)) if (content.is_a?(DataCycleCore::WatchList) && can?(:download_zip, content)) || (content.is_a?(DataCycleCore::Thing) && can?(:download, content)) %>
-  <%= f.collection_radio_buttons(:permissions, data_link_modes, :type, :type, { checked: data_link.permissions&.to_sym || :read }) do |b| %>
-    <%= b.radio_button %>
-    <%= b.label { DataCycleCore::DataLink.human_attribute_name("permissions_#{b.text}", locale: DataCycleCore.ui_language) } %>
-  <% end %>
+    <%= f.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: DataCycleCore.ui_language) %>
+    <%= f.collection_radio_buttons(:permissions, data_link_modes(content), :type, :type, { checked: data_link.permissions&.to_sym || :read }) do |b| %>
+      <%= b.radio_button %>
+      <%= b.label { DataCycleCore::DataLink.human_attribute_name("permissions_#{b.text}", locale: DataCycleCore.ui_language) } %>
+    <% end %>
   </div>
 
   <div class="form-element">

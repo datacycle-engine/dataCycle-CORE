@@ -16,6 +16,10 @@ module DataCycleCore
           attribute_keys(content) || []
         end
 
+        def allowed?(content, locale, source_locale)
+          super(content) && allowed_languages.include?(locale.to_s) && allowed_languages.include?(source_locale.to_s)
+        end
+
         def external_source
           @external_source ||= DataCycleCore::ExternalSystem.find_by(name: configuration.dig(:external_source))
         end
@@ -29,9 +33,13 @@ module DataCycleCore
         end
 
         def translate_text(translate_hash)
-          return {} if endpoint.blank? || translate_hash.blank? || translate_hash.values.all?(&:blank?)
+          return {} if endpoint.blank? || translate_hash.blank? || translate_hash.values.all?(&:blank?) || translate_hash['text'].blank?
 
           endpoint.translate(translate_hash.to_h)
+        end
+
+        def allowed_languages
+          Array.wrap(configuration[:allowed_languages])
         end
       end
     end

@@ -39,7 +39,7 @@ $ rake app:data_cycle_core:update:import_templates
 #### assets
 
 ```bash
-yarn && gulp
+yarn && yarn upgrade
 ```
 
 ## Testing

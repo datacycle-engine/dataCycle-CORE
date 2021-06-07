@@ -34,16 +34,39 @@ module DataCycleCore
 
         def content_ids(ids = nil)
           return self if ids.blank?
-          reflect(
-            @query.where(thing[:id].in(ids))
-          )
+
+          if Array.wrap(ids).map(&:uuid?).inject(&:&)
+            reflect(
+              @query.where(thing[:id].in(ids))
+            )
+          else
+            reflect(
+              @query.where(
+                DataCycleCore::Thing::Translation.where(
+                  thing_translations[:slug].in(ids)
+                    .and(thing[:id].eq(thing_translations[:thing_id]))
+                ).arel.exists
+              )
+            )
+          end
         end
 
         def not_content_ids(ids = nil)
           return self if ids.blank?
-          reflect(
-            @query.where.not(thing[:id].in(ids))
-          )
+          if Array.wrap(ids).map(&:uuid?).inject(&:&)
+            reflect(
+              @query.where.not(thing[:id].in(ids))
+            )
+          else
+            reflect(
+              @query.where.not(
+                DataCycleCore::Thing::Translation.where(
+                  thing_translations[:slug].in(ids)
+                    .and(thing[:id].eq(thing_translations[:thing_id]))
+                ).arel.exists
+              )
+            )
+          end
         end
 
         def filter_ids(ids = nil)

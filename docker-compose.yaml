@@ -40,6 +40,10 @@ services:
       - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
       - SSH_AUTH_SOCK=/ssh-agent
       - HISTFILE=/root/hist/.bash_history
+      - VITE_RUBY_HOST=0.0.0.0
+      - VITE_RUBY_PORT=${PUBLIC_VITE_PORT:-3036}
+    ports:
+      - '${PUBLIC_VITE_PORT:-3036}:${PUBLIC_VITE_PORT:-3036}'
     command:
       - ${COMPOSE_WEB_COMMAND:-./vendor/gems/data-cycle-core/docker/setup.sh}
     volumes:

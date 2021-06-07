@@ -233,12 +233,9 @@ CREATE TABLE public.classification_contents (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_id uuid,
     classification_id uuid,
-    tag boolean,
-    classification boolean,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
     relation character varying
 );
 
@@ -314,12 +311,9 @@ CREATE TABLE public.classification_content_histories (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_history_id uuid,
     classification_id uuid,
-    tag boolean,
-    classification boolean,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
     relation character varying
 );
 
@@ -939,7 +933,8 @@ CREATE TABLE public.thing_history_translations (
     description text,
     history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    slug character varying
 );
 
 
@@ -955,7 +950,8 @@ CREATE TABLE public.thing_translations (
     name character varying,
     description text,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    slug character varying
 );
 
 
@@ -1985,6 +1981,13 @@ CREATE INDEX index_thing_translations_on_locale ON public.thing_translations USI
 
 
 --
+-- Name: index_thing_translations_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_thing_translations_on_slug ON public.thing_translations USING btree (slug);
+
+
+--
 -- Name: index_thing_translations_on_thing_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2038,6 +2041,20 @@ CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
 --
 
 CREATE INDEX index_things_on_is_part_of ON public.things USING btree (is_part_of);
+
+
+--
+-- Name: index_things_on_line_geography_cast; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_line_geography_cast ON public.things USING gist (public.geography(line));
+
+
+--
+-- Name: index_things_on_line_spatial; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_line_spatial ON public.things USING gist (line);
 
 
 --
@@ -2491,6 +2508,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210413105611'),
 ('20210416120714'),
 ('20210421180706'),
-('20210422111740');
+('20210422111740'),
+('20210510120343'),
+('20210518074537'),
+('20210602112830');
 
 

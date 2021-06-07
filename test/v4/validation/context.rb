@@ -51,6 +51,10 @@ module DataCycleCore
             required(:'@id') { eql?('https://schema.org/numberOfBedrooms') }
             required(:'@type') { eql?('https://schema.org/Number') }
           end
+          required(:'dc:slug').hash do
+            required(:'@id') { eql?('https://schema.datacycle.at/slug') }
+            required(:'@type') { eql?('https://schema.org/url') }
+          end
         end
 
         def self.build_language_attributes(languages)
