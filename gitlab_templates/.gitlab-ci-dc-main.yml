@@ -83,8 +83,8 @@ services:
     - bundle config set --local path 'cache/bundler'
     - bundle install
     - cd $CI_PROJECT_DIR
-    - yarn --ignore-scripts
-    - yarn --ignore-scripts upgrade
+    - yarn
+    - yarn upgrade
 
 .code_validation_config:
   extends: .job_cache_config

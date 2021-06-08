@@ -2281,6 +2281,13 @@ CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btre
 
 
 --
+-- Name: thing_translations_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX thing_translations_name_idx ON public.thing_translations USING gin (name public.gin_trgm_ops);
+
+
+--
 -- Name: unique_by_shareable; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2567,6 +2574,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210510120343'),
 ('20210518074537'),
 ('20210602112830'),
-('20210604072054');
+('20210604072054'),
+('20210608125638');
 
 

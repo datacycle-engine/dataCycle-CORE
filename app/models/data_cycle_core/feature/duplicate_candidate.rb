@@ -3,6 +3,9 @@
 module DataCycleCore
   module Feature
     class DuplicateCandidate < Base
+      EXCEPT_PROPERTIES = ['id', 'external_key', 'slug', 'date_created', 'date_modified', 'date_deleted'].freeze
+      WEIGHTING = 5
+
       class << self
         def content_module
           DataCycleCore::Feature::Content::DuplicateCandidate
@@ -39,6 +42,29 @@ module DataCycleCore
           ).where.not(id: content.id)
             .map { |d|
               { content: d, method: 'only_title', score: 83 }
+            }.compact
+        end
+
+        def data_metric_hamming(content)
+          except = EXCEPT_PROPERTIES + content.linked_property_names + content.embedded_property_names + content.classification_property_names
+          relevant_schema = content.schema.dup
+          relevant_schema['properties'] = relevant_schema.dig('properties').except(*except)
+          total = relevant_schema['properties'].size
+          DataCycleCore::Thing.where(
+            template: false,
+            template_name: content.template_name
+          ).joins(:translations).where(
+            "thing_translations.locale = 'de'"
+          ).where( # prefilter with name
+            'similarity(thing_translations.name, ?) > 0.8', content.name
+          ).where( # prefilter location
+            content.location.blank? ? 'location IS NULL' : "ST_Distance(location, 'SRID=4326;#{content.location&.to_s}'::geometry) < 100"
+          )
+            .where.not(id: content.id)
+            .map { |d|
+              diff = content.diff(d.get_data_hash.except(*except), relevant_schema)
+              score = [0, 100 * (total - diff.size * WEIGHTING) / total].max
+              { content: d, method: 'data_metric_hamming', score: score } if score > 80
             }.compact
         end
       end
