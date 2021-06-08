@@ -6,33 +6,33 @@ module DataCycleCore
       module Classification
         def classification_alias_ids_with_subtree(ids = nil)
           return self if ids.blank?
-          query_string = Thing.send(:sanitize_sql_for_conditions, ['(searches.classification_aliases_mapping && ARRAY[?]::uuid[] OR searches.classification_ancestors_mapping && ARRAY[?]::uuid[])', ids, ids])
+
           reflect(
-            @query.where(search_exists(Arel.sql(query_string)))
+            @query.where(create_exists_query_for_classification_alias_ids_with_subtree(ids))
           )
         end
 
         def not_classification_alias_ids_with_subtree(ids = nil)
           return self if ids.blank?
-          query_string = Thing.send(:sanitize_sql_for_conditions, ['NOT((classification_aliases_mapping && ARRAY[?]::uuid[] OR classification_ancestors_mapping && ARRAY[?]::uuid[]))', ids, ids])
+
           reflect(
-            @query.where(search_exists(Arel.sql(query_string)))
+            @query.where(Arel::Nodes::Not.new(create_exists_query_for_classification_alias_ids_with_subtree(ids)))
           )
         end
 
         def classification_alias_ids_without_subtree(ids = nil)
           return self if ids.blank?
-          query_string = Thing.send(:sanitize_sql_for_conditions, ['classification_aliases_mapping && ARRAY[?]::uuid[]', ids])
+
           reflect(
-            @query.where(search_exists(Arel.sql(query_string)))
+            @query.where(create_exists_query_for_classification_alias_ids_without_subtree(ids))
           )
         end
 
         def not_classification_alias_ids_without_subtree(ids = nil)
           return self if ids.blank?
-          query_string = Thing.send(:sanitize_sql_for_conditions, ['NOT(classification_aliases_mapping && ARRAY[?]::uuid[])', ids])
+
           reflect(
-            @query.where(search_exists(Arel.sql(query_string)))
+            @query.where(Arel::Nodes::Not.new(create_exists_query_for_classification_alias_ids_without_subtree(ids)))
           )
         end
 
@@ -99,6 +99,54 @@ module DataCycleCore
         # Deprecated: replace with classification_alias_ids_without_subtree
         def with_classification_alias_ids_without_recursion(_ids = nil)
           raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
+        end
+
+        private
+
+        def create_exists_query_for_classification_alias_ids_with_subtree(ids)
+          raw_query = <<-SQL.squish
+            SELECT
+          	FROM classification_alias_paths
+          	JOIN classification_groups ON
+              classification_groups.classification_alias_id = classification_alias_paths.id
+          	JOIN classification_contents ON
+              classification_contents.classification_id = classification_groups.classification_id
+          	WHERE classification_contents.content_data_id = things.id AND
+              classification_alias_paths.full_path_ids && ARRAY[?]::UUID[]
+          SQL
+
+          Arel::Nodes::Exists.new(
+            Arel.sql(
+              Thing.send(:sanitize_sql_for_conditions,
+                [
+                  raw_query,
+                  ids
+                ]
+              )
+            )
+          )
+        end
+
+        def create_exists_query_for_classification_alias_ids_without_subtree(ids)
+          raw_query = <<-SQL.squish
+            SELECT
+        	  FROM classification_groups
+        	  JOIN classification_contents ON
+              classification_contents.classification_id = classification_groups.classification_id
+        	  WHERE classification_contents.content_data_id = things.id AND
+              classification_groups.classification_alias_id IN (?)
+          SQL
+
+          Arel::Nodes::Exists.new(
+            Arel.sql(
+              Thing.send(:sanitize_sql_for_conditions,
+                [
+                  raw_query,
+                  ids
+                ]
+              )
+            )
+          )
         end
       end
     end
