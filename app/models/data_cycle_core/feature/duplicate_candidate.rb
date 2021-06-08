@@ -58,7 +58,7 @@ module DataCycleCore
           ).where( # prefilter with name
             'similarity(thing_translations.name, ?) > 0.8', content.name
           ).where( # prefilter location
-            content.location.blank? ? 'location IS NULL' : "ST_Distance(location, 'SRID=4326;#{content.location&.to_s}'::geometry) < 10"
+            content.location.blank? ? 'location IS NULL' : "ST_Distance(location, 'SRID=4326;#{content.location&.to_s}'::geometry) < 100"
           )
             .where.not(id: content.id)
             .map { |d|
