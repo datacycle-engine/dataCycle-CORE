@@ -1,19 +1,19 @@
-<div data-id="<%= filter_name%>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
-  <%= hidden_field_tag "f[#{index}][t]", 'relation_filter' %>
-  <%= hidden_field_tag "f[#{index}][n]", filter_title %>
-  <%= hidden_field_tag "f[#{index}][q]", filter_advanced_type %>
-  <%= hidden_field_tag "f[#{index}][c]", 'a' %>
+<div data-id="<%= filter_name%>_<%= identifier %>" data-identifier="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][t]", 'relation_filter' %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
+  <%= hidden_field_tag "f[#{identifier}][q]", filter_advanced_type %>
+  <%= hidden_field_tag "f[#{identifier}][c]", 'a' %>
 
   <div class="advanced-filter-title">
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
     <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
   </div>
   <div class="advanced-filter-mode">
-    <%= select_tag "f[#{index}][m]", options_for_select([[t("filter.relation_filter.contained_in", locale: DataCycleCore.ui_language), 'i'], [t("filter.relation_filter.not_contained_in", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
+    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("filter.relation_filter.contained_in", locale: DataCycleCore.ui_language), 'i'], [t("filter.relation_filter.not_contained_in", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
   </div>
 
   <div class="advanced-filter-selector">
-    <%= select_tag("f[#{index}][v]",
+    <%= select_tag("f[#{identifier}][v]",
       union_values_to_options(value),
       {
         include_blank: true,
@@ -28,7 +28,7 @@
   </div>
   <% if can?(:advanced_filter, :backend) %>
     <div class="buttons">
-      <a class="remove-advanced-filter" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
     </div>
   <% end %>
 </div>

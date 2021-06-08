@@ -1,12 +1,13 @@
-<div class="search">
+<div class="search" data-id="<%= value[:identifier] %>">
   <div class="input-group">
     <div class="input-group-button">
       <button type="submit" class="search_icon"><i class="fa fa-search" aria-hidden="true"></i></button>
     </div>
-    <%= hidden_field_tag "f[s][n]", t('common.searchterm', locale: DataCycleCore.ui_language) %>
-    <%= hidden_field_tag "f[s][t]", :fulltext_search %>
-    <%= text_field_tag 'f[s][v]',
-        value.is_a?(String) ? value : nil,
+    <%= hidden_field_tag "f[#{value[:identifier]}][n]", t('common.searchterm', locale: DataCycleCore.ui_language) %>
+    <%= hidden_field_tag "f[#{value[:identifier]}][t]", :fulltext_search %>
+    <%= hidden_field_tag "f[#{value[:identifier]}][c]", 'a' %>
+    <%= text_field_tag "f[#{value[:identifier]}][v]",
+        value[:value],
         placeholder: t('common.searchterm', locale: DataCycleCore.ui_language),
         class:"input-group-field fulltext-search-field" %>
   </div>

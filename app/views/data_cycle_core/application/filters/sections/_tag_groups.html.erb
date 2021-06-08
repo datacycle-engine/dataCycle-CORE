@@ -4,36 +4,18 @@
   </span>
 
   <span class="filter-groups">
-    <%= render 'data_cycle_core/application/filters/tag_groups/fulltext_search',
-                value: config.dig(:filter, :search),
-                buttons: 'a',
-                key: 'fulltext_search',
-                target: 'fulltext_search' if config.dig(:filter, :search).is_a?(String) && config.dig(:filter, :search).present? %>
-
-    <% default_filters.presence&.each do |default_filter| %>
+    <% filters&.each do |filter| %>
       <%= render_advanced_filter_tags_partial({
-            filter_type: default_filter['t'],
-            title: default_filter['n'],
-            key: default_filter['n'].presence&.underscore_blanks,
-            target: default_filter['n'].presence&.underscore_blanks + "_#{config.dig(:filter, :classification_trees)&.keys&.index(default_filter['n']).to_i}",
-            value: default_filter['v'],
-            classification_aliases: selected_classification_aliases&.slice(*default_filter['v']),
-            buttons: 'd'
-        }) %>
-    <% end %>
-
-    <% advanced_filters.presence&.each_with_index do |advanced_filter, idx| %>
-      <%= render_advanced_filter_tags_partial({
-            title: advanced_filter['n'],
-            key: advanced_filter['n'].presence&.underscore_blanks,
-            target: advanced_filter['n'].presence&.underscore_blanks + "_#{idx + config[:index]}",
-            filter_method: advanced_filter['m'],
-            filter_type: advanced_filter['t'],
-            value: advanced_filter['v'],
-            filter_advanced_type: advanced_filter['q'],
-            container_classes: 'advanced-tags',
-            classification_aliases: selected_classification_aliases&.slice(*advanced_filter['v']),
-            buttons: 'a'
+            filter_type: filter['t'],
+            filter_method: filter['m'],
+            filter_advanced_type: filter['q'],
+            title: filter['n'],
+            key: filter['n'].presence&.underscore_blanks,
+            target: filter['identifier'],
+            value: filter['v'],
+            classification_aliases: selected_classification_aliases&.slice(*filter['v']),
+            buttons: filter['c'] == 'a' ? 'a' : 'd',
+            container_classes: filter['c'] == 'a' ? 'advanced-tags' : nil,
         }) %>
     <% end %>
   </span>

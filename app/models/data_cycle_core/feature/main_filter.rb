@@ -4,20 +4,79 @@ module DataCycleCore
   module Feature
     class MainFilter < Base
       class << self
-        def available_filters(view:, user:, selected_filters:, advanced_filters:)
+        def available_filters(view:, user:, selected_filters:)
           config = configuration.dig(:config, view).deep_dup || {}
           config[:view_type] = view
           config[:excluded_types] = DataCycleCore.excluded_filter_classifications
-          config[:filter]&.filter! do |k, v|
+          config[:filter] ||= {}
+          config[:filter].select! do |k, v|
             v.present? && user.can?(k.to_sym, view.to_sym, v)
           end
-          config[:index] = config.dig(:filter, :classification_trees)&.size || 0
-          config[:filter][:classification_trees] = filterable_classification_aliases(config.dig(:filter, :classification_trees), config[:excluded_types]) if config.dig(:filter, :classification_trees).present?
-          config[:filter][:search] = selected_filters.presence&.find { |f| f['t'] == 'fulltext_search' }&.dig('v') if config.dig(:filter, :search).present?
-          config[:filter][:advanced] = advanced_filters if config.dig(:filter, :advanced).present?
-          config[:filter][:classification_tree] = filterable_classification_aliases(config.dig(:filter, :classification_tree), config[:excluded_types]) if config.dig(:filter, :classification_tree).present?
+          config[:filter].transform_values! { |v| { config: v } }
+          values_for_filters(user, config, config[:filter], Array.wrap(selected_filters))
           config[:sortable] = DataCycleCore::Feature::Sortable.available_options.select { |k, v| user.can?(:sortable, view.to_sym, k, v) } if config[:sortable].present?
           config
+        end
+
+        def values_for_filters(user, config, filters, selected_filters)
+          classification_trees_filters(user, config, filters, selected_filters)
+          search_filters(user, config, filters, selected_filters)
+          advanced_filters(user, config, filters, selected_filters)
+          classification_tree_filters(user, config, filters, selected_filters)
+        end
+
+        def classification_trees_filters(_user, config, filters, selected_filters)
+          return if filters[:classification_trees].blank?
+
+          filterable_classification_aliases(filters.dig(:classification_trees, :config), config[:excluded_types]).each do |tree_label, classification_aliases|
+            value = selected_filters.find { |f| f['c'] == 'd' && f['n'] == tree_label }
+            filters[:classification_trees][:filters] = {
+              tree_label => {
+                classification_aliases: classification_aliases,
+                value: value&.dig('v'),
+                identifier: value&.dig('identifier') || SecureRandom.hex(10)
+              }
+            }
+          end
+        end
+
+        def search_filters(_user, _config, filters, selected_filters)
+          return if filters[:search].blank?
+
+          value = selected_filters.find { |f| f['t'] == 'fulltext_search' }
+
+          filters[:search][:value] = value&.dig('v')
+          filters[:search][:identifier] = value&.dig('identifier') || SecureRandom.hex(10)
+        end
+
+        def advanced_filters(user, config, filters, selected_filters)
+          return if filters[:advanced].blank?
+
+          filters[:advanced][:filters] = selected_filters.select { |f| f['c'] == 'a' }
+          visible_filters = DataCycleCore::Feature::AdvancedFilter.available_visible_filters(user, config[:view_type], filters.dig(:advanced, :config))
+
+          visible_filters.each do |filter|
+            filter_hash = {
+              'c' => 'a',
+              't' => filter[1],
+              'n' => filter.dig(2, :data, :name),
+              'q' => filter.dig(2, :data, :advancedType),
+              'm' => 'i',
+              'identifier' => SecureRandom.hex(10)
+            }
+
+            filters[:advanced][:filters].prepend(filter_hash) unless filters[:advanced][:filters].any? { |f| filter_hash.except('identifier').all? { |k, v| f[k] == v } }
+          end
+        end
+
+        def classification_tree_filters(_user, config, filters, selected_filters)
+          return if filters[:classification_tree].blank?
+
+          tree_label = filters.dig(:classification_tree, :config)
+          value = selected_filters.find { |f| f['c'] == 's' && f['n'] == tree_label }
+          filters[:classification_tree][:classification_aliases] = filterable_classification_aliases(tree_label, config[:excluded_types])&.dig(tree_label)
+          filters[:classification_tree][:value] = value&.dig('v')
+          filters[:classification_tree][:identifier] = value&.dig('identifier') || SecureRandom.hex(10)
         end
 
         def autoload_last_filter?

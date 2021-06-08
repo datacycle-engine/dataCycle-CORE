@@ -8,8 +8,8 @@ module DataCycleCore
     def get_filtered_results(query: nil, user_filter: { scope: 'backend' })
       @stored_filter ||= DataCycleCore::StoredFilter.new
       @filters = pre_filters.dup
-      @stored_filter.parameters ||= @filters
-      @stored_filter.parameters = @stored_filter.parameters.presence&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
+      @stored_filter.parameters ||= @filters || []
+      @stored_filter.parameters&.reject! { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? }
       query = query&.dup
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
@@ -22,11 +22,7 @@ module DataCycleCore
       query = @stored_filter.apply(query: query)
 
       # used on dashboard
-      @filters = @stored_filter.parameters
-      @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
-      @advanced_filters = @filters.select { |f| f['c'] == 'a' }
-      @selected_specific_classifications = @filters.select { |f| f['c'] == 's' && f['t'] == 'classification_alias_ids' }.map { |c| c['v'] }.flatten.compact.uniq
-      @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
+      @filters = @stored_filter.parameters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }
       @selected_classification_aliases = DataCycleCore::ClassificationAlias
         .where(
           id: @filters

@@ -1,4 +1,4 @@
-<% filter_config = DataCycleCore::Feature::MainFilter.available_filters(view: view_type, user: current_user, selected_filters: @filters, advanced_filters: @advanced_filters) %>
+<% filter_config = DataCycleCore::Feature::MainFilter.available_filters(view: view_type, user: current_user, selected_filters: @filters) %>
 
 <%= form_tag('', :method => "get", id: "search-form", data: { add_filter_path: add_filter_path, add_tag_group_path: add_tag_group_path }) do %>
   <%= hidden_field_tag 'mode', @mode %>
@@ -14,8 +14,7 @@
 
         <%= render 'data_cycle_core/application/filters/sections/tag_groups',
                     config: filter_config,
-                    default_filters: @default_filters,
-                    advanced_filters: @advanced_filters,
+                    filters: @filters,
                     selected_classification_aliases: @selected_classification_aliases %>
 
         <div class="languagetags">
