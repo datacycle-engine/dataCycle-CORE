@@ -52,9 +52,14 @@ module DataCycleCore
           total = relevant_schema['properties'].size
           DataCycleCore::Thing.where(
             template: false,
-            template_name: content.template_name,
-            name: content.name # prefilter with name
-          ).where(content.location.blank? ? 'location IS NULL' : "ST_Distance(location, 'SRID=4326;#{content.location&.to_s}'::geometry) < 10") # prefilter location
+            template_name: content.template_name
+          ).joins(:translations).where(
+            "thing_translations.locale = 'de'"
+          ).where( # prefilter with name
+            'similarity(thing_translations.name, ?) > 0.8', content.name
+          ).where( # prefilter location
+            content.location.blank? ? 'location IS NULL' : "ST_Distance(location, 'SRID=4326;#{content.location&.to_s}'::geometry) < 10"
+          )
             .where.not(id: content.id)
             .map { |d|
               diff = content.diff(d.get_data_hash.except(*except), relevant_schema)
