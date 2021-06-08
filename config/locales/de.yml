@@ -414,7 +414,6 @@ de:
     max_price: Preis (Max)
     duration: Dauer
     copyright_year: Copyright Jahr
-    number_of_rooms: Anzahl der Zimmer
     floor_size: Zimmergröße
     total_time: Kochzeit
     water_temp_temperature: Wassertemperatur
@@ -450,6 +449,7 @@ de:
     linked_location: Verknüpfter Ort
     linked_author: Verknüpfter Fotograf
     linked_copyright_holder: Verknüpfter Rechteinhaber
+    linked_provider: Verknüpfter Dienstleister
     in_schedule_types:
       absolute: Fester Zeitraum
       relative: Relativer Zeitraum
