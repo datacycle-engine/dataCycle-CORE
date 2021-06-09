@@ -66,6 +66,7 @@
         # :classification_tree: Inhaltstypen # toplevel classifications from this tree will be available as clickable buttons
         :classification_trees:
           - Inhaltstypen
+        # :permanent_advanced: # always visible advanced filtesrs, can be a hash with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
         :advanced: true # can be a hash with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
       :store: true
       :add_items_to_watch_list: true

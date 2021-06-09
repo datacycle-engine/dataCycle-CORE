@@ -7,7 +7,7 @@ module DataCycleCore
         can :create_duplicate, DataCycleCore::Asset
 
         can [:read, :settings], :backend
-        can [:search, :classification_trees, :classification_tree, :advanced, :publication_date], [:backend, :classification_tree, :publications, :subscriptions, :things, :collection]
+        can [:search, :classification_trees, :classification_tree, :permanent_advanced, :advanced, :publication_date], [:backend, :classification_tree, :publications, :subscriptions, :things, :collection]
         can :advanced_filter, [:backend, :classification_tree, :publications, :subscriptions, :things, :collection] do |_t, _k, v|
           (v != 'classification_tree_ids' && v != 'advanced_attributes')
         end

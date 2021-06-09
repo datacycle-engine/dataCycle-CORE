@@ -1,6 +1,6 @@
 <div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
 
-  <%= hidden_field_tag "f[#{identifier}][c]", 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
   <%= hidden_field_tag "f[#{identifier}][t]", 'advanced_attributes' %>
   <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
   <%= hidden_field_tag "f[#{identifier}][q]", filter_advanced_type %>
@@ -45,7 +45,7 @@
     <% end %>
   </div>
 
-  <% if can?(:advanced_filter, :backend) %>
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
     <div class="buttons">
       <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
     </div>

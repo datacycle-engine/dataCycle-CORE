@@ -3,7 +3,7 @@ class DashboardFilter {
     this.$searchForm = $(element);
     this.$defaultFilterContainer = this.$searchForm.find('.main-filters').first();
     this.$classificationTreeFilterContainer = this.$searchForm.find('.classification-tree-filter').first();
-    this.$advancedFilterContainer = this.$searchForm.find('.advanced-filters').first();
+    this.$advancedFilterContainer = this.$searchForm.find('.advanced-filters, .permanent-advanced-filters');
     this.$addAdvancedFilterSelect = this.$advancedFilterContainer.find('#add_advanced_filter').first();
     this.$searchInput = this.$searchForm.find('input.fulltext-search-field').first();
     this.$clickableMenus = this.$searchForm.find('.clickable-menu');

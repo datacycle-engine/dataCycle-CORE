@@ -22,6 +22,7 @@ module DataCycleCore
           classification_trees_filters(user, config, filters, selected_filters)
           search_filters(user, config, filters, selected_filters)
           advanced_filters(user, config, filters, selected_filters)
+          advanced_filters(user, config, filters, selected_filters, :permanent_advanced, 'p', false)
           classification_tree_filters(user, config, filters, selected_filters)
         end
 
@@ -30,12 +31,11 @@ module DataCycleCore
 
           filterable_classification_aliases(filters.dig(:classification_trees, :config), config[:excluded_types]).each do |tree_label, classification_aliases|
             value = selected_filters.find { |f| f['c'] == 'd' && f['n'] == tree_label }
-            filters[:classification_trees][:filters] = {
-              tree_label => {
-                classification_aliases: classification_aliases,
-                value: value&.dig('v'),
-                identifier: value&.dig('identifier') || SecureRandom.hex(10)
-              }
+            filters[:classification_trees][:filters] ||= {}
+            filters[:classification_trees][:filters][tree_label] = {
+              classification_aliases: classification_aliases,
+              value: value&.dig('v'),
+              identifier: value&.dig('identifier') || SecureRandom.hex(10)
             }
           end
         end
@@ -49,15 +49,15 @@ module DataCycleCore
           filters[:search][:identifier] = value&.dig('identifier') || SecureRandom.hex(10)
         end
 
-        def advanced_filters(user, config, filters, selected_filters)
-          return if filters[:advanced].blank?
+        def advanced_filters(user, config, filters, selected_filters, key = :advanced, c = 'a', buttons = true)
+          return if filters[key].blank?
 
-          filters[:advanced][:filters] = selected_filters.select { |f| f['c'] == 'a' }
-          visible_filters = DataCycleCore::Feature::AdvancedFilter.available_visible_filters(user, config[:view_type], filters.dig(:advanced, :config))
+          filters[key][:filters] = selected_filters.select { |f| f['c'] == c }
+          visible_filters = DataCycleCore::Feature::AdvancedFilter.available_visible_filters(user, config[:view_type], filters.dig(key, :config))
 
           visible_filters.each do |filter|
             filter_hash = {
-              'c' => 'a',
+              'c' => c,
               't' => filter[1],
               'n' => filter.dig(2, :data, :name),
               'q' => filter.dig(2, :data, :advancedType),
@@ -65,7 +65,11 @@ module DataCycleCore
               'identifier' => SecureRandom.hex(10)
             }
 
-            filters[:advanced][:filters].prepend(filter_hash) unless filters[:advanced][:filters].any? { |f| filter_hash.except('identifier').all? { |k, v| f[k] == v } }
+            filters[key][:filters].prepend(filter_hash) unless filters[key][:filters].any? { |f| filter_hash.except('identifier').reject { |_, v| v.blank? } == f.slice('c', 't', 'n', 'q', 'm').reject { |_, v| v.blank? } }
+          end
+
+          filters[key][:filters].each do |filter|
+            filter['buttons'] = buttons
           end
         end
 
@@ -92,8 +96,7 @@ module DataCycleCore
                       ])
             .where(classification_tree_labels: { name: allowed_labels }, classification_trees: { parent_classification_alias: nil })
           query = query.where.not(classification_tree_labels: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded))
-
-          query.group_by { |ca| ca.classification_tree_label&.name }
+          query.group_by { |ca| ca.classification_tree_label&.name }.sort_by { |k, _v| allowed_labels.index(k) }.to_h
         end
       end
     end

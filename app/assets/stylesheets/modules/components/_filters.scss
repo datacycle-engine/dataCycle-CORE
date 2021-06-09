@@ -56,6 +56,7 @@ $filter-border: #aaa;
     }
 
     .advanced-filters,
+    .permanent-advanced-filters,
     .publication-date-filter {
       .accordion-content {
         border-top: 1px solid white;
@@ -79,6 +80,7 @@ $filter-border: #aaa;
     }
 
     .advanced-filters,
+    .permanent-advanced-filters,
     .publication-date-filter {
       .add-advanced-filter-container {
         background-color: darken($medium-gray, 10%);
