@@ -365,6 +365,16 @@ module DataCycleCore
       respond_to :js
     end
 
+    def load_more_duplicates
+      @content = DataCycleCore::Thing.find(load_more_duplicates_params[:id])
+      authorize! :show, @content
+
+      @items = @content.duplicate_candidates&.offset(DataCycleCore.linked_objects_page_size)
+      @prefix = load_more_duplicates_params[:prefix]
+
+      render 'data_cycle_core/duplicate_candidates/load_more_duplicates'
+    end
+
     def upload
       return if asset_params[:file].blank?
 
@@ -514,6 +524,10 @@ module DataCycleCore
           {}
         end
       end
+    end
+
+    def load_more_duplicates_params
+      params.permit(:id, :prefix)
     end
   end
 end
