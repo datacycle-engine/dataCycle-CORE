@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module ApiService
-    API_SCHEDULE_ATTRIBUTES = [:validitySchedule, :eventSchedule, :hoursAvailable, :openingHoursSpecification, :'dc:diningHoursSpecification', :schedule].freeze
+    API_SCHEDULE_ATTRIBUTES = [:eventSchedule, :openingHoursSpecification, :'dc:diningHoursSpecification', :schedule, :hoursAvailable, :validitySchedule].freeze
     API_DATE_RANGE_ATTRIBUTES = [:'dct:modified', :'dct:created'].freeze
     API_NUMERIC_ATTRIBUTES = [:width, :height, :numberOfRooms, :numberOfAccommodations, :numberOfMeetingRooms, :maxNumberOfPeople, :totalNumberOfBeds].freeze
 
@@ -363,7 +363,8 @@ module DataCycleCore
     end
 
     def order_value_from_params(key, full_text_search, raw_query_params)
-      return raw_query_params.dig(*order_constraints.dig(key)) if order_constraints.dig(key).present? && raw_query_params.dig(*order_constraints.dig(key)).present?
+      schedule_order_params = order_constraints.dig(key)&.map { |c| raw_query_params.dig(*c) }&.compact
+      return schedule_order_params.first if schedule_order_params.present?
       return full_text_search if key == 'similarity' && full_text_search.present?
     end
 
@@ -375,9 +376,15 @@ module DataCycleCore
 
     def order_constraints
       {
-        'proximity.geographic' => ['filter', 'geo', 'in', 'perimeter'],
-        'proximity.inTime' => ['filter', 'attribute', 'schedule'],
-        'proximity.occurrence' => ['filter', 'attribute', 'schedule']
+        'proximity.geographic' => [['filter', 'geo', 'in', 'perimeter']],
+        'proximity.inTime' => [
+          ['filter', 'schedule'],
+          *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
+        ],
+        'proximity.occurrence' => [
+          ['filter', 'schedule'],
+          *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
+        ]
       }
     end
 
