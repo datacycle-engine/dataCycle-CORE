@@ -1511,10 +1511,12 @@ $filter-border: #aaa;
 .classification-tree-filter.filter {
   ul {
     display: flex;
-    flex-flow: row wrap;
+    flex-flow: row nowrap;
+    align-items: center;
+    margin: 0;
 
     li {
-      margin: 0 0.5rem 0.5rem 0;
+      margin: 0 0.5rem 0 0;
 
       &:last-child {
         margin-right: 0;
@@ -1529,6 +1531,8 @@ $filter-border: #aaa;
         cursor: pointer;
         margin: 0;
         font-size: 1rem;
+        border: 1px solid $primary-color;
+        color: $primary-color;
 
         .title {
           display: flex;
@@ -1548,6 +1552,7 @@ $filter-border: #aaa;
       input:checked ~ label {
         background-color: $primary-color;
         color: white;
+        border-color: $primary-color;
 
         strong {
           color: white;
