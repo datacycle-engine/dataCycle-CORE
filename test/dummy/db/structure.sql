@@ -233,12 +233,9 @@ CREATE TABLE public.classification_contents (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_id uuid,
     classification_id uuid,
-    tag boolean,
-    classification boolean,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
     relation character varying
 );
 
@@ -314,12 +311,9 @@ CREATE TABLE public.classification_content_histories (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_history_id uuid,
     classification_id uuid,
-    tag boolean,
-    classification boolean,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
     relation character varying
 );
 
@@ -2241,6 +2235,13 @@ CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btre
 
 
 --
+-- Name: thing_translations_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX thing_translations_name_idx ON public.thing_translations USING gin (name public.gin_trgm_ops);
+
+
+--
 -- Name: unique_by_shareable; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2529,5 +2530,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210518133349'),
 ('20210520123323'),
 ('20210527121641');
+('20210602112830'),
+('20210608125638');
 
 
