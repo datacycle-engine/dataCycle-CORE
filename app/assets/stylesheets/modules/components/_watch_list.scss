@@ -85,6 +85,33 @@
     }
   }
 
+  .watchlist-menu-icon {
+    position: relative;
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    vertical-align: middle;
+
+    .fa {
+      display: inline-block;
+      width: 2rem;
+      height: 2rem;
+      line-height: 2rem;
+      margin: 0;
+
+      &.fa-stack-2x {
+        font-size: 1.3rem;
+      }
+
+      &.fa-stack-1x {
+        color: $black;
+        font-size: 0.6rem;
+        top: -2px;
+      }
+    }
+  }
+
   .watch-lists .accordion > .accordion-item > .accordion-title::before {
     color: $black;
   }
