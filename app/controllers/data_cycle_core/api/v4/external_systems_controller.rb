@@ -18,6 +18,28 @@ module DataCycleCore
           @permitted_params ||= params.permit(*permitted_parameter_keys)
         end
 
+        def search_availability
+          external_system = DataCycleCore::ExternalSystem.find_by(id: permitted_params[:external_source_id])
+          error = 'Only available for Feratel data.' if external_system.identifier != 'feratel'
+
+          temp_params = { days: '7', units: '1', from: '2021-08-20', to: '2021-08-30', adults: '1' }
+          credentials = { options: temp_params }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
+          endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(credentials)
+          search_data = endpoint.search_availabilities
+          content_ids = DataCycleCore::Thing.where(external_key: search_data.map { |i| i.dig('id') })&.ids
+
+          if error.present?
+            render plain: { error: error }.to_json, content_type: 'application/json', status: :bad_request
+          else
+            params = permitted_params
+              .except(:external_source_id, :controller, :action, :format, :endpoint_id)
+              .merge('filter' => { 'contentId' => { 'in' => content_ids } }, id: permitted_params[:endpoint_id])
+              .to_hash
+              .symbolize_keys
+            redirect_to api_v4_stored_filter_path(params)
+          end
+        end
+
         def update
           strategy, external_system = api_strategy
           render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?
@@ -63,7 +85,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:external_source_id, :type, :external_key, :webhook_source]
+          super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id, :days, :units, :from, :to, :adults]
         end
 
         def api_strategy
