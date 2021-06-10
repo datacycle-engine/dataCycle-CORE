@@ -873,12 +873,22 @@ $filter-border: #aaa;
             transition-delay: 100ms;
           }
 
-          i {
+          i,
+          .fa-stack {
             display: inline-block;
             margin: 0;
             height: 2.8rem;
             width: 2.8rem;
             line-height: 2.8rem;
+
+            .fa-stack-2x {
+              font-size: 1.4rem;
+            }
+            .fa-stack-1x {
+              font-size: 0.6rem;
+              top: -2px;
+              color: white;
+            }
           }
 
           &:hover {
