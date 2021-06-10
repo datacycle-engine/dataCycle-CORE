@@ -4,6 +4,7 @@ $('<%= j render_advanced_filter_partial({
           filter_method: @params[:m],
           filter_advanced_type: @params[:q],
           filter_type: @params[:t],
+          filter_buttons: true,
           value: nil,
           identifier: @identifier }) %>').hide().insertBefore('.filters .advanced-filters > .accordion-item > .accordion-content > .add-advanced-filter-container').slideDown('fast').trigger('dc:html:changed').trigger('dc:html:initialized');
 
