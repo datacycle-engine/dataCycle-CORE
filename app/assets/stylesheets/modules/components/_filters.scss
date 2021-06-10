@@ -122,6 +122,10 @@ $filter-border: #aaa;
 
         > div {
           position: relative;
+          top: unset;
+          left: unset;
+          right: unset;
+          bottom: unset;
           display: flex;
           flex: 0;
           align-items: center;
