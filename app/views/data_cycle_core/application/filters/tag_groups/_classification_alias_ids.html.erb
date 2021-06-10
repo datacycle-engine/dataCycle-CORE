@@ -11,7 +11,7 @@
   <span class="tags-container">
     <% if buttons == 'd' %>
       <% value.each do |ca_id| %>
-        <label for="<%= ca_id %>">
+        <label for="<%= target %>_<%= ca_id %>">
           <a class="tag" title="<%= classification_aliases[ca_id].try(:full_path) %>">
             <%= classification_aliases[ca_id].try(:internal_name) %><i class="fa fa-times" aria-hidden="true"></i>
           </a>
