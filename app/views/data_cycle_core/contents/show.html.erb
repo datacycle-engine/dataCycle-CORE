@@ -32,7 +32,8 @@
   <% end %>
 <% else %>
   <%= render_content_partial 'details', content: @content %>
-  <%= render 'duplicate_candidates', content: @content if DataCycleCore::Feature::DuplicateCandidate.enabled? && can?(:merge_duplicates, @content) && @content.duplicates.any? %>
+
+  <%= render 'data_cycle_core/duplicate_candidates/duplicate_candidates', content: @content, prefix: local_assigns.dig(:options, :prefix) if DataCycleCore::Feature::DuplicateCandidate.enabled? && can?(:merge_duplicates, @content) && @content.duplicates.any? %>
 
   <% if @content.related_contents.exists? %>
     <div id="related-contents-<%= @content&.id %>"
