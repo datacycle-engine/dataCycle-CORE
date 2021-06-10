@@ -387,7 +387,7 @@ module DataCycleCore
         {
           parameter_path: parameter_path,
           type: type,
-          detail: error.text
+          detail: error.to_s
         }
       end
     end

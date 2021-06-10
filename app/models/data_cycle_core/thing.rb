@@ -8,6 +8,7 @@ module DataCycleCore
 
     class History < Content::Content
       include Content::ContentHistoryLoader
+      include Content::Restorable
 
       extend ::Translations
       translates :name, :description, :slug, :content, :history_valid, backend: :table

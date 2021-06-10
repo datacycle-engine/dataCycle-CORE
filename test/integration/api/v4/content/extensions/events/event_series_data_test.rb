@@ -48,7 +48,7 @@ module DataCycleCore
                 end
 
                 # plain attributes without transformation
-                assert_attributes(json_validate, required_attributes, ['description', 'potential_action', 'slug']) do
+                assert_attributes(json_validate, required_attributes, ['description', 'potential_action', 'dc:slug']) do
                   {
                     'description' => @content.description,
                     'potentialAction' => [
@@ -58,7 +58,7 @@ module DataCycleCore
                         'url' => @content.potential_action
                       }
                     ],
-                    'slug' => @content.slug
+                    'dc:slug' => @content.slug
                   }
                 end
 

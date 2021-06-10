@@ -355,6 +355,7 @@ de:
     differences_to_version: Unterschiede zu Version
     active_version: Aktuelle Version
     look_at_version: Aktuellen Inhalt mit dieser Version vergleichen
+    restored: Wiederhergestellt am %{date}
 
   data_link_mailer:
     content_download: Inhalt herunterladen
@@ -435,6 +436,7 @@ de:
     total_number_of_beds: Gesamtanzahl Betten
     number_of_rooms: Gesamtanzahl Einheiten
     number_of_accommodations: Anzahl der Wohneinheiten
+    linked_image: Verknüpftes Bild
     linked_location: Verknüpfter Ort
     linked_author: Verknüpfter Fotograf
     linked_copyright_holder: Verknüpfter Rechteinhaber
