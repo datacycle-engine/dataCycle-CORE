@@ -20,7 +20,7 @@ module DataCycleCore
     DataHashOptions = Struct.new(*SET_DATA_HASH_ARGUMENTS.keys, keyword_init: true) do
       def initialize(**args)
         args.reverse_merge!(SET_DATA_HASH_ARGUMENTS)
-        args[:data_hash] = args[:data_hash].dup.with_indifferent_access
+        args[:data_hash] = args[:data_hash].dc_deep_dup.with_indifferent_access
         args[:save_time] = Time.zone.now if args[:save_time].nil?
         super(**args)
       end

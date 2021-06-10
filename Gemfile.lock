@@ -25,6 +25,7 @@ PATH
       gretel
       hashdiff (>= 0.4.0)
       hiredis
+      holidays
       ice_cube
       image_optim
       image_optim_pack
@@ -211,7 +212,7 @@ GEM
     dotenv-rails (2.7.6)
       dotenv (= 2.7.6)
       railties (>= 3.2)
-    dotiw (5.2.0)
+    dotiw (5.3.1)
       activesupport
       i18n
     dry-cli (0.6.0)
@@ -339,6 +340,7 @@ GEM
     hashdiff (1.0.1)
     hashery (2.1.2)
     hiredis (0.6.3)
+    holidays (8.4.1)
     htmlentities (4.3.4)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)

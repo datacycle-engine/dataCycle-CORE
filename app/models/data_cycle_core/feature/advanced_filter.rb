@@ -146,7 +146,7 @@ module DataCycleCore
             [
               I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'inactive_things',
-              data: { name: k }
+              data: { name: k, advancedType: k }
             ]
           end
         end
@@ -157,7 +157,7 @@ module DataCycleCore
             [
               I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'in_schedule',
-              data: { name: k }
+              data: { name: k, advancedType: k }
             ]
           end
         end
@@ -168,13 +168,17 @@ module DataCycleCore
             [
               I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'validity_period',
-              data: { name: k }
+              data: { name: k, advancedType: k }
             ]
           end
         end
 
         def always_visible?
           !!configuration.dig(:config, :visible)
+        end
+
+        def schedule_filter_exceptions
+          Array.wrap(configuration.dig(:config, :schedule_exceptions))
         end
       end
     end

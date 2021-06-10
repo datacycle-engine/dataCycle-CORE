@@ -49,14 +49,12 @@ namespace :deploy do
     end
   end
 
-  desc 'runs post-deploy migrations'
-  task :post_deploy_migrations do
+  desc 'runs data migrations'
+  task :data_migrations do
     on roles(:db) do
       within release_path do
         with rails_env: fetch(:rails_env) do
-          with SKIP_POST_DEPLOYMENT_MIGRATIONS: false do
-            execute :rake, "#{fetch(:cmd_prefix, '')}db:migrate"
-          end
+          execute :rake, "#{fetch(:cmd_prefix, '')}db:migrate:with_data"
         end
       end
     end

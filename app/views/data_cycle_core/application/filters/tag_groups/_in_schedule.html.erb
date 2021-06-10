@@ -4,7 +4,7 @@
     <%= t("filter.#{(local_assigns[:filter_type] || 'in_schedule')}", default: title, locale: DataCycleCore.ui_language) %>
   </span>
 
-  <% if key == 'relative' %>
+  <% if local_assigns[:filter_advanced_type] == 'relative' %>
     <% if value&.dig('from','n').present? %>
       <span class="tag-group-label"><%= t("terms.from", locale: DataCycleCore.ui_language) %></span>
       <span class="tag">

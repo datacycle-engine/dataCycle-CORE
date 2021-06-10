@@ -78,6 +78,8 @@ require 'dotenv/load'
 # Frontend Asset Loader
 require 'vite_rails'
 
+require 'holidays'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -101,9 +103,6 @@ module DataCycleCore
       'DataCycleCore::TextFile',
       'DataCycleCore::SrtFile'
     ]
-
-    # mattr_accessor :content_tables
-    # self.content_tables = ['things']
 
     mattr_accessor :allowed_api_strategies
     self.allowed_api_strategies = [
@@ -190,6 +189,9 @@ module DataCycleCore
 
     mattr_accessor :cache_invalidation_depth
     self.cache_invalidation_depth = 3
+
+    mattr_accessor :holidays_country_code
+    self.holidays_country_code = :at
   end
 
   def self.setup

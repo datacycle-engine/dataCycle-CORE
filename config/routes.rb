@@ -361,4 +361,5 @@ DataCycleCore::Engine.routes.draw do
   get :add_tag_group, controller: :application
   post :remote_render, controller: :application
   get :reload_required, controller: :application
+  get :holidays, controller: :application
 end

@@ -52,7 +52,8 @@ module DataCycleCore
         data_hash['image'] = [image_id]
         data_hash['logo'] = [image_id]
         data_hash['primary_image'] = [image_id]
-        data_hash['opening_hours_specification'] = opening_hours_specification
+        data_hash[:opening_hours_specification] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
+        data_hash[:opening_hours_description] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description')
         if data_hash.dig('license_classification').present?
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
           data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
@@ -322,13 +323,6 @@ module DataCycleCore
           'valid_from' => 10.days.ago.to_date,
           'valid_through' => 10.days.from_now.to_date
         }
-      end
-
-      def opening_hours_specification
-        opening_hours_classifications = DataCycleCore::Classification.where(name: ['Montag'])&.map(&:id)
-        opening_hours_specification_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
-        opening_hours_specification_data_hash.first['day_of_week'] = opening_hours_classifications
-        opening_hours_specification_data_hash
       end
     end
   end
