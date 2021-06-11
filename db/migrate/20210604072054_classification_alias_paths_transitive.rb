@@ -5,7 +5,7 @@ class ClassificationAliasPathsTransitive < ActiveRecord::Migration[5.2]
 
   def up
     execute <<~SQL.squish
-      CREATE VIEW classification_alias_links AS (
+      CREATE OR REPLACE VIEW classification_alias_links AS (
       	WITH primary_classification_groups AS (
       		SELECT DISTINCT
       			classification_alias_id,
@@ -30,7 +30,7 @@ class ClassificationAliasPathsTransitive < ActiveRecord::Migration[5.2]
       	FROM classification_trees
       );
 
-      CREATE RECURSIVE VIEW classification_alias_paths_transitive(
+      CREATE OR REPLACE RECURSIVE VIEW classification_alias_paths_transitive(
         id,
         ancestors_ids,
         full_path_ids,
@@ -70,8 +70,8 @@ class ClassificationAliasPathsTransitive < ActiveRecord::Migration[5.2]
 
   def down
     execute <<-SQL.squish
-      DROP VIEW classification_alias_links;
       DROP VIEW classification_alias_paths_transitive;
+      DROP VIEW classification_alias_links;
     SQL
   end
 end
