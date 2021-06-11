@@ -19,25 +19,11 @@ module DataCycleCore
         end
 
         def search_availability
-          external_system = DataCycleCore::ExternalSystem.find_by(id: permitted_params[:external_source_id])
-          error = 'Only available for Feratel data.' if external_system.identifier != 'feratel'
+          search_feratel_api(:search_availabilities)
+        end
 
-          temp_params = { days: '7', units: '1', from: '2021-08-20', to: '2021-08-30', adults: '1' }
-          credentials = { options: temp_params }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
-          endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(credentials)
-          search_data = endpoint.search_availabilities
-          content_ids = DataCycleCore::Thing.where(external_key: search_data.map { |i| i.dig('id') })&.ids
-
-          if error.present?
-            render plain: { error: error }.to_json, content_type: 'application/json', status: :bad_request
-          else
-            params = permitted_params
-              .except(:external_source_id, :controller, :action, :format, :endpoint_id)
-              .merge('filter' => { 'contentId' => { 'in' => content_ids } }, id: permitted_params[:endpoint_id])
-              .to_hash
-              .symbolize_keys
-            redirect_to api_v4_stored_filter_path(params)
-          end
+        def search_additional_service
+          search_feratel_api(:search_additional_services)
         end
 
         def update
@@ -80,12 +66,39 @@ module DataCycleCore
 
         private
 
+        def search_feratel_api(search_method)
+          external_system = DataCycleCore::ExternalSystem.find_by(id: permitted_params[:external_source_id])
+          error = 'Only available for Feratel data.' if external_system.identifier != 'feratel'
+
+          feratel_params = [:days, :units, :from, :to, :page_size, :start_page, :occupation]
+          credentials = { options: permitted_params.slice(*feratel_params) }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
+          endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(credentials)
+          search_data = endpoint.send(search_method)
+          if search_data.first['error'].present?
+            error = search_data.first['error']
+          else
+            content_ids = DataCycleCore::Thing.where(external_key: search_data.map { |i| i.dig('id') })&.ids
+          end
+
+          if error.present?
+            render plain: { error: error }.to_json, content_type: 'application/json', status: :bad_request
+          else
+            params = permitted_params
+              .except(:external_source_id, :controller, :action, :format, :endpoint_id, *feratel_params)
+              .merge('filter' => { 'contentId' => { 'in' => [content_ids.join(',')] } }, id: permitted_params[:endpoint_id])
+              .to_hash
+              .symbolize_keys
+            redirect_to api_v4_stored_filter_path(params)
+          end
+        end
+
         def content_params
           params.require(:@graph)
         end
 
         def permitted_parameter_keys
-          super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id, :days, :units, :from, :to, :adults]
+          super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id,
+                   :days, :units, :from, :to, :page_size, :start_page, occupation: [:adults, :children, :units]]
         end
 
         def api_strategy

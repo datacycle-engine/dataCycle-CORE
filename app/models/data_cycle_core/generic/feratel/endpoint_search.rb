@@ -9,6 +9,9 @@ module DataCycleCore
           xpath = '//Result/ServiceProvider'
 
           data = load_search_data(type, range_code: @primary_range_code, range_ids: @primary_range_id)
+          return data if data.is_a?(::Array) && data.first['error'].present?
+
+          data
             .xpath(xpath)
             .map(&:to_hash)
             .map { |hash_data| { 'id' => hash_data['Id'], 'base_price' => hash_data.dig('AdditionalServices', 'Products', 'Product', 0, 'Prices', 'BasePrice', 'text') } }
@@ -18,19 +21,30 @@ module DataCycleCore
           type = :search_additional_services
           xpath = '//Result/ServiceProvider'
 
-          load_search_data(type, range_code: @primary_range_code, range_ids: @primary_range_id)
+          data = load_search_data(type, range_code: @primary_range_code, range_ids: @primary_range_id)
+          return data if data.is_a?(::Array) && data.first['error'].present?
+
+          data
             .xpath(xpath).map(&:to_hash)
-            .map { |hash_data| hash_data.slice('Id', 'Prices') }
+            .map { |i| i.dig('AdditionalServices', 'Products', 'Product') }
+            .flatten
+            .group_by { |i| i.dig('ServiceId', 'text') }
+            .map { |k, v| { 'id' => k, 'base_price' => v.map { |i| i.dig('Prices', 'BasePrice', 'text')&.to_f }.min.to_s } }
         end
 
-        def load_search_data(type, range_code: 'RG', range_ids: @primary_range_id, retry_count: 0)
+        def load_search_data(type, range_code: 'RG', range_ids: @primary_range_id)
           method_name = "create_#{type}_request_xml"
           url = "#{@endpoint_url}/DSI/Search.asmx/DoSearch"
           request_parameters = send(method_name, range_code: range_code, range_ids: range_ids)
 
-          puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
-          puts
-          puts
+          # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
+
+          faraday = Faraday.new do |f|
+            f.request :url_encoded
+            f.response :follow_redirects
+          end
 
           response = faraday.post do |req|
             req.url url
@@ -41,39 +55,57 @@ module DataCycleCore
           data = Nokogiri::XML(envelop.children.first.content)
           data.remove_namespaces!
 
-          puts Nokogiri::XML(response.body, &:noblanks).to_xml(indent: 2)
-          puts
-          puts
+          # puts Nokogiri::XML(response.body, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
 
           if data.xpath('//@Status').first.value != '0'
-            raise data.xpath('//@Message').first.value if retry_count > 5
-            sleep(3)
-            load_search_data(type, range_code: range_code, range_ids: range_ids, retry_count: retry_count + 1)
+            message = data.xpath('//@Message').first.value
+            [{ 'error' => message }]
           else
             data
           end
         rescue StandardError
-          raise if retry_count > 5
-          sleep(3)
-          load_search_data(type, range_code: range_code, range_ids: range_ids, retry_count: retry_count + 1)
+          [{ 'error' => 'Something went wrong.' }]
         end
+
+        # {
+        #   "from" => "2021-08-20",
+        #   "to" => "2021-08-30",
+        #   "page_size" => "100",
+        #   "occupation" => [{
+        #     "adults" => "1",
+        #     "children" => "6,9",
+        #     "units" => "2"
+        #   }]
+        # }
 
         def create_search_availabilities_request_xml(range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.SearchLines(
-              'StartIndex' => '1',
-              'PageSize' => '25',
+              'StartIndex' => @options.dig(:start_index) || 1,
+              'PageSize' => @options.dig(:page_size) || 25,
               'SearchType' => 'OneProductPerHotel',
               'SortOrder' => 'TotalPrice'
             ) do
-              xml.SearchParameters(
-                'Index' => '1',
-                'SalesChannel' => @sales_channel_id,
-                'Adults' => @options.dig(:adults),
-                'Units' => @options.dig(:units),
-                'From' => @options.dig(:from),
-                'To' => @options.dig(:to)
-              )
+              @options.dig(:occupation).each_with_index do |line, index|
+                parameter_hash = {
+                  'Index' => index + 1,
+                  'SalesChannel' => @sales_channel_id,
+                  'Adults' => line.dig(:adults),
+                  'Units' => line.dig(:units),
+                  'From' => @options.dig(:from),
+                  'To' => @options.dig(:to)
+                }
+                parameter_hash['MultilineSearchCondition'] = 'And' if index + 1 < @options.dig(:occupation).size
+                if line.dig('children').present?
+                  xml.SearchParameters(parameter_hash) do
+                    xml.Children(line.dig(:children))
+                  end
+                else
+                  xml.SearchParameters(parameter_hash)
+                end
+              end
             end
           end
         end
@@ -81,14 +113,14 @@ module DataCycleCore
         def create_search_additional_services_request_xml(range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.AdditionalServicesSearch(
-              'StartIndex' => '1',
-              'PageSize' => '25'
+              'StartIndex' => @options.dig(:start_index) || 1,
+              'PageSize' => @options.dig(:page_size) || 25
             ) do
               xml.SearchParameters(
                 'Index' => '1',
                 'SalesChannel' => @sales_channel_id,
-                'Days' => @options.dig(:days),
-                'Units' => @options.dig(:units),
+                'Days' => @options.dig(:days) || 1,
+                'Units' => @options.dig(:units) || 1,
                 'From' => @options.dig(:from),
                 'To' => @options.dig(:to)
               )

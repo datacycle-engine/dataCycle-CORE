@@ -114,7 +114,6 @@ module DataCycleCore
           query = query.fulltext_search(@full_text_search) if @full_text_search
 
           query = query.in_validity_period
-binding.pry
           query = apply_filters(query, permitted_params&.dig(:filter))
           query = append_filters(query, permitted_params)
           query
