@@ -40,7 +40,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :content_id, :sort, :format, section: {}, page: {}, content_id: []]
+          [:api_subversion, :token, :include, :fields, :content_id, :sort, :format, section: {}, page: {}, content_id: [], 'dc:liveData': []]
         end
 
         def page_parameters
@@ -92,6 +92,7 @@ module DataCycleCore
           @include_parameters = parse_tree_params(permitted_params.dig(:include))
           @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
           @field_filter = @fields_parameters.present?
+          @live_data = permitted_params.dig(:'dc:liveData')
           @section_parameters = section_parameters
           @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))

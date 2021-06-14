@@ -81,7 +81,10 @@ module DataCycleCore
           if search_data.first['error'].present?
             error = search_data.first['error']
           else
-            content_ids = DataCycleCore::Thing.where(external_key: search_data.map { |i| i.dig('id') })&.ids
+            live_data = search_data
+              .map { |i| { '@id' => DataCycleCore::Thing.find_by(external_key: i.dig('id'))&.id, 'minPrice' => i.dig('base_price') } }
+              .select { |i| i.dig('@id').present? }
+            content_ids = live_data.map { |i| i.dig('@id') }
           end
 
           if error.present?
@@ -89,7 +92,7 @@ module DataCycleCore
           else
             params = permitted_params
               .except(:external_source_id, :controller, :action, :format, :endpoint_id, *feratel_params)
-              .merge('filter' => { 'contentId' => { 'in' => [content_ids.join(',')] } }, id: permitted_params[:endpoint_id])
+              .merge('filter' => { 'contentId' => { 'in' => [content_ids.join(',')] } }, 'dc:liveData' => live_data, id: permitted_params[:endpoint_id])
               .to_hash
               .symbolize_keys
             redirect_to api_v4_stored_filter_path(params)

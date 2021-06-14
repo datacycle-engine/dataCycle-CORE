@@ -14,7 +14,7 @@ module DataCycleCore
           data
             .xpath(xpath)
             .map(&:to_hash)
-            .map { |hash_data| { 'id' => hash_data['Id'], 'base_price' => hash_data.dig('AdditionalServices', 'Products', 'Product', 0, 'Prices', 'BasePrice', 'text') } }
+            .map { |hash_data| { 'id' => hash_data['Id'], 'base_price' => hash_data.dig('Products', 'Product', 'Prices', 'TotalPrice', 'text') } }
         end
 
         def search_additional_services(*)
@@ -87,12 +87,9 @@ module DataCycleCore
                   'To' => @options.dig(:to)
                 }
                 parameter_hash['MultilineSearchCondition'] = 'And' if index + 1 < @options.dig(:occupation).size
-                if line.dig('children').present?
-                  xml.SearchParameters(parameter_hash) do
-                    xml.Children(line.dig(:children))
-                  end
-                else
-                  xml.SearchParameters(parameter_hash)
+                xml.SearchParameters(parameter_hash) do
+                  xml.Children(line.dig(:children)) if line.dig('children').present?
+                  xml.BookOnly(1, 'IncludeOnlyOnRequest' => 'true')
                 end
               end
             end
@@ -112,7 +109,9 @@ module DataCycleCore
                 'Units' => @options.dig(:units) || 1,
                 'From' => @options.dig(:from),
                 'To' => @options.dig(:to)
-              )
+              ) do
+                xml.BookOnly(1, 'IncludeOnlyOnRequest' => 'true')
+              end
             end
           end
         end
