@@ -68,7 +68,11 @@ module DataCycleCore
 
         def search_feratel_api(search_method)
           external_system = DataCycleCore::ExternalSystem.find_by(id: permitted_params[:external_source_id])
-          error = 'Only available for Feratel data.' if external_system.identifier != 'feratel'
+          if external_system.blank? || external_system&.identifier != 'feratel'
+            error = 'Only available for Feratel data.'
+            render plain: { error: error }.to_json, content_type: 'application/json', status: :bad_request
+            return
+          end
 
           feratel_params = [:days, :units, :from, :to, :page_size, :start_page, :occupation]
           credentials = { options: permitted_params.slice(*feratel_params) }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)

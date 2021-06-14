@@ -69,17 +69,6 @@ module DataCycleCore
           [{ 'error' => 'Something went wrong.' }]
         end
 
-        # {
-        #   "from" => "2021-08-20",
-        #   "to" => "2021-08-30",
-        #   "page_size" => "100",
-        #   "occupation" => [{
-        #     "adults" => "1",
-        #     "children" => "6,9",
-        #     "units" => "2"
-        #   }]
-        # }
-
         def create_search_availabilities_request_xml(range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.SearchLines(
