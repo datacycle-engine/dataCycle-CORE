@@ -5,7 +5,11 @@ class ComputedPropertyDependenciesView < ActiveRecord::Migration[5.2]
 
   def up
     execute <<~SQL.squish
-      CREATE OR REPLACE VIEW "content_properties" AS
+      DROP VIEW IF EXISTS "content_property_dependencies";
+      DROP VIEW IF EXISTS "content_computed_properties";
+      DROP VIEW IF EXISTS "content_properties";
+
+      CREATE VIEW "content_properties" AS
       SELECT
       	things.id "content_id",
       	things.template_name "content_template_name",
@@ -13,7 +17,7 @@ class ComputedPropertyDependenciesView < ActiveRecord::Migration[5.2]
       	properties.value "property_definition"
       FROM things, jsonb_each(things.schema -> 'properties') "properties";
 
-      CREATE OR REPLACE VIEW "content_computed_properties" AS
+      CREATE VIEW "content_computed_properties" AS
       SELECT
       	content_properties.content_id,
       	content_properties.content_template_name,
@@ -24,7 +28,7 @@ class ComputedPropertyDependenciesView < ActiveRecord::Migration[5.2]
       FROM content_properties, jsonb_each(property_definition -> 'compute' -> 'parameters') "parameters"
       WHERE property_definition ->> 'type' = 'computed';
 
-      CREATE OR REPLACE VIEW "content_property_dependencies" AS
+      CREATE VIEW "content_property_dependencies" AS
       SELECT
       	content_computed_properties.content_id,
       	content_computed_properties.content_template_name,
