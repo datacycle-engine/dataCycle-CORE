@@ -92,7 +92,7 @@ module DataCycleCore
           else
             params = permitted_params
               .except(:external_source_id, :controller, :action, :format, :endpoint_id, *feratel_params)
-              .merge('filter' => { 'contentId' => { 'in' => [content_ids.join(',')] } }, 'dc:liveData' => live_data, id: permitted_params[:endpoint_id])
+              .merge('filter' => (permitted_params[:filter] || {}).merge({ 'contentId' => { 'in' => [content_ids.join(',')] } }), 'dc:liveData' => live_data, id: permitted_params[:endpoint_id])
               .to_hash
               .symbolize_keys
             redirect_to api_v4_stored_filter_path(params)
@@ -105,7 +105,8 @@ module DataCycleCore
 
         def permitted_parameter_keys
           super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id,
-                   :days, :units, :from, :to, :page_size, :start_page, occupation: [:adults, :children, :units]]
+                   :days, :units, :from, :to, :page_size, :start_page,
+                   occupation: [:adults, :children, :units], filter: {}]
         end
 
         def api_strategy
