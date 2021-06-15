@@ -1,7 +1,7 @@
-<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
-  <%= hidden_field_tag "f[#{index}][c]", 'a' %>
-  <%= hidden_field_tag "f[#{index}][t]", :geo_within_classification %>
-  <%= hidden_field_tag "f[#{index}][n]", filter_title %>
+<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", :geo_within_classification %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
 
   <div class="advanced-filter-title">
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
@@ -9,7 +9,7 @@
   </div>
 
   <div class="advanced-filter-mode">
-    <%= select_tag "f[#{index}][m]", options_for_select([[t("common.in", locale: DataCycleCore.ui_language), 'i'], [t("common.not_in", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
+    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("common.in", locale: DataCycleCore.ui_language), 'i'], [t("common.not_in", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
   </div>
 
   <div class="advanced-filter-selector">
@@ -17,7 +17,7 @@
 
     <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
       <%= select_tag(
-          "f[#{index}][v]",
+          "f[#{identifier}][v]",
           async_classification_select_options(@selected_classification_aliases&.values_at(*value)),
           {
             multiple: true,
@@ -34,7 +34,7 @@
         ) %>
     <% else %>
       <%= select_tag(
-          "f[#{index}][v]",
+          "f[#{identifier}][v]",
           simple_classification_select_options(@selected_classification_aliases&.values_at(*value), classification_items),
           {
             multiple: true,
@@ -49,9 +49,9 @@
     <% end %>
   </div>
 
-  <% if can?(:advanced_filter, :backend) %>
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
     <div class="buttons">
-      <a class="remove-advanced-filter" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
     </div>
   <% end %>
 </div>

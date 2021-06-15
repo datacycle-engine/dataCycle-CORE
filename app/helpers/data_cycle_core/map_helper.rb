@@ -14,7 +14,8 @@ module DataCycleCore
           c.try(paths['geo'].to_s),
           {
             title: I18n.with_locale(c.first_available_locale) { c.try(paths['title'].to_s) },
-            thingPath: thing_path(c)
+            thingPath: thing_path(c),
+            style: { color: 'gray', width: 4 }
           }
         )
       }.flatten.compact.uniq

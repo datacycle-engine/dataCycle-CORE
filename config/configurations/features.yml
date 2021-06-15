@@ -58,9 +58,55 @@
 
 :main_filter:
   :enabled: true
-  :classification_alias_ids:
-    - Inhaltstypen
   :autoload_last_filter: true
+  :config:
+    :backend:
+      :filter:
+        :search: true
+        # :classification_tree: Inhaltstypen # toplevel classifications from this tree will be available as clickable buttons
+        :classification_trees:
+          - Inhaltstypen
+        # :permanent_advanced: # always visible advanced filtesrs, can be a hash with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
+        :advanced: true # can be a hash with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
+      :store: true
+      :add_items_to_watch_list: true
+      :language: true
+      :mode_selector: true
+      :sortable: true
+    :things:
+      :filter:
+        :search: true
+        :classification_trees:
+          - 'Inhaltstypen'
+      :language: true
+      :mode_selector: true
+      :collapse: true
+    :collection:
+      :filter:
+        :search: true
+        :classification_trees:
+          - 'Inhaltstypen'
+      :language: true
+      :mode_selector: true
+      :collapse: true
+    :classification_tree:
+      :filter:
+        :classification_trees:
+          - Inhaltstypen
+          - Märkte
+      :language: true
+    :publications:
+      :filter:
+        :classification_trees:
+          - Inhaltstypen
+        :advanced: true
+        :publication_date: true
+      :language: true
+    :subscriptions:
+      :filter:
+        :search: true
+      :language: true
+      :mode_selector: true
 
 :sortable:
   :enabled: false
