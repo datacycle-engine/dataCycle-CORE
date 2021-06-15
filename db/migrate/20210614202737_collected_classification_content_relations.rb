@@ -91,6 +91,8 @@ class CollectedClassificationContentRelations < ActiveRecord::Migration[5.2]
 
   def down
     execute <<-SQL.squish
+      DROP TRIGGER generate_collected_classification_content_relations_trigger ON classification_alias_paths;
+      DROP FUNCTION generate_collected_classification_content_relations_trigger_2;
       DROP TRIGGER generate_collected_classification_content_relations_trigger ON classification_contents;
       DROP FUNCTION generate_collected_classification_content_relations_trigger_1;
       DROP FUNCTION generate_collected_classification_content_relations;
