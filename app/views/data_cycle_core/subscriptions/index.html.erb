@@ -1,13 +1,7 @@
 <% breadcrumb :index, 'subscriptions' %>
 
 <% content_for :top_content do %>
-  <%= render 'filter', filter: {
-      classification_trees: [],
-      search: true,
-      language: true,
-      mode_selector: true,
-      additional_mode_selector_classes: 'column-padding'
-  } %>
+  <%= render 'filter', view_type: 'subscriptions', additional_classes: 'column-padding' %>
 <% end %>
 
 <%= render 'data_cycle_core/application/results', contents: @contents %>

@@ -1,17 +1,17 @@
-<% target = (@params['n'].presence&.underscore_blanks || '') + (@params['index'].present? ? "_#{@params['index']}" : '') %>
+<% target = @params['identifier'] %>
 
 <% if @params['v'].present? %>
   var new_html = '<%= j render_advanced_filter_tags_partial({
-  filter_type: @params['t'],
-  title: @params['n'],
-  key: @params['n'].presence&.underscore_blanks,
-  target: target,
-  value: @params['v'] || [],
-  filter_advanced_type: @params['q'],
-  filter_method: @params['m'] || 'i',
-  container_classes: 'advanced-tags',
-  buttons: @params['c']
-}) %>';
+                        filter_type: @params['t'],
+                        title: @params['n'],
+                        key: @params['n'].presence&.underscore_blanks,
+                        target: target,
+                        value: @params['v'] || [],
+                        filter_advanced_type: @params['q'],
+                        filter_method: @params['m'] || 'i',
+                        container_classes: @params['c'] == 'a' ? 'advanced-tags' : nil,
+                        buttons: @params['c'] == 'a' ? 'a' : 'd'
+                      }) %>';
 
 if($('.filters .tag-group[data-id="<%= target %>"]').length){
   $('.filters .tag-group[data-id="<%= target %>"]').replaceWith(new_html);

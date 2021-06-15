@@ -1,9 +1,10 @@
-<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'i' %> in-schedule" data-label="<%= filter_name %>">
-  <%= hidden_field_tag "f[#{index}][c]", 'a' %>
-  <%= hidden_field_tag "f[#{index}][t]", local_assigns[:filter_type] || :in_schedule %>
-  <%= hidden_field_tag "f[#{index}][n]", 'event_schedule' %>
-  <%= hidden_field_tag "f[#{index}][q]", local_assigns[:filter_advanced_type] %>
-  <%= hidden_field_tag "f[#{index}][m]", 'i' %>
+<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %> in-schedule" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", local_assigns[:filter_type] || :in_schedule %>
+  <%= hidden_field_tag "f[#{identifier}][n]", 'event_schedule' %>
+  <%= hidden_field_tag "f[#{identifier}][q]", filter_title %>
+  <%= hidden_field_tag "f[#{identifier}][m]", 'i' %>
+
   <div class="advanced-filter-title">
     <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
     <span>
@@ -15,15 +16,15 @@
   <% if local_assigns[:filter_advanced_type] == 'absolute' %>
     <div class="advanced-filter-selector">
       <span class="separator"><%= t("terms.from", locale: DataCycleCore.ui_language) %></span>
-      <%= date_field_tag "f[#{index}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>
+      <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>
       <span class="separator"><%= t("terms.until", locale: DataCycleCore.ui_language) %></span>
-      <%= date_field_tag "f[#{index}][v][until]", value&.dig('until') || local_assigns[:default_until], { placeholder: 'tt.mm.jjjj' } %>
+      <%= date_field_tag "f[#{identifier}][v][until]", value&.dig('until') || local_assigns[:default_until], { placeholder: 'tt.mm.jjjj' } %>
     </div>
   <% else %>
     <div class="advanced-filter-selector">
 
       <span class="separator"><%= t("terms.from", locale: DataCycleCore.ui_language) %></span>
-      <%= select_tag "f[#{index}][v][from][mode]", options_for_select(
+      <%= select_tag "f[#{identifier}][v][from][mode]", options_for_select(
                 [
                     [t("filter.in_schedule_types.in", locale: DataCycleCore.ui_language), 'p'],
                     [t("filter.in_schedule_types.before", locale: DataCycleCore.ui_language), 'm']
@@ -31,9 +32,9 @@
                 value&.dig('from','mode')
             ) %>
 
-      <%= number_field_tag "f[#{index}][v][from][n]", value&.dig('from','n'), { placeholder: '', class: 'filter-text' } %>
+      <%= number_field_tag "f[#{identifier}][v][from][n]", value&.dig('from','n'), { placeholder: '', class: 'filter-text' } %>
 
-      <%= select_tag "f[#{index}][v][from][unit]", options_for_select(
+      <%= select_tag "f[#{identifier}][v][from][unit]", options_for_select(
                 [
                     [t("datetime.prompts.day", locale: DataCycleCore.ui_language), 'day'],
                     [t("datetime.prompts.week", locale: DataCycleCore.ui_language), 'week'],
@@ -46,7 +47,7 @@
     <div class="advanced-filter-selector">
 
       <span class="separator"><%= t("terms.until", locale: DataCycleCore.ui_language) %></span>
-      <%= select_tag "f[#{index}][v][until][mode]", options_for_select(
+      <%= select_tag "f[#{identifier}][v][until][mode]", options_for_select(
                 [
                     [t("filter.in_schedule_types.in", locale: DataCycleCore.ui_language), 'p'],
                     [t("filter.in_schedule_types.before", locale: DataCycleCore.ui_language), 'm']
@@ -54,9 +55,9 @@
                 value&.dig('until','mode')
             ) %>
 
-      <%= number_field_tag "f[#{index}][v][until][n]", value&.dig('until','n'), { placeholder: '', class: 'filter-text' } %>
+      <%= number_field_tag "f[#{identifier}][v][until][n]", value&.dig('until','n'), { placeholder: '', class: 'filter-text' } %>
 
-      <%= select_tag "f[#{index}][v][until][unit]", options_for_select(
+      <%= select_tag "f[#{identifier}][v][until][unit]", options_for_select(
                 [
                     [t("datetime.prompts.day", locale: DataCycleCore.ui_language), 'day'],
                     [t("datetime.prompts.week", locale: DataCycleCore.ui_language), 'week'],
@@ -68,9 +69,9 @@
     </div>
   <% end %>
 
-  <% if can?(:advanced_filter, :backend) %>
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
     <div class="buttons">
-      <a class="remove-advanced-filter" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
     </div>
   <% end %>
 </div>
