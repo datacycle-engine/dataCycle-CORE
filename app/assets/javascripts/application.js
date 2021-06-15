@@ -22,6 +22,12 @@ export default (dataCycleConfig = {}) => {
 
   appSignalInit();
 
+  try {
+    Rails.start();
+  } catch {
+    console.log('rails-ujs already started');
+  }
+
   $(function () {
     for (const path in initializers) {
       if (!path.includes('foundation_init') && !path.includes('validation_init') && !path.includes('app_signal_init')) {
