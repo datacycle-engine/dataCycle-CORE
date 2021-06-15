@@ -12,7 +12,7 @@
       <% I18n.with_locale(split_source.first_available_locale(@source_locale)) do %>
         <div class="row split-content detail-content"
           data-locale="<%= I18n.locale %>"
-          data-embed-locale="<%= DataCycleCore.features.dig(:copy_embedded_locale, :enabled) %>" data-enable-translate-buttons="<%= DataCycleCore::Feature::Translate.allowed?(split_source, @locale, I18n.locale, current_user) %>">
+          data-embed-locale="<%= DataCycleCore.features.dig(:copy_embedded_locale, :enabled) %>" data-enable-translate-buttons="<%= DataCycleCore::Feature::Translate.allowed?(content, @locale, I18n.locale, current_user) %>">
           <%= hidden_field_tag 'splitview', true %>
 
           <%= render 'split_source_subscribe_notice', content: content, split_source: split_source if local_assigns[:subscribe_notice] && can?(:subscribe, split_source) && split_source.subscriptions.by_user(current_user).size.zero? && cookies[:subscribe_notice_dismissed].blank? %>
