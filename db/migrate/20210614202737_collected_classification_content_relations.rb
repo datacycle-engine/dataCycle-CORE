@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ClassificationContentRelations < ActiveRecord::Migration[5.2]
+class CollectedClassificationContentRelations < ActiveRecord::Migration[5.2]
   disable_ddl_transaction!
 
   def up
@@ -68,6 +68,22 @@ class ClassificationContentRelations < ActiveRecord::Migration[5.2]
       CREATE TRIGGER generate_collected_classification_content_relations_trigger
       AFTER INSERT OR UPDATE ON classification_contents FOR EACH ROW
       EXECUTE FUNCTION generate_collected_classification_content_relations_trigger_1();
+
+      CREATE OR REPLACE FUNCTION generate_collected_classification_content_relations_trigger_2()
+      RETURNS TRIGGER LANGUAGE PLPGSQL AS $$
+      BEGIN
+        PERFORM generate_collected_classification_content_relations(ARRAY_AGG(content_id)) FROM (
+          SELECT content_id
+          FROM collected_classification_content_relations
+          WHERE NEW.id = ANY(direct_classification_alias_ids)
+        ) "relevant_content_ids";
+
+        RETURN NEW;
+      END;$$;
+
+      CREATE TRIGGER generate_collected_classification_content_relations_trigger
+      AFTER INSERT OR UPDATE ON classification_alias_paths FOR EACH ROW
+      EXECUTE FUNCTION generate_collected_classification_content_relations_trigger_2();
 
       SELECT generate_collected_classification_content_relations(ARRAY_AGG(id)) FROM things;
     SQL

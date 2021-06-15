@@ -106,23 +106,18 @@ module DataCycleCore
         def create_exists_query_for_classification_alias_ids_with_subtree(ids)
           raw_query = <<-SQL.squish
             SELECT
-          	FROM classification_alias_paths
-          	JOIN classification_groups ON
-              classification_groups.classification_alias_id = classification_alias_paths.id
-          	JOIN classification_contents ON
-              classification_contents.classification_id = classification_groups.classification_id
-          	WHERE classification_contents.content_data_id = things.id AND
-              classification_alias_paths.full_path_ids && ARRAY[?]::UUID[]
+          	FROM collected_classification_content_relations
+          	WHERE collected_classification_content_relations.content_id = things.id AND
+              collected_classification_content_relations.full_classification_alias_ids && ARRAY[?]::UUID[]
           SQL
 
           Arel::Nodes::Exists.new(
             Arel.sql(
               Thing.send(:sanitize_sql_for_conditions,
-                [
-                  raw_query,
-                  ids
-                ]
-              )
+                         [
+                           raw_query,
+                           ids
+                         ])
             )
           )
         end
@@ -130,21 +125,18 @@ module DataCycleCore
         def create_exists_query_for_classification_alias_ids_without_subtree(ids)
           raw_query = <<-SQL.squish
             SELECT
-        	  FROM classification_groups
-        	  JOIN classification_contents ON
-              classification_contents.classification_id = classification_groups.classification_id
-        	  WHERE classification_contents.content_data_id = things.id AND
-              classification_groups.classification_alias_id IN (?)
+            FROM collected_classification_content_relations
+            WHERE collected_classification_content_relations.content_id = things.id AND
+              collected_classification_content_relations.direct_classification_alias_ids && ARRAY[?]::UUID[]
           SQL
 
           Arel::Nodes::Exists.new(
             Arel.sql(
               Thing.send(:sanitize_sql_for_conditions,
-                [
-                  raw_query,
-                  ids
-                ]
-              )
+                         [
+                           raw_query,
+                           ids
+                         ])
             )
           )
         end

@@ -60,6 +60,33 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS t
 
 
 --
+-- Name: generate_collected_classification_content_relations(uuid[]); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_collected_classification_content_relations(content_ids uuid[]) RETURNS uuid[]
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id = ANY(content_ids); WITH direct_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id WHERE things.id = ANY(content_ids) ), full_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", UNNEST(classification_alias_paths.full_path_ids) "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id WHERE things.id = ANY(content_ids) ) INSERT INTO collected_classification_content_relations ( content_id, direct_classification_alias_ids, full_classification_alias_ids ) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id ) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT thing_id, ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids" FROM full_classification_content_relations GROUP BY thing_id ) "full_relations" ON full_relations.thing_id = things.id; RETURN content_ids; END;$$;
+
+
+--
+-- Name: generate_collected_classification_content_relations_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations(ARRAY[NEW.content_data_id]::UUID[]); RETURN NEW; END;$$;
+
+
+--
+-- Name: generate_collected_classification_content_relations_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_2() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations(ARRAY_AGG(content_id)) FROM ( SELECT content_id FROM collected_classification_content_relations WHERE NEW.id = ANY(direct_classification_alias_ids) ) "relevant_content_ids"; RETURN NEW; END;$$;
+
+
+--
 -- Name: generate_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -480,6 +507,18 @@ CREATE TABLE public.classifications (
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
     uri character varying
+);
+
+
+--
+-- Name: collected_classification_content_relations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.collected_classification_content_relations (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    content_id uuid,
+    direct_classification_alias_ids uuid[],
+    full_classification_alias_ids uuid[]
 );
 
 
@@ -2337,6 +2376,20 @@ CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDAT
 
 
 --
+-- Name: classification_alias_paths generate_collected_classification_content_relations_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER INSERT OR UPDATE ON public.classification_alias_paths FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_2();
+
+
+--
+-- Name: classification_contents generate_collected_classification_content_relations_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER INSERT OR UPDATE ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_1();
+
+
+--
 -- Name: schedules generate_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -2575,6 +2628,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210518074537'),
 ('20210602112830'),
 ('20210604072054'),
-('20210608125638');
+('20210608125638'),
+('20210614202054'),
+('20210614202737');
 
 
