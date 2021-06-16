@@ -33,6 +33,9 @@ module DataCycleCore
     end
 
     def add_filter
+      @identifier = SecureRandom.hex(10)
+      @params = add_filter_params
+
       respond_to(:js)
     end
 
@@ -105,17 +108,22 @@ module DataCycleCore
       key, filter = params.permit(:language_filter, :language, :roles, :user_groups, f: {}, language: [], roles: [], user_groups: []).to_h.first
 
       if key == 'f'
-        index, value = filter&.first
+        identifier, value = filter&.first
         options = value || {}
-        options[:index] = index
+        options[:identifier] = identifier
       else
         options[:n] = key
         options[:t] = key
         options[:c] = 'd'
         options[:v] = filter
+        options[:identifier] = key
       end
 
       options.with_indifferent_access
+    end
+
+    def add_filter_params
+      params.permit(:n, :m, :q, :t)
     end
   end
 end

@@ -20,8 +20,8 @@ module DataCycleCore
           tmp = instance_variable_get(iv)
           next unless tmp.is_a?(ApplicationRecord)
 
-          tmp.reload
           tmp.instance_variable_set(:@destroyed, false) if tmp.destroyed?
+          tmp.reload
         end
       end
     end

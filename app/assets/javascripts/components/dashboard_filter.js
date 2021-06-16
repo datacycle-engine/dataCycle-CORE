@@ -2,7 +2,8 @@ class DashboardFilter {
   constructor(element) {
     this.$searchForm = $(element);
     this.$defaultFilterContainer = this.$searchForm.find('.main-filters').first();
-    this.$advancedFilterContainer = this.$searchForm.find('.advanced-filters').first();
+    this.$classificationTreeFilterContainer = this.$searchForm.find('.classification-tree-filter').first();
+    this.$advancedFilterContainer = this.$searchForm.find('.advanced-filters, .permanent-advanced-filters');
     this.$addAdvancedFilterSelect = this.$advancedFilterContainer.find('#add_advanced_filter').first();
     this.$searchInput = this.$searchForm.find('input.fulltext-search-field').first();
     this.$clickableMenus = this.$searchForm.find('.clickable-menu');
@@ -65,6 +66,7 @@ class DashboardFilter {
   }
   initEventHandlers() {
     this.$defaultFilterContainer.on('change', '.filter ul :checkbox', this.markDefaultFilterAsChecked.bind(this));
+    this.$classificationTreeFilterContainer.on('change', 'ul :checkbox', this.markDefaultFilterAsChecked.bind(this));
     if (this.$languageSelectContainer.length)
       this.$languageSelectContainer.on('change', '.filter ul :checkbox', this.toggleLanguages.bind(this));
 
@@ -167,57 +169,65 @@ class DashboardFilter {
     event.preventDefault();
     event.stopPropagation();
 
-    $(event.target).prop('disabled', true);
+    if (!this.$addAdvancedFilterSelect.val()) return;
+
+    this.$addAdvancedFilterSelect.prop('disabled', true);
+
     DataCycle.httpRequest({
       url: this.addFilterPath,
       method: 'GET',
       data: {
-        t: $(event.target).val(),
-        n: $(event.target).find(':selected').data('name'),
-        q: $(event.target).find(':selected').data('advancedtype'),
-        m: $(event.target).data('method'),
-        index: $(event.target).data('index')
+        t: this.$addAdvancedFilterSelect.val(),
+        n: this.$addAdvancedFilterSelect.find(':selected').data('name'),
+        q: this.$addAdvancedFilterSelect.find(':selected').data('advancedtype'),
+        m: this.$addAdvancedFilterSelect.data('method')
       },
       dataType: 'script',
       contentType: 'application/json'
     }).always(() => {
-      $(event.target).prop('disabled', false);
+      this.$addAdvancedFilterSelect.prop('disabled', false);
     });
-    $(event.target).val('');
+
+    this.$addAdvancedFilterSelect.val(null).trigger('change');
   }
   removeAdvancedFilter(event) {
     event.preventDefault();
     event.stopPropagation();
 
     const target = $(event.currentTarget).data('target');
+    const $targetElem = $(`[data-id="${target}"]`);
 
-    if (target == 'fulltext_search') this.$searchInput.val(null).trigger('change');
-
-    $(`.advanced-filter[data-id="${target}"], .filters .tag-group[data-id="${target}"]`).remove();
+    $targetElem.filter('.search').find(':text').val(null).trigger('change');
+    $targetElem.filter(':not(.search)').remove();
   }
   focusAdvancedFilter(event) {
     event.preventDefault();
     event.stopPropagation();
 
     const target = $(event.currentTarget).data('target');
-
-    if (target == 'fulltext_search') return this.$searchInput.focus();
-
-    let accordion = $(event.currentTarget).closest('.filters').find('.advanced-filters.accordion');
+    const $targetElem = $(`[data-id="${target}"]`);
+    const accordion = $(event.currentTarget).closest('.filters').find('.advanced-filters.accordion');
 
     accordion.one('down.zf.accordion', e => {
       e.stopPropagation();
 
-      $(`.advanced-filter[data-id="${target}"]`).addClass('highlight').get(0).scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
-      setTimeout(() => {
-        $(`.advanced-filter[data-id="${target}"]`).removeClass('highlight');
-      }, 1000);
+      this.highlightAdvancedFilter($targetElem);
     });
 
-    accordion.foundation('down', accordion.find('> .accordion-item > .accordion-content'));
+    if (accordion.length && $targetElem.closest('.accordion').length)
+      accordion.foundation('down', accordion.find('> .accordion-item > .accordion-content'));
+    else this.highlightAdvancedFilter($targetElem);
+  }
+  highlightAdvancedFilter($element) {
+    $element.addClass('highlight').get(0).scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+    $element.find(':text').first().focus();
+
+    setTimeout(() => {
+      $element.removeClass('highlight');
+    }, 1000);
   }
   initSearchForm() {
     if (!this.$searchInput.length) return;

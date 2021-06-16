@@ -9,7 +9,12 @@ export default ({ mode }) => {
     build: {
       chunkSizeWarningLimit: 5000,
       brotliSize: false,
-      minify: mode == 'development' ? false : 'terser'
+      minify: mode == 'development' ? false : 'terser',
+      rollupOptions: {
+        output: {
+          manualChunks: undefined
+        }
+      }
     },
     plugins: [
       RubyPlugin(),

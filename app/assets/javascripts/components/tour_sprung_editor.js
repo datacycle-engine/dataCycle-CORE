@@ -1,4 +1,6 @@
 import OpenLayersEditor from './open_layers_editor';
+import lodashGet from 'lodash/get';
+import lodashPick from 'lodash/pick';
 
 class TourSprungEditor extends OpenLayersEditor {
   constructor(container) {
@@ -151,25 +153,25 @@ class TourSprungEditor extends OpenLayersEditor {
         this.setNewCoordinates();
       });
   }
-  iconOptions(type = 'default', hover = false) {
+  iconOptions(type = 'default', hover = false, color = 'default') {
     return {
       iconUrl: this.icons[type].interpolate({
-        color: escape(this.colors.default),
-        strokeColor: escape(this.colors[hover ? 'white' : 'default']),
+        color: escape(this.colors[color]),
+        strokeColor: escape(this.colors[hover ? 'white' : color]),
         opacity: hover ? 1 : 0.9
       }),
       iconAnchor: [10.5, 33],
       popupAnchor: [0, 38]
     };
   }
-  singleMarker(latlng, draggable = false) {
+  singleMarker(latlng, draggable = false, feature = null) {
     const marker = new L.Marker(latlng, {
       draggable: draggable,
       opacity: 0.9,
-      icon: L.icon(this.iconOptions())
+      icon: L.icon(this.iconOptions('default', false, lodashGet(feature, 'properties.style.color', 'default')))
     })
-      .on('mouseover', _ => this.highlightFeature(marker))
-      .on('mouseout', _ => this.resetHighlightedFeature(marker));
+      .on('mouseover', _ => this.highlightFeature(marker, feature))
+      .on('mouseout', _ => this.resetHighlightedFeature(marker, feature));
 
     return marker;
   }
@@ -191,48 +193,59 @@ class TourSprungEditor extends OpenLayersEditor {
 
     return points;
   }
-  highlightFeature(layer) {
+  highlightFeature(layer, feature) {
     if (this.draggingMarker && this.draggingMarker._leaflet_id == layer._leaflet_id) return;
     if (this.highlightedFeatures) this.highlightedFeatures.clearLayers();
 
     if (this.isLineStringLayer(layer)) {
       const points = layer.getLatLngs();
-      this.highlightedFeatures.addLayer(new L.polyline(points, this.lineStyle({ color: '#fff', weight: 9 })));
+      const weight = lodashGet(feature, 'properties.style.width', 5) + 4;
+      this.highlightedFeatures.addLayer(new L.polyline(points, this.lineStyle({ color: '#fff', weight: weight })));
       this.highlightedFeatures.addLayer(
         new L.Marker(this.pointFromPoints(points.slice()), {
           opacity: 0.9,
-          icon: L.icon(this.iconOptions('start', true))
+          icon: L.icon(this.iconOptions('start', true, lodashGet(feature, 'properties.style.color', 'default')))
         })
       );
       this.highlightedFeatures.addLayer(
         new L.Marker(this.pointFromPoints(points.slice(), 'pop'), {
           opacity: 0.9,
-          icon: L.icon(this.iconOptions('end', true))
+          icon: L.icon(this.iconOptions('end', true, lodashGet(feature, 'properties.style.color', 'default')))
         })
       );
       this.highlightedFeatures.addTo(this.map.leaflet);
       layer.bringToFront();
     } else {
-      layer.setIcon(L.icon(this.iconOptions('default', true)));
+      layer.setIcon(L.icon(this.iconOptions('default', true, lodashGet(feature, 'properties.style.color', 'default'))));
     }
   }
-  resetHighlightedFeature(layer) {
+  resetHighlightedFeature(layer, feature) {
     if (this.draggingMarker && this.draggingMarker._leaflet_id == layer._leaflet_id) return;
     if (this.highlightedFeatures) this.highlightedFeatures.clearLayers();
 
-    if (!this.isLineStringLayer(layer)) layer.setIcon(L.icon(this.iconOptions()));
+    if (!this.isLineStringLayer(layer))
+      layer.setIcon(
+        L.icon(this.iconOptions('default', false, lodashGet(feature, 'properties.style.color', 'default')))
+      );
+  }
+  styleFunction(feature, layer) {
+    let options = Object.assign({}, lodashGet(feature, 'properties.style', {}));
+    options.weight = options.width;
+    if (options.color && this.colors[options.color]) options.color = this.colors[options.color];
+
+    return this.lineStyle(lodashPick(options, ['color', 'weight']));
   }
   drawFeatureFromGeoJson(geoJson) {
     return L.geoJSON(geoJson, {
-      style: this.lineStyle(),
-      pointToLayer: (_feature, latlng) => this.singleMarker(latlng),
+      style: this.styleFunction.bind(this),
+      pointToLayer: (feature, latlng) => this.singleMarker(latlng, false, feature),
       onEachFeature: (feature, layer) => {
         this.additionalFeatures.push(layer);
         if (feature && feature.properties && feature.properties.thingPath)
           layer.bindPopup(this.showInfoOverlay.bind(this));
 
-        layer.on('mouseover', _ => this.highlightFeature(layer));
-        layer.on('mouseout', _ => this.resetHighlightedFeature(layer));
+        layer.on('mouseover', _ => this.highlightFeature(layer, feature));
+        layer.on('mouseout', _ => this.resetHighlightedFeature(layer, feature));
       }
     }).addTo(this.map.leaflet);
   }
