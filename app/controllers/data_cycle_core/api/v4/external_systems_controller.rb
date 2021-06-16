@@ -4,6 +4,11 @@ module DataCycleCore
   module Api
     module V4
       class ExternalSystemsController < ApiBaseController
+        PUMA_MAX_TIMEOUT = 60
+        include DataCycleCore::Filter
+        include DataCycleCore::ApiHelper
+        before_action :prepare_url_parameters
+
         def show
           external_system_id = DataCycleCore::ExternalSystem.find_by(identifier: permitted_params[:external_source_id])&.id || permitted_params[:external_source_id]
 
@@ -78,7 +83,7 @@ module DataCycleCore
           credentials = { options: permitted_params.slice(*feratel_params) }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
           endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(credentials)
           search_data = endpoint.send(search_method)
-          if search_data&.first.try(:'[]', 'error')&.present?
+          if search_data&.first.try(:'[]', 'error').present?
             error = search_data.first['error']
           else
             live_data = search_data
@@ -90,12 +95,22 @@ module DataCycleCore
           if error.present?
             render plain: { error: error }.to_json, content_type: 'application/json', status: :bad_request
           else
-            redirect_params = permitted_params
+            query_params = permitted_params
               .except(:external_source_id, :controller, :action, :format, :endpoint_id, *feratel_params)
               .merge('filter' => (permitted_params[:filter] || {}).merge({ 'contentId' => { 'in' => [content_ids.join(',')] } }), 'dc:liveData' => live_data, id: permitted_params[:endpoint_id])
               .to_hash
               .symbolize_keys
-            redirect_to api_v4_stored_filter_path(redirect_params)
+            @permitted_params = query_params
+
+            query = build_search_query
+            query = apply_ordering(query)
+            @pagination_contents = apply_paging(query)
+            @contents = @pagination_contents
+
+            filtered_content_ids = @contents.ids
+            @permitted_params[:'dc:liveData'] = @permitted_params[:'dc:liveData']&.select { |i| i['@id'].in?(filtered_content_ids) }
+
+            render template: 'data_cycle_core/api/v4/contents/index'
           end
         end
 
