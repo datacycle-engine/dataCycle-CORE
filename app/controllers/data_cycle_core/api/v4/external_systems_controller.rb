@@ -90,6 +90,7 @@ module DataCycleCore
               .map { |i| { '@id' => DataCycleCore::Thing.find_by(external_key: i.dig('id'))&.id, 'minPrice' => i.dig('base_price') } }
               .select { |i| i.dig('@id').present? }
             content_ids = live_data.map { |i| i.dig('@id') }
+            error = 'No suitable results found.' if content_ids.blank?
           end
 
           if error.present?
