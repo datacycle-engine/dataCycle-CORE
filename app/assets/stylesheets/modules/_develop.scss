@@ -2096,7 +2096,7 @@ select {
     border-radius: 4px;
     padding: 2px;
 
-    .upload-gpx-button {
+    .map-edit-button {
       background-color: rgba(0, 60, 136, 0.5);
       border-radius: 2px;
       margin: 1px;
@@ -2114,6 +2114,10 @@ select {
         text-decoration: none;
         background-color: rgba(0, 60, 136, 0.7);
       }
+    }
+
+    .map-edit-button-margin {
+      margin: 5px 1px 1px 1px;
     }
   }
 }
