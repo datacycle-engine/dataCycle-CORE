@@ -90,12 +90,12 @@ module DataCycleCore
           if error.present?
             render plain: { error: error }.to_json, content_type: 'application/json', status: :bad_request
           else
-            params = permitted_params
+            redirect_params = permitted_params
               .except(:external_source_id, :controller, :action, :format, :endpoint_id, *feratel_params)
               .merge('filter' => (permitted_params[:filter] || {}).merge({ 'contentId' => { 'in' => [content_ids.join(',')] } }), 'dc:liveData' => live_data, id: permitted_params[:endpoint_id])
               .to_hash
               .symbolize_keys
-            redirect_to api_v4_stored_filter_path(params)
+            redirect_to api_v4_stored_filter_path(redirect_params)
           end
         end
 
