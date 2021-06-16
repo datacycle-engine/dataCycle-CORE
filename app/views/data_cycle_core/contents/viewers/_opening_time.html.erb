@@ -7,7 +7,7 @@
 
   <% objects = value.presence&.map(&:to_h)&.compact&.group_by { |s| [s[:dtstart]&.in_time_zone&.beginning_of_day, s.dig(:rrules, 0, :until)&.in_time_zone&.beginning_of_day] } %>
 
-  <% objects.each do |validity_period, opening_times| %>
+  <% objects&.each do |validity_period, opening_times| %>
     <div class="opening-time-group">
       <span class="opening-time-validity-period">
         <%= opening_time_validity_period(validity_period) %>
