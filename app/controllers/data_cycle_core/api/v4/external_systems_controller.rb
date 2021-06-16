@@ -74,7 +74,7 @@ module DataCycleCore
             return
           end
 
-          feratel_params = [:days, :units, :from, :to, :page_size, :start_page, :occupation]
+          feratel_params = [:days, :units, :from, :to, :page_size, :start_index, :occupation]
           credentials = { options: permitted_params.slice(*feratel_params) }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
           endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(credentials)
           search_data = endpoint.send(search_method)
@@ -105,7 +105,7 @@ module DataCycleCore
 
         def permitted_parameter_keys
           super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id,
-                   :days, :units, :from, :to, :page_size, :start_page,
+                   :days, :units, :from, :to, :page_size, :start_index,
                    occupation: [:adults, :children, :units], filter: {}]
         end
 
