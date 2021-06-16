@@ -70,7 +70,6 @@ module DataCycleCore
         end
 
         def create_search_availabilities_request_xml(range_code: 'RG', range_ids: [@primary_range_id])
-          binding.pry
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.SearchLines(
               'StartIndex' => @options.dig(:start_index) || 1,
