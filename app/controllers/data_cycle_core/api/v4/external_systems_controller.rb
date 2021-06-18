@@ -109,7 +109,7 @@ module DataCycleCore
             @contents = @pagination_contents
 
             filtered_content_ids = @contents.ids
-            @permitted_params[:'dc:liveData'] = @permitted_params[:'dc:liveData']&.select { |i| i['@id'].in?(filtered_content_ids) }
+            @permitted_params[:'dc:liveData'] = @permitted_params[:'dc:liveData']&.select { |i| i[:'@id'].in?(filtered_content_ids) }
 
             render template: 'data_cycle_core/api/v4/contents/index'
           end
