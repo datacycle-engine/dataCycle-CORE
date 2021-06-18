@@ -13,6 +13,10 @@ module DataCycleCore
             user_string(current_user)
           end
 
+          def linked_gip_route_attribute(property_parameters:, property_definition:, **_additional_args)
+            DataCycleCore::Thing.find(property_parameters.first.first).send(property_definition&.dig('default_value', 'linked_attribute').to_s)
+          end
+
           private
 
           def user_string(user)
