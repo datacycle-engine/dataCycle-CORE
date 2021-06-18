@@ -56,7 +56,7 @@ module DataCycleCore
           section_params = DEFAULT_SECTION_SETTINGS.merge(section_parameters)
           raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for param page[size]: #{page_params[:size]}" unless page_params[:size].to_i.positive?
           if page_params[:limit].to_i.positive?
-            query.offset(page_params[:offset].to_i).limit(page_params[:limit].to_i)
+            query = query.offset(page_params[:offset].to_i).limit(page_params[:limit].to_i).query
           else
             if section_params[:meta].to_i.zero?
               query = query.page(page_params[:number].to_i).per(page_params[:size].to_i).without_count
@@ -64,8 +64,8 @@ module DataCycleCore
               query = query.page(page_params[:number].to_i).per(page_params[:size].to_i)
             end
             query = query.padding(page_params[:offset].to_i) if page_params[:offset].to_i.positive?
-            query
           end
+          query
         end
 
         def current_ability

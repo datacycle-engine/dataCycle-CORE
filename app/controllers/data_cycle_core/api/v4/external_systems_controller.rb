@@ -100,7 +100,7 @@ module DataCycleCore
               .except(:external_source_id, :controller, :action, :format, :endpoint_id, *feratel_params)
               .merge('filter' => (permitted_params[:filter] || {}).merge({ 'contentId' => { 'in' => [content_ids.join(',')] } }), 'dc:liveData' => live_data, id: permitted_params[:endpoint_id])
               .to_hash
-              .symbolize_keys
+              .deep_symbolize_keys
             @permitted_params = query_params
 
             query = build_search_query
