@@ -194,6 +194,12 @@ module DataCycleCore
         def schedule_filter_exceptions
           Array.wrap(configuration.dig(:config, :schedule_exceptions))
         end
+
+        def schedule_filter_exceptions_string
+          schedule_filter_exceptions
+            &.map { |e| I18n.t("schedule.filter_labels.#{e}", locale: DataCycleCore.ui_language) }
+            &.join(', ')
+        end
       end
     end
   end

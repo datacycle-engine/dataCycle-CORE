@@ -2,13 +2,13 @@ de:
   i18n:
     transliterate:
       rule:
-        Ä: "Ae"
-        ä: "ae"
-        Ö: "Oe"
-        ö: "oe"
-        Ü: "Ue"
-        ü: "ue"
-        ß: "ss"
+        Ä: 'Ae'
+        ä: 'ae'
+        Ö: 'Oe'
+        ö: 'oe'
+        Ü: 'Ue'
+        ü: 'ue'
+        ß: 'ss'
   title: dataCycle
   hello: 'Guten Tag!'
   welcome: 'Willkommen!'
@@ -112,6 +112,13 @@ de:
     rdate: Zusätzliche Termine
     exdate: Ausgenommene Termine
     ongoing: fortlaufend
+    filter_labels:
+      all: Alle Schedules (außer %{exceptions})
+      event_schedule: Termine
+      opening_hours_specification: Öffnungszeiten
+      dining_hours_specification: Warme Küche
+      hours_available: Öffnungszeiten (hours_available)
+      validity_schedule: Gültigkeitszeitraum
 
   opening_time:
     valid_from: Gültigkeit von

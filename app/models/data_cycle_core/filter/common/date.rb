@@ -6,6 +6,7 @@ module DataCycleCore
       module Date
         def in_schedule(value = nil, mode = nil, attribute_key = nil)
           return if value.blank?
+
           attribute_key = 'event_schedule' if attribute_key == 'schedule' # keep backwards compatibity for APIv4 filter[attribute][schedule]
           from_date, to_date = date_from_filter_object(value, mode)
           schedule_search(from_date, to_date, attribute_key)
@@ -127,6 +128,7 @@ module DataCycleCore
         def date_from_single_value(value)
           return if value.blank?
           return value if value.is_a?(::Date)
+
           DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
         end
 
@@ -150,14 +152,17 @@ module DataCycleCore
 
         def relative_to_absolute_date(value)
           distance = value.dig('n')&.presence&.to_i
+
           return if distance.blank?
 
           unit = value.dig('unit') || 'day'
+
           if value.dig('mode') == 'p'
             date = Time.zone.now + distance.send(unit)
           else
             date = Time.zone.now - distance.send(unit)
           end
+
           date
         end
       end

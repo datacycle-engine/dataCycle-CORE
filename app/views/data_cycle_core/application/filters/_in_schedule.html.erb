@@ -1,16 +1,13 @@
 <div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %> in-schedule" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
   <%= hidden_field_tag "f[#{identifier}][t]", local_assigns[:filter_type] || :in_schedule %>
-  <%= hidden_field_tag "f[#{identifier}][n]", 'event_schedule' %>
-  <%= hidden_field_tag "f[#{identifier}][q]", filter_title %>
+  <%= hidden_field_tag "f[#{identifier}][q]", local_assigns[:filter_advanced_type] || filter_title %>
   <%= hidden_field_tag "f[#{identifier}][m]", 'i' %>
 
   <div class="advanced-filter-title">
     <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-    <span>
-      <%= t("filter.#{(local_assigns[:filter_type] || 'in_schedule')}", default: filter_title, locale: DataCycleCore.ui_language) %>
-      <%#= t("filter.in_schedule.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %>
-    </span>
+
+    <%= in_schedule_filter_title(*local_assigns.values_at(:filter_type, :filter_name, :filter_title, :identifier)) %>
   </div>
 
   <% if local_assigns[:filter_advanced_type] == 'absolute' %>
