@@ -10,14 +10,14 @@ module DataCycleCore
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::DcSync::Transformations.to_thing(utility_object.external_source.id),
             default: { template: template },
-            config: config
+            config: config.dig(:import, :transformations)
           )
         end
 
         def self.process_things(utility_object, raw_data, template, config)
           item_template = get_template(raw_data)
-          linked_key_translation = process_included_items(utility_object, item_template, raw_data.dig('included'))
-          classification_key_translation = process_classifications(utility_object, item_template, raw_data.dig('classifications'))
+          linked_key_translation = process_included_items(utility_object, item_template, raw_data.dig('included'), config)
+          classification_key_translation = process_classifications(utility_object, item_template, raw_data.dig('classifications'), config&.dig(:import, :transformations, :exclude_trees))
           processed_thing = nil
           raw_data
             .except('included', 'classifications', 'attribute_name', 'include_translation')
@@ -27,7 +27,7 @@ module DataCycleCore
             I18n.with_locale(locale) do
               data_correct_linked = transform_linked_keys(data: raw_data[locale].except('included', 'classifications'), lookup: linked_key_translation)
               data_correct_ids = transform_classification_keys(data: data_correct_linked, lookup: classification_key_translation)
-              data_correct_embedded = transform_embedded(data_correct_ids, utility_object)
+              data_correct_embedded = transform_embedded(data_correct_ids, utility_object, config)
               processed_thing = DataCycleCore::Generic::Common::ImportFunctions.process_step(
                 utility_object: utility_object,
                 raw_data: data_correct_embedded,
@@ -40,7 +40,7 @@ module DataCycleCore
           processed_thing
         end
 
-        def self.process_included_items(utility_object, parent_template, included_items)
+        def self.process_included_items(utility_object, parent_template, included_items, config)
           linked_key_translation = {}
           included_items&.each do |included_item|
             attribute_name = included_item.dig('attribute_name')
@@ -54,7 +54,7 @@ module DataCycleCore
               new_item = DataCycleCore::Generic::DcSync::Import.process_content(
                 utility_object: utility_object,
                 raw_data: included_item,
-                options: utility_object.external_source.import_config.dig(:things, :transformations, :thing) || {}
+                options: config || {}
               )
               linked_key_translation[attribute_name][included_item[locale]['id']] = new_item.id
             end
@@ -74,29 +74,29 @@ module DataCycleCore
         def self.transform_classification_keys(data:, lookup:)
           universal_classifications = lookup['universal_classifications']&.values || []
           lookup&.each_key do |property_name|
-            data[property_name] = lookup[property_name]&.values || []
+            data[property_name] = lookup[property_name]&.values&.compact || []
           end
           data['universal_classifications'] = universal_classifications
           data
         end
 
-        def self.transform_embedded(data, utility_object)
+        def self.transform_embedded(data, utility_object, config)
           template = DataCycleCore::Thing.find_by(template_name: data.dig('template_name'), template: true)
           template.embedded_property_names&.each do |embedded|
             data[embedded] = data[embedded]&.map { |item|
-              handle_embedded(item, utility_object)
+              handle_embedded(item, utility_object, config)
             }&.try(:compact)
           end
           data
         end
 
-        def self.handle_embedded(data, utility_object)
+        def self.handle_embedded(data, utility_object, config)
           return nil if data[I18n.locale.to_s].blank?
           template = get_template(data)
           return nil if template.blank?
           # treat linked
-          linked_key_translation = process_included_items(utility_object, template, data.dig('included'))
-          classification_key_translation = process_classifications(utility_object, template, data.dig('classifications'))
+          linked_key_translation = process_included_items(utility_object, template, data.dig('included'), config)
+          classification_key_translation = process_classifications(utility_object, template, data.dig('classifications'), config&.dig(:import, :transformations, :exclude_trees))
           embedded = data[I18n.locale.to_s]
           embedded = transform_linked_keys(data: embedded, lookup: linked_key_translation)
           embedded = transform_classification_keys(data: embedded, lookup: classification_key_translation)
@@ -106,7 +106,7 @@ module DataCycleCore
           TransformationFunctions.create_thing(embedded['id'], template, utility_object.external_source) if DataCycleCore::Thing.find_by(id: embedded['id']).blank?
           embedded.delete('external_system_syncs')
 
-          embedded = embedded.merge(transform_embedded(embedded, utility_object))
+          embedded = embedded.merge(transform_embedded(embedded, utility_object, config))
           embedded
         end
 
@@ -115,21 +115,25 @@ module DataCycleCore
           DataCycleCore::Thing.find_by(template_name: data.dig(locale, 'template_name'), template: true)
         end
 
-        def self.process_classifications(utility_object, template, classifications)
+        def self.process_classifications(utility_object, template, classifications, exclude_trees)
           classification_translation = {}
           known_classification_names = template.classification_property_names
           classifications&.each do |classification|
             classification_attribute_name = classification['attribute_name']
+            imported_tree_label = classification.dig('ancestors').detect { |i| i.dig('class_type') == 'DataCycleCore::ClassificationTreeLabel' }.dig('name')
             if known_classification_names.include?(classification['attribute_name']) && classification['attribute_name'] != 'universal_classifications'
               expected_tree_label = template.properties_for(classification['attribute_name']).dig('tree_label')
-              imported_tree_label = classification.dig('ancestors').detect { |i| i.dig('class_type') == 'DataCycleCore::ClassificationTreeLabel' }.dig('name')
               raise DataCycleCore::Generic::Common::Error::GenericError, "DcSync tried to import classifications for property_name: #{classification['attribute_name']} from tree #{imported_tree_label}. Expected was tree_label #{expected_tree_label}." if expected_tree_label != imported_tree_label
             else
               classification_attribute_name = 'universal_classifications'
             end
             classification_translation[classification_attribute_name] ||= {}
-            translated_id = import_classification_path(external_source: utility_object.external_source, data: classification)
-            classification_translation[classification_attribute_name][classification['id']] = translated_id
+            if exclude_trees.present? && imported_tree_label.in?(exclude_trees)
+              classification_translation[classification_attribute_name][classification['id']] = nil
+            else
+              translated_id = import_classification_path(external_source: utility_object.external_source, data: classification)
+              classification_translation[classification_attribute_name][classification['id']] = translated_id
+            end
           end
           classification_translation
         end
