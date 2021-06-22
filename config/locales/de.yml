@@ -113,7 +113,7 @@ de:
     exdate: Ausgenommene Termine
     ongoing: fortlaufend
     filter_labels:
-      all: Alle Schedules (außer %{exceptions})
+      all: Alle Zeiträume (außer %{exceptions})
       event_schedule: Termine
       opening_hours_specification: Öffnungszeiten
       dining_hours_specification: Warme Küche
