@@ -16,6 +16,8 @@ config:
       template_names:
         - Tour
         - POI
+      # endpoints:
+      #   - 3ac4d5eb-7a03-41c2-8a8b-ef30ad683a29
     transformation_config:
       attributes:
         POI:
