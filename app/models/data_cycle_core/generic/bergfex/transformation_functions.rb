@@ -58,6 +58,39 @@ module DataCycleCore
           data_hash
         end
 
+        def self.operation_to_status(data_hash, attribute, operation)
+          return data_hash if data_hash.blank?
+
+          if data_hash.dig(operation).blank?
+            data_hash[attribute] = []
+          else
+            operation_condition = data_hash.dig('operation', 'id')&.to_i
+            # conditions
+            # 400 - keine Meldung
+            # 401 - täglich
+            # 402 - nur am Wochenende
+            # 403 - geschlossen
+            # 404 - Freitag bis Sonntag
+            operation_string =
+              case operation_condition
+              when 400
+                'odta:NoInformation'
+              when 401
+                'odta:Open'
+              when 402, 404
+                'odta:WeekendOnly'
+              when 403
+                'odta:Closed'
+              else
+                data_hash[attribute] = []
+                return data_hash
+              end
+
+            data_hash[attribute] = Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('odta:OpeningStatus', operation_string))
+          end
+          data_hash
+        end
+
         def self.get_title_from_locale(data_hash, attribute, type, locale)
           return data_hash if data_hash.blank?
           attribute_name = type.call(data_hash)

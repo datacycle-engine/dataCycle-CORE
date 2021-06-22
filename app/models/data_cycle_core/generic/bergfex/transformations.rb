@@ -133,6 +133,7 @@ module DataCycleCore
           .>> t(:reject_keys, ['value', 'max_value'])
           .>> t(:add_field, 'length_nordic_classic', ->(s) { s.dig('lengthNordicClassic', 'text')&.to_f })
           .>> t(:add_field, 'length_nordic_skating', ->(s) { s.dig('lengthNordicSkating', 'text')&.to_f })
+          .>> t(:operation_to_status, 'status', 'operation')
           .>> t(:nest, 'operations', ['operation', 'operationRemarks', 'operationStart', 'operationEnd'])
           .>> t(:operations_to_opening_hours, 'opening_hours_specification', 'operations')
           .>> t(:reject_keys, ['operations'])
