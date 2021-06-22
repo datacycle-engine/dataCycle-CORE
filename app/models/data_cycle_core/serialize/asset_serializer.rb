@@ -31,9 +31,15 @@ module DataCycleCore
 
         def serialize(content, _language, version, transformation = nil)
           if remote?(content)
-            conn = Faraday.new
+            conn = Faraday.new do |f|
+              f.request :retry, {
+                max: 2
+              }
+              f.response :follow_redirects
+            end
             response = conn.get content.content_url
-            return response.body, response.headers&.dig('content-type') if response.status == 200
+
+            return response.body, response.headers&.dig('content-type') if response.success?
           else
             return content.asset.try(version, recreate: true)&.dynamic_version(name: version, options: transformation, process: true) if version.present? && transformation.present? && (content.asset&.versions&.key?(version.to_sym) || version == 'original')
             return content.asset.try(version, recreate: true) if version.present? && content.asset&.versions&.key?(version.to_sym)
