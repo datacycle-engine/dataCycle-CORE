@@ -14,12 +14,6 @@ module DataCycleCore
 
         def self.filter(**args)
           if external_system.export_config_by_filter_key(method_name, 'endpoints').present?
-            raise 'incompatible filter config (endpoints + specific filters) for webhook detected!' if endpoint_ids.present? &&
-                                                                                                       (
-                                                                                                         external_system.export_config&.dig(:filter)&.except('endpoints').present? ||
-                                                                                                         external_system.export_config&.dig(method_name.to_sym, 'filter')&.except('endpoints').present?
-                                                                                                       )
-
             filter_endpoints(args)
           else
             AVAILABLE_WEBHOOK_FILTERS.all? { |f| send(f, args) }
