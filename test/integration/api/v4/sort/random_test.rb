@@ -51,6 +51,32 @@ module DataCycleCore
             end
             assert(diff_json_found)
           end
+
+          test 'api/v4/things with parameter sort: random with seed' do
+            params = {
+              fields: 'name',
+              sort: 'random(0.63345345)'
+            }
+
+            post api_v4_things_path(params)
+            assert_api_count_result(@thing_count)
+            json_data = JSON.parse(response.body)
+
+            orig = json_data.dig('@graph').map { |a| a.dig('@id') }
+
+            diff_json_found = true
+            100.times do
+              post api_v4_things_path(params)
+              assert_api_count_result(@thing_count)
+              json_data = JSON.parse(response.body)
+              t = json_data.dig('@graph').map { |a| a.dig('@id') }
+              next if t == orig
+              diff_json_found = false
+              break
+            end
+
+            assert(diff_json_found)
+          end
         end
       end
     end
