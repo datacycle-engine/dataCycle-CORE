@@ -126,8 +126,6 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
-
 --
 -- Name: activities; Type: TABLE; Schema: public; Owner: -
 --
@@ -429,6 +427,80 @@ CREATE TABLE public.classifications (
 
 
 --
+-- Name: things; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.things (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    metadata jsonb,
+    template_name character varying,
+    schema jsonb,
+    template boolean DEFAULT false NOT NULL,
+    internal_name character varying,
+    external_source_id uuid,
+    external_key character varying,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    template_updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone,
+    given_name character varying,
+    family_name character varying,
+    start_date timestamp without time zone,
+    end_date timestamp without time zone,
+    longitude double precision,
+    latitude double precision,
+    elevation double precision,
+    location public.geometry(Point,4326),
+    address_locality character varying,
+    street_address character varying,
+    postal_code character varying,
+    address_country character varying,
+    fax_number character varying,
+    telephone character varying,
+    email character varying,
+    is_part_of uuid,
+    validity_range tstzrange,
+    boost numeric,
+    content_type character varying,
+    representation_of_id uuid,
+    version_name character varying,
+    line public.geometry(MultiLineStringZ,4326)
+);
+
+
+--
+-- Name: content_properties; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.content_properties AS
+ SELECT things.id AS content_id,
+    things.template_name AS content_template_name,
+    properties.key AS property_name,
+    properties.value AS property_definition
+   FROM public.things,
+    LATERAL jsonb_each((things.schema -> 'properties'::text)) properties(key, value);
+
+
+--
+-- Name: content_computed_properties; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.content_computed_properties AS
+ SELECT content_properties.content_id,
+    content_properties.content_template_name,
+    content_properties.property_name,
+    parameters.key AS compute_parameter_order,
+    parameters.value AS compute_parameter_definition,
+    COALESCE((parameters.value ->> 'name'::text), (parameters.value #>> '{}'::text[])) AS compute_parameter_property_name
+   FROM public.content_properties,
+    LATERAL jsonb_each(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(key, value)
+  WHERE ((content_properties.property_definition ->> 'type'::text) = 'computed'::text);
+
+
+--
 -- Name: content_content_histories; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -538,51 +610,6 @@ UNION
 
 
 --
--- Name: things; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.things (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    metadata jsonb,
-    template_name character varying,
-    schema jsonb,
-    template boolean DEFAULT false NOT NULL,
-    internal_name character varying,
-    external_source_id uuid,
-    external_key character varying,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    template_updated_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone,
-    given_name character varying,
-    family_name character varying,
-    start_date timestamp without time zone,
-    end_date timestamp without time zone,
-    longitude double precision,
-    latitude double precision,
-    elevation double precision,
-    location public.geometry(Point,4326),
-    address_locality character varying,
-    street_address character varying,
-    postal_code character varying,
-    address_country character varying,
-    fax_number character varying,
-    telephone character varying,
-    email character varying,
-    is_part_of uuid,
-    validity_range tstzrange,
-    boost numeric,
-    content_type character varying,
-    representation_of_id uuid,
-    version_name character varying,
-    line public.geometry(MultiLineStringZ,4326)
-);
-
-
---
 -- Name: content_meta_items; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -598,6 +625,21 @@ CREATE VIEW public.content_meta_items AS
     things.deleted_by
    FROM public.things
   WHERE (things.template IS FALSE);
+
+
+--
+-- Name: content_property_dependencies; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.content_property_dependencies AS
+ SELECT content_computed_properties.content_id,
+    content_computed_properties.content_template_name,
+    content_computed_properties.property_name,
+    things.id AS dependent_content_id,
+    things.template_name AS dependent_content_template_name
+   FROM ((public.things
+     JOIN public.content_contents ON ((content_contents.content_b_id = things.id)))
+     JOIN public.content_computed_properties ON (((content_computed_properties.content_id = content_contents.content_a_id) AND (content_computed_properties.compute_parameter_property_name = (content_contents.relation_a)::text))));
 
 
 --
@@ -2518,6 +2560,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210422111740'),
 ('20210510120343'),
 ('20210518074537'),
+('20210522171126');
 ('20210602112830'),
 ('20210608125638'),
 ('20210621063801');
