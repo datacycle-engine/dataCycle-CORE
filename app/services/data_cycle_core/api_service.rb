@@ -369,9 +369,7 @@ module DataCycleCore
     end
 
     def key_with_ordering(sort)
-      return sort[1..-1], 'DESC' if sort.starts_with?('-')
-      return sort[1..-1], 'ASC' if sort.starts_with?('+')
-      return sort, 'ASC'
+      DataCycleCore::ApiService.order_key_with_value(sort)
     end
 
     def order_constraints
@@ -386,6 +384,13 @@ module DataCycleCore
           *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
         ]
       }
+    end
+
+    def self.order_key_with_value(sort)
+      return sort[1..-1], 'DESC' if sort.starts_with?('-')
+      return sort[1..-1], 'ASC' if sort.starts_with?('+')
+      return 'random', sort.match(/random\((.+)\)/i)&.captures&.first&.to_f if sort.starts_with?('random')
+      return sort, 'ASC'
     end
 
     private

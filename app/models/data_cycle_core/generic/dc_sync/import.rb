@@ -42,7 +42,7 @@ module DataCycleCore
               utility_object,
               raw_data[first_locale],
               DataCycleCore::Generic::DcSync::Processing.get_template(raw_data).template_name,
-              options.dig(:import, :transformations, :thing)
+              options
             )
           else
             # puts "full import"
@@ -51,7 +51,7 @@ module DataCycleCore
               utility_object,
               raw_data,
               DataCycleCore::Generic::DcSync::Processing.get_template(raw_data).template_name,
-              options.dig(:import, :transformations, :thing)
+              options
             )
           end
         end

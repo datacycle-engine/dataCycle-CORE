@@ -1,11 +1,22 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class MergeDuplicateJob < ApplicationJob
+  class MergeDuplicateJob < UniqueApplicationJob
     # there is a bug in ActiveJob in combination with DelayedJob that prevents
     # @provider_job_id to be available in the perform actions and callbacks!!
     # it is available in the enque-callbacks
+
+    REFERENCE_TYPE = 'merge_duplicates'
+
     queue_as :default
+
+    def delayed_reference_id
+      "#{arguments[0]}_#{arguments[1]}"
+    end
+
+    def delayed_reference_type
+      REFERENCE_TYPE
+    end
 
     def perform(original_id, duplicate_id)
       return if duplicate_id.blank? || original_id.blank?
@@ -50,12 +61,12 @@ module DataCycleCore
 
       ActiveRecord::Base.transaction do
         duplicate.original_id = original.id
-        duplicate_sync_query(duplicate.id, original.id).update_all(syncable_id: original.id, sync_type: 'duplicate')
+        duplicate_sync_query(duplicate.id, original.id) # .update_all(syncable_id: original.id, sync_type: 'duplicate')
         duplicate.destroy_content
 
         if duplicate_external_source_id.present? && duplicate_external_key.present? && (original.external_source_id != duplicate_external_source_id || original.external_key != duplicate_external_key)
           duplicate_external_key.split(';').reject(&:blank?).each do |d_external_key|
-            original.external_system_syncs.find_or_create_by!(external_system_id: duplicate_external_source_id, external_key: d_external_key, sync_type: 'duplicate')
+            original.external_system_syncs.find_or_create_by!(external_system_id: duplicate_external_source_id, external_key: d_external_key, sync_type: DataCycleCore::ExternalSystemSync::DUPLICATE_SYNC_TYPE)
           end
         end
       end
@@ -64,20 +75,37 @@ module DataCycleCore
     private
 
     def duplicate_sync_query(duplicate_id, original_id)
-      where_sql = <<-SQL
-        external_system_syncs.syncable_type = 'DataCycleCore::Thing'
-        AND external_system_syncs.syncable_id = :id
-        AND NOT EXISTS (
-          SELECT 1 FROM external_system_syncs s2
-          WHERE s2.syncable_type = external_system_syncs.syncable_type
-          AND s2.syncable_id = :new_id
-          AND s2.sync_type = external_system_syncs.sync_type
-          AND s2.external_system_id = external_system_syncs.external_system_id
-          AND s2.external_key = external_system_syncs.external_key
-        )
+      column_names = DataCycleCore::ExternalSystemSync
+        .column_names
+        .except(['id', 'sync_type', 'syncable_id'])
+        .sort
+
+      select_columns = column_names + [
+        'sync_type',
+        'syncable_id'
+      ]
+
+      insert_columns = column_names + [
+        "'#{DataCycleCore::ExternalSystemSync::DUPLICATE_SYNC_TYPE}' AS sync_type",
+        "'#{original_id}'::UUID AS syncable_id"
+      ]
+
+      insert_sql = <<-SQL.squish
+        INSERT INTO #{DataCycleCore::ExternalSystemSync.table_name}(#{select_columns.join(', ')})
+        SELECT #{insert_columns.join(', ')}
+        FROM #{DataCycleCore::ExternalSystemSync.table_name}
+        WHERE syncable_id = :duplicate_id
+        AND syncable_type = :model_name
+        ON CONFLICT DO NOTHING
       SQL
 
-      DataCycleCore::ExternalSystemSync.where(where_sql, id: duplicate_id, new_id: original_id)
+      ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.send(:sanitize_sql_array, [
+                                  insert_sql,
+                                  duplicate_id: duplicate_id,
+                                  model_name: DataCycleCore::Thing.model_name.to_s
+                                ])
+      )
     end
   end
 end
