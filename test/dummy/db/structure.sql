@@ -126,6 +126,8 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
 
 SET default_tablespace = '';
 
+SET default_with_oids = false;
+
 --
 -- Name: activities; Type: TABLE; Schema: public; Owner: -
 --
@@ -2560,7 +2562,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210422111740'),
 ('20210510120343'),
 ('20210518074537'),
-('20210522171126');
+('20210522171126'),
 ('20210602112830'),
 ('20210608125638'),
 ('20210621063801');
