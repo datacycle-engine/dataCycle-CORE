@@ -4,32 +4,8 @@ module DataCycleCore
   module Export
     module Generic
       module Functions
-        def self.filter(data:, external_system:, method_name:)
-          endpoint_ids = Array.wrap(external_system.export_config_by_filter_key(method_name, 'endpoints'))
-          endpoints = DataCycleCore::StoredFilter.where(id: endpoint_ids) if endpoint_ids.present?
-          presence_check = external_system.export_config_by_filter_key(method_name, 'presence')
-          presence_check = presence_check.is_a?(Hash) ? Array.wrap(presence_check.dig(data&.template_name)) : Array.wrap(presence_check)
-          template_names = Array.wrap(external_system.export_config_by_filter_key(method_name, 'template_names'))
-          external_system_names = Array.wrap(external_system.export_config_by_filter_key(method_name, 'external_systems'))
-          classification_ids = Array.wrap(external_system.export_config_by_filter_key(method_name, 'classifications')).map { |f| DataCycleCore::ClassificationAlias.classification_for_tree_with_name(f['tree_label'], f['aliases']) }
-          tree_labels = Array.wrap(external_system.export_config_by_filter_key(method_name, 'tree_labels'))
-          if tree_labels.present?
-            data_tree_labels = data
-              .classifications
-              .classification_aliases
-              .map(&:classification_tree_label)
-              .pluck(:name)
-              .uniq
-          end
-
-          (endpoints.present? ? endpoints.any? { |e| e.apply.query.exists?(id: data.id) } : false) ||
-            (
-              (presence_check.present? ? presence_check.all? { |p| data.try(p).present? } : true) &&
-                (template_names.present? ? data.template_name.in?(template_names) : true) &&
-                (classification_ids.present? ? classification_ids.all? { |c| data.classifications.map(&:id).include?(c) } : true) &&
-                (external_system_names.present? ? data.external_source&.identifier&.in?(external_system_names) : true) &&
-                (tree_labels.present? ? tree_labels.all? { |tree_label| tree_label.in?(data_tree_labels) } : true)
-            )
+        def self.filter(**args)
+          DataCycleCore::Export::Generic::Filter.filter(args)
         end
 
         def self.enqueue_webhook(data, webhook, external_system)
