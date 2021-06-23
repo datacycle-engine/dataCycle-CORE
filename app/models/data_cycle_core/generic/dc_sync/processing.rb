@@ -33,7 +33,7 @@ module DataCycleCore
                 raw_data: data_correct_embedded,
                 transformation: DataCycleCore::Generic::DcSync::Transformations.to_thing(utility_object.external_source.id),
                 default: { template: template },
-                config: config
+                config: config.dig(:import, :transformations)
               )
             end
           end
