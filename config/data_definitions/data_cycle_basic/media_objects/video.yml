@@ -41,7 +41,7 @@
           :disabled: true
         :ui:
           :edit:
-            :disabled: true
+            :readonly: true
       :caption:
         :label: Alt-Label
         :type: string
