@@ -25,7 +25,7 @@ namespace :data_cycle_core do
 
         case args[:mode]
         when 'review'
-          cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 2' if dump_fmt == 'd'} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories'"
+          cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 2' if dump_fmt == 'd'} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories' --exclude-table-data='*history_translations'"
         when 'full'
           cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 2' if dump_fmt == 'd'} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions'"
         else
