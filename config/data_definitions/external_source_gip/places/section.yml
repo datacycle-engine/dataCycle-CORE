@@ -42,51 +42,10 @@
         :search: true
         :api:
           :disabled: true
-      # :content_classifications:
-      #   :type: mixin
-      #   :name: content_classifications
-      # :additional_information:
-      #   :label: Ergänzende Information
-      #   :type: embedded
-      #   :template_name: Ergänzende Information
-      #   :api:
-      #     :v4:
-      #       :name: dc:additionalInformation
-      # :description:
-      #   :label: Kurzbeschreibung
-      #   :type: string
-      #   :storage_location: column
-      #   :search: true
-      #   :ui:
-      #     :edit:
-      #       :type: text_editor
-      #       :options:
-      #         :data-size: basic
-      #   :advanced_search: true
-      # :text:
-      #   :label: Beschreibung
-      #   :type: string
-      #   :storage_location: translated_value
-      #   :search: true
-      #   :ui:
-      #     :edit:
-      #       :type: text_editor
-      #       :options:
-      #         :data-size: basic
-      #   :advanced_search: true
       :owner:
         :label: Besitzer
         :type: classification
         :tree_label: Besitzer
-        :validations:
-          :required: true
-        :ui:
-          :show:
-            :content_area: header
-      :orgcode:
-        :label: Wartungsverantwortliche Organisation
-        :type: classification
-        :tree_label: Wartungsverantwortliche Organisation
         :validations:
           :required: true
         :ui:
@@ -98,6 +57,13 @@
         :tree_label: Radroutentyp
         :validations:
           :required: true
+        :ui:
+          :show:
+            :content_area: header
+      :orgcode:
+        :label: Organisationscode
+        :type: classification
+        :tree_label: Organisationscode
         :ui:
           :show:
             :content_area: header
@@ -157,15 +123,17 @@
         :ui:
           :show:
             :content_area: header
-      :route:
-        :label: Route
+      :geoname_route:
+        :label: Bestehende Route
         :type: linked
         :template_name: Route
         :validations:
           :max: 1
         :ui:
           :edit:
-            :disabled: false
+            :disabled: true
+          :show:
+            :disabled: true
       :geoname_name:
         :label: Name der Radroute
         :type: string
@@ -175,7 +143,7 @@
           :method: linked_gip_route_attribute
           :linked_attribute: name
           :parameters:
-            :linked: route
+            :linked: geoname_route
       :geoname_number:
         :label: Nummer der Radroute
         :type: string
@@ -185,14 +153,7 @@
           :method: linked_gip_route_attribute
           :linked_attribute: route_number
           :parameters:
-            :linked: route
-            
-      # :image:
-      #   :label: Bilder
-      #   :type: linked
-      #   :template_name: Bild
-      #   :api:
-      #     :minimal: true
+            :linked: geoname_route
       :line:
         :label: Teilstrecke
         :storage_location: column
@@ -203,9 +164,6 @@
             :type: LineString
             :options:
               :data_upload: true
-      # :potential_actions:
-      #   :type: mixin
-      #   :name: potential_actions
       :linked_data:
         :type: mixin
         :name: linked_data
@@ -220,9 +178,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: 'Teilstrecke'
-      # :cc_rel:
-      #   :type: mixin
-      #   :name: cc_rel
       :meta_data:
         :type: mixin
         :name: meta_data

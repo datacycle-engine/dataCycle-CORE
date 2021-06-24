@@ -96,9 +96,9 @@
                 :sections:
                   :geo: line
                   :title: title
-      :potential_actions:
-        :type: mixin
-        :name: potential_actions
+      # :potential_actions:
+      #   :type: mixin
+      #   :name: potential_actions
       :linked_data:
         :type: mixin
         :name: linked_data

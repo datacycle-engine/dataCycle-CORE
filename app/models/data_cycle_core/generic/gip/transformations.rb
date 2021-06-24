@@ -69,8 +69,8 @@ module DataCycleCore
           .>> t(:add_links, 'minortyperef', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att7' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - MINORTYPEREF - #{item}" }.presence || ['Gip - MINORTYPEREF - 110'] })
           .>> t(:add_links, 'eurovelo', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att8' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "GEONAME - EUROVELO - #{item}" }.presence || [] })
           .>> t(:add_links, 'atroute', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att9' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "GEONAME - ATROUTE - #{item}" }.presence || [] })
-          .>> t(:add_links, 'referencetype', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'type') ? Array.wrap('Gip - REFERENCETYPE - ' + s.dig('properties', 'externalorgcode')) : [] })
-          .>> t(:add_links, 'orgcode', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'externalorgcode') ? Array.wrap('Gip - ORGCODE - ' + s.dig('properties', 'externalorgcode')) : [] })
+          .>> t(:add_links, 'referencetype', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'type') ? Array.wrap("Gip - REFERENCETYPE - #{s.dig('properties', 'type')}") : [] })
+          .>> t(:add_links, 'orgcode', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'externalorgcode') ? Array.wrap("Gip - ORGCODE - #{s.dig('properties', 'externalorgcode')}") : [] })
           .>> t(:reject_keys, ['bbox', 'geometry', 'properties'])
           .>> t(:strip_all)
         end
