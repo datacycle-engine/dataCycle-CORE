@@ -1,0 +1,47 @@
+---
+- :data:
+    :name: ImageWithComputedAttribute
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :author:
+        :label: Fotograf
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_holder:
+        :label: Rechteinhaber
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_notice:
+        :label: Copyright-Hinweis
+        :storage_location: translated_value
+        :type: computed
+        :search: true
+        :external: false
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: attribution_name
+          :parameters:
+            :0: copyright_holder
+            :1: author
