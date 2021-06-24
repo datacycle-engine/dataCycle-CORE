@@ -235,10 +235,10 @@ class OpenLayersViewer {
     props = Object.assign(
       {
         color: 'default',
-        width: 5,
+        width: 4,
         background: false,
         backgroundColor: '#ffffff',
-        backgroundWidth: (props.width || 5) + 2
+        backgroundWidth: (props.width || 4) + 2
       },
       props
     );
@@ -348,7 +348,7 @@ class OpenLayersViewer {
   getFeatureStyle(feature) {
     let featureStyle = {
       color: 'default',
-      width: 5,
+      width: 4,
       showStartEnd: false
     };
 
