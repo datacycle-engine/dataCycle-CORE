@@ -3,7 +3,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class SearchTest < DataCycleCore::TestCases::ActiveSupportTestCase
+  class ClassificationSearchTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
       @things = DataCycleCore::Thing.where(template: false).count
       create_content('Artikel', { name: 'HEADLINE - NO TAGS 1' })
