@@ -68,13 +68,7 @@ module DataCycleCore
         protected
 
         def login
-<<<<<<< HEAD
-          perform_request(fx: 'api', qt: 'login',
-                          benutzer: @credentials[:user],
-                          ben_kennung: @credentials[:password])
-=======
           perform_request(fx: 'api', qt: 'login', benutzer: @credentials[:user], ben_kennung: @credentials[:password])
->>>>>>> f8d8d4382554cb1201de2403ee656e6959838a8e
         end
 
         def load_deleted_assets(days = 365)
