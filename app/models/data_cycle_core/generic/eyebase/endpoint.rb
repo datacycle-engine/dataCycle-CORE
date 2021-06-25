@@ -68,13 +68,11 @@ module DataCycleCore
         protected
 
         def login
-          response = perform_request(fx: 'api', qt: 'login',
-                                     benutzer: @credentials[:user],
-                                     ben_kennung: @credentials[:password])
+          perform_request(fx: 'api', qt: 'login', benutzer: @credentials[:user], ben_kennung: @credentials[:password])
         end
 
         def load_deleted_assets(days = 365)
-          login unless @cookie_values.present?
+          login if @cookie_values.blank?
 
           perform_request(fx: 'api', token: @token, qt: 'xdel', days: days)
         end
@@ -88,7 +86,7 @@ module DataCycleCore
         end
 
         def load(**parameters)
-          login unless @cookie_values.present?
+          login if @cookie_values.blank?
 
           params = {
             fx: 'api',
@@ -113,15 +111,17 @@ module DataCycleCore
           @cookie_values = (@cookie_values || {}).merge(
             Hash[
               response.headers['set-cookie'].split(/[;,]/).map { |c| c.strip.split('=') }
-            ].select { |k, _|
+            ].select do |k, _|
               ['clientmode', 'terms', 'PHPSESSID', 'sm', 'xi', 'ax', 'apism', 'apixi', 'apiax'].include?(k)
-            }
+            end
           )
 
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new(
-            "error loading data from url: #{File.join([@host, @end_point])}, params: " +
-            params.map { |k, v| "#{k}=#{v}" }.join(', ')
-          ) unless response.success?
+          unless response.success?
+            raise DataCycleCore::Generic::Common::Error::EndpointError.new(
+              "error loading data from url: #{File.join([@host, @end_point])}, params: " +
+              params.map { |k, v| "#{k}=#{v}" }.join(', ')
+            )
+          end
 
           Nokogiri::XML(response.body)
         end
