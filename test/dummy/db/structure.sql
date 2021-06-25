@@ -60,33 +60,6 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS t
 
 
 --
--- Name: generate_collected_classification_content_relations(uuid[]); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.generate_collected_classification_content_relations(content_ids uuid[]) RETURNS uuid[]
-    LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id = ANY(content_ids); WITH direct_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id WHERE things.id = ANY(content_ids) ), full_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", UNNEST(classification_alias_paths.full_path_ids) "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id WHERE things.id = ANY(content_ids) ) INSERT INTO collected_classification_content_relations ( content_id, direct_classification_alias_ids, full_classification_alias_ids ) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id ) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT thing_id, ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids" FROM full_classification_content_relations GROUP BY thing_id ) "full_relations" ON full_relations.thing_id = things.id; RETURN content_ids; END;$$;
-
-
---
--- Name: generate_collected_classification_content_relations_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_1() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_collected_classification_content_relations(ARRAY[NEW.content_data_id]::UUID[]); RETURN NEW; END;$$;
-
-
---
--- Name: generate_collected_classification_content_relations_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_2() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_collected_classification_content_relations(ARRAY_AGG(content_id)) FROM ( SELECT content_id FROM collected_classification_content_relations WHERE NEW.id = ANY(direct_classification_alias_ids) ) "relevant_content_ids"; RETURN NEW; END;$$;
-
-
---
 -- Name: generate_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -219,62 +192,6 @@ CREATE TABLE public.assets (
 
 
 --
--- Name: classification_groups; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_groups (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    classification_id uuid,
-    classification_alias_id uuid,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_trees (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    external_source_id uuid,
-    parent_classification_alias_id uuid,
-    classification_alias_id uuid,
-    relationship_label character varying,
-    classification_tree_label_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: classification_alias_links; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.classification_alias_links AS
- WITH primary_classification_groups AS (
-         SELECT DISTINCT classification_groups.classification_alias_id,
-            first_value(classification_groups.classification_id) OVER (PARTITION BY classification_groups.classification_alias_id ORDER BY classification_groups.created_at) AS classification_id
-           FROM public.classification_groups
-        )
- SELECT primary_classification_groups.classification_alias_id AS parent_classification_alias_id,
-    additional_classification_groups.classification_alias_id AS child_classification_alias_id,
-    'related'::text AS link_type
-   FROM (primary_classification_groups
-     JOIN public.classification_groups additional_classification_groups ON (((primary_classification_groups.classification_id = additional_classification_groups.classification_id) AND (additional_classification_groups.classification_alias_id <> primary_classification_groups.classification_alias_id))))
-UNION
- SELECT classification_trees.parent_classification_alias_id,
-    classification_trees.classification_alias_id AS child_classification_alias_id,
-    'broader'::text AS link_type
-   FROM public.classification_trees;
-
-
---
 -- Name: classification_alias_paths; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -307,58 +224,6 @@ CREATE TABLE public.classification_aliases (
 
 
 --
--- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_tree_labels (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name character varying,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    internal boolean DEFAULT false,
-    deleted_at timestamp without time zone,
-    visibility character varying[] DEFAULT '{}'::character varying[]
-);
-
-
---
--- Name: classification_alias_paths_transitive; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.classification_alias_paths_transitive AS
- WITH RECURSIVE classification_alias_paths_transitive(id, ancestors_ids, full_path_ids, full_path_names, link_types) AS (
-         SELECT classification_alias_links.child_classification_alias_id AS id,
-            ARRAY[]::uuid[] AS ancestors_ids,
-            ARRAY[classification_alias_links.child_classification_alias_id] AS full_path_ids,
-            ARRAY[classification_aliases.internal_name, classification_tree_labels.name] AS full_path_names,
-            ARRAY[]::text[] AS link_types
-           FROM (((public.classification_alias_links
-             JOIN public.classification_aliases ON ((classification_aliases.id = classification_alias_links.child_classification_alias_id)))
-             JOIN public.classification_trees ON (((classification_trees.parent_classification_alias_id IS NULL) AND (classification_trees.classification_alias_id = classification_aliases.id))))
-             JOIN public.classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
-          WHERE (classification_alias_links.parent_classification_alias_id IS NULL)
-        UNION ALL
-         SELECT classification_alias_links.child_classification_alias_id AS id,
-            (classification_alias_links.parent_classification_alias_id || classification_alias_paths_transitive_1.ancestors_ids) AS ancestors_ids,
-            (classification_aliases.id || classification_alias_paths_transitive_1.full_path_ids) AS full_path_ids,
-            (classification_aliases.internal_name || classification_alias_paths_transitive_1.full_path_names) AS full_path_names,
-            (classification_alias_links.link_type || classification_alias_paths_transitive_1.link_types) AS link_types
-           FROM ((public.classification_alias_links
-             JOIN public.classification_aliases ON ((classification_aliases.id = classification_alias_links.child_classification_alias_id)))
-             JOIN classification_alias_paths_transitive classification_alias_paths_transitive_1 ON ((classification_alias_paths_transitive_1.id = classification_alias_links.parent_classification_alias_id)))
-          WHERE (classification_alias_links.child_classification_alias_id <> ALL (classification_alias_paths_transitive_1.full_path_ids))
-        )
- SELECT classification_alias_paths_transitive.id,
-    classification_alias_paths_transitive.ancestors_ids,
-    classification_alias_paths_transitive.full_path_ids,
-    classification_alias_paths_transitive.full_path_names,
-    classification_alias_paths_transitive.link_types
-   FROM classification_alias_paths_transitive;
-
-
---
 -- Name: classification_contents; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -370,6 +235,22 @@ CREATE TABLE public.classification_contents (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     relation character varying
+);
+
+
+--
+-- Name: classification_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_groups (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    classification_id uuid,
+    classification_alias_id uuid,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone
 );
 
 
@@ -451,6 +332,41 @@ CREATE TABLE public.classification_polygons (
 
 
 --
+-- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_tree_labels (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    name character varying,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    internal boolean DEFAULT false,
+    deleted_at timestamp without time zone,
+    visibility character varying[] DEFAULT '{}'::character varying[]
+);
+
+
+--
+-- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_trees (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    external_source_id uuid,
+    parent_classification_alias_id uuid,
+    classification_alias_id uuid,
+    relationship_label character varying,
+    classification_tree_label_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
 -- Name: classification_tree_label_statistics; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -511,15 +427,77 @@ CREATE TABLE public.classifications (
 
 
 --
--- Name: collected_classification_content_relations; Type: TABLE; Schema: public; Owner: -
+-- Name: things; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.collected_classification_content_relations (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    content_id uuid,
-    direct_classification_alias_ids uuid[],
-    full_classification_alias_ids uuid[]
+CREATE TABLE public.things (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    metadata jsonb,
+    template_name character varying,
+    schema jsonb,
+    template boolean DEFAULT false NOT NULL,
+    internal_name character varying,
+    external_source_id uuid,
+    external_key character varying,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    template_updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone,
+    given_name character varying,
+    family_name character varying,
+    start_date timestamp without time zone,
+    end_date timestamp without time zone,
+    longitude double precision,
+    latitude double precision,
+    elevation double precision,
+    location public.geometry(Point,4326),
+    address_locality character varying,
+    street_address character varying,
+    postal_code character varying,
+    address_country character varying,
+    fax_number character varying,
+    telephone character varying,
+    email character varying,
+    is_part_of uuid,
+    validity_range tstzrange,
+    boost numeric,
+    content_type character varying,
+    representation_of_id uuid,
+    version_name character varying,
+    line public.geometry(MultiLineStringZ,4326)
 );
+
+
+--
+-- Name: content_properties; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.content_properties AS
+ SELECT things.id AS content_id,
+    things.template_name AS content_template_name,
+    properties.key AS property_name,
+    properties.value AS property_definition
+   FROM public.things,
+    LATERAL jsonb_each((things.schema -> 'properties'::text)) properties(key, value);
+
+
+--
+-- Name: content_computed_properties; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.content_computed_properties AS
+ SELECT content_properties.content_id,
+    content_properties.content_template_name,
+    content_properties.property_name,
+    parameters.key AS compute_parameter_order,
+    parameters.value AS compute_parameter_definition,
+    COALESCE((parameters.value ->> 'name'::text), (parameters.value #>> '{}'::text[])) AS compute_parameter_property_name
+   FROM public.content_properties,
+    LATERAL jsonb_each(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(key, value)
+  WHERE ((content_properties.property_definition ->> 'type'::text) = 'computed'::text);
 
 
 --
@@ -632,51 +610,6 @@ UNION
 
 
 --
--- Name: things; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.things (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    metadata jsonb,
-    template_name character varying,
-    schema jsonb,
-    template boolean DEFAULT false NOT NULL,
-    internal_name character varying,
-    external_source_id uuid,
-    external_key character varying,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    template_updated_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone,
-    given_name character varying,
-    family_name character varying,
-    start_date timestamp without time zone,
-    end_date timestamp without time zone,
-    longitude double precision,
-    latitude double precision,
-    elevation double precision,
-    location public.geometry(Point,4326),
-    address_locality character varying,
-    street_address character varying,
-    postal_code character varying,
-    address_country character varying,
-    fax_number character varying,
-    telephone character varying,
-    email character varying,
-    is_part_of uuid,
-    validity_range tstzrange,
-    boost numeric,
-    content_type character varying,
-    representation_of_id uuid,
-    version_name character varying,
-    line public.geometry(MultiLineStringZ,4326)
-);
-
-
---
 -- Name: content_meta_items; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -692,6 +625,21 @@ CREATE VIEW public.content_meta_items AS
     things.deleted_by
    FROM public.things
   WHERE (things.template IS FALSE);
+
+
+--
+-- Name: content_property_dependencies; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.content_property_dependencies AS
+ SELECT content_computed_properties.content_id,
+    content_computed_properties.content_template_name,
+    content_computed_properties.property_name,
+    things.id AS dependent_content_id,
+    things.template_name AS dependent_content_template_name
+   FROM ((public.things
+     JOIN public.content_contents ON ((content_contents.content_b_id = things.id)))
+     JOIN public.content_computed_properties ON (((content_computed_properties.content_id = content_contents.content_a_id) AND (content_computed_properties.compute_parameter_property_name = (content_contents.relation_a)::text))));
 
 
 --
@@ -2376,20 +2324,6 @@ CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDAT
 
 
 --
--- Name: classification_alias_paths generate_collected_classification_content_relations_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER INSERT OR UPDATE ON public.classification_alias_paths FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_2();
-
-
---
--- Name: classification_contents generate_collected_classification_content_relations_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER INSERT OR UPDATE ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_1();
-
-
---
 -- Name: schedules generate_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -2626,10 +2560,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210422111740'),
 ('20210510120343'),
 ('20210518074537'),
+('20210522171126'),
 ('20210602112830'),
-('20210604072054'),
 ('20210608125638'),
-('20210614202054'),
-('20210614202737');
+('20210621063801');
 
 

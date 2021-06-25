@@ -11,7 +11,7 @@
   <%#= hidden_field_tag key, value&.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
   <%= render 'data_cycle_core/assets/asset_list',
       assets: Array(value),
-      class: 'editable',
+      class: attribute_editable?(key, definition, options, content) ? 'editable' : nil,
       key: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_editable" %>
 
   <% if attribute_editable?(key, definition, options, content) %>

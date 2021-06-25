@@ -15,6 +15,7 @@ module DataCycleCore
         &.map { |k, v| [k, v['tree_label']] }
         &.to_h || {}
 
+      @stored_filter ||= DataCycleCore::StoredFilter.new
       @filters = pre_filters.dup
       @filters.push(
         {
@@ -22,24 +23,26 @@ module DataCycleCore
           'v' => 'publication_schedule'
         }
       )
-
+      @stored_filter.parameters ||= @filters || []
+      @stored_filter.parameters&.reject! { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? }
       @language ||= params.fetch(:language) { [current_user.default_locale] }
+      @stored_filter.language = @language
+      query = @stored_filter.apply
 
-      query_params = @language.include?('all') ? [nil] : [@language]
-      query ||= DataCycleCore::Filter::Search.new(*query_params)
-
-      @filters.presence&.each do |filter|
-        # TODO: migrate stored filters to use latest classification filter methods
-        filter_method = filter['t']
-        filter_method = "#{filter['t']}_with_subtree" if filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids'
-        query = query.send(filter_method, filter['v']) if query.respond_to?(filter_method)
-      end
-
-      @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
-      @advanced_filters = @filters.select { |f| f['c'] == 'a' }
-      @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
+      @filters = @stored_filter.parameters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }
       @selected_classification_aliases = DataCycleCore::ClassificationAlias
-        .where(id: @filters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq)
+        .where(
+          id: @filters
+            .select { |f|
+              f['t'].in?(['classification_alias_ids', 'geo_within_classification']) ||
+                (f['t'] == 'advanced_attributes' && f['q'] == 'classification_alias_ids')
+            }
+            .map { |f| f['v'] }
+            .flatten
+            .compact
+            .uniq
+        )
+        .includes(:classification_alias_path)
         .index_by(&:id)
 
       query2 = DataCycleCore::Thing.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:id) })
@@ -55,7 +58,7 @@ module DataCycleCore
 
       query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::date <= ?", params[:publications_until]) if params[:publications_until].present?
 
-      @publication_classification_alias_ids = @default_filters.select { |f| @publication_classifications.values&.include?(f['n']) }
+      @publication_classification_alias_ids = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' && @publication_classifications.values&.include?(f['n']) }
 
       if @publication_classification_alias_ids.present?
         content_ids = []

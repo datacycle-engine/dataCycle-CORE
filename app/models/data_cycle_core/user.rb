@@ -89,7 +89,7 @@ module DataCycleCore
     end
 
     def has_user_group?(group_name)
-      self&.user_groups&.map(&:name)&.include?(group_name)
+      user_groups.exists?(name: group_name)
     end
 
     def include_groups_user_ids

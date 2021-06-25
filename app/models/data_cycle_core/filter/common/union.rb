@@ -133,6 +133,7 @@ module DataCycleCore
 
         def union_filter(filters = [])
           filter_query_sql = nil
+
           filters.each do |filter|
             if filter_query_sql.nil?
               filter_query_sql = filter.select(:id).except(:order)
@@ -140,6 +141,9 @@ module DataCycleCore
               filter_query_sql = filter_query_sql.or(filter.select(:id).except(:order))
             end
           end
+
+          return self if filter_query_sql.nil?
+
           reflect(
             @query.where(thing[:id].in(Arel.sql(filter_query_sql.to_sql)))
           )

@@ -59,7 +59,7 @@
           :disabled: true
         :ui:
           :edit:
-            :disabled: true
+            :readonly: true
       :alternative_headline:
         :label: Alt-Label
         :type: string

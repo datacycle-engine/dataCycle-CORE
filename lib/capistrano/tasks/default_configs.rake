@@ -32,8 +32,7 @@ namespace :datacycle do
         end
 
         after 'bundler:install', 'deploy:assets:precompile'
-        before 'deploy:migrate', 'deploy:psql'
-        after 'deploy:psql', 'deploy:load_dict'
+        after 'bundler:install', 'datacycle:psql:deploy_dict'
         after 'deploy:migrate', 'datacycle:dev:update_project'
         after 'datacycle:dev:update_project', 'datacycle:dev:migrate_project'
         after 'deploy:cleanup', 'datacycle:dev:update_configs' unless fetch(:skip_deploy_configs)

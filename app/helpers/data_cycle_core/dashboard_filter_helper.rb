@@ -55,29 +55,19 @@ module DataCycleCore
       end
     end
 
-    def filterable_classification_aliases(allowed_labels, excluded = [])
-      query = DataCycleCore::ClassificationAlias
-        .includes(:classification_tree_label, :parent_classification_alias, sub_classification_alias: [
-                    sub_classification_alias: [
-                      sub_classification_alias: :sub_classification_alias
-                    ]
-                  ])
-        .where(classification_tree_labels: { name: allowed_labels }, classification_trees: { parent_classification_alias: nil })
-      query = query.where.not(classification_tree_labels: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded))
+    def conditional_filter_accordion(filter_config, &block)
+      return if filter_config[:filter].blank?
 
-      query.group_by { |ca| ca.classification_tree_label&.name }
-    end
-
-    def local_filter_options(filter, filters)
-      filter ||= {}
-
-      filter[:excluded_types] = DataCycleCore.excluded_filter_classifications
-      filter[:classification_trees] ||= DataCycleCore::Feature::MainFilter.available_filters
-      filter[:index] = filter[:classification_trees].size
-      filter[:classification_tree_data] = filterable_classification_aliases(filter[:classification_trees], filter[:excluded_types])
-      filter[:fulltext_search] = filter[:search] && filters.presence&.find { |f| f['t'] == 'fulltext_search' }&.dig('v')
-
-      filter
+      if filter_config[:collapse]
+        tag.div(class: 'accordion filter-collapse', data: { accordion: true, allow_all_closed: true }) do
+          tag.div(class: "row accordion-item #{'is-active' if filter_config[:collapse] == 'open'}", data: { accordion_item: true }) do
+            tag.section(capture(&block), class: 'filters accordion-content', data: { tab_content: true }) +
+              tag.a(tag.span(tag.i(class: 'fa fa-chevron-down')), class: 'accordion-title')
+          end
+        end
+      else
+        tag.section(capture(&block), class: 'filters')
+      end
     end
   end
 end

@@ -5,6 +5,8 @@ module DataCycleCore
     class Sortable < Base
       class << self
         def available_options
+          return [] unless enabled?
+
           sortable = []
           DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled)&.each do |key, value|
             sortable.concat(try(key.to_sym, value) || default(key.to_s, value) || [])

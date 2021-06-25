@@ -359,9 +359,7 @@ module DataCycleCore
     end
 
     def key_with_ordering(sort)
-      return sort[1..-1], 'DESC' if sort.starts_with?('-')
-      return sort[1..-1], 'ASC' if sort.starts_with?('+')
-      return sort, 'ASC'
+      DataCycleCore::ApiService.order_key_with_value(sort)
     end
 
     def order_constraints
@@ -370,6 +368,13 @@ module DataCycleCore
         'proximity.inTime' => ['filter', 'attribute', 'schedule'],
         'proximity.occurrence' => ['filter', 'attribute', 'schedule']
       }
+    end
+
+    def self.order_key_with_value(sort)
+      return sort[1..-1], 'DESC' if sort.starts_with?('-')
+      return sort[1..-1], 'ASC' if sort.starts_with?('+')
+      return 'random', sort.match(/random\((.+)\)/i)&.captures&.first&.to_f if sort.starts_with?('random')
+      return sort, 'ASC'
     end
 
     private
@@ -387,7 +392,7 @@ module DataCycleCore
         {
           parameter_path: parameter_path,
           type: type,
-          detail: error.text
+          detail: error.to_s
         }
       end
     end

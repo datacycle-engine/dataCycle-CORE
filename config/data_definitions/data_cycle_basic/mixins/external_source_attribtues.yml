@@ -4,7 +4,7 @@
     :type: mixin
     :properties:
       :feratel_content_score: # legacy (in alten gespeicherten Suchen verwendet z.B.: Burgenland, Neusiedlersee)
-        :label: ContentScore
+        :label: ContentScore (Feratel)
         :type: number
         :storage_location: translated_value
         :external: true

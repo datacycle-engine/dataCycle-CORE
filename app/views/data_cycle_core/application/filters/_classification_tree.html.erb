@@ -1,15 +1,23 @@
-<li class="filter <%= 'subtree' if classification_tree&.any? { |d| d.sub_classification_alias.present? } %>" data-id="<%= tree_label.presence&.underscore_blanks %>" data-index="<%= index %>">
+<li class="filter <%= 'subtree' if classification_tree&.any? { |d| d.sub_classification_alias.present? } %>" data-id="<%= identifier %>">
   <% excluded_types ||= [] %>
-  <%= hidden_field_tag "f[#{index}][c]", 'd' %>
-  <%= hidden_field_tag "f[#{index}][t]", :classification_alias_ids %>
-  <%= hidden_field_tag "f[#{index}][n]", tree_label %>
-  <%= hidden_field_tag "f[#{index}][m]", 'i' %>
+  <%= hidden_field_tag "f[#{identifier}][c]", 'd' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", :classification_alias_ids %>
+  <%= hidden_field_tag "f[#{identifier}][n]", tree_label %>
+  <%= hidden_field_tag "f[#{identifier}][m]", 'i' %>
 
   <%= render 'data_cycle_core/shared/icon', icon_type: tree_label.presence&.underscore_blanks, icon_class: 'classification_tree_label' %>
   <span class="title"><%= display_label %></span>
   <div>
     <ul class="clearfix <%= 'split-list' unless classification_tree&.any? { |d| d.sub_classification_alias.present? } %>">
-      <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: classification_tree.sort{|a,b| a.name <=> b.name}, as: :item, locals: { excluded_types: excluded_types, tree_label: tree_label, index: index } if classification_tree.present? %>
+      <%= render partial: 'data_cycle_core/application/filters/classification_items',
+                  collection: classification_tree.sort{|a,b| a.name <=> b.name},
+                  as: :item,
+                  locals: {
+                    excluded_types: excluded_types,
+                    tree_label: tree_label,
+                    identifier: identifier,
+                    value: value
+                  } if classification_tree.present? %>
     </ul>
   </div>
 </li>

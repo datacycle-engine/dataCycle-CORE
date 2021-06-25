@@ -1,12 +1,12 @@
 #!/bin/bash
 echo "$(hostname -i|sed -r 's/([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)[0-9]{1,3}/\11/') dockerhost" >> /etc/hosts
 
-(yarn; yarn --ignore-scripts upgrade) &> log/yarn.log &
+(yarn; yarn upgrade; chown -R 1000:1000 yarn.lock) &> log/yarn.log &
 
 cd test/dummy
 
 mkdir -p /var/www/app/test/dummy/tmp/{sockets,pids}
-chown -R 1000:1000 /var/www/app/test/dummy/tmp
+chown -R 1000:1000 /var/www/app
 rm -f tmp/pids/server.pid
 
 gem install bundler
