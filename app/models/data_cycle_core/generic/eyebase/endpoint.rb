@@ -117,10 +117,8 @@ module DataCycleCore
           )
 
           unless response.success?
-            raise DataCycleCore::Generic::Common::Error::EndpointError.new(
-              "error loading data from url: #{File.join([@host, @end_point])}, params: " +
-              params.map { |k, v| "#{k}=#{v}" }.join(', ')
-            )
+            raise DataCycleCore::Generic::Common::Error::EndpointError,
+                  "error loading data from url: #{File.join([@host, @end_point])}, params: " + params.map { |k, v| "#{k}=#{v}" }.join(', ')
           end
 
           Nokogiri::XML(response.body)
