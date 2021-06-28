@@ -12,6 +12,15 @@ class CollectedClassificationContentRelations < ActiveRecord::Migration[5.2]
         full_classification_alias_ids UUID[]
       );
 
+      CREATE INDEX collected_classification_content_relations_content_id
+      ON collected_classification_content_relations(content_id);
+
+      CREATE INDEX collected_classification_content_relations_direct_classification_alias_ids
+      ON collected_classification_content_relations USING GIN(direct_classification_alias_ids);
+
+      CREATE INDEX collected_classification_content_relations_full_classification_alias_ids
+      ON collected_classification_content_relations USING GIN(full_classification_alias_ids);
+
       CREATE OR REPLACE FUNCTION generate_collected_classification_content_relations(
         content_ids UUID[],
         excluded_classification_ids UUID[]
