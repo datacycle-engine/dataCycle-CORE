@@ -25,6 +25,7 @@
       :type:
         - TouristAttraction
         - 'dcls:Lift'
+        - 'odta:SkiLift'
     :properties:
       :id:
         :label: id
@@ -59,6 +60,10 @@
         :storage_location: value
         :validations:
           :format: float
+        :api:
+          :v4:
+            :format:
+              :append: m
       :geo_shape:
         :type: mixin
         :name: geo_shape

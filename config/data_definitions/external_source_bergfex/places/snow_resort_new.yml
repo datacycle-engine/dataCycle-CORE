@@ -22,7 +22,7 @@
       :type:
         - SkiResort
         - 'odta:SkiResort'
-        - 'dcls:Skigebiert'
+        - 'dcls:Skigebiet'
     :properties:
       :id:
         :label: id
@@ -76,7 +76,7 @@
         :tree_label: 'odta:OpeningStatus'
         :ui:
           :show:
-            :content_area: header        
+            :content_area: header
         :api:
           :partial: enumeration
           :type: 'odta:status'
@@ -294,6 +294,13 @@
         :template_name: Skigebiet - Addon
         :api:
           :name: amenityFeature
+      :webcam:
+        :label: Webcam Link
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :v4:
+            :name: 'odta:webcam'
       :geo:
         :type: mixin
         :name: geo
