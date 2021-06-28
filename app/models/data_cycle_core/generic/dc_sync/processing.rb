@@ -48,16 +48,12 @@ module DataCycleCore
             next unless parent_template.property_names.include?(attribute_name)
             linked_key_translation[included_item.dig('attribute_name')] ||= {}
             locale = included_item.except('included', 'attribute_name').keys.first
-            found_key = DataCycleCore::Generic::Common::Functions.find_thing_ids(external_system_id: utility_object.external_source.id, external_key: included_item[locale]['id'], content_type: DataCycleCore::Thing, limit: 1)
-            linked_key_translation[attribute_name][included_item[locale]['id']] = found_key.first
-            if found_key.blank? || found_key.first == included_item[locale]['id']
-              new_item = DataCycleCore::Generic::DcSync::Import.process_content(
-                utility_object: utility_object,
-                raw_data: included_item,
-                options: config || {}
-              )
-              linked_key_translation[attribute_name][included_item[locale]['id']] = new_item.id
-            end
+            item = DataCycleCore::Generic::DcSync::Import.process_content(
+              utility_object: utility_object,
+              raw_data: included_item,
+              options: config || {}
+            )
+            linked_key_translation[attribute_name][included_item[locale]['id']] = item&.id
           end
           linked_key_translation
         end
