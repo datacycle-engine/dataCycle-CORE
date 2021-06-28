@@ -108,6 +108,38 @@ module DataCycleCore
           end
         end
 
+        def databases(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'DATABASE', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
+        def sustainers(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'SUSTAINER', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
+        def regionalcodes(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'REGIONALCODE', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
+        def referencetypes(*)
+          Enumerator.new do |yielder|
+            look_up(['gip-service/gipservlet'], 'REFERENCETYPE', 0)['items'].each do |data|
+              yielder << data
+            end
+          end
+        end
+
         protected
 
         def look_up(url_path, table, retry_count = 0)
@@ -115,7 +147,8 @@ module DataCycleCore
             'method' => 'lookup',
             'params' => {
               'table' => table,
-              'select' => 'all'
+              'select' => 'all',
+              'orgCode' => 3
             }
           }
 
