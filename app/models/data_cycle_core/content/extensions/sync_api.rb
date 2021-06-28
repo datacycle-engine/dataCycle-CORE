@@ -37,6 +37,7 @@ module DataCycleCore
             send(property_name).try(:pluck, :id)
           elsif linked_property_names.include?(property_name)
             return [] if depth >= max_depth
+            return [] if properties_for(property_name)['link_direction'] == 'inverse'
             linked_array = get_property_value(property_name, property_definitions[property_name], nil, present_overlay).pluck(:id)
             linked_array.presence || []
           elsif included_property_names.include?(property_name)
