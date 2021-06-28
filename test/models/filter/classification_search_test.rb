@@ -50,10 +50,32 @@ module DataCycleCore
       assert_equal(5, items.count)
     end
 
+    test 'filter contents after updating classifications' do
+      article1 = create_content('Artikel', { name: 'ARTICLE 1', tags: fetch_classification_ids('Tags', ['Tag 1']) })
+      article2 = create_content('Artikel', { name: 'ARTICLE 2', tags: fetch_classification_ids('Tags', ['Tag 1', 'Tag 2']) })
+      article3 = create_content('Artikel', { name: 'ARTICLE 3', tags: fetch_classification_ids('Tags', ['Tag 1', 'Tag 3']) })
+
+      items = DataCycleCore::Filter::Search.new(:de)
+        .with_classification_aliases_and_treename({ 'treeLabel' => 'Tags', 'aliases' => ['Tag 1'] })
+      assert_equal(3, items.count)
+
+      update_content_partially(article1, { tags: [] })
+      update_content_partially(article2, { tags: fetch_classification_ids('Tags', ['Tag 2']) })
+      update_content_partially(article3, { tags: fetch_classification_ids('Tags', ['Tag 3']) })
+
+      items = DataCycleCore::Filter::Search.new(:de)
+        .with_classification_aliases_and_treename({ 'treeLabel' => 'Tags', 'aliases' => ['Tag 1'] })
+      assert_equal(0, items.count)
+    end
+
     private
 
     def create_content(template_name, data = {})
       DataCycleCore::TestPreparations.create_content(template_name: template_name, data_hash: data)
+    end
+
+    def update_content_partially(content, data = {})
+      content.set_data_hash(partial_update: true, prevent_history: true, data_hash: data)
     end
 
     def fetch_classification_ids(tree_name, *alias_names)
