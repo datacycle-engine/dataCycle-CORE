@@ -426,7 +426,7 @@ GEM
     pHash (1.2.3)
       ffi (~> 1.0)
     parallel (1.20.1)
-    parser (3.0.1.0)
+    parser (3.0.1.1)
       ast (~> 2.4.1)
     pdf-reader (2.4.2)
       Ascii85 (~> 1.0)

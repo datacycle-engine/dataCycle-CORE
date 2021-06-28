@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class Linked < BasicValidator
         def keywords
-          ['min', 'max', 'required']
+          ['min', 'max', 'required', 'soft_min', 'soft_max']
         end
 
         def validate(data, template, _strict = false)
@@ -68,12 +68,24 @@ module DataCycleCore
           (@error[:error][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i < value
         end
 
+        def soft_min(data, value)
+          (@error[:warning][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i < value
+        end
+
         def max(data, value)
           (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i > value
         end
 
+        def soft_max(data, value)
+          (@error[:warning][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i > value
+        end
+
         def required(data, value)
           (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && blank?(data)
+        end
+
+        def soft_required(data, value)
+          (@error[:warning][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && blank?(data)
         end
       end
     end
