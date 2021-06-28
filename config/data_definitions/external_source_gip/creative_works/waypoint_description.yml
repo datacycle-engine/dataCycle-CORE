@@ -29,7 +29,6 @@
         :label: Gemeinde
         :type: classification
         :tree_label: Gemeinde
-        :global: true
         :ui:
           :show:
             :content_area: header
