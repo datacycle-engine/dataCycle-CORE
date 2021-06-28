@@ -131,6 +131,11 @@ module DataCycleCore
             )
 
             utility_object.logging&.error('Validating import data', data['external_key'], data, error[:error].collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
+
+            if created
+              content.destroy_content(save_history: false)
+              return
+            end
           else
             Appsignal.increment_counter(
               "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.success",

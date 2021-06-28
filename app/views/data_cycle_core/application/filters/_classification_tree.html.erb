@@ -1,4 +1,4 @@
-<li class="filter <%= 'subtree' if classification_tree&.any? { |d| d.sub_classification_alias.present? } %>" data-id="<%= tree_label.presence&.underscore_blanks %>" data-identifier="<%= identifier %>">
+<li class="filter <%= 'subtree' if classification_tree&.any? { |d| d.sub_classification_alias.present? } %>" data-id="<%= identifier %>">
   <% excluded_types ||= [] %>
   <%= hidden_field_tag "f[#{identifier}][c]", 'd' %>
   <%= hidden_field_tag "f[#{identifier}][t]", :classification_alias_ids %>

@@ -8,6 +8,7 @@ module DataCycleCore
           @host = host
           @end_point = end_point
           @token = token
+          @credentials = { user: options[:user], password: options[:password] }
           @options = options[:options] || {}
           @params = @options[:params] || {}
           @retry_options = {
@@ -17,6 +18,17 @@ module DataCycleCore
             backoff_factor: 2,
             exceptions: [Errno::ETIMEDOUT, Timeout::Error, Faraday::TimeoutError, Faraday::ConnectionFailed, Net::OpenTimeout]
           }
+        end
+
+        def faraday
+          Faraday::Connection.new(File.join([@host, @end_point])) do |f|
+            f.request :retry, @retry_options
+
+            f.response :logger
+            f.response :follow_redirects
+
+            f.adapter Faraday.default_adapter
+          end
         end
 
         def media_assets(lang: :de)
@@ -45,34 +57,24 @@ module DataCycleCore
           end
         end
 
-        # def deleted_assets(*)
-        #   Enumerator.new do |yielder|
-        #     delete.each do |item|
-        #       yielder << item
-        #     end
-        #   end
-        # end
+        def deleted_assets(*)
+          Enumerator.new do |yielder|
+            load_deleted_assets.xpath('//item').each do |item|
+              yielder << item.to_hash.transform_values { |v| v['#cdata-section'] }
+            end
+          end
+        end
 
         protected
 
-        def delete(days = 365)
-          conn = Faraday::Connection.new(File.join([@host, @end_point])) do |f|
-            f.request :retry, @retry_options
-            f.response :logger
-            f.adapter Faraday.default_adapter
-          end
+        def login
+          perform_request(fx: 'api', qt: 'login', benutzer: @credentials[:user], ben_kennung: @credentials[:password])
+        end
 
-          response = conn.get do |req|
-            req.headers['cookie'] = @cookie_values.map { |k, v| "#{k}=#{v}" }.join('; ') if @cookie_values.present?
+        def load_deleted_assets(days = 365)
+          login if @cookie_values.blank?
 
-            req.params['fx'] = 'api'
-            req.params['token'] = @token
-            req.params['qt'] = 'xdel'
-            req.params['days'] = days
-          end
-
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from url: #{File.join([@host, @end_point])}, params: token=#{@token}, qt=#{parameters.dig(:qt)}, keyfolder=#{parameters.dig(:keyfolder)}", response) unless response.success?
-          Nokogiri::XML(response.body)
+          perform_request(fx: 'api', token: @token, qt: 'xdel', days: days)
         end
 
         def load_folders
@@ -80,40 +82,45 @@ module DataCycleCore
         end
 
         def load_assets(folder_id)
-          changed_from = @params[:changed_from]
-          load(qt: 'r', keyfolder: folder_id, changed_from: changed_from)
+          load(qt: 'r', keyfolder: folder_id, changed_from: @params[:changed_from])
         end
 
         def load(**parameters)
-          changed_from = parameters.dig(:changed_from)
-          conn = Faraday::Connection.new(File.join([@host, @end_point])) do |f|
-            f.request :retry, @retry_options
-            f.response :logger
-            f.adapter Faraday.default_adapter
-          end
+          login if @cookie_values.blank?
 
-          response = conn.get do |req|
+          params = {
+            fx: 'api',
+            token: @token,
+            qt: parameters.dig(:qt),
+            keyfolder: parameters.dig(:keyfolder),
+            column_1: parameters.dig(:changed_from).present? ? 'geaendert' : nil,
+            operator_1: parameters.dig(:changed_from).present? ? 3 : nil,
+            choice_1: parameters.dig(:changed_from).present? ? parameters.dig(:changed_from).beginning_of_day.to_s : nil
+          }.reject { |_, v| v.blank? }
+
+          perform_request(params)
+        end
+
+        def perform_request(**params)
+          response = faraday.get do |req|
             req.headers['cookie'] = @cookie_values.map { |k, v| "#{k}=#{v}" }.join('; ') if @cookie_values.present?
 
-            req.params['fx'] = 'api'
-            req.params['token'] = @token
-            req.params['qt'] = parameters.dig(:qt) if parameters.dig(:qt).present?
-            req.params['keyfolder'] = parameters.dig(:keyfolder) if parameters.dig(:keyfolder).present?
-            if changed_from.present?
-              req.params['column_1'] = 'geaendert'
-              req.params['operator_1'] = 3
-              req.params['choice_1'] = changed_from.beginning_of_day.to_s
-            end
+            params.map { |k, v| req.params[k.to_s] = v }
           end
 
-          @cookie_values = (@cookie_values || {}).merge(Hash[
-            response.headers['set-cookie']
-                    .split(/[;,]/)
-                    .map(&:strip)
-                    .map { |c| c.split('=') }
-          ].select { |k, _| ['PHPSESSID', 'apiax', 'apism', 'apixi'].include?(k) })
+          @cookie_values = (@cookie_values || {}).merge(
+            Hash[
+              response.headers['set-cookie'].split(/[;,]/).map { |c| c.strip.split('=') }
+            ].select { |k, _| ['clientmode', 'terms', 'PHPSESSID', 'sm', 'xi', 'ax', 'apism', 'apixi', 'apiax'].include?(k) }
+          )
 
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from url: #{File.join([@host, @end_point])}, params: token=#{@token}, qt=#{parameters.dig(:qt)}, keyfolder=#{parameters.dig(:keyfolder)}", response) unless response.success?
+          unless response.success?
+            raise DataCycleCore::Generic::Common::Error::EndpointError.new(
+              "error loading data from url: #{File.join([@host, @end_point])}, params: " +
+              params.map { |k, v| "#{k}=#{v}" }.join(', '), ''
+            )
+          end
+
           Nokogiri::XML(response.body)
         end
       end
