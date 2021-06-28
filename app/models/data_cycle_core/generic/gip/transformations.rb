@@ -59,7 +59,8 @@ module DataCycleCore
 
         def self.to_section(external_source_id)
           t(:stringify_keys)
-          .>> t(:rename_keys, { 'id' => 'external_key', 'caption' => 'name' })
+          .>> t(:rename_keys, { 'caption' => 'name' })
+          .>> t(:add_field, 'external_key', ->(s) { parse_external_id(s) })
           .>> t(:add_field, 'line', ->(s) { parse_section(s.dig('geometry')) })
           .>> t(:add_links, 'bikeroute', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att1' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - BIKEROUTE - #{item}" }.presence || ['Gip - BIKEROUTE - 1'] })
           .>> t(:add_links, 'sustainer', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att2' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - SUSTAINER - #{item}" }.presence || [] })
@@ -71,7 +72,7 @@ module DataCycleCore
           .>> t(:add_links, 'atroute', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att9' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "GEONAME - ATROUTE - #{item}" }.presence || [] })
           .>> t(:add_links, 'referencetype', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'type') ? Array.wrap("Gip - REFERENCETYPE - #{s.dig('properties', 'type')}") : [] })
           .>> t(:add_links, 'orgcode', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'externalorgcode') ? Array.wrap("Gip - ORGCODE - #{s.dig('properties', 'externalorgcode')}") : [] })
-          .>> t(:reject_keys, ['bbox', 'geometry', 'properties'])
+          .>> t(:reject_keys, ['id', 'bbox', 'geometry', 'properties'])
           .>> t(:strip_all)
         end
 
@@ -86,6 +87,18 @@ module DataCycleCore
         #   value = DataCycleCore::Classification.where(external_key: prefix + value, external_source_id: external_source_id)&.ids if value.present?
         #   value.presence
         # end
+
+        def self.parse_external_id(data)
+          # if the feature was created in dataCycle, then sent to GIP via the Communicator and is now reimported, its
+          # external_key was set internally to the thing ID and we need to set the correct external_key for the
+          # importer to find it.
+          return data.dig('id') if data.dig('properties', 'externalid').nil?
+
+          content = DataCycleCore::Thing.find_by(id: data.dig('properties', 'externalid'))
+          content.external_key = data.dig('id') if content.present? && content.external_key == data.dig('properties', 'externalid')
+
+          data.dig('id')
+        end
 
         def self.parse_section(geometry)
           return nil if geometry.blank? || geometry.dig('coordinates').blank? || geometry.dig('SRID').blank?
