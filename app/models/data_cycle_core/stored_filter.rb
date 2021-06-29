@@ -46,6 +46,12 @@ module DataCycleCore
         # TODO: migrate stored filters to use latest classification filter methods
         t = "#{t}_with_subtree" if filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids'
 
+        # TODO: this is a quickfix, refactor it
+        if filter['t'] == 'geo_filter'
+          t = filter['q']
+          t = "not_#{t}" if filter['m'] == 'e'
+        end
+
         next unless query.respond_to?(t)
 
         if query.method(t)&.parameters&.size == 3
