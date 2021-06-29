@@ -71,7 +71,7 @@ module DataCycleCore
           perform_request(fx: 'api', qt: 'login', benutzer: @credentials[:user], ben_kennung: @credentials[:password])
         end
 
-        def load_deleted_assets(days = 365)
+        def load_deleted_assets(days = 14)
           login if @cookie_values.blank?
 
           perform_request(fx: 'api', token: @token, qt: 'xdel', days: days)
