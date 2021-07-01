@@ -29,6 +29,7 @@ import Icon from 'ol/style/icon';
 import Draw from 'ol/interaction/draw';
 import Translate from 'ol/interaction/translate';
 import Snap from 'ol/interaction/snap';
+import Modify from 'ol/interaction/modify';
 import MouseWheelZoom from 'ol/interaction/mousewheelzoom';
 import Select from 'ol/interaction/select';
 import condition from 'ol/events/condition';
@@ -73,7 +74,8 @@ const ol = {
     Translate,
     Snap,
     MouseWheelZoom,
-    Select
+    Select,
+    Modify
   },
   events: {
     condition
@@ -233,10 +235,10 @@ class OpenLayersViewer {
     props = Object.assign(
       {
         color: 'default',
-        width: 5,
+        width: 4,
         background: false,
         backgroundColor: '#ffffff',
-        backgroundWidth: (props.width || 5) + 2
+        backgroundWidth: (props.width || 4) + 2
       },
       props
     );
@@ -346,7 +348,7 @@ class OpenLayersViewer {
   getFeatureStyle(feature) {
     let featureStyle = {
       color: 'default',
-      width: 5,
+      width: 4,
       showStartEnd: false
     };
 

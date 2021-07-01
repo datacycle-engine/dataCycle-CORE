@@ -35,7 +35,7 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :template_name: PlaceOverlay
+        :template_name: SimplePlaceOverlay
         :translated: true
         :validations:
           :max: 1
