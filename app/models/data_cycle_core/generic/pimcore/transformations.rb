@@ -152,8 +152,8 @@ module DataCycleCore
           array.map { |schedule|
             dstart = get_time(schedule.dig('dateFrom'))
             dend = get_time(schedule.dig('dateTo'))
-            tstart = schedule.dig('timeFrom')&.to_datetime || Time.zone.now.beginning_of_day.to_datetime
-            tend = schedule.dig('timeTo').in?(['00:00', nil]) ? Time.zone.now.end_of_day.to_datetime : schedule.dig('timeTo')&.to_datetime || Time.zone.now.beginning_of_day.to_datetime
+            tstart = schedule.dig('timeFrom')&.in_time_zone&.to_datetime || Time.zone.now.beginning_of_day.to_datetime
+            tend = schedule.dig('timeTo').in?(['00:00', nil]) ? Time.zone.now.end_of_day.to_datetime : schedule.dig('timeTo')&.in_time_zone&.to_datetime || Time.zone.now.beginning_of_day.to_datetime
             next_day = next_day?(schedule.dig('timeFrom'), schedule.dig('timeTo'))
             dtstart = dstart + tstart.hour * 60 * 60 + tstart.minute * 60
             dtend = dend + tend.hour * 60 * 60 + tend.minute * 60
