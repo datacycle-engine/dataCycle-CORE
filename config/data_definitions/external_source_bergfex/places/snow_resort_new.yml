@@ -84,8 +84,9 @@
           :show:
             :content_area: header
         :api:
+          :name: 'odta:status'
           :partial: enumeration
-          :type: 'odta:status'
+          :type: 'odta:OpeningStatus'
       :min_elevation:
         :label: minElevation
         :type: number
