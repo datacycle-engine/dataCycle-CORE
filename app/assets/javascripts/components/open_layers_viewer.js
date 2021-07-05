@@ -29,6 +29,7 @@ import Icon from 'ol/style/icon';
 import Draw from 'ol/interaction/draw';
 import Translate from 'ol/interaction/translate';
 import Snap from 'ol/interaction/snap';
+import Modify from 'ol/interaction/modify';
 import MouseWheelZoom from 'ol/interaction/mousewheelzoom';
 import Select from 'ol/interaction/select';
 import condition from 'ol/events/condition';
@@ -73,7 +74,8 @@ const ol = {
     Translate,
     Snap,
     MouseWheelZoom,
-    Select
+    Select,
+    Modify
   },
   events: {
     condition
@@ -95,8 +97,7 @@ const iconPaths = {
     'data:image/svg+xml;utf8,<svg width="21.09" height="33.144" version="1.1" viewBox="0 0 21.09 33.144" xmlns="http://www.w3.org/2000/svg"><path d="m10.545 1c-5.2717 0-9.5449 4.2784-9.5449 9.5565 0 9.5565 9.5449 21.024 9.5449 21.024s9.5449-11.468 9.5449-21.024c0-5.2781-4.2733-9.5565-9.5449-9.5565z" fill="${color}" stroke="${strokeColor}" stroke-width="2" style="paint-order:normal"/><circle cx="10.545" cy="10.312" r="4.5249" fill="%23fff" fill-opacity="${opacity}"/></svg>',
   start:
     'data:image/svg+xml;utf8,<svg width="21.091" height="33.117" version="1.1" viewBox="0 0 21.091 33.117" xmlns="http://www.w3.org/2000/svg"><path d="m10.545 1c-5.2719 0-9.5453 4.2748-9.5453 9.5484 0 9.5484 9.5453 21.006 9.5453 21.006s9.5453-11.458 9.5453-21.006c0-5.2736-4.2734-9.5484-9.5453-9.5484z" fill="${color}" stroke="${strokeColor}" stroke-width="2" style="paint-order:normal"/><path d="m15.944 11.969-8.9451 5.0275 0.11862-10.26z" fill="%23fff" fill-opacity="${opacity}"/></svg>',
-  end:
-    'data:image/svg+xml;utf8,<svg width="21.092" height="33.07" version="1.1" viewBox="0 0 21.092 33.07" xmlns="http://www.w3.org/2000/svg"><path d="m10.546 1c-5.2722 0-9.546 4.2685-9.546 9.5342 0 9.5342 9.546 20.975 9.546 20.975s9.546-11.441 9.546-20.975c0-5.2658-4.2737-9.5342-9.546-9.5342z" fill="${color}" stroke="${strokeColor}" stroke-width="2" style="paint-order:normal"/><rect x="5.9508" y="6.8043" width="9.1903" height="8.3106" ry="0" fill="%23fff" fill-opacity="${opacity}"/></svg>'
+  end: 'data:image/svg+xml;utf8,<svg width="21.092" height="33.07" version="1.1" viewBox="0 0 21.092 33.07" xmlns="http://www.w3.org/2000/svg"><path d="m10.546 1c-5.2722 0-9.546 4.2685-9.546 9.5342 0 9.5342 9.546 20.975 9.546 20.975s9.546-11.441 9.546-20.975c0-5.2658-4.2737-9.5342-9.546-9.5342z" fill="${color}" stroke="${strokeColor}" stroke-width="2" style="paint-order:normal"/><rect x="5.9508" y="6.8043" width="9.1903" height="8.3106" ry="0" fill="%23fff" fill-opacity="${opacity}"/></svg>'
 };
 
 class OpenLayersViewer {
@@ -122,7 +123,8 @@ class OpenLayersViewer {
       default: '#1779ba',
       red: '#cc4b37',
       green: '#90c062',
-      white: '#ffffff'
+      white: '#ffffff',
+      gray: '#767676'
     };
     this.scrollTexts = {
       ctrlKey: 'Strg+Scrollen zum Zoomen',
@@ -233,10 +235,10 @@ class OpenLayersViewer {
     props = Object.assign(
       {
         color: 'default',
-        width: 5,
+        width: 4,
         background: false,
         backgroundColor: '#ffffff',
-        backgroundWidth: (props.width || 5) + 2
+        backgroundWidth: (props.width || 4) + 2
       },
       props
     );
@@ -257,9 +259,9 @@ class OpenLayersViewer {
     return styles;
   }
   initFeatures() {
-    if (this.afterValue) this.feature = this.featureFromGeoJSON(this.afterValue);
     if (!this.feature && this.value) this.feature = this.featureFromGeoJSON(this.value);
     if (this.beforeValue) this.additionalFeatures = this.featuresFromGeoJSON(this.beforeValue);
+    if (this.afterValue) this.feature = this.featureFromGeoJSON(this.afterValue);
     if (this.additionalValues && this.additionalValues.length)
       this.additionalFeatures.push(
         ...this.featuresFromGeoJSON({
@@ -346,12 +348,11 @@ class OpenLayersViewer {
   getFeatureStyle(feature) {
     let featureStyle = {
       color: 'default',
-      width: 5,
+      width: 4,
       showStartEnd: false
     };
-    const featureStyleProperties = feature.get('style');
-    if (featureStyleProperties && featureStyleProperties.color) featureStyle.color = featureStyleProperties.color;
-    if (featureStyleProperties && featureStyleProperties.width) featureStyle.width = featureStyleProperties.width;
+
+    Object.assign(featureStyle, feature.get('style') || {});
 
     return featureStyle;
   }

@@ -39,7 +39,7 @@
           :max: 1
       :additional_food_establishment_properties:
         :type: mixin
-        :name: additional_food_establishment_properties          
+        :name: additional_food_establishment_properties
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -51,17 +51,31 @@
           :show:
             :content_area: header
       :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
+        :type: mixin
+        :name: opening_hours_specification
       :dining_hours_specification:
         :label: Warme Küche
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
+        :type: opening_time
+        :validations:
+          valid_dates: true
+          closed_range: true
         :api:
-          :partial: opening_hours_specification
+          :name: dc:diningHoursSpecification
+      :dining_hours_description:
+        :label: Warme Küche - Beschreibung
+        :type: embedded
+        :template_name: Öffnungszeit - Beschreibung
+        :ui:
+          :edit:
+            :disabled: true
+        :api:
+          :name: dc:diningHoursDescription
+          :partial: opening_hours_description
+          :v4:
+            :partial: embedded_opening_hours_description
+            :transformation:
+              :method: append
+              :name: dc:diningHoursSpecification
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -106,7 +120,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Gastronomischer Betrieb"
+        :default_value: 'Gastronomischer Betrieb'
       :feratel:
         :type: mixin
         :name: feratel_categories

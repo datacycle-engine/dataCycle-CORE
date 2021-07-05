@@ -19,7 +19,8 @@ module DataCycleCore
             'classification' => Validators::Classification,
             'asset' => Validators::Asset,
             'computed' => Validators::Computed,
-            'schedule' => Validators::Schedule
+            'schedule' => Validators::Schedule,
+            'opening_time' => Validators::Schedule
           }
         end
 

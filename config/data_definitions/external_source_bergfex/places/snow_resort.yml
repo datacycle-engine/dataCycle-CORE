@@ -34,6 +34,12 @@
       :title:
         :type: mixin
         :name: title
+      :subject_of:
+        :label: Detailbeschreibung
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :template_name: Skigebiets-Beschreibung
       :tourism_region:
         :label: Tourismus-Region
         :type: classification
@@ -215,10 +221,8 @@
             :name: additionalProperty
         :advanced_search: true
       :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
+        :type: mixin
+        :name: opening_hours_specification
       :addons:
         :label: Addons
         :type: embedded

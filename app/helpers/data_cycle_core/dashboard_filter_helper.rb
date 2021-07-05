@@ -55,29 +55,63 @@ module DataCycleCore
       end
     end
 
-    def filterable_classification_aliases(allowed_labels, excluded = [])
-      query = DataCycleCore::ClassificationAlias
-        .includes(:classification_tree_label, :parent_classification_alias, sub_classification_alias: [
-                    sub_classification_alias: [
-                      sub_classification_alias: :sub_classification_alias
-                    ]
-                  ])
-        .where(classification_tree_labels: { name: allowed_labels }, classification_trees: { parent_classification_alias: nil })
-      query = query.where.not(classification_tree_labels: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded))
+    def conditional_filter_accordion(filter_config, &block)
+      return if filter_config[:filter].blank?
 
-      query.group_by { |ca| ca.classification_tree_label&.name }
+      if filter_config[:collapse]
+        tag.div(class: 'accordion filter-collapse', data: { accordion: true, allow_all_closed: true }) do
+          tag.div(class: "row accordion-item #{'is-active' if filter_config[:collapse] == 'open'}", data: { accordion_item: true }) do
+            tag.section(capture(&block), class: 'filters accordion-content', data: { tab_content: true }) +
+              tag.a(tag.span(tag.i(class: 'fa fa-chevron-down')), class: 'accordion-title')
+          end
+        end
+      else
+        tag.section(capture(&block), class: 'filters')
+      end
     end
 
-    def local_filter_options(filter, filters)
-      filter ||= {}
+    def in_schedule_filter_options
+      DataCycleCore::ApiService::API_SCHEDULE_ATTRIBUTES.except(:schedule)
+        .map { |a|
+          value = a.to_s.underscore.delete_prefix('dc:')
 
-      filter[:excluded_types] = DataCycleCore.excluded_filter_classifications
-      filter[:classification_trees] ||= DataCycleCore::Feature::MainFilter.available_filters
-      filter[:index] = filter[:classification_trees].size
-      filter[:classification_tree_data] = filterable_classification_aliases(filter[:classification_trees], filter[:excluded_types])
-      filter[:fulltext_search] = filter[:search] && filters.presence&.find { |f| f['t'] == 'fulltext_search' }&.dig('v')
+          [
+            I18n.t("schedule.filter_labels.#{value}", default: value, locale: DataCycleCore.ui_language),
+            value
+          ]
+        }
+        .prepend(
+          [
+            I18n.t(
+              'schedule.filter_labels.all',
+              exceptions: DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions_string,
+              locale: DataCycleCore.ui_language
+            ),
+            nil
+          ]
+        )
+    end
 
-      filter
+    def in_schedule_filter_title(filter_type, filter_name, filter_title, identifier)
+      if filter_type.to_s == 'in_schedule'
+        select_tag "f[#{identifier}][n]", options_for_select(in_schedule_filter_options, filter_name)
+      else
+        tag.span(I18n.t("filter.#{filter_type}", default: filter_title, locale: DataCycleCore.ui_language))
+      end
+    end
+
+    def in_schedule_tag_title(filter_type, filter_title, key)
+      if filter_type.to_s == 'in_schedule'
+        return I18n.t("schedule.filter_labels.#{key}", default: key, locale: DataCycleCore.ui_language) if key.present?
+
+        I18n.t(
+          'schedule.filter_labels.all',
+          exceptions: DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions_string,
+          locale: DataCycleCore.ui_language
+        )
+      else
+        I18n.t("filter.#{filter_type}", default: filter_title, locale: DataCycleCore.ui_language)
+      end
     end
   end
 end

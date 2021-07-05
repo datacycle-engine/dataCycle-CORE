@@ -2,13 +2,13 @@ de:
   i18n:
     transliterate:
       rule:
-        Ä: "Ae"
-        ä: "ae"
-        Ö: "Oe"
-        ö: "oe"
-        Ü: "Ue"
-        ü: "ue"
-        ß: "ss"
+        Ä: 'Ae'
+        ä: 'ae'
+        Ö: 'Oe'
+        ö: 'oe'
+        Ü: 'Ue'
+        ü: 'ue'
+        ß: 'ss'
   title: dataCycle
   hello: 'Guten Tag!'
   welcome: 'Willkommen!'
@@ -112,6 +112,23 @@ de:
     rdate: Zusätzliche Termine
     exdate: Ausgenommene Termine
     ongoing: fortlaufend
+    filter_labels:
+      all: Alle Zeiträume (außer %{exceptions})
+      event_schedule: Termine
+      opening_hours_specification: Öffnungszeiten
+      dining_hours_specification: Warme Küche
+      hours_available: Öffnungszeiten (hours_available)
+      validity_schedule: Gültigkeitszeitraum
+
+  opening_time:
+    valid_from: Gültigkeit von
+    valid_until: bis
+    weekday: Wochentag
+    holiday: Feiertag
+    time: Zeit
+    opens: geöffnet von
+    closes: bis
+    closed: geschlossen
 
   common:
     'true': Ja
@@ -294,6 +311,8 @@ de:
     inverse_linked: Inverse Referenz
     has_overlay: Bei diesem Inhalt ist ein Overlay vorhanden
     no_name: unbenannt
+    o_clock: Uhr
+    and: und
 
   embedded:
     move_down: nach unten verschieben
@@ -403,7 +422,6 @@ de:
     max_price: Preis (Max)
     duration: Dauer
     copyright_year: Copyright Jahr
-    number_of_rooms: Anzahl der Zimmer
     floor_size: Zimmergröße
     total_time: Kochzeit
     water_temp_temperature: Wassertemperatur
@@ -436,9 +454,11 @@ de:
     total_number_of_beds: Gesamtanzahl Betten
     number_of_rooms: Gesamtanzahl Einheiten
     number_of_accommodations: Anzahl der Wohneinheiten
+    linked_image: Verknüpftes Bild
     linked_location: Verknüpfter Ort
     linked_author: Verknüpfter Fotograf
     linked_copyright_holder: Verknüpfter Rechteinhaber
+    linked_provider: Verknüpfter Dienstleister
     in_schedule_types:
       absolute: Fester Zeitraum
       relative: Relativer Zeitraum
@@ -554,6 +574,7 @@ de:
     move: verschieben
     geocode: 'Geokoordinaten von %{title} übernehmen'
     upload_gpx: 'GPX-Datei hochladen'
+    remove_feature: 'Geometrie löschen'
     open_asset: 'Datei öffnen'
     download: 'herunterlanden'
     download_content: 'Inhalt herunterladen'
@@ -622,6 +643,7 @@ de:
         thing_id: 'thing_id ist ein Pflichtfeld.'
         relation: 'relation ist ein Pflichtfeld.'
         invalid: 'Der Eintrag mit Startzeitpunkt %{data} enthält keine gültigen Termine'
+        until_missing: 'Für den Eintrag mit Startzeitpunkt %{data} muss ein Endzeitpunkt angegeben werden'
       number: '%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data}).'
       no_data: 'Keine Daten angegeben.'
       no_validation: 'Keine Validierungs-Daten angegeben.'

@@ -124,7 +124,7 @@ module DataCycleCore
                 end
 
                 expected_opening_hours_specification_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'v4_opening_hours_specification_result')
-                assert_attributes(json_validate, required_attributes, ['opening_hours_specification']) do
+                assert_attributes(json_validate, required_attributes, ['opening_hours_specification', 'opening_hours_description']) do
                   {
                     'openingHoursSpecification' => expected_opening_hours_specification_hash
                   }
@@ -178,7 +178,7 @@ module DataCycleCore
                       {
                         '@type' => 'PropertyValue',
                         'identifier' => 'feratelContentScore',
-                        'name' => 'ContentScore',
+                        'name' => 'ContentScore (Feratel)',
                         'value' => @content.feratel_content_score
                       },
                       {

@@ -1,23 +1,6 @@
 # frozen_string_literal: true
 
 namespace :deploy do
-  task :psql do
-    on roles(:all) do
-      invoke 'datacycle:psql:deploy_dict'
-      invoke 'datacycle:psql:reload'
-    end
-  end
-
-  task :load_dict do
-    on roles(:db) do
-      within release_path do
-        with rails_env: fetch(:rails_env) do
-          execute :rake, "#{fetch(:cmd_prefix, '')}dc:update:dictionaries"
-        end
-      end
-    end
-  end
-
   desc 'performs initial deployment'
   task :initial do
     before 'deploy:migrate', 'deploy:create_db'
@@ -49,14 +32,12 @@ namespace :deploy do
     end
   end
 
-  desc 'runs post-deploy migrations'
-  task :post_deploy_migrations do
+  desc 'runs data migrations'
+  task :data_migrations do
     on roles(:db) do
       within release_path do
         with rails_env: fetch(:rails_env) do
-          with SKIP_POST_DEPLOYMENT_MIGRATIONS: false do
-            execute :rake, "#{fetch(:cmd_prefix, '')}db:migrate"
-          end
+          execute :rake, "#{fetch(:cmd_prefix, '')}db:migrate:with_data"
         end
       end
     end

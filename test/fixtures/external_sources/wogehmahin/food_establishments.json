@@ -27,14 +27,17 @@
             },
             "photos" : [
                 {
+                    "headline": "Test1",
                     "identifier" : "01d96a57-8abd-45eb-8847-f054bd996d64",
                     "url" : "http://resc.deskline.net/images/KTN/1/763ddf44-6aa3-4f3b-8ae2-873fb9520f47/99/image.jpg"
                 },
                 {
+                    "headline": "Test2",
                     "identifier" : "86cf4d3d-a0c3-4740-b8b4-4b216e9142af",
                     "url" : "https://datacycle.kaernten.at/uploads/data_cycle_core/image/file/86cf4d3d-a0c3-4740-b8b4-4b216e9142af/d00197af-e5a6-4365-af5d-9840ece78d9c.jpg"
                 },
                 {
+                    "headline": "Test3",
                     "identifier" : "WGH-Bild",
                     "url" : "https://www.wogehmahin.at/wp-content/themes/wogehmahin_2015/gastro/images/108308_6_2.jpg"
                 }

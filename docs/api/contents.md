@@ -62,13 +62,12 @@ Die Nutzung von HTTP-POST bringt vor allem im Zusammenhang mit komplexen Abfrage
           "min": "2020-04-06",
           "max": "2020-04-13"
         }          
-      }, {
-        "schedule": {
-          "in": {
-            "min": "2020-06-21",
-            "max": "2020-09-20"
-          }
-        }
+      }
+    },
+    "schedule": {
+      "in": {
+        "min": "2020-06-21",
+        "max": "2020-09-20"
       }
     },
     "geo": {
@@ -157,7 +156,7 @@ Um beispielsweise alle Veranstaltungen im Herbst und im Winter außer den Verans
   "token": "YOUR_ACCESS_TOKEN",
   "filter": {
     "attribute": {
-      "schedule": {
+      "eventSchedule": {
         "in": {
           "min": "2020-09-23",
           "max": "2021-03-20"
@@ -203,7 +202,7 @@ Sollen beispielsweise alle Inhalte ermittelt werden, die am "Marty-McFly-Day" er
 _Die Zeitpunkte der Erstellung und der letzten Aktualisierung können nicht nur für die Filterung direkt beim Abrufen von Inhalten genutzt werden. Sie können in Form der Attribute ```dct:created``` bzw. ```dct:modified``` bei Bedarf auch direkt bei den einzelnen Inhalten ausgegeben und weiter ausgewertet werden, sie müssen aber explizit über den zusätzlichen Parameter ```fields``` abgefragt werden._
 
 
-#### Termine - **filter\[attribute\]\[schedule\]**
+#### Termine - **filter\[attribute\]\[eventSchedule\]**
 
 Sind Veranstaltungen im Datenbestand einer dataCycle-Instanz vorhanden, ist es in der Regel notwendig, diese Veranstaltungen auf Basis des Veranstaltungstermins zu filtern. Da in dataCycle wiederkehrende Veranstaltungstermine in Form von Regelsätzen hinterlegt werden können und nicht als Einzeltermine erfasst werden müssen, gibt es einen speziellen _Attribut-Filter_ für diesen Anwendungsfall. Es kann zwar auch bei diesem Filter ein bzw. mehrere Intervalle übergeben werden, im Gegensatz zu einfachen Zeitpunkten wird bei der Verwendung dieses Filters aber auch eine spezielle Sortierung, die spezifisch auf Termine abgestimmt worden ist, verwendet. Dabei werden Veranstaltungen nach dem ersten Termin im angegeben Zeitraum sortiert, wobei sehr lange dauernde Veranstaltungen, die oft durch eine fehlerhafte Eingabe entstehen, nach hinten gereiht werden.
 
@@ -217,7 +216,7 @@ Um z.B. alle Veranstaltungen im Zeitraum der letzten Weltraummission eines Space
   "token": "YOUR_ACCESS_TOKEN",
   "filter": {
     "attribute": {    
-      "schedule": {
+      "eventSchedule": {
         "in": {
           "min": "2011-07-10",
           "max": "2011-07-19"
@@ -380,7 +379,7 @@ Die bisher vorgestellten Filter ergeben, wenn sie kombiniert werden, immer eine 
     "union": [
       {
         "attribute": {
-          "schedule": {
+          "eventSchedule": {
             "in": {
               "min": "2021-03-01",
               "max": "2021-03-01"
@@ -389,7 +388,7 @@ Die bisher vorgestellten Filter ergeben, wenn sie kombiniert werden, immer eine 
         }
       }, {
         "attribute": {
-          "schedule": {
+          "eventSchedule": {
             "in": {
               "min": "2021-03-21",
               "max": "2021-03-21"

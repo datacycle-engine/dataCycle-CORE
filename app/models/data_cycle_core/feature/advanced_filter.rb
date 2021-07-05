@@ -4,12 +4,24 @@ module DataCycleCore
   module Feature
     class AdvancedFilter < Base
       class << self
-        def available_filters
+        def available_filters(user, view_type)
+          return [] unless enabled?
+
           filters = []
           DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled, :config)&.each do |key, value|
             filters.concat(try(key.to_sym, value) || default(key.to_s, value) || [])
           end
-          filters
+          filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.sort.group_by { |f| f[1] }.transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: DataCycleCore.ui_language) }
+        end
+
+        def available_visible_filters(user, view_type, filter_config)
+          return [] unless enabled? && filter_config.is_a?(Hash)
+
+          filters = []
+          filter_config&.each do |key, value|
+            filters.concat(try(key.to_sym, value) || default(key.to_s, value) || [])
+          end
+          filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.reverse
         end
 
         def advanced_attribute_classification_tree_label(specific_type)
@@ -19,7 +31,9 @@ module DataCycleCore
         def classification_alias_ids(value)
           return [] unless value
 
-          DataCycleCore::ClassificationTreeLabel.where('? = ANY(classification_tree_labels.visibility)', 'filter').pluck(:name).map do |c|
+          query = DataCycleCore::ClassificationTreeLabel.where('? = ANY(classification_tree_labels.visibility)', 'filter')
+          query = query.where(name: value) if value.is_a?(Array)
+          query.pluck(:name).map do |c|
             [
               I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
               'classification_alias_ids',
@@ -146,7 +160,7 @@ module DataCycleCore
             [
               I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'inactive_things',
-              data: { name: k }
+              data: { name: k, advancedType: k }
             ]
           end
         end
@@ -157,7 +171,7 @@ module DataCycleCore
             [
               I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'in_schedule',
-              data: { name: k }
+              data: { name: k, advancedType: k }
             ]
           end
         end
@@ -168,13 +182,23 @@ module DataCycleCore
             [
               I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'validity_period',
-              data: { name: k }
+              data: { name: k, advancedType: k }
             ]
           end
         end
 
         def always_visible?
           !!configuration.dig(:config, :visible)
+        end
+
+        def schedule_filter_exceptions
+          Array.wrap(configuration.dig(:config, :schedule_exceptions))
+        end
+
+        def schedule_filter_exceptions_string
+          schedule_filter_exceptions
+            &.map { |e| I18n.t("schedule.filter_labels.#{e}", locale: DataCycleCore.ui_language) }
+            &.join(', ')
         end
       end
     end

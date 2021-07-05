@@ -35,7 +35,7 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :template_name: PlaceOverlay
+        :template_name: SimplePlaceOverlay
         :translated: true
         :validations:
           :max: 1
@@ -43,10 +43,8 @@
         :type: mixin
         :name: content_classifications
       :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
+        :type: mixin
+        :name: opening_hours_specification
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -102,7 +100,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Lift"
+        :default_value: 'Lift'
       :feratel_cps:
         :type: mixin
         :name: feratel_cps

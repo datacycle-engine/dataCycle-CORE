@@ -5,10 +5,10 @@ module DataCycleCore
     module Differs
       class Geographic < Basic
         def epsilon
-          1e-6
+          1e0
         end
 
-        def diff(a, b, _template)
+        def diff(a, b, _template, _partial_update)
           geo_a = DataCycleCore::MasterData::DataConverter.string_to_geographic(a)
           geo_b = DataCycleCore::MasterData::DataConverter.string_to_geographic(b)
           @diff_hash = generic_diff(geo_a, geo_b, method(:geo_comp).to_proc)

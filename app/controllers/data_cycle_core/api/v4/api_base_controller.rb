@@ -40,7 +40,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :content_id, :sort, :format, section: {}, page: {}, content_id: []]
+          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, section: {}, page: {}, content_id: [], 'dc:liveData': []]
         end
 
         def page_parameters
@@ -56,7 +56,7 @@ module DataCycleCore
           section_params = DEFAULT_SECTION_SETTINGS.merge(section_parameters)
           raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for param page[size]: #{page_params[:size]}" unless page_params[:size].to_i.positive?
           if page_params[:limit].to_i.positive?
-            query.offset(page_params[:offset].to_i).limit(page_params[:limit].to_i)
+            query = query.offset(page_params[:offset].to_i).limit(page_params[:limit].to_i).query
           else
             if section_params[:meta].to_i.zero?
               query = query.page(page_params[:number].to_i).per(page_params[:size].to_i).without_count
@@ -64,8 +64,8 @@ module DataCycleCore
               query = query.page(page_params[:number].to_i).per(page_params[:size].to_i)
             end
             query = query.padding(page_params[:offset].to_i) if page_params[:offset].to_i.positive?
-            query
           end
+          query
         end
 
         def current_ability
@@ -92,6 +92,7 @@ module DataCycleCore
           @include_parameters = parse_tree_params(permitted_params.dig(:include))
           @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
           @field_filter = @fields_parameters.present?
+          @live_data = permitted_params.dig(:'dc:liveData')
           @section_parameters = section_parameters
           @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))

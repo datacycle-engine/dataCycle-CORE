@@ -125,8 +125,7 @@ module DataCycleCore
         return nil if value.blank?
         return value if value.acts_like?(:time)
         raise ArgumentError, 'can not convert to a datetime' unless value.is_a?(::String)
-        # remove to_datetime when https://bugs.ruby-lang.org/issues/15160 is fixed
-        value.in_time_zone&.to_datetime.presence || raise(ArgumentError, 'can not convert to a datetime')
+        value.in_time_zone.presence || raise(ArgumentError, 'can not convert to a datetime')
       end
 
       def self.date_to_string(value)

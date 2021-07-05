@@ -42,7 +42,7 @@
           :disabled: true
         :ui:
           :edit:
-            :disabled: true
+            :readonly: true
       :description:
         :label: Beschreibung
         :type: string

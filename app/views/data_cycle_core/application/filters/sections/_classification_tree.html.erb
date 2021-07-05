@@ -1,0 +1,20 @@
+<div class="classification-tree-filter filter" data-id="<%= value[:identifier] %>">
+  <%= hidden_field_tag "f[#{value[:identifier]}][c]", 's' %>
+  <%= hidden_field_tag "f[#{value[:identifier]}][t]", :classification_alias_ids %>
+  <%= hidden_field_tag "f[#{value[:identifier]}][n]", value&.dig(:config) %>
+  <%= hidden_field_tag "f[#{value[:identifier]}][m]", 'i' %>
+
+  <ul class="no-bullet">
+    <% value&.dig(:classification_aliases)&.each do |item| %>
+      <li class="<%= item.internal_name&.underscore_blanks %>">
+        <input type="checkbox" name="f[<%= value[:identifier] %>][v][]" value="<%= item.id %>" id="<%= value[:identifier] %>_<%= item.id %>" <%= 'checked' if value[:value]&.include?(item.id) %> />
+        <label for="<%= value[:identifier] %>_<%= item.id %>">
+          <span class="title">
+            <%= render 'data_cycle_core/shared/icon', icon_type: item.internal_name&.underscore_blanks %>
+            <span class="inner-title"><%= item.internal_name %></span>
+          </span>
+        </label>
+      </li>
+    <% end %>
+  </ul>
+</div>

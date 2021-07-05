@@ -33,6 +33,9 @@ module DataCycleCore
     end
 
     def add_filter
+      @identifier = SecureRandom.hex(10)
+      @params = add_filter_params
+
       respond_to(:js)
     end
 
@@ -65,6 +68,12 @@ module DataCycleCore
       render(json: { error: I18n.t(:content_updated, scope: [:controllers, :info], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:reload, scope: [:actions], locale: DataCycleCore.ui_language) }) && return if "DataCycleCore::#{reload_params[:table]&.classify || 'Thing'}".safe_constantize&.find_by(id: reload_params[:id])&.updated_at&.>(reload_params[:datestring])
 
       head :no_content
+    end
+
+    def holidays
+      head(:no_content) && return if DataCycleCore.holidays_country_code.blank? || holidays_params[:year].blank?
+
+      render json: Holidays.between(Date.civil(holidays_params[:year].to_i, 1, 1), Date.civil(holidays_params[:year].to_i, 12, 31), Array.wrap(DataCycleCore.holidays_country_code)).to_json
     end
 
     private
@@ -105,17 +114,26 @@ module DataCycleCore
       key, filter = params.permit(:language_filter, :language, :roles, :user_groups, f: {}, language: [], roles: [], user_groups: []).to_h.first
 
       if key == 'f'
-        index, value = filter&.first
+        identifier, value = filter&.first
         options = value || {}
-        options[:index] = index
+        options[:identifier] = identifier
       else
         options[:n] = key
         options[:t] = key
         options[:c] = 'd'
         options[:v] = filter
+        options[:identifier] = key
       end
 
       options.with_indifferent_access
+    end
+
+    def add_filter_params
+      params.permit(:n, :m, :q, :t)
+    end
+
+    def holidays_params
+      params.permit(:year)
     end
   end
 end

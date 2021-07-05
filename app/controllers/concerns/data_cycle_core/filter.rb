@@ -8,8 +8,8 @@ module DataCycleCore
     def get_filtered_results(query: nil, user_filter: { scope: 'backend' })
       @stored_filter ||= DataCycleCore::StoredFilter.new
       @filters = pre_filters.dup
-      @stored_filter.parameters ||= @filters
-      @stored_filter.parameters = @stored_filter.parameters.presence&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
+      @stored_filter.parameters ||= @filters || []
+      @stored_filter.parameters&.reject! { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? }
       query = query&.dup
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
@@ -22,22 +22,21 @@ module DataCycleCore
       query = @stored_filter.apply(query: query)
 
       # used on dashboard
-      @filters = @stored_filter.parameters
-      @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
-      @advanced_filters = @filters.select { |f| f['c'] == 'a' }
-      @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
+      @filters = @stored_filter.parameters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }
       @selected_classification_aliases = DataCycleCore::ClassificationAlias
         .where(
           id: @filters
             .select { |f|
-              f['t'].in?(['classification_alias_ids', 'geo_within_classification']) ||
-                (f['t'] == 'advanced_attributes' && f['q'] == 'classification_alias_ids')
+              f['t'] == 'classification_alias_ids' ||
+              (f['t'] == 'geo_filter' && f['q'] == 'geo_within_classification') ||
+              (f['t'] == 'advanced_attributes' && f['q'] == 'classification_alias_ids')
             }
             .map { |f| f['v'] }
             .flatten
             .compact
             .uniq
         )
+        .includes(:classification_alias_path)
         .index_by(&:id)
 
       query
@@ -133,6 +132,39 @@ module DataCycleCore
     end
 
     private
+
+    def apply_ordering(query)
+      apply_order_query(query, permitted_params.dig(:sort), @full_text_search, raw_query_params: permitted_params.to_h)
+    end
+
+    def build_search_query
+      endpoint_id = permitted_params[:id]
+      @linked_stored_filter = nil
+      if endpoint_id.present?
+        @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
+
+        if @stored_filter
+          authorize! :api, @stored_filter
+          @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
+        elsif (@watch_list = DataCycleCore::WatchList.find_by(id: endpoint_id))
+        else
+          raise ActiveRecord::RecordNotFound
+        end
+      end
+
+      filter = @stored_filter || DataCycleCore::StoredFilter.new
+      filter.language = @language
+      filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
+      query = filter.apply
+      query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
+
+      query = query.fulltext_search(@full_text_search) if @full_text_search
+
+      query = query.in_validity_period
+      query = apply_filters(query, permitted_params&.dig(:filter))
+      query = append_filters(query, permitted_params)
+      query
+    end
 
     def set_view_mode
       if mode_params[:mode].in?(['list', 'tree'])

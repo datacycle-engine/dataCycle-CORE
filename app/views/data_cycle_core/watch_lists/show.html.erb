@@ -10,7 +10,7 @@
         <ul class="no-bullet">
           <li>
             <div id="show-history-link" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
-              <%= t('history.created_at', locale: DataCycleCore.ui_language) %> <%= l(Time.zone.at(Time.zone.at(@watch_list&.created_at)), locale: DataCycleCore.ui_language) %>
+              <%= t('history.created_at', locale: DataCycleCore.ui_language) %> <%= l(@watch_list&.created_at&.in_time_zone, locale: DataCycleCore.ui_language) %>
               <span> <%= t('terms.from', locale: DataCycleCore.ui_language) %> </span>
               <span><strong><a class="email-link" title="<%= @watch_list&.user&.full_name %>" href="mailto:<%= "#{@watch_list&.user&.email}" %>"><%= @watch_list&.user&.full_name %></a></strong></span>
             </div>
@@ -46,7 +46,7 @@
 
           <%= tag.li render('data_links', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
           <li class="buttons">
-            <%= link_to previous_authorized_crumb.url, class: 'hascontent close-show-button' do %>
+            <%= link_to previous_authorized_crumb.url, class: 'has-content close-show-button' do %>
               <i aria-hidden="true" class="fa fa-times"></i>
             <% end if previous_authorized_crumb.present? %>
           </li>
@@ -153,7 +153,7 @@
 <div class="detail-content watchlist">
 
   <div class="row">
-    <%= render 'data_cycle_core/application/filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true, mode_selector: true } %>
+    <%= render 'data_cycle_core/application/filter', view_type: 'collection' %>
 
     <%= render 'data_cycle_core/application/results', contents: @contents %>
   </div>

@@ -17,6 +17,10 @@
         "photographer": "Leitner",
         "license": "Kärnten Werbung",
         "contentLocation": {
+          "name": {
+            "de": "Fleiß",
+            "en": "Fleiß"
+          },
           "address": "Fleiß 10, 9844 Fleiß, Austria",
           "geo": {
             "longitude": 12.9041,
@@ -56,6 +60,10 @@
         "photographer": "Leitner",
         "license": "Kärnten Werbung",
         "contentLocation": {
+          "name": {
+            "de": "Fleiß",
+            "en": "Fleiß"
+          },
           "address": "Fleiß 10, 9844 Fleiß, Austria",
           "geo": {
             "longitude": 12.9041,

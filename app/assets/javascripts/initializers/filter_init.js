@@ -1,7 +1,7 @@
 import DashboardFilter from '../components/dashboard_filter';
 
 export default function () {
-  if ($('#primary_nav_wrap').length > 0) {
+  if ($('.filters').length > 0) {
     init();
   }
 

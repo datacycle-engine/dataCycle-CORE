@@ -9,7 +9,7 @@
         <% end %>
 
         <% if can?(:show_representation_of, DataCycleCore::User) && item.represented_by.present? %>
-          <a class="hascontent represented-by-link" data-toggle="represented-by-<%= item.id %>">
+          <a class="has-content represented-by-link" data-toggle="represented-by-<%= item.id %>">
             <i class="fa fa-link" aria-hidden="true"></i>
           </a>
           <div class="dropdown-pane no-bullet bottom"

@@ -9,9 +9,18 @@ module DataCycleCore
         )
       end
 
-      def sort_random(_ordering)
+      def sort_random(ordering)
+        unless ordering.nil?
+          random_seed_sql = <<-SQL.squish
+            CROSS JOIN (SELECT :seed_value AS seed_value from setseed(:seed_value)) seed_values
+          SQL
+
+          random_join_query = ActiveRecord::Base.send(:sanitize_sql_array, [random_seed_sql, seed_value: ordering])
+        end
+
         reflect(
           @query
+            .joins(random_join_query)
             .order(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_order, 'random()')))
         )
       end
@@ -52,7 +61,7 @@ module DataCycleCore
       def sort_by_proximity(_ordering = '', value = {})
         # sort_by_schedule_proximity('ASC', value)
         date = Time.zone.now
-        if value.present? && value.is_a?(::Hash) && value.dig('n') == 'relative'
+        if value.present? && value.is_a?(::Hash) && value.dig('q') == 'relative'
           date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
           date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from', 'n').present?
         elsif value.present? && value.is_a?(::Hash)

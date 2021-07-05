@@ -8,6 +8,16 @@ module DataCycleCore
         # config.messages.backend = :i18n
         config.validate_keys = true
 
+        SORTING_VALIDATION = Dry::Types['string'].constructor do |input|
+          next input unless input&.starts_with?('random')
+
+          _key, value = DataCycleCore::ApiService.order_key_with_value(input)
+
+          next unless value.nil? || value.between?(-1, 1)
+
+          input
+        end
+
         BASE = Dry::Schema.Params do
           optional(:format).value(:symbol)
           optional(:controller).filled(:string)
@@ -29,7 +39,7 @@ module DataCycleCore
 
         BASE_JSON_API = Dry::Schema.Params do
           optional(:language).filled(:string)
-          optional(:sort).filled(:string)
+          optional(:sort).filled(SORTING_VALIDATION)
           optional(:fields).filled(:string)
           optional(:include).filled(:string)
         end
@@ -110,18 +120,15 @@ module DataCycleCore
             optional(:notIn).hash(GEO_FILTER)
           end
           optional(:attribute).hash do
-            optional(:'dct:created').hash(ATTRIBUTE_FILTER)
             optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
-            optional(:'dct:modified').hash(ATTRIBUTE_FILTER)
-            optional(:schedule).hash(ATTRIBUTE_FILTER)
-            optional(:width).hash(ATTRIBUTE_FILTER)
-            optional(:height).hash(ATTRIBUTE_FILTER)
-            optional(:numberOfAccommodations).hash(ATTRIBUTE_FILTER)
-            optional(:numberOfRooms).hash(ATTRIBUTE_FILTER)
-            optional(:maxNumberOfPeople).hash(ATTRIBUTE_FILTER)
-            optional(:totalNumberOfBeds).hash(ATTRIBUTE_FILTER)
+            (DataCycleCore::ApiService::API_SCHEDULE_ATTRIBUTES +
+              DataCycleCore::ApiService::API_DATE_RANGE_ATTRIBUTES +
+              DataCycleCore::ApiService::API_NUMERIC_ATTRIBUTES).each do |a|
+              optional(a).hash(ATTRIBUTE_FILTER)
+            end
             optional(:slug).hash(ATTRIBUTE_FILTER)
           end
+          optional(:schedule).hash(ATTRIBUTE_FILTER)
         end
 
         params(BASE, BASE_JSON_API, WATCHLIST, CLASSIFICATIONS, CONTENT) do

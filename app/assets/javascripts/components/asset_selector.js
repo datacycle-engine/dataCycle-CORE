@@ -51,7 +51,7 @@ class AssetSelector {
     this.editableList.html(this.loaderIcon);
     DataCycle.disableElement(this.editButton);
     DataCycle.httpRequest({
-      url: DataCycle.config.EnginePath + '/files/assets',
+      url: '/files/assets',
       method: 'GET',
       data: {
         html_target: this.editableList.prop('id'),
@@ -107,7 +107,7 @@ class AssetSelector {
     });
     this.requests.push(
       DataCycle.httpRequest({
-        url: DataCycle.config.EnginePath + '/files/assets',
+        url: '/files/assets',
         method: 'GET',
         data: {
           html_target: this.assetList.prop('id'),

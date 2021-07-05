@@ -8,12 +8,14 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     this.uploadable = this.$container.data('allowUpload');
     this.translateInteraction;
+    this.modifyInteraction;
     this.drawableInteraction;
     this.drawing = false;
     this.precision = 5;
     this.$geoCodeButton = $('.geocode-address-button').first();
     this.$mapEditContainer = this.$parentContainer.siblings('.map-edit').first();
     this.$mapInfoContainer = this.$parentContainer.siblings('.map-info').first();
+    this.$removeFeatureButton = this.$mapEditContainer.children('.remove-feature-button').first();
     this.$uploadButton = this.$mapEditContainer.children('.upload-gpx-button').first();
     this.$uploadInput = this.$mapEditContainer.children('.upload-gpx-input').first();
     this.$latitudeField = this.$mapInfoContainer.find('.latitude input').first();
@@ -62,22 +64,22 @@ class OpenLayersEditor extends OpenLayersViewer {
     }
   }
   initMapActions() {
-    if (this.type.includes('Point')) this.initMapEditActions();
+    this.initMapEditActions();
   }
   initMapEditActions() {
-    if (this.feature) this.initTranslatableActions();
+    if (this.feature) this.initGeometryEditActions();
 
-    if (!this.feature && this.type == 'Point') this.initMapDrawableActions();
+    if (!this.feature) this.initMapDrawableActions();
 
-    let snap = new this.ol.interaction.Snap({
-      source: this.source
-    });
-    this.map.addInteraction(snap);
+    this.initSnapableAction();
 
     if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.geoCodeAddress.bind(this));
 
     this.$latitudeField.on('change', this.updateMapMarker.bind(this));
     this.$longitudeField.on('change', this.updateMapMarker.bind(this));
+
+    DataCycle.enableElement(this.$removeFeatureButton);
+    if (this.$removeFeatureButton) this.$removeFeatureButton.on('click', this.removeFeature.bind(this));
   }
   initMapDrawableActions() {
     this.drawing = true;
@@ -94,13 +96,25 @@ class OpenLayersEditor extends OpenLayersViewer {
       this.disableDrawableFeature();
       this.setCoordinates();
       this.setHiddenFieldValue(this.getGeoJsonFromFeature());
-      this.initTranslatableActions();
+      this.initGeometryEditActions();
     });
+  }
+  initGeometryEditActions() {
+    // TODO: change to ModifyableActions for Point after ol update to 6.5 using method in
+    // https://openlayers.org/en/latest/examples/modify-icon.html
+    if (this.type === 'Point') this.initTranslatableActions();
+    else this.initModifyableActions();
   }
   disableDrawableFeature() {
     this.map.removeInteraction(this.drawableInteraction);
     this.drawing = false;
     this.drawableInteraction = undefined;
+  }
+  initSnapableAction() {
+    let snap = new this.ol.interaction.Snap({
+      source: this.source
+    });
+    this.map.addInteraction(snap);
   }
   initTranslatableActions() {
     this.translateInteraction = new this.ol.interaction.Translate({
@@ -115,6 +129,20 @@ class OpenLayersEditor extends OpenLayersViewer {
         this.setCoordinates();
         this.setHiddenFieldValue(this.getGeoJsonFromFeature());
         this.map.getView().animate({ duration: 300, center: this.feature.getGeometry().getCoordinates() });
+      }
+    });
+  }
+  initModifyableActions() {
+    this.modifyInteraction = new this.ol.interaction.Modify({
+      source: this.source,
+      style: this.styleFunction.bind(this)
+    });
+
+    this.map.addInteraction(this.modifyInteraction);
+
+    this.modifyInteraction.on('modifyend', () => {
+      if (this.feature) {
+        this.setHiddenFieldValue(this.getGeoJsonFromFeature());
       }
     });
   }
@@ -140,7 +168,7 @@ class OpenLayersEditor extends OpenLayersViewer {
       });
 
     DataCycle.httpRequest({
-      url: `${DataCycle.config.EnginePath}/things/geocode_address`,
+      url: '/things/geocode_address',
       dataType: 'json',
       data: address
     })
@@ -285,6 +313,15 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     this.setNewCoordinates();
   }
+  removeFeature(event) {
+    event.preventDefault();
+
+    this.source.removeFeature(this.feature);
+    this.feature = undefined;
+    this.resetCoordinates();
+    this.resetHiddenFieldValue();
+    this.initMapDrawableActions();
+  }
   initUploadActions() {
     if (this.$uploadButton) this.$uploadButton.on('click', this.relayUploadClick.bind(this));
     if (this.$uploadInput) this.$uploadInput.on('change', this.handleUploadFile.bind(this));
@@ -316,6 +353,12 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.$latitudeField.val(latLon[1]);
     this.$longitudeField.val(latLon[0]);
   }
+  resetCoordinates() {
+    if (this.type != 'Point') return;
+
+    this.$latitudeField.val('');
+    this.$longitudeField.val('');
+  }
   getGeoJsonFromInputs() {
     return {
       type: this.type,
@@ -332,6 +375,9 @@ class OpenLayersEditor extends OpenLayersViewer {
   }
   setHiddenFieldValue(geoJSON) {
     this.$locationField.val(this.geoJsonToWkt(geoJSON));
+  }
+  resetHiddenFieldValue() {
+    this.$locationField.val('');
   }
 }
 

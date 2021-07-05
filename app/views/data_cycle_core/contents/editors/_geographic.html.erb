@@ -19,21 +19,29 @@
     </div>
   </div>
 
-  <% if definition&.dig('ui', 'edit', 'options', 'data_upload') && DataCycleCore.default_map_position.dig('editor') != 'TourSprung' %>
-    <div class="map-edit">
+  <div class="map-edit">
+    <%= link_to '#',
+        class: 'remove-feature-button map-edit-button',
+        title: t('actions.remove_feature', locale: DataCycleCore.ui_language),
+        data: {
+          locale: I18n.locale.to_s
+        } do %>
+      <i class="fa fa-trash"></i>
+    <% end %>
+
+    <% if definition&.dig('ui', 'edit', 'options', 'data_upload') && DataCycleCore.default_map_position.dig('editor') != 'TourSprung' %>
       <input type="file" class="upload-gpx-input" accept=".gpx,.GPX,application/gpx+xml,application/octet-stream" style="display:none">
       <%= link_to '#',
-      class: 'upload-gpx-button',
-      title: t('actions.upload_gpx', locale: DataCycleCore.ui_language),
-      data: {
-        locale: I18n.locale.to_s,
-        disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>'
-      } do %>
+        class: 'upload-gpx-button map-edit-button map-edit-button-margin',
+        title: t('actions.upload_gpx', locale: DataCycleCore.ui_language),
+        data: {
+          locale: I18n.locale.to_s,
+          disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>'
+        } do %>
         <i class="fa fa-upload"></i>
       <% end %>
-    </div>
-
-  <% end %>
+    <% end %>
+  </div>
 
   <div class="map-info detail_object <%= 'linestring-info' if is_line_string %>">
     <div class="content-object-item">
