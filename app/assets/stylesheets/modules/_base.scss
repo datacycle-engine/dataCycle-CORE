@@ -968,6 +968,7 @@ footer {
     .single_error {
       top: auto;
       bottom: -3.3rem;
+
       &::before {
         bottom: auto;
         top: -1.2rem;
@@ -982,18 +983,19 @@ span.single_error,
 span.single_warning,
 .form-error {
   position: absolute;
-  top: -3.3rem;
+  bottom: calc(100% + 1rem);
   right: 2rem;
   background-color: map-get($foundation-palette, alert);
   padding: 0.5rem 2rem 0.5rem 1rem;
   color: white;
   border-radius: 5px;
-  white-space: nowrap;
   z-index: 100;
-  -webkit-transition: all 0.4s ease;
+  transition: all 0.4s ease;
   line-height: 1.5;
   text-align: left;
   font-size: 0.9rem;
+  text-align: right;
+
   .close-error {
     display: block;
     width: 1.2rem;

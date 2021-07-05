@@ -65,10 +65,11 @@ module DataCycleCore
           partial_schema['properties'] = property_definitions&.slice(*options.data_hash.keys)
         end
 
-        valid_hash = validate(options.data_hash.dup, partial_schema || schema)
+        options.data_hash.deep_freeze # ensure data_hash doesn't get changed
+        valid_hash = validate(options.data_hash, partial_schema || schema)
 
         if validate?(valid_hash)
-          if diff?(options.data_hash.dup, partial_schema) || options.force_update
+          if diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
             ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
               to_history(save_time: options.save_time) unless id.nil? || options.prevent_history
 
@@ -237,7 +238,7 @@ module DataCycleCore
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
-        when 'schedule'
+        when 'schedule', 'opening_time'
           set_schedule(value, key)
         when 'computed'
           save_values(key, value, properties)
@@ -463,8 +464,11 @@ module DataCycleCore
               DataCycleCore::Schedule.new
             end
           schedule.id = item['id'] if item['id'].present?
+          schedule.external_source_id = item['external_source_id'] if item['external_source_id'].present?
+          schedule.external_key = item['external_key'] if item['external_key'].present?
           schedule.thing_id = id
           schedule.relation = relation_name
+          schedule.holidays = item['holidays']
           schedule.from_hash(item.with_indifferent_access)
           schedule.save!
           updated_item_keys << schedule.id

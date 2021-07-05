@@ -70,6 +70,12 @@ module DataCycleCore
       head :no_content
     end
 
+    def holidays
+      head(:no_content) && return if DataCycleCore.holidays_country_code.blank? || holidays_params[:year].blank?
+
+      render json: Holidays.between(Date.civil(holidays_params[:year].to_i, 1, 1), Date.civil(holidays_params[:year].to_i, 12, 31), Array.wrap(DataCycleCore.holidays_country_code)).to_json
+    end
+
     private
 
     def better_errors_hack
@@ -124,6 +130,10 @@ module DataCycleCore
 
     def add_filter_params
       params.permit(:n, :m, :q, :t)
+    end
+
+    def holidays_params
+      params.permit(:year)
     end
   end
 end

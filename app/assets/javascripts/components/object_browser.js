@@ -31,7 +31,6 @@ class ObjectBrowser {
     this.page = 1;
     this.loading = false;
     this.search = '';
-    this.url = DataCycle.config.EnginePath + '/object_browser';
     this.total = 0;
     this.ids = selector.data('objects') || [];
     this.chosen = this.ids.slice(0);
@@ -223,7 +222,7 @@ class ObjectBrowser {
         if (!data || !data.contentIds || !data.contentIds.length) return;
 
         DataCycle.httpRequest({
-          url: this.url + '/render_in_overlay',
+          url: '/object_browser/render_in_overlay',
           method: 'POST',
           dataType: 'script',
           data: JSON.stringify({
@@ -274,7 +273,7 @@ class ObjectBrowser {
   }
   findObjects(ids, external) {
     DataCycle.httpRequest({
-      url: this.url + '/find',
+      url: '/object_browser/find',
       method: 'POST',
       dataType: 'script',
       data: JSON.stringify({
@@ -372,7 +371,7 @@ class ObjectBrowser {
   }
   loadMore(_loaded_ids) {
     DataCycle.httpRequest({
-      url: DataCycle.config.EnginePath + '/' + this.content_type + '/' + this.content_id + '/load_more_linked_objects',
+      url: `/${this.content_type}/${this.content_id}/load_more_linked_objects`,
       method: 'GET',
       dataType: 'script',
       data: {
@@ -400,7 +399,7 @@ class ObjectBrowser {
   loadDetails(id) {
     this.selected = id;
     DataCycle.httpRequest({
-      url: this.url + '/details',
+      url: '/object_browser/details',
       method: 'POST',
       dataType: 'script',
       data: JSON.stringify({
@@ -484,7 +483,7 @@ class ObjectBrowser {
       let authToken = $('meta[name=csrf-token]').attr('content');
       DataCycle.httpRequest({
         type: 'POST',
-        url: DataCycle.config.EnginePath + '/things/import',
+        url: '/things/import',
         dataType: 'script',
         data: JSON.stringify({
           authenticity_token: authToken,
@@ -527,7 +526,7 @@ class ObjectBrowser {
     });
     this.requests.push(
       DataCycle.httpRequest({
-        url: this.url + '/show',
+        url: '/object_browser/show',
         method: 'POST',
         dataType: 'script',
         data: JSON.stringify({

@@ -22,11 +22,40 @@ const DataCycle = {
     ],
     AppSignalFrontEndKey: null
   },
+  cache: {},
   init(config = {}) {
     Object.assign(this.config, config);
     Object.freeze(this.config);
   },
+  joinPath(...segments) {
+    const parts = segments.reduce((parts, segment) => {
+      if (!segment) return parts;
+
+      if (parts.length > 0) segment = segment.replace(/^\//, '');
+
+      segment = segment.replace(/\/$/, '');
+
+      return parts.concat(segment.split('/'));
+    }, []);
+
+    const resultParts = [];
+
+    for (const part of parts) {
+      if (part === '.') continue;
+      if (part === '..') {
+        resultParts.pop();
+        continue;
+      }
+
+      resultParts.push(part);
+    }
+
+    return resultParts.join('/');
+  },
   httpRequest(options = {}) {
+    if (this.config.EnginePath && !options.url.includes(this.config.EnginePath))
+      options.url = this.joinPath(this.config.EnginePath, options.url);
+
     const defaultOptions = {
       headers: {
         'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content

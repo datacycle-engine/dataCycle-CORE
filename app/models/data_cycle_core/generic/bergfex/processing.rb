@@ -8,7 +8,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
-            transformation: DataCycleCore::Generic::Bergfex::Transformations.bergfex_to_see,
+            transformation: DataCycleCore::Generic::Bergfex::Transformations.bergfex_to_see(utility_object.external_source.id),
             default: { template: 'See' },
             config: config
           )

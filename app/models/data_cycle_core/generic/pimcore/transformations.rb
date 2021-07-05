@@ -14,7 +14,7 @@ module DataCycleCore
           .>> t(:unwrap, 'geoPosition', ['latitude', 'longitude'])
           .>> t(:location)
           .>> t(:nest, 'contact_info', ['url'])
-          .>> t(:add_field, 'opening_hours_specification', ->(s) { opening_hours(s, external_source_id, s.dig('external_key')) })
+          .>> t(:add_field, 'opening_hours_description', ->(s) { opening_hours(s, external_source_id, s.dig('external_key')) })
           .>> t(:rename_keys, { 'contentText' => 'text', 'shortDescription' => 'description' })
           .>> t(:map_value, 'text', ->(s) { s&.gsub("\n", '<br/>') })
           .>> t(:map_value, 'description', ->(s) { s&.gsub("\n", '<br/>') })
@@ -113,12 +113,14 @@ module DataCycleCore
         end
 
         def self.opening_hours(data, external_source_id, external_key)
-          thing = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: external_key, limit: 1, pluck_id: false).first
+          return if data&.dig('openingTimes').blank?
 
-          to_update = thing&.opening_hours_specification&.first
+          thing = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: external_key, limit: 1, pluck_id: false).first
+          to_update = thing.try(:opening_hours_description)&.first
           attribute_hash = {}
           attribute_hash['id'] = to_update.id if to_update.present?
-          attribute_hash['description'] = data.dig('openingTimes').gsub("\n", '<br/>') if data.dig('openingTimes').present?
+          attribute_hash['description'] = data.dig('openingTimes').gsub("\n", '<br/>')
+
           [attribute_hash.presence].compact
         end
 

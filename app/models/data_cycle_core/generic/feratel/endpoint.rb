@@ -9,6 +9,7 @@ module DataCycleCore
         include EndpointUpdateXml
         include EndpointDeletedXml
         include EndpointGlobalDownloader
+        include EndpointSearch
 
         def initialize(pos_code: nil, company_code: nil, range_code: nil, range_id: nil, sales_channel_id: nil, **options)
           @pos_code = pos_code

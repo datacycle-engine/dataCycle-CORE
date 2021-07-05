@@ -809,7 +809,8 @@ CREATE TABLE public.schedule_histories (
     external_key character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    holidays boolean
 );
 
 
@@ -844,7 +845,8 @@ CREATE TABLE public.schedules (
     external_key character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    holidays boolean
 );
 
 
@@ -1439,6 +1441,13 @@ CREATE INDEX by_ctl_esi ON public.classification_tree_labels USING btree (extern
 --
 
 CREATE INDEX by_external_connection_and_type ON public.external_system_syncs USING btree (external_system_id, external_key, sync_type);
+
+
+--
+-- Name: by_external_source_id_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX by_external_source_id_external_key ON public.schedules USING btree (external_source_id, external_key);
 
 
 --
@@ -2560,7 +2569,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210422111740'),
 ('20210510120343'),
 ('20210518074537'),
+('20210518133349'),
+('20210520123323'),
 ('20210522171126'),
+('20210527121641'),
 ('20210602112830'),
 ('20210608125638'),
 ('20210621063801');

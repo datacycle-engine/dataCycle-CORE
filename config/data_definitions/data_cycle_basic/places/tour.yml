@@ -198,10 +198,8 @@
         :type: number
         :storage_location: value
       :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
+        :type: mixin
+        :name: opening_hours_specification
       :potential_actions:
         :type: mixin
         :name: potential_actions

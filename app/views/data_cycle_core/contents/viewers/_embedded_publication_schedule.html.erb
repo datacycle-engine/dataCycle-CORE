@@ -31,9 +31,9 @@
                   <% when '+' %>
                     <ins><%= l(date_changes.dig(1).to_date, format: :long, locale: DataCycleCore.ui_language) %></ins>
                   <% when '-' %>
-                    <del><%= l(publication.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) if publication.publish_at.present? %></del>
+                    <del><%= l(publication&.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) %></del>
                   <% else %>
-                    <%= l(publication.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) if publication.publish_at.present? %>
+                    <%= l(publication&.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) %>
                   <% end %>
                 </span>
 

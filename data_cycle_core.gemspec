@@ -129,4 +129,6 @@ Gem::Specification.new do |s|
 
   # Better distance_of_time_in_words (https://github.com/radar/distance_of_time_in_words)
   s.add_dependency 'dotiw'
+
+  s.add_dependency 'holidays'
 end

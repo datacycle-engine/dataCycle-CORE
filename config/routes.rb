@@ -291,6 +291,8 @@ DataCycleCore::Engine.routes.draw do
                 match '', via: :post, to: 'external_systems#create'
                 match '(/:external_key)', via: [:put, :patch], to: 'external_systems#update', as: 'external_sources_update'
                 match '(/:external_key)', via: [:delete], to: 'external_systems#destroy', as: 'external_sources_delete'
+                match '/search/availability', via: [:get, :post], to: 'external_systems#search_availability', as: 'external_source_search_availability'
+                match '/search/additional_service', via: [:get, :post], to: 'external_systems#search_additional_service', as: 'external_source_search_additional_service'
               end
             end
           end
@@ -360,4 +362,5 @@ DataCycleCore::Engine.routes.draw do
   get :add_tag_group, controller: :application
   post :remote_render, controller: :application
   get :reload_required, controller: :application
+  get :holidays, controller: :application
 end
