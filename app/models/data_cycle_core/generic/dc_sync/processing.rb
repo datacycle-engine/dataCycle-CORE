@@ -177,7 +177,7 @@ module DataCycleCore
             if tree_label.present?
               classification = DataCycleCore::ClassificationAlias
                 .for_tree(tree_label.name)
-                .find_by(name: classification_data['name'])
+                .find_by(internal_name: classification_data['name'])
                 &.primary_classification
             end
             if classification.blank?
