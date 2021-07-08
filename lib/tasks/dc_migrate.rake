@@ -78,6 +78,7 @@ namespace :dc do
         next progressbar.increment if thing_relation.nil?
 
         content.time.find_each do |time_content|
+          next if content.validity&.valid_from.nil? && content.validity&.valid_to.nil?
           schedule = DataCycleCore::Schedule.new({
             thing_id: thing_relation.content_a_id,
             relation: thing_relation.relation_a
