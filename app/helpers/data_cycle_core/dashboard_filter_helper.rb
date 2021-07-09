@@ -69,5 +69,49 @@ module DataCycleCore
         tag.section(capture(&block), class: 'filters')
       end
     end
+
+    def in_schedule_filter_options
+      DataCycleCore::ApiService::API_SCHEDULE_ATTRIBUTES.except(:schedule)
+        .map { |a|
+          value = a.to_s.underscore.delete_prefix('dc:')
+
+          [
+            I18n.t("schedule.filter_labels.#{value}", default: value, locale: DataCycleCore.ui_language),
+            value
+          ]
+        }
+        .prepend(
+          [
+            I18n.t(
+              'schedule.filter_labels.all',
+              exceptions: DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions_string,
+              locale: DataCycleCore.ui_language
+            ),
+            nil
+          ]
+        )
+    end
+
+    def in_schedule_filter_title(filter_type, filter_name, filter_title, identifier)
+      if filter_type.to_s == 'in_schedule'
+        select_tag "f[#{identifier}][n]", options_for_select(in_schedule_filter_options, filter_name)
+      else
+        tag.span(I18n.t("filter.#{filter_type}", default: filter_title, locale: DataCycleCore.ui_language))
+      end
+    end
+
+    def in_schedule_tag_title(filter_type, filter_title, key)
+      if filter_type.to_s == 'in_schedule'
+        return I18n.t("schedule.filter_labels.#{key}", default: key, locale: DataCycleCore.ui_language) if key.present?
+
+        I18n.t(
+          'schedule.filter_labels.all',
+          exceptions: DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions_string,
+          locale: DataCycleCore.ui_language
+        )
+      else
+        I18n.t("filter.#{filter_type}", default: filter_title, locale: DataCycleCore.ui_language)
+      end
+    end
   end
 end

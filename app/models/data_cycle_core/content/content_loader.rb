@@ -8,23 +8,21 @@ module DataCycleCore
         as_of(timestamp).try(:to_h, timestamp)
       end
 
-      def diff(data, template = nil)
+      def diff(data, template = nil, partial_update = false)
         differ = DataCycleCore::MasterData::DiffData.new
-        partial_update = template.present?
-        if partial_update
-          differ.diff(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template).diff_hash
+        if template.present?
+          differ.diff(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update).diff_hash
         else
-          differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template).diff_hash
+          differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update: partial_update).diff_hash
         end
       end
 
-      def diff?(data, template = nil)
+      def diff?(data, template = nil, partial_update = false)
         differ = DataCycleCore::MasterData::DiffData.new
-        partial_update = template.present?
-        if partial_update
-          differ.diff?(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template)
+        if template.present?
+          differ.diff?(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update)
         else
-          differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
+          differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update: partial_update)
         end
       end
 

@@ -27,7 +27,12 @@ module DataCycleCore
           return if translate_hash.blank?
           return unless translate_hash.is_a?(::Hash) || translate_hash.is_a?(DataCycleCore::OpenStructHash)
 
-          data = load_data(text: translate_hash.dig('text'), source_locale: translate_hash.dig('source_locale'), target_locale: translate_hash.dig('target_locale'))['translations']
+          data = load_data(
+            text: translate_hash.dig('text'),
+            source_locale: translate_hash.dig('source_locale').split('-').first,
+            target_locale: translate_hash.dig('target_locale').split('-').first
+          )['translations']
+
           return if data.blank?
 
           data.first

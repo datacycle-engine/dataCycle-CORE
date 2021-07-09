@@ -45,6 +45,20 @@ module DataCycleCore
         delete(k) if yield(k, v)
       end
     end
+
+    def deep_freeze
+      each_value do |v|
+        v.deep_freeze if v.respond_to?(:deep_freeze)
+      end
+
+      freeze
+    end
+
+    def dc_deep_dup
+      dup.each_with_object({}) do |(k, v), memo|
+        memo[k] = v.respond_to?(:dc_deep_dup) ? v.dc_deep_dup : v
+      end
+    end
   end
 end
 

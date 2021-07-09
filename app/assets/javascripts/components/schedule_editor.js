@@ -25,11 +25,7 @@ class ScheduleEditor {
 
     this.editor
       .find('.form-element.start .flatpickr-input[type="text"], .form-element.end .flatpickr-input[type="text"]')
-      .trigger('dc:date:destroy');
-
-    this.editor
-      .find('.schedule-range')
-      .trigger('dc:date:initialize', { enableTime: !$(event.currentTarget).prop('checked') });
+      .trigger('dc:flatpickr:reInit', { enableTime: !$(event.currentTarget).prop('checked') });
   }
   updateUntilEditor(event) {
     this.maxInput.get(0)._flatpickr.set('minDate', $(event.currentTarget).val());

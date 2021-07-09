@@ -6,7 +6,7 @@ module DataCycleCore
   module MasterData
     module Differs
       class Schedule < UuidSet
-        def diff(a, b, template)
+        def diff(a, b, template, _partial_update)
           ids_a = parse_uuids(a)
           ids_b = parse_uuids(b)
           @diff_hash = (

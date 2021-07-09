@@ -8,7 +8,7 @@ module DataCycleCore
           DataCycleCore::Generic::Bergfex::TransformationFunctions[*args]
         end
 
-        def self.bergfex_to_see
+        def self.bergfex_to_see(external_source_id)
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { "Bergfex - See - #{s.dig('id')}" })
           .>> t(:reject_keys, ['id', 'region'])
@@ -29,17 +29,15 @@ module DataCycleCore
           .>> t(:add_field, 'area', ->(s) { s.dig('area_old', 'text')&.to_f })
           .>> t(:add_field, 'depth', ->(s) { s.dig('depth_old', 'text')&.to_f })
           .>> t(:reject_keys, ['name_old', 'lat', 'lng', 'temperature_old', 'area_old', 'depth_old'])
-          .>> t(:add_field, 'valid_from', ->(s) { s.dig('season', 'start', 'text') })
-          .>> t(:add_field, 'valid_through', ->(s) { s.dig('season', 'end', 'text') })
+          .>> t(:add_field, 'DateFrom', ->(s) { s.dig('season', 'start', 'text') })
+          .>> t(:add_field, 'DateTo', ->(s) { s.dig('season', 'end', 'text') })
           .>> t(:reject_keys, ['season'])
-          .>> t(:add_field, 'opens', ->(s) { s.dig('openinghours', 'from', 'text') || '' })
-          .>> t(:add_field, 'closes', ->(s) { s.dig('openinghours', 'to', 'text') || '' })
-          .>> t(:nest, 'validity', ['valid_from', 'valid_through'])
-          .>> t(:nest, 'time', ['opens', 'closes'])
-          .>> t(:nest, 'opening_data', ['validity', ['time']])
-          .>> t(:add_field, 'opening_hours_specification', ->(s) { [s.dig('opening_data')] })
+          .>> t(:add_field, 'TimeFrom', ->(s) { s.dig('openinghours', 'from', 'text') || '' })
+          .>> t(:add_field, 'TimeTo', ->(s) { s.dig('openinghours', 'to', 'text') || '' })
+          .>> t(:nest, 'opening_hours', ['DateFrom', 'DateTo', 'TimeFrom', 'TimeTo'])
+          .>> t(:add_field, 'opening_hours_specification', ->(s) { DataCycleCore::Generic::Common::OpeningHours.parse_opening_times(s.dig('opening_hours'), external_source_id, s['external_key']) })
           .>> t(:add_field, 'url', ->(s) { s.dig('link', 'text') })
-          .>> t(:reject_keys, ['validity', 'time', 'link'])
+          .>> t(:reject_keys, ['opening_hours', 'time', 'link'])
           .>> t(:strip_all)
         end
 
@@ -75,7 +73,7 @@ module DataCycleCore
           .>> t(:add_field, 'length_nordic_classic', ->(s) { s.dig('lengthNordicClassic', 'text')&.to_f })
           .>> t(:add_field, 'length_nordic_skating', ->(s) { s.dig('lengthNordicSkating', 'text')&.to_f })
           .>> t(:nest, 'operations', ['operation', 'operationRemarks', 'operationStart', 'operationEnd'])
-          .>> t(:operations_to_opening_hours, 'opening_hours_specification', 'operations')
+          .>> t(:operations_to_opening_hours, external_source_id, 'opening_hours_specification', 'operations')
           .>> t(:reject_keys, ['operations'])
           .>> t(:add_field, 'url', ->(s) { s.dig('linkDetailedReport', 'text') })
           .>> t(:add_field, 'addons', ->(s) { (s.dig('addons_old', 'addon').present? ? (s.dig('addons_old', 'addon').is_a?(Hash) ? [s.dig('addons_old', 'addon')] : s.dig('addons_old', 'addon')) : []) })
@@ -135,7 +133,7 @@ module DataCycleCore
           .>> t(:add_field, 'length_nordic_skating', ->(s) { s.dig('lengthNordicSkating', 'text')&.to_f })
           .>> t(:operation_to_status, 'status', 'operation')
           .>> t(:nest, 'operations', ['operation', 'operationRemarks', 'operationStart', 'operationEnd'])
-          .>> t(:operations_to_opening_hours, 'opening_hours_specification', 'operations')
+          .>> t(:operations_to_opening_hours, external_source_id, 'opening_hours_specification', 'operations')
           .>> t(:reject_keys, ['operations'])
           .>> t(:add_field, 'url', ->(s) { s.dig('linkDetailedReport', 'text') })
           .>> t(:add_field, 'addons', ->(s) { (s.dig('addons_old', 'addon').present? ? (s.dig('addons_old', 'addon').is_a?(Hash) ? [s.dig('addons_old', 'addon')] : s.dig('addons_old', 'addon')) : []) })

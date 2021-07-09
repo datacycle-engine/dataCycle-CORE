@@ -168,7 +168,7 @@ class OpenLayersEditor extends OpenLayersViewer {
       });
 
     DataCycle.httpRequest({
-      url: `${DataCycle.config.EnginePath}/things/geocode_address`,
+      url: '/things/geocode_address',
       dataType: 'json',
       data: address
     })

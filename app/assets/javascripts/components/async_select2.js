@@ -1,4 +1,5 @@
 import BasicSelect2 from './basic_select2';
+import DataCycle from './data_cycle';
 
 class AsyncSelect2 extends BasicSelect2 {
   constructor(element) {
@@ -24,7 +25,7 @@ class AsyncSelect2 extends BasicSelect2 {
 
     DataCycle.httpRequest({
       type: 'GET',
-      url: DataCycle.config.EnginePath + this.config.findPath,
+      url: this.config.findPath,
       data: queryParams,
       dataType: 'json',
       contentType: 'application/json'
@@ -75,7 +76,7 @@ class AsyncSelect2 extends BasicSelect2 {
   }
   ajaxOptions() {
     return {
-      url: DataCycle.config.EnginePath + this.config.searchPath,
+      url: this.config.searchPath,
       delay: 250,
       data: this.ajaxDataHandler.bind(this),
       processResults: this.ajaxProcessResults.bind(this)

@@ -118,6 +118,8 @@
   :enabled: true
   :config:
     :visible: false
+    :schedule_exceptions:
+      - validity_schedule
   :classification_alias_ids: all
   :external_source: true
   :external_system: false
@@ -163,6 +165,7 @@
     - zh
     - da
     - de
+    - de-CH
     - en
     - et
     - fi

@@ -8,7 +8,8 @@ module DataCycleCore
           @host = host
           @pg = pg
           @d = d
-          @cams = cams
+          @cam_data = cams
+          @cams = cams.map { |i| i.dig('id') }
           @cam_host = cam_host
           @read_type = options[:read_type] if options[:read_type].present?
         end
@@ -22,6 +23,10 @@ module DataCycleCore
 
         def root_cams(lang: :de)
           Enumerator.new do |yielder|
+            @cam_data.each do |cam|
+              yielder << { 'rid' => cam.dig('id'), 'name' => cam.dig('name') }
+            end
+
             @cams.each do |cam_id|
               # pc = 6 // weitere cams
               load_data(cam: cam_id, pc: 6, lang: lang).dig('co', 'pl', 'pcs', 'pc').detect { |i| i['t'] == '6' }&.dig('fcs', 'fci')&.each do |cam_list_data|

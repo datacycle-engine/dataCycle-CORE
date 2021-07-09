@@ -45,10 +45,8 @@
         :type: mixin
         :name: content_classifications
       :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
+        :type: mixin
+        :name: opening_hours_specification
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -110,7 +108,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "LocalBusiness"
+        :default_value: 'LocalBusiness'
       :feratel:
         :type: mixin
         :name: feratel_categories

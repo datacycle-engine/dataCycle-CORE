@@ -181,7 +181,7 @@ class AssetUploader {
     });
 
     DataCycle.httpRequest({
-      url: DataCycle.config.EnginePath + '/things/bulk_create',
+      url: '/things/bulk_create',
       method: 'POST',
       data: formData,
       dataType: 'json',
@@ -203,7 +203,7 @@ class AssetUploader {
     formData = formData.concat(file.attributeFieldValues || []);
 
     DataCycle.httpRequest({
-      url: DataCycle.config.EnginePath + '/things/validate',
+      url: '/things/validate',
       method: 'POST',
       data: formData,
       dataType: 'json',

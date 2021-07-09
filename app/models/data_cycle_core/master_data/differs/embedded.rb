@@ -4,19 +4,19 @@ module DataCycleCore
   module MasterData
     module Differs
       class Embedded < Linked
-        def diff(a, b, template)
+        def diff(a, b, template, partial_update)
           ids_a = parse_uuids(a)
           ids_b = parse_uuids(b)
           @diff_hash = (
             (set_diff(ids_a, ids_b) || []) +
-            (embedded_change(a, b, template) || []) +
+            (embedded_change(a, b, template, partial_update) || []) +
             (order_change(ids_a, ids_b) || [])
           ).compact.presence
         end
 
         private
 
-        def embedded_change(a, b, template)
+        def embedded_change(a, b, template, partial_update = false)
           return if a.blank? || b.blank? || template.blank?
           return if a.is_a?(::String) && b.is_a?(::String)
           return if a.is_a?(ActiveRecord::Relation) && b.is_a?(ActiveRecord::Relation)
@@ -39,7 +39,12 @@ module DataCycleCore
             next if a_item.is_a?(::String) && b_item.is_a?(::String)
             a_content = history_a ? load_content(a_item, a) : load_content(a_item, nil)
             b_content = history_b ? load_content(b_item, b) : load_content(b_item, nil)
-            changes = Differs::Object.new(a_content, b_content, load_template(template)).diff_hash
+            embedded_template = load_template(template)
+            if partial_update
+              embedded_template.slice!(*b_content&.keys)
+              a_content = a_content.slice(*b_content&.keys)
+            end
+            changes = Differs::Object.new(a_content, b_content, embedded_template, partial_update).diff_hash
             change << a_uuid if changes.present?
           end
           change.size.positive? ? [['~', change.sort]] : nil
