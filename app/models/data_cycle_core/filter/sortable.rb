@@ -91,9 +91,7 @@ module DataCycleCore
       end
 
       def sort_by_schedule_proximity(ordering = '', value = {})
-        start_date, end_date = if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
-                                 date_from_filter_object(value['in'] || value['v'], value.dig('q'))
-                               end
+        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value.dig('q')) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
 
         return self if start_date.nil? && end_date.nil?
 
