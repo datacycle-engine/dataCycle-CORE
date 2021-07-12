@@ -45,7 +45,7 @@ module DataCycleCore
           .>> t(:add_field, 'line', ->(s) { geometry(s.dig('geometry')) })
           .>> t(:add_field, 'length', ->(s) { s.dig('length_2d').is_a?(::String) ? s.dig('length_2d')&.to_f : s.dig('length_2d') })
           .>> t(:add_field, 'order_string', ->(s) { s.dig('nr') })
-          .>> t(:add_links, 'snow_resort', DataCycleCore::Thing, external_source_id, ->(s) { ["Gisolutions - Skigebiet - #{s.dig('ski_area_gisolution')}"] })
+          .>> t(:add_links, 'snow_resort', DataCycleCore::Thing, external_source_id, ->(s) { ["Gisolutions - Skigebiet - #{s.dig('ski_area_gisolutions')}"] })
           .>> t(:add_field, 'ski_slope_difficulty', ->(s) { slope_difficulty(s.dig('difficulty_osm')) })
           .>> t(:add_field, 'ski_slope_type', ->(s) { slope_grooming(s.dig('grooming_osm')) })
           .>> t(:universal_classifications, ->(s) { lookup_bool(s, 'artif_snow', external_source_id) })

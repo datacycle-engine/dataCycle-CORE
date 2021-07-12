@@ -87,7 +87,7 @@
               :treeLabel: Inhaltstypen
               :aliases:
                 - Skigebiet
-        :inverse_of: lift_details
+        :inverse_of: slope_details
         :api:
           :name: containedInPlace
       :ski_slope_difficulty:
