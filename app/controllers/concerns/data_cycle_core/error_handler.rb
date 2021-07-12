@@ -16,6 +16,8 @@ module DataCycleCore
       rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
       rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error
       rescue_from DataCycleCore::Error::Api::ExpiredContentError, with: :expired_content_api_error
+
+      rescue_from DataCycleCore::Error::Download::InvalidSerializationFormatError, with: :user_interface_error
     end
 
     private
@@ -59,15 +61,18 @@ module DataCycleCore
     end
 
     def content_api_error(exception)
-      exception_message = exception&.message&.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       [
         {
           source: {
             pointer: request.path
           },
-          detail: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: :en)
+          detail: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: :en)
         }
       ]
+    end
+
+    def user_interface_error(exception)
+      redirect_back(fallback_location: root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: DataCycleCore.ui_language), allow_other_host: false)
     end
 
     def not_acceptable
@@ -83,23 +88,25 @@ module DataCycleCore
     end
 
     def not_found(exception)
-      exception_message = exception&.message&.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       respond_to do |format|
         format.html { render file: Rails.root.join('public', '404'), layout: false, status: :not_found }
         format.json { render status: :not_found, json: { errors: content_api_error(exception) } }
-        format.js { render status: :not_found, js: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language) }
+        format.js { render status: :not_found, js: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: DataCycleCore.ui_language) }
         format.any { head :not_found }
       end
     end
 
     def redirect_to_root_with_error(exception, status_code)
-      exception_message = exception&.message&.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       respond_to do |format|
-        format.html { redirect_to authorized_root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language), allow_other_host: false }
+        format.html { redirect_to authorized_root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: DataCycleCore.ui_language), allow_other_host: false }
         format.json { render status: status_code, json: { errors: content_api_error(exception) } }
-        format.js { render status: status_code, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message, locale: DataCycleCore.ui_language)}')" }
+        format.js { render status: status_code, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: DataCycleCore.ui_language)}')" }
         format.any { head status_code }
       end
+    end
+
+    def exception_message(exception)
+      exception&.message&.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
     end
   end
 end

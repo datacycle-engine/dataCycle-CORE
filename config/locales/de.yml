@@ -1318,6 +1318,7 @@ de:
       extension_white_list_error: Ungültiger Dateityp
   exceptions:
     action_controller/invalid_authenticity_token: Ungültiges oder fehlendes CSRF-Token, bitte erneut anmelden
+    data_cycle_core/error/download/invalid_serialization_format_error: Die ausgewählte Download-Methode wird nicht unterstützt
 
   details:
     bild:
