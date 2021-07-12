@@ -91,19 +91,9 @@ module DataCycleCore
       end
 
       def sort_by_schedule_proximity(ordering = '', value = {})
-        if value.present? && value.is_a?(::Hash) && value.dig('q') == 'relative'
-          start_date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
-          start_date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from').present?
-
-          end_date = relative_to_absolute_date(value.dig('in', 'max')) if value.dig('in', 'max').present?
-          end_date = relative_to_absolute_date(value.dig('v', 'until')) if value.dig('v', 'until').present?
-        elsif value.present? && value.is_a?(::Hash)
-          start_date = date_from_single_value(value.dig('in', 'min')) if value.dig('in', 'min').present?
-          start_date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
-
-          end_date = date_from_single_value(value.dig('in', 'max')) if value.dig('in', 'max').present?
-          end_date = date_from_single_value(value.dig('v', 'until')) if value.dig('v', 'until').present?
-        end
+        start_date, end_date = if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
+                                 date_from_filter_object(value['in'] || value['v'], value.dig('q'))
+                               end
 
         return self if start_date.nil? && end_date.nil?
 
