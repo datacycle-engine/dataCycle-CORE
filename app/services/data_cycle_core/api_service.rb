@@ -323,6 +323,16 @@ module DataCycleCore
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
     end
 
+    def order_params_present?(params)
+      [
+        params[:sort]&.split(',').present?,
+        params.dig(:filter, :search).present?,
+        params.dig(:filter, :q).present?,
+        order_value_from_params('proximity.geographic', '', params.to_h).present?,
+        order_value_from_params('proximity.inTime', '', params.to_h).present?
+      ].any?
+    end
+
     def apply_order_query(query, order_params, full_text_search = '', raw_query_params: {})
       order_query = []
       order_params&.split(',')&.each do |sort|

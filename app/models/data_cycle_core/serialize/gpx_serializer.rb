@@ -38,7 +38,7 @@ module DataCycleCore
                   end
                 end
                 xml.link(href: api_v4_universal_url(id: content.id))
-                xml.time content.updated_at
+                xml.time content.updated_at.iso8601
               end
               content.geo_properties.each do |key, value|
                 geo = content.send(key)

@@ -126,8 +126,6 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
-
 --
 -- Name: activities; Type: TABLE; Schema: public; Owner: -
 --
@@ -1873,10 +1871,31 @@ CREATE INDEX index_schedule_histories_on_thing_history_id ON public.schedule_his
 
 
 --
+-- Name: index_schedule_occurrences_on_schedule_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedule_occurrences_on_schedule_id ON public.schedule_occurrences USING btree (schedule_id);
+
+
+--
+-- Name: index_schedule_occurrences_on_thing_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedule_occurrences_on_thing_id ON public.schedule_occurrences USING btree (thing_id);
+
+
+--
 -- Name: index_schedules_on_from_to; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_schedules_on_from_to ON public.schedules USING gist (tstzrange(dtstart, dtend, '[]'::text));
+
+
+--
+-- Name: index_schedules_on_relation; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedules_on_relation ON public.schedules USING btree (relation);
 
 
 --
@@ -2578,6 +2597,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210602112830'),
 ('20210608125638'),
 ('20210621063801'),
-('20210629094413');
+('20210629094413'),
+('20210709121013');
 
 
