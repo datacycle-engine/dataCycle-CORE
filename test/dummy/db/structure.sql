@@ -126,6 +126,8 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
 
 SET default_tablespace = '';
 
+SET default_with_oids = false;
+
 --
 -- Name: activities; Type: TABLE; Schema: public; Owner: -
 --
