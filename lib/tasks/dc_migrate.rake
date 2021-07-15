@@ -78,15 +78,19 @@ namespace :dc do
         next progressbar.increment if thing_relation.nil?
 
         content.time.find_each do |time_content|
-          next if content.validity&.valid_from.nil? && content.validity&.valid_to.nil?
           schedule = DataCycleCore::Schedule.new({
             thing_id: thing_relation.content_a_id,
             relation: thing_relation.relation_a
           })
-
-          start_time = "#{content.validity&.valid_from} #{time_content.opens}".in_time_zone
           duration = DataCycleCore::Schedule.time_to_duration(time_content.opens, time_content.closes)
-          until_time = content.validity.valid_through&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
+
+          if content.validity&.valid_from.nil? && content.validity&.valid_to.nil?
+            start_time = "2021-01-01 #{time_content.opens}".in_time_zone
+            until_time = '2024-01-01'.in_time_zone
+          else
+            start_time = "#{content.validity&.valid_from} #{time_content.opens}".in_time_zone
+            until_time = content.validity.valid_through&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
+          end
 
           schedule.from_hash({
             start_time: {
