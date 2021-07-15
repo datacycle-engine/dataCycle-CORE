@@ -96,6 +96,7 @@ module DataCycleCore
 
           content = DataCycleCore::Thing.find_by(id: data.dig('properties', 'externalid'))
           content.external_key = data.dig('id') if content.present? && content.external_key == data.dig('properties', 'externalid')
+          content.save
 
           data.dig('id')
         end
