@@ -123,7 +123,7 @@ class NewContentDialog {
       if (v && v.value.isUuid()) {
         requests.push(
           DataCycle.httpRequest({
-            url: `${DataCycle.config.EnginePath}/api/v4/universal/${v.value}`,
+            url: `/api/v4/universal/${v.value}`,
             method: 'POST',
             data: { fields: 'name,skos:prefLabel' }
           }).done(data => {
@@ -381,7 +381,7 @@ class NewContentDialog {
     params['template'] = template;
     params['key'] = this.id;
     DataCycle.httpRequest({
-      url: DataCycle.config.EnginePath + '/things/new',
+      url: '/things/new',
       method: 'GET',
       data: params,
       dataType: 'script',

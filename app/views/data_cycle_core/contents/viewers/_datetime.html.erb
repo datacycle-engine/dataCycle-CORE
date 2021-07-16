@@ -16,7 +16,7 @@
       <% when '+' %>
         <%= l(options.dig(:item_diff, 1), locale: DataCycleCore.ui_language) %>
       <% else %>
-        <%= l(value, locale: DataCycleCore.ui_language) if value.present? %>
+        <%= l(value, locale: DataCycleCore.ui_language) %>
       <% end %>
     </span>
 

@@ -12,7 +12,8 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { s.dig('featureMember', 'GeoName', 'fid') })
           .>> t(:reject_keys, ['name'])
-          .>> t(:add_field, 'name', ->(s) { s.dig('featureMember', 'GeoName', 'caption') })
+          .>> t(:add_field, 'name', ->(s) { s.dig('featureMember', 'GeoName', 'featureName', 'text') })
+          .>> t(:add_field, 'route_number', ->(s) { s.dig('featureMember', 'GeoName', 'externalId', 'text') })
           .>> t(:add_field, 'sections', ->(s) { load_feature_sections(s.dig('featureMember', 'GeoName', 'refs', 'ReferenceItem'), external_source_id) })
           .>> t(:add_field, 'line', ->(s) { load_all_sections(s.dig('sections')) })
           .>> t(:reject_keys, ['boundedBy', 'schemaLocation', 'featureMember']) # 'featureMember'
@@ -58,30 +59,45 @@ module DataCycleCore
 
         def self.to_section(external_source_id)
           t(:stringify_keys)
-          .>> t(:rename_keys, { 'id' => 'external_key', 'caption' => 'name' })
+          .>> t(:rename_keys, { 'caption' => 'name' })
+          .>> t(:add_field, 'external_key', ->(s) { parse_external_id(s) })
           .>> t(:add_field, 'line', ->(s) { parse_section(s.dig('geometry')) })
-          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att1', 'Gip - BIKEROUTE - ', external_source_id, '1') })
-          .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att4', 'Gip - BIKECOMFORT - ', external_source_id) })
-          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att5', 'Gip - BIKEROUTESTATE - ', external_source_id, '0') })
-          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att6', 'Gip - SIGNAGE - ', external_source_id, '-1') })
-          .>> t(:universal_classifications, ->(s) { value_of_attribute_with_default(s.dig('properties', 'attributes'), 'att7', 'Gip - MINORTYPEREF - ', external_source_id, '110') })
-          .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att8', 'GEONAME - EUROVELO - ', external_source_id) })
-          .>> t(:universal_classifications, ->(s) { value_of_attribute(s.dig('properties', 'attributes'), 'att9', 'GEONAME - ATROUTE - ', external_source_id) })
-          .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: 'Gip - ORGCODE - ' + s.dig('properties', 'externalorgcode'), external_source_id: external_source_id)&.ids })
-          .>> t(:reject_keys, ['bbox', 'geometry', 'properties'])
+          .>> t(:add_links, 'bikeroute', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att1' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - BIKEROUTE - #{item}" }.presence || ['Gip - BIKEROUTE - 1'] })
+          .>> t(:add_links, 'sustainer', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att2' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - SUSTAINER - #{item}" }.presence || [] })
+          .>> t(:add_links, 'bikecomfort', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att4' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - BIKECOMFORT - #{item}" }.presence || [] })
+          .>> t(:add_links, 'bikeroutestate', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att5' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - BIKEROUTESTATE - #{item}" }.presence || ['Gip - BIKEROUTESTATE - 0'] })
+          .>> t(:add_links, 'signage', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att6' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - SIGNAGE - #{item}" }.presence || ['Gip - SIGNAGE - -1'] })
+          .>> t(:add_links, 'minortyperef', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att7' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - MINORTYPEREF - #{item}" }.presence || ['Gip - MINORTYPEREF - 110'] })
+          .>> t(:add_links, 'eurovelo', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att8' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "GEONAME - EUROVELO - #{item}" }.presence || [] })
+          .>> t(:add_links, 'atroute', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att9' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "GEONAME - ATROUTE - #{item}" }.presence || [] })
+          .>> t(:add_links, 'referencetype', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'type') ? Array.wrap("Gip - REFERENCETYPE - #{s.dig('properties', 'type')}") : [] })
+          .>> t(:add_links, 'orgcode', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'externalorgcode') ? Array.wrap("Gip - ORGCODE - #{s.dig('properties', 'externalorgcode')}") : [] })
+          .>> t(:reject_keys, ['id', 'bbox', 'geometry', 'properties'])
           .>> t(:strip_all)
         end
 
-        def self.value_of_attribute_with_default(data, attribute, prefix, external_source_id, default)
-          value = value_of_attribute(data, attribute, prefix, external_source_id)
-          value = DataCycleCore::Classification.where(external_key: prefix + default, external_source_id: external_source_id)&.ids if value.blank?
-          value
-        end
+        # def self.value_of_attribute_with_default(data, attribute, prefix, external_source_id, default)
+        #   value = value_of_attribute(data, attribute, prefix, external_source_id)
+        #   value = DataCycleCore::Classification.where(external_key: prefix + default, external_source_id: external_source_id)&.ids if value.blank?
+        #   value
+        # end
 
-        def self.value_of_attribute(data, attribute, prefix, external_source_id)
-          value = data.detect { |i| i.dig('id') == "StringAttribute_#{attribute}" }&.dig('properties', 'stringvalue')
-          value = DataCycleCore::Classification.where(external_key: prefix + value, external_source_id: external_source_id)&.ids if value.present?
-          value.presence
+        # def self.value_of_attribute(data, attribute, prefix, external_source_id)
+        #   value = data.detect { |i| i.dig('id') == "StringAttribute_#{attribute}" }&.dig('properties', 'stringvalue')
+        #   value = DataCycleCore::Classification.where(external_key: prefix + value, external_source_id: external_source_id)&.ids if value.present?
+        #   value.presence
+        # end
+
+        def self.parse_external_id(data)
+          # if the feature was created in dataCycle, then sent to GIP via the Communicator and is now reimported, its
+          # external_key was set internally to the thing ID and we need to set the correct external_key for the
+          # importer to find it.
+          return data.dig('id') if data.dig('properties', 'externalid').nil?
+
+          content = DataCycleCore::Thing.find_by(id: data.dig('properties', 'externalid'))
+          content.external_key = data.dig('id') if content.present? && content.external_key == data.dig('properties', 'externalid')
+
+          data.dig('id')
         end
 
         def self.parse_section(geometry)

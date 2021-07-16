@@ -139,6 +139,8 @@ class SplitView {
         return value.length > 0;
       case 'boolean':
         return true;
+      default:
+        return true;
     }
   }
   renderButton(element, copy_attr, single) {

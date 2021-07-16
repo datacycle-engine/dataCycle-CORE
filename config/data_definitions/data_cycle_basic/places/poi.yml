@@ -48,10 +48,8 @@
         :type: mixin
         :name: content_classifications
       :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
+        :type: mixin
+        :name: opening_hours_specification
       :postal_address:
         :type: mixin
         :name: postal_address

@@ -55,7 +55,9 @@ module DataCycleCore
     end
 
     def api_definition(definition, api_version = @api_version)
-      definition.dig('api', "v#{api_version}") || definition.dig('api') || {}
+      return {} if definition.dig('api').blank?
+
+      definition['api'].except('v1', 'v2', 'v3', 'v4').merge(definition.dig('api', "v#{api_version}") || {})
     end
 
     def attribute_disabled?(definition, api_version = @api_version)

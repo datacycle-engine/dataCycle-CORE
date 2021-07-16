@@ -34,6 +34,12 @@
       :title:
         :type: mixin
         :name: title
+      :subject_of:
+        :label: Detailbeschreibung
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :template_name: Skigebiets-Beschreibung
       :tourism_region:
         :label: Tourismus-Region
         :type: classification

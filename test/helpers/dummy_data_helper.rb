@@ -7,8 +7,8 @@ module DataCycleCore
     def create_data(type, user = nil)
       @user = user
       send(type)
-    rescue StandardError
-      raise ArgumentError, 'Unknown type for DummyDataHelper'
+    rescue StandardError => e
+      raise ArgumentError, "Unknown type (#{type}) for DummyDataHelper: #{e.message}"
     end
 
     def tour
@@ -66,22 +66,16 @@ module DataCycleCore
       poi_data_hash[:primary_image] = image_data.id
       poi_data_hash[:logo] = image_data.id
 
-      opening_hours_classifications = DataCycleCore::Classification.where(name: ['Montag'])&.map(&:id)
-      opening_hours_specification_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
-      opening_hours_specification_data_hash.first['day_of_week'] = opening_hours_classifications
-
-      poi_data_hash[:opening_hours_specification] = opening_hours_specification_data_hash
+      poi_data_hash[:opening_hours_specification] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
+      poi_data_hash[:opening_hours_description] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description')
       poi_data_hash
     end
 
     def bergfex_snowresort
       snow_resort_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_bergfex_snowresort')
 
-      opening_hours_classifications = DataCycleCore::Classification.where(name: ['Montag'])&.map(&:id)
-      opening_hours_specification_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
-      opening_hours_specification_data_hash.first['day_of_week'] = opening_hours_classifications
-
-      snow_resort_data_hash[:opening_hours_specification] = opening_hours_specification_data_hash
+      snow_resort_data_hash[:opening_hours_specification] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
+      snow_resort_data_hash[:opening_hours_description] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description')
 
       DataCycleCore::TestPreparations.create_content(template_name: 'Skigebiet', data_hash: snow_resort_data_hash, user: @user)
     end

@@ -1,4 +1,3 @@
-import 'vite/dynamic-import-polyfill';
 import jQuery from 'jquery';
 import Rails from '@rails/ujs';
 import ActionCable from 'actioncable';
