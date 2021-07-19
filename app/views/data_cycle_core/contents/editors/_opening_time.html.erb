@@ -41,11 +41,7 @@
     <% end %>
 
     <span class="buttons">
-      <% if attribute_editable?(key, definition, options, content) %>
-        <button id="add_<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>" type="button"
-        class="button addContentObject" style="display: none;"><%= definition['label'] %>
-          hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
-      <% end %>
+      <%= embedded_add_button(definition['label'], "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", !attribute_editable?(key, definition, options, content)) %>
     </span>
   </div>
 

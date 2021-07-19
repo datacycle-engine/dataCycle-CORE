@@ -7,7 +7,7 @@
   } do %>
 
   <%
-    readonly = !attribute_editable?(key, definition, local_assigns[:options], local_assigns[:object])
+    readonly = !attribute_editable?(key, definition, local_assigns[:options], content)
     new_key = "#{key}[#{index}]"
   %>
 
