@@ -61,7 +61,7 @@
           :v4:
             :name: odta:distance
             :format:
-              :append: m
+              :append: ' m'
       :geo_shape:
         :type: mixin
         :name: geo_shape
