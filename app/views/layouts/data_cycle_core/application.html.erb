@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="de">
   <head>
+    <%= render 'data_cycle_core/application/header_tracking_scripts' %>
     <%= render 'head' %>
   </head>
   <body class="<%= controller_name %>">
     <%= display_flash_messages_new %>
+
+    <%= render 'data_cycle_core/application/additional_noscript_tags' %>
 
     <%= render 'header' %>
 
