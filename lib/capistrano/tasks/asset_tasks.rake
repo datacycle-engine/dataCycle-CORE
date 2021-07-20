@@ -2,7 +2,7 @@
 
 SSHKit.config.command_map[:vite_local] = 'bundle exec vite'
 SSHKit.config.command_map[:yarn_local] = 'yarn'
-SSHKit.config.command_map[:dc_rsync] = "rsync -avr --exclude='.DS_Store' --relative"
+SSHKit.config.command_map[:dc_rsync_relative] = "rsync -avr --exclude='.DS_Store' --relative"
 
 namespace :deploy do
   namespace :assets do
@@ -14,8 +14,8 @@ namespace :deploy do
             execute :yarn_local
             execute :yarn_local, 'upgrade'
             execute :vite_local, 'build -f'
-            execute :dc_rsync, "./public/assets/build/ #{server.user}@#{server.hostname}:#{release_path}"
-            execute :dc_rsync, "./public/assets/fonts/ #{server.user}@#{server.hostname}:#{release_path}"
+            execute :dc_rsync_relative, "./public/assets/build/ #{server.user}@#{server.hostname}:#{release_path}"
+            execute :dc_rsync_relative, "./public/assets/fonts/ #{server.user}@#{server.hostname}:#{release_path}"
             execute :vite_local, 'clobber'
           end
         end

@@ -155,7 +155,9 @@ module DataCycleCore
       filter = @stored_filter || DataCycleCore::StoredFilter.new
       filter.language = @language
       filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
-      query = filter.apply
+
+      query = filter.apply(skip_ordering: order_params_present?(permitted_params))
+
       query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
 
       query = query.fulltext_search(@full_text_search) if @full_text_search

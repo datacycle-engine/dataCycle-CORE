@@ -29,7 +29,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Gisolutions::Transformations.to_snow_resort,
-            default: { template: 'Skigebiet' },
+            default: { template: 'Skigebiet Bergfex' },
             config: config
           )
         end

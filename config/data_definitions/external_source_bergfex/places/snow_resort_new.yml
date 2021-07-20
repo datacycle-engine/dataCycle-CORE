@@ -19,7 +19,10 @@
           :json: true
           :indesign: true
     :api:
-      :type: SkiResort
+      :type:
+        - SkiResort
+        - 'odta:SkiResort'
+        - 'dcls:Skigebiet'
     :properties:
       :id:
         :label: id
@@ -59,6 +62,45 @@
         :ui:
           :show:
             :content_area: header
+      :season_start:
+        :label: Saisonbeginn
+        :type: date
+        :storage_location: value
+        :api:
+          :v4:
+            :name: 'odta:seasonStart'
+      :season_end:
+        :label: Saisonend
+        :type: date
+        :storage_location: value
+        :api:
+          :v4:
+            :name: 'odta:seasonEnd'
+      :status:
+        :label: Status
+        :type: classification
+        :tree_label: 'odta:OpeningStatus'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :name: 'odta:status'
+          :partial: enumeration
+          :type: 'odta:OpeningStatus'
+      :min_elevation:
+        :label: minElevation
+        :type: number
+        :storage_location: value
+        :api:
+          :v4:
+            :name: 'odta:minElevation'
+      :max_elevation:
+        :label: maxElevation
+        :type: number
+        :storage_location: value
+        :api:
+          :v4:
+            :name: 'odta:maxElevation'
       :date_time_updated_at:
         :label: Zuletzt aktualisiert
         :type: datetime
@@ -119,12 +161,18 @@
         :type: linked
         :inverse_of: snow_resort
         :link_direction: inverse
+        :api:
+          :v4:
+            :name: 'odta:hasSkiLift'
       :slope_details:
         :label: Pisten
         :template_name: Piste
         :type: linked
         :inverse_of: snow_resort
         :link_direction: inverse
+        :api:
+          :v4:
+            :name: 'odta:hasSkiSlope'
       :lifts:
         :label: Lifte
         :type: object
@@ -142,12 +190,18 @@
             :storage_location: value
             :validations:
               :format: integer
+            :api:
+              :unit_code: 'C62'
+              :unit_name: '1'
           :max_value:
             :label: Lifte gesamt
             :type: number
             :storage_location: value
             :validations:
               :format: integer
+            :api:
+              :unit_code: 'C62'
+              :unit_name: '1'
       :slopes:
         :label: Pistenlänge
         :type: object
@@ -165,12 +219,18 @@
             :storage_location: value
             :validations:
               :format: float
+            :api:
+              :unit_code: 'KMT'
+              :unit_name: 'km'
           :max_value:
             :label: Max Pistenlänge
             :type: number
             :storage_location: value
             :validations:
               :format: float
+            :api:
+              :unit_code: 'KMT'
+              :unit_name: 'km'
       :count_open_slopes:
         :label: Pisten
         :type: object
@@ -188,12 +248,18 @@
             :storage_location: value
             :validations:
               :format: integer
+            :api:
+              :unit_code: 'C62'
+              :unit_name: '1'
           :max_value:
             :label: Pisten gesamt
             :type: number
             :storage_location: value
             :validations:
               :format: integer
+            :api:
+              :unit_code: 'C62'
+              :unit_name: '1'
       :length_nordic_classic:
         :label: Loipenlänge Nordisch Klassisch
         :type: number
@@ -203,6 +269,8 @@
         :api:
           :partial: property_value
           :type: PropertyValue
+          :unit_code: KMT
+          :unit_text: km
           :transformation:
             :method: combine
             :name: additionalProperty
@@ -216,21 +284,28 @@
         :api:
           :partial: property_value
           :type: PropertyValue
+          :unit_code: KMT
+          :unit_text: km
           :transformation:
             :method: combine
             :name: additionalProperty
         :advanced_search: true
       :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
+        :type: mixin
+        :name: opening_hours_specification
       :addons:
         :label: Addons
         :type: embedded
         :template_name: Skigebiet - Addon
         :api:
           :name: amenityFeature
+      :webcam:
+        :label: Webcam Link
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :v4:
+            :name: 'odta:webcam'
       :geo:
         :type: mixin
         :name: geo

@@ -319,6 +319,7 @@ de:
     move_up: nach oben verschieben
     open_all: Alle aufklappen
     close_all: Alle zuklappen
+    button_title: '%{title} hinzufügen'
 
   upload:
     drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'
@@ -1318,6 +1319,7 @@ de:
       extension_white_list_error: Ungültiger Dateityp
   exceptions:
     action_controller/invalid_authenticity_token: Ungültiges oder fehlendes CSRF-Token, bitte erneut anmelden
+    data_cycle_core/error/download/invalid_serialization_format_error: Die ausgewählte Download-Methode wird nicht unterstützt
 
   details:
     bild:

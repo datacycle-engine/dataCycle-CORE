@@ -11,17 +11,22 @@ module DataCycleCore
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
-          Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            query = build_search_query
-            query = apply_ordering(query)
 
-            @pagination_contents = apply_paging(query)
-            @contents = @pagination_contents
+          ActiveRecord::Base.transaction do
+            ActiveRecord::Base.connection.execute("SET LOCAL statement_timeout = #{puma_max_timeout * 1000}")
 
-            if list_api_request?
-              render plain: list_api_request.to_json, content_type: 'application/json'
-            else
-              render 'index'
+            Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
+              query = build_search_query
+              query = apply_ordering(query)
+
+              @pagination_contents = apply_paging(query)
+              @contents = @pagination_contents
+
+              if list_api_request?
+                render plain: list_api_request.to_json, content_type: 'application/json'
+              else
+                render 'index'
+              end
             end
           end
         end

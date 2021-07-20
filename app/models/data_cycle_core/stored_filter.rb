@@ -19,7 +19,7 @@ module DataCycleCore
     # n => String               | das Filterlabel (z.B. 'Inhaltspools')
     # q => String (Optional)    | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width') || type
 
-    def apply(query: nil)
+    def apply(query: nil, skip_ordering: false)
       query_params = language&.exclude?('all') ? [language] : [nil]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
 
@@ -63,7 +63,7 @@ module DataCycleCore
         end
       end
 
-      if sort_parameters.present?
+      if sort_parameters.present? && !skip_ordering
         query = query.reset_sort
         sort_parameters.each do |sort|
           sort_method_name = 'sort_' + sort['m']
