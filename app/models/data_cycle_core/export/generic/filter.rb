@@ -13,7 +13,7 @@ module DataCycleCore
         ].freeze
 
         def self.filter(**args)
-          if external_system.export_config_by_filter_key(method_name, 'endpoints').present?
+          if args[:external_system].export_config_by_filter_key(args[:method_name], 'endpoints').present?
             filter_endpoints(args)
           else
             AVAILABLE_WEBHOOK_FILTERS.all? { |f| send(f, args) }
@@ -24,7 +24,22 @@ module DataCycleCore
           endpoint_ids = Array.wrap(external_system.export_config_by_filter_key(method_name, 'endpoints'))
           endpoints = DataCycleCore::StoredFilter.where(id: endpoint_ids) if endpoint_ids.present?
 
-          endpoints.present? ? endpoints.any? { |e| e.apply.query.exists?(id: data.id) } : false
+          return false if endpoints.blank?
+
+          endpoints.any? do |endpoint|
+            query = endpoint.apply.query.except(:order)
+
+            next true if query.exists?(id: data)
+
+            if data.depending_contents.exists?
+              tmp = query.exists?(id: data.depending_contents)
+
+              next tmp if endpoint.linked_stored_filter.nil?
+              next tmp && endpoint.linked_stored_filter.apply.except(:order).exists?(id: data)
+            end
+
+            false
+          end
         end
 
         def self.filter_presence(data:, external_system:, method_name:)

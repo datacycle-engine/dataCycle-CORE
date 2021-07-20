@@ -8,7 +8,7 @@ module DataCycleCore
       CONTENT_TYPES = [
         CONTENT_TYPE_ENTITY = 'entity',
         CONTENT_TYPE_EMBEDDED = 'embedded'
-      ]
+      ].freeze
 
       module ClassMethods
         def content_relations(options = {})
@@ -97,18 +97,22 @@ module DataCycleCore
           WITH RECURSIVE content_tree(id) AS (
               SELECT #{content_a_id_column}
               FROM #{content_content_table}
-              WHERE #{content_b_id_column} = '#{id}'
+              WHERE #{content_b_id_column} = :id
             UNION ALL
               SELECT #{content_a_id_column}
               FROM #{content_content_table}
               INNER JOIN #{self.class.table_name} ON #{self.class.table_name}.id = #{content_b_id_column}
               INNER JOIN content_tree ON content_tree.id = #{content_b_id_column}
-              WHERE #{self.class.table_name}.content_type = '#{CONTENT_TYPE_EMBEDDED}'
+              WHERE #{self.class.table_name}.content_type = :content_type_embedded
           )
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        query = self.class.where("#{self.class.table_name}.id IN (#{tree_query})") # .where.not(content_type: CONTENT_TYPE_EMBEDDED)
+        query = self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
+                                                                                              tree_query,
+                                                                                              id: id,
+                                                                                              content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                            ])})")
         query = query.where.not(content_type: CONTENT_TYPE_EMBEDDED) unless embedded
         query
       end
@@ -145,8 +149,8 @@ module DataCycleCore
             SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
             FROM #{self.class.table_name}
             INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_b_id_column}
-            WHERE #{content_a_id_column} = '#{id}'
-            AND #{self.class.table_name}.content_type != '#{CONTENT_TYPE_EMBEDDED}'
+            WHERE #{content_a_id_column} = :id
+            AND #{self.class.table_name}.content_type != :content_type_embedded
           UNION ALL
             SELECT #{self.class.table_name}.id as id, content_tree.all_things||#{self.class.table_name}.id
             FROM #{self.class.table_name}
@@ -157,7 +161,11 @@ module DataCycleCore
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
+                                                                                      tree_query,
+                                                                                      id: id,
+                                                                                      content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                    ])})")
       end
 
       def embedded_contents
@@ -166,20 +174,24 @@ module DataCycleCore
             SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
             FROM #{self.class.table_name}
             INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_b_id_column}
-            WHERE #{content_a_id_column} = '#{id}'
-            AND #{self.class.table_name}.content_type = '#{CONTENT_TYPE_EMBEDDED}'
+            WHERE #{content_a_id_column} = :id
+            AND #{self.class.table_name}.content_type = :content_type_embedded
           UNION ALL
             SELECT #{self.class.table_name}.id as id, content_tree.all_things||#{self.class.table_name}.id
             FROM #{self.class.table_name}
             INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_b_id_column}
             INNER JOIN content_tree ON content_tree.id = #{content_a_id_column}
             AND #{self.class.table_name}.id <> ALL (content_tree.all_things)
-            AND #{self.class.table_name}.content_type = '#{CONTENT_TYPE_EMBEDDED}'
+            AND #{self.class.table_name}.content_type = :content_type_embedded
           )
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
+                                                                                      tree_query,
+                                                                                      id: id,
+                                                                                      content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                    ])})")
       end
 
       def cached_related_contents
@@ -219,7 +231,7 @@ module DataCycleCore
       end
 
       def relation_a_column
-        "#{content_content_table}.#{'relation_a'}"
+        "#{content_content_table}.relation_a"
       end
     end
   end
