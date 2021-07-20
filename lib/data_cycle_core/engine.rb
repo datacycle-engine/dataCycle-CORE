@@ -258,6 +258,8 @@ module DataCycleCore
     # prevent span tags inside HTML-Attributes for missing translations
     config.action_view.debug_missing_translation = false
 
+    config.exceptions_app = routes
+
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s
