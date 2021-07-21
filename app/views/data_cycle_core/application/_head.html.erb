@@ -8,7 +8,6 @@
 <% end %>
 <%= csrf_meta_tags %>
 <%= action_cable_meta_tag %>
-<%= render 'data_cycle_core/application/header_tracking_scripts' %>
 <%= vite_javascript_tag 'application', defer: true %>
 <% if DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>
   <link href="https://static.maptoolkit.net/api/v8.9/mtk.css" rel="stylesheet" type="text/css"  />
