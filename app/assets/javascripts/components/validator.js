@@ -340,6 +340,7 @@ class Validator {
     });
   }
   validateForm(event, data) {
+    if (event.detail && event.detail.dcFormSubmitted) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     QuillHelpers.updateEditors(event.target);
@@ -418,7 +419,7 @@ class Validator {
         this.form.append(
           '<input id="duplicate_id" type="hidden" name="duplicate_id" value="' + this.form.data('duplicate-id') + '">'
         );
-      this.form.trigger('submit.rails');
+      Rails.fire(this.form[0], 'submit', { dcFormSubmitted: true });
     }
   }
   resolveRequests(submit = false, eventData = {}) {
