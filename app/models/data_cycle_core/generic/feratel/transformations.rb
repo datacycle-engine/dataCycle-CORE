@@ -264,6 +264,7 @@ module DataCycleCore
           .>> t(:ensure_classification_tree, 'feratel_facilities', 'Feratel - Ausstattungsmerkmale')
           .>> t(:add_links, 'feratel_facilities_accommodations', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:ensure_classification_tree, 'feratel_facilities_accommodations', 'Feratel - Merkmale - Unterkünfte')
+          .>> t(:universal_classifications, ->(s) { Array.wrap(s.dig('HandicapFacilities', 'HandicapFacility')).map { |facility| DataCycleCore::Classification.find_by(external_key: "Feratel - HandicapFacility - #{facility.dig('Id')}")&.id }.compact })
           .>> t(:add_links, 'marketing_groups', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('MarketingGroups', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:add_field, 'content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
