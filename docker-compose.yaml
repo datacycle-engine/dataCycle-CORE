@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgres:
-    image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
+    image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.1'
     environment:
       - ALLOW_IP_RANGE=0.0.0.0/0
       - POSTGRES_PASSWORD=password
@@ -28,7 +28,7 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
-      - POSTGRES_VERSION=11
+      - POSTGRES_VERSION=13
       - POSTGRES_DATABASE=${COMPOSE_PROJECT_NAME}_development
       - MONGODB_HOST=mongodb
       - ALLOW_IP_RANGE=172.18.0.0/12

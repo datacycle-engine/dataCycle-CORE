@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.2
 
-FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
+FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:postgres-13.1
 
 RUN echo "shopt -s histappend" >> /root/.bashrc
 RUN echo "PROMPT_COMMAND=\"\${PROMPT_COMMAND}\${PROMPT_COMMAND:+;}history -a; history -n\"" >> /root/.bashrc
