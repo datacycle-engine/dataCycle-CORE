@@ -196,8 +196,6 @@ class DatePicker {
   importData(event, data) {
     event.stopImmediatePropagation();
 
-    if (!this.conditionalFormField) return;
-
     if (this.calInstance.altInput.value.length === 0 || (data && data.force)) {
       this.setDate(null, data.value);
       this.updateConditionalField(data.value);
