@@ -33,6 +33,14 @@ module DataCycleCore
       end
     end
 
+    def show_external_connections?(content)
+      can?(:show_external_connections, content) &&
+        (
+          content.try(:external_source) ||
+            content.try(:external_systems).present?
+        )
+    end
+
     def data_link_permission_icon(permission)
       case permission
       when 'download'

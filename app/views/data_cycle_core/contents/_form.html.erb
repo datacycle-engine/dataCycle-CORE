@@ -21,7 +21,7 @@
             <div class="detail-header-info">
               <%= tag.b(t('duplicate.duplicate', locale: DataCycleCore.ui_language) + ':', class: 'meta-data-prefix') if local_assigns[:link_action] == :merge_with_duplicate %>
               <%= render 'meta_data', content: split_source %>
-              <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: split_source if split_source.try(:external_source) || split_source.try(:external_systems).present? %>
+              <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: split_source if show_external_connections?(split_source) %>
               <ul class="split-locales no-bullet">
                 <%= render 'split_locale_links',
                   locales: available_locales_with_names.except(:all),
@@ -45,7 +45,7 @@
           <div class="detail-header-info">
             <%= tag.b(t('duplicate.original', locale: DataCycleCore.ui_language) + ':', class: 'meta-data-prefix') if local_assigns[:link_action] == :merge_with_duplicate %>
             <%= render 'meta_data', content: content %>
-            <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if content.try(:external_source) || content.try(:external_systems).present? %>
+            <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
           </div>
 
           <% if DataCycleCore::Feature::NamedVersion.enabled? %>

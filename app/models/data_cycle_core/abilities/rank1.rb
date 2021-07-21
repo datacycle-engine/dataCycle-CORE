@@ -5,6 +5,7 @@ module DataCycleCore
     class Rank1 < DataCycleCore::Ability
       def initialize(user, _session = {})
         can :create_duplicate, DataCycleCore::Asset
+        can [:show_related, :show_external_connections], DataCycleCore::Thing
 
         can [:read, :settings], :backend
         can [:search, :classification_trees, :classification_tree, :permanent_advanced, :advanced, :publication_date], [:backend, :classification_tree, :publications, :subscriptions, :things, :collection]
