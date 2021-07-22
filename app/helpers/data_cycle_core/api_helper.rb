@@ -195,6 +195,7 @@ module DataCycleCore
           'cc' => 'http://creativecommons.org/ns#',
           'dc' => 'https://schema.datacycle.at/',
           'dcls' => schema_url + '/',
+          'odta' => 'https://ds.sti2.org/',
           'dc:entityUrl' => {
             '@id' => 'https://schema.datacycle.at/entityUrl',
             '@type' => '@id'

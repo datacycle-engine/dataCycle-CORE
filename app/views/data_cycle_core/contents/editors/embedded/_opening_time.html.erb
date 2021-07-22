@@ -130,11 +130,7 @@
         <% end %>
 
         <span class="buttons">
-          <% if attribute_editable?(time_key, time_definition, options, content) %>
-            <button id="add_<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(time_key)}" %>" type="button"
-            class="button addContentObject" style="display: none;"><%= time_definition['label'] %>
-              hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
-          <% end %>
+          <%= embedded_add_button(time_definition['label'], "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(time_key)}", !attribute_editable?(time_key, time_definition, options, content)) %>
         </span>
       </div>
     <% end %>

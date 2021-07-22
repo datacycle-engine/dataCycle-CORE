@@ -183,6 +183,11 @@ end
 
 namespace :dc do
   namespace :dev do
+    SSHKit.config.command_map[:dc_mkdir] = 'mkdir -p'
+    SSHKit.config.command_map[:dc_rm] = 'rm -r'
+    SSHKit.config.command_map[:dc_rake_local] = 'bundle exec rake'
+    SSHKit.config.command_map[:dc_rsync] = 'rsync -avr'
+
     desc 'import remote mongo db'
     task :import_remote_mongo, [:external_system_id] do |_, args|
       local_rails_env = ENV.fetch('RAILS_ENV', 'development')
@@ -234,24 +239,28 @@ namespace :dc do
             end
           end
         end
+
         within shared_path do
           download! "#{fetch(:application_root_path, '')}db/backups/#{fetch(:rails_env, 'staging')}/dev_db.#{dump_suffix}", "#{fetch(:application_root_path, '')}tmp/", recursive: true
         end
-        print_message 'download complete'
+
+        run_locally do
+          with rails_env: local_rails_env do
+            execute :dc_mkdir, "db/backups/#{local_rails_env}/"
+            execute :dc_rsync, "tmp/dev_db.#{dump_suffix} db/backups/#{local_rails_env}/"
+            execute :dc_rm, "tmp/dev_db.#{dump_suffix}"
+            execute :dc_rake_local, "#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump RAILS_ENV=#{local_rails_env}" if local_rails_env != 'development'
+            execute :dc_rake_local, "#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore[dev_db.#{dump_suffix}] RAILS_ENV=#{local_rails_env}"
+
+            if local_rails_env != 'development'
+              execute :dc_rake_local, "#{ENV['CORE_RAKE_PREFIX']}db:migrate RAILS_ENV=#{local_rails_env}"
+              execute :dc_rake_local, "#{ENV['CORE_RAKE_PREFIX']}dc:update:configs:all[true] RAILS_ENV=#{local_rails_env}"
+            end
+          end
+        end
+
+        puts "Successfully imported DB from #{fetch(:rails_env)}"
       end
-
-      sh "mkdir -p db/backups/#{local_rails_env}/"
-      sh "rsync -c -r tmp/dev_db.#{dump_suffix} db/backups/#{local_rails_env}/"
-      sh "rm -r tmp/dev_db.#{dump_suffix}"
-      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump'" if local_rails_env != 'development'
-      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore[dev_db.#{dump_suffix}]'"
-
-      if local_rails_env != 'development'
-        sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}db:migrate'"
-        sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}dc:update:configs:all[true]'"
-      end
-
-      puts "Successfully imported DB from #{fetch(:rails_env)}"
     end
 
     private

@@ -28,19 +28,8 @@ class Validator {
     this.form.on('remove-submit-button-errors', '.validation-container', event =>
       this.removeSubmitButtonErrors($(event.currentTarget))
     );
-    this.submitButton.on('click', event => {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      this.form.trigger('submit', {
-        saveAndClose: true,
-        mergeConfirm: this.submitButton.hasClass('merge-with-duplicate')
-      });
-    });
-    this.saveButton.on('click', event => {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      this.form.trigger('submit');
-    });
+    this.submitButton.on('click', this.clickSubmitButton.bind(this));
+    this.saveButton.on('click', this.clickSaveButton.bind(this));
     this.form.on('submit dc:form:validateForm', this.validateForm.bind(this));
     if (this.form.hasClass('edit-content-form')) {
       this.pageLeaveWarning();
@@ -53,7 +42,20 @@ class Validator {
     this.form.on('dc:form:enable', this.enable.bind(this));
     this.form.on('dc:html:initialized', '*', this.updateInitialFormData.bind(this));
   }
+  clickSubmitButton(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
 
+    this.form.trigger('submit', {
+      saveAndClose: true,
+      mergeConfirm: this.submitButton.hasClass('merge-with-duplicate')
+    });
+  }
+  clickSaveButton(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    this.form.trigger('submit');
+  }
   closeError(event) {
     event.preventDefault();
     $(event.target).closest('.single_error').remove();
@@ -340,6 +342,7 @@ class Validator {
     });
   }
   validateForm(event, data) {
+    if (event.detail && event.detail.dcFormSubmitted) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     QuillHelpers.updateEditors(event.target);
@@ -418,7 +421,9 @@ class Validator {
         this.form.append(
           '<input id="duplicate_id" type="hidden" name="duplicate_id" value="' + this.form.data('duplicate-id') + '">'
         );
-      this.form.trigger('submit.rails');
+
+      if (this.form.data('remote')) Rails.fire(this.form[0], 'submit', { dcFormSubmitted: true });
+      else this.form[0].submit();
     }
   }
   resolveRequests(submit = false, eventData = {}) {
