@@ -119,20 +119,29 @@ module DataCycleCore
 
       def depending_contents
         raw_sql = <<-SQL.squish
-          WITH RECURSIVE content_dependencies AS (
+          WITH RECURSIVE content_links AS (
             SELECT
-              ARRAY[#{content_a_id_column}, #{content_b_id_column}] "content_ids",
-              ARRAY[#{relation_a_column}] "content_property_names"
+              #{content_a_id_column} "content_a_id",
+              #{content_b_id_column} "content_b_id"
             FROM #{content_content_table}
-            WHERE #{content_b_id_column} = ?::uuid
+            UNION
+            SELECT
+              #{content_b_id_column} "content_a_id",
+              #{content_a_id_column} "content_b_id"
+            FROM #{content_content_table}
+            WHERE #{relation_b_column} IS NOT NULL
+          ), content_dependencies AS (
+            SELECT
+          		ARRAY[content_links.content_a_id, content_links.content_b_id] "content_ids"
+          	FROM content_links
+          	WHERE content_links.content_b_id = ?::uuid
             UNION ALL
             SELECT
-              #{content_a_id_column} || content_dependencies.content_ids "content_ids",
-              #{relation_a_column} || content_dependencies.content_property_names "content_property_names"
-            FROM #{content_content_table}
-            JOIN content_dependencies ON
-              content_dependencies.content_ids[1] = #{content_b_id_column} AND
-              #{content_a_id_column} <> ALL(content_dependencies.content_ids)
+          		content_links.content_a_id || content_dependencies.content_ids "content_ids"
+          	FROM content_links
+          	JOIN content_dependencies ON
+          		content_dependencies.content_ids[1] = content_links.content_b_id AND
+          		content_links.content_a_id <> ALL(content_dependencies.content_ids)
           ) SELECT 1 FROM content_dependencies WHERE content_ids[1] = #{self.class.table_name}.#{self.class.primary_key}
         SQL
 
@@ -232,6 +241,10 @@ module DataCycleCore
 
       def relation_a_column
         "#{content_content_table}.relation_a"
+      end
+
+      def relation_b_column
+        "#{content_content_table}.relation_b"
       end
     end
   end

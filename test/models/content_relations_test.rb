@@ -91,7 +91,7 @@ module DataCycleCore
 
     test 'method: depending_contents' do
       assert_equal 4, @organization.depending_contents.size
-      assert_equal 3, @person.depending_contents.size
+      assert_equal 4, @person.depending_contents.size
       assert_equal 1, @bild.depending_contents.size
       assert_equal 0, @aggregate_offer.depending_contents.size
       assert_equal 0, @aggregate_offer2.depending_contents.size
