@@ -55,9 +55,14 @@ module DataCycleCore
           mongo_item.collection.aggregate(
             [
               {
+                '$match': {
+                  "dump.#{locale}.unterkategorie": { '$exists': true }
+                }
+              },
+              {
                 '$project': {
-                  'id': "$dump.#{locale}.unterkat",
-                  'name': "$dump.#{locale}.unterkat",
+                  'id': "$dump.#{locale}.unterkategorie",
+                  'name': "$dump.#{locale}.unterkategorie",
                   'parent_id': "$dump.#{locale}.kategorie",
                   'parent_name': "$dump.#{locale}.kategorie"
                 }

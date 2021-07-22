@@ -11,7 +11,7 @@
     :api:
       :type:
         - Place
-        - 'dcls:SnowHeightMeasuringPointNew'
+        - 'dcls:SnowHeightMeasuringPoint'
     :properties:
       :id:
         :label: id
@@ -55,6 +55,8 @@
         :api:
           :partial: property_value
           :type: PropertyValue
+          :unit_code: CMT
+          :unit_text: cm
           :transformation:
             :method: combine
             :name: additionalProperty
@@ -75,6 +77,8 @@
         :api:
           :partial: property_value
           :type: PropertyValue
+          :unit_code: CMT
+          :unit_text: cm
           :transformation:
             :method: combine
             :name: additionalProperty

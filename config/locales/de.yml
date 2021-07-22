@@ -319,6 +319,7 @@ de:
     move_up: nach oben verschieben
     open_all: Alle aufklappen
     close_all: Alle zuklappen
+    button_title: '%{title} hinzufügen'
 
   upload:
     drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'

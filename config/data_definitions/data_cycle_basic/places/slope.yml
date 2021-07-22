@@ -24,7 +24,7 @@
     :api:
       :type:
         - TouristAttraction
-        - 'dcls:Slope'
+        - 'odta:SkiSlope'
     :properties:
       :id:
         :label: id
@@ -57,6 +57,11 @@
         :storage_location: value
         :validations:
           :format: float
+        :api:
+          :v4:
+            :name: odta:distance
+            :format:
+              :append: ' m'
       :geo_shape:
         :type: mixin
         :name: geo_shape
@@ -70,11 +75,65 @@
         :label: nr
         :type: string
         :storage_location: value
+        :api:
+          :name: dcls:orderString
       :snow_resort:
         :label: Skigebiet
-        :template_name: Skigebiet
         :type: linked
         :inverse_of: slope_details
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Skigebiet
+        :inverse_of: slope_details
+        :api:
+          :name: containedInPlace
+      :ski_slope_difficulty:
+        :label: Schwierigkeitsgrad der Piste
+        :type: classification
+        :tree_label: 'odta:SkiSlopeDifficulty'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :name: 'odta:skiSlopeDifficulty'
+          :partial: enumeration
+          :type: 'odta:SkiSlopeDifficulty'
+      :ski_slope_type:
+        :label: Pistentyp
+        :type: classification
+        :tree_label: 'odta:SkiSlopeType'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :name: 'odta:skiSlopeType'
+          :partial: enumeration
+          :type: 'odta:SkiSlopeType'
+      :ski_slope_condition:
+        :label: Pistenqualität
+        :type: classification
+        :tree_label: 'odta:SkiSlopeCondition'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :name: 'odta:skiSlopeCondition'
+          :partial: enumeration
+          :type: 'odta:SkiSlopeCondition'
+      :ski_lift_status:
+        :label: Liftstatus
+        :type: classification
+        :tree_label: 'odta:OpeningStatus'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          naem: 'odta:skiSlopeStatus'
+          :partial: enumeration
+          :type: 'odta:OpeningStatus'
       :linked_data:
         :type: mixin
         :name: linked_data
