@@ -6,7 +6,7 @@ module DataCycleCore
       module Transformations
         def self.make_xml(data, utility_object)
           config = utility_object.external_system.credentials(:export)
-          feratel_id = data.linked_thing.find_by(template_name: 'Unterkunft')&.external_key
+          feratel_id = data.linked_thing.find_by(external_source_id: utility_object.external_system.id)&.external_key
           feratel_classification_ids =
             data
               .universal_classifications
