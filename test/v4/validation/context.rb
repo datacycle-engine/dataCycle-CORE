@@ -11,6 +11,7 @@ module DataCycleCore
           required(:cc) { eql?('http://creativecommons.org/ns#') }
           required(:dc) { eql?('https://schema.datacycle.at/') }
           required(:dcls).value(:string)
+          required(:odta) { eql?('https://ds.sti2.org/') }
         end
 
         def self.build_language_attributes(languages)

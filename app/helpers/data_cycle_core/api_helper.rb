@@ -194,7 +194,8 @@ module DataCycleCore
           'dct' => 'http://purl.org/dc/terms/',
           'cc' => 'http://creativecommons.org/ns#',
           'dc' => 'https://schema.datacycle.at/',
-          'dcls' => schema_url + '/'
+          'dcls' => schema_url + '/',
+          'odta' => 'https://ds.sti2.org/'
         }.compact
       ]
     end
