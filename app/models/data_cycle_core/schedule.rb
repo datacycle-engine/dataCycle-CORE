@@ -240,6 +240,12 @@ module DataCycleCore
       end
     end
 
+    def to_rrule_string_api_v4
+      {
+        'dc:rrule' => schedule_object&.to_ical
+      }.compact
+    end
+
     def to_sub_event
       return [] unless @schedule_object.terminating?
       @schedule_object.all_occurrences.map do |occurrence|
