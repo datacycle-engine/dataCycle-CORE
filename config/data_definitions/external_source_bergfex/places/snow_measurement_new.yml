@@ -12,6 +12,7 @@
       :type:
         - Place
         - 'dcls:SnowHeightMeasuringPoint'
+        - 'odta:SnowConditionReport'
     :properties:
       :id:
         :label: id
@@ -54,7 +55,9 @@
         :storage_location: value
         :api:
           :partial: property_value
-          :type: PropertyValue
+          :type: QuantitativeValue
+          :name: 'odta:maxSnowHeight'
+          :small_header: true
           :unit_code: CMT
           :unit_text: cm
           :transformation:
@@ -76,7 +79,9 @@
         :storage_location: value
         :api:
           :partial: property_value
-          :type: PropertyValue
+          :type: QuantitativeValue
+          :name: 'odta:freshFallenSnow'
+          :small_header: true
           :unit_code: CMT
           :unit_text: cm
           :transformation:
@@ -104,6 +109,8 @@
             :options:
               :class: daterange
               :placeholder: 'tt.mm.jjjj --:--'
+        :api:
+          :name: 'dcls:dateTimeMeasured'
       :snow_resort:
         :label: Skigebiet
         :type: linked
