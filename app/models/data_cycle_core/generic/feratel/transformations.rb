@@ -365,7 +365,7 @@ module DataCycleCore
           raise ArgumentError if from.blank? || to.blank?
           return [] if from == '101' && to == '1231' # no schedule, is valid all year long
           from_date = Time.zone.local(2010, from.to_i / 100, from.to_i % 100, 0, 0)
-          to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 23, 59)
+          to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 23, 59, 59).end_of_day
           to_date += 1.year if from_date > to_date
           from_yday = from_date.to_date.yday
           to_yday = to_date.to_date.yday
