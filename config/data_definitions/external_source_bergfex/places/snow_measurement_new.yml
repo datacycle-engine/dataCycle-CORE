@@ -55,14 +55,13 @@
         :storage_location: value
         :api:
           :partial: property_value
-          :type: QuantitativeValue
-          :name: 'odta:maxSnowHeight'
           :small_header: true
           :unit_code: CMT
           :unit_text: cm
           :transformation:
-            :method: combine
-            :name: additionalProperty
+            :method: nest
+            :name: 'odta:maxSnowHeight'
+            :type: QuantitativeValue
         :validations:
           :format: float
         :ui:
@@ -79,14 +78,13 @@
         :storage_location: value
         :api:
           :partial: property_value
-          :type: QuantitativeValue
-          :name: 'odta:freshFallenSnow'
           :small_header: true
           :unit_code: CMT
           :unit_text: cm
           :transformation:
-            :method: combine
-            :name: additionalProperty
+            :method: nest
+            :name: 'odta:freshFallenSnow'
+            :type: QuantitativeValue
         :validations:
           :format: float
         :ui:
@@ -97,6 +95,22 @@
             :options:
               :data-unit: cm
         :advanced_search: true
+      :last_snowfall:
+        :label: Letzter Schneefall
+        :type: date
+        :storage_location: value
+        :validations:
+          :format: date_time
+        :api:
+          :name: odta:lastSnowfall
+        :ui:
+          :edit:
+            :type: date
+            :options:
+              :class: daterange
+              :placeholder: 'tt.mm.jjjj'
+          :show:
+            :type: date
       :date_time_measured:
         :label: Messzeitpunkt
         :type: datetime
@@ -135,6 +149,26 @@
         :label: "Wetter - Meldung"
         :type: classification
         :tree_label: "Bergfex - Wetter - Meldung"
+      :condition_snow:
+        :label: 'Schnee - Meldung'
+        :type: classification
+        :tree_label: 'odta:snowCondition'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :partial: string
+          :name: 'odta:snowCondition'
+      :snow_type:
+        :label: 'Schnee - Art'
+        :type: classification
+        :tree_label: 'odta:snowType'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :partial: string
+          :name: 'odta:snowType'
       :data_type:
         :label: Inhaltstyp
         :type: classification
