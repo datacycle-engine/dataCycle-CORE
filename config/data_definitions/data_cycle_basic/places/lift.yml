@@ -77,12 +77,13 @@
         :storage_location: value
         :api:
           :partial: property_value
-          :type: PropertyValue
+          :small_header: true
           :unit_code: 'H10'
           :unit_text: '1/h'
           :transformation:
-            :method: combine
-            :name: odta:transportCapacity
+            :method: nest
+            :name: dcls:hourlyTransportCapacity
+            :type: QuantitativeValue
       :man_per_t:
         :label: Personen pro Fahrt
         :type: number
@@ -96,12 +97,12 @@
               :data-unit: Personen
         :api:
           :partial: property_value
-          :type: PropertyValue
+          :small_header: true
           :unit_code: 'C62'
-          :unit_text: 'persons/ride'
           :transformation:
-            :method: combine
-            :name: dcls:transportCapacity
+            :method: nest
+            :name: odta:transportCapacity
+            :type: QuantitativeValue
       :order_string:
         :label: nr
         :type: string
@@ -128,8 +129,8 @@
           :show:
             :content_area: header
         :api:
-          :partial: enumeration
-          :type: 'odta:SkiLiftType'
+          :name: 'odta:SkiLiftType'
+          :partial: string
       :ski_lift_status:
         :label: Liftstatus (odta)
         :type: classification
@@ -139,8 +140,7 @@
             :content_area: header
         :api:
           :name: 'odta:skiLiftStatus'
-          :partial: enumeration
-          :type: 'odta:OpeningStatus'
+          :partial: string
       :linked_data:
         :type: mixin
         :name: linked_data

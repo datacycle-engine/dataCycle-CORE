@@ -105,6 +105,20 @@ module DataCycleCore
           data_hash[attribute] = I18n.t("external_sources.bergfex.snow_report.type.#{attribute_name}", locale: locale)
           data_hash
         end
+
+        def self.parse_condition_snow(hash, attribute, tree_label)
+          return hash if hash['conditionSnow'].blank? || hash.dig('conditionSnow', 'text').blank?
+
+          names = hash.dig('conditionSnow', 'text').split('-')
+          if I18n.locale == :en
+            names = names.map { |n| n.in?(['spring', 'snow']) ? 'spring snow' : n }
+            names = ['icy', 'hard'] if names.in?(['iron hard', 'hard iron'])
+            names = ['soft', 'wet'] if names.in?(['soft wet'])
+          end
+
+          hash[attribute] = DataCycleCore::ClassificationAlias.for_tree(tree_label).with_name(names).map(&:primary_classification)&.map(&:id)
+          hash
+        end
       end
     end
   end

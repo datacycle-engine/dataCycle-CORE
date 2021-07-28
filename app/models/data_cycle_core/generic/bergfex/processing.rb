@@ -52,6 +52,8 @@ module DataCycleCore
         def self.process_snow_report_new(utility_object, raw_data, config, locale)
           raw_data.dig('snow', 'itemSnow').each do |snow_measure|
             snow_report = snow_measure
+            snow_report['dateLastSnowfall'] = raw_data['dateLastSnowfall']
+            snow_report['conditionSnow'] = raw_data['conditionSnow']
             snow_report['resort'] = raw_data['resort']
             snow_report['datetime'] = raw_data['datetime']
             snow_report['id'] = raw_data['id']

@@ -47,3 +47,18 @@
     - odta:MogulSlope
     - odta:PracticeSlope
     - odta:SkiRoute
+
+- odta:snowType | all:
+    - Altschnee
+    - Kunstschnee
+    - Nassschnee
+    - Pulver
+    - Sulz
+
+- odta:snowCondition | all:
+    - eisig
+    - griffig
+    - hart
+    - nass
+    - stellenweise aper
+    - weich

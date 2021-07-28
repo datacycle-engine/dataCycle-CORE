@@ -2,7 +2,7 @@
   <span class="has-tip" title="<%= content.translated_locales.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }.join("\n") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
 <% end %>
 
-<%= tag.span(render('data_cycle_core/contents/grid/attributes/external_connections', content: content), class: 'tile-external-connections') if content.try(:external_source) || content.try(:external_systems).present? %>
+<%= tag.span(render('data_cycle_core/contents/grid/attributes/external_connections', content: content), class: 'tile-external-connections') if show_external_connections?(content) %>
 
 <%= link_to thing_path(content), title: t('actions.show', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "show-link" do %>
   <i class="fa fa-eye" aria-hidden="true"></i>

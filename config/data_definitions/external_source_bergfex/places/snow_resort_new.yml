@@ -119,26 +119,6 @@
             :options:
               :class: daterange
               :placeholder: 'tt.mm.jjjj --:--'
-      :date_last_snowfall:
-        :label: Letzter Schneefall
-        :type: datetime
-        :storage_location: value
-        :validations:
-          :format: date_time
-        :api:
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: combine
-            :name: additionalProperty
-        :ui:
-          :edit:
-            :type: date
-            :options:
-              :class: daterange
-              :placeholder: 'tt.mm.jjjj'
-          :show:
-            :type: date
       :line:
         :label: Pisten/Lifte
         :storage_location: column
@@ -371,14 +351,6 @@
         :label: 'Pisten - Meldung'
         :type: classification
         :tree_label: 'Bergfex - Pisten - Meldung'
-        :external: true
-        :ui:
-          :show:
-            :content_area: header
-      :condition_snow:
-        :label: 'Schnee - Meldung'
-        :type: classification
-        :tree_label: 'Bergfex - Schnee - Meldung'
         :external: true
         :ui:
           :show:

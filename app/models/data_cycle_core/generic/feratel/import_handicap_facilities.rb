@@ -31,7 +31,7 @@ module DataCycleCore
 
         def self.load_child_classifications(mongo_item, parent_data, locale = 'de')
           return [] unless parent_data.dig('root')
-          mongo_item.where("dump.#{locale}.GroupID": parent_data.dig('Id'), "dump.#{locale}.ValueType": 'YesNo')
+          mongo_item.where("dump.#{locale}.GroupID": parent_data.dig('Id')) # , "dump.#{locale}.ValueType": 'YesNo'
         end
 
         def self.load_parent_classification_alias(raw_data, external_source_id)
