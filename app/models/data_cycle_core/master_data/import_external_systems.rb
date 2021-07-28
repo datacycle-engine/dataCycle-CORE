@@ -69,6 +69,10 @@ module DataCycleCore
       end
 
       class ExternalSystemHeaderContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        register_macro(:filter_config) do
+          key.failure('incompatible filter config for webhooks, endpoints cannot be used in combination with specific filters') if value&.key?(:endpoints) && value&.keys&.except(:endpoints).present?
+        end
+
         schema do
           required(:name) { str? }
           optional(:identifier) { str? }
@@ -78,16 +82,20 @@ module DataCycleCore
           end
           optional(:config).hash do
             optional(:api_strategy) { str? }
-            optional(:push_config).hash do
+            optional(:export_config).hash do
               optional(:endpoint) { str? }
+              optional(:filter) { hash? }
               optional(:create).hash do
                 required(:strategy) { str? }
+                optional(:filter) { hash? }
               end
               optional(:update).hash do
                 required(:strategy) { str? }
+                optional(:filter) { hash? }
               end
               optional(:delete).hash do
                 required(:strategy) { str? }
+                optional(:filter) { hash? }
               end
             end
             optional(:refresh_config).hash do
@@ -102,14 +110,19 @@ module DataCycleCore
         rule(:credentials).validate(:dc_array_or_hash)
         rule(config: :api_strategy).validate(:dc_class)
 
-        rule('config.push_config.endpoint').validate(:dc_class)
+        rule('config.export_config.endpoint').validate(:dc_class)
         rule('config.refresh_config.endpoint').validate(:dc_class)
 
-        rule('config.push_config.create.strategy').validate(:dc_module)
-        rule('config.push_config.update.strategy').validate(:dc_module)
-        rule('config.push_config.delete.strategy').validate(:dc_module)
+        rule('config.export_config.create.strategy').validate(:dc_module)
+        rule('config.export_config.update.strategy').validate(:dc_module)
+        rule('config.export_config.delete.strategy').validate(:dc_module)
 
         rule('config.refresh_config.strategy').validate(:dc_module)
+
+        rule('config.export_config.filter').validate(:filter_config)
+        rule('config.export_config.create.filter').validate(:filter_config)
+        rule('config.export_config.update.filter').validate(:filter_config)
+        rule('config.export_config.delete.filter').validate(:filter_config)
       end
 
       class ExternalSystemDownloadContract < DataCycleCore::MasterData::Contracts::GeneralContract

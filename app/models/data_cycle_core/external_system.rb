@@ -64,6 +64,10 @@ module DataCycleCore
       @import_list_ranked = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
     end
 
+    def export_config_by_filter_key(method_name, key)
+      export_config&.dig(method_name.to_sym, 'filter', key) || export_config&.dig(:filter, key)
+    end
+
     def credentials(type = 'import')
       @credentials ||= Hash.new do |h, key|
         next h[key] = self[:credentials] unless self[:credentials].is_a?(Hash)
