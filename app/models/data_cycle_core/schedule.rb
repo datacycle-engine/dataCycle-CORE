@@ -240,9 +240,9 @@ module DataCycleCore
       end
     end
 
-    def to_rrule_string_api_v4
+    def to_ical_string_api_v4
       {
-        'dc:rrule' => schedule_object&.to_ical
+        'dc:ical' => schedule_object&.to_ical
       }.compact
     end
 
