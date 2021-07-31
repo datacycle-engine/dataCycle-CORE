@@ -126,6 +126,8 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
 
 SET default_tablespace = '';
 
+SET default_with_oids = false;
+
 --
 -- Name: activities; Type: TABLE; Schema: public; Owner: -
 --
@@ -757,7 +759,8 @@ CREATE TABLE public.external_systems (
     last_download timestamp without time zone,
     last_successful_download timestamp without time zone,
     last_import timestamp without time zone,
-    last_successful_import timestamp without time zone
+    last_successful_import timestamp without time zone,
+    deactivated boolean DEFAULT false
 );
 
 
@@ -947,6 +950,7 @@ CREATE TABLE public.thing_histories (
     latitude double precision,
     elevation double precision,
     location public.geometry(Point,4326),
+    line public.geography(LineStringZ,4326),
     address_locality character varying,
     street_address character varying,
     postal_code character varying,
@@ -959,8 +963,7 @@ CREATE TABLE public.thing_histories (
     boost numeric,
     content_type character varying,
     representation_of_id uuid,
-    version_name character varying,
-    line public.geometry(MultiLineStringZ,4326)
+    version_name character varying
 );
 
 
@@ -2598,6 +2601,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210608125638'),
 ('20210621063801'),
 ('20210629094413'),
-('20210709121013');
+('20210709121013'),
+('20210731090959');
 
 

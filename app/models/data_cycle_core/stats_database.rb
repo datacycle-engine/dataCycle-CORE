@@ -60,6 +60,7 @@ module DataCycleCore
           @import_modules.push(
             {
               uuid: external_source.id,
+              deactivated: external_source.deactivated || false,
               downloadable: external_source.download_config.present?,
               importable: external_source.import_config.present? && external_source.download_config.blank?,
               name: import_name,
@@ -108,6 +109,7 @@ module DataCycleCore
           @import_modules.push(
             {
               uuid: external_source.id,
+              deactivated: external_source.deactivated || false,
               downloadable: external_source.download_config.present?,
               importable: external_source.import_config.present? && (external_source.download_config.blank? || mongo_dbsize&.positive?),
               name: import_name,
