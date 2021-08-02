@@ -242,11 +242,6 @@ config:
       sorting: 20
       source_type: infrastructure_items
       import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
-      transformations:
-        image:
-          template: Bild
-        infrastructure:
-          template: POI
     delete_infrastructure_items:
       sorting: 21
       import_strategy: DataCycleCore::Generic::Common::DeleteContents
@@ -256,11 +251,6 @@ config:
       sorting: 22
       source_type: accommodations
       import_strategy: DataCycleCore::Generic::Feratel::ImportAccommodations
-      transformations:
-        image:
-          template: Bild
-        place:
-          template: Unterkunft
     delete_accommodations:
       sorting: 23
       import_strategy: DataCycleCore::Generic::Common::DeleteContents
@@ -270,13 +260,6 @@ config:
       sorting: 24
       source_type: events
       import_strategy: DataCycleCore::Generic::Feratel::ImportEvents
-      transformations:
-        image:
-          template: Bild
-        place:
-          template: Örtlichkeit
-        event:
-          template: Event
     delete_events:
       sorting: 25
       import_strategy: DataCycleCore::Generic::Common::DeleteContents
