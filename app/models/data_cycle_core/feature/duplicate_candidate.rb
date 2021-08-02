@@ -59,7 +59,7 @@ module DataCycleCore
             'similarity(thing_translations.name, ?) > 0.8', content.name
           ).where( # prefilter location
             content.location.blank? ? 'location IS NULL' : "ST_Distance(location, 'SRID=4326;#{content.location&.to_s}'::geometry) < 100"
-          ).where('things.id > ?', content.id)
+          ).where.not(id: content.id)
             .map { |d|
               diff = content.diff(d.get_data_hash.except(*except), relevant_schema)
               score = [0, 100 * (total - diff.size * WEIGHTING) / total].max
@@ -74,7 +74,7 @@ module DataCycleCore
             name: content.name
           ).where( # prefilter location
             content.location.blank? ? 'location IS NULL' : "ST_Distance(location, 'SRID=4326;#{content.location&.to_s}'::geometry) < 10"
-          ).where('things.id > ?', content.id)
+          ).where.not(id: content.id)
             .map { |d|
               { content: d, method: 'data_metric_hamming', score: 83 }
             }.compact
