@@ -39,7 +39,7 @@ module DataCycleCore
             template: false,
             template_name: content.template_name,
             name: content.name
-          ).where('things.id > ?', content.id)
+          ).where.not(id: content.id)
             .map { |d|
               { content: d, method: 'only_title', score: 83 }
             }.compact
