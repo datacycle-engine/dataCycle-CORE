@@ -122,8 +122,8 @@ module DataCycleCore
       'Zusatzangebot', 'Wetterprognose', 'Piste', 'Lift'
     ]
 
-    mattr_accessor :ui_language
-    self.ui_language = :de
+    mattr_accessor :ui_locales
+    self.ui_locales = [:de]
 
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'named_version', 'day', 'week']

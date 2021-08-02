@@ -20,7 +20,7 @@ module DataCycleCore
               end
             end
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:string, scope: [:validation, :errors], template: data.class, label: template['label'], locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << I18n.t(:string, scope: [:validation, :errors], template: data.class, label: template['label'], locale: DataCycleCore.ui_locales.first)
           end
           @error
         end
@@ -29,7 +29,7 @@ module DataCycleCore
           data_uuid = data.downcase
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
           check_uuid = data.length == 36 && !(data_uuid =~ uuid).nil?
-          (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
+          (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_locales.first) unless check_uuid
         end
 
         private
@@ -38,25 +38,25 @@ module DataCycleCore
 
         def min(data, value)
           text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
-          (@error[:error][@template_key] ||= []) << I18n.t(:min, scope: [:validation, :errors], data: nil, min: value.to_i, length: text_length, locale: DataCycleCore.ui_language) if data.present? && text_length < value.to_i
+          (@error[:error][@template_key] ||= []) << I18n.t(:min, scope: [:validation, :errors], data: nil, min: value.to_i, length: text_length, locale: DataCycleCore.ui_locales.first) if data.present? && text_length < value.to_i
         end
 
         def max(data, value)
           text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
-          (@error[:error][@template_key] ||= []) << I18n.t(:max, scope: [:validation, :errors], data: nil, max: value.to_i, length: text_length, locale: DataCycleCore.ui_language) if data.present? && text_length.to_i > value.to_i
+          (@error[:error][@template_key] ||= []) << I18n.t(:max, scope: [:validation, :errors], data: nil, max: value.to_i, length: text_length, locale: DataCycleCore.ui_locales.first) if data.present? && text_length.to_i > value.to_i
         end
 
         def pattern(data, expression)
           regex = /#{expression[1..expression.length - 2]}/
           matched = data.match(regex)
-          (@error[:error][@template_key] ||= []) << I18n.t(:match, scope: [:validation, :errors], data: data, expression: expression, locale: DataCycleCore.ui_language) if matched.nil? || matched.offset(0) != [0, data.size]
+          (@error[:error][@template_key] ||= []) << I18n.t(:match, scope: [:validation, :errors], data: data, expression: expression, locale: DataCycleCore.ui_locales.first) if matched.nil? || matched.offset(0) != [0, data.size]
         end
 
         def format(data, format_string)
           if string_formats.include?(format_string)
             method(format_string).call(data)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:format, scope: [:validation, :errors], data: data, format_string: format_string, locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << I18n.t(:format, scope: [:validation, :errors], data: data, format_string: format_string, locale: DataCycleCore.ui_locales.first)
           end
         end
 
@@ -65,14 +65,14 @@ module DataCycleCore
           schemes = ['http', 'https', 'mailto', 'ftp', 'sftp', 'tel']
 
           begin
-            (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless schemes.include?(Addressable::URI.parse(data)&.scheme)
+            (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_locales.first) unless schemes.include?(Addressable::URI.parse(data)&.scheme)
           rescue Addressable::URI::InvalidURIError
-            (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_locales.first)
           end
         end
 
         def required(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && data.blank?
+          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_locales.first) if value && data.blank?
         end
 
         # def email(data)
@@ -80,9 +80,9 @@ module DataCycleCore
         #     begin
         #       uri = URI.parse data
         #       URI::MailTo
-        #       (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless uri.is_a? URI::HTTP
+        #       (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_locales.first) unless uri.is_a? URI::HTTP
         #     rescue URI::InvalidURIError
-        #       (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language)
+        #       (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_locales.first)
         #     end
         #   end
         # end
@@ -90,7 +90,7 @@ module DataCycleCore
         def telephone_din5008(data)
           din5008 = /^(\+[1-9]\d+) ([1-9]\d*) ([1-9]\d+)(\-\d+){0,1}$|^(0\d+) ([1-9]\d+)(\-\d+){0,1}$|^([1-9]\d+)(\-\d+){0,1}$|^(\+[1-9]\d+) ([1-9]\d+)(\-\d+){0,1}$/
           check_telephone = !(data =~ din5008).nil?
-          (@error[:warning][@template_key] ||= []) << I18n.t(:telephone_din5008, scope: [:validation, :warnings], data: data, locale: DataCycleCore.ui_language) unless check_telephone
+          (@error[:warning][@template_key] ||= []) << I18n.t(:telephone_din5008, scope: [:validation, :warnings], data: data, locale: DataCycleCore.ui_locales.first) unless check_telephone
         end
       end
     end

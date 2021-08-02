@@ -34,7 +34,7 @@ module DataCycleCore
         }
 
         assert_redirected_to thing_path(@content)
-        assert_equal I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language), flash[:alert]
+        assert_equal I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_locales.first), flash[:alert]
       end
 
       test 'lock content in bulk edit view' do
@@ -53,7 +53,7 @@ module DataCycleCore
         }
 
         assert_redirected_to thing_path(@content)
-        assert_equal I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language), flash[:alert]
+        assert_equal I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_locales.first), flash[:alert]
       end
 
       test 'check locks for content' do
@@ -200,7 +200,7 @@ module DataCycleCore
 
         assert_redirected_to edit_thing_path(@content)
         assert @content.reload.lock.present?
-        assert_equal I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language), flash[:alert]
+        assert_equal I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_locales.first), flash[:alert]
       end
 
       test 'bulk save content while locked' do
@@ -244,7 +244,7 @@ module DataCycleCore
 
         assert_redirected_to bulk_edit_watch_list_path(@watch_list)
         assert(@watch_list.things.all? { |t| t.reload.lock.present? })
-        assert_equal I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language), flash[:alert]
+        assert_equal I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_locales.first), flash[:alert]
       end
     end
   end

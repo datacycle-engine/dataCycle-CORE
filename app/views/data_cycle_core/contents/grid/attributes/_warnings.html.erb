@@ -2,7 +2,7 @@
   <% if content.content_warnings? && local_assigns[:text] %>
     <p class="content-warnings-text">
       <i class="fa fa-exclamation-triangle<%= ' alert' if content.hard_content_warnings? %>" aria-hidden="true"></i>
-      <strong><%= t('common.warnings', locale: DataCycleCore.ui_language) %>: </strong>
+      <strong><%= t('common.warnings', locale: active_ui_locale) %>: </strong>
       <%= content.content_warnings.join(', ') %>
     </p>
   <% elsif content.content_warnings? %>

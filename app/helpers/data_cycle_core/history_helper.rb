@@ -72,16 +72,16 @@ module DataCycleCore
       data = {}
       if content.created_at.present?
         data[:created] = safe_join([
-          t('history.created_at', locale: DataCycleCore.ui_language),
-          l(content.created_at.in_time_zone, locale: DataCycleCore.ui_language),
+          t('history.created_at', locale: active_ui_locale),
+          l(content.created_at.in_time_zone, locale: active_ui_locale),
           history_by_link(content.created_by_user)
         ].compact, ' ')
       end
 
       if content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i
         data[:updated] = tag.span(safe_join([
-          t('history.updated_at', locale: DataCycleCore.ui_language),
-          l(content.updated_at.in_time_zone, locale: DataCycleCore.ui_language),
+          t('history.updated_at', locale: active_ui_locale),
+          l(content.updated_at.in_time_zone, locale: active_ui_locale),
           history_by_link(content.updated_by_user)
         ].compact, ' '), title: content.histories.exists? ? nil : strip_tags(data[:created]).presence)
       end
@@ -90,7 +90,7 @@ module DataCycleCore
     end
 
     def history_by_link(user)
-      link_text = t('terms.from', locale: DataCycleCore.ui_language)
+      link_text = t('terms.from', locale: active_ui_locale)
 
       if user.nil?
         safe_join([link_text, tag.b('System')], ' ')
@@ -110,7 +110,7 @@ module DataCycleCore
     def version_name_html(item)
       version_name = []
       if item[:version_name].present?
-        version_name.push(tag.i(class: 'fa fa-tag version-name has-tip', title: t('feature.named_version.version_name', name: item[:version_name], locale: DataCycleCore.ui_language)))
+        version_name.push(tag.i(class: 'fa fa-tag version-name has-tip', title: t('feature.named_version.version_name', name: item[:version_name], locale: active_ui_locale)))
         if item[:can_remove_version_name]
           version_name.push(
             link_to(
@@ -118,10 +118,10 @@ module DataCycleCore
               remove_version_name_path(class_name: item[:class_name], id: item[:id]),
               remote: true,
               class: 'remove-version-name-link',
-              title: t('feature.named_version.remove_version_name', locale: DataCycleCore.ui_language),
+              title: t('feature.named_version.remove_version_name', locale: active_ui_locale),
               method: :patch,
               data: {
-                confirm: t('feature.named_version.confirm_remove', locale: DataCycleCore.ui_language, name: item[:version_name])
+                confirm: t('feature.named_version.confirm_remove', locale: active_ui_locale, name: item[:version_name])
               }
             )
           )
@@ -137,13 +137,13 @@ module DataCycleCore
       data.push(tag.span(item[:locale].presence&.then { |s| "(#{s})" }, class: 'history-locale'))
 
       history_date = is_last && item[:class_name] == 'DataCycleCore::Thing' ? item[:created_at] : item[:updated_at]
-      data.push(tag.span(l(history_date.in_time_zone, locale: DataCycleCore.ui_language, format: :history), class: 'history-time', title: l(history_date.in_time_zone, locale: DataCycleCore.ui_language))) if history_date.present?
+      data.push(tag.span(l(history_date.in_time_zone, locale: active_ui_locale, format: :history), class: 'history-time', title: l(history_date.in_time_zone, locale: active_ui_locale))) if history_date.present?
 
       data.push(version_name_html(item)) if DataCycleCore::Feature::NamedVersion.enabled?
       if can?(:history, content)
         data.push(
           tag.span(
-            item[:class_name] == 'DataCycleCore::Thing::History' && !is_active ? link_to(tag.i(class: 'fa fa-history', title: t('history.look_at_version', locale: DataCycleCore.ui_language)), history_thing_path(content, history_id: item[:id], watch_list_id: watch_list_id)) : nil,
+            item[:class_name] == 'DataCycleCore::Thing::History' && !is_active ? link_to(tag.i(class: 'fa fa-history', title: t('history.look_at_version', locale: active_ui_locale)), history_thing_path(content, history_id: item[:id], watch_list_id: watch_list_id)) : nil,
             class: 'history-link'
           )
         )

@@ -7,29 +7,29 @@ module DataCycleCore
         # TODO: dummy evaluator for now
         def validate(data, template, _strict = false)
           if data.blank?
-            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
+            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_locales.first)
           elsif data.is_a?(::String)
             convert_2d = nil
             convert_3d = nil
             begin
               RGeo::Geographic.spherical_factory(srid: 4326, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(data)
             rescue RGeo::Error::InvalidGeometry
-              return (@error[:error][@template_key] ||= []) << I18n.t(:geo_no_linestring, scope: [:validation, :errors], locale: DataCycleCore.ui_language)
+              return (@error[:error][@template_key] ||= []) << I18n.t(:geo_no_linestring, scope: [:validation, :errors], locale: DataCycleCore.ui_locales.first)
             rescue RGeo::Error::ParseError
-              convert_2d = I18n.t(:geo, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
+              convert_2d = I18n.t(:geo, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first)
             end
             begin
               RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(data)
             rescue RGeo::Error::InvalidGeometry
-              return (@error[:error][@template_key] ||= []) << I18n.t(:geo_no_linestring, scope: [:validation, :errors], locale: DataCycleCore.ui_language)
+              return (@error[:error][@template_key] ||= []) << I18n.t(:geo_no_linestring, scope: [:validation, :errors], locale: DataCycleCore.ui_locales.first)
             rescue RGeo::Error::ParseError
-              convert_3d = I18n.t(:geo, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
+              convert_3d = I18n.t(:geo, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first)
             end
             (@error[:error][@template_key] ||= []) << convert_2d if convert_2d.present? && convert_3d.present?
           elsif data.methods.include?(:geometry_type)
             # all ok
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:geo, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << I18n.t(:geo, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first)
           end
           @error
         end

@@ -16,7 +16,7 @@ module DataCycleCore
           elsif data.is_a?(::String)
             check_reference_array([data], template)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << I18n.t(:data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first)
           end
           @error
         end
@@ -45,14 +45,14 @@ module DataCycleCore
           if key.is_a?(::String)
             check_reference(key, template)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:data_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << I18n.t(:data_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_locales.first)
           end
         end
 
         def check_reference(key, template)
           return unless uuid?(key)
           data_set = DataCycleCore::Thing.where(id: key)
-          (@error[:error][@template_key] ||= []) << I18n.t(:not_found, scope: [:validation, :errors], key: key, template: template['label'], table: 'things', locale: DataCycleCore.ui_language) if data_set.count < 1
+          (@error[:error][@template_key] ||= []) << I18n.t(:not_found, scope: [:validation, :errors], key: key, template: template['label'], table: 'things', locale: DataCycleCore.ui_locales.first) if data_set.count < 1
         end
 
         # validate nil,"",[],[nil],[""] as blank.
@@ -65,27 +65,27 @@ module DataCycleCore
         end
 
         def min(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i < value
+          (@error[:error][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_locales.first) if data&.size.to_i < value
         end
 
         def soft_min(data, value)
-          (@error[:warning][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i < value
+          (@error[:warning][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_locales.first) if data&.size.to_i < value
         end
 
         def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i > value
+          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_locales.first) if data&.size.to_i > value
         end
 
         def soft_max(data, value)
-          (@error[:warning][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i > value
+          (@error[:warning][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_locales.first) if data&.size.to_i > value
         end
 
         def required(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && blank?(data)
+          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_locales.first) if value && blank?(data)
         end
 
         def soft_required(data, value)
-          (@error[:warning][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && blank?(data)
+          (@error[:warning][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_locales.first) if value && blank?(data)
         end
       end
     end

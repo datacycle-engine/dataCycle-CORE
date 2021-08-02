@@ -20,7 +20,7 @@ module DataCycleCore
 
           @content.update_column(:version_name, nil)
 
-          @success_message = I18n.t(:version_name_removed, scope: [:feature, :named_version], locale: DataCycleCore.ui_language)
+          @success_message = I18n.t(:version_name_removed, scope: [:feature, :named_version], locale: helpers.active_ui_locale)
 
           respond_to do |format|
             format.js

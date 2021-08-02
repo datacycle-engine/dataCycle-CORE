@@ -1,7 +1,7 @@
 <li class="has-dropdown">
   <a data-toggle="<%= local_assigns[:prefix] %>locales-menu"><i class="fa fa-language" aria-hidden="true"></i></a>
   <div class="dropdown-pane align-right no-bullet bottom" id="<%= local_assigns[:prefix] %>locales-menu" data-dropdown data-hover="true" data-hover-pane="true">
-    <h5><%= t('common.choose_language', locale: DataCycleCore.ui_language) %></h5>
+    <h5><%= t('common.choose_language', locale: active_ui_locale) %></h5>
     <ul class="list-items">
       <% locales.each do |l| %>
         <li class="<%= "active" if l.first == I18n.locale %>">
@@ -28,7 +28,7 @@
                 data: {
                   locale: l.first,
                 },
-                title: t('actions.open_as_source', locale: DataCycleCore.ui_language)
+                title: t('actions.open_as_source', locale: active_ui_locale)
               ) : ''.html_safe
             ) + tag.i(class: 'fa fa-language', aria_hidden: true),
             class: 'buttons'

@@ -7,11 +7,11 @@
       <div class="row expanded">
         <div class="column edit-header-functions">
           <div class="edit-name">
-            <i class="fa fa-history" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
+            <i class="fa fa-history" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: active_ui_locale) %>
           </div>
           <ul>
             <li class="has-dropdown">
-              <a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= t('common.version', locale: DataCycleCore.ui_language) %></a>
+              <a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= t('common.version', locale: active_ui_locale) %></a>
 
               <div class="dropdown-pane no-bullet bottom remote-render align-right"
                 id="show-history"

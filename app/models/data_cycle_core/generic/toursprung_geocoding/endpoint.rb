@@ -13,17 +13,17 @@ module DataCycleCore
         end
 
         def geocode(address, locale = I18n.locale)
-          return OpenStruct.new(error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Adresse', locale: DataCycleCore.ui_language)) unless address.present? && (address.is_a?(::Hash) || address.is_a?(DataCycleCore::OpenStructHash))
+          return OpenStruct.new(error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Adresse', locale: DataCycleCore.ui_locales.first)) unless address.present? && (address.is_a?(::Hash) || address.is_a?(DataCycleCore::OpenStructHash))
 
           address_string = [address.dig('street_address'), address.dig('postal_code'), address.dig('address_locality'), address.dig('address_country')].join(',')
           data = load_data(address: address_string, locale: locale)
-          return OpenStruct.new(error: I18n.t(:address_not_found, scope: [:validation, :warnings], locale: DataCycleCore.ui_language)) if data.blank?
+          return OpenStruct.new(error: I18n.t(:address_not_found, scope: [:validation, :warnings], locale: DataCycleCore.ui_locales.first)) if data.blank?
 
-          return OpenStruct.new(error: I18n.t(:address_ambiguous, scope: [:validation, :warnings], locale: DataCycleCore.ui_language)) if data.many? && !@allow_ambiguous_address
+          return OpenStruct.new(error: I18n.t(:address_ambiguous, scope: [:validation, :warnings], locale: DataCycleCore.ui_locales.first)) if data.many? && !@allow_ambiguous_address
 
           geodata = parse_geo(data.first)
 
-          return OpenStruct.new(error: I18n.t(:address_not_found, scope: [:validation, :warnings], locale: DataCycleCore.ui_language)) if geodata.try(:x).blank? || geodata.try(:y).blank?
+          return OpenStruct.new(error: I18n.t(:address_not_found, scope: [:validation, :warnings], locale: DataCycleCore.ui_locales.first)) if geodata.try(:x).blank? || geodata.try(:y).blank?
 
           geodata
         end

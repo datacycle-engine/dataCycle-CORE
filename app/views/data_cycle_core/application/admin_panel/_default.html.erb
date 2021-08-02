@@ -1,26 +1,26 @@
 <section id="admin-panel">
   <section id="admin-inner" data-tabs-content="admin-icons">
-      <section id="schema" class="tabs-panel">
-          <section class="schema-nav">
-              <h5><%= t('admin_panel.schema', locale: DataCycleCore.ui_language) %></h5>
-              <button class="copy-to-admin-clipboard">COPY</button>
-          </section>
-          <pre id="admin_schema" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/schema" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+    <section id="schema" class="tabs-panel">
+      <section class="schema-nav">
+        <h5><%= t('admin_panel.schema', locale: active_ui_locale) %></h5>
+        <button class="copy-to-admin-clipboard">COPY</button>
       </section>
-      <section id="datahash" class="tabs-panel">
-          <section class="datahash-nav">
-              <h5><%= t('admin_panel.datahash', locale: DataCycleCore.ui_language) %></h5>
-              <button class="copy-to-admin-clipboard">COPY</button>
-          </section>
-          <pre id="admin_datahash" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/datahash" data-remote-options="<%= to_query_params(content: content, locale: I18n.locale).to_json %>"></pre>
+      <pre id="admin_schema" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/schema" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+    </section>
+    <section id="datahash" class="tabs-panel">
+      <section class="datahash-nav">
+        <h5><%= t('admin_panel.datahash', locale: active_ui_locale) %></h5>
+        <button class="copy-to-admin-clipboard">COPY</button>
       </section>
-      <section id="json-api" class="tabs-panel">
-          <section class="json-api-nav">
-              <h5><%= t('admin_panel.api', locale: DataCycleCore.ui_language) %></h5>
-              <button class="copy-to-admin-clipboard">COPY</button>
-          </section>
-          <pre id="admin_api" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/json_api" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+      <pre id="admin_datahash" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/datahash" data-remote-options="<%= to_query_params(content: content, locale: I18n.locale).to_json %>"></pre>
+    </section>
+    <section id="json-api" class="tabs-panel">
+      <section class="json-api-nav">
+        <h5><%= t('admin_panel.api', locale: active_ui_locale) %></h5>
+        <button class="copy-to-admin-clipboard">COPY</button>
       </section>
+      <pre id="admin_api" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/json_api" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+    </section>
   </section>
 
   <ul class="tabs" data-active-collapse="true" data-tabs id="admin-icons">

@@ -123,7 +123,7 @@ module DataCycleCore
         }
 
         assert_redirected_to thing_path(@content)
-        assert_equal I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @container.title), flash[:notice]
+        assert_equal I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_locales.first, data: @container.title), flash[:notice]
         assert @content.reload.life_cycle_stage?(stages.values.last[:id])
       end
     end

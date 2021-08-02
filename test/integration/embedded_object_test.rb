@@ -28,7 +28,7 @@ module DataCycleCore
       }
 
       assert_redirected_to thing_path(@content, locale: I18n.locale)
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
       assert_equal 6, @content.timeline_item.reload.size
     end
@@ -59,7 +59,7 @@ module DataCycleCore
       }
 
       assert_redirected_to thing_path(content_with_timeline_item, locale: I18n.locale)
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: content_with_timeline_item.template_name, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: content_with_timeline_item.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
       assert_equal 'Updated Zeitleiste 1', content_with_timeline_item.timeline_item.reload.first.name
     end

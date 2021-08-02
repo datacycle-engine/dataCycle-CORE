@@ -26,7 +26,7 @@ module DataCycleCore
           data_clean = data.squish.downcase
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
           check_uuid = data_clean.length == 36 && !(data_clean =~ uuid).nil?
-          (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
+          (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_locales.first) unless check_uuid
           check_uuid
         end
       end

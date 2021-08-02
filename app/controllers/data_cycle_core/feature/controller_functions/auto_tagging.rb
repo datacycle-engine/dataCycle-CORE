@@ -14,7 +14,7 @@ module DataCycleCore
         end
 
         def auto_tagging
-          render(plain: { error: I18n.t(:no_data, scope: [:validation, :errors], data: 'AutoTagging', locale: DataCycleCore.ui_language) }.to_json, content_type: 'application/json') && return if tagging_params[:id].blank?
+          render(plain: { error: I18n.t(:no_data, scope: [:validation, :errors], data: 'AutoTagging', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if tagging_params[:id].blank?
 
           thing = DataCycleCore::Thing.find(tagging_params[:id])
           @tag_ids = thing.auto_tag

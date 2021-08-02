@@ -20,7 +20,7 @@ module DataCycleCore
           external_key: content.external_key || content.id,
           external_detail_url: content.external_source.external_detail_url(content),
           external_edit_url: content.external_source.external_url(content),
-          title: "#{t('common.external_key', locale: DataCycleCore.ui_language)}: #{(content.external_key || content.id)}"
+          title: "#{t('common.external_key', locale: active_ui_locale)}: #{(content.external_key || content.id)}"
         }]
       end
 
@@ -35,10 +35,10 @@ module DataCycleCore
           sync_locale: sync.data&.dig('pull_data', 'inLanguage')&.upcase,
           name: sync.data&.dig('name').present? ? [sync.data.dig('pull_data', 'inLanguage')&.upcase, sync.data.dig('name')].compact.join(': ') : nil,
           title: [
-            sync.data&.dig('name').present? ? "#{t('common.external_name', locale: DataCycleCore.ui_language)}: #{sync.data['name']}" : nil,
-            sync.data&.dig('alternate_name').present? ? "#{t('common.external_alternate_name', locale: DataCycleCore.ui_language)}: #{sync.data['alternate_name']}" : nil,
-            sync.data&.dig('pull_data', 'inLanguage').present? ? "#{t('common.external_locale', locale: DataCycleCore.ui_language)}: #{t("locales.#{sync.data.dig('pull_data', 'inLanguage')}", locale: DataCycleCore.ui_language)}" : nil,
-            "#{t('common.external_key', locale: DataCycleCore.ui_language)}: #{(sync.external_key || content.id)}"
+            sync.data&.dig('name').present? ? "#{t('common.external_name', locale: active_ui_locale)}: #{sync.data['name']}" : nil,
+            sync.data&.dig('alternate_name').present? ? "#{t('common.external_alternate_name', locale: active_ui_locale)}: #{sync.data['alternate_name']}" : nil,
+            sync.data&.dig('pull_data', 'inLanguage').present? ? "#{t('common.external_locale', locale: active_ui_locale)}: #{t("locales.#{sync.data.dig('pull_data', 'inLanguage')}", locale: active_ui_locale)}" : nil,
+            "#{t('common.external_key', locale: active_ui_locale)}: #{(sync.external_key || content.id)}"
           ].compact.join("\n\n")
         })
       end
@@ -65,7 +65,7 @@ module DataCycleCore
 
       return icon unless include_status_message
 
-      tag.span(icon, title: ("#{t('common.status', locale: DataCycleCore.ui_language)}: #{t("external_connection_states.#{status}", locale: DataCycleCore.ui_language)}" if status.present?))
+      tag.span(icon, title: ("#{t('common.status', locale: active_ui_locale)}: #{t("external_connection_states.#{status}", locale: active_ui_locale)}" if status.present?))
     end
   end
 end

@@ -10,7 +10,7 @@
             name: stage_name
           }),
           method: :patch,
-          title: t('actions.move_to', data: stage_name, locale: DataCycleCore.ui_language),
+          title: t('actions.move_to', data: stage_name, locale: active_ui_locale),
           data: {
             confirm: local_assigns.dig(:confirm, stage_name.to_sym),
             disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw') + stage_name

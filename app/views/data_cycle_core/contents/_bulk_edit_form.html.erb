@@ -2,25 +2,25 @@
   <div class="row expanded">
     <div class="column edit-header-functions">
       <div class="edit-name">
-        <i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) + ' ' + t('actions.bulk_edit', locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
+        <i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) + ' ' + t('actions.bulk_edit', locale: active_ui_locale) %> (<%= I18n.locale %>)
       </div>
       <ul>
         <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
 
-        <%= render 'edit_locale_links', locales: available_locales_with_names.except(:all), content: watch_list %>
+        <%= render 'edit_locale_links', locales: available_locales_with_names, content: watch_list %>
 
         <li class="buttons">
           <%= link_to tag.button(
             tag.i(class: 'fa fa-times', aria_hidden: true),
             class: 'button discard top',
             type: :button,
-            title: t('actions.discard_changes', locale: DataCycleCore.ui_language)), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
+            title: t('actions.discard_changes', locale: active_ui_locale)), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
 
           <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? watch_list.things.includes(:translations, :lock).map(&:lock).compact.sort_by(&:updated_at).reverse! : nil %>
 
           <%= button_tag safe_join([DataCycleCore::Feature::ContentLock.enabled? ? tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') : nil, tag.i(class: 'fa fa-check', aria_hidden: true)]),
             class: "button-prime submit submit-edit-form #{'content-lock editable-lock' if DataCycleCore::Feature::ContentLock.enabled?}",
-            title: t('actions.save_changes', locale: DataCycleCore.ui_language),
+            title: t('actions.save_changes', locale: active_ui_locale),
             data: {
               tooltip: true,
               disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
@@ -51,7 +51,7 @@
       <div class="column">
         <div class="detail-header editor">
           <% schema = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys %>
-          <%= tag.span(t('controllers.error.no_shared_attributes', locale: DataCycleCore.ui_language), class: 'bulk-no-attributes') if @shared_properties.blank? %>
+          <%= tag.span(t('controllers.error.no_shared_attributes', locale: active_ui_locale), class: 'bulk-no-attributes') if @shared_properties.blank? %>
           <% @shared_properties.presence&.each do |key, prop| %>
             <div class="bulk-update-type" data-attribute-key="<%= "#{key_prefix}[#{key}]" %>">
               <%= f.collection_check_boxes "bulk_update[#{key}]", bulk_update_types(prop), :value, :text, { include_hidden: false  } %>

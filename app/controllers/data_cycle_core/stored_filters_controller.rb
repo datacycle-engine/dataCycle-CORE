@@ -14,16 +14,16 @@ module DataCycleCore
       @stored_searches = current_user.stored_filters.order(updated_at: :desc).page(params[:page])
       @history_count = @stored_searches.total_count
       @pages = @stored_searches.total_pages
-      @stored_searches = @stored_searches.group_by { |c| l(c.updated_at&.to_date, format: :long, locale: DataCycleCore.ui_language) }
+      @stored_searches = @stored_searches.group_by { |c| l(c.updated_at&.to_date, format: :long, locale: helpers.active_ui_locale) }
 
       respond_to(:html, :js)
     end
 
     def update
       if @stored_filter.update(stored_filter_params)
-        redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
+        redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: helpers.active_ui_locale))
       else
-        redirect_back(fallback_location: root_path, alert: (I18n.t :not_saved, scope: [:controllers, :errors], data: 'Filter', locale: DataCycleCore.ui_language))
+        redirect_back(fallback_location: root_path, alert: (I18n.t :not_saved, scope: [:controllers, :errors], data: 'Filter', locale: helpers.active_ui_locale))
       end
     end
 
@@ -32,15 +32,15 @@ module DataCycleCore
 
       @stored_filter = save_filter(new_filter: stored_filter_params[:id] ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : nil)
 
-      redirect_to(root_path(stored_filter: @stored_filter), notice: (I18n.t (stored_filter_params[:id].present? ? :updated : :created), scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
+      redirect_to(root_path(stored_filter: @stored_filter), notice: (I18n.t (stored_filter_params[:id].present? ? :updated : :created), scope: [:controllers, :success], data: 'Filter', locale: helpers.active_ui_locale))
     end
 
     def destroy
       @stored_filter.filter_uses.update_all(linked_stored_filter_id: nil)
       if @stored_filter.update(name: nil)
-        redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
+        redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Filter', locale: helpers.active_ui_locale))
       else
-        redirect_back(fallback_location: root_path, alert: (I18n.t :not_deleted, scope: [:controllers, :errors], data: 'Filter', locale: DataCycleCore.ui_language))
+        redirect_back(fallback_location: root_path, alert: (I18n.t :not_deleted, scope: [:controllers, :errors], data: 'Filter', locale: helpers.active_ui_locale))
       end
     end
 
@@ -67,13 +67,13 @@ module DataCycleCore
           id: s['id'],
           class: s['class_name'],
           name: s['name'],
-          title: "#{I18n.t("activerecord.models.data_cycle_core/#{s['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{s['name']}"
+          title: "#{I18n.t("activerecord.models.data_cycle_core/#{s['class_name']}", count: 1, locale: helpers.active_ui_locale)}: #{s['name']}"
         }
       }.to_json, content_type: 'application/json'
     end
 
     def add_to_watchlist
-      redirect_to(root_path, alert: (I18n.t :no_watchlist, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if params[:watch_list_id].blank?
+      redirect_to(root_path, alert: (I18n.t :no_watchlist, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return if params[:watch_list_id].blank?
 
       @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list_id])
       @watch_list = current_user.watch_lists.create(full_path: params[:watch_list_id]) if @watch_list.nil?
@@ -88,7 +88,7 @@ module DataCycleCore
         ON CONFLICT DO NOTHING
       SQL
 
-      redirect_to(root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language))
+      redirect_to(root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: helpers.active_ui_locale))
     end
 
     def download

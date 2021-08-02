@@ -1,8 +1,8 @@
 <div class="reveal" id="add-items-to-watch-list-overlay" data-reveal>
-  <h3><%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></h3>
+  <h3><%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %></h3>
   <%= form_with url: add_to_watchlist_stored_filters_path, local: true, id: 'add-items-to-watch-list-form' do |f| %>
     <div class="validation-container form-element">
-      <%= f.label :watch_list, DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %>
+      <%= f.label :watch_list, DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %>
       <div class="v-select white">
         <%= f.collection_select(:watch_list,
           DataCycleCore::WatchList.accessible_by(current_ability).order(updated_at: :desc),
@@ -20,10 +20,10 @@
       </div>
     </div>
     <div class="buttons">
-      <%= f.button t('actions.add', locale: DataCycleCore.ui_language),
+      <%= f.button t('actions.add', locale: active_ui_locale),
         class: 'button primary',
         data: {
-          disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-fw'></i> #{t('actions.add', locale: DataCycleCore.ui_language)}"
+          disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-fw'></i> #{t('actions.add', locale: active_ui_locale)}"
         },
         type: :submit %>
     </div>

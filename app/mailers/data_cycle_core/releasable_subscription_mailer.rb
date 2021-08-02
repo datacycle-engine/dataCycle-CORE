@@ -6,7 +6,7 @@ module DataCycleCore
       @user = user
       @contents = contents
 
-      mail(to: @user.email, subject: t('common.abo_finalized_title', count: @contents.size, locale: DataCycleCore.ui_language))
+      mail(to: @user.email, subject: t('common.abo_finalized_title', count: @contents.size, locale: @user.ui_locale))
     end
   end
 end

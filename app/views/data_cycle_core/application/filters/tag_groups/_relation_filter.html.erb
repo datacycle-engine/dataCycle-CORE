@@ -1,7 +1,7 @@
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
   <span class="tag-group-label">
     <i class="fa fa-arrow-circle-o-right" aria-hidden="true"></i>
-    <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
+    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
   </span>
 
   <% item = union_ids_to_value(value)&.first %>
@@ -9,7 +9,7 @@
     <%= tag.span(
       item['name'],
       class: "tag #{item['class_name']}",
-      title: "#{I18n.t("activerecord.models.data_cycle_core/#{item['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{item['name']}"
+      title: "#{I18n.t("activerecord.models.data_cycle_core/#{item['class_name']}", count: 1, locale: active_ui_locale)}: #{item['name']}"
     ) unless item.nil? %>
   </span>
 

@@ -55,17 +55,17 @@ module DataCycleCore
 
       redirect_to(@render_params.merge(target: @target, partial: @partial)) && return if @render_params&.key?(:controller) && @render_params&.key?(:action)
 
-      render(json: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: DataCycleCore.ui_language), status: :bad_request) && return unless (@target.present? && @render_function.present?) || @partial.present?
+      render(json: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: helpers.active_ui_locale), status: :bad_request) && return unless (@target.present? && @render_function.present?) || @partial.present?
 
       respond_to(:js)
     end
 
     def reload_required
-      render(json: { error: I18n.t(:session_expired, scope: [:controllers, :error], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:redirect_to_login, scope: [:actions], locale: DataCycleCore.ui_language) }) && return unless user_signed_in?
+      render(json: { error: I18n.t(:session_expired, scope: [:controllers, :error], locale: helpers.active_ui_locale), confirmation_text: I18n.t(:redirect_to_login, scope: [:actions], locale: helpers.active_ui_locale) }) && return unless user_signed_in?
 
-      render(json: { error: I18n.t(:token_invalid, scope: [:controllers, :error], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:reload, scope: [:actions], locale: DataCycleCore.ui_language) }) && return unless any_authenticity_token_valid? || Rails.env.test?
+      render(json: { error: I18n.t(:token_invalid, scope: [:controllers, :error], locale: helpers.active_ui_locale), confirmation_text: I18n.t(:reload, scope: [:actions], locale: helpers.active_ui_locale) }) && return unless any_authenticity_token_valid? || Rails.env.test?
 
-      render(json: { error: I18n.t(:content_updated, scope: [:controllers, :info], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:reload, scope: [:actions], locale: DataCycleCore.ui_language) }) && return if "DataCycleCore::#{reload_params[:table]&.classify || 'Thing'}".safe_constantize&.find_by(id: reload_params[:id])&.updated_at&.>(reload_params[:datestring])
+      render(json: { error: I18n.t(:content_updated, scope: [:controllers, :info], locale: helpers.active_ui_locale), confirmation_text: I18n.t(:reload, scope: [:actions], locale: helpers.active_ui_locale) }) && return if "DataCycleCore::#{reload_params[:table]&.classify || 'Thing'}".safe_constantize&.find_by(id: reload_params[:id])&.updated_at&.>(reload_params[:datestring])
 
       head :no_content
     end

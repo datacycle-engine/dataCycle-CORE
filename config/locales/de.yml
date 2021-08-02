@@ -2,13 +2,13 @@ de:
   i18n:
     transliterate:
       rule:
-        Ä: 'Ae'
-        ä: 'ae'
-        Ö: 'Oe'
-        ö: 'oe'
-        Ü: 'Ue'
-        ü: 'ue'
-        ß: 'ss'
+        Ä: Ae
+        ä: ae
+        Ö: Oe
+        ö: oe
+        Ü: Ue
+        ü: ue
+        ß: ss
   title: dataCycle
   hello: 'Guten Tag!'
   welcome: 'Willkommen!'
@@ -19,32 +19,32 @@ de:
   submit: 'Erstellen'
 
   locales:
-    de: 'deutsch'
-    en: 'englisch'
-    ar: 'arabisch'
-    bg: 'bulgarisch'
-    cs: 'tschechisch'
-    da: 'dänisch'
-    es: 'spanisch'
-    fr: 'französisch'
-    fi: 'finnisch'
-    it: 'italienisch'
-    hu: 'ungarisch'
-    hr: 'kroatisch'
-    ja: 'japanisch'
-    ko: 'koreanisch'
-    nl: 'holländisch'
-    pt: 'portugiesisch'
-    pl: 'polnisch'
-    ro: 'rumänisch'
-    ru: 'russisch'
-    sl: 'slowenisch'
-    sk: 'slowakisch'
-    sv: 'schwedisch'
-    tr: 'türkisch'
-    uk: 'ukrainisch'
-    'de-CH': 'schweizer-deutsch'
-    'nl-BE': 'flämisch'
+    de: deutsch
+    en: englisch
+    ar: arabisch
+    bg: bulgarisch
+    cs: tschechisch
+    da: dänisch
+    es: spanisch
+    fr: französisch
+    fi: finnisch
+    it: italienisch
+    hu: ungarisch
+    hr: kroatisch
+    ja: japanisch
+    ko: koreanisch
+    nl: holländisch
+    pt: portugiesisch
+    pl: polnisch
+    ro: rumänisch
+    ru: russisch
+    sl: slowenisch
+    sk: slowakisch
+    sv: schwedisch
+    tr: türkisch
+    uk: ukrainisch
+    'de-CH': schweizer-deutsch
+    'nl-BE': flämisch
     zh: chinesisch
 
   roles:
@@ -685,6 +685,7 @@ de:
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
+
   controllers:
     error:
       invalid_parent: 'Ungültiges Eltern Objekt.'
@@ -754,6 +755,7 @@ de:
       added: '%{data}/%{uuid} zur Job-Queue hinzugefügt.'
       imported: "'%{data}' wurden aus YAML Datei importiert."
       running: 'Job befindet sich bereits in der Job-Queue.'
+
   activerecord:
     errors:
       messages:
@@ -892,6 +894,7 @@ de:
         access_token: API Token
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
         represented_by: Repräsentiert durch
+        ui_locale: UI Sprache
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname
@@ -944,6 +947,7 @@ de:
         file: Datei
       data_cycle_core/external_source:
         name: Name
+
   unauthorized:
     manage:
       all: 'Keine Zugriffsberechtigung!'
@@ -1101,6 +1105,7 @@ de:
       </ul>
       </li>
       </ul>'
+
   uploader:
     restrictions: 'Einschränkungen'
     validation:
@@ -1184,6 +1189,7 @@ de:
       - :day
       - :month
       - :year
+
   datetime:
     distance_in_words:
       about_x_hours:
@@ -1234,6 +1240,7 @@ de:
       second: Sekunde
       year: Jahr
       week: Woche
+
   number:
     currency:
       format:
@@ -1290,11 +1297,13 @@ de:
     precision:
       format:
         delimiter: ''
+
   support:
     array:
       last_word_connector: ' und '
       two_words_connector: ' und '
       words_connector: ', '
+
   time:
     am: vormittags
     formats:
@@ -1317,6 +1326,7 @@ de:
   errors:
     messages:
       extension_white_list_error: Ungültiger Dateityp
+
   exceptions:
     action_controller/invalid_authenticity_token: Ungültiges oder fehlendes CSRF-Token, bitte erneut anmelden
     data_cycle_core/error/download/invalid_serialization_format_error: Die ausgewählte Download-Methode wird nicht unterstützt

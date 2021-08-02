@@ -1,14 +1,14 @@
 <div class="translated-attribute-locales">
-    <% content_locale = local_assigns[:locale] || I18n.locale.to_s %>
-    <a data-toggle="<%= local_assigns.dig(:options, :prefix) %>locales-menu"><i class="fa fa-language" aria-hidden="true"></i></a>
-    <div class="dropdown-pane align-right no-bullet bottom" id="<%= local_assigns.dig(:options, :prefix) %>locales-menu" data-dropdown data-hover="true" data-hover-pane="true">
-      <h5><%= local_assigns[:title] || t('common.choose_language', locale: DataCycleCore.ui_language) %></h5>
-      <ul class="list-items">
-        <% available_locales_with_names.except(:all).each do |locale| %>
-          <li>
-            <a class="translated-attribute-locale<%= " active" if locale.first.to_s == content_locale %>" data-locale="<%= locale.first %>"><%= locale.last %></a>
-          </li>
-        <% end %>
-      </ul>
-    </div>
+  <% content_locale = local_assigns[:locale] || I18n.locale.to_s %>
+  <a data-toggle="<%= local_assigns.dig(:options, :prefix) %>locales-menu"><i class="fa fa-language" aria-hidden="true"></i></a>
+  <div class="dropdown-pane align-right no-bullet bottom" id="<%= local_assigns.dig(:options, :prefix) %>locales-menu" data-dropdown data-hover="true" data-hover-pane="true">
+    <h5><%= local_assigns[:title] || t('common.choose_language', locale: active_ui_locale) %></h5>
+    <ul class="list-items">
+      <% available_locales_with_names.each do |locale| %>
+        <li>
+          <a class="translated-attribute-locale<%= " active" if locale.first.to_s == content_locale %>" data-locale="<%= locale.first %>"><%= locale.last %></a>
+        </li>
+      <% end %>
+    </ul>
+  </div>
 </div>

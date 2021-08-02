@@ -14,7 +14,7 @@ module DataCycleCore
         end
 
         def gip_key_figure
-          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'GipKeyFigure', locale: DataCycleCore.ui_language) }.to_json, content_type: 'application/json') && return if gip_key_figure_params[:id].blank? || gip_key_figure_params[:part_ids].blank?
+          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'GipKeyFigure', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if gip_key_figure_params[:id].blank? || gip_key_figure_params[:part_ids].blank?
 
           content = DataCycleCore::Thing.find(gip_key_figure_params[:id])
           new_value = content.get_key_figure(gip_key_figure_params[:part_ids], gip_key_figure_params[:key])

@@ -20,9 +20,9 @@ module DataCycleCore
               end
             end
           elsif data.blank?
-            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
+            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_locales.first)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:number, scope: [:validation, :errors], data: data, class: data.class, template: template['label'], locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << I18n.t(:number, scope: [:validation, :errors], data: data, class: data.class, template: template['label'], locale: DataCycleCore.ui_locales.first)
           end
           @error
         end
@@ -31,28 +31,28 @@ module DataCycleCore
 
         # number validations
         def min(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:min_number, scope: [:validation, :errors], data: data, value: value, locale: DataCycleCore.ui_language) if data < value
+          (@error[:error][@template_key] ||= []) << I18n.t(:min_number, scope: [:validation, :errors], data: data, value: value, locale: DataCycleCore.ui_locales.first) if data < value
         end
 
         def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max_number, scope: [:validation, :errors], data: data, value: value, locale: DataCycleCore.ui_language) if data > value
+          (@error[:error][@template_key] ||= []) << I18n.t(:max_number, scope: [:validation, :errors], data: data, value: value, locale: DataCycleCore.ui_locales.first) if data > value
         end
 
         def format(data, format_string)
           if number_formats.include?(format_string)
             method(format_string).call(data)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:format, scope: [:validation, :errors], data: data, format_string: format_string, locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << I18n.t(:format, scope: [:validation, :errors], data: data, format_string: format_string, locale: DataCycleCore.ui_locales.first)
           end
         end
 
         # check number for given format
         def integer(data)
-          (@error[:error][@template_key] ||= []) << I18n.t(:integer, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless data.is_a?(Integer)
+          (@error[:error][@template_key] ||= []) << I18n.t(:integer, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_locales.first) unless data.is_a?(Integer)
         end
 
         def float(data)
-          (@error[:error][@template_key] ||= []) << I18n.t(:float, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless data.to_f
+          (@error[:error][@template_key] ||= []) << I18n.t(:float, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_locales.first) unless data.to_f
         end
       end
     end

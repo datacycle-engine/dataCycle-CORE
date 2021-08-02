@@ -6,8 +6,9 @@ module DataCycleCore
       return if emails.blank?
 
       @new_user = new_user
+      @locale = DataCycleCore.ui_locales.first
 
-      mail(to: emails, subject: t('feature.user_api.mailer.subject', locale: DataCycleCore.ui_language))
+      mail(to: emails, subject: t('feature.user_api.mailer.subject', locale: @locale))
     end
   end
 end

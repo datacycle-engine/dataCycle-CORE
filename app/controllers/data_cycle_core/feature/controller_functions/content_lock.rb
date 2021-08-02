@@ -30,7 +30,7 @@ module DataCycleCore
           content_locks = {}
           if @content.locked?
             content_locks['locks'] = { @content.lock.id => @content.locked_until&.to_i }
-            content_locks['texts'] = { @content.lock.id => tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), name: I18n.with_locale(@content&.first_available_locale) { @content.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{@content.lock.id}", class: 'content-locked-text') }
+            content_locks['texts'] = { @content.lock.id => tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), name: I18n.with_locale(@content&.first_available_locale) { @content.try(:title) }, locale: helpers.active_ui_locale)), id: "content-lock-#{@content.lock.id}", class: 'content-locked-text') }
           end
 
           render json: content_locks.to_json
@@ -42,7 +42,7 @@ module DataCycleCore
           content_locks = @watch_list.things.locks.includes(:user, activitiable: [:translations])
 
           content_texts = ''
-          content_texts = tag.span(tag.br + tag.br + t('common.multiple_content_locks_html', data: content_locks.size, locale: DataCycleCore.ui_language), id: 'content-lock-multiple', class: "content-locked-text #{'hidden' if content_locks.size < 50}") + safe_join(content_locks.map { |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale) { cl.activitiable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{cl.id}", class: "content-locked-text #{'hidden' if content_locks.size >= 50}") }) if content_locks.present?
+          content_texts = tag.span(tag.br + tag.br + t('common.multiple_content_locks_html', data: content_locks.size, locale: helpers.active_ui_locale), id: 'content-lock-multiple', class: "content-locked-text #{'hidden' if content_locks.size < 50}") + safe_join(content_locks.map { |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale) { cl.activitiable.try(:title) }, locale: helpers.active_ui_locale)), id: "content-lock-#{cl.id}", class: "content-locked-text #{'hidden' if content_locks.size >= 50}") }) if content_locks.present?
 
           render json: { locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h, texts: content_texts }.to_json
         end
@@ -52,7 +52,7 @@ module DataCycleCore
         def check_lock_state
           @content ||= DataCycleCore::Thing.find(params[:id])
 
-          redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return if @content.locked? && @content.lock.user != current_user
+          redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: helpers.active_ui_locale)) && return if @content.locked? && @content.lock.user != current_user
 
           @content.lock.destroy if @content.locked?
           @content.reload_lock
@@ -64,7 +64,7 @@ module DataCycleCore
           @content ||= DataCycleCore::Thing.find(params[:id])
 
           if @content.locked? && @content.lock.user != current_user
-            redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return
+            redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: helpers.active_ui_locale)) && return
           elsif @content.locked?
             @content.lock.destroy
           end
@@ -76,7 +76,7 @@ module DataCycleCore
           content_locks = @contents.locks
           forbidden_lock = content_locks.where.not(user: current_user).first
 
-          redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: forbidden_lock.user&.full_name, data: distance_of_time_in_words(forbidden_lock.locked_for), locale: DataCycleCore.ui_language)) && return if forbidden_lock.present?
+          redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: forbidden_lock.user&.full_name, data: distance_of_time_in_words(forbidden_lock.locked_for), locale: helpers.active_ui_locale)) && return if forbidden_lock.present?
 
           content_locks.find_each(&:destroy) if content_locks.exists?
 
@@ -91,7 +91,7 @@ module DataCycleCore
           content_locks = @contents.locks
           forbidden_lock = content_locks.where.not(user: current_user).first
 
-          redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: forbidden_lock&.user&.full_name, data: distance_of_time_in_words(forbidden_lock&.locked_for), locale: DataCycleCore.ui_language)) && return if forbidden_lock.present?
+          redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: forbidden_lock&.user&.full_name, data: distance_of_time_in_words(forbidden_lock&.locked_for), locale: helpers.active_ui_locale)) && return if forbidden_lock.present?
 
           return unless content_locks.exists?
 

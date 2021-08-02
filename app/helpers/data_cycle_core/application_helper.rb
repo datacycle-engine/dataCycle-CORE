@@ -15,13 +15,30 @@ module DataCycleCore
     }.freeze
 
     def available_locales_with_names
-      locales = Hash[I18n.available_locales.collect { |l| [l, I18n.t('locales.' + l.to_s, locale: DataCycleCore.ui_language).try(:capitalize)] }]
-      locales[:all] = t('common.all', locale: DataCycleCore.ui_language)
-      locales.sort_by { |_, v| v.to_s }.to_h
+      @available_locales_with_names ||= Hash.new do |h, key|
+        h[key] = I18n
+          .t('locales', locale: key)
+          .slice(*I18n.available_locales)
+          .transform_values(&:capitalize)
+          .sort_by { |_, v| v.to_s }
+          .to_h
+      end
+
+      @available_locales_with_names[active_ui_locale]
+    end
+
+    def available_locales_with_all
+      @available_locales_with_all ||= Hash.new do |h, key|
+        h[key] = I18n.available_locales&.many? ?
+          available_locales_with_names.reverse_merge({ all: t('common.all', locale: active_ui_locale) }) :
+          available_locales_with_names
+      end
+
+      @available_locales_with_all[active_ui_locale]
     end
 
     def ice_cube_select_options
-      IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly, :monthly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: DataCycleCore.ui_language), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
+      IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly, :monthly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: active_ui_locale), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
     end
 
     def display_flash_messages_new(closable: true)
@@ -53,7 +70,7 @@ module DataCycleCore
     end
 
     def mode_icon(mode, version = nil)
-      title = t("view_modes.#{mode}", locale: DataCycleCore.ui_language)
+      title = t("view_modes.#{mode}", locale: active_ui_locale)
       title += " (#{version})" if version.present?
       case mode
       when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, title: title)
@@ -64,9 +81,9 @@ module DataCycleCore
 
     def result_count(mode, result_count, content_class)
       if mode.in?(['classification_alias', 'ca_recursive', 'container'])
-        result_count&.positive? ? number_with_delimiter(result_count.to_i, locale: DataCycleCore.ui_language) : '-'
+        result_count&.positive? ? number_with_delimiter(result_count.to_i, locale: active_ui_locale) : '-'
       else
-        t("common.#{content_class}_count_html", count: result_count.to_i, delimited_count: number_with_delimiter(result_count.to_i, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)
+        t("common.#{content_class}_count_html", count: result_count.to_i, delimited_count: number_with_delimiter(result_count.to_i, locale: active_ui_locale), locale: active_ui_locale)
       end
     end
 
@@ -188,9 +205,9 @@ module DataCycleCore
         end
         return_html
       elsif parents[-2] == 'file_size'
-        "<li>#{I18n.t(parents.join('.'), data: ApplicationController.helpers.number_to_human_size(value, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)}</li>"
+        "<li>#{I18n.t(parents.join('.'), data: ApplicationController.helpers.number_to_human_size(value, locale: active_ui_locale), locale: active_ui_locale)}</li>"
       else
-        "<li>#{I18n.t(parents.join('.'), data: value.is_a?(Array) ? value.join(', ') : value.try(:to_s), locale: DataCycleCore.ui_language)}</li>"
+        "<li>#{I18n.t(parents.join('.'), data: value.is_a?(Array) ? value.join(', ') : value.try(:to_s), locale: active_ui_locale)}</li>"
       end
     end
 
@@ -200,8 +217,8 @@ module DataCycleCore
 
         return (DataCycleCore.uploader_validations[:text_file] || {}).with_indifferent_access.merge({
           class: 'DataCycleCore::TextFile',
-          translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
-          translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
+          translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: active_ui_locale),
+          translation_description: t('uploader.description.text_file', locale: active_ui_locale, default: '')
         })
       end
 
@@ -219,8 +236,8 @@ module DataCycleCore
       {
         format: uploader_model.uploaders[:file].new&.extension_white_list || [],
         class: uploader_model.name,
-        translation: uploader_model.model_name.human(count: 1, locale: DataCycleCore.ui_language),
-        translation_description: t("uploader.description.#{uploader_model.name.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
+        translation: uploader_model.model_name.human(count: 1, locale: active_ui_locale),
+        translation_description: t("uploader.description.#{uploader_model.name.demodulize.underscore}", locale: active_ui_locale, default: '')
       }.with_indifferent_access.merge(DataCycleCore.uploader_validations[uploader_model.name.demodulize.underscore.to_sym] || {})
     end
 

@@ -56,7 +56,7 @@ module DataCycleCore
       }
 
       assert_redirected_to watch_list_path(@watch_list)
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
       assert_select '.detail-header > .title', name
     end
@@ -97,7 +97,7 @@ module DataCycleCore
       }
 
       assert_redirected_to root_path
-      assert_equal I18n.t(:destroyed, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:destroyed, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first), flash[:success]
 
       get api_v2_collections_path
       assert_response :success
@@ -266,7 +266,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal bulk_name, @content.name
 
       patch bulk_update_watch_list_path(@watch_list), params: {
@@ -284,7 +284,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 0, locale: DataCycleCore.ui_language) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], count: 1, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 0, locale: DataCycleCore.ui_locales.first) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal bulk_name, @content.name
     end
 
@@ -309,7 +309,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal @additional_tags.to_set, @content.tags.reload.ids.to_set
     end
 
@@ -334,7 +334,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal (@default_tags + @additional_tags).to_set, @content.tags.reload.ids.to_set
     end
 
@@ -359,7 +359,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal [@default_tags.last].to_set, @content.tags.reload.ids.to_set
     end
 
@@ -406,7 +406,7 @@ module DataCycleCore
       }
 
       assert_redirected_to root_path
-      assert_equal I18n.t(:added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language), flash[:notice]
+      assert_equal I18n.t(:added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_locales.first), flash[:notice]
       assert @watch_list.things.ids.include?(@content.id)
       assert @watch_list.things.ids.include?(content2.id)
     end

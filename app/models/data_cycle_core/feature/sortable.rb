@@ -18,7 +18,7 @@ module DataCycleCore
           return unless value
           [
             {
-              label: I18n.t("sortable.#{key.parameterize(separator: '_')}", default: key, locale: DataCycleCore.ui_language),
+              label: I18n.t("sortable.#{key.parameterize(separator: '_')}", default: key, locale: DataCycleCore.ui_locales.first),
               "method": key
             }
           ]

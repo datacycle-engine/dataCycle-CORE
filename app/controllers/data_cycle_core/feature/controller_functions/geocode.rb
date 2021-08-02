@@ -14,7 +14,7 @@ module DataCycleCore
         end
 
         def geocode_address
-          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Adresse', locale: DataCycleCore.ui_language) }.to_json, content_type: 'application/json') && return if address_params.blank? || address_params.values.all?(&:blank?)
+          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Adresse', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if address_params.blank? || address_params.values.all?(&:blank?)
 
           geocoded_data = DataCycleCore::Feature::Geocode.geocode_address(address_params.to_h, locale_params[:locale])
 

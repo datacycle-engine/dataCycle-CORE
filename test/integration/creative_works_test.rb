@@ -37,7 +37,7 @@ module DataCycleCore
 
       assert_redirected_to edit_thing_path(content)
       # assert_equal 1, content.quotation.size
-      assert_equal I18n.t(:created, scope: [:controllers, :success], data: content.template_name, locale: DataCycleCore.ui_language), flash[:notice]
+      assert_equal I18n.t(:created, scope: [:controllers, :success], data: content.template_name, locale: DataCycleCore.ui_locales.first), flash[:notice]
     end
 
     test 'search content by fulltext' do
@@ -72,7 +72,7 @@ module DataCycleCore
       }
 
       assert_redirected_to thing_path(@content, locale: I18n.locale)
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
       assert_select '.detail-header > .title', updated_name
     end
@@ -92,7 +92,7 @@ module DataCycleCore
       }
 
       assert_redirected_to root_path
-      assert_equal I18n.t(:destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
 
       get root_path, params: {
         utf8: '✓',

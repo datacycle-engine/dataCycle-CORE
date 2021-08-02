@@ -29,10 +29,10 @@
         <div class=" filterbuttons clearfix">
           <div class="filterbuttons-left">
             <%= button_tag type: :submit, class: "button success", data: {
-                           disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.searching', locale: DataCycleCore.ui_language)} ..."
+                           disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.searching', locale: active_ui_locale)} ..."
                          } do %>
               <i class="fa fa-search" aria-hidden="true"></i>
-              <%= t('actions.filter', locale: DataCycleCore.ui_language) %>
+              <%= t('actions.filter', locale: active_ui_locale) %>
             <% end %>
 
             <%= render 'data_cycle_core/application/filters/sections/language' if filter_config[:language] %>
@@ -41,14 +41,14 @@
               <%= button_tag type: :button, id: 'save-filter', data: { open: 'save-filter-with-name' } do %>
                 <i class="fa fa-floppy-o" aria-hidden="true"></i>
                 <span class="expandable">
-                  <%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %>
+                  <%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %>
                 </span>
               <% end if can?(:create, DataCycleCore::StoredFilter) && filter_config[:store] %>
 
               <%= link_to request.path + '?reset=true', class: 'button', id: 'reset-filter' do %>
                 <i class="fa fa-times" aria-hidden="true"></i>
                 <span class="expandable">
-                  <%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %>
+                  <%= t('actions.reset', count: 2, locale: active_ui_locale) %>
                 </span>
               <% end %>
 
@@ -58,7 +58,7 @@
                   <i class="fa fa-plus fa-stack-1x"></i>
                 </span>
                 <span class="expandable">
-                  <%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %>
+                  <%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %>
                 </span>
               <% end if can?(:add_item, DataCycleCore::WatchList) && filter_config[:add_items_to_watch_list] %>
             </div>

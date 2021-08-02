@@ -76,7 +76,7 @@ module DataCycleCore
     end
 
     def file_size_validation(_options)
-      errors.add :file, I18n.t('uploader.validation.file_size.max', data: ApplicationController.helpers.number_to_human_size(options.dig(:file_size, :max).to_i, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) if file.size > options.dig(:file_size, :max).to_i
+      errors.add :file, I18n.t('uploader.validation.file_size.max', data: ApplicationController.helpers.number_to_human_size(options.dig(:file_size, :max).to_i, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first) if file.size > options.dig(:file_size, :max).to_i
     end
 
     def remove_directory

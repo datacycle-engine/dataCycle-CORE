@@ -3,12 +3,12 @@
   <hr />
   <div class="finalize-button-container">
     <%= check_box_tag 'finalize', true %>
-    <%= label_tag 'finalize', t('actions.finalize', locale: DataCycleCore.ui_language), title: t('common.content_not_editable', locale: DataCycleCore.ui_language) %>
+    <%= label_tag 'finalize', t('actions.finalize', locale: active_ui_locale), title: t('common.content_not_editable', locale: active_ui_locale) %>
   </div>
 
   <% if content.indirect_data_links.by_receiver(current_user).valid.map(&:text_file).compact.present? %>
     <div class="data-link-text-files">
-      <b><%= DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %>: </b>
+      <b><%= DataCycleCore::DataLink.human_attribute_name("text_file", locale: active_ui_locale) %>: </b>
 
       <ul class="no-bullet">
         <% content.indirect_data_links.by_receiver(current_user).valid.each do |data_link| %>

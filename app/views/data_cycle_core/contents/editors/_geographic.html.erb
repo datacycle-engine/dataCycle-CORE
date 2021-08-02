@@ -22,7 +22,7 @@
   <div class="map-edit">
     <%= link_to '#',
         class: 'remove-feature-button map-edit-button',
-        title: t('actions.remove_feature', locale: DataCycleCore.ui_language),
+        title: t('actions.remove_feature', locale: active_ui_locale),
         data: {
           locale: I18n.locale.to_s
         } do %>
@@ -33,7 +33,7 @@
       <input type="file" class="upload-gpx-input" accept=".gpx,.GPX,application/gpx+xml,application/octet-stream" style="display:none">
       <%= link_to '#',
         class: 'upload-gpx-button map-edit-button map-edit-button-margin',
-        title: t('actions.upload_gpx', locale: DataCycleCore.ui_language),
+        title: t('actions.upload_gpx', locale: active_ui_locale),
         data: {
           locale: I18n.locale.to_s,
           disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>'
@@ -55,7 +55,7 @@
         <div class="form-element longitude number">
           <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'longitude'))}" do %>
             <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
-            <%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %>
+            <%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: active_ui_locale) %>
           <% end %>
           <%= number_field_tag key.gsub(key.attribute_name_from_key, 'longitude'), value.presence&.x, class: 'form-control', step: :any, readonly: !attribute_editable?(key, definition, options, content), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'longitude'))}", placeholder: 'z.B. 14,550683' %>
         </div>
@@ -63,16 +63,16 @@
         <div class="form-element latitude number">
           <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'latitude'))}" do %>
             <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
-            <%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: DataCycleCore.ui_language) %>
+            <%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>
           <% end %>
           <%= number_field_tag key.gsub(key.attribute_name_from_key, 'latitude'), value.presence&.y, class: 'form-control', step: :any, readonly: !attribute_editable?(key, definition, options, content), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'latitude'))}", placeholder: 'z.B. 47,515785' %>
         </div>
 
         <%= render_attribute_editor key: key.gsub(key.attribute_name_from_key, 'elevation'), definition: content&.schema&.dig(*schema_path_from_key(key.gsub(key.attribute_name_from_key, 'elevation'))), value: (content.elevation.blank? || content.elevation.zero?) ? nil : content.elevation, parameters: { options: { force_render: true, prefix: local_assigns.dig(:options, :prefix) } }, content: content if content.collect_properties.flatten.include?('elevation') %>
 
-        <%= link_to t('actions.geocode', locale: DataCycleCore.ui_language, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')), '#',
+        <%= link_to t('actions.geocode', locale: active_ui_locale, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')), '#',
           class: 'button geocode-address-button',
-          title: t('actions.geocode', locale: DataCycleCore.ui_language, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')),
+          title: t('actions.geocode', locale: active_ui_locale, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')),
           data: {
             address_key: DataCycleCore::Feature::Geocode.address_source(content),
             locale: I18n.locale.to_s

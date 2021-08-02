@@ -34,9 +34,9 @@ module DataCycleCore
     end
 
     def create
-      redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success], locale: DataCycleCore.ui_language)) && return unless receiver_params[:email].match?(Devise.email_regexp) || receiver_params[:id].present?
+      redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success], locale: helpers.active_ui_locale)) && return unless receiver_params[:email].match?(Devise.email_regexp) || receiver_params[:id].present?
 
-      redirect_back(fallback_location: root_path, alert: (I18n.t :email_exists, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless DataCycleCore::DataLink.joins(:receiver).where(item_type: create_link_params[:item_type], item_id: create_link_params[:item_id], users: { email: receiver_params[:email] }).empty?
+      redirect_back(fallback_location: root_path, alert: (I18n.t :email_exists, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return unless DataCycleCore::DataLink.joins(:receiver).where(item_type: create_link_params[:item_type], item_id: create_link_params[:item_id], users: { email: receiver_params[:email] }).empty?
 
       @data_link = DataCycleCore::DataLink.new(create_link_params)
       @data_link.creator = current_user
@@ -47,14 +47,14 @@ module DataCycleCore
         @receiver = DataCycleCore::User.where(email: receiver_params[:email]).first_or_create!(receiver_params.merge(password: SecureRandom.hex, role: DataCycleCore::Role.find_by(rank: 0)))
       end
 
-      redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if @receiver.blank?
+      redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return if @receiver.blank?
 
       @data_link.receiver = @receiver
       @data_link.save
 
       DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t "saved#{send_email_params[:send] == '1' ? '_and_sent' : ''}", data: DataCycleCore::DataLink.model_name.human(count: 1, locale: DataCycleCore.ui_language), scope: [:controllers, :success], locale: DataCycleCore.ui_language))
+      redirect_back(fallback_location: root_path, notice: (I18n.t "saved#{send_email_params[:send] == '1' ? '_and_sent' : ''}", data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), scope: [:controllers, :success], locale: helpers.active_ui_locale))
     end
 
     def update
@@ -66,14 +66,14 @@ module DataCycleCore
 
       DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t "updated#{send_email_params[:send] == '1' ? '_and_sent' : ''}", scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language))
+      redirect_back(fallback_location: root_path, notice: (I18n.t "updated#{send_email_params[:send] == '1' ? '_and_sent' : ''}", scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def destroy
       @data_link = DataCycleCore::DataLink.find(params[:id])
       @data_link.update_column(:valid_until, 1.minute.ago)
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :invalidated, scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language))
+      redirect_back(fallback_location: root_path, notice: (I18n.t :invalidated, scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def get_text_file
@@ -81,7 +81,7 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound if @data_link.text_file.blank?
 
-      send_file(@data_link.text_file.file.current_path, type: @data_link.text_file.content_type, disposition: :inline, filename: "#{@data_link.text_file.name.presence&.parameterize(separator: '_') || DataCycleCore::DataLink.human_attribute_name('text_file', locale: DataCycleCore.ui_language).parameterize(separator: '_')}.#{@data_link.text_file.content_type.split('/').last}")
+      send_file(@data_link.text_file.file.current_path, type: @data_link.text_file.content_type, disposition: :inline, filename: "#{@data_link.text_file.name.presence&.parameterize(separator: '_') || DataCycleCore::DataLink.human_attribute_name('text_file', locale: helpers.active_ui_locale).parameterize(separator: '_')}.#{@data_link.text_file.content_type.split('/').last}")
     end
 
     private

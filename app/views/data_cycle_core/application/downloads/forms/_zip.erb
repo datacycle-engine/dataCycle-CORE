@@ -3,7 +3,7 @@
               local: true do %>
 
   <fieldset class="active template">
-    <legend><%= t('common.choose_language', locale: DataCycleCore.ui_language) %></legend>
+    <legend><%= t('common.choose_language', locale: active_ui_locale) %></legend>
     <div class="form-element">
       <div class="v-select white">
         <%= select_tag('language[]',
@@ -21,12 +21,12 @@
   </fieldset>
 
   <fieldset class="active template">
-    <legend><%= t('common.download.available_formats', locale: DataCycleCore.ui_language) %></legend>
+    <legend><%= t('common.download.available_formats', locale: active_ui_locale) %></legend>
     <div class="form-element">
       <% DataCycleCore::Feature::Serialize.enabled_serializers.except('indesign').each_key.with_index do |serializer_key, index| %>
         <div>
           <%= check_box_tag "serialize_format[#{serializer_key}]", '1', index&.zero? %>
-          <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: DataCycleCore.ui_language)}" %>
+          <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: active_ui_locale)}" %>
         </div>
       <% end %>
     </div>

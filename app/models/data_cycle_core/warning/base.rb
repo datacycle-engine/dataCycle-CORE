@@ -5,7 +5,7 @@ module DataCycleCore
     class Base
       class << self
         def message(method_name, _content, _context)
-          I18n.t("#{name.underscore.tr('/', '.')}.#{method_name}", locale: DataCycleCore.ui_language)
+          I18n.t("#{name.underscore.tr('/', '.')}.#{method_name}", locale: DataCycleCore.ui_locales.first)
         end
       end
     end

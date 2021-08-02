@@ -1,6 +1,6 @@
 <% template_title = t("content_type.#{content.template_name.underscore_blanks}",
                       default: content.template_name.titleize,
-                      locale: DataCycleCore.ui_language) %>
+                      locale: active_ui_locale) %>
 
 <span class="template-title" title="<%= template_title %>">
   <%= template_title %>

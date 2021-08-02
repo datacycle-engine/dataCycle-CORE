@@ -7,9 +7,9 @@
                 method: :get,
                 class: 'button-prime small',
                 data: {
-                    confirm: "#{content.template_name} #{t('actions.duplicate_content', locale: DataCycleCore.ui_language)}?"
+                    confirm: "#{content.template_name} #{t('actions.duplicate_content', locale: active_ui_locale)}?"
                 },
-                title: t('common.duplicate_content', locale: DataCycleCore.ui_language) do %>
+                title: t('common.duplicate_content', locale: active_ui_locale) do %>
     <i class="fa fa-clone" aria-hidden="true"></i>
   <% end if DataCycleCore::Feature::DuplicateContent.enabled? && can?(:create, content, 'duplicate') && content.content_type?('entity') %>
 
@@ -21,10 +21,10 @@
       button_class: 'small',
       scope: 'duplicate',
       template: content.content_template,
-      button_title: t('actions.create_from_existing', locale: DataCycleCore.ui_language) if can?(:create, content, 'duplicate') && content.content_type?('entity') %>
+      button_title: t('actions.create_from_existing', locale: active_ui_locale) if can?(:create, content, 'duplicate') && content.content_type?('entity') %>
 
   <% if can?(:move_content, content) && @parents.present? && content.schema_type == 'CreativeWork' %>
-    <%= link_to "#", class:'button-prime small', data: { open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language) do %>
+    <%= link_to "#", class:'button-prime small', data: { open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: active_ui_locale) do %>
       <i class="fa fa-folder" aria-hidden="true"></i>
     <% end %>
     <%= render 'move_to_container_overlay', content: content %>
@@ -42,12 +42,12 @@
     <%= link_to remove_locks_thing_path(content, watch_list_id: @watch_list),
                 method: :delete,
                 class:"button-prime small delete-content-locks #{'show' if content.locked?}",
-                title: t('actions.remove_locks', locale: DataCycleCore.ui_language) do %>
+                title: t('actions.remove_locks', locale: active_ui_locale) do %>
       <i class="fa fa-unlock" aria-hidden="true"></i>
     <% end if DataCycleCore::Feature::ContentLock.enabled? && can?(:remove_lock, content) %>
 
     <% content_locked = DataCycleCore::Feature::ContentLock.enabled? && content.try(:lock).present? %>
-    <span title="<%= t('actions.edit', locale: DataCycleCore.ui_language) + (content_locked ? "<span class='content-locked-text' id='content-lock-#{content.lock.id}'><br><br><i>#{t('common.content_locked_html', user: content.lock.user&.full_name, data: distance_of_time_in_words(content.lock.locked_for), locale: DataCycleCore.ui_language)}</i></span>" : '') %>" data-tooltip data-allow-html="true">
+    <span title="<%= t('actions.edit', locale: active_ui_locale) + (content_locked ? "<span class='content-locked-text' id='content-lock-#{content.lock.id}'><br><br><i>#{t('common.content_locked_html', user: content.lock.user&.full_name, data: distance_of_time_in_words(content.lock.locked_for), locale: active_ui_locale)}</i></span>" : '') %>" data-tooltip data-allow-html="true">
       <%= button_to edit_thing_path(content, watch_list_id: @watch_list),
           params: { locale: I18n.locale },
           disabled: content_locked,
@@ -75,9 +75,9 @@
               method: :delete,
               class:'button-prime small delete-content-link',
               data: {
-                  confirm: "#{content.template_name} #{t('actions.delete', locale: DataCycleCore.ui_language)}? #{(content.try(:children)&.any? || content.try(:is_related?))? t('common.children_present_html', locale: DataCycleCore.ui_language) : '' }"
+                  confirm: "#{content.template_name} #{t('actions.delete', locale: active_ui_locale)}? #{(content.try(:children)&.any? || content.try(:is_related?))? t('common.children_present_html', locale: active_ui_locale) : '' }"
               },
-              title: t('actions.delete', locale: DataCycleCore.ui_language) do %>
+              title: t('actions.delete', locale: active_ui_locale) do %>
     <i class="fa fa-trash-o" aria-hidden="true"></i>
   <% end if can? :destroy, content %>
 </div>

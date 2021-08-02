@@ -24,11 +24,11 @@ module DataCycleCore
     end
 
     def create
-      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if asset_params[:file].blank? || asset_params[:type].blank?
+      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: helpers.active_ui_locale) }) && return if asset_params[:file].blank? || asset_params[:type].blank?
 
       object_type = DataCycleCore.asset_objects.find { |a| a == asset_params[:type] }
 
-      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if object_type.blank?
+      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: helpers.active_ui_locale) }) && return if object_type.blank?
 
       authorize! :create, object_type.constantize
 
@@ -43,7 +43,7 @@ module DataCycleCore
           render(json: { error: @asset.errors.full_messages.join(', ') })
         end
       rescue StandardError => e
-        render(json: { error: I18n.t('validation.errors.asset_convert', locale: DataCycleCore.ui_language), errorDetail: e.message }, status: :unprocessable_entity)
+        render(json: { error: I18n.t('validation.errors.asset_convert', locale: helpers.active_ui_locale), errorDetail: e.message }, status: :unprocessable_entity)
       end
     end
 

@@ -6,7 +6,7 @@ module DataCycleCore
       @data_link = data_link
       @user = data_link.creator
       @receiver = data_link.receiver
-      @locale = data_link.locale.presence || DataCycleCore.ui_language
+      @locale = data_link.locale.presence || @receiver.ui_locale
 
       if data_link.item.is_a?(DataCycleCore::WatchList)
         @title = data_link.item.try(:name)
@@ -26,7 +26,7 @@ module DataCycleCore
       @data_link = data_link
       @user = data_link.creator
       @receiver = data_link.receiver
-      @locale = data_link.locale.presence || DataCycleCore.ui_language
+      @locale = data_link.locale.presence || @receiver.ui_locale
       @title = data_link.item.try(:name)
       @url = data_link_url(data_link)
 

@@ -33,7 +33,7 @@ module DataCycleCore
 
     def bulk_update_types(prop)
       check_boxes = [
-        BulkUpdateType.new('override', t('common.bulk_update.check_box_labels.override_html', locale: DataCycleCore.ui_language, data: prop['label']))
+        BulkUpdateType.new('override', t('common.bulk_update.check_box_labels.override_html', locale: active_ui_locale, data: prop['label']))
       ]
 
       type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
@@ -42,22 +42,22 @@ module DataCycleCore
 
       check_boxes.concat(
         [
-          BulkUpdateType.new('add', t('common.bulk_update.check_box_labels.add_html', locale: DataCycleCore.ui_language, data: prop['label'])),
-          BulkUpdateType.new('remove', t('common.bulk_update.check_box_labels.remove_html', locale: DataCycleCore.ui_language, data: prop['label']))
+          BulkUpdateType.new('add', t('common.bulk_update.check_box_labels.add_html', locale: active_ui_locale, data: prop['label'])),
+          BulkUpdateType.new('remove', t('common.bulk_update.check_box_labels.remove_html', locale: active_ui_locale, data: prop['label']))
         ]
       )
     end
 
     def bulk_edit_button_title(content_locks, collection)
-      return t('common.bulk_update.button.limited', data: DataCycleCore.global_configs[:bulk_update_limit], locale: DataCycleCore.ui_language) if collection.things.size > DataCycleCore.global_configs[:bulk_update_limit]
+      return t('common.bulk_update.button.limited', data: DataCycleCore.global_configs[:bulk_update_limit], locale: active_ui_locale) if collection.things.size > DataCycleCore.global_configs[:bulk_update_limit]
 
-      button_html = t('actions.bulk_edit', locale: DataCycleCore.ui_language)
+      button_html = t('actions.bulk_edit', locale: active_ui_locale)
 
       return button_html if content_locks.blank?
 
-      button_html += tag.span(tag.br + tag.br + t('common.multiple_content_locks_html', data: content_locks.size, locale: DataCycleCore.ui_language), id: 'content-lock-multiple', class: "content-locked-text #{'hidden' if content_locks.size < 50}")
+      button_html += tag.span(tag.br + tag.br + t('common.multiple_content_locks_html', data: content_locks.size, locale: active_ui_locale), id: 'content-lock-multiple', class: "content-locked-text #{'hidden' if content_locks.size < 50}")
 
-      button_html += safe_join(content_locks.map { |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale) { cl.activitiable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{cl.id}", class: "content-locked-text #{'hidden' if content_locks.size >= 50}") })
+      button_html += safe_join(content_locks.map { |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale) { cl.activitiable.try(:title) }, locale: active_ui_locale)), id: "content-lock-#{cl.id}", class: "content-locked-text #{'hidden' if content_locks.size >= 50}") })
 
       button_html
     end

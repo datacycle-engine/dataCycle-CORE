@@ -1,6 +1,6 @@
 <div class="settings-row">
   <div class="row columns">
-    <h5><%= t('data_cycle_core.stored_searches.my_saved', locale: DataCycleCore.ui_language) %></h5>
+    <h5><%= t('data_cycle_core.stored_searches.my_saved', locale: active_ui_locale) %></h5>
   </div>
 
   <div class="row columns">
@@ -21,7 +21,7 @@
         </li>
       <% end %>
       <%# if @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).size > 5 %>
-        <li class="more-link"><%= link_to '...', stored_filters_path %></li>
+      <li class="more-link"><%= link_to '...', stored_filters_path %></li>
       <%# end %>
     </ul>
   </div>

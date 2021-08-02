@@ -14,7 +14,7 @@ module DataCycleCore
           when 'Person'
             "#{data_hash['given_name']} #{data_hash['family_name']}".presence || "#{given_name} #{family_name}"
           when 'Place'
-            data_hash['name'].presence || name.presence || I18n.t('common.no_translation', locale: DataCycleCore.ui_language)
+            data_hash['name'].presence || name.presence || I18n.t('common.no_translation', locale: DataCycleCore.ui_locales.first)
           end
         end
 

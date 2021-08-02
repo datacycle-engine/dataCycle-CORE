@@ -1,8 +1,8 @@
-<h5><%= t('data_cycle_core.stored_searches.save', locale: DataCycleCore.ui_language) %></h5>
+<h5><%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %></h5>
 <%= form_for(stored_search, namespace: stored_search.id) do |f| %>
   <div class="validation-container form-element">
     <%= f.label :name %>
-    <%= f.text_field :name, placeholder: DataCycleCore::StoredFilter.human_attribute_name('name', locale: DataCycleCore.ui_language), required: true, label: false %>
+    <%= f.text_field :name, placeholder: DataCycleCore::StoredFilter.human_attribute_name('name', locale: active_ui_locale), required: true, label: false %>
   </div>
   <% if can?(:create_global, DataCycleCore::StoredFilter) %>
     <div class="form-element">
@@ -10,9 +10,9 @@
       <%= f.label :system %>
     </div>
   <% end %>
-  <%= f.button t('actions.save', locale: DataCycleCore.ui_language),
+  <%= f.button t('actions.save', locale: active_ui_locale),
         data: {
-          disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.save', locale: DataCycleCore.ui_language)}"
+          disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.save', locale: active_ui_locale)}"
         },
         class: "success button",
         type: :submit %>

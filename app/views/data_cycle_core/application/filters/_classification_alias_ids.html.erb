@@ -5,11 +5,11 @@
 
   <div class="advanced-filter-title">
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'classification_tree_label' %>
-    <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
   </div>
 
   <div class="advanced-filter-mode">
-    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("common.has", locale: DataCycleCore.ui_language), 'i'], [t("common.has_not", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
+    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("common.has", locale: active_ui_locale), 'i'], [t("common.has_not", locale: active_ui_locale), 'e']], filter_method) %>
   </div>
 
   <div class="advanced-filter-selector">

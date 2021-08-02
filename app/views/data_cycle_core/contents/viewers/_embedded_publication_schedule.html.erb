@@ -12,7 +12,7 @@
               .to_h %>
             <% if idx.zero? %>
                 <div class="publication-row title-row">
-                    <span class="publication-attribute publication-date"><span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span> <%= t('data_cycle_core.publication_date', locale: DataCycleCore.ui_language) %></span>
+                    <span class="publication-attribute publication-date"><span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span> <%= t('data_cycle_core.publication_date', locale: active_ui_locale) %></span>
                     <% classification_attributes.presence&.each_value do |c_attribute| %>
                         <span class="publication-attribute"><%= render 'data_cycle_core/shared/icon', icon_type: c_attribute.underscore_blanks, icon_class: 'classification_tree_label' %><%= c_attribute %></span>
                     <% end %>
@@ -26,14 +26,14 @@
                 <span class="publication-attribute publication-date <%= changes_mode(date_changes) %>">
                   <% case date_changes&.dig(0) %>
                   <% when '~' %>
-                    <del><%= l(date_changes.dig(1).to_date, format: :long, locale: DataCycleCore.ui_language) %></del>
-                    <ins><%= l(date_changes.dig(2).to_date, format: :long, locale: DataCycleCore.ui_language) %></ins>
+                    <del><%= l(date_changes.dig(1).to_date, format: :long, locale: active_ui_locale) %></del>
+                    <ins><%= l(date_changes.dig(2).to_date, format: :long, locale: active_ui_locale) %></ins>
                   <% when '+' %>
-                    <ins><%= l(date_changes.dig(1).to_date, format: :long, locale: DataCycleCore.ui_language) %></ins>
+                    <ins><%= l(date_changes.dig(1).to_date, format: :long, locale: active_ui_locale) %></ins>
                   <% when '-' %>
-                    <del><%= l(publication&.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) %></del>
+                    <del><%= l(publication&.publish_at&.to_date, format: :long, locale: active_ui_locale) %></del>
                   <% else %>
-                    <%= l(publication&.publish_at&.to_date, format: :long, locale: DataCycleCore.ui_language) %>
+                    <%= l(publication&.publish_at&.to_date, format: :long, locale: active_ui_locale) %>
                   <% end %>
                 </span>
 

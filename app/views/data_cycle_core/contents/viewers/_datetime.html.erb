@@ -11,12 +11,12 @@
     <span class="detail-content">
       <% case options.dig(:item_diff, 0) %>
       <% when '~' %>
-        <del><%= l(options.dig(:item_diff, 1), locale: DataCycleCore.ui_language) %></del>
-        <ins><%= l(options.dig(:item_diff, 2), locale: DataCycleCore.ui_language) %></ins>
+        <del><%= l(options.dig(:item_diff, 1), locale: active_ui_locale) %></del>
+        <ins><%= l(options.dig(:item_diff, 2), locale: active_ui_locale) %></ins>
       <% when '+' %>
-        <%= l(options.dig(:item_diff, 1), locale: DataCycleCore.ui_language) %>
+        <%= l(options.dig(:item_diff, 1), locale: active_ui_locale) %>
       <% else %>
-        <%= l(value, locale: DataCycleCore.ui_language) %>
+        <%= l(value, locale: active_ui_locale) %>
       <% end %>
     </span>
 

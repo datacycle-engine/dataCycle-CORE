@@ -21,11 +21,11 @@ module DataCycleCore
         end
 
         def link_title(content)
-          I18n.t('actions.copyable_from', data: from_attribute_label(content), locale: DataCycleCore.ui_language)
+          I18n.t('actions.copyable_from', data: from_attribute_label(content), locale: DataCycleCore.ui_locales.first)
         end
 
         def clear_title(content)
-          I18n.t('actions.copyable_from_clear', data: from_attribute_label(content), locale: DataCycleCore.ui_language)
+          I18n.t('actions.copyable_from_clear', data: from_attribute_label(content), locale: DataCycleCore.ui_locales.first)
         end
       end
     end

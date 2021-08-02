@@ -39,7 +39,7 @@ module DataCycleCore
         end
       end
 
-      flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], count: item_count, locale: DataCycleCore.ui_language
+      flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], count: item_count, locale: helpers.active_ui_locale
 
       ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids
 
@@ -55,7 +55,7 @@ module DataCycleCore
          @content.content_type?('entity') &&
          @content.instance_of?(DataCycleCore::Thing) &&
          !['Bild', 'Video', 'Video-Serie', 'Foto-Serie'].include?(@content.template_name)
-        I18n.with_locale(DataCycleCore.ui_language) do
+        I18n.with_locale(helpers.active_ui_locale) do
           @parents = DataCycleCore::Thing.where("schema ->> 'content_type' = 'container' AND template = FALSE").includes(:translations).map { |c| [c.title, c.id] }.presence&.to_h
         end
       end
@@ -127,7 +127,7 @@ module DataCycleCore
         respond_to do |format|
           if @content.present?
             format.html do
-              redirect_to edit_thing_path(@content, source_params.merge(watch_list_params)), notice: I18n.t(:created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language)
+              redirect_to edit_thing_path(@content, source_params.merge(watch_list_params)), notice: I18n.t(:created, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale)
             end
             format.js
           else
@@ -199,7 +199,7 @@ module DataCycleCore
         if valid[:warning].present?
           flash[:info] = valid[:warning]
         else
-          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+          flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale
         end
 
         duplicate = params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
@@ -229,7 +229,7 @@ module DataCycleCore
 
         @content.destroy_content(destroy_content_params)
 
-        flash[:success] = @content.destroyed? ? I18n.t(:destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language) : I18n.t(:destroyed_translation, scope: [:controllers, :success], data: @content.template_name, language: I18n.locale, locale: DataCycleCore.ui_language)
+        flash[:success] = @content.destroyed? ? I18n.t(:destroyed, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale) : I18n.t(:destroyed_translation, scope: [:controllers, :success], data: @content.template_name, language: I18n.locale, locale: helpers.active_ui_locale)
 
         redirect_to(thing_path(@content, watch_list_params)) && return unless @content.destroyed?
         redirect_to(thing_path(@content.parent, watch_list_params)) && return if @content.try(:parent).present?
@@ -241,7 +241,7 @@ module DataCycleCore
       @content = DataCycleCore::Thing.includes(:classifications).find(params[:id])
       authorize! :show, @content
 
-      redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if source_params.blank?
+      redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return if source_params.blank?
 
       @diff_source = DataCycleCore::Thing.find(source_params[:source_id])
 
@@ -279,7 +279,7 @@ module DataCycleCore
       respond_to do |format|
         format.js do
           if params[:render_html]
-            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale
             render js: "document.location = '#{thing_path(@content)}'"
           end
         end
@@ -380,7 +380,7 @@ module DataCycleCore
 
       object_type = DataCycleCore.asset_objects.find { |object| object.downcase.include?(asset_params[:file].content_type&.split('/')&.first&.downcase) }
 
-      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if object_type.blank?
+      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: helpers.active_ui_locale) }) && return if object_type.blank?
 
       authorize! :create, object_type.constantize
 
@@ -405,7 +405,7 @@ module DataCycleCore
 
       @content.lock&.destroy
 
-      flash[:success] = I18n.t :removed_lock, scope: [:controllers, :success], locale: DataCycleCore.ui_language
+      flash[:success] = I18n.t :removed_lock, scope: [:controllers, :success], locale: helpers.active_ui_locale
 
       redirect_back(fallback_location: root_path)
     end

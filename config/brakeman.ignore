@@ -9,7 +9,7 @@
       "file": "app/controllers/data_cycle_core/data_links_controller.rb",
       "line": 84,
       "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "send_file(DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path, :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name.presence.parameterize(:separator => \"_\") or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => DataCycleCore.ui_language).parameterize(:separator => \"_\"))}.#{DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last}\"))",
+      "code": "send_file(DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path, :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name.presence.parameterize(:separator => \"_\") or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => DataCycleCore.ui_locales.first).parameterize(:separator => \"_\"))}.#{DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last}\"))",
       "render_path": null,
       "location": {
         "type": "method",

@@ -50,7 +50,7 @@ module DataCycleCore
       @user.raw_password = permitted_params[:password] if permitted_params[:password].present?
 
       if @user.save
-        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
+        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer', locale: helpers.active_ui_locale
       else
         flash[:error] = @user.try(:errors).try(:first).try(:[], 1)
       end
@@ -74,12 +74,12 @@ module DataCycleCore
       end
 
       if @user.send(method, @permitted_params)
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
+        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzer', locale: helpers.active_ui_locale
 
         bypass_sign_in(@user) if current_user == @user && !@permitted_params[:password].nil?
 
         if params[:user_settings]
-          redirect_to(settings_path, notice: I18n.t(:updated_multiple, scope: [:controllers, :success], data: 'Benutzereinstellungen', locale: DataCycleCore.ui_language))
+          redirect_to(settings_path, notice: I18n.t(:updated_multiple, scope: [:controllers, :success], data: 'Benutzereinstellungen', locale: helpers.active_ui_locale))
         elsif Rails.env.development?
           redirect_to edit_user_path(@user)
         elsif can? :index, DataCycleCore::User
@@ -96,13 +96,13 @@ module DataCycleCore
     def destroy
       @user.lock_access!
 
-      redirect_to users_path, notice: I18n.t(:locked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language)
+      redirect_to users_path, notice: I18n.t(:locked, scope: [:controllers, :success], data: 'Benutzer', locale: helpers.active_ui_locale)
     end
 
     def unlock
       @user.unlock_access!
 
-      redirect_to users_path, notice: I18n.t(:unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language)
+      redirect_to users_path, notice: I18n.t(:unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: helpers.active_ui_locale)
     end
 
     def search
@@ -116,7 +116,7 @@ module DataCycleCore
       @user = User.find(params[:user_id])
       bypass_sign_in(@user)
 
-      flash[:success] = I18n.t :become_user, scope: [:controllers, :success], data: @user.email, locale: DataCycleCore.ui_language
+      flash[:success] = I18n.t :become_user, scope: [:controllers, :success], data: @user.email, locale: helpers.active_ui_locale
 
       redirect_to authorized_root_path(@user)
     end
@@ -128,7 +128,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :type, :external, user_group_ids: []]
+      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, user_group_ids: []]
       allowed_params.push(:password, :password_confirmation, :current_password) if params.dig(controller_name.singularize.to_sym, :password).present? && params.dig(controller_name.singularize.to_sym, :password_confirmation).present?
       params.require(controller_name.singularize.to_sym).permit(allowed_params)
     end

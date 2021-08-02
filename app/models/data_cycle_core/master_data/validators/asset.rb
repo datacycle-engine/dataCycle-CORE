@@ -32,7 +32,7 @@ module DataCycleCore
             elsif key.is_a?(DataCycleCore::Asset)
               check_reference(key.id, template)
             else
-              (@error[:error][@template_key] ||= []) << I18n.t(:data_array_format, scope: [:validation, :warnings], data: key, template: template['label'], locale: DataCycleCore.ui_language)
+              (@error[:error][@template_key] ||= []) << I18n.t(:data_array_format, scope: [:validation, :warnings], data: key, template: template['label'], locale: DataCycleCore.ui_locales.first)
             end
           end
         end
@@ -40,7 +40,7 @@ module DataCycleCore
         def check_reference(key, template)
           return unless uuid?(key)
           find_asset = DataCycleCore::Asset.find(key)
-          (@error[:warning][@template_key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if !check_asset_type(find_asset, template) || find_asset.nil?
+          (@error[:warning][@template_key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :errors], locale: DataCycleCore.ui_locales.first) if !check_asset_type(find_asset, template) || find_asset.nil?
         end
 
         def check_asset_type(asset, template)
@@ -56,7 +56,7 @@ module DataCycleCore
         end
 
         def required(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && blank?(data)
+          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_locales.first) if value && blank?(data)
         end
       end
     end

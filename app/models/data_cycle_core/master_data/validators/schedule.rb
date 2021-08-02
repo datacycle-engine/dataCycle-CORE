@@ -10,7 +10,7 @@ module DataCycleCore
 
         def validate(data, template, _strict = false)
           if data.blank?
-            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
+            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_locales.first)
           elsif data.is_a?(::Array)
             if template.key?('validations')
               template['validations'].each_key do |key|
@@ -20,7 +20,7 @@ module DataCycleCore
 
             check_data_array(data, template)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:general, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << I18n.t(:general, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first)
           end
           @error
         end
@@ -30,15 +30,15 @@ module DataCycleCore
             data_item.deep_symbolize_keys.each do |key, value|
               case key
               when :thing_id
-                (@error[:error][@template_key] ||= []) << I18n.t(:thing_id, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language) unless uuid?(value)
+                (@error[:error][@template_key] ||= []) << I18n.t(:thing_id, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first) unless uuid?(value)
               when :relation
-                (@error[:error][@template_key] ||= []) << I18n.t(:relation, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language) if value.blank?
+                (@error[:error][@template_key] ||= []) << I18n.t(:relation, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first) if value.blank?
               when :start_time, :end_time
-                (@error[:error][@template_key] ||= []) << I18n.t(:time, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language) unless hash_value_with_zone?(value)
+                (@error[:error][@template_key] ||= []) << I18n.t(:time, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first) unless hash_value_with_zone?(value)
               when :rdate, :exdate
-                (@error[:error][@template_key] ||= []) << I18n.t(:date_time_array, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language) unless date_time_array?(value)
+                (@error[:error][@template_key] ||= []) << I18n.t(:date_time_array, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first) unless date_time_array?(value)
               when :rrule
-                (@error[:error][@template_key] ||= []) << I18n.t(:rrule, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language) unless rrule?(value&.first)
+                (@error[:error][@template_key] ||= []) << I18n.t(:rrule, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first) unless rrule?(value&.first)
               end
             end
           end
@@ -57,7 +57,7 @@ module DataCycleCore
 
           return if schedule.nil?
 
-          (@error[:error][@template_key] ||= []) << I18n.t(:invalid, scope: [:validation, :errors, :schedule], data: I18n.l(schedule&.start_time, locale: DataCycleCore.ui_language, format: :edit), locale: DataCycleCore.ui_language) if schedule.first.blank?
+          (@error[:error][@template_key] ||= []) << I18n.t(:invalid, scope: [:validation, :errors, :schedule], data: I18n.l(schedule&.start_time, locale: DataCycleCore.ui_locales.first, format: :edit), locale: DataCycleCore.ui_locales.first) if schedule.first.blank?
         end
 
         def valid_dates(data, value)
@@ -69,7 +69,7 @@ module DataCycleCore
         end
 
         def check_closed_range(schedule_hash)
-          (@error[:error][@template_key] ||= []) << I18n.t(:until_missing, scope: [:validation, :errors, :schedule], data: I18n.localize(schedule_hash.dig('start_time', 'time')&.in_time_zone, locale: DataCycleCore.ui_language, format: :edit), locale: DataCycleCore.ui_language) if schedule_hash.dig('rrules', 0, 'until').blank?
+          (@error[:error][@template_key] ||= []) << I18n.t(:until_missing, scope: [:validation, :errors, :schedule], data: I18n.localize(schedule_hash.dig('start_time', 'time')&.in_time_zone, locale: DataCycleCore.ui_locales.first, format: :edit), locale: DataCycleCore.ui_locales.first) if schedule_hash.dig('rrules', 0, 'until').blank?
         end
 
         def closed_range(data, value)

@@ -5,7 +5,7 @@
     <![endif]-->
     <div class="columns">
       <%= render 'logo' %>
-      <h1><%= t('welcome', locale: DataCycleCore.ui_language) %></h1>
+      <h1><%= t('welcome', locale: active_ui_locale) %></h1>
     </div>
 
     <div class="columns">
@@ -14,7 +14,7 @@
           <!-- Accordion tab title -->
           <a href="#" class="accordion-title">
             <i class="fa fa-user-circle-o" aria-hidden="true"></i>
-            <span><%= t('devise.sessions.new.sign_in', locale: DataCycleCore.ui_language) %></span>
+            <span><%= t('devise.sessions.new.sign_in', locale: active_ui_locale) %></span>
           </a>
 
           <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
@@ -25,7 +25,7 @@
               <div class="row">
                 <div class="small-4 columns">
                   <label for="user_email" class="text-right middle">
-                    <%= t('activerecord.attributes.user.email', locale: DataCycleCore.ui_language) %>:
+                    <%= t('activerecord.attributes.user.email', locale: active_ui_locale) %>:
                   </label>
                 </div>
                 <div class="small-7 columns end">
@@ -36,7 +36,7 @@
               <div class="row password-field">
                 <div class="small-4 columns">
                   <label for="user_password" class="text-right middle">
-                    <%= t('activerecord.attributes.user.password', locale: DataCycleCore.ui_language) %>:
+                    <%= t('activerecord.attributes.user.password', locale: active_ui_locale) %>:
                   </label>
                 </div>
                 <div class="small-7 columns end">
@@ -81,7 +81,7 @@
                 <%- if devise_mapping.rememberable? %>
                   <div class="small-7 columns end">
                     <%= f.input :remember_me, as: :boolean,
-                                label: t('activerecord.attributes.user.remember_me', locale: DataCycleCore.ui_language) %>
+                                label: t('activerecord.attributes.user.remember_me', locale: active_ui_locale) %>
                   </div>
                 <% end -%>
               </div>
@@ -141,7 +141,7 @@
                       <%= check_box_tag "additional_attributes[terms_conditions]", 1, false, { class: '', required: true, id: "additional_attributes_terms_conditions" } %>
                     </div>
                     <div class="small-7 columns end">
-                      <label><%= t('common.user_registration.terms_conditions', url: DataCycleCore::Feature::UserRegistration.terms_conditions_url, locale: DataCycleCore.ui_language).html_safe %></label>
+                      <label><%= t('common.user_registration.terms_conditions', url: DataCycleCore::Feature::UserRegistration.terms_conditions_url, locale: active_ui_locale).html_safe %></label>
                     </div>
                   </div>
                 <% end %>
@@ -152,7 +152,7 @@
                       <%= check_box_tag "additional_attributes[privacy_policy]", 1, false, { class: '', required: true, id: "additional_attributes_privacy_policy" } %>
                     </div>
                     <div class="small-7 columns end">
-                      <label><%= t('common.user_registration.privacy_policy', url: DataCycleCore::Feature::UserRegistration.privacy_policy_url, locale: DataCycleCore.ui_language).html_safe %> </label>
+                      <label><%= t('common.user_registration.privacy_policy', url: DataCycleCore::Feature::UserRegistration.privacy_policy_url, locale: active_ui_locale).html_safe %> </label>
                     </div>
                   </div>
                 <% end %>
