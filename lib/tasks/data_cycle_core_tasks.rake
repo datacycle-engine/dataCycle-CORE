@@ -71,7 +71,7 @@ namespace :data_cycle_core do
           I18n.with_locale(content.first_available_locale) do
             data_hash = {}
             data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [archive_release_id]
-            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.archived', locale: DataCycleCore.ui_locales.first)
+            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = 'archived automatically.'
             content.set_data_hash(data_hash: data_hash, partial_update: true)
             logger.info("Archived (release_status): #{content.id} (THINGS/#{content.template_name}/#{content.translated_locales&.join(', ')})")
           end
@@ -138,7 +138,7 @@ namespace :data_cycle_core do
           I18n.with_locale(content.first_available_locale) do
             data_hash = {}
             data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [valid_release_id]
-            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.unarchived', locale: DataCycleCore.ui_locales.first)
+            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = 'reactivated automatically.'
             errors = content.set_data_hash(data_hash: data_hash, partial_update: true)
             if errors[:error].present?
               logger.warn("Fehler (#{content.id}): #{errors[:error]}")

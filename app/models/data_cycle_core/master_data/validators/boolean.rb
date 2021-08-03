@@ -11,15 +11,28 @@ module DataCycleCore
           elsif data.is_a?(::String)
             boolean(data)
           elsif data.blank?
-            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_locales.first)
+            # ignore
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:date_time, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_locales.first)
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.date_time',
+              substitutions: {
+                data: data
+              }
+            }
           end
+
           @error
         end
 
         def boolean(data)
-          (@error[:error][@template_key] ||= []) << I18n.t(:boolean, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_locales.first) unless data.squish == 'true' || data.squish == 'false'
+          unless data.squish == 'true' || data.squish == 'false'
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.boolean',
+              substitutions: {
+                data: data
+              }
+            }
+          end
         end
       end
     end

@@ -3,15 +3,15 @@
     <p class="content-warnings-text">
       <i class="fa fa-exclamation-triangle<%= ' alert' if content.hard_content_warnings? %>" aria-hidden="true"></i>
       <strong><%= t('common.warnings', locale: active_ui_locale) %>: </strong>
-      <%= content.content_warnings.join(', ') %>
+      <%= content_warning_text(content).join(', ') %>
     </p>
   <% elsif content.content_warnings? %>
     <%= tag.i class: 'fa fa-exclamation-triangle content-warning dc-foundation-tooltip',
       aria_hidden: true,
-      title: content.content_warnings.join('<br>'),
+      title: content_warning_text(content).join('<br>'),
       data: {
         allow_html: true,
-        title: content.content_warnings.join('<br>')
+        title: content_warning_text(content).join('<br>')
       } %>
   <% end %>
 <% end %>

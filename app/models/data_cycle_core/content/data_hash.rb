@@ -91,9 +91,12 @@ module DataCycleCore
             reload
             after_save_data_hash(options)
           else
-            valid_hash[:warning] = I18n.t('controllers.warning.no_changes', locale: DataCycleCore.ui_locales.first)
+            valid_hash[:warning] = I18n.t('controllers.warning.no_changes', locale: options.ui_locale)
           end
         end
+
+        DataCycleCore::LocalizationService.localize_validation_errors(valid_hash, options.ui_locale)
+
         valid_hash
       end
 

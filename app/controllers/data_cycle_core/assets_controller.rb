@@ -40,7 +40,18 @@ module DataCycleCore
         if @asset.save
           render json: @asset.attributes.merge(duplicateCandidates: Array.wrap(@asset.try(:duplicate_candidates)&.as_json(only: [:id], methods: :thumbnail_url)))
         else
-          render(json: { error: @asset.errors.full_messages.join(', ') })
+          render(json: {
+            error: @asset
+              .errors
+              &.messages
+              &.map { |k, v|
+                v.map do |t|
+                  "#{@asset.class.human_attribute_name(k.to_sym, locale: helpers.active_ui_locale)} #{        DataCycleCore::LocalizationService.translate_and_substitute(t, helpers.active_ui_locale)}"
+                end
+              }
+              &.flatten
+              &.join(', ')
+          })
         end
       rescue StandardError => e
         render(json: { error: I18n.t('validation.errors.asset_convert', locale: helpers.active_ui_locale), errorDetail: e.message }, status: :unprocessable_entity)
@@ -57,7 +68,18 @@ module DataCycleCore
       if @asset.update(asset_params)
         render json: @asset
       else
-        render(json: { error: @asset.errors.full_messages.join(', ') })
+        render(json: {
+          error: @asset
+            .errors
+            &.messages
+            &.map { |k, v|
+              v.map do |t|
+                "#{@asset.class.human_attribute_name(k.to_sym, locale: helpers.active_ui_locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(t, helpers.active_ui_locale)}"
+              end
+            }
+            &.flatten
+            &.join(', ')
+        })
       end
     end
 

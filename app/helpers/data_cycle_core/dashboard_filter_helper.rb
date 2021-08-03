@@ -84,7 +84,7 @@ module DataCycleCore
           [
             I18n.t(
               'schedule.filter_labels.all',
-              exceptions: DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions_string,
+              exceptions: DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions_string(active_ui_locale),
               locale: active_ui_locale
             ),
             nil
@@ -106,7 +106,7 @@ module DataCycleCore
 
         I18n.t(
           'schedule.filter_labels.all',
-          exceptions: DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions_string,
+          exceptions: DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions_string(active_ui_locale),
           locale: active_ui_locale
         )
       else

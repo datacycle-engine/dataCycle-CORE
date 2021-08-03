@@ -737,8 +737,8 @@ class AssetUploader {
       '</div>' +
       fileOptions.appendHtml;
 
-    fileOptions.validator = new AssetValidator(fileOptions);
-    fileOptions.valid = fileOptions.validator.validate();
+    // fileOptions.validator = new AssetValidator(fileOptions);
+    fileOptions.valid = { valid: true, messages: null }; //fileOptions.validator.validate();
 
     if (fileOptions.validation && !fileOptions.valid.valid) {
       fileOptions.errors = fileOptions.valid.messages.join(', ');

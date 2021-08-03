@@ -41,7 +41,14 @@ module DataCycleCore
             next if key_item['type'].in?(['virtual', 'slug'])
 
             unless basic_types.include?(key_item['type'])
-              (@error[:error][key] ||= []) << I18n.t(:object_type, scope: [:validation, :errors], data: key_item, type: key_item['type'], locale: DataCycleCore.ui_locales.first)
+              (@error[:error][key] ||= []) << {
+                path: 'validation.errors.object_type',
+                substitutions: {
+                  data: key_item,
+                  type: key_item['type']
+                }
+              }
+
               next
             end
 
@@ -55,9 +62,8 @@ module DataCycleCore
             if key_item.key?('validations') # validations for a particular object
               key_item['validations'].each do |val_key, val_item|
                 next unless object_validations.include?(val_key)
+
                 method(val_key).call(data[key], val_item)
-                # else
-                # (@error[:warning][key] ||= []) << I18n.t(:keyword, scope: [:validation, :warnings], key: val_key, type: 'Object', locale: DataCycleCore.ui_locales.first)
               end
             end
 
@@ -65,9 +71,15 @@ module DataCycleCore
               validator_object = basic_types[key_item['type']].new(data[key], key_item['properties'], '', strict)
               merge_errors(validator_object.error) unless validator_object.nil?
             else
-              (@error[:error][key] ||= []) << I18n.t(:wrong_object_type, scope: [:validation, :errors], data: key_item['label'], locale: DataCycleCore.ui_locales.first)
+              (@error[:error][key] ||= []) << {
+                path: 'validation.errors.wrong_object_type',
+                substitutions: {
+                  data: key_item['label']
+                }
+              }
             end
           end
+
           @error
         end
 
@@ -76,24 +88,28 @@ module DataCycleCore
         def daterange(data_hash, template_hash)
           data_hash = {} if data_hash.nil?
           if template_hash.blank? || template_hash['from'].blank? || template_hash['to'].blank?
-            (@error[:error][@template_key] ||= []) << I18n.t(:no_fields, scope: [:validation, :errors], locale: DataCycleCore.ui_locales.first)
+            (@error[:error][@template_key] ||= []) << { path: 'validation.errors.no_fields' }
           else
             if data_hash[template_hash['from']].blank?
-              # (@error[:warning][template_hash['from']] ||= []) << I18n.t(:start_date, scope: [:validation, :warnings], locale: DataCycleCore.ui_locales.first)
               from_date = date_time('1970-01-01')
             else
               from_date = date_time(data_hash[template_hash['from']])
             end
             if data_hash[template_hash['to']].blank?
-              # (@error[:warning][template_hash['to']] ||= []) << I18n.t(:end_date, scope: [:validation, :warnings], locale: DataCycleCore.ui_locales.first)
               to_date = date_time('9999-12-31')
             else
               to_date = date_time(data_hash[template_hash['to']])
             end
             if from_date.nil? || to_date.nil?
-              (@error[:error][@template_key] ||= []) << I18n.t(:convert_date, scope: [:validation, :errors], locale: DataCycleCore.ui_locales.first)
+              (@error[:error][@template_key] ||= []) << { path: 'validation.errors.convert_date' }
             elsif from_date > to_date
-              (@error[:error][@template_key] ||= []) << I18n.t(:daterange, scope: [:validation, :errors], from: from_date.to_date, to: to_date.to_date, locale: DataCycleCore.ui_locales.first)
+              (@error[:error][@template_key] ||= []) << {
+                path: 'validation.errors.daterange',
+                substitutions: {
+                  from: from_date.to_date,
+                  to: to_date.to_date
+                }
+              }
             end
           end
         end
@@ -101,7 +117,6 @@ module DataCycleCore
         def date_time(data)
           data.to_datetime
         rescue StandardError
-          # (@error[:warning][@template_key] ||= []) << I18n.t(:convert, scope: [:validation, :warnings], data: data, locale: DataCycleCore.ui_locales.first)
           nil
         end
       end

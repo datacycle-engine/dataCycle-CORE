@@ -21,5 +21,9 @@ module DataCycleCore
         value.pluck(:id)
       )
     end
+
+    def content_warning_text(content)
+      content.content_warnings.map { |w| DataCycleCore::LocalizationService.translate_and_substitute(w, active_ui_locale) }
+    end
   end
 end

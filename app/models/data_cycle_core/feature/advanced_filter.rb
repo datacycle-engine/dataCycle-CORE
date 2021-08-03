@@ -5,21 +5,21 @@ module DataCycleCore
     class AdvancedFilter < Base
       class << self
         def available_filters(user, view_type)
-          return [] unless enabled?
+          return [] unless enabled? && !user.nil?
 
           filters = []
           DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled, :config)&.each do |key, value|
-            filters.concat(try(key.to_sym, value) || default(key.to_s, value) || [])
+            filters.concat(try(key.to_sym, value, user) || default(key.to_s, value, user) || [])
           end
-          filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.sort.group_by { |f| f[1] }.transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: DataCycleCore.ui_locales.first) }
+          filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.sort.group_by { |f| f[1] }.transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
         end
 
         def available_visible_filters(user, view_type, filter_config)
-          return [] unless enabled? && filter_config.is_a?(Hash)
+          return [] unless enabled? && !user.nil? && filter_config.is_a?(Hash)
 
           filters = []
           filter_config&.each do |key, value|
-            filters.concat(try(key.to_sym, value) || default(key.to_s, value) || [])
+            filters.concat(try(key.to_sym, value, user) || default(key.to_s, value, user) || [])
           end
           filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.reverse
         end
@@ -28,57 +28,57 @@ module DataCycleCore
           configuration.dig('advanced_attributes', specific_type, 'tree_label')
         end
 
-        def classification_alias_ids(value)
+        def classification_alias_ids(value, user)
           return [] unless value
 
           query = DataCycleCore::ClassificationTreeLabel.where('? = ANY(classification_tree_labels.visibility)', 'filter')
           query = query.where(name: value) if value.is_a?(Array)
           query.pluck(:name).map do |c|
             [
-              I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_locales.first),
+              I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
               'classification_alias_ids',
               data: { name: c }
             ]
           end
         end
 
-        def relation_filter(value)
+        def relation_filter(value, user)
           return [] unless value.is_a?(Hash)
           value.map do |k, v|
             [
-              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: DataCycleCore.ui_locales.first),
+              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
               'relation_filter',
               data: { name: k, advancedType: v }
             ]
           end
         end
 
-        def union_filter_ids(value)
+        def union_filter_ids(value, user)
           return [] unless value
           [
             [
-              I18n.t('filter.union_filter_ids', collections: DataCycleCore::WatchList.model_name.human(count: 2, locale: DataCycleCore.ui_locales.first), default: 'union_filter_ids'.capitalize, locale: DataCycleCore.ui_locales.first),
+              I18n.t('filter.union_filter_ids', collections: DataCycleCore::WatchList.model_name.human(count: 2, locale: user.ui_locale), default: 'union_filter_ids'.capitalize, locale: user.ui_locale),
               'union_filter_ids',
               data: { name: 'union_filter_ids'.capitalize }
             ]
           ]
         end
 
-        def geo_filter(value)
+        def geo_filter(value, user)
           if value.is_a?(Hash)
             value_arr = []
             value.each do |k, v|
               if v.is_a?(Array)
                 v.map do |c|
                   value_arr << [
-                    I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_locales.first),
+                    I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
                     'geo_filter',
                     data: { name: c, advancedType: k }
                   ]
                 end
               elsif v
                 value_arr << [
-                  I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: DataCycleCore.ui_locales.first),
+                  I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
                   'geo_filter',
                   data: { name: k, advancedType: k }
                 ]
@@ -90,11 +90,11 @@ module DataCycleCore
           end
         end
 
-        def date_range(value)
+        def date_range(value, user)
           if value == 'all'
             ['created_at', 'updated_at'].map do |c|
               [
-                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_locales.first),
+                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
                 'date_range',
                 data: { name: c }
               ]
@@ -102,7 +102,7 @@ module DataCycleCore
           elsif value.is_a?(Hash)
             value.keys.map do |c|
               [
-                I18n.t("filter.#{c.to_s.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_locales.first),
+                I18n.t("filter.#{c.to_s.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
                 'date_range',
                 data: { name: c }
               ]
@@ -110,7 +110,7 @@ module DataCycleCore
           elsif value.is_a?(Array)
             value.map do |c|
               [
-                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_locales.first),
+                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
                 'date_range',
                 data: { name: c }
               ]
@@ -120,67 +120,67 @@ module DataCycleCore
           end
         end
 
-        def boolean(value = [])
+        def boolean(value = [], user)
           value = ['duplicate_candidates'] if value == 'all'
 
           value.presence&.map do |c|
             [
-              I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_locales.first),
+              I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
               'boolean',
               data: { name: c }
             ]
           end || []
         end
 
-        def default(key, value)
+        def default(key, value, user)
           return [] unless value
           [
             [
-              I18n.t("filter.#{key.parameterize(separator: '_')}", default: key.capitalize, locale: DataCycleCore.ui_locales.first),
+              I18n.t("filter.#{key.parameterize(separator: '_')}", default: key.capitalize, locale: user.ui_locale),
               key,
               data: { name: key.capitalize }
             ]
           ]
         end
 
-        def advanced_attributes(value)
+        def advanced_attributes(value, user)
           return [] unless value
           value.map do |k, v|
             [
-              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_locales.first),
+              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
               'advanced_attributes',
               data: { name: k, advancedType: v.dig('type') }
             ]
           end
         end
 
-        def inactive_things(value)
+        def inactive_things(value, user)
           return [] unless value
           value.map do |k, _v|
             [
-              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_locales.first),
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
               'inactive_things',
               data: { name: k, advancedType: k }
             ]
           end
         end
 
-        def in_schedule(value)
+        def in_schedule(value, user)
           return [] unless value
           value.map do |k, _v|
             [
-              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_locales.first),
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
               'in_schedule',
               data: { name: k, advancedType: k }
             ]
           end
         end
 
-        def validity_period(value)
+        def validity_period(value, user)
           return [] unless value
           value.map do |k, _v|
             [
-              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_locales.first),
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
               'validity_period',
               data: { name: k, advancedType: k }
             ]
@@ -195,9 +195,9 @@ module DataCycleCore
           Array.wrap(configuration.dig(:config, :schedule_exceptions))
         end
 
-        def schedule_filter_exceptions_string
+        def schedule_filter_exceptions_string(locale)
           schedule_filter_exceptions
-            &.map { |e| I18n.t("schedule.filter_labels.#{e}", locale: DataCycleCore.ui_locales.first) }
+            &.map { |e| I18n.t("schedule.filter_labels.#{e}", locale: locale) }
             &.join(', ')
         end
       end

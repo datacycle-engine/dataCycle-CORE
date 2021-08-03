@@ -16,8 +16,15 @@ module DataCycleCore
           elsif data.is_a?(::String)
             check_reference_array([data], template)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first)
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.data_type',
+              substitutions: {
+                data: data,
+                template: template['label']
+              }
+            }
           end
+
           @error
         end
 
@@ -38,7 +45,13 @@ module DataCycleCore
             if key.is_a?(::String)
               check_reference(key, template)
             else
-              (@error[:error][@template_key] ||= []) << I18n.t(:data_array_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_locales.first)
+              (@error[:error][@template_key] ||= []) << {
+                path: 'validation.errors.data_array_format',
+                substitutions: {
+                  key: key,
+                  template: template['label']
+                }
+              }
             end
           end
         end
@@ -52,7 +65,16 @@ module DataCycleCore
             .joins(sub_classification_alias: [classification_groups: [:classification]])
             .where(where_hash)
 
-          (@error[:error][@template_key] ||= []) << I18n.t(:classification, scope: [:validation, :errors], key: key, label: template['label'], tree_label: template['tree_label'], locale: DataCycleCore.ui_locales.first) if find_classification_alias.count < 1
+          if find_classification_alias.count < 1
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.classification',
+              substitutions: {
+                key: key,
+                template: template['label'],
+                tree_label: template['tree_label']
+              }
+            }
+          end
         end
 
         # validate nil,"",[],[nil],[""] as blank.
@@ -65,15 +87,31 @@ module DataCycleCore
         end
 
         def min(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_locales.first) if data.size < value
+          if data.size < value
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.min_ref',
+              substitutions: {
+                data: data.size,
+                value: value
+              }
+            }
+          end
         end
 
         def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_locales.first) if data.present? && data.size > value
+          if data.present? && data.size > value
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.max_ref',
+              substitutions: {
+                data: data.size,
+                value: value
+              }
+            }
+          end
         end
 
         def required(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_locales.first) if value && blank?(data)
+          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && blank?(data)
         end
       end
     end

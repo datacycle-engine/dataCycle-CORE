@@ -20,12 +20,12 @@ module DataCycleCore
           content&.properties_for(from_attribute(content))&.dig('label')
         end
 
-        def link_title(content)
-          I18n.t('actions.copyable_from', data: from_attribute_label(content), locale: DataCycleCore.ui_locales.first)
+        def link_title(content, locale)
+          I18n.t('actions.copyable_from', data: from_attribute_label(content), locale: locale)
         end
 
-        def clear_title(content)
-          I18n.t('actions.copyable_from_clear', data: from_attribute_label(content), locale: DataCycleCore.ui_locales.first)
+        def clear_title(content, locale)
+          I18n.t('actions.copyable_from_clear', data: from_attribute_label(content), locale: locale)
         end
       end
     end

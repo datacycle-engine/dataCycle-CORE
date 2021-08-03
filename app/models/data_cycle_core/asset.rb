@@ -75,8 +75,18 @@ module DataCycleCore
       file.recreate_versions!(version_name)
     end
 
-    def file_size_validation(_options)
-      errors.add :file, I18n.t('uploader.validation.file_size.max', data: ApplicationController.helpers.number_to_human_size(options.dig(:file_size, :max).to_i, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first) if file.size > options.dig(:file_size, :max).to_i
+    def file_size_validation(options)
+      if file.size > options.dig(:file_size, :max).to_i
+        errors.add :file, {
+          path: 'uploader.validation.file_size.max',
+          substitutions: {
+            data: {
+              localization_method: 'number_to_human_size',
+              localization_value: options.dig(:file_size, :max).to_i
+            }
+          }
+        }
+      end
     end
 
     def remove_directory

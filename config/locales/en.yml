@@ -187,8 +187,6 @@ en:
     show_more: Mehr anzeigen
     show_less: Weniger anzeigen
     expired_content: Gültigkeitszeitraum überschritten!
-    archived: Automatisch archiviert.
-    unarchived: Automatisch reaktiviert.
     entries: Einträge
     is: ist
     is_not: ist nicht
@@ -673,7 +671,7 @@ en:
       required: 'ist ein Pflichtfeld und muss ausgefüllt werden.'
       rank_not_allowed: Der angegebene Rang ist nicht erlaubt.
       unknown_activity_type: 'Unbekannter Typ für Activity'
-    warning:
+    warnings:
       string: '%{key} is no valid keyword for string. Found for %{data} in %{template}'
       no_data: 'No data given for %{data}'
       no_evaluate: '%{data} not given for evaluation data.'
@@ -992,6 +990,25 @@ en:
       read_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> shared %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” with you and asks for your additions and feedback.</span>'
       download_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> shared %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” with you.<br><br>%{n_type} is ready for download.</span>'
       updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” was updated and contents were added or removed.</span>'
+    documentation:
+      root: Dokumentation
+      overview: Übersicht
+      architecture: Systemarchitektur
+      data_structure: Datenstruktur
+      classifications: Klassifizierungen
+      api:
+        root: Datenschnittstelle
+        classifications: Klassifizierungen
+        contents: Inhalte
+    schema:
+      root: Schema
+      containers: Container
+      entities: Inhalte
+      embeddeds: Eingebettete Inhalte
+    warning:
+      common:
+        invalid: Gültigkeitszeitraum überschritten
+        translation_missing: Keine Übersetzung vorhanden
 
   import:
     booking:

@@ -9,10 +9,16 @@ module DataCycleCore
           if data.is_a?(::String)
             uuid?(data)
           elsif data.blank?
-            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_locales.first)
+            # ignore
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:key, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_locales.first)
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.key',
+              substitutions: {
+                data: data
+              }
+            }
           end
+
           @error
         end
       end

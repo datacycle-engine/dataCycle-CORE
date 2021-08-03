@@ -8,8 +8,18 @@ module DataCycleCore
     def codec_validation(options)
       video = FFMPEG::Movie.new(file.file.path)
 
-      errors.add :file, I18n.t('uploader.validation.codec.video', data: options.dig(:video)&.join(', '), locale: DataCycleCore.ui_locales.first) if options.dig(:video)&.exclude?(video.video_codec)
-      errors.add :file, I18n.t('uploader.validation.codec.audio', data: options.dig(:audio)&.join(', '), locale: DataCycleCore.ui_locales.first) if options.dig(:audio)&.exclude?(video.audio_codec)
+      if options.dig(:video)&.exclude?(video.video_codec)
+        errors.add :file, {
+          path: 'uploader.validation.codec.video',
+          substitutions: { data: options.dig(:video)&.join(', ') }
+        }
+      end
+      if options.dig(:audio)&.exclude?(video.audio_codec)
+        errors.add :file, {
+          path: 'uploader.validation.codec.audio',
+          substitutions: { data: options.dig(:audio)&.join(', ') }
+        }
+      end
     end
   end
 end

@@ -18,7 +18,14 @@ module DataCycleCore
 
           geocoded_data = DataCycleCore::Feature::Geocode.geocode_address(address_params.to_h, locale_params[:locale])
 
-          render(plain: { error: geocoded_data.error }.to_json, content_type: 'application/json') && return if geocoded_data.try(:error).present?
+          if geocoded_data.try(:error).present?
+            render(
+              plain: {
+                error: DataCycleCore::LocalizationService.translate_and_substitute(geocoded_data.error, helpers.active_ui_locale)
+              }.to_json,
+              content_type: 'application/json'
+            ) && return
+          end
 
           render plain: [geocoded_data.presence&.x, geocoded_data.presence&.y].compact.to_json, content_type: 'application/json'
         end

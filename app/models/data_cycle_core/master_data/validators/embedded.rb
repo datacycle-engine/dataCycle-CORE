@@ -10,14 +10,21 @@ module DataCycleCore
 
         def validate(data, template, _strict = false)
           if blank?(data)
-            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_locales.first)
+            # ignore
           elsif data.is_a?(::Array)
             check_data_array(data, template)
           elsif data.is_a?(::Hash)
             check_data_array([data], template)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:data_format_embedded, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first)
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.data_format_embedded',
+              substitutions: {
+                data: data,
+                template: template['label']
+              }
+            }
           end
+
           @error
         end
 
@@ -35,7 +42,13 @@ module DataCycleCore
           embedded_template = DataCycleCore::Thing
             .find_by(template: true, template_name: template['template_name'])
           if template.blank? || embedded_template.blank?
-            (@error[:error][@template_key] ||= []) << I18n.t(:no_template, scope: [:validation, :errors], name: 'things', locale: DataCycleCore.ui_locales.first)
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.no_template',
+              substitutions: {
+                name: 'things'
+              }
+            }
+
             return
           end
           data.each do |item|
@@ -44,7 +57,13 @@ module DataCycleCore
               validator_object = DataCycleCore::MasterData::ValidateData.new
               merge_errors(validator_object.validate(item, embedded_template.schema))
             else
-              (@error[:error][@template_key] ||= []) << I18n.t(:data_format_embedded, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_locales.first)
+              (@error[:error][@template_key] ||= []) << {
+                path: 'validation.errors.data_format_embedded',
+                substitutions: {
+                  data: data,
+                  template: template['label']
+                }
+              }
             end
           end
         end
@@ -53,7 +72,19 @@ module DataCycleCore
           return if values.blank? || DataCycleCore.features.dig(:publication_schedule, :classification_keys).blank?
 
           values = values.dc_deep_dup
-          (@error[:error][@template_key] ||= []) << I18n.t(:classification_conflict, scope: [:validation, :errors], locale: DataCycleCore.ui_locales.first) if values.each { |d| d['id'] = SecureRandom.uuid if d['id'].blank? }.map { |x| values.select { |y| (x != y) && DataCycleCore.features.dig(:publication_schedule, :classification_keys).map { |z| x[z].present? && y[z].present? ? (x[z] & y[z]) : [] }.all?(&:present?) } }.flatten.present?
+          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.classification_conflict' } if values
+            .each { |d| d['id'] = SecureRandom.uuid if d['id'].blank? }
+            .map { |x|
+              values
+                .select do |y|
+                (x != y) && DataCycleCore.features
+                  .dig(:publication_schedule, :classification_keys)
+                  .map { |z| x[z].present? && y[z].present? ? (x[z] & y[z]) : [] }
+                  .all?(&:present?)
+              end
+            }
+            .flatten
+            .present?
         end
 
         # validate nil,"",[],[nil],[""],[{}] as blank.
@@ -66,11 +97,27 @@ module DataCycleCore
         end
 
         def min(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_locales.first) if data.size < value
+          if data.size < value
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.min_ref',
+              substitutions: {
+                data: data.size,
+                value: value
+              }
+            }
+          end
         end
 
         def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_locales.first) if data.size > value
+          if data.size > value
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.max_ref',
+              substitutions: {
+                data: data.size,
+                value: value
+              }
+            }
+          end
         end
       end
     end
