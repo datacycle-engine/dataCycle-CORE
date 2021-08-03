@@ -158,5 +158,27 @@ namespace :dc do
         progressbar.increment
       end
     end
+
+    desc 'migrate event places from Örtlichkeit to POI'
+    task ortlichkeit_to_poi: :environment do
+      poi_class = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'POI')
+      poi_template = DataCycleCore::Thing.find_by(template: true, template_name: 'POI')
+
+      systems = ['feratel']
+      systems.each do |identifier|
+        es = DataCycleCore::ExternalSystem.find_by(identifier: identifier)
+        DataCycleCore::Thing.where(template_name: 'Örtlichkeit', external_source_id: es.id).each do |place|
+          # update data-type
+          DataCycleCore::ClassificationContent.where(content_data_id: place.id, relation: 'data_type').update_all(classification_id: poi_class)
+          # update template, template definition
+          place.template_name = poi_template.template_name
+          place.schema = poi_template.schema
+          place.template_updated_at = Time.zone.now
+          place.save
+          # update search table
+          place.search_languages(true)
+        end
+      end
+    end
   end
 end

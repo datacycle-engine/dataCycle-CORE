@@ -214,11 +214,19 @@ class SplitView {
   triggerAllButtons(event) {
     event.preventDefault();
 
-    let selector = event.currentTarget.classList.contains('translate-all')
-      ? 'a.translate'
-      : 'a.copy:not(.copy-single-button)';
+    const $parent = $(event.currentTarget).parent('.split-content, [data-editor="included-object"]');
+    let $items;
+    if (event.currentTarget.classList.contains('translate-all')) {
+      $items = $parent
+        .find('.dc-translatable-field > .buttons > a.translate')
+        .add(
+          $parent.find('.dc-copyable-field:not(.dc-translatable-field) > .buttons > a.copy:not(.copy-single-button)')
+        );
+    } else {
+      $items = $parent.find('.dc-copyable-field > .buttons > a.copy:not(.copy-single-button)');
+    }
 
-    $(event.currentTarget).parent('.split-content, [data-editor="included-object"]').find(selector).trigger('click');
+    $items.trigger('click');
   }
   copyContents(value, label, key, translate = false) {
     if ($('.edit-header .submit-edit-form').prop('disabled')) return;

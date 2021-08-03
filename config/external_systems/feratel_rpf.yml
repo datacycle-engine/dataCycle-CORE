@@ -270,31 +270,14 @@ config:
       sorting: 50
       source_type: infrastructure_items
       import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
-      transformations:
-        image:
-          template: Bild
-        infrastructure:
-          template: POI
     accommodations:
       sorting: 51
       source_type: accommodations
       import_strategy: DataCycleCore::Generic::Feratel::ImportAccommodations
-      transformations:
-        image:
-          template: Bild
-        place:
-          template: Unterkunft
     events:
       sorting: 52
       source_type: events
       import_strategy: DataCycleCore::Generic::Feratel::ImportEvents
-      transformations:
-        image:
-          template: Bild
-        place:
-          template: Örtlichkeit
-        event:
-          template: Event
     packages:
       sorting: 53
       source_type: packages
