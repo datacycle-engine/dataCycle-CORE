@@ -7,7 +7,25 @@
 
       <div class="v-select white">
         <% I18n.with_locale(active_ui_locale) do %>
-          <%= select_tag('parent_id', options_for_select(@parents.reject { |_k, v| v === content.try(:parent)&.id }), { class: 'single-select select', data: { allow_clear: false } }) %>
+          <%= select_tag(
+              'parent_id',
+              async_thing_select_options(content.try(:parent), true),
+              {
+                multiple: false,
+                include_blank: false,
+                class: 'async-select',
+                id: "#{local_assigns.dig(:options, :prefix)}parent_id",
+                data: {
+                  max: 20,
+                  allow_clear: false,
+                  placeholder: t('common.parent', locale: active_ui_locale),
+                  search_path: select_search_things_path,
+                  query_params: {
+                    template_name: DataCycleCore::Feature::Container.allowed_container_templates(content)
+                  }
+                }
+              }
+            ) %>
         <% end %>
       </div>
     </div>

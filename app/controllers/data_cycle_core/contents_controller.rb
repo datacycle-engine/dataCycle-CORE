@@ -51,15 +51,6 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
-      if DataCycleCore::Feature::Container.enabled? &&
-         @content.content_type?('entity') &&
-         @content.instance_of?(DataCycleCore::Thing) &&
-         !['Bild', 'Video', 'Video-Serie', 'Foto-Serie'].include?(@content.template_name)
-        I18n.with_locale(helpers.active_ui_locale) do
-          @parents = DataCycleCore::Thing.where("schema ->> 'content_type' = 'container' AND template = FALSE").includes(:translations).map { |c| [c.title, c.id] }.presence&.to_h
-        end
-      end
-
       I18n.with_locale(@locale = @content.first_available_locale(params[:locale])) do
         if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
           pre_filters
@@ -455,7 +446,7 @@ module DataCycleCore
     end
 
     def select_search_params
-      params.permit(:q, :max, :exclude, :template_name)
+      params.permit(:q, :max, :exclude, :template_name, template_name: [])
     end
 
     def create_locale(params_hash = nil)

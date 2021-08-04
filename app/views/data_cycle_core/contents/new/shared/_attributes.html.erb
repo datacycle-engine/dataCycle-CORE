@@ -57,10 +57,12 @@
   <%= hidden_field_tag 'source', "source_id=>#{source.id},source_table=>#{source.class.table_name}", id: "#{local_assigns.dig(:options, :prefix)}source" %>
 <% end %>
 
-<% if local_assigns[:parents].present? && DataCycleCore::Feature::Container.enabled? %>
-  <%= render 'data_cycle_core/contents/new/shared/container', parents: parents, content: content, prefix: local_assigns.dig(:options, :prefix) %>
-<% elsif local_assigns[:parent]&.content_type?('container') %>
-  <%= hidden_field_tag :parent_id, parent&.id, id: "#{local_assigns.dig(:options, :prefix)}parent_id" %>
+<% if DataCycleCore::Feature::Container.enabled? && DataCycleCore::Feature::Container.allowed_container_templates(template).present? %>
+  <%= render 'data_cycle_core/contents/new/shared/container',
+              parent_templates: DataCycleCore::Feature::Container.allowed_container_templates(template),
+              parent: local_assigns[:parent],
+              content: content,
+              prefix: local_assigns.dig(:options, :prefix) %>
 <% end %>
 
 <% if template.content_type?('container') && DataCycleCore::Feature::LifeCycle.allowed?(template) %>
