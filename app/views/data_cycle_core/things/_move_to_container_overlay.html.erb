@@ -9,19 +9,20 @@
         <% I18n.with_locale(active_ui_locale) do %>
           <%= select_tag(
               'parent_id',
-              async_thing_select_options(content.try(:parent), true),
+              async_thing_select_options(nil, true),
               {
                 multiple: false,
                 include_blank: false,
                 class: 'async-select',
-                id: "#{local_assigns.dig(:options, :prefix)}parent_id",
+                id: SecureRandom.hex,
                 data: {
                   max: 20,
                   allow_clear: false,
                   placeholder: t('common.parent', locale: active_ui_locale),
                   search_path: select_search_things_path,
                   query_params: {
-                    template_name: DataCycleCore::Feature::Container.allowed_container_templates(content)
+                    template_name: DataCycleCore::Feature::Container.allowed_container_templates(content),
+                    exclude: content.try(:parent)&.id
                   }
                 }
               }

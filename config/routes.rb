@@ -18,6 +18,7 @@ DataCycleCore::Engine.routes.draw do
   get '/docs', to: 'documentation#show'
 
   get :clear_all_caches, controller: :application
+  get '/i18n/translate', to: 'application#translate'
 
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', as: 'local_asset', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file|srt_file)/,

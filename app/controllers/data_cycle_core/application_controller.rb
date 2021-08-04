@@ -76,10 +76,21 @@ module DataCycleCore
       render json: Holidays.between(Date.civil(holidays_params[:year].to_i, 1, 1), Date.civil(holidays_params[:year].to_i, 12, 31), Array.wrap(DataCycleCore.holidays_country_code)).to_json
     end
 
+    def translate
+      render(json: { error: 'PATH_MISSING' }.to_json, status: :bad_request) && return if translate_params[:path].blank?
+      render(json: { error: 'TRANSLATION_MISSING' }.to_json, status: :not_found) && return unless I18n.exists?(translate_params[:path], locale: helpers.active_ui_locale)
+
+      render json: { text: I18n.translate(translate_params[:path], locale: helpers.active_ui_locale) }.to_json
+    end
+
     private
 
     def better_errors_hack
       request.env['puma.config'].options.user_options.delete(:app) if request.env.key?('puma.config')
+    end
+
+    def translate_params
+      params.permit(:path)
     end
 
     def remote_render_params

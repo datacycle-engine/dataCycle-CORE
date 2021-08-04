@@ -2,8 +2,9 @@ import jQuery from 'jquery';
 import Rails from '@rails/ujs';
 import ActionCable from 'actioncable';
 import DataCycle from './components/data_cycle';
+import I18n from './components/i18n';
 
-Object.assign(window, { $: jQuery, jQuery, Rails, actionCable: ActionCable.createConsumer(), DataCycle });
+Object.assign(window, { $: jQuery, jQuery, Rails, actionCable: ActionCable.createConsumer(), DataCycle, I18n });
 
 import 'jquery-serializejson';
 import 'lazysizes';
@@ -22,6 +23,8 @@ export default (dataCycleConfig = {}) => {
   appSignalInit();
 
   $(function () {
+    I18n.translate('actions.add_items_to_watch_list', { data: 'private Merkliste' });
+
     for (const path in initializers) {
       if (!path.includes('foundation_init') && !path.includes('validation_init') && !path.includes('app_signal_init')) {
         try {

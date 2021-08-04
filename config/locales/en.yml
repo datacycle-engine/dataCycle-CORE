@@ -602,7 +602,7 @@ en:
     open_as_source: Als Vorlage laden
     close_source: Vorlage schließen
     bulk_edit: im Bulk bearbeiten
-    add_items_to_watch_list: 'zu %{data} hinzufügen'
+    add_items_to_watch_list: 'add to %{data}'
     add: hinzufügen
     delete_items_in_watch_list: Alle Inhalte dieser Inhaltssammlung löschen
     save_without_redirect: Zwischenspeichern
