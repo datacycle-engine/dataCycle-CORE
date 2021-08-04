@@ -23,8 +23,6 @@ export default (dataCycleConfig = {}) => {
   appSignalInit();
 
   $(function () {
-    I18n.translate('actions.add_items_to_watch_list', { data: 'private Merkliste' });
-
     for (const path in initializers) {
       if (!path.includes('foundation_init') && !path.includes('validation_init') && !path.includes('app_signal_init')) {
         try {

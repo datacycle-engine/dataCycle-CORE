@@ -563,6 +563,7 @@ en:
     save_without_send: Speichern (kein E-Mail-Versand)
     finalize: Bearbeitung abschließen
     copy_to_clipboard: In die Zwischenablage kopieren
+    copied_to_clipboard: copied to clipboard.
     save: Speichern
     update: Aktualisieren
     upload: Dateien hochladen
