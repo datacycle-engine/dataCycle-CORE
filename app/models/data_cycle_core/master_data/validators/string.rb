@@ -36,58 +36,62 @@ module DataCycleCore
           data_uuid = data.downcase
           uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
           check_uuid = data.length == 36 && !(data_uuid =~ uuid).nil?
-          unless check_uuid
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.uuid',
-              substitutions: {
-                data: data
-              }
+
+          return if check_uuid
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.uuid',
+            substitutions: {
+              data: data
             }
-          end
+          }
         end
 
         private
 
         def min(data, value)
           text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
-          if data.present? && text_length < value.to_i
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.min',
-              substitutions: {
-                data: nil,
-                min: value.to_i,
-                length: text_length
-              }
+
+          return unless data.present? && text_length < value.to_i
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.min',
+            substitutions: {
+              data: nil,
+              min: value.to_i,
+              length: text_length
             }
-          end
+          }
         end
 
         def max(data, value)
           text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
-          if data.present? && text_length.to_i > value.to_i
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.max',
-              substitutions: {
-                data: nil,
-                max: value.to_i,
-                length: text_length
-              }
+
+          return unless data.present? && text_length.to_i > value.to_i
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.max',
+            substitutions: {
+              data: nil,
+              max: value.to_i,
+              length: text_length
             }
-          end
+          }
         end
 
         def pattern(data, expression)
           regex = /#{expression[1..expression.length - 2]}/
           matched = data.match(regex)
-          if matched.nil? || matched.offset(0) != [0, data.size]
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.match',
-              substitutions: {
-                data: data,
-                expression: expression
-              }
+
+          return unless matched.nil? || matched.offset(0) != [0, data.size]
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.match',
+            substitutions: {
+              data: data,
+              expression: expression
             }
-          end
+          }
         end
 
         def format(data, format_string)
@@ -134,14 +138,15 @@ module DataCycleCore
         def telephone_din5008(data)
           din5008 = /^(\+[1-9]\d+) ([1-9]\d*) ([1-9]\d+)(\-\d+){0,1}$|^(0\d+) ([1-9]\d+)(\-\d+){0,1}$|^([1-9]\d+)(\-\d+){0,1}$|^(\+[1-9]\d+) ([1-9]\d+)(\-\d+){0,1}$/
           check_telephone = !(data =~ din5008).nil?
-          unless check_telephone
-            (@error[:warning][@template_key] ||= []) << {
-              path: 'validation.warnings.telephone_din5008',
-              substitutions: {
-                data: data
-              }
+
+          return if check_telephone
+
+          (@error[:warning][@template_key] ||= []) << {
+            path: 'validation.warnings.telephone_din5008',
+            substitutions: {
+              data: data
             }
-          end
+          }
         end
       end
     end

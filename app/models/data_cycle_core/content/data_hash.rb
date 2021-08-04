@@ -96,8 +96,6 @@ module DataCycleCore
         end
 
         DataCycleCore::LocalizationService.localize_validation_errors(valid_hash, options.ui_locale)
-
-        valid_hash
       end
 
       def set_computed_values(data_hash:) # rubocop:disable Naming/AccessorMethodName

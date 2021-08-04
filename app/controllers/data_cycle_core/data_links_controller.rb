@@ -81,7 +81,13 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound if @data_link.text_file.blank?
 
-      send_file(@data_link.text_file.file.current_path, type: @data_link.text_file.content_type, disposition: :inline, filename: "#{@data_link.text_file.name.presence&.parameterize(separator: '_') || DataCycleCore::DataLink.human_attribute_name('text_file', locale: helpers.active_ui_locale).parameterize(separator: '_')}.#{@data_link.text_file.content_type.split('/').last}")
+      file_name = (@data_link.text_file.name.presence || DataCycleCore::DataLink.human_attribute_name('text_file', locale: helpers.active_ui_locale)).underscore_blanks
+      extension = MiniMime.lookup_by_content_type(@data_link.text_file.content_type)&.extension || @data_link.text_file.content_type.split('/').last
+
+      send_file @data_link.text_file.file.current_path,
+                type: @data_link.text_file.content_type,
+                disposition: :inline,
+                filename: "#{file_name}.#{extension}"
     end
 
     private

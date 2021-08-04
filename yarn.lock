@@ -59,9 +59,9 @@
   integrity sha512-O3lEzL5DYbxppMdsFSw36e4BHIlfz/xusynwXGv3l2lhSlvah41qviRpsoAlKXxl37nZAqK+UUF5cnGGK45Mfw==
 
 "@tmcw/togeojson@^4.0.0":
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/@tmcw/togeojson/-/togeojson-4.4.1.tgz#1733f6b3ab64a907b7c2954046f9083b227a50dd"
-  integrity sha512-R4f8fYzXPGKjW+que03/UOtHEsMe3Tb4wOBOQi8KaZwJEX7RGOIoxUis//k2CrLL7f+6QX1Z4nb1dDozO2/LYA==
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/@tmcw/togeojson/-/togeojson-4.5.0.tgz#9b5c7bdd8c5ad3b9c504824d3cdef9b60edbd206"
+  integrity sha512-lNuuhW7nvN1T7xII9eRTi9zuPwYfFl43/1u/Xgi88tedX4ePfwJB5dqc31N7z6sWeR+7EES274ESNrK1gsW53A==
 
 "@types/fs-extra@^8.0.1":
   version "8.1.2"
@@ -84,9 +84,9 @@
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
 
 "@types/node@*":
-  version "16.4.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.4.3.tgz#c01c1a215721f6dec71b47d88b4687463601ba48"
-  integrity sha512-GKM4FLMkWDc0sfx7tXqPWkM6NBow1kge0fgQh0bOnlqo4iT1kvTvMEKE0c1RtUGnbLlGRXiAA8SumE//90uKAg==
+  version "16.4.11"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.4.11.tgz#245030af802c776c31f00eb0cdde40ee615db462"
+  integrity sha512-nWSFUbuNiPKJEe1IViuodSI+9cM+vpM8SWF/O6dJK7wmGRNq55U7XavJHrlRrPkSMuUZUFzg1xaZ1B+ZZCrRWw==
 
 actioncable@^5.2.3:
   version "5.2.6"
@@ -335,9 +335,9 @@ entities@^2.0.0:
   integrity sha512-p92if5Nz619I0w+akJrLZH0MX0Pb5DX39XOwQTtXSdQQOaYH03S1uIQp4mhOZtAXrxq4ViO67YTiLBo2638o9A==
 
 esbuild@^0.12.8:
-  version "0.12.16"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.16.tgz#c397144ce13b445a6ead9c1f747da11f79ec5e67"
-  integrity sha512-XqI9cXP2bmQ6MREIqrYBb13KfYFSERsV1+e5jSVWps8dNlLZK+hln7d0mznzDIpfISsg/AgQW0DW3kSInXWhrg==
+  version "0.12.17"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.17.tgz#5816f905c2905de0ebbc658860df7b5b48afbcd3"
+  integrity sha512-GshKJyVYUnlSXIZj/NheC2O0Kblh42CS7P1wJyTbbIHevTG4jYMS9NNw8EOd8dDWD0dzydYHS01MpZoUcQXB4g==
 
 eventemitter3@^2.0.3:
   version "2.0.3"
@@ -932,9 +932,9 @@ rollup-plugin-gzip@^2.5.0:
   integrity sha512-1N0xtJJ8XfZYklZN1QcMLe+Mos2Vaccy3YUarE/AB1RkH7mkeppkFAz9srh+9KWOC3I2LWJeAYwFabO0rJ4mxg==
 
 rollup@^2.38.5:
-  version "2.54.0"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.54.0.tgz#99ea816e8e9b1c6af3ab957a4e7a8f78dbd87773"
-  integrity sha512-RHzvstAVwm9A751NxWIbGPFXs3zL4qe/eYg+N7WwGtIXVLy1cK64MiU37+hXeFm1jqipK6DGgMi6Z2hhPuCC3A==
+  version "2.55.1"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.55.1.tgz#66a444648e2fb603d8e329e77a61c608a6510fda"
+  integrity sha512-1P9w5fpb6b4qroePh8vHKGIvPNxwoCQhjJpIqfZGHLKpZ0xcU2/XBmFxFbc9697/6bmHpmFTLk5R1dAQhFSo0g==
   optionalDependencies:
     fsevents "~2.3.2"
 
@@ -1017,9 +1017,9 @@ util@^0.10.3:
     inherits "2.0.3"
 
 vite-plugin-ruby@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/vite-plugin-ruby/-/vite-plugin-ruby-2.0.4.tgz#3f9b1d9b2f652d33dc1fc7b70b07d6ca9deabf32"
-  integrity sha512-1YawT1DKSbY/N8OveNvhNuUOnXNgilMY38SzgLgTEIjIbauyvbArjKii3eK3JzmUcjr0rsPtKin7Omszhc/kvA==
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/vite-plugin-ruby/-/vite-plugin-ruby-2.0.5.tgz#926d27fd66dab1b136ca592440c74d5653306db4"
+  integrity sha512-t9uhOTpSzPXVGMc98R7ydvDa+/mDYfBQcQ+tQK5sL+8BhVzsW5pbQhAl0SQNB4xrE4i0ovGOrI0ZeCJxVacRVA==
   dependencies:
     debug "^4.3.1"
     fast-glob "^3.2.4"

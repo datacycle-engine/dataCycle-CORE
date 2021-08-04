@@ -327,9 +327,7 @@ module DataCycleCore
       I18n.with_locale(translation_locale || validation_params[:locale]) do
         valid = @object.validate(data_hash, nil, validation_params[:strict] == '1', true, current_user)
 
-        DataCycleCore::LocalizationService.localize_validation_errors(valid, helpers.active_ui_locale)
-
-        render json: valid.to_json
+        render json: DataCycleCore::LocalizationService.localize_validation_errors(valid, helpers.active_ui_locale).to_json
       end
     end
 

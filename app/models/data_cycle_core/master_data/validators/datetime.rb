@@ -49,15 +49,15 @@ module DataCycleCore
         private
 
         def min(data, value)
-          if data < value.to_datetime
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.min_datetime',
-              substitutions: {
-                data: data,
-                min: value
-              }
+          return unless data < value.to_datetime
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.min_datetime',
+            substitutions: {
+              data: data,
+              min: value
             }
-          end
+          }
         end
       end
     end

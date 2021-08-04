@@ -58,6 +58,7 @@ module DataCycleCore
 
         def check_reference(key, template)
           return unless uuid?(key)
+
           where_hash = { classifications: { id: key } }
           where_hash[:classification_tree_labels] = { name: template['tree_label'] } if template['universal'].blank?
           find_classification_alias = DataCycleCore::ClassificationTree
@@ -65,16 +66,16 @@ module DataCycleCore
             .joins(sub_classification_alias: [classification_groups: [:classification]])
             .where(where_hash)
 
-          if find_classification_alias.count < 1
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.classification',
-              substitutions: {
-                key: key,
-                template: template['label'],
-                tree_label: template['tree_label']
-              }
+          return unless find_classification_alias.count < 1
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.classification',
+            substitutions: {
+              key: key,
+              template: template['label'],
+              tree_label: template['tree_label']
             }
-          end
+          }
         end
 
         # validate nil,"",[],[nil],[""] as blank.
@@ -87,27 +88,27 @@ module DataCycleCore
         end
 
         def min(data, value)
-          if data.size < value
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.min_ref',
-              substitutions: {
-                data: data.size,
-                value: value
-              }
+          return unless data.size < value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.min_ref',
+            substitutions: {
+              data: data.size,
+              value: value
             }
-          end
+          }
         end
 
         def max(data, value)
-          if data.present? && data.size > value
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.max_ref',
-              substitutions: {
-                data: data.size,
-                value: value
-              }
+          return unless data.present? && data.size > value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.max_ref',
+            substitutions: {
+              data: data.size,
+              value: value
             }
-          end
+          }
         end
 
         def required(data, value)

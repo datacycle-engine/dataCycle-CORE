@@ -104,21 +104,20 @@ module DataCycleCore
 
           return if schedule.nil?
 
-          if schedule.first.blank?
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.schedule.invalid',
-              substitutions: {
-                data: {
-                  localization_method: 'l',
-                  localization_value: schedule&.start_time,
-                  substitutions: {
-                    format: :edit
-                  }
-                },
-                template: template['label']
+          return if schedule.first.present?
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.schedule.invalid',
+            substitutions: {
+              data: {
+                method: 'l',
+                value: schedule&.start_time,
+                substitutions: {
+                  format: :edit
+                }
               }
             }
-          end
+          }
         end
 
         def valid_dates(data, value)
@@ -130,21 +129,20 @@ module DataCycleCore
         end
 
         def check_closed_range(schedule_hash)
-          if schedule_hash.dig('rrules', 0, 'until').blank?
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.schedule.until_missing',
-              substitutions: {
-                data: {
-                  localization_method: 'l',
-                  localization_value: schedule_hash.dig('start_time', 'time')&.in_time_zone,
-                  substitutions: {
-                    format: :edit
-                  }
-                },
-                template: template['label']
+          return if schedule_hash.dig('rrules', 0, 'until').present?
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.schedule.until_missing',
+            substitutions: {
+              data: {
+                method: 'l',
+                value: schedule_hash.dig('start_time', 'time')&.in_time_zone,
+                substitutions: {
+                  format: :edit
+                }
               }
             }
-          end
+          }
         end
 
         def closed_range(data, value)

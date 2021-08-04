@@ -46,7 +46,7 @@ module DataCycleCore
               &.messages
               &.map { |k, v|
                 v.map do |t|
-                  "#{@asset.class.human_attribute_name(k.to_sym, locale: helpers.active_ui_locale)} #{        DataCycleCore::LocalizationService.translate_and_substitute(t, helpers.active_ui_locale)}"
+                  "#{@asset.class.human_attribute_name(k.to_sym, locale: helpers.active_ui_locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(t, helpers.active_ui_locale)}"
                 end
               }
               &.flatten

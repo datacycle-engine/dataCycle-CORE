@@ -38,27 +38,27 @@ module DataCycleCore
 
         # number validations
         def min(data, value)
-          if data < value
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.min_number',
-              substitutions: {
-                data: data,
-                value: value
-              }
+          return unless data < value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.min_number',
+            substitutions: {
+              data: data,
+              value: value
             }
-          end
+          }
         end
 
         def max(data, value)
-          if data > value
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.max_number',
-              substitutions: {
-                data: data,
-                value: value
-              }
+          return unless data > value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.max_number',
+            substitutions: {
+              data: data,
+              value: value
             }
-          end
+          }
         end
 
         def format(data, format_string)
@@ -77,25 +77,25 @@ module DataCycleCore
 
         # check number for given format
         def integer(data)
-          unless data.is_a?(Integer)
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.integer',
-              substitutions: {
-                data: data
-              }
+          return if data.is_a?(Integer)
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.integer',
+            substitutions: {
+              data: data
             }
-          end
+          }
         end
 
         def float(data)
-          unless data.to_f
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.float',
-              substitutions: {
-                data: data
-              }
+          return if data.to_f
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.float',
+            substitutions: {
+              data: data
             }
-          end
+          }
         end
       end
     end

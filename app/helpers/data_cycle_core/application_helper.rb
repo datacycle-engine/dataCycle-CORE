@@ -29,9 +29,11 @@ module DataCycleCore
 
     def available_locales_with_all
       @available_locales_with_all ||= Hash.new do |h, key|
-        h[key] = I18n.available_locales&.many? ?
-          available_locales_with_names.reverse_merge({ all: t('common.all', locale: active_ui_locale) }) :
-          available_locales_with_names
+        if I18n.available_locales&.many?
+          h[key] = available_locales_with_names.reverse_merge({ all: t('common.all', locale: active_ui_locale) })
+        else
+          h[key] = available_locales_with_names
+        end
       end
 
       @available_locales_with_all[active_ui_locale]

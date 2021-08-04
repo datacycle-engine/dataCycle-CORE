@@ -1,26 +1,6 @@
 {
   "ignored_warnings": [
     {
-      "warning_type": "File Access",
-      "warning_code": 16,
-      "fingerprint": "4c3e5690e3a2c6f301ffa68bfd75f8b7db841e433abc5e8b27946ab34471f207",
-      "check_name": "SendFile",
-      "message": "Model attribute used in file name",
-      "file": "app/controllers/data_cycle_core/data_links_controller.rb",
-      "line": 84,
-      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "send_file(DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path, :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name.presence.parameterize(:separator => \"_\") or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => DataCycleCore.ui_locales.first).parameterize(:separator => \"_\"))}.#{DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last}\"))",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "DataCycleCore::DataLinksController",
-        "method": "get_text_file"
-      },
-      "user_input": "DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path",
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "9c73b70e7c1058c20b52797a0d5bcdda0c1b8f6aad66f3fe8432ee58286bb9e6",
@@ -39,8 +19,28 @@
       "user_input": "(((ENV[\"PUMA_MAX_TIMEOUT\"].to_i or 60) - 1) * 1000)",
       "confidence": "Medium",
       "note": ""
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "d8daa1f9017fb38eed06349832042a3ca85d9da8ab70d0fee933ae26219a8340",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/data_cycle_core/data_links_controller.rb",
+      "line": 87,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path, :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name.presence or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => helpers.active_ui_locale)).underscore_blanks}.#{(MiniMime.lookup_by_content_type(DataCycleCore::DataLink.find(params[:id]).text_file.content_type).extension or DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last)}\"))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore::DataLinksController",
+        "method": "get_text_file"
+      },
+      "user_input": "DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path",
+      "confidence": "Medium",
+      "note": ""
     }
   ],
-  "updated": "2021-07-12 14:53:04 +0200",
+  "updated": "2021-08-04 13:00:28 +0200",
   "brakeman_version": "4.9.1"
 }

@@ -76,17 +76,17 @@ module DataCycleCore
     end
 
     def file_size_validation(options)
-      if file.size > options.dig(:file_size, :max).to_i
-        errors.add :file, {
-          path: 'uploader.validation.file_size.max',
-          substitutions: {
-            data: {
-              localization_method: 'number_to_human_size',
-              localization_value: options.dig(:file_size, :max).to_i
-            }
+      return unless file.size > options.dig(:file_size, :max).to_i
+
+      errors.add :file, {
+        path: 'uploader.validation.file_size.max',
+        substitutions: {
+          data: {
+            method: 'number_to_human_size',
+            value: options.dig(:file_size, :max).to_i
           }
         }
-      end
+      }
     end
 
     def remove_directory

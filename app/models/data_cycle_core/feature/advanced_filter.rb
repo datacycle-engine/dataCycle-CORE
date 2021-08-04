@@ -9,7 +9,7 @@ module DataCycleCore
 
           filters = []
           DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled, :config)&.each do |key, value|
-            filters.concat(try(key.to_sym, value, user) || default(key.to_s, value, user) || [])
+            filters.concat(try(key.to_sym, user, value) || default(user, key.to_s, value) || [])
           end
           filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.sort.group_by { |f| f[1] }.transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
         end
@@ -19,7 +19,7 @@ module DataCycleCore
 
           filters = []
           filter_config&.each do |key, value|
-            filters.concat(try(key.to_sym, value, user) || default(key.to_s, value, user) || [])
+            filters.concat(try(key.to_sym, user, value) || default(user, key.to_s, value) || [])
           end
           filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.reverse
         end
@@ -28,7 +28,7 @@ module DataCycleCore
           configuration.dig('advanced_attributes', specific_type, 'tree_label')
         end
 
-        def classification_alias_ids(value, user)
+        def classification_alias_ids(user, value)
           return [] unless value
 
           query = DataCycleCore::ClassificationTreeLabel.where('? = ANY(classification_tree_labels.visibility)', 'filter')
@@ -42,7 +42,7 @@ module DataCycleCore
           end
         end
 
-        def relation_filter(value, user)
+        def relation_filter(user, value)
           return [] unless value.is_a?(Hash)
           value.map do |k, v|
             [
@@ -53,7 +53,7 @@ module DataCycleCore
           end
         end
 
-        def union_filter_ids(value, user)
+        def union_filter_ids(user, value)
           return [] unless value
           [
             [
@@ -64,7 +64,7 @@ module DataCycleCore
           ]
         end
 
-        def geo_filter(value, user)
+        def geo_filter(user, value)
           if value.is_a?(Hash)
             value_arr = []
             value.each do |k, v|
@@ -90,7 +90,7 @@ module DataCycleCore
           end
         end
 
-        def date_range(value, user)
+        def date_range(user, value)
           if value == 'all'
             ['created_at', 'updated_at'].map do |c|
               [
@@ -120,7 +120,7 @@ module DataCycleCore
           end
         end
 
-        def boolean(value = [], user)
+        def boolean(user, value = [])
           value = ['duplicate_candidates'] if value == 'all'
 
           value.presence&.map do |c|
@@ -132,7 +132,7 @@ module DataCycleCore
           end || []
         end
 
-        def default(key, value, user)
+        def default(user, key, value)
           return [] unless value
           [
             [
@@ -143,7 +143,7 @@ module DataCycleCore
           ]
         end
 
-        def advanced_attributes(value, user)
+        def advanced_attributes(user, value)
           return [] unless value
           value.map do |k, v|
             [
@@ -154,7 +154,7 @@ module DataCycleCore
           end
         end
 
-        def inactive_things(value, user)
+        def inactive_things(user, value)
           return [] unless value
           value.map do |k, _v|
             [
@@ -165,7 +165,7 @@ module DataCycleCore
           end
         end
 
-        def in_schedule(value, user)
+        def in_schedule(user, value)
           return [] unless value
           value.map do |k, _v|
             [
@@ -176,7 +176,7 @@ module DataCycleCore
           end
         end
 
-        def validity_period(value, user)
+        def validity_period(user, value)
           return [] unless value
           value.map do |k, _v|
             [

@@ -25,14 +25,14 @@ module DataCycleCore
         end
 
         def boolean(data)
-          unless data.squish == 'true' || data.squish == 'false'
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.boolean',
-              substitutions: {
-                data: data
-              }
+          return if data.squish == 'true' || data.squish == 'false'
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.boolean',
+            substitutions: {
+              data: data
             }
-          end
+          }
         end
       end
     end

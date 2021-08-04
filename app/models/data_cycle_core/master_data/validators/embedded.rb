@@ -97,27 +97,27 @@ module DataCycleCore
         end
 
         def min(data, value)
-          if data.size < value
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.min_ref',
-              substitutions: {
-                data: data.size,
-                value: value
-              }
+          return unless data.size < value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.min_ref',
+            substitutions: {
+              data: data.size,
+              value: value
             }
-          end
+          }
         end
 
         def max(data, value)
-          if data.size > value
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.max_ref',
-              substitutions: {
-                data: data.size,
-                value: value
-              }
+          return unless data.size > value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.max_ref',
+            substitutions: {
+              data: data.size,
+              value: value
             }
-          end
+          }
         end
       end
     end

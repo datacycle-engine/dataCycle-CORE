@@ -268,9 +268,8 @@ module DataCycleCore
 
         validator = DataCycleCore::MasterData::ValidateData.new
         valid = validator.validate(datahash, template_hash)
-        DataCycleCore::LocalizationService.localize_validation_errors(valid, helpers.active_ui_locale)
 
-        render json: valid.to_json
+        render json: DataCycleCore::LocalizationService.localize_validation_errors(valid, helpers.active_ui_locale).to_json
       end
     end
 

@@ -64,17 +64,19 @@ module DataCycleCore
 
         def check_reference(key, template)
           return unless uuid?(key)
+
           data_set = DataCycleCore::Thing.where(id: key)
-          if data_set.count < 1
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.not_found',
-              substitutions: {
-                key: key,
-                template: template['label'],
-                table: 'things'
-              }
+
+          return unless data_set.count < 1
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.not_found',
+            substitutions: {
+              key: key,
+              template: template['label'],
+              table: 'things'
             }
-          end
+          }
         end
 
         # validate nil,"",[],[nil],[""] as blank.
@@ -87,51 +89,51 @@ module DataCycleCore
         end
 
         def min(data, value)
-          if data&.size.to_i < value
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.min_ref',
-              substitutions: {
-                data: data&.size.to_i,
-                value: value
-              }
+          return unless data&.size.to_i < value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.min_ref',
+            substitutions: {
+              data: data&.size.to_i,
+              value: value
             }
-          end
+          }
         end
 
         def soft_min(data, value)
-          if data&.size.to_i < value
-            (@error[:warning][@template_key] ||= []) << {
-              path: 'validation.errors.min_ref',
-              substitutions: {
-                data: data&.size.to_i,
-                value: value
-              }
+          return unless data&.size.to_i < value
+
+          (@error[:warning][@template_key] ||= []) << {
+            path: 'validation.errors.min_ref',
+            substitutions: {
+              data: data&.size.to_i,
+              value: value
             }
-          end
+          }
         end
 
         def max(data, value)
-          if data&.size.to_i > value
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.max_ref',
-              substitutions: {
-                data: data&.size.to_i,
-                value: value
-              }
+          return unless data&.size.to_i > value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.max_ref',
+            substitutions: {
+              data: data&.size.to_i,
+              value: value
             }
-          end
+          }
         end
 
         def soft_max(data, value)
-          if data&.size.to_i > value
-            (@error[:warning][@template_key] ||= []) << {
-              path: 'validation.errors.max_ref',
-              substitutions: {
-                data: data&.size.to_i,
-                value: value
-              }
+          return unless data&.size.to_i > value
+
+          (@error[:warning][@template_key] ||= []) << {
+            path: 'validation.errors.max_ref',
+            substitutions: {
+              data: data&.size.to_i,
+              value: value
             }
-          end
+          }
         end
 
         def required(data, value)

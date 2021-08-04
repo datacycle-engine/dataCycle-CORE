@@ -3,40 +3,39 @@
 module DataCycleCore
   module LocalizationService
     def self.localize_validation_errors(message_hash, locale)
-      if message_hash[:error].is_a?(::Hash)
-        message_hash[:error]&.transform_values! { |v| translate_and_substitute(v, locale) }
-      else
-        message_hash[:error] = translate_and_substitute(message_hash[:error], locale)
-      end
+      return message_hash unless message_hash.is_a?(::Hash)
 
-      if message_hash[:warning].is_a?(::Hash)
-        message_hash[:warning]&.transform_values! { |v| translate_and_substitute(v, locale) }
-      else
-        message_hash[:warning] = translate_and_substitute(message_hash[:warning], locale)
-      end
+      localized_hash = message_hash.deep_dup
+      localized_hash[:error] = translate_and_substitute(localized_hash[:error], locale)
+      localized_hash[:warning] = translate_and_substitute(localized_hash[:warning], locale)
 
-      message_hash
+      localized_hash
     end
 
     def self.translate_and_substitute(translation_object, locale)
       return translation_object.map { |t| translate_and_substitute(t, locale) } if translation_object.is_a?(::Array)
       return translation_object unless translation_object.is_a?(::Hash)
 
-      translation_object[:substitutions]&.transform_values! do |value|
+      substitutions = translation_object[:substitutions]&.deep_dup || {}
+      substitutions.transform_values! do |value|
         value.is_a?(::Hash) ? translate_and_substitute(value, locale) : value
       end
 
       if translation_object.key?(:path)
         I18n.t(
           translation_object[:path],
-          (translation_object[:substitutions] || {}).merge(locale: locale)
+          substitutions.merge(locale: locale)
         )
-      elsif translation_object.key?(:localization_method)
-        view_helpers.try(
-          translation_object[:localization_method],
-          translation_object[:localization_value],
-          (translation_object[:substitutions] || {}).merge(locale: locale)
+      elsif translation_object.key?(:method)
+        view_helpers.send(
+          translation_object[:method],
+          translation_object[:value],
+          substitutions.merge(locale: locale)
         )
+      else
+        translation_object.transform_values do |value|
+          translate_and_substitute(value, locale)
+        end
       end
     end
 
