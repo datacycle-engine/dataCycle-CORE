@@ -124,4 +124,12 @@ describe DataCycleCore::ExternalSystem do
   it 'throws an exception if download can not find a config' do
     assert_raises(ArgumentError) { subject.download(:xxx, { test: 'servas' }) }
   end
+
+  it 'produces a name_with_types string' do
+    assert("#{subject.name} (import)", subject.name_with_types)
+  end
+
+  it 'is not deactivated (default)' do
+    assert_same(false, subject.deactivated)
+  end
 end
