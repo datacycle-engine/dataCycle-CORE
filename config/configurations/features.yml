@@ -121,8 +121,8 @@
     :schedule_exceptions:
       - validity_schedule
   :classification_alias_ids: all
-  :external_source: true
-  :external_system: false
+  :external_source: false
+  :external_system: true
   :creator: true
   :classification_tree_ids: true
   :date_range: all

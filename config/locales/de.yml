@@ -139,6 +139,9 @@ de:
     are_you_sure: 'Sind Sie sicher?'
     language: 'Sprache'
     all: Alle
+    import: Importiert
+    export: Exportiert
+    duplicate: Duplikate
     choose_language: 'Sprache wählen'
     searchterm: 'Suchbegriff'
     active_filters: Aktive Filter
@@ -395,7 +398,7 @@ de:
     add: Filter hinzufügen
     language: Sprache
     external_source: Externe Quelle
-    external_system: Externe Zielsysteme
+    external_system: Externe Systeme
     creator: Ersteller
     classification_tree_ids: Klassifizierungsbaum
     created_at: Erstellungsdatum
@@ -473,7 +476,7 @@ de:
     classification_tree_ids: nach Klassifizierungsbaum filtern...
     creator: nach Personen filtern...
     external_source: nach externen Quellen filtern...
-    external_system: nach externen Verknüpfungen filtern...
+    external_system: nach externen Systemen filtern...
     validity_period: nach Gültigkeitszeitraum filtern...
     date_range: nach Datum filtern...
     boolean: nach booleschen Kriterien filtern...

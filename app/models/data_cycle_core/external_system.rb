@@ -24,6 +24,16 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
+    def name_with_types
+      nwt = name
+      type = []
+      type += ['import'] if import_config.present?
+      type += ['export'] if export_config.present?
+      type += ['sync'] if import_config.blank? && export_config.blank?
+      nwt += " [#{type.join(', ')}]" if type.present?
+      nwt
+    end
+
     def export_config
       return @export_config if defined? @export_config
       @export_config = config&.dig('export_config')&.symbolize_keys

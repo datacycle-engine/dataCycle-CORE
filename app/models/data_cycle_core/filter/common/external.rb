@@ -24,40 +24,83 @@ module DataCycleCore
           )
         end
 
-        def with_external_source_names(definition)
-          return self if definition.blank?
-          raise StandardError, 'Missing data definition: names' if definition.dig('names').blank?
+        # commented out 2.8.2021
+        # def with_external_source_names(definition)
+        #   return self if definition.blank?
+        #   raise StandardError, 'Missing data definition: names' if definition.dig('names').blank?
+        #
+        #   ids = DataCycleCore::ExternalSystem.where(name: definition.dig('names').flatten)&.map(&:id)
+        #
+        #   external_source(ids)
+        # end
+        #
+        # def without_external_sources(definition)
+        #   return self if definition.blank?
+        #   without_external_source
+        # end
+        #
+        # def without_external_source
+        #   reflect(
+        #     @query.where(thing[:external_source_id].eq(nil))
+        #   )
+        # end
 
-          ids = DataCycleCore::ExternalSystem.where(name: definition.dig('names').flatten)&.map(&:id)
-
-          external_source(ids)
-        end
-
-        def without_external_sources(definition)
-          return self if definition.blank?
-          without_external_source
-        end
-
-        def without_external_source
-          reflect(
-            @query.where(thing[:external_source_id].eq(nil))
-          )
-        end
-
-        def external_system(ids = nil)
+        def external_system(ids = nil, type = 'import')
           return self if ids.blank?
 
-          reflect(
-            @query.where(external_system_sync.where(external_system_sync[:external_system_id].in(ids).and(external_system_sync[:syncable_id].eq(thing[:id]))).exists)
-          )
+          if type == 'import'
+            external_source(ids)
+          elsif type == 'all'
+            reflect(
+              @query.where(
+                external_system_sync.where(
+                  external_system_sync[:external_system_id].in(ids)
+                    .and(external_system_sync[:syncable_id].eq(thing[:id]))
+                ).exists
+                .or(thing[:external_source_id].in(ids))
+              )
+            )
+          else
+            reflect(
+              @query.where(
+                external_system_sync
+                  .where(
+                    external_system_sync[:external_system_id].in(ids)
+                      .and(external_system_sync[:syncable_id].eq(thing[:id]))
+                      .and(external_system_sync[:sync_type].eq(type))
+                  ).exists
+              )
+            )
+          end
         end
 
-        def not_external_system(ids = nil)
+        def not_external_system(ids = nil, type = 'import')
           return self if ids.blank?
 
-          reflect(
-            @query.where(external_system_sync.where(external_system_sync[:external_system_id].in(ids).and(external_system_sync[:syncable_id].eq(thing[:id]))).exists.not)
-          )
+          if type == 'import'
+            not_external_source(ids)
+          elsif type == 'all'
+            reflect(
+              @query.where(
+                external_system_sync.where(
+                  external_system_sync[:external_system_id].in(ids)
+                    .and(external_system_sync[:syncable_id].eq(thing[:id]))
+                ).exists.not
+                .and(thing[:external_source_id].in(ids).not)
+              )
+            )
+          else
+            reflect(
+              @query.where(
+                external_system_sync
+                  .where(
+                    external_system_sync[:external_system_id].in(ids)
+                    .and(external_system_sync[:syncable_id].eq(thing[:id]))
+                    .and(external_system_sync[:sync_type].eq(type))
+                  ).exists.not
+              )
+            )
+          end
         end
       end
     end
