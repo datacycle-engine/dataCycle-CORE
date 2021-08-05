@@ -35,7 +35,7 @@ class AccordionExtension {
     $(container)
       .find('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
       .addBack('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
-      .each((index, accordion) => {
+      .each((_index, accordion) => {
         $(accordion).foundation('up', $(accordion).find('> .accordion-item > .accordion-content'));
       });
   }
@@ -46,7 +46,7 @@ class AccordionExtension {
     $(container)
       .find('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
       .addBack('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
-      .each((index, accordion) => {
+      .each((_index, accordion) => {
         $(accordion).foundation('down', $(accordion).find('> .accordion-item > .accordion-content'));
       });
   }

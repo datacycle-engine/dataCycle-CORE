@@ -92,6 +92,10 @@ en:
       insertnbsp: insert protected space
     override_warning: 'Should the field %{data} be overwritten?'
     reload_page: reload page
+    upload:
+      running: There are still ongoing uploads!
+      missing_metadata: Missing metadata!
+      processing: processing
 
   schedule:
     dtstart: Startzeitpunkt

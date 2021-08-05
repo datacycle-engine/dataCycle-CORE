@@ -42,8 +42,8 @@ class AssetUploader {
     this.reveal.on('dc:upload:setFiles', (e, files) => {
       this.validateFiles(e, files.fileList);
     });
-    $(window).on('beforeunload', event => {
-      if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
+    $(window).on('beforeunload', async _event => {
+      if ($('.file-for-upload.uploading').length) return await I18n.translate('frontend.upload.running');
     });
     this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
     this.reveal.on(
@@ -109,10 +109,10 @@ class AssetUploader {
 
     if (file) this.uploadFile(file);
   }
-  openReveal(event) {
+  openReveal(_event) {
     this.reveal.parent('.reveal-overlay').addClass('content-reveal-overlay');
   }
-  closeReveal(event) {
+  closeReveal(_event) {
     this.contentUploaderField.trigger('dc:upload:filesChanged');
     $('.asset-selector-reveal:visible').trigger('open.zf.reveal');
   }
@@ -145,8 +145,7 @@ class AssetUploader {
               let redirect_path = data.redirect_path;
               if (data && data.flash) {
                 Object.keys(data.flash).forEach((item, index) => {
-                  redirect_path += index == 0 ? '?' : '&';
-                  redirect_path += 'flash[' + item + ']=' + encodeURI(data.flash[item]);
+                  redirect_path += `${index == 0 ? '?' : '&'}flash[${item}]=${encodeURI(data.flash[item])}`;
                 });
               }
               window.location.href = redirect_path;
@@ -188,9 +187,9 @@ class AssetUploader {
       contentType: 'application/x-www-form-urlencoded'
     });
   }
-  validateAttributes(file) {
+  async validateAttributes(file) {
     if (this.showNewForm && (!file.attributeFieldValues || !file.attributeFieldValues.length)) {
-      this.updateFileValidated(file, { error: 'Fehlende Metadaten!' });
+      this.updateFileValidated(file, { error: await I18n.translate('frontend.upload.missing_metadata') });
       return;
     }
 
@@ -302,7 +301,7 @@ class AssetUploader {
     if (!file.attributeValues || !Object.keys(file.attributeValues).length)
       file.attributeValues = ObjectHelpers.deepCopy(this.renderedAttributes);
 
-    Object.keys(file.attributeValues).forEach(key => {
+    Object.keys(file.attributeValues).forEach(async key => {
       let values = file.attributeFieldValues.filter(
         f =>
           f.name.includes(key) &&
@@ -314,7 +313,7 @@ class AssetUploader {
         let value = ObjectHelpers.get(['ui', 'create', 'false_value'], attribute) || 'false';
         if (values && values.length) value = values.pop().value;
 
-        value = value == 'true' ? 'ja' : 'nein';
+        value = await I18n.translate(`common.${value}`);
 
         Object.assign(attribute, {
           name: key,
@@ -347,17 +346,9 @@ class AssetUploader {
 
     let label = attribute.label;
 
-    return (
-      '<span class="file-label" title="' +
-      label +
-      '">' +
-      label +
-      '</span><span class="file-attribute-value" title="' +
-      $('<span>' + value + '</span>').text() +
-      '">' +
-      value +
-      '</span>'
-    );
+    return `<span class="file-label" title="${label}">${label}</span><span class="file-attribute-value" title="${$(
+      '<span>' + value + '</span>'
+    ).text()}">${value}</span>`;
   }
   renderSpecificField(field, asset, previousField = null) {
     if (asset.fileField.find('.asset-attribute[data-name="' + field.name + '"]').length)
@@ -369,7 +360,7 @@ class AssetUploader {
     else asset.fileField.find('.new-asset-attributes .file-buttons').before(this.attributeValueHtml(field));
   }
   attributeValueHtml(field) {
-    return '<div class="asset-attribute ' + field.type + '" data-name="' + field.name + '">' + field.value + '</div>';
+    return `<div class="asset-attribute ${field.type}" data-name="${field.name}">${field.value}</div>`;
   }
   prepareFileForUpload(file) {
     file.fileField.add(file.fileFormField).removeClass('error finished').addClass('uploading').find('.error').remove();
@@ -406,7 +397,7 @@ class AssetUploader {
           if (myXhr.upload) {
             myXhr.upload.addEventListener(
               'progress',
-              function (e) {
+              async function (e) {
                 if (e.lengthComputable) {
                   var elapsedtime = (new Date().getTime() - startTime) / 1000;
                   var eta = Math.round((e.total / e.loaded) * elapsedtime - elapsedtime);
@@ -418,16 +409,19 @@ class AssetUploader {
                     .add(file.fileFormField)
                     .find('.upload-number')
                     .html(
-                      Math.round((e.loaded / e.total) * 100) +
-                        '%, <span class="eta">' +
-                        DurationHelpers.seconds_to_human_time(eta) +
-                        '</span>'
+                      `${Math.round(
+                        (e.loaded / e.total) * 100
+                      )}%, <span class="eta">${DurationHelpers.seconds_to_human_time(eta)}</span>`
                     );
                   if (e.loaded == e.total) {
                     file.fileField
                       .add(file.fileFormField)
                       .find('.upload-number')
-                      .html('<i class="fa fa-cog fa-spin fa-fw working-spinner"></i>wird verarbeitet');
+                      .html(
+                        `<i class="fa fa-cog fa-spin fa-fw working-spinner"></i>${await I18n.translate(
+                          'frontend.processing'
+                        )}`
+                      );
                   }
                 }
               },
@@ -737,8 +731,8 @@ class AssetUploader {
       '</div>' +
       fileOptions.appendHtml;
 
-    // fileOptions.validator = new AssetValidator(fileOptions);
-    fileOptions.valid = { valid: true, messages: null }; //fileOptions.validator.validate();
+    fileOptions.validator = new AssetValidator(fileOptions);
+    fileOptions.valid = fileOptions.validator.validate();
 
     if (fileOptions.validation && !fileOptions.valid.valid) {
       fileOptions.errors = fileOptions.valid.messages.join(', ');

@@ -1,3 +1,5 @@
+import loadingIcon from '../templates/loadingIcon';
+
 class AssetSelector {
   constructor(selector) {
     this.reveal = $(selector);
@@ -17,7 +19,6 @@ class AssetSelector {
     this.assets = [];
     this.editableList = $(`#${this.reveal.data('editable-list-id')}`);
     this.editableFormElement = this.editableList.closest('.form-element');
-    this.loaderIcon = '<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>';
     this.editButton = $(`#${this.reveal.prop('id')}`);
 
     this.init();
@@ -48,7 +49,7 @@ class AssetSelector {
     this.updateHiddenField();
   }
   setSelectedAssets() {
-    this.editableList.html(this.loaderIcon);
+    this.editableList.html(loadingIcon);
     DataCycle.disableElement(this.editButton);
     DataCycle.httpRequest({
       url: '/files/assets',
@@ -97,8 +98,8 @@ class AssetSelector {
   loadAssets(append = true) {
     if (!append) {
       this.page = 1;
-      this.assetList.html(this.loaderIcon);
-    } else this.assetList.append(this.loaderIcon);
+      this.assetList.html(loadingIcon);
+    } else this.assetList.append(loadingIcon);
     DataCycle.disableElement(this.selectButton);
     this.loading = true;
     this.requests.forEach(request => {
