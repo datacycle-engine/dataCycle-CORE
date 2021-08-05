@@ -336,7 +336,7 @@ module DataCycleCore
             start_time = start_time.beginning_of_day
             s['duration'] = (end_time.beginning_of_day - start_time.beginning_of_day) + 1.day
           elsif end_time.present?
-            s['duration'] = time_to_duration(start_time.strftime('%H:%M'), end_time.strftime('%H:%M'))
+            s['duration'] = end_time - start_time
           end
 
           s['start_time'] = {

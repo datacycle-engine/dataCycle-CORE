@@ -6,7 +6,7 @@
     accordion_item: true
   } do %>
 
-  <% readonly = !attribute_editable?(key, definition, local_assigns[:options], local_assigns[:object]) %>
+  <% readonly = !attribute_editable?(key, definition, local_assigns[:options], local_assigns[:content]) %>
 
   <span class="embedded-header">
     <% unless readonly %>
@@ -129,7 +129,7 @@
         <% end %>
         <% if readonly %>
           <%= text_field_tag "#{key}[#{index}][rrules][][until]",
-            l(value.dig(:rrules, 0, :until)&.in_time_zone.to_date, locale: DataCycleCore.ui_language),
+            l(value.dig(:rrules, 0, :until)&.in_time_zone&.to_date, locale: DataCycleCore.ui_language),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rrules][until]")}", readonly: true %>
         <% else %>
