@@ -86,6 +86,13 @@ en:
       day: täglich
       week: wöchentlich
 
+  frontend:
+    load_error: Error loading content.
+    text_editor:
+      insertnbsp: insert protected space
+    override_warning: 'Should the field %{data} be overwritten?'
+    reload_page: reload page
+
   schedule:
     dtstart: Startzeitpunkt
     dtend: Endzeitpunkt
@@ -311,6 +318,8 @@ en:
     no_name: unbenannt
     o_clock: Uhr
     and: und
+    'yes': 'yes'
+    'no': 'no'
 
   embedded:
     move_down: nach unten verschieben

@@ -56,7 +56,7 @@ export default function () {
       load_more();
     }
 
-    $(document).on('scroll', event => {
+    $(document).on('scroll', _event => {
       if (!loading && $(window).scrollTop() + $(window).height() >= $(document).height() - 100 && page < pages) {
         load_more();
       }

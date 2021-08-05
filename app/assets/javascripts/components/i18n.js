@@ -1,11 +1,15 @@
 import template from 'lodash/template';
+import get from 'lodash/get';
 
 const I18n = {
   cache: {},
   async translate(path, substitutions = {}) {
-    let text = this.cache[path];
+    let text = await Promise.resolve(this.cache[path]);
 
-    if (!text) text = await this._loadTranslation(path);
+    if (!text) {
+      this.cache[path] = this._loadTranslation(path);
+      text = this.cache[path] = await this.cache[path];
+    }
 
     const compiled = template(text, { interpolate: /%{([\s\S]+?)}/g });
 
@@ -19,10 +23,10 @@ const I18n = {
         path: path
       }
     }).catch(e => {
-      console.error(e);
+      return { text: `${get(e, 'responseJSON.error', 'TRANSLATION_MISSING')} (${path})` };
     });
 
-    return (this.cache[path] = result.text);
+    return result.text;
   }
 };
 

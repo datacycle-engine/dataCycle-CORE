@@ -13,7 +13,7 @@ export default function () {
   function init_counters(container) {
     $(container)
       .find('input.form-control[type=text]:not(:disabled):not(.flatpickr-input)')
-      .each((index, element) => {
+      .each((_index, element) => {
         CounterArray[$(element).prop('id')] = new Counter(element).start();
       });
   }

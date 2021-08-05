@@ -13,7 +13,7 @@ export default function () {
 function initJsDiff(container = document) {
   $(container)
     .find('.detail-type.string.has-changes.edit')
-    .each((index, item) => {
+    .each((_index, item) => {
       if (
         !$(item).hasClass('js-diff') &&
         $(item).data('diff-before') !== undefined &&

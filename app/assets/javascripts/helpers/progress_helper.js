@@ -7,11 +7,7 @@ export default {
       var text = container.html();
       container.html('');
       container.append(
-        '<span class="progresstitle">' +
-          text +
-          '</span><span class="progressbar"><span class="progressbar-meter style="width: ' +
-          percentage +
-          '%;"></span></span>'
+        `<span class="progresstitle">${text}</span><span class="progressbar"><span class="progressbar-meter style="width: ${percentage}%;"></span></span>`
       );
     }
 

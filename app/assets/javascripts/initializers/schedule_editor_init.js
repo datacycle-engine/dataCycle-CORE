@@ -3,7 +3,7 @@ import ScheduleEditor from '../components/schedule_editor';
 export default function () {
   var schedule_editors = [];
 
-  $('.schedule-editor').each((i, elem) => {
+  $('.schedule-editor').each((_i, elem) => {
     schedule_editors.push(new ScheduleEditor($(elem)));
   });
 
@@ -12,7 +12,7 @@ export default function () {
     $(event.target)
       .find('.schedule-editor')
       .addBack('.schedule-editor')
-      .each((i, elem) => {
+      .each((_i, elem) => {
         schedule_editors.push(new ScheduleEditor($(elem)));
       });
   });

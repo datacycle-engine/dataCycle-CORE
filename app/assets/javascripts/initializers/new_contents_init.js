@@ -1,5 +1,6 @@
 import NewContentDialog from './../components/new_content_dialog';
 import DragAndDropField from '../components/drag_and_drop_field';
+import loadingIcon from '../templates/loadingIcon';
 
 export default function () {
   $(document).on('dc:html:changed', '*', event => {
@@ -10,20 +11,20 @@ export default function () {
   init();
 
   $(document).on('ajax:before', '.new-content-reveal [data-remote]', event => {
+    $(event.target).closest('.new-content-reveal').find('.new-content-form').html(loadingIcon('show'));
+  });
+
+  $(document).on('ajax:error', '.new-content-reveal [data-remote]', async event => {
     $(event.target)
       .closest('.new-content-reveal')
       .find('.new-content-form')
-      .html('<div class="loading show"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
-  });
-
-  $(document).on('ajax:error', '.new-content-reveal [data-remote]', event => {
-    $(event.target).closest('.new-content-reveal').find('.new-content-form').html('Fehler beim Laden des Inhalts.');
+      .html(await I18n.translate('frontend.load_error'));
   });
 
   function init(container = document) {
     $(container)
       .find('form.multi-step')
-      .each((index, element) => {
+      .each((_index, element) => {
         new NewContentDialog(element);
       });
 

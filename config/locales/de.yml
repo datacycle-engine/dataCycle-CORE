@@ -86,6 +86,24 @@ de:
       day: täglich
       week: wöchentlich
 
+  frontend:
+    load_error: Fehler beim Laden des Inhalts.
+    text_editor:
+      insertnbsp: Geschütztes Leerzeichen einfügen
+    override_warning: 'Soll das Feld %{data} überschrieben werden?'
+    reload_page: Seite neu laden
+    select2:
+      error_loading: Die Ergebnisse konnten nicht geladen werden.
+      input_too_long: Bitte %{data} Zeichen weniger eingeben
+      input_too_short: Bitte %{data} Zeichen mehr eingeben
+      loading_more: Lade mehr Ergebnisse…
+      maximum_selected:
+        one: Sie können nur %{data} Element auswählen
+        many: Sie können nur %{data} Elemente auswählen
+      no_results: Keine Übereinstimmungen gefunden
+      searching: Suche...
+      remove_all_items: Entferne alle Elemente
+
   schedule:
     dtstart: Startzeitpunkt
     dtend: Endzeitpunkt
@@ -314,6 +332,8 @@ de:
     no_name: unbenannt
     o_clock: Uhr
     and: und
+    'yes': Ja
+    'no': Nein
 
   embedded:
     move_down: nach unten verschieben

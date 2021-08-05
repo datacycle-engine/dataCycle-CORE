@@ -1,7 +1,7 @@
 export default function () {
-  $(document).on('click', '.copy-to-clipboard', function (event) {
+  $(document).on('click', '.copy-to-clipboard', async event => {
     event.preventDefault();
-    var text = $(this).data('value');
+    var text = $(event.currentTarget).data('value');
     var inp = document.createElement('input');
     document.body.appendChild(inp);
     inp.value = text;
@@ -9,17 +9,16 @@ export default function () {
     document.execCommand('copy', false);
     inp.remove();
 
-    $(this).before('<span class="clipboard-notice">In Zwischenablage kopiert.</span>');
-    setTimeout(
-      function () {
-        $(this)
-          .siblings('.clipboard-notice')
-          .fadeOut('fast', function () {
-            $(this).remove();
-          });
-      }.bind(this),
-      1000
+    $(event.currentTarget).before(
+      `<span class="clipboard-notice">${await I18n.translate('actions.copied_to_clipboard')}</span>`
     );
+    setTimeout(() => {
+      const $notice = $(event.currentTarget).siblings('.clipboard-notice');
+
+      $notice.fadeOut('fast', () => {
+        $notice.remove();
+      });
+    }, 1000);
   });
 
   $(document).on('click', '.show-more .show-more-link', event => {

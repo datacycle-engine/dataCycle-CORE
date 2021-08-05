@@ -1,15 +1,9 @@
-import Select2 from 'select2';
 import SimpleSelect2 from '../components/simple_select2';
 import AsyncSelect2 from '../components/async_select2';
 import CheckBoxSelector from '../components/check_box_selector';
 import RadioButtonSelector from '../components/radio_button_selector';
-import i18n from '../helpers/select2_i18n';
 
 export default function () {
-  Select2($);
-  $.fn.select2.defaults.set('language', i18n);
-  $.fn.select2.defaults.set('width', '100%');
-
   // FIXME: remove when https://github.com/select2/select2/issues/5993 is resolved
   $(document).on('select2:open', e => {
     const searchField = e.target.parentNode.querySelector('.select2-search__field');
