@@ -49,11 +49,39 @@ module DataCycleCore
         )
       end
 
-      def updated_since(updated_at = nil)
+      def updated_since(updated_at = nil, iteration_depth = 5)
         return self if updated_at.blank?
 
+        updated_since = updated_at.to_s(:only_date)
+
+        raw_sql = <<-SQL.squish
+          WITH RECURSIVE content_dependencies AS (
+            SELECT ARRAY[things.id] "content_ids"
+              FROM things AS t
+              WHERE t.id = things.id
+              AND t.updated_at >= '#{updated_since}'
+            UNION
+            SELECT ARRAY[content_content_links.content_b_id, content_content_links.content_a_id] "content_ids"
+              FROM content_content_links
+              JOIN things AS t ON t.id = content_content_links.content_b_id
+              WHERE content_content_links.content_a_id = things.id
+              AND t.updated_at >= '#{updated_since}'
+            UNION
+            SELECT content_content_links.content_b_id || content_dependencies.content_ids "content_ids"
+              FROM content_content_links
+              JOIN things AS t ON t.id = content_content_links.content_b_id
+              JOIN content_dependencies ON content_dependencies.content_ids[1] = content_content_links.content_a_id
+              AND content_content_links.content_b_id <> ALL(content_dependencies.content_ids)
+              AND t.updated_at >= '#{updated_since}'
+            WHERE array_length(content_dependencies.content_ids, 1) < #{iteration_depth}
+          ) SELECT 1 FROM content_dependencies WHERE content_ids[array_length(content_ids, 1)] = things.id
+        SQL
+
+        # reflect(
+        #   @query.where(thing[:updated_at].gteq(quoted(updated_at)))
+        # )
         reflect(
-          @query.where(thing[:updated_at].gteq(quoted(updated_at)))
+          @query.where("EXISTS (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, updated_since, iteration_depth])})")
         )
       end
 

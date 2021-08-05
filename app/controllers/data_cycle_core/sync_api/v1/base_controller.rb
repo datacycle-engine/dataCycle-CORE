@@ -63,7 +63,7 @@ module DataCycleCore
           @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:sync_api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
           @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)
-          @updated_since = permitted_params.dig(:updated_since)
+          @updated_since = permitted_params.dig(:updated_since)&.try(:in_time_zone)
           @api_version = 1
         end
 
