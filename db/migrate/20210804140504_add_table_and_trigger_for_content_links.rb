@@ -11,24 +11,24 @@ class AddTableAndTriggerForContentLinks < ActiveRecord::Migration[5.2]
       );
       CREATE UNIQUE INDEX IF NOT EXISTS index_contents_a_b ON content_content_links (content_a_id, content_b_id);
 
-      CREATE OR REPLACE FUNCTION generate_content_content_links(a UUID, b UUID) RETURNS UUID LANGUAGE PLPGSQL AS $$
+      CREATE OR REPLACE FUNCTION generate_content_content_links(a UUID, b UUID) RETURNS UUID[] LANGUAGE PLPGSQL AS $$
       BEGIN
         INSERT INTO content_content_links (content_a_id, content_b_id)
           SELECT content_a_id, content_b_id
           FROM content_contents
           WHERE content_a_id = a
-          and content_b_id = b
+          AND content_b_id = b
         ON CONFLICT DO NOTHING;
 
         INSERT INTO content_content_links (content_a_id, content_b_id)
           SELECT content_b_id, content_a_id
           FROM content_contents
-          WHERE content_b_id = a
-          AND content_a_id = b
+          WHERE content_a_id = a
+          AND content_b_id = b
           AND relation_b IS NOT NULL
         ON CONFLICT DO NOTHING;
 
-        RETURN 1;
+        RETURN ARRAY[a, b];
       END;$$;
 
       CREATE OR REPLACE FUNCTION generate_content_content_links_trigger() RETURNS TRIGGER LANGUAGE PLPGSQL AS $$
@@ -41,13 +41,13 @@ class AddTableAndTriggerForContentLinks < ActiveRecord::Migration[5.2]
       CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT OR UPDATE ON content_contents FOR EACH ROW EXECUTE FUNCTION generate_content_content_links_trigger();
 
 
-      CREATE OR REPLACE FUNCTION delete_content_content_links(a UUID, b UUID) RETURNS UUID LANGUAGE PLPGSQL AS $$
+      CREATE OR REPLACE FUNCTION delete_content_content_links(a UUID, b UUID) RETURNS UUID[] LANGUAGE PLPGSQL AS $$
       BEGIN
         DELETE FROM content_content_links
           WHERE content_a_id = a
           AND content_b_id = b;
 
-        RETURN 1;
+        RETURN ARRAY[a, b];
       END;$$;
 
       CREATE OR REPLACE FUNCTION delete_content_content_links_trigger() RETURNS TRIGGER LANGUAGE PLPGSQL AS $$
