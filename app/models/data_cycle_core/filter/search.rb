@@ -52,7 +52,7 @@ module DataCycleCore
       def updated_since(updated_at = nil, iteration_depth = 5)
         return self if updated_at.blank?
 
-        updated_since = updated_at.to_s(:only_date)
+        updated_since = updated_at.to_s(:compact_datetime)
 
         raw_sql = <<-SQL.squish
           WITH RECURSIVE content_dependencies AS (
