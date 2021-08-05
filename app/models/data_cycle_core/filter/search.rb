@@ -49,6 +49,14 @@ module DataCycleCore
         )
       end
 
+      def updated_since(updated_at = nil)
+        return self if updated_at.blank?
+
+        reflect(
+          @query.where(thing[:updated_at].gteq(quoted(updated_at)))
+        )
+      end
+
       def schema_type(type)
         return self if type.blank?
         query_string = Thing.send(:sanitize_sql_for_conditions, ['(schema -> :attribute_path)::jsonb ? :type', attribute_path: 'schema_type', type: type])
