@@ -55,6 +55,7 @@ module DataCycleCore
             req.headers['Content-Type'] = 'application/json'
             req.params['token'] = @token
             req.params['page'] = { number: page, size: @per }
+            req.params['language'] = @params[:locales].join(',') if @params[:locales].present?
             req.params['updated_since'] = @updated_since.to_s if @updated_since.present?
             req.params['iteration_depth'] = @iteration_depth
           end
@@ -75,6 +76,8 @@ module DataCycleCore
           response = connection.post do |req|
             req.headers['Content-Type'] = 'application/json'
             req.params['token'] = @token
+            req.params['language'] = @params[:locales].join(',') if @params[:locales].present?
+            req.params['iteration_depth'] = @iteration_depth
           end
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
           JSON.parse(response.body)
