@@ -38,7 +38,10 @@ class AddTableAndTriggerForContentLinks < ActiveRecord::Migration[5.2]
         RETURN NEW;
       END;$$;
 
-      CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT OR UPDATE ON content_contents FOR EACH ROW EXECUTE FUNCTION generate_content_content_links_trigger();
+      CREATE TRIGGER generate_content_content_links_trigger
+        AFTER INSERT OR UPDATE
+        ON content_contents
+        FOR EACH ROW EXECUTE FUNCTION generate_content_content_links_trigger();
 
 
       CREATE OR REPLACE FUNCTION delete_content_content_links(a UUID, b UUID) RETURNS UUID[] LANGUAGE PLPGSQL AS $$
@@ -75,7 +78,7 @@ class AddTableAndTriggerForContentLinks < ActiveRecord::Migration[5.2]
               AND OLD.relation_b IS NOT NULL
             )
           OR
-            ( content_a_id = OLD.content_b_id AND content_b_id = OLD.content_a_id )  
+            ( content_a_id = OLD.content_b_id AND content_b_id = OLD.content_a_id )
         );
 
         IF a_b = 1 THEN
@@ -89,7 +92,10 @@ class AddTableAndTriggerForContentLinks < ActiveRecord::Migration[5.2]
         RETURN OLD;
       END;$$;
 
-      CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON content_contents FOR EACH ROW EXECUTE FUNCTION delete_content_content_links_trigger();
+      CREATE TRIGGER delete_content_content_links_trigger
+        BEFORE DELETE
+        ON content_contents
+        FOR EACH ROW EXECUTE FUNCTION delete_content_content_links_trigger();
 
       INSERT INTO content_content_links (content_a_id, content_b_id)
         SELECT content_a_id, content_b_id
