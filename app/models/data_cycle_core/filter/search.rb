@@ -49,6 +49,14 @@ module DataCycleCore
         )
       end
 
+      def updated_since_flat(updated_at = nil)
+        return self if updated_at.blank?
+
+        reflect(
+          @query.where(thing[:updated_at].gteq(quoted(updated_at)))
+        )
+      end
+
       def updated_since(updated_at = nil, iteration_depth = 5)
         return self if updated_at.blank?
 
@@ -77,9 +85,6 @@ module DataCycleCore
           ) SELECT 1 FROM content_dependencies WHERE content_ids[array_length(content_ids, 1)] = things.id
         SQL
 
-        # reflect(
-        #   @query.where(thing[:updated_at].gteq(quoted(updated_at)))
-        # )
         reflect(
           @query.where("EXISTS (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, updated_since, updated_since, updated_since, iteration_depth])})")
         )
