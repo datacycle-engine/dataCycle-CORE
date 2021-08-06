@@ -51,14 +51,42 @@ class AddTableAndTriggerForContentLinks < ActiveRecord::Migration[5.2]
       END;$$;
 
       CREATE OR REPLACE FUNCTION delete_content_content_links_trigger() RETURNS TRIGGER LANGUAGE PLPGSQL AS $$
+        DECLARE a_b INTEGER;
+        DECLARE b_a INTEGER;
       BEGIN
-        PERFORM delete_content_content_links(OLD.content_a_id, OLD.content_b_id);
+        a_b := (
+          SELECT COUNT(*) FROM content_contents
+          WHERE
+            ( content_a_id = OLD.content_a_id AND content_b_id = OLD.content_b_id )
+          OR
+            (
+              content_a_id = OLD.content_b_id
+              AND content_b_id = OLD.content_a_id
+              AND relation_b IS NOT NULL
+            )
+        );
 
-        IF OLD.relation_b IS NOT NULL THEN
+        b_a := (
+          SELECT COUNT(*) FROM content_contents
+          WHERE
+            (
+              content_a_id = OLD.content_a_id
+              AND content_b_id = OLD.content_b_id
+              AND OLD.relation_b IS NOT NULL
+            )
+          OR
+            ( content_a_id = OLD.content_b_id AND content_b_id = OLD.content_a_id )  
+        );
+
+        IF a_b = 1 THEN
+          PERFORM delete_content_content_links(OLD.content_a_id, OLD.content_b_id);
+        END IF;
+
+        IF b_a = 1 THEN
           PERFORM delete_content_content_links(OLD.content_b_id, OLD.content_a_id);
         END IF;
 
-        RETURN NEW;
+        RETURN OLD;
       END;$$;
 
       CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON content_contents FOR EACH ROW EXECUTE FUNCTION delete_content_content_links_trigger();

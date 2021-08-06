@@ -24,6 +24,24 @@ COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 --
+-- Name: delete_content_content_links(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_content_content_links(a uuid, b uuid) RETURNS uuid[]
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM content_content_links WHERE content_a_id = a AND content_b_id = b; RETURN ARRAY[a, b]; END;$$;
+
+
+--
+-- Name: delete_content_content_links_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_content_content_links_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ DECLARE a_b INTEGER; DECLARE b_a INTEGER; BEGIN a_b := ( SELECT COUNT(*) FROM content_contents WHERE ( content_a_id = OLD.content_a_id AND content_b_id = OLD.content_b_id ) OR ( content_a_id = OLD.content_b_id AND content_b_id = OLD.content_a_id AND relation_b IS NOT NULL ) ); b_a := ( SELECT COUNT(*) FROM content_contents WHERE ( content_a_id = OLD.content_a_id AND content_b_id = OLD.content_b_id AND OLD.relation_b IS NOT NULL ) OR ( content_a_id = OLD.content_b_id AND content_b_id = OLD.content_a_id ) ); IF a_b = 1 THEN PERFORM delete_content_content_links(OLD.content_a_id, OLD.content_b_id); END IF; IF b_a = 1 THEN PERFORM delete_content_content_links(OLD.content_b_id, OLD.content_a_id); END IF; RETURN OLD; END;$$;
+
+
+--
 -- Name: generate_classification_alias_paths(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -57,6 +75,24 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_2() RETURNS t
 CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS trigger
     LANGUAGE plpgsql
     AS $$ DECLARE classification_alias_ids UUID[]; BEGIN SELECT ARRAY_AGG(classification_trees.classification_alias_id) INTO classification_alias_ids FROM classification_trees WHERE classification_trees.classification_tree_label_id = NEW.id; PERFORM generate_classification_alias_paths(classification_alias_ids); RETURN NEW; END;$$;
+
+
+--
+-- Name: generate_content_content_links(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_content_content_links(a uuid, b uuid) RETURNS uuid[]
+    LANGUAGE plpgsql
+    AS $$ BEGIN INSERT INTO content_content_links (content_a_id, content_b_id) SELECT content_a_id, content_b_id FROM content_contents WHERE content_a_id = a AND content_b_id = b ON CONFLICT DO NOTHING; INSERT INTO content_content_links (content_a_id, content_b_id) SELECT content_b_id, content_a_id FROM content_contents WHERE content_a_id = a AND content_b_id = b AND relation_b IS NOT NULL ON CONFLICT DO NOTHING; RETURN ARRAY[a, b]; END;$$;
+
+
+--
+-- Name: generate_content_content_links_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_content_content_links_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_content_content_links(NEW.content_a_id, NEW.content_b_id); RETURN NEW; END;$$;
 
 
 --
@@ -517,6 +553,16 @@ CREATE TABLE public.content_content_histories (
     updated_at timestamp without time zone NOT NULL,
     order_a integer,
     relation_b character varying
+);
+
+
+--
+-- Name: content_content_links; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.content_content_links (
+    content_a_id uuid,
+    content_b_id uuid
 );
 
 
@@ -1804,6 +1850,13 @@ CREATE INDEX index_content_contents_on_content_b_id ON public.content_contents U
 
 
 --
+-- Name: index_contents_a_b; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_contents_a_b ON public.content_content_links USING btree (content_a_id, content_b_id);
+
+
+--
 -- Name: index_data_links_on_asset_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2336,6 +2389,13 @@ CREATE INDEX words_idx ON public.searches USING gin (full_text public.gin_trgm_o
 
 
 --
+-- Name: content_contents delete_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.content_contents FOR EACH ROW EXECUTE PROCEDURE public.delete_content_content_links_trigger();
+
+
+--
 -- Name: classification_aliases generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -2354,6 +2414,13 @@ CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDAT
 --
 
 CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDATE ON public.classification_trees FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_2();
+
+
+--
+-- Name: content_contents generate_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT OR UPDATE ON public.content_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_content_content_links_trigger();
 
 
 --
@@ -2602,6 +2669,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210621063801'),
 ('20210629094413'),
 ('20210709121013'),
-('20210731090959');
+('20210731090959'),
+('20210804140504');
 
 
