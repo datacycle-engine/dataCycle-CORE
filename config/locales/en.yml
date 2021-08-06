@@ -96,6 +96,20 @@ en:
       running: There are still ongoing uploads!
       missing_metadata: Missing metadata!
       processing: processing
+      found_duplicate: found duplicate!
+      uploaded_successfully: uploaded, OK
+      error_saving_content: error saving content!
+      upload_error: uploaderror
+      metadata_warning:
+        one: metadata has to be filled out!
+        many: metadata has to be filled out for every file!
+      edit_content: edit content
+      retry_upload: retry upload
+      format_not_supported: format not supported (%{data})
+      error: Error
+      remove_file: remove file
+    cancel: cancel
+    ok: ok
 
   schedule:
     dtstart: Startzeitpunkt
@@ -1118,6 +1132,7 @@ en:
     restrictions: 'Einschränkungen'
     validation:
       format: 'Erlaubte Formate: <span class="value">%{data}</span>'
+      format_not_supported: Nicht unterstütztes Format (%{data})
       dimensions:
         exclude:
           format: 'Folgende Formate sind in jeder Größe erlaubt: <span class="value">%{data}</span>'
@@ -1125,10 +1140,16 @@ en:
           min:
             width: 'Minimale Breite für Medien im Querformat: <span class="value">%{data}px</span>'
             height: 'Minimale Höhe für Medien im Querformat: <span class="value">%{data}px</span>'
+          max:
+            width: 'Maximale Breite für Medien im Querformat: <span class="value">%{data}px</span>'
+            height: 'Maximale Höhe für Medien im Querformat: <span class="value">%{data}px</span>'
         portrait:
           min:
             width: 'Minimale Breite für Medien im Hochformat: <span class="value">%{data}px</span>'
             height: 'Minimale Höhe für Medien im Hochformat: <span class="value">%{data}px</span>'
+          max:
+            width: 'Maximale Breite für Medien im Hochformat: <span class="value">%{data}px</span>'
+            height: 'Maximale Höhe für Medien im Hochformat: <span class="value">%{data}px</span>'
         logo:
           max:
             height: 'Maximale Höhe für Logos: <span class="value">%{data}px</span>'
@@ -1137,6 +1158,7 @@ en:
         audio: 'Erlaubte Audio-Codecs: <span class="value">%{data}</span>'
       file_size:
         max: 'Maximale Dateigröße: <span class="value">%{data}</span>'
+        min: 'Minimale Dateigröße: <span class="value">%{data}</span>'
 
     close_warning_html: '<p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
       Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'

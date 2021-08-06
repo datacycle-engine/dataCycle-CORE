@@ -106,7 +106,7 @@ class BasicSelect2 {
     }
   }
   decorateResult(result) {
-    $(result).html(function(index, value) {
+    $(result).html(function (_index, value) {
       if (value != undefined) {
         var text = value.split(' &gt; ');
         text[text.length - 1] = '<span class="select2-option-title">' + text[text.length - 1] + '</span>';
@@ -117,7 +117,7 @@ class BasicSelect2 {
   removeTreeLabel(result) {
     if (!this.config.treeLabel) return;
 
-    $(result).html((index, value) => {
+    $(result).html((_index, value) => {
       if (value != undefined) {
         return value.replace(this.config.treeLabel + ' &gt; ', '');
       }

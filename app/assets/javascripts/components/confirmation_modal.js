@@ -5,8 +5,8 @@ class ConfirmationModal {
     this.confirmationClass = config.confirmationClass || '';
     this.cancelable = config.cancelable;
     this.text = config.text || '';
-    this.confirmationText = config.confirmationText || 'Ok';
-    this.cancelText = config.cancelText || 'Abbrechen';
+    this.confirmationText = config.confirmationText;
+    this.cancelText = config.cancelText;
     this.confirmationIndex = 1;
     this.wrapperHtml =
       '<div class="reveal confirmation-modal" data-multiple-opened="true"><button class="close-button" data-close aria-label="Close modal" type="button"><span aria-hidden="true">&times;</span></button></div';
@@ -16,8 +16,8 @@ class ConfirmationModal {
 
     this.setup();
   }
-  setup() {
-    this.section = $(this.renderSectionHtml());
+  async setup() {
+    this.section = $(await this.renderSectionHtml());
     if ($('.confirmation-modal:visible').length) {
       this.overlay = $('.confirmation-modal:visible').first().append(this.section);
       this.confirmationIndex = this.overlay.find('section.confirmation-section').length;
@@ -37,20 +37,20 @@ class ConfirmationModal {
     }
     this.addEvents();
   }
-  renderSectionHtml() {
-    return (
-      '<section class="confirmation-section"><div class="confirmation-text">' +
-      this.text +
-      '</div><div class="confirmation-buttons">' +
-      (this.cancelable ? '<a class="confirmation-cancel button" aria-label="Cancel">' + this.cancelText + '</a>' : '') +
-      '<a class="confirmation-confirm button ' +
-      this.confirmationClass +
-      '" aria-label="Confirm">' +
-      this.confirmationText +
-      '</a></div></section>'
-    );
+  async renderSectionHtml() {
+    return `<section class="confirmation-section"><div class="confirmation-text">${
+      this.text
+    }</div><div class="confirmation-buttons">${
+      this.cancelable
+        ? `<a class="confirmation-cancel button" aria-label="Cancel">${
+            this.cancelText || (await I18n.translate('frontend.cancel'))
+          }</a>`
+        : ''
+    }<a class="confirmation-confirm button ${this.confirmationClass}" aria-label="Confirm">${
+      this.confirmationText || (await I18n.translate('frontend.ok'))
+    }</a></div></section>`;
   }
-  updateConfirmationIndex(event) {
+  updateConfirmationIndex(_event) {
     this.overlay.find('.confirmation-index').text(this.confirmationIndex);
   }
   addEvents() {

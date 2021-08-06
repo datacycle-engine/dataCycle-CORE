@@ -1,4 +1,4 @@
-import ObjectHelpers from '../helpers/object_helpers';
+import pick from 'lodash/pick';
 
 import Map from 'ol/map';
 import Feature from 'ol/feature';
@@ -137,7 +137,7 @@ class OpenLayersViewer {
     this.mouseZoomTimeout;
     this.mapOptions = this.$container.data('map-options');
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
-    this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
+    this.defaultPosition = pick(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.highDpi = this.ol.deviceCapabilities.DEVICE_PIXEL_RATIO > 1;
     this.source;
     this.$popupContainer = this.$parentContainer.find('.ol-popup').first();

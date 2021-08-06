@@ -1,17 +1,40 @@
 import MimeTypes from 'mime/lite';
-import ObjectHelpers from './../helpers/object_helpers';
+import get from 'lodash/get';
+import omit from 'lodash/omit';
 
 class AssetValidator {
   constructor(file) {
     this.file = file;
+    this.dimensionConstants = [
+      {
+        type: 'min',
+        attribute: 'width',
+        method: (a, b) => a < b
+      },
+      {
+        type: 'min',
+        attribute: 'height',
+        method: (a, b) => a < b
+      },
+      {
+        type: 'max',
+        attribute: 'width',
+        method: (a, b) => a > b
+      },
+      {
+        type: 'max',
+        attribute: 'height',
+        method: (a, b) => a > b
+      }
+    ];
   }
-  validate() {
+  async validate() {
     let valid = true;
     let messages = [];
     for (let key in this.file.validation) {
       let validationMethod = ('validate_' + key).camelize();
       if (typeof this[validationMethod] == 'function') {
-        let validationValue = this[validationMethod](this.file.validation[key]);
+        let validationValue = await this[validationMethod](this.file.validation[key]);
         valid &= validationValue.valid;
         if (validationValue.message) messages.push(validationValue.message);
       }
@@ -21,23 +44,23 @@ class AssetValidator {
       messages: messages
     };
   }
-  validateFileSize(validations) {
-    let messages = '';
+  async validateFileSize(validations) {
+    let messages = [];
     let valid = true;
     if (validations.max !== undefined && this.file.file.size > validations.max) {
       valid = false;
-      messages += 'Datei zu groß (maximal ' + validations.max.file_size(0) + ')';
+      messages.push(await I18n.translate('uploader.validation.file_size.max', { data: validations.max.file_size(0) }));
     }
     if (validations.min !== undefined && this.file.file.size < validations.min) {
       valid = false;
-      messages += 'Datei zu klein (mindestens ' + validations.min.file_size(0) + ')';
+      messages.push(await I18n.translate('uploader.validation.file_size.min', { data: validations.min.file_size(0) }));
     }
     return {
       valid: valid,
-      message: valid ? undefined : messages
+      message: valid ? undefined : messages.join(', ')
     };
   }
-  validateFormat(validations) {
+  async validateFormat(validations) {
     validations.forEach(format => {
       let mimeType = MimeTypes.getType(format);
       if (mimeType) validations = validations.concat(MimeTypes.getExtension(mimeType));
@@ -47,15 +70,17 @@ class AssetValidator {
 
     return {
       valid: valid,
-      message: valid ? undefined : 'Nicht unterstützes Format (' + this.file.fileExtension + ')'
+      message: valid
+        ? undefined
+        : await I18n.translate('uploader.validation.format_not_supported', { data: this.file.fileExtension })
     };
   }
-  validateDimensions(validations) {
+  async validateDimensions(validations) {
     if (this.file.validationOptions !== undefined) {
-      var additional = ObjectHelpers.reject(validations, ['landscape', 'portrait', 'exclude']);
+      var additional = omit(validations, ['landscape', 'portrait', 'exclude']);
       if (
-        ObjectHelpers.get(['exclude', 'format'], validations) !== null &&
-        ObjectHelpers.get(['exclude', 'format'], validations).indexOf(this.file.fileExtension) !== -1
+        get(validations, 'exclude.format') !== null &&
+        get(validations, 'exclude.format').indexOf(this.file.fileExtension) !== -1
       ) {
         return {
           valid: true,
@@ -86,84 +111,33 @@ class AssetValidator {
           };
         }
       }
-      if (
-        (this.file.validationOptions.width >= this.file.validationOptions.height &&
-          ((ObjectHelpers.get(['landscape', 'min', 'width'], validations) !== null &&
-            this.file.validationOptions.width < validations.landscape.min.width) ||
-            (ObjectHelpers.get(['landscape', 'min', 'height'], validations) !== null &&
-              this.file.validationOptions.height < validations.landscape.min.height))) ||
-        (this.file.validationOptions.width < this.file.validationOptions.height &&
-          ((ObjectHelpers.get(['portrait', 'min', 'width'], validations) !== null &&
-            this.file.validationOptions.width < validations.portrait.min.width) ||
-            (ObjectHelpers.get(['portrait', 'min', 'height'], validations) !== null &&
-              this.file.validationOptions.height < validations.portrait.min.height)))
-      ) {
-        var message =
-          'Bild zu klein (' +
-          this.file.validationOptions.width +
-          'x' +
-          this.file.validationOptions.height +
-          '), sollte' +
-          (ObjectHelpers.get(['landscape', 'min'], validations) !== null
-            ? ' für Querformat mind. ' +
-              ObjectHelpers.get(['landscape', 'min', 'width'], validations) +
-              'x' +
-              ObjectHelpers.get(['landscape', 'min', 'height'], validations)
-            : '') +
-          (ObjectHelpers.get(['landscape', 'min'], validations) !== null &&
-          ObjectHelpers.get(['portrait', 'min'], validations) !== null
-            ? ','
-            : '') +
-          (ObjectHelpers.get(['portrait', 'min'], validations) !== null
-            ? ' für Hochformat mind. ' +
-              ObjectHelpers.get(['portrait', 'min', 'width'], validations) +
-              'x' +
-              ObjectHelpers.get(['portrait', 'min', 'height'], validations)
-            : '') +
-          ' sein.';
-        return {
-          valid: false,
-          message: message
-        };
+
+      let messages = [];
+      const layout = this.file.validationOptions.width >= this.file.validationOptions.height ? 'landscape' : 'portrait';
+
+      for (let i = 0; i < this.dimensionConstants.length; ++i) {
+        const val = this.dimensionConstants[i];
+
+        if (
+          get(validations, `${layout}.${val.type}.${val.attribute}`) &&
+          val.method(get(this.file.validationOptions, val.attribute), validations[layout][val.type][val.attribute])
+        )
+          messages.push(
+            await I18n.translate(`uploader.validation.dimensions.${layout}.${val.type}.${val.attribute}`, {
+              data: validations[layout][val.type][val.attribute]
+            })
+          );
       }
-      if (
-        (this.file.validationOptions.width >= this.file.validationOptions.height &&
-          ((ObjectHelpers.get(['landscape', 'max', 'width'], validations) !== null &&
-            this.file.validationOptions.width > validations.landscape.max.width) ||
-            (ObjectHelpers.get(['landscape', 'max', 'height'], validations) !== null &&
-              this.file.validationOptions.height > validations.landscape.max.height))) ||
-        (this.file.validationOptions.width < this.file.validationOptions.height &&
-          ((ObjectHelpers.get(['portrait', 'max', 'width'], validations) !== null &&
-            this.file.validationOptions.width > validations.portrait.max.width) ||
-            (ObjectHelpers.get(['portrait', 'max', 'height'], validations) !== null &&
-              this.file.validationOptions.height > validations.portrait.max.height)))
-      ) {
-        var message =
-          'Bild zu groß (' +
-          this.file.validationOptions.width +
-          'x' +
-          this.file.validationOptions.height +
-          '), sollte' +
-          (ObjectHelpers.get(['landscape', 'max'], validations) !== null
-            ? ' für Querformat max. ' +
-              ObjectHelpers.get(['landscape', 'max', 'width'], validations) +
-              'x' +
-              ObjectHelpers.get(['landscape', 'max', 'height'], validations)
-            : '') +
-          (ObjectHelpers.get(['landscape', 'max'], validations) !== null &&
-          ObjectHelpers.get(['portrait', 'max'], validations) !== null
-            ? ','
-            : '') +
-          (ObjectHelpers.get(['portrait', 'max'], validations) !== null
-            ? ' für Hochformat max. ' +
-              ObjectHelpers.get(['portrait', 'max', 'width'], validations) +
-              'x' +
-              ObjectHelpers.get(['portrait', 'max', 'height'], validations)
-            : '') +
-          ' sein.';
+
+      if (messages.length) {
         return {
           valid: false,
-          message: message
+          message: messages.join(', ')
+        };
+      } else {
+        return {
+          valid: true,
+          message: undefined
         };
       }
     }
