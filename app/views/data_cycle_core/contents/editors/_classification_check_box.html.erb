@@ -2,7 +2,7 @@
 
   <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
     <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
-    <%= definition['label'] %>
+    <%= yield_content!(:attribute_label) %>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   <% end %>
 

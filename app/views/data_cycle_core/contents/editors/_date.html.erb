@@ -5,7 +5,7 @@
       <span class="icon <%= key.attribute_name_from_key %>">
         <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
         <i aria-hidden="true" class="fa fa-calendar"></i>
-        <%= definition['label'] %>
+        <%= yield_content!(:attribute_label) %>
       </span>
       <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
     <% end %>

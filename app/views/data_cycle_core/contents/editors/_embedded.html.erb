@@ -1,5 +1,6 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'object embedded_object'), content: content, parent: local_assigns[:parent] do %>
-  <%= label_tag("#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", definition['label']) if DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(content, key) %>
+  <% translated_label = yield_content!(:attribute_label) %>
+  <%= label_tag("#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", translated_label) if DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(content, key) %>
   <% objects = local_assigns[:duplicated_content].to_s == 'true' ? value.presence&.includes(:translations) : value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
 
   <%= tag.div class: 'embedded-object',
@@ -7,7 +8,7 @@
       data: {
         locale: I18n.locale.to_s,
         key: key,
-        label: definition['label'],
+        label: translated_label,
         definition: definition.to_json,
         options: options.to_json,
         total: value.presence&.size,
@@ -68,7 +69,7 @@
               disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_all', locale: active_ui_locale)}..."
             } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
 
-      <%= embedded_add_button(definition['label'], "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", !attribute_editable?(key, definition, options, content)) %>
+      <%= embedded_add_button(translated_label, "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", !attribute_editable?(key, definition, options, content)) %>
     </span>
   <% end %>
 

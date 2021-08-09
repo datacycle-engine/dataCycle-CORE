@@ -2,7 +2,7 @@
 
   <label>
     <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-    <%= definition['label'] %>
+    <%= yield_content!(:attribute_label) %>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   </label>
 
