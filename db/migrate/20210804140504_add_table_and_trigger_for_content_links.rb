@@ -107,6 +107,7 @@ class AddTableAndTriggerForContentLinks < ActiveRecord::Migration[5.2]
         WHERE relation_b IS NOT NULL
       ON CONFLICT DO NOTHING;
     SQL
+    ActiveRecord::Base.connection.execute('VACUUM ANALYZE content_content_links')
   end
 
   def down
