@@ -66,9 +66,7 @@ module DataCycleCore
         assert_equal(1, DataCycleCore::Filter::Search.new.template_names('Linked-Creative-Work-1').updated_since(new_timestamp).count)
 
         @data_set.set_data_hash(
-          data_hash: DataCycleCore::TestPreparations
-            .load_dummy_data_hash('creative_works', 'linked')
-            .merge({ 'linked_creative_work' => @linked_objects[0..3] }),
+          data_hash: { 'linked_creative_work' => @linked_objects[0..3] },
           partial_update: true,
           save_time: @timestamp
         )
