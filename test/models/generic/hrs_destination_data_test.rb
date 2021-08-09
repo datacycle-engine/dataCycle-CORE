@@ -52,7 +52,7 @@ module DataCycleCore
         assert_equal(2, DataCycleCore::Thing.where(template: false, template_name: 'Event').with_schema_type('Event').count)
         assert_equal(2, DataCycleCore::Thing.where(template: false, template_name: 'Organization').with_schema_type('Organization').count)
         assert_equal(2, DataCycleCore::Thing.where(template: false, template_name: 'SubEvent').count)
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Örtlichkeit').with_schema_type('Place').count)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').count)
         assert_equal(16, DataCycleCore::ClassificationAlias.for_tree('HRS Destination Data - Classifications').count)
 

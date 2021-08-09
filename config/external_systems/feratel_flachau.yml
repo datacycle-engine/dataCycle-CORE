@@ -305,39 +305,15 @@ config:
       sorting: 80
       source_type: additional_service_providers
       import_strategy: DataCycleCore::Generic::Feratel::ImportAdditionalServiceProviders
-      transformations:
-        additional_service_providers:
-          template: LocalBusiness
-        additional_services:
-          template: Service
-        offers:
-          template: Angebot
     infrastructures:
       sorting: 90
       source_type: infrastructure_items
       import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
-      transformations:
-        image:
-          template: Bild
-        infrastructure:
-          template: POI
     accommodations:
       sorting: 91
       source_type: accommodations
       import_strategy: DataCycleCore::Generic::Feratel::ImportAccommodations
-      transformations:
-        image:
-          template: Bild
-        place:
-          template: Unterkunft
     events:
       sorting: 92
       source_type: events
       import_strategy: DataCycleCore::Generic::Feratel::ImportEvents
-      transformations:
-        image:
-          template: Bild
-        place:
-          template: Örtlichkeit
-        event:
-          template: Event

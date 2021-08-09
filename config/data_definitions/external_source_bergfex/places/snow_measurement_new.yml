@@ -11,7 +11,8 @@
     :api:
       :type:
         - Place
-        - 'dcls:SnowHeightMeasuringPointNew'
+        - 'dcls:SnowHeightMeasuringPoint'
+        - 'odta:SnowConditionReport'
     :properties:
       :id:
         :label: id
@@ -54,10 +55,13 @@
         :storage_location: value
         :api:
           :partial: property_value
-          :type: PropertyValue
+          :small_header: true
+          :unit_code: CMT
+          :unit_text: cm
           :transformation:
-            :method: combine
-            :name: additionalProperty
+            :method: nest
+            :name: 'odta:maxSnowHeight'
+            :type: QuantitativeValue
         :validations:
           :format: float
         :ui:
@@ -74,10 +78,13 @@
         :storage_location: value
         :api:
           :partial: property_value
-          :type: PropertyValue
+          :small_header: true
+          :unit_code: CMT
+          :unit_text: cm
           :transformation:
-            :method: combine
-            :name: additionalProperty
+            :method: nest
+            :name: 'odta:freshFallenSnow'
+            :type: QuantitativeValue
         :validations:
           :format: float
         :ui:
@@ -88,6 +95,22 @@
             :options:
               :data-unit: cm
         :advanced_search: true
+      :last_snowfall:
+        :label: Letzter Schneefall
+        :type: date
+        :storage_location: value
+        :validations:
+          :format: date_time
+        :api:
+          :name: odta:lastSnowfall
+        :ui:
+          :edit:
+            :type: date
+            :options:
+              :class: daterange
+              :placeholder: 'tt.mm.jjjj'
+          :show:
+            :type: date
       :date_time_measured:
         :label: Messzeitpunkt
         :type: datetime
@@ -100,6 +123,8 @@
             :options:
               :class: daterange
               :placeholder: 'tt.mm.jjjj --:--'
+        :api:
+          :name: 'dcls:dateTimeMeasured'
       :snow_resort:
         :label: Skigebiet
         :type: linked
@@ -124,6 +149,26 @@
         :label: "Wetter - Meldung"
         :type: classification
         :tree_label: "Bergfex - Wetter - Meldung"
+      :condition_snow:
+        :label: 'Schnee - Meldung'
+        :type: classification
+        :tree_label: 'odta:snowCondition'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :partial: string
+          :name: 'odta:snowCondition'
+      :snow_type:
+        :label: 'Schnee - Art'
+        :type: classification
+        :tree_label: 'odta:snowType'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :partial: string
+          :name: 'odta:snowType'
       :data_type:
         :label: Inhaltstyp
         :type: classification

@@ -5,6 +5,11 @@ module DataCycleCore
     module ContentRelations
       extend ActiveSupport::Concern
 
+      CONTENT_TYPES = [
+        CONTENT_TYPE_ENTITY = 'entity',
+        CONTENT_TYPE_EMBEDDED = 'embedded'
+      ].freeze
+
       module ClassMethods
         def content_relations(options = {})
           table_given = options[:table_name]
@@ -34,8 +39,8 @@ module DataCycleCore
           has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
           has_many :content_content_a, -> { order(order_a: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
           has_many :content_b, through: :content_content_a
-          has_many :content_b_linked, -> { where.not(content_type: 'embedded') }, through: :content_content_a, source: :content_b
-          has_many :content_b_embedded, -> { where(content_type: 'embedded') }, through: :content_content_a, source: :content_b
+          has_many :content_b_linked, -> { where.not(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
+          has_many :content_b_embedded, -> { where(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
           has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :destroy, inverse_of: :content_a_history
 
           belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
@@ -88,80 +93,114 @@ module DataCycleCore
       end
 
       def related_contents(embedded: false)
-        content_content_table = history? ? 'content_content_histories' : 'content_contents'
-        content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
-        content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
-
         tree_query = <<-SQL.squish
           WITH RECURSIVE content_tree(id) AS (
-              SELECT #{content_content_table}.#{content_a_id}
+              SELECT #{content_a_id_column}
               FROM #{content_content_table}
-              WHERE #{content_content_table}.#{content_b_id} = '#{id}'
+              WHERE #{content_b_id_column} = :id
             UNION ALL
-              SELECT #{content_content_table}.#{content_a_id}
+              SELECT #{content_a_id_column}
               FROM #{content_content_table}
-              INNER JOIN #{self.class.table_name} ON #{self.class.table_name}.id = #{content_content_table}.#{content_b_id}
-              INNER JOIN content_tree ON content_tree.id = #{content_content_table}.#{content_b_id}
-              WHERE #{self.class.table_name}.content_type = 'embedded'
+              INNER JOIN #{self.class.table_name} ON #{self.class.table_name}.id = #{content_b_id_column}
+              INNER JOIN content_tree ON content_tree.id = #{content_b_id_column}
+              WHERE #{self.class.table_name}.content_type = :content_type_embedded
           )
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        query = self.class.where("#{self.class.table_name}.id IN (#{tree_query})") # .where.not(content_type: 'embedded')
-        query = query.where.not(content_type: 'embedded') unless embedded
+        query = self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
+                                                                                              tree_query,
+                                                                                              id: id,
+                                                                                              content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                            ])})")
+        query = query.where.not(content_type: CONTENT_TYPE_EMBEDDED) unless embedded
         query
+      end
+
+      def depending_contents
+        raw_sql = <<-SQL.squish
+          WITH RECURSIVE content_links AS (
+            SELECT
+              #{content_a_id_column} "content_a_id",
+              #{content_b_id_column} "content_b_id"
+            FROM #{content_content_table}
+            UNION
+            SELECT
+              #{content_b_id_column} "content_a_id",
+              #{content_a_id_column} "content_b_id"
+            FROM #{content_content_table}
+            WHERE #{relation_b_column} IS NOT NULL
+          ), content_dependencies AS (
+            SELECT
+          		ARRAY[content_links.content_a_id, content_links.content_b_id] "content_ids"
+          	FROM content_links
+          	WHERE content_links.content_b_id = ?::uuid
+            UNION ALL
+            SELECT
+          		content_links.content_a_id || content_dependencies.content_ids "content_ids"
+          	FROM content_links
+          	JOIN content_dependencies ON
+          		content_dependencies.content_ids[1] = content_links.content_b_id AND
+          		content_links.content_a_id <> ALL(content_dependencies.content_ids)
+          ) SELECT 1 FROM content_dependencies WHERE content_ids[1] = #{self.class.table_name}.#{self.class.primary_key}
+        SQL
+
+        self.class
+          .where(content_type: 'entity')
+          .where("EXISTS (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, id])})")
       end
 
       def linked_contents
         # does not work for Histories, due to thing ids (instead of thing_history ids) in content_content_histories
-        content_content_table = history? ? 'content_content_histories' : 'content_contents'
-        content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
-        content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
 
         tree_query = <<-SQL.squish
           WITH RECURSIVE content_tree(id) AS (
             SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
             FROM #{self.class.table_name}
-            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_b_id}
-            WHERE #{content_content_table}.#{content_a_id} = '#{id}'
-            AND #{self.class.table_name}.content_type != 'embedded'
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_b_id_column}
+            WHERE #{content_a_id_column} = :id
+            AND #{self.class.table_name}.content_type != :content_type_embedded
           UNION ALL
             SELECT #{self.class.table_name}.id as id, content_tree.all_things||#{self.class.table_name}.id
             FROM #{self.class.table_name}
-            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_b_id}
-            INNER JOIN content_tree ON content_tree.id = #{content_content_table}.#{content_a_id}
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_b_id_column}
+            INNER JOIN content_tree ON content_tree.id = #{content_a_id_column}
             AND #{self.class.table_name}.id <> ALL (content_tree.all_things)
           )
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
+                                                                                      tree_query,
+                                                                                      id: id,
+                                                                                      content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                    ])})")
       end
 
       def embedded_contents
-        content_content_table = history? ? 'content_content_histories' : 'content_contents'
-        content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
-        content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
-
         tree_query = <<-SQL.squish
           WITH RECURSIVE content_tree(id) AS (
             SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
             FROM #{self.class.table_name}
-            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_b_id}
-            WHERE #{content_content_table}.#{content_a_id} = '#{id}'
-            AND #{self.class.table_name}.content_type = 'embedded'
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_b_id_column}
+            WHERE #{content_a_id_column} = :id
+            AND #{self.class.table_name}.content_type = :content_type_embedded
           UNION ALL
             SELECT #{self.class.table_name}.id as id, content_tree.all_things||#{self.class.table_name}.id
             FROM #{self.class.table_name}
-            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_b_id}
-            INNER JOIN content_tree ON content_tree.id = #{content_content_table}.#{content_a_id}
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_b_id_column}
+            INNER JOIN content_tree ON content_tree.id = #{content_a_id_column}
             AND #{self.class.table_name}.id <> ALL (content_tree.all_things)
-            AND #{self.class.table_name}.content_type = 'embedded'
+            AND #{self.class.table_name}.content_type = :content_type_embedded
           )
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
+                                                                                      tree_query,
+                                                                                      id: id,
+                                                                                      content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                    ])})")
       end
 
       def cached_related_contents
@@ -184,6 +223,28 @@ module DataCycleCore
         SQL
 
         self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, id: id, depth: DataCycleCore.cache_invalidation_depth])})")
+      end
+
+      private
+
+      def content_content_table
+        history? ? 'content_content_histories' : 'content_contents'
+      end
+
+      def content_a_id_column
+        "#{content_content_table}.#{history? ? 'content_a_history_id' : 'content_a_id'}"
+      end
+
+      def content_b_id_column
+        "#{content_content_table}.#{history? ? 'content_b_history_id' : 'content_b_id'}"
+      end
+
+      def relation_a_column
+        "#{content_content_table}.relation_a"
+      end
+
+      def relation_b_column
+        "#{content_content_table}.relation_b"
       end
     end
   end

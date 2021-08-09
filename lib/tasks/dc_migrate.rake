@@ -82,10 +82,15 @@ namespace :dc do
             thing_id: thing_relation.content_a_id,
             relation: thing_relation.relation_a
           })
-
-          start_time = "#{content.validity&.valid_from} #{time_content.opens}".in_time_zone
           duration = DataCycleCore::Schedule.time_to_duration(time_content.opens, time_content.closes)
-          until_time = content.validity.valid_through&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
+
+          if content.validity&.valid_from.nil? && content.validity&.valid_to.nil?
+            start_time = "2021-01-01 #{time_content.opens}".in_time_zone
+            until_time = '2024-01-01'.in_time_zone
+          else
+            start_time = "#{content.validity&.valid_from} #{time_content.opens}".in_time_zone
+            until_time = content.validity.valid_through&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
+          end
 
           schedule.from_hash({
             start_time: {
@@ -118,7 +123,7 @@ namespace :dc do
             duration = 1.day.to_i
 
             if content.validity&.valid_through.present?
-              duration = content.validity.valid_through.in_time_zone.change({ hour: 23, minute: 59 }) - from_date
+              duration = content.validity.valid_through.in_time_zone.change({ hour: 23, min: 59, sec: 59 }) - from_date
             else
               rrules = [{
                 rule_type: 'IceCube::DailyRule'
@@ -151,6 +156,28 @@ namespace :dc do
         content.destroy_children
         content.destroy
         progressbar.increment
+      end
+    end
+
+    desc 'migrate event places from Örtlichkeit to POI'
+    task ortlichkeit_to_poi: :environment do
+      poi_class = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'POI')
+      poi_template = DataCycleCore::Thing.find_by(template: true, template_name: 'POI')
+
+      systems = ['feratel']
+      systems.each do |identifier|
+        es = DataCycleCore::ExternalSystem.find_by(identifier: identifier)
+        DataCycleCore::Thing.where(template_name: 'Örtlichkeit', external_source_id: es.id).each do |place|
+          # update data-type
+          DataCycleCore::ClassificationContent.where(content_data_id: place.id, relation: 'data_type').update_all(classification_id: poi_class)
+          # update template, template definition
+          place.template_name = poi_template.template_name
+          place.schema = poi_template.schema
+          place.template_updated_at = Time.zone.now
+          place.save
+          # update search table
+          place.search_languages(true)
+        end
       end
     end
   end

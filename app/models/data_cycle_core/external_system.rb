@@ -24,6 +24,16 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
+    def name_with_types
+      nwt = name
+      type = []
+      type += ['import'] if import_config.present?
+      type += ['export'] if export_config.present?
+      type += ['sync'] if import_config.blank? && export_config.blank?
+      nwt += " [#{type.join(', ')}]" if type.present?
+      nwt
+    end
+
     def export_config
       return @export_config if defined? @export_config
       @export_config = config&.dig('export_config')&.symbolize_keys
@@ -62,6 +72,10 @@ module DataCycleCore
     def import_list_ranked
       return @import_list_ranked if defined? @import_list_ranked
       @import_list_ranked = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
+    end
+
+    def export_config_by_filter_key(method_name, key)
+      export_config&.dig(method_name.to_sym, 'filter', key) || export_config&.dig(:filter, key)
     end
 
     def credentials(type = 'import')

@@ -35,11 +35,11 @@
 
   <%= render 'data_cycle_core/duplicate_candidates/duplicate_candidates', content: @content, prefix: local_assigns.dig(:options, :prefix) if DataCycleCore::Feature::DuplicateCandidate.enabled? && can?(:merge_duplicates, @content) && @content.duplicates.any? %>
 
-  <% if @content.related_contents.exists? %>
+  <% if can?(:show_related, @content) && @content.related_contents.exists? %>
     <div id="related-contents-<%= @content&.id %>"
         class="remote-render"
         data-remote-path="data_cycle_core/contents/related"
-        data-remote-options="<%= to_query_params({content: @content, options: options ||= {}}).to_json %>">
+        data-remote-options="<%= to_query_params({ content: @content, options: options ||= {} }).to_json %>">
     </div>
   <% end %>
 <% end %>

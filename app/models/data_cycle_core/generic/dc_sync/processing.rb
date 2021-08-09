@@ -44,16 +44,21 @@ module DataCycleCore
           linked_key_translation = {}
           included_items&.each do |included_item|
             attribute_name = included_item.dig('attribute_name')
+            locale = included_item.except('included', 'attribute_name').keys.first
+            template_name = included_item.dig(locale, 'template_name')
             next if attribute_name.blank?
             next unless parent_template.property_names.include?(attribute_name)
             linked_key_translation[included_item.dig('attribute_name')] ||= {}
-            locale = included_item.except('included', 'attribute_name').keys.first
-            item = DataCycleCore::Generic::DcSync::Import.process_content(
-              utility_object: utility_object,
-              raw_data: included_item,
-              options: config || {}
-            )
-            linked_key_translation[attribute_name][included_item[locale]['id']] = item&.id
+            if DataCycleCore::Thing.find_by(template: true, template_name: template_name).blank?
+              linked_key_translation[attribute_name][included_item[locale]['id']] = []
+            else
+              item = DataCycleCore::Generic::DcSync::Import.process_content(
+                utility_object: utility_object,
+                raw_data: included_item,
+                options: config || {}
+              )
+              linked_key_translation[attribute_name][included_item[locale]['id']] = item&.id
+            end
           end
           linked_key_translation
         end
@@ -177,7 +182,7 @@ module DataCycleCore
             if tree_label.present?
               classification = DataCycleCore::ClassificationAlias
                 .for_tree(tree_label.name)
-                .find_by(name: classification_data['name'])
+                .find_by(internal_name: classification_data['name'])
                 &.primary_classification
             end
             if classification.blank?

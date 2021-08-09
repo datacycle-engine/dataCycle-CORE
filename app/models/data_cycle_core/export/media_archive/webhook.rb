@@ -17,7 +17,15 @@ module DataCycleCore
         def error(_job, exception)
           return unless @data.is_a?(DataCycleCore::Thing)
 
-          @data.external_system_sync_by_system(external_system: @utility_object.external_system).update(status: 'error', data: { message: exception.message, text: exception.try(:response)&.dig(:body) })
+          @data
+            .external_system_sync_by_system(external_system: @utility_object.external_system)
+            .update(
+              status: 'error',
+              data: {
+                message: exception.message.dup.force_encoding('UTF-8'),
+                text: exception.try(:response)&.dig(:body)&.dup&.force_encoding('UTF-8')
+              }
+            )
         end
 
         def failure(_job)

@@ -96,7 +96,7 @@
           :edit:
             :disabled: true
           :show:
-            :disabled: true        
+            :disabled: true
       :meta_data:
         :type: mixin
         :name: meta_data

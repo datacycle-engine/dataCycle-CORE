@@ -2,6 +2,7 @@
   <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
   <%= hidden_field_tag "f[#{identifier}][t]", :external_system %>
   <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
+  <%= hidden_field_tag "f[#{identifier}][q]", filter_advanced_type %>
 
   <div class="advanced-filter-title">
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
@@ -12,9 +13,19 @@
     <%= select_tag "f[#{identifier}][m]", options_for_select([[t("common.has", locale: DataCycleCore.ui_language), 'i'], [t("common.has_not", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
   </div>
 
+  <div class="advanced-filter-mode">
+    <%= select_tag "f[#{identifier}][q]",
+      options_for_select([
+        [t("common.all", locale: DataCycleCore.ui_language), 'all'],
+        [t("common.import", locale: DataCycleCore.ui_language), 'import'],
+        [t("common.export", locale: DataCycleCore.ui_language), 'export'],
+        [t("common.duplicate", locale: DataCycleCore.ui_language), 'duplicate']
+      ], filter_advanced_type) %>
+  </div>
+
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{identifier}][v]",
-      options_for_select(DataCycleCore::ExternalSystem.select(:id, :name).where('external_systems.config ? :key', key: 'export_config').map { |e| [e.name, e.id] }, value),
+      options_for_select(DataCycleCore::ExternalSystem.all.map { |e| [e.name_with_types, e.id] }, value),
       {
         multiple: true,
         class: 'multi-select',

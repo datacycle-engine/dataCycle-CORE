@@ -6,11 +6,49 @@ module DataCycleCore
   class ContentRelationsTest < ActiveSupport::TestCase
     def setup
       I18n.with_locale(:de) do
-        @organization = DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: { name: 'Test Orgnaization 1' })
-        @person = DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: { given_name: 'Test', family_name: 'Person 1', member_of: [@organization.id] })
-        @bild = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', author: [@person.id] })
-        @aggregate_offer = DataCycleCore::TestPreparations.create_content(template_name: 'Pauschalangebot', data_hash: { name: 'Test Pauschalangebot 1', offers: [{ name: 'Test Angebot 1', offered_by: [@person.id], price_specification: [{ price: 9.99 }, { price: 19.99 }] }] })
-        @aggregate_offer2 = DataCycleCore::TestPreparations.create_content(template_name: 'Pauschalangebot', data_hash: { name: 'Test Pauschalangebot 2', image: [@bild.id] })
+        @organization = DataCycleCore::TestPreparations.create_content(
+          template_name: 'Organization',
+          data_hash: {
+            name: 'Test Orgnaization 1'
+          }
+        )
+
+        @person = DataCycleCore::TestPreparations.create_content(
+          template_name: 'Person',
+          data_hash: {
+            given_name: 'Test',
+            family_name: 'Person 1',
+            member_of: [@organization.id]
+          }
+        )
+
+        @bild = DataCycleCore::TestPreparations.create_content(
+          template_name: 'Bild',
+          data_hash: {
+            name: 'Test Bild 1',
+            author: [@person.id]
+          }
+        )
+
+        @aggregate_offer = DataCycleCore::TestPreparations.create_content(
+          template_name: 'Pauschalangebot',
+          data_hash: {
+            name: 'Test Pauschalangebot 1',
+            offers: [{
+              name: 'Test Angebot 1',
+              offered_by: [@person.id],
+              price_specification: [{ price: 9.99 }, { price: 19.99 }]
+            }]
+          }
+        )
+
+        @aggregate_offer2 = DataCycleCore::TestPreparations.create_content(
+          template_name: 'Pauschalangebot',
+          data_hash: {
+            name: 'Test Pauschalangebot 2',
+            image: [@bild.id]
+          }
+        )
       end
     end
 
@@ -49,6 +87,14 @@ module DataCycleCore
       assert_equal 5, @organization.cached_related_contents.size
       assert_equal 5, @person.cached_related_contents.size
       assert_equal 1, @bild.cached_related_contents.size
+    end
+
+    test 'method: depending_contents' do
+      assert_equal 4, @organization.depending_contents.size
+      assert_equal 4, @person.depending_contents.size
+      assert_equal 1, @bild.depending_contents.size
+      assert_equal 0, @aggregate_offer.depending_contents.size
+      assert_equal 0, @aggregate_offer2.depending_contents.size
     end
   end
 end

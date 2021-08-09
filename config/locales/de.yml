@@ -139,6 +139,9 @@ de:
     are_you_sure: 'Sind Sie sicher?'
     language: 'Sprache'
     all: Alle
+    import: Importiert
+    export: Exportiert
+    duplicate: Duplikate
     choose_language: 'Sprache wählen'
     searchterm: 'Suchbegriff'
     active_filters: Aktive Filter
@@ -319,6 +322,7 @@ de:
     move_up: nach oben verschieben
     open_all: Alle aufklappen
     close_all: Alle zuklappen
+    button_title: '%{title} hinzufügen'
 
   upload:
     drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'
@@ -394,7 +398,7 @@ de:
     add: Filter hinzufügen
     language: Sprache
     external_source: Externe Quelle
-    external_system: Externe Zielsysteme
+    external_system: Externe Systeme
     creator: Ersteller
     classification_tree_ids: Klassifizierungsbaum
     created_at: Erstellungsdatum
@@ -472,7 +476,7 @@ de:
     classification_tree_ids: nach Klassifizierungsbaum filtern...
     creator: nach Personen filtern...
     external_source: nach externen Quellen filtern...
-    external_system: nach externen Verknüpfungen filtern...
+    external_system: nach externen Systemen filtern...
     validity_period: nach Gültigkeitszeitraum filtern...
     date_range: nach Datum filtern...
     boolean: nach booleschen Kriterien filtern...
@@ -1318,6 +1322,7 @@ de:
       extension_white_list_error: Ungültiger Dateityp
   exceptions:
     action_controller/invalid_authenticity_token: Ungültiges oder fehlendes CSRF-Token, bitte erneut anmelden
+    data_cycle_core/error/download/invalid_serialization_format_error: Die ausgewählte Download-Methode wird nicht unterstützt
 
   details:
     bild:

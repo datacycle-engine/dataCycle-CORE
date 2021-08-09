@@ -23,7 +23,7 @@ module DataCycleCore
         end
 
         def self.process_event_location(utility_object, raw_data, config)
-          template = config&.dig(:template) || 'Örtlichkeit'
+          template = config&.dig(:template) || 'POI'
           place_hash = [
             Array.wrap(raw_data.dig('Addresses', 'Address'))&.select { |d| d['Type'] == 'Venue' }&.first,
             raw_data.dig('Details', 'Location').present? ? { 'Location' => raw_data.dig('Details', 'Location') } : nil,

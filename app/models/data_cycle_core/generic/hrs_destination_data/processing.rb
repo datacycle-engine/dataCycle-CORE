@@ -29,7 +29,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::HrsDestinationData::Transformations.hrs_to_place,
-            default: { template: 'Örtlichkeit' },
+            default: { template: 'POI' },
             config: config
           )
         end

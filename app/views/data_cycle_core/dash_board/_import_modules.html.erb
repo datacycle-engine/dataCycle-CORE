@@ -42,35 +42,42 @@
         <% end %>
       </ul>
     </div>
-
-    <div class="card-divider" style="padding: 1rem 1rem 0rem 1rem;">
-      <div class="grid-buttons">
-        <div class="grid-parent">
-          <div class="admin_full_size">
-            <%= link_to(t('dash_board.download_import', locale: DataCycleCore.ui_language), admin_download_import_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
+    <% if locals[:import_data][:deactivated] %>
+      <div class="card-divider" style="padding: 1rem 1rem 0rem 1rem;">
+        <div class="admin_full_size">
+          deactivated <br/> &nbsp;
+        </div>
+      </div>
+    <% else %>
+      <div class="card-divider" style="padding: 1rem 1rem 0rem 1rem;">
+        <div class="grid-buttons">
+          <div class="grid-parent">
+            <div class="admin_full_size">
+              <%= link_to(t('dash_board.download_import', locale: DataCycleCore.ui_language), admin_download_import_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
+            </div>
+          </div>
+        </div>
+        <div class="grid-buttons">
+          <div class="grid-parent">
+            <div class="admin_full_size">
+              <%= link_to(t('dash_board.download', locale: DataCycleCore.ui_language), admin_download_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
+            </div>
+            <div class="admin_full_size">
+              <%= link_to(t('dash_board.import', locale: DataCycleCore.ui_language), admin_import_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :importable) %>
+            </div>
+          </div>
+        </div>
+        <div class="grid-buttons">
+          <div class="grid-parent">
+            <div class="admin_full_size">
+              <%= link_to(t('dash_board.download_full', locale: DataCycleCore.ui_language), admin_download_full_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
+            </div>
+            <div class="admin_full_size">
+              <%= link_to(t('dash_board.import_full', locale: DataCycleCore.ui_language), admin_import_full_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :importable) %>
+            </div>
           </div>
         </div>
       </div>
-      <div class="grid-buttons">
-        <div class="grid-parent">
-          <div class="admin_full_size">
-            <%= link_to(t('dash_board.download', locale: DataCycleCore.ui_language), admin_download_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
-          </div>
-          <div class="admin_full_size">
-            <%= link_to(t('dash_board.import', locale: DataCycleCore.ui_language), admin_import_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :importable) %>
-          </div>
-        </div>
-      </div>
-      <div class="grid-buttons">
-        <div class="grid-parent">
-          <div class="admin_full_size">
-            <%= link_to(t('dash_board.download_full', locale: DataCycleCore.ui_language), admin_download_full_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
-          </div>
-          <div class="admin_full_size">
-            <%= link_to(t('dash_board.import_full', locale: DataCycleCore.ui_language), admin_import_full_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :importable) %>
-          </div>
-        </div>
-      </div>
-    </div>
+    <% end %>
   </div>
 </div>

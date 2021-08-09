@@ -14,7 +14,7 @@ module DataCycleCore
       @user_groups = DataCycleCore::UserGroup.where(id: search_params[:user_groups]) if search_params[:user_groups].present?
 
       search_columns = DataCycleCore::User.columns
-        .select { |c| c.type == :string && BLOCKED_COLUMNS.exclude?(c.name) }
+        .select { |c| (c.type == :string && BLOCKED_COLUMNS.exclude?(c.name)) || c.name == DataCycleCore::User.primary_key }
         .map { |c| "users.#{c.name}" }
 
       query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins).includes(:represented_by, :external_systems)
