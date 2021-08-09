@@ -249,16 +249,14 @@ module DataCycleCore
                 logging.phase_started("#{importer_name}(#{phase_name})")
                 source_filter = options&.dig(:import, :source_filter) || {}
                 source_filter = source_filter.with_evaluated_values
-                # source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
-                # if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
-                #   source_filter = source_filter.merge({
-                #     '$or' => [{
-                #       'updated_at' => { '$gte' => utility_object.external_source.last_successful_import }
-                #     }, {
-                #       "dump.#{locale}.updated_at" => { '$gte' => utility_object.external_source.last_successful_import }
-                #     }]
-                #   })
-                # end
+                source_filter = source_filter.merge({ 'dump.deleted_at' => { '$exists' => false } })
+                if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
+                  source_filter = source_filter.merge({
+                    '$or' => [{
+                      'updated_at' => { '$gte' => utility_object.external_source.last_successful_import }
+                    }]
+                  })
+                end
 
                 GC.start
 
