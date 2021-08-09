@@ -22,10 +22,10 @@
       download (last try/success):
       <ul>
         <li><%= "#{locals[:import_data][:last_download]}".html_safe %> </li>
-        <% if locals[:import_data][:last_download] == locals[:import_data][:last_successful_download] && locals[:import_data][:last_successful_download] != 'never' %>
-          <li class="success-color"> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
-        <% elsif locals[:import_data][:last_successful_download] == 'never' && locals[:import_data][:last_download] == 'never' &&%>
+        <% if (locals[:import_data][:last_successful_download] == 'never' && locals[:import_data][:last_download] == 'never') || locals[:import_data][:deactivated] %>
           <li> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
+        <% elsif locals[:import_data][:last_download] == locals[:import_data][:last_successful_download] && locals[:import_data][:last_successful_download] != 'never' %>
+          <li class="success-color"> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
         <% else %>
           <li class="alert-color"> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
         <% end %>
@@ -33,10 +33,10 @@
       import (last try/success):
       <ul>
         <li><%= "#{locals[:import_data][:last_import]}".html_safe %> </li>
-        <% if locals[:import_data][:last_import] == locals[:import_data][:last_successful_import] && locals[:import_data][:last_successful_import] != 'never' %>
-          <li class="success-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
-        <% elsif locals[:import_data][:last_successful_import] == 'never' && locals[:import_data][:last_import] == 'never'%>
+        <% if (locals[:import_data][:last_successful_import] == 'never' && locals[:import_data][:last_import] == 'never') || locals[:import_data][:deactivated] %>
           <li> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
+        <% elsif locals[:import_data][:last_import] == locals[:import_data][:last_successful_import] && locals[:import_data][:last_successful_import] != 'never' %>
+            <li class="success-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
         <% else %>
           <li class="alert-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
         <% end %>
