@@ -22,6 +22,7 @@ const DataCycle = {
     ],
     AppSignalFrontEndKey: null
   },
+  uiLocale: document.documentElement.lang,
   cache: {},
   init(config = {}) {
     Object.assign(this.config, config);

@@ -45,6 +45,50 @@ namespace :dc do
         end
       end
     end
+
+    desc 'translate I18n locale files'
+    task :translate_i18n, [:new_locale] => :environment do |_, args|
+      abort('MISSING_LOCALE') if args.new_locale.blank?
+      abort('TRANSLATE_FEATURE_DISABLED') unless DataCycleCore::Feature::Translate.enabled?
+
+      new_locale = args.new_locale
+
+      file_paths = Dir[DataCycleCore::Engine.root.join('config', 'locales', '{*.de,de}.yml')]
+      file_paths.concat(Dir[Rails.root.join('config', 'locales', '{*.de,de}.yml')])
+
+      puts 'AUTOMATIC I18N TRANSLATION STARTED...'
+
+      file_paths.each do |file_path|
+        puts "TRANSLATING #{file_path}..."
+
+        existing_translations = YAML.safe_load(File.open(file_path), [Symbol])
+
+        next if existing_translations.blank?
+
+        existing_translations[new_locale] = existing_translations.delete('de')
+
+        new_translations = existing_translations.deep_transform_values do |value|
+          translated_value = DataCycleCore::Feature::Translate.translate_text({ 'text' => value, 'source_locale' => 'de', 'target_locale' => new_locale })
+
+          if translated_value.try(:error).present?
+            puts "ERROR: #{translated_value.try(:error)}"
+            value
+          else
+            translated_value.dig('text')
+          end
+
+        rescue Faraday::Error => e
+          puts "FARADAY ERROR: #{e.message}"
+        end
+
+        new_path = File.join(File.dirname(file_path), "deepl.#{File.basename(file_path).gsub('.de.', ".#{new_locale}.")}")
+
+        File.write(new_path, new_translations.to_yaml)
+      end
+
+      puts 'AUTOMATIC I18N TRANSLATION FINISHED...'
+    end
+
     def prompt(*args)
       print(*args)
       STDIN.gets.strip

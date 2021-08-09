@@ -127,11 +127,11 @@ class DataList {
       return elem.value.toLowerCase() == this.element.value.toLowerCase();
     });
   }
-  showConfirmation(event) {
+  async showConfirmation(event) {
     event.preventDefault();
 
     new ConfirmationModal({
-      text: 'Filterparameter aktualisieren?<br /><br />Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.',
+      text: await I18n.translate('frontend.update_stored_filter'),
       confirmationClass: 'success',
       cancelable: true,
       confirmationCallback: () => {

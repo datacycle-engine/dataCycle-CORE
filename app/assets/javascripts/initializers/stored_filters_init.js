@@ -1,4 +1,4 @@
-import Spinner from './../components/loading_spinner';
+import loadingIcon from '../templates/loadingIcon';
 
 export default function () {
   if ($('.search-history-list').length) {
@@ -22,8 +22,7 @@ export default function () {
         }
       ];
       loading = true;
-      let spinner = new Spinner($('.search-history-list'));
-      spinner.show();
+      $('.search-history-list').append(loadingIcon());
       DataCycle.httpRequest({
         url: '',
         method: 'GET',
@@ -31,7 +30,8 @@ export default function () {
         dataType: 'script'
       }).done(_data => {
         loading = false;
-        spinner.hide();
+        $('.search-history-list .loading').remove();
+
         if (
           page < pages &&
           !loading &&

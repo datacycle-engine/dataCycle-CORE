@@ -39,7 +39,7 @@ class OpenLayersEditor extends OpenLayersViewer {
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this));
   }
-  importData(_event, data) {
+  async importData(_event, data) {
     if (
       ((!this.$elevationField.val() || this.$elevationField.val().length == 0) &&
         this.$locationField.val().length == 0) ||
@@ -50,9 +50,9 @@ class OpenLayersEditor extends OpenLayersViewer {
       this.$longitudeField.val(data.value.x).trigger('change');
     } else {
       new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
+        text: await I18n.translate('frontend.override_warning', { data: data.label }),
+        confirmationText: await I18n.translate('common.yes'),
+        cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: function () {
@@ -207,16 +207,16 @@ class OpenLayersEditor extends OpenLayersViewer {
       this.$uploadInput.click();
     }
   }
-  handleUploadFile(evt) {
+  async handleUploadFile(evt) {
     let file = evt.target.files[0] || null;
     if (!file) {
       new ConfirmationModal({
-        text: 'Datei nicht gefunden!'
+        text: await I18n.translate('frontend.gpx.file_missing')
       });
     } else {
       const reader = new FileReader();
       reader.onload = (_gpxFile => {
-        return e => {
+        return async e => {
           let xmlString = e.target.result;
           let parser = new DOMParser();
           let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
@@ -236,7 +236,7 @@ class OpenLayersEditor extends OpenLayersViewer {
 
           if (!features.coordinates || !features.coordinates.length) {
             new ConfirmationModal({
-              text: 'Die GPX-Datei beinhaltet keinen Track.',
+              text: await I18n.translate('frontend.gpx.empty'),
               confirmationText: 'Ok'
             });
           } else {

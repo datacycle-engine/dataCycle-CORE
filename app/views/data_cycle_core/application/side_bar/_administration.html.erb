@@ -16,30 +16,30 @@
     <div class="row columns">
       <%= link_to users_path, class: 'users-link' do %>
         <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span>
-        <span class="title"><%= DataCycleCore::User.model_name.human(count: 2, locale: active_ui_locale) %> <%= t('actions.manage', locale: active_ui_locale) %></span>
-      <% end %>
-    </div>
-  <% end %>
+        <span class="title"><%= t('actions.manage', data: DataCycleCore::User.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale) %>
+        <% end %>
+      </div>
+    <% end %>
 
-  <% if can? :index, DataCycleCore::UserGroup %>
-    <div class="row columns">
-      <%= link_to user_groups_path, class: 'user-groups-link' do %>
-        <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
-        <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: active_ui_locale) %> <%= t('actions.manage', locale: active_ui_locale) %></span>
+    <% if can? :index, DataCycleCore::UserGroup %>
+      <div class="row columns">
+        <%= link_to user_groups_path, class: 'user-groups-link' do %>
+          <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+          <span class="title"><%= t('actions.manage', locale: active_ui_locale, data: DataCycleCore::UserGroup.model_name.human(count: 2, locale: active_ui_locale)) %>
+          <% end %>
+        </div>
       <% end %>
-    </div>
-  <% end %>
-  <% if can? :clear_all, :cache %>
-    <div class="row columns">
-      <%= link_to clear_all_caches_path,
+      <% if can? :clear_all, :cache %>
+        <div class="row columns">
+          <%= link_to clear_all_caches_path,
                   method: :get,
                   data: {
                       confirm: "#{t('common.confirm_delete_all_caches', locale: active_ui_locale) }"
                   },
                   title: t('data_cycle_core.cache.clear_all', locale: active_ui_locale), 'aria-haspopup': true do %>
-        <span class="icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
-        <span class="title"><%= t('data_cycle_core.cache.clear_all', locale: active_ui_locale) %></span>
+            <span class="icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
+            <span class="title"><%= t('data_cycle_core.cache.clear_all', locale: active_ui_locale) %></span>
+          <% end %>
+        </div>
       <% end %>
     </div>
-  <% end %>
-</div>

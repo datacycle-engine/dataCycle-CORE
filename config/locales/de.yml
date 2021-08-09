@@ -17,6 +17,7 @@ de:
     title: 'Titel'
     updated: 'Bearbeitet'
   submit: 'Erstellen'
+  settings:
 
   locales:
     de: deutsch
@@ -110,6 +111,42 @@ de:
       remove_file: Datei entfernen
     cancel: Abbrechen
     ok: Ok
+    content_lock:
+      renew_lock: Der Inhalt wird in %{min}min wieder freigegeben.<br><br>Wollen Sie die Sperre um %{renew}min verlängern?
+      released: Der Inhalt wurde wieder freigegeben und kann nicht mehr gespeichert werden.
+    update_stored_filter: 'Filterparameter aktualisieren?<br><br>Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.'
+    maximum_embedded: 'Maximalanzahl: %{data}'
+    gpx:
+      file_missing: Datei nicht gefunden!
+      empty: Die GPX-Datei beinhaltet keinen Track.
+    map:
+      scroll_notice:
+        ctrlKey: Verwende Strg+Scrollen zum Zoomen der Karte
+        metaKey: 'Verwende ⌘+Scrollen zum Zoomen der Karte'
+        pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
+    remote_render:
+      error: Fehler beim Laden des Inhalts.
+      reload: Neu laden
+    split_view:
+      translate_all: Alle übersetzen
+      copy_all: Alle übernehmen
+      translate: übersetzen
+      copy: übernehmen
+      translate_error: Fehler beim Laden der Übersetzung
+    validate:
+      save_and_change_language: Wollen Sie speichern und auf die neue Sprache wechseln?
+      agbs: AGBs müssen akzeptiert werden!
+      error: 'Fehler:'
+      warning: 'Warnung:'
+      ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
+      final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
+    word_counter:
+      chars: Zeichen
+      word:
+        one: Wort
+        many: Wörter
+      max: (noch max. %{data} %{label})
+      min: (noch min. %{data} %{label})
 
   schedule:
     dtstart: Startzeitpunkt
@@ -154,6 +191,10 @@ de:
     opens: geöffnet von
     closes: bis
     closed: geschlossen
+
+  collection:
+    new: Neue %{data}
+    filter: '%{data} filtern...'
 
   common:
     'true': Ja
@@ -568,7 +609,7 @@ de:
   actions:
     show: anzeigen
     edit: bearbeiten
-    manage: verwalten
+    manage: '%{data} verwalten'
     lock: sperren
     unlock: freischalten
     delete: löschen
@@ -644,6 +685,7 @@ de:
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
     copyable_from: '%{data} übernehmen'
     copyable_from_clear: '%{data} verwerfen'
+    logout: Abmelden
 
   validation:
     errors:

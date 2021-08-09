@@ -5,14 +5,14 @@
   <div class="row columns">
     <%= link_to data_cycle_core.destroy_user_session_path, method: :delete, class: 'logout-link' do %>
       <span class="icon"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
-      <span class="title">Ausloggen</span>
+      <span class="title"><%= t('actions.logout', locale: active_ui_locale) %></span>
     <% end %>
   </div>
   <% if current_user.role && current_user.role.rank > 0 %>
     <div class="row columns">
       <%= link_to settings_path, class: 'user-settings-link' do %>
         <span class="icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
-        <span class="title">Einstellungen</span>
+        <span class="title"><%= t('data_cycle_core.settings', locale: active_ui_locale) %></span>
       <% end %>
     </div>
   <% end %>

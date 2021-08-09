@@ -1,4 +1,4 @@
-import Spinner from './../components/loading_spinner';
+import loadingIcon from '../templates/loadingIcon';
 
 export default function () {
   if ($('.publications-list').length) {
@@ -33,8 +33,7 @@ export default function () {
         }
       );
       loading = true;
-      var spinner = new Spinner($('.publications-list'));
-      spinner.show();
+      $('.publications-list').append(loadingIcon());
       DataCycle.httpRequest({
         url: url,
         method: method,
@@ -42,7 +41,7 @@ export default function () {
         dataType: 'script'
       }).done(_data => {
         loading = false;
-        spinner.hide();
+        $('.publications-list .loading').remove();
         if (
           page < pages &&
           !loading &&

@@ -447,7 +447,7 @@ class OpenLayersViewer {
     let oldFn = this.mouseWheelZoom.handleEvent;
     let self = this;
 
-    this.mouseWheelZoom.handleEvent = function (e) {
+    this.mouseWheelZoom.handleEvent = async function (e) {
       let type = e.type;
       if (type !== 'wheel') {
         return true;
@@ -458,9 +458,9 @@ class OpenLayersViewer {
           $(e.map.getTargetElement().firstElementChild)
             .find('canvas')
             .after(
-              `<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text">Verwende ${
-                self.scrollTexts[self.zoomMethod]
-              } der Karte</div></div>`
+              `<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text">${await I18n.translate(
+                `frontend.map.scroll_notice.${self.zoomMethod}`
+              )}</div></div>`
             );
         } else {
           $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeIn(100);

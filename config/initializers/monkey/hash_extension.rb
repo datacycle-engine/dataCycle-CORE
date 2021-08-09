@@ -59,6 +59,23 @@ module DataCycleCore
         memo[k] = v.respond_to?(:dc_deep_dup) ? v.dc_deep_dup : v
       end
     end
+
+    # TODO: remove after rails 6 upgrade
+    def deep_transform_values(&block)
+      _deep_transform_values_in_object(self, &block)
+    end
+
+    # TODO: remove after rails 6 upgrade
+    def _deep_transform_values_in_object(object, &block)
+      case object
+      when Hash
+        object.transform_values { |value| _deep_transform_values_in_object(value, &block) }
+      when Array
+        object.map { |e| _deep_transform_values_in_object(e, &block) }
+      else
+        yield(object)
+      end
+    end
   end
 end
 

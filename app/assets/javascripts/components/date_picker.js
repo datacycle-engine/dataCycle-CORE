@@ -1,5 +1,6 @@
 import Flatpickr from 'flatpickr';
 import { German } from 'flatpickr/dist/l10n/de.js';
+import { english } from 'flatpickr/dist/l10n/default';
 import ConfirmationModal from './../components/confirmation_modal';
 import DataCycle from './data_cycle';
 import castArray from 'lodash/castArray';
@@ -12,8 +13,12 @@ class DatePicker {
     this.sibling;
     this.calInstance;
     this.conditionalFormField = this.element.closest('.conditional-form-field');
+    this.localeMapping = {
+      de: German,
+      en: english
+    };
     this.defaultOptions = {
-      locale: German,
+      locale: this.localeMapping[DataCycle.uiLocale],
       altInput: true,
       time_24hr: true,
       allowInput: true,
@@ -193,7 +198,7 @@ class DatePicker {
 
     return options;
   }
-  importData(event, data) {
+  async importData(event, data) {
     event.stopImmediatePropagation();
 
     if (this.calInstance.altInput.value.length === 0 || (data && data.force)) {
@@ -201,9 +206,9 @@ class DatePicker {
       this.updateConditionalField(data.value);
     } else {
       new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
+        text: await I18n.translate('frontend.override_warning', { data: data.label }),
+        confirmationText: await I18n.translate('common.yes'),
+        cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: () => {

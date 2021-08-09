@@ -44,8 +44,11 @@ class AssetUploader {
     this.reveal.on('dc:upload:setFiles', (e, files) => {
       this.validateFiles(e, files.fileList);
     });
-    $(window).on('beforeunload', _event => {
-      if ($('.file-for-upload.uploading').length) return 'uploads running...';
+    $(window).on('beforeunload', event => {
+      if ($('.file-for-upload.uploading').length) {
+        event.preventDefault();
+        return (event.returnValue = '');
+      }
     });
     this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
     this.reveal.on(

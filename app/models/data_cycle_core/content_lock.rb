@@ -43,6 +43,8 @@ module DataCycleCore
     def update_locks
       lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: user.id, lock_ids: Array(id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
 
+      return if activitiable.nil?
+
       ActionCable.server.broadcast "content_lock_#{activitiable.id}", locked_until: updated_at&.utc&.+(DataCycleCore::Feature::ContentLock.lock_length.seconds)&.to_i, user_id: user.id, lock_id: id, token: lock_token
 
       activitiable.watch_lists.pluck(:id).each do |watch_list_id|

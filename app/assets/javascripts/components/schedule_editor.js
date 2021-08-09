@@ -39,7 +39,7 @@ class ScheduleEditor {
       .find(
         '.special-dates .rdate .flatpickr-input[type="hidden"], .special-dates .exdate .flatpickr-input[type="hidden"]'
       )
-      .each((i, item) => {
+      .each((_i, item) => {
         item._flatpickr.set(mode, $(event.currentTarget).val());
       });
   }

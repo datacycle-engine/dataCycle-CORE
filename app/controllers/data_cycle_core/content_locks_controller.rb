@@ -14,7 +14,7 @@ module DataCycleCore
 
       @content_locks.find_each(&:touch)
 
-      head :ok
+      head :no_content
     end
 
     def destroy
@@ -26,7 +26,7 @@ module DataCycleCore
 
       @content_locks.find_each(&:destroy)
 
-      head :ok
+      head :no_content
     end
 
     private

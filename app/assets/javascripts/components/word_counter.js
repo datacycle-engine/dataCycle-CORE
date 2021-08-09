@@ -47,18 +47,24 @@ class Counter {
       chars: this.countChars(text)
     };
   }
-  update() {
+  async update() {
     var length = this.calculate();
     var chars = length.chars;
     var words = length.words;
-    var charLabel = 'Zeichen';
-    var wordLabel = words == 1 ? 'Wort' : 'Wörter';
+    var charLabel = await I18n.translate('frontend.word_counter.chars');
+    var wordLabel =
+      words == 1
+        ? await I18n.translate('frontend.word_counter.word.one')
+        : await I18n.translate('frontend.word_counter.word.many');
     if (chars == 0) $(this.container).fadeOut('fast');
     else $(this.container).fadeIn('fast');
-    var counterString = words + ' ' + wordLabel + ' / ' + chars + ' ' + charLabel;
+    var counterString = `${words} ${wordLabel} / ${chars} ${charLabel}`;
     if (this.warnings !== undefined && this.warnings.max !== undefined && chars > 0 && chars > this.warnings.max) {
       var rest = this.warnings.max - chars;
-      counterString += ' (noch max. ' + (rest > 0 ? rest : 0) + ' ' + charLabel + ')';
+      counterString += ` ${await I18n.translate('frontend.word_counter.max', {
+        data: rest > 0 ? rest : 0,
+        label: charLabel
+      })}`;
     } else if (
       this.warnings !== undefined &&
       this.warnings.min !== undefined &&
@@ -66,8 +72,12 @@ class Counter {
       chars < this.warnings.min
     ) {
       var rest = this.warnings.min - chars;
-      counterString += ' (noch min. ' + (rest > 0 ? rest : 0) + ' ' + charLabel + ')';
+      counterString += ` ${await I18n.translate('frontend.word_counter.min', {
+        data: rest > 0 ? rest : 0,
+        label: charLabel
+      })}`;
     }
+
     $(this.container).html(counterString);
   }
 }

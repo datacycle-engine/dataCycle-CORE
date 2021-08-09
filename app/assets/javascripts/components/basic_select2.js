@@ -2,6 +2,7 @@ import Select2 from 'select2';
 import difference from 'lodash/difference';
 import i18nDe from '../helpers/select2_i18n_de';
 import i18nEn from '../helpers/select2_i18n_en';
+import DataCycle from './data_cycle';
 
 class BasicSelect2 {
   constructor(element) {
@@ -20,8 +21,7 @@ class BasicSelect2 {
       Select2($);
       $.fn.select2.defaults.set('width', '100%');
 
-      const locale = document.documentElement.lang;
-      switch (locale) {
+      switch (DataCycle.uiLocale) {
         case 'de':
           $.fn.select2.defaults.set('language', i18nDe);
           break;

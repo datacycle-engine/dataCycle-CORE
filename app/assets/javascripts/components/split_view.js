@@ -8,14 +8,17 @@ class SplitView {
     this.rightLocale = this.container.closest('form').find('input#locale:hidden').val();
     this.enableTranslateButtons = this.container.closest('.split-content').data('enable-translate-buttons');
     this.translatableTypes = ['string', 'text_editor'];
+    this.addButtonRequests = [];
 
     this.setup();
   }
   setup() {
     this.setupButtons();
 
-    this.setupCopyAllButtons(this.container.closest('.split-content'));
-    this.setupCopyAllButtons(this.availableEditors(['included-object']));
+    Promise.all(this.addButtonRequests).then(_values => {
+      this.setupCopyAllButtons(this.container.closest('.split-content'));
+      this.setupCopyAllButtons(this.availableEditors(['included-object']));
+    });
 
     this.container.on('click', '.copy', this.handleButtonClick.bind(this));
     this.container.on('click', '.translate', this.handleButtonClick.bind(this));
@@ -104,15 +107,19 @@ class SplitView {
     });
   }
   setupCopyAllButtons(elements) {
-    elements.each((_, item) => {
-      if ($(item).find('a.copy').length) {
+    elements.each(async (_, item) => {
+      if ($(item).find('.dc-copyable-field').length) {
         if (this.enableTranslateButtons) {
           $(item).prepend(
-            '<a class="button-prime small translate-all" title="Alle übersetzen"><i class="fa fa-language" aria-hidden="true"></i></a>'
+            `<a class="button-prime small translate-all" title="${await I18n.translate(
+              'frontend.split_view.translate_all'
+            )}"><i class="fa fa-language" aria-hidden="true"></i></a>`
           );
         }
         $(item).prepend(
-          '<a class="button-prime small copy-all" title="Alle übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
+          `<a class="button-prime small copy-all" title="${await I18n.translate(
+            'frontend.split_view.copy_all'
+          )}"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>`
         );
       }
     });
@@ -126,7 +133,7 @@ class SplitView {
         .data('readonly')
     ) {
       if (single && !$(element).hasClass('copy-single')) element = $(element).find('.copy-single');
-      this.renderButton(element, copy_attr, single);
+      this.addButtonRequests.push(this.renderButton(element, copy_attr, single));
     }
     $(element).addClass('dc-sw-initialized');
   }
@@ -143,7 +150,7 @@ class SplitView {
         return true;
     }
   }
-  renderButton(element, copy_attr, single) {
+  async renderButton(element, copy_attr, single) {
     if (!single && !$(element).children('.buttons').length) $(element).append('<div class="buttons"></div');
     if ($(element).find('> .content-link > .buttons').length) element = $(element).find('> .content-link > .buttons');
     if ($(element).children('.buttons').length) element = $(element).children('.buttons');
@@ -154,28 +161,30 @@ class SplitView {
       (this.translatableTypes.includes(field.data('editor')) ||
         (field.data('editor') == 'embedded_object' && $(field).data('translatable')))
     )
-      this.addTranslationButton(element, field, copy_attr, single);
+      await this.addTranslationButton(element, field, copy_attr, single);
 
-    this.addCopyButton(element, field, copy_attr, single);
+    await this.addCopyButton(element, field, copy_attr, single);
   }
-  addTranslationButton(element, field, copy_attr, single) {
+  async addTranslationButton(element, field, copy_attr, single) {
     $(element).append(
       `<a class="button-prime small translate${
         single ? ' translate-single-button' : ''
       }" data-copy-attribute="${copy_attr}" data-translate-attribute="${
         this.translatableTypes.includes(field.data('editor')) ? 'direct' : 'indirect'
-      }" data-disable-with="<i class=\'fa fa-circle-o-notch fa-spin\'></i>" title="übersetzen"><i class="fa fa-language aria-hidden="true"></i></a>`
+      }" data-disable-with="<i class=\'fa fa-circle-o-notch fa-spin\'></i>" title="${await I18n.translate(
+        'frontend.split_view.translate'
+      )}"><i class="fa fa-language aria-hidden="true"></i></a>`
     );
 
     $(field).addClass('dc-translatable-field');
   }
-  addCopyButton(element, field, copy_attr, single) {
+  async addCopyButton(element, field, copy_attr, single) {
     $(element).append(
-      '<a class="button-prime small copy' +
-        (single ? ' copy-single-button' : '') +
-        '" data-copy-attribute="' +
-        copy_attr +
-        '" title="übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
+      `<a class="button-prime small copy ${
+        single ? ' copy-single-button' : ''
+      }" data-copy-attribute="${copy_attr}" title="${await I18n.translate(
+        'frontend.split_view.copy'
+      )}"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>`
     );
 
     $(field).addClass('dc-copyable-field');
@@ -261,8 +270,8 @@ class SplitView {
         .done(data => {
           this.copyContents(data.text, label, key);
         })
-        .fail(_data => {
-          CalloutHelpers.show('Fehler beim Laden der Übersetzung', 'alert');
+        .fail(async _data => {
+          CalloutHelpers.show(await I18n.translate('frontend.split_view.translate_error'), 'alert');
         })
         .always(() => {
           DataCycle.enableElement(elem);
