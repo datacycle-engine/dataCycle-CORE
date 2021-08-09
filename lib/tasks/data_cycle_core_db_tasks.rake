@@ -1,8 +1,28 @@
 # frozen_string_literal: true
 
+DATABASE_DUMP_EXCLUDES = {
+  'review' => [
+    'delayed_jobs',
+    'subscriptions',
+    '*histories',
+    '*history_translations',
+    'activities'
+  ],
+  'activities' => [
+    'delayed_jobs',
+    'subscriptions',
+    '*histories',
+    '*history_translations'
+  ],
+  'full' => [
+    'delayed_jobs',
+    'subscriptions'
+  ]
+}.freeze
+
 namespace :data_cycle_core do
   namespace :db do
-    desc 'Dumps the database to backups'
+    desc 'Dumps the database to backups (mode = review|activities|full)'
     task :dump, [:backup_name, :format, :mode] => [:environment] do |_, args|
       temp = Time.zone.now
       dump_fmt = ensure_format(args[:format])
@@ -23,14 +43,8 @@ namespace :data_cycle_core do
 
         sh "rm -rf #{full_path}" if full_path.present?
 
-        case args[:mode]
-        when 'review'
-          cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 2' if dump_fmt == 'd'} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories' --exclude-table-data='*history_translations'"
-        when 'full'
-          cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 2' if dump_fmt == 'd'} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions'"
-        else
-          cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 2' if dump_fmt == 'd'} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
-        end
+        excludes = DATABASE_DUMP_EXCLUDES[args.mode].map { |e| "--exclude-table-data='#{e}'" }.join(' ') if args.mode.present?
+        cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 4' if dump_fmt == 'd'} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' #{excludes}".squish
       end
 
       sh cmd
@@ -124,7 +138,7 @@ namespace :data_cycle_core do
             when 'p'
               cmd = "psql --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
             else
-              cmd = "#{pgclusters}pg_restore -F #{fmt}#{' -j 2' if fmt == 'd'} -O -v --disable-triggers --superuser=#{user} --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
+              cmd = "#{pgclusters}pg_restore -F #{fmt}#{' -j 4' if fmt == 'd'} -O -v --disable-triggers --superuser=#{user} --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
             end
           else
             puts "Too many files match the pattern '#{pattern}':"

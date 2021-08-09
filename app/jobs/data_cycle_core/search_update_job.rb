@@ -24,7 +24,7 @@ module DataCycleCore
       if content && locale
         content.update_search_languages(false, locale.to_sym)
       elsif content
-        content.update_search_languages(true, content.first_available_locale.to_sym)
+        content.update_search_languages(true, content.first_available_locale&.to_sym)
       end
     end
   end
