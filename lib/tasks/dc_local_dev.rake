@@ -68,6 +68,8 @@ namespace :dc do
         existing_translations[new_locale] = existing_translations.delete('de')
 
         new_translations = existing_translations.deep_transform_values do |value|
+          next value unless value.is_a?(::String)
+
           translated_value = DataCycleCore::Feature::Translate.translate_text({ 'text' => value, 'source_locale' => 'de', 'target_locale' => new_locale })
 
           if translated_value.try(:error).present?

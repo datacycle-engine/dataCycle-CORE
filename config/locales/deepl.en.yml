@@ -1332,17 +1332,17 @@ en:
       format:
         delimiter: '.'
         format: '%n %u'
-        precision: '2'
+        precision: 2
         separator: ','
-        significant:
-        strip_insignificant_zeros:
+        significant: false
+        strip_insignificant_zeros: false
         unit: '€'
     format:
       delimiter: '.'
-      precision: '2'
+      precision: 2
       separator: ','
-      significant:
-      strip_insignificant_zeros:
+      significant: false
+      strip_insignificant_zeros: false
     human:
       decimal_units:
         format: '%n %u'
@@ -1363,9 +1363,9 @@ en:
           unit:
       format:
         delimiter:
-        precision: '3'
-        significant: 'true'
-        strip_insignificant_zeros: 'true'
+        precision: 3
+        significant: true
+        strip_insignificant_zeros: true
       storage_units:
         format: '%n %u'
         units:
@@ -1413,6 +1413,13 @@ en:
       log in again
     data_cycle_core/error/download/invalid_serialization_format_error: The selected
       download method is not supported
+    data_cycle_core/error/api/bad_request_error:
+      unknown_parameter: Unknown Query Parameter
+      invalid_parameter: Invalid Query Parameter
+    data_cycle_core/error/api/expired_content_error:
+      expired_content: Content is expired
+    active_record/record_not_found: Not found
+
   details:
     bild:
       open_url: Open URL

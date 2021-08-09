@@ -1406,6 +1406,12 @@ de:
   exceptions:
     action_controller/invalid_authenticity_token: Ungültiges oder fehlendes CSRF-Token, bitte erneut anmelden
     data_cycle_core/error/download/invalid_serialization_format_error: Die ausgewählte Download-Methode wird nicht unterstützt
+    data_cycle_core/error/api/bad_request_error:
+      unknown_parameter: Unbekannter Query Parameter
+      invalid_parameter: Ungültiger Query Parameter
+    data_cycle_core/error/api/expired_content_error:
+      expired_content: Inhalt ist abgelaufen
+    active_record/record_not_found: Nicht gefunden
 
   details:
     bild:
