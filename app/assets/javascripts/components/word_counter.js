@@ -51,11 +51,14 @@ class Counter {
     var length = this.calculate();
     var chars = length.chars;
     var words = length.words;
-    var charLabel = await I18n.translate('frontend.word_counter.chars');
+    var charLabel =
+      chars == 1
+        ? await I18n.translate('frontend.word_counter.chars.one')
+        : await I18n.translate('frontend.word_counter.chars.other');
     var wordLabel =
       words == 1
         ? await I18n.translate('frontend.word_counter.word.one')
-        : await I18n.translate('frontend.word_counter.word.many');
+        : await I18n.translate('frontend.word_counter.word.other');
     if (chars == 0) $(this.container).fadeOut('fast');
     else $(this.container).fadeIn('fast');
     var counterString = `${words} ${wordLabel} / ${chars} ${charLabel}`;

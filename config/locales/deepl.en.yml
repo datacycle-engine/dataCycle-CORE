@@ -136,10 +136,12 @@ en:
         anyway?</br>
       final_save: The content is finally sent and <br>cannot be edited afterwards</br>.
     word_counter:
-      chars: Characters
+      chars:
+        one: Character
+        other: Characters
       word:
         one: Word
-        many: Words
+        other: Words
       max: '(still max %{data} %{label})'
       min: '(still min. %{data} %{label})'
   schedule:

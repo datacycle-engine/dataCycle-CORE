@@ -141,10 +141,12 @@ de:
       ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
       final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
     word_counter:
-      chars: Zeichen
+      chars:
+        one: Zeichen
+        other: Zeichen
       word:
         one: Wort
-        many: Wörter
+        other: Wörter
       max: (noch max. %{data} %{label})
       min: (noch min. %{data} %{label})
 
