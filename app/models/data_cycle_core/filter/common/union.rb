@@ -4,6 +4,11 @@ module DataCycleCore
   module Filter
     module Common
       module Union
+        UNION_FILTER_EXCEPTS = [
+          :order,
+          :reordering
+        ].freeze
+
         def union_filter_ids(ids = nil)
           filter_queries = []
 
@@ -109,9 +114,9 @@ module DataCycleCore
           filter_query_sql = nil
           DataCycleCore::WatchList.where(id: ids).find_each do |collection|
             if filter_query_sql.nil?
-              filter_query_sql = collection.watch_list_data_hashes.select(:hashable_id).except(:order)
+              filter_query_sql = collection.watch_list_data_hashes.select(:hashable_id).except(*UNION_FILTER_EXCEPTS)
             else
-              filter_query_sql = filter_query_sql.or(collection.watch_list_data_hashes.select(:hashable_id).except(:order))
+              filter_query_sql = filter_query_sql.or(collection.watch_list_data_hashes.select(:hashable_id).except(*UNION_FILTER_EXCEPTS))
             end
           end
           filter_query_sql
@@ -123,9 +128,9 @@ module DataCycleCore
           filter_query_sql = nil
           DataCycleCore::StoredFilter.where(id: ids).find_each do |filter|
             if filter_query_sql.nil?
-              filter_query_sql = filter.apply.select(:id).except(:order)
+              filter_query_sql = filter.apply.select(:id).except(*UNION_FILTER_EXCEPTS)
             else
-              filter_query_sql = filter_query_sql.or(filter.apply.select(:id).except(:order))
+              filter_query_sql = filter_query_sql.or(filter.apply.select(:id).except(*UNION_FILTER_EXCEPTS))
             end
           end
           filter_query_sql
@@ -136,9 +141,9 @@ module DataCycleCore
 
           filters.each do |filter|
             if filter_query_sql.nil?
-              filter_query_sql = filter.select(:id).except(:order)
+              filter_query_sql = filter.select(:id).except(*UNION_FILTER_EXCEPTS)
             else
-              filter_query_sql = filter_query_sql.or(filter.select(:id).except(:order))
+              filter_query_sql = filter_query_sql.or(filter.select(:id).except(*UNION_FILTER_EXCEPTS))
             end
           end
 
