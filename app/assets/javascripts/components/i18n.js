@@ -4,7 +4,8 @@ import get from 'lodash/get';
 const I18n = {
   cache: {},
   async translate(path, substitutions = {}) {
-    let text = await Promise.resolve(this.cache[path]);
+    let text = this.cache[path];
+    if (text && typeof text.then === 'function') text = await text;
 
     if (!text) {
       this.cache[path] = this._loadTranslation(path);
