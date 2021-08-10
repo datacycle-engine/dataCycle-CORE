@@ -1,6 +1,6 @@
 <div class="column detail-header-wrapper">
 
-  <div class="detail-header">
+  <div class="detail-header <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>">
     <%= render_content_partial 'header_top', content: content %>
 
     <% content_title = yield %>
