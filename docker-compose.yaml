@@ -51,7 +51,7 @@ services:
       - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
       - $SSH_AUTH_SOCK:/ssh-agent
       - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}docker/hist:/root/hist
-    user: root
+    user: 'root:1000'
     links:
       - postgres
       - mongodb
