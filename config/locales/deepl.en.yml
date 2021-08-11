@@ -172,10 +172,10 @@ en:
     ongoing: ongoing
     filter_labels:
       all: All periods (except %{exceptions})
-      event_schedule: Dates
+      event_schedule: Dates (Events)
       opening_hours_specification: Opening hours
       dining_hours_specification: Hot kitchen
-      hours_available: Opening hours (hours_available)
+      hours_available: Dates (Services/Experiences)
       validity_schedule: Validity period
   opening_time:
     valid_from: Validity from

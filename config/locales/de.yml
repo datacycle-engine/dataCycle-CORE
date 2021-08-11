@@ -178,10 +178,10 @@ de:
     ongoing: fortlaufend
     filter_labels:
       all: Alle Zeiträume (außer %{exceptions})
-      event_schedule: Termine
+      event_schedule: Termine (Veranstaltungen)
       opening_hours_specification: Öffnungszeiten
       dining_hours_specification: Warme Küche
-      hours_available: Öffnungszeiten (hours_available)
+      hours_available: Termine (Services/Experiences)
       validity_schedule: Gültigkeitszeitraum
 
   opening_time:
