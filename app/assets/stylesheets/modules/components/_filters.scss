@@ -117,11 +117,15 @@ $filter-border: #aaa;
           }
         }
 
-        &.i {
+        &.i,
+        &.s,
+        &.p {
           box-shadow: 0 0 0 1px $success-color, 0 0 5px 3px $success-color;
         }
 
-        &.e {
+        &.e,
+        &.u,
+        &.b {
           box-shadow: 0 0 4px 2px rgba($alert-color, 0.8);
         }
 
@@ -628,8 +632,10 @@ $filter-border: #aaa;
       box-shadow: 0 0 5px lighten($color: $black, $amount: 20%);
 
       &.e,
-      &.u {
+      &.u,
+      &.b {
         box-shadow: 0 0 5px 2px rgba($alert-color, 0.8);
+
         .tag {
           position: relative;
           &::after {
@@ -646,7 +652,8 @@ $filter-border: #aaa;
       }
 
       &.i,
-      &.s {
+      &.s,
+      &.p {
         box-shadow: 0 0 5px 3px $success-color;
       }
 

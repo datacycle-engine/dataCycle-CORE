@@ -8,6 +8,22 @@ module DataCycleCore
       data_hash.deep_reject { |k, v| v.blank? || INTERNAL_PROPERTIES.include?(k) }
     end
 
+    def self.normalize_parameters(params)
+      params = params.to_h if params.is_a?(ActionController::Parameters)
+
+      params.each do |key, value|
+        next unless value.is_a?(::Hash)
+
+        # If any non-integer keys
+        if value.keys.find { |k, _| k =~ /\D/ }
+          normalize_parameters(value)
+        else
+          params[key] = value.values
+          value.each_value { |h| normalize_parameters(h) }
+        end
+      end
+    end
+
     # def deep_reject(hash, &blk)
     #   deep_reject!(hash.dup, &blk)
     # end

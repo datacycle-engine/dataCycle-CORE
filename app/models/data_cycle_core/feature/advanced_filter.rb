@@ -44,17 +44,19 @@ module DataCycleCore
 
         def relation_filter(value)
           return [] unless value.is_a?(Hash)
+
           value.map do |k, v|
             [
               I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: DataCycleCore.ui_language),
               'relation_filter',
-              data: { name: k, advancedType: v }
+              data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
           end
         end
 
         def union_filter_ids(value)
           return [] unless value
+
           [
             [
               I18n.t('filter.union_filter_ids', collections: DataCycleCore::WatchList.model_name.human(count: 2, locale: DataCycleCore.ui_language), default: 'union_filter_ids'.capitalize, locale: DataCycleCore.ui_language),
@@ -199,6 +201,10 @@ module DataCycleCore
           schedule_filter_exceptions
             &.map { |e| I18n.t("schedule.filter_labels.#{e}", locale: DataCycleCore.ui_language) }
             &.join(', ')
+        end
+
+        def relation_filter_restrictions(type, name)
+          configuration.dig(type, name, 'filter')
         end
       end
     end

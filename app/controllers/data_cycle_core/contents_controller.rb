@@ -420,6 +420,23 @@ module DataCycleCore
       authorize! :show, DataCycleCore::Thing
       template_filter = select_search_params[:template_name].present?
 
+      filter = DataCycleCore::StoredFilter.new(parameters: select_search_params[:stored_filter])
+
+      # if select_search_params[:stored_filter].present?
+      #   stored_filter_params = stored_filter.to_a.map(&:to_h).map do |f|
+      #     f.each_with_object({}) do |(k, v), hash|
+      #       hash['t'] = k
+      #       hash['v'] = v
+      #     end
+      #   end
+      #   stored_filter_params = current_user.default_filter(stored_filter_params, { scope: 'object_browser' })
+      #   filter.parameters = stored_filter_params
+      # else
+      #   query = filter.apply
+      # end
+
+      # binding.pry
+
       query = DataCycleCore::Filter::Search.new(nil)
       query = query
         .fulltext_search(select_search_params[:q])
@@ -454,7 +471,9 @@ module DataCycleCore
     end
 
     def select_search_params
-      params.permit(:q, :max, :exclude, :template_name)
+      return @select_search_params if defined? @select_search_params
+
+      DataCycleCore::NormalizeService.normalize_parameters(params.permit(:q, :max, :exclude, :template_name, stored_filter: {}))
     end
 
     def create_locale(params_hash = nil)

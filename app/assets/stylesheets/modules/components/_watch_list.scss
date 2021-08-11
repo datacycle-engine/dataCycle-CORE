@@ -167,8 +167,12 @@
       }
 
       &.is-active {
-        > .accordion-title::before {
-          content: '\f07c';
+        > .accordion-title {
+          background: none;
+
+          &::before {
+            content: '\f07c';
+          }
         }
       }
 

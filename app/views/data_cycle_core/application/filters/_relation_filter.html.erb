@@ -1,4 +1,4 @@
-<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+<div data-id="<%= identifier %>" class="advanced-filter conditional-method <%= filter_method ||= 'i' %>" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{identifier}][t]", 'relation_filter' %>
   <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
   <%= hidden_field_tag "f[#{identifier}][q]", filter_advanced_type %>
@@ -9,22 +9,37 @@
     <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
   </div>
   <div class="advanced-filter-mode">
-    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("filter.relation_filter.contained_in", locale: DataCycleCore.ui_language), 'i'], [t("filter.relation_filter.not_contained_in", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
+    <%= select_tag "f[#{identifier}][m]", advanced_relation_filter_modes(filter_method) %>
   </div>
 
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{identifier}][v]",
-      union_values_to_options(value),
-      {
-        include_blank: true,
-        multiple: false,
-        class: 'async-select',
-        data: {
-          max: 20,
-          placeholder: '',
-          search_path: select_search_or_collection_stored_filters_path
-        }
-      }) %>
+        value,
+        {
+          include_blank: true,
+          multiple: true,
+          id: "f_#{identifier}_v_thing",
+          class: "async-select #{'active' if filter_method.in?(['s', 'u'])}",
+          data: {
+            max: 20,
+            placeholder: '',
+            search_path: select_search_things_path,
+            query_params: DataCycleCore::Feature::AdvancedFilter.relation_filter_restrictions(filter_type, filter_name).to_json
+          }
+        }) %>
+    <%= select_tag("f[#{identifier}][v]",
+        union_values_to_options(value),
+        {
+          include_blank: true,
+          multiple: false,
+          id: "f_#{identifier}_v_collection_stored_filter",
+          class: "async-select #{'active' unless filter_method.in?(['s', 'u'])}",
+          data: {
+            max: 20,
+            placeholder: '',
+            search_path: select_search_or_collection_stored_filters_path
+          }
+        }) %>
   </div>
   <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
     <div class="buttons">

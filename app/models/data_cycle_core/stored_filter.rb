@@ -10,6 +10,23 @@ module DataCycleCore
     belongs_to :linked_stored_filter, class_name: 'DataCycleCore::StoredFilter', inverse_of: :filter_uses, dependent: nil
     has_many :filter_uses, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, inverse_of: :linked_stored_filter, dependent: :nullify
 
+    def initialize(params = {})
+      # initialize with filter_hash from template definition (linked)
+
+      binding.pry
+
+      if params&.dig(:parameters).present?
+        params[:parameters] = params[:parameters].to_a.map(&:to_h).map do |f|
+          f.each_with_object({}) do |(k, v), hash|
+            hash['t'] = k
+            hash['v'] = v
+          end
+        end
+      end
+
+      super
+    end
+
     # Mögliche Filter-Parameter: c, t, v, m, n, q
     #
     # c => 'd' oder 'a'         | für 'default' oder 'advanced'

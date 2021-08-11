@@ -446,6 +446,8 @@ de:
     inactive_things: Abgelaufene Inhalte
     in_schedule: Termin
     relation_filter:
+      equal: ist
+      not_equal: ist nicht
       contained_in: ist enthalten in
       not_contained_in: ist nicht enthalten in
     related_to: ist verknüpft mit

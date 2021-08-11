@@ -145,7 +145,7 @@ class DashboardFilter {
     event.stopPropagation();
 
     $(event.currentTarget)
-      .removeClass('i e n q')
+      .removeClass((_i, classNames) => classNames.split(' ').filter(c => c.length < 2))
       .addClass($(event.currentTarget).find(':input[name*="[m]"]').first().val());
 
     const type = $(event.currentTarget).find(':input[name*="[t]"]').first().val();

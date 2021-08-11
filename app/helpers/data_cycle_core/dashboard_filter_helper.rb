@@ -113,5 +113,17 @@ module DataCycleCore
         I18n.t("filter.#{filter_type}", default: filter_title, locale: DataCycleCore.ui_language)
       end
     end
+
+    def advanced_relation_filter_modes(filter_method)
+      options_for_select(
+        [
+          [t('filter.relation_filter.equal', locale: DataCycleCore.ui_language), 's'],
+          [t('filter.relation_filter.not_equal', locale: DataCycleCore.ui_language), 'u'],
+          [t('filter.relation_filter.contained_in', locale: DataCycleCore.ui_language), 'i'],
+          [t('filter.relation_filter.not_contained_in', locale: DataCycleCore.ui_language), 'e']
+        ],
+        filter_method
+      )
+    end
   end
 end
