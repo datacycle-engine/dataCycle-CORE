@@ -51,6 +51,7 @@ services:
       - '${COMPOSE_WEB_BUILD_CONTEXT:-../../../}:/var/www/app'
       - $SSH_AUTH_SOCK:/ssh-agent
       - ${COMPOSE_WEB_BUILD_CONTEXT:-../../../}docker/hist:/root/hist
+      - node-modules:/var/www/app/node_modules
     user: 'root:1000'
     links:
       - postgres
@@ -106,3 +107,4 @@ volumes:
   gems:
   redis:
   nginx:
+  node-modules:
