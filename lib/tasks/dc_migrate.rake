@@ -167,6 +167,7 @@ namespace :dc do
       systems = ['feratel']
       systems.each do |identifier|
         es = DataCycleCore::ExternalSystem.find_by(identifier: identifier)
+        next if es.blank?
         DataCycleCore::Thing.where(template_name: 'Örtlichkeit', external_source_id: es.id).each do |place|
           # update data-type
           DataCycleCore::ClassificationContent.where(content_data_id: place.id, relation: 'data_type').update_all(classification_id: poi_class)

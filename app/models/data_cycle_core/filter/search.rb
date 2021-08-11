@@ -49,6 +49,47 @@ module DataCycleCore
         )
       end
 
+      def updated_since_flat(updated_at = nil)
+        return self if updated_at.blank?
+
+        reflect(
+          @query.where(thing[:updated_at].gteq(quoted(updated_at)))
+        )
+      end
+
+      def updated_since(updated_at = nil, iteration_depth = 5)
+        return self if updated_at.blank?
+
+        updated_since = updated_at
+
+        raw_sql = <<-SQL.squish
+          WITH RECURSIVE content_dependencies AS (
+            SELECT ARRAY[things.id] "content_ids"
+              FROM things AS t
+              WHERE t.id = things.id
+              AND t.updated_at >= ?
+            UNION
+            SELECT ARRAY[content_content_links.content_b_id, content_content_links.content_a_id] "content_ids"
+              FROM content_content_links
+              JOIN things AS t ON t.id = content_content_links.content_b_id
+              WHERE content_content_links.content_a_id = things.id
+              AND t.updated_at >= ?
+            UNION
+            SELECT content_content_links.content_b_id || content_dependencies.content_ids "content_ids"
+              FROM content_content_links
+              JOIN things AS t ON t.id = content_content_links.content_b_id
+              JOIN content_dependencies ON content_dependencies.content_ids[1] = content_content_links.content_a_id
+              AND content_content_links.content_b_id <> ALL(content_dependencies.content_ids)
+              AND t.updated_at >= ?
+            WHERE array_length(content_dependencies.content_ids, 1) < ?
+          ) SELECT 1 FROM content_dependencies WHERE content_ids[array_length(content_ids, 1)] = things.id
+        SQL
+
+        reflect(
+          @query.where("EXISTS (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, updated_since, updated_since, updated_since, iteration_depth])})")
+        )
+      end
+
       def schema_type(type)
         return self if type.blank?
         query_string = Thing.send(:sanitize_sql_for_conditions, ['(schema -> :attribute_path)::jsonb ? :type', attribute_path: 'schema_type', type: type])
@@ -195,28 +236,6 @@ module DataCycleCore
       def count_distinct
         raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
       end
-
-      # def self.dictionary_hash
-      #   hash = {
-      #     'da' => 'pg_catalog.danish',
-      #     'nl' => 'pg_catalog.dutch',
-      #     'en' => 'pg_catalog.english',
-      #     'fi' => 'pg_catalog.finnish',
-      #     'fr' => 'pg_catalog.french',
-      #     'de' => 'pg_catalog.german',
-      #     'de-CH' => 'pg_catalog.german',
-      #     'hu' => 'pg_catalog.hungarian',
-      #     'it' => 'pg_catalog.italian',
-      #     'no' => 'pg_catalog.norwegian',
-      #     'pt' => 'pg_catalog.portuguese',
-      #     'ru' => 'pg_catalog.russian',
-      #     'es' => 'pg_catalog.spanish',
-      #     'sv' => 'pg_catalog.swedish',
-      #     'tr' => 'pg_catalog.turkish'
-      #   }
-      #   hash.default('pg_catalog.simple')
-      #   hash
-      # end
 
       private
 
