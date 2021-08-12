@@ -353,8 +353,8 @@ DataCycleCore::Engine.routes.draw do
     post :render_in_overlay
   end
 
-  post 'contents/upload', to: 'contents#upload'
-  # post 'contents/new', to: 'contents#new'
+  # post 'contents/upload', to: 'contents#upload'
+  # # post 'contents/new', to: 'contents#new'
 
   resources :publications, only: :index
 
