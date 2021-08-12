@@ -5,8 +5,8 @@
   </span>
 
   <span class="tags-container">
-    <% union_ids_to_value(value)&.each do |item| %>
-      <span class="tag <%= item['class_name'] %>" title="<%= "#{I18n.t("activerecord.models.data_cycle_core/#{item['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{item['name']}" %>"><%= item['name'] %></span>
+    <% union_ids_to_value(value).each do |item| %>
+      <%= tag.span(item.name, class: "tag #{item.html_class}", title: item.title) %>
     <% end %>
   </span>
 

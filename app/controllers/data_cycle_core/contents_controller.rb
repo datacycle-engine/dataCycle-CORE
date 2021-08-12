@@ -428,14 +428,8 @@ module DataCycleCore
         .exclude_ids(select_search_params[:exclude])
       query = query.limit(select_search_params[:max].to_i) if select_search_params[:max].present?
 
-      render plain: query.includes(:translations).map { |content|
-        {
-          id: content.id,
-          class: "#{content.template_name.underscore_blanks} #{content.schema.dig('schema_type').underscore_blanks}",
-          name: "#{"<b>#{content.template_name}</b>: " unless template_filter}#{I18n.with_locale(content.first_available_locale) { content.title }} (#{content.translated_locales.join(', ')})",
-          title: "#{"#{content.template_name}: " unless template_filter}#{I18n.with_locale(content.first_available_locale) { content.title }} (#{content.translated_locales.join(', ')})"
-        }
-      }.to_json, content_type: 'application/json'
+      render plain: query.includes(:translations).map { |t| t.to_select_option(template_filter) }.to_json,
+             content_type: 'application/json'
     end
 
     private

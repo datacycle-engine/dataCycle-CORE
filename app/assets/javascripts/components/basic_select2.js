@@ -81,8 +81,8 @@ class BasicSelect2 {
     if (this.select2Object && (container == undefined || $(container).hasClass('select2-selection__rendered')))
       this.select2Object.$selection.find('.select2-selection__rendered').prop('class', 'select2-selection__rendered');
 
-    if (data.class) {
-      $(container).addClass(data.class);
+    if (data.html_class) {
+      $(container).addClass(data.html_class);
     } else if (data.element) {
       $(container).addClass($(data.element).attr('class'));
     }

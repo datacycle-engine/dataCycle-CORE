@@ -122,6 +122,30 @@ module DataCycleCore
         )
       end
 
+      def like_relation_filter(filter = nil, name = nil)
+        return self if name.blank?
+        return self if filter.blank?
+
+        subquery = related_to_query(filter, name)
+        return self if subquery.nil?
+
+        reflect(
+          @query.where(subquery.exists)
+        )
+      end
+
+      def not_like_relation_filter(filter = nil, name = nil)
+        return self if name.blank?
+        return self if filter.blank?
+
+        subquery = related_to_query(filter, name)
+        return self if subquery.nil?
+
+        reflect(
+          @query.where.not(subquery.exists)
+        )
+      end
+
       def relation_filter(filter = nil, name = nil)
         return self if name.blank?
         return self if filter.blank?
@@ -246,6 +270,8 @@ module DataCycleCore
           filter_query = stored_filter.apply.select(:id).except(:order)
         elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
           filter_query = collection.watch_list_data_hashes.select(:hashable_id).except(:order)
+        elsif (things = DataCycleCore::Thing.where(id: filter)).exists?
+          filter_query = things.select(:id).except(:order)
         else
           return
         end

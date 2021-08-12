@@ -1,4 +1,4 @@
-<div data-id="<%= identifier %>" class="advanced-filter conditional-method <%= filter_method ||= 'i' %>" data-label="<%= filter_name %>">
+<div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= 'i' %>" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{identifier}][t]", 'relation_filter' %>
   <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
   <%= hidden_field_tag "f[#{identifier}][q]", filter_advanced_type %>
@@ -12,15 +12,19 @@
     <%= select_tag "f[#{identifier}][m]", advanced_relation_filter_modes(filter_method) %>
   </div>
 
+  <% selected_options = filter_method.in?(['s', 'u']) ? thing_values_to_options(value) : union_values_to_options(value) %>
+
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{identifier}][v]",
-        value,
+        selected_options,
         {
           include_blank: true,
           multiple: true,
           id: "f_#{identifier}_v_thing",
-          class: "async-select #{'active' if filter_method.in?(['s', 'u'])}",
+          class: "async-select",
+          disabled: filter_method.in?(['i', 'e']),
           data: {
+            active_for: ['s', 'u'],
             max: 20,
             placeholder: '',
             search_path: select_search_things_path,
@@ -28,13 +32,15 @@
           }
         }) %>
     <%= select_tag("f[#{identifier}][v]",
-        union_values_to_options(value),
+        selected_options,
         {
           include_blank: true,
           multiple: false,
           id: "f_#{identifier}_v_collection_stored_filter",
-          class: "async-select #{'active' unless filter_method.in?(['s', 'u'])}",
+          class: "async-select",
+          disabled: filter_method.in?(['s', 'u']),
           data: {
+            active_for: ['i', 'e'],
             max: 20,
             placeholder: '',
             search_path: select_search_or_collection_stored_filters_path

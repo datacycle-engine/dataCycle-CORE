@@ -130,12 +130,12 @@ module DataCycleCore
       query1_table = all.arel_table
       query1 = all.arel
       query1.projections = []
-      query1 = query1.where(query1_table[:name].not_eq(nil)).project(query1_table[:id], query1_table[:name], Arel::Nodes::SqlLiteral.new("'stored_filter'").as('class_name'))
+      query1 = query1.where(query1_table[:name].not_eq(nil)).project(query1_table[:id], query1_table[:name], Arel::Nodes::SqlLiteral.new("'#{all.klass.model_name.param_key}'").as('class_name'))
 
       query2_table = collections.arel_table
       query2 = collections.arel
       query2.projections = []
-      query2 = query2.where(query2_table[:name].not_eq(nil)).project(query2_table[:id], query2_table[:name], Arel::Nodes::SqlLiteral.new("'watch_list'").as('class_name'))
+      query2 = query2.where(query2_table[:name].not_eq(nil)).project(query2_table[:id], query2_table[:name], Arel::Nodes::SqlLiteral.new("'#{collections.klass.model_name.param_key}'").as('class_name'))
 
       unless filter_proc.nil?
         query1 = filter_proc.call(query1, query1_table)
