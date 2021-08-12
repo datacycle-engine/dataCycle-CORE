@@ -420,24 +420,8 @@ module DataCycleCore
       authorize! :show, DataCycleCore::Thing
       template_filter = select_search_params[:template_name].present?
 
-      filter = DataCycleCore::StoredFilter.new(parameters: select_search_params[:stored_filter])
-
-      # if select_search_params[:stored_filter].present?
-      #   stored_filter_params = stored_filter.to_a.map(&:to_h).map do |f|
-      #     f.each_with_object({}) do |(k, v), hash|
-      #       hash['t'] = k
-      #       hash['v'] = v
-      #     end
-      #   end
-      #   stored_filter_params = current_user.default_filter(stored_filter_params, { scope: 'object_browser' })
-      #   filter.parameters = stored_filter_params
-      # else
-      #   query = filter.apply
-      # end
-
-      # binding.pry
-
-      query = DataCycleCore::Filter::Search.new(nil)
+      filter = DataCycleCore::StoredFilter.new.from_params_hash(select_search_params[:stored_filter])
+      query = filter.apply
       query = query
         .fulltext_search(select_search_params[:q])
         .template_names(select_search_params[:template_name])

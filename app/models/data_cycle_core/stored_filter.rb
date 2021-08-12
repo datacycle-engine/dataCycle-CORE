@@ -10,23 +10,6 @@ module DataCycleCore
     belongs_to :linked_stored_filter, class_name: 'DataCycleCore::StoredFilter', inverse_of: :filter_uses, dependent: nil
     has_many :filter_uses, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, inverse_of: :linked_stored_filter, dependent: :nullify
 
-    def initialize(params = {})
-      # initialize with filter_hash from template definition (linked)
-
-      binding.pry
-
-      if params&.dig(:parameters).present?
-        params[:parameters] = params[:parameters].to_a.map(&:to_h).map do |f|
-          f.each_with_object({}) do |(k, v), hash|
-            hash['t'] = k
-            hash['v'] = v
-          end
-        end
-      end
-
-      super
-    end
-
     # Mögliche Filter-Parameter: c, t, v, m, n, q
     #
     # c => 'd' oder 'a'         | für 'default' oder 'advanced'
@@ -97,6 +80,27 @@ module DataCycleCore
       end
 
       query
+    end
+
+    def from_params_hash(params)
+      return self if params.blank? || parameters.present?
+
+      self.parameters = params.map do |f|
+        f.to_h.each_with_object({}) do |(k, v), hash|
+          hash['t'] = k
+          hash['v'] = v
+        end
+      end
+
+      self
+    end
+
+    def apply_user_filter(user, scope = 'backend')
+      return self if user.nil?
+
+      self.parameters = user.default_filter(parameters || [], { scope: scope })
+
+      self
     end
 
     def self.sort_params_from_filter(search = nil, schedule = nil)
