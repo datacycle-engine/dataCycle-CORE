@@ -1444,13 +1444,20 @@ $filter-border: #aaa;
             }
           }
 
-          &.content-date {
+          &.content-date,
+          &.stored-filter-creator {
             float: right;
+            margin-left: 0.75rem;
             font-size: 0.9rem;
             color: lighten($dark-gray, 10%);
 
             i {
               font-size: 0.9rem;
+              margin: 0;
+            }
+
+            a {
+              color: lighten($dark-gray, 10%);
             }
           }
 
