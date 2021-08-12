@@ -83,10 +83,10 @@ module DataCycleCore
     end
 
     def from_params_hash(params)
-      return self if params.blank? || parameters.present?
+      return self if params.blank?
 
       self.parameters = params.map do |f|
-        f.to_h.each_with_object({}) do |(k, v), hash|
+        f.to_h.deep_stringify_keys.each_with_object({}) do |(k, v), hash|
           hash['t'] = k
           hash['v'] = v
         end
@@ -95,10 +95,13 @@ module DataCycleCore
       self
     end
 
-    def apply_user_filter(user, scope = 'backend')
+    def apply_user_filter(user, options = nil)
       return self if user.nil?
 
-      self.parameters = user.default_filter(parameters || [], { scope: scope })
+      filter_options = { scope: 'backend' }
+      filter_options.merge!(options) { |_k, v1, v2| v2.presence || v1 } if options.present?
+
+      self.parameters = user.default_filter(parameters || [], filter_options)
 
       self
     end
