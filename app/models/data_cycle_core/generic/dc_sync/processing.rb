@@ -113,7 +113,7 @@ module DataCycleCore
 
         def self.get_template(data)
           locale = data.keys.except(['included', 'attribute_name']).first
-          DataCycleCore::Thing.find_by(template_name: data.dig(locale, 'template_name'), template: true)
+          DataCycleCore::Thing.find_by(template_name: data.dig(locale, 'template_name'), template: true, content_type: 'entity')
         end
 
         def self.process_classifications(utility_object, template, classifications, exclude_trees)
