@@ -115,16 +115,20 @@ module DataCycleCore
       end
     end
 
-    def advanced_relation_filter_modes(filter_method)
-      options_for_select(
-        [
+    def advanced_relation_filter_options(filter_method, thing_filter = false)
+      filter_options = [
+        [t('filter.relation_filter.contained_in', locale: DataCycleCore.ui_language), 'i'],
+        [t('filter.relation_filter.not_contained_in', locale: DataCycleCore.ui_language), 'e']
+      ]
+
+      if thing_filter
+        filter_options.prepend(
           [t('filter.relation_filter.equal', locale: DataCycleCore.ui_language), 's'],
-          [t('filter.relation_filter.not_equal', locale: DataCycleCore.ui_language), 'u'],
-          [t('filter.relation_filter.contained_in', locale: DataCycleCore.ui_language), 'i'],
-          [t('filter.relation_filter.not_contained_in', locale: DataCycleCore.ui_language), 'e']
-        ],
-        filter_method
-      )
+          [t('filter.relation_filter.not_equal', locale: DataCycleCore.ui_language), 'u']
+        )
+      end
+
+      options_for_select(filter_options, filter_method)
     end
   end
 end

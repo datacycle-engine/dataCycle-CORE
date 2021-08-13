@@ -109,6 +109,8 @@ $filter-border: #aaa;
 
         &.conditional-value-selector {
           .advanced-filter-selector {
+            display: block;
+
             select[disabled],
             select[disabled] + .select2 {
               display: none;

@@ -204,6 +204,8 @@ module DataCycleCore
         end
 
         def relation_filter_restrictions(type, name)
+          return unless configuration.dig(type, name).is_a?(::Hash)
+
           configuration.dig(type, name, 'filter')
         end
       end
