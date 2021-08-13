@@ -64,7 +64,9 @@ module DataCycleCore
               'identifier' => SecureRandom.hex(10)
             }
 
-            filters[key][:filters].prepend(filter_hash) unless filters[key][:filters].any? { |f| filter_hash.except('identifier').reject { |_, v| v.blank? } == f.slice('c', 't', 'n', 'q', 'm').reject { |_, v| v.blank? } }
+            existing_index = filters[key][:filters].index { |f| filter_hash.except('identifier').reject { |_, v| v.blank? } == f.slice('c', 't', 'n', 'q').reject { |_, v| v.blank? } }
+
+            filters[key][:filters].prepend(existing_index ? filters[key][:filters].delete_at(existing_index) : filter_hash)
           end
 
           filters[key][:filters].each do |filter|
