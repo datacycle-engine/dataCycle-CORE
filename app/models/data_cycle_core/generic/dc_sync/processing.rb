@@ -135,6 +135,7 @@ module DataCycleCore
               translated_id = import_classification_path(external_source: utility_object.external_source, data: classification)
               classification_translation[classification_attribute_name][classification['id']] = translated_id
             end
+            classification_translation[classification_attribute_name].compact!
           end
           classification_translation
         end
@@ -238,9 +239,9 @@ module DataCycleCore
             )
           else
             primary_classification_alias = classification.primary_classification_alias
-            primary_classification_alias.attributes = alias_data.slice('name_i18n', 'description_i18n', 'uri')
-            primary_classification_alias.name_i18n = alias_data['name_i18n']&.slice(*I18n.available_locales.map(&:to_s))
-            primary_classification_alias.description_i18n = alias_data['description_i18n']&.slice(*I18n.available_locales.map(&:to_s))
+            primary_classification_alias.uri = primary_classification_alias.uri || alias_data['uri']
+            primary_classification_alias.name_i18n = (primary_classification_alias.name_i18n || {}).reverse_merge((alias_data['name_i18n']&.slice(*I18n.available_locales.map(&:to_s)) || {}))
+            primary_classification_alias.description_i18n = (primary_classification_alias.description_i18n || {}).reverse_merge((alias_data['description_i18n']&.slice(*I18n.available_locales.map(&:to_s)) || {}))
             primary_classification_alias.save!
 
             classification_tree = primary_classification_alias.classification_tree

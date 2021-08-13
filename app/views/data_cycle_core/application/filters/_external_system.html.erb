@@ -16,10 +16,10 @@
   <div class="advanced-filter-mode">
     <%= select_tag "f[#{identifier}][q]",
       options_for_select([
-        [t("common.all", locale: DataCycleCore.ui_language), 'all'],
-        [t("common.import", locale: DataCycleCore.ui_language), 'import'],
-        [t("common.export", locale: DataCycleCore.ui_language), 'export'],
-        [t("common.duplicate", locale: DataCycleCore.ui_language), 'duplicate']
+        [t("common.all", locale: active_ui_locale), 'all'],
+        [t("common.import", locale: active_ui_locale), 'import'],
+        [t("common.export", locale: active_ui_locale), 'export'],
+        [t("common.duplicate", locale: active_ui_locale), 'duplicate']
       ], filter_advanced_type) %>
   </div>
 
