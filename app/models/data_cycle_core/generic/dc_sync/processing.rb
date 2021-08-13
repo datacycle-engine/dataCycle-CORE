@@ -93,7 +93,7 @@ module DataCycleCore
 
         def self.handle_embedded(data, utility_object, config)
           return nil if data[I18n.locale.to_s].blank?
-          template = get_template(data)
+          template = get_template(data, 'embedded')
           return nil if template.blank?
           # treat linked
           linked_key_translation = process_included_items(utility_object, template, data.dig('included'), config)
@@ -111,9 +111,9 @@ module DataCycleCore
           embedded
         end
 
-        def self.get_template(data)
+        def self.get_template(data, content_type = ['entity', 'container'])
           locale = data.keys.except(['included', 'attribute_name']).first
-          DataCycleCore::Thing.find_by(template_name: data.dig(locale, 'template_name'), template: true, content_type: 'entity')
+          DataCycleCore::Thing.find_by(template_name: data.dig(locale, 'template_name'), template: true, content_type: content_type)
         end
 
         def self.process_classifications(utility_object, template, classifications, exclude_trees)
