@@ -255,6 +255,16 @@ module DataCycleCore
     #   assert_equal("'dc':1", result.first['akronym'])
     # end
 
+    test 'test query for relation_filter' do
+      image = create_content('Bild', { name: 'Test Bild Linked' })
+      article = create_content('Artikel', { name: 'Test Article Linked', image: [image.id] })
+
+      assert_equal(1, DataCycleCore::Filter::Search.new(:de).like_relation_filter([image.id], 'image').count) # find the article
+      assert_equal(article.id, DataCycleCore::Filter::Search.new(:de).like_relation_filter([image.id], 'image').query.first.id) # find the article
+      assert_equal(10, DataCycleCore::Filter::Search.new(:de).not_like_relation_filter([image.id], 'image').count) # find all except article
+      assert DataCycleCore::Filter::Search.new(:de).not_like_relation_filter([image.id], 'image').query.ids.exclude?(article.id) # find all except article
+    end
+
     private
 
     def create_content(template_name, data = {})
