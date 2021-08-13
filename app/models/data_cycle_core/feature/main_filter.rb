@@ -61,7 +61,6 @@ module DataCycleCore
               't' => filter[1],
               'n' => filter.dig(2, :data, :name),
               'q' => filter.dig(2, :data, :advancedType),
-              'm' => 'i',
               'identifier' => SecureRandom.hex(10)
             }
 
