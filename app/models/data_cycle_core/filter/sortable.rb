@@ -98,10 +98,10 @@ module DataCycleCore
         joined_table_name = "schedule_occurrences_#{SecureRandom.hex(10)}"
 
         order_parameter_join = <<-SQL.squish
-          JOIN (
+          JOIN LATERAL (
           	SELECT thing_id, MIN(LOWER(schedule_occurrences.occurrence)) "min_start_date"
           	FROM schedule_occurrences
-          	WHERE schedule_occurrences.occurrence && TSTZRANGE(?, ?)
+          	WHERE things.id = schedule_occurrences.thing_id AND schedule_occurrences.occurrence && TSTZRANGE(?, ?)
           	GROUP BY thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
