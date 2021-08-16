@@ -5,7 +5,7 @@ module DataCycleCore
     SelectOption = Struct.new(:id, :name, :html_class, :title) do
       def to_option_for_select
         [
-          name,
+          name&.to_str,
           id,
           {
             class: html_class,

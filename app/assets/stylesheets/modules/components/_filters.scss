@@ -292,6 +292,14 @@ $filter-border: #aaa;
       color: $primary-color;
     }
 
+    .select2-container,
+    .tag {
+      strong,
+      b {
+        color: inherit;
+      }
+    }
+
     span.title {
       strong {
         color: inherit;
