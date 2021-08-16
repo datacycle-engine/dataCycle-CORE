@@ -514,8 +514,13 @@ de:
     inactive_things: Abgelaufene Inhalte
     in_schedule: Termin
     relation_filter:
+      equal: ist
+      not_equal: ist nicht
       contained_in: ist enthalten in
       not_contained_in: ist nicht enthalten in
+      placeholder:
+        thing: Inhalt
+        collection_or_stored_filter: '%{collection} oder %{stored_filter}'
     related_to: ist verknüpft mit
     feratel_content_score: Feratel - Content Score
     union_filter_ids: in gespeicherten Suchen / %{collections}
@@ -1075,7 +1080,10 @@ de:
       api:
         root: Datenschnittstelle
         classifications: Klassifizierungen
-        contents: Inhalte
+        contents:
+          root: Inhalte
+          specification: Spezifikation
+
     schema:
       root: Schema
       containers: Container

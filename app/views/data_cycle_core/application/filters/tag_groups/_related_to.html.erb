@@ -5,13 +5,10 @@
     <%= t("filter.related_to_method.#{'not_' if local_assigns[:filter_method] == 'e'}related", default: title, locale: active_ui_locale) %>:
   </span>
 
-  <% item = union_ids_to_value(value)&.first %>
   <span class="tags-container">
-    <%= tag.span(
-      item['name'],
-      class: "tag #{item['class_name']}",
-      title: "#{I18n.t("activerecord.models.data_cycle_core/#{item['class_name']}", count: 1, locale: active_ui_locale)}: #{item['name']}"
-    ) unless item.nil? %>
+    <% union_ids_to_value(value).each do |item| %>
+      <%= tag.span(item.name, class: "tag #{item.html_class}", title: item.title) %>
+    <% end %>
   </span>
 
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>

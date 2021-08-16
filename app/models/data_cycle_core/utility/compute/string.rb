@@ -40,7 +40,7 @@ module DataCycleCore
           end
 
           def number_of_characters(computed_parameters:, data_hash:, **_args)
-            recursive_char_count(data_hash, computed_parameters.first.dig('paths'))&.flatten&.compact&.sum&.to_s
+            recursive_char_count(data_hash, computed_parameters.first.dig('paths'))&.flatten&.compact&.sum
           end
 
           private

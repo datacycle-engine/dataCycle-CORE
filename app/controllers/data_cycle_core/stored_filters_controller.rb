@@ -62,14 +62,7 @@ module DataCycleCore
 
       result = ActiveRecord::Base.connection.select_all arel_query.to_sql
 
-      render plain: result.map { |s|
-        {
-          id: s['id'],
-          class: s['class_name'],
-          name: s['name'],
-          title: "#{I18n.t("activerecord.models.data_cycle_core/#{s['class_name']}", count: 1, locale: helpers.active_ui_locale)}: #{s['name']}"
-        }
-      }.to_json, content_type: 'application/json'
+      render plain: result.map { |s| DataCycleCore::CollectionService.to_select_option(s) }.to_json, content_type: 'application/json'
     end
 
     def add_to_watchlist

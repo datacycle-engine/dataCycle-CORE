@@ -122,9 +122,30 @@ module DataCycleCore
         )
       end
 
+      def like_relation_filter(filter = nil, name = nil)
+        return self if name.blank? || filter.blank?
+
+        subquery = related_to_query(filter, name)
+        return self if subquery.nil?
+
+        reflect(
+          @query.where(subquery.exists)
+        )
+      end
+
+      def not_like_relation_filter(filter = nil, name = nil)
+        return self if name.blank? || filter.blank?
+
+        subquery = related_to_query(filter, name)
+        return self if subquery.nil?
+
+        reflect(
+          @query.where.not(subquery.exists)
+        )
+      end
+
       def relation_filter(filter = nil, name = nil)
-        return self if name.blank?
-        return self if filter.blank?
+        return self if name.blank? || filter.blank?
 
         subquery = related_to_query(filter, name)
         return self if subquery.nil?
@@ -135,8 +156,7 @@ module DataCycleCore
       end
 
       def not_relation_filter(filter = nil, name = nil)
-        return self if name.blank?
-        return self if filter.blank?
+        return self if name.blank? || filter.blank?
 
         subquery = related_to_query(filter, name)
         return self if subquery.nil?
@@ -241,13 +261,13 @@ module DataCycleCore
 
       def related_to_query(filter, name = nil, inverse = false)
         if filter.is_a?(DataCycleCore::Filter::Search)
-          filter_query = filter.select(:id).except(:order)
+          filter_query = Arel.sql(filter.select(:id).except(:order).to_sql)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
-          filter_query = stored_filter.apply.select(:id).except(:order)
+          filter_query = Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
         elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
-          filter_query = collection.watch_list_data_hashes.select(:hashable_id).except(:order)
-        else
-          return
+          filter_query = Arel.sql(collection.watch_list_data_hashes.select(:hashable_id).except(:order).to_sql)
+        else # in case filter is array of thing_ids
+          filter_query = Array.wrap(filter)
         end
 
         thing_id = :content_a_id
@@ -255,7 +275,7 @@ module DataCycleCore
         thing_id, related_to_id = related_to_id, thing_id if inverse
 
         sub_select = content_content[thing_id].eq(thing[:id])
-          .and(content_content[related_to_id].in(Arel.sql(filter_query.to_sql)))
+          .and(content_content[related_to_id].in(filter_query))
 
         sub_select = sub_select.and(content_content[:relation_a].eq(name)) if name.present?
 
