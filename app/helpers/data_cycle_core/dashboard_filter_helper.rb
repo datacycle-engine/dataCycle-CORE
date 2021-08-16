@@ -10,7 +10,7 @@ module DataCycleCore
 
       result = ActiveRecord::Base.connection.select_all query.to_sql
 
-      result.to_a.map { |s| DataCycleCore::CollectionService.to_select_option(s) }
+      result.to_a.map { |s| DataCycleCore::CollectionService.to_select_option(s, active_ui_locale) }
     end
 
     def thing_ids_to_value(value)
@@ -117,14 +117,14 @@ module DataCycleCore
 
     def advanced_relation_filter_options(filter_method, thing_filter = false)
       filter_options = [
-        [t('filter.relation_filter.contained_in', locale: DataCycleCore.ui_language), 'i'],
-        [t('filter.relation_filter.not_contained_in', locale: DataCycleCore.ui_language), 'e']
+        [t('filter.relation_filter.contained_in', locale: active_ui_locale), 'i'],
+        [t('filter.relation_filter.not_contained_in', locale: active_ui_locale), 'e']
       ]
 
       if thing_filter
         filter_options.prepend(
-          [t('filter.relation_filter.equal', locale: DataCycleCore.ui_language), 's'],
-          [t('filter.relation_filter.not_equal', locale: DataCycleCore.ui_language), 'u']
+          [t('filter.relation_filter.equal', locale: active_ui_locale), 's'],
+          [t('filter.relation_filter.not_equal', locale: active_ui_locale), 'u']
         )
       end
 

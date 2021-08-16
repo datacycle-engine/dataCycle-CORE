@@ -372,7 +372,7 @@ module DataCycleCore
     #
     #   object_type = DataCycleCore.asset_objects.find { |object| object.downcase.include?(asset_params[:file].content_type&.split('/')&.first&.downcase) }
     #
-    #   render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if object_type.blank?
+    #   render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: helpers.active_ui_locale) }) && return if object_type.blank?
     #
     #   authorize! :create, object_type.constantize
     #

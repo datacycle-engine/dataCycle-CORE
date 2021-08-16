@@ -123,7 +123,7 @@ module DataCycleCore
     ]
 
     mattr_accessor :ui_locales
-    self.ui_locales = [:de]
+    self.ui_locales = [:de, :en]
 
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'named_version', 'day', 'week']

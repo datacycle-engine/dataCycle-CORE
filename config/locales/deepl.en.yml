@@ -612,8 +612,9 @@ en:
     send_with_data: Send %{data}
     delete_with_data: Delete %{data}
     subscribe: subscribe
+    subscribe_to: 'subscribe to %{data}'
     unsubscribe: Delete subscription
-    subscribed: subscribed
+    subscribed_to: 'subscribed to %{data}'
     reset:
       one: Reset
       other: Reset search
@@ -1094,6 +1095,7 @@ en:
         href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
         font-weight: bold;font-style: italic">%{title}</span></a>" has been updated.
         Content has been added or removed.</span>'
+      create_link: create new link
     documentation:
       root: Documentation
       overview: Overview
@@ -1103,8 +1105,11 @@ en:
       api:
         root: Data interface
         classifications: Classifications
-        contents: Contents
-    schema:
+        contents:
+          root: Contents
+          specification: Specification
+
+          schema:
       root: Scheme
       containers: Container
       entities: Contents

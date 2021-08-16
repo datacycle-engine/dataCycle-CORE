@@ -1,5 +1,5 @@
 <% if data_link.id.nil? %>
-  <button class="button new-data-link" data-open="data-link-overlay-<%= data_link.id || "new" %>">Neuen Link erstellen</button>
+  <button class="button new-data-link" data-open="data-link-overlay-<%= data_link.id || "new" %>"><%= t('data_cycle_core.data_links.create_link', locale: active_ui_locale) %></button>
   <%= render 'data_cycle_core/data_links/form_reveal', local_assigns %>
 <% else %>
   <li class="<%= "invalid" unless data_link.is_valid? %>" id="data-link-<%= data_link.id %>">

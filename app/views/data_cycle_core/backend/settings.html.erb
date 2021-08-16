@@ -72,18 +72,20 @@
                   </div>
                 </div>
 
-                <div class="form-element">
-                  <%= f.label :ui_locale, DataCycleCore::User.human_attribute_name(:ui_locale, locale: active_ui_locale) %>
-                  <div class="v-select">
-                    <%= f.select :ui_locale,
-                      available_locales_with_names.slice(*DataCycleCore.ui_locales.map(&:to_sym)).invert,
-                      {},
-                      class: 'single-select',
-                      data: {
-                        allow_clear: false
-                      } %>
+                <% if DataCycleCore.ui_locales.many? && can?(:change_ui_locale, current_user) %>
+                  <div class="form-element">
+                    <%= f.label :ui_locale, DataCycleCore::User.human_attribute_name(:ui_locale, locale: active_ui_locale) %>
+                    <div class="v-select">
+                      <%= f.select :ui_locale,
+                        available_locales_with_names.slice(*DataCycleCore.ui_locales.map(&:to_sym)).invert,
+                        {},
+                        class: 'single-select',
+                        data: {
+                          allow_clear: false
+                        } %>
+                    </div>
                   </div>
-                </div>
+                <% end %>
               </div>
             </div>
           </div>
