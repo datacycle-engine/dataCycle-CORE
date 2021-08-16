@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-configs = Dir[DataCycleCore::Engine.root.join('config', 'configurations', '*.yml')]
-configs.concat(Dir[DataCycleCore::Engine.root.join('config', 'configurations', Rails.env, '*.yml')])
+configs = Dir[Rails.root.join('config', 'configurations', Rails.env, '*.yml')]
 configs.concat(Dir[Rails.root.join('config', 'configurations', '*.yml')])
-configs.concat(Dir[Rails.root.join('config', 'configurations', Rails.env, '*.yml')])
+configs.concat(Dir[DataCycleCore::Engine.root.join('config', 'configurations', Rails.env, '*.yml')])
+configs.concat(Dir[DataCycleCore::Engine.root.join('config', 'configurations', '*.yml')])
 
 configs.each do |file_name|
   config_name = File.basename(file_name, '.*')
@@ -15,7 +15,7 @@ configs.each do |file_name|
 
   next unless new_value.present? || new_value.is_a?(FalseClass)
 
-  new_value = value.deep_merge(new_value) { |_k, _v1, v2| v2 }.with_indifferent_access if value.is_a?(::Hash) && new_value.is_a?(::Hash)
+  new_value = value.deep_merge(new_value) { |_k, v1, _v2| v1 }.with_indifferent_access if value.is_a?(::Hash) && new_value.is_a?(::Hash)
 
   DataCycleCore.send("#{config_name}=", new_value).freeze
 end
