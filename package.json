@@ -20,6 +20,7 @@
     "datatables.net-buttons": "^1.6.1",
     "datatables.net-buttons-zf": "^1.6.1",
     "datatables.net-zf": "^1.10.20",
+    "fetch-inject": "^2.0.4",
     "flatpickr": "^4.3.2",
     "font-awesome": "^4.7.0",
     "foundation-sites": "^6.4.3",
