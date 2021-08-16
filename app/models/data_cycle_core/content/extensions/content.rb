@@ -32,11 +32,11 @@ module DataCycleCore
           true
         end
 
-        def to_select_option(template_filter = false)
+        def to_select_option(template_filter = false, locale = DataCycleCore.ui_locales.first)
           DataCycleCore::Filter::SelectOption.new(
             id,
             ActionController::Base.helpers.safe_join([
-              template_filter ? nil : ActionController::Base.helpers.tag.b(template_name) + ': ',
+              template_filter ? nil : ActionController::Base.helpers.tag.b(translated_template_name(locale)) + ': ',
               I18n.with_locale(first_available_locale) { title },
               " (#{translated_locales.join(', ')})"
             ].compact),

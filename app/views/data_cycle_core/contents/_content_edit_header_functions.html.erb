@@ -5,7 +5,7 @@
         <% if content_for?(:form_action) %>
           <%= yield_content!(:form_action) %>
         <% else %>
-          <i class="fa fa-pencil" aria-hidden="true"></i> <%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: active_ui_locale) + ' ' + t('actions.edit', locale: active_ui_locale) %>
+          <i class="fa fa-pencil" aria-hidden="true"></i> <%= t('actions.edit_data', data: content.translated_template_name(active_ui_locale), locale: active_ui_locale) %>
         <% end %>
       </div>
       <ul>

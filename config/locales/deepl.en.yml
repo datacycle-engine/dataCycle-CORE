@@ -411,7 +411,8 @@ en:
   duplicate:
     candidates: Possible duplicates
     score: Score
-    merge: bring together
+    merge: merge
+    merge_with: 'merge %{data}'
     merge_content: Merge contents
     mark_false_positive: no duplicate
     switch: Swap original and duplicate
@@ -600,6 +601,7 @@ en:
   actions:
     show: show
     edit: edit
+    edit_data: 'edit %{data}'
     manage: 'manage %{data}'
     lock: lock
     unlock: Sync and corrected by dr.jackson for

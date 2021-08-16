@@ -17,7 +17,7 @@ module DataCycleCore
       DataCycleCore::Thing.where(template: false, id: value)
         .where.not(content_type: 'embedded')
         .includes(:translations)
-        .map(&:to_select_option)
+        .map { |t| t.to_select_option(false, active_ui_locale) }
     end
 
     def union_values_to_options(value)

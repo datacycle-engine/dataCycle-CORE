@@ -410,6 +410,7 @@ de:
     candidates: Mögliche Duplikate
     score: Score
     merge: zusammenführen
+    merge_with: '%{data} zusammenführen'
     merge_content: Inhalte zusammenführen
     mark_false_positive: kein Duplikat
     switch: Original und Duplikat vertauschen
@@ -616,6 +617,7 @@ de:
   actions:
     show: anzeigen
     edit: bearbeiten
+    edit_data: '%{data} bearbeiten'
     manage: '%{data} verwalten'
     lock: sperren
     unlock: freischalten
