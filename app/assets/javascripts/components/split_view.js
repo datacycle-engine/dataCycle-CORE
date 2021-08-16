@@ -256,7 +256,7 @@ class SplitView {
       DataCycle.disableElement(elem);
 
       let formData = {
-        text: value.trim(),
+        text: typeof value == 'string' ? value.trim() : value,
         source_locale: this.leftLocale,
         target_locale: this.rightLocale
       };

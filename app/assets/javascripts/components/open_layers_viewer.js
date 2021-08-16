@@ -455,13 +455,15 @@ class OpenLayersViewer {
 
       if (!e.originalEvent[self.zoomMethod]) {
         if (!$(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').length) {
-          $(e.map.getTargetElement().firstElementChild)
-            .find('canvas')
-            .after(
-              `<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text">${await I18n.translate(
-                `frontend.map.scroll_notice.${self.zoomMethod}`
-              )}</div></div>`
-            );
+          const $element = $(
+            '<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text"></div></div>'
+          );
+
+          $(e.map.getTargetElement().firstElementChild).find('canvas').after($element);
+
+          I18n.translate(`frontend.map.scroll_notice.${self.zoomMethod}`).then(text => {
+            $($element).find('.scroll-overlay-text').text(text);
+          });
         } else {
           $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeIn(100);
         }

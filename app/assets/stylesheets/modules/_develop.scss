@@ -2083,6 +2083,36 @@ select {
       }
     }
   }
+  .ol-overlaycontainer-stopevent {
+    .remove-primary-feature {
+      top: 8em;
+      left: 0.5em;
+
+      .remove-feature-button {
+        border-radius: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 1px;
+        padding: 0;
+        color: white;
+        font-size: 1.14em;
+        font-weight: bold;
+        text-decoration: none;
+        text-align: center;
+        height: 1.375em;
+        width: 1.375em;
+        line-height: 0.4em;
+        background-color: rgba(0, 60, 136, 0.5);
+        border: none;
+
+        &:hover {
+          text-decoration: none;
+          background-color: rgba(0, 60, 136, 0.7);
+        }
+      }
+    }
+  }
   .map-edit {
     position: absolute;
     z-index: 999;
@@ -2114,10 +2144,6 @@ select {
         text-decoration: none;
         background-color: rgba(0, 60, 136, 0.7);
       }
-    }
-
-    .map-edit-button-margin {
-      margin: 5px 1px 1px 1px;
     }
   }
 }
