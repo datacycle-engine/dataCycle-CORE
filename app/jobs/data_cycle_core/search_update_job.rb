@@ -21,7 +21,7 @@ module DataCycleCore
     def perform(class_name, content_id, locale)
       content = class_name.classify.constantize.find_by(id: content_id)
 
-      if content && locale
+      if content && locale.present?
         content.update_search_languages(false, locale.to_sym)
       elsif content
         content.update_search_languages(true, content.first_available_locale&.to_sym)
