@@ -3,32 +3,33 @@
 module DataCycleCore
   module DashboardFilterHelper
     def union_ids_to_value(value)
-      return if value.blank?
+      return [] if value.blank?
 
       filter_proc = ->(query, query_table) { query.where(query_table[:id].in(value)) }
       query = DataCycleCore::StoredFilter.combine_with_collections(DataCycleCore::WatchList.all, filter_proc)
 
       result = ActiveRecord::Base.connection.select_all query.to_sql
 
-      result.to_a
+      result.to_a.map { |s| DataCycleCore::CollectionService.to_select_option(s) }
+    end
+
+    def thing_ids_to_value(value)
+      DataCycleCore::Thing.where(template: false, id: value)
+        .where.not(content_type: 'embedded')
+        .includes(:translations)
+        .map(&:to_select_option)
     end
 
     def union_values_to_options(value)
       return if value.blank?
 
-      options_for_select(
-        union_ids_to_value(value)&.map do |s|
-          [
-            s['name'],
-            s['id'],
-            {
-              title: "#{I18n.t("activerecord.models.data_cycle_core/#{s['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{s['name']}",
-              class: s['class_name']
-            }
-          ]
-        end,
-        value
-      )
+      options_for_select(union_ids_to_value(value).map(&:to_option_for_select), value)
+    end
+
+    def thing_values_to_options(value)
+      return if value.blank?
+
+      options_for_select(thing_ids_to_value(value).map(&:to_option_for_select), value)
     end
 
     def advanced_attribute_filter_options(filter_advanced_type)
@@ -112,6 +113,22 @@ module DataCycleCore
       else
         I18n.t("filter.#{filter_type}", default: filter_title, locale: DataCycleCore.ui_language)
       end
+    end
+
+    def advanced_relation_filter_options(filter_method, thing_filter = false)
+      filter_options = [
+        [t('filter.relation_filter.contained_in', locale: DataCycleCore.ui_language), 'i'],
+        [t('filter.relation_filter.not_contained_in', locale: DataCycleCore.ui_language), 'e']
+      ]
+
+      if thing_filter
+        filter_options.prepend(
+          [t('filter.relation_filter.equal', locale: DataCycleCore.ui_language), 's'],
+          [t('filter.relation_filter.not_equal', locale: DataCycleCore.ui_language), 'u']
+        )
+      end
+
+      options_for_select(filter_options, filter_method)
     end
   end
 end

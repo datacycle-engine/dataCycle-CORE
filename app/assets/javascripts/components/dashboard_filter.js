@@ -71,6 +71,11 @@ class DashboardFilter {
       this.$languageSelectContainer.on('change', '.filter ul :checkbox', this.toggleLanguages.bind(this));
 
     this.$advancedFilterContainer.on('change', '.advanced-filter', this.advancedFilterChange.bind(this));
+    this.$advancedFilterContainer.on(
+      'change',
+      '.advanced-filter.conditional-value-selector .advanced-filter-mode select',
+      this._conditionalValueSelectorChange.bind(this)
+    );
     this.$addAdvancedFilterSelect.on('change', this.addAdvancedFilter.bind(this));
     this.$advancedFilterContainer.on('click', '.remove-advanced-filter', this.removeAdvancedFilter.bind(this));
     this.$filterTagsContainer.on('click', '.remove-advanced-filter', this.removeAdvancedFilter.bind(this));
@@ -140,19 +145,33 @@ class DashboardFilter {
       newTarget.find(':input:not([type=hidden])').prop('disabled', false);
     }
   }
+  _conditionalValueSelectorChange(event) {
+    event.preventDefault();
+
+    const mode = $(event.currentTarget).val();
+    const $valueSelectors = $(event.currentTarget)
+      .closest('.advanced-filter.conditional-value-selector ')
+      .find('.advanced-filter-selector select');
+
+    $valueSelectors.attr('disabled', function (_i, _attribute) {
+      return !(this.dataset.activeFor && this.dataset.activeFor.includes(mode));
+    });
+  }
   advancedFilterChange(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    $(event.currentTarget)
-      .removeClass('i e n q')
-      .addClass($(event.currentTarget).find(':input[name*="[m]"]').first().val());
+    const $advancedFilter = $(event.currentTarget);
 
-    const type = $(event.currentTarget).find(':input[name*="[t]"]').first().val();
+    $advancedFilter
+      .removeClass((_i, classNames) => classNames.split(' ').filter(c => c.length < 2))
+      .addClass($advancedFilter.find(':input[name*="[m]"]').first().val());
+
+    const type = $advancedFilter.find(':input[name*="[t]"]').first().val();
 
     if (type == 'advanced_attributes') this.switchAdvancedAttributesInput(event.currentTarget);
 
-    const params = $(event.currentTarget).find(':input').serializeJSON();
+    const params = $advancedFilter.find(':input').serializeJSON();
 
     this.addTagGroup(params);
   }

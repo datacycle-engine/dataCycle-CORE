@@ -420,21 +420,16 @@ module DataCycleCore
       authorize! :show, DataCycleCore::Thing
       template_filter = select_search_params[:template_name].present?
 
-      query = DataCycleCore::Filter::Search.new(nil)
+      filter = DataCycleCore::StoredFilter.new.from_params_hash(select_search_params[:stored_filter])
+      query = filter.apply
       query = query
         .fulltext_search(select_search_params[:q])
         .template_names(select_search_params[:template_name])
         .exclude_ids(select_search_params[:exclude])
       query = query.limit(select_search_params[:max].to_i) if select_search_params[:max].present?
 
-      render plain: query.includes(:translations).map { |content|
-        {
-          id: content.id,
-          class: "#{content.template_name.underscore_blanks} #{content.schema.dig('schema_type').underscore_blanks}",
-          name: "#{"<b>#{content.template_name}</b>: " unless template_filter}#{I18n.with_locale(content.first_available_locale) { content.title }} (#{content.translated_locales.join(', ')})",
-          title: "#{"#{content.template_name}: " unless template_filter}#{I18n.with_locale(content.first_available_locale) { content.title }} (#{content.translated_locales.join(', ')})"
-        }
-      }.to_json, content_type: 'application/json'
+      render plain: query.includes(:translations).map { |t| t.to_select_option(template_filter) }.to_json,
+             content_type: 'application/json'
     end
 
     private
@@ -454,7 +449,9 @@ module DataCycleCore
     end
 
     def select_search_params
-      params.permit(:q, :max, :exclude, :template_name)
+      return @select_search_params if defined? @select_search_params
+
+      DataCycleCore::NormalizeService.normalize_parameters(params.permit(:q, :max, :exclude, :template_name, stored_filter: {}))
     end
 
     def create_locale(params_hash = nil)
