@@ -188,7 +188,7 @@ module DataCycleCore
       [
         'https://schema.org/',
         {
-          '@base' => api_v4_universal_url(id: nil),
+          '@base' => api_v4_universal_url(id: nil) + '/',
           '@language' => display_language,
           'skos' => 'https://www.w3.org/2009/08/skos-reference/skos.html#',
           'dct' => 'http://purl.org/dc/terms/',
