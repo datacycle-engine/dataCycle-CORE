@@ -14,14 +14,18 @@ module DataCycleCore
       force_update: false,
       version_name: nil,
       invalidate_related_cache: true,
-      check_for_duplicates: false
+      check_for_duplicates: false,
+      ui_locale: DataCycleCore.ui_locales.first
     }.freeze
 
     DataHashOptions = Struct.new(*SET_DATA_HASH_ARGUMENTS.keys, keyword_init: true) do
       def initialize(**args)
+        args[:ui_locale] = args[:current_user].ui_locale unless args[:current_user].nil?
         args.reverse_merge!(SET_DATA_HASH_ARGUMENTS)
+
         args[:data_hash] = args[:data_hash].dc_deep_dup.with_indifferent_access
         args[:save_time] = Time.zone.now if args[:save_time].nil?
+
         super(**args)
       end
     end

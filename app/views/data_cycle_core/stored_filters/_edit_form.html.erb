@@ -19,9 +19,9 @@
     </div>
   <% end %>
   <div class="buttons">
-    <%= f.button t('actions.save', locale: DataCycleCore.ui_language),
+    <%= f.button t('actions.save', locale: active_ui_locale),
         data: {
-          disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.save', locale: DataCycleCore.ui_language)}"
+          disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.save', locale: active_ui_locale)}"
         },
         class: "success button",
         type: :submit %>

@@ -11,10 +11,12 @@ module DataCycleCore
         'column' => 'column'
       }.freeze
       PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
+      WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks].freeze
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :original_id, :duplicate_id, :synchronous_webhooks
+      attr_accessor :datahash, :original_id, :duplicate_id
+      attr_accessor(*WEBHOOK_ACCESSORS)
       attr_writer :webhook_data
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|

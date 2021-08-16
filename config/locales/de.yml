@@ -2,13 +2,13 @@ de:
   i18n:
     transliterate:
       rule:
-        Ä: 'Ae'
-        ä: 'ae'
-        Ö: 'Oe'
-        ö: 'oe'
-        Ü: 'Ue'
-        ü: 'ue'
-        ß: 'ss'
+        Ä: Ae
+        ä: ae
+        Ö: Oe
+        ö: oe
+        Ü: Ue
+        ü: ue
+        ß: ss
   title: dataCycle
   hello: 'Guten Tag!'
   welcome: 'Willkommen!'
@@ -17,34 +17,35 @@ de:
     title: 'Titel'
     updated: 'Bearbeitet'
   submit: 'Erstellen'
+  settings:
 
   locales:
-    de: 'deutsch'
-    en: 'englisch'
-    ar: 'arabisch'
-    bg: 'bulgarisch'
-    cs: 'tschechisch'
-    da: 'dänisch'
-    es: 'spanisch'
-    fr: 'französisch'
-    fi: 'finnisch'
-    it: 'italienisch'
-    hu: 'ungarisch'
-    hr: 'kroatisch'
-    ja: 'japanisch'
-    ko: 'koreanisch'
-    nl: 'holländisch'
-    pt: 'portugiesisch'
-    pl: 'polnisch'
-    ro: 'rumänisch'
-    ru: 'russisch'
-    sl: 'slowenisch'
-    sk: 'slowakisch'
-    sv: 'schwedisch'
-    tr: 'türkisch'
-    uk: 'ukrainisch'
-    'de-CH': 'schweizer-deutsch'
-    'nl-BE': 'flämisch'
+    de: deutsch
+    en: englisch
+    ar: arabisch
+    bg: bulgarisch
+    cs: tschechisch
+    da: dänisch
+    es: spanisch
+    fr: französisch
+    fi: finnisch
+    it: italienisch
+    hu: ungarisch
+    hr: kroatisch
+    ja: japanisch
+    ko: koreanisch
+    nl: holländisch
+    pt: portugiesisch
+    pl: polnisch
+    ro: rumänisch
+    ru: russisch
+    sl: slowenisch
+    sk: slowakisch
+    sv: schwedisch
+    tr: türkisch
+    uk: ukrainisch
+    'de-CH': schweizer-deutsch
+    'nl-BE': flämisch
     zh: chinesisch
 
   roles:
@@ -86,6 +87,69 @@ de:
       day: täglich
       week: wöchentlich
 
+  frontend:
+    load_error: Fehler beim Laden des Inhalts.
+    text_editor:
+      insertnbsp: Geschütztes Leerzeichen einfügen
+    override_warning: 'Soll das Feld %{data} überschrieben werden?'
+    reload_page: Seite neu laden
+    upload:
+      running: Es gibt noch laufende Uploads!
+      missing_metadata: Fehlende Metadaten!
+      processing: wird verarbeitet
+      found_duplicate: Duplikat gefunden!
+      uploaded_successfully: hochgeladen, OK
+      error_saving_content: Fehler beim Speichern des Inhalts!
+      upload_error: Uploadfehler
+      metadata_warning:
+        one: Metadaten müssen ausgefüllt werden!
+        many: Metadaten müssen für jede Datei ausgefüllt werden!
+      edit_content: Inhalt bearbeiten
+      retry_upload: Erneut hochladen
+      format_not_supported: Nicht unterstützes Format (%{data})
+      error: Fehler
+      remove_file: Datei entfernen
+    cancel: Abbrechen
+    ok: Ok
+    content_lock:
+      renew_lock: Der Inhalt wird in %{min}min wieder freigegeben.<br><br>Wollen Sie die Sperre um %{renew}min verlängern?
+      released: Der Inhalt wurde wieder freigegeben und kann nicht mehr gespeichert werden.
+    update_stored_filter: 'Filterparameter aktualisieren?<br><br>Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.'
+    maximum_embedded: 'Maximalanzahl: %{data}'
+    gpx:
+      file_missing: Datei nicht gefunden!
+      empty: Die GPX-Datei beinhaltet keinen Track.
+    map:
+      scroll_notice:
+        ctrlKey: Verwende Strg+Scrollen zum Zoomen der Karte
+        metaKey: 'Verwende ⌘+Scrollen zum Zoomen der Karte'
+        pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
+    remote_render:
+      error: Fehler beim Laden des Inhalts.
+      reload: Neu laden
+    split_view:
+      translate_all: Alle übersetzen
+      copy_all: Alle übernehmen
+      translate: übersetzen
+      copy: übernehmen
+      translate_error: Fehler beim Laden der Übersetzung
+    validate:
+      save_and_change_language: Wollen Sie speichern und auf die neue Sprache wechseln?
+      agbs: AGBs müssen akzeptiert werden!
+      error: 'Fehler:'
+      warning: 'Warnung:'
+      ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
+      final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
+    word_counter:
+      chars:
+        one: Zeichen
+        other: Zeichen
+      word:
+        one: Wort
+        other: Wörter
+      max: (noch max. %{data} %{label})
+      min: (noch min. %{data} %{label})
+
   schedule:
     dtstart: Startzeitpunkt
     dtend: Endzeitpunkt
@@ -114,10 +178,10 @@ de:
     ongoing: fortlaufend
     filter_labels:
       all: Alle Zeiträume (außer %{exceptions})
-      event_schedule: Termine
+      event_schedule: Termine (Veranstaltungen)
       opening_hours_specification: Öffnungszeiten
       dining_hours_specification: Warme Küche
-      hours_available: Öffnungszeiten (hours_available)
+      hours_available: Termine (Services/Experiences)
       validity_schedule: Gültigkeitszeitraum
 
   opening_time:
@@ -129,6 +193,10 @@ de:
     opens: geöffnet von
     closes: bis
     closed: geschlossen
+
+  collection:
+    new: Neue %{data}
+    filter: '%{data} filtern...'
 
   common:
     'true': Ja
@@ -190,8 +258,6 @@ de:
     show_more: Mehr anzeigen
     show_less: Weniger anzeigen
     expired_content: Gültigkeitszeitraum überschritten!
-    archived: Automatisch archiviert.
-    unarchived: Automatisch reaktiviert.
     entries: Einträge
     is: ist
     is_not: ist nicht
@@ -316,6 +382,8 @@ de:
     no_name: unbenannt
     o_clock: Uhr
     and: und
+    'yes': Ja
+    'no': Nein
 
   embedded:
     move_down: nach unten verschieben
@@ -548,7 +616,7 @@ de:
   actions:
     show: anzeigen
     edit: bearbeiten
-    manage: verwalten
+    manage: '%{data} verwalten'
     lock: sperren
     unlock: freischalten
     delete: löschen
@@ -560,8 +628,9 @@ de:
     send_with_data: '%{data} versenden'
     delete_with_data: '%{data} löschen'
     subscribe: 'abonnieren'
+    subscribe_to: '%{data} abonnieren'
     unsubscribe: 'Abonnement löschen'
-    subscribed: 'abonniert'
+    subscribed_to: '%{data} abonniert'
     reset:
       one: 'Zurücksetzen'
       other: 'Suche zurücksetzen'
@@ -574,6 +643,7 @@ de:
     save_without_send: Speichern (kein E-Mail-Versand)
     finalize: Bearbeitung abschließen
     copy_to_clipboard: In die Zwischenablage kopieren
+    copied_to_clipboard: In Zwischenablage kopiert.
     save: Speichern
     update: Aktualisieren
     upload: Dateien hochladen
@@ -623,6 +693,7 @@ de:
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
     copyable_from: '%{data} übernehmen'
     copyable_from_clear: '%{data} verwerfen'
+    logout: Abmelden
 
   validation:
     errors:
@@ -693,6 +764,7 @@ de:
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
+
   controllers:
     error:
       invalid_parent: 'Ungültiges Eltern Objekt.'
@@ -762,6 +834,7 @@ de:
       added: '%{data}/%{uuid} zur Job-Queue hinzugefügt.'
       imported: "'%{data}' wurden aus YAML Datei importiert."
       running: 'Job befindet sich bereits in der Job-Queue.'
+
   activerecord:
     errors:
       messages:
@@ -900,6 +973,7 @@ de:
         access_token: API Token
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
         represented_by: Repräsentiert durch
+        ui_locale: UI Sprache
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname
@@ -952,6 +1026,7 @@ de:
         file: Datei
       data_cycle_core/external_source:
         name: Name
+
   unauthorized:
     manage:
       all: 'Keine Zugriffsberechtigung!'
@@ -997,7 +1072,7 @@ de:
       read_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihr Feedback.</span>'
       download_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt.<br><br>%{n_type} steht nun zum Download bereit.</span>'
       updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” wurde aktualisiert. Es wurden Inhalte hinzugefügt oder entfernt.</span>'
-
+      create_link: Neuen Link erstellen
     documentation:
       root: Dokumentation
       overview: Übersicht
@@ -1016,7 +1091,6 @@ de:
       containers: Container
       entities: Inhalte
       embeddeds: Eingebettete Inhalte
-
     warning:
       common:
         invalid: Gültigkeitszeitraum überschritten
@@ -1111,10 +1185,12 @@ de:
       </ul>
       </li>
       </ul>'
+
   uploader:
     restrictions: 'Einschränkungen'
     validation:
       format: 'Erlaubte Formate: <span class="value">%{data}</span>'
+      format_not_supported: Nicht unterstütztes Format (%{data})
       dimensions:
         exclude:
           format: 'Folgende Formate sind in jeder Größe erlaubt: <span class="value">%{data}</span>'
@@ -1122,10 +1198,16 @@ de:
           min:
             width: 'Minimale Breite für Medien im Querformat: <span class="value">%{data}px</span>'
             height: 'Minimale Höhe für Medien im Querformat: <span class="value">%{data}px</span>'
+          max:
+            width: 'Maximale Breite für Medien im Querformat: <span class="value">%{data}px</span>'
+            height: 'Maximale Höhe für Medien im Querformat: <span class="value">%{data}px</span>'
         portrait:
           min:
             width: 'Minimale Breite für Medien im Hochformat: <span class="value">%{data}px</span>'
             height: 'Minimale Höhe für Medien im Hochformat: <span class="value">%{data}px</span>'
+          max:
+            width: 'Maximale Breite für Medien im Hochformat: <span class="value">%{data}px</span>'
+            height: 'Maximale Höhe für Medien im Hochformat: <span class="value">%{data}px</span>'
         logo:
           max:
             height: 'Maximale Höhe für Logos: <span class="value">%{data}px</span>'
@@ -1134,6 +1216,7 @@ de:
         audio: 'Erlaubte Audio-Codecs: <span class="value">%{data}</span>'
       file_size:
         max: 'Maximale Dateigröße: <span class="value">%{data}</span>'
+        min: 'Minimale Dateigröße: <span class="value">%{data}</span>'
 
     close_warning_html: '<p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
       Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'
@@ -1194,6 +1277,7 @@ de:
       - :day
       - :month
       - :year
+
   datetime:
     distance_in_words:
       about_x_hours:
@@ -1244,6 +1328,7 @@ de:
       second: Sekunde
       year: Jahr
       week: Woche
+
   number:
     currency:
       format:
@@ -1300,11 +1385,13 @@ de:
     precision:
       format:
         delimiter: ''
+
   support:
     array:
       last_word_connector: ' und '
       two_words_connector: ' und '
       words_connector: ', '
+
   time:
     am: vormittags
     formats:
@@ -1327,9 +1414,16 @@ de:
   errors:
     messages:
       extension_white_list_error: Ungültiger Dateityp
+
   exceptions:
     action_controller/invalid_authenticity_token: Ungültiges oder fehlendes CSRF-Token, bitte erneut anmelden
     data_cycle_core/error/download/invalid_serialization_format_error: Die ausgewählte Download-Methode wird nicht unterstützt
+    data_cycle_core/error/api/bad_request_error:
+      unknown_parameter: Unbekannter Query Parameter
+      invalid_parameter: Ungültiger Query Parameter
+    data_cycle_core/error/api/expired_content_error:
+      expired_content: Inhalt ist abgelaufen
+    active_record/record_not_found: Nicht gefunden
 
   details:
     bild:

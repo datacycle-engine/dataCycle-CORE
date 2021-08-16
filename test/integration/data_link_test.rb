@@ -51,7 +51,7 @@ module DataCycleCore
       follow_redirect!
 
       get edit_polymorphic_path(readonly_content)
-      assert_equal I18n.t(:all, scope: [:unauthorized, :manage], locale: DataCycleCore.ui_language), flash[:alert]
+      assert_equal I18n.t(:all, scope: [:unauthorized, :manage], locale: DataCycleCore.ui_locales.first), flash[:alert]
       assert_redirected_to info_path
     end
 
@@ -89,7 +89,7 @@ module DataCycleCore
       follow_redirect!
 
       get edit_polymorphic_path(readonly_content)
-      assert_equal I18n.t(:all, scope: [:unauthorized, :manage], locale: DataCycleCore.ui_language), flash[:alert]
+      assert_equal I18n.t(:all, scope: [:unauthorized, :manage], locale: DataCycleCore.ui_locales.first), flash[:alert]
       assert_redirected_to info_path
     end
 
@@ -190,7 +190,7 @@ module DataCycleCore
         referer: thing_url(@content)
       }
       assert_redirected_to root_path
-      assert_equal I18n.t('unauthorized.manage.all', locale: DataCycleCore.ui_language), flash[:alert]
+      assert_equal I18n.t('unauthorized.manage.all', locale: DataCycleCore.ui_locales.first), flash[:alert]
       assert_nil @data_link.reload.comment
     end
 
@@ -209,7 +209,7 @@ module DataCycleCore
       }
 
       assert_redirected_to thing_path(@content, locale: I18n.locale)
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal 'read', @data_link.reload.permissions
     end
   end

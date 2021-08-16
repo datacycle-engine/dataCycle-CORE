@@ -42,7 +42,7 @@ module DataCycleCore
         }
 
         assert_response 302
-        assert_equal I18n.t(:type_mismatch, scope: [:controllers, :error, :duplicate], locale: DataCycleCore.ui_language), flash[:alert]
+        assert_equal I18n.t(:type_mismatch, scope: [:controllers, :error, :duplicate], locale: DataCycleCore.ui_locales.first), flash[:alert]
       end
 
       test 'mark duplicate as false positive' do
@@ -62,7 +62,7 @@ module DataCycleCore
         }
 
         assert_response 302
-        assert_equal I18n.t(:duplicate_false_positive, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @content2.try(:title)), flash[:notice]
+        assert_equal I18n.t(:duplicate_false_positive, scope: [:controllers, :success], locale: DataCycleCore.ui_locales.first, data: @content2.try(:title)), flash[:notice]
       end
 
       test 'merge duplicate with original' do
@@ -83,7 +83,7 @@ module DataCycleCore
         }
 
         assert_response 302
-        assert_equal I18n.t(:merged_with_duplicate, scope: [:controllers, :success], locale: DataCycleCore.ui_language), flash[:success]
+        assert_equal I18n.t(:merged_with_duplicate, scope: [:controllers, :success], locale: DataCycleCore.ui_locales.first), flash[:success]
       end
     end
   end

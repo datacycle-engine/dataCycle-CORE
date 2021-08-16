@@ -9,7 +9,7 @@
             </div>
             <%= text_field_tag :q,
               @search_param,
-              placeholder: t('common.searchterm', locale: DataCycleCore.ui_language),
+              placeholder: t('common.searchterm', locale: active_ui_locale),
               class:"input-group-field fulltext-search-field" %>
           </div>
         </div>
@@ -20,7 +20,7 @@
               <ul class="clickable-menu">
                 <li class="filter" data-id="roles">
                   <span class="icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
-                  <span class="title"><%= DataCycleCore::Role.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></span>
+                  <span class="title"><%= DataCycleCore::Role.model_name.human(count: 2, locale: active_ui_locale) %></span>
                   <div>
                     <ul class="clearfix split-list">
                       <% DataCycleCore::Role.accessible_by(current_ability).order(:rank).each do |item| %>
@@ -28,7 +28,7 @@
                           <input type="checkbox" name="roles[]" value="<%= item.id %>" id="<%= item.id %>" <%= 'checked' if @roles.presence&.ids&.include?(item.id) %> />
                           <label for="<%= item.id %>">
                             <span class="title">
-                              <span class="inner-title"><%= t('roles.'+item.name, locale: DataCycleCore.ui_language) %></span>
+                              <span class="inner-title"><%= t('roles.'+item.name, locale: active_ui_locale) %></span>
                             </span>
                           </label>
                         </li>
@@ -39,7 +39,7 @@
                 <% if DataCycleCore::UserGroup.any? %>
                   <li class="filter" data-id="user_groups">
                     <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
-                    <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></span>
+                    <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: active_ui_locale) %></span>
                     <div>
                       <ul class="clearfix split-list">
                         <% DataCycleCore::UserGroup.all.each do |item| %>
@@ -64,7 +64,7 @@
         <% if filter_model == DataCycleCore::User %>
           <div class="filtertags activefilter">
             <span class="icon">
-              <i class="fa fa-check" aria-hidden="true"></i> <b><%= t('common.active_filters', locale: DataCycleCore.ui_language) %>:</b>
+              <i class="fa fa-check" aria-hidden="true"></i> <b><%= t('common.active_filters', locale: active_ui_locale) %>:</b>
             </span>
             <span class="filter-groups">
               <%= render 'data_cycle_core/application/filters/tag_groups/roles',
@@ -84,17 +84,17 @@
         <div class=" filterbuttons clearfix">
           <div class="filterbuttons-left">
             <%= button_tag type: :submit, class: "button success", data: {
-              disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.searching', locale: DataCycleCore.ui_language)} ..."
+              disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.searching', locale: active_ui_locale)} ..."
             } do %>
               <i class="fa fa-search" aria-hidden="true"></i>
-              <%= t('actions.filter', locale: DataCycleCore.ui_language) %>
+              <%= t('actions.filter', locale: active_ui_locale) %>
             <% end %>
 
             <div class="expandable-buttons">
               <%= link_to request.path, class: 'button', id: 'reset-filter' do %>
                 <i class="fa fa-times" aria-hidden="true"></i>
                 <span class="expandable">
-                  <%= t('actions.reset', count: 2, locale: DataCycleCore.ui_language) %>
+                  <%= t('actions.reset', count: 2, locale: active_ui_locale) %>
                 </span>
               <% end %>
             </div>

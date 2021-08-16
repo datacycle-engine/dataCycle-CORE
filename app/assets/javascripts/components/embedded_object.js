@@ -48,7 +48,7 @@ class EmbeddedObject {
 
     this.element.off('dc:import:data').on(
       'dc:import:data',
-      function (_event, data) {
+      async function (_event, data) {
         let newItems = difference(
           data.value,
           this.element
@@ -63,7 +63,7 @@ class EmbeddedObject {
         ) {
           this.renderEmbeddedObjects('split_view', newItems, data.locale, data.translate);
         } else if (this.write && this.max != 0 && ids.length + newItems.length > this.max) {
-          new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
+          new ConfirmationModal({ text: await I18n.translate('frontend.maximum_embedded') });
         }
       }.bind(this)
     );

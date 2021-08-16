@@ -14,7 +14,7 @@ module DataCycleCore
         end
 
         def translate_text
-          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Übersetzung', locale: DataCycleCore.ui_language) }.to_json, content_type: 'application/json') && return if translate_params.blank? || translate_params.values.all?(&:blank?)
+          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Übersetzung', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if translate_params.blank? || translate_params.values.all?(&:blank?)
 
           translated_text = DataCycleCore::Feature::Translate.translate_text(translate_params.to_h)
 

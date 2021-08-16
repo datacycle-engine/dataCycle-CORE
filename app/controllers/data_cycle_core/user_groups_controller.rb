@@ -40,7 +40,7 @@ module DataCycleCore
       @user_group = DataCycleCore::UserGroup.new(user_group_params)
 
       if @user_group.save
-        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_language
+        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzergruppe', locale: helpers.active_ui_locale
       else
         flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
       end
@@ -52,7 +52,7 @@ module DataCycleCore
 
     def update
       if @user_group.update(user_group_params)
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_language
+        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzergruppe', locale: helpers.active_ui_locale
 
         if Rails.env.development?
           redirect_to edit_user_group_path(@user_group)
@@ -67,7 +67,7 @@ module DataCycleCore
 
     def destroy
       if @user_group.destroy
-        flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_language
+        flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Benutzergruppe', locale: helpers.active_ui_locale
       else
         flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
       end

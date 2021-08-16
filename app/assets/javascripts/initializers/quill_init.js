@@ -8,8 +8,6 @@ import ConfirmationModal from './../components/confirmation_modal';
 import quill_helpers from './../helpers/quill_helpers';
 const icons = Quill.import('ui/icons');
 
-icons['insertnbsp'] = '<span title="Geschütztes Leerzeichen einfügen">␣</span>';
-
 Quill.register(SmartBreak);
 Quill.register('modules/contentlink', QuillContentlinkModule);
 Quill.register('formats/contentlink', ContentlinkBlot);
@@ -109,7 +107,7 @@ export default function () {
   function init(container = document) {
     $(container)
       .find('.quill-editor')
-      .each((_, node) => {
+      .each(async (_, node) => {
         // set edit mode
         let mode = 'full';
         if ($(node).data('size') != undefined && $(node).data('size') != false) mode = $(node).data('size');
@@ -125,6 +123,9 @@ export default function () {
         options.bounds = node;
 
         try {
+          if (mode != 'none' && !icons.hasOwnProperty('insertnbsp'))
+            icons['insertnbsp'] = `<span title="${await I18n.translate('frontend.text_editor.insertnbsp')}">␣</span>`;
+
           let editor = new Quill(node, options);
           let length = editor.getLength();
           let text = editor.getText(length - 2, 2);
@@ -134,7 +135,7 @@ export default function () {
             editor.deleteText(editor.getLength() - 2, 2);
           }
 
-          editor.on('selection-change', (range, oldRange, source) => {
+          editor.on('selection-change', (range, _oldRange, _source) => {
             if (range == null) quill_helpers.updateEditors(editor.container);
           });
 
@@ -145,15 +146,15 @@ export default function () {
               quill_helpers.updateEditors(editor.container);
             });
 
-          $(editor.container).on('dc:import:data', function (event, data) {
+          $(editor.container).on('dc:import:data', async (_event, data) => {
             if (editor.getText().trim().length > 1 && (!data || !data.force)) {
               new ConfirmationModal({
-                text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-                confirmationText: 'Ja',
-                cancelText: 'Nein',
+                text: await I18n.translate('frontend.override_warning', { data: data.label }),
+                confirmationText: await I18n.translate('common.yes'),
+                cancelText: await I18n.translate('common.no'),
                 confirmationClass: 'success',
                 cancelable: true,
-                confirmationCallback: function () {
+                confirmationCallback: () => {
                   editor.clipboard.dangerouslyPasteHTML(data.value);
                 }
               });
@@ -233,7 +234,7 @@ export default function () {
         });
       });
     } else {
-      $(window).on('scroll', function (ev) {
+      $(window).on('scroll', function (_ev) {
         $('.editor-block').each(function () {
           var pos = $(this).offset().top - $(window).scrollTop();
           if (pos < 55 && pos > -$(this).height() + 130) {

@@ -72,7 +72,7 @@ class SimpleSelect2 extends BasicSelect2 {
     }
 
     var filteredChildren = [];
-    $.each(data.children, (idx, child) => {
+    $.each(data.children, (_idx, child) => {
       if (this.optionMatches(child, params)) {
         filteredChildren.push(child);
       }

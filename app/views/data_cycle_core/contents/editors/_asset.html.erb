@@ -1,8 +1,9 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
 
+  <% translated_label = yield_content!(:attribute_label) %>
   <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
     <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
-    <%= definition['label'] %>
+    <%= translated_label %>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   <% end %>
 
@@ -20,6 +21,6 @@
         key_id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}",
         editable_list_key: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_editable_asset_list",
         asset_type: definition&.dig('asset_type'),
-        label: definition['label'] %>
+        label: translated_label %>
   <% end %>
 <% end %>

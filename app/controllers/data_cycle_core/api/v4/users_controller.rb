@@ -33,7 +33,7 @@ module DataCycleCore
           if role_params[:rank].present? && DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(role_params[:rank].to_i)
             rank = role_params[:rank].to_i
           elsif role_params[:rank].present?
-            render(json: { errors: { rank: [I18n.t('validation.errors.rank_not_allowed', locale: DataCycleCore.ui_language)] } }, status: :unprocessable_entity) && return
+            render(json: { errors: { rank: [I18n.t('validation.errors.rank_not_allowed', locale: helpers.active_ui_locale)] } }, status: :unprocessable_entity) && return
           end
 
           @user.role = DataCycleCore::Role.find_by(rank: rank)

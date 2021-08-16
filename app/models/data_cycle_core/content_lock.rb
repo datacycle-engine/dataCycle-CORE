@@ -22,10 +22,11 @@ module DataCycleCore
     private
 
     def create_locks
+      # FIXME: move translation to JS
       ActionCable.server.broadcast "content_lock_#{activitiable.id}",
                                    locked_until: locked_until&.to_i,
                                    create: true,
-                                   button_text: tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: user&.full_name, data: distance_of_time_in_words(locked_for), name: I18n.with_locale(activitiable&.first_available_locale) { activitiable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{id}", class: 'content-locked-text'),
+                                   button_text: tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: user&.full_name, data: distance_of_time_in_words(locked_for), name: I18n.with_locale(activitiable&.first_available_locale) { activitiable.try(:title) }, locale: DataCycleCore.ui_locales.first)), id: "content-lock-#{id}", class: 'content-locked-text'),
                                    user_id: user.id,
                                    lock_id: id
 
@@ -33,7 +34,7 @@ module DataCycleCore
         ActionCable.server.broadcast "content_lock_#{watch_list_id}",
                                      locked_until: locked_until&.to_i,
                                      create: true,
-                                     button_text: tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: user&.full_name, data: distance_of_time_in_words(locked_for), name: I18n.with_locale(activitiable&.first_available_locale) { activitiable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{id}", class: 'content-locked-text'),
+                                     button_text: tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: user&.full_name, data: distance_of_time_in_words(locked_for), name: I18n.with_locale(activitiable&.first_available_locale) { activitiable.try(:title) }, locale: DataCycleCore.ui_locales.first)), id: "content-lock-#{id}", class: 'content-locked-text'),
                                      user_id: user.id,
                                      lock_id: id
       end
@@ -41,6 +42,8 @@ module DataCycleCore
 
     def update_locks
       lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: user.id, lock_ids: Array(id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
+
+      return if activitiable.nil?
 
       ActionCable.server.broadcast "content_lock_#{activitiable.id}", locked_until: updated_at&.utc&.+(DataCycleCore::Feature::ContentLock.lock_length.seconds)&.to_i, user_id: user.id, lock_id: id, token: lock_token
 

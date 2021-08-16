@@ -3,6 +3,7 @@ import Sortable from 'sortablejs/modular/sortable.core.esm.js';
 import difference from 'lodash/difference';
 import union from 'lodash/union';
 import castArray from 'lodash/castArray';
+import loadingIcon from '../templates/loadingIcon';
 
 class ObjectBrowser {
   constructor(selector) {
@@ -514,9 +515,7 @@ class ObjectBrowser {
     if (!append) {
       this.excluded = [];
       this.overlay.children('.items').scrollTop(0);
-      this.overlay
-        .children('.items')
-        .html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+      this.overlay.children('.items').html(loadingIcon());
     }
     this.overlay.find('.items .loading').show();
     this.loading = true;

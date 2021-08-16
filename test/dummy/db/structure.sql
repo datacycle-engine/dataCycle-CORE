@@ -1111,7 +1111,8 @@ CREATE TABLE public.users (
     confirmation_token character varying,
     confirmed_at timestamp without time zone,
     confirmation_sent_at timestamp without time zone,
-    unconfirmed_email character varying
+    unconfirmed_email character varying,
+    ui_locale character varying DEFAULT 'de'::character varying NOT NULL
 );
 
 
@@ -2670,6 +2671,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210629094413'),
 ('20210709121013'),
 ('20210731090959'),
+('20210802095013'),
 ('20210804140504');
 
 

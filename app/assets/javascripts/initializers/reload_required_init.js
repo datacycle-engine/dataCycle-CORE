@@ -12,7 +12,7 @@ export default function () {
       setTimeout(() => {
         $(window)
           .off('focus.dc_edit_page')
-          .on('focus.dc_edit_page', event => {
+          .on('focus.dc_edit_page', _event => {
             DataCycle.httpRequest({
               type: 'GET',
               url: '/reload_required',
@@ -23,7 +23,7 @@ export default function () {
               },
               dataType: 'json',
               contentType: 'application/json'
-            }).always(data => {
+            }).always(async data => {
               $(window).off('focus.dc_edit_page');
 
               if (
@@ -35,7 +35,7 @@ export default function () {
                   text: data.error,
                   confirmationClass: 'success',
                   cancelable: true,
-                  confirmationText: data.confirmation_text || 'Seite neu laden',
+                  confirmationText: data.confirmation_text || (await I18n.translate('frontend.reload_page')),
                   confirmationCallback: () => {
                     location.reload();
                   },

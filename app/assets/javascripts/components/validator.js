@@ -78,22 +78,24 @@ class Validator {
     QuillHelpers.updateEditors(this.form);
     this.initialFormData = this.sortedFormData();
 
-    $(window).on('beforeunload', _event => {
+    $(window).on('beforeunload', event => {
       QuillHelpers.updateEditors(this.form);
       this.submitFormData = this.sortedFormData();
 
-      if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData))
-        return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
+      if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData)) {
+        event.preventDefault();
+        return (event.returnValue = '');
+      }
     });
     if (this.languageMenu.length) {
-      this.languageMenu.on('click', '.list-items > li > a', event => {
+      this.languageMenu.on('click', '.list-items > li > a', async event => {
         QuillHelpers.updateEditors(this.form);
         this.submitFormData = this.sortedFormData();
 
         if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData)) {
           event.preventDefault();
           new ConfirmationModal({
-            text: 'Wollen Sie speichern und auf die neue Sprache wechseln?',
+            text: await I18n.translate('frontend.validate.save_and_change_language'),
             confirmationClass: 'success',
             cancelable: true,
             confirmationCallback: () => {
@@ -123,18 +125,19 @@ class Validator {
       );
     }
   }
-  validateAgbs(validationContainer) {
+  async validateAgbs(validationContainer) {
     let error = {
       error: {},
       warning: {}
     };
     let agbs = $(validationContainer).find(':checkbox[name="accept_agbs"]');
     if (agbs.length && !agbs.prop('checked')) {
+      const errorMessage = await I18n.translate('frontend.validate.agbs');
       $(validationContainer)
-        .append(this.renderErrorMessage({ error: { agbs: ['AGBs müssen akzeptiert werden!'] } }, validationContainer))
+        .append(await this.renderErrorMessage({ error: { agbs: [errorMessage] } }, validationContainer))
         .addClass('has-error');
       error.error = {
-        agbs: ['AGBs müssen akzeptiert werden!']
+        agbs: [errorMessage]
       };
     } else {
       this.removeSubmitButtonErrors(validationContainer);
@@ -154,7 +157,7 @@ class Validator {
       this.form.find('input#duplicate_id').remove();
     }
   }
-  renderErrorMessage(data, validationContainer) {
+  async renderErrorMessage(data, validationContainer) {
     let out = '';
     let item_id = '';
     let item_label = $(validationContainer).find('label').first();
@@ -175,8 +178,18 @@ class Validator {
           $(item_label).attr('for') &&
           $(item_label).attr('for').search(new RegExp(key, 'i')) != -1)
       ) {
-        button_text += '<b>' + ($(item_label).text() || 'Fehler') + ':</b><br>' + errorMessage + '<br>';
-        out += '<b>' + ($(item_label).text() || 'Fehler') + ':</b> ' + errorMessage + '</br>';
+        button_text +=
+          '<b>' +
+          ($(item_label).text() || (await I18n.translate('frontend.validate.error'))) +
+          '</b><br>' +
+          errorMessage +
+          '<br>';
+        out +=
+          '<b>' +
+          ($(item_label).text() || (await I18n.translate('frontend.validate.error'))) +
+          '</b> ' +
+          errorMessage +
+          '</br>';
       }
     }
     out += '<i class="fa fa-times close-error" aria-hidden="true"></i></span>';
@@ -188,7 +201,7 @@ class Validator {
     }
     return out;
   }
-  renderWarningMessage(data, validationContainer) {
+  async renderWarningMessage(data, validationContainer) {
     let out = '';
     let item_id = '';
     let item_label = $(validationContainer).find('label').first();
@@ -208,8 +221,18 @@ class Validator {
           $(item_label).attr('for') != undefined &&
           $(item_label).attr('for').search(new RegExp(key, 'i')) != -1)
       ) {
-        button_text += '<strong>' + ($(item_label).text() || 'Warnung') + ':</strong><br>' + data.warning[key] + '<br>';
-        out += '<strong>' + ($(item_label).text() || 'Warnung') + ':</strong> ' + data.warning[key] + '</br>';
+        button_text +=
+          '<strong>' +
+          ($(item_label).text() || (await I18n.translate('frontend.validate.warning'))) +
+          '</strong><br>' +
+          data.warning[key] +
+          '<br>';
+        out +=
+          '<strong>' +
+          ($(item_label).text() || (await I18n.translate('frontend.validate.warning'))) +
+          '</strong> ' +
+          data.warning[key] +
+          '</br>';
       }
     }
     out += '<i class="fa fa-times close-warning" aria-hidden="true"></i></span>';
@@ -269,9 +292,7 @@ class Validator {
   validateItem(validationContainer) {
     this.resetField(validationContainer);
     if ($(validationContainer).hasClass('agbs')) {
-      return new Promise((resolve, reject) => {
-        resolve(this.validateAgbs(validationContainer));
-      });
+      return this.validateAgbs(validationContainer);
     }
 
     let items = this.findItemsForField(validationContainer);
@@ -306,7 +327,7 @@ class Validator {
       url: url,
       data: $.param(form_data),
       dataType: 'json'
-    }).done(data => {
+    }).done(async data => {
       if (data != undefined) {
         if (
           data.error &&
@@ -317,7 +338,9 @@ class Validator {
             .prop('id')
             .search(new RegExp(Object.keys(data.error).join('|'), 'i')) != -1
         ) {
-          $(validationContainer).append(this.renderErrorMessage(data, validationContainer)).addClass('has-error');
+          $(validationContainer)
+            .append(await this.renderErrorMessage(data, validationContainer))
+            .addClass('has-error');
         } else {
           this.removeSubmitButtonErrors(validationContainer);
         }
@@ -331,7 +354,9 @@ class Validator {
             .prop('id')
             .search(new RegExp(Object.keys(data.warning).join('|'), 'i')) != -1
         ) {
-          $(validationContainer).append(this.renderWarningMessage(data, validationContainer)).addClass('has-warning');
+          $(validationContainer)
+            .append(await this.renderWarningMessage(data, validationContainer))
+            .addClass('has-warning');
         } else {
           this.removeSubmitButtonWarnings(validationContainer);
         }
@@ -359,19 +384,18 @@ class Validator {
 
     this.resolveRequests($(event.target).is(this.form), data);
   }
-  submitForm(
+  async submitForm(
     confirmations = { finalize: true, confirm: true, warnings: undefined, mergeConfirm: false, saveAndClose: false }
   ) {
     if (confirmations.warnings !== undefined) {
       return new ConfirmationModal({
-        text:
-          'Es sind Warnungen vorhanden (' +
-          confirmations.warnings
+        text: await I18n.translate('frontend.validate.ignore_warnings', {
+          data: confirmations.warnings
             .closest('.form-element')
-            .map((i, elem) => $(elem).data('label'))
+            .map((_i, elem) => $(elem).data('label'))
             .get()
-            .join(', ') +
-          ').<br>Soll der Inhalt trotzdem gespeichert werden?',
+            .join(', ')
+        }),
         confirmationClass: 'warning',
         cancelable: true,
         confirmationCallback: () => {
@@ -384,7 +408,7 @@ class Validator {
 
     if (confirmations.finalize && this.form.find(':input[name="finalize"]:checked').length) {
       return new ConfirmationModal({
-        text: 'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.',
+        text: await I18n.translate('frontend.validate.final_save'),
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: () => {
@@ -469,13 +493,12 @@ class Validator {
           this.form.trigger('dc:multistep:goto', this.form.find('fieldset').index(error.closest('fieldset')));
         }
       },
-      error => {
+      async error => {
         this.queryCount--;
-        let buttonText =
-          '<span id="button_server_error" class="tooltip-error">' +
-          '<strong>Fehler:</strong><br>' +
-          error.statusText +
-          '<br></span>';
+
+        let buttonText = `<span id="button_server_error" class="tooltip-error"><strong>${await I18n.translate(
+          'frontend.validate.error'
+        )}</strong><br>${error.statusText}<br></span>`;
         this.enable();
         this.submitButton.addClass('alert');
         $('#' + this.submitButton.data('toggle')).append(buttonText);

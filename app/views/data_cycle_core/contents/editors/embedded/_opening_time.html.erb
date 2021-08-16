@@ -17,10 +17,10 @@
     <% unless readonly %>
       <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
       <span class="swap-prev swap-button disabled"
-        title="<%= t('embedded.move_up', locale: DataCycleCore.ui_language) %>"><i
+        title="<%= t('embedded.move_up', locale: active_ui_locale) %>"><i
           class="fa fa-arrow-up" aria-hidden="true"></i></span>
       <span class="swap-next swap-button disabled"
-        title="<%= t('embedded.move_down', locale: DataCycleCore.ui_language) %>"><i
+        title="<%= t('embedded.move_down', locale: active_ui_locale) %>"><i
           class="fa fa-arrow-down" aria-hidden="true"></i></span>
     <% end %>
   </span>
@@ -42,11 +42,11 @@
       <div class="form-element valid_from">
         <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_from]")}" do %>
           <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
-          <%= t('opening_time.valid_from', locale: DataCycleCore.ui_language) %>
+          <%= t('opening_time.valid_from', locale: active_ui_locale) %>
         <% end %>
         <% if readonly %>
           <%= text_field_tag "#{new_key}[valid_from]",
-            l(value.dig(:start_time, :time)&.in_time_zone&.to_date, format: :edit, locale: DataCycleCore.ui_language),
+            l(value.dig(:start_time, :time)&.in_time_zone&.to_date, format: :edit, locale: active_ui_locale),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_from]")}", readonly: true %>
         <% else %>
@@ -57,12 +57,12 @@
       <div class="form-element valid_until">
         <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_until]")}" do %>
           <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
-          <%= t('opening_time.valid_until', locale: DataCycleCore.ui_language) %>
+          <%= t('opening_time.valid_until', locale: active_ui_locale) %>
         <% end %>
 
         <% if readonly %>
           <%= text_field_tag "#{new_key}[valid_until]",
-            l(value.dig(:rrules, 0, :until)&.in_time_zone&.to_date, format: :edit, locale: DataCycleCore.ui_language),
+            l(value.dig(:rrules, 0, :until)&.in_time_zone&.to_date, format: :edit, locale: active_ui_locale),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_until]")}", readonly: true %>
         <% else %>
@@ -73,13 +73,13 @@
       <div class="weekday form-element">
         <%= label_tag sanitize_to_id("#{new_key}[rrules][][validations][day]") do %>
           <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
-          <%= t('opening_time.weekday', locale: DataCycleCore.ui_language) %>
+          <%= t('opening_time.weekday', locale: active_ui_locale) %>
         <% end %>
         <% [*(1..6), 0].each do |v| %>
           <span class="weekday-checkbox">
             <%= hidden_field_tag "#{new_key}[rrules][][validations][day][]", v if readonly && value&.dig(:rrules, 0, :validations, :day)&.include?(v) %>
             <%= check_box_tag "#{new_key}[rrules][][validations][day][]", v, value&.dig(:rrules, 0, :validations, :day)&.include?(v), id: sanitize_to_id("#{new_key}[rrules][][validations][day][#{v}]"), disabled: readonly %>
-            <%= label_tag sanitize_to_id("#{new_key}[rrules][][validations][day][#{v}]"), t('date.abbr_day_names', locale: DataCycleCore.ui_language)[v] %>
+            <%= label_tag sanitize_to_id("#{new_key}[rrules][][validations][day][#{v}]"), t('date.abbr_day_names', locale: active_ui_locale)[v] %>
           </span>
         <% end %>
 
@@ -88,7 +88,7 @@
           <%= radio_button_tag "#{new_key}[holiday]", 'true', value&.dig(:holidays) == true, id: sanitize_to_id("#{new_key}[holiday][true]"), class: 'dc-multi-value-button true_option', disabled: readonly %>
           <%= radio_button_tag "#{new_key}[holiday]", 'false', value&.dig(:holidays) == false, id: sanitize_to_id("#{new_key}[holiday][false]"), class: 'dc-multi-value-button false_option', disabled: readonly %>
           <%= radio_button_tag "#{new_key}[holiday]", 'ignore', value&.dig(:holidays).nil?, id: sanitize_to_id("#{new_key}[holiday][ignore]"), class: 'dc-multi-value-button ignore_option', disabled: readonly %>
-          <%= label_tag sanitize_to_id("#{new_key}[holiday]"), t('opening_time.holiday', locale: DataCycleCore.ui_language), class: 'dc-multi-value-label' %>
+          <%= label_tag sanitize_to_id("#{new_key}[holiday]"), t('opening_time.holiday', locale: active_ui_locale), class: 'dc-multi-value-label' %>
         </span>
       </div>
     </div>

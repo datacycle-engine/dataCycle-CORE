@@ -1,4 +1,4 @@
-import ObjectHelpers from '../helpers/object_helpers';
+import pick from 'lodash/pick';
 
 import Map from 'ol/map';
 import Feature from 'ol/feature';
@@ -137,7 +137,7 @@ class OpenLayersViewer {
     this.mouseZoomTimeout;
     this.mapOptions = this.$container.data('map-options');
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
-    this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
+    this.defaultPosition = pick(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.highDpi = this.ol.deviceCapabilities.DEVICE_PIXEL_RATIO > 1;
     this.source;
     this.$popupContainer = this.$parentContainer.find('.ol-popup').first();
@@ -447,7 +447,7 @@ class OpenLayersViewer {
     let oldFn = this.mouseWheelZoom.handleEvent;
     let self = this;
 
-    this.mouseWheelZoom.handleEvent = function (e) {
+    this.mouseWheelZoom.handleEvent = async function (e) {
       let type = e.type;
       if (type !== 'wheel') {
         return true;
@@ -458,9 +458,9 @@ class OpenLayersViewer {
           $(e.map.getTargetElement().firstElementChild)
             .find('canvas')
             .after(
-              `<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text">Verwende ${
-                self.scrollTexts[self.zoomMethod]
-              } der Karte</div></div>`
+              `<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text">${await I18n.translate(
+                `frontend.map.scroll_notice.${self.zoomMethod}`
+              )}</div></div>`
             );
         } else {
           $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeIn(100);

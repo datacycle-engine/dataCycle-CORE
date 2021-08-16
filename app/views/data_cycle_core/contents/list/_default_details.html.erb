@@ -2,14 +2,14 @@
 
   <% if item.try(:desc).present? %>
     <div class="description">
-      <h5><%= t('list_titles.teaser', locale: DataCycleCore.ui_language) %></h5>
+      <h5><%= t('list_titles.teaser', locale: active_ui_locale) %></h5>
       <%= sanitize(item.desc) %>
     </div>
   <% end %>
 
   <% if item.try(:text).present? %>
     <div class="text <%= 'show-more' if item.text.size > 140 %>">
-      <h5><%= t('list_titles.text', locale: DataCycleCore.ui_language) %></h5>
+      <h5><%= t('list_titles.text', locale: active_ui_locale) %></h5>
       <div class="closed <%= 'hidden' if item.text.size < 140 %>">
         <%= sanitize(strip_links(truncate(item.try(:text), length: 140, separator: " ", escape: false))) %>
       </div>
@@ -17,8 +17,8 @@
         <%= sanitize(strip_links(item.try(:text))) %>
       </div>
       <a href="#" class="show-more-link">
-        <span class="open"><%= t('common.show_less', locale: DataCycleCore.ui_language) %></span>
-        <span class="closed"><%= t('common.show_more', locale: DataCycleCore.ui_language) %></span>
+        <span class="open"><%= t('common.show_less', locale: active_ui_locale) %></span>
+        <span class="closed"><%= t('common.show_more', locale: active_ui_locale) %></span>
       </a>
     </div>
   <% end %>

@@ -14,7 +14,8 @@ module DataCycleCore
           end
           config[:filter].transform_values! { |v| { config: v } }
           values_for_filters(user, config, config[:filter], Array.wrap(selected_filters))
-          config[:sortable] = DataCycleCore::Feature::Sortable.available_options.select { |k, v| user.can?(:sortable, view.to_sym, k, v) } if config[:sortable].present?
+          config[:sortable] = DataCycleCore::Feature::Sortable.available_options(user, view) if config[:sortable].present?
+
           config
         end
 
