@@ -377,6 +377,11 @@ fastq@^1.6.0:
   dependencies:
     reusify "^1.0.4"
 
+fetch-inject@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/fetch-inject/-/fetch-inject-2.0.4.tgz#6b73401d10c3ea0c40571f4beb48b48bf4bc9126"
+  integrity sha512-pUXrJWsXjuti4H2mVEIIz+CMxId/iQ1Uj4U6Bqv3pvg63FbrN/9V9Reqrb86MYGWzUYAe3en4tN8gj+4FahmdQ==
+
 fill-range@^7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/fill-range/-/fill-range-7.0.1.tgz#1919a6a7c75fe38b2c7c77e5198535da9acdda40"
