@@ -154,7 +154,7 @@ module DataCycleCore
     end
 
     def ancestors
-      Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 10.minutes) do
+      Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 10.minutes, race_condition_ttl: 60.seconds) do
         if parent_classification_alias_with_deleted
           [parent_classification_alias_with_deleted] + parent_classification_alias_with_deleted.ancestors
         else
