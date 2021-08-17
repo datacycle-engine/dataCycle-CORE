@@ -13,8 +13,8 @@ variables:
 
 stages:
   - build
-  - test
   - check
+  - test
   - deploy
 
 before_script:
@@ -92,7 +92,7 @@ services:
   script:
     - bundle exec bundle-audit update
     - bundle exec bundle audit check --ignore CVE-2021-21288 CVE-2021-21305
-    - bundle exec brakeman --skip-files node_modules/
+    - bundle exec brakeman --skip-files node_modules/,cache/
     - bundle exec rubocop --format fuubar
     - bundle exec fasterer
 
