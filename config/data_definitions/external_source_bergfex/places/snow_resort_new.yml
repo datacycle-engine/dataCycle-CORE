@@ -286,6 +286,12 @@
         :api:
           :v4:
             :name: 'odta:webcam'
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :contact_info:
+        :type: mixin
+        :name: contact_info
       :geo:
         :type: mixin
         :name: geo
