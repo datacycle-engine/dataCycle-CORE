@@ -1935,10 +1935,10 @@ CREATE INDEX index_schedule_occurrences_on_schedule_id ON public.schedule_occurr
 
 
 --
--- Name: index_schedule_occurrences_on_thing_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_schedule_occurrences_on_thing_id_occurrence; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_schedule_occurrences_on_thing_id ON public.schedule_occurrences USING btree (thing_id);
+CREATE INDEX index_schedule_occurrences_on_thing_id_occurrence ON public.schedule_occurrences USING btree (thing_id, occurrence);
 
 
 --
@@ -2672,6 +2672,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210709121013'),
 ('20210731090959'),
 ('20210802095013'),
-('20210804140504');
+('20210804140504'),
+('20210817101040');
 
 

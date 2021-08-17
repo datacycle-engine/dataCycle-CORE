@@ -26,6 +26,9 @@ module DataCycleCore
         assert_response :success
         assert @content.lock.present?
 
+        travel 1.minute
+        freeze_time
+
         logout
         sign_in(User.find_by(email: 'admin@datacycle.at'))
 
