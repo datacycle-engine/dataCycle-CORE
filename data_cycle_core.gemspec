@@ -99,7 +99,6 @@ Gem::Specification.new do |s|
   # redis
   s.add_dependency 'hiredis'
   s.add_dependency 'redis'
-  s.add_dependency 'connection_pool'
 
   # redcarpet (for rendering markdown)
   s.add_dependency 'redcarpet'
