@@ -1,7 +1,7 @@
 <div class="advanced-filters accordion" data-accordion data-allow-all-closed="true">
   <div class="accordion-item <%= 'is-active' if DataCycleCore::Feature::AdvancedFilter.always_visible? %>" data-accordion-item>
     <div class="accordion-content" data-tab-content style="<%= 'display: block;' if DataCycleCore::Feature::AdvancedFilter.always_visible? %>">
-      <% value.presence&.dig(:filters)&.each_with_index do |advanced_filter, idx| %>
+      <% filter.presence&.dig(:filters)&.each_with_index do |advanced_filter, idx| %>
         <%= render_advanced_filter_partial({
               filter_type: advanced_filter['t'],
               filter_title: advanced_filter['n'],

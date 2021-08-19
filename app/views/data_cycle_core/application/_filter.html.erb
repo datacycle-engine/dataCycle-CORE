@@ -8,8 +8,8 @@
   <%= conditional_filter_accordion(filter_config) do %>
     <div class="row">
       <div class="column filter-body">
-        <% filter_config[:filter].each do |key, value| %>
-          <%= render "data_cycle_core/application/filters/sections/#{key}", value: value, config: filter_config %>
+        <% filter_config[:filter].each do |filter| %>
+          <%= render "data_cycle_core/application/filters/sections/#{filter[:type]}", filter: filter, config: filter_config %>
         <% end %>
 
         <%= render 'data_cycle_core/application/filters/sections/tag_groups',

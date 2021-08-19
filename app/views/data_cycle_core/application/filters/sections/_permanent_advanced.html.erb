@@ -1,5 +1,5 @@
 <div class="permanent-advanced-filters">
-  <% value.presence&.dig(:filters)&.each_with_index do |advanced_filter, idx| %>
+  <% filter.presence&.dig(:filters)&.each_with_index do |advanced_filter, idx| %>
     <%= render_advanced_filter_partial({
           filter_type: advanced_filter['t'],
           filter_title: advanced_filter['n'],

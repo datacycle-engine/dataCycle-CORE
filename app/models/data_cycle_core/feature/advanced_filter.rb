@@ -15,12 +15,15 @@ module DataCycleCore
         end
 
         def available_visible_filters(user, view_type, filter_config)
-          return [] unless enabled? && !user.nil? && filter_config.is_a?(Hash)
+          return [] unless enabled? && !user.nil? && filter_config.is_a?(Array)
 
           filters = []
-          filter_config&.each do |key, value|
-            filters.concat(try(key.to_sym, user, value) || default(user, key.to_s, value) || [])
+
+          filter_config.each do |filter|
+            k, v = filter.first
+            filters.concat(try(k.to_sym, user, v) || default(user, k.to_s, v) || [])
           end
+
           filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.reverse
         end
 
