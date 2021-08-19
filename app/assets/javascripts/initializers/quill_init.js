@@ -6,7 +6,9 @@ import { SmartBreak, lineBreakMatcher, lineBreakHandler } from '../components/qu
 import handleEnter from '../components/quill_enter_handler';
 import ConfirmationModal from './../components/confirmation_modal';
 import quill_helpers from './../helpers/quill_helpers';
+import quillCustomHandlers from '../components/quill_custom_handlers';
 const icons = Quill.import('ui/icons');
+import cloneDeep from 'lodash/cloneDeep';
 
 Quill.register(SmartBreak);
 Quill.register('modules/contentlink', QuillContentlinkModule);
@@ -26,7 +28,7 @@ export default function () {
     none: {
       container: []
     },
-    minimal: { container: [['bold', 'italic', 'underline'], ['insertnbsp'], ['clean']] },
+    minimal: { container: [['bold', 'italic', 'underline'], ['insertNbsp', 'replaceAllNbsp'], ['clean']] },
     basic: {
       container: [
         [
@@ -36,7 +38,7 @@ export default function () {
         ],
         [{ script: 'sub' }, { script: 'super' }],
         ['bold', 'italic', 'underline'],
-        ['insertnbsp'],
+        ['insertNbsp', 'replaceAllNbsp'],
         ['clean']
       ]
     },
@@ -62,17 +64,10 @@ export default function () {
         ],
         [{ script: 'sub' }, { script: 'super' }],
         ['bold', 'italic', 'underline'],
-        ['insertnbsp'],
+        ['insertNbsp', 'replaceAllNbsp'],
         ['customlink', 'contentlink'],
         ['clean']
       ]
-    }
-  };
-
-  const customHandlers = {
-    insertnbsp: function (_) {
-      var selection = this.quill.getSelection(true);
-      this.quill.insertText(selection, '\u00a0');
     }
   };
 
@@ -115,16 +110,23 @@ export default function () {
 
         let readOnly = $(node).attr('readonly') ? true : false;
 
-        let options = default_options;
+        let options = cloneDeep(default_options);
         options.modules.toolbar = toolbar[mode];
-        options.modules.toolbar.handlers = customHandlers;
+        options.modules.toolbar.handlers = quillCustomHandlers;
         options.formats = formats[mode];
         options.readOnly = readOnly;
         options.bounds = node;
 
         try {
-          if (mode != 'none' && !icons.hasOwnProperty('insertnbsp'))
-            icons['insertnbsp'] = `<span title="${await I18n.translate('frontend.text_editor.insertnbsp')}">␣</span>`;
+          if (mode != 'none' && !icons.hasOwnProperty('insertNbsp'))
+            icons['insertNbsp'] = `<span title="${await I18n.translate(
+              'frontend.text_editor.insertNbsp'
+            )}"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 9v4H6V9H4v6h16V9z"/></svg></span>`;
+
+          if (mode != 'none' && !icons.hasOwnProperty('replaceAllNbsp'))
+            icons['replaceAllNbsp'] = `<span title="${await I18n.translate(
+              'frontend.text_editor.replaceAllNbsp'
+            )}"><svg class="spacebar-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 9v4H6V9H4v6h16V9z"/></svg><svg class="times-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span>`;
 
           let editor = new Quill(node, options);
           let length = editor.getLength();

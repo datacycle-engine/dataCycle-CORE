@@ -81,17 +81,61 @@ $fa-font-path: '/assets';
         }
       }
     }
-    .ql-insertnbsp {
+    .ql-insertNbsp,
+    .ql-replaceAllNbsp {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
       position: relative;
       overflow: hidden;
 
+      &:hover svg {
+        fill: #06c;
+      }
+    }
+
+    .quill-notice {
+      position: absolute;
+      right: 8px;
+      white-space: nowrap;
+      background: white;
+      border-radius: 5px;
+      padding: 0.2rem 0.5rem;
+      top: 8px;
+      box-shadow: 0 0 3px $dark-gray;
+    }
+
+    .ql-insertNbsp {
       span {
-        display: inline-block;
-        font-size: 1.3rem;
-        position: absolute;
-        bottom: 5px;
-        left: 0;
-        width: 100%;
+        display: block;
+        height: 1.1rem;
+        width: 1.5rem;
+
+        svg {
+          height: 1.5rem;
+          width: 1.5rem;
+        }
+      }
+    }
+
+    .ql-replaceAllNbsp {
+      span {
+        display: block;
+        height: 0.9rem;
+        width: 1.2rem;
+
+        svg.spacebar-icon {
+          height: 1.2rem;
+          width: 1.2rem;
+        }
+
+        svg.times-icon {
+          width: 0.9rem;
+          height: 0.9rem;
+          position: absolute;
+          top: 2px;
+          right: 2px;
+        }
       }
     }
   }

@@ -82,7 +82,9 @@ en:
   frontend:
     load_error: Error loading content.
     text_editor:
-      insertnbsp: Insert protected space
+      insertNbsp: Insert protected space
+      replaceAllNbsp: replace all protected spaces with normal spaces
+      replaced_all_nbsp: replaced all protected spaces with normal spaces!
     override_warning: Should the field %{data} be overwritten?
     reload_page: Reload page
     upload:
