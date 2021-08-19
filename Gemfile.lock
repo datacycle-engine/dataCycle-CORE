@@ -59,7 +59,7 @@ PATH
       streamio-ffmpeg
       taglib-ruby (~> 1.0.0)
       transproc (~> 1.0)
-      vite_rails
+      vite_rails (~> 2.0)
       whenever
 
 PATH
