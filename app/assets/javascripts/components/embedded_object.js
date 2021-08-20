@@ -136,6 +136,9 @@ class EmbeddedObject {
       this.addEventHandlers();
     });
   }
+  findRemoveButton(element) {
+    return $(element).find('> .removeContentObject, > .form-element > .editor-block > .removeContentObject');
+  }
   addEventHandlers() {
     this.element
       .find('> .buttons > #add_' + this.id)
@@ -144,7 +147,7 @@ class EmbeddedObject {
         this.renderEmbeddedObjects('new');
       });
     this.element.children('.content-object-item').each((_index, element) => {
-      $(element).children('.removeContentObject').off('click').on('click', this.handleRemoveEvent.bind(this));
+      this.findRemoveButton(element).off('click').on('click', this.handleRemoveEvent.bind(this));
     });
 
     this.element
@@ -184,9 +187,9 @@ class EmbeddedObject {
       this.element.find('> .buttons > #add_' + this.id).show();
     }
     if (this.min != 0 && this.element.children('.content-object-item').length <= this.min) {
-      this.element.children('.content-object-item').children('.removeContentObject').hide();
+      this.findRemoveButton(this.element.children('.content-object-item')).hide();
     } else if (this.write) {
-      this.element.children('.content-object-item').children('.removeContentObject').show();
+      this.findRemoveButton(this.element.children('.content-object-item')).show();
     }
     if (this.element.children('.content-object-item').length == 0) {
       this.element.append('<input type="hidden" value="" id="' + this.id + '_default" name="' + this.key + '[]">');

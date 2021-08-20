@@ -1,11 +1,14 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
 
-  <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
-    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
-    <%= yield_content!(:attribute_label) %>
-    <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
-  <% end %>
-  <div class="editor-block">
+  <div class="editor-block <%= 'disabled' unless attribute_editable?(key, definition, options, content) %>">
+    <%= yield_content!(:text_editor_header) %>
+
+    <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
+      <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
+      <%= yield_content!(:attribute_label) %>
+      <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
+    <% end %>
+
     <%= hidden_field_tag key, value, options.merge(id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}") %>
 
     <% options.merge!({ data: { hidden_field_id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" }.merge(definition&.slice('validations', 'warnings')), class: 'quill-editor', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}-editor" }) %>
