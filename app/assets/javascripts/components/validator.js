@@ -19,6 +19,9 @@ class Validator {
     this.requests = [];
     this.queryCount = 0;
     this.valid = true;
+    this.eventHandlers = {
+      beforeunload: this.pageLeaveHandler.bind(this)
+    };
 
     this.addEventHandlers();
   }
@@ -74,19 +77,20 @@ class Validator {
       name: 'authenticity_token'
     });
   }
+  pageLeaveHandler(event) {
+    QuillHelpers.updateEditors(this.form);
+    this.submitFormData = this.sortedFormData();
+
+    if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData)) {
+      event.preventDefault();
+      return (event.returnValue = '');
+    }
+  }
   pageLeaveWarning() {
     QuillHelpers.updateEditors(this.form);
     this.initialFormData = this.sortedFormData();
 
-    $(window).on('beforeunload', event => {
-      QuillHelpers.updateEditors(this.form);
-      this.submitFormData = this.sortedFormData();
-
-      if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData)) {
-        event.preventDefault();
-        return (event.returnValue = '');
-      }
-    });
+    $(window).on('beforeunload', this.eventHandlers.beforeunload);
     if (this.languageMenu.length) {
       this.languageMenu.on('click', '.list-items > li > a', async event => {
         QuillHelpers.updateEditors(this.form);
@@ -438,7 +442,7 @@ class Validator {
     if (this.form.closest('.reveal').hasClass('in-object-browser') || this.contentUploader) {
       return this.form.trigger('dc:form:submitWithoutRedirect', confirmations);
     } else {
-      $(window).off('beforeunload');
+      $(window).off('beforeunload', this.eventHandlers.beforeunload);
       if (confirmations && confirmations.saveAndClose)
         this.form.append('<input type="hidden" name="save_and_close" value="1">');
       if (confirmations && confirmations.mergeConfirm)

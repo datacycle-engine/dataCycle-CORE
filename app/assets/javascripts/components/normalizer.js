@@ -112,7 +112,7 @@ class DataCycleNormalizer {
       .on('click', event => {
         field.val(
           $('#' + field.prop('id') + '_selector .change-selector-option.active')
-            .map((index, element) => {
+            .map((_index, element) => {
               return $(element).data('value');
             })
             .toArray()

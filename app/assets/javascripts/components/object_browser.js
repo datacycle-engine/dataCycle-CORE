@@ -4,6 +4,8 @@ import difference from 'lodash/difference';
 import union from 'lodash/union';
 import castArray from 'lodash/castArray';
 import loadingIcon from '../templates/loadingIcon';
+import isEqual from 'lodash/isEqual';
+import sortBy from 'lodash/sortBy';
 
 class ObjectBrowser {
   constructor(selector) {
@@ -35,6 +37,7 @@ class ObjectBrowser {
     this.total = 0;
     this.ids = selector.data('objects') || [];
     this.chosen = this.ids.slice(0);
+    this.preselectedItems = [];
     this.selected = '';
     this.excluded = [];
     this.sortable;
@@ -42,6 +45,13 @@ class ObjectBrowser {
     this.content_type = this.element.data('content-type');
     this.prefix = selector.data('prefix');
     this.requests = [];
+    this.eventHandlers = {
+      pageLeave: this.pageLeaveHandler.bind(this),
+      submitWithoutRedirect: this.submitWithoutRedirectHandler.bind(this),
+      setContentIds: this.setContentIdsHandler.bind(this),
+      breadcrumbClick: this.breadcrumbClickHandler.bind(this),
+      import: this.import.bind(this)
+    };
 
     this.setup();
   }
@@ -186,64 +196,68 @@ class ObjectBrowser {
     e.stopPropagation();
     this.locale = this.element.data('locale');
   }
-  initNewFormHandlers(e) {
+  submitWithoutRedirectHandler(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    var form_data = $(event.target).serializeJSON();
+    $.extend(form_data, {
+      type: this.type,
+      locale: this.locale,
+      overlay_id: '#object_browser_' + this.id,
+      key: this.key,
+      definition: this.definition,
+      editable: this.editable,
+      options: this.options,
+      content_id: this.content_id,
+      class: this.class,
+      prefix: this.prefix,
+      objects: this.chosen,
+      new_overlay_id: '#new_' + this.id
+    });
+
+    DataCycle.httpRequest({
+      url: $(event.target).prop('action'),
+      method: 'POST',
+      data: JSON.stringify(form_data),
+      dataType: 'script',
+      contentType: 'application/json'
+    });
+  }
+  setContentIdsHandler(event, data) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    if (!data || !data.contentIds || !data.contentIds.length) return;
+
+    DataCycle.httpRequest({
+      url: '/object_browser/render_in_overlay',
+      method: 'POST',
+      dataType: 'script',
+      data: JSON.stringify({
+        ids: data.contentIds,
+        type: this.type,
+        locale: this.locale,
+        overlay_id: '#object_browser_' + this.id,
+        key: this.key,
+        definition: this.definition,
+        editable: this.editable,
+        options: this.options,
+        content_id: this.content_id,
+        class: this.class,
+        prefix: this.prefix,
+        objects: this.chosen,
+        new_overlay_id: '#new_' + this.id
+      }),
+      contentType: 'application/json'
+    });
+  }
+  initNewFormHandlers(_e) {
     $('#new_' + this.id + '.in-object-browser form')
-      .off('dc:form:submitWithoutRedirect')
-      .on('dc:form:submitWithoutRedirect', event => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        var form_data = $(event.target).serializeJSON();
-        $.extend(form_data, {
-          type: this.type,
-          locale: this.locale,
-          overlay_id: '#object_browser_' + this.id,
-          key: this.key,
-          definition: this.definition,
-          editable: this.editable,
-          options: this.options,
-          content_id: this.content_id,
-          class: this.class,
-          prefix: this.prefix,
-          objects: this.chosen,
-          new_overlay_id: '#new_' + this.id
-        });
-        DataCycle.httpRequest({
-          url: $(event.target).prop('action'),
-          method: 'POST',
-          data: JSON.stringify(form_data),
-          dataType: 'script',
-          contentType: 'application/json'
-        });
-      })
-      .off('dc:form:setContentIds')
-      .on('dc:form:setContentIds', (event, data) => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-
-        if (!data || !data.contentIds || !data.contentIds.length) return;
-
-        DataCycle.httpRequest({
-          url: '/object_browser/render_in_overlay',
-          method: 'POST',
-          dataType: 'script',
-          data: JSON.stringify({
-            ids: data.contentIds,
-            type: this.type,
-            locale: this.locale,
-            overlay_id: '#object_browser_' + this.id,
-            key: this.key,
-            definition: this.definition,
-            editable: this.editable,
-            options: this.options,
-            content_id: this.content_id,
-            class: this.class,
-            prefix: this.prefix,
-            objects: this.chosen,
-            new_overlay_id: '#new_' + this.id
-          }),
-          contentType: 'application/json'
-        });
-      });
+      .off('dc:form:submitWithoutRedirect', this.eventHandlers.submitWithoutRedirect)
+      .on('dc:form:submitWithoutRedirect', this.eventHandlers.submitWithoutRedirect)
+      .off('dc:form:setContentIds', this.eventHandlers.setContentIds)
+      .on('dc:form:setContentIds', this.eventHandlers.setContentIds);
   }
   removeThumbObject(element, triggerChange = true) {
     let item, elemId;
@@ -326,7 +340,7 @@ class ObjectBrowser {
         .children('.object-thumbs')
         .children('li.item')
         .find('[data-tooltip]')
-        .each((index, item) => {
+        .each((_index, item) => {
           $(item)
             .attr('title', $('#' + $(item).data('toggle')).html())
             .foundation()
@@ -334,13 +348,13 @@ class ObjectBrowser {
         });
     }
   }
-  addObject(id, element, event) {
+  addObject(id, element, _event) {
     if (this.chosen.indexOf(id) === -1) {
       this.chosen.push(id);
       this.overlay.find('.chosen-items-container').append(element);
       $(element)
         .find('[data-tooltip]')
-        .each((index, item) => {
+        .each((_index, item) => {
           $(item)
             .attr('title', $('#' + $(item).data('toggle')).html())
             .foundation()
@@ -424,7 +438,7 @@ class ObjectBrowser {
     this.excluded = [];
     this.page = 1;
   }
-  reset(event) {
+  reset(_event) {
     this.element.find('.media-thumbs li.item').each((_, element) => {
       this.removeThumbObject(element, false);
     });
@@ -443,6 +457,8 @@ class ObjectBrowser {
     if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
     else if (this.overlay.data('overlay') === false) document.body.classList.add('object-browser-overlay-open');
 
+    this.preselectedItems = this.chosen.slice(0);
+    $(window).on('beforeunload', this.eventHandlers.pageLeave);
     this.resetOverlay();
     this.setPreselected();
     this.updateChosenCounter();
@@ -456,11 +472,8 @@ class ObjectBrowser {
         this.label +
         ' auswählen</i></span></li>'
     );
-    $('.breadcrumb ul li').on('click', '.close-object-browser', event => {
-      event.preventDefault();
-      this.overlay.foundation('close');
-    });
-    $(window).on('message.object_browser onmessage.object_browser', this.import.bind(this));
+    $('.breadcrumb ul li').on('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
+    $(window).on('message.object_browser onmessage.object_browser', this.eventHandlers.import);
     let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
     if (difference(this.ids, loaded).length) this.loadMore(loaded);
     else this.loadObjects(false);
@@ -468,15 +481,28 @@ class ObjectBrowser {
   closeOverlay(_ev) {
     this.overlay.removeClass('full-height');
 
+    $(window).off('beforeunload', this.eventHandlers.pageLeave);
+
     if (!$('.reveal.object-browser-overlay:visible').not(this.overlay).length && this.overlay.data('overlay') === false)
       document.body.classList.remove('object-browser-overlay-open');
 
     $('.breadcrumb ul li:last-child').remove();
     var text = $('.breadcrumb ul li:last-child a.close-object-browser').html();
     $('.breadcrumb ul li:last-child').html(text);
-    $('.breadcrumb ul li').off('click');
-    $(window).off('message.object_browser onmessage.object_browser');
+    $('.breadcrumb ul li').off('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
+    $(window).off('message.object_browser onmessage.object_browser', this.eventHandlers.import);
     $('#asset-upload-reveal-default').off('closed.zf.reveal');
+  }
+  breadcrumbClickHandler(event) {
+    event.preventDefault();
+
+    this.overlay.foundation('close');
+  }
+  pageLeaveHandler(e) {
+    if (!isEqual(sortBy(this.preselectedItems), sortBy(this.chosen))) {
+      e.preventDefault();
+      return (e.returnValue = '');
+    }
   }
   // import media from media_archive reveal
   import(event) {

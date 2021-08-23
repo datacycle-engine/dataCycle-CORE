@@ -15,6 +15,12 @@ class BasicSelect2 {
       createTag: this.createTag.bind(this)
     };
     this.select2Object = null;
+    this.eventHandlers = {
+      reset: this.reset.bind(this),
+      import: this.import.bind(this),
+      destroy: this.destroy.bind(this),
+      suppressChange: this.suppressChangeEvent.bind(this)
+    };
   }
   init() {
     if (!$.fn.select2) {
@@ -43,11 +49,11 @@ class BasicSelect2 {
     this.select2Object = this.$element.data('select2');
   }
   initEventHandlers() {
-    this.$element.closest('form').on('reset', this.reset.bind(this));
-    this.$element.closest('.form-element').on('dc:field:reset', this.reset.bind(this));
-    this.$element.on('dc:import:data', this.import.bind(this));
-    this.$element.on('dc:select:destroy', this.destroy.bind(this));
-    this.$element.parent().on('change', '.select2-search__field', this.suppressChangeEvent.bind(this));
+    this.$element.closest('form').on('reset', this.eventHandlers.reset);
+    this.$element.closest('.form-element').on('dc:field:reset', this.eventHandlers.reset);
+    this.$element.on('dc:import:data', this.eventHandlers.import);
+    this.$element.on('dc:select:destroy', this.eventHandlers.destroy);
+    this.$element.parent().on('change', '.select2-search__field', this.eventHandlers.suppressChange);
   }
   suppressChangeEvent(event) {
     event.stopPropagation();
@@ -57,10 +63,11 @@ class BasicSelect2 {
   }
   destroy(_event) {
     this.$element.select2('destroy');
-    this.$element.closest('form').off('reset');
-    this.$element.off('dc:import:data');
-    this.$element.off('dc:select:destroy');
-    this.$element.closest('.form-element').off('dc:field:reset');
+    this.$element.closest('form').off('reset', this.eventHandlers.reset);
+    this.$element.off('dc:import:data', this.eventHandlers.import);
+    this.$element.off('dc:select:destroy', this.eventHandlers.destroy);
+    this.$element.closest('.form-element').off('dc:field:reset', this.eventHandlers.reset);
+    this.$element.parent().off('change', '.select2-search__field', this.eventHandlers.suppressChange);
   }
   initSpecificEventHandlers() {}
   import(_event, data) {

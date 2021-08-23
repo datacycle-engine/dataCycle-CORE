@@ -57,6 +57,12 @@ class DatePicker {
     };
     this.keyMappings = Object.assign({}, this.startKeys, this.endKeys);
     this.keyRegExp = new RegExp(`(${Object.keys(this.keyMappings).join('|')})`, 'gi');
+    this.eventHandlers = {
+      change: this.updateDatePicker.bind(this),
+      reInit: this.reInit.bind(this),
+      setDate: this.setDate.bind(this),
+      import: this.importData.bind(this)
+    };
 
     this.setup();
   }
@@ -67,16 +73,16 @@ class DatePicker {
     this.initCalInstance();
   }
   initEvents() {
-    $(this.calInstance.altInput).on('change', this.updateDatePicker.bind(this));
-    $(this.calInstance.altInput).on('dc:flatpickr:reInit', this.reInit.bind(this));
-    $(this.calInstance.altInput).on('dc:flatpickr:setDate', this.setDate.bind(this));
-    $(this.calInstance.altInput).on('dc:import:data', this.importData.bind(this));
+    $(this.calInstance.altInput).on('change', this.eventHandlers.change);
+    $(this.calInstance.altInput).on('dc:flatpickr:reInit', this.eventHandlers.reInit);
+    $(this.calInstance.altInput).on('dc:flatpickr:setDate', this.eventHandlers.setDate);
+    $(this.calInstance.altInput).on('dc:import:data', this.eventHandlers.import);
   }
   removeEvents() {
-    $(this.calInstance.altInput).off('change', this.updateDatePicker.bind(this));
-    $(this.calInstance.altInput).off('dc:flatpickr:reInit', this.reInit.bind(this));
-    $(this.calInstance.altInput).off('dc:flatpickr:setDate', this.setDate.bind(this));
-    $(this.calInstance.altInput).off('dc:import:data', this.importData.bind(this));
+    $(this.calInstance.altInput).off('change', this.eventHandlers.change);
+    $(this.calInstance.altInput).off('dc:flatpickr:reInit', this.eventHandlers.reInit);
+    $(this.calInstance.altInput).off('dc:flatpickr:setDate', this.eventHandlers.setDate);
+    $(this.calInstance.altInput).off('dc:import:data', this.eventHandlers.import);
   }
   setupCache() {
     if (!DataCycle.cache.holidays) {

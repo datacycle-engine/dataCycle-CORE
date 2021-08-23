@@ -646,6 +646,7 @@ de:
     save_and_send: Senden
     save_without_send: Speichern (kein E-Mail-Versand)
     finalize: Bearbeitung abschließen
+    finalize_agbs_text: AGB
     copy_to_clipboard: In die Zwischenablage kopieren
     copied_to_clipboard: In Zwischenablage kopiert.
     save: Speichern
