@@ -6,10 +6,26 @@ $fa-font-path: '/assets';
   display: flex;
 }
 
-.form-element.focus > .editor-block {
-  > label,
-  > .ql-toolbar {
-    background: white;
+.form-element.focus,
+.detail-header.editor .form-element.focus {
+  > .editor-block {
+    > label,
+    > .ql-toolbar {
+      background: white;
+    }
+
+    > label {
+      color: $primary-color;
+    }
+  }
+}
+
+.form-element:hover,
+.detail-header.editor .form-element:hover {
+  > .editor-block {
+    > label {
+      color: $primary-color;
+    }
   }
 }
 
@@ -21,6 +37,7 @@ $fa-font-path: '/assets';
   > label {
     order: 5;
     padding: 0 0 0 1rem;
+    transition: color ease-in-out 0.25s;
   }
 
   .ql-container.ql-snow {
@@ -188,7 +205,7 @@ $fa-font-path: '/assets';
     display: flex;
     flex: auto;
     background: $light-gray;
-    border-bottom: 1px solid rgba($dark-gray, 0.3);
+    border-bottom: 1px solid $light-gray;
     align-items: center;
     position: sticky;
     top: 55px;

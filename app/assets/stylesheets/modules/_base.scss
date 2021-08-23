@@ -756,6 +756,7 @@ footer {
           color: $black;
         }
         &:hover,
+        &.focus,
         &:focus {
           > .translated {
             color: $black;
@@ -778,6 +779,7 @@ footer {
       }
 
       &:focus,
+      &.focus,
       &:hover {
         > label,
         > .translated {

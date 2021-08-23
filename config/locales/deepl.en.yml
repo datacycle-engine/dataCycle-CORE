@@ -631,6 +631,7 @@ en:
     save_without_send: Save (no e-mail dispatch)
     finalize: Complete processing
     finalize_agbs_text: Terms & Conditions
+    finalize_combined_html: '%{finalize} and accept %{agbs}'
     copy_to_clipboard: Copy to clipboard
     copied_to_clipboard: Copied to clipboard.
     save: Save
