@@ -1,0 +1,114 @@
+version: '3.8'
+services:
+  postgres:
+    image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.1'
+    environment:
+      - ALLOW_IP_RANGE=0.0.0.0/0
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    command: /tmp/postgres/setup-postgres.sh
+    ports:
+      - ${PUBLIC_POSTGRES_PORT:-5432}:5432
+    shm_size: 8gb
+    volumes:
+      - ./docker/postgres/postgresql.conf:/etc/postgresql.conf
+      - ./docker/setup-postgres.sh:/tmp/postgres/setup-postgres.sh
+      - ${PWD}/config/configurations/ts_search:/tmp/postgres/ts_search
+  mongodb:
+    # @todo add mongodb conf
+    image: 'mvertes/alpine-mongo:4.0.6-1'
+    ports:
+      - '${PUBLIC_MONGODB_PORT:-27017}:27017'
+  web:
+    build:
+      context: ${PWD}
+      dockerfile: ${COMPOSE_WEB_DOCKER_FILE:-./vendor/gems/data-cycle-core/Dockerfile}
+    env_file:
+      - ${PWD}/.env.deploy
+    environment:
+      - RAILS_ENV=${RAILS_ENV}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_VERSION=${POSTGRES_VERSION}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - MONGODB_HOST=mongodb
+      - ALLOW_IP_RANGE=172.18.0.0/12
+      - TZ=Europe/Vienna
+      - MAILHOG_HOST=mailhog
+      - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
+      - APP_PROTOCOL=${APP_PROTOCOL:-http}
+      # @todo check app_host for local dev
+      - APP_HOST=${APP_HOST:-localhost}
+      - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
+      - SSH_AUTH_SOCK=/ssh-agent
+      - HISTFILE=/root/hist/.bash_history
+      # @todo obsolete VITE_RUBY_* settings ?
+      - VITE_RUBY_HOST=0.0.0.0
+      - VITE_RUBY_PORT=${PUBLIC_VITE_PORT:-3036}
+    ports:
+      # @todo remove obsolete port for production: run vite rake task
+      - '${PUBLIC_VITE_PORT:-3036}:${PUBLIC_VITE_PORT:-3036}'
+    command:
+      # @todo add setup.production.sh + rake vite:build
+      - ${COMPOSE_WEB_COMMAND:-./vendor/gems/data-cycle-core/docker/setup.sh}
+    volumes:
+      - 'gems:/gems'
+      - '${PWD}:/var/www/app'
+      - $SSH_AUTH_SOCK:/ssh-agent
+      - ${PWD}/docker/hist:/root/hist
+      - node-modules:/var/www/app/node_modules
+    user: root
+    links:
+      - postgres
+      - mongodb
+    stdin_open: true
+    tty: true
+  mailhog:
+    image: yappabe/mailhog
+    environment:
+      DNSDOCK_ALIAS: localhost
+    ports:
+      - '${PUBLIC_MAILHOG_PORT:-1025}:8025'
+  redis:
+    # @todo add redis config file
+    image: 'redis:latest'
+    command: redis-server
+    volumes:
+      - 'redis:/data'
+    ports:
+      - '${PUBLIC_REDIS_PORT:-6379}:6379'
+  nginx:
+    image: nginx:1.19.4-alpine
+    ports:
+      # @todo: obsolete PUBLIC_NGINX_HTTP_PORT ?
+      # - '${PUBLIC_NGINX_HTTP_PORT:-80}:80'
+      - '${PUBLIC_APPLICATION_PORT:-3003}:${PUBLIC_APPLICATION_PORT:-3003}'
+    env_file:
+      - ${PWD}/.env.deploy
+    environment:
+      - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
+      - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
+      - PUBLIC_IMGPROXY_PORT=${PUBLIC_IMGPROXY_PORT:-9000}
+    volumes:
+      - '${PWD}:/var/www/app'
+      - './docker/nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template'
+    links:
+      - web
+      - imgproxy
+  imgproxy:
+    image: darthsim/imgproxy
+    env_file:
+      - ${PWD}/.env.deploy
+    environment:
+      PORT: '${PUBLIC_IMGPROXY_PORT:-9000}'
+    ports:
+      # @todo remove exposed imgrpoxy port
+      - '${PUBLIC_IMGPROXY_PORT:-9000}:${PUBLIC_IMGPROXY_PORT:-9000}'
+volumes:
+  gems:
+  redis:
+  nginx:
+  node-modules:
