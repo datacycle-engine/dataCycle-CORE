@@ -23,7 +23,7 @@ module DataCycleCore
         }
 
         assert_redirected_to thing_path(@content)
-        assert_equal I18n.t('feature.named_version.version_name_removed', locale: DataCycleCore.ui_language), flash[:notice]
+        assert_equal I18n.t('feature.named_version.version_name_removed', locale: DataCycleCore.ui_locales.first), flash[:notice]
         assert_nil @content.reload.version_name
       end
 
@@ -40,7 +40,7 @@ module DataCycleCore
         }
 
         assert_redirected_to thing_path(@content)
-        assert_equal I18n.t('feature.named_version.version_name_removed', locale: DataCycleCore.ui_language), flash[:notice]
+        assert_equal I18n.t('feature.named_version.version_name_removed', locale: DataCycleCore.ui_locales.first), flash[:notice]
         assert_nil history_entry.reload.version_name
         assert_equal version_name, @content.reload.version_name
       end

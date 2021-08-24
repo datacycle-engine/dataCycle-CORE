@@ -91,10 +91,11 @@ module DataCycleCore
             reload
             after_save_data_hash(options)
           else
-            valid_hash[:warning] = I18n.t('controllers.warning.no_changes', locale: DataCycleCore.ui_language)
+            valid_hash[:warning] = I18n.t('controllers.warning.no_changes', locale: options.ui_locale)
           end
         end
-        valid_hash
+
+        DataCycleCore::LocalizationService.localize_validation_errors(valid_hash, options.ui_locale)
       end
 
       def set_computed_values(data_hash:) # rubocop:disable Naming/AccessorMethodName
@@ -128,16 +129,26 @@ module DataCycleCore
         end
       end
 
-      def execute_update_webhooks
-        Webhook::Update.execute_all(self)
+      def execute_create_webhooks
+        DataCycleCore::WebhooksJob.perform_later(
+          id,
+          self.class.name,
+          'create',
+          WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.merge(webhook_data: webhook_data.to_h).compact
+        )
       end
 
-      def execute_create_webhooks
-        Webhook::Create.execute_all(self)
+      def execute_update_webhooks
+        DataCycleCore::WebhooksJob.perform_later(
+          id,
+          self.class.name,
+          'update',
+          WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.merge(webhook_data: webhook_data.to_h).compact
+        )
       end
 
       def execute_delete_webhooks
-        Webhook::Delete.execute_all(self)
+        DataCycleCore::Webhook::Delete.execute_all(self)
       end
 
       def validate(data, schema_hash = nil, strict = false, add_defaults = false, current_user = nil)

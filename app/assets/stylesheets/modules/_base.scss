@@ -92,10 +92,6 @@ button,
   padding-bottom: 400px;
 }
 
-.no-edit-bar {
-  padding-top: 3.5rem;
-}
-
 .form-element {
   position: relative;
 
@@ -125,17 +121,15 @@ button,
 }
 
 .edit-header {
+  position: sticky;
+  top: 0;
+  z-index: 1006;
+  width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
   background-color: lighten($primary-color, 50%);
   height: 3.5rem;
   line-height: 3.5rem;
-
-  &.fix-edit-bar {
-    position: fixed;
-    width: 100%;
-    z-index: 1006;
-    top: 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
 
   .edit-name {
     color: $primary-color;
@@ -615,46 +609,20 @@ footer {
     z-index: 12;
     color: rgba($dark-gray, 50%);
     transition: color ease-in-out 0.25s;
-
-    &.fixed-toolbar {
-      position: fixed;
-      top: 55px;
-      left: 2rem;
-      z-index: 13;
-    }
-
-    &.fixed-split-toolbar {
-      position: fixed;
-      top: 182px;
-      left: 52%;
-      z-index: 13;
-    }
   }
 
   .translated + label {
     left: 2.3rem;
   }
-  .translated + label.fixed-toolbar {
-    left: 2.3rem;
-  }
-  .translated + label.fixed-split-toolbar {
-    left: 53%;
-  }
 
   .focus {
-    .ql-disabled {
-      .ql-editor {
-        background: $light-gray;
-
-        &:focus {
-          background: $light-gray;
-        }
-      }
+    .editor-block.disabled {
+      background: $light-gray;
     }
   }
 
   input,
-  .ql-editor,
+  .editor-block,
   .daterange,
   .embedded_object:not(.publication_schedule),
   .detail_object,
@@ -692,19 +660,17 @@ footer {
   }
 
   .form-element.release_status_comment {
-    .ql-editor {
+    .editor-block {
       background-color: white;
+
+      > label,
+      > .ql-toolbar {
+        background-color: white;
+      }
     }
   }
 
-  .form-element.focus > .editor-block > .ql-toolbar.fixed-toolbar,
-  .form-element.focus > .editor-block > .ql-toolbar.fixed-split-toolbar {
-    background: white;
-    border-right: 1px solid $primary-color;
-    border-left: 1px solid $primary-color;
-  }
-
-  .form-element.focus > .editor-block > .quill-editor > .ql-editor {
+  .form-element.focus > .editor-block {
     border-color: $primary-color;
     background: white;
   }
@@ -726,18 +692,6 @@ footer {
       top: 0.7rem;
       color: $dark-gray;
       line-height: 1.5;
-
-      &.fixed-toolbar {
-        position: fixed;
-        top: 62px;
-        z-index: 13;
-      }
-      &.fixed-split-toolbar {
-        position: fixed;
-        top: 190px;
-        left: 52%;
-        z-index: 13;
-      }
     }
 
     .validation-container {
@@ -802,6 +756,7 @@ footer {
           color: $black;
         }
         &:hover,
+        &.focus,
         &:focus {
           > .translated {
             color: $black;
@@ -824,6 +779,7 @@ footer {
       }
 
       &:focus,
+      &.focus,
       &:hover {
         > label,
         > .translated {
@@ -900,66 +856,6 @@ footer {
 
 .tooltip.classification {
   max-width: 20rem;
-}
-
-.editor-block {
-  position: relative;
-
-  .ql-toolbar {
-    position: absolute;
-    z-index: 12;
-    right: 0;
-    border: 0;
-
-    .ql-formats {
-      margin-right: 0;
-    }
-
-    &.fixed-toolbar,
-    &.fixed-split-toolbar {
-      background: $light-gray;
-      position: fixed;
-      border-right: 1px solid $light-gray;
-      border-left: 1px solid $light-gray;
-      box-shadow: 0 1px 0 $dark-gray;
-      text-align: right;
-
-      .ql-formats {
-        text-align: left;
-      }
-    }
-
-    &.fixed-toolbar {
-      top: 55px;
-      right: 1rem;
-      width: calc(100% - 2rem);
-    }
-
-    &.fixed-split-toolbar {
-      top: 182px;
-      right: 2rem;
-      width: calc(50% - 3rem);
-    }
-  }
-
-  .ql-editor {
-    padding-top: 2.5rem;
-    padding-bottom: 2rem;
-    font-size: 1rem;
-    min-height: 8rem;
-
-    p:not(:last-child) {
-      margin-bottom: 0.5rem;
-    }
-  }
-
-  .ql-container.ql-snow {
-    border: 0;
-  }
-
-  .ql-tooltip {
-    z-index: 21;
-  }
 }
 
 .edit-header-functions {
@@ -1489,16 +1385,27 @@ body .v-select {
           margin: 0;
         }
         .editor-block {
-          box-shadow: inset 0 1px 2px rgba($black, 0.1);
-          border: 1px solid $medium-gray;
+          background-color: white;
+
           .ql-editor {
-            padding-bottom: 0.7rem;
-            padding-top: 2.1rem;
+            box-shadow: inset 0 1px 2px rgba($black, 0.1);
+            border: 1px solid $medium-gray;
           }
-          .ql-toolbar {
-            .ql-formats:last-child {
-              margin-right: 0;
-            }
+
+          > label {
+            padding-left: 0;
+          }
+
+          > .ql-toolbar {
+            padding-bottom: 0;
+          }
+
+          > label,
+          > .ql-toolbar {
+            align-items: flex-end;
+            height: 2rem;
+            background-color: white;
+            border: none;
           }
         }
         &.linked {
@@ -1524,7 +1431,7 @@ body .v-select {
           }
         }
         &.focus {
-          .editor-block,
+          .editor-block .ql-editor,
           .select2 {
             border: 1px solid $dark-gray;
             box-shadow: 0 0 5px $medium-gray;

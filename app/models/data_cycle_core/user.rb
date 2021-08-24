@@ -151,16 +151,16 @@ module DataCycleCore
       @ability ||= DataCycleCore::Ability.new(self)
     end
 
-    def execute_create_webhooks
-      Webhook::Create.execute_all(self)
+    def execute_update_webhooks
+      DataCycleCore::WebhooksJob.perform_later(id, self.class.name, 'update')
     end
 
-    def execute_update_webhooks
-      Webhook::Update.execute_all(self)
+    def execute_create_webhooks
+      DataCycleCore::WebhooksJob.perform_later(id, self.class.name, 'create')
     end
 
     def execute_delete_webhooks
-      Webhook::Delete.execute_all(self)
+      DataCycleCore::Webhook::Delete.execute_all(self)
     end
   end
 end

@@ -9,10 +9,10 @@ body {
   flex: auto;
   display: flex;
   flex-flow: column;
+  overflow: unset;
 }
 
 .off-canvas-content {
-  overflow: hidden;
   flex: auto;
   display: flex;
   flex-flow: column nowrap;

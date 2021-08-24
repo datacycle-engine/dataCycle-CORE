@@ -41,7 +41,10 @@ module DataCycleCore
             }.reduce({}, :merge).each do |folder_id, path|
               doc = load_assets(folder_id)
               doc.xpath('//mediaasset').map(&:to_hash).each do |raw_asset_data|
-                next if raw_asset_data.dig('mediaassettype', 'text') != '501'
+                # 501 images
+                # 502 documents (pdf, doc ...)
+                # 503 video / audio
+                next unless raw_asset_data.dig('mediaassettype', 'text').in?(['501', '503'])
                 next if raw_asset_data.dig('main_permalink', '#cdata-section').blank?
                 next if raw_asset_data.dig('quality_512', 'permalink', '#cdata-section').blank?
 

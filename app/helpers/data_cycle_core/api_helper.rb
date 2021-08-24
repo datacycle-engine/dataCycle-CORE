@@ -188,58 +188,14 @@ module DataCycleCore
       [
         'https://schema.org/',
         {
-          '@base' => api_v4_universal_url(id: nil),
+          '@base' => api_v4_universal_url(id: nil) + '/',
           '@language' => display_language,
           'skos' => 'https://www.w3.org/2009/08/skos-reference/skos.html#',
           'dct' => 'http://purl.org/dc/terms/',
           'cc' => 'http://creativecommons.org/ns#',
           'dc' => 'https://schema.datacycle.at/',
           'dcls' => schema_url + '/',
-          'odta' => 'https://ds.sti2.org/',
-          'dc:entityUrl' => {
-            '@id' => 'https://schema.datacycle.at/entityUrl',
-            '@type' => '@id'
-          },
-          'dc:classification' => {
-            '@id' => 'https://schema.datacycle.at/classification',
-            '@container' => '@set'
-          },
-          'dc:hasConcept' => {
-            '@id' => 'https://schema.datacycle.at/hasConcept',
-            '@type' => '@id'
-          },
-          'dc:additionalInformation' => {
-            '@id' => 'https://schema.datacycle.at/additionalInformation',
-            '@container' => '@set'
-          },
-          'dc:linkedThing' => {
-            '@id' => 'https://schema.datacycle.at/linkedThing',
-            '@container' => '@set'
-          },
-          'dc:isLinkedTo' => {
-            '@id' => 'https://schema.datacycle.at/isLinkedTo',
-            '@container' => '@set'
-          },
-          'dc:multilingual' => {
-            '@id' => 'https://schema.datacycle.at/multilingual',
-            '@container' => '@set'
-          },
-          'dc:translation' => {
-            '@id' => 'https://schema.datacycle.at/translation',
-            '@container' => '@set'
-          },
-          'dc:order' => {
-            '@id' => 'https://schema.org/position',
-            '@type' => 'https://schema.org/Number'
-          },
-          'dc:totalNumberOfBeds' => {
-            '@id' => 'https://schema.org/numberOfBedrooms',
-            '@type' => 'https://schema.org/Number'
-          },
-          'dc:slug' => {
-            '@id' => 'https://schema.datacycle.at/slug',
-            '@type' => 'https://schema.org/url'
-          }
+          'odta' => 'https://ds.sti2.org/'
         }.compact
       ]
     end

@@ -28,7 +28,21 @@ module DataCycleCore
             return Time.zone.today <= valid_to.to_date if valid_to.blank? == false
             return Time.zone.today >= valid_from.to_date if valid_from.blank? == false
           end
+
           true
+        end
+
+        def to_select_option(template_filter = false, locale = DataCycleCore.ui_locales.first)
+          DataCycleCore::Filter::SelectOption.new(
+            id,
+            ActionController::Base.helpers.safe_join([
+              template_filter ? nil : ActionController::Base.helpers.tag.b(translated_template_name(locale)) + ': ',
+              I18n.with_locale(first_available_locale) { title },
+              " (#{translated_locales.join(', ')})"
+            ].compact),
+            "#{template_name.underscore_blanks} #{schema.dig('schema_type').underscore_blanks}",
+            "#{"#{template_name}: " unless template_filter}#{I18n.with_locale(first_available_locale) { title }} (#{translated_locales.join(', ')})"
+          )
         end
       end
     end

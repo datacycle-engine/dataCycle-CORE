@@ -14,6 +14,16 @@ module DataCycleCore
           )
         end
 
+        def self.process_video(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Eyebase::Transformations.to_video(utility_object.external_source.id),
+            default: { template: 'Video' },
+            config: config
+          )
+        end
+
         def self.process_organization(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,

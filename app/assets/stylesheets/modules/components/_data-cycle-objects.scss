@@ -50,6 +50,15 @@
         position: relative;
         overflow: unset;
       }
+
+      .content-location-name {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        white-space: nowrap;
+        font-weight: bold;
+      }
     }
   }
 

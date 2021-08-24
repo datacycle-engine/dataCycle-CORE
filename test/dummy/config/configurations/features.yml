@@ -53,6 +53,7 @@
   :enabled: true
 
 :advanced_filter:
+  :external_system: true
   :boolean:
     - duplicate_candidates
   :geo_filter:

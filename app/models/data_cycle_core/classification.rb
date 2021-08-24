@@ -48,13 +48,13 @@ module DataCycleCore
     end
 
     def ancestors
-      Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 5.days + Random.rand(2.5.days)) do
+      Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 5.days + Random.rand(2.5.days), race_condition_ttl: 60.seconds) do
         [primary_classification_alias] + primary_classification_alias.ancestors
       end
     end
 
     def descendants
-      Rails.cache.fetch("#{cache_key}/descendants", expires_in: 5.days + Random.rand(2.5.days)) do
+      Rails.cache.fetch("#{cache_key}/descendants", expires_in: 5.days + Random.rand(2.5.days), race_condition_ttl: 60.seconds) do
         primary_classification_alias.try(:descendants).try(:to_a).try(:flatten)
           .try(:map, &:classifications).try(&:to_a).try(&:flatten) || []
       end

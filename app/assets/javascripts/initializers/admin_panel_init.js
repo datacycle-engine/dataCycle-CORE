@@ -1,7 +1,9 @@
+import I18n from '../components/i18n';
+
 export default function () {
-  $('.copy-to-admin-clipboard').on('click', function (event) {
+  $('.copy-to-admin-clipboard').on('click', async event => {
     event.preventDefault();
-    var text = $(this).closest('section.tabs-panel').find('pre code');
+    var text = $(event.currentTarget).closest('section.tabs-panel').find('pre code');
 
     if ($(text).data('json')) text = JSON.stringify($(text).data('json'));
     else text = $(text).html();
@@ -13,16 +15,15 @@ export default function () {
     document.execCommand('copy', false);
     inp.remove();
 
-    $(this).before('<span class="admin-clipboard-notice">In Zwischenablage kopiert.</span>');
-    setTimeout(
-      function () {
-        $(this)
-          .siblings('.admin-clipboard-notice')
-          .fadeOut('fast', function () {
-            $(this).remove();
-          });
-      }.bind(this),
-      1000
+    $(event.currentTarget).before(
+      `<span class="admin-clipboard-notice">${await I18n.translate('actions.copied_to_clipboard')}</span>`
     );
+
+    setTimeout(() => {
+      const $notice = $(event.currentTarget).siblings('.admin-clipboard-notice');
+      $notice.fadeOut('fast', () => {
+        $notice.remove();
+      });
+    }, 1000);
   });
 }

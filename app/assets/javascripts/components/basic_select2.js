@@ -1,4 +1,8 @@
+import Select2 from 'select2';
 import difference from 'lodash/difference';
+import i18nDe from '../helpers/select2_i18n_de';
+import i18nEn from '../helpers/select2_i18n_en';
+import DataCycle from './data_cycle';
 
 class BasicSelect2 {
   constructor(element) {
@@ -11,8 +15,28 @@ class BasicSelect2 {
       createTag: this.createTag.bind(this)
     };
     this.select2Object = null;
+    this.eventHandlers = {
+      reset: this.reset.bind(this),
+      import: this.import.bind(this),
+      destroy: this.destroy.bind(this),
+      suppressChange: this.suppressChangeEvent.bind(this)
+    };
   }
   init() {
+    if (!$.fn.select2) {
+      Select2($);
+      $.fn.select2.defaults.set('width', '100%');
+
+      switch (DataCycle.uiLocale) {
+        case 'de':
+          $.fn.select2.defaults.set('language', i18nDe);
+          break;
+        case 'en':
+          $.fn.select2.defaults.set('language', i18nEn);
+          break;
+      }
+    }
+
     this.initSelect2();
     this.initEventHandlers();
     this.initSpecificEventHandlers();
@@ -25,11 +49,11 @@ class BasicSelect2 {
     this.select2Object = this.$element.data('select2');
   }
   initEventHandlers() {
-    this.$element.closest('form').on('reset', this.reset.bind(this));
-    this.$element.closest('.form-element').on('dc:field:reset', this.reset.bind(this));
-    this.$element.on('dc:import:data', this.import.bind(this));
-    this.$element.on('dc:select:destroy', this.destroy.bind(this));
-    this.$element.parent().on('change', '.select2-search__field', this.suppressChangeEvent.bind(this));
+    this.$element.closest('form').on('reset', this.eventHandlers.reset);
+    this.$element.closest('.form-element').on('dc:field:reset', this.eventHandlers.reset);
+    this.$element.on('dc:import:data', this.eventHandlers.import);
+    this.$element.on('dc:select:destroy', this.eventHandlers.destroy);
+    this.$element.parent().on('change', '.select2-search__field', this.eventHandlers.suppressChange);
   }
   suppressChangeEvent(event) {
     event.stopPropagation();
@@ -39,10 +63,11 @@ class BasicSelect2 {
   }
   destroy(_event) {
     this.$element.select2('destroy');
-    this.$element.closest('form').off('reset');
-    this.$element.off('dc:import:data');
-    this.$element.off('dc:select:destroy');
-    this.$element.closest('.form-element').off('dc:field:reset');
+    this.$element.closest('form').off('reset', this.eventHandlers.reset);
+    this.$element.off('dc:import:data', this.eventHandlers.import);
+    this.$element.off('dc:select:destroy', this.eventHandlers.destroy);
+    this.$element.closest('.form-element').off('dc:field:reset', this.eventHandlers.reset);
+    this.$element.parent().off('change', '.select2-search__field', this.eventHandlers.suppressChange);
   }
   initSpecificEventHandlers() {}
   import(_event, data) {
@@ -81,14 +106,14 @@ class BasicSelect2 {
     if (this.select2Object && (container == undefined || $(container).hasClass('select2-selection__rendered')))
       this.select2Object.$selection.find('.select2-selection__rendered').prop('class', 'select2-selection__rendered');
 
-    if (data.class) {
-      $(container).addClass(data.class);
+    if (data.html_class) {
+      $(container).addClass(data.html_class);
     } else if (data.element) {
       $(container).addClass($(data.element).attr('class'));
     }
   }
   decorateResult(result) {
-    $(result).html(function (index, value) {
+    $(result).html(function (_index, value) {
       if (value != undefined) {
         var text = value.split(' &gt; ');
         text[text.length - 1] = '<span class="select2-option-title">' + text[text.length - 1] + '</span>';
@@ -99,7 +124,7 @@ class BasicSelect2 {
   removeTreeLabel(result) {
     if (!this.config.treeLabel) return;
 
-    $(result).html((index, value) => {
+    $(result).html((_index, value) => {
       if (value != undefined) {
         return value.replace(this.config.treeLabel + ' &gt; ', '');
       }

@@ -44,16 +44,21 @@ module DataCycleCore
           linked_key_translation = {}
           included_items&.each do |included_item|
             attribute_name = included_item.dig('attribute_name')
+            locale = included_item.except('included', 'attribute_name').keys.first
+            template_name = included_item.dig(locale, 'template_name')
             next if attribute_name.blank?
             next unless parent_template.property_names.include?(attribute_name)
             linked_key_translation[included_item.dig('attribute_name')] ||= {}
-            locale = included_item.except('included', 'attribute_name').keys.first
-            item = DataCycleCore::Generic::DcSync::Import.process_content(
-              utility_object: utility_object,
-              raw_data: included_item,
-              options: config || {}
-            )
-            linked_key_translation[attribute_name][included_item[locale]['id']] = item&.id
+            if DataCycleCore::Thing.find_by(template: true, template_name: template_name).blank?
+              linked_key_translation[attribute_name][included_item[locale]['id']] = []
+            else
+              item = DataCycleCore::Generic::DcSync::Import.process_content(
+                utility_object: utility_object,
+                raw_data: included_item,
+                options: config || {}
+              )
+              linked_key_translation[attribute_name][included_item[locale]['id']] = item&.id
+            end
           end
           linked_key_translation
         end
@@ -88,7 +93,7 @@ module DataCycleCore
 
         def self.handle_embedded(data, utility_object, config)
           return nil if data[I18n.locale.to_s].blank?
-          template = get_template(data)
+          template = get_template(data, 'embedded')
           return nil if template.blank?
           # treat linked
           linked_key_translation = process_included_items(utility_object, template, data.dig('included'), config)
@@ -106,9 +111,9 @@ module DataCycleCore
           embedded
         end
 
-        def self.get_template(data)
+        def self.get_template(data, content_type = ['entity', 'container'])
           locale = data.keys.except(['included', 'attribute_name']).first
-          DataCycleCore::Thing.find_by(template_name: data.dig(locale, 'template_name'), template: true)
+          DataCycleCore::Thing.find_by(template_name: data.dig(locale, 'template_name'), template: true, content_type: content_type)
         end
 
         def self.process_classifications(utility_object, template, classifications, exclude_trees)
@@ -130,6 +135,7 @@ module DataCycleCore
               translated_id = import_classification_path(external_source: utility_object.external_source, data: classification)
               classification_translation[classification_attribute_name][classification['id']] = translated_id
             end
+            classification_translation[classification_attribute_name].compact!
           end
           classification_translation
         end
@@ -233,9 +239,9 @@ module DataCycleCore
             )
           else
             primary_classification_alias = classification.primary_classification_alias
-            primary_classification_alias.attributes = alias_data.slice('name_i18n', 'description_i18n', 'uri')
-            primary_classification_alias.name_i18n = alias_data['name_i18n']&.slice(*I18n.available_locales.map(&:to_s))
-            primary_classification_alias.description_i18n = alias_data['description_i18n']&.slice(*I18n.available_locales.map(&:to_s))
+            primary_classification_alias.uri = primary_classification_alias.uri || alias_data['uri']
+            primary_classification_alias.name_i18n = (primary_classification_alias.name_i18n || {}).reverse_merge((alias_data['name_i18n']&.slice(*I18n.available_locales.map(&:to_s)) || {}))
+            primary_classification_alias.description_i18n = (primary_classification_alias.description_i18n || {}).reverse_merge((alias_data['description_i18n']&.slice(*I18n.available_locales.map(&:to_s)) || {}))
             primary_classification_alias.save!
 
             classification_tree = primary_classification_alias.classification_tree

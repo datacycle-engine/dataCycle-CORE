@@ -39,7 +39,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::JetTicket::Transformations.to_place(utility_object.external_source.id),
-            default: { template: 'Örtlichkeit' },
+            default: { template: 'POI' },
             config: config
           )
         end

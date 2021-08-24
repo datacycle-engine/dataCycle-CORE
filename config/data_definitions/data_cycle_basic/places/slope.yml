@@ -99,8 +99,7 @@
             :content_area: header
         :api:
           :name: 'odta:skiSlopeDifficulty'
-          :partial: enumeration
-          :type: 'odta:SkiSlopeDifficulty'
+          :partial: string
       :ski_slope_type:
         :label: Pistentyp
         :type: classification
@@ -110,8 +109,7 @@
             :content_area: header
         :api:
           :name: 'odta:skiSlopeType'
-          :partial: enumeration
-          :type: 'odta:SkiSlopeType'
+          :partial: string
       :ski_slope_condition:
         :label: Pistenqualität
         :type: classification
@@ -121,8 +119,7 @@
             :content_area: header
         :api:
           :name: 'odta:skiSlopeCondition'
-          :partial: enumeration
-          :type: 'odta:SkiSlopeCondition'
+          :partial: string
       :ski_lift_status:
         :label: Liftstatus
         :type: classification
@@ -131,9 +128,8 @@
           :show:
             :content_area: header
         :api:
-          naem: 'odta:skiSlopeStatus'
-          :partial: enumeration
-          :type: 'odta:OpeningStatus'
+          :name: 'odta:skiSlopeStatus'
+          :partial: string
       :linked_data:
         :type: mixin
         :name: linked_data

@@ -4,20 +4,8 @@ module DataCycleCore
   module Export
     module Generic
       module Functions
-        def self.filter(data:, external_system:, method_name:)
-          presence_check = external_system.config.dig('export_config', method_name, 'filter', 'presence') || external_system.config.dig('export_config', 'filter', 'presence')
-          presence_check = presence_check.is_a?(Hash) ? Array.wrap(presence_check.dig(data&.template_name)) : Array.wrap(presence_check)
-          template_names = Array.wrap(external_system.config.dig('export_config', method_name, 'filter', 'template_names') || external_system.config.dig('export_config', 'filter', 'template_names'))
-          external_system_names = Array.wrap(external_system.config.dig('export_config', method_name, 'filter', 'external_systems') || external_system.config.dig('export_config', 'filter', 'external_systems'))
-          classification_ids = Array.wrap(external_system.config.dig('export_config', method_name, 'filter', 'classifications') || external_system.config.dig('export_config', 'filter', 'classifications')).map { |f| DataCycleCore::ClassificationAlias.classification_for_tree_with_name(f['tree_label'], f['aliases']) }
-          tree_labels = Array.wrap(external_system.config.dig('export_config', method_name, 'filter', 'tree_labels') || external_system.config.dig('export_config', 'filter', 'tree_labels'))
-          data_tree_labels = data.classifications.classification_aliases.map(&:classification_tree_label).pluck(:name).uniq if tree_labels.present?
-
-          (presence_check.present? ? presence_check.all? { |p| data.try(p).present? } : true) &&
-            (template_names.present? ? data.template_name.in?(template_names) : true) &&
-            (classification_ids.present? ? classification_ids.all? { |c| data.classifications.map(&:id).include?(c) } : true) &&
-            (external_system_names.present? ? data.external_source&.identifier&.in?(external_system_names) : true) &&
-            (tree_labels.present? ? tree_labels.all? { |tree_label| tree_label.in?(data_tree_labels) } : true)
+        def self.filter(**args)
+          DataCycleCore::Export::Generic::Filter.filter(args)
         end
 
         def self.enqueue_webhook(data, webhook, external_system)

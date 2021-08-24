@@ -223,20 +223,17 @@ namespace :dc do
       puts "Successfully imported mongo DB #{file_name} from #{fetch(:rails_env)}"
     end
 
-    desc 'import remote db'
-    task :import_remote_db, [:history, :format] do |_, args|
+    desc 'import remote db (mode = review|activities|full)'
+    task :import_remote_db, [:mode, :format] do |_, args|
       dump_format = ensure_format(args.format)
+      mode = args.mode || 'review'
       dump_suffix = suffix_for_format(dump_format)
       local_rails_env = ENV.fetch('RAILS_ENV', 'development')
 
       on roles(:all) do
         within release_path do
           with rails_env: fetch(:rails_env) do
-            if args[:history] == 'true'
-              execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[dev_db,#{dump_format},full]"
-            else
-              execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[dev_db,#{dump_format},review]"
-            end
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:dump[dev_db,#{dump_format},#{mode}]"
           end
         end
 

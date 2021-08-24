@@ -240,6 +240,12 @@ module DataCycleCore
       end
     end
 
+    def to_ical_string_api_v4
+      {
+        'dc:ical' => schedule_object&.to_ical
+      }.compact
+    end
+
     def to_sub_event
       return [] unless @schedule_object.terminating?
       @schedule_object.all_occurrences.map do |occurrence|
@@ -330,7 +336,7 @@ module DataCycleCore
             start_time = start_time.beginning_of_day
             s['duration'] = (end_time.beginning_of_day - start_time.beginning_of_day) + 1.day
           elsif end_time.present?
-            s['duration'] = time_to_duration(start_time.strftime('%H:%M'), end_time.strftime('%H:%M'))
+            s['duration'] = end_time - start_time
           end
 
           s['start_time'] = {

@@ -40,7 +40,7 @@
                             ]
                           }, @sort_params.presence&.first&.dig('m')
                       ),
-                      {:include_blank => I18n.t('sortable.default', default: 'default', locale: DataCycleCore.ui_language)}
+                      {:include_blank => I18n.t('sortable.default', default: 'default', locale: active_ui_locale)}
                   ) %>
       <span class="filter-sortable-checkbox-wrapper">
         <%= check_box nil,

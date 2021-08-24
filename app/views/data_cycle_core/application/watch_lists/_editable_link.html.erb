@@ -17,7 +17,7 @@
           remote: true,
           method: :delete,
           data: {
-            confirm: "Inhalt (#{I18n.with_locale(content&.first_available_locale){ content&.title }}) von<br>#{DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language)} (#{watch_list.name}) entfernen?",
+            confirm: "Inhalt (#{I18n.with_locale(content&.first_available_locale){ content&.title }}) von<br>#{DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale)} (#{watch_list.name}) entfernen?",
             disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-3x fa-fw')
           } do %>
           <i aria-hidden="true" class="fa fa-times-circle"></i>
@@ -29,7 +29,7 @@
           <i class="fa fa-plus-circle" aria-hidden="true"></i>
         <% end %>
       <% else %>
-        <i class="fa fa-exclamation-circle" title="<%= t('data_cycle_core.watch_list.locked_by_data_link', locale: DataCycleCore.ui_language) %>" aria-hidden="true"></i>
+        <i class="fa fa-exclamation-circle" title="<%= t('data_cycle_core.watch_list.locked_by_data_link', locale: active_ui_locale) %>" aria-hidden="true"></i>
       <% end %>
     </span>
   </span>

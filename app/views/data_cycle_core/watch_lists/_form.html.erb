@@ -6,15 +6,15 @@
 		<div class="row expanded">
 			<div class="column edit-header-functions">
 				<div class="edit-name">
-					<i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %> bearbeiten
+					<i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %> bearbeiten
 				</div>
 				<ul>
 					<li class="buttons">
             <%= link_to previous_authorized_crumb.url do %>
-							<button type="button" class="button discard top" title="<%= t('actions.discard_changes', locale: DataCycleCore.ui_language) %>"><i class="fa fa-times" aria-hidden="true"></i></button>
+							<button type="button" class="button discard top" title="<%= t('actions.discard_changes', locale: active_ui_locale) %>"><i class="fa fa-times" aria-hidden="true"></i></button>
             <% end if previous_authorized_crumb.present? %>
 
-            <button class="button-prime submit submit-edit-form" title="<%= t('actions.save_changes', locale: DataCycleCore.ui_language) %>" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"><i class="fa fa-check" aria-hidden="true"></i></button>
+            <button class="button-prime submit submit-edit-form" title="<%= t('actions.save_changes', locale: active_ui_locale) %>" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"><i class="fa fa-check" aria-hidden="true"></i></button>
 					</li>
 				</ul>
 
@@ -30,13 +30,13 @@
           <span class="icon">
               <i class="fa fa-folder-open" aria-hidden="true"></i>
           </span>
-          <span class="title"><%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %></span>
+          <span class="title"><%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %></span>
 				</div>
 
 				<div class="form-element input name validation-container">
           <%= f.label :full_path do %>
-            <%= DataCycleCore::WatchList.human_attribute_name(:full_path, locale: DataCycleCore.ui_language) %>
-            <%= tag.i '*', class: 'required-field-marker', title: t('common.required_field', locale: DataCycleCore.ui_language) %>
+            <%= DataCycleCore::WatchList.human_attribute_name(:full_path, locale: active_ui_locale) %>
+            <%= tag.i '*', class: 'required-field-marker', title: t('common.required_field', locale: active_ui_locale) %>
           <% end %>
 
           <%= f.text_field :full_path, data: { validate: 'text' } %>
@@ -45,7 +45,7 @@
         <% if can? :change_owner, content %>
           <div class="form-element">
             <div class="v-select">
-              <%= f.label :user_id, DataCycleCore::WatchList.human_attribute_name(:user_id, locale: DataCycleCore.ui_language) %>
+              <%= f.label :user_id, DataCycleCore::WatchList.human_attribute_name(:user_id, locale: active_ui_locale) %>
               <%= hidden_field_tag 'watch_list[user_id]', nil, id: 'hidden_watch_list_user_id' %>
               <%= select_tag('watch_list[user_id]', options_for_select(DataCycleCore::User.includes(:role).where.not(roles: { rank: 0 }).map { |c| [c.full_name, c.id, { title: c.email }] }, content.user&.id), { class: 'single-select', data: { allow_clear: false } }) %>
             </div>
@@ -54,14 +54,14 @@
 
 				<div class="form-element">
 					<div class="v-select">
-						<%= f.label :user_group_ids, DataCycleCore::WatchList.human_attribute_name(:user_group_ids, locale: DataCycleCore.ui_language) %>
+						<%= f.label :user_group_ids, DataCycleCore::WatchList.human_attribute_name(:user_group_ids, locale: active_ui_locale) %>
 						<%= f.collection_select(:user_group_ids, DataCycleCore::UserGroup.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
 					</div>
 				</div>
 
 				<div class="form-element">
 					<div class="v-select">
-						<%= f.label :user_ids, DataCycleCore::WatchList.human_attribute_name(:user_ids, locale: DataCycleCore.ui_language) %>
+						<%= f.label :user_ids, DataCycleCore::WatchList.human_attribute_name(:user_ids, locale: active_ui_locale) %>
             <%= hidden_field_tag 'watch_list[user_ids][]', nil, id: 'hidden_watch_list_user_ids' %>
             <%= select_tag('watch_list[user_ids][]', options_for_select(DataCycleCore::User.includes(:role).where.not(roles: { rank: 0 }).map { |c| [c.full_name, c.id, { title: c.email }] }, content.users.map(&:id)), { multiple: true, class: 'multi-select' }) %>
 					</div>

@@ -229,6 +229,12 @@
         :template_name: Skigebiet - Addon
         :api:
           :name: amenityFeature
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :contact_info:
+        :type: mixin
+        :name: contact_info
       :geo:
         :type: mixin
         :name: geo
