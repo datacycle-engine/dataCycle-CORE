@@ -38,6 +38,10 @@ $fa-font-path: '/assets';
     order: 5;
     padding: 0 0 0 1rem;
     transition: color ease-in-out 0.25s;
+
+    .translatable-attribute-icon {
+      margin-right: 0.3rem;
+    }
   }
 
   .ql-container.ql-snow {
