@@ -1337,15 +1337,12 @@ $filter-border: #aaa;
     margin-right: auto;
     border: 1px solid $light-gray;
 
-    > *:not(:last-child) {
+    b {
       margin-right: 0.3rem;
     }
 
-    .loading {
-      padding: 0;
-      .fa {
-        font-size: 1.3rem;
-      }
+    > *:not(:last-child) {
+      margin-right: 0.3rem;
     }
   }
 }

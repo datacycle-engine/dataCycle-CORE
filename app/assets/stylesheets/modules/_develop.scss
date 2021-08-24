@@ -2493,25 +2493,29 @@ input.normalized {
   }
 }
 
-.translated-attribute-container {
+.translatable-attribute-container {
   position: relative;
-  .translated-attribute {
+
+  .translatable-attribute {
     display: none;
+
     &.active {
       display: block;
     }
   }
 }
-.translated-attribute-locales {
+.available-attribute-locales {
   position: absolute;
   right: 3rem;
   top: 0.5rem;
   padding: 0.3rem 0;
-
-  .translated-attribute-locale {
-    &.active {
+}
+.attribute-locale-switcher {
+  .active {
+    .available-attribute-locale {
       color: $black;
       cursor: default;
+      pointer-events: none;
     }
   }
 }
@@ -3137,19 +3141,41 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 
-.remote-rendering {
-  &.accordion-content {
-    .loading {
-      padding: 1rem 0;
+@keyframes remote-render-animation {
+  0% {
+    background-position: right;
+  }
+}
+
+body {
+  .remote-render,
+  .remote-rendering {
+    min-height: 2.5rem;
+    background: linear-gradient(90deg, #f5f5f5 33%, darken($medium-gray, 5%) 50%, #f5f5f5 66%) #f5f5f5;
+    background-size: 300% 100%;
+    animation: remote-render-animation 1s infinite linear;
+
+    &.result-count {
+      min-height: 1rem;
+      min-width: 6rem;
     }
   }
+}
 
-  .loading .fa {
-    color: $light-gray;
+body {
+  .reveal {
+    > .remote-render,
+    > .remote-rendering {
+      min-height: 2.5rem;
+    }
   }
 }
 
 .remote-render-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
   text-align: center;
   color: $alert-color;
 

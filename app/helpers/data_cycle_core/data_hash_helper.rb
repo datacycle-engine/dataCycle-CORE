@@ -3,6 +3,7 @@
 module DataCycleCore
   module DataHashHelper
     INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']
+    ATTRIBUTE_FIELD_PREFIX = 'thing[datahash]'
 
     def object_from_definition(definition)
       return nil if definition.blank? || definition.dig('template_name').nil?
@@ -27,6 +28,35 @@ module DataCycleCore
       end
 
       Hash[ordered_properties.sort.map { |_, v| v }]
+    end
+
+    def render_translated_attribute(key:, locale:, definition:, content:, parameters: {}, value: nil)
+      I18n.with_locale(content.first_available_locale(locale)) do
+        render_attribute_editor key: key,
+                                definition: definition,
+                                value: value || content.try(key.attribute_name_from_key.to_sym),
+                                parameters: parameters,
+                                content: content
+      end
+    end
+
+    def render_translatable_attribute(content:, key:, prefix:, value:, definition:, parameters: {})
+      key = prefix + Array.wrap(key.is_a?(String) ? key.attribute_name_from_key : key).map { |k| "[#{k}]" if k != 'properties' }.join
+
+      if content.translatable? && content.translatable_property?(key.attribute_name_from_key, definition) && I18n.available_locales.many?
+        render 'data_cycle_core/contents/editors/translatable_field',
+               key: key,
+               value: value,
+               definition: definition,
+               parameters: parameters,
+               template: content
+      else
+        render_attribute_editor key: key,
+                                definition: definition,
+                                value: value,
+                                parameters: parameters,
+                                content: content
+      end
     end
 
     def to_html_string(title, text = '')

@@ -788,6 +788,28 @@ footer {
       }
     }
 
+    .translatable-attribute-container {
+      .translatable-attribute {
+        &.remote-render,
+        &.remote-rendering,
+        &.remote-render-failed {
+          height: 3rem;
+        }
+
+        &.remote-render-failed {
+          background: $light-gray;
+
+          > .remote-render-error {
+            padding: 0.5rem;
+          }
+        }
+      }
+
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+    }
+
     .bookmark {
       .detail-header-info {
         top: -2rem;
@@ -1276,7 +1298,7 @@ body .v-select {
         display: none;
       }
     }
-    fieldset.template.active ~ .translated-attribute-locales,
+    fieldset.template.active ~ .translatable-attribute-locales,
     fieldset.template.active ~ .form-thumbnail {
       display: none;
     }

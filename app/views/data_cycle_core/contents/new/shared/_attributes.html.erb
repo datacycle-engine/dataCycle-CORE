@@ -9,7 +9,7 @@
   <div class="form-element">
     <%= label_tag "#{local_assigns.dig(:options, :prefix)}thing_datahash_data_type", t('common.data_type', locale: active_ui_locale) %>
     <div class="v-select white">
-      <%= select_tag 'thing[datahash][data_type][]', options_for_select(data_types.map { |c|
+      <%= select_tag "#{DataCycleCore::DataHashHelper::ATTRIBUTE_FIELD_PREFIX}[data_type][]", options_for_select(data_types.map { |c|
         [
           c.name,
           c.primary_classification&.id,
@@ -67,6 +67,6 @@
 <% if template.content_type?('container') && DataCycleCore::Feature::LifeCycle.allowed?(template) %>
   <div class="form-element">
     <%= label_tag "#{local_assigns.dig(:options, :prefix)}thing_datahash_#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}", t('common.life_cycle', locale: active_ui_locale) %>
-    <%= select_tag "thing[datahash][#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}][]", options_for_select(DataCycleCore::Feature::LifeCycle.creatable_stages(template), DataCycleCore::Feature::LifeCycle.default_alias_id(template)), { id: "#{local_assigns.dig(:options, :prefix)}thing_datahash_#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}" } %>
+    <%= select_tag "#{DataCycleCore::DataHashHelper::ATTRIBUTE_FIELD_PREFIX}[#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}][]", options_for_select(DataCycleCore::Feature::LifeCycle.creatable_stages(template), DataCycleCore::Feature::LifeCycle.default_alias_id(template)), { id: "#{local_assigns.dig(:options, :prefix)}thing_datahash_#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}" } %>
   </div>
 <% end %>

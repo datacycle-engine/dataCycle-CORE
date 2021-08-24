@@ -3,7 +3,7 @@
 <%= form_with url: local_assigns[:form_url] || thing_path(content, watch_list_id: watch_list), local: true, method: :patch, class: 'validation-form edit-content-form', data: local_assigns[:form_data_attributes] do |f| %>
   <%= hidden_field_tag :uuid, content.id %>
   <%= hidden_field_tag :table, content.class.table_name %>
-  <%= hidden_field_tag 'thing[datahash][creator][]', content.created_by %>
+  <%= hidden_field_tag "#{DataCycleCore::DataHashHelper::ATTRIBUTE_FIELD_PREFIX}[creator][]", content.created_by %>
   <%= hidden_field_tag :locale, @locale %>
   <%= content_for :additional_form_fields %>
 
@@ -57,10 +57,18 @@
 
           <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
 
-          <% ordered_validation_properties(validation: content.schema).presence&.each do |key, prop| %>
-            <%= render_attribute_editor key: "#{key_prefix}[#{key}]", definition: prop, value: content.try(key.to_sym), parameters: { options: { }, hide_embedded: @hide_embedded }, content: content %>
-          <% end %>
-
+          <%
+            ordered_validation_properties(validation: content.schema).presence&.each do |key, prop|
+              concat render_translatable_attribute(
+                content: content,
+                key: key,
+                prefix: key_prefix,
+                value: content.try(key.to_sym),
+                definition: prop,
+                parameters: { options: {}, hide_embedded: @hide_embedded }
+              )
+            end
+          %>
         </div>
       </div>
     </div>

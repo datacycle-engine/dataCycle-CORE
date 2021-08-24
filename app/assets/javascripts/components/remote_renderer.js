@@ -102,10 +102,7 @@ class RemoteRenderer {
       }
     }
 
-    $(element)
-      .removeClass('remote-render remote-rendered remote-reload')
-      .addClass('remote-rendering')
-      .html(loadingIcon('show'));
+    $(element).removeClass('remote-render remote-rendered remote-reload').addClass('remote-rendering').empty();
 
     DataCycle.httpRequest({
       type: 'POST',
