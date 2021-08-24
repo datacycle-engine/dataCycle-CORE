@@ -4,7 +4,7 @@
 application_root = ENV['APPLICATION_ROOT']&.delete_suffix('/') || '/var/www/app'
 directory "#{application_root}/"
 rackup "#{application_root}/config.ru"
-environment 'development'
+environment ENV.fetch('RAILS_ENV', 'development')
 
 tag ''
 
