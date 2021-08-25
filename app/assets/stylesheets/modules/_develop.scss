@@ -3115,6 +3115,7 @@ button.button-prime.small.bulk-delete-button {
 .new-content-reveal .multi-step fieldset .form-element.daterange .conditional-form-field,
 .detail-header.editor .form-element .conditional-form-field {
   padding: 1rem;
+
   .conditional-field-selector {
     label {
       display: block;
@@ -3154,10 +3155,12 @@ body {
     background: linear-gradient(90deg, #f5f5f5 33%, darken($medium-gray, 5%) 50%, #f5f5f5 66%) #f5f5f5;
     background-size: 300% 100%;
     animation: remote-render-animation 1s infinite linear;
+    box-shadow: 0 0 1px $light-gray inset;
 
     &.result-count {
       min-height: 1rem;
       min-width: 6rem;
+      box-shadow: none;
     }
   }
 }

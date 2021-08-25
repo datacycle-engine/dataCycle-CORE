@@ -37,9 +37,7 @@
   <div class="map-info detail_object <%= 'linestring-info' if is_line_string %>">
     <div class="content-object-item">
       <span class="embedded-header">
-        <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
-        <%= yield_content!(:attribute_label) %>
-        <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
+        <%= attribute_edit_label_tag(key, definition, content, options) %>
       </span>
 
       <% if !is_line_string %>

@@ -19,7 +19,7 @@
         concat render_translatable_attribute(
           content: template,
           key: a_key,
-          prefix: DataCycleCore::DataHashHelper::ATTRIBUTE_FIELD_PREFIX,
+          prefix: DataCycleCore::EditorHelper::ATTRIBUTE_FIELD_PREFIX,
           value: a_key.first == 'name' ? local_assigns[:search_param] : nil,
           definition: a_definition,
           parameters: { options: { edit_scope: 'new' }.merge(local_assigns[:options] || {}) }

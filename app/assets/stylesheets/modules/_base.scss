@@ -92,6 +92,23 @@ button,
   padding-bottom: 400px;
 }
 
+label.attribute-edit-label {
+  display: flex;
+  align-items: center;
+
+  > *:not(:last-child) {
+    margin-right: 0.3rem;
+  }
+
+  > .dc-type-icon {
+    margin-right: 0;
+
+    &::before {
+      margin-right: 0.3rem;
+    }
+  }
+}
+
 .form-element {
   position: relative;
 
@@ -720,6 +737,10 @@ footer {
           position: relative;
           top: 0;
           left: 0;
+
+          &.attribute-edit-label {
+            display: inline-flex;
+          }
         }
       }
 
@@ -776,6 +797,10 @@ footer {
         left: 2rem;
         padding: 0;
         top: 0;
+
+        &.attribute-edit-label {
+          display: inline-flex;
+        }
       }
 
       &:focus,
@@ -793,15 +818,15 @@ footer {
         &.remote-render,
         &.remote-rendering,
         &.remote-render-failed {
-          height: 3rem;
+          min-height: 3rem;
         }
 
         &.remote-render-failed {
           background: $light-gray;
+        }
 
-          > .remote-render-error {
-            padding: 0.5rem;
-          }
+        > .remote-render-error {
+          min-height: 3rem;
         }
       }
 
@@ -867,10 +892,8 @@ footer {
         }
       }
 
-      .form-element .icon {
-        i:not(.fa-ban) {
-          display: none;
-        }
+      .form-element .dc-type-icon::before {
+        display: none;
       }
     }
   }

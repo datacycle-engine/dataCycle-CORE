@@ -1,5 +1,4 @@
 import uniqueId from 'lodash/uniqueId';
-import loadingIcon from '../templates/loadingIcon';
 
 class RemoteRenderer {
   constructor(selector) {
@@ -34,7 +33,7 @@ class RemoteRenderer {
 
     let remoteContainer = $(event.target).closest('.remote-render-failed');
     remoteContainer.addClass('remote-reload').removeClass('remote-render-failed');
-    this.loadRemotePartial(remoteContainer);
+    this.loadRemotePartial(remoteContainer, null, true);
   }
   reload(event, data) {
     event.stopPropagation();
@@ -79,7 +78,7 @@ class RemoteRenderer {
         this.loadRemotePartial(element);
       });
   }
-  loadRemotePartial(element, additionalParams = null) {
+  loadRemotePartial(element, additionalParams = null, clear = false) {
     let id = $(element).data('remote-render-id');
 
     if (id === undefined) {
@@ -102,8 +101,13 @@ class RemoteRenderer {
       }
     }
 
-    $(element).removeClass('remote-render remote-rendered remote-reload').addClass('remote-rendering').empty();
+    $(element).removeClass('remote-render remote-rendered remote-reload').addClass('remote-rendering');
 
+    if (clear) $(element).empty();
+
+    this.sendRequest(element, params);
+  }
+  sendRequest(element, params) {
     DataCycle.httpRequest({
       type: 'POST',
       url: '/remote_render',

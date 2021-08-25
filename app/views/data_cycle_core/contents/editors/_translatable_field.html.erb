@@ -7,7 +7,7 @@
         locale: a_locale,
         definition: definition,
         value: (I18n.locale == a_locale ? (local_assigns[:value]) : nil),
-        content: template
+        content: content
       ).to_json %>"
       data-remote-options="<%= to_query_params({ options: local_assigns[:options], disabled: true }).to_json %>">
     </div>
