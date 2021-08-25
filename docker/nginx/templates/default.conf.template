@@ -1,36 +1,36 @@
-proxy_cache_path /var/cache/nginx/data_cycle_develop
+proxy_cache_path /var/cache/nginx/data_cycle
   levels=1:2
-  keys_zone=data_cycle_develop:100m
+  keys_zone=data_cycle:100m
   inactive=1y
   max_size=100m;
-proxy_cache_path /var/cache/nginx/imgproxy_data_cycle_develop
+proxy_cache_path /var/cache/nginx/imgproxy_data_cycle
   levels=1:2
-  keys_zone=imgproxy_data_cycle_develop:10M
+  keys_zone=imgproxy_data_cycle:100M
   inactive=1y
-  max_size=1000M;
+  max_size=10G;
+
 # testing rate limit
 limit_req_zone $binary_remote_addr zone=req_zone:10m rate=100r/s;
 
-upstream self_data_cycle_develop {
+upstream self_data_cycle {
   server nginx:${PUBLIC_APPLICATION_PORT};
 }
 
 upstream docker-imgproxy {
-  server imgproxy:${PUBLIC_IMGPROXY_PORT};
+  server imgproxy:${IMGPROXY_PORT};
 }
 
-upstream puma_data_cycle_develop {
-  # server web:3000;
+upstream puma_data_cycle {
   server unix:${APPLICATION_ROOT}/tmp/sockets/puma.sock fail_timeout=0;
 }
 
 server {
-  listen ${PUBLIC_APPLICATION_PORT}; # managed by Certbot
+  listen ${PUBLIC_APPLICATION_PORT};
   listen [::]:${PUBLIC_APPLICATION_PORT};
 
-  server_name localhost;
+  server_name ${PUBLIC_APPLICATION_HOST};
   root ${APPLICATION_ROOT}/public;
-  try_files $uri/index.html $uri @puma_data_cycle_develop;
+  try_files $uri/index.html $uri @puma_data_cycle;
 
   client_max_body_size 4G;
   keepalive_timeout 90;
@@ -42,28 +42,28 @@ server {
   error_page 500 502 504 /500.html;
   error_page 503 @503;
 
-  location @puma_data_cycle_develop {
+  location @puma_data_cycle {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
 
     proxy_redirect off;
     proxy_read_timeout 300;
-    proxy_pass http://puma_data_cycle_develop;
-    # limit_req zone=one;
+    proxy_pass http://puma_data_cycle;
+
     access_log ${APPLICATION_ROOT}/log/nginx.access.log;
     error_log ${APPLICATION_ROOT}/log/nginx.error.log;
   }
 
   location ^~ /assets/ {
-    try_files $uri @puma_data_cycle_develop;
+    try_files $uri @puma_data_cycle;
     gzip_static on;
     expires max;
     add_header Cache-Control public;
   }
 
   location /cable {
-    proxy_pass http://puma_data_cycle_develop;
+    proxy_pass http://puma_data_cycle;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "Upgrade";
@@ -134,41 +134,41 @@ server {
   #  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
   #  proxy_set_header Host $http_host;
   #  proxy_set_header X-Forwarded-Proto $scheme;
-  #  proxy_pass http://self_data_cycle_develop/asset/$thing/$signature/$resize_type/800/600/$resize_enlarge/$resize_gravity/$filename.$type;
+  #  proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/800/600/$resize_enlarge/$resize_gravity/$filename.$type;
   #}
   location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/thumb\/(?<filename>(.*))\.(?<type>(jpe?g|png|webp|avif))$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass http://self_data_cycle_develop/asset/$thing/$signature/$resize_type/300/300/$resize_enlarge/$resize_gravity/$filename.$type;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/300/300/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
   location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/web\/(?<filename>(.*))\.(?<type>(jpe?g|png|webp|avif))$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass http://self_data_cycle_develop/asset/$thing/$signature/$resize_type/2048/2048/$resize_enlarge/$resize_gravity/$filename.$type;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/2048/2048/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
   location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/web_small\/(?<filename>(.*))\.(?<type>(jpe?g|png|webp|avif))$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass http://self_data_cycle_develop/asset/$thing/$signature/$resize_type/1500/1500/$resize_enlarge/$resize_gravity/$filename.$type;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/1500/1500/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
   location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/custom\/(?<width>\d+)\/(?<height>\d+)\/(?<filename>(.*))\.(?<type>(jpe?g|png|webp|avif))$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass http://self_data_cycle_develop/asset/$thing/$signature/$resize_type/$width/$height/$resize_enlarge/$resize_gravity/$filename.$type;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/$width/$height/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
   location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/format\/(?<filename>(.*))\.(?<type>(jpe?g|png|webp|avif))$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass http://self_data_cycle_develop/asset/$thing/$signature/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
   # get the image with original with and height
@@ -178,20 +178,19 @@ server {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass http://self_data_cycle_develop/asset/$thing/$signature/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/;
   }
 
   location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif)))?$"{
     limit_req zone=req_zone burst=100 nodelay;
 
-    set $rqUrl
-      "http://nginx:${PUBLIC_APPLICATION_PORT}/things/$thing/asset/content";
+    set $rqUrl "http://nginx:${PUBLIC_APPLICATION_PORT}/things/$thing/asset/content";
 
     # the filename is always ignored by the proxy to avoid DOS attachs. If required the name can be set via Content-Disposition header.
     # when no target type is set, the image will be processed with the source type
     proxy_pass http://docker-imgproxy/$signature/resize:$mode:$width:$height:$enlarge/gravity:$gravity/filename:$thing/plain/$rqUrl@$type;
 
-    proxy_cache imgproxy_data_cycle_develop;
+    proxy_cache imgproxy_data_cycle;
 
     # the filename is not used for key cache
     proxy_cache_key "$rqUrl$mode$width$height$enlarge$gravity$type";
@@ -222,11 +221,12 @@ server {
     limit_req zone=req_zone burst=100 nodelay;
 
     set $type "original";
-    set $proxyUrl "http://self_data_cycle_develop/things/$thing/asset/original";
+    set $proxyUrl "http://self_data_cycle/things/$thing/asset/original";
 
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
+
     proxy_pass $proxyUrl;
 
     proxy_intercept_errors on;
@@ -239,7 +239,7 @@ server {
     resolver 8.8.8.8 8.8.4.4;
 
     proxy_pass $saved_redirect_location;
-    proxy_cache imgproxy_data_cycle_develop;
+    proxy_cache imgproxy_data_cycle;
 
     proxy_cache_key "$proxyUrl$type";
 
