@@ -1,6 +1,5 @@
 body {
   background-color: $body-background;
-  border-top: 0.3rem solid $customercolor;
   --dropdown-arrow-left-offset: 0px;
 }
 
@@ -1800,7 +1799,7 @@ body.object-browser-overlay-open {
   }
   section.breadcrumb {
     position: fixed;
-    top: 4.1rem;
+    top: 4.4rem;
     left: 0;
     width: 100%;
     z-index: 1007;
