@@ -9,6 +9,9 @@ $fa-font-path: '/assets';
 .form-element.focus,
 .detail-header.editor .form-element.focus {
   > .editor-block {
+    background: white;
+    border-color: $primary-color;
+
     > label,
     > .ql-toolbar {
       background: white;
@@ -29,7 +32,8 @@ $fa-font-path: '/assets';
   }
 }
 
-.form-element .editor-block {
+.form-element .editor-block,
+.form-element.editor-block {
   position: relative;
   display: flex;
   flex-flow: row wrap;
@@ -223,10 +227,13 @@ $fa-font-path: '/assets';
   }
 }
 
-.split-content .form-element .editor-block {
-  > label,
-  > .ql-toolbar {
-    top: 0;
+.split-content,
+.ca-input {
+  .form-element .editor-block {
+    > label,
+    > .ql-toolbar {
+      top: 0;
+    }
   }
 }
 
