@@ -148,7 +148,7 @@ module DataCycleCore
       I18n.with_locale(params[:locale]) do
         @locale = I18n.locale
 
-        redirect_to(watch_list_path(@watch_list), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:edit, t) }
+        redirect_to(watch_list_path(@watch_list), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return unless @watch_list.things.all? { |t| can?(:edit, t) }
 
         render && return
       end
