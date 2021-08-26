@@ -313,15 +313,18 @@ footer {
     display: inline-block;
   }
 
-  > .title,
-  > .name input,
-  > .headline_external input,
-  > .headline input {
-    font-size: 2rem;
-    font-weight: 200;
-    padding: 0 5rem 0 5rem;
-    text-align: center;
-    position: relative;
+  > *,
+  > .translatable-attribute-container > .translatable-attribute > * {
+    &.title,
+    &.name input,
+    &.headline_external input,
+    &.headline input {
+      font-size: 2rem;
+      font-weight: 200;
+      padding: 0 5rem 0 5rem;
+      text-align: center;
+      position: relative;
+    }
   }
 
   .hidden-classifications {

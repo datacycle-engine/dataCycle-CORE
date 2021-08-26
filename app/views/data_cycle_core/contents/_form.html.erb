@@ -59,7 +59,7 @@
 
           <%
             ordered_validation_properties(validation: content.schema).presence&.each do |key, prop|
-              concat render_translatable_attribute(
+              concat render_attribute_editor(
                 content: content,
                 key: key,
                 prefix: key_prefix,

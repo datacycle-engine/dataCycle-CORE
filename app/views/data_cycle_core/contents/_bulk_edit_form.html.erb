@@ -59,15 +59,16 @@
               <%= f.collection_check_boxes "bulk_update[#{key}]", bulk_update_types(prop), :value, :text, { include_hidden: false  } %>
             </div>
 
-            <%= render_attribute_editor key: "#{key_prefix}[#{key}]",
-              definition: prop,
-              value: nil,
-              parameters: {
-                options: {
-                  edit_scope: 'bulk_edit'
-                }
-              },
-              content: content %>
+            <%= render_attribute_editor key: key,
+                                        prefix: key_prefix,
+                                        definition: prop,
+                                        value: nil,
+                                        parameters: {
+                                          options: {
+                                            edit_scope: 'bulk_edit'
+                                          }
+                                        },
+                                        content: content %>
           <% end %>
         </div>
       </div>

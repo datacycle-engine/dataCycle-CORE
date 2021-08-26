@@ -1,6 +1,7 @@
 /* todo: merge styles */
 /* Fixes for Firefox */
 .detail-header.editor {
+  > .translatable-attribute-container > .translatable-attribute > .form-element,
   > .form-element {
     &.headline,
     &.name,
@@ -2040,6 +2041,16 @@ select {
       .embedded-header {
         display: block;
         margin-bottom: 1rem;
+
+        label {
+          position: relative;
+          top: 0;
+          left: 0;
+          padding-top: 0;
+          font-size: inherit;
+          line-height: inherit;
+          color: inherit;
+        }
       }
 
       input {

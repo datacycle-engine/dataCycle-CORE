@@ -177,12 +177,14 @@ module DataCycleCore
         authorize!(:update, @content)
 
         object_params = content_params(@content.template_name)
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, @content.schema)
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
-        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true, version_name: object_params[:version_name])
+        valid = @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true)
 
-        if valid[:error].present?
-          flash[:error] = valid[:error]
+        binding.pry
+
+        if valid
+          flash[:error] = @content.errors.full_messages
           redirect_back(fallback_location: root_path)
           return
         end
@@ -316,9 +318,9 @@ module DataCycleCore
       data_hash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
 
       I18n.with_locale(translation_locale || validation_params[:locale]) do
-        valid = @object.validate(data_hash, nil, validation_params[:strict] == '1', true, current_user)
+        valid = @object.validate(data_hash: data_hash, strict: validation_params[:strict] == '1', add_defaults: true, current_user: current_user)
 
-        render json: DataCycleCore::LocalizationService.localize_validation_errors(valid, helpers.active_ui_locale).to_json
+        render json: valid.to_json
       end
     end
 

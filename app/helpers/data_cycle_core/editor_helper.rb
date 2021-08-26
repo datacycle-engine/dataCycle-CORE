@@ -55,6 +55,37 @@ module DataCycleCore
     def render_attribute_editor(**args)
       options = EditorOptions.new(**args)
 
+      options.key = Array.wrap(options.key.is_a?(String) ? options.key.attribute_name_from_key : options.key).map { |k| "[#{k}]" if k != 'properties' }.join.prepend(options.prefix.to_s)
+
+      if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values)
+        render_translatable_attribute_editor options.to_h
+      else
+        render_untranslatable_attribute_editor options.to_h
+      end
+    end
+
+    def render_translated_attribute(**args)
+      options = EditorOptions.new(**args)
+
+      I18n.with_locale(options.locale) do
+        options.value ||= options.content.try(options.key.attribute_name_from_key.to_sym)
+
+        render_untranslatable_attribute_editor options.to_h
+      end
+    end
+
+    def render_translatable_attribute_editor(**args)
+      options = EditorOptions.new(**args)
+
+      allowed = attribute_editor_allowed(options)
+      return allowed unless allowed.is_a?(TrueClass)
+
+      render 'data_cycle_core/contents/editors/translatable_field', options.to_h
+    end
+
+    def render_untranslatable_attribute_editor(**args)
+      options = EditorOptions.new(**args)
+
       allowed = attribute_editor_allowed(options)
       return allowed unless allowed.is_a?(TrueClass)
 
@@ -72,37 +103,6 @@ module DataCycleCore
       options.parameters[:options][:readonly] = !attribute_editable?(options.key, options.definition, options.parameters[:options], options.content)
       options.parameters[:options] = add_attribute_options(options.parameters[:options], options.definition, options.scope)
       render_first_existing_partial(partials, options.parameters.merge(options.to_h.slice(:key, :definition, :value, :content)))
-    end
-
-    def render_translated_attribute(**args)
-      options = EditorOptions.new(**args)
-
-      I18n.with_locale(options.locale) do
-        options.value ||= options.content.try(options.key.attribute_name_from_key.to_sym)
-
-        render_attribute_editor options.to_h
-      end
-    end
-
-    def render_translatable_editor(**args)
-      options = EditorOptions.new(**args)
-
-      allowed = attribute_editor_allowed(options)
-      return allowed unless allowed.is_a?(TrueClass)
-
-      render 'data_cycle_core/contents/editors/translatable_field', options.to_h
-    end
-
-    def render_translatable_attribute(**args)
-      options = EditorOptions.new(**args)
-
-      options.key = options.prefix + Array.wrap(options.key.is_a?(String) ? options.key.attribute_name_from_key : options.key).map { |k| "[#{k}]" if k != 'properties' }.join
-
-      if options.content.translatable? && options.content.translatable_property?(options.key.attribute_name_from_key, options.definition) && I18n.available_locales.many?
-        render_translatable_editor options.to_h
-      else
-        render_attribute_editor options.to_h
-      end
     end
   end
 end

@@ -16,7 +16,7 @@
 
         next unless a_definition.present?
 
-        concat render_translatable_attribute(
+        concat render_attribute_editor(
           content: template,
           key: a_key,
           prefix: DataCycleCore::EditorHelper::ATTRIBUTE_FIELD_PREFIX,

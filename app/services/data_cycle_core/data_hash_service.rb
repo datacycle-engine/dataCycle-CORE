@@ -6,7 +6,16 @@ module DataCycleCore
     extend NormalizeService
 
     def self.flatten_datahash_value(datahash, template_hash, debug = false)
-      datahash = flatten_recursive(datahash.to_h, template_hash)
+      datahash = datahash.to_h
+
+      if datahash.key?(:translations) || datahash.key?(:datahash)
+        datahash[:datahash] = flatten_recursive(datahash[:datahash], template_hash)
+        datahash[:translations].transform_values! do |locale_hash|
+          flatten_recursive(locale_hash, template_hash)
+        end
+      else
+        datahash = flatten_recursive(datahash, template_hash)
+      end
 
       raise datahash.inspect if debug == true
 
@@ -122,7 +131,6 @@ module DataCycleCore
           type = properties['type'] == 'computed' ? properties.dig('compute', 'type') : properties['type']
 
           if value.is_a?(::Hash)
-
             if type == 'embedded'
               object_properties = get_internal_template(properties['template_name'])
               temp_value = []

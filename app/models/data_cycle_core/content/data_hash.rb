@@ -66,7 +66,7 @@ module DataCycleCore
         end
 
         options.data_hash.deep_freeze # ensure data_hash doesn't get changed
-        valid_hash = validate(options.data_hash, partial_schema || schema)
+        valid_hash = validate(data_hash: options.data_hash, schema_hash: partial_schema || schema, current_user: options.current_user)
 
         if validate?(valid_hash)
           if diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
@@ -91,11 +91,47 @@ module DataCycleCore
             reload
             after_save_data_hash(options)
           else
-            valid_hash[:warning] = I18n.t('controllers.warning.no_changes', locale: options.ui_locale)
+            (valid_hash[:warning] ||= {})[:thing] = [I18n.t('controllers.warning.no_changes', locale: options.ui_locale)]
           end
         end
 
         DataCycleCore::LocalizationService.localize_validation_errors(valid_hash, options.ui_locale)
+      end
+
+      def set_data_hash_with_translations(**args)
+        options = DataCycleCore::Content::DataHashOptions.new(**args)
+        return {} if options.data_hash.blank? && !options.force_update
+
+        translations = options.data_hash[:translations]
+        locale = translations&.keys&.first || I18n.locale
+        datahash = (options.data_hash[:datahash] || {}).merge!(translations&.delete(locale.to_s) || {})
+        options.version_name = options.data_hash[:version_name]
+
+        I18n.with_locale(locale) do
+          valid = set_data_hash(options.to_h.merge(data_hash: datahash))
+
+          valid[:warning]&.each { |k, v| v.each { |e| warnings.add(k, e) } } if valid[:warning].present?
+
+          if valid[:error].present?
+            valid[:error].each { |k, v| v.each { |e| errors.add(k, e) } }
+            return false
+          end
+        end
+
+        translations&.each do |l, locale_hash|
+          I18n.with_locale(l) do
+            valid = set_data_hash(options.to_h.slice(:current_user, :save_time, :ui_locale).merge(data_hash: locale_hash, prevent_history: true, update_search_all: false, partial_update: true, invalidate_related_cache: false))
+
+            valid[:warning]&.each { |k, v| v.each { |e| warnings.add(k, e) } } if valid[:warning].present?
+
+            if valid[:error].present?
+              valid[:error].each { |k, v| v.each { |e| errors.add(k, e) } }
+              return false
+            end
+          end
+        end
+
+        true
       end
 
       def set_computed_values(data_hash:) # rubocop:disable Naming/AccessorMethodName
@@ -151,11 +187,12 @@ module DataCycleCore
         DataCycleCore::Webhook::Delete.execute_all(self)
       end
 
-      def validate(data, schema_hash = nil, strict = false, add_defaults = false, current_user = nil)
-        data = add_default_values(data_hash: data, current_user: current_user).dup if add_defaults && properties_with_default_values.present?
+      def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil)
+        data_hash = add_default_values(data_hash: data_hash, current_user: current_user).dup if add_defaults && properties_with_default_values.present?
 
         validator = DataCycleCore::MasterData::ValidateData.new(self)
-        validator.validate(data, schema_hash || schema, strict)
+
+        DataCycleCore::LocalizationService.localize_validation_errors(validator.validate(data_hash, schema_hash || schema, strict), current_user&.ui_locale || DataCycleCore.ui_locales.first)
       end
 
       def validate?(validation_hash)

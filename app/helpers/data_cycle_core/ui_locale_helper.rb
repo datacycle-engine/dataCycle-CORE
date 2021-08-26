@@ -34,10 +34,17 @@ module DataCycleCore
       ]]
     end
 
+    def attribute_translatable?(key, definition, content)
+      I18n.available_locales.many? &&
+      content&.translatable? &&
+      content&.translatable_property?(key.attribute_name_from_key, definition) &&
+      definition&.dig('type') != 'object'
+    end
+
     def attribute_edit_label_tag(key, definition, content, options)
       label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options), class: 'attribute-label-text'))
 
-      if content.try(:translatable_property?, key.attribute_name_from_key, definition) && content.translatable? && I18n.available_locales&.many?
+      if attribute_translatable?(key, definition, content)
         label_html.prepend(tag.i(class: 'fa fa-language translatable-attribute-icon'))
         label_html << tag.span("(#{I18n.locale})", class: 'attribute-locale')
       end
