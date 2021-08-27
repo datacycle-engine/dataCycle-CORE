@@ -5,6 +5,7 @@ import uniqWith from 'lodash/uniqWith';
 import unionWith from 'lodash/unionWith';
 import sortBy from 'lodash/sortBy';
 import collectionReject from 'lodash/reject';
+import isEmpty from 'lodash/isEmpty';
 
 class Validator {
   constructor(formElement) {
@@ -72,14 +73,17 @@ class Validator {
     this.requests = [this.validateItem(event.currentTarget)];
     this.resolveRequests(false, data);
   }
-  sortedFormData() {
-    return collectionReject(sortBy(uniqWith(this.form.serializeArray(), isEqual), ['name', 'value']), {
+  sortedFormData(formData) {
+    return collectionReject(sortBy(uniqWith(formData || this.form.serializeArray(), isEqual), ['name', 'value']), {
       name: 'authenticity_token'
     });
   }
-  pageLeaveHandler(event) {
+  updateSubmitFormData() {
     QuillHelpers.updateEditors(this.form);
     this.submitFormData = this.sortedFormData();
+  }
+  pageLeaveHandler(event) {
+    this.updateSubmitFormData();
 
     if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData)) {
       event.preventDefault();
@@ -91,10 +95,10 @@ class Validator {
     this.initialFormData = this.sortedFormData();
 
     $(window).on('beforeunload', this.eventHandlers.beforeunload);
+
     if (this.languageMenu.length) {
       this.languageMenu.on('click', '.list-items > li > a', async event => {
-        QuillHelpers.updateEditors(this.form);
-        this.submitFormData = this.sortedFormData();
+        this.updateSubmitFormData();
 
         if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData)) {
           event.preventDefault();
@@ -131,18 +135,18 @@ class Validator {
   }
   async validateAgbs(validationContainer) {
     let error = {
-      error: {},
-      warning: {}
+      valid: true,
+      errors: {},
+      warnings: {}
     };
     let agbs = $(validationContainer).find(':checkbox[name="accept_agbs"]');
     if (agbs.length && !agbs.prop('checked')) {
       const errorMessage = await I18n.translate('frontend.validate.agbs');
       $(validationContainer)
-        .append(await this.renderErrorMessage({ error: { agbs: [errorMessage] } }, validationContainer))
+        .append(await this.renderErrorMessage({ errors: { agbs: [errorMessage] } }, validationContainer))
         .addClass('has-error');
-      error.error = {
-        agbs: [errorMessage]
-      };
+      error.valid = false;
+      error.errors.agbs = [errorMessage];
     } else {
       this.removeSubmitButtonErrors(validationContainer);
     }
@@ -173,8 +177,8 @@ class Validator {
     if ($('#' + item_id).length != 0) return '';
     button_text = '<span id="button_' + item_id + '" class="tooltip-error">';
     out = "<span id='" + item_id + "' class='single_error'>";
-    for (let key in data.error) {
-      const errorMessage = Array.isArray(data.error[key]) ? data.error[key].join('<br>') : data.error[key];
+    for (let key in data.errors) {
+      const errorMessage = Array.isArray(data.errors[key]) ? data.errors[key].join('<br>') : data.errors[key];
 
       if (
         ($(validationContainer).data('id') && $(validationContainer).data('id').search(new RegExp(key, 'i')) != -1) ||
@@ -217,7 +221,7 @@ class Validator {
     if ($('#' + item_id).length != 0) return '';
     button_text = '<span id="button_' + item_id + '" class="tooltip-warning">';
     out = "<span id='" + item_id + "' class='single_warning'>";
-    for (let key in data.warning) {
+    for (let key in data.warnings) {
       if (
         ($(validationContainer).data('id') != undefined &&
           $(validationContainer).data('id').search(new RegExp(key, 'i')) != -1) ||
@@ -229,13 +233,13 @@ class Validator {
           '<strong>' +
           ($(item_label).text() || (await I18n.translate('frontend.validate.warning'))) +
           '</strong><br>' +
-          data.warning[key] +
+          data.warnings[key] +
           '<br>';
         out +=
           '<strong>' +
           ($(item_label).text() || (await I18n.translate('frontend.validate.warning'))) +
           '</strong> ' +
-          data.warning[key] +
+          data.warnings[key] +
           '</br>';
       }
     }
@@ -283,6 +287,9 @@ class Validator {
     $(validationContainer).removeClass('has-error');
     $(validationContainer).children('.single_warning').remove();
     $(validationContainer).removeClass('has-warning');
+
+    this.removeSubmitButtonErrors(validationContainer);
+    this.removeSubmitButtonWarnings(validationContainer);
   }
   findItemsForField(validationContainer) {
     let items = [];
@@ -293,34 +300,65 @@ class Validator {
     }
     return items;
   }
-  validateItem(validationContainer) {
+  formFieldChanged(newFieldData, translationLocale, submitFormaDataUpToDate) {
+    newFieldData = this.sortedFormData(newFieldData || []);
+    const key = newFieldData[0] && newFieldData[0].name;
+    let oldFieldData = [];
+    if (key) oldFieldData = this.initialFormData.filter(v => v.name.includes(key));
+
+    if (translationLocale) {
+      if (!submitFormaDataUpToDate) this.updateSubmitFormData();
+
+      if (this.submitFormData.filter(v => v.name.includes(`[${translationLocale}]`)).some(v => !isEmpty(v.value)))
+        return false;
+    }
+
+    return !isEqual(oldFieldData, newFieldData);
+  }
+  validateItem(validationContainer, submitFormaDataUpToDate = false) {
     this.resetField(validationContainer);
+
     if ($(validationContainer).hasClass('agbs')) {
       return this.validateAgbs(validationContainer);
     }
 
     let items = this.findItemsForField(validationContainer);
+
     if (!items.length) return;
-    let form_data = items.serializeArray();
-    if (form_data.length == 0) {
-      form_data.push({
+
+    let formData = items.serializeArray();
+    if (formData.length == 0) {
+      formData.push({
         name: items.prop('name')
       });
     }
-    let uuid = this.form.find(':input[name="uuid"]').val();
-    let locale = this.form.find(':input[name="locale"]').val() || this.form.find(':input[name="thing[locale]"]').val();
-    let table = this.form.find(':input[name="table"]').val() || 'things';
-    let url = `/${table}${uuid ? '/' + uuid : ''}/validate`;
-    let template = this.form.find(':input[name="template"]').val();
+
+    const translation = formData.find(v => v.name.includes('[translations]'));
+    let translationLocale;
+    if (translation) translationLocale = translation.name.match(/\[translations\]\[([\-a-zA-Z]+)\]/)[1];
+
+    if (!this.formFieldChanged(formData, translationLocale, submitFormaDataUpToDate))
+      return Promise.resolve({
+        valid: true
+      });
+
+    const uuid = this.form.find(':input[name="uuid"]').val();
+    const locale =
+      translationLocale ||
+      this.form.find(':input[name="locale"]').val() ||
+      this.form.find(':input[name="thing[locale]"]').val();
+    const table = this.form.find(':input[name="table"]').val() || 'things';
+    const url = `/${table}${uuid ? '/' + uuid : ''}/validate`;
+    const template = this.form.find(':input[name="template"]').val();
     if (template != undefined) {
-      form_data.push({
+      formData.push({
         name: 'template',
         value: template
       });
     }
 
-    if (locale != undefined) {
-      form_data.push({
+    if (locale) {
+      formData.push({
         name: 'locale',
         value: locale
       });
@@ -329,44 +367,37 @@ class Validator {
     return DataCycle.httpRequest({
       type: 'POST',
       url: url,
-      data: $.param(form_data),
+      data: $.param(formData),
       dataType: 'json'
     }).done(async data => {
       if (data != undefined) {
         if (
-          data.error &&
-          Object.keys(data.error).length > 0 &&
+          !data.valid &&
+          data.errors &&
+          Object.keys(data.errors).length > 0 &&
           items
             .filter('[id]')
             .first()
             .prop('id')
-            .search(new RegExp(Object.keys(data.error).join('|'), 'i')) != -1
+            .search(new RegExp(Object.keys(data.errors).join('|'), 'i')) != -1
         ) {
           $(validationContainer)
             .append(await this.renderErrorMessage(data, validationContainer))
             .addClass('has-error');
-        } else {
-          this.removeSubmitButtonErrors(validationContainer);
         }
-
         if (
-          data.warning &&
-          Object.keys(data.warning).length > 0 &&
+          data.warnings &&
+          Object.keys(data.warnings).length > 0 &&
           items
             .filter('[id]')
             .first()
             .prop('id')
-            .search(new RegExp(Object.keys(data.warning).join('|'), 'i')) != -1
+            .search(new RegExp(Object.keys(data.warnings).join('|'), 'i')) != -1
         ) {
           $(validationContainer)
             .append(await this.renderWarningMessage(data, validationContainer))
             .addClass('has-warning');
-        } else {
-          this.removeSubmitButtonWarnings(validationContainer);
         }
-      } else {
-        this.removeSubmitButtonErrors(validationContainer);
-        this.removeSubmitButtonWarnings(validationContainer);
       }
     });
   }
@@ -374,16 +405,16 @@ class Validator {
     if (event.detail && event.detail.dcFormSubmitted) return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    QuillHelpers.updateEditors(event.target);
+    this.updateSubmitFormData();
     this.removeSubmitButtonErrors();
     this.disable();
     this.requests = [];
 
     $(event.target)
-      .find('.validation-container:visible')
+      .find('.validation-container')
       .add(this.agbsCheck)
-      .each((i, elem) => {
-        this.requests.push(this.validateItem(elem));
+      .each((_i, elem) => {
+        this.requests.push(this.validateItem(elem, true));
       });
 
     this.resolveRequests($(event.target).is(this.form), data);
@@ -464,9 +495,10 @@ class Validator {
       values => {
         this.queryCount--;
         this.valid = true;
+
         let error = this.form.find('.single_error').first();
         values.filter(Boolean).forEach(validation => {
-          if (Object.keys(validation.error).length) this.valid = false;
+          if (!validation.valid) this.valid = false;
         });
         if (this.valid && submit) {
           this.queryCount = 0;

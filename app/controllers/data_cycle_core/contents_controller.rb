@@ -179,18 +179,16 @@ module DataCycleCore
         object_params = content_params(@content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, @content.schema)
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
-        valid = @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true)
+
+        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true)
+          flash[:error] = @content.errors.full_messages
+          redirect_back(fallback_location: root_path) && return
+        end
 
         binding.pry
 
-        if valid
-          flash[:error] = @content.errors.full_messages
-          redirect_back(fallback_location: root_path)
-          return
-        end
-
-        if valid[:warning].present?
-          flash[:info] = valid[:warning]
+        if @content.warnings.present?
+          flash[:info] = @content.warnings.full_messages
         else
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale
         end
@@ -313,14 +311,14 @@ module DataCycleCore
       authorize! :show, @object
 
       object_params = content_params(@object.template_name)
-      translation_locale = object_params[:translations]&.keys&.first
-      translation_values = object_params[:translations]&.dig(translation_locale) || {}
-      data_hash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, @object.schema)
+      locale, values = datahash[:translations]&.first
+      datahash = (datahash[:datahash] || {}).merge(values || {})
 
-      I18n.with_locale(translation_locale || validation_params[:locale]) do
-        valid = @object.validate(data_hash: data_hash, strict: validation_params[:strict] == '1', add_defaults: true, current_user: current_user)
+      I18n.with_locale(locale || validation_params[:locale]) do
+        @object.validate(data_hash: datahash, strict: validation_params[:strict] == '1', add_defaults: true, current_user: current_user)
 
-        render json: valid.to_json
+        render json: @object.validation_messages_as_json.to_json
       end
     end
 
