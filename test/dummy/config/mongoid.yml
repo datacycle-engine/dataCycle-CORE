@@ -31,7 +31,7 @@ review:
     default:
       database: data_cycle_review
       hosts:
-        - 127.0.0.1:27017
+        - <%= ENV["MONGODB_HOST"] || "127.0.0.1" %>:27017
       options:
         read:
           mode: :primary
@@ -42,7 +42,7 @@ staging:
     default:
       database: data_cycle_staging
       hosts:
-        - 127.0.0.1:27017
+        - <%= ENV["MONGODB_HOST"] || "127.0.0.1" %>:27017
       options:
         read:
           mode: :primary
@@ -53,7 +53,7 @@ production:
     default:
       database: data_cycle_production
       hosts:
-        - 127.0.0.1:27017
+        - <%= ENV["MONGODB_HOST"] || "127.0.0.1" %>:27017
       options:
         read:
           mode: :primary
@@ -64,7 +64,7 @@ pre_release:
     default:
       database: data_cycle_prerelease
       hosts:
-        - 127.0.0.1:27017
+        - <%= ENV["MONGODB_HOST"] || "127.0.0.1" %>:27017
       options:
         read:
           mode: :primary
