@@ -256,22 +256,22 @@ module DataCycleCore
           errors: @watch_list.errors.messages
         }
       else
+        render(json: { warning: { content: ['content not found'] } }) && return if params[:thing].blank?
+
         @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
         @shared_template_features = @watch_list.things.shared_template_features
+        @object = helpers.generic_content(@shared_template_features, @shared_properties)
 
-        render json: { warning: { content: ['content not found'] } } && return if params[:thing].blank?
+        object_params = content_params(@object.schema)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, @object.schema)
+        locale, values = datahash[:translations]&.first
+        datahash = (datahash[:datahash] || {}).merge(values || {})
 
-        template_hash = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys
+        I18n.with_locale(locale) do
+          @object.validate(data_hash: datahash, current_user: current_user)
 
-        object_params = content_params(template_hash)
-        translation_values = object_params[:translations]&.values&.first || {}
-
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), template_hash)
-
-        validator = DataCycleCore::MasterData::ValidateData.new
-        valid = validator.validate(datahash, template_hash)
-
-        render json: DataCycleCore::LocalizationService.localize_validation_errors(valid, helpers.active_ui_locale).to_json
+          render json: @object.validation_messages_as_json.to_json
+        end
       end
     end
 

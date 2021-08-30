@@ -5,7 +5,7 @@
         <i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) + ' ' + t('actions.bulk_edit', locale: active_ui_locale) %> (<%= I18n.locale %>)
       </div>
       <ul>
-        <% content = DataCycleCore::Thing.new(id: SecureRandom.uuid, schema: schema) %>
+        <% content = generic_content(@shared_template_features, @shared_properties) %>
 
         <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
 
@@ -52,7 +52,6 @@
     <div class="row">
       <div class="column">
         <div class="detail-header editor">
-          <% schema = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys %>
           <%= tag.span(t('controllers.error.no_shared_attributes', locale: active_ui_locale), class: 'bulk-no-attributes') if @shared_properties.blank? %>
           <% @shared_properties.presence&.each do |key, prop| %>
             <div class="bulk-update-type" data-attribute-key="<%= "#{key_prefix}[#{key}]" %>">

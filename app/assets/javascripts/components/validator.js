@@ -16,6 +16,7 @@ class Validator {
     this.$languageMenu = this.$editHeader.find('#locales-menu').first();
     this.$agbsCheck = this.$editHeader.find('.form-element.agbs').first();
     this.$contentUploader = this.$form.data('content-uploader');
+    this.bulkEdit = this.$form.hasClass('bulk-edit-form');
     this.initialFormData = [];
     this.submitFormData = [];
     this.requests = [];
@@ -241,6 +242,8 @@ class Validator {
       if (this.submitFormData.filter(v => v.name.includes(`[${translationLocale}]`)).some(v => !isEmpty(v.value)))
         return true;
     }
+
+    if (this.bulkEdit) return true;
 
     return !isEqual(oldFieldData, newFieldData);
   }
