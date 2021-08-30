@@ -1016,7 +1016,7 @@ module DataCycleCore
               dstart = nil
               dend = nil
               dstart = Time.zone.parse(date['From']) if date['From'].present?
-              dend = Time.zone.parse(date['To']) if date['To'].present?
+              dend = Time.zone.parse(date['To'])&.end_of_day if date['To'].present?
 
               res << {
                 start_time: { time: dstart, zone: dstart.time_zone.name },
