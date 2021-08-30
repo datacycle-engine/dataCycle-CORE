@@ -12,6 +12,29 @@ class AttributeLocaleSwitcher {
   init() {
     this.$localeSwitch.on('click', '.available-attribute-locale', this.changeTranslation.bind(this));
     this.$localeFormField.on('change', this.updateLocale.bind(this));
+    this.$form.on('dc:form:validationError', this.updateLocaleWithError.bind(this));
+    this.$form.on('dc:form:removeValidationError', this.removeLocaleError.bind(this));
+  }
+  updateLocaleWithError(event, data) {
+    event.preventDefault();
+
+    if (!data.locale) return;
+
+    this.$localeSwitch
+      .find(`.available-attribute-locale[data-locale="${data.locale}"]`)
+      .addClass(`validation-${data.type}`);
+  }
+  removeLocaleError(event, data) {
+    event.preventDefault();
+
+    if (data.locale)
+      this.$localeSwitch
+        .find(`.available-attribute-locale.validation-${data.type}[data-locale="${data.locale}"]`)
+        .removeClass(`validation-${data.type}`);
+    else
+      this.$localeSwitch
+        .find(`.available-attribute-locale.validation-${data.type}`)
+        .removeClass(`validation-${data.type}`);
   }
   changeTranslation(event) {
     event.preventDefault();

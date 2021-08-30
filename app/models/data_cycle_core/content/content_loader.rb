@@ -111,9 +111,11 @@ module DataCycleCore
             .join(history_table_translation)
             .on(history_table[:id].eq(history_table_translation[:thing_history_id]))
             .join_sources
-        ).where(
-          in_range(history_table_translation, timestamp)
-        ).order(history_table_translation[:history_valid])
+        )
+          .where(history_table_translation[:locale].eq(first_available_locale))
+          .where(in_range(history_table_translation, timestamp))
+          .order(history_table_translation[:history_valid])
+
         return_data.last
       end
     end

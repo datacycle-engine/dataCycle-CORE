@@ -185,10 +185,8 @@ module DataCycleCore
           redirect_back(fallback_location: root_path) && return
         end
 
-        binding.pry
-
         if @content.warnings.present?
-          flash[:info] = @content.warnings.full_messages
+          flash[:info] = @content.warnings.messages
         else
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale
         end

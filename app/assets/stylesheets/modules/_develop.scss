@@ -2522,6 +2522,23 @@ input.normalized {
   padding: 0.3rem 0;
 }
 .attribute-locale-switcher {
+  .available-attribute-locale {
+    &.validation-error::after,
+    &.validation-warning::after {
+      content: '\f12a';
+      font-family: FontAwesome;
+      margin: 0 0.3rem;
+    }
+
+    &.validation-error::after {
+      color: $alert-color;
+    }
+
+    &.validation-warning::after {
+      color: $warning-color;
+    }
+  }
+
   .active {
     .available-attribute-locale {
       color: $black;

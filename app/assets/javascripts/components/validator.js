@@ -9,12 +9,13 @@ import isEmpty from 'lodash/isEmpty';
 
 class Validator {
   constructor(formElement) {
-    this.form = $(formElement);
-    this.submitButton = this.form.siblings('.edit-header').find('.submit-edit-form').first();
-    this.saveButton = this.form.siblings('.edit-header').find('.save-content-button').first();
-    this.languageMenu = this.form.siblings('.edit-header').find('#locales-menu').first();
-    this.agbsCheck = this.form.siblings('.edit-header').find('.form-element.agbs').first();
-    this.contentUploader = this.form.data('content-uploader');
+    this.$form = $(formElement);
+    this.$editHeader = this.$form.siblings('.edit-header').add(this.$form.find('.edit-header')).first();
+    this.$submitButton = this.$editHeader.find('.submit-edit-form').first();
+    this.$saveButton = this.$editHeader.find('.save-content-button').first();
+    this.$languageMenu = this.$editHeader.find('#locales-menu').first();
+    this.$agbsCheck = this.$editHeader.find('.form-element.agbs').first();
+    this.$contentUploader = this.$form.data('content-uploader');
     this.initialFormData = [];
     this.submitFormData = [];
     this.requests = [];
@@ -27,38 +28,38 @@ class Validator {
     this.addEventHandlers();
   }
   addEventHandlers() {
-    this.form.on('change dc:form:validatefield', '.validation-container', this.validateSingle.bind(this));
-    this.form.on('dc:form:validate', '*', this.validateForm.bind(this));
-    this.form.on('remove-submit-button-errors', '.validation-container', event =>
+    this.$form.on('change dc:form:validatefield', '.validation-container', this.validateSingle.bind(this));
+    this.$form.on('dc:form:validate', '*', this.validateForm.bind(this));
+    this.$form.on('remove-submit-button-errors', '.validation-container', event =>
       this.removeSubmitButtonErrors($(event.currentTarget))
     );
-    this.submitButton.on('click', this.clickSubmitButton.bind(this));
-    this.saveButton.on('click', this.clickSaveButton.bind(this));
-    this.form.on('submit dc:form:validateForm', this.validateForm.bind(this));
-    if (this.form.hasClass('edit-content-form')) {
+    this.$submitButton.on('click', this.clickSubmitButton.bind(this));
+    this.$saveButton.on('click', this.clickSaveButton.bind(this));
+    this.$form.on('submit dc:form:validateForm', this.validateForm.bind(this));
+    if (this.$form.hasClass('edit-content-form')) {
       this.pageLeaveWarning();
     }
-    this.form.on('click', '.close-error', this.closeError.bind(this));
-    this.form.on('click', '.close-warning', this.closeWarning.bind(this));
-    this.agbsCheck.on('click', '.close-error', this.closeError.bind(this));
-    this.agbsCheck.on('change', this.validateSingle.bind(this));
-    this.form.on('dc:form:disable', this.disable.bind(this));
-    this.form.on('dc:form:enable', this.enable.bind(this));
-    this.form.on('dc:html:initialized', '*', this.updateInitialFormData.bind(this));
+    this.$form.on('click', '.close-error', this.closeError.bind(this));
+    this.$form.on('click', '.close-warning', this.closeWarning.bind(this));
+    this.$agbsCheck.on('click', '.close-error', this.closeError.bind(this));
+    this.$agbsCheck.on('change', this.validateSingle.bind(this));
+    this.$form.on('dc:form:disable', this.disable.bind(this));
+    this.$form.on('dc:form:enable', this.enable.bind(this));
+    this.$form.on('dc:html:initialized', '*', this.updateInitialFormData.bind(this));
   }
   clickSubmitButton(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
 
-    this.form.trigger('submit', {
+    this.$form.trigger('submit', {
       saveAndClose: true,
-      mergeConfirm: this.submitButton.hasClass('merge-with-duplicate')
+      mergeConfirm: this.$submitButton.hasClass('merge-with-duplicate')
     });
   }
   clickSaveButton(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    this.form.trigger('submit');
+    this.$form.trigger('submit');
   }
   closeError(event) {
     event.preventDefault();
@@ -74,12 +75,12 @@ class Validator {
     this.resolveRequests(false, data);
   }
   sortedFormData(formData) {
-    return collectionReject(sortBy(uniqWith(formData || this.form.serializeArray(), isEqual), ['name', 'value']), {
+    return collectionReject(sortBy(uniqWith(formData || this.$form.serializeArray(), isEqual), ['name', 'value']), {
       name: 'authenticity_token'
     });
   }
   updateSubmitFormData() {
-    QuillHelpers.updateEditors(this.form);
+    QuillHelpers.updateEditors(this.$form);
     this.submitFormData = this.sortedFormData();
   }
   pageLeaveHandler(event) {
@@ -91,13 +92,13 @@ class Validator {
     }
   }
   pageLeaveWarning() {
-    QuillHelpers.updateEditors(this.form);
+    QuillHelpers.updateEditors(this.$form);
     this.initialFormData = this.sortedFormData();
 
     $(window).on('beforeunload', this.eventHandlers.beforeunload);
 
-    if (this.languageMenu.length) {
-      this.languageMenu.on('click', '.list-items > li > a', async event => {
+    if (this.$languageMenu.length) {
+      this.$languageMenu.on('click', '.list-items > li > a', async event => {
         this.updateSubmitFormData();
 
         if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData)) {
@@ -107,10 +108,10 @@ class Validator {
             confirmationClass: 'success',
             cancelable: true,
             confirmationCallback: () => {
-              this.form.append(
+              this.$form.append(
                 '<input type="hidden" name="new_locale" value="' + $(event.target).data('locale') + '">'
               );
-              this.form.trigger('submit');
+              this.$form.trigger('submit');
             }
           });
         }
@@ -153,133 +154,70 @@ class Validator {
     return error;
   }
   disable() {
-    DataCycle.disableElement(this.submitButton);
-    DataCycle.disableElement(this.saveButton);
-    DataCycle.disableElement(this.form);
+    DataCycle.disableElement(this.$submitButton);
+    DataCycle.disableElement(this.$saveButton);
+    DataCycle.disableElement(this.$form);
   }
   enable() {
-    if (this.queryCount == 0 && !this.form.hasClass('disabled')) {
-      DataCycle.enableElement(this.submitButton);
-      DataCycle.enableElement(this.saveButton);
-      DataCycle.enableElement(this.form);
-      this.form.find('input#duplicate_id').remove();
+    if (this.queryCount == 0 && !this.$form.hasClass('disabled')) {
+      DataCycle.enableElement(this.$submitButton);
+      DataCycle.enableElement(this.$saveButton);
+      DataCycle.enableElement(this.$form);
+      this.$form.find('input#duplicate_id').remove();
     }
   }
-  async renderErrorMessage(data, validationContainer) {
-    let out = '';
-    let item_id = '';
-    let item_label = $(validationContainer).find('label').first();
-    let button_text = '';
-    if (validationContainer != null && $(validationContainer).data('id') != undefined)
-      item_id = $(validationContainer).data('id') + '_error';
-    else if (validationContainer != null && $(item_label).attr('for') != undefined)
-      item_id = $(item_label).attr('for') + '_error';
-    if ($('#' + item_id).length != 0) return '';
-    button_text = '<span id="button_' + item_id + '" class="tooltip-error">';
-    out = "<span id='" + item_id + "' class='single_error'>";
-    for (let key in data.errors) {
-      const errorMessage = Array.isArray(data.errors[key]) ? data.errors[key].join('<br>') : data.errors[key];
+  tooltipError(key, type = 'error') {
+    return $(`<span class="tooltip-${type}" data-attribute-key="${key}"></span>`);
+  }
+  singleError(key, type = 'error') {
+    return $(
+      `<span class="single_${type}" data-attribute-key="${key}"><i class="fa fa-times close-error" aria-hidden="true"></i></span></span>`
+    );
+  }
+  async renderErrorMessage(data, validationContainer, type = 'error', itemClass = 'alert') {
+    const $itemLabel = $(validationContainer).find('label').first();
+    const labelText = $itemLabel.text().replace(/\s+/g, ' ').trim();
+    const key = $(validationContainer).data('key');
+    const $submitTooltip = $(`#${this.$submitButton.data('toggle')}`);
+    const $tooltipError = this.tooltipError(key, type);
+    const $singleError = this.singleError(key, type);
+
+    for (let message of Object.values(data[`${type}s`] || {})) {
+      if (Array.isArray(message)) message = message.join('<br>');
+
+      $tooltipError.append(
+        `<b>${labelText || (await I18n.translate(`frontend.validate.${type}`))}</b><br>${message}<br>`
+      );
+      $singleError.append(`<b>${labelText || (await I18n.translate(`frontend.validate.${type}`))}</b> ${message}<br>`);
+    }
+
+    if (!$singleError.text().length) return $();
+
+    if (this.$form.hasClass('edit-content-form')) {
+      this.$submitButton.addClass(itemClass);
+      $submitTooltip.find(`.tooltip-${type}[data-attribute-key="${key}"]`).remove();
+      $submitTooltip.append($tooltipError);
+    }
+
+    return $singleError;
+  }
+  removeSubmitButtonErrors(item, type = 'error', itemClass = 'alert') {
+    const $submitTooltip = $(`#${this.$submitButton.data('toggle')}`);
+
+    if (item) {
+      const translationLocale = this.attributeLocale(item);
+      $submitTooltip.find(`[data-attribute-key="${$(item).data('key')}"]`).remove();
+      if (!$submitTooltip.find(`.tooltip-${type}`).length) this.$submitButton.removeClass(itemClass);
 
       if (
-        ($(validationContainer).data('id') && $(validationContainer).data('id').search(new RegExp(key, 'i')) != -1) ||
-        ($(validationContainer).data('id') &&
-          $(item_label).attr('for') &&
-          $(item_label).attr('for').search(new RegExp(key, 'i')) != -1)
-      ) {
-        button_text +=
-          '<b>' +
-          ($(item_label).text() || (await I18n.translate('frontend.validate.error'))) +
-          '</b><br>' +
-          errorMessage +
-          '<br>';
-        out +=
-          '<b>' +
-          ($(item_label).text() || (await I18n.translate('frontend.validate.error'))) +
-          '</b> ' +
-          errorMessage +
-          '</br>';
-      }
-    }
-    out += '<i class="fa fa-times close-error" aria-hidden="true"></i></span>';
-    if ($(out).text().length == 0) return '';
-    if (this.form.hasClass('edit-content-form')) {
-      this.submitButton.addClass('alert');
-      $('#' + this.submitButton.data('toggle') + ' #button_' + item_id).remove();
-      $('#' + this.submitButton.data('toggle')).append(button_text + '</span>');
-    }
-    return out;
-  }
-  async renderWarningMessage(data, validationContainer) {
-    let out = '';
-    let item_id = '';
-    let item_label = $(validationContainer).find('label').first();
-    let button_text = '';
-    if (validationContainer != null && $(validationContainer).data('id') != undefined)
-      item_id = $(validationContainer).data('id') + '_warning';
-    else if (validationContainer != null && $(item_label).attr('for') != undefined)
-      item_id = $(item_label).attr('for') + '_warning';
-    if ($('#' + item_id).length != 0) return '';
-    button_text = '<span id="button_' + item_id + '" class="tooltip-warning">';
-    out = "<span id='" + item_id + "' class='single_warning'>";
-    for (let key in data.warnings) {
-      if (
-        ($(validationContainer).data('id') != undefined &&
-          $(validationContainer).data('id').search(new RegExp(key, 'i')) != -1) ||
-        ($(validationContainer).data('id') == undefined &&
-          $(item_label).attr('for') != undefined &&
-          $(item_label).attr('for').search(new RegExp(key, 'i')) != -1)
-      ) {
-        button_text +=
-          '<strong>' +
-          ($(item_label).text() || (await I18n.translate('frontend.validate.warning'))) +
-          '</strong><br>' +
-          data.warnings[key] +
-          '<br>';
-        out +=
-          '<strong>' +
-          ($(item_label).text() || (await I18n.translate('frontend.validate.warning'))) +
-          '</strong> ' +
-          data.warnings[key] +
-          '</br>';
-      }
-    }
-    out += '<i class="fa fa-times close-warning" aria-hidden="true"></i></span>';
-    if ($(out).text().length == 0) return '';
-    if (this.form.hasClass('edit-content-form')) {
-      this.submitButton.addClass('warning');
-      $('#' + this.submitButton.data('toggle') + ' #button_' + item_id).remove();
-      $('#' + this.submitButton.data('toggle')).append(button_text + '</span>');
-    }
-    return out;
-  }
-  removeSubmitButtonErrors(item) {
-    var item_id = '';
-    let item_label = $(item).find('label').first();
-    if (item != null && $(item).data('id') != undefined) item_id = $(item).data('id') + '_error';
-    else if (item != null && $(item_label).attr('for') != undefined) item_id = $(item_label).attr('for') + '_error';
-    if (item == null) {
-      this.submitButton.removeClass('alert');
-      $('#' + this.submitButton.data('toggle') + ' .tooltip-error').remove();
+        translationLocale &&
+        !$submitTooltip.find(`.tooltip-${type}[data-attribute-key*="[translations][${translationLocale}]"]`).length
+      )
+        this.$form.trigger('dc:form:removeValidationError', { locale: translationLocale, type: type });
     } else {
-      $('#' + this.submitButton.data('toggle') + ' #button_' + item_id).remove();
-      if ($('#' + this.submitButton.data('toggle') + ' .tooltip-error').length == 0) {
-        this.submitButton.removeClass('alert');
-      }
-    }
-  }
-  removeSubmitButtonWarnings(item) {
-    var item_id = '';
-    let item_label = $(item).find('label').first();
-    if (item != null && $(item).data('id') != undefined) item_id = $(item).data('id') + '_warning';
-    else if (item != null && $(item_label).attr('for') != undefined) item_id = $(item_label).attr('for') + '_warning';
-    if (item == null) {
-      this.submitButton.removeClass('warning');
-      $('#' + this.submitButton.data('toggle') + ' .tooltip-warning').remove();
-    } else {
-      $('#' + this.submitButton.data('toggle') + ' #button_' + item_id).remove();
-      if ($('#' + this.submitButton.data('toggle') + ' .tooltip-warning').length == 0) {
-        this.submitButton.removeClass('warning');
-      }
+      this.$form.trigger('dc:form:removeValidationError', { type: type });
+      this.$submitButton.removeClass(itemClass);
+      $submitTooltip.find(`.tooltip-${type}`).remove();
     }
   }
   resetField(validationContainer) {
@@ -288,17 +226,8 @@ class Validator {
     $(validationContainer).children('.single_warning').remove();
     $(validationContainer).removeClass('has-warning');
 
-    this.removeSubmitButtonErrors(validationContainer);
-    this.removeSubmitButtonWarnings(validationContainer);
-  }
-  findItemsForField(validationContainer) {
-    let items = [];
-    if ($(validationContainer).data('key') != undefined) {
-      items = $(validationContainer).find('[name^="' + $(validationContainer).data('key') + '"]');
-    } else if ($(validationContainer).children('label').length) {
-      items = $(validationContainer).find('#' + $(validationContainer).children('label').first().prop('for'));
-    }
-    return items;
+    this.removeSubmitButtonErrors(validationContainer, 'error', 'alert');
+    this.removeSubmitButtonErrors(validationContainer, 'warning', 'warning');
   }
   formFieldChanged(newFieldData, translationLocale, submitFormaDataUpToDate) {
     newFieldData = this.sortedFormData(newFieldData || []);
@@ -310,10 +239,15 @@ class Validator {
       if (!submitFormaDataUpToDate) this.updateSubmitFormData();
 
       if (this.submitFormData.filter(v => v.name.includes(`[${translationLocale}]`)).some(v => !isEmpty(v.value)))
-        return false;
+        return true;
     }
 
     return !isEqual(oldFieldData, newFieldData);
+  }
+  attributeLocale(validationContainer) {
+    const key = $(validationContainer).data('key');
+
+    return key.includes('[translations]') && key.match(/\[translations\]\[([\-a-zA-Z]+)\]/)[1];
   }
   validateItem(validationContainer, submitFormaDataUpToDate = false) {
     this.resetField(validationContainer);
@@ -322,34 +256,24 @@ class Validator {
       return this.validateAgbs(validationContainer);
     }
 
-    let items = this.findItemsForField(validationContainer);
+    let formData = $(validationContainer).find(':input').serializeArray();
+    if (formData.length == 0) return;
 
-    if (!items.length) return;
-
-    let formData = items.serializeArray();
-    if (formData.length == 0) {
-      formData.push({
-        name: items.prop('name')
-      });
-    }
-
-    const translation = formData.find(v => v.name.includes('[translations]'));
-    let translationLocale;
-    if (translation) translationLocale = translation.name.match(/\[translations\]\[([\-a-zA-Z]+)\]/)[1];
+    const translationLocale = this.attributeLocale(validationContainer);
 
     if (!this.formFieldChanged(formData, translationLocale, submitFormaDataUpToDate))
       return Promise.resolve({
         valid: true
       });
 
-    const uuid = this.form.find(':input[name="uuid"]').val();
+    const uuid = this.$form.find(':input[name="uuid"]').val();
     const locale =
       translationLocale ||
-      this.form.find(':input[name="locale"]').val() ||
-      this.form.find(':input[name="thing[locale]"]').val();
-    const table = this.form.find(':input[name="table"]').val() || 'things';
+      this.$form.find(':input[name="locale"]').val() ||
+      this.$form.find(':input[name="thing[locale]"]').val();
+    const table = this.$form.find(':input[name="table"]').val() || 'things';
     const url = `/${table}${uuid ? '/' + uuid : ''}/validate`;
-    const template = this.form.find(':input[name="template"]').val();
+    const template = this.$form.find(':input[name="template"]').val();
     if (template != undefined) {
       formData.push({
         name: 'template',
@@ -371,31 +295,16 @@ class Validator {
       dataType: 'json'
     }).done(async data => {
       if (data != undefined) {
-        if (
-          !data.valid &&
-          data.errors &&
-          Object.keys(data.errors).length > 0 &&
-          items
-            .filter('[id]')
-            .first()
-            .prop('id')
-            .search(new RegExp(Object.keys(data.errors).join('|'), 'i')) != -1
-        ) {
+        if (!data.valid && data.errors && Object.keys(data.errors).length > 0) {
+          this.$form.trigger('dc:form:validationError', { locale: translationLocale, type: 'error' });
           $(validationContainer)
             .append(await this.renderErrorMessage(data, validationContainer))
             .addClass('has-error');
         }
-        if (
-          data.warnings &&
-          Object.keys(data.warnings).length > 0 &&
-          items
-            .filter('[id]')
-            .first()
-            .prop('id')
-            .search(new RegExp(Object.keys(data.warnings).join('|'), 'i')) != -1
-        ) {
+        if (data.warnings && Object.keys(data.warnings).length > 0) {
+          this.$form.trigger('dc:form:validationError', { locale: translationLocale, type: 'warning' });
           $(validationContainer)
-            .append(await this.renderWarningMessage(data, validationContainer))
+            .append(await this.renderErrorMessage(data, validationContainer, 'warning', 'warning'))
             .addClass('has-warning');
         }
       }
@@ -412,12 +321,12 @@ class Validator {
 
     $(event.target)
       .find('.validation-container')
-      .add(this.agbsCheck)
+      .add(this.$agbsCheck)
       .each((_i, elem) => {
         this.requests.push(this.validateItem(elem, true));
       });
 
-    this.resolveRequests($(event.target).is(this.form), data);
+    this.resolveRequests($(event.target).is(this.$form), data);
   }
   async submitForm(
     confirmations = { finalize: true, confirm: true, warnings: undefined, mergeConfirm: false, saveAndClose: false }
@@ -441,7 +350,7 @@ class Validator {
       });
     }
 
-    if (confirmations.finalize && this.form.find(':input[name="finalize"]:checked').length) {
+    if (confirmations.finalize && this.$form.find(':input[name="finalize"]:checked').length) {
       return new ConfirmationModal({
         text: await I18n.translate('frontend.validate.final_save'),
         confirmationClass: 'success',
@@ -454,9 +363,9 @@ class Validator {
       });
     }
 
-    if (confirmations.confirm && this.submitButton.data('confirm') !== undefined) {
+    if (confirmations.confirm && this.$submitButton.data('confirm') !== undefined) {
       return new ConfirmationModal({
-        text: this.submitButton.data('confirm'),
+        text: this.$submitButton.data('confirm'),
         confirmationClass: 'alert',
         cancelable: true,
         confirmationCallback: () => {
@@ -470,19 +379,19 @@ class Validator {
     this.triggerFormSubmit(confirmations);
   }
   triggerFormSubmit(confirmations = {}) {
-    if (this.form.closest('.reveal').hasClass('in-object-browser') || this.contentUploader) {
-      return this.form.trigger('dc:form:submitWithoutRedirect', confirmations);
+    if (this.$form.closest('.reveal').hasClass('in-object-browser') || this.$contentUploader) {
+      return this.$form.trigger('dc:form:submitWithoutRedirect', confirmations);
     } else {
       $(window).off('beforeunload', this.eventHandlers.beforeunload);
       if (confirmations && confirmations.saveAndClose)
-        this.form.append('<input type="hidden" name="save_and_close" value="1">');
+        this.$form.append('<input type="hidden" name="save_and_close" value="1">');
       if (confirmations && confirmations.mergeConfirm)
-        this.form.append(
-          '<input id="duplicate_id" type="hidden" name="duplicate_id" value="' + this.form.data('duplicate-id') + '">'
+        this.$form.append(
+          '<input id="duplicate_id" type="hidden" name="duplicate_id" value="' + this.$form.data('duplicate-id') + '">'
         );
 
-      if (this.form.data('remote')) Rails.fire(this.form[0], 'submit', { dcFormSubmitted: true });
-      else this.form[0].submit();
+      if (this.$form.data('remote')) Rails.fire(this.$form[0], 'submit', { dcFormSubmitted: true });
+      else this.$form[0].submit();
     }
   }
   resolveRequests(submit = false, eventData = {}) {
@@ -496,13 +405,13 @@ class Validator {
         this.queryCount--;
         this.valid = true;
 
-        let error = this.form.find('.single_error').first();
+        let error = this.$form.find('.single_error').first();
         values.filter(Boolean).forEach(validation => {
           if (!validation.valid) this.valid = false;
         });
         if (this.valid && submit) {
           this.queryCount = 0;
-          let warnings = this.form.find('.form-element .warning.counter');
+          let warnings = this.$form.find('.form-element .warning.counter');
 
           eventData = Object.assign({}, eventData || {}, {
             finalize: true,
@@ -513,7 +422,7 @@ class Validator {
 
           this.submitForm(eventData);
         } else if (!this.valid && submit) {
-          if (this.form.hasClass('edit-content-form') && error !== undefined && error[0] !== undefined) {
+          if (this.$form.hasClass('edit-content-form') && error !== undefined && error[0] !== undefined) {
             error[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
         }
@@ -525,8 +434,8 @@ class Validator {
           eventData.errorCallback();
         }
         // scroll to step in multi-step form
-        if (!this.valid && this.form.hasClass('multi-step') && error.is(':hidden')) {
-          this.form.trigger('dc:multistep:goto', this.form.find('fieldset').index(error.closest('fieldset')));
+        if (!this.valid && this.$form.hasClass('multi-step') && error.is(':hidden')) {
+          this.$form.trigger('dc:multistep:goto', this.$form.find('fieldset').index(error.closest('fieldset')));
         }
       },
       async error => {
@@ -536,8 +445,8 @@ class Validator {
           'frontend.validate.error'
         )}</strong><br>${error.statusText}<br></span>`;
         this.enable();
-        this.submitButton.addClass('alert');
-        $('#' + this.submitButton.data('toggle')).append(buttonText);
+        this.$submitButton.addClass('alert');
+        $('#' + this.$submitButton.data('toggle')).append(buttonText);
       }
     );
   }

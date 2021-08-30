@@ -23,7 +23,11 @@ module DataCycleCore
     end
 
     def self.get_internal_template(name)
-      DataCycleCore::Thing.find_by!(template: true, template_name: name)
+      @get_internal_template ||= Hash.new do |h, key|
+        h[key] = DataCycleCore::Thing.find_by!(template: true, template_name: key)
+      end
+
+      @get_internal_template[name]
     end
 
     def self.create_duplicate(content: nil, current_user: nil)
@@ -38,7 +42,8 @@ module DataCycleCore
             new_content.save!
             new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ 'name': "DUPLICATE: #{content.title}" })
             valid = new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: created)
-            raise ActiveRecord::Rollback, 'dataHash errors found' if valid.dig(:error).present?
+
+            raise ActiveRecord::Rollback, 'dataHash errors found' unless valid
           end
         end
       end
@@ -53,14 +58,14 @@ module DataCycleCore
     end
 
     def self.create_internal_object(template_name, object_params, current_user, is_part_of = nil, source = nil)
-      object = DataCycleCore::Thing.new(object_params.except(:translations))
-      locale = I18n.locale
-      translations = object_params[:translations]&.to_h&.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }
-      locale = translations.keys.first if translations&.keys&.present?
+      template = get_internal_template(template_name)
+      object = DataCycleCore::Thing.new(object_params.except(:translations, :datahash))
+      object_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, template.schema)
+      object_hash[:translations]&.deep_reject! { |_, v| v.blank? && !v.is_a?(FalseClass) }
+      locale = translations&.keys&.first || I18n.locale
       save_time = Time.zone.now
 
       I18n.with_locale(locale) do
-        template = get_internal_template(template_name)
         object.schema = template.schema
         object.template_name = template.template_name
         object.created_by = current_user&.id
@@ -70,27 +75,17 @@ module DataCycleCore
         object.save
       end
 
-      return object if object_params[:datahash].nil? && translations.nil?
+      return object if object_hash[:datahash].blank? && object_hash[:translations].blank?
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translations&.delete(locale.to_s) || {}), object.schema)
-
-      I18n.with_locale(locale) do
-        valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true, save_time: save_time, check_for_duplicates: true)
-        if valid[:error].present?
-          valid[:error].each { |k, v| v.each { |e| object.errors.add(k, e) } }
-          return object
-        end
-      end
-
-      translations&.each do |l, locale_hash|
-        I18n.with_locale(l) do
-          valid = object.set_data_hash(data_hash: locale_hash, current_user: current_user, prevent_history: true, update_search_all: false, partial_update: true, save_time: save_time)
-          if valid[:error].present?
-            valid[:error].each { |k, v| v.each { |e| object.errors.add(k, e) } }
-            return object
-          end
-        end
-      end
+      object.set_data_hash_with_translations(
+        data_hash: object_hash,
+        current_user: current_user,
+        prevent_history: true,
+        source: source,
+        new_content: true,
+        save_time: save_time,
+        check_for_duplicates: true
+      )
 
       object
     end

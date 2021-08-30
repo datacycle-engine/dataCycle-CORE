@@ -46,14 +46,19 @@ namespace :dc do
 
           logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}") && next unless asset&.save
 
-          valid = content.set_data_hash(data_hash: {
-            asset: asset.id
-          }, partial_update: true, prevent_history: true, update_search_all: false)
+          valid = content.set_data_hash(
+            data_hash: {
+              asset: asset.id
+            },
+            partial_update: true,
+            prevent_history: true,
+            update_search_all: false
+          )
 
-          if valid[:error].present?
-            logger.error("Error saving content: #{valid[:error]}")
-          else
+          if valid
             logger.info("Successfully loaded asset for #{content.id} from #{file_url}")
+          else
+            logger.error("Error saving content: #{content.errors.messages}")
           end
 
           progressbar.increment

@@ -56,7 +56,7 @@ module DataCycleCore
 
       def set_data_hash(**args) # rubocop:disable Naming/AccessorMethodName
         options = DataCycleCore::Content::DataHashOptions.new(**args)
-        return no_changes(options.ui_locale, !options.prevent_history) if options.data_hash.blank? && !options.force_update
+        return no_changes(options.ui_locale) if options.data_hash.blank? && !options.force_update
 
         before_save_data_hash(options)
 
@@ -91,7 +91,7 @@ module DataCycleCore
           reload
           after_save_data_hash(options)
         else
-          no_changes(options.ui_locale, !options.prevent_history)
+          return no_changes(options.ui_locale)
         end
 
         true
@@ -111,10 +111,17 @@ module DataCycleCore
             raise ActiveRecord::Rollback unless set_data_hash(options.to_h.merge(data_hash: datahash))
           end
 
-          translations&.each do |l, locale_hash|
-            I18n.with_locale(l) do
-              raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :save_time, :ui_locale).merge(data_hash: locale_hash, prevent_history: true, update_search_all: false, partial_update: true, invalidate_related_cache: false))
+          if translations.present?
+            translations.each do |l, locale_hash|
+              I18n.with_locale(l) do
+                next if locale_hash.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }.blank?
+
+                raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :save_time, :ui_locale).merge(data_hash: locale_hash, update_search_all: false, partial_update: true, invalidate_related_cache: false))
+              end
             end
+
+            no_changes_key = translated_template_name(options.ui_locale).to_sym
+            i18n_warnings.each_value { |w| w.delete(no_changes_key) } unless translations.keys.push(locale).all? { |l| i18n_warnings[l]&.include?(no_changes_key) }
           end
         end
 
@@ -242,8 +249,8 @@ module DataCycleCore
 
       private
 
-      def no_changes(locale, warnings = true)
-        warnings&.add(:thing, I18n.t('controllers.warning.no_changes', locale: locale))
+      def no_changes(locale)
+        warnings&.add(translated_template_name(locale), I18n.t('controllers.warning.no_changes', locale: locale))
 
         true
       end

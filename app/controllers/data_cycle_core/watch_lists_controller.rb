@@ -192,8 +192,7 @@ module DataCycleCore
 
         ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", progress: 0, items: item_count
         update_items.find_each.with_index do |content, index|
-          valid = content.set_data_hash(data_hash: transform_exisiting_values(bulk_edit_types, template_hash, datahash.dup, content), current_user: current_user, partial_update: true)
-          errors << valid[:error] if valid[:error].present?
+          errors.concat(Array.wrap(content.errors.full_messages)) unless content.set_data_hash(data_hash: transform_exisiting_values(bulk_edit_types, template_hash, datahash.dup, content), current_user: current_user, partial_update: true)
           ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", progress: index + 1, items: item_count
         end
 
@@ -251,8 +250,11 @@ module DataCycleCore
 
       if params[:watch_list].present?
         @watch_list.attributes = watch_list_params
-        @watch_list.validate
-        render json: { error: @watch_list.errors.messages }
+
+        render json: {
+          valid: @watch_list.validate,
+          errors: @watch_list.errors.messages
+        }
       else
         @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
         @shared_template_features = @watch_list.things.shared_template_features

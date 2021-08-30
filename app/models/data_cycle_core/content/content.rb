@@ -90,7 +90,7 @@ module DataCycleCore
         @warnings || {}
       end
 
-      def valid?
+      def valid?(*_args)
         errors.blank?
       end
 
