@@ -1,4 +1,6 @@
 # syntax=docker/dockerfile:1.2
-FROM redis:6.2-alpine
+FROM redis:6.2-buster
 
-RUN apk add gettext
+RUN apt-get update
+
+RUN apt-get install -y gettext-base

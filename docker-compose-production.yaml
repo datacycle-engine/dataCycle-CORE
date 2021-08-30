@@ -1,18 +1,21 @@
 version: '3.8'
 services:
   postgres:
-    image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.1'
+    image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4'
     environment:
-      - ALLOW_IP_RANGE=0.0.0.0/0
       - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    command: /tmp/postgres/setup-postgres.sh
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_EFFECTIVE_CACHE_SIZE=${POSTGRES_EFFECTIVE_CACHE_SIZE:-6GB}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    entrypoint: /tmp/postgres/setup-postgres.sh
+    command: postgres -c config_file=/etc/postgresql.conf
     ports:
       - ${PUBLIC_POSTGRES_PORT:-5432}:5432
     shm_size: 8gb
     volumes:
-      - ./docker/postgres/postgresql.conf:/etc/postgresql.conf
+      - ${BASE_DATA_VOLUME_PATH:-./../../../dcdata}/postgres:/var/lib/postgresql/data
+      - ./docker/postgres/postgresql.conf:/tmp/postgres/postgresql.conf
       - ./docker/postgres/setup.sh:/tmp/postgres/setup-postgres.sh
       - ${PWD}/config/configurations/ts_search:/tmp/postgres/ts_search
   mongodb:
@@ -42,9 +45,9 @@ services:
       # validate
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_VERSION=${POSTGRES_VERSION}
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_VERSION=${POSTGRES_VERSION:-13}
       - POSTGRES_DATABASE=${POSTGRES_DATABASE}
       - ALLOW_IP_RANGE=172.18.0.0/12
       - TZ=Europe/Vienna
@@ -82,6 +85,8 @@ services:
       context: ./docker/redis
       dockerfile: Dockerfile
     entrypoint: /tmp/redis/setup-redis.sh
+#    ports:
+#      - '${PUBLIC_REDIS_PORT:-6379}:6379'
     command: redis-server /etc/redis/redis.conf
     environment:
       - REDIS_MAX_MEMORY=${REDIS_MAX_MEMORY:-2gb}
@@ -101,7 +106,7 @@ services:
       - IMGPROXY_PORT=${IMGPROXY_PORT:-9000}
     volumes:
       - ${PWD}:/var/www/app
-      - './docker/nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template'
+      - './docker/nginx/templates/datacycle.conf.template:/etc/nginx/templates/datacycle.conf.template'
     depends_on:
       - web
       - imgproxy
@@ -116,5 +121,4 @@ volumes:
   gems:
   redis:
   node-modules:
-  mongodb:
   nginx:

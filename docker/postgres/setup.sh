@@ -2,4 +2,6 @@
 
 cp /tmp/postgres/ts_search/* /usr/share/postgresql/13/tsearch_data/
 
-docker-entrypoint.sh -c config_file=/etc/postgresql.conf
+envsubst < /tmp/postgres/postgresql.conf > /etc/postgresql.conf
+
+exec docker-entrypoint.sh "$@"
