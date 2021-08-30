@@ -127,7 +127,7 @@ module DataCycleCore
         # quotation: quotations
       }.deep_stringify_keys, partial_update: true)
 
-      assert valid[:error].blank?
+      assert valid
 
       get load_more_linked_objects_thing_path(@content), xhr: true, params: {
         definition: @content.schema.dig('properties', 'content_location'),

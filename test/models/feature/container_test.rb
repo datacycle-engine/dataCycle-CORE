@@ -38,7 +38,7 @@ module DataCycleCore
         'name' => 'Test Artikel!',
         'date_modified' => Time.zone.now
       }
-      e_a = ds_a.set_data_hash(data_hash: dh_a, prevent_history: true, current_user: current_user, new_content: true)
+      ds_a.set_data_hash(data_hash: dh_a, prevent_history: true, current_user: current_user, new_content: true)
       ds_a.save
 
       r_dh = ds_a.get_data_hash
@@ -55,7 +55,7 @@ module DataCycleCore
 
       assert_equal(e_hash.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')), r_dh.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(current_user.id, ds_a.updated_by)
-      assert_equal(0, e_a[:error].count)
+      assert_equal(0, ds_a.errors.size)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::Thing.count - template)

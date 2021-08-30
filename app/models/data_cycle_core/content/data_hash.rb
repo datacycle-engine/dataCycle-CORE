@@ -69,35 +69,33 @@ module DataCycleCore
 
         return false unless validate(data_hash: options.data_hash, schema_hash: partial_schema || schema, current_user: options.current_user)
 
-        if diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
-          ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-            to_history(save_time: options.save_time) unless id.nil? || options.prevent_history
+        return no_changes(options.ui_locale) unless diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
 
-            set_template_data_hash(options, partial_schema&.dig('properties') || property_definitions)
+        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+          to_history(save_time: options.save_time) unless id.nil? || options.prevent_history
 
-            self.updated_at = options.save_time
-            self.updated_by = options.current_user&.id
-            self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? options.version_name.presence : nil
+          set_template_data_hash(options, partial_schema&.dig('properties') || property_definitions)
 
-            if id.nil?
-              self.created_at = options.save_time
-              self.created_by = options.current_user&.id
-            end
+          self.updated_at = options.save_time
+          self.updated_by = options.current_user&.id
+          self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? options.version_name.presence : nil
 
-            save(touch: false)
-            search_languages(options.update_search_all) unless id.nil? || embedded?
+          if id.nil?
+            self.created_at = options.save_time
+            self.created_by = options.current_user&.id
           end
 
-          reload
-          after_save_data_hash(options)
-        else
-          return no_changes(options.ui_locale)
+          save(touch: false)
+          search_languages(options.update_search_all) unless id.nil? || embedded?
         end
+
+        reload
+        after_save_data_hash(options)
 
         true
       end
 
-      def set_data_hash_with_translations(**args)
+      def set_data_hash_with_translations(**args) # rubocop:disable Naming/AccessorMethodName
         options = DataCycleCore::Content::DataHashOptions.new(**args)
         return {} if options.data_hash.blank? && !options.force_update
 

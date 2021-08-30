@@ -74,7 +74,7 @@ module DataCycleCore
 
       assert_response :success
       response_body = JSON.parse(response.body)
-      assert_equal 0, response_body['error'].size
+      assert response_body['valid']
     end
 
     test 'validate Watchlist with empty name' do
@@ -88,7 +88,7 @@ module DataCycleCore
 
       assert_response :success
       response_body = JSON.parse(response.body)
-      assert_equal 1, response_body['error'].size
+      assert response_body['valid']
     end
 
     test 'delete Watchlist' do
@@ -383,7 +383,7 @@ module DataCycleCore
       assert_response :success
       assert_equal 'application/json', response.content_type
       json_data = JSON.parse response.body
-      assert json_data['error'].blank?
+      assert json_data['valid']
     end
 
     test 'add search items to watch_list' do
