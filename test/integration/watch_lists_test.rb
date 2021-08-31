@@ -88,7 +88,7 @@ module DataCycleCore
 
       assert_response :success
       response_body = JSON.parse(response.body)
-      assert response_body['valid']
+      assert_not response_body['valid']
     end
 
     test 'delete Watchlist' do

@@ -6,7 +6,7 @@ module DataCycleCore
     extend NormalizeService
 
     def self.flatten_datahash_value(datahash, template_hash, debug = false)
-      datahash = datahash.to_h.with_indifferent_access
+      datahash = datahash.to_h.dc_deep_dup.with_indifferent_access
 
       if datahash.key?(:translations) || datahash.key?(:datahash)
         datahash[:datahash] = flatten_recursive(datahash[:datahash], template_hash)
@@ -62,7 +62,7 @@ module DataCycleCore
       object = DataCycleCore::Thing.new(object_params.except(:translations, :datahash))
       object_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, template.schema)
       object_hash[:translations]&.deep_reject! { |_, v| v.blank? && !v.is_a?(FalseClass) }
-      locale = translations&.keys&.first || I18n.locale
+      locale = object_hash[:translations]&.keys&.first || I18n.locale
       save_time = Time.zone.now
 
       I18n.with_locale(locale) do
