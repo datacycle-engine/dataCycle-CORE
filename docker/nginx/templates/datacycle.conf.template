@@ -22,6 +22,7 @@ upstream docker-imgproxy {
 
 upstream puma_data_cycle {
   server unix:${APPLICATION_ROOT}/tmp/sockets/puma.sock fail_timeout=0;
+  #server web:3000;
 }
 
 server {
@@ -51,8 +52,8 @@ server {
     proxy_read_timeout 300;
     proxy_pass http://puma_data_cycle;
 
-    access_log ${APPLICATION_ROOT}/log/nginx.access.log;
-    error_log ${APPLICATION_ROOT}/log/nginx.error.log;
+    #access_log ${APPLICATION_ROOT}/log/nginx.access.log;
+    #error_log ${APPLICATION_ROOT}/log/nginx.error.log;
   }
 
   location ^~ /assets/ {

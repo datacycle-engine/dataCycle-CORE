@@ -65,15 +65,17 @@ services:
       # @todo remove obsolete port for production: run vite rake task
       - '${PUBLIC_VITE_PORT:-3036}:${PUBLIC_VITE_PORT:-3036}'
     command:
-      # @todo add setup.production.sh + rake vite:build
-      - ${COMPOSE_WEB_COMMAND:-./vendor/gems/data-cycle-core/docker/setup.sh}
+#       @todo add setup.production.sh + rake vite:build
+#      - rails s
+      - ${COMPOSE_WEB_COMMAND:-./vendor/gems/data-cycle-core/docker/setup.production.sh}
     volumes:
-      - gems:/gems
-      - ${PWD}:/var/www/app
+#      - gems:/usr/local/bundle
+#      - ${PWD}:/var/www/app
       - $SSH_AUTH_SOCK:/ssh-agent
-      - ${PWD}/docker/hist:/root/hist
-      - node-modules:/var/www/app/node_modules
-    user: root
+#      - ${PWD}/docker/hist:/root/hist
+#      - node-modules:/node_modules
+      - app-tmp:/app/tmp
+#    user: root
     depends_on:
       - postgres
       - mongodb
@@ -105,7 +107,9 @@ services:
       - PUBLIC_APPLICATION_HOST=${PUBLIC_APPLICATION_HOST:-localhost}
       - IMGPROXY_PORT=${IMGPROXY_PORT:-9000}
     volumes:
-      - ${PWD}:/var/www/app
+      - app-tmp:/app/tmp
+      - ${BASE_LOG_VOLUME_PATH:--./../../../log}/nginx:/app/log
+#      - ${PWD}:/var/www/app
       - './docker/nginx/templates/datacycle.conf.template:/etc/nginx/templates/datacycle.conf.template'
     depends_on:
       - web
@@ -122,3 +126,4 @@ volumes:
   redis:
   node-modules:
   nginx:
+  app-tmp:
