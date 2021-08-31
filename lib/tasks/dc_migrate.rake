@@ -6,20 +6,45 @@ namespace :dc do
     task :external_source_to_system, [:external_system_id] => :environment do |_, args|
       external_system_id = args[:external_system_id]
 
-      exit(-1) if external_system_id.blank?
+      abort('External System Id missing!') if external_system_id.blank?
 
       contents = DataCycleCore::Thing.where(external_source_id: external_system_id).where.not(external_key: nil)
 
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
 
       contents.find_each do |content|
         content.external_source_to_external_system_syncs
 
         progressbar.increment
       end
+
+      ignored = DataCycleCore::Thing.where(external_source_id: external_system_id, external_key: nil).size
+      puts "IGNORED #{ignored} things due to missing external_key" if ignored.positive?
+
+      schedules = DataCycleCore::Schedule.where(external_source_id: external_system_id)
+      puts "MIGRATING: schedules (#{schedules.size})..."
+      schedules.update_all(external_source_id: nil, external_key: nil)
+
+      classifications = DataCycleCore::Classification.where(external_source_id: external_system_id)
+      puts "MIGRATING: classifications (#{classifications.size})..."
+      classifications.update_all(external_source_id: nil, external_key: nil)
+
+      classification_trees = DataCycleCore::ClassificationTreeLabel.where(external_source_id: external_system_id)
+      puts "MIGRATING: classification_trees (#{classification_trees.size})..."
+      classification_trees.update_all(external_source_id: nil)
+
+      classification_groups = DataCycleCore::ClassificationGroup.where(external_source_id: external_system_id)
+      puts "MIGRATING: classification_groups (#{classification_groups.size})..."
+      classification_groups.update_all(external_source_id: nil)
+
+      classification_aliases = DataCycleCore::ClassificationAlias.where(external_source_id: external_system_id)
+      puts "MIGRATING: classification_aliases (#{classification_aliases.size})..."
+      classification_aliases.update_all(external_source_id: nil)
+
+      puts 'MIGRATION SUCCESSFUL'
     end
 
-    desc 'download external assets into dataCycle'
+    desc 'download external assets into dataCycle for things with external_system_id'
     task :download_external_assets, [:external_system_id] => :environment do |_, args|
       logger = Logger.new('log/download_assets.log')
       logger.info('Started Downloading...')
@@ -27,12 +52,24 @@ namespace :dc do
       external_system_id = args[:external_system_id]
       allowed_template_names = DataCycleCore::Thing.where(template: true).where("things.schema -> 'properties' ->> 'asset' IS NOT NULL").pluck(:template_name)
 
-      logger.error('External System not found or no viable Templates found') && exit(-1) if external_system_id.blank? || allowed_template_names.blank?
+      if external_system_id.blank? || allowed_template_names.blank?
+        error = 'external_system_id not given or no viable Templates found'
+        logger.error(error) && abort(error)
+      end
 
-      contents = DataCycleCore::Thing.left_joins(:assets).by_external_system(external_system_id).where(template_name: allowed_template_names).where(assets: { id: nil })
+      asset_SQL = <<-SQL.squish
+        NOT EXISTS (
+          SELECT FROM assets
+          INNER JOIN asset_contents
+          ON asset_contents.asset_id = assets.id
+          WHERE asset_contents.content_data_id = things.id
+        )
+      SQL
 
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
-      logger.info("Downloading assets for #{contents.size} contents...")
+      contents = DataCycleCore::Thing.by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_SQL)
+
+      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
+      logger.info("DOWNLOADING: assets for #{contents.size} things...")
 
       contents.find_each do |content|
         I18n.with_locale(content.first_available_locale) do
@@ -46,9 +83,17 @@ namespace :dc do
 
           logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}") && next unless asset&.save
 
-          valid = content.set_data_hash(data_hash: {
-            asset: asset.id
-          }, partial_update: true, prevent_history: true, update_search_all: false)
+          content.external_source_to_external_system_syncs
+
+          valid = content.set_data_hash(
+            data_hash: {
+              asset: asset.id,
+              url: nil
+            },
+            partial_update: true,
+            prevent_history: true,
+            update_search_all: false
+          )
 
           if valid[:error].present?
             logger.error("Error saving content: #{valid[:error]}")
@@ -60,7 +105,7 @@ namespace :dc do
         end
       end
 
-      logger.info('Finished Downloading...')
+      logger.info('DOWNLOAD SUCCESSFUL')
     end
 
     desc 'migrate embedded Öffnungszeit to opening_time'
