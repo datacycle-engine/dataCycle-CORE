@@ -57,7 +57,7 @@ namespace :dc do
         logger.error(error) && abort(error)
       end
 
-      asset_SQL = <<-SQL.squish
+      asset_sql = <<-SQL.squish
         NOT EXISTS (
           SELECT FROM assets
           INNER JOIN asset_contents
@@ -66,7 +66,7 @@ namespace :dc do
         )
       SQL
 
-      contents = DataCycleCore::Thing.by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_SQL)
+      contents = DataCycleCore::Thing.by_external_system(external_system_id).where(template_name: allowed_template_names).where(asset_sql)
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
       logger.info("DOWNLOADING: assets for #{contents.size} things...")
