@@ -64,17 +64,17 @@ services:
     ports:
       # @todo remove obsolete port for production: run vite rake task
       - '${PUBLIC_VITE_PORT:-3036}:${PUBLIC_VITE_PORT:-3036}'
-    command:
-#       @todo add setup.production.sh + rake vite:build
-#      - rails s
-      - ${COMPOSE_WEB_COMMAND:-./vendor/gems/data-cycle-core/docker/setup.production.sh}
+#    command: bundle exec puma -C /app/vendor/gems/data-cycle-core/docker/web/puma.rb
+#      - ${COMPOSE_WEB_COMMAND:-./vendor/gems/data-cycle-core/docker/setup.production.sh}
     volumes:
 #      - gems:/usr/local/bundle
 #      - ${PWD}:/var/www/app
       - $SSH_AUTH_SOCK:/ssh-agent
 #      - ${PWD}/docker/hist:/root/hist
 #      - node-modules:/node_modules
-      - app-tmp:/app/tmp
+#      - app-tmp:/app/tmp
+      - app:/app
+      - ${BASE_LOG_VOLUME_PATH:--./../../../log}/app:/app/log
 #    user: root
     depends_on:
       - postgres
@@ -107,8 +107,11 @@ services:
       - PUBLIC_APPLICATION_HOST=${PUBLIC_APPLICATION_HOST:-localhost}
       - IMGPROXY_PORT=${IMGPROXY_PORT:-9000}
     volumes:
-      - app-tmp:/app/tmp
-      - ${BASE_LOG_VOLUME_PATH:--./../../../log}/nginx:/app/log
+      - app:/app
+      - ${BASE_LOG_VOLUME_PATH:--./../../../log}/app:/app/log
+      - ${BASE_CACHE_VOLUME_PATH:--./../../../cache}/imgproxy_data_cycle:/var/cache/nginx/imgproxy_data_cycle
+      - ${BASE_CACHE_VOLUME_PATH:--./../../../cache}/data_cycle:/var/cache/nginx/data_cycle
+#      - ${BASE_LOG_VOLUME_PATH:--./../../../log}/nginx:/app/log
 #      - ${PWD}:/var/www/app
       - './docker/nginx/templates/datacycle.conf.template:/etc/nginx/templates/datacycle.conf.template'
     depends_on:
@@ -122,8 +125,9 @@ services:
     environment:
       PORT: '${IMGPROXY_PORT:-9000}'
 volumes:
-  gems:
+#  gems:
   redis:
-  node-modules:
-  nginx:
-  app-tmp:
+#  node-modules:
+#  nginx:
+#  app-tmp:
+  app:

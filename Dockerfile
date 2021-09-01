@@ -7,8 +7,6 @@ FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.0
 
 WORKDIR /app
 
-#RUN mkdir -p /var/www/app
-
 USER ruby
 
 ARG NODE_ENV="production"
@@ -21,18 +19,27 @@ ENV RAILS_ENV="${RAILS_ENV}" \
 COPY --chown=ruby:ruby . .
 
 RUN mkdir -p /app/vendor/gems && chown ruby:ruby -R /app/vendor/gems
-RUN mkdir -p /app/tmp && chown ruby:ruby -R /app/tmp
+RUN mkdir -p /app/tmp/sockets && mkdir -p /app/tmp/pids && chown ruby:ruby -R /app/tmp
 RUN mkdir -p /app/node_modules && chown ruby:ruby -R /app/node_modules
+
+# make sure volume dirs exists
+RUN mkdir -p /app/log && chown ruby:ruby -R /app/log && chmod -R 0664 /app/log
 
 #ENV GEM_HOME /gems
 #ENV BUNDLE_PATH $GEM_HOME
 #ENV BUNDLE_APP_CONFIG $BUNDLE_PATH
 #ENV BUNDLE_BIN $BUNDLE_PATH/bin
 
-#ENV PATH /app/bin:$BUNDLE_BIN:$PATH
+#ENV PATH /app/bin:$PATH
 
 # COPY --chown=ruby:ruby Gemfile* ./
 RUN bundle install --jobs $(nproc)
+
+RUN yarn
+
+RUN bundle exec vite build
+
+RUN rm -Rf /app/node_modules
 
 #ADD Gemfile /var/www/app/Gemfile
 #ADD Gemfile.lock /var/www/app/Gemfile.lock
@@ -42,12 +49,10 @@ RUN bundle install --jobs $(nproc)
 #ADD . /var/www/app
 #RUN chown -R nobody:nogroup /var/www/app
 #USER nobody
-#
-#WORKDIR /var/www/app
-#CMD ["rails", "s"]
 
-ENV RAILS_LOG_TO_STDOUT=true
-ENV RUBYOPT "-W:no-deprecated -W:no-experimental"
+#ENTRYPOINT ["/app/bin/docker-entrypoint-web"]
 
-CMD ["sh", "-c", "bundle exec puma -C /app/vendor/gems/data-cycle-core/docker/web/puma.rb"]
-#CMD RAILS_LOG_TO_STDOUT=true RUBYOPT="-W:no-deprecated -W:no-experimental" bundle exec puma -C /app/vendor/gems/data-cycle-core/docker/web/puma.rb
+#ENV RAILS_LOG_TO_STDOUT=true
+#ENV RUBYOPT "-W:no-deprecated -W:no-experimental"
+
+CMD ["bundle", "exec", "puma", "-C", "/app/vendor/gems/data-cycle-core/docker/web/puma.rb"]

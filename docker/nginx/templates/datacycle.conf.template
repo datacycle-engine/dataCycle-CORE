@@ -43,6 +43,9 @@ server {
   error_page 500 502 504 /500.html;
   error_page 503 @503;
 
+  access_log ${APPLICATION_ROOT}/log/nginx.access.log;
+  error_log ${APPLICATION_ROOT}/log/nginx.error.log;
+
   location @puma_data_cycle {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
@@ -51,9 +54,6 @@ server {
     proxy_redirect off;
     proxy_read_timeout 300;
     proxy_pass http://puma_data_cycle;
-
-    #access_log ${APPLICATION_ROOT}/log/nginx.access.log;
-    #error_log ${APPLICATION_ROOT}/log/nginx.error.log;
   }
 
   location ^~ /assets/ {
