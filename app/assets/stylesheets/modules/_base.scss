@@ -511,8 +511,13 @@ footer {
     top: 1rem;
 
     .type {
-      display: inline-block;
+      display: flex;
+      align-items: center;
       transition: opacity ease-in-out 0.25s;
+
+      > *:not(:last-child) {
+        margin-right: 0.3rem;
+      }
     }
   }
 
@@ -1639,10 +1644,6 @@ a {
       &:not(:last-child) {
         margin-bottom: 0.5rem;
       }
-      .delete-translation-link {
-        float: right;
-        color: $alert-color;
-      }
 
       .buttons {
         position: relative;
@@ -1668,12 +1669,13 @@ a {
             color: darken($primary-color, 30%);
           }
 
-          &.invalidate-data-link {
-            color: map-get($foundation-palette, alert);
+          &.invalidate-data-link,
+          &.delete-translation-link {
+            color: $alert-color;
 
             &:hover,
             &:focus {
-              color: darken(map-get($foundation-palette, alert), 30%);
+              color: darken($alert-color, 30%);
             }
           }
         }

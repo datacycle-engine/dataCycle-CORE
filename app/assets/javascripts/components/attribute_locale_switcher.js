@@ -1,7 +1,7 @@
 class AttributeLocaleSwitcher {
   constructor(localeSwitch) {
     this.$localeSwitch = $(localeSwitch);
-    this.$container = this.$localeSwitch.closest('.reveal, #edit-form');
+    this.$container = this.$localeSwitch.closest('.reveal, #edit-form, .inner-container').first();
     this.$form = this.$container.find('form.validation-form').first();
     this.$localeFormField = this.$form.find(':input[name="locale"]');
     this.locale = this.$localeFormField.val() || 'de';
@@ -45,8 +45,9 @@ class AttributeLocaleSwitcher {
     $target.closest('.attribute-locale-switcher').find('.active').removeClass('active');
     $target.parent('li').addClass('active');
 
-    this.$form.find('.translatable-attribute.active').removeClass('active');
-    this.$form
+    this.$container.find('.template-locale').text(`(${this.activeLocale})`);
+    this.$container.find('.translatable-attribute.active').removeClass('active');
+    this.$container
       .find(`.translatable-attribute.${$target.data('locale')}`)
       .addClass('active')
       .trigger('dc:remote:render');

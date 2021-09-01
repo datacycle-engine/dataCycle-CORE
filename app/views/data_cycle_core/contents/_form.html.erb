@@ -3,7 +3,7 @@
 <%= form_with url: local_assigns[:form_url] || thing_path(content, watch_list_id: watch_list), local: true, method: :patch, class: 'validation-form edit-content-form', data: local_assigns[:form_data_attributes] do |f| %>
   <%= hidden_field_tag :uuid, content.id %>
   <%= hidden_field_tag :table, content.class.table_name %>
-  <%= hidden_field_tag "#{DataCycleCore::EditorHelper::ATTRIBUTE_FIELD_PREFIX}[creator][]", content.created_by %>
+  <%= hidden_field_tag "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[creator][]", content.created_by %>
   <%= hidden_field_tag :locale, @locale %>
   <%= content_for :additional_form_fields %>
 

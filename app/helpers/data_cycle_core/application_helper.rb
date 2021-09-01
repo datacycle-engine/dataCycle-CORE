@@ -176,11 +176,6 @@ module DataCycleCore
       params_hash
     end
 
-    def add_attribute_options(options, definition, scope)
-      attribute_options = definition.try(:[], 'ui').try(:[], scope.to_s).try(:[], 'options')
-      attribute_options.nil? ? options : options.merge(attribute_options)
-    end
-
     def feature_templates(key, definition, content)
       DataCycleCore::FeatureService.enabled_features(content&.schema || definition, key.attribute_name_from_key)
     end
@@ -259,46 +254,6 @@ module DataCycleCore
       partials = partials.map { |p| "data_cycle_core/contents/#{p}_#{partial}" }
 
       render_first_existing_partial(partials, parameters)
-    end
-
-    def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
-
-      return if definition['type'] == 'classification' && !definition['universal'] && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(scope.to_s) } : scope.to_s)
-
-      return if definition['type'] == 'slug' && parameters[:parent]&.embedded?
-
-      type = definition['type'].underscore_blanks
-      type = definition.dig('compute', 'type').underscore_blanks.to_s if definition.dig('compute', 'type').present?
-
-      partials = [
-        definition&.dig('ui', 'show', 'partial').presence,
-        "#{type}_#{key.attribute_name_from_key}",
-        *feature_templates(key, definition, content),
-        definition.dig('ui', 'show', 'type')&.underscore_blanks&.prepend(type, '_').presence,
-        definition.dig('validations', 'format')&.underscore_blanks&.prepend(type, '_').presence,
-        type.to_s
-      ].compact
-
-      partials = partials.map { |p| "data_cycle_core/contents/viewers/#{p}" }
-
-      parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
-
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
-    end
-
-    def render_attribute_history_viewer(key:, definition:, value:, parameters: {}, content: nil)
-      partials = [
-        key.attribute_name_from_key,
-        definition&.dig('ui', 'history', 'type')&.underscore_blanks,
-        "#{definition['type'].underscore_blanks}_#{definition&.dig('validations', 'format')&.underscore_blanks}",
-        definition['type'].underscore_blanks
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/history/#{p}" }
-      begin
-        render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
-      rescue StandardError
-        render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters, content: content, scope: :history
-      end
     end
 
     def render_linked_viewer(key:, definition:, value:, parameters: {}, content: nil)

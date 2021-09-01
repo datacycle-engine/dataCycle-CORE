@@ -1,27 +1,12 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module EditorHelper
+  module AttributeEditorHelper
     ATTRIBUTE_FIELD_PREFIX = 'thing[datahash]'
-    EDITOR_ARGUMENTS = {
-      key: nil,
-      definition: nil,
-      value: nil,
+    RENDER_EDITOR_ARGUMENTS = DataCycleCore::AttributeViewerHelper::RENDER_VIEWER_ARGUMENTS.deep_merge({
       parameters: { options: { edit_scope: 'edit' } },
-      content: nil,
-      scope: :edit,
-      prefix: nil,
-      locale: nil
-    }.freeze
-
-    EditorOptions = Struct.new(*EDITOR_ARGUMENTS.keys, keyword_init: true) do
-      def initialize(**args)
-        args.deep_merge!(EDITOR_ARGUMENTS) { |_k, v1, _v2| v1 }
-        args[:parameters][:options] = (args[:parameters][:options]&.dc_deep_dup || {}).with_indifferent_access
-
-        super(**args)
-      end
-    end
+      scope: :edit
+    }).freeze
 
     def attribute_editable?(key, definition, options, content)
       @attribute_editable ||= Hash.new do |h, k|
@@ -53,9 +38,12 @@ module DataCycleCore
     end
 
     def render_attribute_editor(**args)
-      options = EditorOptions.new(**args)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
 
       options.key = Array.wrap(options.key.is_a?(String) ? options.key.attribute_name_from_key : options.key).map { |k| "[#{k}]" if k != 'properties' }.join.prepend(options.prefix.to_s)
+
+      allowed = attribute_editor_allowed(options)
+      return allowed unless allowed.is_a?(TrueClass)
 
       if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values)
         render_translatable_attribute_editor options.to_h
@@ -64,30 +52,27 @@ module DataCycleCore
       end
     end
 
-    def render_translated_attribute(**args)
-      options = EditorOptions.new(**args)
+    def render_specific_translatable_attribute_editor(**args)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
 
       I18n.with_locale(options.locale) do
         options.value ||= options.content.try(options.key.attribute_name_from_key.to_sym)
+
+        allowed = attribute_editor_allowed(options)
+        return allowed unless allowed.is_a?(TrueClass)
 
         render_untranslatable_attribute_editor options.to_h
       end
     end
 
     def render_translatable_attribute_editor(**args)
-      options = EditorOptions.new(**args)
-
-      allowed = attribute_editor_allowed(options)
-      return allowed unless allowed.is_a?(TrueClass)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
 
       render 'data_cycle_core/contents/editors/translatable_field', options.to_h
     end
 
     def render_untranslatable_attribute_editor(**args)
-      options = EditorOptions.new(**args)
-
-      allowed = attribute_editor_allowed(options)
-      return allowed unless allowed.is_a?(TrueClass)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
 
       partials = [
         options.definition&.dig('ui', options.parameters.dig(:options, :edit_scope), 'partial').presence,
@@ -96,12 +81,12 @@ module DataCycleCore
         *feature_templates(options.key, options.definition, options.content),
         options.definition&.dig('ui', 'edit', 'type')&.underscore_blanks&.prepend(options.definition['type'].underscore_blanks, '_').presence,
         options.definition['type'].underscore_blanks.to_s
-      ].compact
-
-      partials = partials.map { |p| "data_cycle_core/contents/editors/#{p}" }
+      ]
+      partials.compact!
+      partials.map! { |p| "data_cycle_core/contents/editors/#{p}" }
 
       options.parameters[:options][:readonly] = !attribute_editable?(options.key, options.definition, options.parameters[:options], options.content)
-      options.parameters[:options] = add_attribute_options(options.parameters[:options], options.definition, options.scope)
+
       render_first_existing_partial(partials, options.parameters.merge(options.to_h.slice(:key, :definition, :value, :content)))
     end
   end
