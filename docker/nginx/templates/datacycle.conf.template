@@ -22,7 +22,6 @@ upstream docker-imgproxy {
 
 upstream puma_data_cycle {
   server unix:${APPLICATION_ROOT}/tmp/sockets/puma.sock fail_timeout=0;
-  #server web:3000;
 }
 
 server {
@@ -43,8 +42,8 @@ server {
   error_page 500 502 504 /500.html;
   error_page 503 @503;
 
-  access_log ${APPLICATION_ROOT}/log/nginx.access.log;
-  error_log ${APPLICATION_ROOT}/log/nginx.error.log;
+  #access_log ${APPLICATION_ROOT}/log/nginx.access.log;
+  #error_log ${APPLICATION_ROOT}/log/nginx.error.log;
 
   location @puma_data_cycle {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -185,7 +184,7 @@ server {
   location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif)))?$"{
     limit_req zone=req_zone burst=100 nodelay;
 
-    set $rqUrl "http://nginx:${PUBLIC_APPLICATION_PORT}/things/$thing/asset/content";
+    set $rqUrl "http://${PUBLIC_APPLICATION_HOST}:${PUBLIC_APPLICATION_PORT}/things/$thing/asset/content";
 
     # the filename is always ignored by the proxy to avoid DOS attachs. If required the name can be set via Content-Disposition header.
     # when no target type is set, the image will be processed with the source type
@@ -237,7 +236,7 @@ server {
 
   location @image_proxy_redirect {
     set $saved_redirect_location $upstream_http_location;
-    resolver 8.8.8.8 8.8.4.4;
+    resolver 127.0.0.11 8.8.8.8 8.8.4.4;
 
     proxy_pass $saved_redirect_location;
     proxy_cache imgproxy_data_cycle;

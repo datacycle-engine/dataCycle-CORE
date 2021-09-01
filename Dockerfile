@@ -52,7 +52,7 @@ RUN rm -Rf /app/node_modules
 
 #ENTRYPOINT ["/app/bin/docker-entrypoint-web"]
 
-#ENV RAILS_LOG_TO_STDOUT=true
+ENV RAILS_LOG_TO_STDOUT=true
 #ENV RUBYOPT "-W:no-deprecated -W:no-experimental"
 
 CMD ["bundle", "exec", "puma", "-C", "/app/vendor/gems/data-cycle-core/docker/web/puma.rb"]

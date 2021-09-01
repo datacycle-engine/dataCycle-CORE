@@ -75,6 +75,7 @@ services:
 #      - app-tmp:/app/tmp
       - app:/app
       - ${BASE_LOG_VOLUME_PATH:--./../../../log}/app:/app/log
+      - ${BASE_DATA_VOLUME_PATH:-./../../../dcdata}/app:/app/public/uploads
 #    user: root
     depends_on:
       - postgres
