@@ -95,8 +95,8 @@ namespace :dc do
             update_search_all: false
           )
 
-          if valid[:error].present?
-            logger.error("Error saving content: #{valid[:error]}")
+          if valid
+            logger.info("Successfully loaded asset for #{content.id} from #{file_url}")
           else
             logger.error("Error saving content: #{content.errors.messages}")
           end
