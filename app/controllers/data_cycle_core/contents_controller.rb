@@ -89,7 +89,7 @@ module DataCycleCore
     end
 
     def new
-      @resolved_params = resolve_params(new_params)
+      @resolved_params = resolve_params(new_params).symbolize_keys
       @template = DataCycleCore::Thing.find_by(template: true, template_name: @resolved_params[:template])
 
       return if @template.nil?

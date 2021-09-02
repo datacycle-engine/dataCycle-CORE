@@ -1149,7 +1149,7 @@ span.single_error.object-browser-error {
       position: relative;
       background-color: white;
       border-radius: 3px;
-      box-shadow: 0 0 3px #9d9d9d inset;
+      box-shadow: 0 0 3px $dark-gray inset;
       padding: 1rem;
 
       &.accordion-item {

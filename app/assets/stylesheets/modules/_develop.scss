@@ -980,7 +980,7 @@ a.dc-foundation-tooltip {
 .new-item,
 .new-content-reveal {
   iframe {
-    box-shadow: 0 0 1px #9d9d9d;
+    box-shadow: 0 0 1px $dark-gray;
     border: none;
     width: 96vw;
     height: 85vh;
@@ -3183,7 +3183,6 @@ body {
     background: linear-gradient(90deg, #f5f5f5 33%, darken($medium-gray, 5%) 50%, #f5f5f5 66%) #f5f5f5;
     background-size: 300% 100%;
     animation: remote-render-animation 1s infinite linear;
-    box-shadow: 0 0 1px $light-gray inset;
 
     &.result-count {
       min-height: 1rem;
@@ -3191,12 +3190,16 @@ body {
       box-shadow: none;
     }
   }
+  .remote-render-failed {
+    min-height: 2.5rem;
+  }
 }
 
 body {
   .reveal {
     > .remote-render,
-    > .remote-rendering {
+    > .remote-rendering,
+    > .remote-render-failed {
       min-height: 2.5rem;
     }
   }
@@ -3206,7 +3209,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  min-height: inherit;
   text-align: center;
   color: $alert-color;
 

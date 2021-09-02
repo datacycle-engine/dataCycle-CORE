@@ -825,15 +825,12 @@ footer {
         &.remote-render,
         &.remote-rendering,
         &.remote-render-failed {
-          min-height: 3rem;
+          min-height: 6rem;
+          box-shadow: 0 0 1px $light-gray inset;
         }
 
         &.remote-render-failed {
           background: $light-gray;
-        }
-
-        > .remote-render-error {
-          min-height: 3rem;
         }
       }
 

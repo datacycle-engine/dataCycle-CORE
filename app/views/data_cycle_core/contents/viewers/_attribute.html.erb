@@ -1,6 +1,6 @@
 <% if value.present? || options.dig(:force_render).to_s == 'true' || value.is_a?(FalseClass) %>
 
-  <% mode = options.fetch(:mode, 'has-changes edit') %>
+  <% mode = options.dig(:mode) || 'has-changes edit' %>
   <% translated_label = translated_attribute_label(key, definition, local_assigns[:content], options) %>
 
   <%= tag.div class: "detail-type #{[

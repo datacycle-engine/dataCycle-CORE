@@ -1,7 +1,7 @@
 var renderedHtml;
 
 <% if @render_function.present? && respond_to?(@render_function) %>
-  renderedHtml = $('<%= j try(@render_function, (@render_params || {}).merge(parameters: @options)) %>')
+  renderedHtml = $('<%= j try(@render_function, (@render_params || {}).deep_merge(parameters: @options)) %>')
 <% else %>
   renderedHtml = $('<%= j render(@partial, @options) %>')
 <% end %>

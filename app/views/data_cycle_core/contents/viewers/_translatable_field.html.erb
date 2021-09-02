@@ -6,10 +6,9 @@
         key: key.gsub(/\[datahash\]/, "[translations][#{a_locale.to_s}]"),
         locale: a_locale,
         definition: definition,
-        value: (I18n.locale == a_locale ? (local_assigns[:value]) : nil),
         content: content
       ).to_json %>"
-      data-remote-options="<%= to_query_params({ options: local_assigns[:options] }).to_json %>">
+      data-remote-options="<%= to_query_params(local_assigns.dig(:parameters)&.slice(:parent, :options) || {}).to_json %>">
     </div>
   <% end %>
 </div>

@@ -55,7 +55,8 @@ module DataCycleCore
       allowed = attribute_viewer_allowed(options)
       return allowed unless allowed.is_a?(TrueClass)
 
-      if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values)
+      if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) ||
+         object_has_translatable_attributes?(options.content, options.definition)
         render_translatable_attribute_viewer options.to_h
       else
         render_untranslatable_attribute_viewer options.to_h
@@ -72,7 +73,7 @@ module DataCycleCore
       options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
 
       I18n.with_locale(options.locale) do
-        options.value ||= options.content.try(options.key.attribute_name_from_key.to_sym)
+        options.value ||= options.parameters[:parent]&.try(options.key.attribute_name_from_key) || options.content.try(options.key.attribute_name_from_key)
 
         allowed = attribute_editor_allowed(options)
         return allowed unless allowed.is_a?(TrueClass)

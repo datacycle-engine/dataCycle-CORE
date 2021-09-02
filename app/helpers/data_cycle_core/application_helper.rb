@@ -164,15 +164,23 @@ module DataCycleCore
 
     def to_query_params(options_hash)
       params_hash = {}
+
+      return params_hash if options_hash.blank?
+
       options_hash.each do |key, value|
         if value.is_a?(ActiveRecord::Base)
           params_hash[key] = { id: value&.id, class: value&.class&.name }
         elsif value.is_a?(ActiveRecord::Relation)
           params_hash[key] = { ids: value&.ids, class: value&.klass&.name }
+        elsif value.is_a?(OpenStruct)
+          params_hash[key] = { value: value.to_h, class: 'OpenStruct' }
+        elsif value.is_a?(::Hash)
+          params_hash[key] = to_query_params(value)
         else
           params_hash[key] = value
         end
       end
+
       params_hash
     end
 
