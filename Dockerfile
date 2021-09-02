@@ -9,10 +9,12 @@ WORKDIR /app
 
 USER ruby
 
+ARG APP_DOCKER_ENV="production"
 ARG NODE_ENV="production"
 ARG RAILS_ENV="production"
 ENV RAILS_ENV="${RAILS_ENV}" \
     NODE_ENV="${NODE_ENV}" \
+    APP_DOCKER_ENV="${APP_DOCKER_ENV}" \
     PATH="${PATH}:/home/ruby/.local/bin" \
     USER="ruby"
 

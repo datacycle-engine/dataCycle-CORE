@@ -109,10 +109,9 @@ services:
       - IMGPROXY_PORT=${IMGPROXY_PORT:-9000}
     volumes:
       - app:/app
-      - ${BASE_LOG_VOLUME_PATH:--./../../../log}/app:/app/log
+      - ${BASE_LOG_VOLUME_PATH:--./../../../log}/nginx:/var/log/datacycle
       - ${BASE_CACHE_VOLUME_PATH:--./../../../cache}/imgproxy_data_cycle:/var/cache/nginx/imgproxy_data_cycle
       - ${BASE_CACHE_VOLUME_PATH:--./../../../cache}/data_cycle:/var/cache/nginx/data_cycle
-#      - ${BASE_LOG_VOLUME_PATH:--./../../../log}/nginx:/app/log
 #      - ${PWD}:/var/www/app
       - './docker/nginx/templates/datacycle.conf.template:/etc/nginx/templates/datacycle.conf.template'
     depends_on:
