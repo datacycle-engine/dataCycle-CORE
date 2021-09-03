@@ -14,6 +14,13 @@ class AttributeLocaleSwitcher {
     this.$localeFormField.on('change', this.updateLocale.bind(this));
     this.$form.on('dc:form:validationError', this.updateLocaleWithError.bind(this));
     this.$form.on('dc:form:removeValidationError', this.removeLocaleError.bind(this));
+    $(window).on('popstate', this.reloadState.bind(this));
+  }
+  reloadState(_event) {
+    if (history.state && history.state.locale)
+      this.$localeSwitch
+        .find(`.available-attribute-locale[data-locale="${history.state.locale}"]`)
+        .trigger('click', { preventHistory: true });
   }
   updateLocaleWithError(event, data) {
     event.preventDefault();
@@ -36,7 +43,12 @@ class AttributeLocaleSwitcher {
         .find(`.available-attribute-locale.validation-${data.type}`)
         .removeClass(`validation-${data.type}`);
   }
-  changeTranslation(event) {
+  pushStateToHistory() {
+    const url = new URL(window.location);
+    url.searchParams.set('locale', this.activeLocale);
+    history.pushState({ locale: this.activeLocale }, '', url);
+  }
+  changeTranslation(event, data = null) {
     event.preventDefault();
 
     const $target = $(event.currentTarget);
@@ -51,6 +63,8 @@ class AttributeLocaleSwitcher {
       .find(`.translatable-attribute.${$target.data('locale')}`)
       .addClass('active')
       .trigger('dc:remote:render');
+
+    if (!data || !data.preventHistory) this.pushStateToHistory();
   }
   updateLocale(event) {
     this.locale = $(event.target).val();
