@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.2
 
-FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.0
+FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.0 as base
 
 #RUN echo "shopt -s histappend" >> /root/.bashrc
 #RUN echo "PROMPT_COMMAND=\"\${PROMPT_COMMAND}\${PROMPT_COMMAND:+;}history -a; history -n\"" >> /root/.bashrc
@@ -36,6 +36,12 @@ RUN mkdir -p /app/log && chown ruby:ruby -R /app/log && chmod -R 0664 /app/log
 
 # COPY --chown=ruby:ruby Gemfile* ./
 RUN bundle install --jobs $(nproc)
+
+CMD ["bash"]
+
+###############################################################################
+
+FROM base AS production
 
 RUN yarn
 
