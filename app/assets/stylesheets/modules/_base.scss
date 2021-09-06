@@ -1443,6 +1443,7 @@ body .v-select {
 
           > label {
             padding-left: 0;
+            padding-top: 8px;
           }
 
           > .ql-toolbar {
@@ -1451,7 +1452,6 @@ body .v-select {
 
           > label,
           > .ql-toolbar {
-            align-items: flex-end;
             height: 2rem;
             background-color: white;
             border: none;

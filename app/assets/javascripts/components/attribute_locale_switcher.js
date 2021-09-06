@@ -5,7 +5,6 @@ class AttributeLocaleSwitcher {
     this.$form = this.$container.find('form.validation-form').first();
     this.$localeFormField = this.$form.find(':input[name="locale"]');
     this.locale = this.$localeFormField.val() || 'de';
-    this.activeLocale = this.locale;
 
     this.init();
   }
@@ -45,30 +44,44 @@ class AttributeLocaleSwitcher {
   }
   pushStateToHistory() {
     const url = new URL(window.location);
-    url.searchParams.set('locale', this.activeLocale);
-    history.pushState({ locale: this.activeLocale }, '', url);
+    url.searchParams.set('locale', this.locale);
+    history.pushState({ locale: this.locale }, '', url);
   }
   changeTranslation(event, data = null) {
     event.preventDefault();
 
     const $target = $(event.currentTarget);
 
-    this.activeLocale = $target.data('locale');
+    this.locale = $target.data('locale');
     $target.closest('.attribute-locale-switcher').find('.active').removeClass('active');
     $target.parent('li').addClass('active');
 
-    this.$container.find('.template-locale').text(`(${this.activeLocale})`);
-    this.$container.find('.translatable-attribute.active').removeClass('active');
-    this.$container
-      .find(`.translatable-attribute.${$target.data('locale')}`)
-      .addClass('active')
-      .trigger('dc:remote:render');
+    this.$container.find('.template-locale').text(`(${this.locale})`);
+    this.changeTranslationRecursive(this.$container);
+    this.updateLocaleRecursive();
 
     if (!data || !data.preventHistory) this.pushStateToHistory();
   }
+  changeTranslationRecursive(container) {
+    $(container)
+      .find(`.translatable-attribute.${this.locale}, .translatable-field.${this.locale}`)
+      .each((_index, item) => {
+        if ($(item).siblings('.active').length) {
+          $(item).siblings('.active').removeClass('active');
+          $(item).addClass('active').trigger('dc:remote:render');
+        }
+      });
+
+    $(container)
+      .find('[data-open], [data-toggle]')
+      .each((_index, item) => {
+        this.changeTranslationRecursive($(`#${$(item).data('open') || $(item).data('toggle')}`));
+      });
+  }
   updateLocale(event) {
-    this.locale = $(event.target).val();
-    this.updateLocaleRecursive();
+    this.$localeSwitch
+      .find(`.available-attribute-locale[data-locale="${$(event.target).val()}"]`)
+      .trigger('click', { preventHistory: true });
   }
   updateLocaleRecursive(container = this.$form) {
     $(container)
@@ -77,7 +90,7 @@ class AttributeLocaleSwitcher {
         if ($(elem).data('locale') != this.locale) $(elem).data('locale', this.locale).trigger('dc:locale:changed');
       });
     $(container)
-      .find('.remote-render')
+      .find('.remote-render:not(.translatable-attribute):not(.translatable-field)')
       .each((_i, elem) => {
         if ($(elem).data('remote-options').locale !== undefined) $(elem).data('remote-options').locale = this.locale;
       });
@@ -97,9 +110,9 @@ class AttributeLocaleSwitcher {
         if ($(elem).data('locale') != this.locale) $(elem).data('locale', this.locale);
       });
     $(container)
-      .find('.button.show-objectbrowser, .new-content-button')
-      .each((_i, elem) => {
-        this.updateLocalesRecursive($('#' + ($(elem).data('open') || $(elem).data('toggle'))));
+      .find('[data-open], [data-toggle]')
+      .each((_index, item) => {
+        this.updateLocaleRecursive($(`#${$(item).data('open') || $(item).data('toggle')}`));
       });
   }
 }

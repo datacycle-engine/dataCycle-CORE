@@ -194,6 +194,7 @@ class ObjectBrowser {
   }
   updateLocale(e) {
     e.stopPropagation();
+
     this.locale = this.element.data('locale');
   }
   submitWithoutRedirectHandler(event) {

@@ -5,7 +5,16 @@
     <% objects = (objects.to_a || []).concat(new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
     <% objects.presence&.each do |item| %>
-      <%= render_linked_partial key: "#{key}[]", definition: definition, content: content, parameters: { options: options, object: item, object_id: [item.id], prefix: local_assigns.dig(:options, :prefix), tile_links: true } %>
+      <%= render_linked_partial key: "#{key}[]",
+                                definition: definition,
+                                content: content,
+                                parameters: {
+                                  options: options,
+                                  object: item,
+                                  object_id: [item.id],
+                                  prefix: local_assigns.dig(:options, :prefix),
+                                  tile_links: true
+                                } %>
     <% end %>
 
     <span class="clear-both">

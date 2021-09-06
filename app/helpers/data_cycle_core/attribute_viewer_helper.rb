@@ -121,5 +121,24 @@ module DataCycleCore
         render_attribute_viewer options.to_h
       end
     end
+
+    def render_linked_content_warnings(content, params)
+      if I18n.available_locales.many? && content&.translatable?
+        render('data_cycle_core/contents/grid/attributes/translatable_warnings', params)
+      else
+        tag.span(
+          render('data_cycle_core/contents/grid/attributes/warnings', params),
+          class: 'linked-content-warnings'
+        )
+      end
+    end
+
+    def render_translatable_linked_field(content, partial, params)
+      if I18n.available_locales.many? && content&.translatable?
+        render('data_cycle_core/contents/grid/compact/attributes/translatable_field', params: params, partial: partial)
+      else
+        render(partial, params)
+      end
+    end
   end
 end

@@ -2503,7 +2503,15 @@ input.normalized {
     }
   }
 }
+.translatable-field-container {
+  .translatable-field {
+    display: none;
 
+    &.active {
+      display: block;
+    }
+  }
+}
 .translatable-attribute-container {
   position: relative;
 
@@ -2738,6 +2746,24 @@ section.duplicate-candidates {
     display: none;
   }
 }
+
+.object-browser,
+.object-browser-overlay,
+[data-editor='object_browser'] {
+  .tile-top {
+    display: flex;
+
+    > *:not(:last-child) {
+      margin-right: 0.3rem;
+    }
+
+    .translatable-field-container {
+      flex: auto;
+      // display: inline-block;
+    }
+  }
+}
+
 .object-browser-overlay {
   .tile-properties:not(:last-child) {
     padding-bottom: 1rem;
