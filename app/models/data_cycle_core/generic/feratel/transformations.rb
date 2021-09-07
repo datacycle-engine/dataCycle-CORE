@@ -398,7 +398,7 @@ module DataCycleCore
           .>> t(:map_value, 'url', ->(s) { parse_url(s) })
           .>> t(:add_field, 'id', ->(s) { t(:find_thing_ids).call(external_system_id: external_source_id, external_key: s.dig('external_key'), limit: 1).first })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
-          .>> t(:add_field, 'action_type', ->(_) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'View')) })
+          .>> t(:add_field, 'action_type', ->(_) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'externer Link')) })
           .>> t(:reject_keys, ['ChangeDate', 'Type', 'Order', 'Names'])
         end
 
@@ -544,6 +544,7 @@ module DataCycleCore
           .>> t(:add_field, 'content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
           .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
           .>> t(:add_links, 'linked_thing', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('Details', 'ConnectedEntries', 'ConnectedEntry'))&.flatten&.map { |item| item&.dig('Id') } || [] })
+          .>> t(:add_field, 'dc_potential_action', ->(s) { parse_links(s.dig('Links', 'Link'), external_source_id) })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap_description, ['EventHeader'])
@@ -1016,7 +1017,7 @@ module DataCycleCore
               dstart = nil
               dend = nil
               dstart = Time.zone.parse(date['From']) if date['From'].present?
-              dend = Time.zone.parse(date['To']) if date['To'].present?
+              dend = Time.zone.parse(date['To'])&.end_of_day if date['To'].present?
 
               res << {
                 start_time: { time: dstart, zone: dstart.time_zone.name },

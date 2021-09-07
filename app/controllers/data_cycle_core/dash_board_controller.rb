@@ -15,10 +15,10 @@ module DataCycleCore
     def download
       @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
-        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: helpers.active_ui_locale
       else
         DownloadJob.perform_later(@external_source.id)
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale
       end
       redirect_to admin_path
     end
@@ -26,10 +26,10 @@ module DataCycleCore
     def import
       @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
-        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: helpers.active_ui_locale
       else
         ImportOnlyJob.perform_later(@external_source.id)
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale
       end
       redirect_to admin_path
     end
@@ -37,10 +37,10 @@ module DataCycleCore
     def import_full
       @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import_full', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
-        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: helpers.active_ui_locale
       else
         ImportFullJob.perform_later(@external_source.id)
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale
       end
       redirect_to admin_path
     end
@@ -48,10 +48,10 @@ module DataCycleCore
     def download_full
       @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download_full', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
-        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: helpers.active_ui_locale
       else
         DownloadFullJob.perform_later(@external_source.id)
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale
       end
       redirect_to admin_path
     end
@@ -59,10 +59,10 @@ module DataCycleCore
     def download_import
       @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download_import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
-        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: helpers.active_ui_locale
       else
         ImportJob.perform_later(@external_source.id)
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: helpers.active_ui_locale
       end
       redirect_to admin_path
     end
@@ -78,7 +78,7 @@ module DataCycleCore
       @duplicates = nil
       errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
       if errors.blank? && duplicates.blank?
-        flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'data types', locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'data types', locale: helpers.active_ui_locale
       else
         error_level = errors.blank? ? :notice : :error
         @errors = errors
@@ -94,7 +94,7 @@ module DataCycleCore
 
     def import_classifications
       MasterData::ImportClassifications.import_all
-      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'basic classification trees', locale: DataCycleCore.ui_language
+      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'basic classification trees', locale: helpers.active_ui_locale
       redirect_to admin_path
     end
 
@@ -102,7 +102,7 @@ module DataCycleCore
       @errors = nil
       errors = MasterData::ImportExternalSystems.import_all
       if errors.blank?
-        flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'import external systems', locale: DataCycleCore.ui_language
+        flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'import external systems', locale: helpers.active_ui_locale
       else
         @errors = errors
         puts 'errors:'
@@ -128,7 +128,7 @@ module DataCycleCore
       when 'details'
         activities = DataCycleCore::Activity.activity_details
       else
-        render(json: { error: I18n.t(:unknown_activity_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return
+        render(json: { error: I18n.t(:unknown_activity_type, scope: [:controllers, :error], locale: helpers.active_ui_locale) }) && return
       end
       render json: { data: activities&.as_json&.map { |activity| activity.except('id') } }
     end

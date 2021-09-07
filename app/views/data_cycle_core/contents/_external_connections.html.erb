@@ -15,11 +15,11 @@
                   <%= tag.span(sync[:name] || sync[:external_key], class: 'copy-to-clipboard', title: sync[:title], data: { value: sync[:external_key] }) %>
                 <% end %>
 
-                <%= tag.span(l(sync[:date], locale: DataCycleCore.ui_language, format: :history), class: 'last-successful-sync-at') if sync[:date].present? %>
+                <%= tag.span(l(sync[:date], locale: active_ui_locale, format: :history), class: 'last-successful-sync-at') if sync[:date].present? %>
 
-                <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', title: t('actions.external_edit', locale: DataCycleCore.ui_language), target: :_blank if sync[:external_edit_url].present? %>
+                <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', title: t('actions.external_edit', locale: active_ui_locale), target: :_blank if sync[:external_edit_url].present? %>
 
-                <%= link_to tag.i(class: 'external-link-icon fa fa-external-link'), sync[:external_detail_url], class: 'external-detail-link', title: t('actions.external_detail', locale: DataCycleCore.ui_language), target: :_blank if sync[:external_detail_url].present? %>
+                <%= link_to tag.i(class: 'external-link-icon fa fa-external-link'), sync[:external_detail_url], class: 'external-detail-link', title: t('actions.external_detail', locale: active_ui_locale), target: :_blank if sync[:external_detail_url].present? %>
               </li>
             <% end %>
           </ul>

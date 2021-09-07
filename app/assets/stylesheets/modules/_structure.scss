@@ -9,10 +9,10 @@ body {
   flex: auto;
   display: flex;
   flex-flow: column;
+  overflow: unset;
 }
 
 .off-canvas-content {
-  overflow: hidden;
   flex: auto;
   display: flex;
   flex-flow: column nowrap;
@@ -37,8 +37,9 @@ textarea {
 /* Header */
 
 header {
-  z-index: 3;
+  z-index: 22;
   position: relative;
+  border-top: 0.3rem solid $customercolor;
 
   .top-bar {
     height: 4.1rem;
@@ -320,6 +321,7 @@ body.with-glass {
   background-attachment: fixed;
   background-size: cover;
   background-image: var(--dc-background-image-url);
+  border-top: 0.3rem solid $customercolor;
   display: flex;
   align-items: center;
   justify-content: center;

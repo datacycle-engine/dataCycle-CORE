@@ -11,6 +11,8 @@ module DataCycleCore
           @max_retry = 5
           @per = options[:per] || 25
           @params = options.dig(:options, :params)
+          @iteration_depth = @params[:iteration_depth] || 3
+          @updated_since = @params[:changed_from]
         end
 
         def things(*)
@@ -53,6 +55,9 @@ module DataCycleCore
             req.headers['Content-Type'] = 'application/json'
             req.params['token'] = @token
             req.params['page'] = { number: page, size: @per }
+            req.params['language'] = @params[:locales].join(',') if @params[:locales].present?
+            req.params['updated_since'] = @updated_since.to_s if @updated_since.present?
+            req.params['iteration_depth'] = @iteration_depth
           end
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
           JSON.parse(response.body)
@@ -71,6 +76,8 @@ module DataCycleCore
           response = connection.post do |req|
             req.headers['Content-Type'] = 'application/json'
             req.params['token'] = @token
+            req.params['language'] = @params[:locales].join(',') if @params[:locales].present?
+            req.params['iteration_depth'] = @iteration_depth
           end
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
           JSON.parse(response.body)

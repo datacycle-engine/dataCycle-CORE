@@ -30,7 +30,7 @@ module DataCycleCore
 
           redirect_back(fallback_location: root_path, alert: valid[:error]) && return if valid[:error].present?
 
-          redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: DataCycleCore.ui_language))
+          redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: helpers.active_ui_locale))
         end
       end
     end

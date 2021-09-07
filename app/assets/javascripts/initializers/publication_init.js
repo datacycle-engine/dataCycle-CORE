@@ -1,4 +1,4 @@
-import Spinner from './../components/loading_spinner';
+import loadingIcon from '../templates/loadingIcon';
 
 export default function () {
   if ($('.publications-list').length) {
@@ -33,16 +33,15 @@ export default function () {
         }
       );
       loading = true;
-      var spinner = new Spinner($('.publications-list'));
-      spinner.show();
+      $('.publications-list').append(loadingIcon());
       DataCycle.httpRequest({
         url: url,
         method: method,
         data: form_data,
         dataType: 'script'
-      }).done(data => {
+      }).done(_data => {
         loading = false;
-        spinner.hide();
+        $('.publications-list .loading').remove();
         if (
           page < pages &&
           !loading &&
@@ -63,7 +62,7 @@ export default function () {
       load_more();
     }
 
-    $(document).on('scroll', event => {
+    $(document).on('scroll', _event => {
       if (!loading && $(window).scrollTop() + $(window).height() >= $(document).height() - 100 && page < pages) {
         load_more();
       }

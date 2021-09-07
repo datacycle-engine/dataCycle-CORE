@@ -6,7 +6,7 @@
 <% end %>
 
 <div class="form-element">
-  <%= label_tag "#{local_assigns.dig(:options, :prefix)}source", t('common.splitsource', locale: DataCycleCore.ui_language) %>
+  <%= label_tag "#{local_assigns.dig(:options, :prefix)}source", t('common.splitsource', locale: active_ui_locale) %>
 
   <div class="v-select white">
     <%= select_tag('source', options_for_select(sources), { class: 'single-select select', data: { placeholder: '' }, include_blank: true, id: "#{local_assigns.dig(:options, :prefix)}source" }) %>

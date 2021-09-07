@@ -1,6 +1,6 @@
 <div class="column detail-header-wrapper">
 
-  <div class="detail-header">
+  <div class="detail-header <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>">
     <%= render_content_partial 'header_top', content: content %>
 
     <% content_title = yield %>
@@ -58,7 +58,7 @@
     <% if content_for?(:mapped_hidden_classifications) %>
       <ul class="hidden-classifications no-bullet" data-accordion data-allow-all-closed="true">
         <li class="accordion-item" data-accordion-item>
-          <a href="#" class="accordion-title"><%= t('common.additional_classifications', locale: DataCycleCore.ui_language) %></a>
+          <a href="#" class="accordion-title"><%= t('common.additional_classifications', locale: active_ui_locale) %></a>
 
           <div class="accordion-content" data-tab-content>
             <%= content_for :mapped_hidden_classifications %>

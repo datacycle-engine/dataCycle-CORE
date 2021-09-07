@@ -1,7 +1,7 @@
 <ul class="clickable-menu">
   <li class="dropdown-menu-item search-history-short">
     <i class="fa fa-clock-o" aria-hidden="true"></i>
-    <span class="title"><%= t('data_cycle_core.stored_searches.last', locale: DataCycleCore.ui_language) %></span>
+    <span class="title"><%= t('data_cycle_core.stored_searches.last', locale: active_ui_locale) %></span>
 
     <ul class="no-bullet">
       <% @accessible_stored_filters.order(updated_at: :desc).first(9).each do |stored_filter| %>
@@ -14,26 +14,26 @@
           <% end %>
         </li>
       <% end %>
-      <li><%= link_to t('data_cycle_core.stored_searches.show_search_history', locale: DataCycleCore.ui_language), stored_filters_path(anchor: 'searches-history'), class: 'button' %></li>
+      <li><%= link_to t('data_cycle_core.stored_searches.show_search_history', locale: active_ui_locale), stored_filters_path(anchor: 'searches-history'), class: 'button' %></li>
     </ul>
   </li>
 
   <li class="dropdown-menu-item search-favorites-short">
     <i class="fa fa-filter" aria-hidden="true"></i>
-    <span class="title"><%= t('data_cycle_core.stored_searches.saved', count: 2, locale: DataCycleCore.ui_language) %></span>
+    <span class="title"><%= t('data_cycle_core.stored_searches.saved', count: 2, locale: active_ui_locale) %></span>
 
     <ul class="no-bullet">
       <% @accessible_stored_filters.where.not(name: nil).order(updated_at: :desc).first(9).each do |stored_filter| %>
         <li>
           <%= link_to root_path(stored_filter: stored_filter.id) do %>
             <span class="title <%= 'global' if stored_filter.system %>"><i class="fa fa-filter" aria-hidden="true"></i> <%= stored_filter.name %></span>
-            <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), locale: DataCycleCore.ui_language) %></span>
+            <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), locale: active_ui_locale) %></span>
           <% end %>
 
           <%= render 'data_cycle_core/application/preview/widget_list', content: stored_filter if DataCycleCore::Feature::Preview.enabled? && stored_filter.api %>
         </li>
       <% end %>
-      <li><%= link_to t('data_cycle_core.stored_searches.show_all_saved', count: 1, locale: DataCycleCore.ui_language), stored_filters_path(anchor: 'searches-saved'), class: 'button' %></li>
+      <li><%= link_to t('data_cycle_core.stored_searches.show_all_saved', count: 1, locale: active_ui_locale), stored_filters_path(anchor: 'searches-saved'), class: 'button' %></li>
     </ul>
   </li>
 </ul>

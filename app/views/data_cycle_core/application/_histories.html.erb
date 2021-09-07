@@ -1,4 +1,4 @@
-<h5><%= t('history.latest_edits', locale: DataCycleCore.ui_language) %>:</h5>
+<h5><%= t('history.latest_edits', locale: active_ui_locale) %>:</h5>
 <ul class="list-items">
   <% history_entries = complete_history_list(content) %>
   <% history_entries.each.with_index do |item, index| %>

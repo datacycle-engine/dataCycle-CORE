@@ -1,11 +1,12 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'object embedded_object'), content: content, parent: local_assigns[:parent] do %>
 
   <% objects = value.presence %>
+  <% translated_label = yield_content!(:attribute_label) %>
 
   <div class="embedded-object" id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>"
     data-locale="<%= I18n.locale.to_s %>"
     data-key="<%= key %>"
-    data-label="<%= definition['label'] %>"
+    data-label="<%= translated_label %>"
     data-definition="<%= definition.to_json %>"
     data-options="<%= options.to_json %>"
     data-total="<%= value.presence&.size %>"
@@ -44,7 +45,7 @@
     <% end %>
 
     <span class="buttons">
-      <%= embedded_add_button(definition['label'], "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", !attribute_editable?(key, definition, options, content)) %>
+      <%= embedded_add_button(translated_label, "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", !attribute_editable?(key, definition, options, content)) %>
     </span>
   </div>
 

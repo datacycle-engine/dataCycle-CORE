@@ -1,5 +1,6 @@
 import Flatpickr from 'flatpickr';
 import { German } from 'flatpickr/dist/l10n/de.js';
+import { english } from 'flatpickr/dist/l10n/default';
 import ConfirmationModal from './../components/confirmation_modal';
 import DataCycle from './data_cycle';
 import castArray from 'lodash/castArray';
@@ -12,8 +13,12 @@ class DatePicker {
     this.sibling;
     this.calInstance;
     this.conditionalFormField = this.element.closest('.conditional-form-field');
+    this.localeMapping = {
+      de: German,
+      en: english
+    };
     this.defaultOptions = {
-      locale: German,
+      locale: this.localeMapping[DataCycle.uiLocale],
       altInput: true,
       time_24hr: true,
       allowInput: true,
@@ -52,6 +57,12 @@ class DatePicker {
     };
     this.keyMappings = Object.assign({}, this.startKeys, this.endKeys);
     this.keyRegExp = new RegExp(`(${Object.keys(this.keyMappings).join('|')})`, 'gi');
+    this.eventHandlers = {
+      change: this.updateDatePicker.bind(this),
+      reInit: this.reInit.bind(this),
+      setDate: this.setDate.bind(this),
+      import: this.importData.bind(this)
+    };
 
     this.setup();
   }
@@ -62,16 +73,16 @@ class DatePicker {
     this.initCalInstance();
   }
   initEvents() {
-    $(this.calInstance.altInput).on('change', this.updateDatePicker.bind(this));
-    $(this.calInstance.altInput).on('dc:flatpickr:reInit', this.reInit.bind(this));
-    $(this.calInstance.altInput).on('dc:flatpickr:setDate', this.setDate.bind(this));
-    $(this.calInstance.altInput).on('dc:import:data', this.importData.bind(this));
+    $(this.calInstance.altInput).on('change', this.eventHandlers.change);
+    $(this.calInstance.altInput).on('dc:flatpickr:reInit', this.eventHandlers.reInit);
+    $(this.calInstance.altInput).on('dc:flatpickr:setDate', this.eventHandlers.setDate);
+    $(this.calInstance.altInput).on('dc:import:data', this.eventHandlers.import);
   }
   removeEvents() {
-    $(this.calInstance.altInput).off('change', this.updateDatePicker.bind(this));
-    $(this.calInstance.altInput).off('dc:flatpickr:reInit', this.reInit.bind(this));
-    $(this.calInstance.altInput).off('dc:flatpickr:setDate', this.setDate.bind(this));
-    $(this.calInstance.altInput).off('dc:import:data', this.importData.bind(this));
+    $(this.calInstance.altInput).off('change', this.eventHandlers.change);
+    $(this.calInstance.altInput).off('dc:flatpickr:reInit', this.eventHandlers.reInit);
+    $(this.calInstance.altInput).off('dc:flatpickr:setDate', this.eventHandlers.setDate);
+    $(this.calInstance.altInput).off('dc:import:data', this.eventHandlers.import);
   }
   setupCache() {
     if (!DataCycle.cache.holidays) {
@@ -193,7 +204,7 @@ class DatePicker {
 
     return options;
   }
-  importData(event, data) {
+  async importData(event, data) {
     event.stopImmediatePropagation();
 
     if (this.calInstance.altInput.value.length === 0 || (data && data.force)) {
@@ -201,9 +212,9 @@ class DatePicker {
       this.updateConditionalField(data.value);
     } else {
       new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
+        text: await I18n.translate('frontend.override_warning', { data: data.label }),
+        confirmationText: await I18n.translate('common.yes'),
+        cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: () => {

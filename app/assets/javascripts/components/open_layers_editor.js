@@ -1,6 +1,7 @@
 import OpenLayersViewer from './open_layers_viewer';
 import { gpx } from '@tmcw/togeojson';
 import ConfirmationModal from './confirmation_modal';
+import RemoveAllFeaturesControl from './ol_remove_all_features_control';
 
 class OpenLayersEditor extends OpenLayersViewer {
   constructor(container) {
@@ -15,7 +16,6 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.$geoCodeButton = $('.geocode-address-button').first();
     this.$mapEditContainer = this.$parentContainer.siblings('.map-edit').first();
     this.$mapInfoContainer = this.$parentContainer.siblings('.map-info').first();
-    this.$removeFeatureButton = this.$mapEditContainer.children('.remove-feature-button').first();
     this.$uploadButton = this.$mapEditContainer.children('.upload-gpx-button').first();
     this.$uploadInput = this.$mapEditContainer.children('.upload-gpx-input').first();
     this.$latitudeField = this.$mapInfoContainer.find('.latitude input').first();
@@ -31,6 +31,7 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     this.initMap().then(() => {
       this.initMapHoverActions();
+      this.initAdditionalControls();
       this.initMapActions();
       if (this.uploadable) this.initUploadActions();
       this.updateMapPosition();
@@ -38,8 +39,12 @@ class OpenLayersEditor extends OpenLayersViewer {
   }
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this));
+    this.$container.on('dc:map:resetPrimaryFeature', this.removeFeature.bind(this));
   }
-  importData(_event, data) {
+  initAdditionalControls() {
+    this.map.addControl(new RemoveAllFeaturesControl());
+  }
+  async importData(_event, data) {
     if (
       ((!this.$elevationField.val() || this.$elevationField.val().length == 0) &&
         this.$locationField.val().length == 0) ||
@@ -50,9 +55,9 @@ class OpenLayersEditor extends OpenLayersViewer {
       this.$longitudeField.val(data.value.x).trigger('change');
     } else {
       new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
+        text: await I18n.translate('frontend.override_warning', { data: data.label }),
+        confirmationText: await I18n.translate('common.yes'),
+        cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: function () {
@@ -77,9 +82,6 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     this.$latitudeField.on('change', this.updateMapMarker.bind(this));
     this.$longitudeField.on('change', this.updateMapMarker.bind(this));
-
-    DataCycle.enableElement(this.$removeFeatureButton);
-    if (this.$removeFeatureButton) this.$removeFeatureButton.on('click', this.removeFeature.bind(this));
   }
   initMapDrawableActions() {
     this.drawing = true;
@@ -207,16 +209,16 @@ class OpenLayersEditor extends OpenLayersViewer {
       this.$uploadInput.click();
     }
   }
-  handleUploadFile(evt) {
+  async handleUploadFile(evt) {
     let file = evt.target.files[0] || null;
     if (!file) {
       new ConfirmationModal({
-        text: 'Datei nicht gefunden!'
+        text: await I18n.translate('frontend.gpx.file_missing')
       });
     } else {
       const reader = new FileReader();
       reader.onload = (_gpxFile => {
-        return e => {
+        return async e => {
           let xmlString = e.target.result;
           let parser = new DOMParser();
           let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
@@ -236,7 +238,7 @@ class OpenLayersEditor extends OpenLayersViewer {
 
           if (!features.coordinates || !features.coordinates.length) {
             new ConfirmationModal({
-              text: 'Die GPX-Datei beinhaltet keinen Track.',
+              text: await I18n.translate('frontend.gpx.empty'),
               confirmationText: 'Ok'
             });
           } else {
@@ -316,11 +318,14 @@ class OpenLayersEditor extends OpenLayersViewer {
   removeFeature(event) {
     event.preventDefault();
 
-    this.source.removeFeature(this.feature);
-    this.feature = undefined;
+    if (this.feature) {
+      this.source.removeFeature(this.feature);
+      this.feature = undefined;
+    }
+
     this.resetCoordinates();
     this.resetHiddenFieldValue();
-    this.initMapDrawableActions();
+    if (!this.drawableInteraction) this.initMapDrawableActions();
   }
   initUploadActions() {
     if (this.$uploadButton) this.$uploadButton.on('click', this.relayUploadClick.bind(this));

@@ -1,0 +1,71 @@
+---
+- :data:
+    :name: Tour-Sync
+    :type: object
+    :content_type: entity
+    :schema_type: Place
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :linked_main_place:
+        :label: Linked POI Entity
+        :type: linked
+        :template_name: Place-Sync
+      :linked_main2_place:
+        :label: Linked POI Entity
+        :type: linked
+        :template_name: Place-Sync
+      :linked_place:
+        :label: Linked POI Entity
+        :type: linked
+        :inverse_of: linked_tour
+        :template_name: Place-Sync
+
+- :data:
+    :name: Place-Sync
+    :type: object
+    :content_type: entity
+    :schema_type: Place
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :linked_tour:
+        :label: Linked POI Entity
+        :type: linked
+        :inverse_of: linked_place
+        :link_direction: inverse
+        :template_name: Tour-Sync

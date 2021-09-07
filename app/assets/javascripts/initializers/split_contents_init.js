@@ -12,14 +12,14 @@ export default function () {
   $(document).on(
     'dc:import:data',
     '.form-element.string:not(.text_editor) > input[type="text"]',
-    function (event, data) {
+    async (event, data) => {
       if ($(event.target).val().length === 0 || (data && data.force)) {
         $(event.target).val(data.value).trigger('input');
       } else {
         new ConfirmationModal({
-          text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-          confirmationText: 'Ja',
-          cancelText: 'Nein',
+          text: await I18n.translate('frontend.override_warning', { data: data.label }),
+          confirmationText: await I18n.translate('common.yes'),
+          cancelText: await I18n.translate('common.no'),
           confirmationClass: 'success',
           cancelable: true,
           confirmationCallback: function () {
@@ -30,14 +30,14 @@ export default function () {
     }
   );
 
-  $(document).on('dc:import:data', '.form-element.number > input[type="number"]', function (event, data) {
+  $(document).on('dc:import:data', '.form-element.number > input[type="number"]', async (event, data) => {
     if ($(event.target).val().length === 0 || (data && data.force)) {
       $(event.target).val(data.value).trigger('input');
     } else {
       new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
+        text: await I18n.translate('frontend.override_warning', { data: data.label }),
+        confirmationText: await I18n.translate('common.yes'),
+        cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: function () {
@@ -47,14 +47,14 @@ export default function () {
     }
   });
 
-  $(document).on('dc:import:data', '.form-element.boolean :checkbox', function (event, data) {
+  $(document).on('dc:import:data', '.form-element.boolean :checkbox', async (event, data) => {
     if (data && data.force) {
       $(event.target).prop('checked', data.value);
     } else {
       new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
+        text: await I18n.translate('frontend.override_warning', { data: data.label }),
+        confirmationText: await I18n.translate('common.yes'),
+        cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: function () {

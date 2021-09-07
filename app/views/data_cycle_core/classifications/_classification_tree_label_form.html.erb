@@ -28,7 +28,7 @@
         DataCycleCore.classification_visibilities.map { |v|
           OpenStruct.new(
             name: v,
-            title: t("classification_visibilities.#{v}", locale: DataCycleCore.ui_language, default: v),
+            title: t("classification_visibilities.#{v}", locale: active_ui_locale, default: v),
             checked: f.object.visibility.include?(v)
           )
         },

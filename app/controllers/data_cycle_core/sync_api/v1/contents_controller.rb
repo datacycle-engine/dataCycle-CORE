@@ -9,6 +9,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
 
         def index
+          # binding.pry
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
             query = build_search_query
@@ -66,7 +67,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :delted_at, :uuids, uuid: []]
+          super + [:id, :language, :delted_at, :updated_since, :uuids, uuid: []]
         end
 
         private
@@ -91,8 +92,9 @@ module DataCycleCore
           query = filter.apply
 
           query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
-
           query = query.content_ids(params[:content_id]) if params&.dig(:content_id).present?
+          query = query.updated_since(@updated_since) if @updated_since.present?
+
           query
         end
 

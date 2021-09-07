@@ -1,4 +1,5 @@
 import uniqueId from 'lodash/uniqueId';
+import loadingIcon from '../templates/loadingIcon';
 
 class RemoteRenderer {
   constructor(selector) {
@@ -104,7 +105,7 @@ class RemoteRenderer {
     $(element)
       .removeClass('remote-render remote-rendered remote-reload')
       .addClass('remote-rendering')
-      .html('<div class="loading show"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+      .html(loadingIcon('show'));
 
     DataCycle.httpRequest({
       type: 'POST',
@@ -112,10 +113,14 @@ class RemoteRenderer {
       data: JSON.stringify(params),
       dataType: 'script',
       contentType: 'application/json'
-    }).catch(error => {
+    }).catch(async _error => {
       $(element)
         .html(
-          '<div class="remote-render-error">Fehler beim Laden des Inhalts.<a href="#" class="remote-reload-link"><i class="fa fa-repeat" aria-hidden="true"></i> Neu laden</a></div>'
+          `<div class="remote-render-error">${await I18n.translate(
+            'frontend.remote_render.error'
+          )}<a href="#" class="remote-reload-link"><i class="fa fa-repeat" aria-hidden="true"></i> ${await I18n.translate(
+            'frontend.remote_render.reload'
+          )}</a></div>`
         )
         .removeClass('remote-rendering')
         .addClass('remote-render-failed');

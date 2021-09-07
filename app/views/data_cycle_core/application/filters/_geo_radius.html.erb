@@ -7,16 +7,16 @@
 
   <div class="advanced-filter-title">
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
-    <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
   </div>
 
   <div class="advanced-filter-selector">
-    <span class="separator"><%= t("common.center_point", locale: DataCycleCore.ui_language) %></span>
-    <%= number_field_tag "f[#{identifier}][v][lon]", value&.dig('lon'), { step: 'any', required: true, placeholder: t('common.placeholder.longitude', locale: DataCycleCore.ui_language), class: 'filter-text' } %>
+    <span class="separator"><%= t("common.center_point", locale: active_ui_locale) %></span>
+    <%= number_field_tag "f[#{identifier}][v][lon]", value&.dig('lon'), { step: 'any', required: true, placeholder: t('common.placeholder.longitude', locale: active_ui_locale), class: 'filter-text' } %>
 
-    <%= number_field_tag "f[#{identifier}][v][lat]", value&.dig('lat'), { step: 'any', required: true, placeholder: t('common.placeholder.latitude', locale: DataCycleCore.ui_language), class: 'filter-text' } %>
-    <span class="separator"><%= t("common.distance", locale: DataCycleCore.ui_language) %></span>
-    <%= number_field_tag "f[#{identifier}][v][distance]", value&.dig('distance'), { required: true, placeholder: t('common.placeholder.distance', locale: DataCycleCore.ui_language), class: 'filter-text' } %>
+    <%= number_field_tag "f[#{identifier}][v][lat]", value&.dig('lat'), { step: 'any', required: true, placeholder: t('common.placeholder.latitude', locale: active_ui_locale), class: 'filter-text' } %>
+    <span class="separator"><%= t("common.distance", locale: active_ui_locale) %></span>
+    <%= number_field_tag "f[#{identifier}][v][distance]", value&.dig('distance'), { required: true, placeholder: t('common.placeholder.distance', locale: active_ui_locale), class: 'filter-text' } %>
   </div>
 
   <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>

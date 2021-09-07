@@ -1,6 +1,7 @@
 import OpenLayersEditor from './open_layers_editor';
 import lodashGet from 'lodash/get';
 import lodashPick from 'lodash/pick';
+import fetchInject from 'fetch-inject';
 
 class TourSprungEditor extends OpenLayersEditor {
   constructor(container) {
@@ -9,7 +10,7 @@ class TourSprungEditor extends OpenLayersEditor {
     this.credentials = this.mapOptions.credentials;
     this.drawableEvent;
     this.routeMarkers = [];
-    this.highlightedFeatures = L.layerGroup();
+    this.highlightedFeatures;
     this.map;
     this.draggingMarker;
     this.toursrpungIcons = {
@@ -22,11 +23,28 @@ class TourSprungEditor extends OpenLayersEditor {
     };
   }
   setup() {
-    MTK.init({ apiKey: this.credentials.api_key });
-    this.initMap();
-    this.initEventHandlers();
+    this.loadExtenalScripts()
+      .then(this.initMap.bind(this))
+      .catch(e => {
+        console.error('failed to load MapToolKit!', e);
+      });
+  }
+  async loadExtenalScripts() {
+    return await fetchInject(
+      [
+        'https://static.maptoolkit.net/api/v8.9/mtk.css',
+        'https://static.maptoolkit.net/api/v8.9/editor.css',
+        '//unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css',
+        'https://static.maptoolkit.net/api/v8.9/editor.js',
+        '//unpkg.com/leaflet-gesture-handling'
+      ],
+      fetchInject([`https://static.maptoolkit.net/api/v8.9/mtk.${document.documentElement.lang}.js`])
+    );
   }
   initMap() {
+    this.highlightedFeatures = L.layerGroup();
+    MTK.init({ apiKey: this.credentials.api_key });
+
     let controls = [];
 
     if (this.isLineString()) {
@@ -50,6 +68,8 @@ class TourSprungEditor extends OpenLayersEditor {
       },
       this.configureMap.bind(this)
     );
+
+    this.initEventHandlers();
   }
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this));

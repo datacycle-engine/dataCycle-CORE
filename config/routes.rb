@@ -18,6 +18,7 @@ DataCycleCore::Engine.routes.draw do
   get '/docs', to: 'documentation#show'
 
   get :clear_all_caches, controller: :application
+  get '/i18n/translate', to: 'application#translate'
 
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', as: 'local_asset', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file|srt_file)/,
@@ -353,8 +354,8 @@ DataCycleCore::Engine.routes.draw do
     post :render_in_overlay
   end
 
-  post 'contents/upload', to: 'contents#upload'
-  # post 'contents/new', to: 'contents#new'
+  # post 'contents/upload', to: 'contents#upload'
+  # # post 'contents/new', to: 'contents#new'
 
   resources :publications, only: :index
 

@@ -8,6 +8,7 @@ module DataCycleCore
 
     class History < Content::Content
       include Content::ContentHistoryLoader
+      include Content::Extensions::Thing
       include Content::Restorable
 
       extend ::Translations

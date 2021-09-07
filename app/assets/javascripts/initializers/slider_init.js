@@ -10,14 +10,14 @@ export default function () {
 
   $('.edit-content-form .form-element.number.duration > .duration-slider > div > :input[type="number"]').on(
     'dc:import:data',
-    function (event, data) {
+    async (event, data) => {
       if ($(event.target).val().length === 0) {
         $(event.target).val(data.value).trigger('change');
       } else {
-        var confirmationModal = new ConfirmationModal({
-          text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-          confirmationText: 'Ja',
-          cancelText: 'Nein',
+        new ConfirmationModal({
+          text: await I18n.translate('frontend.override_warning', { data: data.label }),
+          confirmationText: await I18n.translate('common.yes'),
+          cancelText: await I18n.translate('common.no'),
           confirmationClass: 'success',
           cancelable: true,
           confirmationCallback: function () {

@@ -46,6 +46,10 @@
         font-weight: bold;
         font-size: 1.5rem;
         line-height: 1.5rem;
+
+        .fa {
+          font-size: inherit;
+        }
       }
     }
 
@@ -1758,22 +1762,32 @@ label[for='user_access_token'] {
     .content-object-item.textblock {
       padding: 0.5rem;
 
+      .removeContentObject,
+      .embedded-header {
+        display: flex;
+        border-bottom: 1px solid rgba($dark-gray, 0.3);
+        align-items: center;
+        position: sticky;
+        top: 55px;
+        z-index: 12;
+        height: 3rem;
+      }
+
       .removeContentObject {
-        position: absolute;
-        z-index: 13;
-        top: 0.7rem;
-        right: 0.7rem;
+        justify-content: center;
+        order: 10;
+        width: 3rem;
       }
 
       .embedded-header {
-        z-index: 13;
-        width: 50%;
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
-        position: absolute;
-        left: 1rem;
-        top: 0.6rem;
+        background: $light-gray;
+        margin: 0;
+        flex: auto;
+        order: 1;
+        padding-left: 0.5rem;
 
         .draggable-handle {
           display: inline-block;
@@ -1789,35 +1803,15 @@ label[for='user_access_token'] {
           top: 0;
           left: 0;
           margin-right: 0.3rem;
-          &.fixed-toolbar {
-            position: fixed;
-            top: 60px;
-          }
-          &.fixed-split-toolbar {
-            position: fixed;
-            top: 185px;
-          }
         }
 
         input[name*='name'] {
           display: inline-block;
           background: transparent;
           color: $dark-gray;
-          width: 85%;
-
-          &.fixed-toolbar {
-            position: fixed;
-            top: 57px;
-            width: 50%;
-            border: none;
-          }
-
-          &.fixed-split-toolbar {
-            position: fixed;
-            top: 185px;
-            width: 25%;
-            border: none;
-          }
+          flex: auto;
+          margin-right: 0.3rem;
+          min-width: none;
         }
 
         .counter,
@@ -1826,9 +1820,16 @@ label[for='user_access_token'] {
         }
       }
 
+      .form-element.focus > .editor-block {
+        > .embedded-header {
+          background: white;
+        }
+      }
+
       .text_editor {
         margin-bottom: 0;
         width: 100%;
+
         .translated {
           display: none;
         }
@@ -1836,11 +1837,14 @@ label[for='user_access_token'] {
         label {
           display: none;
         }
-
-        .ql-toolbar {
-          right: 3rem;
-        }
       }
+    }
+  }
+
+  .split-content .embedded_object .content-object-item.textblock .form-element .editor-block {
+    > .removeContentObject,
+    > .embedded-header {
+      top: 0;
     }
   }
 }
@@ -2083,6 +2087,36 @@ select {
       }
     }
   }
+  .ol-overlaycontainer-stopevent {
+    .remove-primary-feature {
+      top: 8em;
+      left: 0.5em;
+
+      .remove-feature-button {
+        border-radius: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 1px;
+        padding: 0;
+        color: white;
+        font-size: 1.14em;
+        font-weight: bold;
+        text-decoration: none;
+        text-align: center;
+        height: 1.375em;
+        width: 1.375em;
+        line-height: 0.4em;
+        background-color: rgba(0, 60, 136, 0.5);
+        border: none;
+
+        &:hover {
+          text-decoration: none;
+          background-color: rgba(0, 60, 136, 0.7);
+        }
+      }
+    }
+  }
   .map-edit {
     position: absolute;
     z-index: 999;
@@ -2114,10 +2148,6 @@ select {
         text-decoration: none;
         background-color: rgba(0, 60, 136, 0.7);
       }
-    }
-
-    .map-edit-button-margin {
-      margin: 5px 1px 1px 1px;
     }
   }
 }
@@ -2499,6 +2529,7 @@ section.related-objects {
       list-style: none;
       margin: 0;
       padding: 0;
+
       > li {
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         transition: all ease-in-out 0.2s;

@@ -3,6 +3,9 @@ import BasicSelect2 from './basic_select2';
 class SimpleSelect2 extends BasicSelect2 {
   constructor(element) {
     super(element);
+
+    this.eventHandlers.createOption = this.createOption.bind(this);
+    this.eventHandlers.reloadData = this.reloadData.bind(this);
   }
   options() {
     return Object.assign({}, this.defaultOptions, {
@@ -14,14 +17,14 @@ class SimpleSelect2 extends BasicSelect2 {
     });
   }
   initSpecificEventHandlers() {
-    this.$element.on('dc:create:option', this.createOption.bind(this));
-    this.$element.closest('.form-element').on('dc:upload:filesChanged', this.reloadData.bind(this));
+    this.$element.on('dc:create:option', this.eventHandlers.createOption);
+    this.$element.closest('.form-element').on('dc:upload:filesChanged', this.eventHandlers.reloadData);
   }
   destroy(event) {
     super.destroy(event);
 
-    this.$element.off('dc:create:option');
-    this.$element.closest('.form-element').off('dc:upload:filesChanged');
+    this.$element.off('dc:create:option', this.eventHandlers.createOption);
+    this.$element.closest('.form-element').off('dc:upload:filesChanged', this.eventHandlers.reloadData);
   }
   loadNewOptions(value, newOptions) {
     this.$element.val(value.concat(newOptions)).trigger('change');
@@ -72,7 +75,7 @@ class SimpleSelect2 extends BasicSelect2 {
     }
 
     var filteredChildren = [];
-    $.each(data.children, (idx, child) => {
+    $.each(data.children, (_idx, child) => {
       if (this.optionMatches(child, params)) {
         filteredChildren.push(child);
       }
