@@ -423,8 +423,10 @@ module DataCycleCore
       tag.div(options) do
         if value.is_a?(String)
           concat value.html_safe
-        elsif value.is_a?(Hash)
+        elsif value.is_a?(::Hash)
           concat value.map { |k, v| tag.b(k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
+        elsif value.is_a?(::Array)
+          concat value.join(', ').html_safe.to_s
         else
           concat value.html_safe.to_s
         end

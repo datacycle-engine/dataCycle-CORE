@@ -329,6 +329,7 @@ footer {
 
   .hidden-classifications {
     text-align: left;
+
     .accordion-item {
       .accordion-content {
         position: relative;
@@ -825,12 +826,13 @@ footer {
         &.remote-render,
         &.remote-rendering,
         &.remote-render-failed {
-          min-height: 6rem;
-          box-shadow: 0 0 1px $light-gray inset;
-        }
-
-        &.remote-render-failed {
           background: $light-gray;
+          padding: 2.5rem 1rem 2rem 1rem;
+
+          .remote-render-loading,
+          .remote-render-error {
+            background-color: lighten($light-gray, 5%);
+          }
         }
       }
 

@@ -444,6 +444,7 @@ module DataCycleCore
         # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
         created = upsert_item.new_record?
+        upsert_item.created_at = options.save_time if created
         upsert_item.save
         upsert_item.set_data_hash(data_hash: item, current_user: options.current_user, save_time: options.save_time, prevent_history: true, new_content: created, partial_update: options.partial_update)
         upsert_item

@@ -2068,7 +2068,7 @@ select {
   }
   .map-info.linestring-info {
     position: absolute;
-    z-index: 999;
+    z-index: 1;
     top: 1rem;
     left: 0;
     margin: 0;
@@ -2204,7 +2204,7 @@ select {
 
     &.linestring-info {
       position: absolute;
-      z-index: 999;
+      z-index: 1;
       top: 1rem;
       left: 0;
       margin: 0;
@@ -2271,6 +2271,10 @@ select {
   vertical-align: middle;
   & + label {
     vertical-align: middle;
+
+    &.attribute-edit-label {
+      display: inline-flex;
+    }
   }
 }
 
@@ -2759,7 +2763,6 @@ section.duplicate-candidates {
 
     .translatable-field-container {
       flex: auto;
-      // display: inline-block;
     }
   }
 }
@@ -3055,6 +3058,7 @@ button.button-prime.small.bulk-delete-button {
 
   .detail-type.embedded:not(:only-of-type) {
     counter-increment: embedded;
+
     > .detail-label > b::after {
       content: counter(embedded);
       margin-left: 0.3rem;
@@ -3196,37 +3200,54 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 
-@keyframes remote-render-animation {
+@keyframes running-progress {
   0% {
-    background-position: right;
+    margin-left: 0px;
+    margin-right: 100%;
+  }
+  50% {
+    margin-left: 25%;
+    margin-right: 0%;
+  }
+  100% {
+    margin-left: 100%;
+    margin-right: 0;
   }
 }
 
 body {
-  .remote-render,
-  .remote-rendering {
-    min-height: 2.5rem;
-    background: linear-gradient(90deg, #f5f5f5 33%, darken($medium-gray, 5%) 50%, #f5f5f5 66%) #f5f5f5;
-    background-size: 300% 100%;
-    animation: remote-render-animation 1s infinite linear;
-
-    &.result-count {
+  .remote-render {
+    &::before {
+      content: '';
+      display: flex;
+      width: 100%;
       min-height: 1rem;
-      min-width: 6rem;
-      box-shadow: none;
+      background-color: $light-gray;
     }
   }
-  .remote-render-failed {
-    min-height: 2.5rem;
+
+  .remote-render-loading,
+  .remote-render-error {
+    display: flex;
+    min-height: 1rem;
+    background-color: $light-gray;
+    width: 100%;
+  }
+  .remote-render-loading:before {
+    width: 100%;
+    background-color: $dark-gray;
+    content: '';
+    animation: running-progress 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 }
 
 body {
   .reveal {
-    > .remote-render,
-    > .remote-rendering,
-    > .remote-render-failed {
-      min-height: 2.5rem;
+    > .remote-rendering:first-child > .remote-render-loading,
+    > .close-button:first-child + .remote-rendering > .remote-render-loading,
+    > .close-button:first-child + .remote-render-failed > .remote-render-error,
+    > .remote-render-failed:first-child > .remote-render-error {
+      margin-top: 2rem;
     }
   }
 }
@@ -3235,9 +3256,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: inherit;
   text-align: center;
   color: $alert-color;
+  box-shadow: 0 0 0 1px inset;
 
   .remote-reload-link {
     padding-left: 0.5rem;

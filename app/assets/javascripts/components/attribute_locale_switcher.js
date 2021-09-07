@@ -73,6 +73,21 @@ class AttributeLocaleSwitcher {
       });
 
     $(container)
+      .find('.edit-content-link')
+      .each((_index, item) => {
+        if (item.nodeName == 'BUTTON') {
+          const $inputField = $(item).siblings('[name="locale"]');
+
+          if ($inputField.length) $inputField.val(this.locale);
+          else $(item).after(`<input type="hidden" name="locale" value="${this.locale}">`);
+        } else {
+          const url = new URL(item.href);
+          url.searchParams.set('locale', this.locale);
+          item.href = url;
+        }
+      });
+
+    $(container)
       .find('[data-open], [data-toggle]')
       .each((_index, item) => {
         this.changeTranslationRecursive($(`#${$(item).data('open') || $(item).data('toggle')}`));

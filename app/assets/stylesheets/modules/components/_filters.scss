@@ -1329,6 +1329,7 @@ $filter-border: #aaa;
       }
     }
   }
+
   .result-count {
     display: flex;
     flex-flow: row nowrap;
@@ -1336,6 +1337,7 @@ $filter-border: #aaa;
     padding: 0.6rem;
     margin-right: auto;
     border: 1px solid $light-gray;
+    min-width: 6rem;
 
     b {
       margin-right: 0.3rem;

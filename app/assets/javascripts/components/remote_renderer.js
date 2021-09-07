@@ -33,7 +33,7 @@ class RemoteRenderer {
 
     let remoteContainer = $(event.target).closest('.remote-render-failed');
     remoteContainer.addClass('remote-reload').removeClass('remote-render-failed');
-    this.loadRemotePartial(remoteContainer, null, true);
+    this.loadRemotePartial(remoteContainer);
   }
   reload(event, data) {
     event.stopPropagation();
@@ -78,7 +78,7 @@ class RemoteRenderer {
         this.loadRemotePartial(element);
       });
   }
-  loadRemotePartial(element, additionalParams = null, clear = false) {
+  loadRemotePartial(element, additionalParams = null) {
     let id = $(element).data('remote-render-id');
 
     if (id === undefined) {
@@ -101,9 +101,10 @@ class RemoteRenderer {
       }
     }
 
-    $(element).removeClass('remote-render remote-rendered remote-reload').addClass('remote-rendering');
-
-    if (clear) $(element).empty();
+    $(element)
+      .html('<span class="remote-render-loading"></span>')
+      .removeClass('remote-render remote-rendered remote-reload')
+      .addClass('remote-rendering');
 
     this.sendRequest(element, params);
   }
