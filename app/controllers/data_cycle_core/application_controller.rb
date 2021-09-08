@@ -53,9 +53,6 @@ module DataCycleCore
       @render_params = resolve_params(params[:render_params])
       @options = resolve_params(params[:options])
 
-      # sleep 1
-      # raise 'test'
-
       redirect_to(@render_params.merge(target: @target, partial: @partial)) && return if @render_params&.key?(:controller) && @render_params&.key?(:action)
 
       render(json: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: helpers.active_ui_locale), status: :bad_request) && return unless (@target.present? && @render_function.present?) || @partial.present?

@@ -33,7 +33,7 @@
               } %>
     <% end %>
 
-    <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless object.template || local_assigns[:duplicated_content] %>
+    <%= hidden_field_tag("#{embedded_key_prefix(key, index)}[id]", object.id) unless object.template || local_assigns[:duplicated_content] %>
 
     <% if object.template || local_assigns[:duplicated_content] %>
       <div class="embedded-properties accordion-content" data-tab-content>

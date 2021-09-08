@@ -260,10 +260,8 @@
             color: $dark-gray;
             padding: 0.4rem 0.7rem;
 
-            .icon {
-              .fa {
-                font-size: inherit;
-              }
+            > *:not(:last-child) {
+              margin-right: 0.3rem;
             }
           }
 

@@ -42,7 +42,7 @@
         ) %>
       <% end %>
       <% value.presence&.ids&.reject {|v| objects.presence&.ids&.include?(v)}&.each_with_index do |id, index| %>
-        <div class="content-object-item hidden" data-id="<%= id %>" id="<%= "#{sanitize_to_id(key)}_item_#{index + objects.size}" %>"><%= hidden_field_tag "#{key}[#{index + objects.size}][id]", id %></div>
+        <div class="content-object-item hidden" data-id="<%= id %>" id="<%= "#{sanitize_to_id(key)}_item_#{index + objects.size}" %>"><%= hidden_field_tag "#{embedded_key_prefix(key, index + objects.size)}[id]", id %></div>
       <% end %>
     <% else %>
       <%= hidden_field_tag key + '[]', nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_default" %>

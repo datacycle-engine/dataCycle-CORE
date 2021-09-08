@@ -90,29 +90,31 @@ module DataCycleCore
       object
     end
 
-    def self.get_params_from_hash(template_hash)
-      temp_params = []
+    def self.get_params_from_hash(template_hash, translations = true)
+      allowed_params = []
 
       template_hash['properties'].each do |key, value|
         if value['type'] == 'schedule'
-          key = { key.to_sym => [:id, :full_day, :rtimes, :extimes, start_time: [:time], end_time: [:time], yearly_end: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]] }
+          parameter = { key.to_sym => [:id, :full_day, :rtimes, :extimes, start_time: [:time], end_time: [:time], yearly_end: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]] }
         elsif value['type'] == 'opening_time'
-          key = { key.to_sym => [:valid_from, :valid_until, :holiday, time: [:id, :opens, :closes], rrules: [validations: [day: []]]] }
+          parameter = { key.to_sym => [:valid_from, :valid_until, :holiday, time: [:id, :opens, :closes], rrules: [validations: [day: []]]] }
         elsif value['type'] == 'embedded'
           object_properties = get_internal_template(value['template_name'])
-          key = { key.to_sym => get_params_from_hash(object_properties.schema) }
+          parameter = { key.to_sym => get_params_from_hash(object_properties.schema) }
         elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
-          key = { key.to_sym => get_params_from_hash(value) }
+          parameter = { key.to_sym => get_params_from_hash(value, false) }
         elsif value['type'] == 'classification' || value['type'] == 'linked'
-          key = { key.to_sym => [] }
+          parameter = { key.to_sym => [] }
         else
-          key = key.to_sym
+          parameter = key.to_sym
         end
 
-        temp_params.push(key)
+        allowed_params.push(parameter)
       end
 
-      temp_params
+      return allowed_params unless translations
+
+      { datahash: allowed_params, translations: I18n.available_locales.map { |l| [l, allowed_params] }.to_h }
     end
 
     class << self
@@ -131,7 +133,14 @@ module DataCycleCore
               temp_value = []
 
               value.each_value do |object_value|
-                temp_value.push(flatten_recursive(object_value, object_properties.schema))
+                if object_value.key?('datahash') || object_value.key?('translations')
+                  temp_value.push(object_value.tap do |v|
+                    v['datahash'] = flatten_recursive(v['datahash'], object_properties.schema)
+                    v['translations'] = v['translations']&.transform_values { |t| flatten_recursive(t, object_properties.schema) }
+                  end)
+                else
+                  temp_value.push(flatten_recursive(object_value, object_properties.schema))
+                end
               end
 
               value = temp_value

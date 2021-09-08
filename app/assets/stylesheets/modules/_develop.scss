@@ -3202,16 +3202,16 @@ button.button-prime.small.bulk-delete-button {
 
 @keyframes running-progress {
   0% {
-    margin-left: 0px;
+    margin-left: 0.25rem;
     margin-right: 100%;
   }
   50% {
     margin-left: 25%;
-    margin-right: 0%;
+    margin-right: 0.25rem;
   }
   100% {
     margin-left: 100%;
-    margin-right: 0;
+    margin-right: 0.25rem;
   }
 }
 
@@ -3221,21 +3221,28 @@ body {
       content: '';
       display: flex;
       width: 100%;
-      min-height: 1rem;
+      min-height: 1.5rem;
       background-color: $light-gray;
+      box-shadow: 0 0 1px $dark-gray inset;
     }
   }
 
   .remote-render-loading,
   .remote-render-error {
     display: flex;
-    min-height: 1rem;
+    height: 1.5rem;
     background-color: $light-gray;
     width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+  .remote-render-loading {
+    box-shadow: 0 0 1px $dark-gray inset;
   }
   .remote-render-loading:before {
     width: 100%;
-    background-color: $dark-gray;
+    height: 1rem;
+    background-color: darken($light-gray, 10%);
     content: '';
     animation: running-progress 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
@@ -3258,10 +3265,18 @@ body {
   justify-content: center;
   text-align: center;
   color: $alert-color;
-  box-shadow: 0 0 0 1px inset;
+  padding: 0 1rem;
+  background-color: rgba($alert-color, 0.1) !important;
+  box-shadow: 0 0 1px rgba($alert-color, 0.5) inset;
 
   .remote-reload-link {
     padding-left: 0.5rem;
+    display: flex;
+    align-items: center;
+
+    .fa.fa-repeat {
+      margin-right: 0.3rem;
+    }
   }
 
   .remote-reload-link,

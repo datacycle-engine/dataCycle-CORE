@@ -53,6 +53,15 @@ module DataCycleCore
         definition&.dig('type') != 'object'
     end
 
+    def attribute_viewer_label_tag(key, definition, content, options)
+      label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options), class: 'attribute-label-text'))
+
+      label_html.prepend(tag.i(class: 'fa fa-language translatable-attribute-icon')) if attribute_translatable?(key, definition, content)
+      label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('ui', 'edit', 'type') || definition&.dig('type')}"))
+
+      tag.span label_html, class: 'detail-label'
+    end
+
     def attribute_edit_label_tag(key, definition, content, options)
       label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options), class: 'attribute-label-text'))
 

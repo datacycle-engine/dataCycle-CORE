@@ -302,6 +302,8 @@ module DataCycleCore
     end
 
     def validate
+      render(json: { valid: true }.to_json) && return
+
       @object = DataCycleCore::Thing.find_by(id: validation_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: validation_params[:template])
 
       render(json: { warning: { content: ['content/template not found'] } }) && return if @object.nil?
@@ -482,13 +484,12 @@ module DataCycleCore
     end
 
     def content_params(template_name, params_hash = nil)
-      datahash = DataCycleCore::DataHashService.get_object_params(template_name)
-      translations = I18n.available_locales.map { |l| [l, datahash] }.to_h
+      allowed_content_params = DataCycleCore::DataHashService.get_object_params(template_name)
 
       if params_hash.present?
-        params_hash.permit(datahash: datahash, translations: translations)
+        params_hash.permit(allowed_content_params)
       else
-        params.require(:thing).permit(:version_name, datahash: datahash, translations: translations)
+        params.require(:thing).permit(:version_name, allowed_content_params)
       end
     end
 

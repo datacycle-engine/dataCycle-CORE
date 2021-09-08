@@ -9,6 +9,8 @@ module DataCycleCore
         end
 
         def validate(data, template, _strict = false)
+          binding.pry
+
           if blank?(data)
             # ignore
           elsif data.is_a?(::Array)

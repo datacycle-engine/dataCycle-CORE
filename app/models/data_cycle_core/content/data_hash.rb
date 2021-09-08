@@ -99,6 +99,7 @@ module DataCycleCore
         options = DataCycleCore::Content::DataHashOptions.new(**args)
         return {} if options.data_hash.blank? && !options.force_update
 
+        options.data_hash[:datahash] = options.data_hash unless options.data_hash.key?(:datahash) || options.data_hash.key?(:translations)
         translations = options.data_hash[:translations]
         locale = translations&.keys&.first || I18n.locale
         datahash = (options.data_hash[:datahash] || {}).merge!(translations&.delete(locale.to_s) || {})
@@ -397,20 +398,22 @@ module DataCycleCore
 
         data.each_index do |index|
           item = data[index]
-          if item.key?('id') && item['id'].present?
+          item_id = item&.dig('datahash', 'id') || item&.dig('id')
+
+          if item_id.present?
             upsert_content(name, item, options) if item.keys.size > 1
 
-            if available_update_item_keys[index] != item['id']
+            if available_update_item_keys[index] != item_id
               upsert_relation = DataCycleCore::ContentContent.find_or_create_by!({
                 content_a_id: id,
                 relation_a: field_name,
-                content_b_id: item['id']
+                content_b_id: item_id
               })
               upsert_relation.order_a = index
               upsert_relation.save
             end
 
-            updated_item_keys << item['id']
+            updated_item_keys << item_id
           else
             insert_item = upsert_content(name, item, options)
             DataCycleCore::ContentContent.create!({
@@ -434,8 +437,10 @@ module DataCycleCore
 
       def upsert_content(name, item, options)
         template = DataCycleCore::Thing.find_by(template: true, template_name: name)
-        if item['id'].present?
-          upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item['id'])
+        item_id = item&.dig('datahash', 'id') || item&.dig('id')
+
+        if item_id.present?
+          upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item_id)
         else
           upsert_item = DataCycleCore::Thing.new
         end
@@ -446,7 +451,15 @@ module DataCycleCore
         created = upsert_item.new_record?
         upsert_item.created_at = options.save_time if created
         upsert_item.save
-        upsert_item.set_data_hash(data_hash: item, current_user: options.current_user, save_time: options.save_time, prevent_history: true, new_content: created, partial_update: options.partial_update)
+
+        upsert_item.set_data_hash_with_translations(
+          data_hash: item,
+          current_user: options.current_user,
+          save_time: options.save_time,
+          prevent_history: true,
+          new_content: created,
+          partial_update: options.partial_update
+        )
         upsert_item
       end
 

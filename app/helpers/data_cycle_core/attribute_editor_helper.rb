@@ -2,7 +2,9 @@
 
 module DataCycleCore
   module AttributeEditorHelper
-    ATTRIBUTE_FIELD_PREFIX = 'thing[datahash]'
+    ATTRIBUTE_DATAHASH_PREFIX = '[datahash]'
+    ATTRIBUTE_DATAHASH_REGEX = Regexp.new(/.*\K#{Regexp.quote(ATTRIBUTE_DATAHASH_PREFIX)}/)
+    ATTRIBUTE_FIELD_PREFIX = "thing#{ATTRIBUTE_DATAHASH_PREFIX}"
     RENDER_EDITOR_ARGUMENTS = DataCycleCore::AttributeViewerHelper::RENDER_VIEWER_ARGUMENTS.deep_merge({
       parameters: { options: { edit_scope: 'edit' } },
       scope: :edit
@@ -88,6 +90,10 @@ module DataCycleCore
       options.parameters[:options][:readonly] = !attribute_editable?(options.key, options.definition, options.parameters[:options], options.content)
 
       render_first_existing_partial(partials, options.parameters.merge(options.to_h.slice(:key, :definition, :value, :content)))
+    end
+
+    def embedded_key_prefix(key, index)
+      "#{key}[#{index}]#{ATTRIBUTE_DATAHASH_PREFIX}"
     end
   end
 end
