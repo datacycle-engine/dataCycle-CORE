@@ -60,18 +60,24 @@ class Validator {
   clickSaveButton(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
+
     this.$form.trigger('submit');
   }
   closeError(event) {
     event.preventDefault();
+
     $(event.target).closest('.single_error').remove();
   }
   closeWarning(event) {
     event.preventDefault();
+
     $(event.target).closest('.single_warning').remove();
   }
   validateSingle(event, data) {
+    event.stopPropagation();
+
     if (data && data.type === 'reset') return;
+
     this.requests = [this.validateItem(event.currentTarget)];
     this.resolveRequests(false, data);
   }
@@ -177,13 +183,20 @@ class Validator {
   }
   async renderErrorMessage(data, validationContainer, type = 'error', itemClass = 'alert') {
     const $itemLabel = $(validationContainer).find('label').first();
+    const labelFor = $itemLabel.attr('for');
     const labelText = $itemLabel.text().replace(/\s+/g, ' ').trim();
-    const key = $(validationContainer).data('key');
+    const completeKey = $(validationContainer).data('key');
     const $submitTooltip = $(`#${this.$submitButton.data('toggle')}`);
-    const $tooltipError = this.tooltipError(key, type);
-    const $singleError = this.singleError(key, type);
+    const $tooltipError = this.tooltipError(completeKey, type);
+    const $singleError = this.singleError(completeKey, type);
 
-    for (let message of Object.values(data[`${type}s`] || {})) {
+    for (let [key, message] of Object.entries(data[`${type}s`] || {})) {
+      if (
+        !(completeKey && completeKey.match(new RegExp(key, 'i'))) &&
+        !(labelFor && labelFor.match(new RegExp(key, 'i')))
+      )
+        continue;
+
       if (Array.isArray(message)) message = message.join('<br>');
 
       $tooltipError.append(
@@ -196,7 +209,7 @@ class Validator {
 
     if (this.$form.hasClass('edit-content-form')) {
       this.$submitButton.addClass(itemClass);
-      $submitTooltip.find(`.tooltip-${type}[data-attribute-key="${key}"]`).remove();
+      $submitTooltip.find(`.tooltip-${type}[data-attribute-key="${completeKey}"]`).remove();
       $submitTooltip.append($tooltipError);
     }
 
@@ -230,29 +243,29 @@ class Validator {
     this.removeSubmitButtonErrors(validationContainer, 'error', 'alert');
     this.removeSubmitButtonErrors(validationContainer, 'warning', 'warning');
   }
-  formFieldChanged(newFieldData, translationLocale, submitFormaDataUpToDate) {
-    newFieldData = this.sortedFormData(newFieldData || []);
-    const key = newFieldData[0] && newFieldData[0].name;
-    let oldFieldData = [];
-    if (key) oldFieldData = this.initialFormData.filter(v => v.name.includes(key));
+  // formFieldChanged(newFieldData, translationLocale, submitFormaDataUpToDate) {
+  //   newFieldData = this.sortedFormData(newFieldData || []);
+  //   const key = newFieldData[0] && newFieldData[0].name;
+  //   let oldFieldData = [];
+  //   if (key) oldFieldData = this.initialFormData.filter(v => v.name.includes(key));
 
-    if (translationLocale) {
-      if (!submitFormaDataUpToDate) this.updateSubmitFormData();
+  //   if (translationLocale) {
+  //     if (!submitFormaDataUpToDate) this.updateSubmitFormData();
 
-      if (this.submitFormData.filter(v => v.name.includes(`[${translationLocale}]`)).some(v => !isEmpty(v.value)))
-        return true;
-    }
+  //     if (this.submitFormData.filter(v => v.name.includes(`[${translationLocale}]`)).some(v => !isEmpty(v.value)))
+  //       return true;
+  //   }
 
-    if (this.bulkEdit) return true;
+  //   if (this.bulkEdit) return true;
 
-    return !isEqual(oldFieldData, newFieldData);
-  }
+  //   return !isEqual(oldFieldData, newFieldData);
+  // }
   attributeLocale(validationContainer) {
     const key = $(validationContainer).data('key');
 
     return key.includes('[translations]') && key.match(/\[translations\]\[([\-a-zA-Z]+)\]/)[1];
   }
-  validateItem(validationContainer, submitFormaDataUpToDate = false) {
+  validateItem(validationContainer) {
     this.resetField(validationContainer);
 
     if ($(validationContainer).hasClass('agbs')) {
@@ -264,10 +277,10 @@ class Validator {
 
     const translationLocale = this.attributeLocale(validationContainer);
 
-    if (!this.formFieldChanged(formData, translationLocale, submitFormaDataUpToDate))
-      return Promise.resolve({
-        valid: true
-      });
+    // if (!this.formFieldChanged(formData, translationLocale, submitFormaDataUpToDate))
+    //   return Promise.resolve({
+    //     valid: true
+    //   });
 
     const uuid = this.$form.find(':input[name="uuid"]').val();
     const locale =
@@ -326,7 +339,7 @@ class Validator {
       .find('.validation-container')
       .add(this.$agbsCheck)
       .each((_i, elem) => {
-        this.requests.push(this.validateItem(elem, true));
+        this.requests.push(this.validateItem(elem));
       });
 
     this.resolveRequests($(event.target).is(this.$form), data);

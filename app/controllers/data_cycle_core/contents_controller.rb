@@ -302,8 +302,6 @@ module DataCycleCore
     end
 
     def validate
-      render(json: { valid: true }.to_json) && return
-
       @object = DataCycleCore::Thing.find_by(id: validation_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: validation_params[:template])
 
       render(json: { warning: { content: ['content/template not found'] } }) && return if @object.nil?

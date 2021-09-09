@@ -1,9 +1,11 @@
 import EmbeddedObject from './../components/embedded_object';
 import AccordionExtension from './../components/accordion_extension';
+import EmbeddedTitle from '../components/embedded_title';
 
 export default function () {
   var embedded_objects = [];
   new AccordionExtension();
+  new EmbeddedTitle();
 
   $('.edit-content-form .embedded-object').each((index, element) => {
     embedded_objects.push(new EmbeddedObject($(element)));
@@ -18,16 +20,17 @@ export default function () {
       });
   });
 
-  $(document).on('change', '.form-element.is-embedded-title', event => {
-    let value = $(event.currentTarget).find(':input').first().val();
-    let titleField = $(event.currentTarget)
-      .closest('.content-object-item')
-      .find('> .accordion-title > .title > .embedded-title');
+  // $(document).on('change', '.form-element.is-embedded-title', event => {
+  //   console.log('change embedded-title');
+  //   let value = $(event.currentTarget).find(':input').first().val();
+  //   let $titleField = $(event.currentTarget)
+  //     .closest('.content-object-item')
+  //     .find('> .accordion-title > .title > .embedded-title');
 
-    titleField.text(value);
-    titleField.attr('title', value);
+  //   $titleField.text(value);
+  //   $titleField.attr('title', value);
 
-    if (value && value.length) titleField.addClass('visible');
-    else titleField.removeClass('visible');
-  });
+  //   if (value && value.length) $titleField.addClass('visible');
+  //   else $titleField.removeClass('visible');
+  // });
 }

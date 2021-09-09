@@ -37,6 +37,13 @@ module DataCycleCore
 
           check_uuid
         end
+
+        private
+
+        # validate nil,"",[],[nil],[""],[{}] as blank.
+        def blank?(data)
+          data.is_a?(::Array) ? data.reject(&:blank?).empty? : data.blank?
+        end
       end
     end
   end

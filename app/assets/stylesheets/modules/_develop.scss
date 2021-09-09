@@ -317,6 +317,10 @@
   &.videoobject {
     span.detail-label {
       font-weight: bold;
+
+      > *:not(:last-child) {
+        margin-right: 0.3rem;
+      }
     }
   }
 }
