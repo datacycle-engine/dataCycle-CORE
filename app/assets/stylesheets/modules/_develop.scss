@@ -3221,9 +3221,12 @@ button.button-prime.small.bulk-delete-button {
 
 body {
   .remote-render {
-    &::before {
+    &::after {
       content: '';
       display: flex;
+      position: relative;
+      top: 0;
+      left: 0;
       width: 100%;
       min-height: 1.5rem;
       background-color: $light-gray;
