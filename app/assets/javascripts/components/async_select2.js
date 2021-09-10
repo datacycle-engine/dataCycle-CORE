@@ -1,5 +1,4 @@
 import BasicSelect2 from './basic_select2';
-import DataCycle from './data_cycle';
 
 class AsyncSelect2 extends BasicSelect2 {
   constructor(element) {

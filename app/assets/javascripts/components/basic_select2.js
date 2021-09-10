@@ -2,7 +2,6 @@ import Select2 from 'select2';
 import difference from 'lodash/difference';
 import i18nDe from '../helpers/select2_i18n_de';
 import i18nEn from '../helpers/select2_i18n_en';
-import DataCycle from './data_cycle';
 
 class BasicSelect2 {
   constructor(element) {

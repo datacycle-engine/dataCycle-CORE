@@ -69,7 +69,8 @@ class AttributeLocaleSwitcher {
         if ($(item).siblings('.active').length) {
           $(item).siblings('.active').removeClass('active');
           $(item).addClass('active').trigger('dc:remote:render');
-          if ($(item).find('.is-embedded-title').length) $(item).trigger('dc:embedded:changeTitle');
+          if ($(item).find('.is-embedded-title').length)
+            $(item).find('.is-embedded-title').trigger('dc:embedded:changeTitle');
         }
       });
 

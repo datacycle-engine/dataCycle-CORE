@@ -1,42 +1,34 @@
 class EmbeddedTitle {
-  constructor(container = document) {
-    this.$container = $(container);
-    this.observer = new MutationObserver(this.observeForNewContent.bind(this));
-    this.observerConfig = { attributes: false, characterData: false, subtree: true, childList: true };
+  constructor(element) {
+    this.$element = $(element);
+    this.$sourceField = this.$element.find(':input, .detail-content').first();
+    this.$targetField = this.$element
+      .closest('.content-object-item, .detail-type.embedded')
+      .find('> .accordion-title > .title > .embedded-title');
 
     this.init();
   }
   init() {
-    this.observer.observe(document, this.observerConfig);
+    this.updateEmbeddedTitle();
 
-    this.$container.on(
-      'change dc:embedded:changeTitle',
-      '.form-element.is-embedded-title',
-      this.updateEmbeddedTitle.bind(this)
-    );
+    this.$element.on('change dc:embedded:changeTitle', this.updateEmbeddedTitle.bind(this));
   }
-  updateEmbeddedTitle(event) {
-    console.log('updateEmbeddedTitle');
-    let value = $(event.currentTarget).find(':input').first().val();
-    let $titleField = $(event.currentTarget)
-      .closest('.content-object-item')
-      .find('> .accordion-title > .title > .embedded-title');
+  getSourceValue() {
+    if (!this.$sourceField.length) return;
 
-    $titleField.text(value);
-    $titleField.attr('title', value);
-
-    if (value && value.length) $titleField.addClass('visible');
-    else $titleField.removeClass('visible');
+    if (this.$sourceField.hasClass('detail-content')) return this.$sourceField.text();
+    else return this.$sourceField.val();
   }
-  observeForNewContent(mutations) {
-    for (let i = 0; i < mutations.length; ++i) {
-      for (var j = 0; j < mutations[i].addedNodes.length; ++j) {
-        if (mutations[i].addedNodes[j].nodeType !== Node.ELEMENT_NODE) continue;
+  updateEmbeddedTitle(_event) {
+    if (!this.$targetField.length) return;
 
-        if (mutations[i].addedNodes[j].classList.contains('is-embedded-title'))
-          $(mutations[i].addedNodes[j]).trigger('dc:embedded:changeTitle');
-      }
-    }
+    let value = this.getSourceValue();
+
+    this.$targetField.text(value);
+    this.$targetField.attr('title', value);
+
+    if (value && value.length) this.$targetField.addClass('visible');
+    else this.$targetField.removeClass('visible');
   }
 }
 

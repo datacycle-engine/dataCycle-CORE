@@ -20,17 +20,12 @@ export default function () {
       });
   });
 
-  // $(document).on('change', '.form-element.is-embedded-title', event => {
-  //   console.log('change embedded-title');
-  //   let value = $(event.currentTarget).find(':input').first().val();
-  //   let $titleField = $(event.currentTarget)
-  //     .closest('.content-object-item')
-  //     .find('> .accordion-title > .title > .embedded-title');
+  $('.is-embedded-title').each((_index, element) => {
+    new EmbeddedTitle(element);
+  });
 
-  //   $titleField.text(value);
-  //   $titleField.attr('title', value);
-
-  //   if (value && value.length) $titleField.addClass('visible');
-  //   else $titleField.removeClass('visible');
-  // });
+  DataCycle.newContent.callbacks.push({
+    condition: e => e.classList.contains('is-embedded-title'),
+    callback: e => new EmbeddedTitle(e)
+  });
 }

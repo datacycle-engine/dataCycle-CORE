@@ -2,7 +2,6 @@ import Flatpickr from 'flatpickr';
 import { German } from 'flatpickr/dist/l10n/de.js';
 import { english } from 'flatpickr/dist/l10n/default';
 import ConfirmationModal from './../components/confirmation_modal';
-import DataCycle from './data_cycle';
 import castArray from 'lodash/castArray';
 
 class DatePicker {
