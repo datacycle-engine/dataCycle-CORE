@@ -6,7 +6,9 @@
     :content_type: entity
     :boost: 100.0
     :api:
-      :type: DigitalDocument
+      :type:
+        - CreativeWork
+        - DigitalDocument
     :features:
       :releasable:
         :allowed: true

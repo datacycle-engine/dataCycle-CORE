@@ -19,7 +19,14 @@
           :json: true
           :indesign: true
     :api:
-      :type: SkiResort
+      :type:
+        - Place
+        - Organization
+        - LocalBusiness
+        - LodgingBusiness
+        - Resort
+        - SportsActivityLocation
+        - SkiResort
     :properties:
       :id:
         :label: id

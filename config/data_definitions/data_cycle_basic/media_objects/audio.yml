@@ -19,7 +19,10 @@
           :json: true
           :xml: true
     :api:
-      :type: AudioObject
+      :type:
+        - CreativeWork
+        - MediaObject
+        - AudioObject
     :properties:
       :id:
         :label: id

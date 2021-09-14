@@ -22,7 +22,11 @@
           :gpx: true
           :indesign: true
     :api:
-      :type: LodgingBusiness
+      :type:
+        - Place
+        - Organization
+        - LocalBusiness
+        - LodgingBusiness
     :properties:
       :id:
         :label: id

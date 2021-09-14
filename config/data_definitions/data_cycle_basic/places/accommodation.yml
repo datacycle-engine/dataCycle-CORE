@@ -18,6 +18,7 @@
           :indesign: true
     :api:
       :type:
+        - Place
         - Accommodation
         - Product
     :properties:

@@ -28,7 +28,7 @@ module DataCycleCore
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
-                assert_equal('Article', json_data.dig('@type'))
+                assert_equal('Article', json_data.dig('@type').last)
                 assert_equal('Artikel', json_data.dig('contentType'))
                 assert_equal(root_url[0...-1] + api_v2_thing_path(id: @content), json_data.dig('@id'))
                 assert_equal(@content.id, json_data.dig('identifier'))
@@ -80,19 +80,19 @@ module DataCycleCore
                 get(api_v2_things_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Article' }
+                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'Article' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Article' }
+                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'Article' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_creative_works_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Article' }
+                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'Article' }
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
             end

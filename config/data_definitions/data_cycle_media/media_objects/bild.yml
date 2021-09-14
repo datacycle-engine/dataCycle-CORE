@@ -31,7 +31,10 @@
           :xml: true
           :indesign: true
     :api:
-      :type: ImageObject
+      :type:
+        - CreativeWork
+        - MediaObject
+        - ImageObject
     :properties:
       :id:
         :label: id

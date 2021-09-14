@@ -6,7 +6,11 @@
     :boost: 100.0
     :content_type: entity
     :api:
-      :type: EventSeries
+      :type:
+        - Event
+        - Intangible
+        - Series
+        - EventSeries
     :features:
       :overlay:
         :allowed: true

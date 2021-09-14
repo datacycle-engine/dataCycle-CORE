@@ -4,7 +4,10 @@
     :schema_type: Intangible
     :content_type: embedded
     :api:
-      :type: AggregateRating
+      :type:
+        - Intangible
+        - Rating
+        - AggregateRating
     :properties:
       :id:
         :label: id

@@ -10,6 +10,10 @@
         :allowed: false
       :translatable:
         :allowed: true
+    :api:
+      :type:
+        - Product
+        - ProductGroup
     :properties:
       :id:
         :label: id
