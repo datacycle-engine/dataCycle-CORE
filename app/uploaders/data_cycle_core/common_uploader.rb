@@ -57,6 +57,7 @@ module DataCycleCore
       version name.to_sym, config do
         process convert_format: options['format'] if options['format'].present?
         process resize_to_fit: [options['width'], options['height']] if options.key?('width') || options.key?('height')
+        process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
         process :content_type
 
         define_method :full_filename do |for_file|
