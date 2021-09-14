@@ -29,8 +29,9 @@ module DataCycleCore
 
     def filename
       return unless original_filename
+
       if model && model&.read_attribute(mounted_as).present?
-        model.read_attribute(mounted_as)
+        "#{File.basename(model.read_attribute(mounted_as), '.*')}.#{file.extension}"
       else
         "#{secure_token}.#{file.extension}"
       end
@@ -52,6 +53,7 @@ module DataCycleCore
     def self.dynamic_version(name, options = nil, from_version = nil)
       config = {}
       config[:from_version] = from_version.to_sym if from_version.present?
+
       version name.to_sym, config do
         process convert_format: options['format'] if options['format'].present?
         process resize_to_fit: [options['width'], options['height']] if options.key?('width') || options.key?('height')
