@@ -10,6 +10,16 @@ module DataCycleCore
           ([raw_data.dig('Documents', 'Document')].flatten.reject(&:nil?).select { |d|
             d['Class'] == 'Image'
           }.each do |image_hash|
+            if image_hash.dig('CCAuthor').present?
+              DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
+                utility_object: utility_object,
+                template: DataCycleCore::Generic::Common::ImportFunctions.load_template('Organization'),
+                data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
+                  config,
+                  { 'name' => image_hash.dig('CCAuthor'), external_key: image_hash.dig('CCAuthor'), external_source_id: utility_object.external_source.id }
+                ).with_indifferent_access
+              )
+            end
             DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
               utility_object: utility_object,
               template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
