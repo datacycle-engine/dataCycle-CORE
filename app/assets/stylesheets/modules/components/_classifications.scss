@@ -11,7 +11,7 @@ ul.backend-treeview-list,
           &.has-alignment-right,
           &.has-alignment-top {
             &::before {
-              left: calc(var(--dropdown-arrow-left-offset) - 5px);
+              left: calc(var(--dropdown-arrow-left-offset));
             }
           }
         }

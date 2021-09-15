@@ -1,7 +1,7 @@
 class AttributeLocaleSwitcher {
   constructor(localeSwitch) {
     this.$localeSwitch = $(localeSwitch);
-    this.$container = this.$localeSwitch.closest('.reveal, #edit-form, .inner-container').first();
+    this.$container = this.$localeSwitch.closest('.reveal, #edit-form, .inner-container, .split-content').first();
     this.$form = this.$container.find('form.validation-form').first();
     this.$localeFormField = this.$form.find(':input[name="locale"]');
     this.locale = this.$localeFormField.val() || 'de';
@@ -49,6 +49,7 @@ class AttributeLocaleSwitcher {
   }
   changeTranslation(event, data = null) {
     event.preventDefault();
+    event.stopPropagation();
 
     const $target = $(event.currentTarget);
 
@@ -57,7 +58,11 @@ class AttributeLocaleSwitcher {
     $target.parent('li').addClass('active');
 
     this.$container.find('.template-locale').text(`(${this.locale})`);
-    this.changeTranslationRecursive(this.$container);
+
+    if (this.$container.find('.split-content').length)
+      this.changeTranslationRecursive(this.$container.find('.split-content.edit-content'));
+    else this.changeTranslationRecursive(this.$container);
+
     this.updateLocaleRecursive();
 
     if (!data || !data.preventHistory) this.pushStateToHistory();

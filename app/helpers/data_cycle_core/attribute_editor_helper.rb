@@ -58,7 +58,9 @@ module DataCycleCore
       options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
 
       I18n.with_locale(options.locale) do
-        options.value ||= options.content.try(options.key.attribute_name_from_key.to_sym)
+        options.value ||= options.parameters[:parent].nil? ?
+          options.content.try(options.key.attribute_name_from_key) :
+          options.parameters[:parent]&.try(options.key.attribute_name_from_key)
 
         allowed = attribute_editor_allowed(options)
         return allowed unless allowed.is_a?(TrueClass)

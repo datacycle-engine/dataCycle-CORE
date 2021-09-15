@@ -5,7 +5,6 @@ import uniqWith from 'lodash/uniqWith';
 import unionWith from 'lodash/unionWith';
 import sortBy from 'lodash/sortBy';
 import collectionReject from 'lodash/reject';
-import isEmpty from 'lodash/isEmpty';
 
 class Validator {
   constructor(formElement) {
@@ -82,9 +81,10 @@ class Validator {
     this.resolveRequests(false, data);
   }
   sortedFormData(formData) {
-    return collectionReject(sortBy(uniqWith(formData || this.$form.serializeArray(), isEqual), ['name', 'value']), {
-      name: 'authenticity_token'
-    });
+    return collectionReject(
+      sortBy(uniqWith(formData || this.$form.serializeArray(), isEqual), ['name', 'value']),
+      v => v.name && ['authenticity_token', 'locale'].includes(v.name)
+    );
   }
   updateSubmitFormData() {
     QuillHelpers.updateEditors(this.$form);
@@ -243,23 +243,6 @@ class Validator {
     this.removeSubmitButtonErrors(validationContainer, 'error', 'alert');
     this.removeSubmitButtonErrors(validationContainer, 'warning', 'warning');
   }
-  // formFieldChanged(newFieldData, translationLocale, submitFormaDataUpToDate) {
-  //   newFieldData = this.sortedFormData(newFieldData || []);
-  //   const key = newFieldData[0] && newFieldData[0].name;
-  //   let oldFieldData = [];
-  //   if (key) oldFieldData = this.initialFormData.filter(v => v.name.includes(key));
-
-  //   if (translationLocale) {
-  //     if (!submitFormaDataUpToDate) this.updateSubmitFormData();
-
-  //     if (this.submitFormData.filter(v => v.name.includes(`[${translationLocale}]`)).some(v => !isEmpty(v.value)))
-  //       return true;
-  //   }
-
-  //   if (this.bulkEdit) return true;
-
-  //   return !isEqual(oldFieldData, newFieldData);
-  // }
   attributeLocale(validationContainer) {
     const key = $(validationContainer).data('key');
 
@@ -276,11 +259,6 @@ class Validator {
     if (formData.length == 0) return;
 
     const translationLocale = this.attributeLocale(validationContainer);
-
-    // if (!this.formFieldChanged(formData, translationLocale, submitFormaDataUpToDate))
-    //   return Promise.resolve({
-    //     valid: true
-    //   });
 
     const uuid = this.$form.find(':input[name="uuid"]').val();
     const locale =

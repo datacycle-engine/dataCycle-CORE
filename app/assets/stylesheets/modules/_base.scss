@@ -152,43 +152,6 @@ label.attribute-edit-label {
     position: absolute;
     left: 1.5rem;
   }
-
-  .history-switcher {
-    position: absolute;
-    right: 2rem;
-
-    a#show-history-link {
-      padding-bottom: 12px;
-    }
-
-    ul {
-      margin-top: 20px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-      &::before {
-        content: '▲';
-        font-size: 28px;
-        top: -32px;
-        color: white;
-        transform: scaleX(3);
-        text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
-        position: absolute;
-        left: auto;
-        right: 10px;
-        width: 0;
-        height: 0;
-      }
-
-      li {
-        position: relative;
-        text-align: left;
-        font-size: 0.8rem;
-        line-height: 1rem;
-        padding: 0 0 0.5rem 0;
-        display: block;
-      }
-    }
-  }
 }
 
 footer {
@@ -375,6 +338,7 @@ footer {
     flex-flow: row nowrap;
     align-items: center;
     justify-content: center;
+
     .external-connection {
       position: relative;
       margin: 0 1rem;
@@ -392,10 +356,6 @@ footer {
 
     .external-connections-dropdown {
       left: auto !important;
-
-      &::before {
-        left: calc(20px + var(--dropdown-arrow-left-offset));
-      }
 
       .list-items {
         > li {
@@ -1573,26 +1533,24 @@ a {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
   z-index: 1006;
-  top: calc(100% + 1rem) !important;
+  top: calc(100% + 17px) !important;
   min-width: 250px;
   max-width: 50vw;
   width: auto !important;
 
   &::before {
-    content: '▲';
-    font-size: 28px;
+    content: '';
+    background-image: url(/images/dropdown-top.svg);
     top: -17px;
-    color: white;
-    transform: scaleX(3);
-    text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
     position: absolute;
     left: calc(var(--dropdown-arrow-left-offset));
-    width: 1.3rem;
-    height: 1.1rem;
-    line-height: 1rem;
+    width: 47px;
+    height: 17px;
     display: block;
-    text-align: center;
     overflow: hidden;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: bottom center;
   }
 
   &.watch-lists {
@@ -1763,12 +1721,13 @@ a {
 
     &.top {
       top: unset !important;
-      bottom: calc(100% + 1rem) !important;
+      bottom: calc(100% + 17px) !important;
 
       &:before {
         top: unset;
         bottom: -17px;
-        transform: scaleX(3) rotate(180deg);
+        background-position: top center;
+        transform: rotate(180deg);
       }
     }
   }

@@ -10,21 +10,27 @@ export default function () {
   });
 
   function resizeDropdown(element) {
-    element.style.setProperty('--dropdown-arrow-left-offset', Math.abs($(element).position().left) + 'px');
-    let linked_item = $('[data-toggle="' + $(element).prop('id') + '"]');
-    if (!linked_item.length) return;
+    const $linkedItem = $('[data-toggle="' + $(element).prop('id') + '"]');
+    const pseudoWidth = parseInt(window.getComputedStyle(element, ':before').width);
+    let resetOffset = Math.abs($(element).position().left) - pseudoWidth / 2;
+    if ($linkedItem.length)
+      resetOffset = Math.min(resetOffset + $linkedItem[0].offsetWidth / 2, element.offsetWidth - pseudoWidth - 3);
+
+    element.style.setProperty('--dropdown-arrow-left-offset', resetOffset + 'px');
+
+    if (!$linkedItem.length) return;
     if (
-      linked_item.offset().top + linked_item.outerHeight() - $(document).scrollTop() + $(element).outerHeight() + 20 >=
+      $linkedItem.offset().top + $linkedItem.outerHeight() - $(document).scrollTop() + $(element).outerHeight() + 20 >=
         $(window).height() &&
-      linked_item.offset().top - $(document).scrollTop() >
-        $(window).height() - (linked_item.offset().top - $(document).scrollTop() + linked_item.outerHeight())
+      $linkedItem.offset().top - $(document).scrollTop() >
+        $(window).height() - ($linkedItem.offset().top - $(document).scrollTop() + $linkedItem.outerHeight())
     ) {
       $(element).addClass('top');
       if ($(element).children('.list-items').length) {
         $(element).children('.list-items').first().css('max-height', '');
         if (
           $(document).scrollTop() < $('header').outerHeight() + 5 &&
-          linked_item.offset().top - $(document).scrollTop() - $(element).outerHeight() <= $('header').outerHeight()
+          $linkedItem.offset().top - $(document).scrollTop() - $(element).outerHeight() <= $('header').outerHeight()
         ) {
           $(element)
             .children('.list-items')
@@ -33,12 +39,12 @@ export default function () {
               'max-height',
               $(element).children('.list-items').first().outerHeight() -
                 40 +
-                (linked_item.offset().top -
+                ($linkedItem.offset().top -
                   $(document).scrollTop() -
                   $(element).outerHeight() -
                   ($('header').outerHeight() - $(document).scrollTop()))
             );
-        } else if (linked_item.offset().top - $(document).scrollTop() - $(element).outerHeight() <= 20) {
+        } else if ($linkedItem.offset().top - $(document).scrollTop() - $(element).outerHeight() <= 20) {
           $(element)
             .children('.list-items')
             .first()
@@ -46,7 +52,7 @@ export default function () {
               'max-height',
               $(element).children('.list-items').first().outerHeight() -
                 30 +
-                (linked_item.offset().top - $(document).scrollTop() - $(element).outerHeight())
+                ($linkedItem.offset().top - $(document).scrollTop() - $(element).outerHeight())
             );
         }
       }
@@ -56,8 +62,8 @@ export default function () {
         $(element).children('.list-items').first().css('max-height', '');
         if (
           $(window).height() -
-            (linked_item.offset().top +
-              linked_item.outerHeight() -
+            ($linkedItem.offset().top +
+              $linkedItem.outerHeight() -
               $(document).scrollTop() +
               $(element).outerHeight()) <=
           20
@@ -70,8 +76,8 @@ export default function () {
               $(element).children('.list-items').first().outerHeight() +
                 ($(window).height() -
                   20 -
-                  (linked_item.offset().top +
-                    linked_item.outerHeight() -
+                  ($linkedItem.offset().top +
+                    $linkedItem.outerHeight() -
                     $(document).scrollTop() +
                     $(element).outerHeight()))
             );

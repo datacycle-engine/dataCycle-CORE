@@ -2,45 +2,93 @@ import CalloutHelpers from './../helpers/callout_helpers';
 
 class SplitView {
   constructor(container = document) {
-    this.container = $(container);
-    this.embedLocale = this.container.closest('.split-content').data('embed-locale');
-    this.leftLocale = this.container.closest('.split-content').data('locale');
-    this.rightLocale = this.container.closest('form').find('input#locale:hidden').val();
-    this.enableTranslateButtons = this.container.closest('.split-content').data('enable-translate-buttons');
+    this.$container = $(container);
+    this.$leftContainer = this.$container.closest('.split-content.detail-content').first();
+    this.rightContainer = this.$container.closest('.flex-box').find('.split-content.edit-content').get(0);
+    this.embedLocale = this.$leftContainer.data('embed-locale');
+    this.leftLocale = this.$leftContainer.data('locale');
+    this.rightLocale = this.$container[0].closest('form').querySelector('input[name="locale"]').value;
+    this.enableTranslateButtons = this.$leftContainer.data('enable-translate-buttons');
     this.translatableTypes = ['string', 'text_editor'];
+    this.copyableTypes = [
+      'object_browser',
+      'embedded_object',
+      'string',
+      'text_editor',
+      'classification',
+      'date_picker',
+      'geographic',
+      'boolean',
+      'number',
+      'duration',
+      'url'
+    ];
+    this.buttonMappings = {
+      translate: {
+        icon: 'fa-language',
+        class: 'dc-translatable-field'
+      },
+      copy: {
+        icon: 'fa-arrow-right',
+        class: 'dc-copyable-field'
+      }
+    };
     this.addButtonRequests = [];
 
     this.setup();
   }
   setup() {
-    this.setupButtons();
+    this.setupButtons(this.$container);
+    this.observeForNewFields();
 
     Promise.all(this.addButtonRequests).then(_values => {
-      this.setupCopyAllButtons(this.container.closest('.split-content'));
-      this.setupCopyAllButtons(this.availableEditors(['included-object']));
+      this.setupCopyAllButtons(this.$leftContainer);
+      this.setupCopyAllButtons(this.availableEditors(this.$container, ['included-object']));
     });
 
-    this.container.on('click', '.copy', this.handleButtonClick.bind(this));
-    this.container.on('click', '.translate', this.handleButtonClick.bind(this));
-    this.container
+    this.$container.on('click', '.copy', this.handleButtonClick.bind(this));
+    this.$container.on('click', '.translate', this.handleButtonClick.bind(this));
+    this.$container
       .closest('.split-content')
       .on('click', '.copy-all, .translate-all', this.triggerAllButtons.bind(this));
-    this.container.on('dc:contents:added', '[data-id]:not(.dc-sw-initialized)', this.setupAdditionalButtons.bind(this));
-    this.container
+    this.$container.on(
+      'dc:contents:added',
+      '[data-id]:not(.dc-splitview-initialized)',
+      this.setupAdditionalButtons.bind(this)
+    );
+    this.$container
       .closest('.split-content')
       .find('.close-subscribe-notice')
       .on('click', this.dismissSubscribeNotice.bind(this));
   }
-  setupButtons() {
-    this.setupObjectBrowserButtons();
-    this.setupEmbeddedObjectButtons();
-    this.setupClassificationButtons();
-    this.setupTextFieldButtons();
-    this.setupDateTimeButtons();
-    this.setupGeographicButtons();
-    this.setupBooleanButtons();
-    this.setupNumberButtons();
-    this.setupUrlButtons();
+  observeForNewFields() {
+    DataCycle.newContent.callbacks.push({
+      condition: e =>
+        !e.classList.contains('dc-copyable-field') && e.dataset.editor && !e.closest('.detail-type.embedded'),
+      callback: async e => this.setupButtons($(e))
+    });
+
+    DataCycle.newContent.callbacks.push({
+      condition: e => e.classList.contains('form-element') && e.dataset.key && !e.closest('.form-element.embedded'),
+      callback: async e => this.addButtonsForEditFields(e)
+    });
+  }
+  setupButtons($container) {
+    this.availableEditors($container, this.copyableTypes).each((_, elem) => {
+      this.addButtons(elem);
+    });
+
+    this.availableEditors($container, ['object_browser']).each((_, elem) => {
+      this.addButtons(elem, true);
+    });
+  }
+  addButtonsForEditFields(element) {
+    const key = element.dataset.key;
+    const viewField = this.$leftContainer[0].querySelector(
+      `[data-key*="${key.getAttributeKey()}"]:not([data-editor]:not([data-editor="included-object"]) [data-key*="${key.getAttributeKey()}"]):not(.dc-copyable-field)`
+    );
+
+    if (viewField) this.setupButtons($(viewField));
   }
   setupAdditionalButtons(event, data) {
     let item = $(event.target);
@@ -54,57 +102,11 @@ class SplitView {
   dismissSubscribeNotice(_event) {
     document.cookie = 'subscribe_notice_dismissed=true';
   }
-  availableEditors(selectors = []) {
+  availableEditors($container, selectors = []) {
     let newSelectorString = selectors.map(x => 'div[data-editor=' + x + ']').join(', ');
     let notInSelector = 'div[data-editor]:not([data-editor="included-object"]) div[data-editor]';
 
-    return this.container.find(newSelectorString).not(notInSelector);
-  }
-  setupObjectBrowserButtons() {
-    this.availableEditors(['object_browser']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'data-id');
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'single-data-id', true);
-    });
-  }
-  setupEmbeddedObjectButtons() {
-    this.availableEditors(['embedded_object']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'data-id');
-    });
-  }
-  setupTextFieldButtons() {
-    this.availableEditors(['string', 'text_editor']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || '', 'data-value');
-    });
-  }
-  setupClassificationButtons() {
-    this.availableEditors(['classification']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'data-id');
-    });
-  }
-  setupDateTimeButtons() {
-    this.availableEditors(['date_picker']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || '', 'data-value');
-    });
-  }
-  setupGeographicButtons() {
-    this.availableEditors(['geographic']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || {}, 'data-value');
-    });
-  }
-  setupBooleanButtons() {
-    this.availableEditors(['boolean']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('value'), 'data-value');
-    });
-  }
-  setupNumberButtons() {
-    this.availableEditors(['number', 'duration']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('value'), 'data-value');
-    });
-  }
-  setupUrlButtons() {
-    this.availableEditors(['url']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).find('.detail-content > a').attr('href'), 'href');
-    });
+    return $container.find(newSelectorString).addBack(newSelectorString).not(notInSelector);
   }
   setupCopyAllButtons(elements) {
     elements.each(async (_, item) => {
@@ -124,101 +126,93 @@ class SplitView {
       }
     });
   }
-  addButtons(element, key, value, copy_attr, single = false) {
-    if (
-      $('.flex-box .edit-content [data-key="' + key + '"]').length &&
-      this.valueNotEmpty(value) &&
-      !$('.flex-box .edit-content [data-key="' + key + '"]')
-        .first()
-        .data('readonly')
-    ) {
-      if (single && !$(element).hasClass('copy-single')) element = $(element).find('.copy-single');
-      this.addButtonRequests.push(this.renderButton(element, copy_attr, single));
-    }
-    $(element).addClass('dc-sw-initialized');
+  addButtons(element, single = false) {
+    const key = element.dataset.key;
+
+    const editField = this.rightContainer.querySelector(
+      `[data-key*="${key.getAttributeKey()}"]:not([data-editor]:not([data-editor="included-object"]) [data-key*="${key.getAttributeKey()}"])`
+    );
+
+    if (!editField || editField.dataset.readonly == 'true') return;
+
+    if (single && !element.classList.contains('copy-single')) {
+      const singleElements = element.getElementsByClassName('copy-single');
+      for (let i = 0; i < singleElements.length; i++) {
+        this.addButtonRequests.push(this.renderButton(singleElements[i], single));
+      }
+    } else this.addButtonRequests.push(this.renderButton(element, single));
   }
-  valueNotEmpty(value) {
-    if (value === undefined || value === null) return false;
-    switch (typeof value) {
-      case 'object':
-        return Object.values(value).filter(x => x != '' && x !== null && x !== undefined).length > 0;
-      case 'string':
-        return value.length > 0;
-      case 'boolean':
-        return true;
-      default:
-        return true;
+  async renderButton(element, single) {
+    let buttonContainer = element.querySelector(':scope > .buttons');
+
+    if (!buttonContainer) buttonContainer = element.querySelector(':scope > .content-link > .buttons');
+    if (!buttonContainer) {
+      element.insertAdjacentHTML('beforeend', '<div class="buttons"></div');
+      buttonContainer = element.querySelector(':scope > .buttons');
     }
-  }
-  async renderButton(element, copy_attr, single) {
-    if (!single && !$(element).children('.buttons').length) $(element).append('<div class="buttons"></div');
-    if ($(element).find('> .content-link > .buttons').length) element = $(element).find('> .content-link > .buttons');
-    if ($(element).children('.buttons').length) element = $(element).children('.buttons');
-    const field = element.parents('[data-editor]').first();
 
     if (
       this.enableTranslateButtons &&
-      (this.translatableTypes.includes(field.data('editor')) ||
-        (field.data('editor') == 'embedded_object' && $(field).data('translatable')))
+      (this.translatableTypes.includes(element.dataset.editor) ||
+        (element.dataset.editor == 'embedded_object' && element.dataset.translatable))
     )
-      await this.addTranslationButton(element, field, copy_attr, single);
+      await this.addSpecificButton(element, buttonContainer, single, 'translate');
 
-    await this.addCopyButton(element, field, copy_attr, single);
+    await this.addSpecificButton(element, buttonContainer, single, 'copy');
   }
-  async addTranslationButton(element, field, copy_attr, single) {
-    $(element).append(
-      `<a class="button-prime small translate${
-        single ? ' translate-single-button' : ''
-      }" data-copy-attribute="${copy_attr}" data-translate-attribute="${
-        this.translatableTypes.includes(field.data('editor')) ? 'direct' : 'indirect'
+  async addSpecificButton(element, buttonContainer, single, type) {
+    buttonContainer.insertAdjacentHTML(
+      'beforeend',
+      `<a class="button-prime small ${type} ${
+        single ? `${type}-single-button` : ''
       }" data-disable-with="<i class=\'fa fa-circle-o-notch fa-spin\'></i>" title="${await I18n.translate(
-        'frontend.split_view.translate'
-      )}"><i class="fa fa-language aria-hidden="true"></i></a>`
+        `frontend.split_view.${type}`
+      )}"><i class="fa ${this.buttonMappings[type].icon} aria-hidden="true"></i></a>`
     );
 
-    $(field).addClass('dc-translatable-field');
-  }
-  async addCopyButton(element, field, copy_attr, single) {
-    $(element).append(
-      `<a class="button-prime small copy ${
-        single ? ' copy-single-button' : ''
-      }" data-copy-attribute="${copy_attr}" title="${await I18n.translate(
-        'frontend.split_view.copy'
-      )}"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>`
-    );
-
-    $(field).addClass('dc-copyable-field');
+    element.classList.add(this.buttonMappings[type].class);
   }
   handleButtonClick(event) {
     event.preventDefault();
-    let value = '';
-    let elem = $(event.currentTarget);
-    switch (elem.data('copy-attribute')) {
-      case 'single-data-id':
-        value = elem.parents('.copy-single').first().data('id');
-        break;
-      case 'data-id':
-        value = elem.parents('[data-editor]').first().data('id');
-        break;
-      case 'data-value':
-        value = elem.parents('[data-editor]').first().data('value');
-        break;
-      case 'html':
-        value = elem.parents('[data-editor]').first().find('.detail-content').html();
-        break;
-      case 'href':
-        value = elem.parents('[data-editor]').first().find('.detail-content > a').attr('href');
-        break;
+
+    const element = event.target;
+
+    const key = element.closest('[data-key]').dataset.key;
+
+    if (element.classList.contains('copy-single-button')) {
+      console.log('copy-single');
     }
 
-    let label = elem.parents('[data-editor]').data('label');
-    let key = elem.parents('[data-editor]').data('key');
+    console.log('handleButtonClick', key.getKeyPath());
 
-    if (elem.data('translate-attribute')) {
-      this.translateText(elem, value, label, key);
-    } else {
-      this.copyContents(value, label, key);
-    }
+    // let value = '';
+    // let elem = $(event.currentTarget);
+    // switch (elem.data('copy-attribute')) {
+    //   case 'single-data-id':
+    //     value = elem.parents('.copy-single').first().data('id');
+    //     break;
+    //   case 'data-id':
+    //     value = elem.parents('[data-editor]').first().data('id');
+    //     break;
+    //   case 'data-value':
+    //     value = elem.parents('[data-editor]').first().data('value');
+    //     break;
+    //   case 'html':
+    //     value = elem.parents('[data-editor]').first().find('.detail-content').html();
+    //     break;
+    //   case 'href':
+    //     value = elem.parents('[data-editor]').first().find('.detail-content > a').attr('href');
+    //     break;
+    // }
+
+    // let label = elem.parents('[data-editor]').data('label');
+    // let key = elem.parents('[data-editor]').data('key');
+
+    // if (elem.data('translate-attribute')) {
+    //   this.translateText(elem, value, label, key);
+    // } else {
+    //   this.copyContents(value, label, key);
+    // }
   }
   triggerAllButtons(event) {
     event.preventDefault();

@@ -1,8 +1,13 @@
 export default (function () {
-  String.prototype.getKey = function () {
+  String.prototype.getAttributeKey = function () {
     return this.split(/[\[\]]+/)
       .filter(elem => elem && elem.length)
       .pop();
+  };
+  String.prototype.getKeyPath = function () {
+    return this.replace(/\[datahash\]|\[translations\]\[[^\]]*\]/gi, '')
+      .match(/\[.*?\]/g)
+      .map(x => x.replace(/[\[\]]/g, ''));
   };
   String.prototype.normalizeKey = function () {
     return this.replace('[]', '');

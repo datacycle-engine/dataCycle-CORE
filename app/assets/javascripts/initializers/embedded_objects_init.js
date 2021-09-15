@@ -7,7 +7,7 @@ export default function () {
   new AccordionExtension();
   new EmbeddedTitle();
 
-  $('.edit-content-form .embedded-object').each((index, element) => {
+  $('.edit-content-form .embedded-object').each((_index, element) => {
     embedded_objects.push(new EmbeddedObject($(element)));
   });
 
@@ -26,6 +26,6 @@ export default function () {
 
   DataCycle.newContent.callbacks.push({
     condition: e => e.classList.contains('is-embedded-title'),
-    callback: e => new EmbeddedTitle(e)
+    callback: async e => new EmbeddedTitle(e)
   });
 }

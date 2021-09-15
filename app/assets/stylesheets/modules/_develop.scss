@@ -441,89 +441,6 @@
   }
 }
 
-.confirmation {
-  position: absolute;
-  top: -5rem;
-  left: 1rem;
-  box-shadow: 0 0 0 3px map-get($foundation-palette, alert), 0 0 8px rgba(0, 0, 0, 0.4);
-  background-color: lighten(map-get($foundation-palette, alert), 46%);
-  padding: 1rem;
-  color: $black;
-  white-space: nowrap;
-  z-index: 100;
-  line-height: 1.5;
-  text-align: left;
-
-  &.right {
-    left: auto !important;
-    right: 0;
-
-    &:after {
-      left: auto;
-      right: 30px;
-    }
-  }
-
-  &.bottom {
-    top: 50px !important;
-
-    &:after {
-      transform: scaleX(3);
-      bottom: auto;
-      top: -18px;
-    }
-  }
-
-  &.watchlist-dialog {
-    display: none;
-    left: auto;
-    transition: none;
-
-    span {
-      margin: 0.5rem 0;
-    }
-
-    button {
-      margin: 0.5rem 0.1rem;
-    }
-
-    &:before {
-      left: auto;
-      right: 1.2rem;
-    }
-  }
-
-  span {
-    display: block;
-    margin-bottom: 1rem;
-  }
-
-  .buttons {
-    text-align: center;
-
-    .button {
-      margin: 0 0.2rem;
-    }
-  }
-
-  &:after {
-    content: '▲';
-    font-size: 28px;
-    bottom: -18px;
-    color: lighten(map-get($foundation-palette, alert), 46%);
-    transform: scaleX(3) rotate(180deg);
-    text-shadow: 0 -3px 0 map-get($foundation-palette, alert), 0 -1px 1px rgba(0, 0, 0, 0.4);
-    position: absolute;
-    left: 30px;
-    width: 2rem;
-    height: 1.1rem;
-    line-height: 1rem;
-    display: block;
-    text-align: center;
-    overflow: hidden;
-  }
-}
-
 select {
   &.no-margin {
     margin-top: 0;
@@ -1293,31 +1210,6 @@ a.email-link {
       padding: 0 0.5rem;
       cursor: pointer;
     }
-  }
-}
-
-ul.translated-locales {
-  width: auto;
-  right: 0;
-  left: auto !important;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-
-  &::before {
-    content: '▲';
-    font-size: 28px;
-    top: -18px;
-    color: white;
-    transform: scaleX(3);
-    text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.1);
-    position: absolute;
-    left: auto;
-    right: 18px;
-    width: 2rem;
-    height: 1.1rem;
-    line-height: 1rem;
-    display: block;
-    text-align: center;
-    overflow: hidden;
   }
 }
 
