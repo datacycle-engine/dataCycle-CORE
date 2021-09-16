@@ -11,7 +11,7 @@ en:
         ü: ue
         ß: ss
   title: dataCycle
-  hello: Good morning!
+  hello: Hello!
   welcome: Welcome!
   order:
     header: Sorting
