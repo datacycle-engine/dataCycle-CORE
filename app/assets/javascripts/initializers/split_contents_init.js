@@ -2,11 +2,7 @@ import ConfirmationModal from './../components/confirmation_modal';
 import SplitView from './../components/split_view';
 
 export default function () {
-  init('.flex-box .detail-content .properties');
-
-  function init(container) {
-    new SplitView(container);
-  }
+  new SplitView(document.querySelector('.flex-box .detail-content .properties'));
 
   // add eventhandlers for editor fields
   $(document).on(

@@ -147,7 +147,7 @@ class DataList {
 
     this.searchForm.setAttribute('action', event.target.getAttribute('action'));
     this.searchForm.setAttribute('method', event.target.getAttribute('method'));
-    event.target.querySelectorAll('input[type="hidden"]').forEach(node => {
+    event.target.querySelectorAll(':scope input[type="hidden"]').forEach(node => {
       this.searchForm.appendChild(node.cloneNode());
     });
 

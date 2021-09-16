@@ -422,12 +422,35 @@ module DataCycleCore
              content_type: 'application/json'
     end
 
+    def attribute_value
+      content = DataCycleCore::Thing.find(attribute_value_params[:id])
+
+      values = {}
+
+      attribute_value_params[:keys].each do |key|
+        key_path = key.gsub(/\[datahash\]|\[translations\]\[[^\]]*\]/, '').scan(/\[(.*?)\]/).flatten
+        key_locale = key.scan(/\[translations\]\[([^\]]*)\]/).flatten.first
+
+        next if key_path.blank?
+
+        I18n.with_locale(key_locale || attribute_value_params[:locale]) do
+          values[key] = (values[key] || content).try(key_path.shift) while key_path.present?
+        end
+      end
+
+      render json: values.to_json
+    end
+
     private
 
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
       authorize! :show, watch_list
       @watch_list = watch_list
+    end
+
+    def attribute_value_params
+      params.permit(:id, :locale, keys: [])
     end
 
     def path_params

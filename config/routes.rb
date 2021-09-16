@@ -64,6 +64,7 @@ DataCycleCore::Engine.routes.draw do
       post :bulk_create, on: :collection
       delete :remove_locks, on: :member
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
+      post :attribute_value, on: :member
     end
   end
 

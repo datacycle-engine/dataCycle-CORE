@@ -36,7 +36,14 @@ class DataCycle {
 
     this.newContent = {
       observer: new MutationObserver(this._observeNewContent.bind(this)),
-      config: { attributes: false, characterData: false, subtree: true, childList: true },
+      config: {
+        attributes: false,
+        characterData: false,
+        subtree: true,
+        childList: true,
+        attributeOldValue: false,
+        characterDataOldValue: false
+      },
       callbacks: []
     };
 
@@ -108,16 +115,22 @@ class DataCycle {
     Rails.enableElement(element);
     if (element.nodeName == 'A') element.classList.remove('disabled');
   }
+  async _checkForConditionRecursive(node) {
+    for (let i = 0; i < node.children.length; i++) {
+      this._checkForConditionRecursive(node.children[i]);
+    }
+
+    for (let i = 0; i < this.newContent.callbacks.length; ++i) {
+      if (this.newContent.callbacks[i][0](node)) this.newContent.callbacks[i][1](node);
+    }
+  }
   _observeNewContent(mutations) {
     for (let i = 0; i < mutations.length; ++i) {
+      if (mutations[i].type !== 'childList') continue;
+
       for (let j = 0; j < mutations[i].addedNodes.length; ++j) {
-        const node = mutations[i].addedNodes[j];
-
-        if (node.nodeType !== Node.ELEMENT_NODE) continue;
-
-        for (let k = 0; k < this.newContent.callbacks.length; ++k) {
-          if (this.newContent.callbacks[k].condition(node)) this.newContent.callbacks[k].callback(node);
-        }
+        if (mutations[i].addedNodes[j].nodeType === Node.ELEMENT_NODE)
+          this._checkForConditionRecursive(mutations[i].addedNodes[j]);
       }
     }
   }

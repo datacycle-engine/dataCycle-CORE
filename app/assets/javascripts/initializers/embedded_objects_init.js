@@ -24,8 +24,5 @@ export default function () {
     new EmbeddedTitle(element);
   });
 
-  DataCycle.newContent.callbacks.push({
-    condition: e => e.classList.contains('is-embedded-title'),
-    callback: async e => new EmbeddedTitle(e)
-  });
+  DataCycle.newContent.callbacks.push([e => e.classList.contains('is-embedded-title'), e => new EmbeddedTitle(e)]);
 }

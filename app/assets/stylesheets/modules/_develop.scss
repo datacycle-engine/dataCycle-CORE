@@ -651,15 +651,32 @@ select {
     }
 
     .detail-type.object {
-      a.copy-all,
-      a.translate-all {
-        width: 2rem;
-        height: 2rem;
-        top: -2.1rem;
-        right: -0.9rem;
-        .fa {
-          font-size: 1.2rem;
-          line-height: 2rem;
+      .split-view-all-buttons {
+        float: right;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: -2.1rem;
+        margin-right: -0.9rem;
+        z-index: 1;
+        position: relative;
+
+        a {
+          margin: 0.1rem;
+          width: 2rem;
+          height: 2rem;
+
+          .fa {
+            font-size: 1.2rem;
+            line-height: 2rem;
+          }
+
+          &.copy-all {
+            order: 2;
+          }
+          &.translate-all {
+            order: 1;
+          }
         }
       }
     }
@@ -676,11 +693,24 @@ select {
         }
       }
 
-      .copy-all,
-      .translate-all {
+      .split-view-all-buttons {
         float: right;
-        margin: 0.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         z-index: 1;
+        position: relative;
+
+        a {
+          margin: 0.1rem;
+
+          &.copy-all {
+            order: 2;
+          }
+          &.translate-all {
+            order: 1;
+          }
+        }
       }
 
       .copy-to-clipboard {
