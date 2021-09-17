@@ -611,7 +611,6 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
-          .>> t(:add_cc, external_source_id)
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap_description, ['InfrastructureLong', 'InfrastructureShort', 'InfrastructurePriceInfo'])
