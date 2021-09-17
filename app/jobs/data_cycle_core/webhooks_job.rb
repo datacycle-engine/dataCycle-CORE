@@ -7,7 +7,7 @@ module DataCycleCore
     queue_as :webhooks
 
     def priority
-      arguments[3]&.dig(:webhook_priority) || PRIORITY
+      PRIORITY
     end
 
     def delayed_reference_id
