@@ -12,4 +12,4 @@ echo "Nginx config file: $CONFIG_FILE"
 
 cp $CONFIG_FILE /etc/nginx/templates/datacycle.conf.template
 
-exec ./docker-entrypoint.sh "$@"
+exec docker-entrypoint.sh "$@"
