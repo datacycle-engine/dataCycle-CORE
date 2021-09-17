@@ -7,9 +7,9 @@ module DataCycleCore
     end
 
     def translated_attribute_label(template_name, key, label)
-      if template_name.present? && I18n.exists?("attribute_labels.#{template_name}.#{key}")
+      if template_name.present? && I18n.exists?("attribute_labels.#{template_name}.#{key}", locale: active_ui_locale)
         I18n.t("attribute_labels.#{template_name}.#{key}", locale: active_ui_locale)
-      elsif I18n.exists?("attribute_labels.#{key}")
+      elsif I18n.exists?("attribute_labels.#{key}", locale: active_ui_locale)
         I18n.t("attribute_labels.#{key}", locale: active_ui_locale)
       elsif label.present?
         label

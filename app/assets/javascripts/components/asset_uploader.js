@@ -33,6 +33,9 @@ class AssetUploader {
     this.bulkCreateChannel;
     this.files = [];
     this.saving = false;
+    this.eventHandlers = {
+      pageLeave: this.pageLeaveHandler.bind(this)
+    };
 
     this.init();
   }
@@ -43,12 +46,6 @@ class AssetUploader {
     this.fileField.on('change', this.validateFiles.bind(this));
     this.reveal.on('dc:upload:setFiles', (e, files) => {
       this.validateFiles(e, files.fileList);
-    });
-    $(window).on('beforeunload', event => {
-      if ($('.file-for-upload.uploading').length) {
-        event.preventDefault();
-        return (event.returnValue = '');
-      }
     });
     this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
     this.reveal.on(
@@ -63,6 +60,10 @@ class AssetUploader {
       this.createButton.on('click', this.createAssets.bind(this));
     }
     this.initActionCable();
+  }
+  pageLeaveHandler(e) {
+    e.preventDefault();
+    return (e.returnValue = '');
   }
   removeFileHandler(event) {
     event.preventDefault();
@@ -115,9 +116,11 @@ class AssetUploader {
     if (file) this.uploadFile(file);
   }
   openReveal(_event) {
+    $(window).on('beforeunload', this.eventHandlers.pageLeave);
     this.reveal.parent('.reveal-overlay').addClass('content-reveal-overlay');
   }
   closeReveal(_event) {
+    $(window).off('beforeunload', this.eventHandlers.pageLeave);
     this.contentUploaderField.trigger('dc:upload:filesChanged');
     $('.asset-selector-reveal:visible').trigger('open.zf.reveal');
   }
