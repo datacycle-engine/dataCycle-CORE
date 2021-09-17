@@ -111,6 +111,11 @@ services:
       - web
 ##    command: ["./vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
 ##    command: ["bundle", "exec", "bin/delayed_job", "-n 1", "--pool=importers:1", "--pool=cache_invalidation:2", "--pool=search_update:3", "--pool=carrierwave:1", "--pool=mailers:1", "--pool=webhooks:1", "--pool=default:1", "run"]
+  scheduler:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+    command: bin/scheduler
   postgres:
     image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4'
     environment:
