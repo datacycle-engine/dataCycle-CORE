@@ -1,28 +1,18 @@
 version: '3.8'
 
 x-app-env: &default-app-env
-  RAILS_ENV: ${RAILS_ENV}
-  MONGODB_HOST: mongodb
-  # validate
-  POSTGRES_USER: ${POSTGRES_USER}
-  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  APP_PROTOCOL: ${APP_PROTOCOL:-http}
+  APP_HOST: ${APP_HOST:-localhost:3003}
+  APPLICATION_ROOT: ${APPLICATION_ROOT:-/var/www/app}
+  MONGODB_HOST: ${MONGODB_HOST:-mongodb}
   POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
   POSTGRES_PORT: ${POSTGRES_PORT:-5432}
   POSTGRES_VERSION: ${POSTGRES_VERSION:-13}
-  POSTGRES_DATABASE: ${POSTGRES_DATABASE}
-#  - ALLOW_IP_RANGE=172.18.0.0/12
-#  - TZ=Europe/Vienna
-  APPLICATION_ROOT: ${APPLICATION_ROOT:-/var/www/app}
-  APP_PROTOCOL: ${APP_PROTOCOL:-http}
-  # @todo check app_host for local dev
-  APP_HOST: ${APP_HOST:-localhost:3003}
   PUBLIC_APPLICATION_PORT: ${PUBLIC_APPLICATION_PORT:-3003}
-#  - SSH_AUTH_SOCK=/ssh-agent
+  RAILS_ENV: ${RAILS_ENV:-production}
+  REDIS_SERVER: ${REDIS_SERVER:-redis}
+  SSH_AUTH_SOCK: /ssh-agent
 #  - HISTFILE=/root/hist/.bash_history
-#  # @todo obsolete VITE_RUBY_* settings ?
-#  - VITE_RUBY_HOST=0.0.0.0
-#  - VITE_RUBY_PORT=${PUBLIC_VITE_PORT:-3036}
-
 
 x-app: &default-app
   build:
@@ -41,13 +31,9 @@ x-app: &default-app
     - ${BASE_DATA_VOLUME_PATH:-./../../../dcdata}/app:/app/public/uploads
     - ./docker/postgres/wait-for-postgres.sh:/tmp/postgres/wait-for-postgres.sh
     - $SSH_AUTH_SOCK:/ssh-agent
-  depends_on:
-    - postgres
-    - mongodb
-    - redis
   stdin_open: true
   tty: true
-#  restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+#  restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
 
 services:
   web:
@@ -55,7 +41,6 @@ services:
     environment:
       <<: *default-app-env
     command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "puma", "-C", "/app/vendor/gems/data-cycle-core/docker/web/puma.rb"]
-  # QUEUE=default,mailers
   job_worker_default:
     <<: *default-app
     environment:
@@ -64,7 +49,6 @@ services:
     command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
-  # QUEUE=importers
   job_worker_importers:
     <<: *default-app
     environment:
@@ -73,7 +57,6 @@ services:
     command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
-  # QUEUE=importers
   job_worker_cache_invalidation:
     <<: *default-app
     environment:
@@ -82,7 +65,6 @@ services:
     command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
-  # QUEUE=search_update
   job_worker_search_update:
     <<: *default-app
     environment:
@@ -91,7 +73,6 @@ services:
     command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
-  # QUEUE=importers
   job_worker_carrierwave:
     <<: *default-app
     environment:
@@ -100,7 +81,6 @@ services:
     command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
-  # QUEUE=importers
   job_worker_webhooks:
     <<: *default-app
     environment:
@@ -116,60 +96,70 @@ services:
     environment:
       <<: *default-app-env
     command: bin/scheduler
+    depends_on:
+      - web
   postgres:
     image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4'
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_VERSION=${POSTGRES_VERSION:-13}
       - POSTGRES_EFFECTIVE_CACHE_SIZE=${POSTGRES_EFFECTIVE_CACHE_SIZE:-6GB}
       - PGDATA=/var/lib/postgresql/data/pgdata
-    entrypoint: /tmp/postgres/setup-postgres.sh
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/postgres/setup.sh
     command: postgres -c config_file=/etc/postgresql.conf
     ports:
       - ${PUBLIC_POSTGRES_PORT:-5432}:5432
     shm_size: 8gb
     volumes:
+      - app:/app
       - ${BASE_DATA_VOLUME_PATH:-./../../../dcdata}/postgres:/var/lib/postgresql/data
-      - ./docker/postgres/postgresql.conf:/tmp/postgres/postgresql.conf
-      - ./docker/postgres/setup.sh:/tmp/postgres/setup-postgres.sh
-      - ${PWD}/config/configurations/ts_search:/tmp/postgres/ts_search
+#      - ./docker/postgres/postgresql.conf:/tmp/postgres/postgresql.conf
+#      - ./docker/postgres/setup.sh:/tmp/postgres/setup-postgres.sh
+#      - ${PWD}/config/configurations/ts_search:/tmp/postgres/ts_search
   mongodb:
     build:
       context: ./docker/mongodb
       dockerfile: Dockerfile
     ports:
       - '${PUBLIC_MONGODB_PORT:-27017}:27017'
-    entrypoint: /tmp/mongodb/setup-mongodb.sh
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/mongodb/setup.sh
     command: mongod --config /etc/mongo/mongod.conf
     environment:
       - MONGODB_CACHE_SIZE_GB=${MONGODB_CACHE_SIZE_GB:-1}
     volumes:
+      - app:/app
       - ${BASE_DATA_VOLUME_PATH:-./../../../dcdata}/mongodb:/data/db
       - ${BASE_LOG_VOLUME_PATH:--./../../../log}/mongodb:/var/log/mongodb
-      - ./docker/mongodb/mongod.conf:/tmp/mongodb/mongod.conf
-      - ./docker/mongodb/setup.sh:/tmp/mongodb/setup-mongodb.sh
+#      - ./docker/mongodb/mongod.conf:/tmp/mongodb/mongod.conf
+#      - ./docker/mongodb/setup.sh:/tmp/mongodb/setup-mongodb.sh
+    depends_on:
+      - web
   redis:
     build:
       context: ./docker/redis
       dockerfile: Dockerfile
-    entrypoint: /tmp/redis/setup-redis.sh
-#    ports:
-#      - '${PUBLIC_REDIS_PORT:-6379}:6379'
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/redis/setup.sh
     command: redis-server /etc/redis/redis.conf
     environment:
       - REDIS_MAX_MEMORY=${REDIS_MAX_MEMORY:-2gb}
     volumes:
+      - app:/app
       - redis:/data
-      - ./docker/redis/redis.conf:/tmp/redis/redis.conf
-      - ./docker/redis/setup.sh:/tmp/redis/setup-redis.sh
+#      - ./docker/redis/redis.conf:/tmp/redis/redis.conf
+#      - ./docker/redis/setup.sh:/tmp/redis/setup-redis.sh
+    depends_on:
+      - web
   nginx:
     image: nginx:1.20-alpine
     ports:
       - '${PUBLIC_APPLICATION_PORT:-3003}:${PUBLIC_APPLICATION_PORT:-3003}'
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/nginx/setup.sh
+#    command: ["nginx", "-g", "daemon off;"]
     environment:
       # check if APPLICATION_ROOT can be removed (used in core)
-      - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
+      - APPLICATION_ROOT=${APPLICATION_ROOT:-/app}
       - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
       - PUBLIC_APPLICATION_HOST=${PUBLIC_APPLICATION_HOST:-localhost}
       - IMGPROXY_PORT=${IMGPROXY_PORT:-9000}
@@ -179,11 +169,11 @@ services:
       - ${BASE_CACHE_VOLUME_PATH:--./../../../cache}/imgproxy_data_cycle:/var/cache/nginx/imgproxy_data_cycle
       - ${BASE_CACHE_VOLUME_PATH:--./../../../cache}/data_cycle:/var/cache/nginx/data_cycle
 #      - ${PWD}:/var/www/app
-      - './docker/nginx/templates/datacycle.conf.template:/etc/nginx/templates/datacycle.conf.template'
+#      - './docker/nginx/templates/datacycle.conf.template:/etc/nginx/templates/datacycle.conf.template'
     depends_on:
       - web
       - imgproxy
-    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   imgproxy:
     image: darthsim/imgproxy:v2.16
     env_file:
