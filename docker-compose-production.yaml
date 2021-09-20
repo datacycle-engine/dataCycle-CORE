@@ -10,9 +10,10 @@ x-app-env: &default-app-env
   POSTGRES_VERSION: ${POSTGRES_VERSION:-13}
   PUBLIC_APPLICATION_PORT: ${PUBLIC_APPLICATION_PORT:-3003}
   RAILS_ENV: ${RAILS_ENV:-production}
+  RAILS_LOG_TO_STDOUT: ${RAILS_LOG_TO_STDOUT:-false}
   REDIS_SERVER: ${REDIS_SERVER:-redis}
   SSH_AUTH_SOCK: /ssh-agent
-#  - HISTFILE=/root/hist/.bash_history
+  HISTFILE: /home/ruby/hist/.bash_history
 
 x-app: &default-app
   build:
@@ -29,10 +30,14 @@ x-app: &default-app
     - app:/app
     - ${BASE_LOG_VOLUME_PATH:--./../../../log}/app:/app/log
     - ${BASE_DATA_VOLUME_PATH:-./../../../dcdata}/app:/app/public/uploads
-    - ./docker/postgres/wait-for-postgres.sh:/tmp/postgres/wait-for-postgres.sh
+    - ${BASE_HISTORY_VOLUME_PATH:-./../../../history}:/home/ruby/hist
+    - ${BASE_BACKUP_VOLUME_PATH:-./../../../backups}:/app/db/backups
+#    - ./docker/postgres/wait-for-postgres.sh:/app/docker/wait-for-postgres.sh
     - $SSH_AUTH_SOCK:/ssh-agent
-  stdin_open: true
-  tty: true
+  extra_hosts:
+    - 'dockerhost:host-gateway'
+#  stdin_open: true
+#  tty: true
 #  restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
 
 services:
@@ -40,13 +45,25 @@ services:
     <<: *default-app
     environment:
       <<: *default-app-env
-    command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "puma", "-C", "/app/vendor/gems/data-cycle-core/docker/web/puma.rb"]
+    command: ["/app/docker/wait-for-postgres.sh", "postgres", "/app/vendor/gems/data-cycle-core/docker/setup.production.sh"]
+  migrate_project:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+    volumes:
+      - ${BASE_LOG_VOLUME_PATH:--./../../../log}/app:/app/log
+      - ${BASE_DATA_VOLUME_PATH:-./../../../dcdata}/app:/app/public/uploads
+      - ${BASE_HISTORY_VOLUME_PATH:-./../../../history}:/home/ruby/hist
+      - ${BASE_BACKUP_VOLUME_PATH:-./../../../backups}:/app/db/backups
+      #    - ./docker/postgres/wait-for-postgres.sh:/app/docker/wait-for-postgres.sh
+      - $SSH_AUTH_SOCK:/ssh-agent
+    command: ["/bin/bash"]
   job_worker_default:
     <<: *default-app
     environment:
       <<: *default-app-env
       QUEUE: default,mailers
-    command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["/app/docker/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
   job_worker_importers:
@@ -54,7 +71,7 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: importers
-    command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["/app/docker/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
   job_worker_cache_invalidation:
@@ -62,7 +79,7 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: cache_invalidation
-    command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["/app/docker/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
   job_worker_search_update:
@@ -70,7 +87,7 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: search_update
-    command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["/app/docker/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
   job_worker_carrierwave:
@@ -78,7 +95,7 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: carrierwave
-    command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["/app/docker/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
   job_worker_webhooks:
@@ -86,10 +103,9 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: webhooks
-    command: ["/tmp/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["/app/docker/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
-##    command: ["./vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
 ##    command: ["bundle", "exec", "bin/delayed_job", "-n 1", "--pool=importers:1", "--pool=cache_invalidation:2", "--pool=search_update:3", "--pool=carrierwave:1", "--pool=mailers:1", "--pool=webhooks:1", "--pool=default:1", "run"]
   scheduler:
     <<: *default-app
