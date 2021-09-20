@@ -152,11 +152,11 @@ services:
     depends_on:
       - web
   nginx:
-    image: nginx:1.20-alpine
+    image: nginx:1.21-alpine
     ports:
       - '${PUBLIC_APPLICATION_PORT:-3003}:${PUBLIC_APPLICATION_PORT:-3003}'
     entrypoint: /app/vendor/gems/data-cycle-core/docker/nginx/setup.sh
-#    command: ["nginx", "-g", "daemon off;"]
+    command: ["nginx", "-g", "daemon off;"]
     environment:
       # check if APPLICATION_ROOT can be removed (used in core)
       - APPLICATION_ROOT=${APPLICATION_ROOT:-/app}
@@ -168,7 +168,7 @@ services:
       - ${BASE_LOG_VOLUME_PATH:--./../../../log}/nginx:/var/log/datacycle
       - ${BASE_CACHE_VOLUME_PATH:--./../../../cache}/imgproxy_data_cycle:/var/cache/nginx/imgproxy_data_cycle
       - ${BASE_CACHE_VOLUME_PATH:--./../../../cache}/data_cycle:/var/cache/nginx/data_cycle
-#      - ${PWD}:/var/www/app
+#      - ${PWD}:/app
 #      - './docker/nginx/templates/datacycle.conf.template:/etc/nginx/templates/datacycle.conf.template'
     depends_on:
       - web

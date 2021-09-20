@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eu
+set -e
 
 mkdir -p /etc/nginx/templates
 
@@ -8,8 +8,6 @@ CONFIG_FILE=/app/vendor/gems/data-cycle-core/docker/nginx/templates/datacycle.co
 
 if [ -f "$LOCAL_CONFIG_FILE" ]; then CONFIG_FILE=$LOCAL_CONFIG_FILE; fi
 
-echo "Nginx config file: $CONFIG_FILE"
-
 cp $CONFIG_FILE /etc/nginx/templates/datacycle.conf.template
 
-exec docker-entrypoint.sh "$@"
+exec /docker-entrypoint.sh "$@"
