@@ -57,8 +57,6 @@ class AttributeLocaleSwitcher {
     $target.closest('.attribute-locale-switcher').find('.active').removeClass('active');
     $target.parent('li').addClass('active');
 
-    this.$container.find('.template-locale').text(`(${this.locale})`);
-
     if (this.$container.find('.split-content').length)
       this.changeTranslationRecursive(this.$container.find('.split-content.edit-content'));
     else this.changeTranslationRecursive(this.$container);
@@ -67,8 +65,10 @@ class AttributeLocaleSwitcher {
 
     if (!data || !data.preventHistory) this.pushStateToHistory();
   }
-  changeTranslationRecursive(container) {
-    $(container)
+  changeTranslationRecursive($container) {
+    $container.find('.template-locale').text(`(${this.locale})`);
+
+    $container
       .find(`.translatable-attribute.${this.locale}, .translatable-field.${this.locale}`)
       .each((_index, item) => {
         if ($(item).siblings('.active').length) {
@@ -79,26 +79,22 @@ class AttributeLocaleSwitcher {
         }
       });
 
-    $(container)
-      .find('.edit-content-link')
-      .each((_index, item) => {
-        if (item.nodeName == 'BUTTON') {
-          const $inputField = $(item).siblings('[name="locale"]');
+    $container.find('.edit-content-link').each((_index, item) => {
+      if (item.nodeName == 'BUTTON') {
+        const $inputField = $(item).siblings('[name="locale"]');
 
-          if ($inputField.length) $inputField.val(this.locale);
-          else $(item).after(`<input type="hidden" name="locale" value="${this.locale}">`);
-        } else {
-          const url = new URL(item.href);
-          url.searchParams.set('locale', this.locale);
-          item.href = url;
-        }
-      });
+        if ($inputField.length) $inputField.val(this.locale);
+        else $(item).after(`<input type="hidden" name="locale" value="${this.locale}">`);
+      } else {
+        const url = new URL(item.href);
+        url.searchParams.set('locale', this.locale);
+        item.href = url;
+      }
+    });
 
-    $(container)
-      .find('[data-open], [data-toggle]')
-      .each((_index, item) => {
-        this.changeTranslationRecursive($(`#${$(item).data('open') || $(item).data('toggle')}`));
-      });
+    $container.find('[data-open], [data-toggle]').each((_index, item) => {
+      this.changeTranslationRecursive($(`#${$(item).data('open') || $(item).data('toggle')}`));
+    });
   }
   updateLocale(event) {
     this.$localeSwitch

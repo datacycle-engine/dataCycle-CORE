@@ -44,7 +44,7 @@ class OpenLayersEditor extends OpenLayersViewer {
   initAdditionalControls() {
     this.map.addControl(new RemoveAllFeaturesControl());
   }
-  async importData(_event, data) {
+  async importData(event, data) {
     if (
       ((!this.$elevationField.val() || this.$elevationField.val().length == 0) &&
         this.$locationField.val().length == 0) ||
@@ -54,8 +54,11 @@ class OpenLayersEditor extends OpenLayersViewer {
       this.$latitudeField.val(data.value.y).trigger('change');
       this.$longitudeField.val(data.value.x).trigger('change');
     } else {
+      const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
+      const labelText = label && label.innerText;
+
       new ConfirmationModal({
-        text: await I18n.translate('frontend.override_warning', { data: data.label }),
+        text: await I18n.translate('frontend.override_warning', { data: labelText }),
         confirmationText: await I18n.translate('common.yes'),
         cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',

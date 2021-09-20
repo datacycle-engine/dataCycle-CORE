@@ -2,7 +2,8 @@ import ConfirmationModal from './../components/confirmation_modal';
 import SplitView from './../components/split_view';
 
 export default function () {
-  new SplitView(document.querySelector('.flex-box .detail-content .properties'));
+  if (document.querySelector('.flex-box .detail-content .properties'))
+    new SplitView(document.querySelector('.flex-box .detail-content .properties'));
 
   // add eventhandlers for editor fields
   $(document).on(
@@ -12,8 +13,11 @@ export default function () {
       if ($(event.target).val().length === 0 || (data && data.force)) {
         $(event.target).val(data.value).trigger('input');
       } else {
+        const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
+        const labelText = label && label.innerText;
+
         new ConfirmationModal({
-          text: await I18n.translate('frontend.override_warning', { data: data.label }),
+          text: await I18n.translate('frontend.override_warning', { data: labelText }),
           confirmationText: await I18n.translate('common.yes'),
           cancelText: await I18n.translate('common.no'),
           confirmationClass: 'success',
@@ -30,8 +34,11 @@ export default function () {
     if ($(event.target).val().length === 0 || (data && data.force)) {
       $(event.target).val(data.value).trigger('input');
     } else {
+      const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
+      const labelText = label && label.innerText;
+
       new ConfirmationModal({
-        text: await I18n.translate('frontend.override_warning', { data: data.label }),
+        text: await I18n.translate('frontend.override_warning', { data: labelText }),
         confirmationText: await I18n.translate('common.yes'),
         cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',
@@ -47,8 +54,11 @@ export default function () {
     if (data && data.force) {
       $(event.target).prop('checked', data.value);
     } else {
+      const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
+      const labelText = label && label.innerText;
+
       new ConfirmationModal({
-        text: await I18n.translate('frontend.override_warning', { data: data.label }),
+        text: await I18n.translate('frontend.override_warning', { data: labelText }),
         confirmationText: await I18n.translate('common.yes'),
         cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',

@@ -435,6 +435,8 @@ module DataCycleCore
 
         I18n.with_locale(key_locale || attribute_value_params[:locale]) do
           values[key] = (values[key] || content).try(key_path.shift) while key_path.present?
+          values[key] = values[key].id if values[key].is_a?(ActiveRecord::Base)
+          values[key] = values[key].pluck(:id) if values[key].is_a?(ActiveRecord::Relation)
         end
       end
 

@@ -1,4 +1,5 @@
 import CalloutHelpers from './../helpers/callout_helpers';
+import domElementHelpers from '../helpers/dom_element_helpers';
 
 class SplitView {
   constructor(container = document) {
@@ -40,6 +41,15 @@ class SplitView {
   setup() {
     this.observeForNewFields();
     this.setupButtons(this.container);
+  }
+  parseDataAttribute(value) {
+    if (!value) return value;
+
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
   }
   addSubcriberNoticeHandler() {
     const notice = this.container.closest('.split-content').querySelector('.close-subscribe-notice');
@@ -95,9 +105,11 @@ class SplitView {
     if (viewField) this.setupButtons(viewField);
   }
   findFieldByKey(key, container) {
-    return container.querySelector(
-      `[data-key*="${key.getAttributeKey()}"]:not([data-editor]:not([data-editor="included-object"]) [data-key*="${key.getAttributeKey()}"]):not(.dc-copyable-field)`
-    );
+    return Array.from(
+      container.querySelectorAll(
+        `[data-key*="${key.getAttributeKey()}"]:not([data-editor]:not([data-editor="included-object"]) [data-key*="${key.getAttributeKey()}"]):not(.dc-copyable-field)`
+      )
+    ).filter(domElementHelpers.isVisible.bind(this))[0];
   }
   dismissSubscribeNotice(_event) {
     document.cookie = 'subscribe_notice_dismissed=true';
@@ -199,12 +211,9 @@ class SplitView {
     });
   }
   async handleButtonClick(event) {
-    console.log(event);
     event.preventDefault();
 
-    const button = event.target;
-
-    console.log('handleButtonClick', event);
+    const button = event.currentTarget;
 
     DataCycle.disableElement(button);
 
@@ -214,29 +223,27 @@ class SplitView {
 
     if (button.classList.contains('copy-single-button')) {
       const linkedOrEmbedded = button.closest('.copy-single');
-      if (linkedOrEmbedded) value = linkedOrEmbedded.dataset.id;
-      console.log('copy-single');
+      if (linkedOrEmbedded) value = this.parseDataAttribute(linkedOrEmbedded.dataset.id);
     } else {
       const response = await this.loadValue([key]);
       if (response && response[key]) value = response[key];
-      console.log('handleButtonClick', key, value);
     }
 
-    if (!value && value !== false) return;
+    if (!value && value !== false) return DataCycle.enableElement(button);
 
-    const label = container.dataset.label;
-
-    if (button.classList.contains('translate')) await this.translateText(container.dataset.editor, value, label, key);
-    else await this.copyContents(value, label, key);
+    if (button.classList.contains('translate')) await this.translateText(container.dataset.editor, value, key);
+    else await this.copyContents(value, key);
 
     DataCycle.enableElement(button);
   }
   triggerAllButtons(event) {
     event.preventDefault();
 
-    const parent = event.target.closest('.split-content, [data-editor="included-object"]');
+    const target = event.currentTarget;
+
+    const parent = target.closest('.split-content, [data-editor="included-object"]');
     let items;
-    if (event.target.classList.contains('translate-all')) {
+    if (target.classList.contains('translate-all')) {
       items = [
         ...parent.querySelectorAll(':scope .dc-translatable-field > .buttons > a.translate'),
         ...parent.querySelectorAll(
@@ -251,7 +258,7 @@ class SplitView {
       items[i].click();
     }
   }
-  async copyContents(value, label, key, translate = false) {
+  async copyContents(value, key, translate = false) {
     const submitButton = document.querySelector('.edit-header .submit-edit-form');
 
     if (submitButton && submitButton.disabled) return;
@@ -261,7 +268,6 @@ class SplitView {
     await $(target)
       .find(DataCycle.config.EditorSelectors.join(', '))
       .trigger('dc:import:data', {
-        label: label,
         value: typeof value == 'string' ? value.trim() : value,
         locale: this.embedLocale ? this.leftLocale : '',
         translate: translate
@@ -269,7 +275,7 @@ class SplitView {
 
     target.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
-  async translateText(editor, value, label, key) {
+  async translateText(editor, value, key) {
     if (this.translatableTypes.includes(editor)) {
       let formData = {
         text: typeof value == 'string' ? value.trim() : value,
@@ -287,9 +293,9 @@ class SplitView {
         CalloutHelpers.show(await I18n.translate('frontend.split_view.translate_error'), 'alert');
       });
 
-      await this.copyContents(translatedValue.text, label, key);
+      await this.copyContents(translatedValue.text, key);
     } else {
-      await this.copyContents(value, label, key, true);
+      await this.copyContents(value, key, true);
     }
   }
 }

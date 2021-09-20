@@ -49,7 +49,6 @@ class GipKeyFigure {
   }
   setNewValue(value) {
     this.$formElement.find(DataCycle.config.EditorSelectors.join(', ')).trigger('dc:import:data', {
-      label: this.label,
       value: value,
       locale: this.locale
     });

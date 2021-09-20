@@ -201,7 +201,6 @@ class NewContentDialog {
         .find('[data-key="' + key + '"]')
         .find(DataCycle.config.EditorSelectors.join(', '))
         .trigger('dc:import:data', {
-          label: key.getAttributeKey(),
           value: typeof groupedAttributes[key] == 'string' ? groupedAttributes[key].trim() : groupedAttributes[key],
           locale: data.locale || 'de',
           force: true

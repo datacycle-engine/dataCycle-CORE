@@ -10,9 +10,16 @@ export default function () {
   });
 
   function resizeDropdown(element) {
+    const elementRect = element.getBoundingClientRect();
+    if (element.classList.contains('has-alignment-left') && elementRect.right > window.innerWidth) {
+      element.classList.add('has-alignment-right');
+      element.classList.remove('has-alignment-left');
+    }
+
     const $linkedItem = $('[data-toggle="' + $(element).prop('id') + '"]');
     const pseudoWidth = parseInt(window.getComputedStyle(element, ':before').width);
     let resetOffset = Math.abs($(element).position().left) - pseudoWidth / 2;
+
     if ($linkedItem.length)
       resetOffset = Math.min(resetOffset + $linkedItem[0].offsetWidth / 2, element.offsetWidth - pseudoWidth - 3);
 
