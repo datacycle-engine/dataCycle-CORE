@@ -4,6 +4,10 @@ body {
   flex-flow: column;
 }
 
+.alert-color {
+  color: $alert-color;
+}
+
 .off-canvas-wrapper {
   position: relative;
   flex: auto;
