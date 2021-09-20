@@ -82,5 +82,3 @@
 </div>
 
 <%= render 'release_status', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && content.try(:release_status_id).present? %>
-
-<%= render 'data_cycle_core/contents/external_connections', content: content if show_external_connections?(content) %>

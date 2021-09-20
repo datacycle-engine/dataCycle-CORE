@@ -8,8 +8,7 @@ module DataCycleCore
           config = utility_object.external_system.credentials(:export)
           feratel_id = data.linked_thing.find_by(external_source_id: utility_object.external_system.id)&.external_key
           feratel_classification_ids =
-            data
-              .universal_classifications
+            (data.universal_classifications.to_a + data.certificate_classification.to_a)
               .map { |c|
                 c
                   .classification_aliases

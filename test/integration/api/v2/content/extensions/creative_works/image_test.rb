@@ -28,7 +28,7 @@ module DataCycleCore
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
-                assert_equal('ImageObject', json_data.dig('@type'))
+                assert_equal('ImageObject', json_data.dig('@type').last)
                 assert_equal('Bild', json_data.dig('contentType'))
                 assert_equal(root_url[0...-1] + api_v2_thing_path(id: @content), json_data.dig('@id'))
                 assert_equal(@content.id, json_data.dig('identifier'))

@@ -4,7 +4,10 @@
     :schema_type: Intangible
     :content_type: embedded
     :api:
-      :type: PropertyValue
+      :type:
+        - Intangible
+        - StructuredValue
+        - PropertyValue
     :properties:
       :id:
         :label: id

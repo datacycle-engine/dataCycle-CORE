@@ -19,7 +19,10 @@
           :json: true
           :indesign: true
     :api:
-      :type: BodyOfWater
+      :type: 
+        - Place
+        - Landform
+        - BodyOfWater
     :properties:
       :id:
         :label: id

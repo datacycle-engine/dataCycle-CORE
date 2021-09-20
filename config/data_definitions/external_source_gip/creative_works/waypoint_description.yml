@@ -6,7 +6,9 @@
     :content_type: embedded
     :boost: 100.0
     :api:
-      :type: Article
+      :type:
+        - CreativeWork
+        - Article
     :properties:
       :id:
         :label: id

@@ -22,7 +22,9 @@
           :gpx: true
           :indesign: true
     :api:
-      :type: TouristAttraction
+      :type:
+        - Place
+        - TouristAttraction
     :properties:
       :id:
         :label: id

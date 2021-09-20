@@ -20,7 +20,10 @@
           :xml: true
           :indesign: true
     :api:
-      :type: VideoObject
+      :type:
+        - CreativeWork
+        - MediaObject
+        - VideoObject
     :properties:
       :id:
         :label: id

@@ -9,13 +9,13 @@ module DataCycleCore
     def translated_attribute_label(key, definition, content, options)
       @translated_attribute_label ||= Hash.new do |h, k|
         h[k] = begin
-          if I18n.exists?("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}")
+          if I18n.exists?("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
             label = I18n.t("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
-          elsif I18n.exists?("attribute_labels.#{k[2]&.template_name}.#{k[0]}")
+          elsif I18n.exists?("attribute_labels.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
             label = I18n.t("attribute_labels.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
-          elsif I18n.exists?("attribute_labels.#{k[3]}.#{k[0]}")
+          elsif I18n.exists?("attribute_labels.#{k[3]}.#{k[0]}", locale: k[4])
             label = I18n.t("attribute_labels.#{k[3]}.#{k[0]}", locale: k[4])
-          elsif I18n.exists?("attribute_labels.#{k[0]}")
+          elsif I18n.exists?("attribute_labels.#{k[0]}", locale: k[4])
             label = I18n.t("attribute_labels.#{k[0]}", locale: k[4])
           elsif k[1].present?
             label = k[1].dig('ui', k[3].to_s, 'label') || k[1]['label']

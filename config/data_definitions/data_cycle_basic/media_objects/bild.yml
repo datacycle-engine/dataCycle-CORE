@@ -30,7 +30,10 @@
           :json: true
           :xml: true
     :api:
-      :type: ImageObject
+      :type:
+        - CreativeWork
+        - MediaObject
+        - ImageObject
     :properties:
       :id:
         :label: id

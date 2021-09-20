@@ -23,6 +23,7 @@
           :indesign: true
     :api:
       :type:
+        - Place
         - TouristAttraction
         - 'odta:SkiLift'
     :properties:
