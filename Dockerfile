@@ -42,9 +42,16 @@ RUN yarn
 
 RUN bundle exec vite build
 
+# create a temporary folder to update /app/public/assets in named volumes
+RUN cp -Rf /app/public/assets/ /app/public/assets_tmp && chown ruby:ruby -R /app/public/assets_tmp
+# create a temporary folder to update docker configs in named volumes
+RUN mkdir -p /app/docker && cp -Rf /app/docker /app/docker_tmp && chown ruby:ruby -R /app/docker_tmp
+
 RUN rm -Rf /app/node_modules
 
-ENTRYPOINT ["/app/vendor/gems/data-cycle-core/docker/web/docker-entrypoint.sh"]
+COPY vendor/gems/data-cycle-core/docker/web/docker-entrypoint.sh docker-entrypoint.sh
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 CMD ["/app/docker/wait-for-postgres.sh", "bundle", "exec", "puma", "-C", "/app/vendor/gems/data-cycle-core/docker/web/puma.rb"]
 

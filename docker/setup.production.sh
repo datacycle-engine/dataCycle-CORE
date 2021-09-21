@@ -9,8 +9,3 @@ bundle exec rake dc:update:dictionaries &
 rm -f /app/tmp/pids/server.pid
 
 exec bundle exec puma -C /app/vendor/gems/data-cycle-core/docker/web/puma.rb "$@"
-
-
-
-
-bundle exec rake data_cycle_core:update:import_classifications
