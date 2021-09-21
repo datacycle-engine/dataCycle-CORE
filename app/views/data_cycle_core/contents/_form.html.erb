@@ -26,6 +26,8 @@
               <ul class="split-locales no-bullet">
                 <%= render 'split_locale_links',
                   content: content,
+                  source_content: split_source,
+                  locale_url_parameter: 'source_locale',
                   locale: @locale,
                   link_action: local_assigns[:link_action] if split_source.translatable? && I18n.available_locales&.many? %>
               </ul>

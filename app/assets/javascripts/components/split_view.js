@@ -8,7 +8,6 @@ class SplitView {
     this.rightContainer = this.container.closest('.flex-box').querySelector('.split-content.edit-content');
     this.embedLocale = this.leftContainer.dataset.embedLocale;
     this.leftLocale = this.leftContainer.dataset.locale;
-    this.rightLocale = this.container.closest('form').querySelector('input[name="locale"]').value;
     this.enableTranslateButtons = this.leftContainer.dataset.enableTranslateButtons;
     this.translatableTypes = ['string', 'text_editor'];
     this.copyableTypes = [
@@ -41,6 +40,9 @@ class SplitView {
   setup() {
     this.observeForNewFields();
     this.setupButtons(this.container);
+  }
+  rightLocale() {
+    return this.container.closest('form').querySelector('input[name="locale"]').value;
   }
   parseDataAttribute(value) {
     if (!value) return value;
@@ -100,16 +102,18 @@ class SplitView {
   }
   addButtonsForEditFields(element) {
     const key = element.dataset.key;
-    const viewField = this.findFieldByKey(key, this.leftContainer);
+    const viewFields = this.findFieldsByKey(key, this.leftContainer);
 
-    if (viewField) this.setupButtons(viewField);
+    for (let i = 0; i < viewFields.length; ++i) {
+      this.setupButtons(viewFields[i]);
+    }
   }
-  findFieldByKey(key, container) {
+  findFieldsByKey(key, container) {
     return Array.from(
       container.querySelectorAll(
-        `[data-key*="${key.getAttributeKey()}"]:not([data-editor]:not([data-editor="included-object"]) [data-key*="${key.getAttributeKey()}"]):not(.dc-copyable-field)`
+        `[data-key*="[${key.getAttributeKey()}]"]:not([data-editor]:not([data-editor="included-object"]) [data-key*="[${key.getAttributeKey()}]"]):not(.dc-copyable-field)`
       )
-    ).filter(domElementHelpers.isVisible.bind(this))[0];
+    ).filter(domElementHelpers.isVisible.bind(this));
   }
   dismissSubscribeNotice(_event) {
     document.cookie = 'subscribe_notice_dismissed=true';
@@ -129,7 +133,7 @@ class SplitView {
   }
   addButtons(element, single = false) {
     const key = element.dataset.key;
-    const editField = this.findFieldByKey(key, this.rightContainer);
+    const editField = this.findFieldsByKey(key, this.rightContainer)[0];
 
     if (!editField || editField.dataset.readonly == 'true') return;
 
@@ -218,11 +222,11 @@ class SplitView {
     DataCycle.disableElement(button);
 
     const container = button.closest('[data-editor]');
+    const linkedOrEmbedded = button.closest('.embedded[data-id], li.item[data-id]');
     const key = container.dataset.key;
     let value;
 
-    if (button.classList.contains('copy-single-button')) {
-      const linkedOrEmbedded = button.closest('.copy-single');
+    if (linkedOrEmbedded) {
       if (linkedOrEmbedded) value = this.parseDataAttribute(linkedOrEmbedded.dataset.id);
     } else {
       const response = await this.loadValue([key]);
@@ -263,7 +267,7 @@ class SplitView {
 
     if (submitButton && submitButton.disabled) return;
 
-    const target = this.findFieldByKey(key, this.rightContainer);
+    const target = this.findFieldsByKey(key, this.rightContainer)[0];
 
     await $(target)
       .find(DataCycle.config.EditorSelectors.join(', '))
@@ -280,7 +284,7 @@ class SplitView {
       let formData = {
         text: typeof value == 'string' ? value.trim() : value,
         source_locale: this.leftLocale,
-        target_locale: this.rightLocale
+        target_locale: this.rightLocale()
       };
 
       const translatedValue = await DataCycle.httpRequest({

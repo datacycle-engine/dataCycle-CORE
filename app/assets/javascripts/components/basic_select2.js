@@ -18,7 +18,8 @@ class BasicSelect2 {
       reset: this.reset.bind(this),
       import: this.import.bind(this),
       destroy: this.destroy.bind(this),
-      suppressChange: this.suppressChangeEvent.bind(this)
+      suppressChange: this.suppressChangeEvent.bind(this),
+      resizeDropdown: this.resizeDropdownEvent.bind(this)
     };
   }
   init() {
@@ -53,6 +54,12 @@ class BasicSelect2 {
     this.$element.on('dc:import:data', this.eventHandlers.import);
     this.$element.on('dc:select:destroy', this.eventHandlers.destroy);
     this.$element.parent().on('change', '.select2-search__field', this.eventHandlers.suppressChange);
+    this.$element.on('change', this.eventHandlers.resizeDropdown);
+  }
+  resizeDropdownEvent(_event) {
+    const $dropdown = this.$element.closest('.dropdown-pane');
+
+    if ($dropdown.length) $dropdown.trigger('dc:dropdown:resize');
   }
   suppressChangeEvent(event) {
     event.stopPropagation();

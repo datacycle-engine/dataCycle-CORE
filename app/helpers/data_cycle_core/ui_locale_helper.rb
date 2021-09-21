@@ -51,7 +51,7 @@ module DataCycleCore
         content&.translatable? &&
         (content&.translatable_property?(key.attribute_name_from_key, definition) &&
         definition&.dig('type') != 'object') ||
-        (definition&.dig('type') == 'embedded' && !definition&.dig('translatable'))
+        (definition&.dig('type') == 'embedded' && !definition&.dig('translated'))
     end
 
     def attribute_viewer_label_tag(key, definition, content, options)

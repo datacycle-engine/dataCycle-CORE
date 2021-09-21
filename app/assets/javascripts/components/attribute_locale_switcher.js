@@ -5,6 +5,7 @@ class AttributeLocaleSwitcher {
     this.$form = this.$container.find('form.validation-form').first();
     this.$localeFormField = this.$form.find(':input[name="locale"]');
     this.locale = this.$localeFormField.val() || 'de';
+    this.localeUrlParameter = this.$localeSwitch.data('locale-url-parameter') || 'locale';
 
     this.init();
   }
@@ -44,7 +45,7 @@ class AttributeLocaleSwitcher {
   }
   pushStateToHistory() {
     const url = new URL(window.location);
-    url.searchParams.set('locale', this.locale);
+    url.searchParams.set(this.localeUrlParameter, this.locale);
     history.pushState({ locale: this.locale }, '', url);
   }
   changeTranslation(event, data = null) {

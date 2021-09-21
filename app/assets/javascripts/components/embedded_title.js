@@ -16,8 +16,8 @@ class EmbeddedTitle {
   getSourceValue() {
     if (!this.$sourceField.length) return;
 
-    if (this.$sourceField.hasClass('detail-content')) return this.$sourceField.text();
-    else return this.$sourceField.val();
+    if (this.$sourceField.hasClass('detail-content')) return this.$sourceField.text().trim();
+    else return this.$sourceField.val().trim();
   }
   updateEmbeddedTitle(_event) {
     if (!this.$targetField.length) return;
