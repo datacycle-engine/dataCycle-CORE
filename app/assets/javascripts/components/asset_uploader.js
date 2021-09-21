@@ -187,6 +187,8 @@ class AssetUploader {
       formData = formData.concat(attributeValues);
     });
 
+    $(window).off('beforeunload', this.eventHandlers.pageLeave);
+
     DataCycle.httpRequest({
       url: '/things/bulk_create',
       method: 'POST',
