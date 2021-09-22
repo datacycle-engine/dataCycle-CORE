@@ -35,6 +35,7 @@ x-app: &default-app
     - ${BASE_HISTORY_VOLUME_PATH:-./../../../history}:/home/ruby/hist
     - ${BASE_BACKUP_VOLUME_PATH:-./../../../backups}:/app/db/backups
 #    - ./docker/postgres/wait-for-postgres.sh:/app/docker/postgres/wait-for-postgres.sh
+#    - ./docker/web/puma.rb:/app/vendor/gems/data-cycle-core/docker/web/puma.rb
     - $SSH_AUTH_SOCK:/ssh-agent
   extra_hosts:
     - 'dockerhost:host-gateway'
@@ -102,7 +103,6 @@ services:
     command: ["/app/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
-##    command: ["bundle", "exec", "bin/delayed_job", "-n 1", "--pool=importers:1", "--pool=cache_invalidation:2", "--pool=search_update:3", "--pool=carrierwave:1", "--pool=mailers:1", "--pool=webhooks:1", "--pool=default:1", "run"]
   scheduler:
     <<: *default-app
     environment:
