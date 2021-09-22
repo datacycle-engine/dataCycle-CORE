@@ -10,7 +10,12 @@ tag ''
 
 pidfile "#{application_root}/tmp/pids/puma.pid"
 state_path "#{application_root}/tmp/pids/puma.state"
-stdout_redirect '/dev/stdout', '/dev/stderr', true
+
+if ENV.fetch('RAILS_LOG_TO_STDOUT', false)
+  stdout_redirect '/dev/stdout', '/dev/stderr', true
+else
+  stdout_redirect "#{application_root}/log/puma_access.log", "#{application_root}/log/puma_error.log", true
+end
 
 threads 1, ENV.fetch('PUMA_MAX_THREADS', 5)
 
