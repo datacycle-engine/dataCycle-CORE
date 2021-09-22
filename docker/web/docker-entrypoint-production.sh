@@ -11,6 +11,7 @@ mkdir -p /app/docker/postgres/configurations/ts_search/ && cp -Rn /app/config/co
 chown -R ruby:ruby /app/docker
 
 # update static vite build
-rm -Rf /app/public/assets/* && cp -Rf /app/public/assets_tmp/* /app/public/assets/. && chown -R ruby:ruby /app/public/assets
+rm -Rf /app/public/assets/* && cp -Rf /app/public/assets_tmp/* /app/public/assets/. && cp /app/public/favicon* /app/public/assets/. && cp /app/public/robots.txt /app/public/assets/.
+chown -R ruby:ruby /app/public/assets
 
 exec /app/docker-entrypoint.sh "$@"

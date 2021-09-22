@@ -77,6 +77,14 @@ server {
     proxy_redirect off;
   }
 
+  location = /robots.txt {
+    root ${APPLICATION_ROOT}/public/assets;
+  }
+
+  location = /favicon.ico {
+    root ${APPLICATION_ROOT}/public/assets;
+  }
+
   location = /50x.html {
     root html;
   }
