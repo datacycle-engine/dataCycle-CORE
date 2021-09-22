@@ -440,7 +440,7 @@ module DataCycleCore
         end
       end
 
-      render json: values.to_json
+      render json: values.reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }.to_json
     end
 
     private

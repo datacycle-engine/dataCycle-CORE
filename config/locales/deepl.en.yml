@@ -129,6 +129,10 @@ en:
       translate: Translate
       copy: accept
       translate_error: Error loading the translation
+      copy_all_translations:
+        overlay_text: Copy all available languages?
+        confirmation_text: 'yes'
+        cancel_text: no, only current language
     validate:
       save_and_change_language: Do you want to save and switch to the new language?
       agbs: AGBs must be accepted!
@@ -146,6 +150,7 @@ en:
         other: Words
       max: '(still max %{data} %{label})'
       min: '(still min. %{data} %{label})'
+
   schedule:
     dtstart: Start time
     dtend: End time

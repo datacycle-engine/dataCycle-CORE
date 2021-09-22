@@ -1,5 +1,6 @@
 import CalloutHelpers from './../helpers/callout_helpers';
 import domElementHelpers from '../helpers/dom_element_helpers';
+import ConfirmationModal from './confirmation_modal';
 
 class SplitView {
   constructor(container = document) {
@@ -7,8 +8,10 @@ class SplitView {
     this.leftContainer = this.container.closest('.split-content.detail-content');
     this.rightContainer = this.container.closest('.flex-box').querySelector('.split-content.edit-content');
     this.embedLocale = this.leftContainer.dataset.embedLocale;
-    this.leftLocale = this.leftContainer.dataset.locale;
+    this.leftLocaleSwitcher = this.leftContainer.getElementsByClassName('attribute-locale-switcher')[0];
+    this.leftAvailableLocales = domElementHelpers.parseDataAttribute(this.leftContainer.dataset.availableLocales);
     this.enableTranslateButtons = this.leftContainer.dataset.enableTranslateButtons;
+    this.leftId = this.leftContainer.dataset.id;
     this.translatableTypes = ['string', 'text_editor'];
     this.copyableTypes = [
       'object_browser',
@@ -41,17 +44,20 @@ class SplitView {
     this.observeForNewFields();
     this.setupButtons(this.container);
   }
+  leftLocale() {
+    const selectedLocaleItem =
+      this.leftLocaleSwitcher &&
+      this.leftLocaleSwitcher.querySelector('.list-items .active .available-attribute-locale');
+
+    return (selectedLocaleItem && selectedLocaleItem.dataset.locale) || this.leftContainer.dataset.locale;
+  }
+  transformKeyToTargetLocale(key, locale) {
+    if (!key) return;
+
+    return key.replace(/\[translations\]\[[^\]]*\]/, `[translations][${locale}]`);
+  }
   rightLocale() {
     return this.container.closest('form').querySelector('input[name="locale"]').value;
-  }
-  parseDataAttribute(value) {
-    if (!value) return value;
-
-    try {
-      return JSON.parse(value);
-    } catch {
-      return value;
-    }
   }
   addSubcriberNoticeHandler() {
     const notice = this.container.closest('.split-content').querySelector('.close-subscribe-notice');
@@ -101,19 +107,22 @@ class SplitView {
     }
   }
   addButtonsForEditFields(element) {
-    const key = element.dataset.key;
-    const viewFields = this.findFieldsByKey(key, this.leftContainer);
+    const targetKey = this.transformKeyToTargetLocale(element.dataset.key, this.leftLocale());
+    const viewFields = this.findFieldsByKey(targetKey, this.leftContainer);
 
     for (let i = 0; i < viewFields.length; ++i) {
       this.setupButtons(viewFields[i]);
     }
   }
-  findFieldsByKey(key, container) {
-    return Array.from(
+  findFieldsByKey(key, container, visibleOnly = true) {
+    const fields = Array.from(
       container.querySelectorAll(
-        `[data-key*="[${key.getAttributeKey()}]"]:not([data-editor]:not([data-editor="included-object"]) [data-key*="[${key.getAttributeKey()}]"]):not(.dc-copyable-field)`
+        `[data-key="${key}"]:not([data-editor]:not([data-editor="included-object"]) [data-key="${key}"]):not(.dc-copyable-field)`
       )
-    ).filter(domElementHelpers.isVisible.bind(this));
+    );
+
+    if (visibleOnly) return fields.filter(domElementHelpers.isVisible.bind(this));
+    else return fields;
   }
   dismissSubscribeNotice(_event) {
     document.cookie = 'subscribe_notice_dismissed=true';
@@ -132,8 +141,8 @@ class SplitView {
     return results;
   }
   addButtons(element, single = false) {
-    const key = element.dataset.key;
-    const editField = this.findFieldsByKey(key, this.rightContainer)[0];
+    const targetKey = this.transformKeyToTargetLocale(element.dataset.key, this.rightLocale());
+    const editField = this.findFieldsByKey(targetKey, this.rightContainer)[0];
 
     if (!editField || editField.dataset.readonly == 'true') return;
 
@@ -159,7 +168,7 @@ class SplitView {
 
     await buttonsContainer.insertAdjacentHTML(
       'afterbegin',
-      `<a class="button-prime small ${type}-all" title="${await I18n.translate(
+      `<a class="button-prime small ${type}-all" data-disable-with="<i class=\'fa fa-circle-o-notch fa-spin\'></i>" title="${await I18n.translate(
         `frontend.split_view.${type}_all`
       )}"><i class="fa ${this.buttonMappings[type].icon}" aria-hidden="true"></i></a>`
     );
@@ -205,10 +214,10 @@ class SplitView {
   }
   loadValue(keys) {
     return DataCycle.httpRequest({
-      url: `/things/${this.leftContainer.dataset.id}/attribute_value`,
+      url: `/things/${this.leftId}/attribute_value`,
       method: 'POST',
       data: {
-        locale: this.leftLocale,
+        locale: this.leftLocale(),
         keys: keys
       },
       dataType: 'json'
@@ -227,7 +236,7 @@ class SplitView {
     let value;
 
     if (linkedOrEmbedded) {
-      if (linkedOrEmbedded) value = this.parseDataAttribute(linkedOrEmbedded.dataset.id);
+      if (linkedOrEmbedded) value = domElementHelpers.parseDataAttribute(linkedOrEmbedded.dataset.id);
     } else {
       const response = await this.loadValue([key]);
       if (response && response[key]) value = response[key];
@@ -235,8 +244,10 @@ class SplitView {
 
     if (!value && value !== false) return DataCycle.enableElement(button);
 
-    if (button.classList.contains('translate')) await this.translateText(container.dataset.editor, value, key);
-    else await this.copyContents(value, key);
+    const targetKey = this.transformKeyToTargetLocale(key, this.rightLocale());
+
+    if (button.classList.contains('translate')) await this.translateText(container.dataset.editor, value, targetKey);
+    else await this.copyContents(value, targetKey);
 
     DataCycle.enableElement(button);
   }
@@ -245,8 +256,65 @@ class SplitView {
 
     const target = event.currentTarget;
 
+    DataCycle.disableElement(target);
+
     const parent = target.closest('.split-content, [data-editor="included-object"]');
+
+    if (parent.dataset.copyAllTranslations) this.showCopyAllConditionOverlay(target, parent);
+    else this.triggerSingleButtons(target, parent);
+
+    DataCycle.enableElement(target);
+  }
+  async showCopyAllConditionOverlay(target, parent) {
+    new ConfirmationModal({
+      text: await I18n.translate('frontend.split_view.copy_all_translations.overlay_text'),
+      confirmationText: await I18n.translate('frontend.split_view.copy_all_translations.confirmation_text'),
+      cancelText: await I18n.translate('frontend.split_view.copy_all_translations.cancel_text'),
+      confirmationClass: 'success',
+      cancelable: true,
+      confirmationCallback: () => {
+        this.copyAllTranslations();
+      },
+      cancelCallback: () => {
+        this.triggerSingleButtons(target, parent);
+      }
+    });
+  }
+  async copyAllTranslations() {
+    const availableEditors = this.availableEditors(this.leftContainer, this.copyableTypes);
+    const keys = this.keysForTranslationsFromEditors(availableEditors);
+
+    if (!keys.length) return;
+
+    const values = await this.loadValue(keys);
+
+    // this.loadTranslatedEditFields()
+
+    for (let i = 0; i < keys.length; ++i) {
+      console.log('copyAllTranslations', values[keys[i]], this.findFieldsByKey(keys[i], this.rightContainer, true));
+    }
+  }
+  keysForTranslationsFromEditors(availableEditors) {
+    const keys = [];
+
+    for (let i = 0; i < availableEditors.length; ++i) {
+      const item = availableEditors[i];
+      const key = item.dataset.key;
+
+      if (!item.classList.contains('dc-copyable-field')) continue;
+
+      if (key.includes('[translations]')) {
+        for (let j = 0; j < this.leftAvailableLocales.length; ++j) {
+          keys.push(this.transformKeyToTargetLocale(key, this.leftAvailableLocales[j]));
+        }
+      } else keys.push(key);
+    }
+
+    return keys;
+  }
+  triggerSingleButtons(target, parent) {
     let items;
+
     if (target.classList.contains('translate-all')) {
       items = [
         ...parent.querySelectorAll(':scope .dc-translatable-field > .buttons > a.translate'),
@@ -273,7 +341,7 @@ class SplitView {
       .find(DataCycle.config.EditorSelectors.join(', '))
       .trigger('dc:import:data', {
         value: typeof value == 'string' ? value.trim() : value,
-        locale: this.embedLocale ? this.leftLocale : '',
+        locale: this.embedLocale ? this.leftLocale() : '',
         translate: translate
       });
 
@@ -283,7 +351,7 @@ class SplitView {
     if (this.translatableTypes.includes(editor)) {
       let formData = {
         text: typeof value == 'string' ? value.trim() : value,
-        source_locale: this.leftLocale,
+        source_locale: this.leftLocale(),
         target_locale: this.rightLocale()
       };
 

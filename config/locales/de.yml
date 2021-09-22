@@ -135,6 +135,10 @@ de:
       translate: übersetzen
       copy: übernehmen
       translate_error: Fehler beim Laden der Übersetzung
+      copy_all_translations:
+        overlay_text: Sollen alle verfügbaren Sprachen übernommen werden?
+        confirmation_text: Ja
+        cancel_text: Nein, nur die aktuelle Sprache
     validate:
       save_and_change_language: Wollen Sie speichern und auf die neue Sprache wechseln?
       agbs: AGBs müssen akzeptiert werden!
