@@ -40,8 +40,7 @@ module DataCycleCore
                 !options.definition['universal'] &&
                 !DataCycleCore::ClassificationService.visible_classification_tree?(
                   options.definition['tree_label'],
-                  options.parameters.dig(:options, :force_render) ?
-                    DataCycleCore.classification_visibilities.select { |c| c.start_with?(options.scope.to_s) } : options.scope.to_s
+                  options.parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(options.scope.to_s) } : options.scope.to_s
                 )
 
       return if options.definition['type'] == 'slug' && options.parameters[:parent]&.embedded?
@@ -79,9 +78,11 @@ module DataCycleCore
       options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
 
       I18n.with_locale(options.locale) do
-        options.value ||= options.parameters[:parent].nil? ?
-          options.content.try(options.key.attribute_name_from_key) :
-          options.parameters[:parent]&.try(options.key.attribute_name_from_key)
+        options.value ||= if options.parameters[:parent].nil?
+                            options.content.try(options.key.attribute_name_from_key)
+                          else
+                            options.parameters[:parent]&.try(options.key.attribute_name_from_key)
+                          end
 
         allowed = attribute_viewer_allowed(options)
         return allowed unless allowed.is_a?(TrueClass)

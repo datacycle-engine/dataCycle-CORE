@@ -99,10 +99,10 @@ module DataCycleCore
         options = DataCycleCore::Content::DataHashOptions.new(**args)
         return {} if options.data_hash.blank? && !options.force_update
 
-        options.data_hash[:datahash] = options.data_hash unless options.data_hash.key?(:datahash) || options.data_hash.key?(:translations)
+        options.data_hash[:datahash] = options.data_hash.dc_deep_dup unless options.data_hash.key?(:datahash) || options.data_hash.key?(:translations)
         translations = options.data_hash[:translations]
         locale = translations&.keys&.first || I18n.locale
-        datahash = (options.data_hash[:datahash] || {}).merge!(translations&.delete(locale.to_s) || {})
+        datahash = (options.data_hash[:datahash] || {}).merge(translations&.delete(locale.to_s) || {})
         options.version_name = options.data_hash[:version_name]
 
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
