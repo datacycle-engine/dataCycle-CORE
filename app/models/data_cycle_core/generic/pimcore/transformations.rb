@@ -99,7 +99,7 @@ module DataCycleCore
         end
 
         def self.to_event_image
-          t(:add_field, 'external_key', ->(s) { "Pimcore - EventImage - #{CGI.unescape(s.dig('link'))}" })
+          t(:add_field, 'external_key', ->(s) { DataCycleCore::MasterData::DataConverter.string_to_string("Pimcore - EventImage - #{CGI.unescape(s.dig('link'))}") })
           .>> t(:add_field, 'name', ->(s) { CGI.unescape(s.dig('link')).split('/')&.last })
           .>> t(:add_field, 'content_url', ->(s) { CGI.unescape(s.dig('link')) })
           .>> t(:add_field, 'thumbnail_url', ->(s) { CGI.unescape(s.dig('link')) })
@@ -155,14 +155,16 @@ module DataCycleCore
             dstart = get_time(schedule.dig('dateFrom'))
             dend = get_time(schedule.dig('dateTo'))
             tstart = schedule.dig('timeFrom')&.in_time_zone&.to_datetime || Time.zone.now.beginning_of_day.to_datetime
-            tend = schedule.dig('timeTo').in?(['00:00', nil]) ? Time.zone.now.end_of_day.to_datetime : schedule.dig('timeTo')&.in_time_zone&.to_datetime || Time.zone.now.beginning_of_day.to_datetime
+            tend = schedule.dig('timeTo').in?(['00:00']) ? Time.zone.now.end_of_day.to_datetime : schedule.dig('timeTo')&.in_time_zone&.to_datetime || Time.zone.now.beginning_of_day.to_datetime
+            tend = tstart if schedule.dig('timeTo').nil?
             next_day = next_day?(schedule.dig('timeFrom'), schedule.dig('timeTo'))
             dtstart = dstart + tstart.hour * 60 * 60 + tstart.minute * 60
             dtend = dend + tend.hour * 60 * 60 + tend.minute * 60
             dtend = dtend.next_day if next_day
+            dtend = dtend.end_of_day if tstart == tend # duration == 0 --> dtend has te be end of the day to include last occurrence
             duration = tend.to_i - tstart.to_i
             active_days = weekdays
-              .select { |day, _val| schedule.dig(day) == '1' }
+              .select { |day, _val| schedule.dig(day) == '1' || schedule.dig(day) == 'on' }
               .map { |day, _val| day_nr(day) }
               .compact.presence
             rrule = active_days&.size.to_i.in?(1..6) ? IceCube::Rule.weekly : IceCube::Rule.daily

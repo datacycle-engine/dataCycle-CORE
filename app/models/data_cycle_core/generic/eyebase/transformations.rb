@@ -47,7 +47,7 @@ module DataCycleCore
         # .>> t(:add_field, 'photographer', ->(s) { s.dig('field_202', '#cdata-section') })
 
         def self.to_video(external_source_id)
-          t(:reject_keys, ['quality_256', 'picturepins'])
+          t(:reject_keys, ['picturepins'])
           .>> t(:add_field, 'width', ->(s) { unwrap_media_data(s, 'resolution_x')&.to_i })
           .>> t(:add_field, 'height', ->(s) { unwrap_media_data(s, 'resolution_y')&.to_i })
           .>> t(:add_field, 'duration', ->(s) { unwrap_media_data(s, 'resolution_z')&.to_i })
@@ -65,9 +65,9 @@ module DataCycleCore
           .>> t(:add_field, 'date_created', ->(s) { s.dig('erstellt', '#cdata-section') })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('geaendert', '#cdata-section') })
           .>> t(:reject_keys, ['item_id', 'titel', 'field_202', 'field_224', 'copyright', 'field_216', 'resolution_x', 'resolution_y', 'size_mb'])
-          .>> t(:add_field, 'content_url', ->(s) { s.dig('main_permalink', '#cdata-section') })
-          .>> t(:add_field, 'url', ->(s) { s.dig('main_permalink', '#cdata-section') })
-          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('quality_512', 'permalink', '#cdata-section') })
+          .>> t(:add_field, 'content_url', ->(s) { s.dig('field_218', '#cdata-section') || s.dig('main_permalink', '#cdata-section') })
+          .>> t(:add_field, 'url', ->(s) { s.dig('field_218', '#cdata-section') || s.dig('main_permalink', '#cdata-section') })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('quality_256', 'url', '#cdata-section') || s.dig('quality_512', 'permalink', '#cdata-section') })
           .>> t(:add_field, 'keywords_eyebase', ->(s) { parse_keywords(s) })
           .>> t(:tags_to_ids, 'keywords_eyebase', external_source_id, 'Eyebase - Tag - ')
           .>> t(:add_link, 'eyebase_lizenz', DataCycleCore::Classification, external_source_id, lambda { |s|
@@ -79,7 +79,7 @@ module DataCycleCore
           .>> t(:add_link, 'status_eyebase', DataCycleCore::Classification, external_source_id, lambda { |s|
             s.dig('color', '#cdata-section').then { |v| v.nil? ? nil : "Eyebase - Status - #{v}" }
           })
-          .>> t(:reject_keys, ['quality_1', 'quality_512', 'quality_1024'])
+          .>> t(:reject_keys, ['quality_1', 'quality_256', 'quality_512', 'quality_1024'])
         end
 
         def self.to_audio(external_source_id)
