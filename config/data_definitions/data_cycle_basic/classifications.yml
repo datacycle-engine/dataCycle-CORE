@@ -1,5 +1,6 @@
 - Inhaltstypen | filter:
     - $$Asset:
+        - $$Audio      
         - $$Bild
         - $$Video
     - $$Ort:

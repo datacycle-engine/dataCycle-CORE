@@ -1,19 +1,22 @@
 // offcanvas
 #settings-off-canvas {
-  top: 72px;
-  height: calc(100% - 72px);
+  padding-top: calc(4.1rem + 5px);
+  max-height: 100vh;
 
   .settings-row {
     padding: 1rem;
     margin: 0 0.1rem;
     color: $black;
     border-bottom: 1px solid $medium-gray;
+
     .edit-user-link {
       width: 100%;
     }
+
     .copy-to-clipboard {
       font-size: 0.9rem;
     }
+
     a {
       color: $black;
       outline-width: 0;
@@ -21,6 +24,7 @@
       flex-flow: row nowrap;
       align-items: center;
     }
+
     .row {
       display: flex;
       flex-flow: row nowrap;
@@ -35,6 +39,7 @@
         white-space: nowrap;
       }
     }
+
     span {
       &.icon {
         width: 2.2rem;
@@ -57,9 +62,11 @@
         flex: auto;
       }
     }
+
     .heading {
       font-weight: bold;
     }
+
     .inner-content {
       font-size: 1.1rem;
       .more {
@@ -105,22 +112,6 @@
   }
 }
 
-#settings-off-canvas.is-open ~ .off-canvas-content {
-  &:after {
-    position: absolute;
-    content: '';
-    top: 0;
-    right: 0;
-    height: 100%;
-    width: 1px;
-    box-shadow: 0 0 10px rgba(51, 51, 51, 0.7);
-  }
-}
-
-.position-right.is-transition-push {
-  box-shadow: 13px 0 20px -13px rgba($black, 0.25);
-
-  &::after {
-    display: none;
-  }
+#settings-off-canvas.is-open {
+  box-shadow: 0px 0 20px 0px rgba($black, 0.25);
 }

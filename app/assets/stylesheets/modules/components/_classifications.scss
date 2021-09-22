@@ -105,6 +105,7 @@ ul.backend-treeview-list,
       .ca-checkbox {
         display: block;
       }
+
       label {
         display: inline-block;
 
@@ -116,6 +117,10 @@ ul.backend-treeview-list,
           z-index: 12;
           color: $dark-gray;
         }
+      }
+
+      .editor-block label {
+        display: inherit;
       }
 
       input.ca-input-field {
@@ -345,8 +350,7 @@ ul.backend-treeview-list,
       display: inline-block;
     }
 
-    input[type='text'],
-    div.editor-block {
+    input[type='text'] {
       border: 1px solid $light-gray;
       background: $light-gray;
       box-shadow: none;
@@ -359,6 +363,25 @@ ul.backend-treeview-list,
 
       &:focus,
       &.focus {
+        border-color: $primary-color;
+        background: white;
+      }
+    }
+
+    .form-element {
+      .editor-block {
+        border: 1px solid $light-gray;
+        background: $light-gray;
+        box-shadow: none;
+        transition: background-color 0.1s, box-shadow 0.1s;
+      }
+
+      &:hover .editor-block {
+        z-index: 1;
+        box-shadow: 0 0 7px $primary-color;
+      }
+
+      &.focus .editor-block {
         border-color: $primary-color;
         background: white;
       }

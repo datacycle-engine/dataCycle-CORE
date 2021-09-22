@@ -14,7 +14,7 @@ module DataCycleCore
         end
 
         def content_request(method: :post, transformation:, path:, utility_object:, data:)
-          return if data.linked_thing.find_by(template_name: 'Unterkunft')&.external_key.blank?
+          return if data.linked_thing.find_by(template_name: ['Unterkunft', 'POI'])&.external_key.blank?
           body = transformations.try(transformation, data, utility_object)
 
           # puts Nokogiri::XML(body, &:noblanks).to_xml(indent: 2)

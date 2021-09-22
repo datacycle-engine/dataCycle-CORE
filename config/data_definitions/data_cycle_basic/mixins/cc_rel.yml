@@ -62,3 +62,16 @@
             :name: 'cc:license'
             :disabled: false
             :partial: string
+      :explicit_copyright_notice:
+        :label: raw_imported_copyright
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true

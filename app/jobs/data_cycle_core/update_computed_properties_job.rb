@@ -3,6 +3,7 @@
 module DataCycleCore
   class UpdateComputedPropertiesJob < UniqueApplicationJob
     PRIORITY = 12
+    WEBHOOK_PRIORITY = 6
 
     queue_as :cache_invalidation
 
@@ -42,11 +43,13 @@ module DataCycleCore
       if (content.computed_property_names & content.translatable_property_names).present?
         content.available_locales.each do |locale|
           I18n.with_locale(locale) do
+            content.webhook_priority = WEBHOOK_PRIORITY
             content.set_data_hash(data_hash: content.get_data_hash.except(*content.computed_property_names))
           end
         end
       else
         I18n.with_locale(content.first_available_locale) do
+          content.webhook_priority = WEBHOOK_PRIORITY
           content.set_data_hash(data_hash: content.get_data_hash.except(*content.computed_property_names))
         end
       end

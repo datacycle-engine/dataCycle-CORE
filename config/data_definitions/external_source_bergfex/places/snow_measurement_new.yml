@@ -12,6 +12,9 @@
       :type:
         - Place
         - 'dcls:SnowHeightMeasuringPoint'
+        - CreativeWork
+        - Dataset
+        - DataFeed
         - 'odta:SnowConditionReport'
     :properties:
       :id:

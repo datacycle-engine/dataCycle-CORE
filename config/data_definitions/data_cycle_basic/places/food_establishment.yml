@@ -6,7 +6,11 @@
     :content_type: entity
     :boost: 10.0
     :api:
-      :type: FoodEstablishment
+      :type:
+        - Place
+        - Organization
+        - LocalBusiness
+        - FoodEstablishment
     :features:
       :geocode:
         :allowed: true

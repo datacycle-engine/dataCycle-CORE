@@ -5,7 +5,9 @@
     :schema_type: CreativeWork
     :content_type: embedded
     :api:
-      :type: Schedule
+      :type:
+        - Intangible
+        - Schedule
     :features:
       :translatable:
         :allowed: true

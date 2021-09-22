@@ -1,6 +1,5 @@
 body {
   background-color: $body-background;
-  border-top: 0.3rem solid $customercolor;
   --dropdown-arrow-left-offset: 0px;
 }
 
@@ -123,7 +122,7 @@ button,
 .edit-header {
   position: sticky;
   top: 0;
-  z-index: 1006;
+  z-index: 21;
   width: 100%;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
@@ -286,66 +285,7 @@ footer {
   position: relative;
 }
 
-.detail-header {
-  position: relative;
-  background: $light-gray;
-  text-align: center;
-  padding: 4rem 1rem 1rem 1rem;
-  margin: 1rem 0 0 0;
-
-  form.button_to {
-    display: inline-block;
-  }
-
-  > .title,
-  > .name input,
-  > .headline_external input,
-  > .headline input {
-    font-size: 2rem;
-    font-weight: 200;
-    padding: 0 5rem 0 5rem;
-    text-align: center;
-    position: relative;
-  }
-
-  .hidden-classifications {
-    text-align: left;
-    .accordion-item {
-      .accordion-content {
-        position: relative;
-        background: none;
-        padding: 0;
-        margin-left: 1.5rem;
-        > .classification {
-          position: relative;
-        }
-      }
-      .accordion-title {
-        display: inline-block;
-        text-align: left;
-        padding: 0.2rem 0;
-        font-size: 1rem;
-        color: $black;
-
-        &::before {
-          font-family: 'FontAwesome';
-          content: '\f107';
-          margin: 0 0.3rem 0 0;
-          position: relative;
-          top: 0;
-          right: 0;
-          left: 0;
-          display: inline-block;
-          text-align: center;
-          width: 1rem;
-        }
-      }
-      &.is-active .accordion-title::before {
-        content: '\f106';
-      }
-    }
-  }
-
+.detail-header-wrapper {
   .external-connections {
     position: relative;
     border-bottom: 0px;
@@ -355,6 +295,22 @@ footer {
     flex-flow: row nowrap;
     align-items: center;
     justify-content: center;
+
+    background: $light-gray;
+    margin-top: 0;
+    padding: 1rem;
+
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      width: calc(100% - 2rem);
+      height: 0;
+      border-top: 1px solid $white;
+      top: 0;
+      left: 1rem;
+    }
+
     .external-connection {
       position: relative;
       margin: 0 1rem;
@@ -413,6 +369,67 @@ footer {
             }
           }
         }
+      }
+    }
+  }
+}
+
+.detail-header {
+  position: relative;
+  background: $light-gray;
+  text-align: center;
+  padding: 4rem 1rem 1rem 1rem;
+  margin: 1rem 0 0 0;
+
+  form.button_to {
+    display: inline-block;
+  }
+
+  > .title,
+  > .name input,
+  > .headline_external input,
+  > .headline input {
+    font-size: 2rem;
+    font-weight: 200;
+    padding: 0 5rem 0 5rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .hidden-classifications {
+    text-align: left;
+    .accordion-item {
+      .accordion-content {
+        position: relative;
+        background: none;
+        padding: 0;
+        margin-left: 1.5rem;
+        > .classification {
+          position: relative;
+        }
+      }
+      .accordion-title {
+        display: inline-block;
+        text-align: left;
+        padding: 0.2rem 0;
+        font-size: 1rem;
+        color: $black;
+
+        &::before {
+          font-family: 'FontAwesome';
+          content: '\f107';
+          margin: 0 0.3rem 0 0;
+          position: relative;
+          top: 0;
+          right: 0;
+          left: 0;
+          display: inline-block;
+          text-align: center;
+          width: 1rem;
+        }
+      }
+      &.is-active .accordion-title::before {
+        content: '\f106';
       }
     }
   }
@@ -1800,7 +1817,7 @@ body.object-browser-overlay-open {
   }
   section.breadcrumb {
     position: fixed;
-    top: 4.1rem;
+    top: calc(4.1rem + 5px);
     left: 0;
     width: 100%;
     z-index: 1007;
