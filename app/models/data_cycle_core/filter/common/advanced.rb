@@ -133,22 +133,44 @@ module DataCycleCore
         end
 
         def equals_advanced_classification_alias_ids(value = nil, attribute_path = nil)
-          return self if value.blank?
-
-          query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['ARRAY(SELECT jsonb_array_elements_text(searches.advanced_attributes -> ?))::uuid[] && ARRAY[?]::uuid[]', attribute_path, value])
-
-          advanced_query(query_string, attribute_path)
+          advanced_classification_alias_ids(value, attribute_path, :equals)
         end
 
         def not_equals_advanced_classification_alias_ids(value = nil, attribute_path = nil)
-          return self if value.blank?
+          advanced_classification_alias_ids(value, attribute_path, :not_equals)
+        end
 
-          query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(ARRAY(SELECT jsonb_array_elements_text(searches.advanced_attributes -> ?))::uuid[] && ARRAY[?]::uuid[])', attribute_path, value])
+        def exists_advanced_classification_alias_ids(value = nil, attribute_path = nil)
+          advanced_classification_alias_ids(value, attribute_path, :exists)
+        end
 
-          advanced_query(query_string, attribute_path, false)
+        def not_exists_advanced_classification_alias_ids(value = nil, attribute_path = nil)
+          advanced_classification_alias_ids(value, attribute_path, :not_exists)
         end
 
         private
+
+        def advanced_classification_alias_ids(value = nil, attribute_path = nil, comparison = nil)
+          return self unless value.present? && attribute_path.present? && comparison.present?
+
+          attribute_path_exists = true
+
+          case comparison
+          when :exists
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil != \'\' AND pil IS NOT NULL)', attribute_path])
+          when :not_exists
+            attribute_path_exists = false
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = \'\' OR pil IS NULL)', attribute_path])
+          when :equals
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['ARRAY(SELECT jsonb_array_elements_text(searches.advanced_attributes -> ?))::uuid[] && ARRAY[?]::uuid[]', attribute_path, value])
+          when :not_equals
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(ARRAY(SELECT jsonb_array_elements_text(searches.advanced_attributes -> ?))::uuid[] && ARRAY[?]::uuid[])', attribute_path, value])
+          else
+            return self
+          end
+
+          advanced_query(query_string, attribute_path, attribute_path_exists)
+        end
 
         def advanced_numeric(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
