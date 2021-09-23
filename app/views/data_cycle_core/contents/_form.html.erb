@@ -16,7 +16,7 @@
           data-available-locales="<%= split_source.available_locales.to_json %>"
           data-embed-locale="<%= DataCycleCore.features.dig(:copy_embedded_locale, :enabled) %>"
           data-enable-translate-buttons="<%= DataCycleCore::Feature::Translate.allowed?(content, @locale, I18n.locale, current_user) %>"
-          data-copy-all-translations="<%#= split_source.translatable? && content.translatable? && I18n.available_locales&.many? %>">
+          data-copy-all-translations="<%= split_source.translatable? && content.translatable? && I18n.available_locales&.many? %>">
           <%= hidden_field_tag 'splitview', true %>
 
           <%= render 'split_source_subscribe_notice', content: content, split_source: split_source if local_assigns[:subscribe_notice] && can?(:subscribe, split_source) && split_source.subscriptions.by_user(current_user).size.zero? && cookies[:subscribe_notice_dismissed].blank? %>

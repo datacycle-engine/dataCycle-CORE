@@ -121,8 +121,13 @@ class SplitView {
       )
     );
 
+    console.log('findFieldsByKey', key, fields);
+
     if (visibleOnly) return fields.filter(domElementHelpers.isVisible.bind(this));
     else return fields;
+  }
+  findRemoteRenderFieldByKey(key, container) {
+    return container.querySelector(`.translatable-attribute.remote-render[data-remote-render-params*="${key}"]`);
   }
   dismissSubscribeNotice(_event) {
     document.cookie = 'subscribe_notice_dismissed=true';
@@ -288,10 +293,14 @@ class SplitView {
 
     const values = await this.loadValue(keys);
 
-    // this.loadTranslatedEditFields()
-
     for (let i = 0; i < keys.length; ++i) {
-      console.log('copyAllTranslations', values[keys[i]], this.findFieldsByKey(keys[i], this.rightContainer, true));
+      if (!values[keys[i]]) continue;
+
+      const renderRemoteField = this.findRemoteRenderFieldByKey(keys[i], this.rightContainer);
+
+      if (renderRemoteField) await $(renderRemoteField).triggerHandler('dc:remote:forceRender');
+
+      console.log('copyAllTranslations', keys[i], this.findFieldsByKey(keys[i], this.rightContainer, false));
     }
   }
   keysForTranslationsFromEditors(availableEditors) {

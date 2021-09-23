@@ -21,11 +21,20 @@ class RemoteRenderer {
       '*',
       this.loadRemote.bind(this)
     );
+    this.addRemoteRenderHandler(this.selector.find('.remote-render'));
     this.selector.on(
       'click',
       '.remote-render-failed > .remote-render-error > .remote-reload-link',
       this.reloadAfterFail.bind(this)
     );
+
+    DataCycle.newContent.callbacks.push([
+      e => e.classList.contains('remote-render'),
+      this.addRemoteRenderHandler.bind(this)
+    ]);
+  }
+  addRemoteRenderHandler(element) {
+    $(element).on('dc:remote:forceRender', this.forceLoadRemote.bind(this));
   }
   reloadAfterFail(event) {
     event.preventDefault();
@@ -56,18 +65,22 @@ class RemoteRenderer {
       if (!$(element).closest('.dropdown-pane').length) this.loadRemotePartial(element);
     });
   }
-  loadRemote(event) {
+  loadRemote(event, data) {
     event.stopPropagation();
 
     $(event.target)
       .find('.remote-render, .remote-reload')
       .addBack('.remote-render, .remote-reload')
       .filter((_, elem) => {
-        return $(elem).css('visibility') != 'hidden' && $(elem).is(':visible');
+        return (data && data.force) || ($(elem).css('visibility') != 'hidden' && $(elem).is(':visible'));
       })
       .each((_, element) => {
         this.loadRemotePartial(element);
       });
+  }
+  forceLoadRemote(event) {
+    const target = event.currentTarget;
+    return this.loadRemotePartial(target);
   }
   loadChangedTabs(event) {
     event.stopPropagation();
@@ -106,10 +119,10 @@ class RemoteRenderer {
       .removeClass('remote-render remote-rendered remote-reload')
       .addClass('remote-rendering');
 
-    this.sendRequest(element, params);
+    return this.sendRequest(element, params);
   }
   sendRequest(element, params) {
-    DataCycle.httpRequest({
+    return DataCycle.httpRequest({
       type: 'POST',
       url: '/remote_render',
       data: JSON.stringify(params),
