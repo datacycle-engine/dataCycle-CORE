@@ -15,12 +15,12 @@ module DataCycleCore
     end
 
     test 'update content -> add multiple embedded objects (Zeitleiste-Eintrag)' do
-      timeline_item = Array.new(6) { |i| { 'name' => "Zeitleiste-Eintrag #{i}" } }
+      timeline_item = Array.new(6) { |i| { translations: { de: { 'name' => "Zeitleiste-Eintrag #{i}" } } } }
       patch thing_path(@content), params: {
         thing: {
-          datahash: @content.get_data_hash.merge({
+          datahash: {
             'timeline_item' => timeline_item
-          })
+          }
         },
         save_and_close: true
       }, headers: {
@@ -42,12 +42,20 @@ module DataCycleCore
       })
 
       assert content_with_timeline_item
-      content_hash = content_with_timeline_item.get_data_hash
-      content_hash['timeline_item'] = [
-        content_hash['timeline_item'].first.merge({
-          'name' => 'Updated Zeitleiste 1'
-        })
-      ]
+      content_hash = {
+        timeline_item: [
+          {
+            datahash: {
+              id: content_with_timeline_item.timeline_item.first.id
+            },
+            translations: {
+              de: {
+                name: 'Updated Zeitleiste 1'
+              }
+            }
+          }
+        ]
+      }
 
       patch thing_path(content_with_timeline_item), params: {
         thing: {

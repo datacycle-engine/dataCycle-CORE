@@ -254,12 +254,18 @@ module DataCycleCore
       patch bulk_update_watch_list_path(@watch_list), params: {
         locale: 'de',
         thing: {
-          datahash: {
-            name: bulk_name
+          translations: {
+            de: {
+              name: bulk_name
+            }
           }
         },
         bulk_update: {
-          name: ['override']
+          translations: {
+            de: {
+              name: ['override']
+            }
+          }
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
@@ -272,8 +278,10 @@ module DataCycleCore
       patch bulk_update_watch_list_path(@watch_list), params: {
         locale: 'de',
         thing: {
-          datahash: {
-            name: 'New Test Artikel not Bulk Updated'
+          translations: {
+            en: {
+              name: 'New Test Artikel not Bulk Updated'
+            }
           }
         },
         bulk_update: {
@@ -288,7 +296,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 0, locale: DataCycleCore.ui_locales.first) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], counts: 'en: 1', locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], counts: 'en: <b>1</b>', locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal bulk_name, @content.name
     end
 
@@ -300,13 +308,23 @@ module DataCycleCore
         locale: 'de',
         thing: {
           datahash: {
-            name: bulk_name,
             tags: @additional_tags
+          },
+          translations: {
+            de: {
+              name: bulk_name
+            }
           }
         },
         bulk_update: {
-          name: ['override'],
-          tags: ['override']
+          datahash: {
+            tags: ['override']
+          },
+          translations: {
+            de: {
+              name: ['override']
+            }
+          }
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
@@ -325,13 +343,23 @@ module DataCycleCore
         locale: 'de',
         thing: {
           datahash: {
-            name: bulk_name,
             tags: @additional_tags
+          },
+          translations: {
+            de: {
+              name: bulk_name
+            }
           }
         },
         bulk_update: {
-          name: ['override'],
-          tags: ['add']
+          datahash: {
+            tags: ['add']
+          },
+          translations: {
+            de: {
+              name: ['override']
+            }
+          }
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
@@ -350,13 +378,23 @@ module DataCycleCore
         locale: 'de',
         thing: {
           datahash: {
-            name: bulk_name,
             tags: [@default_tags.first]
+          },
+          translations: {
+            de: {
+              name: bulk_name
+            }
           }
         },
         bulk_update: {
-          name: ['override'],
-          tags: ['remove']
+          translations: {
+            de: {
+              name: ['override']
+            }
+          },
+          datahash: {
+            tags: ['remove']
+          }
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)

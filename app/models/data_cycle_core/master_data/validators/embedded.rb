@@ -87,13 +87,15 @@ module DataCycleCore
 
           return if values.blank? || classification_keys.blank?
 
-          values.dc_deep_dup.any? do |item|
+          parsed_values = values.dc_deep_dup.each { |item|
             next unless item.is_a?(::Hash) && item.present?
 
             item = item['datahash'] if item.key?('datahash')
             item['id'] = SecureRandom.uuid if item['id'].blank?
+          }.compact
 
-            values.any? do |other_item|
+          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.classification_conflict' } if parsed_values.any? do |item|
+            parsed_values.any? do |other_item|
               item != other_item && classification_keys.all? { |key| (Array.wrap(item[key]) & Array.wrap(other_item[key])).any? }
             end
           end
