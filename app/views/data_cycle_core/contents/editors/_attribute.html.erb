@@ -1,3 +1,7 @@
+<% Array.wrap(local_assigns.dig(:options, :additional_attribute_partials)).each do |partial| %>
+  <%= render partial, local_assigns %>
+<% end %>
+
 <div data-label="<%= definition['label'] %>" class="<%= [
     'clearfix',
     'form-element',

@@ -21,6 +21,9 @@ module DataCycleCore
 
     before_save :split_full_path, if: :full_path_changed?
 
+    delegate :translated_locales, to: :things
+    alias available_locales translated_locales
+
     def valid_write_links?
       valid_write_links.present?
     end

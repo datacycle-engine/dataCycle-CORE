@@ -793,6 +793,7 @@ de:
       external_items: Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!
       no_watchlist: Es wurde keine Inhaltssammlung gewählt
       content_duplication_invalid: 'Das Duplikat konnte nicht erstellt werden!'
+      bulk_update_error: Beim Speichern ist ein Fehler aufgetreten, bitte versuchen Sie es erneut
     success:
       created: '%{data} wurde erfolgreich erstellt.'
       ready_to_send: '%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden.'
@@ -830,9 +831,7 @@ de:
       not_modified: '%{data} wurde nicht geändert.'
       created_duplication: '%{data} wurde erfolgreich dupliziert.'
       content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
-      bulk_updated_skipped_html:
-        one: '<br><b>%{count}</b> Inhalt wurde nicht gespeichert, da dieser in der gewählten Sprache nicht vorhanden sind.'
-        other: '<br><b>%{count}</b> Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind.'
+      bulk_updated_skipped_html: '<br>Es wurden keine Übersetzungen angelegt, wenn ein Inhalt in der Sprache nicht vorhanden ist: %{counts}'
       bulk_deleted_external_html:
         one: '<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da dieser von einem externen System importiert wurden.'
         other: '<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da diese von einem externen System importiert wurden.'

@@ -270,21 +270,25 @@ module DataCycleCore
       assert_equal bulk_name, @content.name
 
       patch bulk_update_watch_list_path(@watch_list), params: {
-        locale: 'en',
+        locale: 'de',
         thing: {
           datahash: {
             name: 'New Test Artikel not Bulk Updated'
           }
         },
         bulk_update: {
-          name: ['override']
+          translations: {
+            en: {
+              name: ['override']
+            }
+          }
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 0, locale: DataCycleCore.ui_locales.first) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 0, locale: DataCycleCore.ui_locales.first) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], counts: 'en: 1', locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal bulk_name, @content.name
     end
 

@@ -961,10 +961,18 @@
     }
 
     .detail-type {
-      display: block;
+      display: flex;
+      align-items: center;
 
       .detail-label {
         font-weight: bold;
+        margin-right: 0.3rem;
+        display: inline-flex;
+        align-items: center;
+
+        > *:not(:last-child) {
+          margin-right: 0.3rem;
+        }
       }
 
       .detail-type {

@@ -791,6 +791,7 @@ en:
         cannot be deleted!
       no_watchlist: No content collection was chosen
       content_duplication_invalid: The duplicate could not be created!
+      bulk_update_error: An error occurred while saving, please try again
     success:
       created: '%{data} was successfully created.'
       ready_to_send: '%{data} has been successfully created and can now be sent.'
@@ -829,11 +830,7 @@ en:
       created_duplication: '%{data} was successfully duplicated.'
       content_updated: The content has been changed.<br>Please reload the page to
         ensure that these changes are not overwritten.</br>
-      bulk_updated_skipped_html:
-        one: '<br><b>%{count}</b> Content was not saved because it is not available
-          in the selected language.'
-        other: '<br><b>%{count}</b> Content was not saved because it is not available
-          in the selected language.'
+      bulk_updated_skipped_html: '<br>No translations were created if a content does not exist in the language: %{counts}'
       bulk_deleted_external_html:
         one: '<br><b>%{count}</b> Content was not deleted because it was imported
           from an external system.'

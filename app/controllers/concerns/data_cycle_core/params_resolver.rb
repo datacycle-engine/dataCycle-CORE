@@ -15,6 +15,8 @@ module DataCycleCore
 
         if resolve_instances && value.is_a?(::Hash) && value.key?('id') && value.key?('class')
           return_hash[key] = value['class'].safe_constantize.find_by(id: value['id']) if defined?(value['class'])
+        elsif resolve_instances && value.is_a?(::Hash) && value.key?('attributes') && value.key?('class')
+          return_hash[key] = value['class'].safe_constantize.new(value['attributes']) if defined?(value['class'])
         elsif resolve_instances && value.is_a?(::Hash) && value.key?('ids') && value.key?('class')
           return_hash[key] = value['class'].safe_constantize.where(id: value['ids']) if defined?(value['class'])
         elsif value.is_a?(::Hash) && value.key?('value') && value.key?('class')

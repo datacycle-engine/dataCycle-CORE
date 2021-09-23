@@ -12,7 +12,11 @@ class BulkUpdateValidator extends Validator {
     this.initActionCable();
     this.$form.on('click', '.bulk-update-type :checkbox:checked', this.deselectSiblings.bind(this));
     this.$form.on('change', '.bulk-update-type :checkbox', this.changeActiveClass.bind(this));
-    this.$form.on('change', '.editor > .form-element', this.checkBulkUpdateType.bind(this));
+    this.$form.on(
+      'change',
+      '.editor > .form-element, .editor > .translatable-attribute-container > .translatable-attribute > .form-element',
+      this.checkBulkUpdateType.bind(this)
+    );
   }
   initActionCable() {
     window.actionCable.subscriptions.create(

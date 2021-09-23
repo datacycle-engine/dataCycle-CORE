@@ -19,8 +19,7 @@
           <li>
             <%= tag.span tag.i(class: 'fa fa-language', aria_hidden: true),
                                      class: 'link',
-                                     title: @watch_list
-                                         .things.translated_locales
+                                     title: @watch_list.available_locales
                                          .map { |t| t("locales.#{t}", locale: active_ui_locale) }
                                          .join("\n") %>
           </li>

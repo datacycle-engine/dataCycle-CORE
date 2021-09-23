@@ -169,7 +169,7 @@ module DataCycleCore
 
       options_hash.each do |key, value|
         if value.is_a?(ActiveRecord::Base)
-          params_hash[key] = { id: value&.id, class: value&.class&.name }
+          params_hash[key] = value.persisted? ? { id: value&.id, class: value&.class&.name } : { class: value&.class&.name, attributes: value.attributes }
         elsif value.is_a?(ActiveRecord::Relation)
           params_hash[key] = { ids: value&.ids, class: value&.klass&.name }
         elsif value.is_a?(OpenStruct)
