@@ -32,13 +32,8 @@ module DataCycleCore
               (
                 DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
                 DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
-              ) || (
-                attribute.definition.dig('global') &&
-                  (
-                    attribute.key.attribute_name_from_key != 'tags' ||
-                    DataCycleCore.dc_sync_edit_tags_excluded_systems.exclude?(attribute.content.external_source_id)
-                  )
-              )
+              ) ||
+              attribute.definition.dig('global')
             )
           end
         end
