@@ -26,7 +26,6 @@ x-app: &default-app
 #      - "APP_DOCKER_ENV=${APP_DOCKER_ENV:-production}"
   env_file:
     - ${PWD}/.env.production
-#    - ${PWD}/.env.deploy
   volumes:
     - app-tmp:/app/tmp
     - app-docker:/app/docker
@@ -194,7 +193,6 @@ services:
     image: darthsim/imgproxy:v2.16
     env_file:
       - ${PWD}/.env.production
-#      - ${PWD}/.env.deploy
     environment:
       PORT: '${IMGPROXY_PORT:-9000}'
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
