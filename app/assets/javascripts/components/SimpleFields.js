@@ -37,8 +37,6 @@ class SimpleFields {
   addEventHandlers(type, selector) {
     const elements = this.container.querySelectorAll(selector);
 
-    console.log('addEventHandlers', selector, elements);
-
     for (let i = 0; i < elements.length; ++i) {
       $(elements[i]).on('dc:import:data', this[`${type}EventHandler`].bind(this));
     }

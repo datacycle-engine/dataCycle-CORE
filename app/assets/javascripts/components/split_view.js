@@ -1,6 +1,8 @@
 import CalloutHelpers from './../helpers/callout_helpers';
 import domElementHelpers from '../helpers/dom_element_helpers';
 import ConfirmationModal from './confirmation_modal';
+import isEqual from 'lodash/isEqual';
+import uniqWith from 'lodash/uniqWith';
 
 class SplitView {
   constructor(container = document) {
@@ -281,6 +283,7 @@ class SplitView {
       confirmationText: await I18n.translate('frontend.split_view.copy_all_translations.confirmation_text'),
       cancelText: await I18n.translate('frontend.split_view.copy_all_translations.cancel_text'),
       confirmationClass: 'success',
+      preventCancelOnAbort: true,
       cancelable: true,
       confirmationCallback: () => {
         this.copyAllTranslations();
@@ -328,7 +331,7 @@ class SplitView {
       } else keys.push(key);
     }
 
-    return keys;
+    return uniqWith(keys, isEqual);
   }
   async triggerSingleButtons(target, parent) {
     let items, buttonToDisable;

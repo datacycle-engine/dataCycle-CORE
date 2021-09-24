@@ -80,7 +80,7 @@ class RemoteRenderer {
   }
   forceLoadRemote(event) {
     const target = event.currentTarget;
-    return this.loadRemotePartial(target);
+    return this.loadRemotePartial(target, null, true);
   }
   loadChangedTabs(event) {
     event.stopPropagation();
@@ -91,7 +91,7 @@ class RemoteRenderer {
         this.loadRemotePartial(element);
       });
   }
-  loadRemotePartial(element, additionalParams = null) {
+  loadRemotePartial(element, additionalParams = null, forceRecursiveLoad = false) {
     let id = $(element).data('remote-render-id');
 
     if (id === undefined) {
@@ -105,11 +105,15 @@ class RemoteRenderer {
       content_for: $(element).data('remoteContentFor'),
       options: $(element).data('remoteOptions'),
       render_function: $(element).data('remoteRenderFunction'),
-      render_params: $(element).data('remoteRenderParams')
+      render_params: $(element).data('remoteRenderParams'),
+      force_recursive_load: forceRecursiveLoad
     };
+
+    console.log('forceLoadRemote', params);
 
     if (additionalParams) {
       for (const [key, value] of Object.entries(additionalParams)) {
+        if (!params[key]) params[key] = {};
         Object.assign(params[key], value);
       }
     }
