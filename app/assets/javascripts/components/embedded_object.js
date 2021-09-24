@@ -72,7 +72,7 @@ class EmbeddedObject {
       (this.max == 0 || this.element.children('.content-object-item').length < this.max) &&
       newItems.length > 0
     ) {
-      this.renderEmbeddedObjects('split_view', newItems, data.locale, data.translate);
+      await this.renderEmbeddedObjects('split_view', newItems, data.locale, data.translate);
     } else if (this.write && this.max != 0 && ids.length + newItems.length > this.max) {
       new ConfirmationModal({ text: await I18n.translate('frontend.maximum_embedded') });
     }
@@ -120,7 +120,8 @@ class EmbeddedObject {
     else if (type == 'new') this.index++;
 
     this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
-    DataCycle.httpRequest({
+
+    return DataCycle.httpRequest({
       url: this.url + '/render_embedded_object',
       method: 'GET',
       dataType: 'script',

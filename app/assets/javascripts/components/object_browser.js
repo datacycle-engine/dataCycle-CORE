@@ -140,11 +140,11 @@ class ObjectBrowser {
       this.overlay.find('.items li.item .reveal.media-preview').each(function () {
         if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
       });
-      this.element.find('.object-thumbs li.item .reveal.media-preview').each((index, element) => {
+      this.element.find('.object-thumbs li.item .reveal.media-preview').each((_index, element) => {
         $(element).foundation().addClass('dc-fd-initialized');
       });
     });
-    this.element.on('dc:import:data', (_event, data) => {
+    this.element.on('dc:import:data', async (_event, data) => {
       let newItems = [];
       if (data.external_ids != undefined) newItems = data.external_ids;
       else if (data.value && data.value.length) {
@@ -154,7 +154,7 @@ class ObjectBrowser {
         );
       }
       if (newItems.length > 0 && this.validate('+', this.chosen.length + newItems.length)) {
-        this.findObjects(newItems, data.external_ids != undefined);
+        await this.findObjects(newItems, data.external_ids != undefined);
       }
     });
     this.overlay.on('dc:import:complete', (event, data) => {
@@ -288,7 +288,7 @@ class ObjectBrowser {
       .html('<input type="hidden" id="' + this.hidden_field_id + '" name="' + this.key + '[]">');
   }
   findObjects(ids, external) {
-    DataCycle.httpRequest({
+    return DataCycle.httpRequest({
       url: '/object_browser/find',
       method: 'POST',
       dataType: 'script',

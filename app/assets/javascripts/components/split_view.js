@@ -11,6 +11,8 @@ class SplitView {
     this.leftLocaleSwitcher = this.leftContainer.getElementsByClassName('attribute-locale-switcher')[0];
     this.leftAvailableLocales = domElementHelpers.parseDataAttribute(this.leftContainer.dataset.availableLocales);
     this.enableTranslateButtons = this.leftContainer.dataset.enableTranslateButtons;
+    this.copyAllButton;
+    this.translateAllButton;
     this.leftId = this.leftContainer.dataset.id;
     this.translatableTypes = ['string', 'text_editor'];
     this.copyableTypes = [
@@ -67,13 +69,20 @@ class SplitView {
   addSingleClickHandler() {
     DataCycle.newContent.callbacks.push([
       e => e.tagName === 'A' && (e.classList.contains('copy') || e.classList.contains('translate')),
-      e => e.addEventListener('click', this.handleButtonClick.bind(this))
+      e => $(e).on('click', this.handleButtonClick.bind(this))
     ]);
   }
   addAllClickHandler() {
     DataCycle.newContent.callbacks.push([
       e => e.tagName === 'A' && (e.classList.contains('copy-all') || e.classList.contains('translate-all')),
-      e => e.addEventListener('click', this.triggerAllButtons.bind(this))
+      e => {
+        e.addEventListener('click', this.triggerAllButtons.bind(this));
+        const parent = e.closest('.split-content, [data-editor="included-object"]');
+
+        if (parent.classList.contains('split-content') && e.classList.contains('copy-all')) this.copyAllButton = e;
+        if (parent.classList.contains('split-content') && e.classList.contains('translate-all'))
+          this.translateAllButton = e;
+      }
     ]);
   }
   observeForNewFields() {
@@ -120,8 +129,6 @@ class SplitView {
         `[data-key="${key}"]:not([data-editor]:not([data-editor="included-object"]) [data-key="${key}"]):not(.dc-copyable-field)`
       )
     );
-
-    console.log('findFieldsByKey', key, fields);
 
     if (visibleOnly) return fields.filter(domElementHelpers.isVisible.bind(this));
     else return fields;
@@ -228,7 +235,7 @@ class SplitView {
       dataType: 'json'
     });
   }
-  async handleButtonClick(event) {
+  async handleButtonClick(event, data) {
     event.preventDefault();
 
     const button = event.currentTarget;
@@ -251,24 +258,22 @@ class SplitView {
 
     const targetKey = this.transformKeyToTargetLocale(key, this.rightLocale());
 
-    if (button.classList.contains('translate')) await this.translateText(container.dataset.editor, value, targetKey);
-    else await this.copyContents(value, targetKey);
+    if (button.classList.contains('translate'))
+      await this.translateText(container.dataset.editor, value, targetKey, data && data.scrollIntoView);
+    else await this.copyContents(value, targetKey, false, true, data && data.scrollIntoView);
 
     DataCycle.enableElement(button);
   }
-  triggerAllButtons(event) {
+  async triggerAllButtons(event) {
     event.preventDefault();
 
     const target = event.currentTarget;
 
-    DataCycle.disableElement(target);
-
     const parent = target.closest('.split-content, [data-editor="included-object"]');
 
-    if (parent.dataset.copyAllTranslations) this.showCopyAllConditionOverlay(target, parent);
-    else this.triggerSingleButtons(target, parent);
-
-    DataCycle.enableElement(target);
+    if (target.classList.contains('copy-all') && parent.dataset.copyAllTranslations)
+      await this.showCopyAllConditionOverlay(target, parent);
+    else await this.triggerSingleButtons(target, parent);
   }
   async showCopyAllConditionOverlay(target, parent) {
     new ConfirmationModal({
@@ -286,6 +291,8 @@ class SplitView {
     });
   }
   async copyAllTranslations() {
+    DataCycle.disableElement(this.copyAllButton);
+
     const availableEditors = this.availableEditors(this.leftContainer, this.copyableTypes);
     const keys = this.keysForTranslationsFromEditors(availableEditors);
 
@@ -300,8 +307,10 @@ class SplitView {
 
       if (renderRemoteField) await $(renderRemoteField).triggerHandler('dc:remote:forceRender');
 
-      console.log('copyAllTranslations', keys[i], this.findFieldsByKey(keys[i], this.rightContainer, false));
+      this.copyContents(values[keys[i]], keys[i], false, false);
     }
+
+    DataCycle.enableElement(this.copyAllButton);
   }
   keysForTranslationsFromEditors(availableEditors) {
     const keys = [];
@@ -321,10 +330,12 @@ class SplitView {
 
     return keys;
   }
-  triggerSingleButtons(target, parent) {
-    let items;
+  async triggerSingleButtons(target, parent) {
+    let items, buttonToDisable;
+    const triggeredRequests = [];
 
     if (target.classList.contains('translate-all')) {
+      buttonToDisable = this.translateAllButton;
       items = [
         ...parent.querySelectorAll(':scope .dc-translatable-field > .buttons > a.translate'),
         ...parent.querySelectorAll(
@@ -332,31 +343,38 @@ class SplitView {
         )
       ];
     } else {
+      buttonToDisable = this.copyAllButton;
       items = parent.querySelectorAll(':scope .dc-copyable-field > .buttons > a.copy:not(.copy-single-button)');
     }
 
+    DataCycle.disableElement(buttonToDisable);
+
     for (let i = 0; i < items.length; ++i) {
-      items[i].click();
+      triggeredRequests.push($(items[i]).triggerHandler('click', { scrollIntoView: false }));
     }
+
+    await Promise.all(triggeredRequests);
+
+    DataCycle.enableElement(buttonToDisable);
   }
-  async copyContents(value, key, translate = false) {
+  async copyContents(value, key, translate = false, visibleOnly = true, scrollIntoView = true) {
     const submitButton = document.querySelector('.edit-header .submit-edit-form');
 
     if (submitButton && submitButton.disabled) return;
 
-    const target = this.findFieldsByKey(key, this.rightContainer)[0];
+    const target = this.findFieldsByKey(key, this.rightContainer, visibleOnly)[0];
 
     await $(target)
       .find(DataCycle.config.EditorSelectors.join(', '))
-      .trigger('dc:import:data', {
+      .triggerHandler('dc:import:data', {
         value: typeof value == 'string' ? value.trim() : value,
         locale: this.embedLocale ? this.leftLocale() : '',
         translate: translate
       });
 
-    target.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    if (scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
-  async translateText(editor, value, key) {
+  async translateText(editor, value, key, scrollIntoView = true) {
     if (this.translatableTypes.includes(editor)) {
       let formData = {
         text: typeof value == 'string' ? value.trim() : value,
@@ -374,9 +392,9 @@ class SplitView {
         CalloutHelpers.show(await I18n.translate('frontend.split_view.translate_error'), 'alert');
       });
 
-      await this.copyContents(translatedValue.text, key);
+      await this.copyContents(translatedValue.text, key, false, true, scrollIntoView);
     } else {
-      await this.copyContents(value, key, true);
+      await this.copyContents(value, key, true, true, scrollIntoView);
     }
   }
 }

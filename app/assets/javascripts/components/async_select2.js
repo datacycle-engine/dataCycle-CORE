@@ -15,14 +15,14 @@ class AsyncSelect2 extends BasicSelect2 {
       ajax: this.ajaxOptions()
     });
   }
-  loadNewOptions(_value, ids) {
+  async loadNewOptions(_value, ids) {
     let queryParams = {
       ids: ids
     };
 
     if (this.config.treeLabel) Object.assign(queryParams, { tree_label: this.config.treeLabel });
 
-    DataCycle.httpRequest({
+    await DataCycle.httpRequest({
       type: 'GET',
       url: this.config.findPath,
       data: queryParams,

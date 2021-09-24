@@ -4,7 +4,7 @@
   <%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item#{ ' is-active' if (!local_assigns[:hide_embedded] && !definition.dig('ui', 'edit', 'hide_onload')) || object.template || local_assigns[:duplicated_content] }",
         id: "#{sanitize_to_id(key)}_item_#{index}",
         data: {
-          id: object.template || local_assigns[:duplicated_content] ? nil : object.id,
+          id: object.template ? nil : object.id,
           index: index,
           accordion_item: true
         } do %>

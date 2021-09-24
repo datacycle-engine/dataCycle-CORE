@@ -26,8 +26,8 @@ class SimpleSelect2 extends BasicSelect2 {
     this.$element.off('dc:create:option', this.eventHandlers.createOption);
     this.$element.closest('.form-element').off('dc:upload:filesChanged', this.eventHandlers.reloadData);
   }
-  loadNewOptions(value, newOptions) {
-    this.$element.val(value.concat(newOptions)).trigger('change');
+  async loadNewOptions(value, newOptions) {
+    await this.$element.val(value.concat(newOptions)).trigger('change');
   }
   createOption(_event, data) {
     let newOption = new Option(data.text, data.id, false, false);

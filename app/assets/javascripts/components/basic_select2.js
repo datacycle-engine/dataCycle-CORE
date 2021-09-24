@@ -76,7 +76,7 @@ class BasicSelect2 {
     this.$element.parent().off('change', '.select2-search__field', this.eventHandlers.suppressChange);
   }
   initSpecificEventHandlers() {}
-  import(_event, data) {
+  async import(_event, data) {
     if (!data.value || !data.value.length) return;
 
     let value = this.$element.val();
@@ -87,9 +87,9 @@ class BasicSelect2 {
     data.value = data.value.filter(Boolean);
     let diff = difference(data.value, value);
 
-    if (diff.length) this.loadNewOptions(value, diff);
+    if (diff.length) await this.loadNewOptions(value, diff);
   }
-  loadNewOptions(_value, _options) {}
+  async loadNewOptions(_value, _options) {}
   markMatch(text, term) {
     let match = text.toLowerCase().lastIndexOf(term.toLowerCase());
     let $result = $('<span></span>');
