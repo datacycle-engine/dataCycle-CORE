@@ -143,9 +143,6 @@ module DataCycleCore
     mattr_accessor :global_configs
     self.global_configs = {}
 
-    mattr_accessor :dc_sync_edit_tags_excluded_systems
-    self.dc_sync_edit_tags_excluded_systems = []
-
     mattr_accessor :info_link
     self.info_link = nil
     # inheritable_attributes
