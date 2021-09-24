@@ -54,7 +54,7 @@ RUN mkdir -p /app/dc_volumes/public/assets \
 # create a temporary folder to update docker configs in named volumes
 RUN mkdir -p /app/docker \
     && mkdir -p /app/dc_volumes/docker \
-    && cp -Rf /app/docker/* /app/dc_volumes/docker/. \
+    && cp -Rf /app/docker /app/dc_volumes/. \
     && chown ruby:ruby -R /app/dc_volumes/docker
 
 RUN rm -Rf /app/node_modules

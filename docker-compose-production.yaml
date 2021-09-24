@@ -15,16 +15,18 @@ x-app-env: &default-app-env
   HISTFILE: /home/ruby/hist/.bash_history
 
 x-app: &default-app
-  build:
-    context: ${PWD}
-    target: production
-    dockerfile: ${COMPOSE_WEB_DOCKER_FILE:-./vendor/gems/data-cycle-core/Dockerfile}
-    args:
-      - "RAILS_ENV=${RAILS_ENV:-production}"
-      - "NODE_ENV=${NODE_ENV:-production}"
-      - "APP_DOCKER_ENV=${APP_DOCKER_ENV:-production}"
+  image: git.pixelpoint.biz:5050/data-cycle/data-cycle-base:latest
+#  build:
+#    context: ${PWD}
+#    target: production
+#    dockerfile: ${COMPOSE_WEB_DOCKER_FILE:-./vendor/gems/data-cycle-core/Dockerfile}
+#    args:
+#      - "RAILS_ENV=${RAILS_ENV:-production}"
+#      - "NODE_ENV=${NODE_ENV:-production}"
+#      - "APP_DOCKER_ENV=${APP_DOCKER_ENV:-production}"
   env_file:
-    - ${PWD}/.env.deploy
+    - ${PWD}/.env.production
+#    - ${PWD}/.env.deploy
   volumes:
     - app-tmp:/app/tmp
     - app-docker:/app/docker
@@ -191,7 +193,8 @@ services:
   imgproxy:
     image: darthsim/imgproxy:v2.16
     env_file:
-      - ${PWD}/.env.deploy
+      - ${PWD}/.env.production
+#      - ${PWD}/.env.deploy
     environment:
       PORT: '${IMGPROXY_PORT:-9000}'
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
