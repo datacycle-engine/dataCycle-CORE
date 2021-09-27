@@ -44,8 +44,6 @@ server {
 
   access_log /var/log/datacycle/nginx.access.log;
   error_log /var/log/datacycle/nginx.error.log;
-  #access_log ${APPLICATION_ROOT}/log/nginx.access.log;
-  #error_log ${APPLICATION_ROOT}/log/nginx.error.log;
 
   location @puma_data_cycle {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

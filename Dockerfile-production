@@ -79,31 +79,11 @@ ENV RAILS_ENV="${RAILS_ENV}" \
 
 RUN bundle install --jobs $(nproc)
 
+RUN mkdir -p /app/node_modules \
+    && chown ruby:ruby -R /app/node_modules
+
 RUN yarn
 
-RUN bundle exec vite build
+ENTRYPOINT ["/app/vendor/gems/data-cycle-core/docker/docker-entrypoint.sh"]
 
-RUN rm -Rf /app/node_modules
-
-
-#ENV GEM_HOME /gems
-#ENV BUNDLE_PATH $GEM_HOME
-#ENV BUNDLE_APP_CONFIG $BUNDLE_PATH
-#ENV BUNDLE_BIN $BUNDLE_PATH/bin
-
-#ENV PATH /app/bin:$PATH
-
-# COPY --chown=ruby:ruby Gemfile* ./
-
-#ADD Gemfile /var/www/app/Gemfile
-#ADD Gemfile.lock /var/www/app/Gemfile.lock
-
-#ADD vendor/gems/data-cycle-core /var/www/app/vendor/gems/data-cycle-core
-
-#ADD . /var/www/app
-#RUN chown -R nobody:nogroup /var/www/app
-#USER nobody
-
-ENTRYPOINT ["/app/vendor/gems/data-cycle-core/docker/web/docker-entrypoint.sh"]
-
-CMD ["bundle", "exec", "puma", "-C", "/app/vendor/gems/data-cycle-core/docker/web/puma.rb"]
+CMD ["/app/docker/wait-for-postgres.sh", "bundle", "exec", "puma", "-C", "/app/docker/web/puma.rb"]
