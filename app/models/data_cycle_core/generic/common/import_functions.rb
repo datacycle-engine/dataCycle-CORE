@@ -49,7 +49,7 @@ module DataCycleCore
                 'last_successful_sync_at' => data.dig('updated_at')
               }]
               all_imported_external_system_data.each do |es|
-                next if present_external_systems.detect { |i| i['external_identifier'] == es['identifier'] && i['external_key'] == es['external_key'] }.present?
+                next if present_external_systems.detect { |i| i['external_identifier'] == (es['identifier'] || es['name']) && i['external_key'] == es['external_key'] }.present?
                 external_system =
                   if es['identifier'].present?
                     DataCycleCore::ExternalSystem.find_by(identifier: es['identifier'])
@@ -153,7 +153,7 @@ module DataCycleCore
                 DataCycleCore::ExternalSystem.find_by(identifier: es['name']) || DataCycleCore::ExternalSystem.find_by(name: es['name'])
               end
             external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank?
-            sync_data = content.add_external_system_data(external_system, { external_key: es['external_key'] }, es['status'] || 'success', es['sync_type'] || 'export', es['external_key'], false)
+            sync_data = content.add_external_system_data(external_system, { external_key: es['external_key'] }, es['status'] || 'success', es['sync_type'] || 'export', es['external_key'], es['external_key'].present?)
             update_data = { last_sync_at: es['last_sync_at'], last_successful_sync_at: es['last_successful_sync_at'] }.compact
             sync_data.update(update_data) if update_data.present?
           end
