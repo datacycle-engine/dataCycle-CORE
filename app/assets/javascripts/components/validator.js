@@ -4,6 +4,7 @@ import isEqual from 'lodash/isEqual';
 import uniqWith from 'lodash/uniqWith';
 import unionWith from 'lodash/unionWith';
 import sortBy from 'lodash/sortBy';
+import isEmpty from 'lodash/isEmpty';
 import collectionReject from 'lodash/reject';
 
 class Validator {
@@ -215,6 +216,9 @@ class Validator {
 
     return $singleError;
   }
+  locale() {
+    return this.$form.find(':input[name="locale"]').val() || this.$form.find(':input[name="thing[locale]"]').val();
+  }
   removeSubmitButtonErrors(item, type = 'error', itemClass = 'alert') {
     const $submitTooltip = $(`#${this.$submitButton.data('toggle')}`);
 
@@ -248,7 +252,22 @@ class Validator {
 
     return key.includes('[translations]') && key.match(/\[translations\]\[([\-a-zA-Z]+)\]/)[1];
   }
-  validateItem(validationContainer) {
+  formFieldChanged(newFieldData, translationLocale, submitFormaDataUpToDate) {
+    if (!translationLocale || translationLocale == this.locale() || this.bulkEdit) return true;
+
+    newFieldData = this.sortedFormData(newFieldData || []);
+    const key = newFieldData[0] && newFieldData[0].name;
+    let oldFieldData = [];
+    if (key) oldFieldData = this.initialFormData.filter(v => v.name.includes(key));
+
+    if (!submitFormaDataUpToDate) this.updateSubmitFormData();
+
+    return (
+      !isEqual(oldFieldData, newFieldData) ||
+      this.submitFormData.filter(v => v.name.includes(`[${translationLocale}]`)).some(v => !isEmpty(v.value))
+    );
+  }
+  validateItem(validationContainer, submitFormaDataUpToDate = false) {
     this.resetField(validationContainer);
 
     if ($(validationContainer).hasClass('agbs')) {
@@ -260,11 +279,13 @@ class Validator {
 
     const translationLocale = this.attributeLocale(validationContainer);
 
+    if (!this.formFieldChanged(formData, translationLocale, submitFormaDataUpToDate))
+      return Promise.resolve({
+        valid: true
+      });
+
     const uuid = this.$form.find(':input[name="uuid"]').val();
-    const locale =
-      translationLocale ||
-      this.$form.find(':input[name="locale"]').val() ||
-      this.$form.find(':input[name="thing[locale]"]').val();
+    const locale = translationLocale || this.locale();
     const table = this.$form.find(':input[name="table"]').val() || 'things';
     const url = `/${table}${uuid ? '/' + uuid : ''}/validate`;
     const template = this.$form.find(':input[name="template"]').val();
@@ -317,7 +338,7 @@ class Validator {
       .find('.validation-container')
       .add(this.$agbsCheck)
       .each((_i, elem) => {
-        this.requests.push(this.validateItem(elem));
+        this.requests.push(this.validateItem(elem, true));
       });
 
     this.resolveRequests($(event.target).is(this.$form), data);

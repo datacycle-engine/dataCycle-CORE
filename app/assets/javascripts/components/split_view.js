@@ -308,7 +308,7 @@ class SplitView {
 
       const renderRemoteField = this.findRemoteRenderFieldByKey(keys[i], this.rightContainer);
 
-      if (renderRemoteField) await $(renderRemoteField).triggerHandler('dc:remote:forceRender');
+      if (renderRemoteField) await $(renderRemoteField).triggerHandler('dc:remote:forceRenderTranslations');
 
       this.copyContents(values[keys[i]], keys[i], false, false);
     }

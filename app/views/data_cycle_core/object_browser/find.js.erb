@@ -6,9 +6,11 @@
   <% end %>
 <% end %>
 
-var html_content = '<%= j yield(:rendered_items) %>';
+(function(){
+  let html_content = '<%= j yield(:rendered_items) %>';
 
-$(html_content).appendTo($('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser .object-thumbs')).trigger('dc:html:changed');
-$('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser .object-thumbs').addClass('has-items');
-$(html_content).appendTo($('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %> .chosen-items-container')).trigger('dc:html:changed');
-$('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser').trigger('dc:update:chosen', { chosen: <%= Array(@objects&.ids).to_json.html_safe %> });
+  $(html_content).appendTo($('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser .object-thumbs')).trigger('dc:html:changed');
+  $('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser .object-thumbs').addClass('has-items');
+  $(html_content).appendTo($('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %> .chosen-items-container')).trigger('dc:html:changed');
+  $('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser').trigger('dc:update:chosen', { chosen: <%= Array(@objects&.ids).to_json.html_safe %> });
+})();

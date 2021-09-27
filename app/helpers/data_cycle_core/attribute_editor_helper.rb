@@ -47,7 +47,7 @@ module DataCycleCore
       allowed = attribute_editor_allowed(options)
       return allowed unless allowed.is_a?(TrueClass)
 
-      if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values)
+      if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) && !options.parameters&.dig(:parent_translatable)
         render_translatable_attribute_editor options.to_h
       else
         render_untranslatable_attribute_editor options.to_h

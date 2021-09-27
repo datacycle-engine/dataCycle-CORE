@@ -1,4 +1,4 @@
-import uniqueId from 'lodash/uniqueId';
+import domElementHelpers from '../helpers/dom_element_helpers';
 
 class RemoteRenderer {
   constructor(selector) {
@@ -21,7 +21,7 @@ class RemoteRenderer {
       '*',
       this.loadRemote.bind(this)
     );
-    this.addRemoteRenderHandler(this.selector.find('.remote-render'));
+    this.addForceRenderTranslationHandler(this.selector.find('.translatable-attribute.remote-render'));
     this.selector.on(
       'click',
       '.remote-render-failed > .remote-render-error > .remote-reload-link',
@@ -29,12 +29,17 @@ class RemoteRenderer {
     );
 
     DataCycle.newContent.callbacks.push([
-      e => e.classList.contains('remote-render'),
-      this.addRemoteRenderHandler.bind(this)
+      e => e.classList.contains('remote-render') && e.classList.contains('translatable-attribute'),
+      this.addForceRenderTranslationHandler.bind(this)
     ]);
   }
-  addRemoteRenderHandler(element) {
-    $(element).on('dc:remote:forceRender', this.forceLoadRemote.bind(this));
+  addForceRenderTranslationHandler(element) {
+    $(element).on('dc:remote:forceRenderTranslations', this.forceLoadRemote.bind(this));
+
+    $(element).each((_index, elem) => {
+      if (elem.classList.contains('force-render-translation'))
+        $(element).triggerHandler('dc:remote:forceRenderTranslations');
+    });
   }
   reloadAfterFail(event) {
     event.preventDefault();
@@ -79,8 +84,12 @@ class RemoteRenderer {
       });
   }
   forceLoadRemote(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
     const target = event.currentTarget;
-    return this.loadRemotePartial(target, null, true);
+
+    if (target.classList.contains('remote-render')) return this.loadRemotePartial(target, null, true);
   }
   loadChangedTabs(event) {
     event.stopPropagation();
@@ -95,7 +104,7 @@ class RemoteRenderer {
     let id = $(element).data('remote-render-id');
 
     if (id === undefined) {
-      id = uniqueId('remote_render_');
+      id = domElementHelpers.randomId();
       element.setAttribute('data-remote-render-id', id);
     }
 
@@ -108,8 +117,6 @@ class RemoteRenderer {
       render_params: $(element).data('remoteRenderParams'),
       force_recursive_load: forceRecursiveLoad
     };
-
-    console.log('forceLoadRemote', params);
 
     if (additionalParams) {
       for (const [key, value] of Object.entries(additionalParams)) {

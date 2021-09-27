@@ -1,8 +1,8 @@
 import DurationHelpers from './../helpers/duration_helpers';
+import domElementHelpers from '../helpers/dom_element_helpers';
 import MimeTypes from 'mime';
 import AssetValidator from './asset_validator';
 import unionBy from 'lodash/unionBy';
-import uniqueId from 'lodash/uniqueId';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import uploadDuplicate from '../templates/uploadDuplicate';
@@ -491,7 +491,8 @@ class AssetUploader {
     this.updateCreateButton(error);
   }
   async renderDuplicateHtml(duplicates) {
-    return await uploadDuplicate(uniqueId('duplicate_'), duplicates);
+    let randomId = domElementHelpers.randomId('duplicate');
+    return await uploadDuplicate(randomId, duplicates);
   }
   reset(ids = null) {
     if (ids) {
@@ -571,10 +572,10 @@ class AssetUploader {
   async checkFileAndQueue(file, fileOptions = {}) {
     if (this.files.find(f => f.file.name == file.name)) return;
 
-    let id = uniqueId('asset_');
+    let randomId = domElementHelpers.randomId('asset');
     fileOptions = Object.assign(
       {
-        id: id,
+        id: randomId,
         file: file,
         target: this.fileField,
         html: '<i class="fa fa-circle-o-notch fa-spin file-data-loading"></i>',
@@ -769,8 +770,8 @@ class AssetUploader {
     return html;
   }
   updateIdsInClonedErrors(errorText) {
-    let newId = uniqueId('cloned_asset_');
-    errorText = errorText.replaceAll(/(")([^"-]*)(-duplicates-list)/gi, '$1' + newId + '$3');
+    let randomId = domElementHelpers.randomId('cloned_asset');
+    errorText = errorText.replaceAll(/(")([^"-]*)(-duplicates-list)/gi, '$1' + randomId + '$3');
     return errorText;
   }
   async renderInitialFileField(fileOptions) {

@@ -133,6 +133,7 @@ class AttributeLocaleSwitcher {
       .each((_index, item) => {
         this.updateLocaleRecursive($(`#${$(item).data('open') || $(item).data('toggle')}`));
       });
+    $(container).find('.form-element > .embedded-object').data('locale', this.locale);
   }
 }
 
