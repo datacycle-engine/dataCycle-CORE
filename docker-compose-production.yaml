@@ -14,10 +14,8 @@ x-app-env: &default-app-env
   SSH_AUTH_SOCK: /ssh-agent
   HISTFILE: /home/ruby/hist/.bash_history
 
-# @todo set image path via ENV or dynamic via gitlab-ci
 x-app: &default-app
-#  image: git.pixelpoint.biz:5050/data-cycle/data-cycle-base-fork:latest
-  image: git.pixelpoint.biz:5050/data-cycle/data-cycle-base:latest
+  image: git.pixelpoint.biz:5050/data-cycle/${GITLAB_CI_PROJECT_NAME}:latest
 #  build:
 #    context: ${PWD}
 #    target: production
