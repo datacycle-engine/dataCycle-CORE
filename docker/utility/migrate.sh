@@ -1,4 +1,16 @@
 #!/bin/bash
+
+# check if db exists
+bundle exec rake db:version
+
+if [ $? -eq 0 ]
+then
+  echo "dataCycle database exists"
+else
+  echo "dataCycle database does not exists. Skipping migrations."
+  exit 0
+fi
+
 set -e
 
 bundle exec rake data_cycle_core:db:dump

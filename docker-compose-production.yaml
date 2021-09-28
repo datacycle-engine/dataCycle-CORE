@@ -1,29 +1,10 @@
 version: '3.9'
 
 x-app-env: &default-app-env
-  APP_PROTOCOL: ${APP_PROTOCOL:-http}
-  APP_HOST: ${APP_HOST:-localhost:3003}
-  APPLICATION_ROOT: ${APPLICATION_ROOT:-/app}
-  MONGODB_HOST: ${MONGODB_HOST:-mongodb}
-  POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
-  POSTGRES_PORT: ${POSTGRES_PORT:-5432}
-  POSTGRES_VERSION: ${POSTGRES_VERSION:-13}
-  PUBLIC_APPLICATION_PORT: ${PUBLIC_APPLICATION_PORT:-3003}
   RAILS_ENV: ${RAILS_ENV:-production}
-  REDIS_SERVER: ${REDIS_SERVER:-redis}
-  SSH_AUTH_SOCK: /ssh-agent
-  HISTFILE: /home/ruby/hist/.bash_history
 
 x-app: &default-app
   image: git.pixelpoint.biz:5050/data-cycle/${GITLAB_CI_PROJECT_NAME}:latest
-#  build:
-#    context: ${PWD}
-#    target: production
-#    dockerfile: ${COMPOSE_WEB_DOCKER_FILE:-./vendor/gems/data-cycle-core/Dockerfile}
-#    args:
-#      - "RAILS_ENV=${RAILS_ENV:-production}"
-#      - "NODE_ENV=${NODE_ENV:-production}"
-#      - "APP_DOCKER_ENV=${APP_DOCKER_ENV:-production}"
   env_file:
     - ${PWD}/.env.production
   volumes:
@@ -35,8 +16,6 @@ x-app: &default-app
     - ${BASE_HISTORY_VOLUME_PATH:-~/data_cycle/history}:/home/ruby/hist
     - ${BASE_BACKUP_VOLUME_PATH:-~/data_cycle/backups}:/app/db/backups
     - $SSH_AUTH_SOCK:/ssh-agent
-  extra_hosts:
-    - 'dockerhost:host-gateway'
   restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
 
 services:
@@ -108,74 +87,26 @@ services:
     depends_on:
       - web
   postgres:
-    image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4'
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_VERSION=${POSTGRES_VERSION:-13}
-      - POSTGRES_EFFECTIVE_CACHE_SIZE=${POSTGRES_EFFECTIVE_CACHE_SIZE:-6GB}
-      - PGDATA=/var/lib/postgresql/data/pgdata
     entrypoint: /app/docker/postgres/entrypoint.sh
-    command: postgres -c config_file=/etc/postgresql.conf
-    ports:
-      - ${PUBLIC_POSTGRES_PORT:-5432}:5432
-    shm_size: 8gb
     volumes:
       - app-docker:/app/docker
       - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/postgres:/var/lib/postgresql/data
-#      - ./docker/postgres/postgresql.conf:/tmp/postgres/postgresql.conf
-#      - ./docker/postgres/setup.sh:/tmp/postgres/setup-postgres.sh
-#      - ${PWD}/config/configurations/ts_search:/tmp/postgres/ts_search
-    depends_on:
-      - web
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   mongodb:
-    build:
-      context: ./docker/mongodb
-      dockerfile: Dockerfile
-    ports:
-      - '${PUBLIC_MONGODB_PORT:-27017}:27017'
     entrypoint: /app/docker/mongodb/entrypoint.sh
-    command: mongod --config /etc/mongo/mongod.conf
-    environment:
-      - MONGODB_CACHE_SIZE_GB=${MONGODB_CACHE_SIZE_GB:-1}
     volumes:
       - app-docker:/app/docker
       - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/mongodb:/data/db
       - ${BASE_LOG_VOLUME_PATH:-~/data_cycle/log}/mongodb:/var/log/mongodb
-#      - ./docker/mongodb/mongod.conf:/tmp/mongodb/mongod.conf
-#      - ./docker/mongodb/setup.sh:/tmp/mongodb/setup-mongodb.sh
-    depends_on:
-      - web
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   redis:
-    build:
-      context: ./docker/redis
-      dockerfile: Dockerfile
     entrypoint: /app/docker/redis/entrypoint.sh
-    command: redis-server /etc/redis/redis.conf
-    environment:
-      - REDIS_MAX_MEMORY=${REDIS_MAX_MEMORY:-2gb}
     volumes:
       - app-docker:/app/docker
       - redis:/data
-#      - ./docker/redis/redis.conf:/tmp/redis/redis.conf
-#      - ./docker/redis/setup.sh:/tmp/redis/setup-redis.sh
-    depends_on:
-      - web
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   nginx:
-    image: nginx:1.21-alpine
-    ports:
-      - '${PUBLIC_APPLICATION_PORT:-3003}:${PUBLIC_APPLICATION_PORT:-3003}'
     entrypoint: /app/docker/nginx/entrypoint.sh
-    command: ["nginx", "-g", "daemon off;"]
-    environment:
-      - APPLICATION_ROOT=${APPLICATION_ROOT:-/app}
-      - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
-      - PUBLIC_APPLICATION_HOST=${PUBLIC_APPLICATION_HOST:-localhost}
-      - IMGPROXY_PORT=${IMGPROXY_PORT:-9000}
     volumes:
       - app-docker:/app/docker
       - app-public-assets:/app/public/assets
@@ -183,18 +114,10 @@ services:
       - ${BASE_LOG_VOLUME_PATH:-~/data_cycle/log}/nginx:/var/log/datacycle
       - ${BASE_CACHE_VOLUME_PATH:-~/data_cycle/}/imgproxy_data_cycle:/var/cache/nginx/imgproxy_data_cycle
       - ${BASE_CACHE_VOLUME_PATH:-~/data_cycle/cache}/data_cycle:/var/cache/nginx/data_cycle
-#      - ${PWD}:/app
-#      - './docker/nginx/templates/datacycle.conf.template:/etc/nginx/templates/datacycle.conf.template'
-    depends_on:
-      - web
-      - imgproxy
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   imgproxy:
-    image: darthsim/imgproxy:v2.16
     env_file:
       - ${PWD}/.env.production
-    environment:
-      PORT: '${IMGPROXY_PORT:-9000}'
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
 volumes:
   app-docker:

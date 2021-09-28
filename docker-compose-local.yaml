@@ -1,103 +1,69 @@
-version: '3.8'
+version: '3.9'
+
+x-app-env: &default-app-env
+  RAILS_ENV: ${RAILS_ENV:-development}
+  MAILHOG_HOST: mailhog
+
+x-app: &default-app
+  build:
+    context: ${PWD}
+    target: development
+    dockerfile: ${COMPOSE_WEB_DOCKER_FILE:-./vendor/gems/data-cycle-core/Dockerfile}
+    args:
+      - "RAILS_ENV=${RAILS_ENV:-development}"
+      - "NODE_ENV=${NODE_ENV:-development}"
+      - "APP_DOCKER_ENV=${APP_DOCKER_ENV:-development}"
+  env_file:
+    - ${PWD}/.env
+  volumes:
+    - '${PWD}:/app'
+    - '${PWD}/docker/hist:/home/ruby/hist'
+    - app-node-modules:/app/node_modules
+    - $SSH_AUTH_SOCK:/ssh-agent
+  stdin_open: true
+  tty: true
+
 services:
-  postgres:
-    image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.1'
-    environment:
-      - ALLOW_IP_RANGE=0.0.0.0/0
-      - POSTGRES_PASSWORD=password
-    command: /tmp/postgres/setup-postgres.sh
-    ports:
-      - ${PUBLIC_POSTGRES_PORT:-5432}:5432
-    shm_size: 8gb
-    volumes:
-      - ./docker/postgres/postgresql.conf:/etc/postgresql.conf
-      - ./docker/setup-postgres.sh:/tmp/postgres/setup-postgres.sh
-      - ${PWD}/config/configurations/ts_search:/tmp/postgres/ts_search
-  mongodb:
-    image: 'mvertes/alpine-mongo:4.0.6-1'
-    ports:
-      - '${PUBLIC_MONGODB_PORT:-27017}:27017'
   web:
-    build:
-      context: ${PWD}
-      dockerfile: ${COMPOSE_WEB_DOCKER_FILE:-./vendor/gems/data-cycle-core/Dockerfile}
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+#    entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint-development.sh
+    command: ["/app/vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "/app/vendor/gems/data-cycle-core/docker/web/setup.development.sh"]
+  postgres:
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/postgres/entrypoint.sh
+    volumes:
+      - '${PWD}:/app'
+      - postgres-data:/var/lib/postgresql/data
+  mongodb:
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/mongodb/entrypoint.sh
+    volumes:
+      - '${PWD}:/app'
+      - mongodb-data:/data/db
+      - mongodb-data:/var/log/mongodb
+  redis:
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/redis/entrypoint.sh
+    volumes:
+      - '${PWD}:/app'
+      - redis:/data
+  nginx:
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/nginx/entrypoint.sh
+    volumes:
+      - '${PWD}:/app'
+      - nginx-log:/var/log/datacycle
+  imgproxy:
     env_file:
       - ${PWD}/.env
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_VERSION=13
-      - POSTGRES_DATABASE=${COMPOSE_PROJECT_NAME}_development
-      - MONGODB_HOST=mongodb
-      - ALLOW_IP_RANGE=172.18.0.0/12
-      - TZ=Europe/Vienna
-      - MAILHOG_HOST=mailhog
-      - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
-      - APP_PROTOCOL=http
-      - APP_HOST=localhost:${PUBLIC_APPLICATION_PORT:-3003}
-      - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
-      - SSH_AUTH_SOCK=/ssh-agent
-      - HISTFILE=/root/hist/.bash_history
-      - VITE_RUBY_HOST=0.0.0.0
-      - VITE_RUBY_PORT=${PUBLIC_VITE_PORT:-3036}
-    ports:
-      - '${PUBLIC_VITE_PORT:-3036}:${PUBLIC_VITE_PORT:-3036}'
-    command:
-      - ${COMPOSE_WEB_COMMAND:-./vendor/gems/data-cycle-core/docker/setup.sh}
-    volumes:
-      - 'gems:/gems'
-      - '${PWD}:/var/www/app'
-      - $SSH_AUTH_SOCK:/ssh-agent
-      - ${PWD}/docker/hist:/root/hist
-      - node-modules:/var/www/app/node_modules
-    user: root
-    links:
-      - postgres
-      - mongodb
-    stdin_open: true
-    tty: true
   mailhog:
     image: yappabe/mailhog
     environment:
       DNSDOCK_ALIAS: localhost
     ports:
       - '${PUBLIC_MAILHOG_PORT:-1025}:8025'
-  redis:
-    image: 'redis:latest'
-    command: redis-server
-    volumes:
-      - 'redis:/data'
-    ports:
-      - '${PUBLIC_REDIS_PORT:-6379}:6379'
-  nginx:
-    image: nginx:1.19.4-alpine
-    ports:
-      # - '${PUBLIC_NGINX_HTTP_PORT:-80}:80'
-      - '${PUBLIC_APPLICATION_PORT:-3003}:${PUBLIC_APPLICATION_PORT:-3003}'
-    env_file:
-      - ${PWD}/.env
-    environment:
-      - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
-      - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
-      - PUBLIC_IMGPROXY_PORT=${PUBLIC_IMGPROXY_PORT:-9000}
-    volumes:
-      - '${PWD}:/var/www/app'
-      - './docker/nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template'
-    links:
-      - web
-      - imgproxy
-  imgproxy:
-    image: darthsim/imgproxy
-    env_file:
-      - ${PWD}/.env
-    environment:
-      PORT: '${PUBLIC_IMGPROXY_PORT:-9000}'
-    ports:
-      - '${PUBLIC_IMGPROXY_PORT:-9000}:9000'
 volumes:
-  gems:
+  app-node-modules:
+  mongodb-data:
+  mongodb-log:
+  nginx-log:
+  postgres-data:
   redis:
-  nginx:
-  node-modules:

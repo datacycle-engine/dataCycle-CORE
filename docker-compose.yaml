@@ -15,96 +15,16 @@ x-app-env: &default-app-env
   HISTFILE: /home/ruby/hist/.bash_history
 
 x-app: &default-app
-#  image: git.pixelpoint.biz:5050/data-cycle/${GITLAB_CI_PROJECT_NAME}:latest
-  build:
-    context: ${PWD}
-    target: development
-    dockerfile: ${COMPOSE_WEB_DOCKER_FILE:-./vendor/gems/data-cycle-core/Dockerfile}
-    args:
-      - "RAILS_ENV=${RAILS_ENV:-development}"
-      - "NODE_ENV=${NODE_ENV:-development}"
-      - "APP_DOCKER_ENV=${APP_DOCKER_ENV:-development}"
-  env_file:
-    - ${PWD}/.env
-  volumes:
-    - '${PWD}:/app'
-    - '${PWD}/docker/hist:/home/ruby/hist'
-    - app-node-modules:/app/node_modules
-    - $SSH_AUTH_SOCK:/ssh-agent
   extra_hosts:
     - 'dockerhost:host-gateway'
-  stdin_open: true
-  tty: true
-#  restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
 
 services:
   web:
     <<: *default-app
     environment:
       <<: *default-app-env
-    entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint-development.sh
+#    entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint-development.sh
     command: ["/app/vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "/app/vendor/gems/data-cycle-core/docker/web/setup.development.sh"]
-#  migrate_project:
-#    <<: *default-app
-#    environment:
-#      <<: *default-app-env
-#    command: ["/bin/bash"]
-#    restart: 'no'
-#  job_worker_default:
-#    <<: *default-app
-#    environment:
-#      <<: *default-app-env
-#      QUEUE: default,mailers
-#    command: ["/app/vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
-#    depends_on:
-#      - web
-#  job_worker_importers:
-#    <<: *default-app
-#    environment:
-#      <<: *default-app-env
-#      QUEUE: importers
-#    command: ["/app/vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
-#    depends_on:
-#      - web
-#  job_worker_cache_invalidation:
-#    <<: *default-app
-#    environment:
-#      <<: *default-app-env
-#      QUEUE: cache_invalidation
-#    command: ["/app/vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
-#    depends_on:
-#      - web
-#  job_worker_search_update:
-#    <<: *default-app
-#    environment:
-#      <<: *default-app-env
-#      QUEUE: search_update
-#    command: ["/app/vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
-#    depends_on:
-#      - web
-#  job_worker_carrierwave:
-#    <<: *default-app
-#    environment:
-#      <<: *default-app-env
-#      QUEUE: carrierwave
-#    command: ["/app/vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
-#    depends_on:
-#      - web
-#  job_worker_webhooks:
-#    <<: *default-app
-#    environment:
-#      <<: *default-app-env
-#      QUEUE: webhooks
-#    command: ["/app/vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
-#    depends_on:
-#      - web
-#  scheduler:
-#    <<: *default-app
-#    environment:
-#      <<: *default-app-env
-#    command: bin/scheduler
-#    depends_on:
-#      - web
   postgres:
     image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4'
     environment:
@@ -112,20 +32,15 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DATABASE=${POSTGRES_DATABASE}
       - POSTGRES_VERSION=${POSTGRES_VERSION:-13}
-      - POSTGRES_EFFECTIVE_CACHE_SIZE=${POSTGRES_EFFECTIVE_CACHE_SIZE:-6GB}
       - PGDATA=/var/lib/postgresql/data/pgdata
       - RAILS_ENV=${RAILS_ENV:-development}
     entrypoint: /app/vendor/gems/data-cycle-core/docker/postgres/entrypoint.sh
     command: postgres -c config_file=/etc/postgresql.conf
     ports:
       - ${PUBLIC_POSTGRES_PORT:-5432}:5432
-    shm_size: 8gb
-    volumes:
-      - '${PWD}:/app'
-      - postgres-data:/var/lib/postgresql/data
+    shm_size: 4gb
     depends_on:
       - web
-#    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   mongodb:
     build:
       context: ./docker/mongodb
@@ -137,13 +52,8 @@ services:
     environment:
       - MONGODB_CACHE_SIZE_GB=${MONGODB_CACHE_SIZE_GB:-1}
       - RAILS_ENV=${RAILS_ENV:-development}
-    volumes:
-      - '${PWD}:/app'
-      - mongodb-data:/data/db
-      - mongodb-data:/var/log/mongodb
     depends_on:
       - web
-#    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   redis:
     build:
       context: ./docker/redis
@@ -153,12 +63,8 @@ services:
     environment:
       - REDIS_MAX_MEMORY=${REDIS_MAX_MEMORY:-2gb}
       - RAILS_ENV=${RAILS_ENV:-development}
-    volumes:
-      - '${PWD}:/app'
-      - redis:/data
     depends_on:
       - web
-#    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   nginx:
     image: nginx:1.21-alpine
     ports:
@@ -171,24 +77,10 @@ services:
       - PUBLIC_APPLICATION_HOST=${PUBLIC_APPLICATION_HOST:-localhost}
       - IMGPROXY_PORT=${IMGPROXY_PORT:-9000}
       - RAILS_ENV=${RAILS_ENV:-development}
-    volumes:
-      - '${PWD}:/app'
-      - nginx-log:/var/log/datacycle
     depends_on:
       - web
       - imgproxy
-#    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   imgproxy:
     image: darthsim/imgproxy:v2.16
-    env_file:
-      - ${PWD}/.env
     environment:
       PORT: '${IMGPROXY_PORT:-9000}'
-#    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
-volumes:
-  app-node-modules:
-  mongodb-data:
-  mongodb-log:
-  nginx-log:
-  postgres-data:
-  redis:
