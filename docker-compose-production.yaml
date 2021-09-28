@@ -1,6 +1,17 @@
 version: '3.9'
 
 x-app-env: &default-app-env
+  APP_PROTOCOL: ${APP_PROTOCOL:-http}
+  APP_HOST: ${APP_HOST:-localhost:3003}
+  APPLICATION_ROOT: ${APPLICATION_ROOT:-/app}
+  MONGODB_HOST: ${MONGODB_HOST:-mongodb}
+  POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+  POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+  POSTGRES_VERSION: ${POSTGRES_VERSION:-13}
+  PUBLIC_APPLICATION_PORT: ${PUBLIC_APPLICATION_PORT:-3003}
+  REDIS_SERVER: ${REDIS_SERVER:-redis}
+  SSH_AUTH_SOCK: /ssh-agent
+  HISTFILE: /home/ruby/hist/.bash_history
   RAILS_ENV: ${RAILS_ENV:-production}
 
 x-app: &default-app
@@ -17,6 +28,8 @@ x-app: &default-app
     - ${BASE_BACKUP_VOLUME_PATH:-~/data_cycle/backups}:/app/db/backups
     - $SSH_AUTH_SOCK:/ssh-agent
   restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+  extra_hosts:
+    - 'dockerhost:host-gateway'
 
 services:
   web:
