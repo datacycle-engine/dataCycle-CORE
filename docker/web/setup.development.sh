@@ -8,7 +8,7 @@ then
   echo "dataCycle database exists"
 else
   echo "dataCycle database does not exists. Initialize database."
-  exec ${DC_DOCKER_SETUP_PATH:-/app/docker/}utility/initialize.sh
+  ${DC_DOCKER_SETUP_PATH:-/app/docker/}utility/initialize.sh
 fi
 
 set -e

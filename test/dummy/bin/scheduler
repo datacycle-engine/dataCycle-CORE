@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'rufus-scheduler'
+
+scheduler = Rufus::Scheduler.new
+
+scheduler.cron '0 0 * * 1' do # every :monday, at: '0:00'
+  system 'rake data_cycle_core:notifications:send[week]'
+end
+
+scheduler.cron '0 0 * * *' do # every :day at 0:00
+  system 'rake data_cycle_core:notifications:send[day]'
+end
+
+scheduler.cron '*/10 * * * *' do # every 10 minutes
+  system 'rake dc:statistics:template_statistics'
+end
+
+# scheduler.cron '*/5 * * * *' do # every 5 minutes
+#   system 'rake dc:import:append_job[Bergfex]'
+# end
+
+scheduler.join
