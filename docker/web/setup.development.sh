@@ -8,20 +8,19 @@ then
   echo "dataCycle database exists"
 else
   echo "dataCycle database does not exists. Initialize database."
-  exec /app/vendor/gems/data-cycle-core/docker/utility/initialize.sh
+  exec ${DC_DOCKER_SETUP_PATH:-/app/docker/}utility/initialize.sh
 fi
 
 set -e
+
 # update project dictionaries if existing in main projects config/configurations/ts_search/
-bundle exec rake dc:update:dictionaries
+bundle exec rake ${CORE_RAKE_PREFIX:-}dc:update:dictionaries
 
 # Remove a potentially pre-existing server.pid for Rails.
-rm -f /app/tmp/pids/server.pid
-
-#(yarn; yarn upgrade; chown ruby:ruby yarn.lock) &> log/yarn.log &
+rm -f /app${CORE_DUMMY_PREFIX:-}/tmp/pids/server.pid
 
 gem install bundler
 
 bundle install
 
-exec bundle exec puma -C /app/vendor/gems/data-cycle-core/docker/web/puma.rb "$@"
+exec bundle exec puma -C ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/puma.rb "$@"

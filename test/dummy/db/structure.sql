@@ -2393,7 +2393,7 @@ CREATE INDEX words_idx ON public.searches USING gin (full_text public.gin_trgm_o
 -- Name: content_contents delete_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.content_contents FOR EACH ROW EXECUTE PROCEDURE public.delete_content_content_links_trigger();
+CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.delete_content_content_links_trigger();
 
 
 --
@@ -2421,7 +2421,7 @@ CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDAT
 -- Name: content_contents generate_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT OR UPDATE ON public.content_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_content_content_links_trigger();
+CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT OR UPDATE ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.generate_content_content_links_trigger();
 
 
 --

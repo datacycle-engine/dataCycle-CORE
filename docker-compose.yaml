@@ -10,7 +10,9 @@ services:
       - POSTGRES_VERSION=${POSTGRES_VERSION:-13}
       - PGDATA=/var/lib/postgresql/data/pgdata
       - RAILS_ENV=${RAILS_ENV:-development}
-    entrypoint: /app/vendor/gems/data-cycle-core/docker/postgres/entrypoint.sh
+      - CORE_DUMMY_PREFIX=${CORE_DUMMY_PREFIX:-}
+      - CORE_RAKE_PREFIX=${CORE_RAKE_PREFIX:-}
+    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/entrypoint.sh
     command: postgres -c config_file=/etc/postgresql.conf
     ports:
       - ${PUBLIC_POSTGRES_PORT:-5432}:5432
@@ -23,7 +25,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - '${PUBLIC_MONGODB_PORT:-27017}:27017'
-    entrypoint: /app/vendor/gems/data-cycle-core/docker/mongodb/entrypoint.sh
+    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}mongodb/entrypoint.sh
     command: mongod --config /etc/mongo/mongod.conf
     environment:
       - MONGODB_CACHE_SIZE_GB=${MONGODB_CACHE_SIZE_GB:-1}
@@ -34,7 +36,7 @@ services:
     build:
       context: ./docker/redis
       dockerfile: Dockerfile
-    entrypoint: /app/vendor/gems/data-cycle-core/docker/redis/entrypoint.sh
+    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}redis/entrypoint.sh
     command: redis-server /etc/redis/redis.conf
     environment:
       - REDIS_MAX_MEMORY=${REDIS_MAX_MEMORY:-2gb}
@@ -45,7 +47,7 @@ services:
     image: nginx:1.21-alpine
     ports:
       - '${PUBLIC_APPLICATION_PORT:-3003}:${PUBLIC_APPLICATION_PORT:-3003}'
-    entrypoint: /app/vendor/gems/data-cycle-core/docker/nginx/entrypoint.sh
+    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}nginx/entrypoint.sh
     command: ["nginx", "-g", "daemon off;"]
     environment:
       - APPLICATION_ROOT=${APPLICATION_ROOT:-/app}

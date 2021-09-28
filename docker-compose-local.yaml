@@ -41,26 +41,21 @@ services:
     <<: *default-app
     environment:
       <<: *default-app-env
-#    entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint-development.sh
-    command: ["/app/vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "/app/vendor/gems/data-cycle-core/docker/web/setup.development.sh"]
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "${DC_DOCKER_SETUP_PATH:-/app/docker/}web/setup.development.sh"]
   postgres:
-    entrypoint: /app/vendor/gems/data-cycle-core/docker/postgres/entrypoint.sh
     volumes:
       - '${PWD}:/app'
       - postgres-data:/var/lib/postgresql/data
   mongodb:
-    entrypoint: /app/vendor/gems/data-cycle-core/docker/mongodb/entrypoint.sh
     volumes:
       - '${PWD}:/app'
       - mongodb-data:/data/db
       - mongodb-data:/var/log/mongodb
   redis:
-    entrypoint: /app/vendor/gems/data-cycle-core/docker/redis/entrypoint.sh
     volumes:
       - '${PWD}:/app'
       - redis:/data
   nginx:
-    entrypoint: /app/vendor/gems/data-cycle-core/docker/nginx/entrypoint.sh
     volumes:
       - '${PWD}:/app'
       - nginx-log:/var/log/datacycle

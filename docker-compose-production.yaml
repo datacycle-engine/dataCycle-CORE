@@ -36,8 +36,8 @@ services:
     <<: *default-app
     environment:
       <<: *default-app-env
-    entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint.sh
-    command: ["/app/docker/postgres/wait-for-postgres.sh", "postgres", "/app/docker/web/setup.production.sh"]
+    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/entrypoint.sh
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "${DC_DOCKER_SETUP_PATH:-/app/docker/}web/setup.production.sh"]
   migrate_project:
     <<: *default-app
     environment:
@@ -49,7 +49,7 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: default,mailers
-    command: ["/app/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
   job_worker_importers:
@@ -57,7 +57,7 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: importers
-    command: ["/app/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
   job_worker_cache_invalidation:
@@ -65,7 +65,7 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: cache_invalidation
-    command: ["/app/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
   job_worker_search_update:
@@ -73,7 +73,7 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: search_update
-    command: ["/app/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
   job_worker_carrierwave:
@@ -81,7 +81,7 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: carrierwave
-    command: ["/app/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
   job_worker_webhooks:
@@ -89,7 +89,7 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: webhooks
-    command: ["/app/docker/postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
     depends_on:
       - web
   scheduler:
@@ -100,26 +100,22 @@ services:
     depends_on:
       - web
   postgres:
-    entrypoint: /app/docker/postgres/entrypoint.sh
     volumes:
       - app-docker:/app/docker
       - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/postgres:/var/lib/postgresql/data
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   mongodb:
-    entrypoint: /app/docker/mongodb/entrypoint.sh
     volumes:
       - app-docker:/app/docker
       - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/mongodb:/data/db
       - ${BASE_LOG_VOLUME_PATH:-~/data_cycle/log}/mongodb:/var/log/mongodb
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   redis:
-    entrypoint: /app/docker/redis/entrypoint.sh
     volumes:
       - app-docker:/app/docker
       - redis:/data
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   nginx:
-    entrypoint: /app/docker/nginx/entrypoint.sh
     volumes:
       - app-docker:/app/docker
       - app-public-assets:/app/public/assets
