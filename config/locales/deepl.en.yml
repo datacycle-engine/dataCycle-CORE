@@ -800,8 +800,8 @@ en:
       updated: '%{data} has been updated.'
       destroyed: '%{data} has been deleted.'
       destroyed_translation: Translation %{language} of %{data} was deleted.
-      added_to: 'Added to watchlist: %{data} added.'
-      removedFrom: 'Removed from watchlist: %{data} removed.'
+      added_to: 'Added to watch list: %{data} added.'
+      removedFrom: 'Removed from watch list: %{data} removed.'
       sent: Email has been sent.
       saved: '%{data} was created.'
       saved_and_sent: '%{data} was created and sent.'
