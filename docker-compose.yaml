@@ -1,9 +1,6 @@
 version: '3.9'
 
 services:
-  web:
-#    entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint-development.sh
-    command: ["/app/vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "/app/vendor/gems/data-cycle-core/docker/web/setup.development.sh"]
   postgres:
     image: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4'
     environment:
