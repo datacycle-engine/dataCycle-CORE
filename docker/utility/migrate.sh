@@ -13,13 +13,13 @@ fi
 
 set -e
 
-bundle exec rake ${CORE_RAKE_PREFIX}data_cycle_core:db:dump
+bundle exec rake ${CORE_RAKE_PREFIX:-}data_cycle_core:db:dump
 
 bundle exec rake db:migrate
 
-bundle exec rake ${CORE_RAKE_PREFIX}data_cycle_core:update:import_classifications
-bundle exec rake ${CORE_RAKE_PREFIX}data_cycle_core:update:import_external_system_configs
-bundle exec rake ${CORE_RAKE_PREFIX}data_cycle_core:refactor:import_update_all_templates
+bundle exec rake ${CORE_RAKE_PREFIX:-}data_cycle_core:update:import_classifications
+bundle exec rake ${CORE_RAKE_PREFIX:-}data_cycle_core:update:import_external_system_configs
+bundle exec rake ${CORE_RAKE_PREFIX:-}data_cycle_core:refactor:import_update_all_templates
 
 # migrate data after restart
 # bundle exec rake db:migrate:with_data
