@@ -181,7 +181,7 @@ module DataCycleCore
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
         merge_duplicate = params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
 
-        set_version_name_for_merge(datahash) if merge_duplicate
+        version_name_for_merge(datahash) if merge_duplicate
 
         unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true, force_update: merge_duplicate)
           flash[:error] = @content.errors.full_messages

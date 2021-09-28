@@ -65,7 +65,7 @@ module DataCycleCore
           params.permit(:id, :source_id, :duplicate_id)
         end
 
-        def set_version_name_for_merge(datahash)
+        def version_name_for_merge(datahash)
           duplicate = DataCycleCore::Thing.find(merge_params[:duplicate_id])
 
           datahash[:version_name] = [
