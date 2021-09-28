@@ -552,10 +552,27 @@ ul.backend-treeview-list,
 
     .children-count {
       color: $dark-gray;
+      display: flex;
+
+      .child-count-direct,
+      .child-count-full {
+        &.remote-render,
+        &.remote-rendering,
+        &.remote-render-failed {
+          min-width: 5rem;
+        }
+      }
     }
 
     .tree-link {
       cursor: pointer;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      &:not(.type) > .children-count {
+        margin-left: 5px;
+      }
     }
 
     .tree-link:after {
