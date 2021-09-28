@@ -126,7 +126,7 @@ class NewContentDialog {
             url: `/api/v4/universal/${v.value}`,
             method: 'POST',
             data: { fields: 'name,skos:prefLabel' }
-          }).done(data => {
+          }).then(data => {
             v.text =
               data &&
               data['@graph'] &&
@@ -385,7 +385,7 @@ class NewContentDialog {
       data: params,
       dataType: 'script',
       contentType: 'application/json'
-    }).done(data => {
+    }).then(_data => {
       this.form.data('template', template);
       this.updateForm();
     });

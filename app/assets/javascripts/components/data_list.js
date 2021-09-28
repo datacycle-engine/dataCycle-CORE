@@ -53,7 +53,7 @@ class DataList {
         data: {
           q: this.element.value
         }
-      }).done(this.callSuccessMethod.bind(this))
+      }).then(this.callSuccessMethod.bind(this))
     );
   }
   default_callback_method(data) {

@@ -161,10 +161,10 @@ class DatePicker {
       dataType: 'json',
       contentType: 'application/json'
     })
-      .done(data => {
+      .then(data => {
         DataCycle.cache.holidays[year] = data || [];
       })
-      .always(_ => {
+      .finally(_ => {
         DataCycle.cache.holidays.loadingHolidays[year] = false;
         DataCycle.cache.holidays.loadingHolidaysRequest[year] = null;
       });
@@ -181,7 +181,7 @@ class DatePicker {
   }
   markHoliday(dayElem, year) {
     if (!DataCycle.cache.holidays[year] && DataCycle.cache.holidays.loadingHolidays[year])
-      return DataCycle.cache.holidays.loadingHolidaysRequest[year].done(_ => this.markHoliday(dayElem, year));
+      return DataCycle.cache.holidays.loadingHolidaysRequest[year].then(_ => this.markHoliday(dayElem, year));
 
     const holiday = DataCycle.cache.holidays[year].find(v => v.date === Flatpickr.formatDate(dayElem.dateObj, 'Y-m-d'));
 

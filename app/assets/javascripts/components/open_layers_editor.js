@@ -45,14 +45,8 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.map.addControl(new RemoveAllFeaturesControl());
   }
   async importData(event, data) {
-    if (
-      ((!this.$elevationField.val() || this.$elevationField.val().length == 0) &&
-        this.$locationField.val().length == 0) ||
-      (data && data.force)
-    ) {
-      this.$elevationField.val(data.value.elevation);
-      this.$latitudeField.val(data.value.y).trigger('change');
-      this.$longitudeField.val(data.value.x).trigger('change');
+    if (!this.value || (data && data.force)) {
+      this.setUploadedFeature(data.value);
     } else {
       const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
       const labelText = label && label.innerText;
@@ -63,11 +57,7 @@ class OpenLayersEditor extends OpenLayersViewer {
         cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',
         cancelable: true,
-        confirmationCallback: function () {
-          this.$elevationField.val(data.value.elevation);
-          this.$latitudeField.val(data.value.y).trigger('change');
-          this.$longitudeField.val(data.value.x).trigger('change');
-        }.bind(this)
+        confirmationCallback: () => this.setUploadedFeature(data.value)
       });
     }
   }
@@ -177,7 +167,7 @@ class OpenLayersEditor extends OpenLayersViewer {
       dataType: 'json',
       data: address
     })
-      .done(data => {
+      .then(data => {
         if (data.error) {
           new ConfirmationModal({
             text: data.error
@@ -186,10 +176,10 @@ class OpenLayersEditor extends OpenLayersViewer {
           this.setGeocodedValue(data);
         }
       })
-      .fail((_jqxhr, textStatus, error) => {
+      .catch((_jqxhr, textStatus, error) => {
         console.error(textStatus + ', ' + error);
       })
-      .always(() => {
+      .finally(() => {
         this.$geoCodeButton.find('i.fa').remove();
         this.$geoCodeButton.removeClass('disabled');
       });
@@ -226,26 +216,26 @@ class OpenLayersEditor extends OpenLayersViewer {
           let parser = new DOMParser();
           let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
           let geoJSON = gpx(xmlDoc);
-          let features = {
+          let featureGeometry = {
             type: 'MultiLineString',
             coordinates: []
           };
           if (geoJSON && geoJSON.features && geoJSON.features.length) {
             geoJSON.features.forEach(feature => {
               if (feature.geometry.type.includes('MultiLineString'))
-                features.coordinates.push(...feature.geometry.coordinates);
+                featureGeometry.coordinates.push(...feature.geometry.coordinates);
               else if (feature.geometry.type.includes('LineString'))
-                features.coordinates.push(feature.geometry.coordinates);
+                featureGeometry.coordinates.push(feature.geometry.coordinates);
             });
           }
 
-          if (!features.coordinates || !features.coordinates.length) {
+          if (!featureGeometry.coordinates || !featureGeometry.coordinates.length) {
             new ConfirmationModal({
               text: await I18n.translate('frontend.gpx.empty'),
               confirmationText: 'Ok'
             });
           } else {
-            this.setUploadedFeature(features);
+            this.setUploadedFeature(featureGeometry);
           }
           this.$uploadInput.val('');
         };
@@ -278,16 +268,18 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.setHiddenFieldValue(geometry);
     this.updateFeature(geometry);
   }
-  updateFeature(newGeometry) {
+  updateFeature(geometry) {
     if (this.feature) this.source.removeFeature(this.feature);
 
-    this.feature = this.featureFromGeoJSON({
-      type: 'Feature',
-      geometry: newGeometry
-    });
-
+    this.feature = this.featureFromGeoJSON(geometry);
     this.source.addFeature(this.feature);
-    this.updateMapPosition();
+
+    if (this.feature) {
+      this.initGeometryEditActions();
+      this.disableDrawableFeature();
+    }
+
+    this.setNewCoordinates();
   }
   updateMapMarker(_event) {
     let valid = true;
@@ -381,10 +373,15 @@ class OpenLayersEditor extends OpenLayersViewer {
       coordinates: this.getFeatureLatLon()
     };
   }
-  setHiddenFieldValue(geoJSON) {
-    this.$locationField.val(this.geoJsonToWkt(geoJSON));
+  setHiddenFieldValue(geometry) {
+    this.value = {
+      type: 'Feature',
+      geometry: geometry
+    };
+    this.$locationField.val(this.geoJsonToWkt(geometry));
   }
   resetHiddenFieldValue() {
+    this.value = null;
     this.$locationField.val('');
   }
 }

@@ -64,6 +64,15 @@ module DataCycleCore
         def merge_params
           params.permit(:id, :source_id, :duplicate_id)
         end
+
+        def set_version_name_for_merge(datahash)
+          duplicate = DataCycleCore::Thing.find(merge_params[:duplicate_id])
+
+          datahash[:version_name] = [
+            datahash[:version_name].presence,
+            I18n.t('common.merged_with_version_name', name: I18n.with_locale(duplicate.first_available_locale) { duplicate.title }, id: duplicate.id)
+          ].compact.join(' / ')
+        end
       end
     end
   end

@@ -33,6 +33,7 @@ class AssetUploader {
     this.bulkCreateChannel;
     this.files = [];
     this.saving = false;
+    this.createAssetsRequest;
     this.eventHandlers = {
       pageLeave: this.pageLeaveHandler.bind(this)
     };
@@ -189,12 +190,14 @@ class AssetUploader {
 
     $(window).off('beforeunload', this.eventHandlers.pageLeave);
 
-    DataCycle.httpRequest({
+    return DataCycle.httpRequest({
       url: '/things/bulk_create',
       method: 'POST',
       data: formData,
       dataType: 'json',
       contentType: 'application/x-www-form-urlencoded'
+    }).catch(e => {
+      if (e.status >= 400) console.error(e.statusText);
     });
   }
   async validateAttributes(file) {
@@ -217,7 +220,7 @@ class AssetUploader {
       data: formData,
       dataType: 'json',
       contentType: 'application/x-www-form-urlencoded'
-    }).always(data => {
+    }).finally(data => {
       this.updateFileValidated(file, data);
     });
   }
@@ -442,17 +445,17 @@ class AssetUploader {
           return myXhr;
         }
       })
-        .done(data => {
+        .then(data => {
           this.updateFileAttributes(file, data);
         })
-        .fail(data => {
+        .catch(data => {
           file.retryUpload = true;
           this.resetFileField(file);
           let error = data.statusText;
           if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
           this.renderError(file, error);
         })
-        .always(_data => {
+        .finally(_data => {
           this.updateOverlayButtons(file);
           DataCycle.enableElement(this.assetReloadButton);
         })

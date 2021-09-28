@@ -39,7 +39,7 @@ export default function () {
         method: method,
         data: form_data,
         dataType: 'script'
-      }).done(_data => {
+      }).then(_data => {
         loading = false;
         $('.publications-list .loading').remove();
         if (

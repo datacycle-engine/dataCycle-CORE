@@ -392,6 +392,8 @@ en:
     and: and
     'yes': 'Yes'
     'no': 'No'
+    merged_with_version_name: 'merged with %{name} (#%{id})'
+
   embedded:
     move_down: move down
     move_up: move up

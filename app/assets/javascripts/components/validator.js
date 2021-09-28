@@ -250,6 +250,8 @@ class Validator {
   attributeLocale(validationContainer) {
     const key = $(validationContainer).data('key');
 
+    if (!key) return;
+
     return key.includes('[translations]') && key.match(/\[translations\]\[([\-a-zA-Z]+)\]/)[1];
   }
   formFieldChanged(newFieldData, translationLocale, submitFormaDataUpToDate) {
@@ -308,7 +310,7 @@ class Validator {
       url: url,
       data: $.param(formData),
       dataType: 'json'
-    }).done(async data => {
+    }).then(async data => {
       if (data != undefined) {
         if (!data.valid && data.errors && Object.keys(data.errors).length > 0) {
           this.$form.trigger('dc:form:validationError', { locale: translationLocale, type: 'error' });

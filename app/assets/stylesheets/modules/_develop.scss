@@ -1692,7 +1692,6 @@ label[for='user_access_token'] {
       .removeContentObject,
       .embedded-header {
         display: flex;
-        border-bottom: 1px solid rgba($dark-gray, 0.3);
         align-items: center;
         position: sticky;
         top: 55px;
@@ -1750,6 +1749,7 @@ label[for='user_access_token'] {
       .form-element.focus > .editor-block {
         > .embedded-header {
           background: white;
+          border-bottom: 1px solid rgba($dark-gray, 0.3);
         }
       }
 

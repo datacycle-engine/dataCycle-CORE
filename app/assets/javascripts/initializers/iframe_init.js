@@ -15,7 +15,7 @@ export default function () {
           render_html: true
         }),
         contentType: 'application/json'
-      }).always(() => {
+      }).finally(() => {
         $('iframe:visible').closest('.reveal').foundation('close');
       });
     } else if (

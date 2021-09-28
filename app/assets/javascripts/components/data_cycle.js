@@ -26,7 +26,8 @@ class DataCycle {
           '> :input[type="number"]',
           '> .duration-slider > div > input[type="number"]'
         ],
-        AppSignalFrontEndKey: null
+        AppSignalFrontEndKey: null,
+        retryableHttpCodes: [401, 403, 408, 500, 501, 502, 503, 504, 507, 509]
       },
       config
     );
@@ -79,17 +80,33 @@ class DataCycle {
 
     return resultParts.join('/');
   }
-  httpRequest(options = {}) {
+  async httpRequest(options = {}) {
     if (this.config.EnginePath && !options.url.includes(this.config.EnginePath))
       options.url = this.joinPath(this.config.EnginePath, options.url);
 
     const defaultOptions = {
       headers: {
         'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content
-      }
+      },
+      retries: 1,
+      retryCount: 3
     };
 
-    return $.ajax(merge(defaultOptions, options));
+    const mergedOptions = merge(defaultOptions, options);
+    let response;
+
+    try {
+      response = await $.ajax(merge(defaultOptions, options));
+    } catch (e) {
+      if (!this.config.retryableHttpCodes.includes(e.status) || mergedOptions.retries >= mergedOptions.retryCount)
+        throw e;
+
+      mergedOptions.retries++;
+
+      response = await this.httpRequest(mergedOptions);
+    }
+
+    return response;
   }
   _prepareElement(element) {
     if (element instanceof $) element = element[0];

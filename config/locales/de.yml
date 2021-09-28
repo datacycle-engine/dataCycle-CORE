@@ -390,6 +390,7 @@ de:
     and: und
     'yes': Ja
     'no': Nein
+    merged_with_version_name: 'zusammengeführt mit %{name} (#%{id})'
 
   embedded:
     move_down: nach unten verschieben

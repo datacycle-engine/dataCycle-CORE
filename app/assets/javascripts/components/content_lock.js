@@ -56,7 +56,7 @@ class ContentLock {
     DataCycle.httpRequest({
       url: this.checkLockPath,
       dataType: 'json'
-    }).done(data => {
+    }).then(data => {
       if (data !== undefined) this.updateLocks(data.locks, data.texts);
     });
   }
@@ -71,7 +71,7 @@ class ContentLock {
       }
     }
   }
-  leavePage(event) {
+  leavePage(_event) {
     this.lockContentChannel.unsubscribe();
     let data = new FormData();
     data.append('token', this.token);
@@ -204,7 +204,7 @@ class ContentLock {
         token: this.token
       },
       type: 'PATCH'
-    }).fail(() => {
+    }).catch(() => {
       console.error('CONTENT_LOCK_ERROR: error renewing the lock');
     });
   }

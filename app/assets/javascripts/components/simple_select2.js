@@ -112,7 +112,7 @@ class SimpleSelect2 extends BasicSelect2 {
       url: reloadPath,
       dataType: 'json',
       data: { type: type }
-    }).done(data => {
+    }).then(data => {
       if (!data || !data.length) return;
 
       data.forEach(d => {

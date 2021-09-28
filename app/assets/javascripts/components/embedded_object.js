@@ -141,7 +141,7 @@ class EmbeddedObject {
         duplicated_content: type == 'split_view',
         translate: translate
       }
-    }).done(_data => {
+    }).then(_data => {
       if (ids.length > 0) this.ids = union(this.ids, ids);
       this.update();
       this.addEventHandlers();

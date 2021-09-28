@@ -61,7 +61,7 @@ class AssetSelector {
       },
       dataType: 'script',
       contentType: 'application/json'
-    }).always((_data, _text, _jqXHR) => {
+    }).finally((_data, _text, _jqXHR) => {
       DataCycle.enableElement(this.editButton);
     });
   }
@@ -120,7 +120,7 @@ class AssetSelector {
         },
         dataType: 'script',
         contentType: 'application/json'
-      }).always((_data, _text, jqXHR) => {
+      }).finally((_data, _text, jqXHR) => {
         this.requests = this.requests.filter(r => r != jqXHR);
       })
     );

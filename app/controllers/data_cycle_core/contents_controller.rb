@@ -179,8 +179,11 @@ module DataCycleCore
         object_params = content_params(@content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, @content.schema)
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
+        merge_duplicate = params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
 
-        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true)
+        set_version_name_for_merge(datahash) if merge_duplicate
+
+        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true, force_update: merge_duplicate)
           flash[:error] = @content.errors.full_messages
           redirect_back(fallback_location: root_path) && return
         end
@@ -191,12 +194,11 @@ module DataCycleCore
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale
         end
 
-        duplicate = params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
-        merge_and_remove_duplicate if duplicate
+        merge_and_remove_duplicate if merge_duplicate
 
         if params[:new_locale].present?
           redirect_to(edit_thing_path(@content, watch_list_params.merge(locale: params[:new_locale])))
-        elsif !params[:save_and_close] && !params[:finalize] && !duplicate
+        elsif !params[:save_and_close] && !params[:finalize] && !merge_duplicate
           redirect_back(fallback_location: root_path)
         else
           redirect_to(thing_path(@content, watch_list_params.merge(locale: I18n.locale)))
@@ -436,6 +438,7 @@ module DataCycleCore
         I18n.with_locale(key_locale || attribute_value_params[:locale]) do
           value = (value || content).try(key_path.shift) while key_path.present?
           values[key] = value
+          values[key] = RGeo::GeoJSON.encode(values[key]) if values[key].presence.try(:geometry_type)
           values[key] = values[key].id if values[key].is_a?(ActiveRecord::Base)
           values[key] = values[key].pluck(:id) if values[key].is_a?(ActiveRecord::Relation)
         end

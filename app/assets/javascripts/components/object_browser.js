@@ -405,7 +405,7 @@ class ObjectBrowser {
         load_more_except: undefined
       },
       contentType: 'application/json'
-    }).done(() => {
+    }).then(() => {
       this.chosen = union(this.chosen, this.ids);
       this.updateChosenCounter();
       this.ids = [];
@@ -528,12 +528,12 @@ class ObjectBrowser {
         }),
         contentType: 'application/json'
       })
-        .done(_data => {
+        .then(_data => {
           this.overlay.find('.items li.item .reveal.media-preview').each(function () {
             if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
           });
         })
-        .always(() => {
+        .finally(() => {
           $('#new_' + this.id).foundation('close');
         });
     }
@@ -575,7 +575,7 @@ class ObjectBrowser {
         }),
         contentType: 'application/json'
       })
-        .done(_data => {
+        .then(_data => {
           this.total = this.overlay.data('total');
           this.overlay.find('.items li.item .reveal.media-preview').each(function () {
             if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
@@ -591,7 +591,7 @@ class ObjectBrowser {
             this.loadObjects();
           }
         })
-        .always((_data, _text, jqXHR) => {
+        .finally((_data, _text, jqXHR) => {
           this.requests = this.requests.filter(r => r != jqXHR);
         })
     );

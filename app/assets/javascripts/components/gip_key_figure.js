@@ -39,10 +39,10 @@ class GipKeyFigure {
       const fullUrl = `${this.url}?key=${this.key}&${ids.map(v => 'part_ids[]=' + v)}`;
 
       DataCycle.httpRequest({ url: fullUrl })
-        .done(data => {
+        .then(data => {
           if (data && data.newValue) this.setNewValue(data.newValue);
         })
-        .always(() => {
+        .finally(() => {
           DataCycle.enableElement(this.$element);
         });
     }

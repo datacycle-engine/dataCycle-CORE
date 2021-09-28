@@ -259,10 +259,15 @@ class SplitView {
     if (!value && value !== false) return DataCycle.enableElement(button);
 
     const targetKey = this.transformKeyToTargetLocale(key, this.rightLocale());
+    let promise;
 
     if (button.classList.contains('translate'))
-      await this.translateText(container.dataset.editor, value, targetKey, data && data.scrollIntoView);
-    else await this.copyContents(value, targetKey, false, true, data && data.scrollIntoView);
+      promise = this.translateText(container.dataset.editor, value, targetKey, data && data.scrollIntoView);
+    else promise = this.copyContents(value, targetKey, false, true, data && data.scrollIntoView);
+
+    await promise.catch(_e => {
+      DataCycle.enableElement(button);
+    });
 
     DataCycle.enableElement(button);
   }
@@ -273,7 +278,10 @@ class SplitView {
 
     const parent = target.closest('.split-content, [data-editor="included-object"]');
 
-    if (target.classList.contains('copy-all') && parent.dataset.copyAllTranslations)
+    if (
+      target.classList.contains('copy-all') &&
+      domElementHelpers.parseDataAttribute(parent.dataset.copyAllTranslations)
+    )
       await this.showCopyAllConditionOverlay(target, parent);
     else await this.triggerSingleButtons(target, parent);
   }
@@ -391,7 +399,7 @@ class SplitView {
         data: formData,
         dataType: 'json',
         contentType: 'application/x-www-form-urlencoded'
-      }).fail(async _data => {
+      }).catch(async _data => {
         CalloutHelpers.show(await I18n.translate('frontend.split_view.translate_error'), 'alert');
       });
 
