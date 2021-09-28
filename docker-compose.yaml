@@ -1,28 +1,7 @@
 version: '3.9'
 
-x-app-env: &default-app-env
-  APP_PROTOCOL: ${APP_PROTOCOL:-http}
-  APP_HOST: ${APP_HOST:-localhost:3003}
-  APPLICATION_ROOT: ${APPLICATION_ROOT:-/app}
-  MONGODB_HOST: ${MONGODB_HOST:-mongodb}
-  POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
-  POSTGRES_PORT: ${POSTGRES_PORT:-5432}
-  POSTGRES_VERSION: ${POSTGRES_VERSION:-13}
-  PUBLIC_APPLICATION_PORT: ${PUBLIC_APPLICATION_PORT:-3003}
-  RAILS_ENV: ${RAILS_ENV:-development}
-  REDIS_SERVER: ${REDIS_SERVER:-redis}
-  SSH_AUTH_SOCK: /ssh-agent
-  HISTFILE: /home/ruby/hist/.bash_history
-
-x-app: &default-app
-  extra_hosts:
-    - 'dockerhost:host-gateway'
-
 services:
   web:
-    <<: *default-app
-    environment:
-      <<: *default-app-env
 #    entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint-development.sh
     command: ["/app/vendor/gems/data-cycle-core/docker/postgres/wait-for-postgres.sh", "postgres", "/app/vendor/gems/data-cycle-core/docker/web/setup.development.sh"]
   postgres:
