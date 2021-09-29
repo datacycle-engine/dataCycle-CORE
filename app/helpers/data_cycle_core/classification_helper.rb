@@ -108,21 +108,23 @@ module DataCycleCore
       return options_for_select([]) if value.blank?
 
       options_for_select(
-        value.map { |c|
-          ca = expected_classification_alias(c)
-          next if ca.nil?
+        value
+          .map { |c|
+            ca = expected_classification_alias(c)
+            next if ca.nil?
 
-          [
-            ca.internal_name,
-            expected_value_id(c, expected_type),
-            {
-              title: [
-                ca.full_path,
-                ca.description
-              ].reject(&:blank?).join("\n\n")
-            }
-          ]
-        }.compact,
+            [
+              ca.internal_name,
+              expected_value_id(c, expected_type),
+              {
+                title: [
+                  ca.full_path,
+                  ca.description
+                ].reject(&:blank?).join("\n\n")
+              }
+            ]
+          }
+          .compact,
         value.pluck(:id)
       )
     end
@@ -132,23 +134,24 @@ module DataCycleCore
         classification_items
           &.where&.not(internal_name: DataCycleCore.excluded_filter_classifications)
           &.map { |c|
-          ca = expected_classification_alias(c)
-          next if ca.nil?
+            ca = expected_classification_alias(c)
+            next if ca.nil?
 
-          [
-            ca.internal_name,
-            expected_value_id(c, expected_type),
-            {
-              title: [
-                ca.full_path,
-                ca.description
-              ].reject(&:blank?).join("\n\n"),
-              data: {
-                title: ca.full_path
+            [
+              ca.internal_name,
+              expected_value_id(c, expected_type),
+              {
+                title: [
+                  ca.full_path,
+                  ca.description
+                ].reject(&:blank?).join("\n\n"),
+                data: {
+                  title: ca.full_path
+                }
               }
-            }
-          ]
-        }.compact,
+            ]
+          }
+          &.compact,
         value&.pluck(:id)
       )
     end
