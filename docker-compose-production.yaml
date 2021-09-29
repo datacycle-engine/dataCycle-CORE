@@ -42,8 +42,10 @@ services:
     <<: *default-app
     environment:
       <<: *default-app-env
+    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/entrypoint.sh
     command: ["/bin/bash"]
     restart: 'no'
+    profiles: ['migrate']
   job_worker_default:
     <<: *default-app
     environment:
