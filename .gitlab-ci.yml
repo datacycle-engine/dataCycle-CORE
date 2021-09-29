@@ -6,7 +6,7 @@ include:
     file: '/gitlab_templates/.gitlab-ci-dc-docker.yml'
 
 variables:
-  DOCKER_URL: 'http://core.datacycle.at'
+  DOCKER_URL: 'https://core-develop.datacycle.at'
   GITLAB_ENVIRONMENT: 'docker'
 
 .local_test_vars: &local_test_vars
@@ -179,3 +179,87 @@ code_validation:
 #    name: review/$CI_COMMIT_REF_NAME
 #    action: stop
 #  when: manual
+
+build-docker-job:
+  <<: *docker_ci
+  stage: build-docker
+  image: docker:20.10
+  variables:
+    DOCKER_BUILDKIT: 1
+    GIT_SUBMODULE_STRATEGY: recursive
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -f Dockerfile-core -t "$CI_REGISTRY_IMAGE" --target production .
+    - docker push "$CI_REGISTRY_IMAGE"
+  after_script:
+    - docker logout $CI_REGISTRY
+
+deploy-docker-job:
+  <<: *docker_ci
+  stage: deploy
+  image: docker:20.10
+  allow_failure: false
+  variables:
+    DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    # Configure SSH
+    - eval $(ssh-agent -s)
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # Configure Docker
+    - apk add docker-compose
+    - apk add bash
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
+  script:
+    # update ssh config of deployment target to support bigger number of active sessions
+    # e.g. MaxSessions 20
+    - echo "$DOCKER_HOST"
+    - bash docker/utility/ssh_helper.sh .env.production docker/utility/check_bind_mounts.sh
+    - docker-compose --env-file .env.production pull
+    - docker-compose --env-file .env.production build
+    - docker-compose --env-file .env.production --profile migrate run migrate_project bash /app/docker/utility/migrate.sh
+    - docker-compose --env-file .env.production up --scale job_worker_cache_invalidation=2 --scale job_worker_search_update=3 -d
+  after_script:
+    - docker logout $CI_REGISTRY
+  environment:
+    name: $GITLAB_ENVIRONMENT
+    url: $DOCKER_URL
+    on_stop: stop-docker-job
+  when: manual
+
+stop-docker-job:
+  <<: *docker_ci
+  stage: deploy
+  image: docker:20.10
+  allow_failure: false
+  variables:
+    DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    # Configure SSH
+    - eval $(ssh-agent -s)
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # Configure Docker
+    - apk add docker-compose
+    - apk add bash
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
+  script:
+    # update ssh config of deployment target to support bigger number of active sessions
+    # e.g. MaxSessions 20
+    - echo "$DOCKER_HOST"
+    - docker-compose --env-file .env.production stop
+  after_script:
+    - docker logout $CI_REGISTRY
+  environment:
+    name: $GITLAB_ENVIRONMENT
+    action: stop
+  when: manual
