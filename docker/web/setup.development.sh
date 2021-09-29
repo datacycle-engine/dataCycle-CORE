@@ -1,5 +1,9 @@
 #!/bin/bash
 
+gem install bundler
+
+bundle install
+
 # check if db exists
 bundle exec rake db:version
 
@@ -18,9 +22,5 @@ bundle exec rake ${CORE_RAKE_PREFIX:-}dc:update:dictionaries
 
 # Remove a potentially pre-existing server.pid for Rails.
 rm -f /app${CORE_DUMMY_PREFIX:-}/tmp/pids/server.pid
-
-gem install bundler
-
-bundle install
 
 exec bundle exec puma -C ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/puma.rb "$@"
