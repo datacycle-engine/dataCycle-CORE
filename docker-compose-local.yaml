@@ -42,6 +42,13 @@ services:
     environment:
       <<: *default-app-env
     command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "${DC_DOCKER_SETUP_PATH:-/app/docker/}web/setup.development.sh"]
+  migrate_project:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+    command: ["/bin/bash"]
+    restart: 'no'
+    profiles: ['migrate']
   postgres:
     volumes:
       - '${PWD}:/app'
