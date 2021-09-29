@@ -107,6 +107,17 @@
 .detail-content .type.properties .embedded-viewer {
   .event_period {
     padding: 0.4rem 1rem;
+
+    .detail-label {
+      position: relative;
+      left: 0;
+      top: 0;
+      padding: 0 0 0 0.2rem;
+
+      i.property-icon {
+        display: none;
+      }
+    }
   }
 }
 

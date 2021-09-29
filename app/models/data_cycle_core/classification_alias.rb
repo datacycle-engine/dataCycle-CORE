@@ -124,7 +124,7 @@ module DataCycleCore
     end
 
     def self.search(q)
-      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR (classification_aliases.description_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" })
+      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR (classification_aliases.description_i18n ->> :locale) ILIKE :q OR (classification_aliases.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" })
     end
 
     def self.order_by_similarity(term)

@@ -22,7 +22,9 @@ export default function () {
         }
       ];
       loading = true;
+
       $('.search-history-list').append(loadingIcon());
+
       DataCycle.httpRequest({
         url: '',
         method: 'GET',

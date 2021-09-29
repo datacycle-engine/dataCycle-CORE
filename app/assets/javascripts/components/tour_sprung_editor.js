@@ -38,7 +38,7 @@ class TourSprungEditor extends OpenLayersEditor {
         'https://static.maptoolkit.net/api/v8.9/editor.js',
         '//unpkg.com/leaflet-gesture-handling'
       ],
-      fetchInject([`https://static.maptoolkit.net/api/v8.9/mtk.${document.documentElement.lang}.js`])
+      await fetchInject([`https://static.maptoolkit.net/api/v8.9/mtk.${document.documentElement.lang}.js`])
     );
   }
   initMap() {

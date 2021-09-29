@@ -106,13 +106,15 @@ class SimpleSelect2 extends BasicSelect2 {
     let reloadPath = this.config.reloadPath;
     let type = this.config.type;
 
-    if (!reloadPath || !reloadPath.length || !type || !type.length) return;
+    if (!reloadPath || !reloadPath.length || !type || !type.length) return Promise.reject();
 
-    DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: reloadPath,
       dataType: 'json',
       data: { type: type }
-    }).then(data => {
+    });
+
+    promise.then(data => {
       if (!data || !data.length) return;
 
       data.forEach(d => {
@@ -120,6 +122,8 @@ class SimpleSelect2 extends BasicSelect2 {
           this.$element.append(new Option(d[0], d[1], false, false)).trigger('change');
       });
     });
+
+    return promise;
   }
 }
 

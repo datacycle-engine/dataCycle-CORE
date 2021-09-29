@@ -121,19 +121,21 @@ class NewContentDialog {
 
     formData.forEach((v, i) => {
       if (v && v.value.isUuid()) {
-        requests.push(
-          DataCycle.httpRequest({
-            url: `/api/v4/universal/${v.value}`,
-            method: 'POST',
-            data: { fields: 'name,skos:prefLabel' }
-          }).then(data => {
-            v.text =
-              data &&
-              data['@graph'] &&
-              data['@graph'][0] &&
-              (data['@graph'][0]['skos:prefLabel'] || data['@graph'][0].name);
-          })
-        );
+        const promise = DataCycle.httpRequest({
+          url: `/api/v4/universal/${v.value}`,
+          method: 'POST',
+          data: { fields: 'name,skos:prefLabel' }
+        });
+
+        promise.then(data => {
+          v.text =
+            data &&
+            data['@graph'] &&
+            data['@graph'][0] &&
+            (data['@graph'][0]['skos:prefLabel'] || data['@graph'][0].name);
+        });
+
+        requests.push(promise);
       }
     });
 
@@ -379,16 +381,21 @@ class NewContentDialog {
     let params = this.form.data();
     params['template'] = template;
     params['key'] = this.id;
-    DataCycle.httpRequest({
+
+    const promise = DataCycle.httpRequest({
       url: '/things/new',
       method: 'GET',
       data: params,
       dataType: 'script',
       contentType: 'application/json'
-    }).then(_data => {
+    });
+
+    promise.then(_data => {
       this.form.data('template', template);
       this.updateForm();
     });
+
+    return promise;
   }
   resetForm(_) {
     this.form.find(':input').blur();

@@ -386,7 +386,7 @@ class ObjectBrowser {
     this.overlay.find('.chosen-counter').html(html);
   }
   loadMore(_loaded_ids) {
-    DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: `/${this.content_type}/${this.content_id}/load_more_linked_objects`,
       method: 'GET',
       dataType: 'script',
@@ -405,12 +405,16 @@ class ObjectBrowser {
         load_more_except: undefined
       },
       contentType: 'application/json'
-    }).then(() => {
+    });
+
+    promise.then(() => {
       this.chosen = union(this.chosen, this.ids);
       this.updateChosenCounter();
       this.ids = [];
       this.loadObjects(false);
     });
+
+    return promise;
   }
   loadDetails(id) {
     this.selected = id;
@@ -508,8 +512,8 @@ class ObjectBrowser {
   // import media from media_archive reveal
   import(event) {
     if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
-      let authToken = $('meta[name=csrf-token]').attr('content');
-      DataCycle.httpRequest({
+      const authToken = $('meta[name=csrf-token]').attr('content');
+      const promise = DataCycle.httpRequest({
         type: 'POST',
         url: '/things/import',
         dataType: 'script',
@@ -527,7 +531,8 @@ class ObjectBrowser {
           objects: this.chosen
         }),
         contentType: 'application/json'
-      })
+      });
+      promise
         .then(_data => {
           this.overlay.find('.items li.item .reveal.media-preview').each(function () {
             if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
@@ -536,6 +541,8 @@ class ObjectBrowser {
         .finally(() => {
           $('#new_' + this.id).foundation('close');
         });
+
+      return promise;
     }
   }
   loadObjects(append = true) {
@@ -550,51 +557,56 @@ class ObjectBrowser {
       request.abort();
       this.requests = this.requests.filter(r => r != request);
     });
-    this.requests.push(
-      DataCycle.httpRequest({
-        url: '/object_browser/show',
-        method: 'POST',
-        dataType: 'script',
-        data: JSON.stringify({
-          page: this.page,
-          per: this.overlay_per,
-          type: this.type,
-          locale: this.locale,
-          key: this.key,
-          definition: this.definition,
-          options: this.options,
-          search: this.search,
-          objects: this.chosen,
-          editable: this.editable,
-          excluded: this.excluded,
-          content_id: this.content_id,
-          content_type: this.content_type,
-          prefix: this.prefix,
-          filter_ids: this.filteredIds(),
-          append: append
-        }),
-        contentType: 'application/json'
+
+    const promise = DataCycle.httpRequest({
+      url: '/object_browser/show',
+      method: 'POST',
+      dataType: 'script',
+      data: JSON.stringify({
+        page: this.page,
+        per: this.overlay_per,
+        type: this.type,
+        locale: this.locale,
+        key: this.key,
+        definition: this.definition,
+        options: this.options,
+        search: this.search,
+        objects: this.chosen,
+        editable: this.editable,
+        excluded: this.excluded,
+        content_id: this.content_id,
+        content_type: this.content_type,
+        prefix: this.prefix,
+        filter_ids: this.filteredIds(),
+        append: append
+      }),
+      contentType: 'application/json'
+    });
+
+    promise
+      .then(_data => {
+        this.total = this.overlay.data('total');
+        this.overlay.find('.items li.item .reveal.media-preview').each(function () {
+          if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+        });
+        this.loading = false;
+        if (
+          this.overlay.children('.items').children('li.item').length < this.total &&
+          this.overlay.children('.items').children('li.item').last().offset().top -
+            this.overlay.children('.items').offset().top <
+            this.overlay.children('.items').first().outerHeight()
+        ) {
+          this.page += 1;
+          this.loadObjects();
+        }
       })
-        .then(_data => {
-          this.total = this.overlay.data('total');
-          this.overlay.find('.items li.item .reveal.media-preview').each(function () {
-            if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
-          });
-          this.loading = false;
-          if (
-            this.overlay.children('.items').children('li.item').length < this.total &&
-            this.overlay.children('.items').children('li.item').last().offset().top -
-              this.overlay.children('.items').offset().top <
-              this.overlay.children('.items').first().outerHeight()
-          ) {
-            this.page += 1;
-            this.loadObjects();
-          }
-        })
-        .finally((_data, _text, jqXHR) => {
-          this.requests = this.requests.filter(r => r != jqXHR);
-        })
-    );
+      .finally((_data, _text, jqXHR) => {
+        this.requests = this.requests.filter(r => r != jqXHR);
+      });
+
+    this.requests.push(promise);
+
+    return promise;
   }
   removeDeletedItem() {
     if (!this.chosen.length) return;

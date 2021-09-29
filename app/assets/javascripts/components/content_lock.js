@@ -53,12 +53,16 @@ class ContentLock {
     if (!this.editable) this.checkInitialLockState();
   }
   checkInitialLockState() {
-    DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: this.checkLockPath,
       dataType: 'json'
-    }).then(data => {
+    });
+
+    promise.then(data => {
       if (data !== undefined) this.updateLocks(data.locks, data.texts);
     });
+
+    return promise;
   }
   updateLocks(newLocks = {}, texts = {}) {
     for (let key in this.locks) {

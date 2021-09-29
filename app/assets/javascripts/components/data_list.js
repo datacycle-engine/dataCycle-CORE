@@ -46,15 +46,17 @@ class DataList {
 
     this.abortRunningRequests();
 
-    this.requests.push(
-      DataCycle.httpRequest({
-        type: 'GET',
-        url: `/${this.listId}/search`,
-        data: {
-          q: this.element.value
-        }
-      }).then(this.callSuccessMethod.bind(this))
-    );
+    const promise = DataCycle.httpRequest({
+      type: 'GET',
+      url: `/${this.listId}/search`,
+      data: {
+        q: this.element.value
+      }
+    });
+
+    promise.then(this.callSuccessMethod.bind(this));
+
+    this.requests.push(promise);
   }
   default_callback_method(data) {
     data.forEach(element => {

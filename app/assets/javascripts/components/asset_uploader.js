@@ -396,70 +396,74 @@ class AssetUploader {
     var type = 'POST';
     this.prepareFileForUpload(file);
     var startTime = new Date().getTime();
-    this.ajaxRequests.push(
-      DataCycle.httpRequest({
-        url: url,
-        type: type,
-        enctype: 'multipart/form-data',
-        data: data,
-        dataType: 'json',
-        processData: false,
-        contentType: false,
-        cache: false,
-        xhr: function () {
-          var myXhr = $.ajaxSettings.xhr();
-          if (myXhr.upload) {
-            myXhr.upload.addEventListener(
-              'progress',
-              async function (e) {
-                if (e.lengthComputable) {
-                  var elapsedtime = (new Date().getTime() - startTime) / 1000;
-                  var eta = Math.round((e.total / e.loaded) * elapsedtime - elapsedtime);
-                  file.fileField
-                    .add(file.fileFormField)
-                    .find('.upload-progress-bar')
-                    .css('width', (e.loaded / e.total) * 100 + '%');
+
+    const promise = DataCycle.httpRequest({
+      url: url,
+      type: type,
+      enctype: 'multipart/form-data',
+      data: data,
+      dataType: 'json',
+      processData: false,
+      contentType: false,
+      cache: false,
+      xhr: function () {
+        var myXhr = $.ajaxSettings.xhr();
+        if (myXhr.upload) {
+          myXhr.upload.addEventListener(
+            'progress',
+            async function (e) {
+              if (e.lengthComputable) {
+                var elapsedtime = (new Date().getTime() - startTime) / 1000;
+                var eta = Math.round((e.total / e.loaded) * elapsedtime - elapsedtime);
+                file.fileField
+                  .add(file.fileFormField)
+                  .find('.upload-progress-bar')
+                  .css('width', (e.loaded / e.total) * 100 + '%');
+                file.fileField
+                  .add(file.fileFormField)
+                  .find('.upload-number')
+                  .html(
+                    `${Math.round(
+                      (e.loaded / e.total) * 100
+                    )}%, <span class="eta">${DurationHelpers.seconds_to_human_time(eta)}</span>`
+                  );
+                if (e.loaded == e.total) {
                   file.fileField
                     .add(file.fileFormField)
                     .find('.upload-number')
                     .html(
-                      `${Math.round(
-                        (e.loaded / e.total) * 100
-                      )}%, <span class="eta">${DurationHelpers.seconds_to_human_time(eta)}</span>`
+                      `<i class="fa fa-cog fa-spin fa-fw working-spinner"></i>${await I18n.translate(
+                        'frontend.upload.processing'
+                      )}`
                     );
-                  if (e.loaded == e.total) {
-                    file.fileField
-                      .add(file.fileFormField)
-                      .find('.upload-number')
-                      .html(
-                        `<i class="fa fa-cog fa-spin fa-fw working-spinner"></i>${await I18n.translate(
-                          'frontend.upload.processing'
-                        )}`
-                      );
-                  }
                 }
-              },
-              false
-            );
-          }
-          return myXhr;
+              }
+            },
+            false
+          );
         }
+        return myXhr;
+      }
+    });
+
+    promise
+      .then(data => {
+        this.updateFileAttributes(file, data);
       })
-        .then(data => {
-          this.updateFileAttributes(file, data);
-        })
-        .catch(data => {
-          file.retryUpload = true;
-          this.resetFileField(file);
-          let error = data.statusText;
-          if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
-          this.renderError(file, error);
-        })
-        .finally(_data => {
-          this.updateOverlayButtons(file);
-          DataCycle.enableElement(this.assetReloadButton);
-        })
-    );
+      .catch(data => {
+        file.retryUpload = true;
+        this.resetFileField(file);
+        let error = data.statusText;
+        if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
+        this.renderError(file, error);
+      })
+      .finally(_data => {
+        this.updateOverlayButtons(file);
+        DataCycle.enableElement(this.assetReloadButton);
+      });
+
+    this.ajaxRequests.push(promise);
+
     this.checkRequests();
   }
   async updateFileAttributes(file, data) {

@@ -108,18 +108,21 @@ module DataCycleCore
       return options_for_select([]) if value.blank?
 
       options_for_select(
-        value.map do |c|
+        value.map { |c|
+          ca = expected_classification_alias(c)
+          next if ca.nil?
+
           [
-            expected_classification_alias(c)&.internal_name,
+            ca.internal_name,
             expected_value_id(c, expected_type),
             {
               title: [
-                expected_classification_alias(c)&.full_path,
-                expected_classification_alias(c)&.description
+                ca.full_path,
+                ca.description
               ].reject(&:blank?).join("\n\n")
             }
           ]
-        end,
+        }.compact,
         value.pluck(:id)
       )
     end
@@ -128,21 +131,24 @@ module DataCycleCore
       options_for_select(
         classification_items
           &.where&.not(internal_name: DataCycleCore.excluded_filter_classifications)
-          &.map do |c|
+          &.map { |c|
+          ca = expected_classification_alias(c)
+          next if ca.nil?
+
           [
-            expected_classification_alias(c)&.internal_name,
+            ca.internal_name,
             expected_value_id(c, expected_type),
             {
               title: [
-                expected_classification_alias(c)&.full_path,
-                expected_classification_alias(c)&.description
+                ca.full_path,
+                ca.description
               ].reject(&:blank?).join("\n\n"),
               data: {
-                title: expected_classification_alias(c)&.full_path
+                title: ca.full_path
               }
             }
           ]
-        end,
+        }.compact,
         value&.pluck(:id)
       )
     end

@@ -96,7 +96,7 @@ class DataCycle {
     let response;
 
     try {
-      response = await $.ajax(merge(defaultOptions, options));
+      response = await $.ajax(mergedOptions);
     } catch (e) {
       if (!this.config.retryableHttpCodes.includes(e.status) || mergedOptions.retries >= mergedOptions.retryCount)
         throw e;

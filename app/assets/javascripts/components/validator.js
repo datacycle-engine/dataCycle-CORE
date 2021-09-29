@@ -305,12 +305,14 @@ class Validator {
       });
     }
 
-    return DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       type: 'POST',
       url: url,
       data: $.param(formData),
       dataType: 'json'
-    }).then(async data => {
+    });
+
+    promise.then(async data => {
       if (data != undefined) {
         if (!data.valid && data.errors && Object.keys(data.errors).length > 0) {
           this.$form.trigger('dc:form:validationError', { locale: translationLocale, type: 'error' });
@@ -326,6 +328,8 @@ class Validator {
         }
       }
     });
+
+    return promise;
   }
   validateForm(event, data) {
     if (event.detail && event.detail.dcFormSubmitted) return;
@@ -417,6 +421,7 @@ class Validator {
     this.queryCount++;
     let requests = this.requests.slice();
     this.requests = [];
+
     Promise.all(requests).then(
       values => {
         this.queryCount--;

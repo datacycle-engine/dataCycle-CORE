@@ -22,13 +22,15 @@ class AsyncSelect2 extends BasicSelect2 {
 
     if (this.config.treeLabel) Object.assign(queryParams, { tree_label: this.config.treeLabel });
 
-    await DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       type: 'GET',
       url: this.config.findPath,
       data: queryParams,
       dataType: 'json',
       contentType: 'application/json'
-    }).then(data => {
+    });
+
+    promise.then(data => {
       data = data.map(value => {
         if (this.aliasIds && value.classification_alias_id != undefined) value.id = value.classification_alias_id;
         else if (value.classification_id != undefined) value.id = value.classification_id;
@@ -49,6 +51,8 @@ class AsyncSelect2 extends BasicSelect2 {
         });
       });
     });
+
+    return await promise;
   }
   escapeMarkup(m) {
     return m;

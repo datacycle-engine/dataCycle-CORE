@@ -563,6 +563,12 @@ footer {
     margin-top: 0.5rem;
     color: $dark-gray;
 
+    .detail-label {
+      i.property-icon {
+        display: none;
+      }
+    }
+
     .date {
       color: $black;
     }

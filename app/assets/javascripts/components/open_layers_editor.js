@@ -162,11 +162,13 @@ class OpenLayersEditor extends OpenLayersViewer {
         address[elem.name.getAttributeKey()] = elem.value;
       });
 
-    DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: '/things/geocode_address',
       dataType: 'json',
       data: address
-    })
+    });
+
+    promise
       .then(data => {
         if (data.error) {
           new ConfirmationModal({
@@ -183,6 +185,8 @@ class OpenLayersEditor extends OpenLayersViewer {
         this.$geoCodeButton.find('i.fa').remove();
         this.$geoCodeButton.removeClass('disabled');
       });
+
+    return promise;
   }
   setGeocodedValue(data) {
     if (!this.feature) {

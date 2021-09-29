@@ -123,7 +123,7 @@ class EmbeddedObject {
 
     this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
 
-    return DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: this.url + '/render_embedded_object',
       method: 'GET',
       dataType: 'script',
@@ -141,11 +141,15 @@ class EmbeddedObject {
         duplicated_content: type == 'split_view',
         translate: translate
       }
-    }).then(_data => {
+    });
+
+    promise.then(_data => {
       if (ids.length > 0) this.ids = union(this.ids, ids);
       this.update();
       this.addEventHandlers();
     });
+
+    return promise;
   }
   findRemoveButton(element) {
     return $(element).find('> .removeContentObject, > .form-element > .editor-block > .removeContentObject');

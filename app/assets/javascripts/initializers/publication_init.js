@@ -33,7 +33,9 @@ export default function () {
         }
       );
       loading = true;
+
       $('.publications-list').append(loadingIcon());
+
       DataCycle.httpRequest({
         url: url,
         method: method,

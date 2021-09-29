@@ -186,10 +186,14 @@ class TextEditor {
     }
   }
   loadTranslation(key) {
-    I18n.translate(`frontend.text_editor.${key}`).then(text => {
+    const promise = I18n.translate(`frontend.text_editor.${key}`);
+
+    promise.then(text => {
       icons[key] = icons[key].replace('dc-loading-title', text);
       document.querySelectorAll(`.ql-${key} [title="dc-loading-title"]`).forEach(e => (e.title = text));
     });
+
+    return promise;
   }
 }
 
