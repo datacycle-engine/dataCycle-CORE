@@ -1,15 +1,23 @@
-image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.0
+########################################################################
+######################### DOCKER setup for DC
+
+image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
 
 variables:
-  POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: 'password'
-  POSTGRES_HOST: postgres
-  POSTGRES_DB: data-cycle-base_test
-  POSTGRES_PORT: '5432'
-  MONGODB_HOST: mongodb
-  RAILS_ENV: test
-  TZ: Europe/Vienna
-  PRODUCTION_URL: ''
+  GIT_SUBMODULE_STRATEGY: recursive
+  DOCKER_URL: ''
+  GITLAB_ENVIRONMENT: ''
+
+.local_test_vars: &local_test_vars
+  variables:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: 'password'
+    POSTGRES_HOST: postgres
+    POSTGRES_DB: data-cycle-base_test
+    POSTGRES_PORT: '5432'
+    MONGODB_HOST: mongodb
+    RAILS_ENV: test
+    TZ: Europe/Vienna
 
 stages:
   - build
@@ -19,19 +27,19 @@ stages:
   - deploy
 
 before_script:
-  # uncomment for local testing
-  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-  # uncomment for local testing END
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
-
-  - rm -Rf vendor/gems/data-cycle-core
-  - git submodule sync --recursive
-  - git submodule update --init --recursive --force
+  #  # uncomment for local testing
+  #  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  #  - eval $(ssh-agent -s)
+  #  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  #  # uncomment for local testing END
+  #  - mkdir -p ~/.ssh
+  #  - chmod 700 ~/.ssh
+  #  - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
+  #  - chmod 644 ~/.ssh/known_hosts
+  #
+  #  - rm -Rf vendor/gems/data-cycle-core
+  #  - git submodule sync --recursive
+  #  - git submodule update --init --recursive --force
 
   - gem install bundler
   - bundle config set --local path 'cache/bundler'
@@ -78,6 +86,7 @@ services:
     policy: pull
 
 .build_caches_config:
+  <<: *local_test_vars
   stage: build
   script:
     - gem install bundler
@@ -88,6 +97,7 @@ services:
     - yarn upgrade
 
 .code_validation_config:
+  <<: *local_test_vars
   extends: .job_cache_config
   stage: check
   script:
@@ -97,40 +107,124 @@ services:
     - bundle exec rubocop --format fuubar
     - bundle exec fasterer
 
-.deploy_config:
-  extends: .job_cache_config
-  stage: deploy
-  cache:
-    policy: pull-push
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bundle exec cap $CI_COMMIT_REF_NAME deploy
-  allow_failure: false
+#.deploy_config:
+#  extends: .job_cache_config
+#  stage: deploy
+#  cache:
+#    policy: pull-push
+#  script:
+#    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#    - bundle exec cap $CI_COMMIT_REF_NAME deploy
+#  allow_failure: false
 
 ########################################################################
 ######################### Branch Configuration
-.master_ci_config: &master_ci
+.docker_ci_config: &docker_ci
   only:
-    - master
+    - docker
   tags:
-    - dc-master
+    - dc-docker
 
 ########################################################################
 ######################### Master / Production - Systems
 build_caches:
-  <<: *master_ci
+  <<: *docker_ci
   extends: .build_caches_config
 
 code_validation:
-  <<: *master_ci
+  <<: *docker_ci
   extends: .code_validation_config
 
-deploy:
-  <<: *master_ci
-  extends: .deploy_config
-  tags:
-    - dc-deploy
+#deploy:
+#  <<: *docker_ci
+#  extends: .deploy_config
+#  tags:
+#    - dc-deploy
+#  environment:
+#    name: production
+#    url: $PRODUCTION_URL
+#  when: manual
+
+build-docker-job:
+  <<: *docker_ci
+  stage: build-docker
+  image: docker:20.10
+  variables:
+    DOCKER_BUILDKIT: 1
+    GIT_SUBMODULE_STRATEGY: recursive
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -f vendor/gems/data-cycle-core/Dockerfile -t "$CI_REGISTRY_IMAGE" --target production .
+    - docker push "$CI_REGISTRY_IMAGE"
+  after_script:
+    - docker logout $CI_REGISTRY
+
+deploy-docker-job:
+  <<: *docker_ci
+  stage: deploy
+  image: docker:20.10
+  allow_failure: false
+  variables:
+    DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    # Configure SSH
+    - eval $(ssh-agent -s)
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # Configure Docker
+    - apk add docker-compose
+    - apk add bash
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
+  script:
+    # update ssh config of deployment target to support bigger number of active sessions
+    # e.g. MaxSessions 20
+    - echo "$DOCKER_HOST"
+    - bash vendor/gems/data-cycle-core/docker/utility/ssh_helper.sh .env.production vendor/gems/data-cycle-core/docker/utility/check_bind_mounts.sh
+    - docker-compose --env-file .env.production pull
+    - docker-compose --env-file .env.production build
+    - docker-compose --env-file .env.production --profile migrate run migrate_project bash /app/docker/utility/migrate.sh
+    - docker-compose --env-file .env.production up --scale job_worker_cache_invalidation=2 --scale job_worker_search_update=3 -d
+  after_script:
+    - docker logout $CI_REGISTRY
   environment:
-    name: production
-    url: $PRODUCTION_URL
+    name: $GITLAB_ENVIRONMENT
+    url: $DOCKER_URL
+    on_stop: stop-docker-job
+  when: manual
+
+stop-docker-job:
+  <<: *docker_ci
+  stage: deploy
+  image: docker:20.10
+  allow_failure: false
+  variables:
+    DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    # Configure SSH
+    - eval $(ssh-agent -s)
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # Configure Docker
+    - apk add docker-compose
+    - apk add bash
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
+  script:
+    # update ssh config of deployment target to support bigger number of active sessions
+    # e.g. MaxSessions 20
+    - echo "$DOCKER_HOST"
+    - docker-compose --env-file .env.production stop
+  after_script:
+    - docker logout $CI_REGISTRY
+  environment:
+    name: $GITLAB_ENVIRONMENT
+    action: stop
   when: manual
