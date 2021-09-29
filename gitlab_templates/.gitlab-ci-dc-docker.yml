@@ -15,7 +15,7 @@ variables:
     POSTGRES_HOST: postgres
     POSTGRES_DB: data-cycle-base_test
     POSTGRES_PORT: '5432'
-    POSTGRES_VERSION: 13
+#    POSTGRES_VERSION: 13
     MONGODB_HOST: mongodb
     RAILS_ENV: test
     TZ: Europe/Vienna
@@ -64,7 +64,7 @@ cache:
     # - vendor/gems/data-cycle-core/lib/assets
 
 services:
-  - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4'
+  - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
     alias: postgres
     command: ['postgres']
   - name: mvertes/alpine-mongo:4.0.6-1
