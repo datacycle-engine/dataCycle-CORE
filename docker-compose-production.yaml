@@ -36,13 +36,13 @@ services:
     <<: *default-app
     environment:
       <<: *default-app-env
-    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/entrypoint.sh
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint.sh
     command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "${DC_DOCKER_SETUP_PATH:-/app/docker/}web/setup.production.sh"]
   migrate_project:
     <<: *default-app
     environment:
       <<: *default-app-env
-    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/entrypoint.sh
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint.sh
     command: ["/bin/bash"]
     restart: 'no'
     profiles: ['migrate']
