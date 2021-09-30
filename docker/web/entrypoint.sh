@@ -8,8 +8,10 @@ mkdir -p /app${CORE_DUMMY_PREFIX:-}/tmp \
   && chown ruby:ruby -R /app${CORE_DUMMY_PREFIX:-}/tmp
 
 # update docker configs in named volumes
-cp -Rn ${DC_DOCKER_SETUP_PATH:-/app/docker/}* /app/dc_volumes/docker/.
-mkdir -p /app/docker && rm -Rf /app/docker/* && cp -Rf /app/dc_volumes/docker/* /app/docker/.
+mkdir -p /app/docker \
+  && cp -Rn ${DC_DOCKER_SETUP_PATH:-/app/docker/}* /app/dc_volumes/docker/. \
+  && rm -Rf /app/docker/* \
+  && cp -Rf /app/dc_volumes/docker/* /app/docker/.
 mkdir -p /app/docker/postgres/configurations/ts_search/ && cp -Rn /app${CORE_DUMMY_PREFIX:-}/config/configurations/ts_search/* /app/docker/postgres/configurations/ts_search/.
 chown -R ruby:ruby /app/docker
 
