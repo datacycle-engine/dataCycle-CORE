@@ -172,7 +172,7 @@ class NewContentDialog {
     const formFields = $(container).find('> fieldset > .form-element, > .form-element').addBack('.form-element');
 
     let button = $(
-      `<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle ${this.templateTranslationPlural} übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-circle-o-notch fa-spin"></i></button>`
+      `<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle ${this.templateTranslationPlural} übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-spinner fa-fw fa-spin"></i></button>`
     );
 
     button.insertBefore(formFields);
@@ -374,7 +374,7 @@ class NewContentDialog {
     this.form
       .find('.buttons')
       .before(
-        '<fieldset class="content-fields"><div class="form-loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div></fieldset>'
+        '<fieldset class="content-fields"><div class="form-loading"><i class="fa fa-spinner fa-spin fa-fw"></i></div></fieldset>'
       );
     DataCycle.disableElement(this.form);
     let template = this.form.find(':input[name="template"]').val();

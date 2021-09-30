@@ -1,28 +1,38 @@
 <%= form_for content, html: {class: 'edit-content-form validation-form'} do |f| %>
-	<%= hidden_field_tag 'uuid', content.id %>
-	<%= hidden_field_tag :table, content.class.name.demodulize.tableize %>
+  <%= hidden_field_tag 'uuid', content.id %>
+  <%= hidden_field_tag :table, content.class.name.demodulize.tableize %>
 
-	<section class="edit-header">
-		<div class="row expanded">
-			<div class="column edit-header-functions">
-				<div class="edit-name">
-					<i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.model_name.human(locale: active_ui_locale)} #{t('actions.edit', locale: active_ui_locale)}" %>
-				</div>
-				<ul>
-					<li class="buttons">
+  <section class="edit-header">
+    <div class="row expanded">
+      <div class="column edit-header-functions">
+        <div class="edit-name">
+          <i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.model_name.human(locale: active_ui_locale)} #{t('actions.edit', locale: active_ui_locale)}" %>
+        </div>
+        <ul>
+          <li class="buttons">
             <%= link_to previous_authorized_crumb.url do %>
-							<button type="button" class="button discard top" title="<%= t('actions.discard_changes', locale: active_ui_locale) %>"><i class="fa fa-times" aria-hidden="true"></i></button>
+              <button type="button" class="button discard top" title="<%= t('actions.discard_changes', locale: active_ui_locale) %>">
+                <i class="fa fa-times" aria-hidden="true"></i>
+              </button>
             <% end if previous_authorized_crumb.present? %>
-            <button class="button-prime submit submit-edit-form" title="<%= t('actions.save_changes', locale: active_ui_locale) %>" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"><i class="fa fa-check" aria-hidden="true"></i></button>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</section>
 
-	<div class="row">
-		<div class="column">
-			<div class="detail-header editor">
+            <%= tag.button(
+              tag.i(class: 'fa fa-check'),
+              class: 'button-prime submit submit-edit-form',
+              title: t('actions.save_changes', locale: active_ui_locale),
+              data: {
+                disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw')
+              }
+            ) %>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="row">
+    <div class="column">
+      <div class="detail-header editor">
         <div class="detail-header-info">
           <div class="metadata">
             <span class="icon">
@@ -34,53 +44,53 @@
 
         <% if content.is_a?(DataCycleCore::UserOrganization) %>
           <div class="form-element input">
-              <%= f.label :name do %>
-                <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
-                <%= DataCycleCore::User.human_attribute_name(:name, locale: active_ui_locale) %>
-              <% end %>
-              <%= f.text_field :name, readonly: content.external %>
+            <%= f.label :name do %>
+              <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
+              <%= DataCycleCore::User.human_attribute_name(:name, locale: active_ui_locale) %>
+            <% end %>
+            <%= f.text_field :name, readonly: content.external %>
           </div>
         <% else %>
           <div class="form-element input">
-              <%= f.label :given_name do %>
-                <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
-                <%= DataCycleCore::User.human_attribute_name(:given_name, locale: active_ui_locale) %>
-              <% end %>
-              <%= f.text_field :given_name, readonly: content.external %>
+            <%= f.label :given_name do %>
+              <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
+              <%= DataCycleCore::User.human_attribute_name(:given_name, locale: active_ui_locale) %>
+            <% end %>
+            <%= f.text_field :given_name, readonly: content.external %>
           </div>
 
           <div class="form-element input">
-              <%= f.label :family_name do %>
-                <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
-                <%= DataCycleCore::User.human_attribute_name(:family_name, locale: active_ui_locale) %>
-              <% end %>
-              <%= f.text_field :family_name, readonly: content.external %>
+            <%= f.label :family_name do %>
+              <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
+              <%= DataCycleCore::User.human_attribute_name(:family_name, locale: active_ui_locale) %>
+            <% end %>
+            <%= f.text_field :family_name, readonly: content.external %>
           </div>
         <% end %>
 
         <div class="form-element input">
-            <%= f.label :email do %>
-              <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
-              <%= DataCycleCore::User.human_attribute_name(:email, locale: active_ui_locale) %>
-            <% end %>
-            <%= f.email_field :email, required: true, readonly: content.external %>
+          <%= f.label :email do %>
+            <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
+            <%= DataCycleCore::User.human_attribute_name(:email, locale: active_ui_locale) %>
+          <% end %>
+          <%= f.email_field :email, required: true, readonly: content.external %>
         </div>
 
         <% unless content.external %>
           <div class="form-element input">
-              <%= f.label :password, DataCycleCore::User.human_attribute_name(:password, locale: active_ui_locale) %>
-              <%= f.password_field :password, autocomplete: 'off' %>
+            <%= f.label :password, DataCycleCore::User.human_attribute_name(:password, locale: active_ui_locale) %>
+            <%= f.password_field :password, autocomplete: 'off' %>
           </div>
 
           <div class="form-element input">
-              <%= f.label :password_confirmation, DataCycleCore::User.human_attribute_name(:password_confirmation, locale: active_ui_locale) %>
-              <%= f.password_field :password_confirmation, autocomplete: 'off' %>
+            <%= f.label :password_confirmation, DataCycleCore::User.human_attribute_name(:password_confirmation, locale: active_ui_locale) %>
+            <%= f.password_field :password_confirmation, autocomplete: 'off' %>
           </div>
 
           <% if current_user == content %>
             <div class="form-element input">
-                <%= f.label :current_password, DataCycleCore::User.human_attribute_name(:current_password, locale: active_ui_locale) %>
-                <%= f.password_field :current_password %>
+              <%= f.label :current_password, DataCycleCore::User.human_attribute_name(:current_password, locale: active_ui_locale) %>
+              <%= f.password_field :current_password %>
             </div>
           <% end %>
         <% end %>
@@ -123,8 +133,8 @@
           </div>
         <% end %>
 
-			</div>
-		</div>
-	</div>
+      </div>
+    </div>
+  </div>
 
 <% end %>

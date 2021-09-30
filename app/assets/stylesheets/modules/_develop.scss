@@ -1076,6 +1076,9 @@ a.link {
 }
 
 #show-history {
+  .list-items {
+    margin: 0;
+  }
   li {
     position: relative;
     text-align: left;
@@ -1428,7 +1431,7 @@ a.email-link {
   text-align: left;
 
   &.select2-loading::after {
-    content: '\f1ce';
+    content: '\f110';
     font-family: FontAwesome;
     font-style: normal;
     font-weight: normal;
@@ -3127,64 +3130,88 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 
-@keyframes running-progress {
+@keyframes progress-bar {
   0% {
     margin-left: 0.25rem;
-    margin-right: 100%;
+    width: 0;
   }
   50% {
     margin-left: 25%;
-    margin-right: 0.25rem;
+    width: calc(75% - 0.25rem);
   }
   100% {
-    margin-left: 100%;
-    margin-right: 0.25rem;
+    margin-left: calc(100% - 0.25rem);
+    width: 0;
+  }
+}
+
+@keyframes progress-circle {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 
 body {
-  .remote-render {
+  .remote-render,
+  .remote-rendering {
+    position: relative;
+    overflow: hidden;
+
+    &::before,
     &::after {
       content: '';
-      display: flex;
-      position: relative;
-      top: 0;
-      left: 0;
       width: 100%;
-      min-height: 1.5rem;
-      background-color: $light-gray;
-      box-shadow: 0 0 1px $dark-gray inset;
+      display: flex;
+      top: 0;
+    }
+
+    &::before {
+      position: absolute;
+      width: 100%;
+      height: 1.5rem;
+      left: 0;
+      background-color: lighten($light-gray, 4%);
+      box-shadow: 0 0 1px lighten($dark-gray, 10%) inset;
+    }
+    &::after {
+      position: relative;
+      width: 100%;
+      height: 1rem;
+      margin: 0.25rem 0;
+      background-color: darken($light-gray, 10%);
+      animation: progress-bar 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    &.new-favorites::before {
+      box-shadow: none;
     }
   }
 
-  .remote-render-loading,
   .remote-render-error {
     display: flex;
     height: 1.5rem;
-    background-color: $light-gray;
     width: 100%;
     align-items: center;
     justify-content: center;
-  }
-  .remote-render-loading {
-    box-shadow: 0 0 1px $dark-gray inset;
-  }
-  .remote-render-loading:before {
-    width: 100%;
-    height: 1rem;
-    background-color: darken($light-gray, 10%);
-    content: '';
-    animation: running-progress 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 }
 
 body {
   .reveal {
-    > .remote-rendering:first-child > .remote-render-loading,
-    > .close-button:first-child + .remote-rendering > .remote-render-loading,
-    > .close-button:first-child + .remote-render-failed > .remote-render-error,
-    > .remote-render-failed:first-child > .remote-render-error {
-      margin-top: 2rem;
+    > .remote-rendering:first-child,
+    > .close-button:first-child + .remote-rendering,
+    > .remote-render:first-child,
+    > .close-button:first-child + .remote-render,
+    > .close-button:first-child + .remote-render-failed,
+    > .remote-render-failed:first-child {
+      padding-top: 2rem;
+
+      &::before {
+        top: 2rem;
+      }
     }
   }
 }
@@ -3196,8 +3223,6 @@ body {
   text-align: center;
   color: $alert-color;
   padding: 0 1rem;
-  background-color: rgba($alert-color, 0.1) !important;
-  box-shadow: 0 0 1px rgba($alert-color, 0.5) inset;
 
   .remote-reload-link {
     padding-left: 0.5rem;

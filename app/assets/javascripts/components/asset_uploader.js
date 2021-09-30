@@ -585,7 +585,7 @@ class AssetUploader {
         id: randomId,
         file: file,
         target: this.fileField,
-        html: '<i class="fa fa-circle-o-notch fa-spin file-data-loading"></i>',
+        html: '<i class="fa fa-spinner fa-fw fa-spin file-data-loading"></i>',
         fileExtension: this.getFileExtension(file),
         validation: this.validation,
         uploaded: false,

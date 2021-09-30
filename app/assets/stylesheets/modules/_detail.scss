@@ -108,6 +108,12 @@
             &.remote-render-failed {
               box-shadow: 0 0 1px $dark-gray;
               padding: 2.2rem 1rem 1rem 1rem;
+
+              &::before {
+                margin-top: 2.2rem;
+                margin-left: 1rem;
+                width: calc(100% - 2rem);
+              }
             }
           }
 
@@ -124,6 +130,12 @@
               &.remote-render-failed {
                 box-shadow: none;
                 padding: 0.4rem 0 0.4rem 0.7rem;
+
+                &::before {
+                  margin-top: 0.4rem;
+                  margin-left: 0.7rem;
+                  width: calc(100% - 0.7rem);
+                }
               }
             }
           }

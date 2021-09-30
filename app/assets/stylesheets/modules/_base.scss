@@ -835,8 +835,10 @@ footer {
           background: $light-gray;
           padding: 2.5rem 1rem 2rem 1rem;
 
-          .remote-render-loading {
-            background-color: darken($light-gray, 5%);
+          &::before {
+            margin-top: 2.5rem;
+            margin-left: 1rem;
+            width: calc(100% - 2rem);
           }
         }
       }

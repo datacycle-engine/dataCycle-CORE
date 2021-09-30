@@ -125,21 +125,20 @@ class RemoteRenderer {
       }
     }
 
-    $(element)
-      .html('<span class="remote-render-loading"></span>')
-      .removeClass('remote-render remote-rendered remote-reload')
-      .addClass('remote-rendering');
+    $(element).empty().removeClass('remote-render remote-rendered remote-reload').addClass('remote-rendering');
 
     return this.sendRequest(element, params);
   }
   sendRequest(element, params) {
-    return DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       type: 'POST',
       url: '/remote_render',
       data: JSON.stringify(params),
       dataType: 'script',
       contentType: 'application/json'
-    }).catch(async _error => {
+    });
+
+    promise.catch(async _error => {
       $(element)
         .html(
           `<div class="remote-render-error">${await I18n.translate(
@@ -151,6 +150,8 @@ class RemoteRenderer {
         .removeClass('remote-rendering')
         .addClass('remote-render-failed');
     });
+
+    return promise;
   }
 }
 

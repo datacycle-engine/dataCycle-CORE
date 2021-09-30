@@ -146,7 +146,7 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     if (this.$geoCodeButton.hasClass('disabled')) return;
 
-    this.$geoCodeButton.append(' <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
+    this.$geoCodeButton.append(' <i class="fa fa-spinner fa-spin fa-fw"></i>');
     this.$geoCodeButton.addClass('disabled');
 
     let addressKey = this.$geoCodeButton.data('address-key');

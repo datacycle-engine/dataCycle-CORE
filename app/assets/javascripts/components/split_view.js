@@ -182,7 +182,7 @@ class SplitView {
 
     await buttonsContainer.insertAdjacentHTML(
       'afterbegin',
-      `<a class="button-prime small ${type}-all" data-disable-with="<i class=\'fa fa-circle-o-notch fa-spin\'></i>" title="${await I18n.translate(
+      `<a class="button-prime small ${type}-all" data-disable-with="<i class=\'fa fa-spinner fa-fw fa-spin\'></i>" title="${await I18n.translate(
         `frontend.split_view.${type}_all`
       )}"><i class="fa ${this.buttonMappings[type].icon}" aria-hidden="true"></i></a>`
     );
@@ -221,7 +221,7 @@ class SplitView {
       'beforeend',
       `<a class="button-prime small ${type} ${
         single ? `${type}-single-button` : ''
-      }" data-disable-with="<i class=\'fa fa-circle-o-notch fa-spin\'></i>" title="${await I18n.translate(
+      }" data-disable-with="<i class=\'fa fa-spinner fa-fw fa-spin\'></i>" title="${await I18n.translate(
         `frontend.split_view.${type}`
       )}"><i class="fa ${this.buttonMappings[type].icon} aria-hidden="true"></i></a>`
     );

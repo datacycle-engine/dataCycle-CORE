@@ -34,7 +34,7 @@
             data: {
               title: t('common.normalize', locale: active_ui_locale),
               url: normalize_thing_path(content),
-              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+              disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw', aria_hidden: true)
             } if DataCycleCore::Feature::Normalize.enabled? %>
 
           <%= link_to tag.i(class: 'fa fa-times', aria_hidden: true),
