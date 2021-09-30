@@ -15,15 +15,7 @@ x-app-env: &default-app-env
   RAILS_ENV: ${RAILS_ENV:-production}
 
 x-app: &default-app
-  build:
-    context: ${PWD}
-    target: production
-    dockerfile: ${COMPOSE_WEB_DOCKER_FILE:-./vendor/gems/data-cycle-core/Dockerfile-core}
-    args:
-      - "RAILS_ENV=${RAILS_ENV:-production}"
-      - "NODE_ENV=${NODE_ENV:-production}"
-      - "APP_DOCKER_ENV=${APP_DOCKER_ENV:-production}"
-#  image: git.pixelpoint.biz:5050/data-cycle/${GITLAB_CI_PROJECT_NAME}:latest
+  image: git.pixelpoint.biz:5050/data-cycle/${GITLAB_CI_PROJECT_NAME}:latest
   env_file:
     - ${PWD}/.env.production
   volumes:
