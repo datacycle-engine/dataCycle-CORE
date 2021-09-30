@@ -8,7 +8,7 @@ mkdir -p /app${CORE_DUMMY_PREFIX:-}/tmp \
   && chown ruby:ruby -R /app${CORE_DUMMY_PREFIX:-}/tmp
 
 # update docker configs in named volumes
-DC_CORE_PATH = /app/vendor/gems/data-cycle-core
+DC_CORE_PATH=/app/vendor/gems/data-cycle-core
 if [ -d "$DC_CORE_PATH"  ]
 then
   cp -Rn $DC_CORE_PATH/docker/* /app/dc_volumes/docker/.
