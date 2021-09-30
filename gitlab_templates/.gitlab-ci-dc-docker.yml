@@ -190,7 +190,7 @@ deploy-docker-job:
     - docker-compose --env-file .env.production pull
     - docker-compose --env-file .env.production build
     - docker-compose --env-file .env.production --profile migrate run migrate_project bash /app/docker/utility/migrate.sh
-    - docker-compose --env-file .env.production up --scale job_worker_cache_invalidation=2 --scale job_worker_search_update=3 -d
+    - docker-compose --env-file .env.production up --scale job_worker_cache_invalidation=2 --scale job_worker_search_update=3 -d --force-recreate
   after_script:
     - docker logout $CI_REGISTRY
   environment:
