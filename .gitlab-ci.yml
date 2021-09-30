@@ -1,4 +1,4 @@
-# gitlab-ci configuration file
+# gitlab-ci configuration file for core
 
 include:
   - project: 'data-cycle/data-cycle-core'
