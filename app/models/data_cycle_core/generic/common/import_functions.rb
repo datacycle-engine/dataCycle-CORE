@@ -121,7 +121,7 @@ module DataCycleCore
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
           invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true) || true
-          error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: !created, new_content: created, invalidate_related_cache: invalidate_related_cache)
+          error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: true, current_user: current_user, partial_update: !created, new_content: created, invalidate_related_cache: invalidate_related_cache)
 
           if error[:error].present?
             Appsignal.increment_counter(
