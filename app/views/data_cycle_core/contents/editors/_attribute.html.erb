@@ -2,7 +2,7 @@
   <%= render partial, local_assigns %>
 <% end %>
 
-<div data-label="<%= definition['label'] %>" class="<%= [
+<div data-label="<%= translated_attribute_label(key, definition, content, options) %>" class="<%= [
     'clearfix',
     'form-element',
     key.attribute_name_from_key,

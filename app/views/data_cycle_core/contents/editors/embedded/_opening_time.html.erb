@@ -27,7 +27,7 @@
 
   <a href="#" class="accordion-title">
     <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-    <span class="embedded-label"><%= definition['label'] %></span>
+    <span class="embedded-label"><%= translated_attribute_label(key, definition, content, options) %></span>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   </a>
 
@@ -98,7 +98,7 @@
       <div class="embedded-object" id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(time_key)}" %>"
         data-locale="<%= I18n.locale.to_s %>"
         data-key="<%= time_key %>"
-        data-label="<%= time_definition['label'] %>"
+        data-label="<%= translated_attribute_label(time_key, time_definition, content, options) %>"
         data-definition="<%= time_definition.to_json %>"
         data-options="<%= options.to_json %>"
         data-total="<%= time_objects.presence&.size %>"
@@ -130,7 +130,11 @@
         <% end %>
 
         <span class="buttons">
-          <%= embedded_add_button(time_definition['label'], "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(time_key)}", !attribute_editable?(time_key, time_definition, options, content)) %>
+          <%= embedded_add_button(
+            translated_attribute_label(time_key, time_definition, content, options),
+            "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(time_key)}",
+            !attribute_editable?(time_key, time_definition, options, content)
+          ) %>
         </span>
       </div>
     <% end %>

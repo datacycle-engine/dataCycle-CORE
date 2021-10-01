@@ -31,7 +31,7 @@
     </div>
 
     <div class="map-info <%= 'linestring-info' if is_line_string %>">
-      <span class="detail-label"><%= definition['label'] %></span>
+      <%= attribute_viewer_label_tag(key, definition, content, options) %>
 
       <% if !is_line_string %>
         <% case options.dig(:item_diff, 0) %>
