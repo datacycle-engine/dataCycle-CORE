@@ -37,7 +37,7 @@ PATH
       mini_mime
       mongoid (~> 7.0.6)
       multi_json
-      nokogiri (~> 1.11)
+      nokogiri (~> 1.12.1)
       pHash
       pdf-reader
       pg (~> 0.21)

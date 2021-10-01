@@ -185,6 +185,7 @@ namespace :dc do
   namespace :dev do
     SSHKit.config.command_map[:dc_mkdir] = 'mkdir -p'
     SSHKit.config.command_map[:dc_rm] = 'rm -r'
+    SSHKit.config.command_map[:dc_rm_file] = 'rm'
     SSHKit.config.command_map[:dc_rake_local] = 'bundle exec rake'
     SSHKit.config.command_map[:dc_rsync] = 'rsync -avr'
 
@@ -197,9 +198,12 @@ namespace :dc do
         within release_path do
           with rails_env: fetch(:rails_env) do
             execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:mongo:dump[#{args[:external_system_id]},true]"
-            remote_file_name = capture(:ls, "#{fetch(:application_root_path, '')}db/backups/#{fetch(:rails_env, 'staging')}/mongo/download/*")
+            remote_file_name = capture(:ls, "#{fetch(:application_root_path, '')}db/backups/#{fetch(:rails_env, 'staging')}/mongo/download/*_#{args[:external_system_id]}_download.archive")
           end
         end
+        puts shared_path
+        puts remote_file_name
+        puts "#{fetch(:application_root_path, '')}tmp/"
         within shared_path do
           download! remote_file_name, "#{fetch(:application_root_path, '')}tmp/"
         end
@@ -214,11 +218,15 @@ namespace :dc do
 
       file_name = remote_file_name.split('/').last
 
-      sh "mkdir -p db/backups/#{local_rails_env}/mongo/download"
-      sh "rsync -c tmp/#{file_name} db/backups/#{local_rails_env}/mongo/download"
-      sh "rm tmp/#{file_name}"
-      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:dump[#{args[:external_system_id]},true]'" if local_rails_env != 'development'
-      sh "RAILS_ENV=#{local_rails_env} bundle exec rake '#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:restore[#{file_name},true]'"
+      run_locally do
+        with rails_env: local_rails_env do
+          execute :dc_mkdir, "db/backups/#{local_rails_env}/mongo/download"
+          execute :dc_rsync, "tmp/#{file_name} db/backups/#{local_rails_env}/mongo/download"
+          execute :dc_rm_file, "tmp/#{file_name}"
+          execute :dc_rake_local, "'#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:dump[#{args[:external_system_id]},true]' RAILS_ENV=#{local_rails_env}" if local_rails_env != 'development'
+          execute :dc_rake_local, "'#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:restore[#{file_name},true]' RAILS_ENV=#{local_rails_env}"
+        end
+      end
 
       puts "Successfully imported mongo DB #{file_name} from #{fetch(:rails_env)}"
     end
