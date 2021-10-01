@@ -60,13 +60,10 @@ module DataCycleCore
 
         before_save_data_hash(options)
 
-        if options.partial_update
-          partial_schema = schema.dup
-          partial_schema['properties'] = property_definitions&.slice(*options.data_hash.keys)
-        end
-
+        partial_schema = schema.deep_dup
+        partial_schema['properties'] = property_definitions&.slice(*options.data_hash.keys) if options.partial_update
         options.data_hash.deep_freeze # ensure data_hash doesn't get changed
-        valid_hash = validate(options.data_hash, partial_schema || schema)
+        valid_hash = validate(options.data_hash, partial_schema)
 
         if validate?(valid_hash)
           if diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
