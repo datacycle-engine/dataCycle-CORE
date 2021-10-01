@@ -124,7 +124,7 @@ module DataCycleCore
           valid = content.set_data_hash(
             data_hash: normalized_data,
             prevent_history: !utility_object.history,
-            update_search_all: false,
+            update_search_all: true,
             current_user: current_user,
             partial_update: !created,
             new_content: created,

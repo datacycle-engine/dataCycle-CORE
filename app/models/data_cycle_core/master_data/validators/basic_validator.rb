@@ -40,9 +40,8 @@ module DataCycleCore
 
         private
 
-        # validate nil,"",[],[nil],[""],[{}] as blank.
         def blank?(data)
-          data.is_a?(::Array) ? data.reject(&:blank?).empty? : data.blank?
+          DataCycleCore::DataHashService.blank?(data)
         end
       end
     end

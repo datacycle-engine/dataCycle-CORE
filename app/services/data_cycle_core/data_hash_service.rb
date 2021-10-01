@@ -117,6 +117,12 @@ module DataCycleCore
       { datahash: allowed_params, translations: I18n.available_locales.map { |l| [l, allowed_params] }.to_h }
     end
 
+    def self.blank?(data)
+      return false if data.is_a?(FalseClass)
+
+      data.is_a?(::Array) ? data.reject(&:blank?).empty? : data.blank?
+    end
+
     class << self
       private
 
