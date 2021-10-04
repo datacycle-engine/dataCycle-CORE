@@ -86,7 +86,7 @@ module DataCycleCore
                   external_system_sync[:external_system_id].in(ids)
                     .and(external_system_sync[:syncable_id].eq(thing[:id]))
                 ).exists.not
-                .and(thing[:external_source_id].in(ids).not)
+                .and(thing[:external_source_id].not_in(ids).or(thing[:external_source_id].eq(nil)))
               )
             )
           else
