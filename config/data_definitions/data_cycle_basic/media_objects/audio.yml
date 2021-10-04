@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Bild
+    :name: Audio
     :type: object
     :schema_type: CreativeWork
     :content_type: entity
@@ -12,29 +12,17 @@
         :allowed: true
       :download:
         :allowed: true
-      :duplicate_candidate:
-        :allowed: true
-        :method: :bild_duplicate
-      :overlay:
-        :allowed: false
       :serialize:
         :allowed: true
         :serializers:
-          :asset:
-            :original:
-              - png
-              - jpeg
-            :web:
-              - png
-              - jpeg
+          :asset: true
           :json: true
           :xml: true
-          :indesign: true
     :api:
       :type:
         - CreativeWork
         - MediaObject
-        - ImageObject
+        - AudioObject
     :properties:
       :id:
         :label: id
@@ -42,56 +30,23 @@
       :title:
         :type: mixin
         :name: title
-      :overlay:
-        :label: Overlay
-        :type: embedded
-        :template_name: BildOverlay
-        :translated: true
-        :validations:
-          :max: 1
       :validity_period:
         :type: mixin
         :name: validity_period
-      :validity_schedule:
-        :label: Publikationsplan
-        :type: schedule
-        :api:
-          :disabled: true
-          :v4:
-            :disabled: false
-            :name: dc:validitySchedule
       :content_classifications:
         :type: mixin
         :name: content_classifications
       :asset:
         :label: Datei
         :type: asset
-        :asset_type: image
+        :asset_type: audio
         :api:
           :disabled: true
         :ui:
           :edit:
             :readonly: true
-      :alternative_headline:
-        :label: Alt-Label
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :api:
-          :disabled: true
-        :ui:
-          :show:
-            :disabled: true
-          :edit:
-            :disabled: true
-      :caption:
-        :label: Bildunterschrift
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :advanced_search: true
       :description:
-        :label: Beschreibung (ALT-Label)
+        :label: Beschreibung
         :type: string
         :storage_location: column
         :search: true
@@ -102,7 +57,7 @@
               :data-size: basic
         :advanced_search: true
       :content_url:
-        :label: Bild URL
+        :label: Audio URL
         :storage_location: value
         :type: computed
         :compute:
@@ -116,21 +71,6 @@
             :disabled: true
         :api:
           :minimal: true
-      :thumbnail_url:
-        :label: Thumbnail URL
-        :storage_location: value
-        :type: computed
-        :compute:
-          :type: string
-          :module: Utility::Compute::Image
-          :method: thumbnail_url
-          :parameters:
-            :0: asset
-        :ui:
-          :show:
-            :partial: preview_image
-        :api:
-          :minimal: true
       :url:
         :label: Inhalt URL
         :type: string
@@ -141,55 +81,6 @@
           :name: sameAs
         :xml:
           :name: sameAs
-        :ui:
-          :edit:
-            :disabled: true
-      :width:
-        :label: Breite
-        :storage_location: value
-        :type: computed
-        :compute:
-          :type: number
-          :module: Utility::Compute::Image
-          :method: width
-          :parameters:
-            :0: asset
-        :ui:
-          :show:
-            :options:
-              :data-unit: px
-        :api:
-          :partial: property_value
-          :type: QuantitativeValue
-          :unit_text: pixel
-          :unit_code: E37
-          :transformation:
-            :method: nest
-            :name: width
-        :advanced_search: true
-      :height:
-        :label: Höhe
-        :storage_location: value
-        :type: computed
-        :compute:
-          :type: number
-          :module: Utility::Compute::Image
-          :method: height
-          :parameters:
-            :0: asset
-        :ui:
-          :show:
-            :options:
-              :data-unit: px
-        :api:
-          :partial: property_value
-          :type: QuantitativeValue
-          :unit_text: pixel
-          :unit_code: E37
-          :transformation:
-            :method: nest
-            :name: height
-        :advanced_search: true
       # schema.org: TEXT with KB/MB
       # data-cycle: Integer (Byte)
       :content_size:
@@ -213,6 +104,26 @@
           :method: file_format
           :parameters:
             :0: asset
+      :duration:
+        :label: Dauer
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Audio
+          :method: duration
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: sec
+        :api:
+          :partial: duration
+          :format:
+            :append: S
+            :prepend: PT
+        :advanced_search: true
       :upload_date:
         :label: Hochgeladen am
         :type: date
@@ -275,26 +186,17 @@
       :additional_media_properties:
         :type: mixin
         :name: additional_media_properties
-      :additional_image_properties:
+      :additional_audio_properties:
         :type: mixin
-        :name: additional_image_properties
+        :name: additional_audio_properties
       :tags:
         :type: mixin
         :name: tags
-      :cloud_vision:
-        :type: mixin
-        :name: cloud_vision
-      :wikidata:
-        :type: mixin
-        :name: wikidata
-      :feratel:
-        :type: mixin
-        :name: feratel_images
       :data_type:
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Bild'
+        :default_value: 'Audio'
       :meta_data:
         :type: mixin
         :name: meta_data

@@ -20,6 +20,12 @@
           :indesign: true
     :api:
       :type:
+        - Place
+        - Organization
+        - LocalBusiness
+        - LodgingBusiness
+        - Resort
+        - SportActivityLocation
         - SkiResort
         - 'odta:SkiResort'
         - 'dcls:Skigebiet'

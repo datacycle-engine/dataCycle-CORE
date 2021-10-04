@@ -16,7 +16,9 @@
           :json: true
           :indesign: true
     :api:
-      :type: amenityFeature
+      :type:
+        - Property
+        - amenityFeature
     :properties:
       :id:
         :label: id

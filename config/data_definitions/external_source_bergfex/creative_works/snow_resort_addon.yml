@@ -5,7 +5,11 @@
     :schema_type: CreativeWork
     :content_type: embedded
     :api:
-      :type: LocationFeatureSpecification
+      :type: 
+        - Intangible
+        - StructuredValue
+        - PropertyValue
+        - LocationFeatureSpecification
     :properties:
       :id:
         :label: id
@@ -42,7 +46,7 @@
           :edit:
             :disabled: true
           :show:
-            :disabled: true          
+            :disabled: true
       :meta_data:
         :type: mixin
         :name: meta_data

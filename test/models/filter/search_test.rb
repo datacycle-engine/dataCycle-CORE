@@ -265,6 +265,28 @@ module DataCycleCore
       assert DataCycleCore::Filter::Search.new(:de).not_like_relation_filter([image.id], 'image').query.ids.exclude?(article.id) # find all except article
     end
 
+    test 'test typeahead, specific language' do
+      words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['en']).to_a
+      assert_equal(3, words_typeahead.size)
+      assert_equal('xyz', words_typeahead.first.dig('word'))
+      assert_equal(0.0, words_typeahead.first.dig('score'))
+      assert_equal('xyz-en', words_typeahead.second.dig('word'))
+    end
+
+    test 'test typeahead, specific language, typeahead in german' do
+      words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['de']).to_a
+      assert_equal('xyz-de', words_typeahead.second.dig('word'))
+    end
+
+    test 'limit for typeaheas' do
+      words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['en'], 1).to_a
+      assert_equal(1, words_typeahead.size)
+      words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['en'], 2).to_a
+      assert_equal(2, words_typeahead.size)
+      words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['en'], 100).to_a
+      assert_equal(3, words_typeahead.size)
+    end
+
     private
 
     def create_content(template_name, data = {})

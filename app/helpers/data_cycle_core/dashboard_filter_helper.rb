@@ -44,7 +44,9 @@ module DataCycleCore
       when 'classification_alias_ids'
         [
           [t('common.has', locale: active_ui_locale), 'i'],
-          [t('common.has_not', locale: active_ui_locale), 'e']
+          [t('common.has_not', locale: active_ui_locale), 'e'],
+          [t('common.blank', locale: active_ui_locale), 'b'],
+          [t('common.present', locale: active_ui_locale), 'p']
         ]
       when 'boolean'
         nil

@@ -105,8 +105,17 @@ module DataCycleCore
             classification = DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: data.dig('CCId'))
             data = data.merge('feratel_creative_commons' => classification&.ids)
           end
-          data = data.merge('attribution_name' => data.dig('CCAuthor')) if data.dig('CCAuthor').present?
-          data = data.merge('license' => data.dig('CCCopyright')) if data.dig('CCCopyright').present?
+          # data = data.merge('attribution_name' => data.dig('CCAuthor')) if data.dig('CCAuthor').present?
+          if data.dig('CCAuthor').present?
+            author = DataCycleCore::Thing.where(
+              template: false,
+              template_name: 'Organization',
+              external_source_id: external_source_id,
+              external_key: DataCycleCore::MasterData::DataConverter.string_to_string("CCAuthor: #{data.dig('CCAuthor')}")
+            )
+            data = data.merge('author' => author.ids) if author.present?
+          end
+          data = data.merge('explicit_copyright_notice' => data.dig('CCCopyright') || data.dig('Copyright')) if data.dig('CCCopyright').present? || data.dig('Copyright').present?
           data
         end
 

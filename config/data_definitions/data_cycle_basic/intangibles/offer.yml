@@ -4,7 +4,9 @@
     :schema_type: Intangible
     :content_type: embedded
     :api:
-      :type: Offer
+      :type:
+        - Intangible
+        - Offer
     :properties:
       :id:
         :label: id

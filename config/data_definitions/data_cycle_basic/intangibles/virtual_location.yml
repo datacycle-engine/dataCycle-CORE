@@ -4,7 +4,9 @@
     :schema_type: Intangible
     :content_type: embedded
     :api:
-      :type: VirtualLocation
+      :type:
+        - Intangible
+        - VirtualLocation
     :properties:
       :id:
         :label: id
