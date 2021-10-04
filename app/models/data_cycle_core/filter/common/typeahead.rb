@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module Typeahead
         def typeahead(typeahead_text, language = ['de'], limit = 10)
-          return self if typeahead_text.blank?
+          return [] if typeahead_text.blank?
           normalized_search = typeahead_text.unicode_normalize(:nfkc)
           locale = language.first # typeahead only supports one language!
 
@@ -13,7 +13,12 @@ module DataCycleCore
             SELECT word, word <-> \'#{normalized_search}\' score
             FROM ts_stat($$
               #{
-                @query.except(:order).joins(:searches).where('searches.locale = ?', locale).select('searches.words_typeahead').to_sql
+                @query
+                  .except(:order)
+                  .joins(:searches)
+                  .where('searches.locale = ?', locale)
+                  .select('searches.words_typeahead')
+                  .to_sql
               }
             $$)
             ORDER BY score
