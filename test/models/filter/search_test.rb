@@ -278,7 +278,7 @@ module DataCycleCore
       assert_equal('xyz-de', words_typeahead.second.dig('word'))
     end
 
-    test 'limit for typeaheas' do
+    test 'limit for typeahead' do
       words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['en'], 1).to_a
       assert_equal(1, words_typeahead.size)
       words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['en'], 2).to_a

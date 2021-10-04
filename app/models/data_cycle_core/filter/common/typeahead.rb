@@ -13,14 +13,15 @@ module DataCycleCore
             SELECT word, word <-> \'#{normalized_search}\' score
             FROM ts_stat($$
               #{
-                @query.except(:order).joins(:searches).where("searches.locale = \'#{locale}\'").select('searches.words_typeahead').to_sql
+                @query.except(:order).joins(:searches).where('searches.locale = ?', locale).select('searches.words_typeahead').to_sql
               }
             $$)
             ORDER BY score
             LIMIT #{limit}
           SQL
-
-          ActiveRecord::Base.connection.execute(typeahead_query)
+          ActiveRecord::Base.connection.execute(
+            ActiveRecord::Base.send(:sanitize_sql, typeahead_query)
+          )
         end
       end
     end
