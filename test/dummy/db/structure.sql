@@ -929,7 +929,8 @@ CREATE TABLE public.searches (
     schema_type character varying DEFAULT 'Thing'::character varying NOT NULL,
     advanced_attributes jsonb,
     classification_aliases_mapping uuid[],
-    classification_ancestors_mapping uuid[]
+    classification_ancestors_mapping uuid[],
+    words_typeahead tsvector
 );
 
 
@@ -2439,6 +2440,13 @@ CREATE TRIGGER tsvectorsearchupdate BEFORE INSERT OR UPDATE ON public.searches F
 
 
 --
+-- Name: searches tsvectortypeaheadsearchupdate; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER tsvectortypeaheadsearchupdate BEFORE INSERT OR UPDATE ON public.searches FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
+
+
+--
 -- Name: schedule_occurrences schedule_occurrences_schedule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2673,6 +2681,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210731090959'),
 ('20210802095013'),
 ('20210804140504'),
-('20210817101040');
+('20210817101040'),
+('20211001085525');
 
 
