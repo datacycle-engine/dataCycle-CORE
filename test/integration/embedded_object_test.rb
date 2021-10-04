@@ -161,7 +161,7 @@ module DataCycleCore
       assert_redirected_to thing_path(content_with_nested_item, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: content_with_nested_item.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
-      assert_nil content_with_nested_item.offers.first.price_specification.reload.first.unit_text
+      assert_nil content_with_nested_item.reload.offers.reload.first.price_specification.reload.first.unit_text
     end
   end
 end
