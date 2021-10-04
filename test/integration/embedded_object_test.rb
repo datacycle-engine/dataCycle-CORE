@@ -141,11 +141,15 @@ module DataCycleCore
 
       update_hash = {
         offers: [{
-          id: content_hash.dig('offers', 0, 'id'),
-          price_specification: [{
-            id: content_hash.dig('offers', 0, 'price_specification', 0, 'id'),
-            unit_text: ''
-          }]
+          datahash: {
+            id: content_hash.dig('offers', 0, 'id'),
+            price_specification: [{
+              datahash: {
+                id: content_hash.dig('offers', 0, 'price_specification', 0, 'id'),
+                unit_text: ''
+              }
+            }]
+          }
         }]
       }
 

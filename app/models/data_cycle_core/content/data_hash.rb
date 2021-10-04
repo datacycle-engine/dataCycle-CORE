@@ -56,6 +56,7 @@ module DataCycleCore
 
       def set_data_hash(**args) # rubocop:disable Naming/AccessorMethodName
         options = DataCycleCore::Content::DataHashOptions.new(**args)
+
         return no_changes(options.ui_locale) if options.data_hash.blank? && !options.force_update
 
         before_save_data_hash(options)
@@ -96,10 +97,9 @@ module DataCycleCore
         options = DataCycleCore::Content::DataHashOptions.new(**args)
         return {} if options.data_hash.blank? && !options.force_update
 
-        options.data_hash[:datahash] = options.data_hash.dc_deep_dup unless options.data_hash.key?(:datahash) || options.data_hash.key?(:translations)
         translations = options.data_hash[:translations]
         locale = translations&.keys&.first || I18n.locale
-        datahash = (options.data_hash[:datahash] || {}).merge(translations&.delete(locale.to_s) || {})
+        datahash = ((options.data_hash.key?(:datahash) ? options.data_hash[:datahash] : options.data_hash.except(:translations, :version_name)) || {}).merge(translations&.delete(locale.to_s) || {}).with_indifferent_access
         options.version_name = options.data_hash[:version_name]
 
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
@@ -398,7 +398,11 @@ module DataCycleCore
           item_id = item&.dig('datahash', 'id') || item&.dig('id')
 
           if item_id.present?
-            upsert_content(name, item, options) if item.keys.size > 1
+            if item['datahash']&.keys&.except('id')&.any? ||
+               item['translations']&.values&.any? { |v| v.keys.except('id').any? } ||
+               item.keys.except('id').any?
+              upsert_content(name, item, options)
+            end
 
             if available_update_item_keys[index] != item_id
               upsert_relation = DataCycleCore::ContentContent.find_or_create_by!({

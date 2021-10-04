@@ -5,8 +5,12 @@ module DataCycleCore
     module Differs
       class Embedded < Linked
         def diff(a, b, template, partial_update)
+          a = parse_translated_hash(a)
+          b = parse_translated_hash(b)
+
           ids_a = parse_uuids(a)
           ids_b = parse_uuids(b)
+
           @diff_hash = (
             (set_diff(ids_a, ids_b) || []) +
             (embedded_change(a, b, template, partial_update) || []) +
@@ -15,6 +19,13 @@ module DataCycleCore
         end
 
         private
+
+        def parse_translated_hash(item)
+          return item.map { |v| parse_translated_hash(v) } if item.is_a?(::Array)
+          return item unless item.is_a?(::Hash)
+
+          item.dig(:translations, I18n.locale) || item.dig(:datahash) || item
+        end
 
         def embedded_change(a, b, template, partial_update = false)
           return if a.blank? || b.blank? || template.blank?
