@@ -36,7 +36,7 @@ services:
       - MAILHOG_HOST=mailhog
       - APPLICATION_ROOT=${APPLICATION_ROOT:-/var/www/app}
       - APP_PROTOCOL=http
-      - APP_HOST=localhost:${PUBLIC_APPLICATION_PORT:-3003}
+      - APP_HOST=${PUBLIC_APPLICATION_HOST:-localhost}:${PUBLIC_APPLICATION_PORT:-3003}
       - PUBLIC_APPLICATION_PORT=${PUBLIC_APPLICATION_PORT:-3003}
       - SSH_AUTH_SOCK=/ssh-agent
       - HISTFILE=/root/hist/.bash_history
