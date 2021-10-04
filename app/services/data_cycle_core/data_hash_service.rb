@@ -111,6 +111,12 @@ module DataCycleCore
       temp_params
     end
 
+    def self.blank?(data)
+      return false if data.is_a?(FalseClass)
+
+      data.is_a?(::Array) ? data.reject(&:blank?).empty? : data.blank?
+    end
+
     class << self
       private
 

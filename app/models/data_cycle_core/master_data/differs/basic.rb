@@ -29,6 +29,10 @@ module DataCycleCore
           ['~', a, b]
         end
 
+        def blank?(data)
+          DataCycleCore::DataHashService.blank?(data)
+        end
+
         # def load_value(default_value)
         #   return if default_value.blank?
         #   if default_value.is_a?(::String) && /{{.*}}/.match?(default_value)
