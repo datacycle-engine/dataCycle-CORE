@@ -53,7 +53,7 @@ namespace :deploy do
 
           puts('no jobs running') && next unless running_job_ids&.size&.positive?
 
-          execute :rake, "#{fetch(:cmd_prefix, '')}dc:jobs:unlock[#{running_job_ids.map { |v| "#{v[0]}%pid:#{v[1]}" }.join('|')}]"
+          execute :rake, "#{fetch(:cmd_prefix, '')}dc:jobs:unlock['#{running_job_ids.map { |v| "#{v[0]}%pid:#{v[1]}" }.join('|')}']"
         end
       end
     end
