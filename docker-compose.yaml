@@ -16,7 +16,7 @@ services:
     command: postgres -c config_file=/etc/postgresql.conf
     ports:
       - ${PUBLIC_POSTGRES_PORT:-5432}:5432
-    shm_size: 8gb
+    shm_size: 4gb
     depends_on:
       - web
   mongodb:
