@@ -60,18 +60,16 @@ module DataCycleCore
       end
     end
 
-    # TODO: remove after rails 6 upgrade
-    def deep_transform_values(&block)
-      _deep_transform_values_in_object(self, &block)
+    def dc_deep_transform_values(&block)
+      _dc_deep_transform_values_with_self(self, &block)
     end
 
-    # TODO: remove after rails 6 upgrade
-    def _deep_transform_values_in_object(object, &block)
+    def _dc_deep_transform_values_with_self(object, &block)
       case object
       when Hash
-        object.transform_values { |value| _deep_transform_values_in_object(value, &block) }
+        yield(object.transform_values { |value| _dc_deep_transform_values_with_self(value, &block) })
       when Array
-        object.map { |e| _deep_transform_values_in_object(e, &block) }
+        yield(object.map { |e| _dc_deep_transform_values_with_self(e, &block) })
       else
         yield(object)
       end
