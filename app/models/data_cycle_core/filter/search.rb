@@ -8,6 +8,7 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Date
       include DataCycleCore::Filter::Common::External
       include DataCycleCore::Filter::Common::Fulltext
+      include DataCycleCore::Filter::Common::Typeahead
       include DataCycleCore::Filter::Common::Geo
       include DataCycleCore::Filter::Common::Union
       include DataCycleCore::Filter::Sortable

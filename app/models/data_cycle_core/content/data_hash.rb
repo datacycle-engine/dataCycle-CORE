@@ -156,21 +156,29 @@ module DataCycleCore
       end
 
       def execute_create_webhooks
-        DataCycleCore::WebhooksJob.perform_later(
-          id,
-          self.class.name,
-          'create',
-          WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.merge(webhook_data: webhook_data.to_h).compact
-        )
+        if synchronous_webhooks
+          DataCycleCore::Webhook::Create.execute_all(self)
+        else
+          DataCycleCore::WebhooksJob.perform_later(
+            id,
+            self.class.name,
+            'create',
+            WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.merge(webhook_data: webhook_data.to_h).compact
+          )
+        end
       end
 
       def execute_update_webhooks
-        DataCycleCore::WebhooksJob.perform_later(
-          id,
-          self.class.name,
-          'update',
-          WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.merge(webhook_data: webhook_data.to_h).compact
-        )
+        if synchronous_webhooks
+          DataCycleCore::Webhook::Update.execute_all(self)
+        else
+          DataCycleCore::WebhooksJob.perform_later(
+            id,
+            self.class.name,
+            'update',
+            WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.merge(webhook_data: webhook_data.to_h).compact
+          )
+        end
       end
 
       def execute_delete_webhooks

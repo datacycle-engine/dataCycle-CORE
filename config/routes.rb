@@ -266,6 +266,7 @@ DataCycleCore::Engine.routes.draw do
               end
 
               match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
+              match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
               match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
 
               post 'collections/create', to: 'watch_lists#create'
