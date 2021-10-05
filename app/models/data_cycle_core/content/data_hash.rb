@@ -209,7 +209,7 @@ module DataCycleCore
       end
 
       def add_related_cache_invalidation_job
-        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_related_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_related_cache", delayed_reference_id: id, locked_at: nil)
+        DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'invalidate_related_cache')
       end
 
       def add_update_dependent_computed_properties_job
