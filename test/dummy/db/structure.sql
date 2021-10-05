@@ -78,21 +78,39 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS t
 
 
 --
--- Name: generate_content_content_links(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+-- Name: generate_collected_classification_content_relations(uuid[], uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_content_content_links(a uuid, b uuid) RETURNS uuid[]
+CREATE FUNCTION public.generate_collected_classification_content_relations(content_ids uuid[], excluded_classification_ids uuid[]) RETURNS uuid[]
     LANGUAGE plpgsql
-    AS $$ BEGIN INSERT INTO content_content_links (content_a_id, content_b_id) SELECT content_a_id, content_b_id FROM content_contents WHERE content_a_id = a AND content_b_id = b ON CONFLICT DO NOTHING; INSERT INTO content_content_links (content_a_id, content_b_id) SELECT content_b_id, content_a_id FROM content_contents WHERE content_a_id = a AND content_b_id = b AND relation_b IS NOT NULL ON CONFLICT DO NOTHING; RETURN ARRAY[a, b]; END;$$;
+    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id = ANY(content_ids); WITH direct_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id WHERE things.id = ANY(content_ids) AND classification_contents.classification_id <> ALL(excluded_classification_ids) ), full_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", UNNEST(classification_alias_paths.full_path_ids) "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id WHERE things.id = ANY(content_ids) AND classification_contents.classification_id <> ALL(excluded_classification_ids) ) INSERT INTO collected_classification_content_relations ( content_id, direct_classification_alias_ids, full_classification_alias_ids ) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id ) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT thing_id, ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids" FROM full_classification_content_relations GROUP BY thing_id ) "full_relations" ON full_relations.thing_id = things.id; RETURN content_ids; END;$$;
 
 
 --
--- Name: generate_content_content_links_trigger(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: generate_collected_classification_content_relations_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_content_content_links_trigger() RETURNS trigger
+CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_1() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_content_content_links(NEW.content_a_id, NEW.content_b_id); RETURN NEW; END;$$;
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations(ARRAY[NEW.content_data_id]::UUID[], ARRAY[]::UUID[]); RETURN NEW; END;$$;
+
+
+--
+-- Name: generate_collected_classification_content_relations_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_2() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations( ARRAY[OLD.content_data_id]::UUID[], ARRAY[OLD.classification_id]::UUID[] ); RETURN NEW; END;$$;
+
+
+--
+-- Name: generate_collected_classification_content_relations_trigger_3(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_3() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations(ARRAY_AGG(content_id), ARRAY[]::UUID[]) FROM ( SELECT content_id FROM collected_classification_content_relations WHERE NEW.id = ANY(direct_classification_alias_ids) ) "relevant_content_ids"; RETURN NEW; END;$$;
 
 
 --
@@ -230,6 +248,62 @@ CREATE TABLE public.assets (
 
 
 --
+-- Name: classification_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_groups (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    classification_id uuid,
+    classification_alias_id uuid,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_trees (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    external_source_id uuid,
+    parent_classification_alias_id uuid,
+    classification_alias_id uuid,
+    relationship_label character varying,
+    classification_tree_label_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: classification_alias_links; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.classification_alias_links AS
+ WITH primary_classification_groups AS (
+         SELECT DISTINCT classification_groups.classification_alias_id,
+            first_value(classification_groups.classification_id) OVER (PARTITION BY classification_groups.classification_alias_id ORDER BY classification_groups.created_at) AS classification_id
+           FROM public.classification_groups
+        )
+ SELECT primary_classification_groups.classification_alias_id AS parent_classification_alias_id,
+    additional_classification_groups.classification_alias_id AS child_classification_alias_id,
+    'related'::text AS link_type
+   FROM (primary_classification_groups
+     JOIN public.classification_groups additional_classification_groups ON (((primary_classification_groups.classification_id = additional_classification_groups.classification_id) AND (additional_classification_groups.classification_alias_id <> primary_classification_groups.classification_alias_id))))
+UNION
+ SELECT classification_trees.parent_classification_alias_id,
+    classification_trees.classification_alias_id AS child_classification_alias_id,
+    'broader'::text AS link_type
+   FROM public.classification_trees;
+
+
+--
 -- Name: classification_alias_paths; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -262,6 +336,58 @@ CREATE TABLE public.classification_aliases (
 
 
 --
+-- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_tree_labels (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    name character varying,
+    external_source_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    internal boolean DEFAULT false,
+    deleted_at timestamp without time zone,
+    visibility character varying[] DEFAULT '{}'::character varying[]
+);
+
+
+--
+-- Name: classification_alias_paths_transitive; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.classification_alias_paths_transitive AS
+ WITH RECURSIVE classification_alias_paths_transitive(id, ancestors_ids, full_path_ids, full_path_names, link_types) AS (
+         SELECT classification_alias_links.child_classification_alias_id AS id,
+            ARRAY[]::uuid[] AS ancestors_ids,
+            ARRAY[classification_alias_links.child_classification_alias_id] AS full_path_ids,
+            ARRAY[classification_aliases.internal_name, classification_tree_labels.name] AS full_path_names,
+            ARRAY[]::text[] AS link_types
+           FROM (((public.classification_alias_links
+             JOIN public.classification_aliases ON ((classification_aliases.id = classification_alias_links.child_classification_alias_id)))
+             JOIN public.classification_trees ON (((classification_trees.parent_classification_alias_id IS NULL) AND (classification_trees.classification_alias_id = classification_aliases.id))))
+             JOIN public.classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
+          WHERE (classification_alias_links.parent_classification_alias_id IS NULL)
+        UNION ALL
+         SELECT classification_alias_links.child_classification_alias_id AS id,
+            (classification_alias_links.parent_classification_alias_id || classification_alias_paths_transitive_1.ancestors_ids) AS ancestors_ids,
+            (classification_aliases.id || classification_alias_paths_transitive_1.full_path_ids) AS full_path_ids,
+            (classification_aliases.internal_name || classification_alias_paths_transitive_1.full_path_names) AS full_path_names,
+            (classification_alias_links.link_type || classification_alias_paths_transitive_1.link_types) AS link_types
+           FROM ((public.classification_alias_links
+             JOIN public.classification_aliases ON ((classification_aliases.id = classification_alias_links.child_classification_alias_id)))
+             JOIN classification_alias_paths_transitive classification_alias_paths_transitive_1 ON ((classification_alias_paths_transitive_1.id = classification_alias_links.parent_classification_alias_id)))
+          WHERE (classification_alias_links.child_classification_alias_id <> ALL (classification_alias_paths_transitive_1.full_path_ids))
+        )
+ SELECT classification_alias_paths_transitive.id,
+    classification_alias_paths_transitive.ancestors_ids,
+    classification_alias_paths_transitive.full_path_ids,
+    classification_alias_paths_transitive.full_path_names,
+    classification_alias_paths_transitive.link_types
+   FROM classification_alias_paths_transitive;
+
+
+--
 -- Name: classification_contents; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -273,22 +399,6 @@ CREATE TABLE public.classification_contents (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     relation character varying
-);
-
-
---
--- Name: classification_groups; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_groups (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    classification_id uuid,
-    classification_alias_id uuid,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
 );
 
 
@@ -370,41 +480,6 @@ CREATE TABLE public.classification_polygons (
 
 
 --
--- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_tree_labels (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name character varying,
-    external_source_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    internal boolean DEFAULT false,
-    deleted_at timestamp without time zone,
-    visibility character varying[] DEFAULT '{}'::character varying[]
-);
-
-
---
--- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_trees (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    external_source_id uuid,
-    parent_classification_alias_id uuid,
-    classification_alias_id uuid,
-    relationship_label character varying,
-    classification_tree_label_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
-);
-
-
---
 -- Name: classification_tree_label_statistics; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -461,6 +536,18 @@ CREATE TABLE public.classifications (
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
     uri character varying
+);
+
+
+--
+-- Name: collected_classification_content_relations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.collected_classification_content_relations (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    content_id uuid,
+    direct_classification_alias_ids uuid[],
+    full_classification_alias_ids uuid[]
 );
 
 
@@ -2419,10 +2506,24 @@ CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDAT
 
 
 --
--- Name: content_contents generate_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
+-- Name: classification_alias_paths generate_collected_classification_content_relations_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT OR UPDATE ON public.content_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_content_content_links_trigger();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER INSERT OR UPDATE ON public.classification_alias_paths FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_3();
+
+
+--
+-- Name: classification_contents generate_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_1 AFTER INSERT OR UPDATE ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_1();
+
+
+--
+-- Name: classification_contents generate_collected_classification_content_relations_trigger_2; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_2 AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_2();
 
 
 --
@@ -2676,13 +2777,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210602112830'),
 ('20210608125638'),
 ('20210621063801'),
-('20210629094413'),
-('20210709121013'),
-('20210731090959'),
-('20210802095013'),
-('20210804140504'),
-('20210817101040'),
-('20210908095952');
-('20211001085525');
+('20210628202054'),
+('20210628202737');
 
 
