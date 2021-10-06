@@ -16,7 +16,7 @@ module DataCycleCore
 
     def delayed_reference_type
       unique_attribute_string = arguments[3]
-        &.slice(*DataCycleCore::Content::Content::WEBHOOK_ACCESSORS)
+        &.slice(*arguments[1].safe_constantize::WEBHOOK_ACCESSORS)
         &.map { |k, v| "#{k}_#{v}" }
         &.join('_')
 
@@ -28,7 +28,7 @@ module DataCycleCore
 
       return if content.nil?
 
-      additional_attributes&.slice(*DataCycleCore::Content::Content::WEBHOOK_ACCESSORS)&.each do |key, value|
+      additional_attributes&.slice(*content.class::WEBHOOK_ACCESSORS)&.each do |key, value|
         content.send("#{key}=", value)
       end
 

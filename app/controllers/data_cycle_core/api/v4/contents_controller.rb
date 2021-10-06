@@ -51,6 +51,13 @@ module DataCycleCore
           end
         end
 
+        def typeahead
+          query = build_search_query
+          result = query.typeahead(permitted_params[:search], @language, permitted_params[:limit] || 10)
+          words = result.to_a.map { |i| i.dig('word') } # score not needed
+          render json: { '@graph' => words }
+        end
+
         def deleted
           deleted_contents = DataCycleCore::Thing::History.where(
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
@@ -74,7 +81,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, uuid: []] + [filter: {}] + ['dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :search, :limit, uuid: []] + [filter: {}] + ['dc:liveData': [:'@id', :minPrice]]
         end
 
         def permitted_filter_parameters

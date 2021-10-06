@@ -44,7 +44,7 @@ module DataCycleCore
               embedded_template.slice!(*b_content&.keys)
               a_content = a_content.slice(*b_content&.keys)
             end
-            changes = Differs::Object.new(a_content, b_content, embedded_template, partial_update).diff_hash
+            changes = Differs::Object.new(a_content, b_content, embedded_template, '', partial_update).diff_hash
             change << a_uuid if changes.present?
           end
           change.size.positive? ? [['~', change.sort]] : nil

@@ -24,9 +24,7 @@ module DataCycleCore
           errors[:info] << 'difference in schema: ' + schema_diff.map { |item| item.join(' ') }.join(' | ')
           return self
         end
-        cleaned_a = a.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }
-        cleaned_b = b.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }
-        diff_object = Differs::Object.new(cleaned_a, cleaned_b, schema_a&.dig('properties'), '', partial_update)
+        diff_object = Differs::Object.new(a, b, schema_a&.dig('properties'), '', partial_update)
         @diff_hash = diff_object.diff_hash
         self
       end
