@@ -44,7 +44,7 @@ class ObjectBrowser {
     this.content_id = this.element.data('content-id');
     this.content_type = this.element.data('content-type');
     this.prefix = selector.data('prefix');
-    this.requests = [];
+    this.activeRequest;
     this.eventHandlers = {
       pageLeave: this.pageLeaveHandler.bind(this),
       submitWithoutRedirect: this.submitWithoutRedirectHandler.bind(this),
@@ -462,6 +462,7 @@ class ObjectBrowser {
     if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
     else if (this.overlay.data('overlay') === false) document.body.classList.add('object-browser-overlay-open');
 
+    this.overlay.find('.object-browser-header .item-count').text('');
     this.preselectedItems = this.chosen.slice(0);
     $(window).on('beforeunload', this.eventHandlers.pageLeave);
     this.resetOverlay();
@@ -553,15 +554,11 @@ class ObjectBrowser {
     }
     this.overlay.find('.items .loading').show();
     this.loading = true;
-    this.requests.forEach(request => {
-      request.abort();
-      this.requests = this.requests.filter(r => r != request);
-    });
 
     const promise = DataCycle.httpRequest({
       url: '/object_browser/show',
       method: 'POST',
-      dataType: 'script',
+      dataType: 'json',
       data: JSON.stringify({
         page: this.page,
         per: this.overlay_per,
@@ -583,28 +580,38 @@ class ObjectBrowser {
       contentType: 'application/json'
     });
 
-    promise
-      .then(_data => {
-        this.total = this.overlay.data('total');
-        this.overlay.find('.items li.item .reveal.media-preview').each(function () {
-          if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
-        });
-        this.loading = false;
-        if (
-          this.overlay.children('.items').children('li.item').length < this.total &&
-          this.overlay.children('.items').children('li.item').last().offset().top -
-            this.overlay.children('.items').offset().top <
-            this.overlay.children('.items').first().outerHeight()
-        ) {
-          this.page += 1;
-          this.loadObjects();
-        }
-      })
-      .finally((_data, _text, jqXHR) => {
-        this.requests = this.requests.filter(r => r != jqXHR);
-      });
+    this.activeRequest = promise;
 
-    this.requests.push(promise);
+    promise.then(async data => {
+      if (this.activeRequest != promise || !data) return;
+
+      const count = data.count || 0;
+      this.total = count;
+      this.overlay.data('total', count);
+      this.overlay.find('.object-browser-header .item-count').text(count);
+      this.overlay.find('.items .loading').hide();
+
+      let html = data.html;
+      if (count == 0) html = `<span class="no-results">${await I18n.translate('common.no_results')}</span>`;
+      $(html)
+        .insertBefore(this.overlay.find('.items .loading'))
+        .trigger('dc:html:changed')
+        .trigger('dc:html:initialized');
+
+      this.overlay.find('.items li.item .reveal.media-preview').each(function () {
+        if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+      });
+      this.loading = false;
+      if (
+        this.overlay.children('.items').children('li.item').length < this.total &&
+        this.overlay.children('.items').children('li.item').last().offset().top -
+          this.overlay.children('.items').offset().top <
+          this.overlay.children('.items').first().outerHeight()
+      ) {
+        this.page += 1;
+        this.loadObjects();
+      }
+    });
 
     return promise;
   }

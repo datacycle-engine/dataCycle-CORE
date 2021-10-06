@@ -44,7 +44,11 @@ module DataCycleCore
         @page ||= 1
 
         @results = query.content_includes.page(@page).per(@per)
-        respond_to(:js)
+
+        render json: {
+          count: @total || 0,
+          html: render_to_string(formats: [:html], layout: false)
+        }
       end
     end
 

@@ -16,7 +16,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where(Arel::Nodes::Not.new(create_exists_query_for_classification_alias_ids_with_subtree(ids)))
+            @query.where.not(create_exists_query_for_classification_alias_ids_with_subtree(ids))
           )
         end
 
@@ -32,7 +32,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where(Arel::Nodes::Not.new(create_exists_query_for_classification_alias_ids_without_subtree(ids)))
+            @query.where.not(create_exists_query_for_classification_alias_ids_without_subtree(ids))
           )
         end
 

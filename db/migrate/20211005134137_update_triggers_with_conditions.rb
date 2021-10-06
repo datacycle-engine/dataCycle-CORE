@@ -56,9 +56,10 @@ class UpdateTriggersWithConditions < ActiveRecord::Migration[5.2]
         rrule,
         dtstart,
         relation,
+        exdate,
         rdate ON schedules
         FOR EACH ROW
-        WHEN (OLD.thing_id <> NEW.thing_id OR OLD.duration <> NEW.duration OR OLD.rrule <> NEW.rrule OR OLD.dtstart <> NEW.dtstart OR OLD.relation <> NEW.relation OR OLD.rdate <> NEW.rdate)
+        WHEN (OLD.thing_id <> NEW.thing_id OR OLD.duration <> NEW.duration OR OLD.rrule <> NEW.rrule OR OLD.dtstart <> NEW.dtstart OR OLD.relation <> NEW.relation OR OLD.rdate <> NEW.rdate OR OLD.exdate <> NEW.exdate)
         EXECUTE FUNCTION generate_schedule_occurences_trigger();
     SQL
   end
