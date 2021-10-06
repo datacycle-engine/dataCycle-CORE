@@ -55,7 +55,7 @@ module DataCycleCore
           query = build_search_query
           result = query.typeahead(permitted_params[:search], @language, permitted_params[:limit] || 10)
           words = result.to_a.map { |i| i.dig('word') } # score not needed
-          render plain: words
+          render json: { '@graph' => words }
         end
 
         def deleted
