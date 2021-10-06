@@ -3188,6 +3188,27 @@ body {
     &.new-favorites::before {
       box-shadow: none;
     }
+
+    &.translatable-field.linked-content-warnings {
+      &::before {
+        display: none;
+      }
+
+      &::after {
+        content: '\f110';
+        font-family: FontAwesome;
+        animation: fa-spin 2s infinite linear;
+        color: darken($light-gray, 10%);
+        background-color: transparent;
+        height: 1rem;
+        width: 1rem;
+        line-height: 1rem;
+        font-size: 1rem;
+        margin: 0;
+        vertical-align: middle;
+        display: inline-block;
+      }
+    }
   }
 
   .remote-render-error {
