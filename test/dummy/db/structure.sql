@@ -114,6 +114,24 @@ CREATE FUNCTION public.generate_collected_classification_content_relations_trigg
 
 
 --
+-- Name: generate_content_content_links(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_content_content_links(a uuid, b uuid) RETURNS uuid[]
+    LANGUAGE plpgsql
+    AS $$ BEGIN INSERT INTO content_content_links (content_a_id, content_b_id) SELECT content_a_id, content_b_id FROM content_contents WHERE content_a_id = a AND content_b_id = b ON CONFLICT DO NOTHING; INSERT INTO content_content_links (content_a_id, content_b_id) SELECT content_b_id, content_a_id FROM content_contents WHERE content_a_id = a AND content_b_id = b AND relation_b IS NOT NULL ON CONFLICT DO NOTHING; RETURN ARRAY[a, b]; END;$$;
+
+
+--
+-- Name: generate_content_content_links_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_content_content_links_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_content_content_links(NEW.content_a_id, NEW.content_b_id); RETURN NEW; END;$$;
+
+
+--
 -- Name: generate_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1652,6 +1670,27 @@ CREATE INDEX classified_name_idx ON public.stored_filters USING btree (api, syst
 
 
 --
+-- Name: collected_classification_content_relations_content_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX collected_classification_content_relations_content_id ON public.collected_classification_content_relations USING btree (content_id);
+
+
+--
+-- Name: collected_classification_content_relations_direct_classificatio; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX collected_classification_content_relations_direct_classificatio ON public.collected_classification_content_relations USING gin (direct_classification_alias_ids);
+
+
+--
+-- Name: collected_classification_content_relations_full_classification_; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX collected_classification_content_relations_full_classification_ ON public.collected_classification_content_relations USING gin (full_classification_alias_ids);
+
+
+--
 -- Name: content_b_history_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2488,21 +2527,21 @@ CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.cont
 -- Name: classification_aliases generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDATE ON public.classification_aliases FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_1();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_aliases FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_1();
 
 
 --
 -- Name: classification_tree_labels generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDATE ON public.classification_tree_labels FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_3();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_3();
 
 
 --
 -- Name: classification_trees generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT OR UPDATE ON public.classification_trees FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_2();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_2();
 
 
 --
@@ -2516,7 +2555,7 @@ CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER
 -- Name: classification_contents generate_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger_1 AFTER INSERT OR UPDATE ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_1 AFTER INSERT ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_1();
 
 
 --
@@ -2527,24 +2566,87 @@ CREATE TRIGGER generate_collected_classification_content_relations_trigger_2 AFT
 
 
 --
+-- Name: content_contents generate_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT ON public.content_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_content_content_links_trigger();
+
+
+--
 -- Name: schedules generate_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT OR UPDATE ON public.schedules FOR EACH ROW EXECUTE PROCEDURE public.generate_schedule_occurences_trigger();
+CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT ON public.schedules FOR EACH ROW EXECUTE PROCEDURE public.generate_schedule_occurences_trigger();
+
+
+--
+-- Name: searches tsvectorsearchinsert; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER tsvectorsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE PROCEDURE public.tsvectorsearchupdate();
 
 
 --
 -- Name: searches tsvectorsearchupdate; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectorsearchupdate BEFORE INSERT OR UPDATE ON public.searches FOR EACH ROW EXECUTE PROCEDURE public.tsvectorsearchupdate();
+CREATE TRIGGER tsvectorsearchupdate BEFORE UPDATE OF words, locale, full_text ON public.searches FOR EACH ROW WHEN (((old.words <> new.words) OR ((old.locale)::text <> (new.locale)::text) OR (old.full_text <> new.full_text))) EXECUTE PROCEDURE public.tsvectorsearchupdate();
+
+
+--
+-- Name: searches tsvectortypeaheadsearchinsert; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER tsvectortypeaheadsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
 
 
 --
 -- Name: searches tsvectortypeaheadsearchupdate; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectortypeaheadsearchupdate BEFORE INSERT OR UPDATE ON public.searches FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
+CREATE TRIGGER tsvectortypeaheadsearchupdate BEFORE UPDATE OF full_text ON public.searches FOR EACH ROW WHEN ((old.full_text <> new.full_text)) EXECUTE PROCEDURE tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
+
+
+--
+-- Name: classification_aliases update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW WHEN (((old.internal_name)::text <> (new.internal_name)::text)) EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_1();
+
+
+--
+-- Name: classification_tree_labels update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF name ON public.classification_tree_labels FOR EACH ROW WHEN (((old.name)::text <> (new.name)::text)) EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_3();
+
+
+--
+-- Name: classification_trees update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id <> new.parent_classification_alias_id) OR (old.classification_alias_id <> new.classification_alias_id))) EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_2();
+
+
+--
+-- Name: classification_contents update_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_collected_classification_content_relations_trigger_1 AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id <> new.content_data_id) OR (old.classification_id <> new.classification_id) OR ((old.relation)::text <> (new.relation)::text))) EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_1();
+
+
+--
+-- Name: content_contents update_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE OF content_a_id, content_b_id, relation_b ON public.content_contents FOR EACH ROW WHEN (((old.content_a_id <> new.content_a_id) OR (old.content_b_id <> new.content_b_id) OR ((old.relation_b)::text <> (new.relation_b)::text))) EXECUTE PROCEDURE public.generate_content_content_links_trigger();
+
+
+--
+-- Name: schedules update_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_schedule_occurences_trigger AFTER UPDATE OF thing_id, duration, rrule, dtstart, relation, exdate, rdate ON public.schedules FOR EACH ROW WHEN (((old.thing_id <> new.thing_id) OR (old.duration <> new.duration) OR ((old.rrule)::text <> (new.rrule)::text) OR (old.dtstart <> new.dtstart) OR ((old.relation)::text <> (new.relation)::text) OR (old.rdate <> new.rdate) OR (old.exdate <> new.exdate))) EXECUTE PROCEDURE public.generate_schedule_occurences_trigger();
 
 
 --
@@ -2777,7 +2879,17 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210602112830'),
 ('20210608125638'),
 ('20210621063801'),
+('20210625202737'),
 ('20210628202054'),
-('20210628202737');
+('20210629094413'),
+('20210709121013'),
+('20210731090959'),
+('20210802095013'),
+('20210804140504'),
+('20210817101040'),
+('20210908095952'),
+('20211001085525'),
+('20211005125306'),
+('20211005134137');
 
 
