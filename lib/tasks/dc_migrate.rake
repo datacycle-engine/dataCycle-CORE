@@ -232,14 +232,13 @@ namespace :dc do
       es = DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive')
       return if es.blank?
 
-      contents = DataCycleCore::Thing.where(template_name: 'Ergänzende Information', external_source_id: es.id).includes(:classifications, :translations)
+      contents = DataCycleCore::Thing.where(template_name: 'Ergänzende Information', external_source_id: es.id, external_key: nil).includes(:classifications, :translations)
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Ergänzende Information')
       contents.each do |item|
-        byebug
         desc = item.classifications.first.name
         locale = item.available_locales.first
         parent_external_key = DataCycleCore::ContentContent.where(content_b_id: item.id).first.content_a.external_key
-        item.external_key = "#{desc}(#{locale}):#{parent_external_key}"
+        item.external_key = "#{desc}:#{locale}:#{parent_external_key}"
         item.save!
         progressbar.increment
       end
