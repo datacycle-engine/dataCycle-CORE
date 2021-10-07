@@ -91,10 +91,13 @@ class Validator {
     QuillHelpers.updateEditors(this.$form);
     this.submitFormData = this.sortedFormData();
   }
+  formDataChanged() {
+    return this.initialFormData.length > 0 && !isEqual(this.initialFormData, this.submitFormData);
+  }
   pageLeaveHandler(event) {
     this.updateSubmitFormData();
 
-    if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData)) {
+    if (this.formDataChanged()) {
       event.preventDefault();
       return (event.returnValue = '');
     }
@@ -109,7 +112,7 @@ class Validator {
       this.$languageMenu.on('click', '.list-items > li > a', async event => {
         this.updateSubmitFormData();
 
-        if (this.initialFormData.length && !isEqual(this.initialFormData, this.submitFormData)) {
+        if (this.formDataChanged()) {
           event.preventDefault();
           new ConfirmationModal({
             text: await I18n.translate('frontend.validate.save_and_change_language'),

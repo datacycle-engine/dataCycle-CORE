@@ -2,11 +2,9 @@
 
   <div class="event_period">
     <i class="fa fa-calendar" aria-hidden="true"></i>
-    <%= attribute_viewer_label_tag('event_period', definition, content, nil) %>
 
     <% unless value.try(:start_date).nil? %>
-      <% start_definition = definition&.dig('properties', 'start_date') %>
-      <%= attribute_viewer_label_tag('start_date', start_definition, content, nil) %>
+      <%= t('terms.from', locale: active_ui_locale) %>
       <span class="date">
         <% if value.start_date.to_s(:time) == '00:00' || value.try(:event_schedule)&.length&.>(1) || value.try(:event_schedule)&.first&.to_event_dates&.length&.>(1) %>
           <strong><%= l(value.start_date.to_date, format: :full, locale: active_ui_locale) %></strong>
@@ -17,8 +15,7 @@
     <% end %>
 
     <% unless value.try(:end_date).nil? %>
-      <% end_definition = definition&.dig('properties', 'end_date') %>
-      <%= attribute_viewer_label_tag('end_date', end_definition, content, nil) %>
+      <%= t('terms.until', locale: active_ui_locale) %>
       <span class="date">
         <% if value.end_date.to_s(:time) == '00:00' || value.try(:event_schedule)&.length&.>(1) || value.try(:event_schedule)&.first&.to_event_dates&.length&.>(1) %>
           <strong><%= l(value.end_date.to_date, format: :full, locale: active_ui_locale) %></strong>
