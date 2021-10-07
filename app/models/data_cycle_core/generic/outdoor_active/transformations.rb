@@ -160,7 +160,8 @@ module DataCycleCore
             {
               'name' => name,
               'description' => hash[desc],
-              'universal_classifications' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc))
+              'universal_classifications' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc)),
+              'external_key' => "#{desc}(#{I18n.locale}):#{hash.dig('id')}"
             }
           }.compact
         end
