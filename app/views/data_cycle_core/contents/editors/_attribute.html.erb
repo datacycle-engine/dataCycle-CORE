@@ -1,4 +1,4 @@
-<% Array.wrap(local_assigns.dig(:options, :additional_attribute_partials)).each do |partial| %>
+<% while partial = Array.wrap(local_assigns.dig(:options, :additional_attribute_partials)).shift do %>
   <%= render partial, local_assigns %>
 <% end %>
 
