@@ -58,15 +58,6 @@
       display: block;
 
       .watch-list-item {
-        padding: 0;
-        .watchlist-name {
-          width: 100%;
-          display: block;
-        }
-        .check,
-        .change-link {
-          display: none;
-        }
         a {
           color: $black;
           padding: 0;
@@ -198,41 +189,79 @@
       background: none;
       border-radius: 0;
 
+      &.my-selection {
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid $light-gray;
+      }
+
       &.collection-group-item {
         padding: 0;
       }
 
       .watch-list-item {
-        .check {
-          position: absolute;
-          left: 0;
-          color: $light-gray;
-          &.checked {
-            color: map-get($foundation-palette, primary);
-          }
-        }
         width: 100%;
-        display: block;
-        padding: 0 1.2rem 0 1.2rem;
+        display: flex;
         position: relative;
         line-height: 1.4rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         font-size: 0.9rem;
+
         &.private {
           font-weight: 600;
         }
         &.shared {
           font-style: italic;
         }
-      }
 
-      .change-link {
-        position: absolute;
-        right: 0;
-        padding: 0;
-        width: 1.1rem;
+        .watchlist-name {
+          flex: auto;
+          overflow: hidden;
+          text-overflow: ellipsis;
+
+          .fa {
+            margin-right: 0.3rem;
+            font-size: 0.9rem;
+          }
+        }
+
+        .check {
+          color: $light-gray;
+
+          &.checked {
+            color: map-get($foundation-palette, primary);
+          }
+        }
+
+        button.button-prime.bulk-edit-link {
+          margin: 0 0.3rem 0 0;
+          background: transparent;
+          box-shadow: none;
+          padding: 0;
+          width: auto;
+          height: auto;
+
+          .fa {
+            color: $dark-gray;
+            line-height: 1rem;
+          }
+
+          &:hover,
+          &:focus {
+            background: transparent;
+            box-shadow: none;
+
+            .fa {
+              color: $black;
+            }
+          }
+        }
+
+        > *:not(:last-child) {
+          margin-right: 0.3rem;
+        }
       }
     }
   }
@@ -310,6 +339,7 @@
       color: $dark-gray;
       background: none;
       box-shadow: none;
+
       &:hover {
         color: $black;
       }
@@ -318,13 +348,6 @@
         font-size: 1rem;
       }
     }
-  }
-}
-
-.watchlist-name {
-  .fa {
-    margin-right: 0.3rem;
-    font-size: 0.9rem;
   }
 }
 

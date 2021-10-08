@@ -16,13 +16,16 @@
             </div>
           </li>
 
-          <li>
-            <%= tag.span tag.i(class: 'fa fa-language', aria_hidden: true),
-                                     class: 'link',
-                                     title: @watch_list.available_locales
-                                         .map { |t| t("locales.#{t}", locale: active_ui_locale) }
-                                         .join("\n") %>
-          </li>
+          <% if @watch_list.available_locales.present? %>
+            <li>
+              <%= tag.span tag.i(class: 'fa fa-language', aria_hidden: true),
+                            class: 'link',
+                            title: @watch_list.available_locales
+                                .map { |t| t("locales.#{t}", locale: active_ui_locale) }
+                                .join("\n") %>
+            </li>
+          <% end %>
+
           <% if can?(:copy_api_link, DataCycleCore::WatchList) %>
             <li>
               <span class="link" aria_hidden="true">
@@ -36,6 +39,7 @@
                 <% end %>
               </span>
             </li>
+
             <% if DataCycleCore::Feature::Preview.enabled? %>
               <li>
                 <%= render 'data_cycle_core/application/preview/widget', content: @watch_list %>
@@ -93,31 +97,7 @@
           <i class="fa fa-pencil" aria-hidden="true"></i>
         <% end if can?(:edit, @watch_list) %>
 
-        <% if can?(:bulk_edit, @watch_list) %>
-          <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? @watch_list.things.locks.includes(:user, activitiable: [:translations]) : nil %>
-
-          <span title="<%= bulk_edit_button_title(content_locks, @watch_list) %>" data-tooltip data-allow-html="true">
-            <%= button_to bulk_edit_watch_list_path(@watch_list),
-                  method: :get,
-                  disabled: content_locks.present? || @watch_list.things.size > DataCycleCore.global_configs[:bulk_update_limit],
-                  class: "button-prime small bulk-edit-link #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked show-pie-text' if content_locks.present?}",
-                  data: {
-                    disable: true
-                  }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
-                    lock_length: DataCycleCore::Feature::ContentLock.lock_length,
-                    lock_content_id: @watch_list&.id,
-                    lock_user_id: current_user.id,
-                    lock_check_path: check_lock_watch_list_path(@watch_list)
-                  } : {}).merge(content_locks.present? ? {
-                    locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h,
-                  } : {}) do %>
-              <% if DataCycleCore::Feature::ContentLock.enabled? %>
-                <%= tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') %>
-              <% end %>
-              <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-            <% end %>
-          </span>
-        <% end %>
+        <%= render 'data_cycle_core/watch_lists/bulk_edit_button', collection: @watch_list if can?(:bulk_edit, @watch_list) %>
 
         <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { confirm: "#{@watch_list.model_name.human(locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?" }, title: t('actions.delete', locale: active_ui_locale) do %>
           <i class="fa fa-trash-o" aria-hidden="true"></i>
@@ -140,6 +120,16 @@
             <% end %>
           </span>
         <% end %>
+
+        <%= link_to clear_watch_list_path(@watch_list),
+                    method: :delete,
+                    class:'button-prime small alert',
+                    data: {
+                      confirm: "#{t('actions.clear', data: @watch_list.model_name.human(locale: active_ui_locale), locale: active_ui_locale)}?"
+                    },
+                    title: t('actions.clear', data: @watch_list.model_name.human(locale: active_ui_locale), locale: active_ui_locale) do %>
+          <i class="fa fa-times" aria-hidden="true"></i>
+        <% end if can? :clear, @watch_list %>
 
       </div>
 

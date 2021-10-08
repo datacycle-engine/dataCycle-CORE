@@ -173,6 +173,19 @@
         border: none;
         cursor: pointer;
         line-height: 1.6;
+
+        &.watch-list-dropdown {
+          padding: 0;
+
+          > .watch-lists-link {
+            padding: 0 0.5rem;
+          }
+        }
+
+        .dropdown-pane {
+          cursor: initial;
+        }
+
         &:hover {
           opacity: 1;
           color: lighten($body-font-color, 30%);

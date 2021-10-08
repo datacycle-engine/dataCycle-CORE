@@ -20,5 +20,9 @@
     </ul>
   </li>
 <% else %>
+  <%= render 'data_cycle_core/application/watch_lists/editable_link',
+              watch_list: current_user.my_selection,
+              content: local_assigns[:content] unless current_user&.my_selection.nil? %>
+
   <%= yield_content! :collection_links %>
 <% end %>

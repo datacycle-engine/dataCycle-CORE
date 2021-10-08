@@ -692,6 +692,8 @@ en:
     copyable_from: Apply %{data}
     copyable_from_clear: '%{data} discard'
     logout: Logout
+    clear: 'remove all contents from %{data}'
+
   validation:
     errors:
       slug: '%{data} is already the slug of another record.'
@@ -825,6 +827,7 @@ en:
         one: '<b>%{count}</b> Content was created'
         other: '<b>%{count}</b> Contents were created'
       removed_lock: Content has been released
+      cleared_collection: 'removed all contents from %{data}'
     warning:
       no_changes: No new version was created because no changes were made to the content.
     info:

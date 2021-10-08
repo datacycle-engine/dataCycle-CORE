@@ -343,6 +343,14 @@ module DataCycleCore
       download_indesign_collection(@watch_list, download_items, serialize_format, languages, :serialize_watch_list)
     end
 
+    def clear
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+
+      @watch_list.watch_list_data_hashes.clear
+
+      redirect_back(fallback_location: root_path, notice: (I18n.t :cleared_collection, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+    end
+
     private
 
     def watch_list_params

@@ -705,6 +705,7 @@ de:
     copyable_from: '%{data} übernehmen'
     copyable_from_clear: '%{data} verwerfen'
     logout: Abmelden
+    clear: 'Alle Inhalte aus %{data} entfernen'
 
   validation:
     errors:
@@ -826,6 +827,7 @@ de:
         one: '<b>%{count}</b> Inhalt wurde erstellt'
         other: '<b>%{count}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
+      cleared_collection: 'Alle Inhalte wurden aus %{data} entfernt'
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:
