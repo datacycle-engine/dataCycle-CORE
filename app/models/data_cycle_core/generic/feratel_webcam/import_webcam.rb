@@ -21,25 +21,24 @@ module DataCycleCore
           I18n.with_locale(locale) do
             pg = raw_data.dig('config', 'pg')
             cam_host = raw_data.dig('config', 'cam_host')
-            cam_details = raw_data.dig('co', 'pl', 'pcs', 'pc').detect { |i| i.dig('t') == '1' }
+            cam_details = raw_data&.dig('co', 'pl', 'pcs', 'pc')&.detect { |i| i.dig('t') == '1' }
             return if cam_details.blank?
             return unless cam_details.dig('pci').is_a?(::Array)
-            if cam_details.present?
-              if cam_details.dig('is').present?
-                DataCycleCore::Generic::FeratelWebcam::Processing.process_image(
-                  utility_object,
-                  cam_details.dig('is').merge({ 'rid' => cam_details['rid'], 'type' => 'is', 'url_key' => 'is' }),
-                  options.dig(:import, :transformations, :image)
-                )
-              end
 
-              if cam_details.dig('h').present?
-                DataCycleCore::Generic::FeratelWebcam::Processing.process_image(
-                  utility_object,
-                  cam_details.dig('h').merge({ 'rid' => cam_details['rid'], 'type' => 'h', 'url_key' => 's' }),
-                  options.dig(:import, :transformations, :image)
-                )
-              end
+            if cam_details.dig('is').present?
+              DataCycleCore::Generic::FeratelWebcam::Processing.process_image(
+                utility_object,
+                cam_details.dig('is').merge({ 'rid' => cam_details['rid'], 'type' => 'is', 'url_key' => 'is' }),
+                options.dig(:import, :transformations, :image)
+              )
+            end
+
+            if cam_details.dig('h').present?
+              DataCycleCore::Generic::FeratelWebcam::Processing.process_image(
+                utility_object,
+                cam_details.dig('h').merge({ 'rid' => cam_details['rid'], 'type' => 'h', 'url_key' => 's' }),
+                options.dig(:import, :transformations, :image)
+              )
             end
 
             ['24', '25'].each do |item|
