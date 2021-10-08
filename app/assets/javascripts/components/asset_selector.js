@@ -61,11 +61,27 @@ class AssetSelector {
         types: this.editableList.data('asset-types'),
         asset_ids: this.selectedAssetIds
       },
-      dataType: 'script',
+      dataType: 'json',
       contentType: 'application/json'
-    }).finally((_data, _text, _jqXHR) => {
-      DataCycle.enableElement(this.editButton);
-    });
+    })
+      .then(data => {
+        this.editableList.find('.loading').remove();
+
+        console.log('setSelectedAssets', this.editableList);
+
+        if (data.assets && data.assets.length) {
+          const $html = $(data.html).find('>li, >h4.list-title');
+
+          this.editableList.html($html).trigger('dc:asset_list:changed', {
+            assets: data.assets,
+            selected: this.selectedAssetIds
+          });
+          $html.trigger('dc:html:changed').trigger('dc:html:initialized');
+        }
+      })
+      .finally((_data, _text, _jqXHR) => {
+        DataCycle.enableElement(this.editButton);
+      });
   }
   async destroyAsset(event) {
     event.preventDefault();
