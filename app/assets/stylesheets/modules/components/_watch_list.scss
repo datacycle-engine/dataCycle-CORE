@@ -225,6 +225,8 @@
 
           > a {
             flex: auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
           .fa {
@@ -250,14 +252,14 @@
           }
         }
 
-        button.button-prime.bulk-edit-link,
-        a.button-prime.clear-collection-link {
+        .button-prime {
           margin: 0;
           background: transparent !important;
           box-shadow: none;
           padding: 0;
           width: auto;
           height: auto;
+          border-radius: 0;
 
           .fa {
             color: $primary-color;
@@ -273,17 +275,17 @@
               color: lighten($primary-color, 10%);
             }
           }
-        }
 
-        a.button-prime.clear-collection-link {
-          .fa {
-            color: $alert-color;
-          }
-
-          &:hover,
-          &:focus {
+          &.alert {
             .fa {
-              color: lighten($alert-color, 10%);
+              color: $alert-color;
+            }
+
+            &:hover,
+            &:focus {
+              .fa {
+                color: lighten($alert-color, 10%);
+              }
             }
           }
         }
