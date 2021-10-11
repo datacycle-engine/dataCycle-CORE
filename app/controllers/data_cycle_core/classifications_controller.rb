@@ -65,7 +65,10 @@ module DataCycleCore
               else
                 DataCycleCore::ClassificationAlias.all
               end
-      query = query.search(params[:q])
+
+      I18n.with_locale(helpers.active_ui_locale) do
+        query = query.search(params[:q])
+      end
       query = query.order_by_similarity(params[:q])
       query = query.limit(params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
       query = query.where.not(id: params[:exclude]) if params[:exclude].present?

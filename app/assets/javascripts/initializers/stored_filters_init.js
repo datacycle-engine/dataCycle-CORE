@@ -22,13 +22,15 @@ export default function () {
         }
       ];
       loading = true;
+
       $('.search-history-list').append(loadingIcon());
+
       DataCycle.httpRequest({
         url: '',
         method: 'GET',
         data: form_data,
         dataType: 'script'
-      }).done(_data => {
+      }).then(_data => {
         loading = false;
         $('.search-history-list .loading').remove();
 

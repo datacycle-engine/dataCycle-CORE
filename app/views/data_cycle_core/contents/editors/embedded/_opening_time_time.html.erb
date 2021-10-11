@@ -8,7 +8,7 @@
 
   <%
     readonly = !attribute_editable?(key, definition, local_assigns[:options], content)
-    new_key = "#{key}[#{index}]"
+    new_prefix = embedded_key_prefix(key, index)
   %>
 
   <span class="embedded-header">
@@ -25,7 +25,7 @@
 
   <a href="#" class="accordion-title">
     <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-    <span class="embedded-label"><%= definition['label'] %></span>
+    <span class="embedded-label"><%= translated_attribute_label(key, definition, content, options) %></span>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   </a>
 
@@ -35,40 +35,40 @@
         } %>
   <% end %>
 
-  <%= hidden_field_tag("#{new_key}[id]", local_assigns[:object].id) unless local_assigns[:duplicated_content] || local_assigns[:object].nil? %>
+  <%= hidden_field_tag("#{new_prefix}[id]", local_assigns[:object].id) unless local_assigns[:duplicated_content] || local_assigns[:object].nil? %>
 
   <% value = local_assigns[:object]&.to_h || {} %>
 
   <div class="opening-time-time embedded-properties accordion-content" data-tab-content>
     <div class="daterange opening-time-time-range">
       <div class="form-element opens">
-        <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[opens]")}" do %>
+        <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[opens]")}" do %>
           <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
           <%= t('opening_time.opens', locale: active_ui_locale) %>
         <% end %>
         <% if readonly %>
-          <%= text_field_tag "#{new_key}[opens]",
+          <%= text_field_tag "#{new_prefix}[opens]",
             l(value.dig(:start_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale),
             class: 'read-only date',
-            id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[opens]")}", readonly: true %>
+            id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[opens]")}", readonly: true %>
         <% else %>
-          <%= time_field_tag "#{new_key}[opens]", l(value.dig(:start_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[opens]")}", data: { type: 'timepicker' } %>
+          <%= time_field_tag "#{new_prefix}[opens]", l(value.dig(:start_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[opens]")}", data: { type: 'timepicker' } %>
         <% end %>
       </div>
 
       <div class="form-element closes">
-        <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[closes]")}" do %>
+        <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[closes]")}" do %>
           <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
           <%= t('opening_time.closes', locale: active_ui_locale) %>
         <% end %>
 
         <% if readonly %>
-          <%= text_field_tag "#{new_key}[closes]",
+          <%= text_field_tag "#{new_prefix}[closes]",
             l(value.dig(:end_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale),
             class: 'read-only date',
-            id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[closes]")}", readonly: true %>
+            id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[closes]")}", readonly: true %>
         <% else %>
-          <%= time_field_tag "#{new_key}[closes]", l(value.dig(:end_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[closes]")}", data: { type: 'timepicker' } %>
+          <%= time_field_tag "#{new_prefix}[closes]", l(value.dig(:end_time, :time)&.in_time_zone, format: :time_only, locale: active_ui_locale), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_prefix}[closes]")}", data: { type: 'timepicker' } %>
         <% end %>
       </div>
     </div>

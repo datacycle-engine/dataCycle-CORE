@@ -19,10 +19,10 @@
           <h5>Details</h5>
           <dl>
             <% ['caption', 'description'].each do |property_name| %>
-              <% next if content.try(property_name.to_sym).blank? %>
+              <% next if content.properties_for(property_name).blank? %>
               <dd>
                 <%= render_attribute_viewer key: property_name,
-                                                            definition: content.schema['properties'][property_name],
+                                                            definition: content.properties_for(property_name),
                                                             value: content.try(property_name.to_sym),
                                                             parameters: { options: {} },
                                                             content: content %>

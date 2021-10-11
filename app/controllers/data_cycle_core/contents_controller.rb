@@ -89,7 +89,7 @@ module DataCycleCore
     end
 
     def new
-      @resolved_params = resolve_params(new_params)
+      @resolved_params = resolve_params(new_params).symbolize_keys
       @template = DataCycleCore::Thing.find_by(template: true, template_name: @resolved_params[:template])
 
       return if @template.nil?
@@ -177,28 +177,28 @@ module DataCycleCore
         authorize!(:update, @content)
 
         object_params = content_params(@content.template_name)
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
+        datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, @content.schema)
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
-        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true, version_name: object_params[:version_name])
+        merge_duplicate = params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
 
-        if valid[:error].present?
-          flash[:error] = valid[:error]
-          redirect_back(fallback_location: root_path)
-          return
+        version_name_for_merge(datahash) if merge_duplicate
+
+        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true, force_update: merge_duplicate)
+          flash[:error] = @content.errors.full_messages
+          redirect_back(fallback_location: root_path) && return
         end
 
-        if valid[:warning].present?
-          flash[:info] = valid[:warning]
+        if @content.warnings.present?
+          flash[:info] = @content.warnings.messages
         else
           flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale
         end
 
-        duplicate = params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
-        merge_and_remove_duplicate if duplicate
+        merge_and_remove_duplicate if merge_duplicate
 
         if params[:new_locale].present?
           redirect_to(edit_thing_path(@content, watch_list_params.merge(locale: params[:new_locale])))
-        elsif !params[:save_and_close] && !params[:finalize] && !duplicate
+        elsif !params[:save_and_close] && !params[:finalize] && !merge_duplicate
           redirect_back(fallback_location: root_path)
         else
           redirect_to(thing_path(@content, watch_list_params.merge(locale: I18n.locale)))
@@ -306,19 +306,19 @@ module DataCycleCore
     def validate
       @object = DataCycleCore::Thing.find_by(id: validation_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: validation_params[:template])
 
-      render json: { warning: { content: ['content/template not found'] } } && return if @object.nil?
+      render(json: { warning: { content: ['content/template not found'] } }) && return if @object.nil?
 
       authorize! :show, @object
 
       object_params = content_params(@object.template_name)
-      translation_locale = object_params[:translations]&.keys&.first
-      translation_values = object_params[:translations]&.dig(translation_locale) || {}
-      data_hash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, @object.schema)
+      locale, values = datahash[:translations]&.first
+      datahash = (datahash[:datahash] || {}).merge(values || {})
 
-      I18n.with_locale(translation_locale || validation_params[:locale]) do
-        valid = @object.validate(data_hash, nil, validation_params[:strict] == '1', true, current_user)
+      I18n.with_locale(locale || validation_params[:locale]) do
+        @object.validate(data_hash: datahash, strict: validation_params[:strict] == '1', add_defaults: true, current_user: current_user)
 
-        render json: DataCycleCore::LocalizationService.localize_validation_errors(valid, helpers.active_ui_locale).to_json
+        render json: @object.validation_messages_as_json.to_json
       end
     end
 
@@ -424,12 +424,39 @@ module DataCycleCore
              content_type: 'application/json'
     end
 
+    def attribute_value
+      content = DataCycleCore::Thing.find(attribute_value_params[:id])
+
+      values = {}
+
+      attribute_value_params[:keys].each do |key|
+        key_path = key.gsub(/\[datahash\]|\[translations\]\[[^\]]*\]/, '').scan(/\[(.*?)\]/).flatten
+        key_locale = key.scan(/\[translations\]\[([^\]]*)\]/).flatten.first
+
+        next if key_path.blank?
+
+        I18n.with_locale(key_locale || attribute_value_params[:locale]) do
+          value = (value || content).try(key_path.shift) while key_path.present?
+          values[key] = value
+          values[key] = RGeo::GeoJSON.encode(values[key]) if values[key].presence.try(:geometry_type)
+          values[key] = values[key].id if values[key].is_a?(ActiveRecord::Base)
+          values[key] = values[key].pluck(:id) if values[key].is_a?(ActiveRecord::Relation)
+        end
+      end
+
+      render json: values.reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }.to_json
+    end
+
     private
 
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
       authorize! :show, watch_list
       @watch_list = watch_list
+    end
+
+    def attribute_value_params
+      params.permit(:id, :locale, keys: [])
     end
 
     def path_params
@@ -484,13 +511,12 @@ module DataCycleCore
     end
 
     def content_params(template_name, params_hash = nil)
-      datahash = DataCycleCore::DataHashService.get_object_params(template_name)
-      translations = I18n.available_locales.map { |l| [l, datahash] }.to_h
+      allowed_content_params = DataCycleCore::DataHashService.get_object_params(template_name)
 
       if params_hash.present?
-        params_hash.permit(datahash: datahash, translations: translations)
+        params_hash.permit(allowed_content_params)
       else
-        params.require(:thing).permit(:version_name, datahash: datahash, translations: translations)
+        params.require(:thing).permit(:version_name, allowed_content_params)
       end
     end
 

@@ -97,9 +97,10 @@ module DataCycleCore
 
         return_data = self.class.joins(:translations)
           .where(content_table_id => send(content_table_id))
-          .where(
-            in_range(history_table_translation, timestamp)
-          ).order(history_table_translation[:history_valid])
+          .where(history_table_translation[:locale].eq(first_available_locale))
+          .where(in_range(history_table_translation, timestamp))
+          .order(history_table_translation[:history_valid])
+
         return_data.last
       end
     end

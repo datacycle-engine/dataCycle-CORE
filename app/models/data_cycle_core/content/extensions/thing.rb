@@ -8,6 +8,7 @@ module DataCycleCore
 
         def title(data_hash: nil)
           data_hash ||= {}
+
           case schema_type
           when 'Organization', 'Event', 'CreativeWork', 'Product', 'Intangible'
             data_hash['name'].presence || name

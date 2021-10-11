@@ -2,7 +2,6 @@ import Flatpickr from 'flatpickr';
 import { German } from 'flatpickr/dist/l10n/de.js';
 import { english } from 'flatpickr/dist/l10n/default';
 import ConfirmationModal from './../components/confirmation_modal';
-import DataCycle from './data_cycle';
 import castArray from 'lodash/castArray';
 
 class DatePicker {
@@ -153,7 +152,7 @@ class DatePicker {
     if (DataCycle.cache.holidays[year]) return;
 
     DataCycle.cache.holidays.loadingHolidays[year] = true;
-    DataCycle.cache.holidays.loadingHolidaysRequest[year] = DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: '/holidays',
       method: 'GET',
       data: {
@@ -161,14 +160,18 @@ class DatePicker {
       },
       dataType: 'json',
       contentType: 'application/json'
-    })
-      .done(data => {
+    });
+
+    promise
+      .then(data => {
         DataCycle.cache.holidays[year] = data || [];
       })
-      .always(_ => {
+      .finally(_ => {
         DataCycle.cache.holidays.loadingHolidays[year] = false;
         DataCycle.cache.holidays.loadingHolidaysRequest[year] = null;
       });
+
+    DataCycle.cache.holidays.loadingHolidaysRequest[year] = promise;
   }
   createDayElement(_dObj, _dStr, _fp, dayElem) {
     if (dayElem.classList.contains('dc-holidays-initialized')) return;
@@ -181,8 +184,12 @@ class DatePicker {
     dayElem.classList.add('dc-holidays-initialized');
   }
   markHoliday(dayElem, year) {
-    if (!DataCycle.cache.holidays[year] && DataCycle.cache.holidays.loadingHolidays[year])
-      return DataCycle.cache.holidays.loadingHolidaysRequest[year].done(_ => this.markHoliday(dayElem, year));
+    if (!DataCycle.cache.holidays[year] && DataCycle.cache.holidays.loadingHolidays[year]) {
+      const promise = DataCycle.cache.holidays.loadingHolidaysRequest[year];
+      promise.then(_ => this.markHoliday(dayElem, year));
+
+      return promise;
+    }
 
     const holiday = DataCycle.cache.holidays[year].find(v => v.date === Flatpickr.formatDate(dayElem.dateObj, 'Y-m-d'));
 
@@ -211,8 +218,11 @@ class DatePicker {
       this.setDate(null, data.value);
       this.updateConditionalField(data.value);
     } else {
+      const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
+      const labelText = label && label.innerText;
+
       new ConfirmationModal({
-        text: await I18n.translate('frontend.override_warning', { data: data.label }),
+        text: await I18n.translate('frontend.override_warning', { data: labelText }),
         confirmationText: await I18n.translate('common.yes'),
         cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',

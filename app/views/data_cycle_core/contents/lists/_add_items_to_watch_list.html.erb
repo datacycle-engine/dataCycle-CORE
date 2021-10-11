@@ -1,7 +1,7 @@
-<div class="reveal" id="<%= "add-items-to-watch-list-overlay-#{template_name}-#{relation_a}" %>" data-reveal>
+<div class="reveal" id="<%= "add-items-to-watch-list-overlay-#{template_name.underscore_blanks}-#{relation_a}" %>" data-reveal>
   <h3><%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %></h3>
 
-  <%= form_with url: add_related_items_watch_lists_path, local: true, id: 'add-items-to-watch-list-form' do |f| %>
+  <%= form_with url: add_related_items_watch_lists_path, local: true, id: "add-items-to-watch-list-form-#{SecureRandom.hex(10)}" do |f| %>
     <%= hidden_field_tag :template_name, template_name %>
     <%= hidden_field_tag :relation_a, relation_a %>
     <%= hidden_field_tag :content_id, content.id %>
@@ -15,7 +15,7 @@
           {},
           {
             class: 'single-select',
-            id: 'add-items-to-watch-list-select',
+            id: "add-items-to-watch-list-select-#{SecureRandom.hex(10)}",
             data: {
               allow_clear: false,
               tags: true
@@ -27,7 +27,7 @@
       <%= f.button t('actions.add', locale: active_ui_locale),
         class: 'button primary',
         data: {
-          disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-fw'></i> #{t('actions.add', locale: active_ui_locale)}"
+          disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.add', locale: active_ui_locale)}"
         },
         type: :submit %>
     </div>

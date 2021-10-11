@@ -5,9 +5,11 @@
         <i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) + ' ' + t('actions.bulk_edit', locale: active_ui_locale) %> (<%= I18n.locale %>)
       </div>
       <ul>
+        <% content = generic_content(@shared_template_features, @shared_properties) %>
+
         <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
 
-        <%= render 'edit_locale_links', locales: available_locales_with_names, content: watch_list %>
+        <%= tag.li render('data_cycle_core/contents/editors/metadata/locales_list', content: watch_list), class: 'has-dropdown' if content.translatable? && I18n.available_locales&.many? %>
 
         <li class="buttons">
           <%= link_to tag.button(
@@ -50,25 +52,19 @@
     <div class="row">
       <div class="column">
         <div class="detail-header editor">
-          <% schema = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys %>
           <%= tag.span(t('controllers.error.no_shared_attributes', locale: active_ui_locale), class: 'bulk-no-attributes') if @shared_properties.blank? %>
           <% @shared_properties.presence&.each do |key, prop| %>
-            <div class="bulk-update-type" data-attribute-key="<%= "#{key_prefix}[#{key}]" %>">
-              <%= f.collection_check_boxes "bulk_update[#{key}]", bulk_update_types(prop), :value, :text, { include_hidden: false  } %>
-            </div>
-
-            <%= render_attribute_editor key: "#{key_prefix}[#{key}]",
-              definition: prop,
-              value: nil,
-              parameters: {
-                options: {
-                  edit_scope: 'bulk_edit'
-                }
-              },
-              content: DataCycleCore::Thing.new { |t|
-                t.id = SecureRandom.uuid
-                t.schema = schema
-              } %>
+            <%= render_attribute_editor key: key,
+                                        prefix: key_prefix,
+                                        definition: prop,
+                                        value: nil,
+                                        parameters: {
+                                          options: {
+                                            additional_attribute_partials: ['data_cycle_core/contents/bulk_update_type_selector'],
+                                            edit_scope: 'bulk_edit'
+                                          }
+                                        },
+                                        content: content %>
           <% end %>
         </div>
       </div>

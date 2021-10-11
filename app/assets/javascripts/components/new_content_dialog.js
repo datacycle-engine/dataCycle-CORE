@@ -121,19 +121,21 @@ class NewContentDialog {
 
     formData.forEach((v, i) => {
       if (v && v.value.isUuid()) {
-        requests.push(
-          DataCycle.httpRequest({
-            url: `/api/v4/universal/${v.value}`,
-            method: 'POST',
-            data: { fields: 'name,skos:prefLabel' }
-          }).done(data => {
-            v.text =
-              data &&
-              data['@graph'] &&
-              data['@graph'][0] &&
-              (data['@graph'][0]['skos:prefLabel'] || data['@graph'][0].name);
-          })
-        );
+        const promise = DataCycle.httpRequest({
+          url: `/api/v4/universal/${v.value}`,
+          method: 'POST',
+          data: { fields: 'name,skos:prefLabel' }
+        });
+
+        promise.then(data => {
+          v.text =
+            data &&
+            data['@graph'] &&
+            data['@graph'][0] &&
+            (data['@graph'][0]['skos:prefLabel'] || data['@graph'][0].name);
+        });
+
+        requests.push(promise);
       }
     });
 
@@ -170,7 +172,7 @@ class NewContentDialog {
     const formFields = $(container).find('> fieldset > .form-element, > .form-element').addBack('.form-element');
 
     let button = $(
-      `<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle ${this.templateTranslationPlural} übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-circle-o-notch fa-spin"></i></button>`
+      `<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle ${this.templateTranslationPlural} übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-spinner fa-fw fa-spin"></i></button>`
     );
 
     button.insertBefore(formFields);
@@ -201,7 +203,6 @@ class NewContentDialog {
         .find('[data-key="' + key + '"]')
         .find(DataCycle.config.EditorSelectors.join(', '))
         .trigger('dc:import:data', {
-          label: key.getKey(),
           value: typeof groupedAttributes[key] == 'string' ? groupedAttributes[key].trim() : groupedAttributes[key],
           locale: data.locale || 'de',
           force: true
@@ -373,23 +374,28 @@ class NewContentDialog {
     this.form
       .find('.buttons')
       .before(
-        '<fieldset class="content-fields"><div class="form-loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div></fieldset>'
+        '<fieldset class="content-fields"><div class="form-loading"><i class="fa fa-spinner fa-spin fa-fw"></i></div></fieldset>'
       );
     DataCycle.disableElement(this.form);
     let template = this.form.find(':input[name="template"]').val();
     let params = this.form.data();
     params['template'] = template;
     params['key'] = this.id;
-    DataCycle.httpRequest({
+
+    const promise = DataCycle.httpRequest({
       url: '/things/new',
       method: 'GET',
       data: params,
       dataType: 'script',
       contentType: 'application/json'
-    }).done(data => {
+    });
+
+    promise.then(_data => {
       this.form.data('template', template);
       this.updateForm();
     });
+
+    return promise;
   }
   resetForm(_) {
     this.form.find(':input').blur();

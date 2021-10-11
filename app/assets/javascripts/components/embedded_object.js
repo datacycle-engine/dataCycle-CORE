@@ -9,7 +9,6 @@ class EmbeddedObject {
     this.element = selector;
     this.page = 1;
     this.id = this.element.prop('id');
-    this.locale = this.element.data('locale') || 'de';
     this.key = this.element.data('key');
     this.label = this.element.data('label');
     this.definition = this.element.data('definition');
@@ -59,6 +58,9 @@ class EmbeddedObject {
 
     this.addEventHandlers();
   }
+  locale() {
+    return this.element.data('locale') || 'de';
+  }
   async import(_event, data) {
     let newItems = difference(
       data.value,
@@ -72,7 +74,7 @@ class EmbeddedObject {
       (this.max == 0 || this.element.children('.content-object-item').length < this.max) &&
       newItems.length > 0
     ) {
-      this.renderEmbeddedObjects('split_view', newItems, data.locale, data.translate);
+      await this.renderEmbeddedObjects('split_view', newItems, data.locale, data.translate);
     } else if (this.write && this.max != 0 && ids.length + newItems.length > this.max) {
       new ConfirmationModal({ text: await I18n.translate('frontend.maximum_embedded') });
     }
@@ -120,14 +122,15 @@ class EmbeddedObject {
     else if (type == 'new') this.index++;
 
     this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
-    DataCycle.httpRequest({
+
+    const promise = DataCycle.httpRequest({
       url: this.url + '/render_embedded_object',
       method: 'GET',
       dataType: 'script',
       contentType: 'application/json',
       data: {
         index: index,
-        locale: this.locale,
+        locale: this.locale(),
         attribute_locale: locale,
         key: this.key,
         definition: this.definition,
@@ -138,11 +141,15 @@ class EmbeddedObject {
         duplicated_content: type == 'split_view',
         translate: translate
       }
-    }).done(_data => {
+    });
+
+    promise.then(_data => {
       if (ids.length > 0) this.ids = union(this.ids, ids);
       this.update();
       this.addEventHandlers();
     });
+
+    return promise;
   }
   findRemoveButton(element) {
     return $(element).find('> .removeContentObject, > .form-element > .editor-block > .removeContentObject');
@@ -163,7 +170,10 @@ class EmbeddedObject {
       .off('init.zf.accordion', this.eventHandlers.scrollToLocationHash)
       .on('init.zf.accordion', this.eventHandlers.scrollToLocationHash);
   }
-  addNewItem(_event) {
+  addNewItem(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
     this.renderEmbeddedObjects('new');
   }
   handleRemoveEvent(event) {

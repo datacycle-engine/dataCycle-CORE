@@ -22,6 +22,8 @@
               object: object,
               locale: @locale,
               duplicated_content: @duplicated_content.to_s == 'true',
+              force_render_child_locales: true,
+              force_render_locales: object.available_locales,
               hide_embedded: @hide_embedded.to_s == 'true',
               attribute_locale: @attribute_locale,
               translate: @translate
@@ -32,15 +34,20 @@
   <% end %>
 <% end %>
 
-$('#<%= sanitize_to_id(@key) %> > .buttons > .addContentObject .fa').css('display', 'none');
-$('#<%= sanitize_to_id(@key) %> > .buttons > button').prop('disabled', false);
+(function(){
+  $('#<%= sanitize_to_id(@key) %> > .buttons > .addContentObject .fa').css('display', 'none');
+  $('#<%= sanitize_to_id(@key) %> > .buttons > button').prop('disabled', false);
 
-var followingEmbedded = $('#<%= sanitize_to_id(@key) %> > .content-object-item').filter(function(){
-return parseInt($(this).data('index')) > parseInt(<%= @index.presence&.to_i %>);
-}).first();
+  let $followingEmbedded = $('#<%= sanitize_to_id(@key) %> > .content-object-item').filter(function(){
+    return parseInt($(this).data('index')) > parseInt(<%= @index.presence&.to_i %>);
+  }).first();
 
-if (followingEmbedded.length) $(followingEmbedded).before('<%= j yield :rendered_items %>');
-else $('#<%= sanitize_to_id(@key) %> > .buttons').before('<%= j yield :rendered_items %>');
+  let $content = $('<%= j yield :rendered_items %>');
 
-$('<%= j content_for :forms %>').appendTo('body').foundation();
-$('<%= (@index.presence&.to_i..(@index.presence&.to_i + @objects&.size.to_i)).map { |i| "##{sanitize_to_id(@key)}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed').trigger('dc:html:initialized', { newContent: <%= @objects.nil? || @duplicated_content.to_s == 'true' %> });
+  if ($followingEmbedded.length) $content.insertBefore($followingEmbedded);
+  else $content.insertBefore('#<%= sanitize_to_id(@key) %> > .buttons');
+
+  $('<%= j content_for :forms %>').appendTo('body').foundation();
+
+  $content.trigger('dc:html:changed').trigger('dc:html:initialized', { newContent: <%= @objects.nil? || @duplicated_content.to_s == 'true' %> });
+})();

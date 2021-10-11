@@ -26,8 +26,8 @@ class SimpleSelect2 extends BasicSelect2 {
     this.$element.off('dc:create:option', this.eventHandlers.createOption);
     this.$element.closest('.form-element').off('dc:upload:filesChanged', this.eventHandlers.reloadData);
   }
-  loadNewOptions(value, newOptions) {
-    this.$element.val(value.concat(newOptions)).trigger('change');
+  async loadNewOptions(value, newOptions) {
+    await this.$element.val(value.concat(newOptions)).trigger('change');
   }
   createOption(_event, data) {
     let newOption = new Option(data.text, data.id, false, false);
@@ -106,13 +106,15 @@ class SimpleSelect2 extends BasicSelect2 {
     let reloadPath = this.config.reloadPath;
     let type = this.config.type;
 
-    if (!reloadPath || !reloadPath.length || !type || !type.length) return;
+    if (!reloadPath || !reloadPath.length || !type || !type.length) return Promise.reject();
 
-    DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: reloadPath,
       dataType: 'json',
       data: { type: type }
-    }).done(data => {
+    });
+
+    promise.then(data => {
       if (!data || !data.length) return;
 
       data.forEach(d => {
@@ -120,6 +122,8 @@ class SimpleSelect2 extends BasicSelect2 {
           this.$element.append(new Option(d[0], d[1], false, false)).trigger('change');
       });
     });
+
+    return promise;
   }
 }
 

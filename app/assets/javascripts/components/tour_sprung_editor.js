@@ -92,7 +92,7 @@ class TourSprungEditor extends OpenLayersEditor {
       this.feature.setLatLng(L.GeoJSON.coordsToLatLng(geoJson.coordinates));
     } else if (valid && !this.feature) {
       this.drawMarkerFeature(L.GeoJSON.coordsToLatLng(geoJson.coordinates));
-      MTK.event.removeListener(this.drawableEvent);
+      this.disableDrawableFeature();
     } else if (this.feature) {
       this.feature.remove();
       this.feature = undefined;
@@ -138,13 +138,17 @@ class TourSprungEditor extends OpenLayersEditor {
 
     return coords;
   }
+  disableDrawableFeature() {
+    if (!this.drawableEvent) return;
+
+    MTK.event.removeListener(this.drawableEvent);
+    this.drawableEvent = undefined;
+  }
   drawableMarker() {
     this.drawableEvent = MTK.event.addListener(this.map, 'click', event => {
       event.preventDefault();
 
-      MTK.event.removeListener(this.drawableEvent);
-      this.drawableEvent = undefined;
-
+      this.disableDrawableFeature();
       this.drawMarkerFeature(event.latlng);
       this.setNewCoordinates();
     });
@@ -248,7 +252,7 @@ class TourSprungEditor extends OpenLayersEditor {
         L.icon(this.iconOptions('default', false, lodashGet(feature, 'properties.style.color', 'default')))
       );
   }
-  styleFunction(feature, layer) {
+  styleFunction(feature, _layer) {
     let options = Object.assign({}, lodashGet(feature, 'properties.style', {}));
     options.weight = options.width;
     if (options.color && this.colors[options.color]) options.color = this.colors[options.color];
@@ -314,6 +318,19 @@ class TourSprungEditor extends OpenLayersEditor {
 
     return geometry;
   }
+  updateFeature(_geometry) {
+    if (this.feature) {
+      this.feature.remove();
+      this.feature = undefined;
+    }
+
+    if (this.isPoint() && this.value) this.drawInitialMarker();
+    else if (this.isLineString() && this.value) this.drawInitialRoute();
+
+    if (this.feature) this.disableDrawableFeature();
+
+    this.setNewCoordinates();
+  }
   setNewCoordinates() {
     this.setCoordinates();
     this.setHiddenFieldValue(this.getGeoJsonFromFeature());
@@ -326,10 +343,6 @@ class TourSprungEditor extends OpenLayersEditor {
     const latLon = this.getFeatureLatLon();
     this.$latitudeField.val(latLon[1]);
     this.$longitudeField.val(latLon[0]);
-  }
-  setHiddenFieldValue(geometry) {
-    this.value = geometry;
-    super.setHiddenFieldValue(geometry);
   }
   setGeocodedValue(data) {
     if (!this.feature) this.drawMarkerFeature({ lng: data[0], lat: data[1] });

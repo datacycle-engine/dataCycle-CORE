@@ -143,7 +143,7 @@ module DataCycleCore
     end
 
     def content_view_cache_key(item:, locale: 'de', mode:, watch_list:)
-      "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}"
+      "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}_#{active_ui_locale}"
     end
 
     def new_content_select_options(query: DataCycleCore::Thing.all, query_methods: [], content: nil, scope: nil, limit: nil, ordered_array: nil)
@@ -164,21 +164,24 @@ module DataCycleCore
 
     def to_query_params(options_hash)
       params_hash = {}
+
+      return params_hash if options_hash.blank?
+
       options_hash.each do |key, value|
         if value.is_a?(ActiveRecord::Base)
-          params_hash[key] = { id: value&.id, class: value&.class&.name }
+          params_hash[key] = value.persisted? ? { id: value&.id, class: value&.class&.name } : { class: value&.class&.name, attributes: value.attributes }
         elsif value.is_a?(ActiveRecord::Relation)
           params_hash[key] = { ids: value&.ids, class: value&.klass&.name }
+        elsif value.is_a?(OpenStruct)
+          params_hash[key] = { value: value.to_h, class: 'OpenStruct' }
+        elsif value.is_a?(::Hash)
+          params_hash[key] = to_query_params(value)
         else
           params_hash[key] = value
         end
       end
-      params_hash
-    end
 
-    def add_attribute_options(options, definition, scope)
-      attribute_options = definition.try(:[], 'ui').try(:[], scope.to_s).try(:[], 'options')
-      attribute_options.nil? ? options : options.merge(attribute_options)
+      params_hash
     end
 
     def feature_templates(key, definition, content)
@@ -259,82 +262,6 @@ module DataCycleCore
       partials = partials.map { |p| "data_cycle_core/contents/#{p}_#{partial}" }
 
       render_first_existing_partial(partials, parameters)
-    end
-
-    def attribute_editable?(key, definition, options, content)
-      @attribute_editable ||= Hash.new do |h, k|
-        h[k] = can?(:edit, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :edit, k.dig(2, 'edit_scope')))
-      end
-
-      @attribute_editable[[key, definition, options, content]]
-    end
-
-    def render_attribute_editor(key:, definition:, value:, parameters: { options: { edit_scope: 'edit' } }, content: nil, scope: :edit)
-      parameters[:options] = (parameters[:options] || {}).with_indifferent_access
-      edit_scope = parameters.dig(:options, :edit_scope)
-
-      return if definition['type'] == 'slug' && parameters[:parent]&.embedded?
-
-      return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
-
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope, edit_scope)) && (content.nil? || content&.allowed_feature_attribute?(key.attribute_name_from_key))
-
-      return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
-
-      partials = [
-        definition&.dig('ui', edit_scope, 'partial').presence,
-        definition&.dig('ui', 'edit', 'partial').presence,
-        "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
-        *feature_templates(key, definition, content),
-        definition&.dig('ui', 'edit', 'type')&.underscore_blanks&.prepend(definition['type'].underscore_blanks, '_').presence,
-        definition['type'].underscore_blanks.to_s
-      ].compact
-
-      partials = partials.map { |p| "data_cycle_core/contents/editors/#{p}" }
-
-      parameters[:options][:readonly] = !attribute_editable?(key, definition, parameters[:options], content)
-      parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
-    end
-
-    def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
-
-      return if definition['type'] == 'classification' && !definition['universal'] && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(scope.to_s) } : scope.to_s)
-
-      return if definition['type'] == 'slug' && parameters[:parent]&.embedded?
-
-      type = definition['type'].underscore_blanks
-      type = definition.dig('compute', 'type').underscore_blanks.to_s if definition.dig('compute', 'type').present?
-
-      partials = [
-        definition&.dig('ui', 'show', 'partial').presence,
-        "#{type}_#{key.attribute_name_from_key}",
-        *feature_templates(key, definition, content),
-        definition.dig('ui', 'show', 'type')&.underscore_blanks&.prepend(type, '_').presence,
-        definition.dig('validations', 'format')&.underscore_blanks&.prepend(type, '_').presence,
-        type.to_s
-      ].compact
-
-      partials = partials.map { |p| "data_cycle_core/contents/viewers/#{p}" }
-
-      parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
-
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
-    end
-
-    def render_attribute_history_viewer(key:, definition:, value:, parameters: {}, content: nil)
-      partials = [
-        key.attribute_name_from_key,
-        definition&.dig('ui', 'history', 'type')&.underscore_blanks,
-        "#{definition['type'].underscore_blanks}_#{definition&.dig('validations', 'format')&.underscore_blanks}",
-        definition['type'].underscore_blanks
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/history/#{p}" }
-      begin
-        render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
-      rescue StandardError
-        render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters, content: content, scope: :history
-      end
     end
 
     def render_linked_viewer(key:, definition:, value:, parameters: {}, content: nil)
@@ -496,8 +423,10 @@ module DataCycleCore
       tag.div(options) do
         if value.is_a?(String)
           concat value.html_safe
-        elsif value.is_a?(Hash)
+        elsif value.is_a?(::Hash)
           concat value.map { |k, v| tag.b(k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
+        elsif value.is_a?(::Array)
+          concat value.join(', ').html_safe.to_s
         else
           concat value.html_safe.to_s
         end

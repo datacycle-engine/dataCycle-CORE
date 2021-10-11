@@ -58,7 +58,7 @@ module DataCycleCore
           assert(data_set.has_related?)
           data_hash = data_set.get_data_hash
           data_hash['embedded_creative_work'] = []
-          error = data_set.set_data_hash(data_hash: data_hash)
+          data_set.set_data_hash(data_hash: data_hash)
           data_set.save
           returned_data_hash = data_set.get_data_hash
           expected_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge(
@@ -67,7 +67,7 @@ module DataCycleCore
             }
           )
 
-          assert_equal(0, error[:error].count)
+          assert_equal(0, data_set.errors.size)
           assert_equal(expected_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
 
           # check consistency of data in DB
@@ -79,7 +79,7 @@ module DataCycleCore
           data_set = @data_set
           linked_id = @linked_objects.first
 
-          error = data_set.set_data_hash(
+          data_set.set_data_hash(
             data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge({
               'embedded_creative_work' => [
                 DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge({ 'linked_place' => [linked_id] }),
@@ -99,7 +99,7 @@ module DataCycleCore
             ]
           })
 
-          assert_equal(0, error[:error].count)
+          assert_equal(0, data_set.errors.size)
           assert_equal(
             expected_hash.except('embedded_creative_work'),
             returned_data_hash.compact.except('embedded_creative_work', *DataCycleCore::TestPreparations.excepted_attributes)
@@ -114,7 +114,6 @@ module DataCycleCore
           assert_equal(4, DataCycleCore::Thing.where(template: false).count)
           assert_equal(4, DataCycleCore::ContentContent.count)
 
-          assert_equal(0, error[:error].count)
           assert_equal(
             expected_hash.except('embedded_creative_work'),
             returned_data_hash.compact.except('embedded_creative_work', *DataCycleCore::TestPreparations.excepted_attributes)
@@ -124,11 +123,11 @@ module DataCycleCore
           # delete embedded
           data_hash = data_set.get_data_hash
           data_hash['embedded_creative_work'] = []
-          error = data_set.set_data_hash(data_hash: data_hash)
+          data_set.set_data_hash(data_hash: data_hash)
           data_set.save
           returned_data_hash = data_set.get_data_hash
           expected_hash['embedded_creative_work'] = []
-          assert_equal(0, error[:error].count)
+          assert_equal(0, data_set.errors.size)
           assert_equal(expected_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
 
           # check consistency of data in DB
@@ -148,7 +147,7 @@ module DataCycleCore
             'description' => 'Description goes here juhu! 2',
             'linked_place' => [linked_id]
           })
-          error = data_set.set_data_hash(data_hash: data_hash)
+          data_set.set_data_hash(data_hash: data_hash)
           data_set.save
           returned_data_hash = data_set.get_data_hash
 
@@ -159,7 +158,7 @@ module DataCycleCore
             ]
           })
 
-          assert_equal(0, error[:error].count)
+          assert_equal(0, data_set.errors.size)
           assert_equal(
             expected_hash.except('embedded_creative_work'),
             returned_data_hash.compact.except('embedded_creative_work', *DataCycleCore::TestPreparations.excepted_attributes)
@@ -172,10 +171,10 @@ module DataCycleCore
 
           data_hash['embedded_creative_work'].reverse!
           expected_hash['embedded_creative_work'].reverse!
-          error = data_set.set_data_hash(data_hash: data_hash)
+          data_set.set_data_hash(data_hash: data_hash)
           returned_data_hash = data_set.get_data_hash
 
-          assert error[:error].blank?
+          assert data_set.errors.blank?
           assert_equal(
             expected_hash.except('embedded_creative_work'),
             returned_data_hash.compact.except('embedded_creative_work', *DataCycleCore::TestPreparations.excepted_attributes)
