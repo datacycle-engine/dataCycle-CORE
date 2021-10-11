@@ -44,6 +44,10 @@ module DataCycleCore
       watch_list_data_hashes.clear
     end
 
+    def self.without_my_selection
+      all.where(my_selection: false)
+    end
+
     private
 
     def split_full_path

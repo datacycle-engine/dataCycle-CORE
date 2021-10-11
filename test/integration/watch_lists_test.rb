@@ -452,5 +452,16 @@ module DataCycleCore
       assert @watch_list.things.ids.include?(@content.id)
       assert @watch_list.things.ids.include?(content2.id)
     end
+
+    test 'clear watch_list' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+
+      assert_equal(1, @watch_list.things.count)
+
+      delete clear_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
+      assert_redirected_to watch_list_path(@watch_list)
+
+      assert_equal(0, @watch_list.things.count)
+    end
   end
 end

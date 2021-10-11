@@ -12,7 +12,7 @@ module DataCycleCore
         collections = local_assigns.dig(:collection_group, 1)
         nested = true
       else
-        collections = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :watch_list_shares, :user).where(my_selection: false)
+        collections = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :watch_list_shares, :user).without_my_selection
         collections = collections.includes(:watch_list_data_hashes) if include_data_hashes
         collections = collections.fulltext_search(local_assigns[:q]) if local_assigns[:q].present?
         collections = collections.order(updated_at: :desc)
