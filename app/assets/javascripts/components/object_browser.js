@@ -44,7 +44,7 @@ class ObjectBrowser {
     this.content_id = this.element.data('content-id');
     this.content_type = this.element.data('content-type');
     this.prefix = selector.data('prefix');
-    this.requests = [];
+    this.activeRequest;
     this.eventHandlers = {
       pageLeave: this.pageLeaveHandler.bind(this),
       submitWithoutRedirect: this.submitWithoutRedirectHandler.bind(this),
@@ -140,11 +140,11 @@ class ObjectBrowser {
       this.overlay.find('.items li.item .reveal.media-preview').each(function () {
         if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
       });
-      this.element.find('.object-thumbs li.item .reveal.media-preview').each((index, element) => {
+      this.element.find('.object-thumbs li.item .reveal.media-preview').each((_index, element) => {
         $(element).foundation().addClass('dc-fd-initialized');
       });
     });
-    this.element.on('dc:import:data', (_event, data) => {
+    this.element.on('dc:import:data', async (_event, data) => {
       let newItems = [];
       if (data.external_ids != undefined) newItems = data.external_ids;
       else if (data.value && data.value.length) {
@@ -154,7 +154,7 @@ class ObjectBrowser {
         );
       }
       if (newItems.length > 0 && this.validate('+', this.chosen.length + newItems.length)) {
-        this.findObjects(newItems, data.external_ids != undefined);
+        await this.findObjects(newItems, data.external_ids != undefined);
       }
     });
     this.overlay.on('dc:import:complete', (event, data) => {
@@ -194,6 +194,7 @@ class ObjectBrowser {
   }
   updateLocale(e) {
     e.stopPropagation();
+
     this.locale = this.element.data('locale');
   }
   submitWithoutRedirectHandler(event) {
@@ -287,7 +288,7 @@ class ObjectBrowser {
       .html('<input type="hidden" id="' + this.hidden_field_id + '" name="' + this.key + '[]">');
   }
   findObjects(ids, external) {
-    DataCycle.httpRequest({
+    return DataCycle.httpRequest({
       url: '/object_browser/find',
       method: 'POST',
       dataType: 'script',
@@ -385,7 +386,7 @@ class ObjectBrowser {
     this.overlay.find('.chosen-counter').html(html);
   }
   loadMore(_loaded_ids) {
-    DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: `/${this.content_type}/${this.content_id}/load_more_linked_objects`,
       method: 'GET',
       dataType: 'script',
@@ -404,12 +405,16 @@ class ObjectBrowser {
         load_more_except: undefined
       },
       contentType: 'application/json'
-    }).done(() => {
+    });
+
+    promise.then(() => {
       this.chosen = union(this.chosen, this.ids);
       this.updateChosenCounter();
       this.ids = [];
       this.loadObjects(false);
     });
+
+    return promise;
   }
   loadDetails(id) {
     this.selected = id;
@@ -457,6 +462,7 @@ class ObjectBrowser {
     if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
     else if (this.overlay.data('overlay') === false) document.body.classList.add('object-browser-overlay-open');
 
+    this.overlay.find('.object-browser-header .item-count').text('');
     this.preselectedItems = this.chosen.slice(0);
     $(window).on('beforeunload', this.eventHandlers.pageLeave);
     this.resetOverlay();
@@ -507,8 +513,8 @@ class ObjectBrowser {
   // import media from media_archive reveal
   import(event) {
     if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
-      let authToken = $('meta[name=csrf-token]').attr('content');
-      DataCycle.httpRequest({
+      const authToken = $('meta[name=csrf-token]').attr('content');
+      const promise = DataCycle.httpRequest({
         type: 'POST',
         url: '/things/import',
         dataType: 'script',
@@ -526,15 +532,18 @@ class ObjectBrowser {
           objects: this.chosen
         }),
         contentType: 'application/json'
-      })
-        .done(_data => {
+      });
+      promise
+        .then(_data => {
           this.overlay.find('.items li.item .reveal.media-preview').each(function () {
             if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
           });
         })
-        .always(() => {
+        .finally(() => {
           $('#new_' + this.id).foundation('close');
         });
+
+      return promise;
     }
   }
   loadObjects(append = true) {
@@ -545,55 +554,66 @@ class ObjectBrowser {
     }
     this.overlay.find('.items .loading').show();
     this.loading = true;
-    this.requests.forEach(request => {
-      request.abort();
-      this.requests = this.requests.filter(r => r != request);
+
+    const promise = DataCycle.httpRequest({
+      url: '/object_browser/show',
+      method: 'POST',
+      dataType: 'json',
+      data: JSON.stringify({
+        page: this.page,
+        per: this.overlay_per,
+        type: this.type,
+        locale: this.locale,
+        key: this.key,
+        definition: this.definition,
+        options: this.options,
+        search: this.search,
+        objects: this.chosen,
+        editable: this.editable,
+        excluded: this.excluded,
+        content_id: this.content_id,
+        content_type: this.content_type,
+        prefix: this.prefix,
+        filter_ids: this.filteredIds(),
+        append: append
+      }),
+      contentType: 'application/json'
     });
-    this.requests.push(
-      DataCycle.httpRequest({
-        url: '/object_browser/show',
-        method: 'POST',
-        dataType: 'script',
-        data: JSON.stringify({
-          page: this.page,
-          per: this.overlay_per,
-          type: this.type,
-          locale: this.locale,
-          key: this.key,
-          definition: this.definition,
-          options: this.options,
-          search: this.search,
-          objects: this.chosen,
-          editable: this.editable,
-          excluded: this.excluded,
-          content_id: this.content_id,
-          content_type: this.content_type,
-          prefix: this.prefix,
-          filter_ids: this.filteredIds(),
-          append: append
-        }),
-        contentType: 'application/json'
-      })
-        .done(_data => {
-          this.total = this.overlay.data('total');
-          this.overlay.find('.items li.item .reveal.media-preview').each(function () {
-            if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
-          });
-          this.loading = false;
-          if (
-            this.overlay.children('.items').children('li.item').length < this.total &&
-            this.overlay.children('.items').children('li.item').last().offset().top -
-              this.overlay.children('.items').offset().top <
-              this.overlay.children('.items').first().outerHeight()
-          ) {
-            this.page += 1;
-            this.loadObjects();
-          }
-        })
-        .always((_data, _text, jqXHR) => {
-          this.requests = this.requests.filter(r => r != jqXHR);
-        })
-    );
+
+    this.activeRequest = promise;
+
+    promise.then(async data => {
+      if (this.activeRequest != promise || !data) return;
+
+      const count = data.count || 0;
+      this.total = count;
+      this.overlay.data('total', count);
+      this.overlay.find('.object-browser-header .item-count').text(count);
+      this.overlay.find('.items .loading').hide();
+
+      let html = data.html;
+      if (count == 0) html = `<span class="no-results">${await I18n.translate('common.no_results')}</span>`;
+      $(html)
+        .insertBefore(this.overlay.find('.items .loading'))
+        .trigger('dc:html:changed')
+        .trigger('dc:html:initialized');
+
+      this.overlay.find('.items li.item .reveal.media-preview').each(function () {
+        if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+      });
+      this.loading = false;
+      if (
+        this.overlay.children('.items').children('li.item').length < this.total &&
+        this.overlay.children('.items').children('li.item').last().offset().top -
+          this.overlay.children('.items').offset().top <
+          this.overlay.children('.items').first().outerHeight()
+      ) {
+        this.page += 1;
+        this.loadObjects();
+      }
+    });
+
+    return promise;
   }
   removeDeletedItem() {
     if (!this.chosen.length) return;

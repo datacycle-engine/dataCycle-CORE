@@ -172,7 +172,8 @@ class OpenLayersViewer {
     else return this.baseLayerBaseMap();
   }
   baseLayerBaseMap() {
-    return fetch('https://maps.wien.gv.at/basemap/1.0.0/WMTSCapabilities.xml')
+    const promise = fetch('https://maps.wien.gv.at/basemap/1.0.0/WMTSCapabilities.xml');
+    promise
       .then(response => response.text())
       .then(text => {
         let result = new this.ol.WMTSCapabilities().read(text);
@@ -189,6 +190,8 @@ class OpenLayersViewer {
           source: new this.ol.source.WMTS(options)
         });
       });
+
+    return promise;
   }
   baseLayerOpenStreetMap() {
     return Promise.resolve(
@@ -481,7 +484,9 @@ class OpenLayersViewer {
     };
   }
   initMap() {
-    return this.mapBaseLayer().then(baseLayer => {
+    const promise = this.mapBaseLayer();
+
+    promise.then(baseLayer => {
       const overlays = [];
       if (this.infoOverlay) overlays.push(this.infoOverlay);
 
@@ -498,6 +503,8 @@ class OpenLayersViewer {
         view: this.defaultView()
       });
     });
+
+    return promise;
   }
   defaultView() {
     const viewOptions = {

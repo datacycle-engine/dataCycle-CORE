@@ -54,14 +54,6 @@ module DataCycleCore
           (asset.type == "DataCycleCore::#{template.dig('asset_type').camelize}")
         end
 
-        def blank?(data)
-          return true if data.blank?
-          if data.is_a?(::Array)
-            return true if data.length == 1 && data[0].blank?
-          end
-          false
-        end
-
         def required(data, value)
           (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && blank?(data)
         end

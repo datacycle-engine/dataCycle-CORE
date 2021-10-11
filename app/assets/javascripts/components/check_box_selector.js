@@ -14,7 +14,7 @@ class CheckBoxSelector {
     this.$inputFields.each((_, item) => $(item).prop('checked', false));
     this.$element.closest('.form-element').children(':hidden').remove();
   }
-  import(_event, data) {
+  async import(_event, data) {
     if (!data.value || !data.value.length) return;
 
     this.$inputFields.each((_, item) => {

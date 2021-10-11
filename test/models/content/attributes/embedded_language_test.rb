@@ -31,14 +31,14 @@ module DataCycleCore
           # delete embedded
           data_hash = data_set.get_data_hash
           data_hash['embedded_creative_work'] = []
-          error = data_set.set_data_hash(data_hash: data_hash, prevent_history: true)
+          data_set.set_data_hash(data_hash: data_hash, prevent_history: true)
           data_set.save
           returned_data_hash = data_set.get_data_hash
           expected_hash = DataCycleCore::TestPreparations
             .load_dummy_data_hash('creative_works', 'embedded')
             .merge({ 'embedded_creative_work' => [] })
 
-          assert_equal(0, error[:error].count)
+          assert_equal(0, data_set.errors.size)
           assert_equal(expected_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
 
           # check consistency of data in DB

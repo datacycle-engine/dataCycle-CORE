@@ -2,6 +2,7 @@ class ConfirmationModal {
   constructor(config = {}) {
     this.confirmationCallback = config.confirmationCallback;
     this.cancelCallback = config.cancelCallback;
+    this.preventCancelOnAbort = config.preventCancelOnAbort || false;
     this.confirmationClass = config.confirmationClass || '';
     this.cancelable = config.cancelable;
     this.text = config.text || '';
@@ -57,7 +58,7 @@ class ConfirmationModal {
     this.section.find('.confirmation-confirm').on('click', this.confirm.bind(this));
     this.section.find('.confirmation-cancel').on('click', this.cancel.bind(this));
     this.overlay.on('closed.zf.reveal', _event => {
-      if (!this.closed) this.close('cancelCallback', true);
+      if (!this.closed && !this.preventCancelOnAbort) this.close('cancelCallback', true);
     });
 
     this.section.on('dc:confirmation_count:update', this.updateConfirmationIndex.bind(this));

@@ -160,8 +160,7 @@ module DataCycleCore
       @content.created_by = user&.id if user.present?
       @content.save!
 
-      valid = @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: (user || User.find_by(email: 'tester@datacycle.at')), update_search_all: false, prevent_history: prevent_history, save_time: save_time, version_name: version_name)
-      valid[:error].each { |k, v| v.each { |e| @content.errors.add(k, e) } } if valid[:error].present?
+      @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: (user || User.find_by(email: 'tester@datacycle.at')), update_search_all: false, prevent_history: prevent_history, save_time: save_time, version_name: version_name)
 
       @content
     end

@@ -4,7 +4,7 @@
   <%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item#{ ' is-active' if (!local_assigns[:hide_embedded] && !definition.dig('ui', 'edit', 'hide_onload')) || object.template || local_assigns[:duplicated_content] }",
         id: "#{sanitize_to_id(key)}_item_#{index}",
         data: {
-          id: object.template || local_assigns[:duplicated_content] ? nil : object.id,
+          id: object.template ? nil : object.id,
           index: index,
           accordion_item: true
         } do %>
@@ -19,7 +19,7 @@
     <div class="accordion-title">
       <span class="title">
         <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.class.name.demodulize.underscore %>
-        <span class="embedded-label"><%= definition['label'] %></span>
+        <span class="embedded-label"><%= translated_attribute_label(key, definition, content, options)  %></span>
         <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
         <%= tag.span object.try(object.embedded_title_property_name), title: object.try(object.embedded_title_property_name), class: "embedded-title#{' visible' if object.try(object.embedded_title_property_name).present?}" if object.embedded_title_property_name.present? %>
       </span>
@@ -33,7 +33,7 @@
               } %>
     <% end %>
 
-    <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless object.template || local_assigns[:duplicated_content] %>
+    <%= hidden_field_tag("#{embedded_key_prefix(key, index)}[id]", object.id) unless object.template || local_assigns[:duplicated_content] %>
 
     <% if object.template || local_assigns[:duplicated_content] %>
       <div class="embedded-properties accordion-content" data-tab-content>

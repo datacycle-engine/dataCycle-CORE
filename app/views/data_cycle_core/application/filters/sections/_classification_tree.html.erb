@@ -11,7 +11,7 @@
         <label for="<%= filter[:identifier] %>_<%= item.id %>">
           <span class="title">
             <%= render 'data_cycle_core/shared/icon', icon_type: item.internal_name&.underscore_blanks %>
-            <span class="inner-title"><%= item.internal_name %></span>
+            <span class="inner-title"><%= I18n.with_locale(item.first_available_locale(active_ui_locale)){ item.name } %></span>
           </span>
         </label>
       </li>

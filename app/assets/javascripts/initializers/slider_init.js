@@ -14,8 +14,11 @@ export default function () {
       if ($(event.target).val().length === 0) {
         $(event.target).val(data.value).trigger('change');
       } else {
+        const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
+        const labelText = label && label.innerText;
+
         new ConfirmationModal({
-          text: await I18n.translate('frontend.override_warning', { data: data.label }),
+          text: await I18n.translate('frontend.override_warning', { data: labelText }),
           confirmationText: await I18n.translate('common.yes'),
           cancelText: await I18n.translate('common.no'),
           confirmationClass: 'success',

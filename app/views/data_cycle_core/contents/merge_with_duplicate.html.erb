@@ -13,7 +13,7 @@
       <% end %>
 
       <%= render 'form',
-        key_prefix: 'thing[datahash]',
+        key_prefix: DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX,
         content: @content,
         watch_list: @watch_list,
         split_source: @split_source,

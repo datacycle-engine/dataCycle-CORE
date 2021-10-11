@@ -16,7 +16,7 @@ export default function () {
 
   // dc multi-value-button
   $(document).on('click', '.dc-multi-value-label:not(:disabled)', ev => {
-    const values = Array.from(ev.target.parentElement.querySelectorAll('input.dc-multi-value-button'));
+    const values = Array.from(ev.target.parentElement.querySelectorAll(':scope input.dc-multi-value-button'));
     const newIndex = (values.findIndex(e => e.checked) || 0) + 1;
     const selectedOption = values[newIndex >= values.length ? 0 : newIndex];
 

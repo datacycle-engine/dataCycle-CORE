@@ -64,7 +64,11 @@ module DataCycleCore
 
       patch thing_path(@content), params: {
         thing: {
-          datahash: @content.get_data_hash.merge('name' => updated_name)
+          translations: {
+            I18n.locale => {
+              'name' => updated_name
+            }
+          }
         },
         save_and_close: true
       }, headers: {
@@ -74,13 +78,13 @@ module DataCycleCore
       assert_redirected_to thing_path(@content, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
-      assert_select '.detail-header > .title', updated_name
+      assert_select ".detail-header > .title > .translatable-attribute-container > .translatable-attribute.#{I18n.locale}", 1
     end
 
     test 'show content history' do
       get thing_path(@content)
       assert_response :success
-      assert_select '.detail-header > .title', @content.title
+      assert_select ".detail-header > .title > .translatable-attribute-container > .translatable-attribute.#{I18n.locale}", 1
       get history_thing_path(@content, history_id: @content.histories&.first&.id)
       assert_response :success
       assert_select('.detail-content .type.properties .has-changes', count: 2) # title & slug
@@ -127,7 +131,7 @@ module DataCycleCore
         # quotation: quotations
       }.deep_stringify_keys, partial_update: true)
 
-      assert valid[:error].blank?
+      assert valid
 
       get load_more_linked_objects_thing_path(@content), xhr: true, params: {
         definition: @content.schema.dig('properties', 'content_location'),

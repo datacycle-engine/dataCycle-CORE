@@ -1,0 +1,5 @@
+<% I18n.with_locale(params[:locale] || I18n.locale) do %>
+  <% @results.each do |object| %>
+    <%= render_linked_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: object, prefix: params[:prefix], options: params[:options], objects: params[:objects], edit_buttons: true }, content: @content) %>
+  <% end %>
+<% end %>

@@ -39,12 +39,16 @@ module DataCycleCore
       classification_aliases.where.not(id: primary_classification_alias.id)
     end
 
+    def self.things
+      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: all })
+    end
+
     def self.classification_aliases
-      DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: all&.pluck(:id) })
+      DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: all })
     end
 
     def self.primary_classification_aliases
-      DataCycleCore::ClassificationAlias.includes(:primary_classification).where(classifications: { id: all&.pluck(:id) })
+      DataCycleCore::ClassificationAlias.includes(:primary_classification).where(classifications: { id: all })
     end
 
     def ancestors

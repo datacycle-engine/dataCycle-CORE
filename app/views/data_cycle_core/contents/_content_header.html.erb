@@ -6,7 +6,7 @@
     <% content_title = yield %>
     <% if content_title.blank? %>
       <div class="title">
-        <%= content.title %>
+        <%= render 'data_cycle_core/contents/content_title_attribute', content: content, key: 'title' %>
       </div>
     <% else %>
       <%= content_title %>

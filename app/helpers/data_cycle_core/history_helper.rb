@@ -110,7 +110,15 @@ module DataCycleCore
     def version_name_html(item)
       version_name = []
       if item[:version_name].present?
-        version_name.push(tag.i(class: 'fa fa-tag version-name has-tip', title: t('feature.named_version.version_name', name: item[:version_name], locale: active_ui_locale)))
+        version_name.push(
+          tag.i(
+            class: 'fa fa-tag version-name has-tip copy-to-clipboard',
+            title: t('feature.named_version.version_name', name: item[:version_name], locale: active_ui_locale),
+            data: {
+              value: item[:version_name]
+            }
+          )
+        )
         if item[:can_remove_version_name]
           version_name.push(
             link_to(

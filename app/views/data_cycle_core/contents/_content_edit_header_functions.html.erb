@@ -21,11 +21,7 @@
           </li>
         <% end %>
 
-        <%= render 'edit_locale_links',
-          locales: available_locales_with_names,
-          content: content,
-          source_locale: @source_locale,
-          link_action: local_assigns[:link_action] if content.translatable? && I18n.available_locales&.many? %>
+        <%= tag.li render('data_cycle_core/contents/editors/metadata/locales_list', local_assigns.slice(:content, :link_action)), class: 'has-dropdown' if content.translatable? && I18n.available_locales&.many? %>
 
         <%= tag.li render('data_links', content: content), class: 'has-dropdown right' if can? :index, DataCycleCore::DataLink %>
 
@@ -38,7 +34,7 @@
             data: {
               title: t('common.normalize', locale: active_ui_locale),
               url: normalize_thing_path(content),
-              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+              disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw', aria_hidden: true)
             } if DataCycleCore::Feature::Normalize.enabled? %>
 
           <%= link_to tag.i(class: 'fa fa-times', aria_hidden: true),

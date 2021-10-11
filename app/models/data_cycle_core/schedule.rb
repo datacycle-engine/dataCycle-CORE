@@ -326,6 +326,7 @@ module DataCycleCore
         return nil if value.blank? || value.values.blank?
 
         value.values.map { |s|
+          s = s['datahash'] if s.key?('datahash')
           next nil if s.dig('start_time', 'time').blank?
 
           start_time = s.dig('start_time', 'time')&.in_time_zone
@@ -377,9 +378,11 @@ module DataCycleCore
         return if value.blank? || value.values.blank?
 
         value.values.map { |s|
+          s = s['datahash'] if s.key?('datahash')
           next unless s&.dig('time').present? && s['time'].values.present? && s['valid_from'].present? && (s.dig('rrules', 0, 'validations', 'day').present? || s['holiday'] == 'true')
 
           s['time'].values.map do |t|
+            t = t['datahash'] if t.key?('datahash')
             next if t.blank? || t['opens'].blank? || t['closes'].blank?
 
             start_time = "#{s['valid_from']} #{t['opens']}".in_time_zone
