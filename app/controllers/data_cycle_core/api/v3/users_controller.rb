@@ -7,7 +7,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
         def index
           @user_data = current_user
-          @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
+          @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability).without_my_selection
           @stored_filter = DataCycleCore::StoredFilter.accessible_by(current_ability, :api).where("'#{current_user.id}' = ANY (api_users)").where.not(name: nil)
         end
       end
