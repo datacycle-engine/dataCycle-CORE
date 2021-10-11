@@ -288,6 +288,19 @@
               }
             }
           }
+
+          &.content-locked {
+            opacity: 0.8;
+
+            .pie-text,
+            .pie-timer {
+              display: none;
+            }
+
+            .fa {
+              color: $warning-color;
+            }
+          }
         }
 
         > *:not(:last-child) {

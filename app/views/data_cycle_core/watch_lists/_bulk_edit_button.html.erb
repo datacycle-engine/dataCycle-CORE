@@ -1,6 +1,12 @@
 <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? collection.things.locks.includes(:user, activitiable: [:translations]) : nil %>
 
-<span title="<%= bulk_edit_button_title(content_locks, collection) %>" data-tooltip data-allow-html="true">
+<%= tag.span(
+  title: bulk_edit_button_title(content_locks, collection),
+  data: {
+    tooltip: true,
+    allow_html: true
+  }
+  ) do %>
   <%= button_to bulk_edit_watch_list_path(collection),
                 method: :get,
                 disabled: content_locks.present? || collection.things.size > DataCycleCore.global_configs[:bulk_update_limit],
@@ -20,4 +26,4 @@
     <% end %>
     <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
   <% end %>
-</span>
+<% end %>
