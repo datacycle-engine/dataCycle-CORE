@@ -69,13 +69,13 @@ class SplitView {
     if (notice) notice.addEventListener('click', this.dismissSubscribeNotice.bind(this));
   }
   addSingleClickHandler() {
-    DataCycle.newContent.callbacks.push([
+    DataCycle.htmlObserver.addCallbacks.push([
       e => e.tagName === 'A' && (e.classList.contains('copy') || e.classList.contains('translate')),
       e => $(e).on('click', this.handleButtonClick.bind(this))
     ]);
   }
   addAllClickHandler() {
-    DataCycle.newContent.callbacks.push([
+    DataCycle.htmlObserver.addCallbacks.push([
       e => e.tagName === 'A' && (e.classList.contains('copy-all') || e.classList.contains('translate-all')),
       e => {
         e.addEventListener('click', this.triggerAllButtons.bind(this));
@@ -88,7 +88,7 @@ class SplitView {
     ]);
   }
   observeForNewFields() {
-    DataCycle.newContent.callbacks.push([
+    DataCycle.htmlObserver.addCallbacks.push([
       e =>
         !e.classList.contains('dc-copyable-field') &&
         e.dataset.editor &&
@@ -96,7 +96,7 @@ class SplitView {
       e => this.setupButtons(e)
     ]);
 
-    DataCycle.newContent.callbacks.push([
+    DataCycle.htmlObserver.addCallbacks.push([
       e => e.classList.contains('form-element') && e.dataset.key && !e.closest('.form-element.embedded:not(:scope)'),
       e => this.addButtonsForEditFields(e)
     ]);

@@ -6,5 +6,8 @@ export default function () {
     locks.push(new ContentLock(element));
   });
 
-  DataCycle.newContent.callbacks.push([e => e.classList.contains('content-lock'), e => locks.push(new ContentLock(e))]);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('content-lock'),
+    e => locks.push(new ContentLock(e))
+  ]);
 }
