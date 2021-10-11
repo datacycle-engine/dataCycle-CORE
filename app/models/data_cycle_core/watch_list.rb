@@ -38,6 +38,12 @@ module DataCycleCore
       attributes.except('user_id')
     end
 
+    def clear_if_not_active
+      return unless my_selection && !watch_list_data_hashes.where('updated_at >= ?', 12.hours.ago).exists? && watch_list_data_hashes.present?
+
+      watch_list_data_hashes.clear
+    end
+
     private
 
     def split_full_path

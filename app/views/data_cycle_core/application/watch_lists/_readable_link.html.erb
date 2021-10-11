@@ -4,7 +4,10 @@
       <%= link_to (watch_list.watch_list_shares.any? ? tag.i(class: 'fa fa-users') : '') + watch_list.name, watch_list_path(watch_list), class: "watchlist-link", title: watch_list.name %>
     </span>
     <span class="change-link">
-      <%= render 'data_cycle_core/watch_lists/bulk_edit_button', collection: watch_list if watch_list.my_selection &&  can?(:bulk_edit, watch_list) %>
+      <% if watch_list.my_selection %>
+        <%= render 'data_cycle_core/watch_lists/bulk_edit_button', collection: watch_list if can?(:bulk_edit, watch_list) %>
+        <%= render 'data_cycle_core/watch_lists/clear_button', watch_list: watch_list if can?(:remove_item, watch_list) %>
+      <% end %>
     </span>
   </span>
 </li>

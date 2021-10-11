@@ -61,5 +61,15 @@ module DataCycleCore
 
       button_html
     end
+
+    def render_my_selection(type:, content: nil)
+      return if current_user&.my_selection.nil?
+
+      current_user.my_selection.clear_if_not_active
+
+      render "data_cycle_core/application/watch_lists/#{type}_link",
+             content: content,
+             watch_list: current_user.my_selection
+    end
   end
 end
