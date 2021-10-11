@@ -635,6 +635,9 @@ de:
     subscribe_to: '%{data} abonnieren'
     unsubscribe: 'Abonnement löschen'
     subscribed_to: '%{data} abonniert'
+    auto_translate: 'automatisch Übersetzen'
+    translate: 'übersetzen'
+    translate_create: 'Übersetzungen anlegen'
     reset:
       one: 'Zurücksetzen'
       other: 'Suche zurücksetzen'

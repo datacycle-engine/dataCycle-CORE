@@ -4,6 +4,8 @@
 
     <%= render 'locale_links', local_assigns if content.try(:translated_locales)&.many? %>
 
+    <%= render 'auto_translation', local_assigns if DataCycleCore::Feature::AutoTranslation.allowed?(content) %>
+
     <% if can?(:index, content) && content.content_type?('entity') %>
       <li class="has-dropdown">
         <%= render 'split_sources', query_params: { exclude: content&.id, template_name: content&.template_name }, value: @splitSource, url: compare_thing_path(content), title_text: t('common.compare_contents', locale: active_ui_locale) %>

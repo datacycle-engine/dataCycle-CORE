@@ -617,6 +617,9 @@ en:
     delete_with_data: Delete %{data}
     subscribe: subscribe
     subscribe_to: 'subscribe to %{data}'
+    auto_translate: 'automatic translation'
+    translate: 'translate'
+    translate_create: 'Create translations'
     unsubscribe: Delete subscription
     subscribed_to: 'subscribed to %{data}'
     reset:

@@ -1,0 +1,68 @@
+---
+- :data:
+    :name: Übersetzung
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: entity
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Text
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+        :advanced_search: true
+      :about:
+        :label: About
+        :type: linked
+        :inverse_of: subject_of
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+                - Veranstaltung
+                - Veranstaltungsserie
+                - Pauschalangebot
+                - Produkt
+                - Service
+      :description_type:
+        :label: Externer Informationstyp
+        :type: classification
+        :tree_label: Externe Informationstypen
+        :ui:
+          :show:
+            :content_area: header
+      :imported:
+        :label: Importiert
+        :type: boolean
+        :storage_location: translated_value
+        :advanced_search: true
+        :default_value: 'false'
+      :generated:
+        :label: Automatisch Übersetzt
+        :type: boolean
+        :storage_location: translated_value
+        :advanced_search: true
+        :default_value: 'false'
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Übersetzung"
+      :meta_data:
+        :type: mixin
+        :name: meta_data
