@@ -19,6 +19,7 @@ class ConfirmationModal {
   }
   async setup() {
     this.section = $(await this.renderSectionHtml());
+
     if ($('.confirmation-modal:visible').length) {
       this.overlay = $('.confirmation-modal:visible').first().append(this.section);
       this.confirmationIndex = this.overlay.find('section.confirmation-section').length;
@@ -36,6 +37,7 @@ class ConfirmationModal {
       new Foundation.Reveal(this.overlay);
       this.overlay.foundation('open');
     }
+
     this.addEvents();
   }
   async renderSectionHtml() {
@@ -62,6 +64,13 @@ class ConfirmationModal {
     });
 
     this.section.on('dc:confirmation_count:update', this.updateConfirmationIndex.bind(this));
+    this.section.on(
+      {
+        mouseenter: this.focusSpecificFields.bind(this),
+        mouseleave: this.focusSpecificFields.bind(this)
+      },
+      '.focus-specific-field'
+    );
   }
   cancel(event) {
     event.preventDefault();
@@ -88,6 +97,24 @@ class ConfirmationModal {
     if (typeof this[method_name] == 'function') {
       this[method_name]();
     }
+  }
+  focusSpecificFields(event) {
+    const fieldIdString = event.currentTarget.dataset.fieldIds;
+    if (!fieldIdString) return;
+
+    const fieldIds = fieldIdString.split(',');
+
+    for (let i = 0; i < fieldIds.length; ++i) {
+      const field = document.querySelector(`[data-focus-id="${fieldIds[i]}"]`);
+      if (field) {
+        if (event.type == 'mouseenter') {
+          field.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          field.classList.add('dc-focus-field');
+        } else if (event.type == 'mouseleave') field.classList.remove('dc-focus-field');
+      }
+    }
+
+    console.log('focusSpecificFields', fieldIds);
   }
 }
 

@@ -125,12 +125,13 @@ class SplitView {
       this.setupButtons(viewFields[i]);
     }
   }
-  findFieldsByKey(key, container, visibleOnly = true) {
-    const fields = Array.from(
-      container.querySelectorAll(
-        `[data-key="${key}"]:not([data-editor]:not([data-editor="included-object"]) [data-key="${key}"]):not(.dc-copyable-field)`
-      )
-    );
+  findFieldsByKey(key, container, visibleOnly = true, rejectCopyableFields = true) {
+    if (!key || !key.length) return [];
+
+    let selectorString = `[data-key="${key}"]:not([data-editor]:not([data-editor="included-object"]) [data-key="${key}"])`;
+    if (rejectCopyableFields) selectorString += ':not(.dc-copyable-field)';
+
+    const fields = Array.from(container.querySelectorAll(selectorString));
 
     if (visibleOnly) return fields.filter(domElementHelpers.isVisible.bind(this));
     else return fields;
@@ -237,7 +238,7 @@ class SplitView {
       dataType: 'json'
     });
   }
-  async handleButtonClick(event, data) {
+  async handleButtonClick(event) {
     event.preventDefault();
 
     const button = event.currentTarget;
@@ -262,8 +263,8 @@ class SplitView {
     let promise;
 
     if (button.classList.contains('translate'))
-      promise = this.translateText(container.dataset.editor, value, targetKey, data && data.scrollIntoView);
-    else promise = this.copyContents(value, targetKey, false, true, data && data.scrollIntoView);
+      promise = this.translateText(container.dataset.editor, value, targetKey, key);
+    else promise = this.copyContents(value, targetKey, false, true, key);
 
     await promise.catch(_e => {
       DataCycle.enableElement(button);
@@ -318,7 +319,7 @@ class SplitView {
 
       if (renderRemoteField) await $(renderRemoteField).triggerHandler('dc:remote:forceRenderTranslations');
 
-      this.copyContents(values[keys[i]], keys[i], false, false);
+      this.copyContents(values[keys[i]], keys[i], false, false, keys[i]);
     }
 
     DataCycle.enableElement(this.copyAllButton);
@@ -361,31 +362,37 @@ class SplitView {
     DataCycle.disableElement(buttonToDisable);
 
     for (let i = 0; i < items.length; ++i) {
-      triggeredRequests.push($(items[i]).triggerHandler('click', { scrollIntoView: false }));
+      triggeredRequests.push($(items[i]).triggerHandler('click'));
     }
 
     await Promise.all(triggeredRequests);
 
     DataCycle.enableElement(buttonToDisable);
   }
-  async copyContents(value, key, translate = false, visibleOnly = true, scrollIntoView = true) {
+  async copyContents(value, key, translate = false, visibleOnly = true, sourceKey = null) {
     const submitButton = document.querySelector('.edit-header .submit-edit-form');
 
     if (submitButton && submitButton.disabled) return;
 
     const target = this.findFieldsByKey(key, this.rightContainer, visibleOnly)[0];
+    const sourceElement = this.findFieldsByKey(sourceKey, this.leftContainer, false, false)[0];
+    let sourceId;
+
+    if (sourceElement) {
+      sourceId = domElementHelpers.randomId('focus-source');
+      sourceElement.dataset.focusId = sourceId;
+    }
 
     await $(target)
       .find(DataCycle.config.EditorSelectors.join(', '))
       .triggerHandler('dc:import:data', {
         value: typeof value == 'string' ? value.trim() : value,
         locale: this.embedLocale ? this.leftLocale() : '',
-        translate: translate
+        translate: translate,
+        sourceId: sourceId
       });
-
-    if (scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
-  async translateText(editor, value, key, scrollIntoView = true) {
+  async translateText(editor, value, key, sourceKey) {
     if (this.translatableTypes.includes(editor)) {
       let formData = {
         text: typeof value == 'string' ? value.trim() : value,
@@ -403,9 +410,9 @@ class SplitView {
         CalloutHelpers.show(await I18n.translate('frontend.split_view.translate_error'), 'alert');
       });
 
-      await this.copyContents(translatedValue.text, key, false, true, scrollIntoView);
+      await this.copyContents(translatedValue.text, key, false, true, sourceKey);
     } else {
-      await this.copyContents(value, key, true, true, scrollIntoView);
+      await this.copyContents(value, key, true, true, sourceKey);
     }
   }
 }

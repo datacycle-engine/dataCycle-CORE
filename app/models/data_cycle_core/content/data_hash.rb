@@ -100,7 +100,7 @@ module DataCycleCore
         translations = options.data_hash[:translations]
         locale = translations&.keys&.first || I18n.locale
         datahash = ((options.data_hash.key?(:datahash) ? options.data_hash[:datahash] : options.data_hash.except(:translations, :version_name)) || {}).merge(translations&.delete(locale.to_s) || {}).with_indifferent_access
-        options.version_name = options.data_hash[:version_name]
+        options.version_name = options.data_hash[:version_name] if options.data_hash.key?(:version_name)
 
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
           I18n.with_locale(locale) do
@@ -112,7 +112,7 @@ module DataCycleCore
               I18n.with_locale(l) do
                 next if locale_hash.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }.blank?
 
-                raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :save_time, :ui_locale).merge(data_hash: locale_hash, update_search_all: false, partial_update: true, invalidate_related_cache: false))
+                raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :save_time, :ui_locale).merge(data_hash: locale_hash, update_search_all: false, partial_update: true))
               end
             end
 

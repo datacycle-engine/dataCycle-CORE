@@ -3263,3 +3263,9 @@ body {
     line-height: inherit !important;
   }
 }
+
+.dc-focus-field {
+  z-index: 1010 !important;
+  background: white !important;
+  pointer-events: none !important;
+}

@@ -1,3 +1,5 @@
+import ConfirmationModal from './confirmation_modal';
+
 class CheckBoxSelector {
   constructor(element) {
     this.$element = $(element);
@@ -14,11 +16,23 @@ class CheckBoxSelector {
     this.$inputFields.each((_, item) => $(item).prop('checked', false));
     this.$element.closest('.form-element').children(':hidden').remove();
   }
-  async import(_event, data) {
+  async import(event, data) {
     if (!data.value || !data.value.length) return;
 
-    this.$inputFields.each((_, item) => {
-      this.setInputValue(item, data.value);
+    const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
+    const labelText = label && label.innerText;
+
+    new ConfirmationModal({
+      text: await I18n.translate('frontend.override_warning', { data: labelText }),
+      confirmationText: await I18n.translate('common.yes'),
+      cancelText: await I18n.translate('common.no'),
+      confirmationClass: 'success',
+      cancelable: true,
+      confirmationCallback: () => {
+        this.$inputFields.each((_, item) => {
+          this.setInputValue(item, data.value);
+        });
+      }
     });
   }
   setInputValue(item, value) {
