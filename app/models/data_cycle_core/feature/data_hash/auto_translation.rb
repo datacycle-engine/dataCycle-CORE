@@ -73,7 +73,6 @@ module DataCycleCore
 
         def destroy_all_translated_content
           content_a.map do |i|
-            byebug
             next unless i.template_name == 'Übersetzung'
             I18n.with_locale(i.available_locales.first || 'de') { i.destroy_content(save_history: false, destroy_locale: false) }
           end
