@@ -354,7 +354,13 @@ module DataCycleCore
       @related_objects = @content.related_contents.includes(:translations).order(:template_name, :id).page(@page).per(DataCycleCore.linked_objects_page_size)
       @last_group = params[:last_group]
 
-      respond_to :js
+      I18n.with_locale(params[:locale]) do
+        respond_to do |format|
+          format.js do
+            render
+          end
+        end
+      end
     end
 
     def load_more_duplicates

@@ -26,12 +26,13 @@ module DataCycleCore
             content.template_name = template.template_name
             content.external_source_id = external_source_id
             content.external_key = "#{classification}:#{external_key}"
+            content.save! # need id to add linked_data
 
             translations_created[classification] = []
             description_type = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', classification)
             locale_data_hash.each do |locale, data_hash|
               I18n.with_locale(locale) do
-                content.set_data_hash(
+                error = content.set_data_hash(
                   data_hash: {
                     'name' => data_hash[:name],
                     'description' => data_hash[:description],
@@ -44,12 +45,12 @@ module DataCycleCore
                   prevent_history: true,
                   partial_update: true
                 )
-                translations_created[classification].push(locale)
+                translations_created[classification].push(locale) if error[:error].blank?
               end
               translations_created[classification] = translations_created[classification].presence
             end
           end
-          translations.compact
+          translations_created.compact
         end
 
         def load_translated_content
@@ -71,8 +72,11 @@ module DataCycleCore
         end
 
         def destroy_all_translated_content
-          content_a.where(template_name: 'Übersetzung').map { |i| i.destroy_content(save_history: false) }
-          DataCycleCore::ContentContent.where(content_b_id: id).destroy_all
+          content_a.map do |i|
+            byebug
+            next unless i.template_name == 'Übersetzung'
+            I18n.with_locale(i.available_locales.first || 'de') { i.destroy_content(save_history: false, destroy_locale: false) }
+          end
         end
       end
     end

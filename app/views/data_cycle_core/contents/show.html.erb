@@ -39,7 +39,7 @@
     <div id="related-contents-<%= @content&.id %>"
         class="remote-render"
         data-remote-path="data_cycle_core/contents/related"
-        data-remote-options="<%= to_query_params({ content: @content, options: options ||= {} }).to_json %>">
+        data-remote-options="<%= to_query_params({ content: @content, options: options ||= {}, locale: I18n.locale }).to_json %>">
     </div>
   <% end %>
 <% end %>

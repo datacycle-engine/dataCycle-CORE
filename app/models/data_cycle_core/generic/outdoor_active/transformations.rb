@@ -157,7 +157,7 @@ module DataCycleCore
            'equipment', 'suggestion', 'additional_information', 'maps'].map { |desc|
             next if hash[desc].blank?
             name = I18n.t("import.outdoor_active.#{type}.#{desc}", default: [desc])
-            external_key = "#{desc}:#{I18n.locale}:#{hash.dig('id')}"
+            external_key = "#{desc}:#{I18n.locale}:#{hash.dig('external_key')}"
             id = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)&.id
             ai_hash = id.blank? ? {} : { 'id' => id }
             ai_hash.merge({

@@ -26,13 +26,13 @@ module DataCycleCore
           render plain: created.to_json, content_type: 'application/json'
         end
 
-        def auto_translations
-          byebug
-          @content = DataCycleCore::Thing.find_by(id: params[:id])
-          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Normalisierung', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if @content.blank?
-
-          logger = DataCycleCore::Generic::Logger::LogFile.new('auto_translate')
-        end
+        # def auto_translations
+        #   byebug
+        #   @content = DataCycleCore::Thing.find_by(id: params[:id])
+        #   render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Normalisierung', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if @content.blank?
+        #
+        #   logger = DataCycleCore::Generic::Logger::LogFile.new('auto_translate')
+        # end
       end
     end
   end
