@@ -67,8 +67,6 @@ class AssetSelector {
       .then(data => {
         this.editableList.find('.loading').remove();
 
-        console.log('setSelectedAssets', this.editableList);
-
         if (data.assets && data.assets.length) {
           const $html = $(data.html).find('>li, >h4.list-title');
 
