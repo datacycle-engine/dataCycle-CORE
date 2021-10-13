@@ -10,7 +10,7 @@ module DataCycleCore
         # cc self to history
         data_set_history.send(origin_table.singularize.foreign_key + '=', id)
 
-        if true # all_translations
+        if all_translations
           available_locales.each do |locale|
             I18n.with_locale(locale) do
               attributes.except('id', 'created_at', 'updated_at').each do |key, value|
