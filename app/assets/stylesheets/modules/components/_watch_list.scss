@@ -400,3 +400,20 @@
     margin-right: 0.5rem;
   }
 }
+
+.watch-lists-link {
+  position: relative;
+
+  .my-collection-star-icon {
+    font-size: 0.5rem;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: -1px;
+    color: white;
+  }
+}

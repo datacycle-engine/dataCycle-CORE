@@ -48,6 +48,10 @@ module DataCycleCore
       all.where(my_selection: false)
     end
 
+    def self.my_selection
+      all.where(my_selection: true)
+    end
+
     private
 
     def split_full_path
