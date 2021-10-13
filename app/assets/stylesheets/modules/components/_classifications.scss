@@ -595,17 +595,34 @@ ul.backend-treeview-list,
       > .fa-spinner {
         margin-right: 0.3rem;
       }
-    }
 
-    .tree-link:after {
-      content: '\f107';
-      font-family: FontAwesome;
-      font-style: normal;
-      font-weight: normal;
-      text-decoration: inherit;
-      position: relative;
-      font-size: 0.8rem;
-      margin-left: 0.5rem;
+      &::after {
+        content: '\f107';
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: inherit;
+        position: relative;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+      }
+
+      &.loading {
+        width: auto;
+        text-align: left;
+        padding: 0;
+
+        &::after {
+          content: '\f110';
+          font-family: FontAwesome;
+          animation: fa-spin 2s infinite linear;
+          background-color: transparent;
+          height: 1rem;
+          width: 1rem;
+          line-height: 1rem;
+          font-size: 1rem;
+        }
+      }
     }
 
     .inner-item {
@@ -659,7 +676,7 @@ ul.backend-treeview-list,
     }
 
     .open {
-      .tree-link:after {
+      .tree-link:not(.loading):after {
         content: '\f106';
       }
     }
