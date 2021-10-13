@@ -23,6 +23,8 @@ module DataCycleCore
           }
         end
 
+        # Format translate_hash: { 'text' => 'Hallo', 'source_locale' => 'de', 'target_locale' => 'en' }
+        # Format return data: nil | { 'detected_source_language' => 'DE', 'text' => 'Hello' }
         def translate(translate_hash)
           return if translate_hash.blank?
           return unless translate_hash.is_a?(::Hash) || translate_hash.is_a?(DataCycleCore::OpenStructHash)

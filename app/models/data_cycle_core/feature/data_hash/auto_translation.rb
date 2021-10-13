@@ -9,6 +9,52 @@ module DataCycleCore
         end
 
         # create/update translations
+        def create_update_translations
+          additional_infos = load_translated_content
+
+          template = DataCycleCore::Thing.find_by(template_name: 'Übersetzung', template: true)
+          data_type = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
+
+          translations_created = {}
+
+          additional_infos.each do |classification, locale_data_hash|
+            new_external_key = "#{classification}:#{external_key}"
+            content = DataCycleCore::Thing.find_or_create_by(external_source_id: external_source_id, external_key: "#{classification}:#{external_key}") do |new_content|
+              new_content.metadata ||= {}
+              new_content.schema = template.schema
+              new_content.template_name = template.template_name
+              new_content.external_source_id = external_source_id
+              new_content.external_key = new_external_key
+            end
+            content.save! if content.new_record? # need id to add linked_data
+
+            translations_created[classification] = []
+            description_type = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', classification)
+
+            locale_data_hash.each do |locale, data_hash|
+              I18n.with_locale(locale) do
+                next if content.translation_type != 'imported'
+                next if data_hash[:name] == content.name && data_hash[:description] == content.description
+                error = content.set_data_hash(
+                  data_hash: {
+                    'name' => data_hash[:name],
+                    'description' => data_hash[:description],
+                    'translation_type' => 'imported',
+                    'description_type' => [description_type],
+                    'data_type' => [data_type],
+                    'about' => [id]
+                  },
+                  prevent_history: true,
+                  partial_update: true
+                )
+                translations_created[classification].push(locale) if error[:error].blank?
+              end
+            end
+            translations_created[classification] = translations_created[classification].presence
+          end
+          translations_created.compact
+        end
+
         def create_translations
           return if content_a.pluck(:template_name).include?('Übersetzung')
 
@@ -36,8 +82,9 @@ module DataCycleCore
                   data_hash: {
                     'name' => data_hash[:name],
                     'description' => data_hash[:description],
-                    'imported' => true,
-                    'generated' => false,
+                    'translation_type' => 'imported',
+                    # 'imported' => true,
+                    # 'generated' => false,
                     'description_type' => [description_type],
                     'data_type' => [data_type],
                     'about' => [id]
@@ -61,8 +108,8 @@ module DataCycleCore
               {
                 classification: classification.name,
                 locale => {
-                  name: info.name,
-                  description: info.description
+                  name: DataCycleCore::MasterData::DataConverter.string_to_string(info.name),
+                  description: DataCycleCore::MasterData::DataConverter.string_to_string(info.description)
                 }
               }
             end

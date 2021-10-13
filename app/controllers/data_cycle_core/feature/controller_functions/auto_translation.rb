@@ -19,7 +19,7 @@ module DataCycleCore
           render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Normalisierung', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if @content.blank?
 
           logger = DataCycleCore::Generic::Logger::LogFile.new('auto_translate')
-          created = @content.create_translations
+          created = @content.create_update_translations
           logger.info('auto_translations', "auto-translating: #{@content.id}")
           logger.info('auto_translations', created.to_s)
 
