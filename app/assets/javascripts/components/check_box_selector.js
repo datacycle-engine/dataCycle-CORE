@@ -1,4 +1,4 @@
-import ConfirmationModal from './confirmation_modal';
+import domElementHelpers from '../helpers/dom_element_helpers';
 
 class CheckBoxSelector {
   constructor(element) {
@@ -19,20 +19,12 @@ class CheckBoxSelector {
   async import(event, data) {
     if (!data.value || !data.value.length) return;
 
-    const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
-    const labelText = label && label.innerText;
+    const target = event.currentTarget;
 
-    new ConfirmationModal({
-      text: await I18n.translate('frontend.override_warning', { data: labelText }),
-      confirmationText: await I18n.translate('common.yes'),
-      cancelText: await I18n.translate('common.no'),
-      confirmationClass: 'success',
-      cancelable: true,
-      confirmationCallback: () => {
-        this.$inputFields.each((_, item) => {
-          this.setInputValue(item, data.value);
-        });
-      }
+    domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
+      this.$inputFields.each((_, item) => {
+        this.setInputValue(item, data.value);
+      });
     });
   }
   setInputValue(item, value) {

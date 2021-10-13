@@ -1,3 +1,5 @@
+import domElementHelpers from '../helpers/dom_element_helpers';
+
 class ConfirmationModal {
   constructor(config = {}) {
     this.confirmationCallback = config.confirmationCallback;
@@ -99,22 +101,33 @@ class ConfirmationModal {
     }
   }
   focusSpecificFields(event) {
-    const fieldIdString = event.currentTarget.dataset.fieldIds;
-    if (!fieldIdString) return;
+    const fieldId = event.currentTarget.dataset.fieldId;
+    if (!fieldId) return;
 
-    const fieldIds = fieldIdString.split(',');
+    const elements = document.querySelectorAll(`[data-focus-id="${fieldId}"]`);
+    const elementMethod = event.type == 'mouseenter' ? this._showSpecificField : this._hideSpecificField;
+    const overlayRect = this.overlay[0].getBoundingClientRect();
+    const fieldOffset = overlayRect.top + overlayRect.height + 20;
 
-    for (let i = 0; i < fieldIds.length; ++i) {
-      const field = document.querySelector(`[data-focus-id="${fieldIds[i]}"]`);
-      if (field) {
-        if (event.type == 'mouseenter') {
-          field.scrollIntoView({ behavior: 'smooth', block: 'end' });
-          field.classList.add('dc-focus-field');
-        } else if (event.type == 'mouseleave') field.classList.remove('dc-focus-field');
-      }
+    for (let i = 0; i < elements.length; ++i) {
+      elementMethod(elements[i], fieldOffset);
     }
+  }
+  _showSpecificField(field, fieldOffset) {
+    const parent = domElementHelpers.findParent(field, domElementHelpers.isVisible);
+    field = field.cloneNode(true);
+    field.classList.add('dc-focus-field');
+    field.style.top = `${fieldOffset}px`;
 
-    console.log('focusSpecificFields', fieldIds);
+    parent.appendChild(field);
+    field.scrollIntoView(); // required to keep the opacity transition
+    field.style.opacity = 1;
+  }
+  _hideSpecificField(field, _fieldOffset) {
+    if (!field.classList.contains('dc-focus-field')) return;
+
+    field.style.opacity = 0;
+    setTimeout(() => field.remove(), 300);
   }
 }
 

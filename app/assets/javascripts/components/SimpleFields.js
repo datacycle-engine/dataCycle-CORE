@@ -1,4 +1,3 @@
-import ConfirmationModal from './confirmation_modal';
 import domElementHelpers from '../helpers/dom_element_helpers';
 
 class SimpleFields {
@@ -54,40 +53,24 @@ class SimpleFields {
     }
   }
   async numberEventHandler(event, data) {
-    if ($(event.target).val().length === 0 || (data && data.force)) {
-      $(event.target).val(data.value).trigger('input');
-    } else {
-      const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
-      const labelText = label && label.innerText;
+    const target = event.currentTarget;
 
-      new ConfirmationModal({
-        text: await I18n.translate('frontend.override_warning', { data: labelText }),
-        confirmationText: await I18n.translate('common.yes'),
-        cancelText: await I18n.translate('common.no'),
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: function () {
-          $(event.target).val(data.value).trigger('input');
-        }
+    if ($(target).val().length === 0 || (data && data.force)) {
+      $(target).val(data.value).trigger('input');
+    } else {
+      domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
+        $(target).val(data.value).trigger('input');
       });
     }
   }
   async checkboxEventHandler(event, data) {
-    if (data && data.force) {
-      $(event.target).prop('checked', data.value);
-    } else {
-      const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
-      const labelText = label && label.innerText;
+    const target = event.currentTarget;
 
-      new ConfirmationModal({
-        text: await I18n.translate('frontend.override_warning', { data: labelText }),
-        confirmationText: await I18n.translate('common.yes'),
-        cancelText: await I18n.translate('common.no'),
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: function () {
-          $(event.target).prop('checked', data.value);
-        }
+    if (data && data.force) {
+      $(target).prop('checked', data.value);
+    } else {
+      domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
+        $(target).prop('checked', data.value);
       });
     }
   }

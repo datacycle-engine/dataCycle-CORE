@@ -119,6 +119,7 @@ de:
       released: Der Inhalt wurde wieder freigegeben und kann nicht mehr gespeichert werden.
     update_stored_filter: 'Filterparameter aktualisieren?<br><br>Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.'
     maximum_embedded: 'Maximalanzahl: %{data}'
+    minimum_embedded: 'Mindestanzahl: %{data}'
     gpx:
       file_missing: Datei nicht gefunden!
       empty: Die GPX-Datei beinhaltet keinen Track.

@@ -113,6 +113,7 @@ en:
     update_stored_filter: 'Update filter parameters?<br><br>Warning: Also affects
       saved searches that use this search.'
     maximum_embedded: 'Maximum number: %{data}'
+    minimum_embedded: 'Minimum number: %{data}'
     gpx:
       file_missing: File not found!
       empty: The GPX file does not contain a track.

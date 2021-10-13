@@ -316,8 +316,10 @@ class SplitView {
       if (!values[keys[i]]) continue;
 
       const renderRemoteField = this.findRemoteRenderFieldByKey(keys[i], this.rightContainer);
+      const sourceRemoteField = this.findRemoteRenderFieldByKey(keys[i], this.leftContainer);
 
       if (renderRemoteField) await $(renderRemoteField).triggerHandler('dc:remote:forceRenderTranslations');
+      if (sourceRemoteField) await $(sourceRemoteField).triggerHandler('dc:remote:forceRenderTranslations');
 
       this.copyContents(values[keys[i]], keys[i], false, false, keys[i]);
     }
@@ -362,6 +364,8 @@ class SplitView {
     DataCycle.disableElement(buttonToDisable);
 
     for (let i = 0; i < items.length; ++i) {
+      if (!domElementHelpers.isVisible(items[i])) continue;
+
       triggeredRequests.push($(items[i]).triggerHandler('click'));
     }
 
@@ -379,7 +383,7 @@ class SplitView {
     let sourceId;
 
     if (sourceElement) {
-      sourceId = domElementHelpers.randomId('focus-source');
+      sourceId = domElementHelpers.randomId('focus-field');
       sourceElement.dataset.focusId = sourceId;
     }
 

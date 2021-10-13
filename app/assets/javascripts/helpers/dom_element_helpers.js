@@ -4,6 +4,12 @@ export default {
   isVisible: function (elem) {
     return elem.offsetWidth > 0 || elem.offsetHeight > 0 || elem.getClientRects().length > 0;
   },
+  findParent: function (elem, filter) {
+    const parent = elem.parentElement;
+    if (filter(parent)) return parent;
+
+    return this.findParent(parent, filter);
+  },
   parseDataAttribute: function (value) {
     if (!value) return value;
 
@@ -20,15 +26,12 @@ export default {
     const container = field.closest('.form-element');
     const label = container.getElementsByClassName('attribute-label-text')[0];
     const labelText = label && label.innerText;
-    const targetId = this.randomId('focus-target');
-    container.dataset.focusId = targetId;
-
-    const focusFieldIds = [targetId];
-    if (sourceId) focusFieldIds.push(sourceId);
+    const fieldId = sourceId || this.randomId('focus-field');
+    container.dataset.focusId = fieldId;
 
     const text = `${await I18n.translate('frontend.override_warning', {
       data: labelText
-    })}<br><br><span class="focus-specific-field" data-field-ids="${focusFieldIds}">${await I18n.translate(
+    })}<br><br><span class="focus-specific-field" data-field-id="${fieldId}">${await I18n.translate(
       'frontend.override_focus'
     )}</span>`;
 

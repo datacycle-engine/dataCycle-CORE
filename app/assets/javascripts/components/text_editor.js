@@ -4,7 +4,7 @@ import { QuillContentlinkModule, ContentlinkBlot } from './../components/quill_c
 import { QuillLinkFormat, QuillLinkModule } from '../components/quill_custom_link';
 import { SmartBreak, lineBreakMatcher, lineBreakHandler } from '../components/quill_smart_break';
 import handleEnter from '../components/quill_enter_handler';
-import ConfirmationModal from './../components/confirmation_modal';
+import domElementHelpers from '../helpers/dom_element_helpers';
 import quillHelpers from './../helpers/quill_helpers';
 import quillCustomHandlers from '../components/quill_custom_handlers';
 const icons = Quill.import('ui/icons');
@@ -152,18 +152,10 @@ class TextEditor {
   }
   async importData(event, data) {
     if (this.editor.getText().trim().length > 1 && (!data || !data.force)) {
-      const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
-      const labelText = label && label.innerText;
+      const target = event.currentTarget;
 
-      new ConfirmationModal({
-        text: await I18n.translate('frontend.override_warning', { data: labelText }),
-        confirmationText: await I18n.translate('common.yes'),
-        cancelText: await I18n.translate('common.no'),
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: () => {
-          this.editor.clipboard.dangerouslyPasteHTML(data.value);
-        }
+      domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
+        this.editor.clipboard.dangerouslyPasteHTML(data.value);
       });
     } else {
       this.editor.clipboard.dangerouslyPasteHTML(data.value);

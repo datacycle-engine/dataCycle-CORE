@@ -2,6 +2,7 @@ import OpenLayersViewer from './open_layers_viewer';
 import { gpx } from '@tmcw/togeojson';
 import ConfirmationModal from './confirmation_modal';
 import RemoveAllFeaturesControl from './ol_remove_all_features_control';
+import domElementHelpers from '../helpers/dom_element_helpers';
 
 class OpenLayersEditor extends OpenLayersViewer {
   constructor(container) {
@@ -48,17 +49,9 @@ class OpenLayersEditor extends OpenLayersViewer {
     if (!this.value || (data && data.force)) {
       this.setUploadedFeature(data.value);
     } else {
-      const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
-      const labelText = label && label.innerText;
+      const target = event.currentTarget;
 
-      new ConfirmationModal({
-        text: await I18n.translate('frontend.override_warning', { data: labelText }),
-        confirmationText: await I18n.translate('common.yes'),
-        cancelText: await I18n.translate('common.no'),
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: () => this.setUploadedFeature(data.value)
-      });
+      domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => this.setUploadedFeature(data.value));
     }
   }
   initMapActions() {
