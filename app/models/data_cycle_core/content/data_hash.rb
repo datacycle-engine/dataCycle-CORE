@@ -76,6 +76,7 @@ module DataCycleCore
 
           self.updated_at = options.save_time
           self.updated_by = options.current_user&.id
+          self.last_updated_locale = I18n.locale
           self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? options.version_name.presence : nil
 
           if id.nil?
@@ -100,11 +101,11 @@ module DataCycleCore
         translations = options.data_hash[:translations]
         locale = translations&.keys&.first || I18n.locale
         datahash = ((options.data_hash.key?(:datahash) ? options.data_hash[:datahash] : options.data_hash.except(:translations, :version_name)) || {}).merge(translations&.delete(locale.to_s) || {}).with_indifferent_access
-        options.version_name = options.data_hash[:version_name] if options.data_hash.key?(:version_name)
+        version_name = (options.data_hash.key?(:version_name) ? options.data_hash[:version_name] : options.version_name).presence
 
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
           I18n.with_locale(locale) do
-            raise ActiveRecord::Rollback unless set_data_hash(options.to_h.merge(data_hash: datahash))
+            raise ActiveRecord::Rollback unless set_data_hash(options.to_h.merge(data_hash: datahash, version_name: version_name&.+(" (#{I18n.locale})")))
           end
 
           if translations.present?
@@ -112,7 +113,7 @@ module DataCycleCore
               I18n.with_locale(l) do
                 next if locale_hash.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }.blank?
 
-                raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :save_time, :ui_locale).merge(data_hash: locale_hash, update_search_all: false, partial_update: true))
+                raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :save_time, :ui_locale).merge(data_hash: locale_hash, update_search_all: false, partial_update: true, version_name: version_name&.+(" (#{I18n.locale})")))
               end
             end
 
