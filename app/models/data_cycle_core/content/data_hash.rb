@@ -70,7 +70,7 @@ module DataCycleCore
         return no_changes(options.ui_locale) unless diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
 
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-          to_history(save_time: options.save_time) unless id.nil? || options.prevent_history
+          to_history unless id.nil? || options.prevent_history
 
           set_template_data_hash(options, partial_schema&.dig('properties') || property_definitions)
 
@@ -113,7 +113,7 @@ module DataCycleCore
               I18n.with_locale(l) do
                 next if locale_hash.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }.blank?
 
-                raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :save_time, :ui_locale).merge(data_hash: locale_hash, update_search_all: false, partial_update: true, version_name: version_name&.+(" (#{I18n.locale})")))
+                raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :ui_locale).merge(data_hash: locale_hash, update_search_all: false, partial_update: true, version_name: version_name&.+(" (#{I18n.locale})")))
               end
             end
 

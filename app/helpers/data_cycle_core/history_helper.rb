@@ -163,7 +163,7 @@ module DataCycleCore
     def complete_history_list(content)
       history_entries = []
       if content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i
-        history_entries.push(map_to_history_entry(content))
+        history_entries.push(map_to_history_entry(content, content.last_updated_locale))
         history_entries.concat(ordered_history_entries(content))
       end
 

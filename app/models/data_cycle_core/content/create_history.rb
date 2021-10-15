@@ -3,7 +3,7 @@
 module DataCycleCore
   module Content
     module CreateHistory
-      def to_history(save_time:, delete: false, all_translations: false)
+      def to_history(delete: false, all_translations: false)
         origin_table = self.class.to_s.split('::')[1].tableize
         data_set_history = (self.class.to_s + '::History').safe_constantize.new
 
@@ -18,7 +18,7 @@ module DataCycleCore
                   data_set_history.send("#{key}=", value)
                 end
 
-                lower_bound = update_previous_history_validity(save_time)
+                lower_bound = update_previous_history_validity
                 data_set_history.history_valid = (lower_bound...)
               end
             end
@@ -28,14 +28,11 @@ module DataCycleCore
             data_set_history.send("#{key}=", value)
           end
 
-          lower_bound = update_previous_history_validity(save_time)
+          lower_bound = update_previous_history_validity
           data_set_history.history_valid = (lower_bound...)
-
-          binding.pry
-
-          data_set_history.deleted_at = save_time if delete
-          data_set_history.created_at = save_time
-          data_set_history.updated_at = save_time
+          data_set_history.deleted_at = lower_bound if delete
+          data_set_history.created_at = lower_bound
+          data_set_history.updated_at = lower_bound
           data_set_history.save(touch: false)
 
           classification_content.all.find_each do |item|
@@ -49,8 +46,8 @@ module DataCycleCore
           end
 
           embedded_property_names.each do |content_name|
-            load_embedded_objects(content_name, nil, false).each_with_index do |content_item, index|
-              new_content_history = content_item.to_history(save_time: save_time)
+            load_embedded_objects(content_name, nil, !all_translations).each_with_index do |content_item, index|
+              new_content_history = content_item.to_history
               DataCycleCore::ContentContent::History.create!({
                 content_a_history_id: data_set_history.id,
                 relation_a: content_name,
@@ -95,16 +92,20 @@ module DataCycleCore
         data_set_history
       end
 
-      def update_previous_history_validity(save_time)
+      def update_previous_history_validity
         previous_history = histories.includes(:translations).where(thing_history_translations: { locale: I18n.locale }).find_by('UPPER(thing_history_translations.history_valid) IS NULL')
 
         return created_at if previous_history.nil?
 
-        previous_history.update(history_valid: (previous_history.history_valid&.first...save_time))
+        start_time = [previous_history.history_valid&.first, previous_history.created_at].compact.max
+        end_time = updated_at
+        end_time = start_time + 0.000001 if start_time >= end_time # ensure history_valid is a valid range
 
-        DataCycleCore::ContentContent::History.where(content_a_history_id: previous_history.id).update_all(["history_valid = tstzrange(lower(content_content_histories.history_valid), ?, '[)')", save_time])
+        previous_history.update(history_valid: (start_time...end_time))
 
-        save_time
+        DataCycleCore::ContentContent::History.where(content_a_history_id: previous_history.id).update_all(["history_valid = tstzrange(lower(content_content_histories.history_valid), ?, '[)')", end_time])
+
+        end_time
       end
     end
   end
