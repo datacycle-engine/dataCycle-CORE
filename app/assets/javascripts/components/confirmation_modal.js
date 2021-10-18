@@ -1,3 +1,5 @@
+import domElementHelpers from '../helpers/dom_element_helpers';
+
 class ConfirmationModal {
   constructor(config = {}) {
     this.confirmationCallback = config.confirmationCallback;
@@ -19,6 +21,7 @@ class ConfirmationModal {
   }
   async setup() {
     this.section = $(await this.renderSectionHtml());
+
     if ($('.confirmation-modal:visible').length) {
       this.overlay = $('.confirmation-modal:visible').first().append(this.section);
       this.confirmationIndex = this.overlay.find('section.confirmation-section').length;
@@ -36,6 +39,7 @@ class ConfirmationModal {
       new Foundation.Reveal(this.overlay);
       this.overlay.foundation('open');
     }
+
     this.addEvents();
   }
   async renderSectionHtml() {
@@ -62,6 +66,13 @@ class ConfirmationModal {
     });
 
     this.section.on('dc:confirmation_count:update', this.updateConfirmationIndex.bind(this));
+    this.section.on(
+      {
+        mouseenter: this.focusSpecificFields.bind(this),
+        mouseleave: this.focusSpecificFields.bind(this)
+      },
+      '.focus-specific-field'
+    );
   }
   cancel(event) {
     event.preventDefault();
@@ -88,6 +99,35 @@ class ConfirmationModal {
     if (typeof this[method_name] == 'function') {
       this[method_name]();
     }
+  }
+  focusSpecificFields(event) {
+    const fieldId = event.currentTarget.dataset.fieldId;
+    if (!fieldId) return;
+
+    const elements = document.querySelectorAll(`[data-focus-id="${fieldId}"]`);
+    const elementMethod = event.type == 'mouseenter' ? this._showSpecificField : this._hideSpecificField;
+    const overlayRect = this.overlay[0].getBoundingClientRect();
+    const fieldOffset = overlayRect.top + overlayRect.height + 20;
+
+    for (let i = 0; i < elements.length; ++i) {
+      elementMethod(elements[i], fieldOffset);
+    }
+  }
+  _showSpecificField(field, fieldOffset) {
+    const parent = domElementHelpers.findParent(field, domElementHelpers.isVisible);
+    field = field.cloneNode(true);
+    field.classList.add('dc-focus-field');
+    field.style.top = `${fieldOffset}px`;
+
+    parent.appendChild(field);
+    field.scrollIntoView(); // required to keep the opacity transition
+    field.style.opacity = 1;
+  }
+  _hideSpecificField(field, _fieldOffset) {
+    if (!field.classList.contains('dc-focus-field')) return;
+
+    field.style.opacity = 0;
+    setTimeout(() => field.remove(), 300);
   }
 }
 

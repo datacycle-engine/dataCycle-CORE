@@ -127,7 +127,7 @@
       }
     }
 
-    .watch-lists-link > span {
+    .watch-lists-link > span:not(.my-collection-icon) {
       display: none;
     }
 

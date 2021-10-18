@@ -228,6 +228,8 @@ module DataCycleCore
           end
         end
 
+        @watch_list.watch_list_data_hashes.clear if @watch_list.my_selection
+
         ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
 
         head(:ok)
@@ -341,6 +343,24 @@ module DataCycleCore
       end
 
       download_indesign_collection(@watch_list, download_items, serialize_format, languages, :serialize_watch_list)
+    end
+
+    def clear
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+
+      authorize! :remove_item, @watch_list
+
+      @watch_list.watch_list_data_hashes.clear
+
+      redirect_back(
+        fallback_location: root_path,
+        notice: (
+          I18n.t :cleared_collection,
+                 scope: [:controllers, :success],
+                 data: @watch_list.name,
+                 locale: helpers.active_ui_locale
+        )
+      )
     end
 
     private

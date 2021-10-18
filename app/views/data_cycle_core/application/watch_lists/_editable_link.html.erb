@@ -1,4 +1,4 @@
-<li id="content-<%= content&.id %>-watch-list-<%= watch_list&.id %>">
+<li id="content-<%= content&.id %>-watch-list-<%= watch_list&.id %>" class="<%= 'my-selection' if watch_list.my_selection %>">
   <% linked_watch_lists = watch_list.watch_list_data_hashes.any? { |w| w.hashable_id == content.id && w.hashable_type == 'DataCycleCore::Thing' } %>
   <span class="watch-list-item <%= watch_list.user == current_user ? 'private' : 'shared' %>">
     <span class="check <%= 'checked' if linked_watch_lists %>"><i class="fa fa-check" aria-hidden="true"></i></span>
@@ -17,9 +17,10 @@
           remote: true,
           method: :delete,
           data: {
-            confirm: "Inhalt (#{I18n.with_locale(content&.first_available_locale){ content&.title }}) von<br>#{DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale)} (#{watch_list.name}) entfernen?",
             disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
-          } do %>
+          }.merge(watch_list.my_selection ? {} : {
+            confirm: "Inhalt (#{I18n.with_locale(content&.first_available_locale){ content&.title }}) von<br>#{DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale)} (#{watch_list.name}) entfernen?"
+          }) do %>
           <i aria-hidden="true" class="fa fa-times-circle"></i>
         <% end %>
       <% elsif can?(:add_item, watch_list) %>

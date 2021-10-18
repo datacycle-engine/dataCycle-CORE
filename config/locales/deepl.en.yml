@@ -86,6 +86,7 @@ en:
       replaceAllNbsp: replace all protected spaces with normal spaces
       replaced_all_nbsp: replaced all protected spaces with normal spaces!
     override_warning: Should the field %{data} be overwritten?
+    override_focus: highlight fields
     reload_page: Reload page
     upload:
       running: There are still uploads in progress!
@@ -112,6 +113,7 @@ en:
     update_stored_filter: 'Update filter parameters?<br><br>Warning: Also affects
       saved searches that use this search.'
     maximum_embedded: 'Maximum number: %{data}'
+    minimum_embedded: 'Minimum number: %{data}'
     gpx:
       file_missing: File not found!
       empty: The GPX file does not contain a track.
@@ -692,6 +694,8 @@ en:
     copyable_from: Apply %{data}
     copyable_from_clear: '%{data} discard'
     logout: Logout
+    clear: 'remove all contents from %{data}'
+
   validation:
     errors:
       slug: '%{data} is already the slug of another record.'
@@ -825,6 +829,7 @@ en:
         one: '<b>%{count}</b> Content was created'
         other: '<b>%{count}</b> Contents were created'
       removed_lock: Content has been released
+      cleared_collection: 'removed all contents from %{data}'
     warning:
       no_changes: No new version was created because no changes were made to the content.
     info:

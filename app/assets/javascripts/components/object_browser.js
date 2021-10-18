@@ -111,10 +111,10 @@ class ObjectBrowser {
         self.removeObject($(this).data('id'), event);
       }
     });
-    this.element.on('click', '.delete-thumbnail', event => {
+    this.element.on('click', '.delete-thumbnail', async event => {
       event.preventDefault();
       event.stopPropagation();
-      if (this.validate('-', this.chosen.length - 1)) {
+      if (await this.validate('-', this.chosen.length - 1)) {
         this.removeThumbObject(event.target);
       }
     });
@@ -123,9 +123,9 @@ class ObjectBrowser {
       event.stopPropagation();
       self.removeObject($(this).closest('li.item').data('id'), event);
     });
-    this.overlay.find('.buttons .save-object-browser').on('click', event => {
+    this.overlay.find('.buttons .save-object-browser').on('click', async event => {
       event.preventDefault();
-      if (this.validate()) {
+      if (await this.validate()) {
         this.setChosen();
         this.overlay.foundation('close');
         this.element.closest('.form-element').trigger('change');
@@ -153,7 +153,7 @@ class ObjectBrowser {
           $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
         );
       }
-      if (newItems.length > 0 && this.validate('+', this.chosen.length + newItems.length)) {
+      if (newItems.length > 0 && (await this.validate('+', this.chosen.length + newItems.length))) {
         await this.findObjects(newItems, data.external_ids != undefined);
       }
     });
@@ -310,12 +310,16 @@ class ObjectBrowser {
       contentType: 'application/json'
     });
   }
-  validate(type = '~', new_length = this.chosen.length) {
+  async validate(type = '~', new_length = this.chosen.length) {
     if (type != '-' && this.max != 0 && new_length > this.max) {
-      new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
+      new ConfirmationModal({
+        text: `${this.label}: ${await I18n.translate('frontend.maximum_embedded', { data: this.max })}`
+      });
       return false;
     } else if (type != '+' && this.min != 0 && new_length < this.min) {
-      new ConfirmationModal({ text: 'Mindestanzahl: ' + this.min });
+      new ConfirmationModal({
+        text: `${this.label}: ${await I18n.translate('frontend.minimum_embedded', { data: this.min })}`
+      });
       return false;
     }
     return true;

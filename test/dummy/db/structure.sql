@@ -24,6 +24,15 @@ COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 --
+-- Name: delete_collected_classification_content_relations_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_collected_classification_content_relations_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations ( (SELECT ARRAY_AGG(DISTINCT things.id) FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE classification_groups.classification_id = OLD.classification_id), ARRAY[]::uuid[]); RETURN NEW; END; $$;
+
+
+--
 -- Name: delete_content_content_links(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -83,7 +92,7 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS t
 
 CREATE FUNCTION public.generate_collected_classification_content_relations(content_ids uuid[], excluded_classification_ids uuid[]) RETURNS uuid[]
     LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id = ANY(content_ids); WITH direct_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id WHERE things.id = ANY(content_ids) AND classification_contents.classification_id <> ALL(excluded_classification_ids) ), full_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", UNNEST(classification_alias_paths.full_path_ids) "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id WHERE things.id = ANY(content_ids) AND classification_contents.classification_id <> ALL(excluded_classification_ids) ) INSERT INTO collected_classification_content_relations ( content_id, direct_classification_alias_ids, full_classification_alias_ids ) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id ) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT thing_id, ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids" FROM full_classification_content_relations GROUP BY thing_id ) "full_relations" ON full_relations.thing_id = things.id; RETURN content_ids; END;$$;
+    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id = ANY (content_ids); WITH direct_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) ), full_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", UNNEST(classification_alias_paths.full_path_ids) "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids)) INSERT INTO collected_classification_content_relations (content_id, direct_classification_alias_ids, full_classification_alias_ids) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT thing_id, ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids" FROM full_classification_content_relations GROUP BY thing_id) "full_relations" ON full_relations.thing_id = things.id; RETURN content_ids; END; $$;
 
 
 --
@@ -114,6 +123,15 @@ CREATE FUNCTION public.generate_collected_classification_content_relations_trigg
 
 
 --
+-- Name: generate_collected_classification_content_relations_trigger_4(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_4() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations ( (SELECT ARRAY_AGG(DISTINCT things.id) FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE classification_groups.classification_id = NEW.classification_id), ARRAY[]::uuid[]); RETURN NEW; END; $$;
+
+
+--
 -- Name: generate_content_content_links(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -129,6 +147,15 @@ CREATE FUNCTION public.generate_content_content_links(a uuid, b uuid) RETURNS uu
 CREATE FUNCTION public.generate_content_content_links_trigger() RETURNS trigger
     LANGUAGE plpgsql
     AS $$ BEGIN PERFORM generate_content_content_links(NEW.content_a_id, NEW.content_b_id); RETURN NEW; END;$$;
+
+
+--
+-- Name: generate_my_selection_watch_list(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN INSERT INTO watch_lists (name, user_id, created_at, updated_at, full_path, full_path_names, my_selection) SELECT 'Meine Auswahl', users.id, NOW(), NOW(), 'Meine Auswahl', ARRAY[]::varchar[], TRUE FROM users INNER JOIN roles ON roles.id = users.role_id WHERE users.id = NEW.id AND roles.rank <> 0; RETURN NEW; END; $$;
 
 
 --
@@ -610,7 +637,8 @@ CREATE TABLE public.things (
     content_type character varying,
     representation_of_id uuid,
     version_name character varying,
-    line public.geometry(MultiLineStringZ,4326)
+    line public.geometry(MultiLineStringZ,4326),
+    last_updated_locale character varying
 );
 
 
@@ -1115,7 +1143,8 @@ CREATE TABLE public.thing_histories (
     content_type character varying,
     representation_of_id uuid,
     version_name character varying,
-    line public.geometry(MultiLineStringZ,4326)
+    line public.geometry(MultiLineStringZ,4326),
+    last_updated_locale character varying
 );
 
 
@@ -1249,7 +1278,8 @@ CREATE TABLE public.watch_lists (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     full_path character varying,
-    full_path_names character varying[]
+    full_path_names character varying[],
+    my_selection boolean DEFAULT false NOT NULL
 );
 
 
@@ -2517,6 +2547,13 @@ CREATE INDEX words_idx ON public.searches USING gin (full_text public.gin_trgm_o
 
 
 --
+-- Name: classification_groups delete_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_collected_classification_content_relations_trigger_1 AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE PROCEDURE public.delete_collected_classification_content_relations_trigger_1();
+
+
+--
 -- Name: content_contents delete_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -2566,10 +2603,24 @@ CREATE TRIGGER generate_collected_classification_content_relations_trigger_2 AFT
 
 
 --
+-- Name: classification_groups generate_collected_classification_content_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_4 AFTER INSERT ON public.classification_groups FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_4();
+
+
+--
 -- Name: content_contents generate_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT ON public.content_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_content_content_links_trigger();
+
+
+--
+-- Name: users generate_my_selection_watch_list; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_my_selection_watch_list AFTER INSERT ON public.users FOR EACH ROW EXECUTE PROCEDURE public.generate_my_selection_watch_list();
 
 
 --
@@ -2633,6 +2684,13 @@ CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF parent_
 --
 
 CREATE TRIGGER update_collected_classification_content_relations_trigger_1 AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id <> new.content_data_id) OR (old.classification_id <> new.classification_id) OR ((old.relation)::text <> (new.relation)::text))) EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_1();
+
+
+--
+-- Name: classification_groups update_collected_classification_content_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_collected_classification_content_relations_trigger_4 AFTER UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE PROCEDURE public.delete_collected_classification_content_relations_trigger_1();
 
 
 --
@@ -2890,6 +2948,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210908095952'),
 ('20211001085525'),
 ('20211005125306'),
-('20211005134137');
+('20211005134137'),
+('20211007123156'),
+('20211011123517'),
+('20211014062654');
 
 

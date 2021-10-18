@@ -1,7 +1,7 @@
 import Flatpickr from 'flatpickr';
 import { German } from 'flatpickr/dist/l10n/de.js';
 import { english } from 'flatpickr/dist/l10n/default';
-import ConfirmationModal from './../components/confirmation_modal';
+import domElementHelpers from '../helpers/dom_element_helpers';
 import castArray from 'lodash/castArray';
 
 class DatePicker {
@@ -218,19 +218,11 @@ class DatePicker {
       this.setDate(null, data.value);
       this.updateConditionalField(data.value);
     } else {
-      const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
-      const labelText = label && label.innerText;
+      const target = event.currentTarget;
 
-      new ConfirmationModal({
-        text: await I18n.translate('frontend.override_warning', { data: labelText }),
-        confirmationText: await I18n.translate('common.yes'),
-        cancelText: await I18n.translate('common.no'),
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: () => {
-          this.setDate(null, data.value);
-          this.updateConditionalField(data.value);
-        }
+      domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
+        this.setDate(null, data.value);
+        this.updateConditionalField(data.value);
       });
     }
   }

@@ -1,4 +1,4 @@
-import ConfirmationModal from './../components/confirmation_modal';
+import domElementHelpers from '../helpers/dom_element_helpers';
 
 export default function () {
   var SliderArray = [];
@@ -14,18 +14,10 @@ export default function () {
       if ($(event.target).val().length === 0) {
         $(event.target).val(data.value).trigger('change');
       } else {
-        const label = event.currentTarget.closest('.form-element').getElementsByClassName('attribute-label-text')[0];
-        const labelText = label && label.innerText;
+        const target = event.currentTarget;
 
-        new ConfirmationModal({
-          text: await I18n.translate('frontend.override_warning', { data: labelText }),
-          confirmationText: await I18n.translate('common.yes'),
-          cancelText: await I18n.translate('common.no'),
-          confirmationClass: 'success',
-          cancelable: true,
-          confirmationCallback: function () {
-            $(event.target).val(data.value).trigger('change');
-          }
+        domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
+          $(target).val(data.value).trigger('change');
         });
       }
     }

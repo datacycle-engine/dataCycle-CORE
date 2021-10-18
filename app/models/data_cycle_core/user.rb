@@ -28,6 +28,7 @@ module DataCycleCore
 
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
+    has_one :my_selection, -> { where(my_selection: true) }, class_name: 'DataCycleCore::WatchList'
     has_many :subscriptions, dependent: :destroy
     has_many :things_subscribed, through: :subscriptions, source: :subscribable, source_type: 'DataCycleCore::Thing'
     belongs_to :role
