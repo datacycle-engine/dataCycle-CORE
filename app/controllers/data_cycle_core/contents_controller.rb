@@ -85,6 +85,9 @@ module DataCycleCore
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
       uri = URI.parse(content.send(attribute))
 
+      # used for local development and docker env.
+      uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && uri.hostname == 'localhost'
+
       redirect_to(uri.to_s)
     end
 

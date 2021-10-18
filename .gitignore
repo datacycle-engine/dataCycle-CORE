@@ -22,6 +22,7 @@ rdoc/
 **/package-lock.json
 coverage
 .env
+.env.production
 benchmark/
 
 # Vite Ruby
