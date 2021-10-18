@@ -2,8 +2,7 @@ import 'foundation-sites';
 
 function removeFoundationOverlays(element, type) {
   let overlay = document.getElementById(element.dataset[type]);
-  if (!overlay) return;
-
+  if (!overlay || document.querySelector(`[data-${type}="${overlay.id}"]`)) return;
   if (overlay.parentElement.classList.contains('reveal-overlay')) overlay = overlay.parentElement;
 
   overlay.remove();
@@ -27,15 +26,20 @@ export default function () {
   $(document).on('dc:html:changed dc:contents:added', '*:not(.dc-fd-initialized)', event => {
     event.stopPropagation();
 
-    if ($(event.target).hasClass('accordion-item')) Foundation.reInit($(event.target).closest('[data-accordion]'));
-    if ($(event.target).hasClass('accordion')) Foundation.reInit($(event.target));
-    $(event.target).foundation().addClass('dc-fd-initialized');
+    const $target = $(event.currentTarget);
+
+    if ($target.hasClass('accordion-item')) Foundation.reInit($target.closest('[data-accordion]'));
+    if ($target.hasClass('accordion')) Foundation.reInit($target);
+    $target.foundation().addClass('dc-fd-initialized');
   });
 
   $(document).on('open.zf.reveal', '.reveal', event => {
     event.stopPropagation();
+
+    const $target = $(event.currentTarget);
+
     $('.reveal:visible, .reveal-overlay:visible').css('z-index', '');
-    $(event.target).add($(event.target).parent('.reveal-overlay')).css('z-index', 1007);
+    $target.add($target.parent('.reveal-overlay')).css('z-index', 1007);
   });
 
   $(document).on('closed.zf.reveal', '.reveal', event => {
@@ -48,7 +52,10 @@ export default function () {
 
   $(document).on('closed.zf.reveal', '.reveal', event => {
     event.stopPropagation();
-    if ($(event.target).find('video').length) $(event.target).find('video').get(0).pause();
+
+    const $target = $(event.currentTarget);
+
+    if ($target.find('video').length) $target.find('video').get(0).pause();
   });
 
   $(document).on('remove', '*', event => {
@@ -58,32 +65,30 @@ export default function () {
   $(document).on('dc:html:remove', '*', event => {
     event.stopPropagation();
 
-    $(event.target)
-      .find('[data-open]')
-      .each((i, elem) => {
-        if ($('#' + $(elem).data('open')).parent('.reveal-overlay').length)
-          $('#' + $(elem).data('open'))
-            .trigger('dc:html:remove')
-            .parent('.reveal-overlay')
-            .remove();
-        else
-          $('#' + $(elem).data('open'))
-            .trigger('dc:html:remove')
-            .remove();
-      });
-    $(event.target)
-      .find('[data-toggle]')
-      .each((i, elem) => {
-        if ($('#' + $(elem).data('toggle')).parent('.reveal-overlay').length)
-          $('#' + $(elem).data('toggle'))
-            .trigger('dc:html:remove')
-            .parent('.reveal-overlay')
-            .remove();
-        else
-          $('#' + $(elem).data('toggle'))
-            .trigger('dc:html:remove')
-            .remove();
-      });
+    const $target = $(event.currentTarget);
+
+    $target.find('[data-open]').each((i, elem) => {
+      if ($('#' + $(elem).data('open')).parent('.reveal-overlay').length)
+        $('#' + $(elem).data('open'))
+          .trigger('dc:html:remove')
+          .parent('.reveal-overlay')
+          .remove();
+      else
+        $('#' + $(elem).data('open'))
+          .trigger('dc:html:remove')
+          .remove();
+    });
+    $target.find('[data-toggle]').each((i, elem) => {
+      if ($('#' + $(elem).data('toggle')).parent('.reveal-overlay').length)
+        $('#' + $(elem).data('toggle'))
+          .trigger('dc:html:remove')
+          .parent('.reveal-overlay')
+          .remove();
+      else
+        $('#' + $(elem).data('toggle'))
+          .trigger('dc:html:remove')
+          .remove();
+    });
   });
 
   $(document).on('click', 'div.accordion-title', event => {
