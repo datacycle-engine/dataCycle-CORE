@@ -110,24 +110,61 @@ class ConfirmationModal {
     const fieldOffset = overlayRect.top + overlayRect.height + 20;
 
     for (let i = 0; i < elements.length; ++i) {
-      elementMethod(elements[i], fieldOffset);
+      elementMethod.call(this, elements[i], fieldOffset);
+    }
+  }
+  _showAncestors(ancestors) {
+    for (let i = 0; i < ancestors.length; ++i) {
+      const field = ancestors[i];
+      if (domElementHelpers.isVisible(field)) continue;
+
+      if (field.style.display) field.dataset.oldDisplayValue = field.style.display;
+      field.classList.add('dc-focus-show-ancestor');
+      field.style.display = 'block';
+    }
+  }
+  _hideAncestors(ancestors) {
+    for (let i = 0; i < ancestors.length; ++i) {
+      const field = ancestors[i];
+      if (!domElementHelpers.isVisible(field) || !field.classList.contains('dc-focus-show-ancestor')) continue;
+
+      field.classList.remove('dc-focus-show-ancestor');
+      if (field.dataset.oldDisplayValue) field.style.display = field.dataset.oldDisplayValue;
+      else if (field.style.display) field.style.removeProperty('display');
     }
   }
   _showSpecificField(field, fieldOffset) {
-    const parent = domElementHelpers.findParent(field, domElementHelpers.isVisible);
-    field = field.cloneNode(true);
-    field.classList.add('dc-focus-field');
-    field.style.top = `${fieldOffset}px`;
+    if (field.style.top) field.dataset.oldTopValue = field.style.top;
+    if (field.style.opacity) field.dataset.oldOpacityValue = field.style.opacity;
+    field.style.opacity = 0;
 
-    parent.appendChild(field);
-    field.scrollIntoView(); // required to keep the opacity transition
-    field.style.opacity = 1;
+    window.requestAnimationFrame(() => {
+      const ancestors = domElementHelpers.findAncestors(field, domElementHelpers.isHidden);
+      this._showAncestors(ancestors.reverse());
+
+      field.classList.add('dc-focus-field');
+      field.style.top = `${fieldOffset}px`;
+    });
+
+    window.requestAnimationFrame(() => {
+      field.style.opacity = 1;
+    });
   }
   _hideSpecificField(field, _fieldOffset) {
     if (!field.classList.contains('dc-focus-field')) return;
 
     field.style.opacity = 0;
-    setTimeout(() => field.remove(), 300);
+
+    setTimeout(() => {
+      const ancestors = domElementHelpers.findAncestors(field, e => e.classList.contains('dc-focus-show-ancestor'));
+      this._hideAncestors(ancestors);
+
+      field.style.removeProperty('opacity');
+      field.style.removeProperty('top');
+      field.classList.remove('dc-focus-field');
+      if (field.style.oldTopValue) field.style.top = field.dataset.oldTopValue;
+      if (field.style.oldOpacityValue) field.style.opacity = field.dataset.oldOpacityValue;
+    }, 300);
   }
 }
 

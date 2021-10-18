@@ -4,11 +4,15 @@ export default {
   isVisible: function (elem) {
     return elem.offsetWidth > 0 || elem.offsetHeight > 0 || elem.getClientRects().length > 0;
   },
-  findParent: function (elem, filter) {
-    const parent = elem.parentElement;
-    if (filter(parent)) return parent;
+  isHidden: function (elem) {
+    return !this.isVisible(elem);
+  },
+  findAncestors: function (elem, filter, ancestors = []) {
+    if (!elem) return ancestors;
 
-    return this.findParent(parent, filter);
+    if (filter.call(this, elem)) ancestors.push(elem);
+
+    return this.findAncestors(elem.parentElement, filter, ancestors);
   },
   parseDataAttribute: function (value) {
     if (!value) return value;
