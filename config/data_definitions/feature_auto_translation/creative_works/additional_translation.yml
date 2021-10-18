@@ -46,18 +46,6 @@
         :ui:
           :show:
             :content_area: header
-      # :imported:
-      #   :label: Importiert
-      #   :type: boolean
-      #   :storage_location: translated_value
-      #   :advanced_search: true
-      #   :default_value: 'false'
-      # :generated:
-      #   :label: Automatisch Übersetzt
-      #   :type: boolean
-      #   :storage_location: translated_value
-      #   :advanced_search: true
-      #   :default_value: 'false'
       :translation_type:
         :label: Typ der Übersetzung
         :type: computed
@@ -71,6 +59,26 @@
               :type: value
               :value: 'manual'
         :advanced_search: true
+        :api:
+          :disabled: true
+      :modified:
+        :label: Letzte Änderung
+        :type: datetime
+        :storage_location: translated_value
+        :ui:
+         :edit:
+           disabled: true
+        :api:
+          :disabled: true
+      :source_locale:
+        :label: Quellsprache
+        :type: string
+        :storage_location: translated_value
+        :ui:
+         :edit:
+           disabled: true
+        :api:
+          :disabled: true
       :data_type:
         :label: Inhaltstyp
         :type: classification

@@ -11,20 +11,21 @@ module DataCycleCore
         # create/update translations
         def create_update_translations
           additional_infos = load_translated_content
-
+          return { 'error' => 'Nothing to translate' } if additional_infos.blank?
           template = DataCycleCore::Thing.find_by(template_name: 'Übersetzung', template: true)
+          return { 'error' => 'Data Type not found!' } if template.blank?
           data_type = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
+          return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
           translations_created = {}
+          timestamp = Time.zone.now
 
           additional_infos.each do |classification, locale_data_hash|
-            new_external_key = "#{classification}:#{external_key}"
             content = DataCycleCore::Thing.find_or_create_by(external_source_id: external_source_id, external_key: "#{classification}:#{external_key}") do |new_content|
               new_content.metadata ||= {}
               new_content.schema = template.schema
               new_content.template_name = template.template_name
               new_content.external_source_id = external_source_id
-              new_content.external_key = new_external_key
             end
             content.save! if content.new_record? # need id to add linked_data
 
@@ -33,13 +34,14 @@ module DataCycleCore
 
             locale_data_hash.each do |locale, data_hash|
               I18n.with_locale(locale) do
-                next if content.translation_type != 'imported'
+                next if content.translation_type.present? && content.translation_type != 'imported'
                 next if data_hash[:name] == content.name && data_hash[:description] == content.description
                 error = content.set_data_hash(
                   data_hash: {
                     'name' => data_hash[:name],
                     'description' => data_hash[:description],
                     'translation_type' => 'imported',
+                    'modified' => timestamp,
                     'description_type' => [description_type],
                     'data_type' => [data_type],
                     'about' => [id]
@@ -55,49 +57,65 @@ module DataCycleCore
           translations_created.compact
         end
 
-        def create_translations
-          return if content_a.pluck(:template_name).include?('Übersetzung')
-
-          additional_infos = load_translated_content
-
+        def create_update_auto_translations(source_locale = I18n.locale.to_s)
+          source_locale = source_locale.to_s
+          additional_translations = subject_of
+          return { 'error' => 'Nothing to translate' } if additional_translations.blank?
           template = DataCycleCore::Thing.find_by(template_name: 'Übersetzung', template: true)
+          return { 'error' => 'Data Type not found!' } if template.blank?
           data_type = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
+          return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
-          translations_created = {}
+          translatable_locales = DataCycleCore::Feature::Translate.allowed_languages & I18n.available_locales.map(&:to_s)
+          translatable_locales = ['de', 'en', 'it', 'nl'] - [source_locale] # Remove!!!
+          endpoint = DataCycleCore::Feature::Translate.endpoint
 
-          additional_infos.each do |classification, locale_data_hash|
-            content = DataCycleCore::Thing.new
-            content.metadata ||= {}
-            content.schema = template.schema
-            content.template_name = template.template_name
-            content.external_source_id = external_source_id
-            content.external_key = "#{classification}:#{external_key}"
-            content.save! # need id to add linked_data
+          translations_done = {}
 
-            translations_created[classification] = []
-            description_type = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', classification)
-            locale_data_hash.each do |locale, data_hash|
-              I18n.with_locale(locale) do
+          additional_translations.each do |content|
+            next if content.blank?
+            available_locales = content.available_locales.map(&:to_s)
+            next unless available_locales.include?(source_locale)
+
+            source_data = {}
+            classification = nil
+            I18n.with_locale(source_locale) do
+              source_data = { 'name' => content.name, 'description' => content.description, 'modified' => content.modified }
+              classification = content.description_type.first.name
+              translations_done[classification] = []
+            end
+
+            translatable_locales.each do |target_locale|
+              I18n.with_locale(target_locale) do
+                if content.translation_type.present?
+                  next if content.translation_type != 'automatic'
+                  next if content.modified >= source_data.dig('modified')
+                end
+
+                data = endpoint.translate({
+                  'text' => source_data['description'],
+                  'source_locale' => source_locale,
+                  'target_locale' => target_locale
+                })
+                description = endpoint.parse_translated(data)
                 error = content.set_data_hash(
                   data_hash: {
-                    'name' => data_hash[:name],
-                    'description' => data_hash[:description],
-                    'translation_type' => 'imported',
-                    # 'imported' => true,
-                    # 'generated' => false,
-                    'description_type' => [description_type],
-                    'data_type' => [data_type],
+                    'name' => classification,
+                    'description' => description,
+                    'translation_type' => 'automatic',
+                    'modified' => source_data.dig('modified'),
+                    'source_locale' => source_locale,
                     'about' => [id]
                   },
                   prevent_history: true,
                   partial_update: true
                 )
-                translations_created[classification].push(locale) if error[:error].blank?
+                translations_done[classification].push(target_locale) if error[:error].blank?
               end
-              translations_created[classification] = translations_created[classification].presence
             end
+            translations_done[classification] = translations_done[classification].presence
           end
-          translations_created.compact
+          translations_done.compact
         end
 
         def load_translated_content

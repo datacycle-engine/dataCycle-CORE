@@ -212,6 +212,8 @@ de:
     import: Importiert
     export: Exportiert
     duplicate: Duplikate
+    auto_translation_submit: Automatische Übersetzung gestartet
+    source_language: 'Quellsprache wählen'
     choose_language: 'Sprache wählen'
     searchterm: 'Suchbegriff'
     active_filters: Aktive Filter

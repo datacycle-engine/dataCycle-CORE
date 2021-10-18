@@ -6,7 +6,24 @@
     <h5>
       <%= t('actions.auto_translate', data: t('common.contents', count: 1, locale: active_ui_locale).capitalize, locale: active_ui_locale) %>
     </h5>
-    <%= link_to t('actions.translate', locale: active_ui_locale).capitalize, auto_translations_thing_path(id: content.id), remote: true, method: :post, class: 'button', data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i> ' + t('actions.translate', locale: active_ui_locale).capitalize } %>
-    <%= link_to t('actions.translate_create', locale: active_ui_locale).capitalize, create_auto_translations_thing_path(id: content.id), remote: true, method: :post, class: 'button', data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i> ' + t('actions.translate_create', locale: active_ui_locale).capitalize } %>
+    <p><%= t('common.source_language', locale: active_ui_locale) %></p>
+    <div id="split-source-selector">
+        <%= form_tag(auto_translations_thing_path(id: content.id), method: :post) do %>
+            <div class="form-element">
+                <div class="v-select white">
+                    <%= select_tag(
+                          'source_locale',
+                          options_for_select(
+                            I18n.available_locales.map { |locale| t("locales.#{locale}", locale: active_ui_locale) }.zip(I18n.available_locales),
+                            selected: I18n.locale
+                          )
+                        ) %>
+                </div>
+            </div>
+            <button class="button" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i> <%=t('actions.auto_translate', locale: active_ui_locale).capitalize %>">
+              <%= t('actions.auto_translate', locale: active_ui_locale).capitalize %>
+            </button>
+        <% end %>
+    </div>
   </div>
 </li>

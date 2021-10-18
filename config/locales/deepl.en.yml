@@ -205,6 +205,8 @@ en:
     import: Imported
     export: Exports
     duplicate: Duplicates
+    auto_translation_submit: Automatic translation started
+    source_language: Select source language
     choose_language: Select language
     searchterm: Search Keyword
     active_filters: Active filters
