@@ -1,3 +1,5 @@
+import domElementHelpers from '../helpers/dom_element_helpers';
+
 class CheckBoxSelector {
   constructor(element) {
     this.$element = $(element);
@@ -14,11 +16,15 @@ class CheckBoxSelector {
     this.$inputFields.each((_, item) => $(item).prop('checked', false));
     this.$element.closest('.form-element').children(':hidden').remove();
   }
-  async import(_event, data) {
+  async import(event, data) {
     if (!data.value || !data.value.length) return;
 
-    this.$inputFields.each((_, item) => {
-      this.setInputValue(item, data.value);
+    const target = event.currentTarget;
+
+    domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
+      this.$inputFields.each((_, item) => {
+        this.setInputValue(item, data.value);
+      });
     });
   }
   setInputValue(item, value) {

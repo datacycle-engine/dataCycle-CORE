@@ -94,6 +94,7 @@ de:
       replaceAllNbsp: Alle geschützten Leerzeichen durch normale Leerzeichen ersetzen
       replaced_all_nbsp: Alle geschützten Leerzeichen wurden durch normale Leerzeichen ersetzt!
     override_warning: 'Soll das Feld %{data} überschrieben werden?'
+    override_focus: Felder hervorheben
     reload_page: Seite neu laden
     upload:
       running: Es gibt noch laufende Uploads!
@@ -118,6 +119,7 @@ de:
       released: Der Inhalt wurde wieder freigegeben und kann nicht mehr gespeichert werden.
     update_stored_filter: 'Filterparameter aktualisieren?<br><br>Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.'
     maximum_embedded: 'Maximalanzahl: %{data}'
+    minimum_embedded: 'Mindestanzahl: %{data}'
     gpx:
       file_missing: Datei nicht gefunden!
       empty: Die GPX-Datei beinhaltet keinen Track.
