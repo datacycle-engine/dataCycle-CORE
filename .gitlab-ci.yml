@@ -1,20 +1,21 @@
-# gitlab-ci configuration file for core
+########################################################################
+######################### DOCKER setup for DC core
 
 include:
   - project: 'data-cycle/data-cycle-core'
-    ref: docker
+    ref: develop
     file: '/gitlab_templates/.gitlab-ci-dc-docker.yml'
 
 variables:
   DOCKER_URL: 'https://core-develop.datacycle.at'
-  GITLAB_ENVIRONMENT: 'docker'
+  GITLAB_ENVIRONMENT: 'develop'
 
 .local_test_vars: &local_test_vars
   variables:
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: 'password'
     POSTGRES_HOST: postgres
-    POSTGRES_DB: data-cycle-base_test
+    POSTGRES_DB: data-cycle-core_test
     POSTGRES_PORT: '5432'
 #    POSTGRES_VERSION: 13
     MONGODB_HOST: mongodb
@@ -43,7 +44,7 @@ variables:
 ######################### Branch Configuration
 .docker_ci_config: &docker_ci
   only:
-    - docker
+    - develop
   tags:
     - dc-docker
 
@@ -52,13 +53,7 @@ variables:
 #    - master
 #  tags:
 #    - dc-core
-#
-#.develop_ci_config: &develop_ci
-#  only:
-#    - develop
-#  tags:
-#    - dc-core-develop
-#
+
 #.review_ci_config: &review_ci
 #  only:
 #    - branches
@@ -69,54 +64,32 @@ variables:
 #    - dc-core-review
 
 ########################################################################
-######################### Docker
+######################### Docker / Develop
 build_caches:
   <<: *docker_ci
   extends: .build_caches_config
-
-rails_test:
-  <<: *docker_ci
-  extends: .rails_test_config
 
 code_validation:
   <<: *docker_ci
   extends: .code_validation_config
 
-####################### Deploy Master
-#deploy_master:
-#  <<: *master_ci
-#  extends: .deploy_config
-#  tags:
-#    - dc-core-deploy
-#  environment:
-#    name: production
-#    url: https://core.datacycle.at/
-#  when: manual
+rails_test:
+  <<: *docker_ci
+  extends: .rails_test_config
 
 ########################################################################
-######################### Development
-#build_caches_develop:
-#  <<: *develop_ci
+######################### Master
+#build_caches_master:
+#  <<: *master_ci
 #  extends: .build_caches_config
 #
-#rails_test_develop:
-#  <<: *develop_ci
-#  extends: .rails_test_config
-#
-#code_validation_develop:
-#  <<: *develop_ci
+#code_validation_master:
+#  <<: *master_ci
 #  extends: .code_validation_config
 #
-######################## Deploy Development
-#deploy_develop:
-#  <<: *develop_ci
-#  extends: .deploy_config
-#  tags:
-#    - dc-core-deploy
-#  environment:
-#    name: development
-#    url: https://core-develop.datacycle.at/
-#  when: manual
+#rails_test_master:
+#  <<: *master_ci
+#  extends: .rails_test_config
 
 ########################################################################
 ######################### Review Apps
