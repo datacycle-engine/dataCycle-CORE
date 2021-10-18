@@ -20,7 +20,7 @@
     </ul>
   </li>
 <% else %>
-  <%= render_my_selection type: 'readable' %>
+  <%= render_my_selection type: 'readable' if DataCycleCore::Feature::MySelection.enabled? %>
 
   <%= yield_content! :collection_links %>
 <% end %>

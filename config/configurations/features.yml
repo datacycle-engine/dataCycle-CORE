@@ -290,3 +290,6 @@
 :gip_key_figure:
   :enabled: false
   :attribute_keys:
+
+:my_selection:
+  :enabled: true
