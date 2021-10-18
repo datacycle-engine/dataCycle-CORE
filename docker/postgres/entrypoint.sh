@@ -5,7 +5,7 @@ echo "version: $POSTGRES_VERSION"
 
 if [ "$RAILS_ENV" == "development" ]
 then
-  cp /app$CORE_DUMMY_PREFIX/config/configurations/ts_search/* /usr/share/postgresql/$POSTGRES_VERSION/tsearch_data/
+  cp -r /app$CORE_DUMMY_PREFIX/config/configurations/ts_search/ /usr/share/postgresql/$POSTGRES_VERSION/tsearch_data/
 else
   cp /app/docker/postgres/configurations/ts_search/* /usr/share/postgresql/$POSTGRES_VERSION/tsearch_data/
 fi
