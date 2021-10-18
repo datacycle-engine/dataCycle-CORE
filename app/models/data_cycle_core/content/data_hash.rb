@@ -157,6 +157,8 @@ module DataCycleCore
       end
 
       def execute_create_webhooks
+        return if prevent_webhooks.is_a?(TrueClass)
+
         if synchronous_webhooks
           DataCycleCore::Webhook::Create.execute_all(self)
         else
@@ -170,6 +172,8 @@ module DataCycleCore
       end
 
       def execute_update_webhooks
+        return if prevent_webhooks.is_a?(TrueClass)
+
         if synchronous_webhooks
           DataCycleCore::Webhook::Update.execute_all(self)
         else
@@ -183,6 +187,8 @@ module DataCycleCore
       end
 
       def execute_delete_webhooks
+        return if prevent_webhooks.is_a?(TrueClass)
+
         DataCycleCore::Webhook::Delete.execute_all(self)
       end
 
