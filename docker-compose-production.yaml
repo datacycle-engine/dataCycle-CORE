@@ -38,6 +38,10 @@ services:
       <<: *default-app-env
     entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint.sh
     command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "${DC_DOCKER_SETUP_PATH:-/app/docker/}web/setup.production.sh"]
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
   migrate_project:
     <<: *default-app
     environment:
