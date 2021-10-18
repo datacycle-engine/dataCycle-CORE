@@ -20,7 +20,7 @@
     </ul>
   </li>
 <% else %>
-  <%= render_my_selection content: local_assigns[:content], type: 'editable' if DataCycleCore::Feature::MySelection.enabled? %>
+  <%= render_my_selection content: local_assigns[:content], type: 'editable' %>
 
   <%= yield_content! :collection_links %>
 <% end %>

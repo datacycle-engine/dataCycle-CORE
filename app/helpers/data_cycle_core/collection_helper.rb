@@ -63,7 +63,7 @@ module DataCycleCore
     end
 
     def render_my_selection(type:, content: nil)
-      return if current_user&.my_selection.nil?
+      return if !DataCycleCore::Feature::MySelection.enabled? || current_user&.my_selection.nil?
 
       current_user.my_selection.clear_if_not_active
 
@@ -77,7 +77,7 @@ module DataCycleCore
 
       if content.watch_lists.accessible_by(current_ability).exists?
         link_html << tag.i(class: 'fa fa-bookmark')
-        link_html << tag.i(class: 'fa fa-star my-collection-star-icon') if content.watch_lists.accessible_by(current_ability).my_selection.exists?
+        link_html << tag.i(class: 'fa fa-star my-collection-star-icon') if DataCycleCore::Feature::MySelection.enabled? && content.watch_lists.accessible_by(current_ability).my_selection.exists?
       else
         link_html << tag.i(class: 'fa fa-bookmark-o')
       end
