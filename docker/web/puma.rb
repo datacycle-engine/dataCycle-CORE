@@ -17,11 +17,11 @@ else
   stdout_redirect "#{application_root}/log/puma_access.log", "#{application_root}/log/puma_error.log", true
 end
 
-threads 1, ENV.fetch('PUMA_MAX_THREADS') { 5 }
+threads 1, ENV.fetch('PUMA_MAX_THREADS') { 5 }.to_i
 
 bind "unix://#{application_root}/tmp/sockets/puma.sock"
 
-workers ENV.fetch('PUMA_MAX_WORKERS') { 3 }
+workers ENV.fetch('PUMA_MAX_WORKERS') { 3 }.to_i
 
 preload_app!
 
@@ -30,7 +30,7 @@ before_fork do
   require 'puma_worker_killer'
 
   PumaWorkerKiller.config do |config|
-    config.ram = ENV.fetch('PUMA_MAX_MEMORY') { 4096 } # mb
+    config.ram = ENV.fetch('PUMA_MAX_MEMORY') { 4096 }.to_i # mb
     config.frequency = 3600 # seconds
     config.percent_usage = 0.9
     config.rolling_restart_frequency = false
