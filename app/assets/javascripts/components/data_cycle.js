@@ -35,8 +35,8 @@ class DataCycle {
     this.uiLocale = document.documentElement.lang;
     this.cache = {};
 
-    this.newContent = {
-      observer: new MutationObserver(this._observeNewContent.bind(this)),
+    this.htmlObserver = {
+      observer: new MutationObserver(this._observeHtmlContent.bind(this)),
       config: {
         attributes: false,
         characterData: false,
@@ -45,7 +45,8 @@ class DataCycle {
         attributeOldValue: false,
         characterDataOldValue: false
       },
-      callbacks: []
+      addCallbacks: [],
+      removeCallbacks: []
     };
 
     this.init();
@@ -53,7 +54,7 @@ class DataCycle {
 
   init() {
     Object.freeze(this.config);
-    this.newContent.observer.observe(document.body, this.newContent.config);
+    this.htmlObserver.observer.observe(document.body, this.htmlObserver.config);
   }
   joinPath(...segments) {
     const parts = segments.reduce((parts, segment) => {
@@ -132,22 +133,27 @@ class DataCycle {
     Rails.enableElement(element);
     if (element.nodeName == 'A') element.classList.remove('disabled');
   }
-  async _checkForConditionRecursive(node) {
+  async _checkForConditionRecursive(node, type) {
     for (let i = 0; i < node.children.length; i++) {
-      this._checkForConditionRecursive(node.children[i]);
+      this._checkForConditionRecursive(node.children[i], type);
     }
 
-    for (let i = 0; i < this.newContent.callbacks.length; ++i) {
-      if (this.newContent.callbacks[i][0](node)) this.newContent.callbacks[i][1](node);
+    for (let i = 0; i < this.htmlObserver[`${type}Callbacks`].length; ++i) {
+      if (this.htmlObserver[`${type}Callbacks`][i][0](node)) this.htmlObserver[`${type}Callbacks`][i][1](node);
     }
   }
-  _observeNewContent(mutations) {
+  _observeHtmlContent(mutations) {
     for (let i = 0; i < mutations.length; ++i) {
       if (mutations[i].type !== 'childList') continue;
 
       for (let j = 0; j < mutations[i].addedNodes.length; ++j) {
         if (mutations[i].addedNodes[j].nodeType === Node.ELEMENT_NODE)
-          this._checkForConditionRecursive(mutations[i].addedNodes[j]);
+          this._checkForConditionRecursive(mutations[i].addedNodes[j], 'add');
+      }
+
+      for (let j = 0; j < mutations[i].removedNodes.length; ++j) {
+        if (mutations[i].removedNodes[j].nodeType === Node.ELEMENT_NODE)
+          this._checkForConditionRecursive(mutations[i].removedNodes[j], 'remove');
       }
     }
   }

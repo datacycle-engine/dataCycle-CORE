@@ -28,7 +28,7 @@ class RemoteRenderer {
       this.reloadAfterFail.bind(this)
     );
 
-    DataCycle.newContent.callbacks.push([
+    DataCycle.htmlObserver.addCallbacks.push([
       e => e.classList.contains('remote-render') && e.classList.contains('translatable-attribute'),
       this.addForceRenderTranslationHandler.bind(this)
     ]);

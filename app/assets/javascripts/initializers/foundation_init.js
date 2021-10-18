@@ -1,5 +1,14 @@
 import 'foundation-sites';
 
+function removeFoundationOverlays(element, type) {
+  let overlay = document.getElementById(element.dataset[type]);
+  if (!overlay) return;
+
+  if (overlay.parentElement.classList.contains('reveal-overlay')) overlay = overlay.parentElement;
+
+  overlay.remove();
+}
+
 export default function () {
   Foundation.Tooltip.defaults.clickOpen = false;
   Foundation.Reveal.defaults.closeOnClick = false;
@@ -9,6 +18,9 @@ export default function () {
   Foundation.Dropdown.defaults.hover = true;
   Foundation.Dropdown.defaults.hoverPane = true;
   Foundation.addToJquery($);
+
+  DataCycle.htmlObserver.removeCallbacks.push([e => 'open' in e.dataset, e => removeFoundationOverlays(e, 'open')]);
+  DataCycle.htmlObserver.removeCallbacks.push([e => 'toggle' in e.dataset, e => removeFoundationOverlays(e, 'toggle')]);
 
   $('body').foundation().addClass('dc-fd-initialized');
 

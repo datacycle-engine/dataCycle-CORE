@@ -117,6 +117,7 @@ DataCycleCore::Engine.routes.draw do
     get :download_indesign, on: :member
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
+    delete :clear, on: :member
   end
 
   resources :classifications, only: [:index, :create] do

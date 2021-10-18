@@ -29,7 +29,7 @@ class SimpleFields {
     );
   }
   watchForNewField(type, condition, subSelect) {
-    DataCycle.newContent.callbacks.push([
+    DataCycle.htmlObserver.addCallbacks.push([
       e => condition(e),
       e => $(e).find(subSelect).on('dc:import:data', this[`${type}EventHandler`].bind(this))
     ]);

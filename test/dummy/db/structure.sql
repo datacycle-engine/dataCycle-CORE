@@ -150,6 +150,15 @@ CREATE FUNCTION public.generate_content_content_links_trigger() RETURNS trigger
 
 
 --
+-- Name: generate_my_selection_watch_list(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN INSERT INTO watch_lists (name, user_id, created_at, updated_at, full_path, full_path_names, my_selection) SELECT 'Meine Auswahl', users.id, NOW(), NOW(), 'Meine Auswahl', ARRAY[]::varchar[], TRUE FROM users INNER JOIN roles ON roles.id = users.role_id WHERE users.id = NEW.id AND roles.rank <> 0; RETURN NEW; END; $$;
+
+
+--
 -- Name: generate_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1269,7 +1278,8 @@ CREATE TABLE public.watch_lists (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     full_path character varying,
-    full_path_names character varying[]
+    full_path_names character varying[],
+    my_selection boolean DEFAULT false NOT NULL
 );
 
 
@@ -2607,6 +2617,13 @@ CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT ON public.con
 
 
 --
+-- Name: users generate_my_selection_watch_list; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_my_selection_watch_list AFTER INSERT ON public.users FOR EACH ROW EXECUTE PROCEDURE public.generate_my_selection_watch_list();
+
+
+--
 -- Name: schedules generate_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -2932,6 +2949,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211001085525'),
 ('20211005125306'),
 ('20211005134137'),
+('20211007123156');
 ('20211011123517'),
 ('20211014062654');
 
