@@ -4,6 +4,9 @@
     :type: object
     :schema_type: CreativeWork
     :content_type: entity
+    :features:
+      :translatable:
+        :allowed: true 
     :properties:
       :id:
         :label: id

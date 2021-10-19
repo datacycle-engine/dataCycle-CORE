@@ -13,7 +13,7 @@
                     <%= select_tag(
                           'source_locale',
                           options_for_select(
-                            I18n.available_locales.map { |locale| t("locales.#{locale}", locale: active_ui_locale) }.zip(I18n.available_locales),
+                            I18n.available_locales.map { |locale| t("locales.#{locale}", locale: active_ui_locale).capitalize }.zip(I18n.available_locales),
                             selected: I18n.locale
                           )
                         ) %>
