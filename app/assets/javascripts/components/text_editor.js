@@ -4,7 +4,7 @@ import { QuillContentlinkModule, ContentlinkBlot } from './../components/quill_c
 import { QuillLinkFormat, QuillLinkModule } from '../components/quill_custom_link';
 import { SmartBreak, lineBreakMatcher, lineBreakHandler } from '../components/quill_smart_break';
 import handleEnter from '../components/quill_enter_handler';
-import ConfirmationModal from './../components/confirmation_modal';
+import domElementHelpers from '../helpers/dom_element_helpers';
 import quillHelpers from './../helpers/quill_helpers';
 import quillCustomHandlers from '../components/quill_custom_handlers';
 const icons = Quill.import('ui/icons');
@@ -150,17 +150,12 @@ class TextEditor {
     $(this.editor.container).closest('form').on('reset', this.resetEditor.bind(this));
     $(this.editor.container).on('dc:import:data', this.importData.bind(this));
   }
-  async importData(_event, data) {
+  async importData(event, data) {
     if (this.editor.getText().trim().length > 1 && (!data || !data.force)) {
-      new ConfirmationModal({
-        text: await I18n.translate('frontend.override_warning', { data: data.label }),
-        confirmationText: await I18n.translate('common.yes'),
-        cancelText: await I18n.translate('common.no'),
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: () => {
-          this.editor.clipboard.dangerouslyPasteHTML(data.value);
-        }
+      const target = event.currentTarget;
+
+      domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
+        this.editor.clipboard.dangerouslyPasteHTML(data.value);
       });
     } else {
       this.editor.clipboard.dangerouslyPasteHTML(data.value);
@@ -183,10 +178,14 @@ class TextEditor {
     }
   }
   loadTranslation(key) {
-    I18n.translate(`frontend.text_editor.${key}`).then(text => {
+    const promise = I18n.translate(`frontend.text_editor.${key}`);
+
+    promise.then(text => {
       icons[key] = icons[key].replace('dc-loading-title', text);
       document.querySelectorAll(`.ql-${key} [title="dc-loading-title"]`).forEach(e => (e.title = text));
     });
+
+    return promise;
   }
 }
 

@@ -29,6 +29,7 @@ namespace :datacycle do
           before 'puma:restart', 'datacycle:puma:deploy_config' unless fetch(:skip_deploy_configs)
         end
 
+        after 'delayed_job:restart', 'deploy:unlock_jobs'
         after 'bundler:install', 'deploy:assets:precompile'
         after 'bundler:install', 'datacycle:psql:deploy_dict'
         after 'deploy:migrate', 'datacycle:dev:update_project'

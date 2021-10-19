@@ -74,7 +74,7 @@ module DataCycleCore
 
       assert_response :success
       response_body = JSON.parse(response.body)
-      assert_equal 0, response_body['error'].size
+      assert response_body['valid']
     end
 
     test 'validate Watchlist with empty name' do
@@ -88,7 +88,7 @@ module DataCycleCore
 
       assert_response :success
       response_body = JSON.parse(response.body)
-      assert_equal 1, response_body['error'].size
+      assert_not response_body['valid']
     end
 
     test 'delete Watchlist' do
@@ -254,12 +254,18 @@ module DataCycleCore
       patch bulk_update_watch_list_path(@watch_list), params: {
         locale: 'de',
         thing: {
-          datahash: {
-            name: bulk_name
+          translations: {
+            de: {
+              name: bulk_name
+            }
           }
         },
         bulk_update: {
-          name: ['override']
+          translations: {
+            de: {
+              name: ['override']
+            }
+          }
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
@@ -270,21 +276,27 @@ module DataCycleCore
       assert_equal bulk_name, @content.name
 
       patch bulk_update_watch_list_path(@watch_list), params: {
-        locale: 'en',
+        locale: 'de',
         thing: {
-          datahash: {
-            name: 'New Test Artikel not Bulk Updated'
+          translations: {
+            en: {
+              name: 'New Test Artikel not Bulk Updated'
+            }
           }
         },
         bulk_update: {
-          name: ['override']
+          translations: {
+            en: {
+              name: ['override']
+            }
+          }
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }
 
       assert_response :success
-      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 0, locale: DataCycleCore.ui_locales.first) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], count: 1, locale: DataCycleCore.ui_locales.first), flash[:success]
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], count: 1, locale: DataCycleCore.ui_locales.first) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], counts: 'en: <b>1</b>', locale: DataCycleCore.ui_locales.first), flash[:success]
       assert_equal bulk_name, @content.name
     end
 
@@ -296,13 +308,23 @@ module DataCycleCore
         locale: 'de',
         thing: {
           datahash: {
-            name: bulk_name,
             tags: @additional_tags
+          },
+          translations: {
+            de: {
+              name: bulk_name
+            }
           }
         },
         bulk_update: {
-          name: ['override'],
-          tags: ['override']
+          datahash: {
+            tags: ['override']
+          },
+          translations: {
+            de: {
+              name: ['override']
+            }
+          }
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
@@ -321,13 +343,23 @@ module DataCycleCore
         locale: 'de',
         thing: {
           datahash: {
-            name: bulk_name,
             tags: @additional_tags
+          },
+          translations: {
+            de: {
+              name: bulk_name
+            }
           }
         },
         bulk_update: {
-          name: ['override'],
-          tags: ['add']
+          datahash: {
+            tags: ['add']
+          },
+          translations: {
+            de: {
+              name: ['override']
+            }
+          }
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
@@ -346,13 +378,23 @@ module DataCycleCore
         locale: 'de',
         thing: {
           datahash: {
-            name: bulk_name,
             tags: [@default_tags.first]
+          },
+          translations: {
+            de: {
+              name: bulk_name
+            }
           }
         },
         bulk_update: {
-          name: ['override'],
-          tags: ['remove']
+          translations: {
+            de: {
+              name: ['override']
+            }
+          },
+          datahash: {
+            tags: ['remove']
+          }
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
@@ -383,7 +425,7 @@ module DataCycleCore
       assert_response :success
       assert_equal 'application/json', response.content_type
       json_data = JSON.parse response.body
-      assert json_data['error'].blank?
+      assert json_data['valid']
     end
 
     test 'add search items to watch_list' do
@@ -409,6 +451,17 @@ module DataCycleCore
       assert_equal I18n.t(:added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_locales.first), flash[:notice]
       assert @watch_list.things.ids.include?(@content.id)
       assert @watch_list.things.ids.include?(content2.id)
+    end
+
+    test 'clear watch_list' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+
+      assert_equal(1, @watch_list.things.count)
+
+      delete clear_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
+      assert_redirected_to watch_list_path(@watch_list)
+
+      assert_equal(0, @watch_list.things.count)
     end
   end
 end

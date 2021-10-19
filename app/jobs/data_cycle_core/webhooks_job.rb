@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class WebhooksJob < UniqueApplicationJob
-    PRIORITY = 5
+    PRIORITY = 4
 
     queue_as :webhooks
 

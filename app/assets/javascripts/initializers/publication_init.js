@@ -33,13 +33,15 @@ export default function () {
         }
       );
       loading = true;
+
       $('.publications-list').append(loadingIcon());
+
       DataCycle.httpRequest({
         url: url,
         method: method,
         data: form_data,
         dataType: 'script'
-      }).done(_data => {
+      }).then(_data => {
         loading = false;
         $('.publications-list .loading').remove();
         if (

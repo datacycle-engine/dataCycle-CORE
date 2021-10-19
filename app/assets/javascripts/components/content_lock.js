@@ -53,12 +53,16 @@ class ContentLock {
     if (!this.editable) this.checkInitialLockState();
   }
   checkInitialLockState() {
-    DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: this.checkLockPath,
       dataType: 'json'
-    }).done(data => {
+    });
+
+    promise.then(data => {
       if (data !== undefined) this.updateLocks(data.locks, data.texts);
     });
+
+    return promise;
   }
   updateLocks(newLocks = {}, texts = {}) {
     for (let key in this.locks) {
@@ -71,7 +75,7 @@ class ContentLock {
       }
     }
   }
-  leavePage(event) {
+  leavePage(_event) {
     this.lockContentChannel.unsubscribe();
     let data = new FormData();
     data.append('token', this.token);
@@ -204,7 +208,7 @@ class ContentLock {
         token: this.token
       },
       type: 'PATCH'
-    }).fail(() => {
+    }).catch(() => {
       console.error('CONTENT_LOCK_ERROR: error renewing the lock');
     });
   }

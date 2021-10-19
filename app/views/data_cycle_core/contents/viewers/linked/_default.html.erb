@@ -1,11 +1,30 @@
-<%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options.merge({ 'class' => 'embedded_link_array object_browser media' }), data_attributes: { id: (value&.except(:limit, :offset).presence&.ids || [] ), editor: "object_browser" } do %>
+<%= render 'data_cycle_core/contents/viewers/attribute',
+      key: key,
+      definition: definition,
+      value: value,
+      options: options.merge({ 'class' => 'embedded_link_array object_browser media' }),
+      content: local_assigns[:content],
+      parent: local_assigns[:parent],
+      data_attributes: {
+        id: (value&.except(:limit, :offset).presence&.ids || [] ),
+        editor: "object_browser"
+      } do %>
 
   <ul class="content-tiles">
     <% objects = value.presence&.includes(:translations) %>
     <% objects = (objects.to_a || []).concat(new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
     <% objects.presence&.each do |item| %>
-      <%= render_linked_partial key: "#{key}[]", definition: definition, content: content, parameters: { options: options, object: item, object_id: [item.id], prefix: local_assigns.dig(:options, :prefix), tile_links: true } %>
+      <%= render_linked_partial key: "#{key}[]",
+                                definition: definition,
+                                content: content,
+                                parameters: {
+                                  options: options,
+                                  object: item,
+                                  object_id: [item.id],
+                                  prefix: local_assigns.dig(:options, :prefix),
+                                  tile_links: true
+                                } %>
     <% end %>
 
     <span class="clear-both">

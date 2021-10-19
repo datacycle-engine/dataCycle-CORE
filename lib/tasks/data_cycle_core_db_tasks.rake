@@ -44,7 +44,7 @@ namespace :data_cycle_core do
         sh "rm -rf #{full_path}" if full_path.present?
 
         excludes = DATABASE_DUMP_EXCLUDES[args.mode].map { |e| "--exclude-table-data='#{e}'" }.join(' ') if args.mode.present?
-        cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 4' if dump_fmt == 'd'} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' #{excludes}".squish
+        cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 4' if dump_fmt == 'd'} -v -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' #{excludes}".squish
       end
 
       sh cmd
@@ -74,7 +74,7 @@ namespace :data_cycle_core do
             else
               full_path = "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
             end
-            cmd = "#{pgclusters}pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -t '#{table_name}' -f '#{full_path}'"
+            cmd = "#{pgclusters}pg_dump -F #{dump_fmt} -v -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -t '#{table_name}' -f '#{full_path}'"
           end
 
           puts cmd

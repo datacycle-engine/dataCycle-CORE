@@ -35,8 +35,9 @@ module DataCycleCore
         assert_equal 'application/json', response.content_type
         json_data = JSON.parse response.body
 
-        assert_empty json_data['error']
-        assert_empty json_data['warning']
+        assert json_data['valid']
+        assert_empty json_data['errors']
+        assert_empty json_data['warnings']
       end
 
       test 'validation works with default_values in new language' do
@@ -53,8 +54,9 @@ module DataCycleCore
         assert_equal 'application/json', response.content_type
         json_data = JSON.parse response.body
 
-        assert_empty json_data['error']
-        assert_empty json_data['warning']
+        assert json_data['valid']
+        assert_empty json_data['errors']
+        assert_empty json_data['warnings']
       end
 
       test 'validation works with default_values on creation of translated content' do
@@ -73,8 +75,9 @@ module DataCycleCore
         assert_equal 'application/json', response.content_type
         json_data = JSON.parse response.body
 
-        assert_empty json_data['error']
-        assert_empty json_data['warning']
+        assert json_data['valid']
+        assert_empty json_data['errors']
+        assert_empty json_data['warnings']
       end
 
       test 'validation works with deleting attributes with default_values' do
@@ -89,8 +92,9 @@ module DataCycleCore
         assert_response :success
         assert_equal 'application/json', response.content_type
         json_data = JSON.parse response.body
-        assert_equal 1, json_data['error'].size
-        assert_empty json_data['warning']
+        assert_not json_data['valid']
+        assert_equal 1, json_data['errors'].size
+        assert_empty json_data['warnings']
       end
 
       # activate when it is possible to set default_values in embedded for validation purposes

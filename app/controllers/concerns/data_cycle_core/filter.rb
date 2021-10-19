@@ -146,7 +146,7 @@ module DataCycleCore
         if @stored_filter
           authorize! :api, @stored_filter
           @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
-        elsif (@watch_list = DataCycleCore::WatchList.find_by(id: endpoint_id))
+        elsif (@watch_list = DataCycleCore::WatchList.without_my_selection.find_by(id: endpoint_id))
         else
           raise ActiveRecord::RecordNotFound
         end

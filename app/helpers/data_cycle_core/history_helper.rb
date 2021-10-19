@@ -110,7 +110,15 @@ module DataCycleCore
     def version_name_html(item)
       version_name = []
       if item[:version_name].present?
-        version_name.push(tag.i(class: 'fa fa-tag version-name has-tip', title: t('feature.named_version.version_name', name: item[:version_name], locale: active_ui_locale)))
+        version_name.push(
+          tag.i(
+            class: 'fa fa-tag version-name has-tip copy-to-clipboard',
+            title: t('feature.named_version.version_name', name: item[:version_name], locale: active_ui_locale),
+            data: {
+              value: item[:version_name]
+            }
+          )
+        )
         if item[:can_remove_version_name]
           version_name.push(
             link_to(
@@ -155,7 +163,7 @@ module DataCycleCore
     def complete_history_list(content)
       history_entries = []
       if content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i
-        history_entries.push(map_to_history_entry(content))
+        history_entries.push(map_to_history_entry(content, content.last_updated_locale))
         history_entries.concat(ordered_history_entries(content))
       end
 

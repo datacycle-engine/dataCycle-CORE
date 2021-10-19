@@ -16,6 +16,8 @@ module DataCycleCore
 
     validates :name, presence: true
 
+    after_update :add_things_cache_invalidation_job_update, :add_things_webhooks_job_update, if: :cached_attributes_changed?
+
     acts_as_paranoid
 
     belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
@@ -30,7 +32,6 @@ module DataCycleCore
     has_many :classifications, through: :classification_aliases
     has_many :things, -> { unscope(:order).distinct }, through: :classifications
     has_one :statistics, -> { readonly }, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label
-    after_update :add_things_cache_invalidation_job_update, :add_things_webhooks_job_update, if: :cached_attributes_changed?
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
@@ -138,7 +139,7 @@ module DataCycleCore
     def add_things_webhooks_job_update
       return unless things.exists?
 
-      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :execute_things_webhooks) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_execute_things_webhooks", delayed_reference_id: id, locked_at: nil)
+      DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'execute_things_webhooks')
     end
 
     def execute_things_webhooks
@@ -148,12 +149,12 @@ module DataCycleCore
     end
 
     def add_things_cache_invalidation_job_update
-      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_things_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_things_cache", delayed_reference_id: id, locked_at: nil)
+      DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'invalidate_things_cache')
     end
 
     def invalidate_things_cache
       things.ids.each do |thing_id|
-        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new('DataCycleCore::Thing', thing_id, :invalidate_self) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: 'data_cycle_core/thing_invalidate_self', delayed_reference_id: thing_id, locked_at: nil)
+        DataCycleCore::CacheInvalidationJob.perform_later('DataCycleCore::Thing', thing_id, 'invalidate_self')
       end
     end
   end

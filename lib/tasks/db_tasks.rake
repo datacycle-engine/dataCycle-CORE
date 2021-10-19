@@ -15,4 +15,12 @@ namespace :db do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
     end
   end
+
+  namespace :maintenance do
+    desc 'run VACUUM FULL and ANALYZE on DB'
+    task vacuum_full: :environment do
+      ActiveRecord::Base.connection.execute('VACUUM FULL;')
+      ActiveRecord::Base.connection.execute('ANALYZE;')
+    end
+  end
 end

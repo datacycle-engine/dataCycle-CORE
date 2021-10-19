@@ -64,6 +64,7 @@ DataCycleCore::Engine.routes.draw do
       post :bulk_create, on: :collection
       delete :remove_locks, on: :member
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
+      post :attribute_value, on: :member
     end
   end
 
@@ -116,6 +117,7 @@ DataCycleCore::Engine.routes.draw do
     get :download_indesign, on: :member
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
+    delete :clear, on: :member
   end
 
   resources :classifications, only: [:index, :create] do

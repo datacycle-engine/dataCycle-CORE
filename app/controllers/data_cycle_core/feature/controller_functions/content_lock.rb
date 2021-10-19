@@ -41,10 +41,27 @@ module DataCycleCore
 
           content_locks = @watch_list.things.locks.includes(:user, activitiable: [:translations])
 
-          content_texts = ''
-          content_texts = tag.span(tag.br + tag.br + t('common.multiple_content_locks_html', data: content_locks.size, locale: helpers.active_ui_locale), id: 'content-lock-multiple', class: "content-locked-text #{'hidden' if content_locks.size < 50}") + safe_join(content_locks.map { |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale) { cl.activitiable.try(:title) }, locale: helpers.active_ui_locale)), id: "content-lock-#{cl.id}", class: "content-locked-text #{'hidden' if content_locks.size >= 50}") }) if content_locks.present?
+          content_locks_json = {
+            locks: {},
+            texts: {}
+          }
 
-          render json: { locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h, texts: content_texts }.to_json
+          content_locks.each do |cl|
+            content_locks_json[:locks][cl.id] = cl.locked_until&.to_i
+            content_locks_json[:texts][cl.id] = tag.span(
+              tag.br + tag.br + tag.i(
+                t('common.content_locked_with_name_html',
+                  user: cl.user&.full_name,
+                  data: distance_of_time_in_words(cl.locked_for),
+                  name: I18n.with_locale(cl.activitiable&.first_available_locale) { cl.activitiable.try(:title) },
+                  locale: helpers.active_ui_locale)
+              ),
+              id: "content-lock-#{cl.id}",
+              class: "content-locked-text #{'hidden' if content_locks.size >= 50}"
+            )
+          end
+
+          render json: content_locks_json.to_json
         end
 
         private

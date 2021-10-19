@@ -66,6 +66,41 @@ module DataCycleCore
         end
       end
 
+      def errors
+        @errors ||= Hash.new do |h, key|
+          h[key] = ActiveModel::Errors.new(self)
+        end
+
+        @errors[I18n.locale]
+      end
+
+      def i18n_errors
+        @errors || {}
+      end
+
+      def warnings
+        @warnings ||= Hash.new do |h, key|
+          h[key] = ActiveModel::Errors.new(self)
+        end
+
+        @warnings[I18n.locale]
+      end
+
+      def i18n_warnings
+        @warnings || {}
+      end
+
+      def valid?(*_args)
+        errors.blank?
+      end
+
+      def i18n_valid?
+        !i18n_errors&.any? { |(_k, v)| v.present? }
+      end
+
+      def all_translations_valid?
+      end
+
       def respond_to?(method_name, include_all = false)
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym, (item.to_s + "_#{overlay_name}").to_sym] }.flatten +
           linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super

@@ -5,7 +5,8 @@ module DataCycleCore
     module FeratelWebcam
       module Processing
         def self.process_slope(utility_object, raw_data, config)
-          ski_region_data = raw_data.dig('co', 'pl', 'pcs', 'pc').detect { |i| i.dig('t') == '4' }.dig('pcc')
+          ski_region_data = raw_data.dig('co', 'pl', 'pcs', 'pc')&.detect { |i| i.dig('t') == '4' }&.dig('pcc')
+          return if ski_region_data.blank?
           ski_region_id = ski_region_data.dig('rid').downcase
           Array.wrap(
             ski_region_data.dig('pccd')
@@ -23,7 +24,8 @@ module DataCycleCore
         end
 
         def self.process_lift(utility_object, raw_data, config)
-          ski_region_data = raw_data.dig('co', 'pl', 'pcs', 'pc').detect { |i| i.dig('t') == '4' }.dig('pcc')
+          ski_region_data = raw_data.dig('co', 'pl', 'pcs', 'pc')&.detect { |i| i.dig('t') == '4' }&.dig('pcc')
+          return if ski_region_data.blank?
           ski_region_id = ski_region_data.dig('rid').downcase
           Array.wrap(
             ski_region_data.dig('pccd')
@@ -41,7 +43,8 @@ module DataCycleCore
         end
 
         def self.process_infrastructure(utility_object, raw_data, config)
-          ski_region_data = raw_data.dig('co', 'pl', 'pcs', 'pc').detect { |i| i.dig('t') == '4' }.dig('pcc')
+          ski_region_data = raw_data.dig('co', 'pl', 'pcs', 'pc')&.detect { |i| i.dig('t') == '4' }&.dig('pcc')
+          return if ski_region_data.blank?
           ski_region_id = ski_region_data.dig('rid').downcase
           Array.wrap(
             ski_region_data.dig('pccd')
@@ -59,7 +62,8 @@ module DataCycleCore
         end
 
         def self.process_ski_region(utility_object, raw_data, config)
-          ski_region_data = raw_data.dig('co', 'pl', 'pcs', 'pc').detect { |i| i.dig('t') == '4' }.dig('pcc').except('pccd')
+          ski_region_data = raw_data.dig('co', 'pl', 'pcs', 'pc')&.detect { |i| i.dig('t') == '4' }&.dig('pcc')&.except('pccd')
+          return if ski_region_data.blank?
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: ski_region_data,
@@ -123,7 +127,7 @@ module DataCycleCore
           }.uniq
 
           classifications_details = weather_prediction.dig('wi').map { |ii|
-            detail = ii.dig('wid').detect { |item| item.dig('t') == '8' }
+            detail = ii.dig('wid')&.detect { |item| item.dig('t') == '8' }
             next if detail.blank?
             ['00', '03', '06', '09', '12', '15', '18', '21'].map { |index|
               next if detail["s#{index}"].blank?

@@ -3,6 +3,7 @@
     font-family: 'FontAwesome';
     position: relative;
     text-align: center;
+    font-style: normal;
   }
 
   &.thing-icon {
@@ -347,8 +348,25 @@
   }
 
   &.property-icon {
-    &::before {
-      content: '\f02b';
+    &.type-date::before,
+    &.type-daterange::before,
+    &.type-object.key-duration::before {
+      content: '\f073';
+    }
+
+    &.type-datetime::before,
+    &.type-number.key-duration::before {
+      content: '\f017';
+    }
+
+    &.type-object {
+      &::before {
+        content: '\f07c';
+      }
+
+      &.key-validity_period::before {
+        content: '\f073';
+      }
     }
   }
 }

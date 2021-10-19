@@ -28,7 +28,7 @@ module DataCycleCore
 
           valid = @object.set_life_cycle_classification(life_cycle_params[:id], current_user)
 
-          redirect_back(fallback_location: root_path, alert: valid[:error]) && return if valid[:error].present?
+          redirect_back(fallback_location: root_path, alert: @object.errors.messages) && return unless valid
 
           redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: helpers.active_ui_locale))
         end

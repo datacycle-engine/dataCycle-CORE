@@ -65,7 +65,10 @@ module DataCycleCore
               else
                 DataCycleCore::ClassificationAlias.all
               end
-      query = query.search(params[:q])
+
+      I18n.with_locale(helpers.active_ui_locale) do
+        query = query.search(params[:q])
+      end
       query = query.order_by_similarity(params[:q])
       query = query.limit(params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
       query = query.where.not(id: params[:exclude]) if params[:exclude].present?
@@ -73,6 +76,8 @@ module DataCycleCore
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: query.map { |a|
+        next if a.primary_classification.nil?
+
         {
           classification_id: a.primary_classification.id,
           classification_alias_id: a.id,
@@ -84,7 +89,7 @@ module DataCycleCore
           ].reject(&:blank?).join("\n\n"),
           disabled: !a.assignable
         }
-      }.to_json, content_type: 'application/json'
+      }.compact.to_json, content_type: 'application/json'
     end
 
     def find
@@ -93,6 +98,8 @@ module DataCycleCore
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: query.map { |c|
+        next if c.primary_classification_alias.nil?
+
         {
           classification_id: c.id,
           classification_alias_id: c.primary_classification_alias.id,
@@ -104,7 +111,7 @@ module DataCycleCore
           ].reject(&:blank?).join("\n\n"),
           disabled: !c.primary_classification_alias.assignable
         }
-      }.to_json, content_type: 'application/json'
+      }.compact.to_json, content_type: 'application/json'
     end
 
     def create
