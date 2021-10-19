@@ -36,7 +36,7 @@ module DataCycleCore
               I18n.with_locale(locale) do
                 next if content.translation_type.present? && content.translation_type != 'imported'
                 next if data_hash[:name] == content.name && data_hash[:description] == content.description
-                error = content.set_data_hash(
+                next unless content.set_data_hash(
                   data_hash: {
                     'name' => data_hash[:name],
                     'description' => data_hash[:description],
@@ -49,10 +49,10 @@ module DataCycleCore
                   prevent_history: true,
                   partial_update: true
                 )
-                translations_created[classification].push(locale) if error[:error].blank?
+                translations_created[classification].push(locale)
               end
             end
-            translations_created[classification] = translations_created[classification].presence
+            translations_created[classification] = translations_created[classification].presence&.sort
           end
           translations_created.compact
         end
@@ -67,7 +67,7 @@ module DataCycleCore
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
           translatable_locales = DataCycleCore::Feature::Translate.allowed_languages & I18n.available_locales.map(&:to_s)
-          translatable_locales = ['de', 'en', 'it', 'nl'] - [source_locale] # Remove!!!
+          # translatable_locales = ['de', 'en', 'it', 'nl'] - [source_locale] # Remove!!!
           endpoint = DataCycleCore::Feature::Translate.endpoint
 
           translations_done = {}
@@ -86,6 +86,7 @@ module DataCycleCore
             end
 
             translatable_locales.each do |target_locale|
+              next if target_locale == source_locale
               I18n.with_locale(target_locale) do
                 if content.translation_type.present?
                   next if content.translation_type != 'automatic'
@@ -98,7 +99,7 @@ module DataCycleCore
                   'target_locale' => target_locale
                 })
                 description = endpoint.parse_translated(data)
-                error = content.set_data_hash(
+                next unless content.set_data_hash(
                   data_hash: {
                     'name' => classification,
                     'description' => description,
@@ -110,7 +111,7 @@ module DataCycleCore
                   prevent_history: true,
                   partial_update: true
                 )
-                translations_done[classification].push(target_locale) if error[:error].blank?
+                translations_done[classification].push(target_locale.to_sym)
               end
             end
             translations_done[classification] = translations_done[classification].presence
