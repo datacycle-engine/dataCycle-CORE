@@ -4,9 +4,8 @@
   </a>
   <div class="dropdown-pane align-right no-bullet bottom" id="auto_translation" data-dropdown data-hover="true" data-hover-pane="true">
     <h5>
-      <%= t('actions.auto_translate', data: t('common.contents', count: 1, locale: active_ui_locale).capitalize, locale: active_ui_locale) %>
+      <%= t('common.source_language', data: t('common.contents', count: 1, locale: active_ui_locale).capitalize, locale: active_ui_locale) %>
     </h5>
-    <p><%= t('common.source_language', locale: active_ui_locale) %></p>
     <div id="split-source-selector">
         <%= form_tag(auto_translations_thing_path(id: content.id), method: :post) do %>
             <div class="form-element">
