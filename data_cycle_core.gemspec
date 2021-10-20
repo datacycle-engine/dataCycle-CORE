@@ -47,7 +47,7 @@ Gem::Specification.new do |s|
   # JSON Parser
   s.add_dependency 'multi_json'
   # XML Parser
-  s.add_dependency 'nokogiri', '~> 1.12.1'
+  s.add_dependency 'nokogiri'
   # authentication
   s.add_dependency 'devise'
   s.add_dependency 'jwt'
