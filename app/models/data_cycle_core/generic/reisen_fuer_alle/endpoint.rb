@@ -124,8 +124,9 @@ module DataCycleCore
 
         def load_data(query)
           url = [@host, @end_point].join('/')
-          conn = Faraday.new(url: url)
-          conn.basic_auth(@user, @token)
+          conn = Faraday.new(url: url) do |connection|
+            connection.request(:basic_auth, @user, @token)
+          end
           response = conn.post do |req|
             req.headers['Content-Type'] = 'application/json'
             req.body = { 'query' => query }.to_json
