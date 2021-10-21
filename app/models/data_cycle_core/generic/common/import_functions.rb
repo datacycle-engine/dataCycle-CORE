@@ -146,13 +146,10 @@ module DataCycleCore
 
             utility_object.logging&.error('Validating import data', data['external_key'], data, content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
 
-            if created
-              content.destroy_content(save_history: false)
-              return
-            end
+            content.destroy_content(save_history: false) if created
+            return
           end
 
-          content.save!
           data.dig('external_system_data')&.each do |es|
             external_system =
               if es['identifier'].present?
