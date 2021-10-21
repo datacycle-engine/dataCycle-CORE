@@ -162,9 +162,9 @@ CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
 -- Name: generate_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_schedule_occurences(schedule_ids uuid[]) RETURNS uuid[]
+CREATE FUNCTION public.generate_schedule_occurences(schedule_ids uuid[]) RETURNS SETOF uuid
     LANGUAGE plpgsql
-    AS $$ DECLARE schedule_occurrence_ids UUID[]; BEGIN DELETE FROM schedule_occurrences WHERE schedule_id || '{}'::UUID[] <@ schedule_ids; WITH occurences AS ( SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(get_occurrences(schedules.rrule::rrule, schedules.dtstart)) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule LIKE '%UNTIL%' AND id || '{}'::UUID[] <@ schedule_ids UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(get_occurrences((schedules.rrule || ';UNTIL=2037-12-31')::rrule, schedules.dtstart)) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule NOT LIKE '%UNTIL%' AND id || '{}'::UUID[] <@ schedule_ids UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, schedules.dtstart AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND schedules.rrule IS NULL AND id || '{}'::UUID[] <@ schedule_ids UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(schedules.rdate) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND id || '{}'::UUID[] <@ schedule_ids ) INSERT INTO schedule_occurrences (schedule_id, thing_id, duration, occurrence) SELECT occurences.id, occurences.thing_id, occurences.duration, tstzrange(occurences.occurence, occurences.occurence + occurences.duration) AS occurrence FROM occurences WHERE occurences.id || '{}'::UUID[] <@ schedule_ids AND NOT EXISTS ( SELECT 1 FROM (SELECT id "schedule_id", UNNEST(exdate) "date" FROM schedules) "exdates" WHERE exdates.schedule_id = occurences.id AND tstzrange(DATE_TRUNC('day', exdates.date), DATE_TRUNC('day', exdates.date) + INTERVAL '1 day') && tstzrange(occurences.occurence, occurences.occurence + occurences.duration) ); SELECT ARRAY_AGG(id) INTO schedule_occurrence_ids FROM schedule_occurrences WHERE schedule_id || '{}'::UUID[] <@ schedule_ids; RETURN schedule_occurrence_ids; END;$$;
+    AS $$ DECLARE schedule_occurrence_ids uuid[]; BEGIN DELETE FROM schedule_occurrences WHERE schedule_id = ANY (schedule_ids); RETURN QUERY WITH occurences AS ( SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(get_occurrences (schedules.rrule::rrule, schedules.dtstart)) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule LIKE '%UNTIL%' AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(get_occurrences ((schedules.rrule || ';UNTIL=2037-12-31')::rrule, schedules.dtstart)) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule NOT LIKE '%UNTIL%' AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, schedules.dtstart AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND schedules.rrule IS NULL AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(schedules.rdate) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND id = ANY (schedule_ids)) INSERT INTO schedule_occurrences (schedule_id, thing_id, duration, occurrence) SELECT occurences.id, occurences.thing_id, occurences.duration, tstzrange(occurences.occurence, occurences.occurence + occurences.duration) AS occurrence FROM occurences WHERE occurences.id = ANY (schedule_ids) AND NOT EXISTS ( SELECT 1 FROM ( SELECT id "schedule_id", UNNEST(exdate) "date" FROM schedules) "exdates" WHERE exdates.schedule_id = occurences.id AND tstzrange(DATE_TRUNC('day', exdates.date), DATE_TRUNC('day', exdates.date) + INTERVAL '1 day') && tstzrange(occurences.occurence, occurences.occurence + occurences.duration)) RETURNING id; RETURN; END; $$;
 
 
 --
@@ -221,6 +221,15 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
       	NEW.words := pg_catalog.to_tsvector(get_dict(NEW.locale), NEW.full_text::text);
         RETURN NEW;
       END;$$;
+
+
+--
+-- Name: core_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
+--
+
+CREATE TEXT SEARCH DICTIONARY public.core_german (
+    TEMPLATE = pg_catalog.thesaurus,
+    dictfile = 'core_german', dictionary = 'pg_catalog.german_stem' );
 
 
 SET default_tablespace = '';
@@ -297,7 +306,7 @@ CREATE TABLE public.assets (
 --
 
 CREATE TABLE public.classification_groups (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     classification_id uuid,
     classification_alias_id uuid,
     external_source_id uuid,
@@ -313,7 +322,7 @@ CREATE TABLE public.classification_groups (
 --
 
 CREATE TABLE public.classification_trees (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     external_source_id uuid,
     parent_classification_alias_id uuid,
     classification_alias_id uuid,
@@ -385,7 +394,7 @@ CREATE TABLE public.classification_aliases (
 --
 
 CREATE TABLE public.classification_tree_labels (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying,
     external_source_id uuid,
     seen_at timestamp without time zone,
@@ -437,7 +446,7 @@ CREATE VIEW public.classification_alias_paths_transitive AS
 --
 
 CREATE TABLE public.classification_contents (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     content_data_id uuid,
     classification_id uuid,
     seen_at timestamp without time zone,
@@ -2550,7 +2559,7 @@ CREATE INDEX words_idx ON public.searches USING gin (full_text public.gin_trgm_o
 -- Name: classification_groups delete_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_collected_classification_content_relations_trigger_1 AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE PROCEDURE public.delete_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER delete_collected_classification_content_relations_trigger_1 AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.delete_collected_classification_content_relations_trigger_1();
 
 
 --
@@ -2564,147 +2573,147 @@ CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.cont
 -- Name: classification_aliases generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_aliases FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_1();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_aliases FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_1();
 
 
 --
 -- Name: classification_tree_labels generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_3();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_3();
 
 
 --
 -- Name: classification_trees generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_2();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
 
 
 --
 -- Name: classification_alias_paths generate_collected_classification_content_relations_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER INSERT OR UPDATE ON public.classification_alias_paths FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_3();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER INSERT OR UPDATE ON public.classification_alias_paths FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_3();
 
 
 --
 -- Name: classification_contents generate_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger_1 AFTER INSERT ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_1 AFTER INSERT ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_1();
 
 
 --
 -- Name: classification_contents generate_collected_classification_content_relations_trigger_2; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger_2 AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_2();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_2 AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_2();
 
 
 --
 -- Name: classification_groups generate_collected_classification_content_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger_4 AFTER INSERT ON public.classification_groups FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_4();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_4 AFTER INSERT ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_4();
 
 
 --
 -- Name: content_contents generate_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT ON public.content_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_content_content_links_trigger();
+CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.generate_content_content_links_trigger();
 
 
 --
 -- Name: users generate_my_selection_watch_list; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_my_selection_watch_list AFTER INSERT ON public.users FOR EACH ROW EXECUTE PROCEDURE public.generate_my_selection_watch_list();
+CREATE TRIGGER generate_my_selection_watch_list AFTER INSERT ON public.users FOR EACH ROW EXECUTE FUNCTION public.generate_my_selection_watch_list();
 
 
 --
 -- Name: schedules generate_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT ON public.schedules FOR EACH ROW EXECUTE PROCEDURE public.generate_schedule_occurences_trigger();
+CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT ON public.schedules FOR EACH ROW EXECUTE FUNCTION public.generate_schedule_occurences_trigger();
 
 
 --
 -- Name: searches tsvectorsearchinsert; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectorsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE PROCEDURE public.tsvectorsearchupdate();
+CREATE TRIGGER tsvectorsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE FUNCTION public.tsvectorsearchupdate();
 
 
 --
 -- Name: searches tsvectorsearchupdate; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectorsearchupdate BEFORE UPDATE OF words, locale, full_text ON public.searches FOR EACH ROW WHEN (((old.words <> new.words) OR ((old.locale)::text <> (new.locale)::text) OR (old.full_text <> new.full_text))) EXECUTE PROCEDURE public.tsvectorsearchupdate();
+CREATE TRIGGER tsvectorsearchupdate BEFORE UPDATE OF words, locale, full_text ON public.searches FOR EACH ROW WHEN (((old.words <> new.words) OR ((old.locale)::text <> (new.locale)::text) OR (old.full_text <> new.full_text))) EXECUTE FUNCTION public.tsvectorsearchupdate();
 
 
 --
 -- Name: searches tsvectortypeaheadsearchinsert; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectortypeaheadsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
+CREATE TRIGGER tsvectortypeaheadsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE FUNCTION tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
 
 
 --
 -- Name: searches tsvectortypeaheadsearchupdate; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectortypeaheadsearchupdate BEFORE UPDATE OF full_text ON public.searches FOR EACH ROW WHEN ((old.full_text <> new.full_text)) EXECUTE PROCEDURE tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
+CREATE TRIGGER tsvectortypeaheadsearchupdate BEFORE UPDATE OF full_text ON public.searches FOR EACH ROW WHEN ((old.full_text <> new.full_text)) EXECUTE FUNCTION tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
 
 
 --
 -- Name: classification_aliases update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW WHEN (((old.internal_name)::text <> (new.internal_name)::text)) EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_1();
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW WHEN (((old.internal_name)::text <> (new.internal_name)::text)) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_1();
 
 
 --
 -- Name: classification_tree_labels update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF name ON public.classification_tree_labels FOR EACH ROW WHEN (((old.name)::text <> (new.name)::text)) EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_3();
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF name ON public.classification_tree_labels FOR EACH ROW WHEN (((old.name)::text <> (new.name)::text)) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_3();
 
 
 --
 -- Name: classification_trees update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id <> new.parent_classification_alias_id) OR (old.classification_alias_id <> new.classification_alias_id))) EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_2();
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id <> new.parent_classification_alias_id) OR (old.classification_alias_id <> new.classification_alias_id))) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
 
 
 --
 -- Name: classification_contents update_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_collected_classification_content_relations_trigger_1 AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id <> new.content_data_id) OR (old.classification_id <> new.classification_id) OR ((old.relation)::text <> (new.relation)::text))) EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER update_collected_classification_content_relations_trigger_1 AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id <> new.content_data_id) OR (old.classification_id <> new.classification_id) OR ((old.relation)::text <> (new.relation)::text))) EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_1();
 
 
 --
 -- Name: classification_groups update_collected_classification_content_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_collected_classification_content_relations_trigger_4 AFTER UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE PROCEDURE public.delete_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER update_collected_classification_content_relations_trigger_4 AFTER UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_collected_classification_content_relations_trigger_1();
 
 
 --
 -- Name: content_contents update_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE OF content_a_id, content_b_id, relation_b ON public.content_contents FOR EACH ROW WHEN (((old.content_a_id <> new.content_a_id) OR (old.content_b_id <> new.content_b_id) OR ((old.relation_b)::text <> (new.relation_b)::text))) EXECUTE PROCEDURE public.generate_content_content_links_trigger();
+CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE OF content_a_id, content_b_id, relation_b ON public.content_contents FOR EACH ROW WHEN (((old.content_a_id <> new.content_a_id) OR (old.content_b_id <> new.content_b_id) OR ((old.relation_b)::text <> (new.relation_b)::text))) EXECUTE FUNCTION public.generate_content_content_links_trigger();
 
 
 --
 -- Name: schedules update_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_schedule_occurences_trigger AFTER UPDATE OF thing_id, duration, rrule, dtstart, relation, exdate, rdate ON public.schedules FOR EACH ROW WHEN (((old.thing_id <> new.thing_id) OR (old.duration <> new.duration) OR ((old.rrule)::text <> (new.rrule)::text) OR (old.dtstart <> new.dtstart) OR ((old.relation)::text <> (new.relation)::text) OR (old.rdate <> new.rdate) OR (old.exdate <> new.exdate))) EXECUTE PROCEDURE public.generate_schedule_occurences_trigger();
+CREATE TRIGGER update_schedule_occurences_trigger AFTER UPDATE OF thing_id, duration, rrule, dtstart, relation, exdate, rdate ON public.schedules FOR EACH ROW WHEN (((old.thing_id <> new.thing_id) OR (old.duration <> new.duration) OR ((old.rrule)::text <> (new.rrule)::text) OR (old.dtstart <> new.dtstart) OR ((old.relation)::text <> (new.relation)::text) OR (old.rdate <> new.rdate) OR (old.exdate <> new.exdate))) EXECUTE FUNCTION public.generate_schedule_occurences_trigger();
 
 
 --
@@ -2951,6 +2960,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211005134137'),
 ('20211007123156'),
 ('20211011123517'),
-('20211014062654');
+('20211014062654'),
+('20211021062347');
 
 
