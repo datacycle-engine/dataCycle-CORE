@@ -83,7 +83,7 @@ namespace :dc do
 
           logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}") && next unless asset&.save
 
-          content.external_source_to_external_system_syncs
+          content.external_source_to_external_system_syncs('duplicate')
 
           valid = content.set_data_hash(
             data_hash: {

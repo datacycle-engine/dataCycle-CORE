@@ -49,10 +49,12 @@ module DataCycleCore
         external_system_syncs.find_by(external_system_id: external_system.id, sync_type: sync_type, external_key: external_key)&.data
       end
 
-      def external_source_to_external_system_syncs
+      def external_source_to_external_system_syncs(sync_type = 'import')
         return if external_source_id.nil? || external_key.nil?
 
-        external_system_syncs.where(external_system_id: external_source_id, sync_type: 'import', external_key: external_key).first_or_create
+        external_system_syncs.where(external_system_id: external_source_id, sync_type: sync_type, external_key: external_key).first_or_create do |sync|
+          sync.status = 'success'
+        end
 
         update_columns(external_key: nil, external_source_id: nil)
       end
