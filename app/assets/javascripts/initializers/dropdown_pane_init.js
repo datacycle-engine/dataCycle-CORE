@@ -33,18 +33,18 @@ export default function () {
         $(window).height() - ($linkedItem.offset().top - $(document).scrollTop() + $linkedItem.outerHeight())
     ) {
       $(element).addClass('top');
-      if ($(element).children('.list-items').length) {
-        $(element).children('.list-items').first().css('max-height', '');
+      if ($(element).find('.list-items').length) {
+        $(element).find('.list-items').first().css('max-height', '');
         if (
           $(document).scrollTop() < $('header').outerHeight() + 5 &&
           $linkedItem.offset().top - $(document).scrollTop() - $(element).outerHeight() <= $('header').outerHeight()
         ) {
           $(element)
-            .children('.list-items')
+            .find('.list-items')
             .first()
             .css(
               'max-height',
-              $(element).children('.list-items').first().outerHeight() -
+              $(element).find('.list-items').first().outerHeight() -
                 40 +
                 ($linkedItem.offset().top -
                   $(document).scrollTop() -
@@ -53,11 +53,11 @@ export default function () {
             );
         } else if ($linkedItem.offset().top - $(document).scrollTop() - $(element).outerHeight() <= 20) {
           $(element)
-            .children('.list-items')
+            .find('.list-items')
             .first()
             .css(
               'max-height',
-              $(element).children('.list-items').first().outerHeight() -
+              $(element).find('.list-items').first().outerHeight() -
                 30 +
                 ($linkedItem.offset().top - $(document).scrollTop() - $(element).outerHeight())
             );
@@ -65,8 +65,8 @@ export default function () {
       }
     } else {
       $(element).removeClass('top');
-      if ($(element).children('.list-items').length) {
-        $(element).children('.list-items').first().css('max-height', '');
+      if ($(element).find('.list-items').length) {
+        $(element).find('.list-items').first().css('max-height', '');
         if (
           $(window).height() -
             ($linkedItem.offset().top +
@@ -76,11 +76,11 @@ export default function () {
           20
         ) {
           $(element)
-            .children('.list-items')
+            .find('.list-items')
             .first()
             .css(
               'max-height',
-              $(element).children('.list-items').first().outerHeight() +
+              $(element).find('.list-items').first().outerHeight() +
                 ($(window).height() -
                   20 -
                   ($linkedItem.offset().top +

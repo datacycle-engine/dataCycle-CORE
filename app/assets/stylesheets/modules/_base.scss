@@ -1639,52 +1639,53 @@ a {
     margin: 1rem 0 0 0;
   }
 
-  > ul {
-    margin: 0;
+  ul.list-items {
+    overflow-y: auto;
+    position: relative;
 
-    &.list-items {
-      overflow-y: auto;
+    &:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+
+    .buttons {
       position: relative;
-      &:not(:last-child) {
-        margin-bottom: 0.5rem;
+      top: 0;
+      right: 0;
+      float: right;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: flex-end;
+
+      > * {
+        margin-left: 0.3rem;
       }
 
-      .buttons {
-        position: relative;
-        top: 0;
-        right: 0;
-        float: right;
-        display: flex;
-        flex-flow: row nowrap;
-        align-items: center;
-        justify-content: flex-end;
+      span,
+      a {
+        color: $primary-color;
+        cursor: pointer;
 
-        > * {
-          margin-left: 0.3rem;
+        &:hover,
+        &:focus {
+          color: darken($primary-color, 30%);
         }
 
-        span,
-        a {
-          color: $primary-color;
-          cursor: pointer;
+        &.invalidate-data-link,
+        &.delete-translation-link {
+          color: $alert-color;
 
           &:hover,
           &:focus {
-            color: darken($primary-color, 30%);
-          }
-
-          &.invalidate-data-link,
-          &.delete-translation-link {
-            color: $alert-color;
-
-            &:hover,
-            &:focus {
-              color: darken($alert-color, 30%);
-            }
+            color: darken($alert-color, 30%);
           }
         }
       }
     }
+  }
+
+  > ul {
+    margin: 0;
 
     > li {
       position: relative;
