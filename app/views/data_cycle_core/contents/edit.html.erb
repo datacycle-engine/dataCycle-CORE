@@ -15,3 +15,9 @@
   </div>
 
 <% end %>
+
+<% content_for :title do %>
+  <%= "#{@content.translated_template_name(active_ui_locale)}: " +
+      "#{@content.title} " +
+      "<#{t('actions.edit', locale: active_ui_locale).upcase}>" %>
+<% end %>
