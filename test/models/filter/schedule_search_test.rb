@@ -144,9 +144,10 @@ module DataCycleCore
     end
 
     test 'test query for event_schedule with multiple occurrences and yearly rrule before search date' do
-      create_content('Event', { name: 'DDD0', event_schedule: schedule_hash(Time.zone.now.end_of_day - 2.years - 1.day - 1.hour, 'Yearly', Time.zone.now.end_of_day - 1.day) })
+      create_content('Event', { name: 'DDD0', event_schedule: schedule_hash(Time.zone.now.end_of_day.utc - 2.years - 1.day - 1.hour, 'Yearly', Time.zone.now.end_of_day.utc - 1.day) })
 
       items = DataCycleCore::Filter::Search.new(:de).schedule_search(Date.current, Date.current)
+
       assert_equal(0, items.count)
     end
 
