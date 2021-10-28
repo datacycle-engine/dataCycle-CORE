@@ -713,6 +713,8 @@ de:
     copyable_from_clear: '%{data} verwerfen'
     logout: Abmelden
     clear: 'Alle Inhalte aus %{data} entfernen'
+    remove_content_from: '%{name} aus %{collection} entfernen?'
+    remove_from: 'aus %{collection} entfernen'
 
   validation:
     errors:

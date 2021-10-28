@@ -700,6 +700,8 @@ en:
     copyable_from_clear: '%{data} discard'
     logout: Logout
     clear: 'remove all contents from %{data}'
+    remove_content_from: 'Remove %{name} from %{collection}?'
+    remove_from: 'remove from %{collection}'
 
   validation:
     errors:
