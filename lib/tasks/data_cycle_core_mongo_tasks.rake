@@ -71,7 +71,7 @@ namespace :data_cycle_core do
     end
 
     desc 'Restores a mongo db from a backup archive'
-    task :restore, [:file_name, :downloaded] => [:environment] do |_, args|
+    task :restore, [:file_name, :downloaded, :port] => [:environment] do |_, args|
       temp = Time.zone.now
       file_name = args[:file_name]
 
@@ -80,10 +80,10 @@ namespace :data_cycle_core do
 
       origin_db_name = file_name.split('_')[0..-2].join('_')
       external_system_id = file_name.split('_')[-2]
-      external_system = DataCycleCore::ExternalSystem.find(external_system_id)
-      db_name = external_system.database_name
+      db_name = [DataCycleCore::Generic::Collection.database_name, external_system_id].join('_')
+      port = args[:port] || '27017'
 
-      cmd = "mongorestore --archive=#{dir}/#{file_name} --drop --nsFrom='#{origin_db_name}.*' --nsTo='#{db_name}.*'"
+      cmd = "mongorestore --port=#{port} --archive=#{dir}/#{file_name} --drop --nsFrom='#{origin_db_name}.*' --nsTo='#{db_name}.*'"
       sh cmd
       puts ''
       puts "DB source: #{origin_db_name}"
