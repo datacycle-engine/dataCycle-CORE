@@ -9,7 +9,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Gip::Transformations.to_section(utility_object.external_source.id),
-            default: { template: 'Teilstrecke' },
+            default: { template: 'Route' },
             config: config
           )
         end
@@ -19,7 +19,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Gip::Transformations.to_route(utility_object.options.dig('import', 'external_id_prefix')),
-            default: { template: 'Route' },
+            default: { template: 'Gesamtroute' },
             config: config
           )
         end
@@ -29,7 +29,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Gip::Transformations.to_route_feature(utility_object.external_source.id),
-            default: { template: 'Route' },
+            default: { template: 'Gesamtroute' },
             config: config
           )
         end

@@ -37,15 +37,15 @@
           :show:
             :content_area: none
       :about:
-        :label: Radroute / Teilstrecke
+        :label: Gesamtroute / Route
         :type: linked
         :inverse_of: subject_of
         :stored_filter:
           - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
+                - Gesamtroute
                 - Route
-                - Teilstrecke
       :map_view:
         :label: Gesamtstrecke
         :storage_location: value
