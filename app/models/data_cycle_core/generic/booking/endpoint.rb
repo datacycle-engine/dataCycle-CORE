@@ -69,8 +69,9 @@ module DataCycleCore
         protected
 
         def load_data(end_point, lang, region_id = nil, extras = nil, offset = nil, countries = nil, retry_count = 0)
-          conn = Faraday.new(url: @host + end_point)
-          conn.basic_auth(@user, @password)
+          conn = Faraday.new(url: @host + end_point) do |connection|
+            connection.request(:basic_auth, @user, @password)
+          end
           response = conn.get do |req|
             req.params['region_ids'] = region_id if region_id.present?
             req.params['language'] = lang if region_id.present?

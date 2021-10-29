@@ -17,7 +17,7 @@ module DataCycleCore
           }
         end
 
-        def diff(a, b, template)
+        def diff(a, b, template, _partial_update)
           @diff_hash = computed_types[template.dig('compute', 'type')].new(a, b, template).diff_hash
         end
       end

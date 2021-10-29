@@ -78,7 +78,11 @@ module DataCycleCore
         end
 
         def cache_key(content)
-          [name.underscore, 'configuration', content&.id, content&.schema, content&.collect_properties]
+          if content.is_a?(DataCycleCore::Schedule)
+            [name.underscore, 'configuration', content&.id, {}, []]
+          else
+            [name.underscore, 'configuration', content&.id, content&.schema, content&.collect_properties]
+          end
         end
       end
     end

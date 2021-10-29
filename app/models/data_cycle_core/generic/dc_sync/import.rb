@@ -9,7 +9,7 @@ module DataCycleCore
             utility_object: utility_object,
             iterator: method(:load_contents).to_proc,
             data_processor: method(:process_content).to_proc,
-            options: options.merge(iteration_strategy: :import_all)
+            options: options.merge(iteration_strategy: :import_all, mode: :incremental)
           )
         end
 
@@ -42,7 +42,7 @@ module DataCycleCore
               utility_object,
               raw_data[first_locale],
               DataCycleCore::Generic::DcSync::Processing.get_template(raw_data).template_name,
-              options.dig(:import, :transformations, :thing)
+              options
             )
           else
             # puts "full import"
@@ -51,7 +51,7 @@ module DataCycleCore
               utility_object,
               raw_data,
               DataCycleCore::Generic::DcSync::Processing.get_template(raw_data).template_name,
-              options.dig(:import, :transformations, :thing)
+              options
             )
           end
         end

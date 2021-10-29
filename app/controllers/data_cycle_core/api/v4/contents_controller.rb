@@ -11,17 +11,22 @@ module DataCycleCore
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
-          Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            query = build_search_query
-            query = apply_ordering(query)
 
-            @pagination_contents = apply_paging(query)
-            @contents = @pagination_contents
+          ActiveRecord::Base.transaction do
+            ActiveRecord::Base.connection.execute("SET LOCAL statement_timeout = #{puma_max_timeout * 1000}")
 
-            if list_api_request?
-              render plain: list_api_request.to_json, content_type: 'application/json'
-            else
-              render 'index'
+            Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
+              query = build_search_query
+              query = apply_ordering(query)
+
+              @pagination_contents = apply_paging(query)
+              @contents = @pagination_contents
+
+              if list_api_request?
+                render plain: list_api_request.to_json, content_type: 'application/json'
+              else
+                render 'index'
+              end
             end
           end
         end
@@ -44,6 +49,19 @@ module DataCycleCore
           else
             render json: { error: 'No ids given!' }, layout: false, status: :bad_request
           end
+        end
+
+        def typeahead
+          query = build_search_query
+          result = query.typeahead(permitted_params[:search], @language, permitted_params[:limit] || 10)
+          words = result.to_a.map { |i| i.dig('word') } # score not needed
+          render json: {
+            '@context' => api_plain_context(@language),
+            '@graph' => {
+              '@type' => 'dcls:Statistics',
+              'suggest' => words
+            }
+          }
         end
 
         def deleted
@@ -69,7 +87,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, uuid: []] + [filter: {}]
+          super + [:id, :language, :uuids, :search, :limit, uuid: []] + [filter: {}] + ['dc:liveData': [:'@id', :minPrice]]
         end
 
         def permitted_filter_parameters
@@ -84,40 +102,6 @@ module DataCycleCore
         def list_api_request?
           return true if @include_parameters.blank? && select_attributes(@fields_parameters).include?('dct:modified') && select_attributes(@fields_parameters).size == 1
           false
-        end
-
-        def apply_ordering(query)
-          apply_order_query(query, permitted_params.dig(:sort), @full_text_search, raw_query_params: permitted_params.to_h)
-        end
-
-        def build_search_query
-          endpoint_id = permitted_params[:id]
-          @linked_stored_filter = nil
-          if endpoint_id.present?
-            @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
-
-            if @stored_filter
-              authorize! :api, @stored_filter
-              @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
-            elsif (@watch_list = DataCycleCore::WatchList.find_by(id: endpoint_id))
-            else
-              raise ActiveRecord::RecordNotFound
-            end
-          end
-
-          filter = @stored_filter || DataCycleCore::StoredFilter.new
-          filter.language = @language
-          filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
-          query = filter.apply
-          query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
-
-          query = query.fulltext_search(@full_text_search) if @full_text_search
-
-          query = query.in_validity_period
-
-          query = apply_filters(query, permitted_params&.dig(:filter))
-          query = append_filters(query, permitted_params)
-          query
         end
       end
     end

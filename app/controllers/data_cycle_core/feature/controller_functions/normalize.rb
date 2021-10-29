@@ -17,7 +17,7 @@ module DataCycleCore
           @content = DataCycleCore::Thing.find_by(id: params[:id])
           external_source = DataCycleCore::ExternalSystem.find_by(name: DataCycleCore.features.dig(:normalize, :external_source))
 
-          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Normalisierung', locale: DataCycleCore.ui_language) }.to_json, content_type: 'application/json') && return if external_source.blank? || @content.blank?
+          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Normalisierung', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if external_source.blank? || @content.blank?
 
           normalize_logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
           normalizer = DataCycleCore::MasterData::NormalizeData.new(logger: normalize_logger, host: external_source.credentials.dig('host'), end_point: external_source.credentials.dig('end_point'))

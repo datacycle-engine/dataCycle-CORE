@@ -1,4 +1,4 @@
-import ConfirmationModal from './../components/confirmation_modal';
+import domElementHelpers from '../helpers/dom_element_helpers';
 
 export default function () {
   var SliderArray = [];
@@ -10,19 +10,14 @@ export default function () {
 
   $('.edit-content-form .form-element.number.duration > .duration-slider > div > :input[type="number"]').on(
     'dc:import:data',
-    function (event, data) {
+    async (event, data) => {
       if ($(event.target).val().length === 0) {
         $(event.target).val(data.value).trigger('change');
       } else {
-        var confirmationModal = new ConfirmationModal({
-          text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-          confirmationText: 'Ja',
-          cancelText: 'Nein',
-          confirmationClass: 'success',
-          cancelable: true,
-          confirmationCallback: function () {
-            $(event.target).val(data.value).trigger('change');
-          }
+        const target = event.currentTarget;
+
+        domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
+          $(target).val(data.value).trigger('change');
         });
       }
     }

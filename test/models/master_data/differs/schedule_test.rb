@@ -55,12 +55,12 @@ describe DataCycleCore::MasterData::Differs::Schedule do
 
     it 'recognizes an hashes from UI as existing schedules without changes' do
       start_time = Time.zone.now.change(hour: 9, minute: 0)
-      a_schedule = IceCube::Schedule.new(start_time, { duration: 0 }) do |s|
+      a_schedule = IceCube::Schedule.new(start_time, duration: 0) do |s|
         s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9))
       end
       a = DataCycleCore::Schedule.new(id: SecureRandom.uuid)
       a.schedule_object = a_schedule
-      a_hash = [a.to_h.compact.with_indifferent_access.merge(dtstart: start_time)]
+      a_hash = [a.serialize_schedule_object.to_h.with_indifferent_access.compact]
 
       schedule_hash = { 'event_schedule' => { '0' =>
         {

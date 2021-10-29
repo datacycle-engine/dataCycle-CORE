@@ -8,7 +8,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
-            transformation: DataCycleCore::Generic::Bergfex::Transformations.bergfex_to_see,
+            transformation: DataCycleCore::Generic::Bergfex::Transformations.bergfex_to_see(utility_object.external_source.id),
             default: { template: 'See' },
             config: config
           )
@@ -52,6 +52,8 @@ module DataCycleCore
         def self.process_snow_report_new(utility_object, raw_data, config, locale)
           raw_data.dig('snow', 'itemSnow').each do |snow_measure|
             snow_report = snow_measure
+            snow_report['dateLastSnowfall'] = raw_data['dateLastSnowfall']
+            snow_report['conditionSnow'] = raw_data['conditionSnow']
             snow_report['resort'] = raw_data['resort']
             snow_report['datetime'] = raw_data['datetime']
             snow_report['id'] = raw_data['id']

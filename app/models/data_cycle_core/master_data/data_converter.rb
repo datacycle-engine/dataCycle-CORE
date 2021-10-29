@@ -45,14 +45,21 @@ module DataCycleCore
 
       def self.string_to_string(value)
         return if value&.strip_tags.blank?
-
-        value
+        old_value = value
           &.unicode_normalize(:nfc)
           &.delete("\u0000") # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)
           &.squish
-          &.gsub(%r{(<p>\s*(<br>)*\s*</p>)*$}, '') # remove empty lines from HTML-Editor at the end of the String
-          &.gsub(%r{^(<p>\s*(<br>)*\s*</p>)*}, '') # remove empty lines from HTML-Editor at the start of the String
-          &.gsub(/(\s*&nbsp;\s*)+/, '&nbsp;') # normalize multiple &nbsp; to a single one
+
+        loop do # to get ridd of more than one occurrence of the tags
+          new_value = old_value
+            &.gsub(%r{(<p>\s*(<br>)*\s*</p>)*$}, '') # remove empty lines from HTML-Editor at the end of the String
+            &.gsub(%r{^(<p>\s*(<br>)*\s*</p>)*}, '') # remove empty lines from HTML-Editor at the start of the String
+            &.gsub(/(\s*&nbsp;\s*)+/, '&nbsp;') # normalize multiple &nbsp; to a single one
+            &.squish
+          break if new_value == old_value
+          old_value = new_value
+        end
+        old_value
       end
 
       def self.string_to_number(value, definition)
@@ -125,8 +132,7 @@ module DataCycleCore
         return nil if value.blank?
         return value if value.acts_like?(:time)
         raise ArgumentError, 'can not convert to a datetime' unless value.is_a?(::String)
-        # remove to_datetime when https://bugs.ruby-lang.org/issues/15160 is fixed
-        value.in_time_zone&.to_datetime.presence || raise(ArgumentError, 'can not convert to a datetime')
+        value.in_time_zone.presence || raise(ArgumentError, 'can not convert to a datetime')
       end
 
       def self.date_to_string(value)

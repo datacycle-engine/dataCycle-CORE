@@ -1,4 +1,5 @@
 # Content specification
+
 ```javascript
 {
     "apiSubversion": "String",
@@ -33,6 +34,12 @@
                     "bool": "Boolean"
                 }
             }
+        },
+        "schedule": {
+          "in": {
+            "min": "Date|DateTime",
+            "max": "Date|DateTime"
+          }
         },
         "classifications|dc:classification": {
             "in": {
@@ -79,25 +86,25 @@
                             "min": "Integer|Float|Date|DateTime",
                             "equals": "String",
                             "like": "String",
-                            "bool": "Boolean" 
+                            "bool": "Boolean"
                         },
                         "notIn": {
                             "max": "Integer|Float|Date|DateTime",
                             "min": "Integer|Float|Date|DateTime",
                             "equals": "String",
                             "like": "String",
-                            "bool": "Boolean" 
+                            "bool": "Boolean"
                         }
                     }
                 },
                 "classifications|dc:classification": {
                     "in": {
                         "withSubtree": "[UUID]",
-                        "withoutSubtree": "[UUID]" 
+                        "withoutSubtree": "[UUID]"
                     },
                     "notIn": {
                         "withSubtree": "[UUID]",
-                        "withoutSubtree": "[UUID]" 
+                        "withoutSubtree": "[UUID]"
                     }
                 },
                 "geo": {
@@ -247,17 +254,19 @@
         "@graph": "Integer [1,0]: 1",
         "@context": "Integer [1,0]: 1",
         "meta": "Integer [1,0]: 1",
-        "links": "Integer [1,0]: 1" 
+        "links": "Integer [1,0]: 1"
     },
     "sort": "String ?[+,-] (dct:modified,dct:created,name,*similarity,*proximity.geographic, *proximity.in_time, proximity.occurrence, random): **default",
     "token": "String"
-} 
+}
 ```
+
 \* = implicit sorting
 
-\** = default sorting defined within project
+\*\* = default sorting defined within project
 
-## Available attributes for "attributeName" 
+## Available attributes for "attributeName"
+
 ```javascript
 {
     "attributeName":
@@ -265,7 +274,7 @@
             "dct:created",
             "dct:modified",
             "dct:deleted",
-            "schedule"
+            "schedule|eventSchedule|openingHoursSpecification|dc:diningHoursSpecification|hoursAvailable|validitySchedule"
         ]
 }
 ```

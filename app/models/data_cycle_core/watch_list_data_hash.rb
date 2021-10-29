@@ -6,6 +6,7 @@ module DataCycleCore
     belongs_to :hashable, polymorphic: true
 
     # after_commit :notify_data_links, on: [:create, :destroy], unless: proc { |w| w.watch_list.destroyed? }
+    # if this is re-enabled, change @watch_list.watch_list_data_hashes.clear to @watch_list.watch_list_data_hashes.destroy_all
 
     private
 

@@ -44,6 +44,9 @@ module DataCycleCore
 
         # trigger cache_invalidation for related contents
         add_related_cache_invalidation_job if options.invalidate_related_cache && has_cached_related_contents?
+
+        # trigger update of dependent computed properties
+        add_update_dependent_computed_properties_job
       end
 
       def before_destroy_data_hash(_options)
@@ -53,44 +56,73 @@ module DataCycleCore
 
       def set_data_hash(**args) # rubocop:disable Naming/AccessorMethodName
         options = DataCycleCore::Content::DataHashOptions.new(**args)
-        return {} if options.data_hash.blank? && !options.force_update
+
+        return no_changes(options.ui_locale) if options.data_hash.blank? && !options.force_update
 
         before_save_data_hash(options)
 
-        if options.partial_update
-          partial_schema = schema.dup
-          partial_schema['properties'] = property_definitions&.slice(*options.data_hash.keys)
+        partial_schema = schema.deep_dup
+        partial_schema['properties'] = property_definitions&.slice(*options.data_hash.keys) if options.partial_update
+        options.data_hash.deep_freeze # ensure data_hash doesn't get changed
+
+        return false unless validate(data_hash: options.data_hash, schema_hash: partial_schema || schema, current_user: options.current_user)
+
+        return no_changes(options.ui_locale) unless diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
+
+        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+          to_history unless id.nil? || options.prevent_history
+
+          set_template_data_hash(options, partial_schema&.dig('properties') || property_definitions)
+
+          self.updated_at = options.save_time
+          self.updated_by = options.current_user&.id
+          self.last_updated_locale = I18n.locale
+          self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? options.version_name.presence : nil
+
+          if id.nil?
+            self.created_at = options.save_time
+            self.created_by = options.current_user&.id
+          end
+
+          save(touch: false)
+          search_languages(options.update_search_all) unless id.nil? || embedded?
         end
 
-        valid_hash = validate(options.data_hash.dup, partial_schema || schema)
+        reload
+        after_save_data_hash(options)
 
-        if validate?(valid_hash)
-          if diff?(options.data_hash.dup, partial_schema) || options.force_update
-            ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-              to_history(save_time: options.save_time) unless id.nil? || options.prevent_history
+        true
+      end
 
-              set_template_data_hash(options, partial_schema&.dig('properties') || property_definitions)
+      def set_data_hash_with_translations(**args) # rubocop:disable Naming/AccessorMethodName
+        options = DataCycleCore::Content::DataHashOptions.new(**args)
+        return {} if options.data_hash.blank? && !options.force_update
 
-              self.updated_at = options.save_time
-              self.updated_by = options.current_user&.id
-              self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? options.version_name.presence : nil
+        translations = options.data_hash[:translations]
+        locale = translations&.keys&.first || I18n.locale
+        datahash = ((options.data_hash.key?(:datahash) ? options.data_hash[:datahash] : options.data_hash.except(:translations, :version_name)) || {}).merge(translations&.delete(locale.to_s) || {}).with_indifferent_access
+        version_name = (options.data_hash.key?(:version_name) ? options.data_hash[:version_name] : options.version_name).presence
 
-              if id.nil?
-                self.created_at = options.save_time
-                self.created_by = options.current_user&.id
+        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+          I18n.with_locale(locale) do
+            raise ActiveRecord::Rollback unless set_data_hash(options.to_h.merge(data_hash: datahash, version_name: version_name&.+(" (#{I18n.locale})")))
+          end
+
+          if translations.present?
+            translations.each do |l, locale_hash|
+              I18n.with_locale(l) do
+                next if locale_hash.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }.blank?
+
+                raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :ui_locale).merge(data_hash: locale_hash, update_search_all: false, partial_update: true, version_name: version_name&.+(" (#{I18n.locale})")))
               end
-
-              save(touch: false)
-              search_languages(options.update_search_all) unless id.nil? || embedded?
             end
 
-            reload
-            after_save_data_hash(options)
-          else
-            valid_hash[:warning] = I18n.t('controllers.warning.no_changes', locale: DataCycleCore.ui_language)
+            no_changes_key = translated_template_name(options.ui_locale).to_sym
+            i18n_warnings.each_value { |w| w.delete(no_changes_key) } unless translations.keys.push(locale).all? { |l| i18n_warnings[l]&.include?(no_changes_key) }
           end
         end
-        valid_hash
+
+        i18n_valid?
       end
 
       def set_computed_values(data_hash:) # rubocop:disable Naming/AccessorMethodName
@@ -124,27 +156,56 @@ module DataCycleCore
         end
       end
 
-      def execute_update_webhooks
-        Webhook::Update.execute_all(self)
+      def execute_create_webhooks
+        return if prevent_webhooks.is_a?(TrueClass)
+
+        if synchronous_webhooks
+          DataCycleCore::Webhook::Create.execute_all(self)
+        else
+          DataCycleCore::WebhooksJob.perform_later(
+            id,
+            self.class.name,
+            'create',
+            WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.merge(webhook_data: webhook_data.to_h).compact
+          )
+        end
       end
 
-      def execute_create_webhooks
-        Webhook::Create.execute_all(self)
+      def execute_update_webhooks
+        return if prevent_webhooks.is_a?(TrueClass)
+
+        if synchronous_webhooks
+          DataCycleCore::Webhook::Update.execute_all(self)
+        else
+          DataCycleCore::WebhooksJob.perform_later(
+            id,
+            self.class.name,
+            'update',
+            WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.merge(webhook_data: webhook_data.to_h).compact
+          )
+        end
       end
 
       def execute_delete_webhooks
-        Webhook::Delete.execute_all(self)
+        return if prevent_webhooks.is_a?(TrueClass)
+
+        DataCycleCore::Webhook::Delete.execute_all(self)
       end
 
-      def validate(data, schema_hash = nil, strict = false, add_defaults = false, current_user = nil)
-        data = add_default_values(data_hash: data, current_user: current_user).dup if add_defaults && properties_with_default_values.present?
-
+      def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true)
+        data_hash = add_default_values(data_hash: data_hash, current_user: current_user).dup if add_defaults && properties_with_default_values.present?
         validator = DataCycleCore::MasterData::ValidateData.new(self)
-        validator.validate(data, schema_hash || schema, strict)
-      end
+        valid = DataCycleCore::LocalizationService.localize_validation_errors(validator.validate(data_hash, schema_hash || schema, strict), current_user&.ui_locale || DataCycleCore.ui_locales.first)
 
-      def validate?(validation_hash)
-        validation_hash&.dig(:error).blank?
+        valid[:warning]&.each { |k, v| Array.wrap(v).each { |e| warnings.add(k, e) } } if valid[:warning].present? && add_warnings
+
+        if valid[:error].present?
+          valid[:error].each { |k, v| v.each { |e| errors.add(k, e) } } if add_errors
+
+          return false
+        end
+
+        true
       end
 
       def set_internal_data
@@ -155,7 +216,11 @@ module DataCycleCore
       end
 
       def add_related_cache_invalidation_job
-        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_related_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_related_cache", delayed_reference_id: id, locked_at: nil)
+        DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'invalidate_related_cache')
+      end
+
+      def add_update_dependent_computed_properties_job
+        DataCycleCore::UpdateComputedPropertiesJob.perform_later(id)
       end
 
       def invalidate_self_and_update_search
@@ -195,6 +260,12 @@ module DataCycleCore
 
       private
 
+      def no_changes(locale)
+        warnings&.add(translated_template_name(locale), I18n.t('controllers.warning.no_changes', locale: locale))
+
+        true
+      end
+
       def attribute_blank?(data_hash, key, _defininition = nil)
         return true if key.blank?
 
@@ -230,7 +301,7 @@ module DataCycleCore
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
-        when 'schedule'
+        when 'schedule', 'opening_time'
           set_schedule(value, key)
         when 'computed'
           save_values(key, value, properties)
@@ -339,20 +410,26 @@ module DataCycleCore
 
         data.each_index do |index|
           item = data[index]
-          if item.key?('id') && item['id'].present?
-            upsert_content(name, item, options) if item.keys.size > 1
+          item_id = item&.dig('datahash', 'id') || item&.dig('id')
 
-            if available_update_item_keys[index] != item['id']
+          if item_id.present?
+            if item['datahash']&.keys&.except('id')&.any? ||
+               item['translations']&.values&.any? { |v| v.keys.except('id').any? } ||
+               item.keys.except('id').any?
+              upsert_content(name, item, options)
+            end
+
+            if available_update_item_keys[index] != item_id
               upsert_relation = DataCycleCore::ContentContent.find_or_create_by!({
                 content_a_id: id,
                 relation_a: field_name,
-                content_b_id: item['id']
+                content_b_id: item_id
               })
               upsert_relation.order_a = index
               upsert_relation.save
             end
 
-            updated_item_keys << item['id']
+            updated_item_keys << item_id
           else
             insert_item = upsert_content(name, item, options)
             DataCycleCore::ContentContent.create!({
@@ -376,8 +453,10 @@ module DataCycleCore
 
       def upsert_content(name, item, options)
         template = DataCycleCore::Thing.find_by(template: true, template_name: name)
-        if item['id'].present?
-          upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item['id'])
+        item_id = item&.dig('datahash', 'id') || item&.dig('id')
+
+        if item_id.present?
+          upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item_id)
         else
           upsert_item = DataCycleCore::Thing.new
         end
@@ -386,8 +465,17 @@ module DataCycleCore
         # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
         created = upsert_item.new_record?
+        upsert_item.created_at = options.save_time if created
         upsert_item.save
-        upsert_item.set_data_hash(data_hash: item, current_user: options.current_user, save_time: options.save_time, prevent_history: true, new_content: created, partial_update: options.partial_update)
+
+        upsert_item.set_data_hash_with_translations(
+          data_hash: item,
+          current_user: options.current_user,
+          save_time: options.save_time,
+          prevent_history: true,
+          new_content: created,
+          partial_update: options.partial_update
+        )
         upsert_item
       end
 
@@ -456,8 +544,11 @@ module DataCycleCore
               DataCycleCore::Schedule.new
             end
           schedule.id = item['id'] if item['id'].present?
+          schedule.external_source_id = item['external_source_id'] if item['external_source_id'].present?
+          schedule.external_key = item['external_key'] if item['external_key'].present?
           schedule.thing_id = id
           schedule.relation = relation_name
+          schedule.holidays = item['holidays']
           schedule.from_hash(item.with_indifferent_access)
           schedule.save!
           updated_item_keys << schedule.id

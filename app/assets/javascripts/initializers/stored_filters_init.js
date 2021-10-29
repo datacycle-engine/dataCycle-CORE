@@ -1,4 +1,4 @@
-import Spinner from './../components/loading_spinner';
+import loadingIcon from '../templates/loadingIcon';
 
 export default function () {
   if ($('.search-history-list').length) {
@@ -22,16 +22,18 @@ export default function () {
         }
       ];
       loading = true;
-      let spinner = new Spinner($('.search-history-list'));
-      spinner.show();
+
+      $('.search-history-list').append(loadingIcon());
+
       DataCycle.httpRequest({
-        url: DataCycle.config.EnginePath + '',
+        url: '',
         method: 'GET',
         data: form_data,
         dataType: 'script'
-      }).done(data => {
+      }).then(_data => {
         loading = false;
-        spinner.hide();
+        $('.search-history-list .loading').remove();
+
         if (
           page < pages &&
           !loading &&
@@ -56,7 +58,7 @@ export default function () {
       load_more();
     }
 
-    $(document).on('scroll', event => {
+    $(document).on('scroll', _event => {
       if (!loading && $(window).scrollTop() + $(window).height() >= $(document).height() - 100 && page < pages) {
         load_more();
       }

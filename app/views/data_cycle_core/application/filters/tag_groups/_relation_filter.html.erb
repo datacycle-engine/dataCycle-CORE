@@ -1,16 +1,16 @@
-<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+<% filter_method = local_assigns[:filter_method] || 'i' %>
+<span class="tag-group tags <%= key %> <%= filter_method %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
   <span class="tag-group-label">
     <i class="fa fa-arrow-circle-o-right" aria-hidden="true"></i>
-    <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
+    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
   </span>
 
-  <% item = union_ids_to_value(value)&.first %>
+  <% items = filter_method.in?(['s', 'u']) ? thing_ids_to_value(value) : union_ids_to_value(value) %>
+
   <span class="tags-container">
-    <%= tag.span(
-      item['name'],
-      class: "tag #{item['class_name']}",
-      title: "#{I18n.t("activerecord.models.data_cycle_core/#{item['class_name']}", count: 1, locale: DataCycleCore.ui_language)}: #{item['name']}"
-    ) unless item.nil? %>
+    <% items.each do |item| %>
+      <%= tag.span(item.name, class: "tag #{item.html_class}", title: item.title) %>
+    <% end %>
   </span>
 
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>

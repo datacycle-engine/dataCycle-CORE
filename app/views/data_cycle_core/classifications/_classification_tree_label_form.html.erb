@@ -1,7 +1,7 @@
 <%= form_for(classification_tree_label, url: classifications_path, namespace: classification_tree_label&.id, remote: true) do |f| %>
 
   <div class="ca-buttons">
-    <button class="button-prime small success update" data-disable-with='<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>'><i aria-hidden="true" class="fa fa-check"></i></button>
+    <button class="button-prime small success update" data-disable-with='<i class="fa fa-spinner fa-spin fa-fw"></i>'><i aria-hidden="true" class="fa fa-check"></i></button>
     <button class="button-prime small discard"><i aria-hidden="true" class="fa fa-times"></i></button>
   </div>
 
@@ -28,7 +28,7 @@
         DataCycleCore.classification_visibilities.map { |v|
           OpenStruct.new(
             name: v,
-            title: t("classification_visibilities.#{v}", locale: DataCycleCore.ui_language, default: v),
+            title: t("classification_visibilities.#{v}", locale: active_ui_locale, default: v),
             checked: f.object.visibility.include?(v)
           )
         },

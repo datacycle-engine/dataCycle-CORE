@@ -49,7 +49,7 @@ module DataCycleCore
                 'last_successful_sync_at' => data.dig('updated_at')
               }]
               all_imported_external_system_data.each do |es|
-                next if present_external_systems.detect { |i| i['external_identifier'] == es['identifier'] && i['external_key'] == es['external_key'] }.present?
+                next if present_external_systems.detect { |i| i['external_identifier'] == (es['identifier'] || es['name']) && i['external_key'] == es['external_key'] }.present?
                 external_system =
                   if es['identifier'].present?
                     DataCycleCore::ExternalSystem.find_by(identifier: es['identifier'])
@@ -121,25 +121,35 @@ module DataCycleCore
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
           invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true) || true
-          error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: !created, new_content: created, invalidate_related_cache: invalidate_related_cache)
+          valid = content.set_data_hash(
+            data_hash: normalized_data,
+            prevent_history: !utility_object.history,
+            update_search_all: true,
+            current_user: current_user,
+            partial_update: !created,
+            new_content: created,
+            invalidate_related_cache: invalidate_related_cache
+          )
 
-          if error[:error].present?
+          if valid
+            Appsignal.increment_counter(
+              "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.success",
+              1,
+              template_name: content.template_name
+            )
+          else
             Appsignal.increment_counter(
               "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.failure",
               1,
               template_name: content.template_name
             )
 
-            utility_object.logging&.error('Validating import data', data['external_key'], data, error[:error].collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
-          else
-            Appsignal.increment_counter(
-              "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.success",
-              1,
-              template_name: content.template_name
-            )
+            utility_object.logging&.error('Validating import data', data['external_key'], data, content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
+
+            content.destroy_content(save_history: false) if created
+            return
           end
 
-          content.save!
           data.dig('external_system_data')&.each do |es|
             external_system =
               if es['identifier'].present?
@@ -148,7 +158,7 @@ module DataCycleCore
                 DataCycleCore::ExternalSystem.find_by(identifier: es['name']) || DataCycleCore::ExternalSystem.find_by(name: es['name'])
               end
             external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank?
-            sync_data = content.add_external_system_data(external_system, { external_key: es['external_key'] }, es['status'] || 'success', es['sync_type'] || 'export', es['external_key'], false)
+            sync_data = content.add_external_system_data(external_system, { external_key: es['external_key'] }, es['status'] || 'success', es['sync_type'] || 'export', es['external_key'], es['external_key'].present?)
             update_data = { last_sync_at: es['last_sync_at'], last_successful_sync_at: es['last_successful_sync_at'] }.compact
             sync_data.update(update_data) if update_data.present?
           end
@@ -244,16 +254,14 @@ module DataCycleCore
                 logging.phase_started("#{importer_name}(#{phase_name})")
                 source_filter = options&.dig(:import, :source_filter) || {}
                 source_filter = source_filter.with_evaluated_values
-                # source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
-                # if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
-                #   source_filter = source_filter.merge({
-                #     '$or' => [{
-                #       'updated_at' => { '$gte' => utility_object.external_source.last_successful_import }
-                #     }, {
-                #       "dump.#{locale}.updated_at" => { '$gte' => utility_object.external_source.last_successful_import }
-                #     }]
-                #   })
-                # end
+                source_filter = source_filter.merge({ 'dump.deleted_at' => { '$exists' => false } })
+                if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
+                  source_filter = source_filter.merge({
+                    '$or' => [{
+                      'updated_at' => { '$gte' => utility_object.external_source.last_successful_import }
+                    }]
+                  })
+                end
 
                 GC.start
 

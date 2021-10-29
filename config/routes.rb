@@ -18,6 +18,7 @@ DataCycleCore::Engine.routes.draw do
   get '/docs', to: 'documentation#show'
 
   get :clear_all_caches, controller: :application
+  get '/i18n/translate', to: 'application#translate'
 
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', as: 'local_asset', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file|srt_file)/,
@@ -63,6 +64,7 @@ DataCycleCore::Engine.routes.draw do
       post :bulk_create, on: :collection
       delete :remove_locks, on: :member
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
+      post :attribute_value, on: :member
     end
   end
 
@@ -115,6 +117,7 @@ DataCycleCore::Engine.routes.draw do
     get :download_indesign, on: :member
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
+    delete :clear, on: :member
   end
 
   resources :classifications, only: [:index, :create] do
@@ -264,6 +267,7 @@ DataCycleCore::Engine.routes.draw do
               end
 
               match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
+              match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
               match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
 
               post 'collections/create', to: 'watch_lists#create'
@@ -287,10 +291,12 @@ DataCycleCore::Engine.routes.draw do
               match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
 
               scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do
-                match '/:external_key', via: :get, to: 'external_systems#show', as: 'external_sources'
+                match '/:external_key', via: [:get, :post], to: 'external_systems#show', as: 'external_sources'
                 match '', via: :post, to: 'external_systems#create'
                 match '(/:external_key)', via: [:put, :patch], to: 'external_systems#update', as: 'external_sources_update'
                 match '(/:external_key)', via: [:delete], to: 'external_systems#destroy', as: 'external_sources_delete'
+                match '/search/availability', via: [:get, :post], to: 'external_systems#search_availability', as: 'external_source_search_availability'
+                match '/search/additional_service', via: [:get, :post], to: 'external_systems#search_additional_service', as: 'external_source_search_additional_service'
               end
             end
           end
@@ -351,8 +357,8 @@ DataCycleCore::Engine.routes.draw do
     post :render_in_overlay
   end
 
-  post 'contents/upload', to: 'contents#upload'
-  # post 'contents/new', to: 'contents#new'
+  # post 'contents/upload', to: 'contents#upload'
+  # # post 'contents/new', to: 'contents#new'
 
   resources :publications, only: :index
 
@@ -360,4 +366,5 @@ DataCycleCore::Engine.routes.draw do
   get :add_tag_group, controller: :application
   post :remote_render, controller: :application
   get :reload_required, controller: :application
+  get :holidays, controller: :application
 end

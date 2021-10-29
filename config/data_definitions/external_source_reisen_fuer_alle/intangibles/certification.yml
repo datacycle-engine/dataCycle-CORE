@@ -5,7 +5,9 @@
     :content_type: entity
     :boost: 100.0
     :api:
-      :type: 'dc:certification'
+      :type:
+        - Intangible
+        - 'dc:certification'
     :properties:
       :id:
         :label: id

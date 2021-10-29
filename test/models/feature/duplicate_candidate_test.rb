@@ -80,7 +80,7 @@ module DataCycleCore
         image1.merge_with_duplicate(image2)
       end
 
-      assert_performed_jobs 1
+      assert_performed_jobs 6
       assert_nil DataCycleCore::Thing.find_by(id: image2.id)
 
       # FIXME: Destroying a content removes content_relations in the history entries

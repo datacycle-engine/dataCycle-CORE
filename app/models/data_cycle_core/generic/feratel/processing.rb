@@ -10,6 +10,20 @@ module DataCycleCore
           ([raw_data.dig('Documents', 'Document')].flatten.reject(&:nil?).select { |d|
             d['Class'] == 'Image'
           }.each do |image_hash|
+            if image_hash.dig('CCAuthor')&.strip.present?
+              DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
+                utility_object: utility_object,
+                template: DataCycleCore::Generic::Common::ImportFunctions.load_template('Organization'),
+                data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
+                  config,
+                  {
+                    'name' => image_hash.dig('CCAuthor').strip,
+                    external_key: DataCycleCore::MasterData::DataConverter.string_to_string("CCAuthor: #{image_hash.dig('CCAuthor').strip}"),
+                    external_source_id: utility_object.external_source.id
+                  }
+                ).with_indifferent_access
+              )
+            end
             DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
               utility_object: utility_object,
               template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
@@ -23,7 +37,7 @@ module DataCycleCore
         end
 
         def self.process_event_location(utility_object, raw_data, config)
-          template = config&.dig(:template) || 'Örtlichkeit'
+          template = config&.dig(:template) || 'POI'
           place_hash = [
             Array.wrap(raw_data.dig('Addresses', 'Address'))&.select { |d| d['Type'] == 'Venue' }&.first,
             raw_data.dig('Details', 'Location').present? ? { 'Location' => raw_data.dig('Details', 'Location') } : nil,

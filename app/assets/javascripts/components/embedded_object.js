@@ -9,7 +9,6 @@ class EmbeddedObject {
     this.element = selector;
     this.page = 1;
     this.id = this.element.prop('id');
-    this.locale = this.element.data('locale') || 'de';
     this.key = this.element.data('key');
     this.label = this.element.data('label');
     this.definition = this.element.data('definition');
@@ -26,6 +25,13 @@ class EmbeddedObject {
     this.content_id = this.element.data('content-id');
     this.content_type = this.element.data('content-type');
     this.locationArray = location.hash.substr(1).split('+').filter(Boolean);
+    this.eventHandlers = {
+      reInit: this.addEventHandlers.bind(this),
+      import: this.import.bind(this),
+      addItem: this.addNewItem.bind(this),
+      removeItem: this.handleRemoveEvent.bind(this),
+      scrollToLocationHash: this.scrollToLocationHash.bind(this)
+    };
 
     this.setup();
   }
@@ -40,34 +46,38 @@ class EmbeddedObject {
       $(this.element)
         .find('> .buttons > #add_' + this.id)
         .show();
-    this.element.off('reinit-event-handlers').on('reinit-event-handlers', this.addEventHandlers.bind(this));
+    this.element
+      .off('reinit-event-handlers', this.eventHandlers.reInit)
+      .on('reinit-event-handlers', this.eventHandlers.reInit);
 
     this.element.on('dc:html:changed', '> .content-object-item:not(.hidden)', event =>
       this.setSwapClasses(event.currentTarget)
     );
 
-    this.element.off('dc:import:data').on(
-      'dc:import:data',
-      function (_event, data) {
-        let newItems = difference(
-          data.value,
-          this.element
-            .children('.content-object-item')
-            .map((_index, elem) => $(elem).data('id'))
-            .get()
-        );
-        if (
-          this.write &&
-          (this.max == 0 || this.element.children('.content-object-item').length < this.max) &&
-          newItems.length > 0
-        ) {
-          this.renderEmbeddedObjects('split_view', newItems, data.locale, data.translate);
-        } else if (this.write && this.max != 0 && ids.length + newItems.length > this.max) {
-          new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
-        }
-      }.bind(this)
-    );
+    this.element.off('dc:import:data', this.eventHandlers.import).on('dc:import:data', this.eventHandlers.import);
+
     this.addEventHandlers();
+  }
+  locale() {
+    return this.element.data('locale') || 'de';
+  }
+  async import(_event, data) {
+    let newItems = difference(
+      data.value,
+      this.element
+        .children('.content-object-item')
+        .map((_index, elem) => $(elem).data('id'))
+        .get()
+    );
+    if (
+      this.write &&
+      (this.max == 0 || this.element.children('.content-object-item').length < this.max) &&
+      newItems.length > 0
+    ) {
+      await this.renderEmbeddedObjects('split_view', newItems, data.locale, data.translate);
+    } else if (this.write && this.max != 0 && ids.length + newItems.length > this.max) {
+      new ConfirmationModal({ text: await I18n.translate('frontend.maximum_embedded') });
+    }
   }
   setSwapClasses(object) {
     if ($(object).index() == 0) $(object).find('> .embedded-header > .swap-button.swap-prev').addClass('disabled');
@@ -112,14 +122,15 @@ class EmbeddedObject {
     else if (type == 'new') this.index++;
 
     this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
-    DataCycle.httpRequest({
+
+    const promise = DataCycle.httpRequest({
       url: this.url + '/render_embedded_object',
       method: 'GET',
       dataType: 'script',
       contentType: 'application/json',
       data: {
         index: index,
-        locale: this.locale,
+        locale: this.locale(),
         attribute_locale: locale,
         key: this.key,
         definition: this.definition,
@@ -130,26 +141,40 @@ class EmbeddedObject {
         duplicated_content: type == 'split_view',
         translate: translate
       }
-    }).done(_data => {
+    });
+
+    promise.then(_data => {
       if (ids.length > 0) this.ids = union(this.ids, ids);
       this.update();
       this.addEventHandlers();
     });
+
+    return promise;
+  }
+  findRemoveButton(element) {
+    return $(element).find('> .removeContentObject, > .form-element > .editor-block > .removeContentObject');
   }
   addEventHandlers() {
     this.element
       .find('> .buttons > #add_' + this.id)
-      .off('click')
-      .on('click', _event => {
-        this.renderEmbeddedObjects('new');
-      });
+      .off('click', this.eventHandlers.addItem)
+      .on('click', this.eventHandlers.addItem);
+
     this.element.children('.content-object-item').each((_index, element) => {
-      $(element).children('.removeContentObject').off('click').on('click', this.handleRemoveEvent.bind(this));
+      this.findRemoveButton(element)
+        .off('click', this.eventHandlers.removeItem)
+        .on('click', this.eventHandlers.removeItem);
     });
 
     this.element
-      .off('init.zf.accordion', this.scrollToLocationHash.bind(this))
-      .on('init.zf.accordion', this.scrollToLocationHash.bind(this));
+      .off('init.zf.accordion', this.eventHandlers.scrollToLocationHash)
+      .on('init.zf.accordion', this.eventHandlers.scrollToLocationHash);
+  }
+  addNewItem(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.renderEmbeddedObjects('new');
   }
   handleRemoveEvent(event) {
     event.preventDefault();
@@ -184,9 +209,9 @@ class EmbeddedObject {
       this.element.find('> .buttons > #add_' + this.id).show();
     }
     if (this.min != 0 && this.element.children('.content-object-item').length <= this.min) {
-      this.element.children('.content-object-item').children('.removeContentObject').hide();
+      this.findRemoveButton(this.element.children('.content-object-item')).hide();
     } else if (this.write) {
-      this.element.children('.content-object-item').children('.removeContentObject').show();
+      this.findRemoveButton(this.element.children('.content-object-item')).show();
     }
     if (this.element.children('.content-object-item').length == 0) {
       this.element.append('<input type="hidden" value="" id="' + this.id + '_default" name="' + this.key + '[]">');

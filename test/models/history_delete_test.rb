@@ -120,10 +120,10 @@ module DataCycleCore
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 
-      error = data_set.set_data_hash(data_hash: data_hash, new_content: true)
+      data_set.set_data_hash(data_hash: data_hash, new_content: true)
       returned_data_hash = data_set.get_data_hash
 
-      assert_equal(0, error[:error].count)
+      assert_equal(0, data_set.errors.size)
       assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *DataCycleCore::TestPreparations.excepted_attributes('creative_work')).compact)
       assert_equal(data_hash['question'][0], returned_data_hash['question'][0].compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
 

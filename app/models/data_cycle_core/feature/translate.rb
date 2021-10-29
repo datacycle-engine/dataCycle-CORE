@@ -16,8 +16,8 @@ module DataCycleCore
           attribute_keys(content) || []
         end
 
-        def allowed?(content, locale, source_locale)
-          super(content) && allowed_languages.include?(locale.to_s) && allowed_languages.include?(source_locale.to_s)
+        def allowed?(content, locale, source_locale, user)
+          super(content) && allowed_languages.include?(locale.to_s) && allowed_languages.include?(source_locale.to_s) && user&.can?(:translate, content)
         end
 
         def external_source

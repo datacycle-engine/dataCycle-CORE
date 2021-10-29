@@ -19,14 +19,16 @@ module DataCycleCore
             'realm' => 'feratel_identity_realms',
             'dbCode' => 'feratel_identity_db_code',
             'role' => 'feratel_identity_role',
-            'userType' => 'feratel_identity_user_type'
+            'userType' => 'feratel_identity_user_type',
+            'name' => 'tmp_name'
           })
           .>> t(:map_value, 'feratel_identity_realms', ->(v) { [v] })
           .>> t(:map_value, 'feratel_identity_db_code', ->(v) { [v] })
           .>> t(:map_value, 'feratel_identity_role', ->(v) { [v.to_s] })
           .>> t(:map_value, 'feratel_identity_user_type', ->(v) { [v.to_s] })
           .>> t(:add_field, 'feratel_identity_keywords', ->(s) { parse_tags(s) })
-          .>> t(:reject_keys, ['active', 'passwordExpired', 'emailConfirmed', 'userLocked', 'hasPassword', 'password'])
+          .>> t(:add_field, 'name', ->(s) { s['tmp_name'].presence || '__unnamed_user__' })
+          .>> t(:reject_keys, ['active', 'passwordExpired', 'emailConfirmed', 'userLocked', 'hasPassword', 'password', 'tmp_name'])
           .>> t(:flatten_hash_keys, 'feratel_identity_claims')
           .>> t(:tags_to_ids, 'feratel_identity_realms', utility_object.external_source.id, 'REALM:')
           .>> t(:tags_to_ids, 'feratel_identity_db_code', utility_object.external_source.id, 'dbCode:')

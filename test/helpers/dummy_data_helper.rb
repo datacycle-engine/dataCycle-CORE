@@ -7,8 +7,8 @@ module DataCycleCore
     def create_data(type, user = nil)
       @user = user
       send(type)
-    rescue StandardError
-      raise ArgumentError, 'Unknown type for DummyDataHelper'
+    rescue StandardError => e
+      raise ArgumentError, "Unknown type (#{type}) for DummyDataHelper: #{e.message}"
     end
 
     def tour
@@ -66,22 +66,35 @@ module DataCycleCore
       poi_data_hash[:primary_image] = image_data.id
       poi_data_hash[:logo] = image_data.id
 
-      opening_hours_classifications = DataCycleCore::Classification.where(name: ['Montag'])&.map(&:id)
-      opening_hours_specification_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
-      opening_hours_specification_data_hash.first['day_of_week'] = opening_hours_classifications
-
-      poi_data_hash[:opening_hours_specification] = opening_hours_specification_data_hash
+      poi_data_hash[:opening_hours_specification] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
+      poi_data_hash[:opening_hours_description] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description')
       poi_data_hash
+    end
+
+    def poi1
+      poi_data_hash = process_poi1_data_hash(DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'poi1_de'))
+      content = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: poi_data_hash, user: @user)
+      I18n.with_locale(:en) { content.set_data_hash(data_hash: process_poi1_data_hash(DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'poi1_en'))) }
+      content
+    end
+
+    def process_poi1_data_hash(hash)
+      hash['additional_information'] = hash['additional_information']
+        .sort_by { |a| a['name'] }
+        .zip(
+          [
+            DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', 'description'),
+            DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', 'parking')
+          ]
+        ).map { |data, classification| data.merge('universal_classifications' => Array.wrap(classification)) }
+      hash
     end
 
     def bergfex_snowresort
       snow_resort_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_bergfex_snowresort')
 
-      opening_hours_classifications = DataCycleCore::Classification.where(name: ['Montag'])&.map(&:id)
-      opening_hours_specification_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
-      opening_hours_specification_data_hash.first['day_of_week'] = opening_hours_classifications
-
-      snow_resort_data_hash[:opening_hours_specification] = opening_hours_specification_data_hash
+      snow_resort_data_hash[:opening_hours_specification] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
+      snow_resort_data_hash[:opening_hours_description] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description')
 
       DataCycleCore::TestPreparations.create_content(template_name: 'Skigebiet', data_hash: snow_resort_data_hash, user: @user)
     end

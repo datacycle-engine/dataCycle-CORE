@@ -27,7 +27,7 @@ module DataCycleCore
     default_scope { i18n }
     before_save :set_internal_data
     after_destroy :clean_stored_filters
-    before_destroy :add_things_cache_invalidation_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }, prepend: true
+    before_destroy :add_things_cache_invalidation_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }
     after_update :update_primary_classification
     after_update :add_things_cache_invalidation_job_update, if: :cached_attributes_changed?
     after_update :add_things_webhooks_job_update, if: :main_attributes_changed?
@@ -52,7 +52,7 @@ module DataCycleCore
     has_many :sub_classification_alias, through: :sub_classification_trees
 
     has_many :classification_groups, dependent: :destroy
-    has_many :classifications, -> { order(:name) }, through: :classification_groups, after_add: :classifications_changed, after_remove: :classifications_changed
+    has_many :classifications, -> { order(:name) }, through: :classification_groups, after_add: :classifications_added, after_remove: :classifications_removed
 
     has_many :descendant_paths, ->(a) { unscope(:where).where('ancestor_ids @> ARRAY[?]::uuid[]', a.id) },
              class_name: 'Path'
@@ -124,7 +124,7 @@ module DataCycleCore
     end
 
     def self.search(q)
-      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR (classification_aliases.description_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" })
+      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR (classification_aliases.description_i18n ->> :locale) ILIKE :q OR (classification_aliases.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" })
     end
 
     def self.order_by_similarity(term)
@@ -154,7 +154,7 @@ module DataCycleCore
     end
 
     def ancestors
-      Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 10.minutes) do
+      Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 10.minutes, race_condition_ttl: 60.seconds) do
         if parent_classification_alias_with_deleted
           [parent_classification_alias_with_deleted] + parent_classification_alias_with_deleted.ancestors
         else
@@ -306,39 +306,50 @@ module DataCycleCore
                                  saved_changes.dig('description_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
     end
 
-    def classifications_changed(_classification = nil)
+    def classifications_added(_classification = nil)
+      @classifications_changed = true
+    end
+
+    def classifications_removed(classification = nil)
+      unless classification.nil?
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classification.things.ids)
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classification.things.ids)
+      end
+
       @classifications_changed = true
     end
 
     def add_things_webhooks_job_destroy
-      return unless primary_classification&.things&.exists?
+      return unless classifications.things.exists?
 
-      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationDestroyJob.new(self.class.name, id, :execute_things_webhooks_destroy, primary_classification.things.ids) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_execute_things_webhooks_destroy", delayed_reference_id: id)
+      DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classifications.things.ids)
     end
 
     def add_things_webhooks_job_update
-      return unless primary_classification&.things&.exists?
+      return unless classifications.things.exists?
 
-      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :execute_things_webhooks) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_execute_things_webhooks", delayed_reference_id: id, locked_at: nil)
+      DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'execute_things_webhooks')
     end
 
     def execute_things_webhooks
-      primary_classification&.things&.find_each do |content|
+      classifications.things.find_each do |content|
         content.send(:execute_update_webhooks)
       end
     end
 
     def add_things_cache_invalidation_job_update
-      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_things_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_things_cache", delayed_reference_id: id, locked_at: nil)
+      DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'invalidate_things_cache')
     end
 
     def add_things_cache_invalidation_job_destroy
-      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationDestroyJob.new(self.class.name, id, :invalidate_things_cache, primary_classification&.things&.ids) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: "#{self.class.name.underscore}_invalidate_things_cache", delayed_reference_id: id)
+      return unless classifications.things.exists?
+
+      DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classifications.things.ids)
     end
 
     def invalidate_things_cache
       linked_contents.ids.each do |thing_id|
-        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new('DataCycleCore::Thing', thing_id, :invalidate_self_and_update_search) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: 'data_cycle_core/thing_invalidate_self_and_update_search', delayed_reference_id: thing_id, locked_at: nil)
+        DataCycleCore::CacheInvalidationJob.perform_later('DataCycleCore::Thing', thing_id, 'invalidate_self_and_update_search')
       end
     end
 

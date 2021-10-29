@@ -23,8 +23,9 @@
           :indesign: true
     :api:
       :type:
+        - Place
         - TouristAttraction
-        - 'dcls:Lift'
+        - 'odta:SkiLift'
     :properties:
       :id:
         :label: id
@@ -35,7 +36,7 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :template_name: PlaceOverlay
+        :template_name: SimplePlaceOverlay
         :translated: true
         :validations:
           :max: 1
@@ -43,10 +44,8 @@
         :type: mixin
         :name: content_classifications
       :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
+        :type: mixin
+        :name: opening_hours_specification
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -59,6 +58,11 @@
         :storage_location: value
         :validations:
           :format: float
+        :api:
+          :v4:
+            :name: odta:distance
+            :format:
+              :append: ' m'
       :geo_shape:
         :type: mixin
         :name: geo_shape
@@ -72,6 +76,15 @@
         :label: Personen pro Stunde
         :type: number
         :storage_location: value
+        :api:
+          :partial: property_value
+          :small_header: true
+          :unit_code: 'H10'
+          :unit_text: '1/h'
+          :transformation:
+            :method: nest
+            :name: dcls:hourlyTransportCapacity
+            :type: QuantitativeValue
       :man_per_t:
         :label: Personen pro Fahrt
         :type: number
@@ -83,15 +96,52 @@
           :show:
             :options:
               :data-unit: Personen
+        :api:
+          :partial: property_value
+          :small_header: true
+          :unit_code: 'C62'
+          :transformation:
+            :method: nest
+            :name: odta:transportCapacity
+            :type: QuantitativeValue
       :order_string:
         :label: nr
         :type: string
         :storage_location: value
+        :api:
+          :name: dcls:orderString
       :snow_resort:
         :label: Skigebiet
-        :template_name: Skigebiet
         :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Skigebiet
         :inverse_of: lift_details
+        :api:
+          :name: containedInPlace
+      :ski_lift_type:
+        :label: Lifttyp (odta)
+        :type: classification
+        :tree_label: 'odta:SkiLiftType'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :name: 'odta:skiLiftType'
+          :partial: string
+      :ski_lift_status:
+        :label: Liftstatus (odta)
+        :type: classification
+        :tree_label: 'odta:OpeningStatus'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :name: 'odta:skiLiftStatus'
+          :partial: string
       :linked_data:
         :type: mixin
         :name: linked_data
@@ -102,7 +152,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Lift"
+        :default_value: 'Lift'
       :feratel_cps:
         :type: mixin
         :name: feratel_cps

@@ -37,6 +37,7 @@ module DataCycleCore
             send(property_name).try(:pluck, :id)
           elsif linked_property_names.include?(property_name)
             return [] if depth >= max_depth
+            return [] if properties_for(property_name)['link_direction'] == 'inverse'
             linked_array = get_property_value(property_name, property_definitions[property_name], nil, present_overlay).pluck(:id)
             linked_array.presence || []
           elsif included_property_names.include?(property_name)
@@ -61,6 +62,7 @@ module DataCycleCore
             schedule_array.blank? ? [] : schedule_array.compact
           elsif property_name == 'included'
             linked_property_names.map { |linked|
+              next if properties_for(linked)['link_direction'] == 'inverse'
               present_overlay = overlay_property_names.include?(linked)
               property_name_with_overlay = linked
               property_name_with_overlay = "#{linked}_#{overlay_name}" if overlay_property_names.include?(linked)
@@ -68,7 +70,7 @@ module DataCycleCore
               linked_array = linked_array
                 &.map { |i| i.to_sync_data(depth: depth)&.merge({ attribute_name: linked }) }
               linked_array.compact.presence || []
-            }.inject(:+)&.compact || []
+            }.compact.inject(:+)&.compact || []
           elsif property_name == 'classifications'
             classification_property_names&.map { |classification_property_name|
               classification_property_name_overlay = classification_property_name

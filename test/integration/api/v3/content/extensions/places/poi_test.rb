@@ -29,7 +29,7 @@ module DataCycleCore
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
-                assert_equal('TouristAttraction', json_data.dig('@type'))
+                assert_equal('TouristAttraction', json_data.dig('@type').last)
                 assert_equal('POI', json_data.dig('contentType'))
                 assert_equal(root_url[0...-1] + api_v3_thing_path(id: @content), json_data.dig('@id'))
                 assert_equal(@content.id, json_data.dig('identifier'))
@@ -86,7 +86,10 @@ module DataCycleCore
 
                 # Validate OpeningHoursSpecification
                 expected_opening_hours_specification_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification_result')
+                expected_opening_hours_description_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description_result')
+
                 assert_equal(expected_opening_hours_specification_hash, json_data.dig('openingHoursSpecification'))
+                assert_equal(expected_opening_hours_description_hash, json_data.dig('dc:openingHoursDescription'))
               end
 
               test 'testing PlaceOverlay' do
@@ -128,13 +131,13 @@ module DataCycleCore
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'TouristAttraction' }
+                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'TouristAttraction' }
+                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_places_path)

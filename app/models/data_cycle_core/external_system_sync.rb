@@ -5,6 +5,8 @@ module DataCycleCore
     belongs_to :syncable, polymorphic: true
     belongs_to :external_system
 
+    DUPLICATE_SYNC_TYPE = 'duplicate'
+
     def external_url
       return data.dig('external_url') if data&.dig('external_url').present?
       return if !syncable.is_a?(DataCycleCore::Thing) || external_system&.default_options(:export)&.dig('external_url').blank? || external_key.blank?

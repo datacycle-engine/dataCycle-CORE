@@ -66,7 +66,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :delted_at, :uuids, uuid: []]
+          super + [:id, :language, :delted_at, :updated_since, :uuids, uuid: []]
         end
 
         private
@@ -80,7 +80,7 @@ module DataCycleCore
             if @stored_filter
               authorize! :api, @stored_filter
               @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
-            elsif (@watch_list = DataCycleCore::WatchList.find_by(id: endpoint_id))
+            elsif (@watch_list = DataCycleCore::WatchList.without_my_selection.find_by(id: endpoint_id))
             else
               raise ActiveRecord::RecordNotFound
             end
@@ -91,8 +91,9 @@ module DataCycleCore
           query = filter.apply
 
           query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
-
           query = query.content_ids(params[:content_id]) if params&.dig(:content_id).present?
+          query = query.updated_since(@updated_since) if @updated_since.present?
+
           query
         end
 

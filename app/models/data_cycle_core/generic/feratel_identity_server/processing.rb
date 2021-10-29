@@ -12,6 +12,7 @@ module DataCycleCore
             default: { template: 'Organization' },
             config: config
           )
+
           content.update(representation_of: DataCycleCore::User.find_by(provider: 'openid_connect', uid: content.external_key)) if content.external_key.present?
           content
         end

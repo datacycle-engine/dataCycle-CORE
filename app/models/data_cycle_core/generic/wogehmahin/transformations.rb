@@ -62,7 +62,10 @@ module DataCycleCore
 
         def self.parse_opening_hours(data)
           return if data.blank?
-          DataCycleCore::Generic::Common::OpeningHours.new(data, format: :google).to_opening_hours_specifications
+
+          raise 'wrong opening_hours_specification type, transformation has to be updated if this importer is used again'
+
+          # DataCycleCore::Generic::Common::OpeningHours.new(data, format: :google).to_opening_hours_specifications
         end
       end
     end

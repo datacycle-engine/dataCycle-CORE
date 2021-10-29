@@ -1,4 +1,4 @@
-import ObjectHelpers from '../helpers/object_helpers';
+import pick from 'lodash/pick';
 
 import Map from 'ol/map';
 import Feature from 'ol/feature';
@@ -29,6 +29,7 @@ import Icon from 'ol/style/icon';
 import Draw from 'ol/interaction/draw';
 import Translate from 'ol/interaction/translate';
 import Snap from 'ol/interaction/snap';
+import Modify from 'ol/interaction/modify';
 import MouseWheelZoom from 'ol/interaction/mousewheelzoom';
 import Select from 'ol/interaction/select';
 import condition from 'ol/events/condition';
@@ -73,7 +74,8 @@ const ol = {
     Translate,
     Snap,
     MouseWheelZoom,
-    Select
+    Select,
+    Modify
   },
   events: {
     condition
@@ -135,7 +137,7 @@ class OpenLayersViewer {
     this.mouseZoomTimeout;
     this.mapOptions = this.$container.data('map-options');
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
-    this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
+    this.defaultPosition = pick(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.highDpi = this.ol.deviceCapabilities.DEVICE_PIXEL_RATIO > 1;
     this.source;
     this.$popupContainer = this.$parentContainer.find('.ol-popup').first();
@@ -169,24 +171,23 @@ class OpenLayersViewer {
     if (typeof this['baseLayer' + this.mapBackend] == 'function') return this['baseLayer' + this.mapBackend]();
     else return this.baseLayerBaseMap();
   }
-  baseLayerBaseMap() {
-    return fetch('https://maps.wien.gv.at/basemap/1.0.0/WMTSCapabilities.xml')
-      .then(response => response.text())
-      .then(text => {
-        let result = new this.ol.WMTSCapabilities().read(text);
-        let options = this.ol.source.WMTS.optionsFromCapabilities(result, {
-          layer: this.highDpi ? 'bmaphidpi' : 'geolandbasemap',
-          matrixSet: 'google3857',
-          style: 'normal'
-        });
+  async baseLayerBaseMap() {
+    const response = await fetch('https://maps.wien.gv.at/basemap/1.0.0/WMTSCapabilities.xml');
+    const text = await response.text();
 
-        options.attributions = '© <a href="https://www.basemap.at" target="_blank">basemap.at</a>';
-        options.tilePixelRatio = this.highDpi ? 2 : 1;
+    let result = new this.ol.WMTSCapabilities().read(text);
+    let options = this.ol.source.WMTS.optionsFromCapabilities(result, {
+      layer: this.highDpi ? 'bmaphidpi' : 'geolandbasemap',
+      matrixSet: 'google3857',
+      style: 'normal'
+    });
 
-        return new this.ol.layer.Tile({
-          source: new this.ol.source.WMTS(options)
-        });
-      });
+    options.attributions = '© <a href="https://www.basemap.at" target="_blank">basemap.at</a>';
+    options.tilePixelRatio = this.highDpi ? 2 : 1;
+
+    return new this.ol.layer.Tile({
+      source: new this.ol.source.WMTS(options)
+    });
   }
   baseLayerOpenStreetMap() {
     return Promise.resolve(
@@ -233,10 +234,10 @@ class OpenLayersViewer {
     props = Object.assign(
       {
         color: 'default',
-        width: 5,
+        width: 4,
         background: false,
         backgroundColor: '#ffffff',
-        backgroundWidth: (props.width || 5) + 2
+        backgroundWidth: (props.width || 4) + 2
       },
       props
     );
@@ -346,7 +347,7 @@ class OpenLayersViewer {
   getFeatureStyle(feature) {
     let featureStyle = {
       color: 'default',
-      width: 5,
+      width: 4,
       showStartEnd: false
     };
 
@@ -445,7 +446,7 @@ class OpenLayersViewer {
     let oldFn = this.mouseWheelZoom.handleEvent;
     let self = this;
 
-    this.mouseWheelZoom.handleEvent = function (e) {
+    this.mouseWheelZoom.handleEvent = async function (e) {
       let type = e.type;
       if (type !== 'wheel') {
         return true;
@@ -453,13 +454,15 @@ class OpenLayersViewer {
 
       if (!e.originalEvent[self.zoomMethod]) {
         if (!$(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').length) {
-          $(e.map.getTargetElement().firstElementChild)
-            .find('canvas')
-            .after(
-              `<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text">Verwende ${
-                self.scrollTexts[self.zoomMethod]
-              } der Karte</div></div>`
-            );
+          const $element = $(
+            '<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text"></div></div>'
+          );
+
+          $(e.map.getTargetElement().firstElementChild).find('canvas').after($element);
+
+          I18n.translate(`frontend.map.scroll_notice.${self.zoomMethod}`).then(text => {
+            $($element).find('.scroll-overlay-text').text(text);
+          });
         } else {
           $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeIn(100);
         }
@@ -477,7 +480,9 @@ class OpenLayersViewer {
     };
   }
   initMap() {
-    return this.mapBaseLayer().then(baseLayer => {
+    const promise = this.mapBaseLayer();
+
+    promise.then(baseLayer => {
       const overlays = [];
       if (this.infoOverlay) overlays.push(this.infoOverlay);
 
@@ -494,6 +499,8 @@ class OpenLayersViewer {
         view: this.defaultView()
       });
     });
+
+    return promise;
   }
   defaultView() {
     const viewOptions = {

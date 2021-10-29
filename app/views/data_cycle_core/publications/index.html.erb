@@ -1,6 +1,6 @@
 <% breadcrumb :'data_cycle_core/publications' %>
 
-<% content_for(:title, t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language)) %>
+<% content_for(:title, t('data_cycle_core.publications_calendar', locale: active_ui_locale)) %>
 
 <% content_for :top_content do %>
   <%= render 'filter', view_type: 'publications', additional_classes: 'column-padding', additional_request_params: [:publications_from, :publications_until] %>
@@ -10,7 +10,7 @@
   <div class="row">
     <% if @contents&.size&.zero? %>
       <div class="small-12">
-        <span class="no-results"><%= t('common.no_results', locale: DataCycleCore.ui_language) %></span>
+        <span class="no-results"><%= t('common.no_results', locale: active_ui_locale) %></span>
       </div>
     <% else %>
       <ul class="no-bullet accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">

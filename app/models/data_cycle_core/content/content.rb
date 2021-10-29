@@ -11,10 +11,12 @@ module DataCycleCore
         'column' => 'column'
       }.freeze
       PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
+      WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks].freeze
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :original_id, :duplicate_id, :synchronous_webhooks
+      attr_accessor :datahash, :original_id, :duplicate_id
+      attr_accessor(*WEBHOOK_ACCESSORS)
       attr_writer :webhook_data
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
@@ -62,6 +64,41 @@ module DataCycleCore
         else
           super
         end
+      end
+
+      def errors
+        @errors ||= Hash.new do |h, key|
+          h[key] = ActiveModel::Errors.new(self)
+        end
+
+        @errors[I18n.locale]
+      end
+
+      def i18n_errors
+        @errors || {}
+      end
+
+      def warnings
+        @warnings ||= Hash.new do |h, key|
+          h[key] = ActiveModel::Errors.new(self)
+        end
+
+        @warnings[I18n.locale]
+      end
+
+      def i18n_warnings
+        @warnings || {}
+      end
+
+      def valid?(*_args)
+        errors.blank?
+      end
+
+      def i18n_valid?
+        !i18n_errors&.any? { |(_k, v)| v.present? }
+      end
+
+      def all_translations_valid?
       end
 
       def respond_to?(method_name, include_all = false)
@@ -217,7 +254,7 @@ module DataCycleCore
       end
 
       def schedule_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'schedule' }
+        name_property_selector(include_overlay) { |definition| definition['type'].in?(['schedule', 'opening_time']) }
       end
 
       def external_property_names
@@ -461,27 +498,41 @@ module DataCycleCore
       end
 
       def self.shared_ordered_properties(user)
-        all.includes(:primary_classification_aliases, classification_aliases: [:classification_alias_path, :classification_tree_label])
-          .find_each.map { |t|
-          t.schema.dig('properties')
-            .except(*(DataCycleCore.internal_data_attributes + ['id']))
-            .select { |k, v|
-              ['computed', 'virtual', 'asset'].exclude?(v['type']) &&
-                (v['type'] != 'linked' || v['link_direction'] != 'inverse') &&
-                user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit, :bulk_edit)) &&
-                user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
-                t.allowed_feature_attribute?(k.attribute_name_from_key)
-            }
-            .sort_by { |_, v| v['sorting'] }
-            .to_h
-            .map { |k, v| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }] }
-        }
-          .inject(:&).to_h
-          .select { |_, v| (v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit')) }
+        contents = all.includes(:primary_classification_aliases, classification_aliases: [:classification_alias_path, :classification_tree_label])
+
+        ordered_properties = contents
+          .select('DISTINCT ON (things.template_name) things.schema')
+          .map { |t|
+            t.schema['properties'].dc_deep_dup
+              .except!(*(DataCycleCore.internal_data_attributes + ['id']))
+              .keep_if { |k, v|
+                ['computed', 'virtual', 'asset'].exclude?(v['type']) &&
+                  (v['type'] != 'linked' || v['link_direction'] != 'inverse') &&
+                  t.allowed_feature_attribute?(k.attribute_name_from_key)
+              }
+              .sort_by { |_, v| v['sorting'] }
+              .map! { |(k, v)| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }] }
+          }
+          .reduce(:&)
+          .to_h
+          .keep_if { |_, v| (v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit')) }
+
+        contents.find_each do |t|
+          ordered_properties.select! do |k, v|
+            user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit, :bulk_edit)) &&
+              user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit))
+          end
+        end
+
+        ordered_properties
       end
 
       def self.shared_template_features
-        all.map { |t| t.schema['features'].to_a }.inject(:&).to_h
+        all
+          .select('DISTINCT ON (things.template_name) things.schema')
+          .map { |t| t.schema['features'].to_a }
+          .reduce(:&)
+          .to_h
       end
 
       def set_property_value(property_name, property_definition, value)

@@ -20,7 +20,9 @@
           :xml: true
           :indesign: true
     :api:
-      :type: MediaObject
+      :type:
+        - CreativeWork
+        - MediaObject
     :properties:
       :id:
         :label: id
@@ -42,7 +44,7 @@
           :disabled: true
         :ui:
           :edit:
-            :disabled: true
+            :readonly: true
       :description:
         :label: Beschreibung
         :type: string

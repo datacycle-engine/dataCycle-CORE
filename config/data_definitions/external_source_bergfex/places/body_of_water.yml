@@ -19,7 +19,10 @@
           :json: true
           :indesign: true
     :api:
-      :type: BodyOfWater
+      :type: 
+        - Place
+        - Landform
+        - BodyOfWater
     :properties:
       :id:
         :label: id
@@ -135,10 +138,8 @@
         :type: mixin
         :name: geo
       :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
+        :type: mixin
+        :name: opening_hours_specification
       :url:
         :label: Link
         :type: string

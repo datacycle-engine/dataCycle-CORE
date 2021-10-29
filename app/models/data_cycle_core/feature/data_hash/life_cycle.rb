@@ -21,7 +21,8 @@ module DataCycleCore
         end
 
         def set_life_cycle_classification(classification_id, user)
-          valid = {}
+          valid = true
+
           I18n.with_locale(first_available_locale) do
             valid = set_data_hash(data_hash: { DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).presence&.first => [classification_id] }, current_user: user, partial_update: true)
           end
@@ -37,6 +38,7 @@ module DataCycleCore
               end
             end
           end
+
           valid
         end
 

@@ -20,6 +20,7 @@ module DataCycleCore
           'asset', # disabled asset property for tests,
           'tour', # active after tour refactoring
           'additional_information',
+          'explicit_copyright_notice', # TODO: fix if final solution is in sight ... everywhere ... will change again ...
           'publication_schedule', # creativeWorks: publicationSchedule
           'release_status_comment', # creativeWorks: publicationSchedule
           'dc_potential_action', # TODO: temporary attribute will be moded to potential_action,

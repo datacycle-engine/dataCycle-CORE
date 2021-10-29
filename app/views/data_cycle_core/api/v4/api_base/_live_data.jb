@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+json ||= {}
+
+json['dc:liveData'] = @permitted_params.dig(:'dc:liveData') if @permitted_params.dig(:'dc:liveData').present?
+
+json

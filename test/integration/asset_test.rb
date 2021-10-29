@@ -26,8 +26,9 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'text/javascript', response.content_type
-      assert response.body.include?(image.id)
+      assert_equal 'application/json', response.content_type
+      json_data = JSON.parse response.body
+      assert(json_data.dig('assets').any? { |v| v['id'] == image.id })
     end
 
     test 'create new asset as current user' do

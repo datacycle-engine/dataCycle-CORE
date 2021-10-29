@@ -221,7 +221,7 @@ module DataCycleCore
                   {
                     '@type' => 'PropertyValue',
                     'identifier' => 'feratelContentScore',
-                    'name' => 'ContentScore',
+                    'name' => 'ContentScore (Feratel)',
                     'value' => translated_value(@content, 'feratel_content_score', ['de'])
                   },
                   {
@@ -610,7 +610,7 @@ module DataCycleCore
                   {
                     '@type' => 'PropertyValue',
                     'identifier' => 'feratelContentScore',
-                    'name' => 'ContentScore',
+                    'name' => 'ContentScore (Feratel)',
                     'value' => translated_value(@content, 'feratel_content_score', ['de', 'en'])
                   },
                   {

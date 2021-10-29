@@ -19,7 +19,10 @@
           :json: true
           :xml: true
     :api:
-      :type: VideoObject
+      :type:
+        - CreativeWork
+        - MediaObject
+        - VideoObject
     :properties:
       :id:
         :label: id
@@ -41,7 +44,7 @@
           :disabled: true
         :ui:
           :edit:
-            :disabled: true
+            :readonly: true
       :caption:
         :label: Alt-Label
         :type: string

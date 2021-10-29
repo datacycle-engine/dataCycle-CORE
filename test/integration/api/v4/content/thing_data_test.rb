@@ -135,7 +135,7 @@ module DataCycleCore
                   {
                     '@type' => 'PropertyValue',
                     'identifier' => 'feratelContentScore',
-                    'name' => 'ContentScore',
+                    'name' => 'ContentScore (Feratel)',
                     'value' => @content.feratel_content_score
                   },
                   {
@@ -398,7 +398,7 @@ module DataCycleCore
                   {
                     '@type' => 'PropertyValue',
                     'identifier' => 'feratelContentScore',
-                    'name' => 'ContentScore',
+                    'name' => 'ContentScore (Feratel)',
                     'value' => @content.feratel_content_score
                   },
                   {

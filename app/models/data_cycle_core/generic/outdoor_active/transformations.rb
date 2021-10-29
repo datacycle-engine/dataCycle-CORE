@@ -27,7 +27,7 @@ module DataCycleCore
             }
           )
           .>> t(:add_field, 'content_score', ->(s) { s.dig('ranking')&.to_f || 0 })
-          .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'place') })
+          .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'place', external_source_id) })
           .>> t(:map_value, 'elevation', ->(s) { s.try(:to_f) })
           .>> t(:add_field, 'latitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 1).try(:to_f) })
           .>> t(:add_field, 'longitude', ->(s) { s['geometry'].try(:split, /[, ]/, 3).try(:[], 0).try(:to_f) })
@@ -87,7 +87,7 @@ module DataCycleCore
               'additionalInformation' => 'additional_information'
             }
           )
-          .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'tour') })
+          .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'tour', external_source_id) })
           .>> t(:add_field, 'schedule', ->(s) { load_tour_season(s.dig('season')) })
           .>> t(:map_value, 'elevation', ->(s) { s&.to_f })
           .>> t(:map_value, 'length', ->(s) { s&.to_f })
@@ -131,7 +131,7 @@ module DataCycleCore
           .>> t(:add_field, 'content_url', ->(s) { "http://img.oastatic.com/img/#{s['id']}/.jpg" })
           .>> t(:add_field, 'thumbnail_url', ->(s) { "http://img.oastatic.com/img/400/400/fit/#{s['id']}/.jpg" })
           .>> t(:add_links, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] }, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] })
-          .>> t(:universal_classifications, ->(s) { s.dig('license', 'short').blank? ? [] : Array.wrap(DataCycleCore::ClassificationAlias.for_tree('OutdoorActive - Lizenzen').with_name(s.dig('license', 'short')).first&.primary_classification&.id) })
+          .>> t(:universal_classifications, ->(s) { s.dig('license', 'short').blank? ? [] : DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('OutdoorActive - Lizenzen', s.dig('license', 'short')) })
           .>> t(:add_field, 'caption', ->(s) { [s.dig('author'), s.dig('source').is_a?(::Hash) ? s.dig('source', 'name') : s.dig('source')]&.reject(&:blank?)&.join(' - ') })
           .>> t(:map_value, 'license', ->(s) { s.dig('url') if s.present? })
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
@@ -151,17 +151,21 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.to_additional_information(hash, type)
+        def self.to_additional_information(hash, type, external_source_id)
           ['description', 'text', 'directions', 'directions_public_transport', 'parking',
            'hours_available', 'price', 'instructions', 'safety_instructions',
            'equipment', 'suggestion', 'additional_information', 'maps'].map { |desc|
             next if hash[desc].blank?
             name = I18n.t("import.outdoor_active.#{type}.#{desc}", default: [desc])
-            {
+            external_key = "#{desc}:#{I18n.locale}:#{hash.dig('external_key')}"
+            id = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)&.id
+            ai_hash = id.blank? ? {} : { 'id' => id }
+            ai_hash.merge({
               'name' => name,
               'description' => hash[desc],
-              'universal_classifications' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc))
-            }
+              'universal_classifications' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc)),
+              'external_key' => external_key
+            })
           }.compact
         end
 

@@ -4,27 +4,24 @@ module DataCycleCore
   module Content
     module ContentLoader
       def get_data_hash(timestamp = Time.zone.now)
-        # return if changes.count.zero? # for new data-sets with pending data in it
         as_of(timestamp).try(:to_h, timestamp)
       end
 
-      def diff(data, template = nil)
+      def diff(data, template = nil, partial_update = false)
         differ = DataCycleCore::MasterData::DiffData.new
-        partial_update = template.present?
-        if partial_update
-          differ.diff(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template).diff_hash
+        if template.present?
+          differ.diff(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update).diff_hash
         else
-          differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template).diff_hash
+          differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update: partial_update).diff_hash
         end
       end
 
-      def diff?(data, template = nil)
+      def diff?(data, template = nil, partial_update = false)
         differ = DataCycleCore::MasterData::DiffData.new
-        partial_update = template.present?
-        if partial_update
-          differ.diff?(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template)
+        if template.present?
+          differ.diff?(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update)
         else
-          differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
+          differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update: partial_update)
         end
       end
 
@@ -113,9 +110,11 @@ module DataCycleCore
             .join(history_table_translation)
             .on(history_table[:id].eq(history_table_translation[:thing_history_id]))
             .join_sources
-        ).where(
-          in_range(history_table_translation, timestamp)
-        ).order(history_table_translation[:history_valid])
+        )
+          .where(history_table_translation[:locale].eq(first_available_locale))
+          .where(in_range(history_table_translation, timestamp))
+          .order(history_table_translation[:history_valid])
+
         return_data.last
       end
     end

@@ -27,7 +27,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data.dig('location'),
             transformation: DataCycleCore::Generic::VTicket::Transformations.vticket_location_to_content_location,
-            default: { template: 'Örtlichkeit' },
+            default: { template: 'POI' },
             config: config
           )
         end

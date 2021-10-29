@@ -71,7 +71,7 @@ namespace :data_cycle_core do
           I18n.with_locale(content.first_available_locale) do
             data_hash = {}
             data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [archive_release_id]
-            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.archived', locale: DataCycleCore.ui_language)
+            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = 'archived automatically.'
             content.set_data_hash(data_hash: data_hash, partial_update: true)
             logger.info("Archived (release_status): #{content.id} (THINGS/#{content.template_name}/#{content.translated_locales&.join(', ')})")
           end
@@ -138,12 +138,12 @@ namespace :data_cycle_core do
           I18n.with_locale(content.first_available_locale) do
             data_hash = {}
             data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [valid_release_id]
-            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.unarchived', locale: DataCycleCore.ui_language)
-            errors = content.set_data_hash(data_hash: data_hash, partial_update: true)
-            if errors[:error].present?
-              logger.warn("Fehler (#{content.id}): #{errors[:error]}")
-            else
+            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = 'reactivated automatically.'
+
+            if content.set_data_hash(data_hash: data_hash, partial_update: true)
               logger.info("Unarchived (release_status): #{content.id} (THINGS/#{content.template_name}/#{content.translated_locales&.join(', ')})")
+            else
+              logger.warn("Fehler (#{content.id}): #{content.errors.messages}")
             end
           end
           progressbar.increment
@@ -169,11 +169,11 @@ namespace :data_cycle_core do
             I18n.with_locale(content.first_available_locale) do
               data_hash = {}
               data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [valid_life_cycle_id]
-              errors = content.set_data_hash(data_hash: data_hash, partial_update: true)
-              if errors[:error].present?
-                logger.warn("Fehler (#{content.id}): #{errors[:error]}")
-              else
+
+              if content.set_data_hash(data_hash: data_hash, partial_update: true)
                 logger.info("Unarchived (life_cycle): #{content.id} (THINGS/#{content.template_name})")
+              else
+                logger.warn("Fehler (#{content.id}): #{content.errors.messages}")
               end
             end
           rescue StandardError => e

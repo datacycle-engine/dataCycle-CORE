@@ -30,10 +30,19 @@ module DataCycleCore
             schedule_d = DataCycleCore::TestPreparations.generate_schedule(5.days.from_now.midday, 10.days.from_now, 1.hour).serialize_schedule_object
             @event_d.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_schedule: [schedule_d.schedule_object.to_hash] })
 
+            @food_establishment_e = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment')
+            schedule_e = DataCycleCore::TestPreparations.generate_schedule(Time.zone.now.beginning_of_day, 1.day.from_now, 1.hour).serialize_schedule_object
+            @food_establishment_e.set_data_hash(partial_update: true, prevent_history: true, data_hash: { opening_hours_specification: [schedule_e.schedule_object.to_hash] })
+
+            @food_establishment_f = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment')
+            schedule_f = DataCycleCore::TestPreparations.generate_schedule(Time.zone.now.beginning_of_day, 1.day.from_now, 1.hour).serialize_schedule_object
+            schedule_g = DataCycleCore::TestPreparations.generate_schedule(Time.zone.now.beginning_of_day, 1.day.from_now, 1.hour).serialize_schedule_object
+            @food_establishment_f.set_data_hash(partial_update: true, prevent_history: true, data_hash: { opening_hours_specification: [schedule_f.schedule_object.to_hash], dining_hours_specification: [schedule_g.schedule_object.to_hash] })
+
             @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
           end
 
-          test 'api/v4/things parameter filter[:schedule]' do
+          test 'api/v4/things parameter filter[attribute][schedule]' do
             params = {}
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
@@ -153,6 +162,55 @@ module DataCycleCore
 
             json_data = JSON.parse(response.body)
             assert_equal(@event_a.id, json_data.dig('@graph').first.dig('@id'))
+          end
+
+          test 'api/v4/things parameter filter[schedule]' do
+            post api_v4_things_path({
+              fields: 'dct:modified,startDate,endDate',
+              filter: {
+                schedule: {
+                  in: {
+                    min: (Time.zone.now - 7.days).to_s(:iso8601)
+                  }
+                }
+              }
+            })
+
+            assert_api_count_result(6)
+          end
+
+          test 'api/v4/things parameter filter[attribute][openingHoursSpecification]' do
+            post api_v4_things_path({
+              fields: 'dct:modified,startDate,endDate',
+              filter: {
+                attribute: {
+                  openingHoursSpecification: {
+                    in: {
+                      min: (Time.zone.now - 7.days).to_s(:iso8601)
+                    }
+                  }
+                }
+              }
+            })
+
+            assert_api_count_result(2)
+          end
+
+          test 'api/v4/things parameter filter[attribute][dc:diningHoursSpecification]' do
+            post api_v4_things_path({
+              fields: 'dct:modified,startDate,endDate',
+              filter: {
+                attribute: {
+                  'dc:diningHoursSpecification': {
+                    in: {
+                      min: (Time.zone.now - 7.days).to_s(:iso8601)
+                    }
+                  }
+                }
+              }
+            })
+
+            assert_api_count_result(1)
           end
         end
       end

@@ -12,7 +12,7 @@ module DataCycleCore
           1e-3
         end
 
-        def diff(a, b, template)
+        def diff(a, b, template, _partial_update)
           return if a.blank? && b.blank?
           format_key = template&.dig('validations', 'format')
           a_value = a

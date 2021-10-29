@@ -126,5 +126,52 @@ module DataCycleCore
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
+
+    test 'soft_min for linked items' do
+      template_hash = creator_hash.deep_dup
+      template_hash['validations'] = { 'soft_min' => 2 }
+      uuid = @person1.id
+      data_cases = [
+        uuid,
+        [uuid]
+      ]
+      data_cases.each do |item_case|
+        validator = subject.new(item_case, template_hash)
+        assert_equal(0, validator.error[:error].size)
+        assert_equal(1, validator.error[:warning].size)
+      end
+    end
+
+    test 'soft_max for linked items' do
+      template_hash = creator_hash.deep_dup
+      template_hash['validations'] = { 'soft_max' => 1 }
+      uuid = @person1.id
+      uuid2 = @person2.id
+      data_cases = [
+        [uuid, uuid2]
+      ]
+      data_cases.each do |item_case|
+        validator = subject.new(item_case, template_hash)
+        assert_equal(0, validator.error[:error].size)
+        assert_equal(1, validator.error[:warning].size)
+      end
+    end
+
+    test 'soft_required for linked items' do
+      template_hash = creator_hash.deep_dup
+      template_hash['validations'] = { 'soft_required' => true }
+      uuid = @person1.id
+      uuid2 = @person2.id
+      data_cases = [
+        uuid,
+        [uuid],
+        [uuid, uuid2]
+      ]
+      data_cases.each do |item_case|
+        validator = subject.new(item_case, template_hash)
+        assert_equal(0, validator.error[:error].size)
+        assert_equal(0, validator.error[:warning].size)
+      end
+    end
   end
 end

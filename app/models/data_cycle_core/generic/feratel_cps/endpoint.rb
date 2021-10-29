@@ -14,7 +14,7 @@ module DataCycleCore
           raise "Unsupported Language (#{lang})" unless lang.to_s == 'de'
 
           Enumerator.new do |yielder|
-            load_data('INFRASTRUKTUR')['INFRA'].each do |infrastructure|
+            (load_data('INFRASTRUKTUR')['INFRA'] || []).each do |infrastructure|
               yielder << infrastructure
             end
           end
@@ -24,7 +24,7 @@ module DataCycleCore
           raise "Unsupported Language (#{lang})" unless lang.to_s == 'de'
 
           Enumerator.new do |yielder|
-            load_data('PISTEN')['PISTE'].each do |slope|
+            (load_data('PISTEN')['PISTE'] || []).each do |slope|
               yielder << slope
             end
           end
@@ -34,7 +34,7 @@ module DataCycleCore
           raise "Unsupported Language (#{lang})" unless lang.to_s == 'de'
 
           Enumerator.new do |yielder|
-            load_data('LIFTE')['LIFT'].each do |lift|
+            (load_data('LIFTE')['LIFT'] || []).each do |lift|
               yielder << lift
             end
           end

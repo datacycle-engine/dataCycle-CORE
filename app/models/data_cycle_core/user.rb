@@ -7,7 +7,10 @@ module DataCycleCore
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
     devise :registerable, :confirmable if DataCycleCore::Feature::UserRegistration.enabled?
 
-    attr_accessor :raw_password, :skip_callbacks, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url
+    WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
+
+    attr_accessor :skip_callbacks
+    attr_accessor(*WEBHOOK_ACCESSORS)
 
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
@@ -25,6 +28,7 @@ module DataCycleCore
 
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
+    has_one :my_selection, -> { where(my_selection: true) }, class_name: 'DataCycleCore::WatchList'
     has_many :subscriptions, dependent: :destroy
     has_many :things_subscribed, through: :subscriptions, source: :subscribable, source_type: 'DataCycleCore::Thing'
     belongs_to :role
@@ -89,7 +93,7 @@ module DataCycleCore
     end
 
     def has_user_group?(group_name)
-      self&.user_groups&.map(&:name)&.include?(group_name)
+      user_groups.exists?(name: group_name)
     end
 
     def include_groups_user_ids
@@ -151,16 +155,34 @@ module DataCycleCore
       @ability ||= DataCycleCore::Ability.new(self)
     end
 
-    def execute_create_webhooks
-      Webhook::Create.execute_all(self)
+    def execute_update_webhooks
+      if synchronous_webhooks
+        DataCycleCore::Webhook::Update.execute_all(self)
+      else
+        DataCycleCore::WebhooksJob.perform_later(
+          id,
+          self.class.name,
+          'update',
+          WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.compact
+        )
+      end
     end
 
-    def execute_update_webhooks
-      Webhook::Update.execute_all(self)
+    def execute_create_webhooks
+      if synchronous_webhooks
+        DataCycleCore::Webhook::Create.execute_all(self)
+      else
+        DataCycleCore::WebhooksJob.perform_later(
+          id,
+          self.class.name,
+          'create',
+          WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.compact
+        )
+      end
     end
 
     def execute_delete_webhooks
-      Webhook::Delete.execute_all(self)
+      DataCycleCore::Webhook::Delete.execute_all(self)
     end
   end
 end

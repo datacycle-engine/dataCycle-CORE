@@ -264,6 +264,7 @@ module DataCycleCore
           .>> t(:ensure_classification_tree, 'feratel_facilities', 'Feratel - Ausstattungsmerkmale')
           .>> t(:add_links, 'feratel_facilities_accommodations', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:ensure_classification_tree, 'feratel_facilities_accommodations', 'Feratel - Merkmale - Unterkünfte')
+          .>> t(:universal_classifications, ->(s) { Array.wrap(s.dig('HandicapFacilities', 'HandicapFacility')).map { |facility| DataCycleCore::Classification.find_by(external_key: "Feratel - HandicapFacility - #{facility.dig('Id')}")&.id }.compact })
           .>> t(:add_links, 'marketing_groups', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('MarketingGroups', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:add_field, 'content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
@@ -290,10 +291,32 @@ module DataCycleCore
         def self.parse_descriptions(data, external_source_id, type, additional_classifications = nil)
           return [] if data.blank?
           description_ids = [] # ids for descriptions are not uniq in Feratel DSI
+
           Array.wrap(data).map { |desc|
-            next if description_ids.include?(desc.dig('Id'))
+            next if description_ids.include?(desc.dig('Id')) || desc.dig('Type') == 'InfrastructureOpeningTimes'
             description_ids.push(desc.dig('Id'))
             to_additional_information(external_source_id, type, additional_classifications).call(desc)
+          }.compact
+        end
+
+        def self.parse_opening_hours_descriptions(data, external_source_id)
+          return [] if data.blank?
+          description_ids = [] # ids for descriptions are not uniq in Feratel DSI
+
+          Array.wrap(data).compact.filter { |d| d['Type'] == 'InfrastructureOpeningTimes' }.map { |desc|
+            next if description_ids.include?(desc['Id'])
+            description_ids.push(desc['Id'])
+
+            old_type = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: desc['Id'])
+
+            if !old_type.nil? && old_type.embedded? && old_type.template_name != 'Öffnungszeit - Beschreibung'
+              old_type.destroy_children(destroy_locale: false)
+              old_type.destroy
+            elsif !old_type.nil? && old_type.template_name == 'Öffnungszeit - Beschreibung'
+              desc['id'] = old_type.id
+            end
+
+            to_opening_hours_description.call(desc)
           }.compact
         end
 
@@ -312,6 +335,14 @@ module DataCycleCore
           else
             s
           end
+        end
+
+        def self.to_opening_hours_description
+          t(:rename_keys, { 'text' => 'description' })
+          .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate').in_time_zone })
+          .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(s.dig('ShowFrom').is_a?(::Time) && s.dig('ShowTo').is_a?(::Time) ? make_term(s.dig('ShowFrom'), s.dig('ShowTo')) : make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
+          .>> t(:add_field, 'external_key', ->(s) { s.dig('Id') })
+          .>> t(:reject_keys, ['Id', 'Type', 'Language', 'Systems', 'ShowFrom', 'ShowTo', 'ChangeDate'])
         end
 
         def self.to_additional_information(external_source_id, type, additional_classifications = nil)
@@ -334,7 +365,7 @@ module DataCycleCore
           raise ArgumentError if from.blank? || to.blank?
           return [] if from == '101' && to == '1231' # no schedule, is valid all year long
           from_date = Time.zone.local(2010, from.to_i / 100, from.to_i % 100, 0, 0)
-          to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 23, 59)
+          to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 23, 59, 59).end_of_day
           to_date += 1.year if from_date > to_date
           from_yday = from_date.to_date.yday
           to_yday = to_date.to_date.yday
@@ -356,7 +387,7 @@ module DataCycleCore
 
         def self.parse_links(data, external_source_id)
           return [] if data.blank?
-          Array.wrap(data).map { |link|
+          Array.wrap(data).uniq.map { |link|
             next if link['URL'].blank? || link['URL'] == 'http://'
             to_view_action(external_source_id).call(link)
           }.compact
@@ -367,7 +398,7 @@ module DataCycleCore
           .>> t(:map_value, 'url', ->(s) { parse_url(s) })
           .>> t(:add_field, 'id', ->(s) { t(:find_thing_ids).call(external_system_id: external_source_id, external_key: s.dig('external_key'), limit: 1).first })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
-          .>> t(:add_field, 'action_type', ->(_) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'View')) })
+          .>> t(:add_field, 'action_type', ->(_) { Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('ActionTypes', 'externer Link')) })
           .>> t(:reject_keys, ['ChangeDate', 'Type', 'Order', 'Names'])
         end
 
@@ -510,7 +541,10 @@ module DataCycleCore
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
           .>> t(:add_cc, external_source_id)
+          .>> t(:add_field, 'content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
+          .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
           .>> t(:add_links, 'linked_thing', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('Details', 'ConnectedEntries', 'ConnectedEntry'))&.flatten&.map { |item| item&.dig('Id') } || [] })
+          .>> t(:add_field, 'dc_potential_action', ->(s) { parse_links(s.dig('Links', 'Link'), external_source_id) })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap_description, ['EventHeader'])
@@ -577,7 +611,6 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
-          .>> t(:add_cc, external_source_id)
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap_description, ['InfrastructureLong', 'InfrastructureShort', 'InfrastructurePriceInfo'])
@@ -598,7 +631,8 @@ module DataCycleCore
           .>> t(:map_value, 'latitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
           .>> t(:map_value, 'longitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
           .>> t(:location)
-          .>> t(:add_field, 'opening_hours_specification', ->(s) { parse_opening_hours(s.dig('OpeningHours', 'OpeningHour')) })
+          .>> t(:add_field, 'opening_hours_specification', ->(s) { DataCycleCore::Generic::Common::OpeningHours.parse_opening_times(s.dig('OpeningHours', 'OpeningHour'), external_source_id, s['external_key'], ->(d) { day_transformation(d) }) })
+          .>> t(:add_field, 'opening_hours_description', ->(s) { parse_opening_hours_descriptions(s.dig('Descriptions', 'Description'), external_source_id) })
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['Infrastructure']))
           .>> t(:add_links, 'logo', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['InfrastructureLogo']))
@@ -611,12 +645,23 @@ module DataCycleCore
           .>> t(:universal_classifications, ->(s) { parse_system_letters(s.dig('Systems')) })
           .>> t(:add_field, 'feratel_guest_cards_descriptions', ->(s) { parse_guest_card_descriptions(Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?), s&.dig('external_key'), external_source_id) || [] })
           .>> t(:merge_array_values, 'additional_information', 'feratel_guest_cards_descriptions')
+          .>> t(:universal_classifications, ->(s) { Array.wrap(s.dig('HandicapFacilities', 'HandicapFacility')).map { |facility| DataCycleCore::Classification.find_by(external_key: "Feratel - HandicapFacility - #{facility.dig('Id')}")&.id }.compact })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:add_field, 'content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
           .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
           .>> t(:load_category, 'feratel_types', external_source_id, ->(v) { 'Feratel - Infrastrukturtyp - ' + v&.dig('Topics', 'Type').to_s })
           .>> t(:reject_keys, ['Links', 'OpeningHours', 'Towns', 'CustomAttributes', 'FoodAndBeverage', 'ConnectedEntries', 'HolidayThemes', 'DataOwner', 'Active', 'Address', 'Topics', 'ChangeDate', 'Systems', '_Type'])
           .>> t(:strip_all)
+        end
+
+        def self.day_transformation(days)
+          day_keys = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].freeze
+
+          day_keys.map { |d|
+            next unless days[d] == 'true'
+
+            day_keys.index(d)
+          }.compact
         end
 
         def self.parse_guest_card_descriptions(data, parent_id, external_source_id)
@@ -786,36 +831,6 @@ module DataCycleCore
             &.map(&:to_f)
             &.reject { |item| item == 0.0 }
             &.min
-        end
-
-        def self.parse_opening_hours(data)
-          return nil if data.blank?
-          data = [data] if data.is_a?(::Hash)
-          data.map do |item|
-            day_keys = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map do |day|
-              next unless item&.dig(day) == 'true'
-              load_day_of_week_id(day)
-            end
-            {
-              season: {
-                valid_from: item.dig('DateFrom'),
-                valid_through: item.dig('DateTo')
-              },
-              time: [
-                {
-                  opens: item.dig('TimeFrom'),
-                  closes: item.dig('TimeTo')
-                }
-              ],
-              validity: {
-                valid_from: item.dig('DateFrom'),
-                valid_through: item.dig('DateTo')
-              },
-              opens: item.dig('TimeFrom'),
-              closes: item.dig('TimeTo'),
-              day_of_week: day_keys.compact
-            }.with_indifferent_access
-          end
         end
 
         def self.load_day_of_week_id(day)
@@ -1002,7 +1017,7 @@ module DataCycleCore
               dstart = nil
               dend = nil
               dstart = Time.zone.parse(date['From']) if date['From'].present?
-              dend = Time.zone.parse(date['To']) if date['To'].present?
+              dend = Time.zone.parse(date['To'])&.end_of_day if date['To'].present?
 
               res << {
                 start_time: { time: dstart, zone: dstart.time_zone.name },

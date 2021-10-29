@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class Linked < BasicValidator
         def keywords
-          ['min', 'max', 'required']
+          ['min', 'max', 'required', 'soft_min', 'soft_max']
         end
 
         def validate(data, template, _strict = false)
@@ -16,8 +16,15 @@ module DataCycleCore
           elsif data.is_a?(::String)
             check_reference_array([data], template)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:data_type, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.data_type',
+              substitutions: {
+                data: data,
+                template: template['label']
+              }
+            }
           end
+
           @error
         end
 
@@ -45,35 +52,87 @@ module DataCycleCore
           if key.is_a?(::String)
             check_reference(key, template)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:data_format, scope: [:validation, :errors], key: key, template: template['label'], locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.data_format',
+              substitutions: {
+                key: key,
+                template: template['label']
+              }
+            }
           end
         end
 
         def check_reference(key, template)
           return unless uuid?(key)
-          data_set = DataCycleCore::Thing.where(id: key)
-          (@error[:error][@template_key] ||= []) << I18n.t(:not_found, scope: [:validation, :errors], key: key, template: template['label'], table: 'things', locale: DataCycleCore.ui_language) if data_set.count < 1
-        end
 
-        # validate nil,"",[],[nil],[""] as blank.
-        def blank?(data)
-          return true if data.blank?
-          if data.is_a?(::Array)
-            return true if data.length == 1 && data[0].blank?
-          end
-          false
+          data_set = DataCycleCore::Thing.where(id: key)
+
+          return unless data_set.count < 1
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.not_found',
+            substitutions: {
+              key: key,
+              template: template['label'],
+              table: 'things'
+            }
+          }
         end
 
         def min(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i < value
+          return unless data&.size.to_i < value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.min_ref',
+            substitutions: {
+              data: data&.size.to_i,
+              value: value
+            }
+          }
+        end
+
+        def soft_min(data, value)
+          return unless data&.size.to_i < value
+
+          (@error[:warning][@template_key] ||= []) << {
+            path: 'validation.errors.min_ref',
+            substitutions: {
+              data: data&.size.to_i,
+              value: value
+            }
+          }
         end
 
         def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i > value
+          return unless data&.size.to_i > value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.max_ref',
+            substitutions: {
+              data: data&.size.to_i,
+              value: value
+            }
+          }
+        end
+
+        def soft_max(data, value)
+          return unless data&.size.to_i > value
+
+          (@error[:warning][@template_key] ||= []) << {
+            path: 'validation.errors.max_ref',
+            substitutions: {
+              data: data&.size.to_i,
+              value: value
+            }
+          }
         end
 
         def required(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && blank?(data)
+          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && blank?(data)
+        end
+
+        def soft_required(data, value)
+          (@error[:warning][@template_key] ||= []) << { path: 'validation.errors.required' } if value && blank?(data)
         end
       end
     end

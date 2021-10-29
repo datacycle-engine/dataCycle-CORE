@@ -20,5 +20,7 @@
     </ul>
   </li>
 <% else %>
+  <%= render_my_selection type: 'readable' %>
+
   <%= yield_content! :collection_links %>
 <% end %>

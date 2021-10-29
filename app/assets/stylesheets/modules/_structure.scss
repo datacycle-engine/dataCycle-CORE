@@ -4,15 +4,19 @@ body {
   flex-flow: column;
 }
 
+.alert-color {
+  color: $alert-color;
+}
+
 .off-canvas-wrapper {
   position: relative;
   flex: auto;
   display: flex;
   flex-flow: column;
+  overflow: unset;
 }
 
 .off-canvas-content {
-  overflow: hidden;
   flex: auto;
   display: flex;
   flex-flow: column nowrap;
@@ -37,8 +41,9 @@ textarea {
 /* Header */
 
 header {
-  z-index: 3;
+  z-index: 22;
   position: relative;
+  border-top: 5px solid $customercolor;
 
   .top-bar {
     height: 4.1rem;
@@ -157,7 +162,7 @@ a.button-prime.new-object-circle {
   z-index: 1005;
 }
 
-#new-object.reveal {
+.new-object.reveal {
   position: absolute;
   overflow: initial;
   bottom: 9rem;
@@ -320,6 +325,7 @@ body.with-glass {
   background-attachment: fixed;
   background-size: cover;
   background-image: var(--dc-background-image-url);
+  border-top: 5px solid $customercolor;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -587,7 +593,7 @@ ul.footer-links {
     width: 100%;
     z-index: 10001;
     border: 0;
-    border-top: 0.3rem solid $customercolor;
+    border-top: 5px solid $customercolor;
     color: white;
 
     .close-button,

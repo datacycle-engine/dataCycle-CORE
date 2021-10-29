@@ -349,20 +349,10 @@ config:
           :'$ne': '1'
         'dump.de.Details.Active.text': 'true'
       import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
-      transformations:
-        image:
-          template: Bild
-        infrastructure:
-          template: POI
 #    infrastructure_items:
 #      sorting: 20
 #      source_type: infrastructure_items
 #      import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
-#      transformations:
-#        image:
-#          template: Bild
-#        infrastructure:
-#          template: POI
     # additional_service_providers:
     #   source_type: DataCycleCore::Generic::SourceType::AdditionalServiceProvider
     #   target_type: DataCycleCore::Thing
@@ -377,11 +367,6 @@ config:
       sorting: 44
       source_type: accommodations
       import_strategy: DataCycleCore::Generic::Feratel::ImportAccommodations
-      transformations:
-        image:
-          template: Bild
-        place:
-          template: Unterkunft
     delete_accommodations:
       sorting: 46
       source_type: accommodations
@@ -391,13 +376,6 @@ config:
       sorting: 48
       source_type: events
       import_strategy: DataCycleCore::Generic::Feratel::ImportEvents
-      transformations:
-        image:
-          template: Bild
-        place:
-          template: Örtlichkeit
-        event:
-          template: Event
     delete_events:
       sorting: 49
       import_strategy: DataCycleCore::Generic::Common::DeleteContentsSafe

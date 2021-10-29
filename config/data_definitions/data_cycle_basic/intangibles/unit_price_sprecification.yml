@@ -4,7 +4,11 @@
     :schema_type: Intangible
     :content_type: embedded
     :api:
-      :type: UnitPriceSpecification
+      :type:
+        - Intangible
+        - StructuredValue
+        - PriceSpecification
+        - UnitPriceSpecification
     :properties:
       :id:
         :label: id

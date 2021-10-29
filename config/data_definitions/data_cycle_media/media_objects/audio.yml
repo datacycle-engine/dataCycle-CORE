@@ -20,7 +20,10 @@
           :xml: true
           :indesign: true
     :api:
-      :type: AudioObject
+      :type:
+        - CreativeWork
+        - MediaObject
+        - AudioObject
     :properties:
       :id:
         :label: id
@@ -42,7 +45,7 @@
           :disabled: true
         :ui:
           :edit:
-            :disabled: true
+            :readonly: true
       :description:
         :label: Beschreibung
         :type: string

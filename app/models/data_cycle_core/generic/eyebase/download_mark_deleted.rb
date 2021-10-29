@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def self.data_id(data)
-          data.dig('item_id', 'text')
+          data['id']
         end
       end
     end

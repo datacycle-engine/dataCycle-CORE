@@ -51,6 +51,7 @@ require 'helpers/dummy_data_helper'
 require 'helpers/data_helper'
 require 'helpers/mongo_helper'
 require 'helpers/api_v4_helper'
+require 'helpers/dummy_endpoint'
 
 if DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
   Rails.backtrace_cleaner.remove_silencers!
@@ -58,7 +59,8 @@ else
   # DataCycleCore::TestPreparations.load_dictionaries
   DataCycleCore::TestPreparations.load_classifications(
     [
-      Rails.root.join('..', 'dummy', 'config', 'data_definitions')
+      Rails.root.join('..', 'dummy', 'config', 'data_definitions'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_auto_translation')
     ]
   )
 
@@ -76,6 +78,7 @@ else
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_container'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_auto_translation'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_google_places'),

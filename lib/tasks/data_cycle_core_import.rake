@@ -27,7 +27,7 @@ namespace :data_cycle_core do
     end
 
     desc 'Only download data from given data source'
-    task :download, [:external_source_id, :max_count] => [:environment] do |_, args|
+    task :download, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
       options = Hash[{ max_count: nil }.merge(args.to_h).map do |k, v|
         if k == :max_count && v
           [k, v.to_i]

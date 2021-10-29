@@ -1,0 +1,5 @@
+<% if @assets.present? %>
+  <%= render 'data_cycle_core/assets/asset_list', assets: @assets, class: 'selectable', selected: @selected, last_asset_type: @last_asset_type %>
+<% else %>
+  <%= t('common.contents', count: 0, locale: active_ui_locale) %>
+<% end %>

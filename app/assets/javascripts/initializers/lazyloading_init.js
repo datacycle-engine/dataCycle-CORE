@@ -1,3 +1,5 @@
+import loadingIcon from '../templates/loadingIcon';
+
 export default function () {
   // reposition reveal after it is loaded
   $(document).on('dc:html:changed lazyloaded', '*', event => {
@@ -9,7 +11,7 @@ export default function () {
 
   $(document).on('lazybeforeunveil', 'iframe', event => {
     event.stopPropagation();
-    $(event.target).after('<div class="loading-iframe"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+    $(event.target).after(loadingIcon('loading-iframe'));
   });
 
   $(document).on('lazyloaded', 'iframe', event => {

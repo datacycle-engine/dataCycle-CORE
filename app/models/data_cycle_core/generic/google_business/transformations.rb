@@ -45,22 +45,24 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.convert_opening_hours(raw_data)
-          raw_data = { 'periods' => [] } if raw_data.nil?
+        def self.convert_opening_hours(_raw_data)
+          raise 'wrong opening_hours_specification type, transformation has to be updated if this importer is used again'
 
-          raw_data['periods'].map { |period|
-            raise 'Converting opening hours does not support different open and close day' if period['openDay'] != period['closeDay']
+          # raw_data = { 'periods' => [] } if raw_data.nil?
 
-            {
-              opens: period['openTime'],
-              closes: period['closeTime'],
-              day_of_week: [load_day_of_week(period['openDay'])]
-            }
-          }.group_by { |opening_hours|
-            "#{opening_hours[:opens]} - #{opening_hours[:closes]}"
-          }.map { |_, opening_hours| # rubocop:disable Style/BlockDelimiters
-            opening_hours.first.merge(day_of_week: opening_hours.map { |h| h[:day_of_week] }.flatten)
-          }
+          # raw_data['periods'].map { |period|
+          #   raise 'Converting opening hours does not support different open and close day' if period['openDay'] != period['closeDay']
+
+          #   {
+          #     opens: period['openTime'],
+          #     closes: period['closeTime'],
+          #     day_of_week: [load_day_of_week(period['openDay'])]
+          #   }
+          # }.group_by { |opening_hours|
+          #   "#{opening_hours[:opens]} - #{opening_hours[:closes]}"
+          # }.map { |_, opening_hours| # rubocop:disable Style/BlockDelimiters
+          #   opening_hours.first.merge(day_of_week: opening_hours.map { |h| h[:day_of_week] }.flatten)
+          # }
         end
 
         def self.load_day_of_week(day)

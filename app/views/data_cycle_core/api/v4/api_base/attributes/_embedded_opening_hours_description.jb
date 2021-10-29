@@ -1,0 +1,43 @@
+# frozen_string_literal: true
+
+def serialize_opening_hours_description(description, filter, fields, options, include = [])
+  I18n.with_locale(description.first_available_locale) do
+    schedule_hash = description&.validity_schedule&.first&.schedule_object&.to_hash || {}
+
+    data = {
+      '@type' => description&.api_type,
+      'validFrom' => schedule_hash.dig(:start_time, :time)&.in_time_zone&.to_s(:only_date),
+      'validThrough' => schedule_hash&.dig(:rrules, 0, :until)&.in_time_zone&.to_s(:only_date) || schedule_hash&.dig(:end_time, :time)&.in_time_zone&.to_s(:only_date),
+      'description' => description&.description
+    }.compact.merge(render('content_translations', content: description, options: options))
+
+    return data unless filter
+
+    data&.select do |key, _value|
+      api_default_attributes.include?(key) || select_attributes(fields).include?(key) || select_attributes(include).include?(key)
+    end
+  end
+end
+
+options ||= {}
+json ||= {}
+
+data = load_embedded_object(content, key, options[:languages], definition)
+
+if data.present?
+  key_name = attribute_key(key, definition)
+  api_property_definition = api_definition(definition)
+  key_name = api_property_definition.dig('transformation', 'name') if api_property_definition.dig('transformation', 'method') == 'append'
+  new_fields = subtree_for(key_name, options[:fields])
+  new_include = subtree_for(key_name, options[:include])
+
+  json[key_name] = data.map do |description|
+    if options[:field_filter] && new_fields.present?
+      serialize_opening_hours_description(description, options[:field_filter], new_fields, options, new_include)
+    else
+      serialize_opening_hours_description(description, false, new_fields, options, new_include)
+    end
+  end
+end
+
+json

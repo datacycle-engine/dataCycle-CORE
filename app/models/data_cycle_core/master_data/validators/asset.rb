@@ -10,6 +10,7 @@ module DataCycleCore
 
         def validate(data, template, _strict = false)
           check_reference_array(Array(data), template)
+
           @error
         end
 
@@ -32,7 +33,13 @@ module DataCycleCore
             elsif key.is_a?(DataCycleCore::Asset)
               check_reference(key.id, template)
             else
-              (@error[:error][@template_key] ||= []) << I18n.t(:data_array_format, scope: [:validation, :warnings], data: key, template: template['label'], locale: DataCycleCore.ui_language)
+              (@error[:error][@template_key] ||= []) << {
+                path: 'validation.warnings.data_array_format',
+                substitutions: {
+                  data: key,
+                  template: template['label']
+                }
+              }
             end
           end
         end
@@ -40,23 +47,15 @@ module DataCycleCore
         def check_reference(key, template)
           return unless uuid?(key)
           find_asset = DataCycleCore::Asset.find(key)
-          (@error[:warning][@template_key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if !check_asset_type(find_asset, template) || find_asset.nil?
+          (@error[:warning][@template_key] ||= []) << { path: 'validation.errors.asset_upload' } if !check_asset_type(find_asset, template) || find_asset.nil?
         end
 
         def check_asset_type(asset, template)
           (asset.type == "DataCycleCore::#{template.dig('asset_type').camelize}")
         end
 
-        def blank?(data)
-          return true if data.blank?
-          if data.is_a?(::Array)
-            return true if data.length == 1 && data[0].blank?
-          end
-          false
-        end
-
         def required(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && blank?(data)
+          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && blank?(data)
         end
       end
     end

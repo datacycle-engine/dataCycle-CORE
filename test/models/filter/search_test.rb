@@ -86,29 +86,6 @@ module DataCycleCore
       assert_equal(search_for, items.first.name)
     end
 
-    test 'filter contents based on classifications' do
-      items = DataCycleCore::Filter::Search.new(:de)
-        .classification_alias_ids_without_subtree(find_alias_ids('Tags', 'Tag 3'))
-      assert_equal(2, items.count)
-
-      items = DataCycleCore::Filter::Search.new(:de)
-        .classification_alias_ids_with_subtree(find_alias_ids('Tags', 'Tag 3'))
-      assert_equal(3, items.count)
-      # same_as
-      # TODO: refactor to use search ?
-      items = DataCycleCore::Thing
-        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 3'))
-      assert_equal(3, items.count)
-
-      items = DataCycleCore::Filter::Search.new(:de)
-        .with_classification_aliases_and_treename({ 'treeLabel' => 'Tags', 'aliases' => ['Tag 3'] })
-      assert_equal(3, items.count)
-
-      items = DataCycleCore::Filter::Search.new(:de)
-        .not_classification_alias_ids_with_subtree(find_alias_ids('Tags', 'Tag 2'))
-      assert_equal(7, items.count)
-    end
-
     # test 'test method only_frontend_valid (excludes places)' do
     #   articles = @things + 5
     #   items = DataCycleCore::Filter::Search.new(:de)
@@ -254,6 +231,38 @@ module DataCycleCore
     #   result = ActiveRecord::Base.connection.exec_query("SELECT to_tsvector('german', 'DataCycle') as akronym")
     #   assert_equal("'dc':1", result.first['akronym'])
     # end
+
+    test 'test query for relation_filter' do
+      image = create_content('Bild', { name: 'Test Bild Linked' })
+      article = create_content('Artikel', { name: 'Test Article Linked', image: [image.id] })
+
+      assert_equal(1, DataCycleCore::Filter::Search.new(:de).like_relation_filter([image.id], 'image').count) # find the article
+      assert_equal(article.id, DataCycleCore::Filter::Search.new(:de).like_relation_filter([image.id], 'image').query.first.id) # find the article
+      assert_equal(10, DataCycleCore::Filter::Search.new(:de).not_like_relation_filter([image.id], 'image').count) # find all except article
+      assert DataCycleCore::Filter::Search.new(:de).not_like_relation_filter([image.id], 'image').query.ids.exclude?(article.id) # find all except article
+    end
+
+    test 'test typeahead, specific language' do
+      words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['en']).to_a
+      assert_equal(3, words_typeahead.size)
+      assert_equal('xyz', words_typeahead.first.dig('word'))
+      assert_equal(0.0, words_typeahead.first.dig('score'))
+      assert_equal('xyz-en', words_typeahead.second.dig('word'))
+    end
+
+    test 'test typeahead, specific language, typeahead in german' do
+      words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['de']).to_a
+      assert_equal('xyz-de', words_typeahead.second.dig('word'))
+    end
+
+    test 'limit for typeahead' do
+      words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['en'], 1).to_a
+      assert_equal(1, words_typeahead.size)
+      words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['en'], 2).to_a
+      assert_equal(2, words_typeahead.size)
+      words_typeahead = DataCycleCore::Filter::Search.new(:en).typeahead('xyz', ['en'], 100).to_a
+      assert_equal(3, words_typeahead.size)
+    end
 
     private
 

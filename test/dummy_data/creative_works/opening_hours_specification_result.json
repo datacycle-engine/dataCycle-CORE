@@ -6,7 +6,6 @@
     "validFrom": "2019-10-10",
     "validThrough": "2019-10-17",
     "dayOfWeek": ["https://schema.org/Monday"],
-    "description": "Description - Test",
     "opens": "10:00",
     "closes": "11:00"
   },
@@ -17,7 +16,6 @@
     "validFrom": "2019-10-10",
     "validThrough": "2019-10-17",
     "dayOfWeek": ["https://schema.org/Monday"],
-    "description": "Description - Test",
     "opens": "13:00",
     "closes": "14:00"
   }

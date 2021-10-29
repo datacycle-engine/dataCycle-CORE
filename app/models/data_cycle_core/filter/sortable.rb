@@ -9,9 +9,18 @@ module DataCycleCore
         )
       end
 
-      def sort_random(_ordering)
+      def sort_random(ordering)
+        unless ordering.nil?
+          random_seed_sql = <<-SQL.squish
+            CROSS JOIN (SELECT :seed_value AS seed_value from setseed(:seed_value)) seed_values
+          SQL
+
+          random_join_query = ActiveRecord::Base.send(:sanitize_sql_array, [random_seed_sql, seed_value: ordering])
+        end
+
         reflect(
           @query
+            .joins(random_join_query)
             .order(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_order, 'random()')))
         )
       end
@@ -52,7 +61,7 @@ module DataCycleCore
       def sort_by_proximity(_ordering = '', value = {})
         # sort_by_schedule_proximity('ASC', value)
         date = Time.zone.now
-        if value.present? && value.is_a?(::Hash) && value.dig('n') == 'relative'
+        if value.present? && value.is_a?(::Hash) && value.dig('q') == 'relative'
           date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
           date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from', 'n').present?
         elsif value.present? && value.is_a?(::Hash)
@@ -82,29 +91,17 @@ module DataCycleCore
       end
 
       def sort_by_schedule_proximity(ordering = '', value = {})
-        if value.present? && value.is_a?(::Hash) && value.dig('n') == 'relative'
-          start_date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
-          start_date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from').present?
-
-          end_date = relative_to_absolute_date(value.dig('in', 'max')) if value.dig('in', 'max').present?
-          end_date = relative_to_absolute_date(value.dig('v', 'until')) if value.dig('v', 'until').present?
-        elsif value.present? && value.is_a?(::Hash)
-          start_date = date_from_single_value(value.dig('in', 'min')) if value.dig('in', 'min').present?
-          start_date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
-
-          end_date = date_from_single_value(value.dig('in', 'max')) if value.dig('in', 'max').present?
-          end_date = date_from_single_value(value.dig('v', 'until')) if value.dig('v', 'until').present?
-        end
+        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value.dig('q')) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
 
         return self if start_date.nil? && end_date.nil?
 
         joined_table_name = "schedule_occurrences_#{SecureRandom.hex(10)}"
 
         order_parameter_join = <<-SQL.squish
-          JOIN (
+          JOIN LATERAL (
           	SELECT thing_id, MIN(LOWER(schedule_occurrences.occurrence)) "min_start_date"
           	FROM schedule_occurrences
-          	WHERE schedule_occurrences.occurrence && TSTZRANGE(?, ?)
+          	WHERE things.id = schedule_occurrences.thing_id AND schedule_occurrences.occurrence && TSTZRANGE(?, ?)
           	GROUP BY thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL

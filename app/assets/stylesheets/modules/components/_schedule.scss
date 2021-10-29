@@ -16,7 +16,7 @@
     padding: 0;
     display: flex;
     flex-flow: row wrap;
-    align-items: center;
+    // align-items: center;
 
     > * {
       margin-bottom: 1rem;
@@ -25,10 +25,25 @@
     .fullday {
       position: relative;
       flex: auto;
+      display: flex;
+      align-items: center;
+      background: $light-gray;
+      border: 1px solid $light-gray;
+      transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+
+      &:hover {
+        color: $primary-color;
+      }
 
       label {
-        position: absolute;
+        position: relative;
+        left: 0 !important;
+        top: 0 !important;
         line-height: 1.2rem;
+
+        &:hover {
+          color: $primary-color;
+        }
       }
     }
   }
@@ -102,43 +117,6 @@
       &[type='number'] {
         min-width: 4rem;
         width: 4rem;
-      }
-    }
-
-    .weekday-checkbox {
-      position: relative;
-      input {
-        visibility: hidden;
-        position: absolute;
-        right: 0;
-        pointer-events: none;
-      }
-
-      label {
-        left: 0;
-        border: 1px solid $dark-gray;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 2rem;
-        width: 2rem;
-        font-weight: 600;
-        margin: 0;
-        color: $black;
-        margin: 0 0 0 0.5rem;
-      }
-
-      input:not(:disabled) ~ label:hover {
-        background: $dark-gray;
-        color: $white;
-      }
-
-      input:checked ~ label {
-        background: $dark-gray;
-        color: $white;
-      }
-      input:disabled ~ label {
-        cursor: not-allowed;
       }
     }
   }
@@ -236,6 +214,133 @@
 
     .leaf-duration ~ .leaf-date {
       margin-bottom: 2rem;
+    }
+  }
+}
+
+.schedule-editor .rrules,
+.opening-time-editor .weekday {
+  .weekday-checkbox {
+    position: relative;
+    input {
+      visibility: hidden;
+      position: absolute;
+      right: 0;
+      pointer-events: none;
+    }
+
+    label {
+      position: relative;
+      left: 0 !important;
+      top: 0 !important;
+      padding: 0 !important;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 2rem;
+      width: 2rem;
+      font-weight: 600;
+      margin: 0;
+      color: $black;
+      margin: 0 0 0 0.5rem;
+      transition: box-shadow 0.1s;
+      background: rgba($alert-color, 0.5);
+      border: 1px solid rgba($alert-color, 0.5);
+    }
+
+    input:not(:disabled) ~ label:hover {
+      box-shadow: 0 0 3px $primary-color;
+    }
+
+    input:checked ~ label {
+      background: rgba($success-color, 0.5);
+      border-color: rgba($success-color, 0.5);
+    }
+    input:disabled ~ label {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.opening-time-editor .opening-time-range {
+  display: flex;
+  flex-flow: row nowrap;
+
+  input {
+    width: auto;
+    min-width: 100px;
+  }
+
+  .form-element {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    background: $light-gray;
+    padding: 0.5rem;
+    height: 3.5rem;
+
+    label {
+      position: relative;
+      left: 0 !important;
+      top: 0 !important;
+      padding: 0 0.5rem !important;
+      white-space: nowrap;
+    }
+
+    &.weekday {
+      margin-left: 1rem;
+
+      .weekday-checkbox {
+        input[type='radio'] {
+          &.true_option:checked ~ label {
+            background: rgba($success-color, 0.5);
+            border-color: rgba($success-color, 0.5);
+          }
+          &.false_option:checked ~ label {
+            background: rgba($alert-color, 0.5);
+            border-color: rgba($alert-color, 0.5);
+          }
+          &.ignore_option:checked ~ label {
+            background: transparent;
+            border-color: rgba($dark-gray, 0.5);
+          }
+        }
+      }
+
+      .weekday-checkbox.holiday {
+        margin-left: 0.5rem;
+        border-left: 1px solid darken($light-gray, 10%);
+
+        label {
+          width: auto;
+        }
+      }
+    }
+  }
+}
+
+.detail-type.opening_time {
+  .opening-time-group {
+    padding-top: 1rem;
+    margin: 0 !important;
+
+    .opening-time-opening-hours {
+      color: $dark-gray;
+      display: block;
+      padding: 0.5rem 0 0 0;
+      font-size: 0.9rem;
+
+      b {
+        color: $black;
+      }
+
+      .opening-time-day {
+        width: 100px;
+        display: inline-block;
+        text-align: right;
+        margin-right: 0.3rem;
+      }
     }
   }
 }
