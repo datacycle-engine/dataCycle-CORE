@@ -1,7 +1,6 @@
 import RubyPlugin from 'vite-plugin-ruby';
 import { resolve } from 'path';
 import CopyPlugin from 'rollup-plugin-copy';
-import DelPlugin from 'rollup-plugin-delete';
 import gzipPlugin from 'rollup-plugin-gzip';
 
 export default ({ mode }) => {
@@ -22,17 +21,11 @@ export default ({ mode }) => {
         targets: [
           { src: resolve(__dirname, 'app/assets/images/*'), dest: 'app/assets/entrypoints/images' },
           { src: resolve(__dirname, 'app/assets/fonts/*'), dest: 'public/assets/fonts' },
-          { src: 'app/assets/images/*', dest: 'app/assets/entrypoints/images' },
-          { src: 'app/assets/stylesheets/*', dest: 'app/assets/entrypoints' }
+          { src: 'app/assets/images/*', dest: 'app/assets/entrypoints/images' }
         ],
         hook: 'buildStart',
         copyOnce: true
       }),
-      // DelPlugin({
-      //   targets: ['app/assets/entrypoints/images', 'app/assets/application.scss'],
-      //   hook: 'closeBundle',
-      //   runOnce: true
-      // }),
       ...(mode == 'development' ? [] : [gzipPlugin()])
     ]
   };
