@@ -22,16 +22,17 @@ export default ({ mode }) => {
         targets: [
           { src: resolve(__dirname, 'app/assets/images/*'), dest: 'app/assets/entrypoints/images' },
           { src: resolve(__dirname, 'app/assets/fonts/*'), dest: 'public/assets/fonts' },
-          { src: 'app/assets/images/*', dest: 'app/assets/entrypoints/images' }
+          { src: 'app/assets/images/*', dest: 'app/assets/entrypoints/images' },
+          { src: 'app/assets/stylesheets/*', dest: 'app/assets/entrypoints' }
         ],
         hook: 'buildStart',
         copyOnce: true
       }),
-      DelPlugin({
-        targets: ['app/assets/entrypoints/images'],
-        hook: 'closeBundle',
-        runOnce: true
-      }),
+      // DelPlugin({
+      //   targets: ['app/assets/entrypoints/images', 'app/assets/application.scss'],
+      //   hook: 'closeBundle',
+      //   runOnce: true
+      // }),
       ...(mode == 'development' ? [] : [gzipPlugin()])
     ]
   };

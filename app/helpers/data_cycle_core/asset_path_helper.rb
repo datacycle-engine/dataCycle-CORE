@@ -5,7 +5,7 @@ module DataCycleCore
     def dc_image_path(filename)
       return if filename.blank?
 
-      vite_asset_path("images/#{filename}")
+      vite_asset_path("entrypoints/images/#{filename}")
     end
 
     def dc_background_image_style
