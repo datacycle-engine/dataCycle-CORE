@@ -190,7 +190,7 @@ namespace :dc do
     SSHKit.config.command_map[:dc_rsync] = 'rsync -avr'
 
     desc 'import remote mongo db'
-    task :import_remote_mongo, [:external_system_id] do |_, args|
+    task :import_remote_mongo, [:external_system_id, :port] do |_, args|
       local_rails_env = ENV.fetch('RAILS_ENV', 'development')
       remote_file_name = nil
 
@@ -224,7 +224,7 @@ namespace :dc do
           execute :dc_rsync, "tmp/#{file_name} db/backups/#{local_rails_env}/mongo/download"
           execute :dc_rm_file, "tmp/#{file_name}"
           execute :dc_rake_local, "'#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:dump[#{args[:external_system_id]},true]' RAILS_ENV=#{local_rails_env}" if local_rails_env != 'development'
-          execute :dc_rake_local, "'#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:restore[#{file_name},true]' RAILS_ENV=#{local_rails_env}"
+          execute :dc_rake_local, "'#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:mongo:restore[#{file_name},true,#{args[:port] || '27017'}]' RAILS_ENV=#{local_rails_env}"
         end
       end
 

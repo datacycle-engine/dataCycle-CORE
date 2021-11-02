@@ -61,7 +61,7 @@ services:
     volumes:
       - '${PWD}:/app'
       - mongodb-data:/data/db
-      - mongodb-data:/var/log/mongodb
+      - mongodb-log:/var/log/mongodb
   redis:
     volumes:
       - '${PWD}:/app'
