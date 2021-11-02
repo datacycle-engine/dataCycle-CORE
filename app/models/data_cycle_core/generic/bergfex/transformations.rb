@@ -116,6 +116,8 @@ module DataCycleCore
           .>> t(:add_field, 'longitude', ->(s) { s.dig('lng', 'text')&.to_f })
           .>> t(:add_field, 'location', ->(s) { RGeo::Geographic.spherical_factory(srid: 4326).point(s['longitude'], s['latitude']) if s['longitude'] && s['latitude'] })
           .>> t(:add_field, 'date_time_updated_at', ->(s) { s.dig('datetime', 'text') })
+          .>> t(:map_value, 'telephone', ->(s) { s&.dig('text') })
+          .>> t(:nest, 'contact_info', ['telephone'])
           .>> t(:add_field, 'value', ->(s) { s.dig('openLifts', 'text')&.to_i })
           .>> t(:add_field, 'max_value', ->(s) { s.dig('openLifts', 'max')&.to_i })
           .>> t(:nest, 'lifts', ['value', 'max_value'])
