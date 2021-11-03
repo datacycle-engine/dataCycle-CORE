@@ -7,7 +7,7 @@ module ActiveJobMetricsExtension
                                      { job_class: YAML.load(job.handler).job_data['job_class'], queue: job.queue })
     Appsignal.add_distribution_value('delayed_job.attempt_count', job.attempts,
                                      { job_class: YAML.load(job.handler).job_data['job_class'], queue: job.queue })
-    # rubocop:enable LSecurity/YAMLLoad
+    # rubocop:enable Security/YAMLLoad
   end
 end
 

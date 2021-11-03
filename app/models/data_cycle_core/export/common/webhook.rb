@@ -51,7 +51,7 @@ module DataCycleCore
                                            { job_class: YAML.load(job.handler).class.name, queue: job.queue })
           Appsignal.add_distribution_value('delayed_job.attempt_count', job.attempts,
                                            { job_class: YAML.load(job.handler).class.name, queue: job.queue })
-          # rubocop:enable LSecurity/YAMLLoad
+          # rubocop:enable Security/YAMLLoad
         end
       end
     end
