@@ -46,9 +46,9 @@ module DataCycleCore
         end
 
         def success(job)
-          Appsignal.add_distribution_value("delayed_job.waiting_time", (Time.zone.now - job.created_at) / 60,
+          Appsignal.add_distribution_value('delayed_job.waiting_time', (Time.zone.now - job.created_at) / 60,
                                            { job_class: YAML.load(job.handler).class.name, queue: job.queue })
-          Appsignal.add_distribution_value("delayed_job.attempt_count", job.attempts,
+          Appsignal.add_distribution_value('delayed_job.attempt_count', job.attempts,
                                            { job_class: YAML.load(job.handler).class.name, queue: job.queue })
         end
       end
