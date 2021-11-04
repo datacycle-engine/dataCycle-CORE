@@ -18,6 +18,7 @@ Devise.setup do |config|
   config.sign_out_via = :delete
   config.lock_strategy = :none
   config.unlock_strategy = :none
+  config.http_authenticatable = true
 
   config.warden do |manager|
     manager.default_strategies(scope: :user).unshift :guest_user

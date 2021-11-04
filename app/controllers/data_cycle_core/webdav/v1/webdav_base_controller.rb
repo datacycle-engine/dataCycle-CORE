@@ -1,0 +1,55 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module Webdav
+    module V1
+      class WebdavBaseController < ActionController::API
+        include ActionController::MimeResponds
+        include ActionController::Caching
+        include ActionView::Rendering
+        include CanCan::ControllerAdditions
+        include ActiveSupport::Rescuable
+        include DataCycleCore::ErrorHandler
+        include ActionController::HttpAuthentication::Basic::ControllerMethods
+
+        after_action :log_activity
+        before_action :authenticate, :set_default_response_format
+
+        def permitted_params
+          @permitted_params ||= params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+        end
+
+        def permitted_parameter_keys
+          [:api_subversion, :format, :id, :file_name, :user_name, :password]
+        end
+
+        def log_activity
+          activity_data = permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action'))
+          current_user.activities.create(activity_type: "api_v#{@api_version}", data: activity_data)
+        end
+
+        private
+
+        def authenticate
+          authenticate_or_request_with_http_basic do |user_name, password|
+            @user = DataCycleCore::User.find_by(email: user_name)
+            raise CanCan::AccessDenied, 'invalid or missing authentication token' if @user.nil? || !@user.valid_password?(password)
+            sign_in @user, store: false
+          end
+        end
+
+        def access_denied(_exception)
+          render 'error', locals: { error: 'you need to be logged in to export xml data.', status: :access_denied }
+        end
+
+        def not_found(exception)
+          render 'error', locals: { error: exception.message, status: :not_found }
+        end
+
+        def set_default_response_format
+          request.format = :xml
+        end
+      end
+    end
+  end
+end
