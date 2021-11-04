@@ -9,16 +9,30 @@ class ImageEditor {
     this.fileName = reveal.dataset.fileName;
     this.fileMimeType = reveal.dataset.fileMimeType;
     this.fileFormat =((reveal.dataset.fileFormat == 'jpeg' || reveal.dataset.fileFormat == 'jpg') ? 'jpeg' : 'png');
-    this.hiddenFieldId = reveal.dataset.hiddenFieldId;
+    this.assetId = reveal.dataset.assetId;
     this.hiddenFieldKey = reveal.dataset.hiddenFieldKey;
     this.saveButton = this.$reveal.find('.save-button');
     this.editableList = $(`[data-image-editor="${this.$reveal.prop('id')}"]`).siblings('.asset-list').first();
+
+    if (!this.assetId) {
+      // initialize new asset
+      this.initFile();
+    }
 
     this.initEvents();
     this.setup();
   }
   initEvents(){
     this.saveButton.on('click', this.handleSave.bind(this));
+    this.editableList.on('dc:asset_list:changed', this.handleAssetChange.bind(this));
+  }
+  handleAssetChange(event, data){
+    const newAsset = data.assets[0];
+    this.fileUrl = newAsset.file.url;
+    this.fileName = newAsset.name;
+    this.fileFormat =((newAsset.content_type == 'jpeg' || newAsset.content_type == 'jpg') ? 'jpeg' : 'png');
+    this.fileMimeType = "image/" + this.fileFormat;
+    this.setup();
   }
   setup() {
     // @todo: move to config
@@ -122,13 +136,18 @@ class ImageEditor {
         rotatingPointOffset: 70,
       },
     }
-    this.editor = new TuiImageEditor(document.querySelector('#tui-image-editor'), options);
+    this.editor = new TuiImageEditor(this.$reveal.find('#tui-image-editor').get(0), options);
   }
   handleSave(event) {
     event.preventDefault();
     let newUrl = this.editor.toDataURL({format: this.fileFormat});
-
-    this.urlToFile(newUrl, this.fileName, this.fileFormat).then(file => {
+    this.updateAsset(newUrl);
+  }
+  initFile() {
+    this.updateAsset(this.fileUrl);
+  }
+  updateAsset(fileUrl){
+    this.urlToFile(fileUrl, this.fileName, this.fileFormat).then(file => {
       let data = new FormData();
       data.append('asset[file]', file);
       data.append('asset[type]', 'DataCycleCore::Image');
