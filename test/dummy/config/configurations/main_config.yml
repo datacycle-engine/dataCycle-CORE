@@ -30,22 +30,6 @@
       :features:
         :creatable:
           :allowed: true
-  :media_objects:
-    :Bild:
-      :features:
-        :image_editor:
-          :allowed: true
-      :properties:
-        :asset:
-          :label: Datei
-          :type: asset
-          :asset_type: image
-          :api:
-            :disabled: true
-          :ui:
-            :edit:
-              :readonly: false
-
 :api:
   :default: v4
 
