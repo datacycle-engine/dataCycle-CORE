@@ -1,22 +1,27 @@
-<% key_id = 'my_test' %>
-<div class="image-editor" data-image-editor="image-editor-<%= key_id %>">
-  <button type="button" class="button" data-disable data-open="image-editor-<%= key_id %>">
-    <i class="fa fa-address-book"></i>
-  </button>
+<% asset_id = value&.id %>
 
-  <div class="full reveal image-editor-reveal"
-       id="image-editor-<%= key_id %>"
+<% if asset_id.present? %>
+  <div class="image-editor" data-image-editor="image-editor-<%= asset_id %>">
+    <button type="button" class="button" data-disable data-open="image-editor-<%= asset_id %>">
+      <i class="fa fa-address-book"></i>
+    </button>
+    <div class="full reveal image-editor-reveal"
+       id="image-editor-<%= asset_id %>"
        data-reveal data-multiple-opened="true"
        data-v-offset="0"
-       data-hidden-field-id="<%= key_id %>"
-       data-hidden-field-key="<%= key %>"
-       data-editable-list-id="<%= local_assigns[:editable_list_key] %>">
-    <button class="save-button" data-close aria-label="save modal" type="button">
-      <span aria-hidden="true">save</span>
-    </button>
-    <button class="close-button" data-close aria-label="Close modal" type="button">
-      <span aria-hidden="true">&times;</span>
-    </button>
-    <div id="tui-image-editor"></div>
+       data-hidden-field-id="<%= asset_id %>"
+       data-file-url="<%= value&.file&.url %>"
+       data-file-name="<%= value&.name %>"
+       data-file-format="<%= value.content_type.split('/').last %>"
+       data-file-mime-type="<%= value.content_type %>"
+       data-hidden-field-key="<%= key %>">
+      <button class="save-button" data-close aria-label="Save modal" type="button">
+        <span aria-hidden="true">save</span>
+      </button>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <div id="tui-image-editor"></div>
+    </div>
   </div>
-</div>
+<% end %>
