@@ -136,7 +136,7 @@ class ImageEditor {
         rotatingPointOffset: 70,
       },
     }
-    this.editor = new TuiImageEditor(this.$reveal.find('#tui-image-editor').get(0), options);
+    this.editor = new TuiImageEditor(this.$reveal.find('.tui-image-editor').get(0), options);
   }
   handleSave(event) {
     event.preventDefault();

@@ -1,0 +1,13 @@
+.image-editor-reveal{
+  thead, tbody, tfoot{
+    background: none;
+    border: none;
+    tr{
+      background: none;
+      border: none;
+    }
+  }
+  .tui-image-editor-header-buttons {
+    display:none;
+  }
+}
