@@ -49,12 +49,12 @@ module DataCycleCore
           # rubocop:disable Security/YAMLLoad, Style/GuardClause
           if job.created_at
             Appsignal.add_distribution_value('delayed_job.waiting_time', (Time.zone.now - job.created_at) / 60,
-                                             { job_class: YAML.load(job.handler).job_data['job_class'], queue: job.queue })
+                                             { job_class: YAML.load(job.handler).class.name, queue: job.queue })
           end
 
           if job.attempts
             Appsignal.add_distribution_value('delayed_job.attempt_count', job.attempts,
-                                             { job_class: YAML.load(job.handler).job_data['job_class'], queue: job.queue })
+                                             { job_class: YAML.load(job.handler).class.name, queue: job.queue })
           end
           # rubocop:enable Security/YAMLLoad, Style/GuardClause
         end
