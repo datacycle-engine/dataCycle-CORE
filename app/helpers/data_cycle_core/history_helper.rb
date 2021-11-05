@@ -138,14 +138,13 @@ module DataCycleCore
       tag.span(safe_join(version_name.compact), class: "named-version-container#{' removable' if item[:can_remove_version_name]}", id: "version-name-#{item[:id]}")
     end
 
-    def history_dropdown_line(content, item, watch_list_id, is_active = false, is_last = false)
+    def history_dropdown_line(content, item, watch_list_id, is_active = false)
       data = []
 
-      data.push(history_dropdown_link(is_last && !item[:created_by_user].nil? ? item[:created_by_user] : item[:updated_by_user]))
+      data.push(history_dropdown_link(item[:updated_by_user]))
       data.push(tag.span(item[:locale].presence&.then { |s| "(#{s})" }, class: 'history-locale'))
 
-      history_date = is_last && item[:class_name] == 'DataCycleCore::Thing' ? item[:created_at] : item[:updated_at]
-      data.push(tag.span(l(history_date.in_time_zone, locale: active_ui_locale, format: :history), class: 'history-time', title: l(history_date.in_time_zone, locale: active_ui_locale))) if history_date.present?
+      data.push(tag.span(l(item[:updated_at].in_time_zone, locale: active_ui_locale, format: :history), class: 'history-time', title: l(item[:updated_at].in_time_zone, locale: active_ui_locale))) if item[:updated_at].present?
 
       data.push(version_name_html(item)) if DataCycleCore::Feature::NamedVersion.enabled?
       if can?(:history, content)
@@ -167,29 +166,23 @@ module DataCycleCore
         history_entries.concat(ordered_history_entries(content))
       end
 
-      locales_without_history = content.translated_locales.difference(content.histories.translated_locales)
-      history_entries.push(map_to_history_entry(content, locales_without_history, false)) if locales_without_history.any?
-
       history_entries
     end
 
     def ordered_history_entries(content)
-      content.histories.includes(:translations, :created_by_user, :updated_by_user).map do |history|
+      content.histories.includes(:translations, :updated_by_user).map do |history|
         map_to_history_entry(history, history.translated_locales)
       end
     end
 
-    def map_to_history_entry(item, locales = nil, include_version_name = true)
+    def map_to_history_entry(item, locales = nil, updated_at = item.updated_at, include_version_name = true)
       I18n.with_locale(item.first_available_locale) do
         {
           id: item.id,
-          created_by: item.created_by,
           updated_by: item.updated_by,
-          created_at: item.created_at,
-          updated_at: item.is_a?(DataCycleCore::Thing::History) ? item.history_valid&.first : item.updated_at,
+          updated_at: item.try(:history_valid)&.first || updated_at,
           class_name: item.class.name,
           version_name: include_version_name ? item.version_name : nil,
-          created_by_user: item.created_by_user,
           updated_by_user: item.updated_by_user,
           locale: Array.wrap(locales).join(', '),
           can_remove_version_name: DataCycleCore::Feature::NamedVersion.enabled? && can?(:remove_version_name, item)
