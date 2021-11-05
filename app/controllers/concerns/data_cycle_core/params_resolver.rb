@@ -18,7 +18,17 @@ module DataCycleCore
         elsif resolve_instances && value.is_a?(::Hash) && value.key?('attributes') && value.key?('class')
           return_hash[key] = value['class'].safe_constantize.new(value['attributes']) if defined?(value['class'])
         elsif resolve_instances && value.is_a?(::Hash) && value.key?('ids') && value.key?('class')
-          return_hash[key] = value['class'].safe_constantize.where(id: value['ids']) if defined?(value['class'])
+          if defined?(value['class'])
+            return_hash[key] = value['class']
+              .safe_constantize
+              .where(id: value['ids'])
+              .order(
+                [
+                  Arel.sql("array_position(ARRAY[?]::uuid[], #{value['class'].safe_constantize.table_name}.id)"),
+                  value['ids']
+                ]
+              )
+          end
         elsif value.is_a?(::Hash) && value.key?('value') && value.key?('class')
           return_hash[key] = value['class'].safe_constantize.new(value['value'])
         elsif value.is_a?(::Hash)

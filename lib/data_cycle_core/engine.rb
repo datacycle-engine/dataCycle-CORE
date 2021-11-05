@@ -255,6 +255,9 @@ module DataCycleCore
     config.i18n.fallbacks = false
     config.action_view.form_with_generates_remote_forms = true
 
+    # disable Query logger in development environment
+    config.active_record.logger = nil if Rails.env.development? && ENV['RAILS_LOG_TO_STDOUT'].blank?
+
     # prevent span tags inside HTML-Attributes for missing translations
     config.action_view.debug_missing_translation = false
 
