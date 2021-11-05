@@ -21,9 +21,9 @@ variables:
     TZ: Europe/Vienna
 
 stages:
-  - build
-  - check
-  - test
+#  - build
+#  - check
+#  - test
   - build-docker
   - deploy
 
@@ -188,6 +188,7 @@ deploy-docker-job:
     # update ssh config of deployment target to support bigger number of active sessions
     # e.g. MaxSessions 20
     - echo "$DOCKER_HOST"
+    - cat $(pwd)/.env.production
     - bash vendor/gems/data-cycle-core/docker/utility/ssh_helper.sh .env.production vendor/gems/data-cycle-core/docker/utility/check_bind_mounts.sh
     - docker-compose --env-file .env.production pull
     - docker-compose --env-file .env.production build
