@@ -354,9 +354,10 @@ DataCycleCore::Engine.routes.draw do
       namespace :webdav do
         namespace :v1 do
           scope path: '(/:api_subversion)' do
+            match 'endpoints/:id/things/:file_name', to: 'contents#show', via: :propfind
+            get 'endpoints/:id/things/:file_name', to: 'contents#download'
             match 'endpoints/:id/things', to: 'contents#index', via: :propfind
-            match 'endpoints/:id/things', to: 'contents#options', as: 'options', via: :options
-            match 'endpoints/:id/things/:file_name', to: 'contents#show', via: [:propfind, :get]
+            match 'endpoints/:id/things', to: 'contents#options', via: :options
           end
         end
       end

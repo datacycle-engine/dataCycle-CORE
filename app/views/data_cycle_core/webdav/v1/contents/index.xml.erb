@@ -1,40 +1,22 @@
 <?xml version="1.0"?>
 
 <d:multistatus xmlns:d="DAV:">
-  <% %>
-  <d:response>
-    <d:href>/webdav/v1/endpoints/2ae4d149-430b-4cae-9d3a-14d28e85056c/things/</d:href>
-    <d:propstat>
-      <d:prop>
-        <d:getlastmodified>Wed, 27 Oct 2021 12:20:17 GMT</d:getlastmodified>
-        <d:resourcetype>
-          <d:collection/>
-        </d:resourcetype>
-        <d:quota-used-bytes>400389</d:quota-used-bytes>
-        <d:quota-available-bytes>1050873428</d:quota-available-bytes>
-        <d:getetag>&quot;6179440144c2c&quot;</d:getetag>
-      </d:prop>
-      <d:status>HTTP/1.1 200 OK</d:status>
-    </d:propstat>
-  </d:response>
-  <d:response>
-    <d:href>/webdav/v1/endpoints/2ae4d149-430b-4cae-9d3a-14d28e85056c/things/item.md</d:href>
-    <d:propstat>
-      <d:prop>
-        <d:getlastmodified>Wed, 27 Oct 2021 12:20:17 GMT</d:getlastmodified>
-        <d:getcontentlength>1095</d:getcontentlength>
-        <d:resourcetype/>
-        <d:getetag>&quot;c256cce94b833312155ed89313fadeb9&quot;</d:getetag>
-        <d:getcontenttype>text/markdown</d:getcontenttype>
-      </d:prop>
-      <d:status>HTTP/1.1 200 OK</d:status>
-    </d:propstat>
-    <d:propstat>
-      <d:prop>
-        <d:quota-used-bytes/>
-        <d:quota-available-bytes/>
-      </d:prop>
-      <d:status>HTTP/1.1 404 Not Found</d:status>
-    </d:propstat>
-  </d:response>
+  <%= render 'collection', {
+    id: @contents.id,
+    last_modified: @contents.updated_at.httpdate,
+    etag: %("6179440144c2c"),
+  } %>
+  <% @contents.apply.each do |thing| %>
+    <%asset = thing.assets.first%>
+    <%= render 'file', {
+      id: @contents.id,
+      file_name: thing.slug,
+      display_name: asset.file&.file_name,
+      last_modified: thing.updated_at.httpdate,
+      content_length: asset.file&.size,
+      etag: %("#{File.mtime(asset.file.file.file)}-#{asset.file.try(:size)}"),
+      content_type: asset&.content_type,
+      quota: true
+    } %>
+  <% end %>
 </d:multistatus>

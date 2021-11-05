@@ -99,9 +99,9 @@ server {
     rewrite ^(.*)$ /503.html break;
   }
 
-  if ($request_method !~ ^(GET|HEAD|PUT|PATCH|POST|DELETE|OPTIONS|PROPFIND)$ ) {
-    return 405;
-  }
+  #if ($request_method !~ ^(GET|HEAD|PUT|PATCH|POST|DELETE|OPTIONS|PROPFIND)$ ) {
+  #  return 405;
+  #}
 
   if (-f $document_root/system/maintenance.html) {
     return 503;

@@ -38,10 +38,18 @@ module DataCycleCore
       data = Nokogiri::XML(body)
       data.remove_namespaces!
       props = data.xpath('//propfind/allprop')
-      return ALLOWED_PROPS if props.present?
+      return ALLOWED_PROPS if props.present? || body.blank?
       props = data.xpath('//propfind/prop')&.first
       return [] if props.blank?
-      props&.children&.map { |i| ALLOWED_PROPS.include?(i.name) ? i.name : nil }.compact || []
+      props&.children&.map { |i| ALLOWED_PROPS.include?(i.name.downcase) ? i.name.downcase : nil }&.compact || []
+    end
+
+    def parse_header(request)
+      request
+        .env
+        .select { |k, _| k =~ /^HTTP_/ }
+        .map { |k, v| { k[5..-1] => v } }
+        .inject(&:merge)
     end
 
     def propstat(thing)
