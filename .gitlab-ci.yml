@@ -54,14 +54,14 @@ variables:
 #  tags:
 #    - dc-core
 
-#.review_ci_config: &review_ci
-#  only:
-#    - branches
-#  except:
-#    - master
-#    - develop
-#  tags:
-#    - dc-core-review
+.review_ci_config: &review_ci
+  only:
+    - branches
+  except:
+    - master
+    - develop
+  tags:
+    - dc-core-review
 
 ########################################################################
 ######################### Docker / Develop
@@ -93,17 +93,18 @@ rails_test:
 
 ########################################################################
 ######################### Review Apps
-#build_review_caches:
-#  <<: *review_ci
-#  extends: .build_caches_config
-#
-#rails_review_test:
-#  <<: *review_ci
-#  extends: .rails_test_config
-#
-#code_review_validation:
-#  <<: *review_ci
-#  extends: .code_validation_config
+build_review_caches:
+  <<: *review_ci
+  extends: .build_caches_config
+
+rails_review_test:
+  <<: *review_ci
+  extends: .rails_test_config
+
+code_review_validation:
+  <<: *review_ci
+  extends: .code_validation_config
+
 #deploy_review:
 #  <<: *review_ci
 #  extends: .job_cache_config
