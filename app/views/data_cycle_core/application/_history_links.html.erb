@@ -1,10 +1,10 @@
 <div id="show-history-link" data-toggle="show-history" class="link">
   <i class="fa fa-clock-o" aria-hidden="true"></i>
-  <% visible_date = visible_content_date(dataCycleObject) %>
-  <%= visible_date[:updated] || visible_date[:created] %>
+  <% date, histories_visible = visible_content_date(dataCycleObject) %>
+  <%= date %>
 </div>
 
-<% if visible_date[:updated].present? %>
+<% if histories_visible %>
   <div class="dropdown-pane no-bullet bottom left-auto"
     id="show-history"
     data-dropdown

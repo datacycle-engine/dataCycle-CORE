@@ -454,13 +454,16 @@ en:
         user_link: Edit user
   history:
     latest_edits: Latest edits
-    created_at: created on
-    updated_at: edited on
+    created_at_html: created on <b>%{date}</b>
+    updated_at_html: edited in <b>%{language}</b> on <b>%{date}</b>
     valid_since: effective since
     differences_to_version: Differences to version
     active_version: Current version
-    look_at_version: Compare current content with this version
+    look_at_version: Compare current version with this version
     restored: Recovered on %{date}
+    created: Content created
+    active_version: Current Version
+
   data_link_mailer:
     content_download: Download content
     content_read: Read content
