@@ -7,6 +7,11 @@
     :features:
       :image_editor:
         :allowed: true
+    :api:
+      :type:
+        - CreativeWork
+        - MediaObject
+        - ImageObject
     :properties:
       :id:
         :label: id
@@ -151,10 +156,6 @@
         :label: Gravity
         :type: classification
         :tree_label: Gravity
-        :global: true
-        :ui:
-          :show:
-            :content_area: header
       :api_gravity:
         :label: Gravity
         :storage_location: virtual

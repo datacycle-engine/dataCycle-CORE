@@ -3,7 +3,7 @@
     :name: additional_image_properties
     :type: mixin
     :properties:
-      :image_variants:
+      :encoding:
         :label: Bild-Varianten
         :type: embedded
         :template_name: ImageVariant
