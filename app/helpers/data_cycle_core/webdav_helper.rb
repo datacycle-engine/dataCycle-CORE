@@ -7,6 +7,9 @@ module DataCycleCore
       'getetag', 'getlastmodified', 'resourcetype'
     ].freeze
 
+    EXCLUDE_THING_PROPERTIES = ['id', 'slug'].freeze
+
+
     def parse_request(body)
       data = Nokogiri::XML(body)
       data.remove_namespaces!
@@ -51,7 +54,17 @@ module DataCycleCore
     end
 
     def generate_file(thing)
-      [thing.name, '\n'].join
+      (["#{thing.template_name} (#{thing.id})\n"] +
+        thing
+          .plain_property_names
+          .map { |i| thing.send(i).present? && !i.in?(EXCLUDE_THING_PROPERTIES) ? ["#{thing.properties_for(i).dig('label')}:", "#{thing.send(i)}\n"] : nil }
+          .flatten
+          .compact +
+        ['Klassifizierungen:'] +
+        thing
+          .classification_aliases
+          .map { |i| i.classification_alias_path.full_path_names.reverse.join(' > ') }
+      ).join("\n")
     end
   end
 end

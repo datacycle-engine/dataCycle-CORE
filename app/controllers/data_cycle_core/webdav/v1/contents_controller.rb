@@ -16,7 +16,8 @@ module DataCycleCore
 
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            @contents = DataCycleCore::StoredFilter.find(permitted_params.dig(:id))
+            @collection = load_collection(permitted_params.dig(:id), current_user)
+            @contents = load_contents(@collection)
 
             render 'index', status: :multi_status
           end
@@ -26,7 +27,7 @@ module DataCycleCore
           @props = parse_request(request.body)
           @header = parse_header(request)
           @id = permitted_params.dig(:id)
-          @content = DataCycleCore::StoredFilter.find(@id).apply.where(slug: permitted_params.dig(:file_name))&.first
+          @content = load_content(permitted_params.dig(:id), permitted_params.dig(:file_name), current_user)
 
           render 'show', status: :multi_status
         end
@@ -34,7 +35,7 @@ module DataCycleCore
         def download
           @props = parse_request(request.body)
           @header = parse_header(request)
-          @content = DataCycleCore::StoredFilter.find(permitted_params.dig(:id)).apply.where(slug: permitted_params.dig(:file_name))&.first
+          @content = load_content(permitted_params.dig(:id), permitted_params.dig(:file_name), current_user)
 
           # ap params
           # puts 'Header:'
@@ -70,12 +71,26 @@ module DataCycleCore
 
         private
 
-        def debug(body, message = 'Request Body')
-          # puts "\n\n"
-          # puts message
-          # puts Nokogiri::XML(body).to_xml(indent: 2)
-          # puts "\n\n"
+        def load_collection(id, user)
+          watch_list = DataCycleCore::WatchList.find(id)
+          raise ActiveRecord::RecordNotFound if watch_list.blank? || watch_list.user_id != user.id || !user.has_rank?(99)
+          watch_list
         end
+
+        def load_contents(collection)
+          collection.things
+        end
+
+        def load_content(id, file_name, user)
+          load_contents(load_collection(id, user)).where(slug: file_name)&.first
+        end
+
+        # def debug(body, message = 'Request Body')
+        #   puts "\n\n"
+        #   puts message
+        #   puts Nokogiri::XML(body).to_xml(indent: 2)
+        #   puts "\n\n"
+        # end
       end
     end
   end
