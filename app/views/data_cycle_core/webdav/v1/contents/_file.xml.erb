@@ -11,7 +11,7 @@
     </d:prop>
     <d:status>HTTP/1.1 200 OK</d:status>
   </d:propstat>
-  <% if quota %>
+  <% if defined?(quota) && quota %>
     <d:propstat>
       <d:prop>
         <d:quota-used-bytes/>

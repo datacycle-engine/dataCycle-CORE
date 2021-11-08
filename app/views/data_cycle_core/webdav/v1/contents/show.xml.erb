@@ -1,14 +1,5 @@
 <?xml version="1.0"?>
 
 <d:multistatus xmlns:d="DAV:">
-  <%= render 'file', {
-    id: @id,
-    file_name: @content.slug,
-    display_name: @asset.file_name,
-    last_modified: @content.updated_at.httpdate,
-    content_length: @content.assets.first&.file&.size,
-    etag: %("#{File.mtime(@asset_path)}-#{@asset.try(:size)}"),
-    content_type: @content.assets.first&.content_type,
-    quota: false
-  } %>
+  <%= render 'file', { id: @id }.merge(propstat(@content)) %>
 </d:multistatus>

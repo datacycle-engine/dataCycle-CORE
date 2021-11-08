@@ -4,7 +4,6 @@ module DataCycleCore
   module Webdav
     module V1
       class ContentsController < ::DataCycleCore::Webdav::V1::WebdavBaseController
-        include DataCycleCore::WebdavHelper
         PUMA_MAX_TIMEOUT = 600
 
         def index
@@ -29,9 +28,6 @@ module DataCycleCore
           @id = permitted_params.dig(:id)
           @content = DataCycleCore::StoredFilter.find(@id).apply.where(slug: permitted_params.dig(:file_name))&.first
 
-          @asset = @content.assets.first.file
-          @asset_path = @asset.file.file
-
           render 'show', status: :multi_status
         end
 
@@ -44,6 +40,11 @@ module DataCycleCore
           # puts 'Header:'
           # puts @header
           # debug(request.body)
+
+          if @content.assets.blank?
+            send_data generate_file(@content), disposition: 'inline', filename: [@content.name, '.txt'].join, type: 'text/plain'
+            return
+          end
 
           @asset = @content.assets.first.file
           @asset_path = @asset.file.file
@@ -70,10 +71,10 @@ module DataCycleCore
         private
 
         def debug(body, message = 'Request Body')
-          puts "\n\n"
-          puts message
-          puts Nokogiri::XML(body).to_xml(indent: 2)
-          puts "\n\n"
+          # puts "\n\n"
+          # puts message
+          # puts Nokogiri::XML(body).to_xml(indent: 2)
+          # puts "\n\n"
         end
       end
     end
