@@ -47,6 +47,19 @@
             <% end %>
           <% end %>
 
+          <li>
+            <span class="link" aria_hidden="true">
+              <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
+                                          class: 'copy-to-clipboard',
+                                          data: {
+                                              value: send("webdav_v1_contents_index_url", api_subversion: nil, id: @watch_list)
+                                          },
+                                          title: t('actions.copy_to_clipboard', locale: active_ui_locale) do %>
+                <i class="fa fa-hdd-o" aria-hidden="true"></i>
+              <% end %>
+            </span>
+          </li>
+
           <%= tag.li render('data_links', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
           <li class="buttons">
             <%= link_to previous_authorized_crumb.url, class: 'has-content close-show-button' do %>

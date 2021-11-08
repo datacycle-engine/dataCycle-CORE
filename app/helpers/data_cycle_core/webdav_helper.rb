@@ -9,7 +9,6 @@ module DataCycleCore
 
     EXCLUDE_THING_PROPERTIES = ['id', 'slug'].freeze
 
-
     def parse_request(body)
       data = Nokogiri::XML(body)
       data.remove_namespaces!
