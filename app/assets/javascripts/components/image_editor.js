@@ -37,7 +37,7 @@ class ImageEditor {
   setup() {
     // @todo: move to config
     const blackTheme = {
-      'common.bi.image': 'https://uicdn.toast.com/toastui/img/tui-image-editor-bi.png',
+      'common.bi.image': '',
       'common.bisize.width': '251px',
       'common.bisize.height': '21px',
       'common.backgroundImage': 'none',
@@ -125,8 +125,8 @@ class ImageEditor {
         initMenu: '',
         menu: ['resize', 'crop', 'flip', 'rotate', 'draw', 'text', 'filter'],
         uiSize: {
-          width: '95vw',
-          height: '95vh'
+          width: '100vw',
+          height: '92vh'
         }
       },
       cssMaxWidth: '1920',
