@@ -2,10 +2,10 @@
 
   <% if content.overlay? %>
     <%= render_attribute_viewer key: 'overlay',
-                                  definition: content.schema['properties']['overlay'],
-                                  value: content.try('overlay'),
-                                  parameters: { options: { } },
-                                  content: content %>
+                                definition: content.schema['properties']['overlay'],
+                                value: content.try('overlay'),
+                                parameters: { options: { } },
+                                content: content %>
   <% end %>
   <div class="detail-content imageobject">
 
@@ -14,20 +14,20 @@
       <div class="image">
 
         <%
-                    thumbnail_url = content.try(:thumbnail_url)
-                    if content.try(:asset)&.versions&.key?(:web)
-                        thumbnail_url = content.asset.web.url
-                    end
-                %>
+          thumbnail_url = content.try(:thumbnail_url)
+          if content.try(:asset)&.versions&.key?(:web)
+            thumbnail_url = content.asset.web.url
+          end
+        %>
 
         <% if thumbnail_url.present? %>
 
           <div class="image-container stripes">
             <%= render_attribute_viewer key: 'thumbnail_url',
-                                                    definition: content.schema['properties']['thumbnail_url'],
-                                                    value: thumbnail_url,
-                                                    parameters: { options: {hide_label: true} },
-                                                    content: content %>
+                                        definition: content.schema['properties']['thumbnail_url'],
+                                        value: thumbnail_url,
+                                        parameters: { options: {hide_label: true} },
+                                        content: content %>
           </div>
         <% end %>
         <div class="image-data">
@@ -37,10 +37,10 @@
               <% next if content.properties_for(property_name).blank? %>
               <dd>
                 <%= render_attribute_viewer key: property_name,
-                                                            definition: content.properties_for(property_name),
-                                                            value: content.try(property_name.to_sym),
-                                                            parameters: { options: {} },
-                                                            content: content %>
+                                            definition: content.properties_for(property_name),
+                                            value: content.try(property_name.to_sym),
+                                            parameters: { options: {} },
+                                            content: content %>
               </dd>
             <% end %>
 
@@ -48,10 +48,10 @@
               <% next if content.try(property_name.to_sym).blank? %>
               <dd>
                 <%= render_attribute_viewer key: property_name,
-                                                            definition: content.schema['properties'][property_name],
-                                                            value: content.try(property_name.to_sym),
-                                                            parameters: {options: {}},
-                                                            content: content %>
+                                            definition: content.schema['properties'][property_name],
+                                            value: content.try(property_name.to_sym),
+                                            parameters: {options: {}},
+                                            content: content %>
               </dd>
             <% end %>
 
@@ -64,10 +64,10 @@
                 <% next if content.try(property_name.to_sym).blank? %>
                 <dd>
                   <%= render_attribute_viewer key: property_name,
-                                                                definition: content.schema['properties'][property_name],
-                                                                value: content.try(property_name.to_sym),
-                                                                parameters: {options: {}},
-                                                                content: content %>
+                                              definition: content.schema['properties'][property_name],
+                                              value: content.try(property_name.to_sym),
+                                              parameters: {options: {}},
+                                              content: content %>
                 </dd>
               <% end %>
 
@@ -77,10 +77,10 @@
               <dt><i class="fa fa-info-circle" aria-hidden="true"></i> <%= content.schema['properties']['restrictions']['label'] %></dt>
               <dd>
                 <%= render_attribute_viewer key: 'restrictions',
-                                                            definition: content.schema['properties']['restrictions'],
-                                                            value: content.restrictions,
-                                                            parameters: { options: {hide_label: true}},
-                                                            content: content %>
+                                            definition: content.schema['properties']['restrictions'],
+                                            value: content.restrictions,
+                                            parameters: { options: {hide_label: true}},
+                                            content: content %>
               </dd>
             <% end %>
 
@@ -103,10 +103,10 @@
                 <% next if content.try(property_name.to_sym).blank? %>
                 <dd>
                   <%= render_attribute_viewer key: property_name,
-                                                                definition: content.schema['properties'][property_name],
-                                                                value: content.try(property_name.to_sym),
-                                                                parameters: {options: {}},
-                                                                content: content %>
+                                              definition: content.schema['properties'][property_name],
+                                              value: content.try(property_name.to_sym),
+                                              parameters: {options: {}},
+                                              content: content %>
                 </dd>
               <% end %>
             <% end %>
@@ -127,8 +127,17 @@
           </dl>
 
         </div>
-
       </div>
+
+      <% if content.try(:encoding) %>
+        <%= render 'data_cycle_core/contents/viewers/embedded',
+                   key: 'encoding',
+                   definition: content.properties_for('encoding'),
+                   value: content.try(:encoding),
+                   options: {},
+                   content: content
+        %>
+      <% end %>
 
     </div>
 

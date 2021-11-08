@@ -54,7 +54,7 @@
             :0: asset
         :ui:
           :show:
-            :partial: preview_image
+            :disabled: true
         :api:
           :minimal: true
       :url:
