@@ -254,7 +254,7 @@ class SplitView {
       if (linkedOrEmbedded) value = domElementHelpers.parseDataAttribute(linkedOrEmbedded.dataset.id);
     } else {
       const response = await this.loadValue([key]);
-      if (response && response[key]) value = response[key];
+      if (response && response.hasOwnProperty(key)) value = response[key];
     }
 
     if (!value && value !== false) return DataCycle.enableElement(button);
