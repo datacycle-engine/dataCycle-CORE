@@ -299,7 +299,7 @@
   :enabled: false
 
 :image_proxy:
-  :enabled: true
+  :enabled: false
 
 :image_editor:
-  :enabled: true
+  :enabled: false
