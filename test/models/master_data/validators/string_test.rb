@@ -161,7 +161,7 @@ describe DataCycleCore::MasterData::Validators::String do
 
     it 'gives a warning when string does not fulfill url format restriction' do
       new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'soft_url' } })
-      cases = ['!test', 'test/franz', 'html://test/franz', 'httpx://test/franz', 8, :test]
+      cases = ['!test', 'test/franz', 'html://test/franz', 'httpx://test/franz']
       cases.each do |test_case|
         validator = subject.new(test_case, new_template)
         assert_equal(0, validator.error[:error].size)
