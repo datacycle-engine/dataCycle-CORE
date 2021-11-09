@@ -387,7 +387,7 @@ module DataCycleCore
 
         def self.parse_links(data, external_source_id)
           return [] if data.blank?
-          Array.wrap(data).map { |link|
+          Array.wrap(data).uniq.map { |link|
             next if link['URL'].blank? || link['URL'] == 'http://'
             to_view_action(external_source_id).call(link)
           }.compact

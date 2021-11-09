@@ -12,7 +12,7 @@ module DataCycleCore
         collections = local_assigns.dig(:collection_group, 1)
         nested = true
       else
-        collections = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :watch_list_shares, :user)
+        collections = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :watch_list_shares, :user).without_my_selection
         collections = collections.includes(:watch_list_data_hashes) if include_data_hashes
         collections = collections.fulltext_search(local_assigns[:q]) if local_assigns[:q].present?
         collections = collections.order(updated_at: :desc)
@@ -60,6 +60,29 @@ module DataCycleCore
       button_html += safe_join(content_locks.map { |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale) { cl.activitiable.try(:title) }, locale: active_ui_locale)), id: "content-lock-#{cl.id}", class: "content-locked-text #{'hidden' if content_locks.size >= 50}") })
 
       button_html
+    end
+
+    def render_my_selection(type:, content: nil)
+      return if !DataCycleCore::Feature::MySelection.enabled? || current_user&.my_selection.nil?
+
+      current_user.my_selection.clear_if_not_active
+
+      render "data_cycle_core/application/watch_lists/#{type}_link",
+             content: content,
+             watch_list: current_user.my_selection
+    end
+
+    def watch_list_link_icon(content)
+      link_html = ActionView::OutputBuffer.new
+
+      if content.watch_lists.accessible_by(current_ability).exists?
+        link_html << tag.i(class: 'fa fa-bookmark')
+        link_html << tag.i(class: 'fa fa-star my-collection-star-icon') if DataCycleCore::Feature::MySelection.enabled? && content.watch_lists.accessible_by(current_ability).my_selection.exists?
+      else
+        link_html << tag.i(class: 'fa fa-bookmark-o')
+      end
+
+      link_html
     end
   end
 end

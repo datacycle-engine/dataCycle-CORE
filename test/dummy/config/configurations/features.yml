@@ -178,8 +178,11 @@
   :enabled: true
   :allowed: true
   :external_source: 'DeeplTranslate'
-  :endpoint: 'DataCycleCore::Generic::DeeplTranslate::Endpoint'
+  :endpoint: 'DataCycleCore::Generic::DeeplTranslate::DummyEndpoint'
   :attribute_keys: ['text']
+
+:auto_translation:
+  :enabled: true
 
 :collection_group:
   :enabled: true

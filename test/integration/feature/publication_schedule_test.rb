@@ -24,16 +24,18 @@ module DataCycleCore
         assert classifications.values.all?(&:present?)
 
         publication_schedules = Array.new(2) do |i|
-          classifications.transform_values { |c| [c[i].id] }.merge({
-            DataCycleCore::Feature::PublicationSchedule.publication_date_key(@content) => publication_date
-          })
+          {
+            datahash: classifications.transform_values { |c| [c[i].id] }.merge({
+              DataCycleCore::Feature::PublicationSchedule.publication_date_key(@content) => publication_date
+            })
+          }
         end
 
         patch thing_path(@content), params: {
           thing: {
-            datahash: @content.get_data_hash.merge({
+            datahash: {
               DataCycleCore::Feature::PublicationSchedule.attribute_keys(@content)&.first => publication_schedules
-            })
+            }
           },
           save_and_close: true
         }, headers: {

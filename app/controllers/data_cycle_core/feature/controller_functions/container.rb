@@ -35,11 +35,10 @@ module DataCycleCore
 
             @content.is_part_of = @parent.id
             @content.save(touch: false)
-            valid = @content.set_data_hash(update_hash)
-            if valid[:error].present?
-              redirect_back(fallback_location: root_path, alert: valid[:error])
-            else
+            if @content.set_data_hash(update_hash)
               redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: helpers.active_ui_locale, data: @parent.title))
+            else
+              redirect_back(fallback_location: root_path, alert: @content.errors.messages)
             end
           end
         end

@@ -203,7 +203,7 @@ class DashboardFilter {
       },
       dataType: 'script',
       contentType: 'application/json'
-    }).always(() => {
+    }).finally(() => {
       this.$addAdvancedFilterSelect.prop('disabled', false);
     });
 

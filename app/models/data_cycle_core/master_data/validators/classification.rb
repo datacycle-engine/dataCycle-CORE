@@ -78,15 +78,6 @@ module DataCycleCore
           }
         end
 
-        # validate nil,"",[],[nil],[""] as blank.
-        def blank?(data)
-          return true if data.blank?
-          if data.is_a?(::Array)
-            return true if data.length == 1 && data[0].blank?
-          end
-          false
-        end
-
         def min(data, value)
           return unless data.size < value
 

@@ -1,0 +1,10 @@
+{
+  "name": "poi1 de",
+  "additional_information": [{
+    "name": "name1_de",
+    "description": "description1_de"
+  },{
+    "name": "name2_de",
+    "description": "description2_de"
+  }]
+}

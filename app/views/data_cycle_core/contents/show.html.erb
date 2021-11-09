@@ -4,6 +4,10 @@
   <%= render_content_partial 'header', content: @content %>
 <% end %>
 
+<% content_for :title do %>
+  <%= "#{@content.translated_template_name(active_ui_locale)}: #{@content.title}" %>
+<% end %>
+
 <% if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container') %>
   <ul class="accordion container-details" data-accordion data-allow-all-closed="true">
     <li class="accordion-item is-active" data-accordion-item>
@@ -39,7 +43,7 @@
     <div id="related-contents-<%= @content&.id %>"
         class="remote-render"
         data-remote-path="data_cycle_core/contents/related"
-        data-remote-options="<%= to_query_params({ content: @content, options: options ||= {} }).to_json %>">
+        data-remote-options="<%= to_query_params({ content: @content, options: options ||= {}, locale: I18n.locale }).to_json %>">
     </div>
   <% end %>
 <% end %>

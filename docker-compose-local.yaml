@@ -1,0 +1,88 @@
+version: '3.9'
+
+x-app-env: &default-app-env
+  APP_PROTOCOL: ${APP_PROTOCOL:-http}
+  APP_HOST: ${APP_HOST:-localhost:3003}
+  APPLICATION_ROOT: ${APPLICATION_ROOT:-/app}
+  MONGODB_HOST: ${MONGODB_HOST:-mongodb}
+  POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+  POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+  POSTGRES_VERSION: ${POSTGRES_VERSION:-13}
+  PUBLIC_APPLICATION_PORT: ${PUBLIC_APPLICATION_PORT:-3003}
+  REDIS_SERVER: ${REDIS_SERVER:-redis}
+  SSH_AUTH_SOCK: /ssh-agent
+  HISTFILE: /home/ruby/hist/.bash_history
+  RAILS_ENV: ${RAILS_ENV:-development}
+  MAILHOG_HOST: mailhog
+
+x-app: &default-app
+  build:
+    context: ${PWD}
+    target: development
+    dockerfile: ${COMPOSE_WEB_DOCKER_FILE:-./vendor/gems/data-cycle-core/Dockerfile}
+    args:
+      - "RAILS_ENV=${RAILS_ENV:-development}"
+      - "NODE_ENV=${NODE_ENV:-development}"
+      - "APP_DOCKER_ENV=${APP_DOCKER_ENV:-development}"
+  env_file:
+    - ${PWD}/.env
+  volumes:
+    - '${PWD}:/app'
+    - '${PWD}/docker/hist:/home/ruby/hist'
+    - app-node-modules:/app/node_modules
+    - $SSH_AUTH_SOCK:/ssh-agent
+  extra_hosts:
+    - 'dockerhost:host-gateway'
+  stdin_open: true
+  tty: true
+
+services:
+  web:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "${DC_DOCKER_SETUP_PATH:-/app/docker/}web/setup.development.sh"]
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+  migrate_project:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+    command: ["/bin/bash"]
+    restart: 'no'
+    profiles: ['migrate']
+  postgres:
+    volumes:
+      - '${PWD}:/app'
+      - postgres-data:/var/lib/postgresql/data
+  mongodb:
+    volumes:
+      - '${PWD}:/app'
+      - mongodb-data:/data/db
+      - mongodb-log:/var/log/mongodb
+  redis:
+    volumes:
+      - '${PWD}:/app'
+      - redis:/data
+  nginx:
+    volumes:
+      - '${PWD}:/app'
+      - nginx-log:/var/log/datacycle
+  imgproxy:
+    env_file:
+      - ${PWD}/.env
+  mailhog:
+    image: yappabe/mailhog
+    environment:
+      DNSDOCK_ALIAS: localhost
+    ports:
+      - '127.0.0.1:${PUBLIC_MAILHOG_PORT:-1025}:8025'
+volumes:
+  app-node-modules:
+  mongodb-data:
+  mongodb-log:
+  nginx-log:
+  postgres-data:
+  redis:

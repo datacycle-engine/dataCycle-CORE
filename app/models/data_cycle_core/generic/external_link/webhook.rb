@@ -12,7 +12,7 @@ module DataCycleCore
 
           init_logging do |logging|
             errors = update_sync(data: data, external_system: external_system)
-            errors = nil if errors.blank?
+
             if errors.present?
               logging.error('update', data['id'], raw_data, errors)
             else
@@ -31,7 +31,7 @@ module DataCycleCore
 
           init_logging do |logging|
             errors = delete_sync(data: data, external_system: external_system)
-            errors = nil if errors.blank?
+
             if errors.present?
               logging.error('delete', data['id'], raw_data, errors)
             else

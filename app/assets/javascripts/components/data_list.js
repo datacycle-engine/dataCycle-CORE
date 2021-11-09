@@ -10,7 +10,7 @@ class DataList {
     this.form = this.element.closest('form');
     this.searchForm = document.getElementById('search-form');
     this.collectionForm = document.getElementById('add-items-to-watch-list-form');
-    this.requests = [];
+    this.activeRequest;
     this.eventListeners = {
       onInput: this.onInput.bind(this),
       appendStoredFilterData: this.appendStoredFilterData.bind(this),
@@ -28,12 +28,6 @@ class DataList {
   resetList() {
     this.list.innerHTML = '';
   }
-  abortRunningRequests() {
-    this.requests.forEach(request => {
-      request.abort();
-      pull(this.requests, request);
-    });
-  }
   callSuccessMethod(data) {
     this.resetList();
 
@@ -44,17 +38,21 @@ class DataList {
   onInput(event) {
     event.preventDefault();
 
-    this.abortRunningRequests();
+    const promise = DataCycle.httpRequest({
+      type: 'GET',
+      url: `/${this.listId}/search`,
+      data: {
+        q: this.element.value
+      }
+    });
 
-    this.requests.push(
-      DataCycle.httpRequest({
-        type: 'GET',
-        url: `/${this.listId}/search`,
-        data: {
-          q: this.element.value
-        }
-      }).done(this.callSuccessMethod.bind(this))
-    );
+    this.activeRequest = promise;
+
+    promise.then(data => {
+      if (this.activeRequest != promise) return;
+
+      this.callSuccessMethod(data);
+    });
   }
   default_callback_method(data) {
     data.forEach(element => {
@@ -147,7 +145,7 @@ class DataList {
 
     this.searchForm.setAttribute('action', event.target.getAttribute('action'));
     this.searchForm.setAttribute('method', event.target.getAttribute('method'));
-    event.target.querySelectorAll('input[type="hidden"]').forEach(node => {
+    event.target.querySelectorAll(':scope input[type="hidden"]').forEach(node => {
       this.searchForm.appendChild(node.cloneNode());
     });
 

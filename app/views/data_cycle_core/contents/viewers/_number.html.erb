@@ -1,15 +1,10 @@
 <% number_method = definition&.dig('validations', 'format') == 'float' ? 'to_f' : 'to_i' %>
 
 <%= render 'data_cycle_core/contents/viewers/attribute',
-  key: key,
-  definition: definition,
-  value: value,
-  options: options,
-  content: content,
-  data_attributes: {
-    editor: definition.dig('ui', 'edit', 'type').try(:underscore) || 'number',
-    value: value.try(number_method)
-  } do %>
+      local_assigns.merge(data_attributes: {
+        editor: definition.dig('ui', 'edit', 'type').try(:underscore) || 'number',
+        value: value.try(number_method)
+      }) do %>
 
     <span class="detail-content">
       <% case options.dig(:item_diff, 0) %>

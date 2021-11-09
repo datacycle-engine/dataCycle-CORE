@@ -37,6 +37,12 @@ module DataCycleCore
 
           check_uuid
         end
+
+        private
+
+        def blank?(data)
+          DataCycleCore::DataHashService.blank?(data)
+        end
       end
     end
   end

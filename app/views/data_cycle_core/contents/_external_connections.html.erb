@@ -5,7 +5,7 @@
     <% external_connections.each do |name, syncs| %>
       <div class="external-connection-with-dropdown">
         <span class="external-connection" data-toggle="external-connections-<%= name.underscore_blanks %>"><i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i> <%= name %> (<%= syncs.size %>)</span>
-        <div class="dropdown-pane bottom external-connections-dropdown left-auto" id="external-connections-<%= name.underscore_blanks %>" data-dropdown data-hover="true" data-hover-pane="true">
+        <div class="dropdown-pane bottom external-connections-dropdown" id="external-connections-<%= name.underscore_blanks %>" data-dropdown data-hover="true" data-hover-pane="true">
           <ul class="list-items no-bullet">
             <% syncs.each do |sync| %>
               <li>

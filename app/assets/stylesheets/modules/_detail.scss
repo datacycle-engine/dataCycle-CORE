@@ -101,9 +101,49 @@
           }
         }
 
+        .translatable-attribute-container {
+          .translatable-attribute {
+            &.remote-render,
+            &.remote-rendering,
+            &.remote-render-failed {
+              box-shadow: 0 0 1px $dark-gray;
+              padding: 2.2rem 1rem 1rem 1rem;
+
+              &::before {
+                margin-top: 2.2rem;
+                margin-left: 1rem;
+                width: calc(100% - 2rem);
+              }
+            }
+          }
+
+          &:not(:last-child) {
+            margin-bottom: 1rem;
+          }
+        }
+
+        .detail-type.object {
+          .translatable-attribute-container {
+            .translatable-attribute {
+              &.remote-render,
+              &.remote-rendering,
+              &.remote-render-failed {
+                box-shadow: none;
+                padding: 0.4rem 0 0.4rem 0.7rem;
+
+                &::before {
+                  margin-top: 0.4rem;
+                  margin-left: 0.7rem;
+                  width: calc(100% - 0.7rem);
+                }
+              }
+            }
+          }
+        }
+
         .detail-type {
           position: relative;
-          box-shadow: 0 0 1px #9d9d9d;
+          box-shadow: 0 0 1px $dark-gray;
           padding: 2.2rem 1rem 1rem 1rem;
 
           &.has-changes:not(.geographic),
@@ -201,7 +241,7 @@
 
             &.object,
             &.embedded {
-              box-shadow: 0 0 1px #9d9d9d;
+              box-shadow: 0 0 1px $dark-gray;
               padding: 2.2rem 1rem 1rem 1rem;
 
               > .detail-label {
@@ -232,10 +272,8 @@
             color: $dark-gray;
             padding: 0.4rem 0.7rem;
 
-            .icon {
-              .fa {
-                font-size: inherit;
-              }
+            > *:not(:last-child) {
+              margin-right: 0.3rem;
             }
           }
 

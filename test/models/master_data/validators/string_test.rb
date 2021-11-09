@@ -159,6 +159,46 @@ describe DataCycleCore::MasterData::Validators::String do
       end
     end
 
+    it 'gives a warning when string does not fulfill url format restriction' do
+      new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'soft_url' } })
+      cases = ['!test', 'test/franz', 'html://test/franz', 'httpx://test/franz']
+      cases.each do |test_case|
+        validator = subject.new(test_case, new_template)
+        assert_equal(0, validator.error[:error].size)
+        assert_equal(1, validator.error[:warning].size)
+      end
+    end
+
+    it 'passes when string fulfills url restriction' do
+      new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'soft_url' } })
+      cases = ['http://www.example.com', 'https://www.example.com', 'http://www.example.com/xxx/yyy', 'http://www.example.com/xxx?test=hallo', 'http://test.com/franz:3000', 'http://österreich.at']
+      cases.each do |test_case|
+        validator = subject.new(test_case, new_template)
+        assert_equal(0, validator.error[:error].size)
+        assert_equal(0, validator.error[:warning].size)
+      end
+    end
+
+    it 'passes when string fulfills url restriction with additional protocols (mailto,sftp,ftp)' do
+      new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'soft_url' } })
+      cases = ['mailto:test@test.at', 'ftp://test@test.at', 'sftp://test@test.at', 'tel:+43664123456']
+      cases.each do |test_case|
+        validator = subject.new(test_case, new_template)
+        assert_equal(0, validator.error[:error].size)
+        assert_equal(0, validator.error[:warning].size)
+      end
+    end
+
+    it 'fails to recognize the following cases as errors' do
+      new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'soft_url' } })
+      cases = ['https://www.....example.com', 'http://test.com/franz:99999999999999999']
+      cases.each do |test_case|
+        validator = subject.new(test_case, new_template)
+        assert_equal(0, validator.error[:error].size)
+        assert_equal(0, validator.error[:warning].size)
+      end
+    end
+
     it 'gives a warning when string does not fulfill telephone DIN 5008 format restriction' do
       new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'telephone_din5008' } })
       cases = ['(030) 86402357', '0 22 56 / 4 35 90 45', '0030-795-463872 ', '0043 463 123443-23', '0049 30 1564855', '050 12435-23-22', '1 1245', '0463 12 23 343']

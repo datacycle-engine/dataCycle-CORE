@@ -25,7 +25,7 @@ module DataCycleCore
       tag.button(id: id, type: 'button', class: 'button addContentObject', style: 'display: none;', disabled: readonly) do
         text = [I18n.t('embedded.button_title', title: title, locale: active_ui_locale)]
         text.prepend(tag.i(class: 'fa fa-ban')) if readonly
-        text.append(tag.i(class: 'fa fa-circle-o-notch fa-spin fa-3x fa-fw'))
+        text.append(tag.i(class: 'fa fa-spinner fa-spin fa-fw'))
         safe_join(text)
       end
     end

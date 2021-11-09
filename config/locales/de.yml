@@ -94,6 +94,7 @@ de:
       replaceAllNbsp: Alle geschützten Leerzeichen durch normale Leerzeichen ersetzen
       replaced_all_nbsp: Alle geschützten Leerzeichen wurden durch normale Leerzeichen ersetzt!
     override_warning: 'Soll das Feld %{data} überschrieben werden?'
+    override_focus: Felder hervorheben
     reload_page: Seite neu laden
     upload:
       running: Es gibt noch laufende Uploads!
@@ -118,6 +119,7 @@ de:
       released: Der Inhalt wurde wieder freigegeben und kann nicht mehr gespeichert werden.
     update_stored_filter: 'Filterparameter aktualisieren?<br><br>Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.'
     maximum_embedded: 'Maximalanzahl: %{data}'
+    minimum_embedded: 'Mindestanzahl: %{data}'
     gpx:
       file_missing: Datei nicht gefunden!
       empty: Die GPX-Datei beinhaltet keinen Track.
@@ -135,6 +137,11 @@ de:
       translate: übersetzen
       copy: übernehmen
       translate_error: Fehler beim Laden der Übersetzung
+      copy_all_translations:
+        overlay_text: Sollen alle verfügbaren Sprachen übernommen werden?
+        confirmation_text: Ja
+        cancel_text: Nein, nur die aktuelle Sprache
+      copy_linked_error: 'Das Attribut konnte nicht übernommen werden: '
     validate:
       save_and_change_language: Wollen Sie speichern und auf die neue Sprache wechseln?
       agbs: AGBs müssen akzeptiert werden!
@@ -212,6 +219,8 @@ de:
     import: Importiert
     export: Exportiert
     duplicate: Duplikate
+    auto_translation_submit: Automatische Übersetzung gestartet
+    source_language: 'Quellsprache wählen'
     choose_language: 'Sprache wählen'
     searchterm: 'Suchbegriff'
     active_filters: Aktive Filter
@@ -386,6 +395,7 @@ de:
     and: und
     'yes': Ja
     'no': Nein
+    merged_with_version_name: 'zusammengeführt mit %{name} (#%{id})'
 
   embedded:
     move_down: nach unten verschieben
@@ -635,6 +645,9 @@ de:
     subscribe_to: '%{data} abonnieren'
     unsubscribe: 'Abonnement löschen'
     subscribed_to: '%{data} abonniert'
+    auto_translate: 'automatisch Übersetzen'
+    translate: 'übersetzen'
+    translate_create: 'Übersetzungen anlegen'
     reset:
       one: 'Zurücksetzen'
       other: 'Suche zurücksetzen'
@@ -700,6 +713,9 @@ de:
     copyable_from: '%{data} übernehmen'
     copyable_from_clear: '%{data} verwerfen'
     logout: Abmelden
+    clear: 'Alle Inhalte aus %{data} entfernen'
+    remove_content_from: '%{name} aus %{collection} entfernen?'
+    remove_from: 'aus %{collection} entfernen'
 
   validation:
     errors:
@@ -789,6 +805,7 @@ de:
       external_items: Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!
       no_watchlist: Es wurde keine Inhaltssammlung gewählt
       content_duplication_invalid: 'Das Duplikat konnte nicht erstellt werden!'
+      bulk_update_error: Beim Speichern ist ein Fehler aufgetreten, bitte versuchen Sie es erneut
     success:
       created: '%{data} wurde erfolgreich erstellt.'
       ready_to_send: '%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden.'
@@ -820,15 +837,14 @@ de:
         one: '<b>%{count}</b> Inhalt wurde erstellt'
         other: '<b>%{count}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
+      cleared_collection: 'Alle Inhalte wurden aus %{data} entfernt'
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:
       not_modified: '%{data} wurde nicht geändert.'
       created_duplication: '%{data} wurde erfolgreich dupliziert.'
       content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
-      bulk_updated_skipped_html:
-        one: '<br><b>%{count}</b> Inhalt wurde nicht gespeichert, da dieser in der gewählten Sprache nicht vorhanden sind.'
-        other: '<br><b>%{count}</b> Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind.'
+      bulk_updated_skipped_html: '<br>Es wurden keine Übersetzungen angelegt, wenn ein Inhalt in der Sprache nicht vorhanden ist: %{counts}'
       bulk_deleted_external_html:
         one: '<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da dieser von einem externen System importiert wurden.'
         other: '<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da diese von einem externen System importiert wurden.'

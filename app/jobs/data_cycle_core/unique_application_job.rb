@@ -15,7 +15,8 @@ module DataCycleCore
         queue: job.queue_name,
         delayed_reference_type: job.delayed_reference_type,
         delayed_reference_id: job.delayed_reference_id,
-        locked_at: nil
+        locked_at: nil,
+        failed_at: nil
       )
     end
 

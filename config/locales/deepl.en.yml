@@ -86,6 +86,7 @@ en:
       replaceAllNbsp: replace all protected spaces with normal spaces
       replaced_all_nbsp: replaced all protected spaces with normal spaces!
     override_warning: Should the field %{data} be overwritten?
+    override_focus: highlight fields
     reload_page: Reload page
     upload:
       running: There are still uploads in progress!
@@ -112,6 +113,7 @@ en:
     update_stored_filter: 'Update filter parameters?<br><br>Warning: Also affects
       saved searches that use this search.'
     maximum_embedded: 'Maximum number: %{data}'
+    minimum_embedded: 'Minimum number: %{data}'
     gpx:
       file_missing: File not found!
       empty: The GPX file does not contain a track.
@@ -129,6 +131,11 @@ en:
       translate: Translate
       copy: accept
       translate_error: Error loading the translation
+      copy_all_translations:
+        overlay_text: Copy all available languages?
+        confirmation_text: 'yes'
+        cancel_text: no, only current language
+      copy_linked_error: 'attribute could not be copied: '
     validate:
       save_and_change_language: Do you want to save and switch to the new language?
       agbs: AGBs must be accepted!
@@ -146,6 +153,7 @@ en:
         other: Words
       max: '(still max %{data} %{label})'
       min: '(still min. %{data} %{label})'
+
   schedule:
     dtstart: Start time
     dtend: End time
@@ -205,6 +213,8 @@ en:
     import: Imported
     export: Exports
     duplicate: Duplicates
+    auto_translation_submit: Automatic translation started
+    source_language: Select source language
     choose_language: Select language
     searchterm: Search Keyword
     active_filters: Active filters
@@ -387,6 +397,8 @@ en:
     and: and
     'yes': 'Yes'
     'no': 'No'
+    merged_with_version_name: 'merged with %{name} (#%{id})'
+
   embedded:
     move_down: move down
     move_up: move up
@@ -617,6 +629,9 @@ en:
     delete_with_data: Delete %{data}
     subscribe: subscribe
     subscribe_to: 'subscribe to %{data}'
+    auto_translate: 'automatic translation'
+    translate: 'translate'
+    translate_create: 'Create translations'
     unsubscribe: Delete subscription
     subscribed_to: 'subscribed to %{data}'
     reset:
@@ -685,6 +700,10 @@ en:
     copyable_from: Apply %{data}
     copyable_from_clear: '%{data} discard'
     logout: Logout
+    clear: 'remove all contents from %{data}'
+    remove_content_from: 'Remove %{name} from %{collection}?'
+    remove_from: 'remove from %{collection}'
+
   validation:
     errors:
       slug: '%{data} is already the slug of another record.'
@@ -786,14 +805,15 @@ en:
         cannot be deleted!
       no_watchlist: No content collection was chosen
       content_duplication_invalid: The duplicate could not be created!
+      bulk_update_error: An error occurred while saving, please try again
     success:
       created: '%{data} was successfully created.'
       ready_to_send: '%{data} has been successfully created and can now be sent.'
       updated: '%{data} has been updated.'
       destroyed: '%{data} has been deleted.'
       destroyed_translation: Translation %{language} of %{data} was deleted.
-      added_to: 'Added to watchlist: %{data} added.'
-      removedFrom: 'Removed from watchlist: %{data} removed.'
+      added_to: 'Added to watch list: %{data} added.'
+      removedFrom: 'Removed from watch list: %{data} removed.'
       sent: Email has been sent.
       saved: '%{data} was created.'
       saved_and_sent: '%{data} was created and sent.'
@@ -817,6 +837,7 @@ en:
         one: '<b>%{count}</b> Content was created'
         other: '<b>%{count}</b> Contents were created'
       removed_lock: Content has been released
+      cleared_collection: 'removed all contents from %{data}'
     warning:
       no_changes: No new version was created because no changes were made to the content.
     info:
@@ -824,11 +845,7 @@ en:
       created_duplication: '%{data} was successfully duplicated.'
       content_updated: The content has been changed.<br>Please reload the page to
         ensure that these changes are not overwritten.</br>
-      bulk_updated_skipped_html:
-        one: '<br><b>%{count}</b> Content was not saved because it is not available
-          in the selected language.'
-        other: '<br><b>%{count}</b> Content was not saved because it is not available
-          in the selected language.'
+      bulk_updated_skipped_html: '<br>No translations were created if a content does not exist in the language: %{counts}'
       bulk_deleted_external_html:
         one: '<br><b>%{count}</b> Content was not deleted because it was imported
           from an external system.'

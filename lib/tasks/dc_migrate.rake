@@ -83,7 +83,7 @@ namespace :dc do
 
           logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}") && next unless asset&.save
 
-          content.external_source_to_external_system_syncs
+          content.external_source_to_external_system_syncs('duplicate')
 
           valid = content.set_data_hash(
             data_hash: {
@@ -95,10 +95,10 @@ namespace :dc do
             update_search_all: false
           )
 
-          if valid[:error].present?
-            logger.error("Error saving content: #{valid[:error]}")
-          else
+          if valid
             logger.info("Successfully loaded asset for #{content.id} from #{file_url}")
+          else
+            logger.error("Error saving content: #{content.errors.messages}")
           end
 
           progressbar.increment
@@ -224,6 +224,23 @@ namespace :dc do
           # update search table
           place.search_languages(true)
         end
+      end
+    end
+
+    desc 'migrate uniq external_keys for OutdoorActive additionalInformation'
+    task oa_external_key: :environment do
+      es = DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive')
+      return if es.blank?
+
+      contents = DataCycleCore::Thing.where(template_name: 'Ergänzende Information', external_source_id: es.id, external_key: nil).includes(:classifications, :translations)
+      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Ergänzende Information')
+      contents.each do |item|
+        desc = item.classifications.first.name
+        locale = item.available_locales.first
+        parent_external_key = DataCycleCore::ContentContent.where(content_b_id: item.id).first.content_a.external_key
+        item.external_key = "#{desc}:#{locale}:#{parent_external_key}"
+        item.save!
+        progressbar.increment
       end
     end
   end

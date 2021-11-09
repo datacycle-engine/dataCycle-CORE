@@ -1,5 +1,4 @@
-import uniqueId from 'lodash/uniqueId';
-import loadingIcon from '../templates/loadingIcon';
+import domElementHelpers from '../helpers/dom_element_helpers';
 
 class RemoteRenderer {
   constructor(selector) {
@@ -22,11 +21,25 @@ class RemoteRenderer {
       '*',
       this.loadRemote.bind(this)
     );
+    this.addForceRenderTranslationHandler(this.selector.find('.translatable-attribute.remote-render'));
     this.selector.on(
       'click',
       '.remote-render-failed > .remote-render-error > .remote-reload-link',
       this.reloadAfterFail.bind(this)
     );
+
+    DataCycle.htmlObserver.addCallbacks.push([
+      e => e.classList.contains('remote-render') && e.classList.contains('translatable-attribute'),
+      this.addForceRenderTranslationHandler.bind(this)
+    ]);
+  }
+  addForceRenderTranslationHandler(element) {
+    $(element).on('dc:remote:forceRenderTranslations', this.forceLoadRemote.bind(this));
+
+    $(element).each((_index, elem) => {
+      if (elem.classList.contains('force-render-translation'))
+        $(element).triggerHandler('dc:remote:forceRenderTranslations');
+    });
   }
   reloadAfterFail(event) {
     event.preventDefault();
@@ -57,18 +70,26 @@ class RemoteRenderer {
       if (!$(element).closest('.dropdown-pane').length) this.loadRemotePartial(element);
     });
   }
-  loadRemote(event) {
+  loadRemote(event, data) {
     event.stopPropagation();
 
     $(event.target)
       .find('.remote-render, .remote-reload')
       .addBack('.remote-render, .remote-reload')
       .filter((_, elem) => {
-        return $(elem).css('visibility') != 'hidden' && $(elem).is(':visible');
+        return (data && data.force) || ($(elem).css('visibility') != 'hidden' && $(elem).is(':visible'));
       })
       .each((_, element) => {
         this.loadRemotePartial(element);
       });
+  }
+  forceLoadRemote(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const target = event.currentTarget;
+
+    if (target.classList.contains('remote-render')) return this.loadRemotePartial(target, null, true);
   }
   loadChangedTabs(event) {
     event.stopPropagation();
@@ -79,11 +100,11 @@ class RemoteRenderer {
         this.loadRemotePartial(element);
       });
   }
-  loadRemotePartial(element, additionalParams = null) {
+  loadRemotePartial(element, additionalParams = null, forceRecursiveLoad = false) {
     let id = $(element).data('remote-render-id');
 
     if (id === undefined) {
-      id = uniqueId('remote_render_');
+      id = domElementHelpers.randomId();
       element.setAttribute('data-remote-render-id', id);
     }
 
@@ -93,27 +114,31 @@ class RemoteRenderer {
       content_for: $(element).data('remoteContentFor'),
       options: $(element).data('remoteOptions'),
       render_function: $(element).data('remoteRenderFunction'),
-      render_params: $(element).data('remoteRenderParams')
+      render_params: $(element).data('remoteRenderParams'),
+      force_recursive_load: forceRecursiveLoad
     };
 
     if (additionalParams) {
       for (const [key, value] of Object.entries(additionalParams)) {
+        if (!params[key]) params[key] = {};
         Object.assign(params[key], value);
       }
     }
 
-    $(element)
-      .removeClass('remote-render remote-rendered remote-reload')
-      .addClass('remote-rendering')
-      .html(loadingIcon('show'));
+    $(element).empty().removeClass('remote-render remote-rendered remote-reload').addClass('remote-rendering');
 
-    DataCycle.httpRequest({
+    return this.sendRequest(element, params);
+  }
+  sendRequest(element, params) {
+    const promise = DataCycle.httpRequest({
       type: 'POST',
       url: '/remote_render',
       data: JSON.stringify(params),
       dataType: 'script',
       contentType: 'application/json'
-    }).catch(async _error => {
+    });
+
+    promise.catch(async _error => {
       $(element)
         .html(
           `<div class="remote-render-error">${await I18n.translate(
@@ -125,6 +150,8 @@ class RemoteRenderer {
         .removeClass('remote-rendering')
         .addClass('remote-render-failed');
     });
+
+    return promise;
   }
 }
 

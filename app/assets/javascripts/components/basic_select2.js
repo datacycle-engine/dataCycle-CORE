@@ -2,7 +2,6 @@ import Select2 from 'select2';
 import difference from 'lodash/difference';
 import i18nDe from '../helpers/select2_i18n_de';
 import i18nEn from '../helpers/select2_i18n_en';
-import DataCycle from './data_cycle';
 
 class BasicSelect2 {
   constructor(element) {
@@ -19,7 +18,8 @@ class BasicSelect2 {
       reset: this.reset.bind(this),
       import: this.import.bind(this),
       destroy: this.destroy.bind(this),
-      suppressChange: this.suppressChangeEvent.bind(this)
+      suppressChange: this.suppressChangeEvent.bind(this),
+      resizeDropdown: this.resizeDropdownEvent.bind(this)
     };
   }
   init() {
@@ -54,6 +54,12 @@ class BasicSelect2 {
     this.$element.on('dc:import:data', this.eventHandlers.import);
     this.$element.on('dc:select:destroy', this.eventHandlers.destroy);
     this.$element.parent().on('change', '.select2-search__field', this.eventHandlers.suppressChange);
+    this.$element.on('change', this.eventHandlers.resizeDropdown);
+  }
+  resizeDropdownEvent(_event) {
+    const $dropdown = this.$element.closest('.dropdown-pane');
+
+    if ($dropdown.length) $dropdown.trigger('dc:dropdown:resize');
   }
   suppressChangeEvent(event) {
     event.stopPropagation();
@@ -70,7 +76,7 @@ class BasicSelect2 {
     this.$element.parent().off('change', '.select2-search__field', this.eventHandlers.suppressChange);
   }
   initSpecificEventHandlers() {}
-  import(_event, data) {
+  async import(_event, data) {
     if (!data.value || !data.value.length) return;
 
     let value = this.$element.val();
@@ -81,9 +87,9 @@ class BasicSelect2 {
     data.value = data.value.filter(Boolean);
     let diff = difference(data.value, value);
 
-    if (diff.length) this.loadNewOptions(value, diff);
+    if (diff.length) await this.loadNewOptions(value, diff);
   }
-  loadNewOptions(_value, _options) {}
+  async loadNewOptions(_value, _options) {}
   markMatch(text, term) {
     let match = text.toLowerCase().lastIndexOf(term.toLowerCase());
     let $result = $('<span></span>');

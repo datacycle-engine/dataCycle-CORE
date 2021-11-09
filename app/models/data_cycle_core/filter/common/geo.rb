@@ -4,6 +4,18 @@ module DataCycleCore
   module Filter
     module Common
       module Geo
+        def geo_filter(value = nil, type = nil)
+          filter_type = type.to_sym
+          raise 'Unknown geo filter' unless respond_to?(filter_type)
+          send(filter_type, value)
+        end
+
+        def not_geo_filter(value = nil, type = nil)
+          filter_type = "not_#{type}".to_sym
+          raise 'Unknown geo filter' unless respond_to?(filter_type)
+          send(filter_type, value)
+        end
+
         def within_box(sw_lon, sw_lat, ne_lon, ne_lat)
           return self if sw_lon.blank? || sw_lat.blank? || ne_lon.blank? || ne_lat.blank?
 

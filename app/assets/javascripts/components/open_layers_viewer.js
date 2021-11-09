@@ -171,24 +171,23 @@ class OpenLayersViewer {
     if (typeof this['baseLayer' + this.mapBackend] == 'function') return this['baseLayer' + this.mapBackend]();
     else return this.baseLayerBaseMap();
   }
-  baseLayerBaseMap() {
-    return fetch('https://maps.wien.gv.at/basemap/1.0.0/WMTSCapabilities.xml')
-      .then(response => response.text())
-      .then(text => {
-        let result = new this.ol.WMTSCapabilities().read(text);
-        let options = this.ol.source.WMTS.optionsFromCapabilities(result, {
-          layer: this.highDpi ? 'bmaphidpi' : 'geolandbasemap',
-          matrixSet: 'google3857',
-          style: 'normal'
-        });
+  async baseLayerBaseMap() {
+    const response = await fetch('https://maps.wien.gv.at/basemap/1.0.0/WMTSCapabilities.xml');
+    const text = await response.text();
 
-        options.attributions = '© <a href="https://www.basemap.at" target="_blank">basemap.at</a>';
-        options.tilePixelRatio = this.highDpi ? 2 : 1;
+    let result = new this.ol.WMTSCapabilities().read(text);
+    let options = this.ol.source.WMTS.optionsFromCapabilities(result, {
+      layer: this.highDpi ? 'bmaphidpi' : 'geolandbasemap',
+      matrixSet: 'google3857',
+      style: 'normal'
+    });
 
-        return new this.ol.layer.Tile({
-          source: new this.ol.source.WMTS(options)
-        });
-      });
+    options.attributions = '© <a href="https://www.basemap.at" target="_blank">basemap.at</a>';
+    options.tilePixelRatio = this.highDpi ? 2 : 1;
+
+    return new this.ol.layer.Tile({
+      source: new this.ol.source.WMTS(options)
+    });
   }
   baseLayerOpenStreetMap() {
     return Promise.resolve(
@@ -481,7 +480,9 @@ class OpenLayersViewer {
     };
   }
   initMap() {
-    return this.mapBaseLayer().then(baseLayer => {
+    const promise = this.mapBaseLayer();
+
+    promise.then(baseLayer => {
       const overlays = [];
       if (this.infoOverlay) overlays.push(this.infoOverlay);
 
@@ -498,6 +499,8 @@ class OpenLayersViewer {
         view: this.defaultView()
       });
     });
+
+    return promise;
   }
   defaultView() {
     const viewOptions = {

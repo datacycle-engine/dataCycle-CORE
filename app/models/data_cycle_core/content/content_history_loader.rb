@@ -3,22 +3,18 @@
 module DataCycleCore
   module Content
     module ContentHistoryLoader
-      def get_data_hash(timestamp = nil)
-        # return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
-        timestamp ||= history_valid.first + (history_valid.last - history_valid.first) / 2
-        as_of(timestamp).try(:to_h, timestamp)
+      def get_data_hash(_timestamp = nil)
+        try(:to_h, history_valid.first || updated_at)
       end
 
       def diff(data, template = nil)
         differ = DataCycleCore::MasterData::DiffData.new
-        timestamp ||= history_valid.first + (history_valid.last - history_valid.first) / 2
-        differ.diff(a: get_data_hash(timestamp), schema_a: schema, b: data, schema_b: template).diff_hash
+        differ.diff(a: get_data_hash(history_valid.first || updated_at), schema_a: schema, b: data, schema_b: template).diff_hash
       end
 
       def diff?(data, template = nil)
         differ = DataCycleCore::MasterData::DiffData.new
-        timestamp ||= history_valid.first + (history_valid.last - history_valid.first) / 2
-        differ.diff?(a: get_data_hash(timestamp), schema_a: schema, b: data, schema_b: template)
+        differ.diff?(a: get_data_hash(history_valid.first || updated_at), schema_a: schema, b: data, schema_b: template)
       end
 
       def load_linked_objects(relation_name, _filter = nil, same_language = false, _languages = ['de'], _overlay_flag = false)
@@ -34,6 +30,7 @@ module DataCycleCore
           relation_a_name = relation_b
           relation_b_name = relation_a
           translation_table = :thing_history_translations
+          order_tiebreak = :content_a_history_id
         else
           result_object = DataCycleCore::Thing
           relation_name = :content_content_b_history
@@ -41,6 +38,7 @@ module DataCycleCore
           relation_a_name = relation_a
           relation_b_name = relation_b
           translation_table = :thing_translations
+          order_tiebreak = :content_b_history_id
         end
         relation_contents = result_object
           .joins(relation_name)
@@ -53,7 +51,7 @@ module DataCycleCore
             }
           })
         relation_contents = relation_contents.joins(:translations).where(translation_table => { locale: I18n.locale }) if language_flag
-        relation_contents.order('content_content_histories.order_a ASC')
+        relation_contents.order(order_a: :asc, order_tiebreak => :asc)
       end
 
       def load_embedded_objects(relation_name, _filter = nil, same_language = true, _languages = ['de'], _overlay_flag = false)
@@ -68,7 +66,7 @@ module DataCycleCore
             }
           })
         relation_contents = relation_contents.joins(:translations).where(thing_history_translations: { locale: I18n.locale }) if language_flag
-        relation_contents.order('content_content_histories.order_a ASC')
+        relation_contents.order('content_content_histories.order_a ASC, content_content_histories.content_b_history_id ASC')
       end
 
       def load_classifications(relation_name, _overlay_flag)
@@ -91,16 +89,18 @@ module DataCycleCore
         DataCycleCore::Schedule::History.where(thing_history_id: id, relation: relation_name).order(created_at: :asc)
       end
 
-      def as_of(timestamp)
-        content_table_id = self.class.table_name.split('_')[0..-2].join('_').foreign_key
-        history_table_translation = "#{self.class}::Translation".safe_constantize.arel_table
+      def as_of(_timestamp)
+        raise 'as_of in history is no longer possible (app/models/data_cycle_core/content/content_history_loader.rb)'
+        # content_table_id = self.class.table_name.split('_')[0..-2].join('_').foreign_key
+        # history_table_translation = "#{self.class}::Translation".safe_constantize.arel_table
 
-        return_data = self.class.joins(:translations)
-          .where(content_table_id => send(content_table_id))
-          .where(
-            in_range(history_table_translation, timestamp)
-          ).order(history_table_translation[:history_valid])
-        return_data.last
+        # return_data = self.class.joins(:translations)
+        #   .where(content_table_id => send(content_table_id))
+        #   .where(history_table_translation[:locale].eq(first_available_locale))
+        #   .where(in_range(history_table_translation, timestamp))
+        #   .order(history_table_translation[:history_valid])
+
+        # return_data.last
       end
     end
   end

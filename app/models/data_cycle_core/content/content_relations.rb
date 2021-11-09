@@ -34,10 +34,10 @@ module DataCycleCore
           has_many :primary_classification_aliases, through: :primary_classification_groups, source: :classification_alias
 
           # relation content to all other contents
-          has_many :content_content_b, -> { order(order_a: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
+          has_many :content_content_b, -> { order(order_a: :asc, content_a_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
           has_many :content_a, through: :content_content_b
           has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
-          has_many :content_content_a, -> { order(order_a: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
+          has_many :content_content_a, -> { order(order_a: :asc, content_b_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
           has_many :content_b, through: :content_content_a
           has_many :content_b_linked, -> { where.not(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
           has_many :content_b_embedded, -> { where(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
@@ -81,15 +81,15 @@ module DataCycleCore
       end
 
       def is_related?
-        content_content_b.exists?
+        content_content_b.except(:order).exists?
       end
 
       def has_related?
-        content_content_a.exists?
+        content_content_a.except(:order).exists?
       end
 
       def has_cached_related_contents?
-        content_content_a.where.not(relation_b: nil).or(content_content_b).exists?
+        content_content_a.where.not(relation_b: nil).except(:order).or(content_content_b.except(:order)).exists?
       end
 
       def related_contents(embedded: false)

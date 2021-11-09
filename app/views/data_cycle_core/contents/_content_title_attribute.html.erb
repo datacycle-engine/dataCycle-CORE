@@ -1,0 +1,12 @@
+<div class="translatable-attribute-container">
+  <% content&.translated_locales&.each do |a_locale| %>
+    <div class="translatable-attribute remote-render <%= a_locale.to_s %><%= ' active' if I18n.locale == a_locale %>"
+      data-remote-render-function="render_specific_translatable_title_attribute_viewer"
+      data-remote-render-params="<%= to_query_params(
+        locale: a_locale,
+        key: key,
+        content: content
+      ).to_json %>">
+    </div>
+  <% end %>
+</div>

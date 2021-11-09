@@ -47,7 +47,7 @@ Gem::Specification.new do |s|
   # JSON Parser
   s.add_dependency 'multi_json'
   # XML Parser
-  s.add_dependency 'nokogiri', '~> 1.12.5'
+  s.add_dependency 'nokogiri'
   # authentication
   s.add_dependency 'devise'
   s.add_dependency 'jwt'
@@ -96,6 +96,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # cron jobs gem
   s.add_dependency 'whenever'
+  # rufus scheduler
+  s.add_dependency 'rufus-scheduler'
   # redis
   s.add_dependency 'hiredis'
   s.add_dependency 'redis'

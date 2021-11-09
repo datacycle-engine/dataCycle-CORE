@@ -52,6 +52,7 @@ module DataCycleCore
       @render_function = remote_render_params[:render_function]
       @render_params = resolve_params(params[:render_params])
       @options = resolve_params(params[:options])
+      @force_recursive_load = remote_render_params[:force_recursive_load]
 
       redirect_to(@render_params.merge(target: @target, partial: @partial)) && return if @render_params&.key?(:controller) && @render_params&.key?(:action)
 
@@ -94,7 +95,7 @@ module DataCycleCore
     end
 
     def remote_render_params
-      params.permit(:target, :partial, :render_function, content_for: [])
+      params.permit(:target, :partial, :render_function, :force_recursive_load, content_for: [])
     end
 
     def reload_params

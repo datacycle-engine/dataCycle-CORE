@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'rufus-scheduler'
+
+scheduler = Rufus::Scheduler.new
+
+scheduler.cron '0 0 * * 1' do # every :monday, at: '0:00'
+  system 'rake data_cycle_core:notifications:send[week]'
+end
+
+scheduler.cron '0 0 * * *' do # every :day at 0:00
+  system 'rake data_cycle_core:notifications:send[day]'
+end
+
+scheduler.join

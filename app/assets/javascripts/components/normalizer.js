@@ -18,13 +18,16 @@ class DataCycleNormalizer {
     this.form_data = this.form_element.serializeArray().filter(value => {
       return value.name != '_method';
     });
-    DataCycle.httpRequest({
+
+    const promise = DataCycle.httpRequest({
       type: 'POST',
       url: this.normalize_url,
       data: $.param(this.form_data),
       dataType: 'json'
-    })
-      .done(data => {
+    });
+
+    promise
+      .then(data => {
         this.normalized_data = [];
         if (data != undefined) {
           this.mapFieldNamesToValues(data);
@@ -54,15 +57,17 @@ class DataCycleNormalizer {
           }
         }
       })
-      .fail(data => {
+      .catch(data => {
         this.normalize_button.addClass('error');
         $('#' + this.normalize_button.data('toggle')).html(
           this.normalize_button.data('title') + '<br><br>Fehler: ' + data.statusText
         );
       })
-      .always(data => {
+      .finally(_data => {
         this.form_element.trigger('dc:form:enable');
       });
+
+    return promise;
   }
   mapFieldNamesToValues(data, parent_string = '') {
     if (data != undefined && typeof data == 'object' && !Array.isArray(data)) {

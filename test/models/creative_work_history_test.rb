@@ -78,14 +78,14 @@ module DataCycleCore
       data_set.save
 
       data_hash = { 'name' => 'Dies ist ein Test!' }
-      error = data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 5.seconds, new_content: true)
+      data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 5.seconds, new_content: true)
       data_set.save
 
       returned_data_hash = data_set.get_data_hash
       assert_equal(data_hash, returned_data_hash.except('id', 'data_pool').compact)
 
       assert_equal(1, returned_data_hash['data_pool'].count)
-      assert_equal(0, error[:error].count)
+      assert_equal(0, data_set.errors.size)
       assert_not_equal(data_set.get_data_hash(Time.zone.now), data_set.get_data_hash(save_time + 2.seconds))
 
       # check consistency of data in DB
@@ -122,14 +122,14 @@ module DataCycleCore
       data_set_place.save
 
       data_hash = { 'name' => 'Dies ist ein Test!', 'testPlace' => [{ 'id' => data_set_place.id }] }
-      error = data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 4.seconds)
+      data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 4.seconds)
       data_set.save
 
       returned_data_hash = data_set.get_data_hash
       expected_hash = data_hash
       expected_hash['testPlace'][0] = data_set_place.get_data_hash
       assert_equal(data_hash, returned_data_hash.except('id'))
-      assert_equal(0, error[:error].count)
+      assert_equal(0, data_set.errors.size)
 
       returned_data_hash = data_set.get_data_hash(save_time + 3.seconds)
 
@@ -170,13 +170,13 @@ module DataCycleCore
       data_set_cw.set_data_hash(data_hash: { 'name' => 'eingebettete Kreativdaten' }, current_user: nil, save_time: save_time + 2.seconds, new_content: true)
 
       data_hash = { 'name' => 'Dies ist ein Test!', 'testCW' => [{ 'id' => data_set_cw.id }] }
-      error = data_set.set_data_hash(data_hash: data_hash, current_user: nil, save_time: save_time + 4.seconds, new_content: true)
+      data_set.set_data_hash(data_hash: data_hash, current_user: nil, save_time: save_time + 4.seconds, new_content: true)
 
       returned_data_hash = data_set.get_data_hash
       expected_hash = data_hash
       expected_hash['testCW'][0] = data_set_cw.get_data_hash
       assert_equal(data_hash, returned_data_hash.except('id'))
-      assert_equal(0, error[:error].count)
+      assert_equal(0, data_set.errors.size)
 
       new_data_hash = { 'name' => 'Neuer aktueller Datensatz!', 'testCW' => [{ 'id' => data_set_cw.id }] }
       data_set.set_data_hash(data_hash: new_data_hash, current_user: nil, save_time: save_time + 8.seconds)
@@ -268,9 +268,9 @@ module DataCycleCore
       assert_equal(3, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      error = data_set.set_data_hash(data_hash: { 'name' => 'Test Link', 'linked' => [data_place_id1] })
+      data_set.set_data_hash(data_hash: { 'name' => 'Test Link', 'linked' => [data_place_id1] })
 
-      assert_equal(0, error[:error].size)
+      assert_equal(0, data_set.errors.size)
       assert_equal(3, DataCycleCore::Thing.count - template)
       assert_equal(3, DataCycleCore::Thing::Translation.count - template_trans)
       assert_equal(1, DataCycleCore::ContentContent.count)
@@ -278,9 +278,9 @@ module DataCycleCore
       assert_equal(4, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      error = data_set.set_data_hash(data_hash: { 'name' => 'Test Link2', 'linked' => [data_place_id2] })
+      data_set.set_data_hash(data_hash: { 'name' => 'Test Link2', 'linked' => [data_place_id2] })
 
-      assert_equal(0, error[:error].size)
+      assert_equal(0, data_set.errors.size)
       assert_equal(3, DataCycleCore::Thing.count - template)
       assert_equal(3, DataCycleCore::Thing::Translation.count - template_trans)
       assert_equal(1, DataCycleCore::ContentContent.count)
@@ -288,10 +288,10 @@ module DataCycleCore
       assert_equal(5, DataCycleCore::Thing::History::Translation.count)
       assert_equal(1, DataCycleCore::ContentContent::History.count)
 
-      error = data_set.set_data_hash(data_hash: { 'name' => 'Test Link1', 'linked' => [data_place_id1] })
+      data_set.set_data_hash(data_hash: { 'name' => 'Test Link1', 'linked' => [data_place_id1] })
       data_set.save
 
-      assert_equal(0, error[:error].size)
+      assert_equal(0, data_set.errors.size)
       assert_equal(3, DataCycleCore::Thing.count - template)
       assert_equal(3, DataCycleCore::Thing::Translation.count - template_trans)
       assert_equal(1, DataCycleCore::ContentContent.count)

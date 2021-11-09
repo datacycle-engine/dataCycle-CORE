@@ -1329,6 +1329,7 @@ $filter-border: #aaa;
       }
     }
   }
+
   .result-count {
     display: flex;
     flex-flow: row nowrap;
@@ -1336,16 +1337,25 @@ $filter-border: #aaa;
     padding: 0.6rem;
     margin-right: auto;
     border: 1px solid $light-gray;
+    min-width: 6rem;
 
-    > *:not(:last-child) {
+    &.remote-render,
+    &.remote-rendering {
+      justify-content: flex-start;
+
+      &::before {
+        margin-top: 0.6rem;
+        margin-left: 0.6rem;
+        width: calc(100% - 1.2rem);
+      }
+    }
+
+    b {
       margin-right: 0.3rem;
     }
 
-    .loading {
-      padding: 0;
-      .fa {
-        font-size: 1.3rem;
-      }
+    > *:not(:last-child) {
+      margin-right: 0.3rem;
     }
   }
 }

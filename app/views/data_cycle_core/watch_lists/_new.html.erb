@@ -1,6 +1,7 @@
+<% random_id = SecureRandom::hex(10) %>
 <div id="new-object-circle">
-  <a data-toggle="new-object" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
-  <div class="reveal" id="new-object" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
+  <a data-toggle="<%= random_id %>" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
+  <div class="reveal new-object" id="<%= random_id %>" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
     <a class="option last" href="#" data-open="newWatchList"><i class="fa fa-folder-open-o" aria-hidden="true"></i>Neue <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %> erstellen</a>
   </div>
 </div>

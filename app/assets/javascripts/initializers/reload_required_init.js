@@ -25,7 +25,7 @@ export default function () {
         },
         dataType: 'json',
         contentType: 'application/json'
-      }).always(async data => {
+      }).finally(async data => {
         $(window).off('focus.dc_edit_page');
 
         if (

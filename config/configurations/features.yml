@@ -158,6 +158,10 @@
   :enabled: false
   :attribute_keys:
 
+:auto_translation:
+  :enabled: false
+  :source_lang: de
+
 :translate:
   :enabled: false
   :allowed_languages:
@@ -290,3 +294,6 @@
 :gip_key_figure:
   :enabled: false
   :attribute_keys:
+
+:my_selection:
+  :enabled: false

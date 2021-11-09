@@ -1,7 +1,10 @@
+import domElementHelpers from '../helpers/dom_element_helpers';
+
 class ConfirmationModal {
   constructor(config = {}) {
     this.confirmationCallback = config.confirmationCallback;
     this.cancelCallback = config.cancelCallback;
+    this.preventCancelOnAbort = config.preventCancelOnAbort || false;
     this.confirmationClass = config.confirmationClass || '';
     this.cancelable = config.cancelable;
     this.text = config.text || '';
@@ -18,6 +21,7 @@ class ConfirmationModal {
   }
   async setup() {
     this.section = $(await this.renderSectionHtml());
+
     if ($('.confirmation-modal:visible').length) {
       this.overlay = $('.confirmation-modal:visible').first().append(this.section);
       this.confirmationIndex = this.overlay.find('section.confirmation-section').length;
@@ -35,6 +39,7 @@ class ConfirmationModal {
       new Foundation.Reveal(this.overlay);
       this.overlay.foundation('open');
     }
+
     this.addEvents();
   }
   async renderSectionHtml() {
@@ -57,10 +62,17 @@ class ConfirmationModal {
     this.section.find('.confirmation-confirm').on('click', this.confirm.bind(this));
     this.section.find('.confirmation-cancel').on('click', this.cancel.bind(this));
     this.overlay.on('closed.zf.reveal', _event => {
-      if (!this.closed) this.close('cancelCallback', true);
+      if (!this.closed && !this.preventCancelOnAbort) this.close('cancelCallback', true);
     });
 
     this.section.on('dc:confirmation_count:update', this.updateConfirmationIndex.bind(this));
+    this.section.on(
+      {
+        mouseenter: this.focusSpecificFields.bind(this),
+        mouseleave: this.focusSpecificFields.bind(this)
+      },
+      '.focus-specific-field'
+    );
   }
   cancel(event) {
     event.preventDefault();
@@ -87,6 +99,72 @@ class ConfirmationModal {
     if (typeof this[method_name] == 'function') {
       this[method_name]();
     }
+  }
+  focusSpecificFields(event) {
+    const fieldId = event.currentTarget.dataset.fieldId;
+    if (!fieldId) return;
+
+    const elements = document.querySelectorAll(`[data-focus-id="${fieldId}"]`);
+    const elementMethod = event.type == 'mouseenter' ? this._showSpecificField : this._hideSpecificField;
+    const overlayRect = this.overlay[0].getBoundingClientRect();
+    const fieldOffset = overlayRect.top + overlayRect.height + 20;
+
+    for (let i = 0; i < elements.length; ++i) {
+      elementMethod.call(this, elements[i], fieldOffset);
+    }
+  }
+  _showAncestors(ancestors) {
+    for (let i = 0; i < ancestors.length; ++i) {
+      const field = ancestors[i];
+      if (domElementHelpers.isVisible(field)) continue;
+
+      if (field.style.display) field.dataset.oldDisplayValue = field.style.display;
+      field.classList.add('dc-focus-show-ancestor');
+      field.style.display = 'block';
+    }
+  }
+  _hideAncestors(ancestors) {
+    for (let i = 0; i < ancestors.length; ++i) {
+      const field = ancestors[i];
+      if (!domElementHelpers.isVisible(field) || !field.classList.contains('dc-focus-show-ancestor')) continue;
+
+      field.classList.remove('dc-focus-show-ancestor');
+      if (field.dataset.oldDisplayValue) field.style.display = field.dataset.oldDisplayValue;
+      else if (field.style.display) field.style.removeProperty('display');
+    }
+  }
+  _showSpecificField(field, fieldOffset) {
+    if (field.style.top) field.dataset.oldTopValue = field.style.top;
+    if (field.style.opacity) field.dataset.oldOpacityValue = field.style.opacity;
+    field.style.opacity = 0;
+
+    window.requestAnimationFrame(() => {
+      const ancestors = domElementHelpers.findAncestors(field, domElementHelpers.isHidden);
+      this._showAncestors(ancestors.reverse());
+
+      field.classList.add('dc-focus-field');
+      field.style.top = `${fieldOffset}px`;
+    });
+
+    window.requestAnimationFrame(() => {
+      field.style.opacity = 1;
+    });
+  }
+  _hideSpecificField(field, _fieldOffset) {
+    if (!field.classList.contains('dc-focus-field')) return;
+
+    field.style.opacity = 0;
+
+    setTimeout(() => {
+      const ancestors = domElementHelpers.findAncestors(field, e => e.classList.contains('dc-focus-show-ancestor'));
+      this._hideAncestors(ancestors);
+
+      field.style.removeProperty('opacity');
+      field.style.removeProperty('top');
+      field.classList.remove('dc-focus-field');
+      if (field.style.oldTopValue) field.style.top = field.dataset.oldTopValue;
+      if (field.style.oldOpacityValue) field.style.opacity = field.dataset.oldOpacityValue;
+    }, 300);
   }
 }
 
