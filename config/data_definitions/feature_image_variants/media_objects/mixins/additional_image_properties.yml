@@ -50,7 +50,7 @@
         :api:
           :disabled: true
           :v4:
-            :disabled: true
+            :disabled: false
             :name: dc:originalUrl
         :ui:
           :show:
@@ -135,3 +135,31 @@
         :ui:
           :show:
             :disabled: true
+      :virtual_dynamic_url:
+        :label: Virtual Content Url
+        :storage_location: virtual
+        :type: virtual
+        :virtual:
+          :type: string
+          :module: Utility::Virtual::Asset
+          :method: imgproxy
+          :transformation:
+            :version: dynamic
+          :processing:
+            :resize_type: fill
+            :width: 1920
+            :height: 1080
+            :enlarge: 0
+            :gravity: sm
+            :format: jpeg
+          :parameters:
+            :0: asset
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :name: dc:dynamicUrl
+        :ui:
+          :show:
+            :disabled: true
+

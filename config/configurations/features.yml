@@ -300,6 +300,40 @@
 
 :image_proxy:
   :enabled: false
+  :config:
+    :dynamic:
+    :original:
+    :default:
+      :processing:
+        :resize_type: fit
+        :width: 0
+        :height: 0
+        :enlarge: 0
+        :gravity: ce
+    :thumb:
+      :processing:
+        :resize_type: fit
+        :width: 300
+        :height: 300
+        :enlarge: 0
+        :gravity: ce
+        :format: jpeg
+    :web:
+      :processing:
+        :resize_type: fit
+        :width: 2048
+        :height: 2048
+        :enlarge: 0
+        :gravity: ce
+        :format: jpeg
+    :web_small:
+      :processing:
+        :resize_type: fit
+        :width: 1500
+        :height: 1500
+        :enlarge: 0
+        :gravity: ce
+        :format: jpeg
 
 :image_editor:
   :enabled: false
