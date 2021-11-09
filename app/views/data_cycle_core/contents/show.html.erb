@@ -4,6 +4,10 @@
   <%= render_content_partial 'header', content: @content %>
 <% end %>
 
+<% content_for :title do %>
+  <%= "#{@content.translated_template_name(active_ui_locale)}: #{@content.title}" %>
+<% end %>
+
 <% if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container') %>
   <ul class="accordion container-details" data-accordion data-allow-all-closed="true">
     <li class="accordion-item is-active" data-accordion-item>

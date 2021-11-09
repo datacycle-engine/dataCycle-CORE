@@ -1588,7 +1588,7 @@ a {
 
   &::before {
     content: '';
-    background-image: url(/images/dropdown-top.svg);
+    background-image: url("data:image/svg+xml,%3Csvg width='47' height='17' viewBox='0 0 12.435 4.4979' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cfilter id='filter4943' x='-.079499' y='-.091798' width='1.159' height='1.1836' color-interpolation-filters='sRGB'%3E%3CfeGaussianBlur stdDeviation='0.66625232'/%3E%3C/filter%3E%3C/defs%3E%3Cpath transform='matrix(.61785 0 0 .25147 -6.9119 2.9317)' d='m21.256-11.13 10.057 17.419-20.114-6e-7z' fill-opacity='.2' filter='url(%23filter4943)'/%3E%3Cpath transform='matrix(.61785 0 0 .25147 -6.9119 2.9317)' d='m21.256-11.13 10.057 17.419-20.114-6e-7z' fill='%23feffff'/%3E%3C/svg%3E");
     top: -17px;
     position: absolute;
     left: calc(var(--dropdown-arrow-left-offset));

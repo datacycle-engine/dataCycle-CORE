@@ -61,7 +61,7 @@ services:
     volumes:
       - '${PWD}:/app'
       - mongodb-data:/data/db
-      - mongodb-data:/var/log/mongodb
+      - mongodb-log:/var/log/mongodb
   redis:
     volumes:
       - '${PWD}:/app'
@@ -78,7 +78,7 @@ services:
     environment:
       DNSDOCK_ALIAS: localhost
     ports:
-      - '${PUBLIC_MAILHOG_PORT:-1025}:8025'
+      - '127.0.0.1:${PUBLIC_MAILHOG_PORT:-1025}:8025'
 volumes:
   app-node-modules:
   mongodb-data:

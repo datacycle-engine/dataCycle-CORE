@@ -11,7 +11,7 @@ tag ''
 pidfile "#{application_root}/tmp/pids/puma.pid"
 state_path "#{application_root}/tmp/pids/puma.state"
 
-if ENV.fetch('RAILS_LOG_TO_STDOUT') { false }
+if ENV.fetch('RAILS_ENV') { 'development' } == 'development'
   stdout_redirect '/dev/stdout', '/dev/stderr', true
 else
   stdout_redirect "#{application_root}/log/puma_access.log", "#{application_root}/log/puma_error.log", true

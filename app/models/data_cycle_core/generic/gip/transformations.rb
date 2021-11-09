@@ -53,7 +53,7 @@ module DataCycleCore
           DataCycleCore::Classification
             .find_by(external_key: prefix + data['value'])
             &.things
-            &.where(template_name: 'Teilstrecke')
+            &.where(template_name: 'Route')
             &.ids
         end
 
