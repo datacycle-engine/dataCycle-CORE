@@ -76,7 +76,13 @@ class EmbeddedObject {
     ) {
       await this.renderEmbeddedObjects('split_view', newItems, data.locale, data.translate);
     } else if (this.write && this.max != 0 && ids.length + newItems.length > this.max) {
-      new ConfirmationModal({ text: await I18n.translate('frontend.maximum_embedded') });
+      const prefix = await I18n.translate('frontend.split_view.copy_linked_error');
+
+      new ConfirmationModal({
+        text: `${this.label}: ${prefix}${await I18n.translate('frontend.maximum_embedded', {
+          data: this.max
+        })}`
+      });
     }
   }
   setSwapClasses(object) {

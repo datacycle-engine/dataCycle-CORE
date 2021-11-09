@@ -13,7 +13,9 @@ class ObjectBrowser {
     this.objectListElement = this.element.find('> .media-thumbs > .object-thumbs').get(0);
     this.id = selector.prop('id');
     this.overlay = $('#object_browser_' + this.id);
-    this.label = $('[for=' + this.id + ']').text();
+    this.label = $('[for=' + this.id + ']')
+      .text()
+      .trim();
     this.overlay_per = 25;
     this.per = selector.data('per') || 5;
     this.type = selector.data('type');
@@ -153,7 +155,15 @@ class ObjectBrowser {
           $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
         );
       }
-      if (newItems.length > 0 && (await this.validate('+', this.chosen.length + newItems.length))) {
+
+      if (
+        newItems.length > 0 &&
+        (await this.validate(
+          '+',
+          this.chosen.length + newItems.length,
+          I18n.translate('frontend.split_view.copy_linked_error')
+        ))
+      ) {
         await this.findObjects(newItems, data.external_ids != undefined);
       }
     });
@@ -310,15 +320,19 @@ class ObjectBrowser {
       contentType: 'application/json'
     });
   }
-  async validate(type = '~', new_length = this.chosen.length) {
+  async validate(type = '~', new_length = this.chosen.length, errorPrefix = '') {
     if (type != '-' && this.max != 0 && new_length > this.max) {
       new ConfirmationModal({
-        text: `${this.label}: ${await I18n.translate('frontend.maximum_embedded', { data: this.max })}`
+        text: `${this.label}: ${await errorPrefix}${await I18n.translate('frontend.maximum_embedded', {
+          data: this.max
+        })}`
       });
       return false;
     } else if (type != '+' && this.min != 0 && new_length < this.min) {
       new ConfirmationModal({
-        text: `${this.label}: ${await I18n.translate('frontend.minimum_embedded', { data: this.min })}`
+        text: `${this.label}: ${await errorPrefix}${await I18n.translate('frontend.minimum_embedded', {
+          data: this.min
+        })}`
       });
       return false;
     }
