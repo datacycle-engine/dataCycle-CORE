@@ -18,7 +18,7 @@ module DataCycleCore
           if delayed_job.nil? || data.webhook_as_of.present?
             Delayed::Job.enqueue(webhook, run_at: run_at, created_at: run_at, updated_at: run_at, priority: priority, queue: queue)
           else
-            delayed_job.update(run_at: [delayed_job.run_at, run_at].min, created_at: [delayed_job.created_at, run_at].min, updated_at: [delayed_job.updated_at, run_at].min, priority: [delayed_job.priority, priority].min, locked_by: nil, attempts: nil)
+            delayed_job.update(run_at: [delayed_job.run_at, run_at].min, created_at: [delayed_job.created_at, run_at].min, updated_at: [delayed_job.updated_at, run_at].min, priority: [delayed_job.priority, priority].min, locked_by: nil, attempts: 0)
           end
         end
 
