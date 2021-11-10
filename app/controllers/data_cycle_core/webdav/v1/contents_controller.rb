@@ -13,8 +13,8 @@ module DataCycleCore
           @props = parse_request(request.body)
           @header = parse_header(request) # depth setting in Header
 
-          logger.info @header
-          logger.error Nokogiri::XML(request.body).to_xml(indent: 2)
+          # logger.info @header
+          # logger.error Nokogiri::XML(request.body).to_xml(indent: 2)
           # puts 'Header:'
           # puts @header
           # debug(request.body)
@@ -38,8 +38,8 @@ module DataCycleCore
           @header = parse_header(request)
           @id = permitted_params.dig(:id)
 
-          logger.info @header
-          logger.info Nokogiri::XML(request.body).to_xml(indent: 2)
+          # logger.info @header
+          # logger.info Nokogiri::XML(request.body).to_xml(indent: 2)
 
           @content = load_content(permitted_params.dig(:id), permitted_params.dig(:file_name), current_user)
 
@@ -51,8 +51,8 @@ module DataCycleCore
           @header = parse_header(request)
           @id = permitted_params.dig(:id)
 
-          logger.error @header
-          logger.error Nokogiri::XML(request.body).to_xml(indent: 2)
+          # logger.error @header
+          # logger.error Nokogiri::XML(request.body).to_xml(indent: 2)
 
           @collection = load_collection(permitted_params.dig(:id), current_user)
           @contents = []
