@@ -130,7 +130,7 @@
       </div>
 
       <% if content.try(:encoding) %>
-        <%= render 'data_cycle_core/contents/viewers/embedded',
+        <%= render 'data_cycle_core/contents/viewers/image_variant',
                    key: 'encoding',
                    definition: content.properties_for('encoding'),
                    value: content.try(:encoding),
