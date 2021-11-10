@@ -31,7 +31,7 @@ module DataCycleCore
       return create_resource(thing) if thing.assets.blank?
       asset = thing.assets.first
       {
-        file_name: thing.slug,
+        file_name: thing.slug + get_ext(asset.file&.file_name),
         display_name: asset.file&.file_name,
         last_modified: thing.updated_at.httpdate,
         content_length: asset.file&.size,
@@ -40,10 +40,17 @@ module DataCycleCore
       }
     end
 
+    def get_ext(file_name)
+      return nil if file_name.blank?
+      ext = file_name.split('.')&.last
+      return nil if ext.blank?
+      ".#{ext}"
+    end
+
     def create_resource(thing)
       file = generate_file(thing)
       {
-        file_name: thing.slug,
+        file_name: [thing.slug, '.txt'].join,
         display_name: [thing.name, '.txt'].join,
         last_modified: thing.updated_at.httpdate,
         content_length: file.size,

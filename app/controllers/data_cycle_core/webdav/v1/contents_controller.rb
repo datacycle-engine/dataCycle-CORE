@@ -30,9 +30,17 @@ module DataCycleCore
           @props = parse_request(request.body)
           @header = parse_header(request)
           @id = permitted_params.dig(:id)
+
           @content = load_content(permitted_params.dig(:id), permitted_params.dig(:file_name), current_user)
 
           render 'show', status: :multi_status
+        end
+
+        def show_collection
+          @collection = load_collection(permitted_params.dig(:id), current_user)
+          @contents = []
+
+          render 'index', status: :multi_status
         end
 
         def download
