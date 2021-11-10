@@ -357,7 +357,7 @@ DataCycleCore::Engine.routes.draw do
             match 'endpoints/:id/things/:file_name', to: 'contents#show', via: :propfind, as: 'contents_show'
             get 'endpoints/:id/things/:file_name', to: 'contents#download'
             match 'endpoints/:id/things', to: 'contents#index', via: :propfind, as: 'contents_index'
-            match 'endpoints/:id/things', to: 'contents#options', via: :options
+            match 'endpoints/*whatever', to: 'contents#options', via: :options
           end
         end
       end

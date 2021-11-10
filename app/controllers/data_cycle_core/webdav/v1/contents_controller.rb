@@ -6,6 +6,9 @@ module DataCycleCore
       class ContentsController < ::DataCycleCore::Webdav::V1::WebdavBaseController
         PUMA_MAX_TIMEOUT = 600
 
+        after_action :log_activity, except: [:options]
+        before_action :authenticate, except: [:options]
+
         def index
           @props = parse_request(request.body)
           @header = parse_header(request) # depth setting in Header
@@ -66,7 +69,7 @@ module DataCycleCore
           response.headers['MS-Author-Via'] = 'DAV'
           response.headers['DAV'] = '1'
 
-          render xml: 'test', layout: false, status: :ok
+          render xml: '', layout: false, status: :ok
         end
 
         private
