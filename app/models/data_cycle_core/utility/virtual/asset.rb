@@ -48,7 +48,7 @@ module DataCycleCore
             image_processing = args.dig(:virtual_definition, 'virtual', 'processing')
             content = args.dig(:content)
 
-            return DataCycleCore::Feature::ImageProxy.process_image(
+            DataCycleCore::Feature::ImageProxy.process_image(
               content: content,
               variant: variant,
               image_processing: image_processing

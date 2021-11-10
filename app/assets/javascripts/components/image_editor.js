@@ -7,8 +7,8 @@ class ImageEditor {
     this.editor = null;
     this.fileUrl = reveal.dataset.fileUrl;
     this.fileName = reveal.dataset.fileName;
-    this.fileMimeType = reveal.dataset.fileMimeType;
     this.fileFormat =((reveal.dataset.fileFormat == 'jpeg' || reveal.dataset.fileFormat == 'jpg') ? 'jpeg' : 'png');
+    this.fileMimeType = "image/" + this.fileFormat;
     this.assetId = reveal.dataset.assetId;
     this.hiddenFieldKey = reveal.dataset.hiddenFieldKey;
     this.saveButton = this.$reveal.find('.save-button');
@@ -147,11 +147,12 @@ class ImageEditor {
     this.updateAsset(this.fileUrl);
   }
   updateAsset(fileUrl){
-    this.urlToFile(fileUrl, this.fileName, this.fileFormat).then(file => {
+    const fileName = this.fileName + '.' + this.fileFormat;
+    this.urlToFile(fileUrl, fileName, this.fileMimeType).then(file => {
       let data = new FormData();
       data.append('asset[file]', file);
       data.append('asset[type]', 'DataCycleCore::Image');
-      data.append('asset[name]', this.fileName);
+      data.append('asset[name]', fileName);
       const url = '/files/assets';
       const type = 'POST';
 

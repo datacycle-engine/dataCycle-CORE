@@ -7,17 +7,16 @@ module DataCycleCore
   module Feature
     class ImageProxy < Base
       class << self
-        def process_image(content: , variant: , image_processing: {})
-          return if (!content.is_a?(DataCycleCore::Thing) || !config.include?(variant) || !self.enabled?)
+        def process_image(content:, variant:, image_processing: {})
+          return if !content.is_a?(DataCycleCore::Thing) || !config.include?(variant) || !enabled?
 
-          image_processing = image_processing || config.dig(variant, 'processing')
+          image_processing = image_processing.presence || config.dig(variant, 'processing')
 
           target_url = [
             Rails.application.config.asset_host,
             'asset',
             content.id
           ]
-
           target_url << imgproxy_signature(content.id, image_processing) if image_processing.is_a?(::Hash) && !image_processing.empty?
 
           if variant == 'dynamic'
