@@ -7,24 +7,10 @@ module DataCycleCore
   module Feature
     class ImageProxy < Base
       class << self
-        def original
-
-        end
-
         def process_image(content: , variant: , image_processing: {})
-          return if (!content.is_a?(DataCycleCore::Thing) || !variants.include?(variant))
-          name = content.name&.parameterize(separator: '_') || args.dig(:content).id
+          return if (!content.is_a?(DataCycleCore::Thing) || !config.include?(variant) || !self.enabled?)
 
-          if image_processing&.dig('format').present?
-            file_extension = ".#{image_processing.dig('format')}"
-          else
-            if content.respond_to?(:asset) && content.send(:asset).present?
-              orig_url = content.send(:asset)&.try(:file)&.try(:url)
-            else
-              orig_url = content.content_url
-            end
-            file_extension = orig_url.present? ? File.extname(orig_url) : ''
-          end
+          image_processing = image_processing || config.dig(variant, 'processing')
 
           target_url = [
             Rails.application.config.asset_host,
@@ -46,17 +32,34 @@ module DataCycleCore
             target_url << variant
           end
 
-          target_url << "#{name}#{file_extension}"
-
+          target_url << image_filename(content, image_processing)
           target_url.join('/')
-
         end
 
-        def variants
+        def config
           DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:config)
         end
 
         private
+
+        def image_filename(content, processing)
+          name = content.name&.parameterize(separator: '_') || content.id
+          file_extension = image_file_extension(content, processing)
+          "#{name}#{file_extension}"
+        end
+
+        def image_file_extension(content, processing)
+          if processing&.dig('format').present?
+            ".#{processing.dig('format')}"
+          else
+            if content.respond_to?(:asset) && content.send(:asset).present?
+              orig_url = content.send(:asset)&.try(:file)&.try(:url)
+            else
+              orig_url = content.content_url
+            end
+            orig_url.present? ? File.extname(orig_url) : ''
+          end
+        end
 
         def imgproxy_signature(content_id, processing)
           raise 'Insufficient imgproxy credentials! Validate imgproxy_key and imgproxy_salt secrets!' unless Rails.application.secrets.imgproxy_key.present? && Rails.application.secrets.imgproxy_salt.present?

@@ -286,6 +286,9 @@
         :ui:
           :show:
             :disabled: true
+      :image_proxy:
+        :type: mixin
+        :name: image_proxy
       :additional_media_properties:
         :type: mixin
         :name: additional_media_properties

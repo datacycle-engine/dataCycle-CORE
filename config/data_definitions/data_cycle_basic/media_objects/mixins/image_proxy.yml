@@ -1,35 +1,8 @@
 ---
 - :data:
-    :name: additional_image_properties
+    :name: image_proxy
     :type: mixin
     :properties:
-      :gravity:
-        :label: Gravity
-        :type: classification
-        :tree_label: Gravity
-        :global: true
-        :ui:
-          :show:
-            :content_area: header
-      :api_gravity:
-        :label: Gravity
-        :storage_location: virtual
-        :type: virtual
-        :virtual:
-          :type: string
-          :module: Utility::Virtual::Classification
-          :method: concat
-          :key: uri
-          :parameters:
-            :0: gravity
-        :api:
-          :disabled: true
-          :v4:
-            :disabled: false
-            :name: dc:gravity
-        :ui:
-          :show:
-            :disabled: true
       :virtual_original_url:
         :label: Virtual Original Url
         :storage_location: virtual
@@ -40,8 +13,6 @@
           :method: imgproxy
           :transformation:
             :version: original
-          :parameters:
-            :0: asset
         :api:
           :disabled: true
           :v4:
@@ -60,14 +31,6 @@
           :method: imgproxy
           :transformation:
             :version: default
-          :processing:
-            :resize_type: fit
-            :width: 0
-            :height: 0
-            :enlarge: 0
-            :gravity: ce
-          :parameters:
-            :0: asset
         :api:
           :disabled: true
           :v4:
@@ -86,15 +49,6 @@
           :method: imgproxy
           :transformation:
             :version: thumb
-          :processing:
-            :resize_type: fit
-            :width: 300
-            :height: 300
-            :enlarge: 0
-            :gravity: ce
-            :format: jpeg
-          :parameters:
-            :0: asset
         :api:
           :disabled: true
           :v4:
@@ -113,15 +67,6 @@
           :method: imgproxy
           :transformation:
             :version: web
-          :processing:
-            :resize_type: fit
-            :width: 2048
-            :height: 2048
-            :enlarge: 0
-            :gravity: ce
-            :format: jpeg
-          :parameters:
-            :0: asset
         :api:
           :disabled: true
           :v4:
@@ -140,15 +85,6 @@
           :method: imgproxy
           :transformation:
             :version: web_small
-          :processing:
-            :resize_type: fit
-            :width: 1500
-            :height: 1500
-            :enlarge: 0
-            :gravity: ce
-            :format: jpeg
-          :parameters:
-            :0: asset
         :api:
           :disabled: true
           :v4:
@@ -169,13 +105,11 @@
             :version: dynamic
           :processing:
             :resize_type: fill
-            :width: 700
-            :height: 350
+            :width: 1920
+            :height: 1080
             :enlarge: 0
             :gravity: sm
             :format: jpeg
-          :parameters:
-            :0: asset
         :api:
           :disabled: true
           :v4:
@@ -184,3 +118,5 @@
         :ui:
           :show:
             :disabled: true
+
+
