@@ -22,7 +22,12 @@ module DataCycleCore
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
             @collection = load_collection(permitted_params.dig(:id), current_user)
-            @contents = load_contents(@collection)
+            @contents =
+              if @header['DEPTH'] == '0'
+                []
+              else
+                load_contents(@collection)
+              end
 
             render 'index', status: :multi_status
           end
