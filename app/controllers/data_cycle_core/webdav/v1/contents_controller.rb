@@ -43,6 +43,7 @@ module DataCycleCore
 
           @content = load_content(permitted_params.dig(:id), permitted_params.dig(:file_name), current_user)
 
+          raise ActiveRecord::RecordNotFound if @content.blank?
           render 'show', status: :multi_status
         end
 
