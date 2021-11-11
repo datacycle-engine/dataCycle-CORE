@@ -363,6 +363,8 @@ DataCycleCore::Engine.routes.draw do
         end
       end
     end
+
+    root to: 'webdav/v1/contents#options', via: :options # Microsoft Explorer is weired
   end
 
   namespace :object_browser do
