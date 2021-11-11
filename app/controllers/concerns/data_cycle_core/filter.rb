@@ -169,7 +169,7 @@ module DataCycleCore
     end
 
     def set_view_mode
-      if mode_params[:mode].in?(['list', 'tree'])
+      if mode_params[:mode].in?(['list', 'tree', 'map'])
         @mode = mode_params[:mode].to_s
       else
         @mode = 'grid'

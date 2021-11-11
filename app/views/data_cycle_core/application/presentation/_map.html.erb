@@ -1,0 +1,25 @@
+<% 
+# binding.pry 
+# options
+# value
+# contents
+# additional_values
+value = contents.first.line
+definition = contents.first.schema['properties']['line']
+# binding.pry
+%>
+<% is_line_string = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type')).to_s.include?('LineString') %>
+<div class="geographic">
+  <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map linestring"
+          data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+          data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
+          data-value="<%= value_to_geojson(value)&.to_json %>"
+          data-additional-values="<%= additional_map_values(contents, definition&.dig('ui', 'edit', 'options', 'additional_value_paths'))&.to_json %>"
+          >
+
+  </div>
+  <div class="ol-popup">
+    <a href="#" class="ol-popup-closer"><i class="fa fa-times" aria-hidden="true"></i></a>
+    <div class="ol-popup-content"></div>
+  </div>
+</div>

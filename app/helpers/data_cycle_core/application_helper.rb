@@ -118,7 +118,7 @@ module DataCycleCore
 
     def valid_mode(mode)
       case mode
-      when 'list', 'tree' then mode
+      when 'list', 'tree', 'map' then mode
       else 'grid'
       end
     end
