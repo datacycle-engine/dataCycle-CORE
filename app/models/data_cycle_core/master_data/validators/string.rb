@@ -9,7 +9,7 @@ module DataCycleCore
         end
 
         def string_formats
-          ['uuid', 'url', 'email', 'telephone_din5008']
+          ['uuid', 'url', 'soft_url', 'email', 'telephone_din5008']
         end
 
         def validate(data, template, _strict = false)
@@ -123,6 +123,29 @@ module DataCycleCore
             end
           rescue Addressable::URI::InvalidURIError
             (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.url',
+              substitutions: {
+                data: data
+              }
+            }
+          end
+        end
+
+        def soft_url(data)
+          return if data.blank?
+          schemes = ['http', 'https', 'mailto', 'ftp', 'sftp', 'tel']
+
+          begin
+            unless schemes.include?(Addressable::URI.parse(data)&.scheme)
+              (@error[:warning][@template_key] ||= []) << {
+                path: 'validation.errors.url',
+                substitutions: {
+                  data: data
+                }
+              }
+            end
+          rescue Addressable::URI::InvalidURIError
+            (@error[:warning][@template_key] ||= []) << {
               path: 'validation.errors.url',
               substitutions: {
                 data: data
