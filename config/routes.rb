@@ -350,21 +350,25 @@ DataCycleCore::Engine.routes.draw do
       end
     end
 
-    defaults format: :xml do
-      namespace :webdav do
-        namespace :v1 do
-          scope path: '(/:api_subversion)' do
-            match 'endpoints/:id/things/:file_name(.:extention)', to: 'contents#show', via: :propfind, as: 'contents_show'
-            get 'endpoints/:id/things/:file_name(.:extention)', to: 'contents#download'
-            match 'endpoints/:id/(things)', to: 'contents#index', via: :propfind, as: 'contents_index'
-            get 'endpoints/:id/(things)', to: 'contents#show_collection'
-            match 'endpoints/*whatever', to: 'contents#options', via: :options
+    if DataCycleCore.main_config.dig(:webdav, :enabled)
+      defaults format: :xml do
+        namespace :webdav do
+          if DataCycleCore.main_config.dig(:webdav, :v1, :enabled)
+            namespace :v1 do
+              scope path: '(/:api_subversion)' do
+                match 'endpoints/:id/things/:file_name(.:extention)', to: 'contents#show', via: :propfind, as: 'contents_show'
+                get 'endpoints/:id/things/:file_name(.:extention)', to: 'contents#download'
+                match 'endpoints/:id/(things)', to: 'contents#index', via: :propfind, as: 'contents_index'
+                get 'endpoints/:id/(things)', to: 'contents#show_collection'
+                match 'endpoints/*whatever', to: 'contents#options', via: :options
+              end
+            end
           end
         end
       end
-    end
 
-    root to: 'webdav/v1/contents#options', via: :options # Microsoft Explorer is weired
+      root to: 'webdav/v1/contents#options', via: :options # Microsoft Explorer is weired
+    end
   end
 
   namespace :object_browser do
