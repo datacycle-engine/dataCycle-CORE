@@ -82,6 +82,7 @@ else
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_google_places'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_gip'),
       Rails.root.join('..', 'data_types', 'attributes'),
       Rails.root.join('..', 'data_types', 'models')
     ]
