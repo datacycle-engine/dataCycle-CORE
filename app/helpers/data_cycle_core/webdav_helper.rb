@@ -22,7 +22,7 @@ module DataCycleCore
     def parse_header(request)
       request
         .env
-        .select { |k, _| k =~ /^HTTP_/ }
+        .select { |k, _| k.start_with?('HTTP_') }
         .map { |k, v| { k[5..-1] => v } }
         .inject(&:merge)
     end
