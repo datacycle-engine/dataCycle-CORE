@@ -9,8 +9,8 @@ module DataCycleCore
           file_name_segments[0...-1]&.join('.')
         end
 
-        def file_format(content)
-          content&.asset&.content_type&.split('/')&.last
+        def file_mime_type(content)
+          content&.asset&.content_type
         end
 
         def file_url(content)
@@ -28,6 +28,9 @@ module DataCycleCore
                 'format' => 'png'
               }
             )
+          end
+          if content.try(:asset)&.versions&.key?(:web)
+            return content.asset.web.url
           end
           nil
         end

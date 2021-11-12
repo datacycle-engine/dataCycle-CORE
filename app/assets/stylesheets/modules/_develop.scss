@@ -346,6 +346,25 @@
   }
 }
 
+.detail-content.imageobject {
+  .detail-type.encoding.embedded{
+    .image.encoding {
+      .image-container {
+        width: 33%;
+      }
+      .image-data {
+        width: 66%;
+      }
+      .detail-type {
+        .detail-label {
+          color: #333333;
+          padding: 0;
+        }
+      }
+    }
+  }
+}
+
 .detail-header {
   .destroy {
     position: absolute;

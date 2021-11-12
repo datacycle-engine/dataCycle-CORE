@@ -3,16 +3,18 @@ import TuiImageEditor from 'tui-image-editor';
 
 class ImageEditor {
   constructor(reveal) {
+    this.supportedFileExtensions = ['jpg', 'jpeg', 'png'];
     this.$reveal = $(reveal);
     this.editor = null;
     this.fileUrl = reveal.dataset.fileUrl;
     this.fileName = reveal.dataset.fileName;
-    this.fileFormat =((reveal.dataset.fileFormat == 'jpeg' || reveal.dataset.fileFormat == 'jpg') ? 'jpeg' : 'png');
-    this.fileMimeType = "image/" + this.fileFormat;
+    this.fileMimeType = reveal.dataset.fileMimeType;
     this.assetId = reveal.dataset.assetId;
     this.hiddenFieldKey = reveal.dataset.hiddenFieldKey;
     this.saveButton = this.$reveal.find('.save-button');
     this.editableList = $(`[data-image-editor="${this.$reveal.prop('id')}"]`).siblings('.asset-list').first();
+    this.outerEditButton = $(`[data-image-editor="${this.$reveal.prop('id')}"]`).find('.image-editor-button').first();
+    this.fileFormat = this.setFileFormat(this.fileMimeType)
 
     if (!this.assetId) {
       // initialize new asset
@@ -30,9 +32,23 @@ class ImageEditor {
     const newAsset = data.assets[0];
     this.fileUrl = newAsset.file.url;
     this.fileName = newAsset.name;
-    this.fileFormat =((newAsset.content_type == 'jpeg' || newAsset.content_type == 'jpg') ? 'jpeg' : 'png');
-    this.fileMimeType = "image/" + this.fileFormat;
+    this.fileMimeType = newAsset.content_type;
+    this.fileFormat = this.setFileFormat(this.fileMimeType);
     this.setup();
+  }
+  setFileFormat(mimeType) {
+    const fileFormat = mimeType.split('/').at(-1);
+    this.updateOuterEditButton(this.supportedFileExtensions.includes(fileFormat)).then(r => {});
+    return (fileFormat === 'jpeg' || fileFormat === 'jpg') ? 'jpeg' : 'png';
+  }
+  async updateOuterEditButton(supported = false){
+    if (supported) {
+      this.outerEditButton.removeClass('warning');
+      this.outerEditButton.attr('title', await I18n.translate('frontend.image_editor.edit_image'));
+    } else {
+      this.outerEditButton.addClass('warning');
+      this.outerEditButton.attr('title', await I18n.translate('frontend.image_editor.unsupported_format'));
+    }
   }
   setup() {
     // @todo: move to config
