@@ -3,10 +3,7 @@
     <div class="row align-center">
       <div class="image encoding">
         <%
-          thumbnail_url = object.try(:thumbnail_url)
-          if object.try(:asset)&.versions&.key?(:web)
-            thumbnail_url = object.asset.web.url
-          end
+          thumbnail_url = object.try(:asset_web_url) || object.try(:thumbnail_url)
         %>
         <% if thumbnail_url.present? %>
           <div class="image-container stripes">

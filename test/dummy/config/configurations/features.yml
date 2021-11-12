@@ -192,6 +192,8 @@
 
 :image_proxy:
   :enabled: true
+  :frontend:
+    :enabled: true
 
 :image_editor:
   :enabled: true

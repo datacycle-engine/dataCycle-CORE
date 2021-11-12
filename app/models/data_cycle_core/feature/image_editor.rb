@@ -29,10 +29,7 @@ module DataCycleCore
               }
             )
           end
-          if content.try(:asset)&.versions&.key?(:web)
-            return content.asset.web.url
-          end
-          nil
+          content.asset_web_url
         end
 
         def web_safe_mime_type?(type)

@@ -300,6 +300,8 @@
 
 :image_proxy:
   :enabled: false
+  :frontend:
+    :enabled: false
   :config:
     :dynamic:
     :original:

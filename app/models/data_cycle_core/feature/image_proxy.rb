@@ -7,8 +7,12 @@ module DataCycleCore
   module Feature
     class ImageProxy < Base
       class << self
+        def data_hash_module
+          DataCycleCore::Feature::DataHash::ImageProxy
+        end
+
         def process_image(content:, variant:, image_processing: {})
-          return if !content.is_a?(DataCycleCore::Thing) || !config.include?(variant) || !enabled?
+          return unless processable?(content: content, variant: variant)
 
           image_processing = image_processing.presence || config.dig(variant, 'processing')
 
@@ -39,7 +43,15 @@ module DataCycleCore
           DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:config)
         end
 
+        def frontend_enabled?
+          (enabled? && DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:frontend, :enabled))
+        end
+
         private
+
+        def processable?(content:, variant:)
+          content.is_a?(DataCycleCore::Thing) && config.include?(variant) && enabled?
+        end
 
         def image_filename(content, processing)
           name = content.name&.parameterize(separator: '_') || content.id
