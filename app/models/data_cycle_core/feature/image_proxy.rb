@@ -50,7 +50,7 @@ module DataCycleCore
         private
 
         def processable?(content:, variant:)
-          content.is_a?(DataCycleCore::Thing) && config.include?(variant) && enabled?
+          content.is_a?(DataCycleCore::Thing) && config.include?(variant) && enabled? && (content&.asset.present? || content.external?)
         end
 
         def image_filename(content, processing)

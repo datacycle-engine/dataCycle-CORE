@@ -51,7 +51,7 @@ module DataCycleCore
                   {
                     'description' => @content.description,
                     'keywords' => @content.keywords,
-                    'contentUrl' => @content.content_url,
+                    'contentUrl' => DataCycleCore::Feature::ImageProxy.enabled? ? DataCycleCore::Feature::ImageProxy.process_image(content: @content, variant: 'default') : @content.content_url,
                     'thumbnailUrl' => @content.thumbnail_url,
                     'fileFormat' => @content.file_format,
                     'uploadDate' => @content.upload_date.as_json,
@@ -61,6 +61,15 @@ module DataCycleCore
                     'sameAs' => @content.url,
                     'dc:slug' => @content.slug
                   }
+                end
+
+                # image proxy web version
+                if DataCycleCore::Feature::ImageProxy.enabled?
+                  assert_attributes(json_validate, required_attributes, []) do
+                    {
+                      'dc:webUrl' => DataCycleCore::Feature::ImageProxy.process_image(content: @content, variant: 'web')
+                    }
+                  end
                 end
 
                 # plain attributes with transformation
