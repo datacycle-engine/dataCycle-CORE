@@ -24,6 +24,7 @@ module DataCycleCore
           target_url << imgproxy_signature(content.id, image_processing) if image_processing.is_a?(::Hash) && !image_processing.empty?
 
           if variant == 'dynamic'
+            return unless image_processing.is_a?(::Hash) && !image_processing.empty?
             target_url += [
               image_processing.dig('resize_type'),
               image_processing.dig('width'),
