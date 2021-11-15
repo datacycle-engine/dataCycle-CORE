@@ -59,7 +59,6 @@ module DataCycleCore
 
         def self.to_section(external_source_id)
           t(:stringify_keys)
-          .>> t(:rename_keys, { 'caption' => 'name' })
           .>> t(:add_field, 'external_key', ->(s) { parse_external_id(s) })
           .>> t(:add_field, 'line', ->(s) { parse_section(s.dig('geometry')) })
           .>> t(:add_links, 'bikeroute', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att1' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - BIKEROUTE - #{item}" }.presence || ['Gip - BIKEROUTE - 1'] })
@@ -72,7 +71,8 @@ module DataCycleCore
           .>> t(:add_links, 'atroute', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att9' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "GEONAME - ATROUTE - #{item}" }.presence || [] })
           .>> t(:add_links, 'referencetype', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'type') ? Array.wrap("Gip - REFERENCETYPE - #{s.dig('properties', 'type')}") : [] })
           .>> t(:add_links, 'orgcode', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'externalorgcode') ? Array.wrap("Gip - ORGCODE - #{s.dig('properties', 'externalorgcode')}") : [] })
-          .>> t(:reject_keys, ['id', 'bbox', 'geometry', 'properties'])
+          .>> t(:add_field, 'name', ->(s) { "#{s['caption']} - #{DataCycleCore::Classification.find_by(id: s['minortyperef']).name}" })
+          .>> t(:reject_keys, ['id', 'caption', 'bbox', 'geometry', 'properties'])
           .>> t(:strip_all)
         end
 
