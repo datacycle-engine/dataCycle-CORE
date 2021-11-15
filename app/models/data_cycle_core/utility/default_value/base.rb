@@ -6,6 +6,10 @@ module DataCycleCore
       module Base
         class << self
           def default_values(key, properties, data_hash, content, current_user = nil)
+            # return value if it is already set
+            existing_value = data_hash[key] || content.try(key)
+            return existing_value unless DataCycleCore::DataHashService.blank?(existing_value)
+
             properties = properties&.with_indifferent_access
             return if properties['default_value'].is_a?(::Hash) && properties.dig('default_value', 'condition').present? && !properties.dig('default_value', 'condition').all? { |k, v| send("condition_#{k}", current_user, v) }
 

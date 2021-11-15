@@ -48,6 +48,7 @@
     &.artikel,
     &.standard_artikel,
     &.strukturierter_artikel,
+    &.radroutenbeschreibung,
     &.angebot,
     &.inhaltsblock {
       &::before {
@@ -145,6 +146,7 @@
 
     &.tour,
     &.route,
+    &.gesamtroute,
     &.donau_-_tour,
     &.etappe,
     &.donau_tour {
