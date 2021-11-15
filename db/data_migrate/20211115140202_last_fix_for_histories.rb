@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-class PossibleLastFixForHistories < ActiveRecord::Migration[5.2]
+class LastFixForHistories < ActiveRecord::Migration[5.2]
+  # uncomment the following line to disable transactions
+  # disable_ddl_transaction!
+
   def up
     execute <<-SQL.squish
       WITH sub_subquery2 AS (
@@ -32,7 +35,8 @@ class PossibleLastFixForHistories < ActiveRecord::Migration[5.2]
           subquery2
       WHERE
         thing_history_translations.id = subquery2.id
-        AND thing_history_translations.created_at < UPPER(thing_history_translations.history_valid);
+        AND (thing_history_translations.created_at < UPPER(thing_history_translations.history_valid)
+          OR upper_inf(thing_history_translations.history_valid));
     SQL
   end
 
