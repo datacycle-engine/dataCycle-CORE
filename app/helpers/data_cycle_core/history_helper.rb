@@ -60,7 +60,7 @@ module DataCycleCore
     def visible_content_date(content)
       type = 'created'
       type = 'updated' if content.histories.exists? ||
-        (content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i)
+                          (content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i)
 
       return nil if (date = content.try("#{type}_at")).blank?
 
@@ -93,7 +93,7 @@ module DataCycleCore
           )
         )
 
-      return tag.span(date_string, title: title_string)
+      tag.span(date_string, title: title_string)
     end
 
     def history_by_link(user)
@@ -192,7 +192,7 @@ module DataCycleCore
     def complete_history_list(content)
       history_entries = []
       if content.histories.exists? ||
-           (content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i)
+         (content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i)
         history_entries.push(
           map_to_history_entry(item: content, locales: content.last_updated_locale).merge(
             icon:
