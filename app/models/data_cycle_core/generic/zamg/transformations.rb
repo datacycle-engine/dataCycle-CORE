@@ -8,6 +8,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::Functions[*args]
         end
 
+        # prettier-ignore
         def self.to_weather(external_source_id)
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { "ZAMG - Station: #{s.dig('01_station', 'statnr')}" })
