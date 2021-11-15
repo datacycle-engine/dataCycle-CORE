@@ -1,0 +1,23 @@
+<d:response>
+  <d:href>/webdav/v1/endpoints/<%=id%>/things/<%=file_name%></d:href>
+  <d:propstat>
+    <d:prop>
+      <d:displayname><%=display_name%></d:displayname>
+      <d:getlastmodified><%=last_modified%></d:getlastmodified>
+      <d:getcontentlength><%=content_length%></d:getcontentlength>
+      <d:resourcetype/>
+      <d:getetag><%=etag%></d:getetag>
+      <d:getcontenttype><%=content_type%></d:getcontenttype>
+    </d:prop>
+    <d:status>HTTP/1.1 200 OK</d:status>
+  </d:propstat>
+  <% if defined?(quota) && quota %>
+    <d:propstat>
+      <d:prop>
+        <d:quota-used-bytes/>
+        <d:quota-available-bytes/>
+      </d:prop>
+      <d:status>HTTP/1.1 404 Not Found</d:status>
+    </d:propstat>
+  <% end %>
+</d:response>

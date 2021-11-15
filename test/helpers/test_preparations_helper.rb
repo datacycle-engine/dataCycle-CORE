@@ -154,6 +154,8 @@ module DataCycleCore
       return @content if @content.present?
 
       @content = DataCycleCore::Thing.find_by(template_name: template_name, template: true).dup
+      return if @content.nil?
+
       @content.template = false
       @content.created_at = save_time - 1 / 1001.0 # use - 1 / 1001.0 to ensure history creation
       @content.updated_at = save_time - 1 / 1001.0 # use - 1 / 1001.0 to ensure history creation

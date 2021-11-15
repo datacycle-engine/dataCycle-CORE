@@ -141,6 +141,7 @@ de:
         overlay_text: Sollen alle verfügbaren Sprachen übernommen werden?
         confirmation_text: Ja
         cancel_text: Nein, nur die aktuelle Sprache
+      copy_linked_error: 'Das Attribut konnte nicht übernommen werden: '
     validate:
       save_and_change_language: Wollen Sie speichern und auf die neue Sprache wechseln?
       agbs: AGBs müssen akzeptiert werden!

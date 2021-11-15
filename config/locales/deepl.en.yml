@@ -135,6 +135,7 @@ en:
         overlay_text: Copy all available languages?
         confirmation_text: 'yes'
         cancel_text: no, only current language
+      copy_linked_error: 'attribute could not be copied: '
     validate:
       save_and_change_language: Do you want to save and switch to the new language?
       agbs: AGBs must be accepted!

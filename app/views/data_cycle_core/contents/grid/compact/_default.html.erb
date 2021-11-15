@@ -7,7 +7,7 @@
       <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
 
       <%= yield_content!(:tile_links) %>
-      <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.class.name.demodulize.underscore_blanks %>
+      <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.try(:icon_class) || object.class.name.demodulize.underscore_blanks %>
 
       <%= render_translatable_linked_field(content, 'data_cycle_core/contents/grid/compact/attributes/title', { object: object }) %>
 
