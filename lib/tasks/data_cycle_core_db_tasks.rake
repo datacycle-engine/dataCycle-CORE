@@ -101,14 +101,16 @@ namespace :data_cycle_core do
       else
         puts "nothing to delete - file count: #{files.size}"
       end
-      system "cd #{backup_dir}; du -hs --time *"
+
+      puts 'backup dir does not exists' unless system "cd #{backup_dir} && du -hs --time *"
     end
 
     desc 'Show the existing database backups'
     task dumps: :environment do
       backup_dir = backup_directory(Rails.env)
       puts backup_dir.to_s
-      system "cd #{backup_dir}; du -hs --time *"
+
+      puts 'backup dir does not exists' unless system "cd #{backup_dir} && du -hs --time *"
     end
 
     desc 'Restores the database from a backup using PATTERN'
