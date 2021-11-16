@@ -11,6 +11,21 @@ module DataCycleCore
           DataCycleCore::Feature::DataHash::ImageProxy
         end
 
+        def mini_thumb_url(content:)
+          process_image(
+            content: content,
+            variant: 'dynamic',
+            image_processing: {
+              'resize_type' => 'fill',
+              'width' => 50,
+              'height' => 50,
+              'enlarge' => 0,
+              'gravity' => 'sm',
+              'format' => 'webp'
+            }
+          )
+        end
+
         def process_image(content:, variant:, image_processing: {})
           return unless processable?(content: content, variant: variant)
 
