@@ -123,6 +123,15 @@ module DataCycleCore
       data.is_a?(::Array) ? data.reject(&:blank?).empty? : data.blank?
     end
 
+    def self.parse_translated_hash(datahash)
+      return {} unless datahash.is_a?(::Hash)
+
+      neutral_hash = datahash.key?(:datahash) ? datahash[:datahash] : datahash.except(:translations, :version_name)
+      translations = datahash[:translations]&.reject { |_, value| value.deep_reject { |k, v| DataCycleCore::DataHashService.blank?(v) || k.to_s == 'id' }.blank? }.presence || { I18n.locale.to_s => {} }
+
+      translations.transform_values { |value| neutral_hash.merge(value).with_indifferent_access }
+    end
+
     class << self
       private
 

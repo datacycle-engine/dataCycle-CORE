@@ -4,17 +4,17 @@ module DataCycleCore
   module Content
     module ContentHistoryLoader
       def get_data_hash(_timestamp = nil)
-        try(:to_h, history_valid.first || updated_at)
+        try(:to_h, history_valid&.first || updated_at)
       end
 
       def diff(data, template = nil)
         differ = DataCycleCore::MasterData::DiffData.new
-        differ.diff(a: get_data_hash(history_valid.first || updated_at), schema_a: schema, b: data, schema_b: template).diff_hash
+        differ.diff(a: get_data_hash(history_valid&.first || updated_at), schema_a: schema, b: data, schema_b: template).diff_hash
       end
 
       def diff?(data, template = nil)
         differ = DataCycleCore::MasterData::DiffData.new
-        differ.diff?(a: get_data_hash(history_valid.first || updated_at), schema_a: schema, b: data, schema_b: template)
+        differ.diff?(a: get_data_hash(history_valid&.first || updated_at), schema_a: schema, b: data, schema_b: template)
       end
 
       def load_linked_objects(relation_name, _filter = nil, same_language = false, _languages = ['de'], _overlay_flag = false)
