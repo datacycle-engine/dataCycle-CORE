@@ -665,6 +665,7 @@ de:
     finalize_agbs_text: AGBs
     finalize_combined_html: '%{finalize} und %{agbs} akzeptieren'
     copy_to_clipboard: In die Zwischenablage kopieren
+    copy_classification_alias_id_to_clipboard: Klassifizierungs-Alias-ID in die Zwischenablage kopieren
     copied_to_clipboard: In Zwischenablage kopiert.
     save: Speichern
     update: Aktualisieren
