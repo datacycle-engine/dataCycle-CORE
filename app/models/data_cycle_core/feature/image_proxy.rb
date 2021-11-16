@@ -7,6 +7,7 @@ module DataCycleCore
   module Feature
     class ImageProxy < Base
       class << self
+        SUPPORTED_FRONTEND_CONTENT_TYPES = ['Bild', 'ImageVariant'].freeze
         def data_hash_module
           DataCycleCore::Feature::DataHash::ImageProxy
         end
@@ -61,6 +62,10 @@ module DataCycleCore
 
         def frontend_enabled?
           (enabled? && DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:frontend, :enabled))
+        end
+
+        def supported_frontend_content_type?(content)
+          (frontend_enabled? && SUPPORTED_FRONTEND_CONTENT_TYPES.include?(content.template_name))
         end
 
         private

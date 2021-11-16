@@ -5,12 +5,12 @@ module DataCycleCore
     module DataHash
       module ImageProxy
         def thumbnail_url
-          return DataCycleCore::Feature::ImageProxy.process_image(content: self, variant: 'thumb') if DataCycleCore::Feature::ImageProxy.frontend_enabled?
+          return DataCycleCore::Feature::ImageProxy.process_image(content: self, variant: 'thumb') if DataCycleCore::Feature::ImageProxy.supported_frontend_content_type?(self)
           super
         end
 
         def asset_web_url
-          return DataCycleCore::Feature::ImageProxy.process_image(content: self, variant: 'web') if DataCycleCore::Feature::ImageProxy.frontend_enabled?
+          return DataCycleCore::Feature::ImageProxy.process_image(content: self, variant: 'web') if DataCycleCore::Feature::ImageProxy.supported_frontend_content_type?(self)
           super
         end
       end
