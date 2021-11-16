@@ -119,6 +119,8 @@ module DataCycleCore
           data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
         data_hash['validity_period'] = validity_period
+        data_hash['asset'] = upload_image
+
         DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, user: @user)
       end
 
@@ -323,6 +325,17 @@ module DataCycleCore
           'valid_from' => 10.days.ago.to_date,
           'valid_through' => 10.days.from_now.to_date
         }
+      end
+
+      def upload_image
+        DataCycleCore::ImageUploader.enable_processing = true
+        file_name = 'test_rgb.jpg'
+        file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
+        @image = DataCycleCore::Image.new(file: File.open(file_path))
+        @image.save
+        @image.reload
+        DataCycleCore::ImageUploader.enable_processing = false
+        [@image]
       end
     end
   end

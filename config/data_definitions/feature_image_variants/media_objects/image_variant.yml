@@ -1,79 +1,34 @@
 ---
 - :data:
-    :name: PDF
+    :name: ImageVariant
     :type: object
     :schema_type: CreativeWork
-    :content_type: entity
-    :boost: 10.0
+    :content_type: embedded
     :features:
-      :creatable:
+      :image_editor:
         :allowed: true
-      :translatable:
-        :allowed: true
-      :download:
-        :allowed: true
-      :serialize:
-        :allowed: true
-        :serializers:
-          :asset: true
-          :json: true
-          :xml: true
-          :indesign: true
     :api:
       :type:
         - CreativeWork
         - MediaObject
+        - ImageObject
     :properties:
       :id:
         :label: id
         :type: key
-      :title:
-        :type: mixin
-        :name: title
-      :validity_period:
-        :type: mixin
-        :name: validity_period
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
-      :asset:
-        :label: Datei
-        :type: asset
-        :asset_type: pdf
-        :api:
-          :disabled: true
-        :ui:
-          :edit:
-            :readonly: true
-      :description:
-        :label: Beschreibung
+      :name:
+        :label: Name
         :type: string
         :storage_location: column
         :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
-        :advanced_search: true
-      :text:
-        :label: Inhalt
-        :type: computed
-        :storage_location: value
-        :search: true
-        :compute:
-          :type: string
-          :module: Utility::Compute::Pdf
-          :method: extract_content
-          :parameters:
-            :0: asset
-        :ui:
-          :show:
-            :disabled: true
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: image
         :api:
           :disabled: true
       :content_url:
-        :label: PDF URL
+        :label: Bild URL
         :storage_location: value
         :type: computed
         :compute:
@@ -93,22 +48,35 @@
         :type: computed
         :compute:
           :type: string
-          :module: Utility::Compute::Pdf
+          :module: Utility::Compute::Image
           :method: thumbnail_url
           :parameters:
             :0: asset
         :ui:
           :show:
-            :disabled: true
+            :partial: preview_image
         :api:
           :minimal: true
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
+        :xml:
+          :name: sameAs
+        :ui:
+          :edit:
+            :disabled: true
       :width:
         :label: Breite
         :storage_location: value
         :type: computed
         :compute:
           :type: number
-          :module: Utility::Compute::Pdf
+          :module: Utility::Compute::Image
           :method: width
           :parameters:
             :0: asset
@@ -131,7 +99,7 @@
         :type: computed
         :compute:
           :type: number
-          :module: Utility::Compute::Pdf
+          :module: Utility::Compute::Image
           :method: height
           :parameters:
             :0: asset
@@ -184,72 +152,12 @@
           module: DataCycleCore::Utility::DefaultValue::Date
           method: beginning_of_day
         :advanced_search: true
-      :author:
-        :label: Fotograf
-        :type: linked
-        :stored_filter:
-          - :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Person
-                - Organisation
-      :copyright_holder:
-        :label: Rechteinhaber
-        :type: linked
-        :stored_filter:
-          - :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Person
-                - Organisation
-      :copyright_year:
-        :label: Copyright - Jahr
-        :type: number
-        :storage_location: value
-        :advanced_search: true
-      :content_location:
-        :label: Ort
-        :type: linked
-        :stored_filter:
-          - :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Ort
-        :validations:
-          :max: 1
-      :keywords:
-        :label: Keywords
-        :storage_location: translated_value
-        :type: computed
-        :compute:
-          :type: string
-          :module: Utility::Compute::Classification
-          :method: keywords
-          :parameters:
-            :0: tags
-        :ui:
-          :show:
-            :disabled: true
+      :gravity:
+        :type: mixin
+        :name: gravity
       :image_proxy:
         :type: mixin
         :name: image_proxy
-      :additional_media_properties:
-        :type: mixin
-        :name: additional_media_properties
-      :additional_pdf_properties:
-        :type: mixin
-        :name: additional_pdf_properties
-      :data_type:
-        :label: Inhaltstyp
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: 'PDF'
       :meta_data:
         :type: mixin
         :name: meta_data
-      :cc_rel:
-        :type: mixin
-        :name: cc_rel
-      :additional_properties:
-        :type: mixin
-        :name: additional_properties
