@@ -58,7 +58,7 @@ module DataCycleCore
                 assert_equal(@content.description, json_data.dig('description'))
                 assert_equal(@content.url, json_data.dig('sameAs'))
                 assert_equal(@content.content_url, json_data.dig('contentUrl'))
-                assert_equal(@content.thumbnail_url, json_data.dig('thumbnailUrl'))
+                assert_nil(@content.thumbnail_url)
                 assert_equal(@content.content_size, json_data.dig('contentSize'))
                 assert_equal(@content.file_format, json_data.dig('fileFormat'))
 

@@ -27,6 +27,7 @@ data = load_embedded_object(content, key, options[:languages], definition)
 if data.present?
   key_name = attribute_key(key, definition)
   api_property_definition = api_definition(definition)
+  binding.pry
   key_name = api_property_definition.dig('transformation', 'name') if api_property_definition.dig('transformation', 'method') == 'append'
   new_fields = subtree_for(key_name, options[:fields])
   new_include = subtree_for(key_name, options[:include])

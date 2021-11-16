@@ -41,7 +41,7 @@ module DataCycleCore
           name_function = full_options.dig(:download, :download_strategy).constantize.method(:data_name).to_proc
 
           json_data.each do |raw_data|
-            DataCycleCore::Generic::Common::DownloadFunctions.download_test(
+            DataCycleCore::Generic::Common::DownloadFunctions.dump_test_data(
               download_object: download_object,
               data_id: id_function,
               data_name: name_function,

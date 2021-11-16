@@ -110,7 +110,8 @@ module DataCycleCore
       'DataCycleCore::Generic::Common::Webhook',
       'DataCycleCore::Generic::FeratelIdentityServer::Webhook',
       'DataCycleCore::Generic::Sulu::Webhook',
-      'DataCycleCore::Generic::ExternalLink::Webhook'
+      'DataCycleCore::Generic::ExternalLink::Webhook',
+      'DataCycleCore::Generic::Amtangee::Webhook'
     ]
 
     mattr_accessor :excluded_filter_classifications
