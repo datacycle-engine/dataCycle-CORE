@@ -17,6 +17,10 @@ module DataCycleCore
           super
         end
 
+        def asset_web_url
+          asset.web.url if try(:asset)&.versions&.key?(:web)
+        end
+
         def validation_messages_as_json
           {
             valid: valid?,

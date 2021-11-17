@@ -301,7 +301,7 @@ module DataCycleCore
           success
         end
 
-        def self.download_test(download_object:, data_id:, data_name:, raw_data:)
+        def self.dump_test_data(download_object:, data_id:, data_name:, raw_data:)
           init_mongo_db(download_object) do
             init_logging(download_object) do |logging|
               download_object.source_object.with(download_object.source_type) do |mongo_item|
@@ -309,6 +309,27 @@ module DataCycleCore
                 item_name = data_name.call(raw_data.first[1])
                 item = mongo_item.find_or_initialize_by('external_id': item_id)
                 item.dump = raw_data
+                item.save!
+                GC.start
+                logging.info("Single download_all item #{item_name}", item_id)
+              rescue StandardError => e
+                Appsignal.send_error(e, nil, 'background')
+                logging.error(nil, nil, nil, e)
+              end
+            end
+          end
+          true
+        end
+
+        def self.dump_raw_data(download_object:, data_id:, data_name:, raw_data:, options:)
+          init_mongo_db(download_object) do
+            init_logging(download_object) do |logging|
+              download_object.source_object.with(download_object.source_type) do |mongo_item|
+                locale = options.dig(:download, :locales)&.first || :de
+                item_id = data_id.call(raw_data)
+                item_name = data_name.call(raw_data)
+                item = mongo_item.find_or_initialize_by('external_id': item_id)
+                item.dump = { locale => raw_data }
                 item.save!
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)

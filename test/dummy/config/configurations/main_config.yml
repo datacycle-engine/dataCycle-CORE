@@ -30,7 +30,6 @@
       :features:
         :creatable:
           :allowed: true
-
 :api:
   :default: v4
 
