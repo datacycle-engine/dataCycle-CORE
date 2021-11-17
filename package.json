@@ -7,9 +7,6 @@
   "engines": {
     "node": ">=12"
   },
-  "scripts": {
-    "postinstall": "if [ ! -z \"$COMPOSE_PROJECT_NAME\" ]; then chown -R 1000:1000 ~/.cache; fi"
-  },
   "dependencies": {
     "@appsignal/javascript": "^1.3.12",
     "@appsignal/plugin-window-events": "^1.0.6",

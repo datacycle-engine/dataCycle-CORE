@@ -4,6 +4,8 @@ gem install bundler
 
 bundle install
 
+(yarn && yarn upgrade) &> log/yarn.log &
+
 # check if db exists
 bundle exec rake db:version
 
