@@ -277,7 +277,7 @@ footer {
     justify-content: center;
     background: $light-gray;
     margin-top: 0;
-    padding: 1rem;
+    padding: 2.5rem 1rem 1rem;
 
     &::before {
       content: '';
@@ -365,8 +365,12 @@ footer {
   position: relative;
   background: $light-gray;
   text-align: center;
-  padding: 4rem 1rem 1rem 1rem;
-  margin: 1rem 0 0 0;
+  padding: 4rem 1rem 2.5rem 1rem;
+  margin: 1rem 0 1.5rem 0;
+
+  &.with-external-connections {
+    margin-bottom: 0;
+  }
 
   form.button_to {
     display: inline-block;
@@ -456,6 +460,7 @@ footer {
     outline: none;
     display: inline-block;
     vertical-align: middle;
+    box-shadow: 0 0 0 1px white;
   }
 
   .headline_external,
@@ -618,9 +623,12 @@ footer {
 
   .edit {
     position: absolute;
-    right: 1rem;
-    bottom: 1rem;
+    left: 0;
+    bottom: -1.5rem;
     z-index: 1;
+    width: 100%;
+    text-align: center;
+    height: 3rem;
 
     a span {
       display: block;
