@@ -117,7 +117,8 @@ module DataCycleCore
         end
 
         def content_params
-          params.require(:@graph)
+          return params[:@graph] if params.key?(:@graph)
+          params
         end
 
         def permitted_parameter_keys
