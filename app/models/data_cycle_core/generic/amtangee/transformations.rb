@@ -10,7 +10,7 @@ module DataCycleCore
 
         def self.to_thing
           t(:stringify_keys)
-          .>> t(:add_field, 'id', ->(s) { s.dig('contact', 'vCloudID').downcase })
+          .>> t(:add_field, 'id', ->(s) { s.dig('contact', 'vCloudID')&.downcase })
           .>> t(:add_field, 'name', ->(s) { s.dig('contact', 'name').squish })
           .>> t(:add_field, 'contact_info', ->(s) { parse_contact_info(s.dig('contact')) })
           .>> t(:add_field, 'address', ->(s) { parse_address(s.dig('contact')) })
@@ -20,7 +20,7 @@ module DataCycleCore
         end
 
         def self.parse_contact_info(s)
-          external_id = "VCLOUD:#{s.dig('vCloudID')}"
+          external_id = s.dig('vCloudID').present? ? "VCLOUD:#{s.dig('vCloudID')}" : nil
           telephone_record = s
             .dig('phonenumbers')
             &.detect { |i| i.dig('type')&.squish == 'Firma' && i.dig('externalId')&.squish == external_id }
@@ -39,7 +39,7 @@ module DataCycleCore
         end
 
         def self.parse_address(s)
-          external_id = "VCLOUD:#{s.dig('vCloudID')}"
+          external_id = s.dig('vCloudID').present? ? "VCLOUD:#{s.dig('vCloudID')}" : nil
           address = s
             .dig('addresses')
             &.detect { |i| i.dig('type')&.squish == 'Firma' && i.dig('externalId')&.squish == external_id }
@@ -53,7 +53,7 @@ module DataCycleCore
         end
 
         def self.country_code(s)
-          external_id = "VCLOUD:#{s.dig('vCloudID')}"
+          external_id = s.dig('vCloudID').present? ? "VCLOUD:#{s.dig('vCloudID')}" : nil
           address = s
             .dig('addresses')
             &.detect { |i| i.dig('type')&.squish == 'Firma' && i.dig('externalId')&.squish == external_id }
