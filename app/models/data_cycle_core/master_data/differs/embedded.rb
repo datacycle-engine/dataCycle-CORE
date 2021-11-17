@@ -21,7 +21,7 @@ module DataCycleCore
         private
 
         def parse_translated_hash(item)
-          return item.map { |v| DataCycleCore::DataHashService.parse_translated_hash(v)&.dig(I18n.locale.to_s) } if item.is_a?(::Array)
+          return item.map { |v| v.is_a?(::Hash) ? DataCycleCore::DataHashService.parse_translated_hash(v)&.dig(I18n.locale.to_s) : v } if item.is_a?(::Array)
           return item unless item.is_a?(::Hash)
 
           DataCycleCore::DataHashService.parse_translated_hash(item)&.dig(I18n.locale.to_s)
