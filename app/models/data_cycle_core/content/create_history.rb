@@ -95,13 +95,14 @@ module DataCycleCore
       def update_previous_history_validity
         previous_history = histories.includes(:translations).where(thing_history_translations: { locale: I18n.locale }).find_by('UPPER(thing_history_translations.history_valid) IS NULL')
 
-        return created_at if previous_history.nil?
+        return updated_at if previous_history.nil?
 
         start_time = [previous_history.history_valid&.first, previous_history.created_at].compact.max
         end_time = updated_at
         end_time = start_time + 0.000001 if start_time >= end_time # ensure history_valid is a valid range
 
-        previous_history.update(history_valid: (start_time...end_time))
+        previous_history.history_valid = (start_time...end_time)
+        previous_history.save(touch: false)
 
         DataCycleCore::ContentContent::History.where(content_a_history_id: previous_history.id).update_all(["history_valid = tstzrange(lower(content_content_histories.history_valid), ?, '[)')", end_time])
 

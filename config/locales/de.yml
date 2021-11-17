@@ -456,13 +456,15 @@ de:
 
   history:
     latest_edits: Letzte Bearbeitungen
-    created_at: erstellt am
-    updated_at: bearbeitet am
+    created_at_html: erstellt am <b>%{date}</b>
+    updated_at_html: bearbeitet in <b>%{language}</b> am <b>%{date}</b>
     valid_since: gültig seit
     differences_to_version: Unterschiede zu Version
     active_version: Aktuelle Version
-    look_at_version: Aktuellen Inhalt mit dieser Version vergleichen
+    look_at_version: Aktuellen Version mit dieser Version vergleichen
     restored: Wiederhergestellt am %{date}
+    created: Inhalt erstellt
+    active_version: Aktuelle Version
 
   data_link_mailer:
     content_download: Inhalt herunterladen

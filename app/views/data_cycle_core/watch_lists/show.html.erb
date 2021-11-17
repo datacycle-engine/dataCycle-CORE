@@ -14,7 +14,7 @@
         <ul class="no-bullet">
           <li>
             <div id="show-history-link" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
-              <%= t('history.created_at', locale: active_ui_locale) %> <%= l(@watch_list&.created_at&.in_time_zone, locale: active_ui_locale) %>
+              <%= t('history.created_at_html', locale: active_ui_locale, date: l(@watch_list&.created_at&.in_time_zone, locale: active_ui_locale, format: :history)) %>
               <span> <%= t('terms.from', locale: active_ui_locale) %> </span>
               <span><strong><a class="email-link" title="<%= @watch_list&.user&.full_name %>" href="mailto:<%= "#{@watch_list&.user&.email}" %>"><%= @watch_list&.user&.full_name %></a></strong></span>
             </div>
