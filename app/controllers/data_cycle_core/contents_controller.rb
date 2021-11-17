@@ -187,7 +187,7 @@ module DataCycleCore
         version_name_for_merge(datahash) if merge_duplicate
 
         unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true, force_update: merge_duplicate)
-          flash[:error] = @content.errors.full_messages
+          flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
           redirect_back(fallback_location: root_path) && return
         end
 
