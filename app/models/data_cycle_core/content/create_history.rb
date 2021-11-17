@@ -95,7 +95,7 @@ module DataCycleCore
       def update_previous_history_validity
         previous_history = histories.includes(:translations).where(thing_history_translations: { locale: I18n.locale }).find_by('UPPER(thing_history_translations.history_valid) IS NULL')
 
-        return translations.find_by(locale: I18n.locale)&.created_at || created_at if previous_history.nil?
+        return updated_at if previous_history.nil?
 
         start_time = [previous_history.history_valid&.first, previous_history.created_at].compact.max
         end_time = updated_at
