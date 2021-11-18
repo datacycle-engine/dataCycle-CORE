@@ -164,9 +164,6 @@
             :type: LineString
             :options:
               :data_upload: true
-      :linked_data:
-        :type: mixin
-        :name: linked_data
       :subject_of:
         :label: Thema von
         :type: linked
