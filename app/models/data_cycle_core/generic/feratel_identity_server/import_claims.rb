@@ -52,7 +52,7 @@ module DataCycleCore
             }.flatten.compact.uniq
         end
 
-        def self.load_parent_classification_alias(raw_data, external_source_id)
+        def self.load_parent_classification_alias(raw_data, external_source_id, _options = {})
           DataCycleCore::Classification
             .find_by(external_source_id: external_source_id, external_key: "CLAIM:#{raw_data['parent']}")
             .try(:primary_classification_alias)

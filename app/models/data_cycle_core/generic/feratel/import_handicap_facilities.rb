@@ -34,7 +34,7 @@ module DataCycleCore
           mongo_item.where("dump.#{locale}.GroupID": parent_data.dig('Id')) # , "dump.#{locale}.ValueType": 'YesNo'
         end
 
-        def self.load_parent_classification_alias(raw_data, external_source_id)
+        def self.load_parent_classification_alias(raw_data, external_source_id, _options = {})
           return nil if raw_data.dig('GroupID').blank?
           DataCycleCore::Classification
             .find_by(
