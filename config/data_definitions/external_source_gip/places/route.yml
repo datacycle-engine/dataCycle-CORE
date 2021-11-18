@@ -99,9 +99,6 @@
       # :potential_actions:
       #   :type: mixin
       #   :name: potential_actions
-      :linked_data:
-        :type: mixin
-        :name: linked_data
       :subject_of:
         :label: Thema von
         :type: linked
