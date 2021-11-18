@@ -8,6 +8,8 @@ module DataCycleCore
     class ImageProxy < Base
       class << self
         SUPPORTED_FRONTEND_CONTENT_TYPES = ['Bild', 'ImageVariant'].freeze
+        SUPPORTED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'avif', 'webp', 'gif'].freeze
+
         def data_hash_module
           DataCycleCore::Feature::DataHash::ImageProxy
         end
@@ -77,21 +79,24 @@ module DataCycleCore
 
         def image_filename(content, variant, processing)
           name = content.name&.parameterize(separator: '_') || content.id
-          file_extension = image_file_extension(content, variant, processing)&.prepend('.')
-          "#{name}#{file_extension}"
+          file_extension = image_file_extension(content, variant, processing)
+          file_extension.present? ? "#{name}.#{file_extension}" : name
         end
 
         def image_file_extension(content, variant, processing)
           if processing&.dig('format').present?
-            processing.dig('format')
+            ext_name = processing.dig('format')
           elsif ['default', 'original'].include?(variant)
             if content.respond_to?(:asset) && content.send(:asset).present?
               orig_url = content.send(:asset)&.try(:file)&.try(:url)
             else
               orig_url = content.content_url
             end
-            orig_url.present? ? File.extname(orig_url)&.split('.')&.last : ''
+            ext_name = orig_url.present? ? File.extname(orig_url)&.split('.')&.last : ''
           end
+          return if ext_name.blank?
+          return 'jpeg' unless SUPPORTED_FILE_EXTENSIONS.include?(ext_name)
+          ext_name
         end
 
         def imgproxy_signature(content_id, processing, format)
