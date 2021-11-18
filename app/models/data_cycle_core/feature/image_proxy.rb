@@ -36,7 +36,9 @@ module DataCycleCore
             'asset',
             content.id
           ]
-          target_url << imgproxy_signature(content.id, image_processing) if image_processing.is_a?(::Hash) && !image_processing.empty?
+
+          format = image_file_extension(content, variant, image_processing)
+          target_url << imgproxy_signature(content.id, image_processing, format) if image_processing.is_a?(::Hash) && !image_processing.empty?
 
           if variant == 'dynamic'
             return unless image_processing.is_a?(::Hash) && !image_processing.empty?
@@ -75,24 +77,24 @@ module DataCycleCore
 
         def image_filename(content, variant, processing)
           name = content.name&.parameterize(separator: '_') || content.id
-          file_extension = image_file_extension(content, variant, processing)
+          file_extension = image_file_extension(content, variant, processing)&.prepend('.')
           "#{name}#{file_extension}"
         end
 
         def image_file_extension(content, variant, processing)
           if processing&.dig('format').present?
-            ".#{processing.dig('format')}"
+            processing.dig('format')
           elsif ['default', 'original'].include?(variant)
             if content.respond_to?(:asset) && content.send(:asset).present?
               orig_url = content.send(:asset)&.try(:file)&.try(:url)
             else
               orig_url = content.content_url
             end
-            orig_url.present? ? File.extname(orig_url) : ''
+            orig_url.present? ? File.extname(orig_url)&.split('.')&.last : ''
           end
         end
 
-        def imgproxy_signature(content_id, processing)
+        def imgproxy_signature(content_id, processing, format)
           raise 'Insufficient imgproxy credentials! Validate imgproxy_key and imgproxy_salt secrets!' unless Rails.application.secrets.imgproxy_key.present? && Rails.application.secrets.imgproxy_salt.present?
 
           key = [Rails.application.secrets.imgproxy_key].pack('H*')
@@ -114,7 +116,7 @@ module DataCycleCore
           height = processing.dig('height')
           gravity = processing.dig('gravity')
           enlarge = processing.dig('enlarge')
-          extension = processing.dig('format')
+          extension = processing.dig('format') || format
 
           path = "/resize:#{resize_type}:#{width}:#{height}:#{enlarge}/gravity:#{gravity}/filename:#{content_id}/plain/#{url}@#{extension}"
 
