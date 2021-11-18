@@ -15,7 +15,7 @@ module DataCycleCore
             }
             webcams.each do |cam, name|
               data = {
-                'content_url' => "https://api.shuttleberg.com/api/v1/webcams/#{cam}.mjpg",
+                'content_url' => "https://api.shuttleberg.com/api/v1/webcams/#{cam}.mp4",
                 'url' => 'https://www.shuttleberg.com',
                 'thumbnail_url' => "https://api.shuttleberg.com/api/v1/webcams/#{cam}.jpg",
                 'name' => name,

@@ -1040,7 +1040,7 @@ de:
         permissions_download: herunterladen
         permissions_read: lesen
         permissions_write: bearbeiten
-        text_file: 'Weitere Infos (PDF)'
+        text_file: Weitere Infos (%{file_types})
         locale: 'E-Mail Sprache'
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar

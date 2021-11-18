@@ -1044,7 +1044,7 @@ en:
         permissions_download: download
         permissions_read: read
         permissions_write: edit
-        text_file: Further information (PDF)
+        text_file: Further information (%{file_types})
         locale: E-mail language
       data_cycle_core/stored_filter:
         system: Visible for all users

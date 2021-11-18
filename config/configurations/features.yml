@@ -319,7 +319,6 @@
         :height: 300
         :enlarge: 0
         :gravity: ce
-        :format: webp
     :web:
       :processing:
         :resize_type: fit
@@ -327,7 +326,6 @@
         :height: 2048
         :enlarge: 0
         :gravity: ce
-        :format: webp
     :web_small:
       :processing:
         :resize_type: fit
@@ -335,7 +333,6 @@
         :height: 1500
         :enlarge: 0
         :gravity: ce
-        :format: webp
 
 :image_editor:
   :enabled: false

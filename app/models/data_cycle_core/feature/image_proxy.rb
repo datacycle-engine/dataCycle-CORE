@@ -8,6 +8,8 @@ module DataCycleCore
     class ImageProxy < Base
       class << self
         SUPPORTED_FRONTEND_CONTENT_TYPES = ['Bild', 'ImageVariant'].freeze
+        SUPPORTED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'avif', 'webp', 'gif'].freeze
+
         def data_hash_module
           DataCycleCore::Feature::DataHash::ImageProxy
         end
@@ -21,8 +23,7 @@ module DataCycleCore
               'width' => 50,
               'height' => 50,
               'enlarge' => 0,
-              'gravity' => 'sm',
-              'format' => 'webp'
+              'gravity' => 'sm'
             }
           )
         end
@@ -37,7 +38,9 @@ module DataCycleCore
             'asset',
             content.id
           ]
-          target_url << imgproxy_signature(content.id, image_processing) if image_processing.is_a?(::Hash) && !image_processing.empty?
+
+          format = image_file_extension(content, variant, image_processing)
+          target_url << imgproxy_signature(content.id, image_processing, format) if image_processing.is_a?(::Hash) && !image_processing.empty?
 
           if variant == 'dynamic'
             return unless image_processing.is_a?(::Hash) && !image_processing.empty?
@@ -52,7 +55,7 @@ module DataCycleCore
             target_url << variant
           end
 
-          target_url << image_filename(content, image_processing)
+          target_url << image_filename(content, variant, image_processing)
           target_url.join('/')
         end
 
@@ -74,26 +77,29 @@ module DataCycleCore
           content.is_a?(DataCycleCore::Thing) && config.include?(variant) && enabled? && (content&.asset.present? || content.external?)
         end
 
-        def image_filename(content, processing)
+        def image_filename(content, variant, processing)
           name = content.name&.parameterize(separator: '_') || content.id
-          file_extension = image_file_extension(content, processing)
-          "#{name}#{file_extension}"
+          file_extension = image_file_extension(content, variant, processing)
+          file_extension.present? ? "#{name}.#{file_extension}" : name
         end
 
-        def image_file_extension(content, processing)
+        def image_file_extension(content, variant, processing)
           if processing&.dig('format').present?
-            ".#{processing.dig('format')}"
-          else
+            ext_name = processing.dig('format')
+          elsif ['default', 'original'].include?(variant)
             if content.respond_to?(:asset) && content.send(:asset).present?
               orig_url = content.send(:asset)&.try(:file)&.try(:url)
             else
               orig_url = content.content_url
             end
-            orig_url.present? ? File.extname(orig_url) : ''
+            ext_name = orig_url.present? ? File.extname(orig_url)&.split('.')&.last : ''
           end
+          return if ext_name.blank?
+          return 'jpeg' unless SUPPORTED_FILE_EXTENSIONS.include?(ext_name)
+          ext_name
         end
 
-        def imgproxy_signature(content_id, processing)
+        def imgproxy_signature(content_id, processing, format)
           raise 'Insufficient imgproxy credentials! Validate imgproxy_key and imgproxy_salt secrets!' unless Rails.application.secrets.imgproxy_key.present? && Rails.application.secrets.imgproxy_salt.present?
 
           key = [Rails.application.secrets.imgproxy_key].pack('H*')
@@ -115,7 +121,7 @@ module DataCycleCore
           height = processing.dig('height')
           gravity = processing.dig('gravity')
           enlarge = processing.dig('enlarge')
-          extension = processing.dig('format')
+          extension = processing.dig('format') || format
 
           path = "/resize:#{resize_type}:#{width}:#{height}:#{enlarge}/gravity:#{gravity}/filename:#{content_id}/plain/#{url}@#{extension}"
 
