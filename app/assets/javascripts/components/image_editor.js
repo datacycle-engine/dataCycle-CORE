@@ -31,7 +31,11 @@ class ImageEditor {
   handleAssetChange(event, data){
     const newAsset = data.assets[0];
     this.fileUrl = newAsset.file.url;
-    this.fileName = newAsset.name;
+    if (newAsset.name.split('.').length > 1) {
+      this.fileName = newAsset.name.split('.').slice(0, -1).join('.');
+    } else {
+      this.fileName = newAsset.name;
+    }
     this.fileMimeType = newAsset.content_type;
     this.fileFormat = this.setFileFormat(this.fileMimeType);
     this.setup();
