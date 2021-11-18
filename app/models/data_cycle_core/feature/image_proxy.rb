@@ -21,8 +21,7 @@ module DataCycleCore
               'width' => 50,
               'height' => 50,
               'enlarge' => 0,
-              'gravity' => 'sm',
-              'format' => 'webp'
+              'gravity' => 'sm'
             }
           )
         end
@@ -52,7 +51,7 @@ module DataCycleCore
             target_url << variant
           end
 
-          target_url << image_filename(content, image_processing)
+          target_url << image_filename(content, variant, image_processing)
           target_url.join('/')
         end
 
@@ -74,16 +73,16 @@ module DataCycleCore
           content.is_a?(DataCycleCore::Thing) && config.include?(variant) && enabled? && (content&.asset.present? || content.external?)
         end
 
-        def image_filename(content, processing)
+        def image_filename(content, variant, processing)
           name = content.name&.parameterize(separator: '_') || content.id
-          file_extension = image_file_extension(content, processing)
+          file_extension = image_file_extension(content, variant, processing)
           "#{name}#{file_extension}"
         end
 
-        def image_file_extension(content, processing)
+        def image_file_extension(content, variant, processing)
           if processing&.dig('format').present?
             ".#{processing.dig('format')}"
-          else
+          elsif ['default', 'original'].include?(variant)
             if content.respond_to?(:asset) && content.send(:asset).present?
               orig_url = content.send(:asset)&.try(:file)&.try(:url)
             else
