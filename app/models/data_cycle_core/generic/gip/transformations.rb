@@ -92,10 +92,11 @@ module DataCycleCore
           # if the feature was created in dataCycle, then sent to GIP via the Communicator and is now reimported, its
           # external_key was set internally to the thing ID and we need to set the correct external_key for the
           # importer to find it.
-          return data.dig('id') if data.dig('properties', 'externalid').nil?
+          fdb_id = data&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att11' }&.dig('properties', 'stringvalue')
+          return data.dig('id') if fdb_id.nil?
 
-          content = DataCycleCore::Thing.find_by(id: data.dig('properties', 'externalid'))
-          if content.present? && content.external_key == data.dig('properties', 'externalid')
+          content = DataCycleCore::Thing.find_by(id: fdb_id)
+          if content.present? && content.external_key == fdb_id
             content.external_key = data.dig('id')
             content.save
           end
