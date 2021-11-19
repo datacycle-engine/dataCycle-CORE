@@ -20,6 +20,6 @@ export default function () {
     const newIndex = (values.findIndex(e => e.checked) || 0) + 1;
     const selectedOption = values[newIndex >= values.length ? 0 : newIndex];
 
-    if (!selectedOption.disabled && !selectedOption.readOnly) selectedOption.checked = true;
+    if (!selectedOption.disabled && !selectedOption.getAttribute('readonly')) selectedOption.checked = true;
   });
 }
