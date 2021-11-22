@@ -16,8 +16,11 @@ namespace :dc do
 
         abort('ERROR: from ClassificationAlias not found') if from_ca.nil?
 
-        abort('ERROR: error moving to new path') unless from_ca.move_to_path(to_path, destroy_children).is_a?(DataCycleCore::ClassificationAlias)
-        puts('SUCCESS: successfully moved classification to new path')
+        new_ca = from_ca.move_to_path(to_path, destroy_children)
+
+        abort('ERROR: error moving to new path') unless new_ca.is_a?(DataCycleCore::ClassificationAlias)
+
+        puts("SUCCESS: successfully moved classification to new path: #{new_ca.reload.full_path}")
       end
     end
 

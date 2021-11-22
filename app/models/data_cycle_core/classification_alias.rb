@@ -223,7 +223,7 @@ module DataCycleCore
 
       new_path = Array.wrap(new_path)
 
-      ctl = DataCycleCore::ClassificationTreeLabel.find_by(name: new_path.shift)
+      ctl = DataCycleCore::ClassificationTreeLabel.find_by(name: new_path.first)
 
       return if ctl.nil?
 
@@ -231,7 +231,7 @@ module DataCycleCore
 
       ActiveRecord::Base.transaction do
         if new_ca.nil?
-          new_parent = ctl.create_classification_alias(*(new_path[0...-1].map { |c| { name: c } }))
+          new_parent = ctl.create_classification_alias(*(new_path[1...-1].map { |c| { name: c } }))
 
           descendants.find_each { |d| d.merge_with(self) } if destroy_children
 
