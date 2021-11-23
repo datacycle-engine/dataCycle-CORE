@@ -234,8 +234,7 @@ module DataCycleCore
         )
       )
 
-      history_entries.sort_by! { |h| h[:updated_at] }
-      history_entries.reverse!
+      history_entries.sort! { |a, b| b[:updated_at].to_i - a[:updated_at].to_i }
 
       history_entries
     end

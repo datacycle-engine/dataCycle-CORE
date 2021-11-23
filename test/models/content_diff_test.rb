@@ -11,7 +11,7 @@ module DataCycleCore
         'name' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???'
       }
-      content_data = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, prevent_history: true)
+      content_data = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash)
       content_hash = content_data.get_data_hash
 
       # diff = content_data.diff(content_hash)

@@ -23,7 +23,7 @@ module DataCycleCore
             @data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Tour-Bi', data_hash: tour_hash, prevent_history: true)
           end
 
-          count_things(diff: [0, 1, 5, 0]) do
+          count_things(diff: [0, 0, 5, 0]) do
             @data_set.set_data_hash(data_hash: tour_hash.merge({ 'linked_place' => @linked_objects }))
             @data_set.save
           end
@@ -127,7 +127,7 @@ module DataCycleCore
         test 'delete main object, update linked item, delete_linked item' do
           data_set = @data_set
 
-          count_things(diff: [-2, 1 + 3, -5, +5]) do
+          count_things(diff: [-2, 3, -5, +5]) do
             linked_item = data_set.linked_place.first
             data_set.destroy_content
             main_item = data_set.histories.first
@@ -142,7 +142,7 @@ module DataCycleCore
 
             deleted_items = linked_item.histories.where.not(deleted_at: nil)
             deleted_linked = deleted_items.first
-            assert_equal(3, linked_item.histories.count)
+            assert_equal(2, linked_item.histories.count)
             assert_equal(1, deleted_items.count)
             assert_equal(1, deleted_linked.linked_tour.count)
             assert_equal(DataCycleCore::ContentContent::History.find_by(content_b_history_type: 'DataCycleCore::Thing::History').content_b_history_id, deleted_linked.id)

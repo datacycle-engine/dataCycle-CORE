@@ -74,7 +74,7 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_1() RETURNS t
 
 CREATE FUNCTION public.generate_classification_alias_paths_trigger_2() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_classification_alias_paths(NEW.parent_classification_alias_id || (NEW.classification_alias_id || '{}'::UUID[])); RETURN NEW; END;$$;
+    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || NEW.classification_alias_id) FROM ( SELECT id FROM classification_alias_paths WHERE NEW.classification_alias_id = ANY (ancestor_ids)) "changed_child_classification_aliasese"; RETURN NEW; END; $$;
 
 
 --
@@ -638,7 +638,8 @@ CREATE TABLE public.things (
     representation_of_id uuid,
     version_name character varying,
     line public.geometry(MultiLineStringZ,4326),
-    last_updated_locale character varying
+    last_updated_locale character varying,
+    write_history boolean DEFAULT false
 );
 
 
@@ -2676,7 +2677,7 @@ CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF name ON
 -- Name: classification_trees update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id <> new.parent_classification_alias_id) OR (old.classification_alias_id <> new.classification_alias_id))) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id, classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id <> new.parent_classification_alias_id) OR (old.classification_alias_id <> new.classification_alias_id) OR (new.classification_tree_label_id <> old.classification_tree_label_id))) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
 
 
 --
@@ -2953,6 +2954,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211011123517'),
 ('20211014062654'),
 ('20211021062347'),
-('20211021111915');
+('20211021111915'),
+('20211122075759'),
+('20211123081845');
 
 
