@@ -24,6 +24,7 @@ x-app: &default-app
     - app-public-assets:/app/public/assets
     - ${BASE_LOG_VOLUME_PATH:-~/data_cycle/log}/app:/app/log
     - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/app:/app/public/uploads
+    - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/import:/app/private/import
     - ${BASE_HISTORY_VOLUME_PATH:-~/data_cycle/history}:/home/ruby/hist
     - ${BASE_BACKUP_VOLUME_PATH:-~/data_cycle/backups}:/app/db/backups
     - $SSH_AUTH_SOCK:/ssh-agent

@@ -48,6 +48,10 @@ RUN mkdir -p /app/test/dummy/log \
 RUN mkdir -p /app/test/dummy/public/uploads \
     && chown ruby:ruby -R /app/test/dummy/public/uploads
 
+# create folder for local importer
+RUN mkdir -p /app/test/dummy/private/import \
+    && chown ruby:ruby -R /app/test/dummy/private/import
+
 # create a temporary folder to update /app/public/assets in named volumes
 RUN mkdir -p /app/test/dummy/dc_volumes/public/assets \
     && cp -Rf /app/test/dummy/public/assets/* /app/test/dummy/dc_volumes/public/assets/. \

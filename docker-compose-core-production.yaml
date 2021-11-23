@@ -24,6 +24,7 @@ x-app: &default-app
     - app-public-assets:/app${CORE_DUMMY_PREFIX:-}/public/assets
     - ${BASE_LOG_VOLUME_PATH:-~/data_cycle/log}/app:/app${CORE_DUMMY_PREFIX:-}/log
     - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/app:/app${CORE_DUMMY_PREFIX:-}/public/uploads
+    - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/import:/app${CORE_DUMMY_PREFIX:-}/private/import
     - ${BASE_HISTORY_VOLUME_PATH:-~/data_cycle/history}:/home/ruby/hist
     - ${BASE_BACKUP_VOLUME_PATH:-~/data_cycle/backups}:/app${CORE_DUMMY_PREFIX:-}/db/backups
     - $SSH_AUTH_SOCK:/ssh-agent

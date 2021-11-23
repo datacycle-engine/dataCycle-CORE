@@ -3,8 +3,9 @@ set -eu
 
 ## mongodb | app | postgres
 echo "$BASE_DATA_VOLUME_PATH"
-mkdir -p $BASE_DATA_VOLUME_PATH/{app,mongodb,postgres}
+mkdir -p $BASE_DATA_VOLUME_PATH/{app,import,mongodb,postgres}
 sudo chgrp -R 1000 $BASE_DATA_VOLUME_PATH/app
+sudo chgrp -R 1000 $BASE_DATA_VOLUME_PATH/import
 
 # nginx | app | mongodb
 echo "$BASE_LOG_VOLUME_PATH"
