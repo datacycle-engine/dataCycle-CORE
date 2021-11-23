@@ -17,6 +17,25 @@ module DataCycleCore
           super
         end
 
+        def as_geojson
+          # returns a hash of the geojson representation of the thing, e.g. one type=Feature
+          # TODO: line or point!!, caching
+          # binding.pry
+          {
+            type: 'Feature',
+            id: id,
+            properties: {
+              name: name
+            },
+            geometry: RGeo::GeoJSON.encode(line)
+          }
+        end
+
+        def to_geojson
+          # returns the raw geojson as string
+          as_geojson.to_json
+        end
+
         def asset_web_url
           asset.web.url if try(:asset)&.versions&.key?(:web)
         end
