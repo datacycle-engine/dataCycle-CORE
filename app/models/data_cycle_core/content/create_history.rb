@@ -3,6 +3,22 @@
 module DataCycleCore
   module Content
     module CreateHistory
+      THING_HISTORY_ATTRIBUTE_EXCEPTIONS = [
+        'id',
+        'created_at',
+        'updated_at',
+        'write_history'
+      ].freeze
+      CLASSIFICATION_CONTENT_HISTORY_ATTRIBUTE_EXCEPTIONS = [
+        'id',
+        'content_data_id',
+        'content_data_type'
+      ].freeze
+      SCHEDULE_HISTORY_ATTRIBUTE_EXCEPTIONS = [
+        'id',
+        'thing_id'
+      ].freeze
+
       def to_history(delete: false, all_translations: false)
         origin_table = self.class.to_s.split('::')[1].tableize
         data_set_history = (self.class.to_s + '::History').safe_constantize.new
@@ -14,7 +30,7 @@ module DataCycleCore
           if all_translations
             available_locales.except(last_updated_locale&.to_sym).each do |locale|
               I18n.with_locale(locale) do
-                attributes.except('id', 'created_at', 'updated_at').each do |key, value|
+                attributes.except(*THING_HISTORY_ATTRIBUTE_EXCEPTIONS).each do |key, value|
                   data_set_history.send("#{key}=", value)
                 end
 
@@ -24,7 +40,7 @@ module DataCycleCore
             end
           end
 
-          attributes.except('id', 'created_at', 'updated_at').each do |key, value|
+          attributes.except(*THING_HISTORY_ATTRIBUTE_EXCEPTIONS).each do |key, value|
             data_set_history.send("#{key}=", value)
           end
 
@@ -38,7 +54,7 @@ module DataCycleCore
           classification_content.all.find_each do |item|
             classification_history = DataCycleCore::ClassificationContent::History.new
             classification_history.content_data_history_id = data_set_history.id
-            item.attributes.except('id', 'content_data_id', 'content_data_type').each do |key, value|
+            item.attributes.except(*CLASSIFICATION_CONTENT_HISTORY_ATTRIBUTE_EXCEPTIONS).each do |key, value|
               classification_history.send("#{key}=", value)
             end
             classification_history.classification_id = item.classification_id
@@ -80,7 +96,7 @@ module DataCycleCore
             next if schedules.blank?
             schedules.each do |schedule_data|
               schedule_history = DataCycleCore::Schedule::History.new
-              schedule_data.attributes.except('id', 'thing_id').each do |key, value|
+              schedule_data.attributes.except(*SCHEDULE_HISTORY_ATTRIBUTE_EXCEPTIONS).each do |key, value|
                 schedule_history.send("#{key}=", value)
               end
               schedule_history.thing_history_id = data_set_history.id

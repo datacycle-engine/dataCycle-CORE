@@ -206,20 +206,36 @@ module DataCycleCore
         history_entries.concat(ordered_history_entries(content))
       end
 
+      created_locales = content
+        .translations
+        .where('thing_translations.created_at <= ?', content.created_at&.+(10.seconds))
+        .pluck(:locale)
+
+      content.translations.where.not(locale: content.histories.translated_locales + created_locales + [content.last_updated_locale]).each do |created_translation|
+        history_entries.push({
+          id: content.id,
+          class_name: content.class.name,
+          updated_at: [created_translation.created_at, created_translation.updated_at - 1.second, content.updated_at - 1.second].min,
+          locale: created_translation.locale,
+          can_remove_version_name: false
+        }.merge(
+          icon: tag.i(class: 'fa fa-plus history-created-icon', title: t('history.created', locale: active_ui_locale))
+        ))
+      end
+
       history_entries.push(
         map_to_history_entry(
           item: content,
-          locales:
-            content
-              .translations
-              .where('thing_translations.created_at <= ?', content.created_at&.+(10.seconds))
-              .pluck(:locale),
+          locales: created_locales,
           attribute_type: :created,
           include_version_name: false
         ).merge(
           icon: tag.i(class: 'fa fa-plus history-created-icon', title: t('history.created', locale: active_ui_locale))
         )
       )
+
+      history_entries.sort_by! { |h| h[:updated_at] }
+      history_entries.reverse!
 
       history_entries
     end

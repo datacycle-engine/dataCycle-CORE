@@ -72,13 +72,17 @@ module DataCycleCore
             )
           end
 
-          content.metadata ||= {}
-          content.schema = template.schema
-          content.template_name = template.template_name
-          content.created_by = data['created_by']
+          created = false
           content.webhook_source = utility_object&.external_source&.name
-          created = content.new_record?
-          content.save!
+
+          if content.new_record?
+            content.metadata ||= {}
+            content.schema = template.schema
+            content.template_name = template.template_name
+            content.created_by = data['created_by']
+            created = true
+            content.save!
+          end
 
           global_attributes = {}
           (content.global_property_names + DataCycleCore::Feature::OverlayAttributeService.call(content)).each do |attribute|
@@ -119,7 +123,7 @@ module DataCycleCore
             normalized_data = global_data
           end
 
-          current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
+          current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
           invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true) || true
           valid = content.set_data_hash(
             data_hash: normalized_data,

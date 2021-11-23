@@ -70,7 +70,8 @@ module DataCycleCore
         return no_changes(options.ui_locale) unless diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
 
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-          to_history unless id.nil? || options.prevent_history
+          to_history if write_history
+          self.write_history = !options.prevent_history
 
           set_template_data_hash(options, partial_schema&.dig('properties') || property_definitions)
 
