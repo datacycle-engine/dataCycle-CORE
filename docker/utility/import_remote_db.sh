@@ -29,6 +29,11 @@ echo "REMOTE_DOCKER_ENV: $REMOTE_DOCKER_ENV"
 echo "REMOTE_COMPOSER_PROJECT_NAME: $REMOTE_COMPOSER_PROJECT_NAME"
 echo "LOCAL_COMPOSE_PROJECT_NAME: $LOCAL_COMPOSE_PROJECT_NAME"
 
+if [ ! -d ./db/backups/development ]; then
+  echo "creating ./db/backups/development"
+  mkdir -p ./db/backups/development;
+fi
+
 DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:db:dump[local_dev_db]
 DOCKER_HOST="$REMOTE_DOCKER_HOST" docker cp "$REMOTE_COMPOSER_PROJECT_NAME"_web_1:/app/db/backups/"$REMOTE_DOCKER_ENV"/local_dev_db.dir ./db/backups/development/.
 
