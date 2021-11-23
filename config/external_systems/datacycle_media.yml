@@ -3,9 +3,9 @@ name: DataCycle - Media
 credentials:
   storage_type: local
   #  directory: ./tmp/import_files/files/
-  directory: ./test/fixtures/files
+  directory: ./private/import/local_assets
   #  directory: /home/pixelpoint/data_cycle_core/media
-  delete: false
+  delete: true
 config:
   import_config:
     images:
@@ -27,6 +27,8 @@ config:
       source_type: videos
       asset_type: DataCycleCore::Video
       import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
+      extract_tags:
+        mode: folder
       transformations:
         asset:
           template: Video
@@ -35,6 +37,8 @@ config:
       source_type: audio
       asset_type: DataCycleCore::Audio
       import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
+      extract_tags:
+        mode: folder
       transformations:
         asset:
           template: Audio
@@ -43,6 +47,8 @@ config:
       source_type: pdf
       asset_type: DataCycleCore::Pdf
       import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
+      extract_tags:
+        mode: folder
       transformations:
         asset:
           template: PDF
