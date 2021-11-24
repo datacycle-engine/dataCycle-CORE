@@ -5,7 +5,7 @@ credentials:
   # docker:
   # directory: ./private/import/local_assets
   directory: ./test/fixtures/files
-  delete: true
+  delete: false
 config:
   import_config:
     images:
