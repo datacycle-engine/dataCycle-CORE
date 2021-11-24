@@ -105,7 +105,7 @@ end
 
 # Documentation
 crumb :documentation do
-  link t('data_cycle_core.documentation.root', locale: active_ui_locale), '/docs', authorized: true
+  link t('data_cycle_core.documentation.root', locale: active_ui_locale), docs_path, authorized: true
 
   path_segments = (params['path'] || '').split('/')
 
@@ -114,7 +114,7 @@ crumb :documentation do
 
     translation_key += '.root' if t(translation_key, locale: active_ui_locale).is_a? Hash
 
-    link t(translation_key, locale: active_ui_locale), '/' + (['docs'] + path_segments[0..i]).join('/'), authorized: true
+    link t(translation_key, locale: active_ui_locale), docs_with_path_path(path_segments[0..i]), authorized: true
   end
 end
 
