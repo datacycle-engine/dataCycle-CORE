@@ -4,7 +4,7 @@ class MigrateOutdoorActiveAdditionalInformation < ActiveRecord::Migration[5.2]
   def up
     return if Rails.env.test?
 
-    DataCycleCore::RunTaskJob.set(queue: 'import', wait: 1.hour).perform_later('dc:migrate:oa_external_key')
+    DataCycleCore::RunTaskJob.set(queue: 'importers', wait: 1.hour).perform_later('dc:migrate:oa_external_key')
   end
 
   def down
