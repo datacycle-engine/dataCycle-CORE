@@ -23,10 +23,11 @@ module DataCycleCore
 
         @template = DataCycleCore::Thing.find_by(template: true, template_name: template_name)
 
+        filter.parameters.concat Array.wrap(permitted_params.dig(:filter, :f)&.values)
+
         query = filter.apply
         query = query.where(template_name: template_name.to_s) if template_name && stored_filter.blank?
         query = query.in_validity_period
-        query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search].present?
         query = query.where('things.id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
         query = query.where(id: permitted_params[:filter_ids]) if permitted_params[:filter_ids].present?
 
@@ -100,7 +101,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:per, :page, :id, :locale, :content_id, :external, { filter_ids: [] }, { ids: [] }, :search, { definition: {} }, excluded: []]
+      [:per, :page, :id, :locale, :content_id, :external, { filter_ids: [] }, { ids: [] }, { definition: {} }, filter: {}, excluded: []]
     end
   end
 end

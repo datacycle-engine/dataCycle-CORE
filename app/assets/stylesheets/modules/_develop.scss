@@ -347,7 +347,7 @@
 }
 
 .detail-content.imageobject {
-  .detail-type.encoding.embedded{
+  .detail-type.encoding.embedded {
     .image.encoding {
       .image-container {
         width: 33%;
@@ -1480,7 +1480,7 @@ a.email-link {
     position: absolute;
     animation: fa-spin 2s infinite linear;
     right: 1rem;
-    top: 1rem;
+    top: calc(50% - 0.75rem);
     font-size: 1.5rem;
     line-height: 1.5rem;
   }
@@ -3328,11 +3328,11 @@ body {
     margin-right: 0.3rem;
   }
 }
-.tree-link{
-  .mini-preview-image{
+.tree-link {
+  .mini-preview-image {
     padding-right: 0.5rem;
   }
 }
-.mini-preview-image{
+.mini-preview-image {
   display: inline-block;
 }

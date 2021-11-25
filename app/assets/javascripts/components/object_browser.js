@@ -13,6 +13,8 @@ class ObjectBrowser {
     this.objectListElement = this.element.find('> .media-thumbs > .object-thumbs').get(0);
     this.id = selector.prop('id');
     this.overlay = $('#object_browser_' + this.id);
+    this.overlayFilter = this.overlay.find('.object-browser-filter');
+    this.overlayCount = this.overlayFilter.find('.item-count');
     this.label = $('[for=' + this.id + ']')
       .text()
       .trim();
@@ -35,7 +37,6 @@ class ObjectBrowser {
     this.editable = selector.data('editable');
     this.page = 1;
     this.loading = false;
-    this.search = '';
     this.total = 0;
     this.ids = selector.data('objects') || [];
     this.chosen = this.ids.slice(0);
@@ -58,7 +59,6 @@ class ObjectBrowser {
     this.setup();
   }
   setup() {
-    var self = this;
     this.sortable = new Sortable(this.element.find('> .media-thumbs > .object-thumbs').get(0), {
       handle: '.draggable-handle',
       draggable: 'li.item'
@@ -84,33 +84,34 @@ class ObjectBrowser {
         }
       }.bind(this)
     );
-    this.overlay.find('.object-browser-search').on('change', function (event) {
-      event.preventDefault();
-      self.search = $(this).val();
-      self.page = 1;
-      self.loadObjects(false);
-    });
-    this.overlay.find('.chosen-items-container').on('click', 'li.item', function (event) {
+    this.overlayFilter.find('.object-browser-search').on('change', this.filterItems.bind(this));
+    this.overlayFilter.find('.buttons button[type="submit"]').on('click', this.filterItems.bind(this));
+    this.overlayFilter.find('.buttons button[type="reset"]').on('click', this.resetFilter.bind(this));
+    this.overlay.find('.chosen-items-container').on('click', 'li.item', event => {
       event.preventDefault();
       event.stopImmediatePropagation();
-      if (self.selected != $(this).data('id')) {
-        self.loadDetails($(this).data('id'));
+
+      const $target = $(event.currentTarget);
+      if (this.selected != $target.data('id')) {
+        this.loadDetails($target.data('id'));
       }
     });
-    this.overlay.children('.items').on('click', 'li.item', function (event) {
-      if ($(event.target).closest('a.show-link').length || $(event.target).closest('a.edit-link').length) return;
+    this.overlay.children('.items').on('click', 'li.item', event => {
+      const $target = $(event.currentTarget);
+
+      if ($target.closest('a.show-link').length || $target.closest('a.edit-link').length) return;
 
       event.preventDefault();
       event.stopImmediatePropagation();
 
-      if (self.selected != $(this).data('id')) {
-        $(this).addClass('in-object-browser');
-        self.loadDetails($(this).data('id'));
+      if (this.selected != $target.data('id')) {
+        $target.addClass('in-object-browser');
+        this.loadDetails($target.data('id'));
       }
-      if (self.chosen.indexOf($(this).data('id')) == -1) {
-        self.addObject($(this).data('id'), $(this).clone(), event);
+      if (this.chosen.indexOf($target.data('id')) == -1) {
+        this.addObject($target.data('id'), $target.clone(), event);
       } else {
-        self.removeObject($(this).data('id'), event);
+        this.removeObject($target.data('id'), event);
       }
     });
     this.element.on('click', '.delete-thumbnail', async event => {
@@ -120,10 +121,13 @@ class ObjectBrowser {
         this.removeThumbObject(event.target);
       }
     });
-    this.overlay.find('.chosen-items-container').on('click', '.delete-thumbnail', function (event) {
+    this.overlay.find('.chosen-items-container').on('click', '.delete-thumbnail', event => {
       event.preventDefault();
       event.stopPropagation();
-      self.removeObject($(this).closest('li.item').data('id'), event);
+
+      const $target = $(event.currentTarget);
+
+      this.removeObject($target.closest('li.item').data('id'), event);
     });
     this.overlay.find('.buttons .save-object-browser').on('click', async event => {
       event.preventDefault();
@@ -135,14 +139,14 @@ class ObjectBrowser {
     });
     this.element.on('dc:update:chosen', (_event, data) => {
       this.chosen = union(this.chosen, data.chosen);
-      $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) =>
+      $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((_index, elem) =>
         $(elem).remove()
       );
       this.updateChosenCounter();
-      this.overlay.find('.items li.item .reveal.media-preview').each(function () {
-        if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+      this.overlay.find('.items li.item .reveal.media-preview').each((_i, element) => {
+        if ($(element).prop('id').indexOf('overlay_') == -1) $(element).prop('id', 'overlay_' + $(element).prop('id'));
       });
-      this.element.find('.object-thumbs li.item .reveal.media-preview').each((_index, element) => {
+      this.element.find('.object-thumbs li.item .reveal.media-preview').each((_i, element) => {
         $(element).foundation().addClass('dc-fd-initialized');
       });
     });
@@ -454,10 +458,10 @@ class ObjectBrowser {
     });
   }
   resetOverlay() {
-    this.overlay.find('.object-browser-search').val('');
+    this.resetFilter();
+    // this.overlay.find('.object-browser-search').val('');
     this.overlay.find('.chosen-items-container li.item').remove();
     this.chosen = [];
-    this.search = '';
     this.excluded = [];
     this.page = 1;
   }
@@ -480,7 +484,7 @@ class ObjectBrowser {
     if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
     else if (this.overlay.data('overlay') === false) document.body.classList.add('object-browser-overlay-open');
 
-    this.overlay.find('.object-browser-header .item-count').text('');
+    this.overlayCount.html('');
     this.preselectedItems = this.chosen.slice(0);
     $(window).on('beforeunload', this.eventHandlers.pageLeave);
     this.resetOverlay();
@@ -564,11 +568,32 @@ class ObjectBrowser {
       return promise;
     }
   }
+  filterItems(event = null) {
+    if (event) event.preventDefault();
+
+    this.page = 1;
+    this.loadObjects(false);
+  }
+  resetFilter(event = null) {
+    if (event) event.preventDefault();
+
+    this.overlayFilter.find(':input:not(:hidden):not(button)').each((_i, item) => {
+      $(item).val(null);
+
+      if ($(item).is('select')) $(item).trigger('change');
+    });
+
+    this.filterItems();
+  }
+  serializeFilter() {
+    return this.overlayFilter.find(':input').serializeJSON();
+  }
   loadObjects(append = true) {
     if (!append) {
       this.excluded = [];
       this.overlay.children('.items').scrollTop(0);
       this.overlay.children('.items').html(loadingIcon());
+      this.overlayCount.html(loadingIcon());
     }
     this.overlay.find('.items .loading').show();
     this.loading = true;
@@ -585,7 +610,7 @@ class ObjectBrowser {
         key: this.key,
         definition: this.definition,
         options: this.options,
-        search: this.search,
+        filter: this.serializeFilter(),
         objects: this.chosen,
         editable: this.editable,
         excluded: this.excluded,
@@ -606,7 +631,13 @@ class ObjectBrowser {
       const count = data.count || 0;
       this.total = count;
       this.overlay.data('total', count);
-      this.overlay.find('.object-browser-header .item-count').text(count);
+
+      if (!append) {
+        I18n.translate('common.things_count_html', { count: count, delimited_count: count }).then(countText => {
+          this.overlayCount.html(countText);
+        });
+      }
+
       this.overlay.find('.items .loading').hide();
 
       let html = data.html;

@@ -1170,6 +1170,8 @@ span.single_warning:before {
     .select2-selection__placeholder {
       display: block;
       height: 28px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }
