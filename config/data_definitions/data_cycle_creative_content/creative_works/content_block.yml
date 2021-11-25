@@ -34,6 +34,17 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
+      :potential_action:
+        :label: Weiterführende Links
+        :type: embedded
+        :template_name: Action
+        :translated: true
+        :api:
+          :partial: action
+      :kind:
+        :label: Inhaltsart
+        :type: classification
+        :tree_label: Inhaltsarten
       :meta_data:
         :type: mixin
         :name: meta_data

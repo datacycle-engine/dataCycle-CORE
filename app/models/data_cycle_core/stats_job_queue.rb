@@ -38,7 +38,8 @@ module DataCycleCore
           search_update: Delayed::Job.where(failed_at: nil, queue: 'search_update').count,
           mailers: Delayed::Job.where(failed_at: nil, queue: 'mailers').count,
           webhooks: Delayed::Job.where(failed_at: nil, queue: 'webhooks').count,
-          '* (expected to be 0)': Delayed::Job.where(failed_at: nil).where.not(queue: ['importers', 'carrierwave', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).count
+          default: Delayed::Job.where(failed_at: nil, queue: 'default').count,
+          wrong_queue: Delayed::Job.where(failed_at: nil).where.not(queue: ['default', 'importers', 'carrierwave', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).count
         }
       )
       @job_list.push(
@@ -49,7 +50,8 @@ module DataCycleCore
           search_update: Delayed::Job.where(queue: 'search_update').where.not(failed_at: nil).count,
           mailers: Delayed::Job.where(queue: 'mailers').where.not(failed_at: nil).count,
           webhooks: Delayed::Job.where(queue: 'webhooks').where.not(failed_at: nil).count,
-          '*': Delayed::Job.where.not(queue: ['importers', 'carrierwave', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).where.not(failed_at: nil).count
+          default: Delayed::Job.where(queue: 'default').where.not(failed_at: nil).count,
+          '*': Delayed::Job.where.not(queue: ['default', 'importers', 'carrierwave', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).where.not(failed_at: nil).count
         }
       )
       @job_list

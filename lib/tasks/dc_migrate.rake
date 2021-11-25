@@ -236,7 +236,7 @@ namespace :dc do
         locale = item.available_locales.first
         parent_external_key = DataCycleCore::ContentContent.where(content_b_id: item.id).first.content_a.external_key
         item.external_key = "#{desc}:#{locale}:#{parent_external_key}"
-        item.save!
+        item.save!(touch: false)
         progressbar.increment
       end
     end

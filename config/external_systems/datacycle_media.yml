@@ -2,10 +2,10 @@
 name: DataCycle - Media
 credentials:
   storage_type: local
-  #  directory: ./tmp/import_files/files/
-  directory: ./private/import/local_assets
-  #  directory: /home/pixelpoint/data_cycle_core/media
-  delete: true
+  # docker:
+  # directory: ./private/import/local_assets
+  directory: ./test/fixtures/files
+  delete: false
 config:
   import_config:
     images:
