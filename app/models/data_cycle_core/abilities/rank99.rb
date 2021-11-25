@@ -16,6 +16,7 @@ module DataCycleCore
         can [:advanced_filter, :sortable], :backend
         can :show_admin_activities, :dash_board
         can [:create_api, :create_api_with_users], DataCycleCore::StoredFilter
+        can :manage, :report
       end
     end
   end

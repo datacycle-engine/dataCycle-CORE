@@ -1060,6 +1060,7 @@ de:
 
   data_cycle_core:
     administration: 'Administration'
+    reports: 'Reports'
     user_settings: Benutzeraktionen
     user_details: Benutzerdetails
     user_links: Benutzerlinks
