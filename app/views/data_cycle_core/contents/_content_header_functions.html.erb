@@ -36,6 +36,26 @@
         <button class="link" onclick="window.print();"><i aria-hidden="true" class="fa fa-print"></i></button>
       </li>
     <% end %>
+    <% if can?(:manage, :report) %>
+      <li class="has-dropdown">
+        <a id="generate_report" data-toggle="generate_reports"><i class="fa fa-table" aria-hidden="true"></i></a>
+        <div class="dropdown-pane align-right no-bullet bottom" id="generate_reports" data-dropdown data-hover="true" data-hover-pane="true">
+          <h5><%= t('data_cycle_core.reports.available_reports', locale: active_ui_locale) %></h5>
+          <% DataCycleCore::Feature::ReportGenerator.content_reports.each do |key, report| %>
+            <div class="row">
+              <strong><%= t("feature.report_generator.#{key}", locale: active_ui_locale) %></strong>
+            </div>
+            <% report.dig('allowed_formats').each do |format| %>
+              <div>
+                <%= link_to download_reports_path(type: format, identifier: key, thing_id: content.id), class: '' do %>
+                  <span class="title">>>Download <%= format %></span>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </li>
+    <% end %>
     <% if can? :clear_all, :cache %>
       <li>
         <%= link_to clear_cache_thing_path(content),

@@ -461,6 +461,9 @@ de:
         name: Name
         downloads_all: Anzahl der Downloads (Gesamt)
         downloads_by_month: Anzahl der Downlods (Dieses Monat)
+        date_created: Heruntergeladen am
+        email: E-Mail
+        user_display_name: Benutzer
 
   history:
     latest_edits: Letzte Bearbeitungen

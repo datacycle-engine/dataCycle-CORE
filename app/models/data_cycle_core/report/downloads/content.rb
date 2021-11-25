@@ -5,28 +5,29 @@ module DataCycleCore
     module Downloads
       class Content < Base
         def apply(params)
-          limit = params&.dig(:limit) || 50
-          by_month = params&.dig(:by_month) || Time.zone.now.month
+          thing_id = params&.dig(:thing_id)
+          date_time_format = 'DD.MM.YYYY HH24:MI:SS'
+          raise 'error' if thing_id.blank?
           raw_query = <<-SQL.squish
-          SELECT 
-            "things"."id", 
-            "thing_translations"."name", 
-            "activities"."activity_type", 
-            count("things"."id") as downloads_all, 
-            sum(1) FILTER (where EXTRACT(MONTH FROM "activities"."created_at") = :by_month) AS downloads_by_month
-          FROM things
-          JOIN thing_translations ON things.id = thing_translations.thing_id
-          JOIN activities ON things.id = activities.activitiable_id 
-          OR things.id = ANY (
+            SELECT 
+                "things"."id", 
+                "thing_translations"."name", 
+                to_char("activities"."created_at", :date_time_format) as date_created,
+                "users"."email",
+                concat("users"."family_name", "users"."given_name") as user_display_name
+            FROM things
+            JOIN thing_translations ON things.id = thing_translations.thing_id
+            JOIN activities ON things.id = activities.activitiable_id 
+            OR things.id = ANY (
               ARRAY(SELECT jsonb_array_elements_text(activities.data -> 'collection_items'))::uuid[]
-          )
-          where activities.activity_type = 'download'
-          group by "things"."id", "thing_translations"."name", "activities"."activity_type"
-          order by downloads_by_month DESC NULLS LAST, downloads_all DESC NULLS LAST
-          LIMIT :limit
+            )
+            JOIN users on activities.user_id = users.id
+            where activities.activity_type = 'download'
+            AND "things"."id" = :thing_id
+            ORDER BY date_created DESC
           SQL
 
-          @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, by_month: by_month, limit: limit])).to_a
+          @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, thing_id: thing_id, date_time_format: date_time_format])).to_a
         end
       end
     end

@@ -12,9 +12,11 @@ module DataCycleCore
     def download_report
       type = permitted_params[:type]
       identifier = permitted_params[:identifier]
+      params = {}
+      params[:thing_id] = permitted_params[:thing_id] if permitted_params[:thing_id]
       report_class = DataCycleCore::Feature::ReportGenerator.by_identifier(identifier)
       # begin
-      data, options = report_class.constantize.new(locale: helpers.active_ui_locale).send("to_#{type}")
+      data, options = report_class.constantize.new(params: params, locale: helpers.active_ui_locale).send("to_#{type}")
       send_data data, options
       # rescue
       #   # @todo: add new exception type
@@ -29,7 +31,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:type, :identifier]
+      [:type, :identifier, :thing_id]
     end
   end
 end
