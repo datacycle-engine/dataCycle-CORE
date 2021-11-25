@@ -18,14 +18,6 @@
       <% end %>
     </div>
   <% end %>
-  <% if can?(:manage, :report) %>
-    <div class="row columns">
-      <%= link_to reports_path, class: '' do %>
-        <span class="icon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
-        <span class="title"><%= t('data_cycle_core.reports', locale: active_ui_locale) %></span>
-      <% end %>
-    </div>
-  <% end %>
   <% if DataCycleCore.asset_objects.any? { |a| can?(:create, a.classify.constantize) } %>
     <div class="row columns">
       <a class="asset-selector-button" data-open="asset-selector-sidebar">

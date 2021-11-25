@@ -6,12 +6,20 @@ module DataCycleCore
     authorize_resource class: false # from cancancan (authorize)
 
     def index
+      @reports = DataCycleCore::Feature::ReportGenerator.global_reports
     end
 
     def download_report
-      # type = permitted_params[:type]
-      data, options = DataCycleCore::Report::Downloads.new(params: { limit: 2, by_month: 10 }).to_tsv
+      type = permitted_params[:type]
+      identifier = permitted_params[:identifier]
+      report_class = DataCycleCore::Feature::ReportGenerator.by_identifier(identifier)
+      # begin
+      data, options = report_class.constantize.new(locale: helpers.active_ui_locale).send("to_#{type}")
       send_data data, options
+      # rescue
+      #   # @todo: add new exception type
+      #   raise ArgumentError
+      # end
     end
 
     private
@@ -21,7 +29,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:type]
+      [:type, :identifier]
     end
   end
 end

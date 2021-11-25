@@ -17,7 +17,7 @@ end
 
 # Administration
 crumb :reports do
-  link to_html_string(t('data_cycle_core.reports', locale: active_ui_locale)), reports_path, authorized: can?(:manage, :reports)
+  link to_html_string(t('data_cycle_core.reports.root', locale: active_ui_locale)), reports_path, authorized: can?(:manage, :reports)
 end
 
 crumb :classifications do

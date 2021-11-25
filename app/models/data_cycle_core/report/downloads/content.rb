@@ -2,11 +2,12 @@
 
 module DataCycleCore
   module Report
-    class Downloads < Base
-      def apply(params)
-        limit = params&.dig(:limit) || 50
-        by_month = params&.dig(:by_month) || Time.zone.now.month
-        raw_query = <<-SQL.squish
+    module Downloads
+      class Content < Base
+        def apply(params)
+          limit = params&.dig(:limit) || 50
+          by_month = params&.dig(:by_month) || Time.zone.now.month
+          raw_query = <<-SQL.squish
           SELECT 
             "things"."id", 
             "thing_translations"."name", 
@@ -23,9 +24,10 @@ module DataCycleCore
           group by "things"."id", "thing_translations"."name", "activities"."activity_type"
           order by downloads_by_month DESC NULLS LAST, downloads_all DESC NULLS LAST
           LIMIT :limit
-        SQL
+          SQL
 
-        @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, by_month: by_month, limit: limit])).to_a
+          @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, by_month: by_month, limit: limit])).to_a
+        end
       end
     end
   end

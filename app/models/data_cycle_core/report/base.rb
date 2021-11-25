@@ -6,12 +6,17 @@ module DataCycleCore
   module Report
     class Base
       attr_reader :data
+      attr_reader :locale
 
-      def initialize(params: nil)
+      def initialize(params: nil, locale: 'de')
+        @locale = locale
         @data = apply(params)
       end
 
       def apply(_params)
+      end
+
+      def available_params
       end
 
       def to_csv
@@ -34,12 +39,16 @@ module DataCycleCore
         return if @data.empty?
         options = { col_sep: separator }
         csv_string = CSV.generate(options) do |csv|
-          csv << @data.first&.keys
+          csv << translated_headings
           @data.each do |value|
             csv << value.values
           end
         end
         return csv_string, { filename: "test.#{file_extension}", disposition: 'attachment', type: mime_type }
+      end
+
+      def translated_headings
+        @data.first.keys.map { |key| I18n.t "feature.report_generator.headings.#{key}", default: key }
       end
     end
   end
