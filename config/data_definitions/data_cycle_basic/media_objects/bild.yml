@@ -30,8 +30,7 @@
           :json: true
           :xml: true
       :report_generator:
-        :downloads_content:
-          :enabled: true
+        :allowed: true
     :api:
       :type:
         - CreativeWork

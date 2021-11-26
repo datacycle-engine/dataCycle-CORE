@@ -4,24 +4,21 @@ module DataCycleCore
   module Feature
     class ReportGenerator < Base
       class << self
-        def ability_class
-          DataCycleCore::Feature::Abilities::ReportGenerator
+        def by_identifier(identifier, content = nil)
+          return content_reports(content).dig(identifier, 'class') if content.present?
+          global_reports.dig(identifier, 'class')
         end
 
         def global_reports
           config.dig('global').select { |_k, v| v.dig('enabled') == true }
         end
 
-        def content_reports
-          config.dig('content').select { |_k, v| v.dig('enabled') == true }
+        def content_reports(content)
+          config(content).dig('content').select { |_k, v| v.dig('enabled') == true }
         end
 
-        def by_identifier(identifier)
-          global_reports.dig(identifier, 'class') || content_reports.dig(identifier, 'class')
-        end
-
-        def config
-          DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:config)
+        def config(content = nil)
+          configuration(content).dig(:config)
         end
       end
     end

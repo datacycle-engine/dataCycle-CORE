@@ -10,18 +10,21 @@ module DataCycleCore
     end
 
     def download_report
-      type = permitted_params[:type]
-      identifier = permitted_params[:identifier]
       params = {}
-      params[:thing_id] = permitted_params[:thing_id] if permitted_params[:thing_id]
-      report_class = DataCycleCore::Feature::ReportGenerator.by_identifier(identifier)
-      # begin
-      data, options = report_class.constantize.new(params: params, locale: helpers.active_ui_locale).send("to_#{type}")
-      send_data data, options
-      # rescue
-      #   # @todo: add new exception type
-      #   raise ArgumentError
-      # end
+      if permitted_params[:thing_id]
+        thing = DataCycleCore::Thing.find(permitted_params[:thing_id])
+        authorize! :download_content_report, thing
+        params[:thing_id] = permitted_params[:thing_id]
+      else
+        authorize! :download_global_report, :report
+      end
+      report_class = DataCycleCore::Feature::ReportGenerator.by_identifier(permitted_params[:identifier], thing)
+      begin
+        data, options = report_class.constantize.new(params: params, locale: helpers.active_ui_locale).send("to_#{permitted_params[:type]}")
+        send_data data, options
+      rescue StandardError => e
+        raise DataCycleCore::Error::Report::ProcessingError, e
+      end
     end
 
     private

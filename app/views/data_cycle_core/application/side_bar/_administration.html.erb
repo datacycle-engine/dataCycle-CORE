@@ -29,7 +29,7 @@
       <% end %>
     </div>
   <% end %>
-  <% if can?(:manage, :report) %>
+  <% if can?(:index, :report) %>
     <div class="row columns">
       <%= link_to reports_path, class: '' do %>
         <span class="icon"><i class="fa fa-table " aria-hidden="true"></i></span>
