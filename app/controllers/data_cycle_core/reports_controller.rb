@@ -18,6 +18,7 @@ module DataCycleCore
       else
         authorize! :download_global_report, :report
       end
+      params[:key] = permitted_params[:identifier]
       report_class = DataCycleCore::Feature::ReportGenerator.by_identifier(permitted_params[:identifier], thing)
       begin
         data, options = report_class.constantize.new(params: params, locale: helpers.active_ui_locale).send("to_#{permitted_params[:type]}")

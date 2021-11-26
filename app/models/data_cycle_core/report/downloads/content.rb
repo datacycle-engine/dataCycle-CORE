@@ -7,7 +7,7 @@ module DataCycleCore
         def apply(params)
           thing_id = params&.dig(:thing_id)
           date_time_format = 'DD.MM.YYYY HH24:MI:SS'
-          raise 'error' if thing_id.blank?
+          raise DataCycleCore::Error::RecordNotFoundError "#{thing_id} not found!" if DataCycleCore::Thing.find(thing_id).blank?
           raw_query = <<-SQL.squish
             SELECT 
                 "things"."id", 

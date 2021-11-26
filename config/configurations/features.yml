@@ -345,6 +345,7 @@
           - 'csv'
           - 'tsv'
           - 'json'
+          - 'xlsx'
     :content:
       :downloads_content:
         :enabled: false
@@ -353,6 +354,7 @@
           - 'csv'
           - 'tsv'
           - 'json'
+          - 'xlsx'
 
 :image_editor:
   :enabled: false

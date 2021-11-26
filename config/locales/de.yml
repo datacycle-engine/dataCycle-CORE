@@ -460,7 +460,7 @@ de:
         id: ID
         name: Name
         downloads_all: Anzahl der Downloads (Gesamt)
-        downloads_by_month: Anzahl der Downlods (Dieses Monat)
+        downloads_by_month: Anzahl der Downloads (Dieses Monat)
         date_created: Heruntergeladen am
         email: E-Mail
         user_display_name: Benutzer
