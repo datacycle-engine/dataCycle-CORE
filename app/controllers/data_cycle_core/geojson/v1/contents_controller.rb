@@ -54,7 +54,7 @@ module DataCycleCore
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
-          filter.language = @language
+          # filter.language = @language
           filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
 
           query = filter.apply(skip_ordering: true)
@@ -67,7 +67,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:id, :token, :content_id, :format]
+          [:id, :token, :content_id, :format, :language]
         end
       end
     end

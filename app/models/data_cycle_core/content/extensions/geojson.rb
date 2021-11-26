@@ -6,13 +6,14 @@ module DataCycleCore
       module Geojson
         extend ActiveSupport::Concern
         def geojson_feature
-          # return if geojson_geometry.nil?
+          # TODO: caching
           factory = RGeo::GeoJSON::EntityFactory.instance
-          factory.feature(geojson_geometry, id, geojson_properties)
+          Rails.cache.fetch(geojson_cache_key(nil), expires_in: 1.year + Random.rand(7.days)) do
+            factory.feature(geojson_geometry, id, geojson_properties)
+          end
         end
 
         def as_geojson
-          # TODO: caching
           RGeo::GeoJSON.encode(geojson_feature)
         end
 
@@ -21,9 +22,13 @@ module DataCycleCore
         end
 
         def geojson_geometry
-          # TODO: line or point or GeometryCollection? 
           # coordinate precision -> not implemented in rgeo
-          line
+          if line.present? && location.present?
+            factory = RGeo::Geographic.spherical_factory
+            return factory.collection([line, location])
+          end
+          return line unless line.nil?
+          return location unless location.nil?
         end
 
         def geojson_properties
@@ -40,6 +45,14 @@ module DataCycleCore
           def to_geojson
             as_geojson.to_json
           end
+        end
+
+        private
+
+        def geojson_cache_key(_language)
+          # TODO: language + api_version??
+          # "#{self.class.name.underscore}/#{id}_#{Array(language)&.sort&.join(',')}_#{api_version}_#{updated_at.to_i}_#{template_updated_at.to_i}"
+          "#{self.class.name.underscore}/#{id}_#{updated_at.to_i}_#{template_updated_at.to_i}"
         end
       end
     end
