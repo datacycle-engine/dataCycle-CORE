@@ -334,5 +334,27 @@
         :enlarge: 0
         :gravity: ce
 
+:report_generator:
+  :enabled: false
+  :config:
+    :global:
+      :downloads_popular:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::Popular
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
+    :content:
+      :downloads_content:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::Content
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
+
 :image_editor:
   :enabled: false

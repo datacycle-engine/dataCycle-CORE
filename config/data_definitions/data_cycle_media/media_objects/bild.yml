@@ -30,6 +30,8 @@
           :json: true
           :xml: true
           :indesign: true
+      :report_generator:
+        :allowed: true
     :api:
       :type:
         - CreativeWork
