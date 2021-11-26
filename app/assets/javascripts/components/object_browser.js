@@ -12,9 +12,7 @@ class ObjectBrowser {
     this.element = selector;
     this.objectListElement = this.element.find('> .media-thumbs > .object-thumbs').get(0);
     this.id = selector.prop('id');
-    this.overlay = $('#object_browser_' + this.id);
-    this.overlayFilter = this.overlay.find('.object-browser-filter');
-    this.overlayCount = this.overlayFilter.find('.item-count');
+    this.overlay = $(`#object_browser_${this.id}`);
     this.label = $('[for=' + this.id + ']')
       .text()
       .trim();
@@ -55,6 +53,7 @@ class ObjectBrowser {
       breadcrumbClick: this.breadcrumbClickHandler.bind(this),
       import: this.import.bind(this)
     };
+    this.overlayInitObserver = new MutationObserver(this.initOverlay.bind(this));
 
     this.setup();
   }
@@ -67,129 +66,15 @@ class ObjectBrowser {
       this.ids,
       $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
     );
-    // initialize all eventhandlers
-    this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
-    this.overlay.on('closed.zf.reveal', this.closeOverlay.bind(this));
-    this.overlay.children('.items').on(
-      'scroll',
-      function (event) {
-        var elem = $(event.currentTarget);
-        if (
-          elem[0].scrollHeight - elem.scrollTop() - 200 <= elem.outerHeight() &&
-          !this.loading &&
-          this.overlay.children('.items').children('li.item').length < this.total
-        ) {
-          this.page += 1;
-          this.loadObjects();
-        }
-      }.bind(this)
-    );
-    this.overlayFilter.find('.object-browser-search').on('change', this.filterItems.bind(this));
-    this.overlayFilter.find('.buttons button[type="submit"]').on('click', this.filterItems.bind(this));
-    this.overlayFilter.find('.buttons button[type="reset"]').on('click', this.resetFilter.bind(this));
-    this.overlay.find('.chosen-items-container').on('click', 'li.item', event => {
-      event.preventDefault();
-      event.stopImmediatePropagation();
 
-      const $target = $(event.currentTarget);
-      if (this.selected != $target.data('id')) {
-        this.loadDetails($target.data('id'));
-      }
-    });
-    this.overlay.children('.items').on('click', 'li.item', event => {
-      const $target = $(event.currentTarget);
+    this.overlayInitObserver.observe(this.overlay.get(0), { attributes: true, attributeFilter: ['class'] });
+    this.element.on('click', '.delete-thumbnail', this.clickDeleteThumbnailHandler.bind(this));
+    this.element.on('dc:update:chosen', this.updateChosenHandler.bind(this));
+    this.element.on('dc:import:data', this.importDataHandler.bind(this));
 
-      if ($target.closest('a.show-link').length || $target.closest('a.edit-link').length) return;
-
-      event.preventDefault();
-      event.stopImmediatePropagation();
-
-      if (this.selected != $target.data('id')) {
-        $target.addClass('in-object-browser');
-        this.loadDetails($target.data('id'));
-      }
-      if (this.chosen.indexOf($target.data('id')) == -1) {
-        this.addObject($target.data('id'), $target.clone(), event);
-      } else {
-        this.removeObject($target.data('id'), event);
-      }
-    });
-    this.element.on('click', '.delete-thumbnail', async event => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (await this.validate('-', this.chosen.length - 1)) {
-        this.removeThumbObject(event.target);
-      }
-    });
-    this.overlay.find('.chosen-items-container').on('click', '.delete-thumbnail', event => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      const $target = $(event.currentTarget);
-
-      this.removeObject($target.closest('li.item').data('id'), event);
-    });
-    this.overlay.find('.buttons .save-object-browser').on('click', async event => {
-      event.preventDefault();
-      if (await this.validate()) {
-        this.setChosen();
-        this.overlay.foundation('close');
-        this.element.closest('.form-element').trigger('change');
-      }
-    });
-    this.element.on('dc:update:chosen', (_event, data) => {
-      this.chosen = union(this.chosen, data.chosen);
-      $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((_index, elem) =>
-        $(elem).remove()
-      );
-      this.updateChosenCounter();
-      this.overlay.find('.items li.item .reveal.media-preview').each((_i, element) => {
-        if ($(element).prop('id').indexOf('overlay_') == -1) $(element).prop('id', 'overlay_' + $(element).prop('id'));
-      });
-      this.element.find('.object-thumbs li.item .reveal.media-preview').each((_i, element) => {
-        $(element).foundation().addClass('dc-fd-initialized');
-      });
-    });
-    this.element.on('dc:import:data', async (_event, data) => {
-      let newItems = [];
-      if (data.external_ids != undefined) newItems = data.external_ids;
-      else if (data.value && data.value.length) {
-        newItems = difference(
-          data.value,
-          $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
-        );
-      }
-
-      if (
-        newItems.length > 0 &&
-        (await this.validate(
-          '+',
-          this.chosen.length + newItems.length,
-          I18n.translate('frontend.split_view.copy_linked_error')
-        ))
-      ) {
-        await this.findObjects(newItems, data.external_ids != undefined);
-      }
-    });
-    this.overlay.on('dc:import:complete', (event, data) => {
-      this.excluded = union(this.excluded, data && data.ids);
-      this.overlay
-        .children('.items')
-        .find('[data-id=' + data.ids[0] + ']')
-        .get(0)
-        .scrollIntoView({
-          behavior: 'smooth'
-        });
-
-      data.ids.forEach(id => {
-        this.addObject(id, this.overlay.find('[data-id=' + id + ']').clone(), event);
-      });
-
-      $('#new_' + this.id + '.in-object-browser form').trigger('reset');
-    });
     $(document).on(
       'dc:html:changed',
-      '#new_' + this.id + '.in-object-browser .new-content-form',
+      `#new_${this.id}.in-object-browser .new-content-form`,
       this.initNewFormHandlers.bind(this)
     );
     this.element.on('dc:locale:changed', this.updateLocale.bind(this));
@@ -205,6 +90,146 @@ class ObjectBrowser {
       this.limitedBy.on('change', this.removeDeletedItem.bind(this));
       if (!this.element.closest('.split-content.edit-content').length) this.removeDeletedItem();
     } else this.limitedBy = undefined;
+  }
+  initOverlay(mutations) {
+    if (mutations.some(e => e.target.classList.contains('remote-rendered'))) {
+      this.overlayInitObserver.disconnect();
+      this.initOverlayHandlers();
+    }
+  }
+  initOverlayHandlers(_element) {
+    this.overlayFilter = this.overlay.find('.object-browser-filter');
+    this.overlayCount = this.overlayFilter.find('.item-count');
+    this.overlayFilterForm = this.overlayFilter.find('.object-browser-filter-form');
+
+    this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
+    this.overlay.on('closed.zf.reveal', this.closeOverlay.bind(this));
+    this.overlay.children('.items').on('scroll', this.initInfiniteLoading.bind(this));
+    this.overlayFilter.find('.object-browser-search').on('change', this.filterItems.bind(this));
+    this.overlayFilterForm.on('submit', this.filterItems.bind(this));
+    this.overlayFilterForm.find('.buttons button[type="reset"]').on('click', this.resetFilter.bind(this));
+    this.overlay.find('.chosen-items-container').on('click', 'li.item', this.clickChosenItemsHandler.bind(this));
+    this.overlay.children('.items').on('click', 'li.item', this.clickItemsHandler.bind(this));
+    this.overlay
+      .find('.chosen-items-container')
+      .on('click', '.delete-thumbnail', this.clickChosenItemsDeleteHandler.bind(this));
+    this.overlay.find('.buttons .save-object-browser').on('click', this.clickSaveHandler.bind(this));
+    this.overlay.on('dc:import:complete', this.importCompleteHandler.bind(this));
+
+    this.overlay.trigger('open.zf.reveal');
+  }
+  importCompleteHandler(event, data) {
+    this.excluded = union(this.excluded, data && data.ids);
+    this.overlay
+      .children('.items')
+      .find('[data-id=' + data.ids[0] + ']')
+      .get(0)
+      .scrollIntoView({
+        behavior: 'smooth'
+      });
+
+    data.ids.forEach(id => {
+      this.addObject(id, this.overlay.find('[data-id=' + id + ']').clone(), event);
+    });
+
+    $('#new_' + this.id + '.in-object-browser form').trigger('reset');
+  }
+  async importDataHandler(_event, data) {
+    let newItems = [];
+    if (data.external_ids != undefined) newItems = data.external_ids;
+    else if (data.value && data.value.length) {
+      newItems = difference(
+        data.value,
+        $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
+      );
+    }
+
+    if (
+      newItems.length > 0 &&
+      (await this.validate(
+        '+',
+        this.chosen.length + newItems.length,
+        I18n.translate('frontend.split_view.copy_linked_error')
+      ))
+    ) {
+      await this.findObjects(newItems, data.external_ids != undefined);
+    }
+  }
+  updateChosenHandler(_event, data) {
+    this.chosen = union(this.chosen, data.chosen);
+    $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((_index, elem) =>
+      $(elem).remove()
+    );
+    this.updateChosenCounter();
+    this.overlay.find('.items li.item .reveal.media-preview').each((_i, element) => {
+      if ($(element).prop('id').indexOf('overlay_') == -1) $(element).prop('id', 'overlay_' + $(element).prop('id'));
+    });
+    this.element.find('.object-thumbs li.item .reveal.media-preview').each((_i, element) => {
+      $(element).foundation().addClass('dc-fd-initialized');
+    });
+  }
+  async clickSaveHandler(event) {
+    event.preventDefault();
+
+    if (await this.validate()) {
+      this.setChosen();
+      this.overlay.foundation('close');
+      this.element.closest('.form-element').trigger('change');
+    }
+  }
+  clickChosenItemsDeleteHandler(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const $target = $(event.currentTarget);
+
+    this.removeObject($target.closest('li.item').data('id'), event);
+  }
+  async clickDeleteThumbnailHandler(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (await this.validate('-', this.chosen.length - 1)) {
+      this.removeThumbObject(event.target);
+    }
+  }
+  clickItemsHandler(event) {
+    const $target = $(event.currentTarget);
+
+    if ($target.closest('a.show-link').length || $target.closest('a.edit-link').length) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    if (this.selected != $target.data('id')) {
+      $target.addClass('in-object-browser');
+      this.loadDetails($target.data('id'));
+    }
+    if (this.chosen.indexOf($target.data('id')) == -1) {
+      this.addObject($target.data('id'), $target.clone(), event);
+    } else {
+      this.removeObject($target.data('id'), event);
+    }
+  }
+  clickChosenItemsHandler(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const $target = $(event.currentTarget);
+    if (this.selected != $target.data('id')) {
+      this.loadDetails($target.data('id'));
+    }
+  }
+  initInfiniteLoading(event) {
+    const elem = $(event.currentTarget);
+
+    if (
+      elem[0].scrollHeight - elem.scrollTop() - 200 <= elem.outerHeight() &&
+      !this.loading &&
+      this.overlay.children('.items').children('li.item').length < this.total
+    ) {
+      this.page += 1;
+      this.loadObjects();
+    }
   }
   updateLocale(e) {
     e.stopPropagation();
@@ -458,8 +483,7 @@ class ObjectBrowser {
     });
   }
   resetOverlay() {
-    this.resetFilter();
-    // this.overlay.find('.object-browser-search').val('');
+    this.overlayFilterForm.get(0).reset();
     this.overlay.find('.chosen-items-container li.item').remove();
     this.chosen = [];
     this.excluded = [];
@@ -574,19 +598,15 @@ class ObjectBrowser {
     this.page = 1;
     this.loadObjects(false);
   }
-  resetFilter(event = null) {
+  resetFilter(event = null, triggerReload = true) {
     if (event) event.preventDefault();
 
-    this.overlayFilter.find(':input:not(:hidden):not(button)').each((_i, item) => {
-      $(item).val(null);
+    this.overlayFilterForm.get(0).reset();
 
-      if ($(item).is('select')) $(item).trigger('change');
-    });
-
-    this.filterItems();
+    if (triggerReload) this.filterItems();
   }
   serializeFilter() {
-    return this.overlayFilter.find(':input').serializeJSON();
+    return this.overlayFilterForm.serializeJSON();
   }
   loadObjects(append = true) {
     if (!append) {

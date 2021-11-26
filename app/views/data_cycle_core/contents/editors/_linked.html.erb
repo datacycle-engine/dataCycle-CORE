@@ -72,9 +72,18 @@
     </div>
   </div>
 
-  <%= render 'data_cycle_core/object_browser/editor_overlay',
-              html_id: html_id,
-              content: content,
-              definition: definition %>
+  <div id="object_browser_<%= html_id %>"
+      data-overlay="false"
+      class="object-browser-overlay full reveal without-overlay remote-render"
+      data-reveal
+      data-v-offset="0"
+      data-multiple-opened="true"
+      data-remote-path="data_cycle_core/object_browser/editor_overlay"
+      data-remote-options="<%= to_query_params(
+        html_id: html_id,
+        content: content,
+        definition: definition
+      ).to_json %>">
+  </div>
 
 <% end %>

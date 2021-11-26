@@ -1,5 +1,5 @@
-<div id="object_browser_<%= html_id %>" data-overlay="false" class="object-browser-overlay full reveal without-overlay" data-reveal data-v-offset="0" data-multiple-opened="true">
-  <div class="object-browser-header object-browser-filter">
+<div class="object-browser-header object-browser-filter">
+  <form class="object-browser-filter-form">
     <div class="fulltext-search">
       <span class="search-icon">
         <i class="fa fa-search" aria-hidden="true"></i>
@@ -17,6 +17,7 @@
           nil,
           {
             class: 'async-select',
+            include_blank: true,
             data: {
               max: 20,
               placeholder: t('filter.relation_filter.placeholder.collection_or_stored_filter',
@@ -30,11 +31,7 @@
     </div>
 
     <div class="buttons">
-      <%= button_tag type: :submit,
-                      class: "button success",
-                      data: {
-                        disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.searching', locale: active_ui_locale)} ..."
-                      } do %>
+      <%= button_tag type: :submit, class: "button success" do %>
         <i class="fa fa-search" aria-hidden="true"></i>
         <%= t('actions.filter', locale: active_ui_locale) %>
       <% end %>
@@ -45,34 +42,35 @@
     </div>
 
     <span class="item-count"></span>
+  </form>
+</div>
+
+<ul class="items margin-bottom-10 no-bullet">
+  <div class="loading">
+    <i class="fa fa-spinner fa-spin fa-fw"></i>
   </div>
+</ul>
 
-  <ul class="items margin-bottom-10 no-bullet">
-    <div class="loading">
-      <i class="fa fa-spinner fa-spin fa-fw"></i>
-    </div>
-  </ul>
+<div class="item-info">
+  <div class="item-info-scrollable"></div>
+</div>
 
-  <div class="item-info">
-    <div class="item-info-scrollable"></div>
+<div class="object-browser-footer">
+  <div class="chosen-items items">
+    <ul class="chosen-items-container no-bullet"></ul>
   </div>
+  <div class="buttons">
+    <span class="button-title">
+      <sup>
+        <span class="chosen-counter"></span>
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </sup>
+    </span>
+    <a class="button-prime success small save-object-browser">
+      <i class="fa fa-check" aria-hidden="true"></i>
+    </a>
 
-  <div class="object-browser-footer">
-    <div class="chosen-items items">
-      <ul class="chosen-items-container no-bullet"></ul>
-    </div>
-    <div class="buttons">
-      <span class="button-title">
-        <sup>
-          <span class="chosen-counter"></span>
-          <i class="fa fa-chevron-right" aria-hidden="true"></i>
-        </sup>
-      </span>
-      <a class="button-prime success small save-object-browser">
-        <i class="fa fa-check" aria-hidden="true"></i>
-      </a>
-
-      <% form_parameters = object_browser_new_form_parameters({
+    <% form_parameters = object_browser_new_form_parameters({
             content: content,
             button_class: 'small new-content-button',
             locale: I18n.locale,
@@ -81,11 +79,10 @@
             scope: 'object_browser'
         }, definition) %>
 
-      <%= render 'data_cycle_core/contents/new_content_button', form_parameters if definition.dig('ui', 'edit', 'options', 'limited_by').blank? && form_parameters.present? %>
+    <%= render 'data_cycle_core/contents/new_content_button', form_parameters if definition.dig('ui', 'edit', 'options', 'limited_by').blank? && form_parameters.present? %>
 
-      <button class="button-prime small close-object-browser" type="button" data-close>
-        <i aria-hidden="true" class="fa fa-times"></i>
-      </button>
-    </div>
+    <button class="button-prime small close-object-browser" type="button" data-close>
+      <i aria-hidden="true" class="fa fa-times"></i>
+    </button>
   </div>
 </div>

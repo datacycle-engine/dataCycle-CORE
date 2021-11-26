@@ -1489,14 +1489,14 @@ a.email-link {
   .select2-selection--single {
     .select2-selection__choice,
     .select2-selection__rendered {
-      &.stored_filter::before {
+      .stored_filter::before {
         content: '\f0b0';
         font-family: FontAwesome;
         position: relative;
         padding: 2px 5px 2px 2px;
       }
 
-      &.watch_list::before {
+      .watch_list::before {
         content: '\f0ca';
         font-family: FontAwesome;
         position: relative;

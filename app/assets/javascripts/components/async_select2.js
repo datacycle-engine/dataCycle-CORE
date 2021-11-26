@@ -69,13 +69,15 @@ class AsyncSelect2 extends BasicSelect2 {
 
     return result;
   }
-  templateSelection(data, container) {
+  templateSelection(data, _container) {
     data.selected = true;
     data.text = data.name || data.text;
     $(data.element).html(data.text);
-    this.copySelect2Classes(data, container);
+    const $result = $(`<span class="selection-label-wrapper"><span class="selection-label">${data.text}</span></span>`);
+    this.copySelect2Classes(data, $result);
+    this.addCollectionLinksToResults(data, $result);
 
-    return data.text;
+    return $result;
   }
   ajaxOptions() {
     return {

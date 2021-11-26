@@ -17,7 +17,7 @@ module DataCycleCore
         @language = Array(@definition.dig(:linked_language) == 'same' ? permitted_params.fetch(:locale) { current_user.default_locale } : 'all')
 
         filter = DataCycleCore::StoredFilter.new
-          .from_params_hash(stored_filter)
+          .parameters_from_hash(stored_filter)
           .apply_user_filter(current_user, { scope: 'object_browser', template_name: stored_filter.blank? ? template_name : nil })
         filter.language = @language
 
@@ -30,8 +30,7 @@ module DataCycleCore
         query = query.in_validity_period
         query = query.where('things.id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
         query = query.where(id: permitted_params[:filter_ids]) if permitted_params[:filter_ids].present?
-
-        query = query.sort_fulltext_search('DESC', permitted_params[:search]) if permitted_params[:search].present?
+        filter.parameters&.detect { |f| f['t'] == 'fulltext_search' }&.dig('v')&.then { |s| query = query.sort_fulltext_search('DESC', s) }
 
         @per = permitted_params[:per] if permitted_params[:per].present?
         @per ||= DEFAULT_PER
