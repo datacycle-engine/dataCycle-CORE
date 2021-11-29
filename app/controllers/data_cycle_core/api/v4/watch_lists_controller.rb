@@ -9,9 +9,9 @@ module DataCycleCore
         def index
           if permitted_params[:user_email].present?
             @watch_lists = DataCycleCore::WatchList
-              .accessible_by(DataCycleCore::Ability.new(User.find_by(email: permitted_params[:user_email]), session))
+              .accessible_by(DataCycleCore::Ability.new(User.find_by(email: permitted_params[:user_email]), session)).without_my_selection
           else
-            @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
+            @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability).without_my_selection
           end
           @watch_lists = apply_paging(@watch_lists)
         end
@@ -22,7 +22,7 @@ module DataCycleCore
         end
 
         def create
-          @watch_list = current_user.watch_lists.create(full_path: "Download #{I18n.l(Time.zone.now, locale: DataCycleCore.ui_language)}", thing_ids: Array(permitted_params[:thing_id]))
+          @watch_list = current_user.watch_lists.create(full_path: "Download #{Time.zone.now.strftime('%d.%m.%Y - %H:%M')}", thing_ids: Array(permitted_params[:thing_id]))
 
           render json: @watch_list.as_json(only: [:id, :name]).deep_transform_keys { |k| k.camelize(:lower) }
         end

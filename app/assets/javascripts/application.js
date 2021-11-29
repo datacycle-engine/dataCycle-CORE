@@ -1,9 +1,10 @@
 import jQuery from 'jquery';
 import Rails from '@rails/ujs';
 import ActionCable from 'actioncable';
-import DataCycle from './components/data_cycle';
+import DataCycleSingleton from './components/data_cycle';
+import I18n from './components/i18n';
 
-Object.assign(window, { $: jQuery, jQuery, Rails, actionCable: ActionCable.createConsumer(), DataCycle });
+Object.assign(window, { $: jQuery, jQuery, Rails, actionCable: ActionCable.createConsumer(), I18n });
 
 import 'jquery-serializejson';
 import 'lazysizes';
@@ -17,7 +18,7 @@ import validationInit from './initializers/validation_init';
 import appSignalInit from './initializers/app_signal_init';
 
 export default (dataCycleConfig = {}) => {
-  DataCycle.init(dataCycleConfig);
+  DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
 
   appSignalInit();
 

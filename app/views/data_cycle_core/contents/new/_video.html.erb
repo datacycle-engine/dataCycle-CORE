@@ -1,7 +1,7 @@
 <% if DataCycleCore.features.dig(:external_media_archive, :enabled) %>
   <% external_system = DataCycleCore::ExternalSystem.find_by(name: 'Medienarchiv') %>
   <fieldset class="<%= 'iframe' if external_system.present? %>">
-    <legend><%= t('common.create_via_mediaarchive', data: 'Video', locale: DataCycleCore.ui_language) %></legend>
+    <legend><%= t('common.create_via_mediaarchive', data: 'Video', locale: active_ui_locale) %></legend>
     <% if external_system.present? %>
       <%#= render 'asset_upload', key: local_assigns[:key] || 'iframe_video', asset_type: 'video' %>
 

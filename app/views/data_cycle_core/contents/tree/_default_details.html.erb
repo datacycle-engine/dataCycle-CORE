@@ -2,14 +2,14 @@
 
   <% if item.try(:desc).present? %>
     <div class="description">
-      <h5><%= t('list_titles.teaser', locale: DataCycleCore.ui_language) %></h5>
+      <h5><%= t('list_titles.teaser', locale: active_ui_locale) %></h5>
       <%= sanitize(item.desc) %>
     </div>
   <% end %>
 
   <% if item.try(:text).present? %>
     <div class="text <%= 'show-more' if item.text.size > 140 %>">
-      <h5><%= t('list_titles.text', locale: DataCycleCore.ui_language) %></h5>
+      <h5><%= t('list_titles.text', locale: active_ui_locale) %></h5>
       <div class="closed <%= 'hidden' if item.text.size < 140 %>">
         <%= sanitize(strip_links(truncate(item.try(:text), length: 140, separator: " ", escape: false))) %>
       </div>
@@ -17,8 +17,8 @@
         <%= sanitize(strip_links(item.try(:text))) %>
       </div>
       <a href="#" class="show-more-link">
-        <span class="open"><%= t('common.show_less', locale: DataCycleCore.ui_language) %></span>
-        <span class="closed"><%= t('common.show_more', locale: DataCycleCore.ui_language) %></span>
+        <span class="open"><%= t('common.show_less', locale: active_ui_locale) %></span>
+        <span class="closed"><%= t('common.show_more', locale: active_ui_locale) %></span>
       </a>
     </div>
   <% end %>
@@ -28,10 +28,20 @@
   <div class="thumbnails">
     <% if item.try(:image).is_a?(ActiveRecord::Relation) %>
       <% item.image.presence&.includes(:translations)&.each do |image| %>
-        <img data-src="<%= image.thumbnail_url %>" alt="<%= image.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= image.thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
+        <% if DataCycleCore::Feature::ImageProxy.frontend_enabled? %>
+          <% mini_thumb_url = DataCycleCore::Feature::ImageProxy.mini_thumb_url(content: image) %>
+        <% else %>
+          <% mini_thumb_url =  image.thumbnail_url %>
+        <% end %>
+        <img data-src="<%= mini_thumb_url %>" alt="<%= image.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= image.thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
       <% end %>
     <% elsif item.try(:thumbnail_url).present? %>
-      <img data-src="<%= item.thumbnail_url %>" alt="<%= item.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= item.thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
+      <% if DataCycleCore::Feature::ImageProxy.frontend_enabled? %>
+        <% mini_thumb_url = DataCycleCore::Feature::ImageProxy.mini_thumb_url(content: item) %>
+      <% else %>
+        <% mini_thumb_url =  image.thumbnail_url %>
+      <% end %>
+      <img data-src="<%= mini_thumb_url %>" alt="<%= item.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= item.thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
     <% elsif item.try(:image).is_a?(String) && item.try(:image).present? %>
       <img data-src="<%= item.image %>" alt="<%= item.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= item.image %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
     <% end %>

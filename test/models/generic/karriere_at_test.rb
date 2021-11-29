@@ -52,20 +52,20 @@ module DataCycleCore
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'JobPosting').with_schema_type('Intangible').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Örtlichkeit').with_schema_type('Place').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Organization').with_schema_type('Organization').count)
-        assert_equal(4, DataCycleCore::ClassificationAlias.for_tree('karriere.at - Keywords').count)
+        assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('karriere.at - Keywords').count)
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('karriere.at - Employment Types').count)
-        assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('karriere.at - Job Fields').count)
+        assert_equal(2, DataCycleCore::ClassificationAlias.for_tree('karriere.at - Job Fields').count)
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('karriere.at - Countries').count)
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('karriere.at - States').count)
 
         data = DataCycleCore::Thing.find_by(template: false, template_name: 'JobPosting')
         assert_equal(1, data.job_location.count)
         assert_equal(1, data.hiring_organization.count)
-        assert_equal(1, data.job_fields.count)
+        assert_equal(2, data.job_fields.count)
         assert_equal(1, data.employment_type.count)
         assert_equal(1, data.country.count)
         assert_equal(1, data.state.count)
-        assert_equal(4, data.keywords.count)
+        assert_equal(1, data.keywords.count)
       end
 
       def teardown

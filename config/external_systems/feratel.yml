@@ -274,11 +274,6 @@ config:
       sorting: 20
       source_type: infrastructure_items
       import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
-      transformations:
-        image:
-          template: Bild
-        infrastructure:
-          template: POI
     delete_infrastructures:
       sorting: 21
       import_strategy: DataCycleCore::Generic::Common::DeleteContents
@@ -292,11 +287,6 @@ config:
       sorting: 22
       source_type: accommodations
       import_strategy: DataCycleCore::Generic::Feratel::ImportAccommodations
-      transformations:
-        image:
-          template: Bild
-        place:
-          template: Unterkunft
     delete_accommodations:
       sorting: 23
       import_strategy: DataCycleCore::Generic::Common::DeleteContents
@@ -314,9 +304,6 @@ config:
           - 'seen_at':
               '$gte': '{{ 3.days.ago.beginning_of_day }}'
       import_strategy: DataCycleCore::Generic::Feratel::ImportSerialEvents
-      transformations:
-        serial_event:
-          template: Eventserie
     delete_serial_events:
       sorting: 25
       import_strategy: DataCycleCore::Generic::Common::DeleteContents
@@ -330,13 +317,6 @@ config:
       sorting: 26
       source_type: events
       import_strategy: DataCycleCore::Generic::Feratel::ImportEvents
-      transformations:
-        image:
-          template: Bild
-        place:
-          template: Örtlichkeit
-        event:
-          template: Event
     delete_events:
       sorting: 27
       import_strategy: DataCycleCore::Generic::Common::DeleteContents

@@ -62,12 +62,12 @@
   :config:
     :backend:
       :filter:
-        :search: true
-        # :classification_tree: Inhaltstypen # toplevel classifications from this tree will be available as clickable buttons
-        :classification_trees:
-          - Inhaltstypen
-        # :permanent_advanced: # always visible advanced filtesrs, can be a hash with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
-        :advanced: true # can be a hash with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
+        - :search: true
+          # - :classification_tree: Inhaltstypen # toplevel classifications from this tree will be available as clickable buttons
+        - :classification_trees:
+            - Inhaltstypen
+          # - :permanent_advanced: # always visible advanced filtesrs, can be a array with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
+        - :advanced: true # can be a array with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
       :store: true
       :add_items_to_watch_list: true
       :language: true
@@ -75,36 +75,36 @@
       :sortable: true
     :things:
       :filter:
-        :search: true
-        :classification_trees:
-          - 'Inhaltstypen'
+        - :search: true
+        - :classification_trees:
+            - 'Inhaltstypen'
       :language: true
       :mode_selector: true
       :collapse: true
     :collection:
       :filter:
-        :search: true
-        :classification_trees:
-          - 'Inhaltstypen'
+        - :search: true
+        - :classification_trees:
+            - 'Inhaltstypen'
       :language: true
       :mode_selector: true
       :collapse: true
     :classification_tree:
       :filter:
-        :classification_trees:
-          - Inhaltstypen
-          - Märkte
+        - :classification_trees:
+            - Inhaltstypen
+            - Märkte
       :language: true
     :publications:
       :filter:
-        :classification_trees:
-          - Inhaltstypen
-        :advanced: true
-        :publication_date: true
+        - :classification_trees:
+            - Inhaltstypen
+        - :advanced: true
+        - :publication_date: true
       :language: true
     :subscriptions:
       :filter:
-        :search: true
+        - :search: true
       :language: true
       :mode_selector: true
 
@@ -121,8 +121,8 @@
     :schedule_exceptions:
       - validity_schedule
   :classification_alias_ids: all
-  :external_source: true
-  :external_system: false
+  :external_source: false
+  :external_system: true
   :creator: true
   :classification_tree_ids: true
   :date_range: all
@@ -157,6 +157,10 @@
 :geocode:
   :enabled: false
   :attribute_keys:
+
+:auto_translation:
+  :enabled: false
+  :source_lang: de
 
 :translate:
   :enabled: false
@@ -290,3 +294,67 @@
 :gip_key_figure:
   :enabled: false
   :attribute_keys:
+
+:my_selection:
+  :enabled: false
+
+:image_proxy:
+  :enabled: false
+  :frontend:
+    :enabled: false
+  :config:
+    :dynamic:
+    :original:
+    :default:
+      :processing:
+        :resize_type: fit
+        :width: 0
+        :height: 0
+        :enlarge: 0
+        :gravity: ce
+    :thumb:
+      :processing:
+        :resize_type: fit
+        :width: 300
+        :height: 300
+        :enlarge: 0
+        :gravity: ce
+    :web:
+      :processing:
+        :resize_type: fit
+        :width: 2048
+        :height: 2048
+        :enlarge: 0
+        :gravity: ce
+    :web_small:
+      :processing:
+        :resize_type: fit
+        :width: 1500
+        :height: 1500
+        :enlarge: 0
+        :gravity: ce
+
+:report_generator:
+  :enabled: false
+  :config:
+    :global:
+      :downloads_popular:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::Popular
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
+    :content:
+      :downloads_content:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::Content
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
+
+:image_editor:
+  :enabled: false

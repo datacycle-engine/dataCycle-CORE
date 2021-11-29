@@ -23,7 +23,7 @@ module DataCycleCore
             @data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Linked-Creative-Work-1', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked'), prevent_history: true)
           end
 
-          count_things(diff: [0, 1, 5, 0]) do
+          count_things(diff: [0, 0, 5, 0]) do
             @data_set.set_data_hash(
               data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge(
                 {
@@ -34,6 +34,8 @@ module DataCycleCore
             )
             @data_set.save
           end
+
+          assert_equal true, @data_set.write_history
         end
 
         test 'read linked data, filter linked data' do
@@ -93,7 +95,7 @@ module DataCycleCore
             assert_equal(linked_objects.size, DataCycleCore::Thing.count - @things_before)
           end
 
-          count_things(diff: [0, -2, 0, -5]) do
+          count_things(diff: [0, -1, 0, -5]) do
             data_set.histories.each(&:destroy_content)
             assert_equal(linked_objects.size, DataCycleCore::Thing.count - @things_before)
           end
@@ -237,7 +239,7 @@ module DataCycleCore
         test 'delete main object, update linked item, delete_linked item' do
           data_set = @data_set
 
-          count_things(diff: [-2, 1 + 3, -5, +5]) do
+          count_things(diff: [-2, 3, -5, +5]) do
             linked_item = data_set.linked_creative_work.first
             data_set.destroy_content
             main_item = data_set.histories.first
@@ -247,7 +249,7 @@ module DataCycleCore
             linked_item.set_data_hash(data_hash: linked_item.get_data_hash.merge('name' => 'updated'))
             linked_item.set_data_hash(data_hash: linked_item.get_data_hash.merge('name' => 'updated 2x'))
             linked_item.destroy_content
-            assert_equal(3, linked_item.histories.count)
+            assert_equal(2, linked_item.histories.count)
             assert_equal(1, linked_item.histories.where.not(deleted_at: nil).count)
             deleted_linked = linked_item.histories.where.not(deleted_at: nil).first
             assert_equal(DataCycleCore::ContentContent::History.find_by(content_b_history_type: 'DataCycleCore::Thing::History').content_b_history_id, deleted_linked.id)

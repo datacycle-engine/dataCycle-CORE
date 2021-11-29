@@ -3,14 +3,19 @@ import Sortable from 'sortablejs/modular/sortable.core.esm.js';
 import difference from 'lodash/difference';
 import union from 'lodash/union';
 import castArray from 'lodash/castArray';
+import loadingIcon from '../templates/loadingIcon';
+import isEqual from 'lodash/isEqual';
+import sortBy from 'lodash/sortBy';
 
 class ObjectBrowser {
   constructor(selector) {
     this.element = selector;
     this.objectListElement = this.element.find('> .media-thumbs > .object-thumbs').get(0);
     this.id = selector.prop('id');
-    this.overlay = $('#object_browser_' + this.id);
-    this.label = $('[for=' + this.id + ']').text();
+    this.overlay = $(`#object_browser_${this.id}`);
+    this.label = $('[for=' + this.id + ']')
+      .text()
+      .trim();
     this.overlay_per = 25;
     this.per = selector.data('per') || 5;
     this.type = selector.data('type');
@@ -30,22 +35,29 @@ class ObjectBrowser {
     this.editable = selector.data('editable');
     this.page = 1;
     this.loading = false;
-    this.search = '';
     this.total = 0;
     this.ids = selector.data('objects') || [];
     this.chosen = this.ids.slice(0);
+    this.preselectedItems = [];
     this.selected = '';
     this.excluded = [];
     this.sortable;
     this.content_id = this.element.data('content-id');
     this.content_type = this.element.data('content-type');
     this.prefix = selector.data('prefix');
-    this.requests = [];
+    this.activeRequest;
+    this.eventHandlers = {
+      pageLeave: this.pageLeaveHandler.bind(this),
+      submitWithoutRedirect: this.submitWithoutRedirectHandler.bind(this),
+      setContentIds: this.setContentIdsHandler.bind(this),
+      breadcrumbClick: this.breadcrumbClickHandler.bind(this),
+      import: this.import.bind(this)
+    };
+    this.overlayInitObserver = new MutationObserver(this.initOverlay.bind(this));
 
     this.setup();
   }
   setup() {
-    var self = this;
     this.sortable = new Sortable(this.element.find('> .media-thumbs > .object-thumbs').get(0), {
       handle: '.draggable-handle',
       draggable: 'li.item'
@@ -54,117 +66,15 @@ class ObjectBrowser {
       this.ids,
       $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
     );
-    // initialize all eventhandlers
-    this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
-    this.overlay.on('closed.zf.reveal', this.closeOverlay.bind(this));
-    this.overlay.children('.items').on(
-      'scroll',
-      function (event) {
-        var elem = $(event.currentTarget);
-        if (
-          elem[0].scrollHeight - elem.scrollTop() - 200 <= elem.outerHeight() &&
-          !this.loading &&
-          this.overlay.children('.items').children('li.item').length < this.total
-        ) {
-          this.page += 1;
-          this.loadObjects();
-        }
-      }.bind(this)
-    );
-    this.overlay.find('.object-browser-search').on('change', function (event) {
-      event.preventDefault();
-      self.search = $(this).val();
-      self.page = 1;
-      self.loadObjects(false);
-    });
-    this.overlay.find('.chosen-items-container').on('click', 'li.item', function (event) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      if (self.selected != $(this).data('id')) {
-        self.loadDetails($(this).data('id'));
-      }
-    });
-    this.overlay.children('.items').on('click', 'li.item', function (event) {
-      if ($(event.target).closest('a.show-link').length || $(event.target).closest('a.edit-link').length) return;
 
-      event.preventDefault();
-      event.stopImmediatePropagation();
+    this.overlayInitObserver.observe(this.overlay.get(0), { attributes: true, attributeFilter: ['class'] });
+    this.element.on('click', '.delete-thumbnail', this.clickDeleteThumbnailHandler.bind(this));
+    this.element.on('dc:update:chosen', this.updateChosenHandler.bind(this));
+    this.element.on('dc:import:data', this.importDataHandler.bind(this));
 
-      if (self.selected != $(this).data('id')) {
-        $(this).addClass('in-object-browser');
-        self.loadDetails($(this).data('id'));
-      }
-      if (self.chosen.indexOf($(this).data('id')) == -1) {
-        self.addObject($(this).data('id'), $(this).clone(), event);
-      } else {
-        self.removeObject($(this).data('id'), event);
-      }
-    });
-    this.element.on('click', '.delete-thumbnail', event => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (this.validate('-', this.chosen.length - 1)) {
-        this.removeThumbObject(event.target);
-      }
-    });
-    this.overlay.find('.chosen-items-container').on('click', '.delete-thumbnail', function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      self.removeObject($(this).closest('li.item').data('id'), event);
-    });
-    this.overlay.find('.buttons .save-object-browser').on('click', event => {
-      event.preventDefault();
-      if (this.validate()) {
-        this.setChosen();
-        this.overlay.foundation('close');
-        this.element.closest('.form-element').trigger('change');
-      }
-    });
-    this.element.on('dc:update:chosen', (_event, data) => {
-      this.chosen = union(this.chosen, data.chosen);
-      $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) =>
-        $(elem).remove()
-      );
-      this.updateChosenCounter();
-      this.overlay.find('.items li.item .reveal.media-preview').each(function () {
-        if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
-      });
-      this.element.find('.object-thumbs li.item .reveal.media-preview').each((index, element) => {
-        $(element).foundation().addClass('dc-fd-initialized');
-      });
-    });
-    this.element.on('dc:import:data', (_event, data) => {
-      let newItems = [];
-      if (data.external_ids != undefined) newItems = data.external_ids;
-      else if (data.value && data.value.length) {
-        newItems = difference(
-          data.value,
-          $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
-        );
-      }
-      if (newItems.length > 0 && this.validate('+', this.chosen.length + newItems.length)) {
-        this.findObjects(newItems, data.external_ids != undefined);
-      }
-    });
-    this.overlay.on('dc:import:complete', (event, data) => {
-      this.excluded = union(this.excluded, data && data.ids);
-      this.overlay
-        .children('.items')
-        .find('[data-id=' + data.ids[0] + ']')
-        .get(0)
-        .scrollIntoView({
-          behavior: 'smooth'
-        });
-
-      data.ids.forEach(id => {
-        this.addObject(id, this.overlay.find('[data-id=' + id + ']').clone(), event);
-      });
-
-      $('#new_' + this.id + '.in-object-browser form').trigger('reset');
-    });
     $(document).on(
       'dc:html:changed',
-      '#new_' + this.id + '.in-object-browser .new-content-form',
+      `#new_${this.id}.in-object-browser .new-content-form`,
       this.initNewFormHandlers.bind(this)
     );
     this.element.on('dc:locale:changed', this.updateLocale.bind(this));
@@ -181,68 +91,213 @@ class ObjectBrowser {
       if (!this.element.closest('.split-content.edit-content').length) this.removeDeletedItem();
     } else this.limitedBy = undefined;
   }
+  initOverlay(mutations) {
+    if (mutations.some(e => e.target.classList.contains('remote-rendered'))) {
+      this.overlayInitObserver.disconnect();
+      this.initOverlayHandlers();
+    }
+  }
+  initOverlayHandlers(_element) {
+    this.overlayFilter = this.overlay.find('.object-browser-filter');
+    this.overlayCount = this.overlayFilter.find('.item-count');
+    this.overlayFilterForm = this.overlayFilter.find('.object-browser-filter-form');
+
+    this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
+    this.overlay.on('closed.zf.reveal', this.closeOverlay.bind(this));
+    this.overlay.children('.items').on('scroll', this.initInfiniteLoading.bind(this));
+    this.overlayFilter.find('.object-browser-search').on('change', this.filterItems.bind(this));
+    this.overlayFilterForm.on('submit', this.filterItems.bind(this));
+    this.overlayFilterForm.find('.buttons button[type="reset"]').on('click', this.resetFilter.bind(this));
+    this.overlay.find('.chosen-items-container').on('click', 'li.item', this.clickChosenItemsHandler.bind(this));
+    this.overlay.children('.items').on('click', 'li.item', this.clickItemsHandler.bind(this));
+    this.overlay
+      .find('.chosen-items-container')
+      .on('click', '.delete-thumbnail', this.clickChosenItemsDeleteHandler.bind(this));
+    this.overlay.find('.buttons .save-object-browser').on('click', this.clickSaveHandler.bind(this));
+    this.overlay.on('dc:import:complete', this.importCompleteHandler.bind(this));
+
+    this.overlay.trigger('open.zf.reveal');
+  }
+  importCompleteHandler(event, data) {
+    this.excluded = union(this.excluded, data && data.ids);
+    this.overlay
+      .children('.items')
+      .find('[data-id=' + data.ids[0] + ']')
+      .get(0)
+      .scrollIntoView({
+        behavior: 'smooth'
+      });
+
+    data.ids.forEach(id => {
+      this.addObject(id, this.overlay.find('[data-id=' + id + ']').clone(), event);
+    });
+
+    $('#new_' + this.id + '.in-object-browser form').trigger('reset');
+  }
+  async importDataHandler(_event, data) {
+    let newItems = [];
+    if (data.external_ids != undefined) newItems = data.external_ids;
+    else if (data.value && data.value.length) {
+      newItems = difference(
+        data.value,
+        $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
+      );
+    }
+
+    if (
+      newItems.length > 0 &&
+      (await this.validate(
+        '+',
+        this.chosen.length + newItems.length,
+        I18n.translate('frontend.split_view.copy_linked_error')
+      ))
+    ) {
+      await this.findObjects(newItems, data.external_ids != undefined);
+    }
+  }
+  updateChosenHandler(_event, data) {
+    this.chosen = union(this.chosen, data.chosen);
+    $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((_index, elem) =>
+      $(elem).remove()
+    );
+    this.updateChosenCounter();
+    this.overlay.find('.items li.item .reveal.media-preview').each((_i, element) => {
+      if ($(element).prop('id').indexOf('overlay_') == -1) $(element).prop('id', 'overlay_' + $(element).prop('id'));
+    });
+    this.element.find('.object-thumbs li.item .reveal.media-preview').each((_i, element) => {
+      $(element).foundation().addClass('dc-fd-initialized');
+    });
+  }
+  async clickSaveHandler(event) {
+    event.preventDefault();
+
+    if (await this.validate()) {
+      this.setChosen();
+      this.overlay.foundation('close');
+      this.element.closest('.form-element').trigger('change');
+    }
+  }
+  clickChosenItemsDeleteHandler(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const $target = $(event.currentTarget);
+
+    this.removeObject($target.closest('li.item').data('id'), event);
+  }
+  async clickDeleteThumbnailHandler(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (await this.validate('-', this.chosen.length - 1)) {
+      this.removeThumbObject(event.target);
+    }
+  }
+  clickItemsHandler(event) {
+    const $target = $(event.currentTarget);
+
+    if ($target.closest('a.show-link').length || $target.closest('a.edit-link').length) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    if (this.selected != $target.data('id')) {
+      $target.addClass('in-object-browser');
+      this.loadDetails($target.data('id'));
+    }
+    if (this.chosen.indexOf($target.data('id')) == -1) {
+      this.addObject($target.data('id'), $target.clone(), event);
+    } else {
+      this.removeObject($target.data('id'), event);
+    }
+  }
+  clickChosenItemsHandler(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const $target = $(event.currentTarget);
+    if (this.selected != $target.data('id')) {
+      this.loadDetails($target.data('id'));
+    }
+  }
+  initInfiniteLoading(event) {
+    const elem = $(event.currentTarget);
+
+    if (
+      elem[0].scrollHeight - elem.scrollTop() - 200 <= elem.outerHeight() &&
+      !this.loading &&
+      this.overlay.children('.items').children('li.item').length < this.total
+    ) {
+      this.page += 1;
+      this.loadObjects();
+    }
+  }
   updateLocale(e) {
     e.stopPropagation();
+
     this.locale = this.element.data('locale');
   }
-  initNewFormHandlers(e) {
+  submitWithoutRedirectHandler(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    var form_data = $(event.target).serializeJSON();
+    $.extend(form_data, {
+      type: this.type,
+      locale: this.locale,
+      overlay_id: '#object_browser_' + this.id,
+      key: this.key,
+      definition: this.definition,
+      editable: this.editable,
+      options: this.options,
+      content_id: this.content_id,
+      class: this.class,
+      prefix: this.prefix,
+      objects: this.chosen,
+      new_overlay_id: '#new_' + this.id
+    });
+
+    DataCycle.httpRequest({
+      url: $(event.target).prop('action'),
+      method: 'POST',
+      data: JSON.stringify(form_data),
+      dataType: 'script',
+      contentType: 'application/json'
+    });
+  }
+  setContentIdsHandler(event, data) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    if (!data || !data.contentIds || !data.contentIds.length) return;
+
+    DataCycle.httpRequest({
+      url: '/object_browser/render_in_overlay',
+      method: 'POST',
+      dataType: 'script',
+      data: JSON.stringify({
+        ids: data.contentIds,
+        type: this.type,
+        locale: this.locale,
+        overlay_id: '#object_browser_' + this.id,
+        key: this.key,
+        definition: this.definition,
+        editable: this.editable,
+        options: this.options,
+        content_id: this.content_id,
+        class: this.class,
+        prefix: this.prefix,
+        objects: this.chosen,
+        new_overlay_id: '#new_' + this.id
+      }),
+      contentType: 'application/json'
+    });
+  }
+  initNewFormHandlers(_e) {
     $('#new_' + this.id + '.in-object-browser form')
-      .off('dc:form:submitWithoutRedirect')
-      .on('dc:form:submitWithoutRedirect', event => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        var form_data = $(event.target).serializeJSON();
-        $.extend(form_data, {
-          type: this.type,
-          locale: this.locale,
-          overlay_id: '#object_browser_' + this.id,
-          key: this.key,
-          definition: this.definition,
-          editable: this.editable,
-          options: this.options,
-          content_id: this.content_id,
-          class: this.class,
-          prefix: this.prefix,
-          objects: this.chosen,
-          new_overlay_id: '#new_' + this.id
-        });
-        DataCycle.httpRequest({
-          url: $(event.target).prop('action'),
-          method: 'POST',
-          data: JSON.stringify(form_data),
-          dataType: 'script',
-          contentType: 'application/json'
-        });
-      })
-      .off('dc:form:setContentIds')
-      .on('dc:form:setContentIds', (event, data) => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-
-        if (!data || !data.contentIds || !data.contentIds.length) return;
-
-        DataCycle.httpRequest({
-          url: '/object_browser/render_in_overlay',
-          method: 'POST',
-          dataType: 'script',
-          data: JSON.stringify({
-            ids: data.contentIds,
-            type: this.type,
-            locale: this.locale,
-            overlay_id: '#object_browser_' + this.id,
-            key: this.key,
-            definition: this.definition,
-            editable: this.editable,
-            options: this.options,
-            content_id: this.content_id,
-            class: this.class,
-            prefix: this.prefix,
-            objects: this.chosen,
-            new_overlay_id: '#new_' + this.id
-          }),
-          contentType: 'application/json'
-        });
-      });
+      .off('dc:form:submitWithoutRedirect', this.eventHandlers.submitWithoutRedirect)
+      .on('dc:form:submitWithoutRedirect', this.eventHandlers.submitWithoutRedirect)
+      .off('dc:form:setContentIds', this.eventHandlers.setContentIds)
+      .on('dc:form:setContentIds', this.eventHandlers.setContentIds);
   }
   removeThumbObject(element, triggerChange = true) {
     let item, elemId;
@@ -272,7 +327,7 @@ class ObjectBrowser {
       .html('<input type="hidden" id="' + this.hidden_field_id + '" name="' + this.key + '[]">');
   }
   findObjects(ids, external) {
-    DataCycle.httpRequest({
+    return DataCycle.httpRequest({
       url: '/object_browser/find',
       method: 'POST',
       dataType: 'script',
@@ -294,12 +349,20 @@ class ObjectBrowser {
       contentType: 'application/json'
     });
   }
-  validate(type = '~', new_length = this.chosen.length) {
+  async validate(type = '~', new_length = this.chosen.length, errorPrefix = '') {
     if (type != '-' && this.max != 0 && new_length > this.max) {
-      new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
+      new ConfirmationModal({
+        text: `${this.label}: ${await errorPrefix}${await I18n.translate('frontend.maximum_embedded', {
+          data: this.max
+        })}`
+      });
       return false;
     } else if (type != '+' && this.min != 0 && new_length < this.min) {
-      new ConfirmationModal({ text: 'Mindestanzahl: ' + this.min });
+      new ConfirmationModal({
+        text: `${this.label}: ${await errorPrefix}${await I18n.translate('frontend.minimum_embedded', {
+          data: this.min
+        })}`
+      });
       return false;
     }
     return true;
@@ -325,7 +388,7 @@ class ObjectBrowser {
         .children('.object-thumbs')
         .children('li.item')
         .find('[data-tooltip]')
-        .each((index, item) => {
+        .each((_index, item) => {
           $(item)
             .attr('title', $('#' + $(item).data('toggle')).html())
             .foundation()
@@ -333,13 +396,13 @@ class ObjectBrowser {
         });
     }
   }
-  addObject(id, element, event) {
+  addObject(id, element, _event) {
     if (this.chosen.indexOf(id) === -1) {
       this.chosen.push(id);
       this.overlay.find('.chosen-items-container').append(element);
       $(element)
         .find('[data-tooltip]')
-        .each((index, item) => {
+        .each((_index, item) => {
           $(item)
             .attr('title', $('#' + $(item).data('toggle')).html())
             .foundation()
@@ -370,7 +433,7 @@ class ObjectBrowser {
     this.overlay.find('.chosen-counter').html(html);
   }
   loadMore(_loaded_ids) {
-    DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: `/${this.content_type}/${this.content_id}/load_more_linked_objects`,
       method: 'GET',
       dataType: 'script',
@@ -389,12 +452,16 @@ class ObjectBrowser {
         load_more_except: undefined
       },
       contentType: 'application/json'
-    }).done(() => {
+    });
+
+    promise.then(() => {
       this.chosen = union(this.chosen, this.ids);
       this.updateChosenCounter();
       this.ids = [];
       this.loadObjects(false);
     });
+
+    return promise;
   }
   loadDetails(id) {
     this.selected = id;
@@ -416,14 +483,13 @@ class ObjectBrowser {
     });
   }
   resetOverlay() {
-    this.overlay.find('.object-browser-search').val('');
+    this.overlayFilterForm.get(0).reset();
     this.overlay.find('.chosen-items-container li.item').remove();
     this.chosen = [];
-    this.search = '';
     this.excluded = [];
     this.page = 1;
   }
-  reset(event) {
+  reset(_event) {
     this.element.find('.media-thumbs li.item').each((_, element) => {
       this.removeThumbObject(element, false);
     });
@@ -442,6 +508,9 @@ class ObjectBrowser {
     if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
     else if (this.overlay.data('overlay') === false) document.body.classList.add('object-browser-overlay-open');
 
+    this.overlayCount.html('');
+    this.preselectedItems = this.chosen.slice(0);
+    $(window).on('beforeunload', this.eventHandlers.pageLeave);
     this.resetOverlay();
     this.setPreselected();
     this.updateChosenCounter();
@@ -455,11 +524,8 @@ class ObjectBrowser {
         this.label +
         ' auswählen</i></span></li>'
     );
-    $('.breadcrumb ul li').on('click', '.close-object-browser', event => {
-      event.preventDefault();
-      this.overlay.foundation('close');
-    });
-    $(window).on('message.object_browser onmessage.object_browser', this.import.bind(this));
+    $('.breadcrumb ul li').on('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
+    $(window).on('message.object_browser onmessage.object_browser', this.eventHandlers.import);
     let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
     if (difference(this.ids, loaded).length) this.loadMore(loaded);
     else this.loadObjects(false);
@@ -467,21 +533,34 @@ class ObjectBrowser {
   closeOverlay(_ev) {
     this.overlay.removeClass('full-height');
 
+    $(window).off('beforeunload', this.eventHandlers.pageLeave);
+
     if (!$('.reveal.object-browser-overlay:visible').not(this.overlay).length && this.overlay.data('overlay') === false)
       document.body.classList.remove('object-browser-overlay-open');
 
     $('.breadcrumb ul li:last-child').remove();
     var text = $('.breadcrumb ul li:last-child a.close-object-browser').html();
     $('.breadcrumb ul li:last-child').html(text);
-    $('.breadcrumb ul li').off('click');
-    $(window).off('message.object_browser onmessage.object_browser');
+    $('.breadcrumb ul li').off('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
+    $(window).off('message.object_browser onmessage.object_browser', this.eventHandlers.import);
     $('#asset-upload-reveal-default').off('closed.zf.reveal');
+  }
+  breadcrumbClickHandler(event) {
+    event.preventDefault();
+
+    this.overlay.foundation('close');
+  }
+  pageLeaveHandler(e) {
+    if (!isEqual(sortBy(this.preselectedItems), sortBy(this.chosen))) {
+      e.preventDefault();
+      return (e.returnValue = '');
+    }
   }
   // import media from media_archive reveal
   import(event) {
     if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
-      let authToken = $('meta[name=csrf-token]').attr('content');
-      DataCycle.httpRequest({
+      const authToken = $('meta[name=csrf-token]').attr('content');
+      const promise = DataCycle.httpRequest({
         type: 'POST',
         url: '/things/import',
         dataType: 'script',
@@ -499,76 +578,111 @@ class ObjectBrowser {
           objects: this.chosen
         }),
         contentType: 'application/json'
-      })
-        .done(_data => {
+      });
+      promise
+        .then(_data => {
           this.overlay.find('.items li.item .reveal.media-preview').each(function () {
             if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
           });
         })
-        .always(() => {
+        .finally(() => {
           $('#new_' + this.id).foundation('close');
         });
+
+      return promise;
     }
+  }
+  filterItems(event = null) {
+    if (event) event.preventDefault();
+
+    this.page = 1;
+    this.loadObjects(false);
+  }
+  resetFilter(event = null, triggerReload = true) {
+    if (event) event.preventDefault();
+
+    this.overlayFilterForm.get(0).reset();
+
+    if (triggerReload) this.filterItems();
+  }
+  serializeFilter() {
+    return this.overlayFilterForm.serializeJSON();
   }
   loadObjects(append = true) {
     if (!append) {
       this.excluded = [];
       this.overlay.children('.items').scrollTop(0);
-      this.overlay
-        .children('.items')
-        .html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+      this.overlay.children('.items').html(loadingIcon());
+      this.overlayCount.html(loadingIcon());
     }
     this.overlay.find('.items .loading').show();
     this.loading = true;
-    this.requests.forEach(request => {
-      request.abort();
-      this.requests = this.requests.filter(r => r != request);
+
+    const promise = DataCycle.httpRequest({
+      url: '/object_browser/show',
+      method: 'POST',
+      dataType: 'json',
+      data: JSON.stringify({
+        page: this.page,
+        per: this.overlay_per,
+        type: this.type,
+        locale: this.locale,
+        key: this.key,
+        definition: this.definition,
+        options: this.options,
+        filter: this.serializeFilter(),
+        objects: this.chosen,
+        editable: this.editable,
+        excluded: this.excluded,
+        content_id: this.content_id,
+        content_type: this.content_type,
+        prefix: this.prefix,
+        filter_ids: this.filteredIds(),
+        append: append
+      }),
+      contentType: 'application/json'
     });
-    this.requests.push(
-      DataCycle.httpRequest({
-        url: '/object_browser/show',
-        method: 'POST',
-        dataType: 'script',
-        data: JSON.stringify({
-          page: this.page,
-          per: this.overlay_per,
-          type: this.type,
-          locale: this.locale,
-          key: this.key,
-          definition: this.definition,
-          options: this.options,
-          search: this.search,
-          objects: this.chosen,
-          editable: this.editable,
-          excluded: this.excluded,
-          content_id: this.content_id,
-          content_type: this.content_type,
-          prefix: this.prefix,
-          filter_ids: this.filteredIds(),
-          append: append
-        }),
-        contentType: 'application/json'
-      })
-        .done(_data => {
-          this.total = this.overlay.data('total');
-          this.overlay.find('.items li.item .reveal.media-preview').each(function () {
-            if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
-          });
-          this.loading = false;
-          if (
-            this.overlay.children('.items').children('li.item').length < this.total &&
-            this.overlay.children('.items').children('li.item').last().offset().top -
-              this.overlay.children('.items').offset().top <
-              this.overlay.children('.items').first().outerHeight()
-          ) {
-            this.page += 1;
-            this.loadObjects();
-          }
-        })
-        .always((_data, _text, jqXHR) => {
-          this.requests = this.requests.filter(r => r != jqXHR);
-        })
-    );
+
+    this.activeRequest = promise;
+
+    promise.then(async data => {
+      if (this.activeRequest != promise || !data) return;
+
+      const count = data.count || 0;
+      this.total = count;
+      this.overlay.data('total', count);
+
+      if (!append) {
+        I18n.translate('common.things_count_html', { count: count, delimited_count: count }).then(countText => {
+          this.overlayCount.html(countText);
+        });
+      }
+
+      this.overlay.find('.items .loading').hide();
+
+      let html = data.html;
+      if (count == 0) html = `<span class="no-results">${await I18n.translate('common.no_results')}</span>`;
+      $(html)
+        .insertBefore(this.overlay.find('.items .loading'))
+        .trigger('dc:html:changed')
+        .trigger('dc:html:initialized');
+
+      this.overlay.find('.items li.item .reveal.media-preview').each(function () {
+        if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
+      });
+      this.loading = false;
+      if (
+        this.overlay.children('.items').children('li.item').length < this.total &&
+        this.overlay.children('.items').children('li.item').last().offset().top -
+          this.overlay.children('.items').offset().top <
+          this.overlay.children('.items').first().outerHeight()
+      ) {
+        this.page += 1;
+        this.loadObjects();
+      }
+    });
+
+    return promise;
   }
   removeDeletedItem() {
     if (!this.chosen.length) return;

@@ -18,6 +18,7 @@
           :xml: true
     :api:
       :type:
+        - CreativeWork
         - MediaObject
         - 'dcls:Webcam'
     :properties:
@@ -62,7 +63,7 @@
         :storage_location: value
         :type: computed
         :validations:
-          :format: url        
+          :format: url
         :compute:
           :type: string
           :module: Utility::Compute::Asset

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<d:multistatus xmlns:d="DAV:">
+  <%= render 'collection', {
+    id: @collection.id,
+    last_modified: @collection.updated_at.httpdate,
+    etag: %("#{@collection.id}-#{@collection.updated_at}-#{Time.zone.now}"), # to reliably know if StoredFilter of WatchLists are updated is not easy.
+  } %>
+  <% @contents.each do |thing| %>
+    <%= render 'file', { id: @collection.id }.merge(propstat(thing)) %>
+  <% end %>
+</d:multistatus>

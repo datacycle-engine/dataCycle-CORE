@@ -11,7 +11,7 @@ ul.backend-treeview-list,
           &.has-alignment-right,
           &.has-alignment-top {
             &::before {
-              left: calc(var(--dropdown-arrow-left-offset) - 5px);
+              left: calc(var(--dropdown-arrow-left-offset));
             }
           }
         }
@@ -105,6 +105,7 @@ ul.backend-treeview-list,
       .ca-checkbox {
         display: block;
       }
+
       label {
         display: inline-block;
 
@@ -116,6 +117,10 @@ ul.backend-treeview-list,
           z-index: 12;
           color: $dark-gray;
         }
+      }
+
+      .editor-block label {
+        display: inherit;
       }
 
       input.ca-input-field {
@@ -345,8 +350,7 @@ ul.backend-treeview-list,
       display: inline-block;
     }
 
-    input[type='text'],
-    div.editor-block {
+    input[type='text'] {
       border: 1px solid $light-gray;
       background: $light-gray;
       box-shadow: none;
@@ -359,6 +363,25 @@ ul.backend-treeview-list,
 
       &:focus,
       &.focus {
+        border-color: $primary-color;
+        background: white;
+      }
+    }
+
+    .form-element {
+      .editor-block {
+        border: 1px solid $light-gray;
+        background: $light-gray;
+        box-shadow: none;
+        transition: background-color 0.1s, box-shadow 0.1s;
+      }
+
+      &:hover .editor-block {
+        z-index: 1;
+        box-shadow: 0 0 7px $primary-color;
+      }
+
+      &.focus .editor-block {
         border-color: $primary-color;
         background: white;
       }
@@ -381,7 +404,7 @@ ul.backend-treeview-list,
         top: 0.2rem;
         left: 1rem;
         z-index: 12;
-        color: #9d9d9d;
+        color: $dark-gray;
         transition: color ease-in-out 0.25s;
         padding-top: 0.5rem;
         opacity: 1;
@@ -391,15 +414,15 @@ ul.backend-treeview-list,
       height: auto;
       line-height: 1;
       margin: 0;
-      border-color: #e6e6e6;
-      box-shadow: 0 0 0 #9d9d9d;
+      border-color: $light-gray;
+      box-shadow: 0 0 0 $dark-gray;
       position: relative;
       transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
       min-width: 280px;
       padding: 0 0 0 0;
 
       .select2-container {
-        border: 1px solid #e6e6e6;
+        border: 1px solid $light-gray;
         background: $light-gray;
         padding: 3rem 0.5rem 0.5rem 0.5rem;
         transition: background-color 0.1s, box-shadow 0.1s;
@@ -529,21 +552,77 @@ ul.backend-treeview-list,
 
     .children-count {
       color: $dark-gray;
+      display: flex;
+
+      .child-count-direct,
+      .child-count-full {
+        margin: 0 0.2rem;
+
+        &.remote-render,
+        &.remote-rendering {
+          &::before {
+            display: none;
+          }
+
+          &::after {
+            content: '\f110';
+            font-family: FontAwesome;
+            animation: fa-spin 2s infinite linear;
+            color: darken($light-gray, 10%);
+            background-color: transparent;
+            height: 1rem;
+            width: 1rem;
+            line-height: 1rem;
+            font-size: 1rem;
+            margin: 0;
+            vertical-align: middle;
+            display: inline-block;
+          }
+        }
+      }
     }
 
     .tree-link {
       cursor: pointer;
-    }
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
 
-    .tree-link:after {
-      content: '\f107';
-      font-family: FontAwesome;
-      font-style: normal;
-      font-weight: normal;
-      text-decoration: inherit;
-      position: relative;
-      font-size: 0.8rem;
-      margin-left: 0.5rem;
+      &:not(.type) > .children-count {
+        margin-left: 5px;
+      }
+
+      > .fa-spinner {
+        margin-right: 0.3rem;
+      }
+
+      &::after {
+        content: '\f107';
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: inherit;
+        position: relative;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+      }
+
+      &.loading {
+        width: auto;
+        text-align: left;
+        padding: 0;
+
+        &::after {
+          content: '\f110';
+          font-family: FontAwesome;
+          animation: fa-spin 2s infinite linear;
+          background-color: transparent;
+          height: 1rem;
+          width: 1rem;
+          line-height: 1rem;
+          font-size: 1rem;
+        }
+      }
     }
 
     .inner-item {
@@ -597,7 +676,7 @@ ul.backend-treeview-list,
     }
 
     .open {
-      .tree-link:after {
+      .tree-link:not(.loading):after {
         content: '\f106';
       }
     }

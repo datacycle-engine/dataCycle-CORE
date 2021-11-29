@@ -5,7 +5,7 @@ module DataCycleCore
     module JetTicket
       class Endpoint
         def initialize(host:, end_point:, **options)
-          @start_year = 2019
+          @start_year = 2021
           @future_years = 1
 
           @host = host
@@ -116,21 +116,17 @@ module DataCycleCore
           envelop.remove_namespaces!
           data = envelop.xpath('//' + path)
           status = envelop.xpath('//EventServiceResult').children.first&.content
+          error = envelop.xpath('//EventService/Error')&.first&.to_hash
 
           # puts Nokogiri::XML(response.body, &:noblanks).to_xml(indent: 2)
           # puts
           # puts
 
-          if status != 'true'
-            raise "Error JetTicket - downloading #{service_name}/#{method_name}" if retry_count > 5
-            sleep(3)
-            load_data(service_name: service_name, method_name: method_name, xml_generator: xml_generator, path: path, options: options, retry_count: retry_count + 1)
-          else
-            data
-          end
+          raise "Error JetTicket - downloading #{service_name}/#{method_name}, Error: #{error}" if status != 'true' || error.present?
+          data
         rescue StandardError
           raise if retry_count > 5
-          sleep(3)
+          sleep(0)
           load_data(service_name: service_name, method_name: method_name, xml_generator: xml_generator, path: path, options: options, retry_count: retry_count + 1)
         end
 

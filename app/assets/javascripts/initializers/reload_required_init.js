@@ -10,43 +10,43 @@ export default function () {
 
     function addReloadTimeout() {
       setTimeout(() => {
-        $(window)
-          .off('focus.dc_edit_page')
-          .on('focus.dc_edit_page', event => {
-            DataCycle.httpRequest({
-              type: 'GET',
-              url: '/reload_required',
-              data: {
-                id: id,
-                table: table,
-                datestring: today.toISOString()
-              },
-              dataType: 'json',
-              contentType: 'application/json'
-            }).always(data => {
-              $(window).off('focus.dc_edit_page');
-
-              if (
-                data !== undefined &&
-                data.error !== undefined &&
-                !$('.confirmation-modal section.confirmation-section:contains(' + data.error + ')').length
-              )
-                new ConfirmationModal({
-                  text: data.error,
-                  confirmationClass: 'success',
-                  cancelable: true,
-                  confirmationText: data.confirmation_text || 'Seite neu laden',
-                  confirmationCallback: () => {
-                    location.reload();
-                  },
-                  cancelCallback: () => {
-                    addReloadTimeout();
-                  }
-                });
-              else addReloadTimeout();
-            });
-          });
+        $(window).off('focus.dc_edit_page', reloadRequiredHandler).on('focus.dc_edit_page', reloadRequiredHandler);
       }, 300000);
+    }
+
+    function reloadRequiredHandler(_event) {
+      DataCycle.httpRequest({
+        type: 'GET',
+        url: '/reload_required',
+        data: {
+          id: id,
+          table: table,
+          datestring: today.toISOString()
+        },
+        dataType: 'json',
+        contentType: 'application/json'
+      }).finally(async data => {
+        $(window).off('focus.dc_edit_page');
+
+        if (
+          data !== undefined &&
+          data.error !== undefined &&
+          !$('.confirmation-modal section.confirmation-section:contains(' + data.error + ')').length
+        )
+          new ConfirmationModal({
+            text: data.error,
+            confirmationClass: 'success',
+            cancelable: true,
+            confirmationText: data.confirmation_text || (await I18n.translate('frontend.reload_page')),
+            confirmationCallback: () => {
+              location.reload();
+            },
+            cancelCallback: () => {
+              addReloadTimeout();
+            }
+          });
+        else addReloadTimeout();
+      });
     }
   }
 }

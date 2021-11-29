@@ -53,12 +53,16 @@ class ContentLock {
     if (!this.editable) this.checkInitialLockState();
   }
   checkInitialLockState() {
-    DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: this.checkLockPath,
       dataType: 'json'
-    }).done(data => {
+    });
+
+    promise.then(data => {
       if (data !== undefined) this.updateLocks(data.locks, data.texts);
     });
+
+    return promise;
   }
   updateLocks(newLocks = {}, texts = {}) {
     for (let key in this.locks) {
@@ -71,7 +75,7 @@ class ContentLock {
       }
     }
   }
-  leavePage(event) {
+  leavePage(_event) {
     this.lockContentChannel.unsubscribe();
     let data = new FormData();
     data.append('token', this.token);
@@ -160,7 +164,7 @@ class ContentLock {
         .css('transform', 'rotate(' + degree + 'deg)');
     }
   }
-  checkLockState() {
+  async checkLockState() {
     let diffSeconds = this.checkActiveLocks();
     let diffMinutes = parseInt(diffSeconds / 60);
 
@@ -170,14 +174,12 @@ class ContentLock {
       this.button.addClass('show-pie-text');
       this.renewNotified = true;
       this.confirmationModal = new ConfirmationModal({
-        text:
-          'Der Inhalt wird in ' +
-          diffMinutes +
-          'min wieder freigegeben. <br><br>Wollen Sie die Sperre um ' +
-          this.lockLength / 60 +
-          'min verlängern?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
+        text: await I18n.translate('frontend.content_lock.renew_lock', {
+          min: diffMinutes,
+          renew: this.lockLength / 60
+        }),
+        confirmationText: await I18n.translate('common.yes'),
+        cancelText: await I18n.translate('common.no'),
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: this.triggerRenewLock.bind(this),
@@ -206,8 +208,8 @@ class ContentLock {
         token: this.token
       },
       type: 'PATCH'
-    }).fail(() => {
-      console.error('error renewing the lock');
+    }).catch(() => {
+      console.error('CONTENT_LOCK_ERROR: error renewing the lock');
     });
   }
   renewLock(lockId, lockedUntil, token) {
@@ -216,7 +218,7 @@ class ContentLock {
     this.renewNotified = false;
     this.button.removeClass('show-pie-text');
   }
-  lockEditor(lockId) {
+  async lockEditor(lockId) {
     delete this.locks[lockId];
 
     if (Object.keys(this.locks).length === 0 && this.locks.constructor === Object) {
@@ -226,7 +228,7 @@ class ContentLock {
       this.button
         .addClass('show-pie-text')
         .find('.pie-text')
-        .text('Der Inhalt wurde wieder freigegeben und kann nicht mehr gespeichert werden.');
+        .text(await I18n.translate('frontend.content_lock.released'));
 
       if (this.confirmationModal !== null) this.confirmationModal.overlay.foundation('close');
       this.button.removeAttr('data-disable-with').removeData('disable-with').prop('disabled', true);

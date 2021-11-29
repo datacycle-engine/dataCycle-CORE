@@ -60,8 +60,7 @@ module DataCycleCore
         duplicate.add_external_system_data(@external_source_oa, nil, nil, 'duplicate', '3572986')
 
         @external_source_oa.import(@options)
-
-        assert_equal 2, DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_f.id).image.size
+        assert_equal 2, DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_f.id, external_key: '6f032432-f385-42e3-828f-00013377edf6').image.size
         assert_equal 1, DataCycleCore::Thing.find_by(template: false, template_name: 'Event', external_source_id: @external_source_f.id).image.size
         assert_equal 1, DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_oa.id).image.size
 
@@ -76,7 +75,7 @@ module DataCycleCore
         DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_f.id).add_external_system_data(@external_source_oa, nil, nil, 'duplicate', '3047464')
         @external_source_oa.import(@options)
 
-        assert_equal 1, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').size
+        assert_equal 2, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').size
         assert_equal 1, DataCycleCore::Thing.where(template: false, template_name: 'Unterkunft').with_schema_type('Place').size
         assert_equal 1, DataCycleCore::Thing.where(template: false, template_name: 'Event').with_schema_type('Event').size
         assert_equal 1, DataCycleCore::Thing.where(template: false, template_name: 'EventSchedule').with_schema_type('Event').size
@@ -145,7 +144,7 @@ module DataCycleCore
       test 'perform import and mark original feratel POI as deleted (DeleteContents)' do
         external_key = '3047464'
         DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_oa.id, external_key: external_key).destroy_content(save_history: false)
-        content = DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_f.id)
+        content = DataCycleCore::Thing.find_by(template: false, template_name: 'POI', external_source_id: @external_source_f.id, external_key: '6f032432-f385-42e3-828f-00013377edf6')
         f_external_key = content.external_key
         content.add_external_system_data(@external_source_oa, nil, nil, 'duplicate', external_key)
 

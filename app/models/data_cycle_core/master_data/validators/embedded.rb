@@ -9,15 +9,18 @@ module DataCycleCore
         end
 
         def validate(data, template, _strict = false)
-          if blank?(data)
-            # (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
-          elsif data.is_a?(::Array)
-            check_data_array(data, template)
-          elsif data.is_a?(::Hash)
-            check_data_array([data], template)
+          if blank?(data) || data.is_a?(::Array) || data.is_a?(::Hash)
+            check_data_array(Array.wrap(data), template)
           else
-            (@error[:error][@template_key] ||= []) << I18n.t(:data_format_embedded, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.data_format_embedded',
+              substitutions: {
+                data: data,
+                template: template['label']
+              }
+            }
           end
+
           @error
         end
 
@@ -32,45 +35,94 @@ module DataCycleCore
           end
 
           # validate references
-          embedded_template = DataCycleCore::Thing
-            .find_by(template: true, template_name: template['template_name'])
+          embedded_template = DataCycleCore::Thing.find_by(template: true, template_name: template['template_name'])
+
           if template.blank? || embedded_template.blank?
-            (@error[:error][@template_key] ||= []) << I18n.t(:no_template, scope: [:validation, :errors], name: 'things', locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << {
+              path: 'validation.errors.no_template',
+              substitutions: {
+                name: 'things'
+              }
+            }
+
             return
           end
+
           data.each do |item|
-            next if item.empty?
+            next if item.blank?
+
             if item.is_a?(::Hash)
-              validator_object = DataCycleCore::MasterData::ValidateData.new
-              merge_errors(validator_object.validate(item, embedded_template.schema))
+              validate_item(item, embedded_template)
             else
-              (@error[:error][@template_key] ||= []) << I18n.t(:data_format_embedded, scope: [:validation, :errors], data: data, template: template['label'], locale: DataCycleCore.ui_language)
+              (@error[:error][@template_key] ||= []) << {
+                path: 'validation.errors.data_format_embedded',
+                substitutions: {
+                  data: data,
+                  template: template['label']
+                }
+              }
             end
           end
         end
 
-        def classifications(values, _template_hash)
-          return if values.blank? || DataCycleCore.features.dig(:publication_schedule, :classification_keys).blank?
+        def validate_item(item, template)
+          if item[:translations].present?
+            item[:translations].each do |locale, data|
+              next unless data.is_a?(::Hash) && data.present?
 
-          values = values.dc_deep_dup
-          (@error[:error][@template_key] ||= []) << I18n.t(:classification_conflict, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if values.each { |d| d['id'] = SecureRandom.uuid if d['id'].blank? }.map { |x| values.select { |y| (x != y) && DataCycleCore.features.dig(:publication_schedule, :classification_keys).map { |z| x[z].present? && y[z].present? ? (x[z] & y[z]) : [] }.all?(&:present?) } }.flatten.present?
+              I18n.with_locale(locale) do
+                validator_object = DataCycleCore::MasterData::ValidateData.new
+
+                merge_errors(validator_object.validate(data.merge(item[:datahash] || {}), template.schema))
+              end
+            end
+          else
+            validator_object = DataCycleCore::MasterData::ValidateData.new
+            merge_errors(validator_object.validate(item.key?(:datahash) ? item[:datahash] : item, template.schema))
+          end
         end
 
-        # validate nil,"",[],[nil],[""],[{}] as blank.
-        def blank?(data)
-          return true if data.blank?
-          if data.is_a?(::Array)
-            return true if data.length == 1 && data[0].blank?
+        def classifications(values, _template_hash)
+          classification_keys = DataCycleCore.features.dig(:publication_schedule, :classification_keys)
+
+          return if values.blank? || classification_keys.blank?
+
+          parsed_values = values.dc_deep_dup.each { |item|
+            next unless item.is_a?(::Hash) && item.present?
+
+            item = item['datahash'] if item.key?('datahash')
+            item['id'] = SecureRandom.uuid if item['id'].blank?
+          }.compact
+
+          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.classification_conflict' } if parsed_values.any? do |item|
+            parsed_values.any? do |other_item|
+              item != other_item && classification_keys.all? { |key| (Array.wrap(item[key]) & Array.wrap(other_item[key])).any? }
+            end
           end
-          false
         end
 
         def min(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.size < value
+          return unless data.size < value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.min_ref',
+            substitutions: {
+              data: data.size,
+              value: value
+            }
+          }
         end
 
         def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.size > value
+          return unless data.size > value
+
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.max_ref',
+            substitutions: {
+              data: data.size,
+              value: value
+            }
+          }
         end
       end
     end

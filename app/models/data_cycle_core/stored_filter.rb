@@ -14,7 +14,7 @@ module DataCycleCore
     #
     # c => 'd' oder 'a'         | für 'default' oder 'advanced'
     # t => String               | der Filtertyp (die Methode, die auf die Query ausgeführt wird, z.B. 'classification_alias_ids')
-    # v => String oder Array    | der übergebene Wert für die Filtermethode (z.B. ['a9b25ff1-5af2-4f21-b61e-408812e14b0d'])             |
+    # v => String, Array, Hash  | der übergebene Wert für die Filtermethode (z.B. ['a9b25ff1-5af2-4f21-b61e-408812e14b0d'])             |
     # m => 'i', 'e', 'g', 'l', 'u', 'n', 's', 'b', 'p'    | Filtermethode, 'include', 'exclude', 'greater', 'lower', 'neutral', 'like', 'notLike', 'blank', 'present'
     # n => String               | das Filterlabel (z.B. 'Inhaltspools')
     # q => String (Optional)    | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width') || type
@@ -46,12 +46,6 @@ module DataCycleCore
         # TODO: migrate stored filters to use latest classification filter methods
         t = "#{t}_with_subtree" if filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids'
 
-        # TODO: this is a quickfix, refactor it
-        if filter['t'] == 'geo_filter'
-          t = filter['q']
-          t = "not_#{t}" if filter['m'] == 'e'
-        end
-
         next unless query.respond_to?(t)
 
         if query.method(t)&.parameters&.size == 3
@@ -82,6 +76,30 @@ module DataCycleCore
       query
     end
 
+    def parameters_from_hash(params)
+      return self if params.blank?
+
+      self.parameters = params.map do |f|
+        f.to_h.deep_stringify_keys.each_with_object({}) do |(k, v), hash|
+          hash['t'] = k
+          hash['v'] = v
+        end
+      end
+
+      self
+    end
+
+    def apply_user_filter(user, options = nil)
+      return self if user.nil?
+
+      filter_options = { scope: 'backend' }
+      filter_options.merge!(options) { |_k, v1, v2| v2.presence || v1 } if options.present?
+
+      self.parameters = user.default_filter(parameters || [], filter_options)
+
+      self
+    end
+
     def self.sort_params_from_filter(search = nil, schedule = nil)
       if search.present?
         [
@@ -106,12 +124,12 @@ module DataCycleCore
       query1_table = all.arel_table
       query1 = all.arel
       query1.projections = []
-      query1 = query1.where(query1_table[:name].not_eq(nil)).project(query1_table[:id], query1_table[:name], Arel::Nodes::SqlLiteral.new("'stored_filter'").as('class_name'))
+      query1 = query1.where(query1_table[:name].not_eq(nil)).project(query1_table[:id], query1_table[:name], Arel::Nodes::SqlLiteral.new("'#{all.klass.model_name.param_key}'").as('class_name'))
 
       query2_table = collections.arel_table
       query2 = collections.arel
       query2.projections = []
-      query2 = query2.where(query2_table[:name].not_eq(nil)).project(query2_table[:id], query2_table[:name], Arel::Nodes::SqlLiteral.new("'watch_list'").as('class_name'))
+      query2 = query2.where(query2_table[:name].not_eq(nil)).project(query2_table[:id], query2_table[:name], Arel::Nodes::SqlLiteral.new("'#{collections.klass.model_name.param_key}'").as('class_name'))
 
       unless filter_proc.nil?
         query1 = filter_proc.call(query1, query1_table)

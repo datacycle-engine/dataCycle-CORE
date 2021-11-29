@@ -8,11 +8,11 @@
       <div class="row expanded">
         <div class="column edit-header-functions">
           <div class="edit-name">
-            <i class="fa fa-columns" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
+            <i class="fa fa-columns" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: active_ui_locale) %>
           </div>
           <ul>
             <li class="has-dropdown right">
-              <%= render 'split_sources', query_params: { exclude: @content&.id, template_name: @content&.template_name }, value: @diff_source, url: compare_thing_path(@content), title_text: t('common.choose_splitsource', locale: DataCycleCore.ui_language) %>
+              <%= render 'split_sources', query_params: { exclude: @content&.id, template_name: @content&.template_name }, value: @diff_source, url: compare_thing_path(@content), title_text: t('common.choose_splitsource', locale: active_ui_locale) %>
             </li>
             <li class="buttons"></li>
           </ul>

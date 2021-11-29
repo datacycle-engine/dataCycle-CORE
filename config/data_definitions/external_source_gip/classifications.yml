@@ -1,9 +1,7 @@
 - Inhaltstypen | filter:
-    - $$Ort:
-        - $$Teilstrecke
-        - $$Route
-    - $$Text:
-        - $$Radroutenbeschreibung
+    - $$Route
+    - $$Gesamtroute
+    - $$Radroutenbeschreibung
 
 - Gemeinde | all:
     - Villach Stadt

@@ -12,50 +12,6 @@ module DataCycleCore
           required(:dc) { eql?('https://schema.datacycle.at/') }
           required(:dcls).value(:string)
           required(:odta) { eql?('https://ds.sti2.org/') }
-          required(:'dc:entityUrl').hash do
-            required(:'@id') { eql?('https://schema.datacycle.at/entityUrl') }
-            required(:'@type') { eql?('@id') }
-          end
-          required(:'dc:classification').hash do
-            required(:'@id') { eql?('https://schema.datacycle.at/classification') }
-            required(:'@container') { eql?('@set') }
-          end
-          required(:'dc:hasConcept').hash do
-            required(:'@id') { eql?('https://schema.datacycle.at/hasConcept') }
-            required(:'@type') { eql?('@id') }
-          end
-          required(:'dc:additionalInformation').hash do
-            required(:'@id') { eql?('https://schema.datacycle.at/additionalInformation') }
-            required(:'@container') { eql?('@set') }
-          end
-          required(:'dc:linkedThing').hash do
-            required(:'@id') { eql?('https://schema.datacycle.at/linkedThing') }
-            required(:'@container') { eql?('@set') }
-          end
-          required(:'dc:isLinkedTo').hash do
-            required(:'@id') { eql?('https://schema.datacycle.at/isLinkedTo') }
-            required(:'@container') { eql?('@set') }
-          end
-          required(:'dc:multilingual').hash do
-            required(:'@id') { eql?('https://schema.datacycle.at/multilingual') }
-            required(:'@container') { eql?('@set') }
-          end
-          required(:'dc:translation').hash do
-            required(:'@id') { eql?('https://schema.datacycle.at/translation') }
-            required(:'@container') { eql?('@set') }
-          end
-          required(:'dc:order').hash do
-            required(:'@id') { eql?('https://schema.org/position') }
-            required(:'@type') { eql?('https://schema.org/Number') }
-          end
-          required(:'dc:totalNumberOfBeds').hash do
-            required(:'@id') { eql?('https://schema.org/numberOfBedrooms') }
-            required(:'@type') { eql?('https://schema.org/Number') }
-          end
-          required(:'dc:slug').hash do
-            required(:'@id') { eql?('https://schema.datacycle.at/slug') }
-            required(:'@type') { eql?('https://schema.org/url') }
-          end
         end
 
         def self.build_language_attributes(languages)

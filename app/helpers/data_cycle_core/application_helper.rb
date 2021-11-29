@@ -15,13 +15,32 @@ module DataCycleCore
     }.freeze
 
     def available_locales_with_names
-      locales = Hash[I18n.available_locales.collect { |l| [l, I18n.t('locales.' + l.to_s, locale: DataCycleCore.ui_language).try(:capitalize)] }]
-      locales[:all] = t('common.all', locale: DataCycleCore.ui_language)
-      locales.sort_by { |_, v| v.to_s }.to_h
+      @available_locales_with_names ||= Hash.new do |h, key|
+        h[key] = I18n
+          .t('locales', locale: key)
+          .slice(*I18n.available_locales)
+          .transform_values(&:capitalize)
+          .sort_by { |_, v| v.to_s }
+          .to_h
+      end
+
+      @available_locales_with_names[active_ui_locale]
+    end
+
+    def available_locales_with_all
+      @available_locales_with_all ||= Hash.new do |h, key|
+        if I18n.available_locales&.many?
+          h[key] = available_locales_with_names.reverse_merge({ all: t('common.all', locale: active_ui_locale) })
+        else
+          h[key] = available_locales_with_names
+        end
+      end
+
+      @available_locales_with_all[active_ui_locale]
     end
 
     def ice_cube_select_options
-      IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly, :monthly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: DataCycleCore.ui_language), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
+      IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly, :monthly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: active_ui_locale), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
     end
 
     def display_flash_messages_new(closable: true)
@@ -31,6 +50,14 @@ module DataCycleCore
           concat alert_box(value, alert_class, closable)
         end
       end
+    end
+
+    def show_external_connections?(content)
+      can?(:show_external_connections, content) &&
+        (
+          content.try(:external_source) ||
+            content.try(:external_systems).present?
+        )
     end
 
     def data_link_permission_icon(permission)
@@ -45,7 +72,7 @@ module DataCycleCore
     end
 
     def mode_icon(mode, version = nil)
-      title = t("view_modes.#{mode}", locale: DataCycleCore.ui_language)
+      title = t("view_modes.#{mode}", locale: active_ui_locale)
       title += " (#{version})" if version.present?
       case mode
       when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, title: title)
@@ -56,9 +83,9 @@ module DataCycleCore
 
     def result_count(mode, result_count, content_class)
       if mode.in?(['classification_alias', 'ca_recursive', 'container'])
-        result_count&.positive? ? number_with_delimiter(result_count.to_i, locale: DataCycleCore.ui_language) : '-'
+        result_count&.positive? ? number_with_delimiter(result_count.to_i, locale: active_ui_locale) : '-'
       else
-        t("common.#{content_class}_count_html", count: result_count.to_i, delimited_count: number_with_delimiter(result_count.to_i, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)
+        t("common.#{content_class}_count_html", count: result_count.to_i, delimited_count: number_with_delimiter(result_count.to_i, locale: active_ui_locale), locale: active_ui_locale)
       end
     end
 
@@ -116,7 +143,7 @@ module DataCycleCore
     end
 
     def content_view_cache_key(item:, locale: 'de', mode:, watch_list:)
-      "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}"
+      "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}_#{active_ui_locale}"
     end
 
     def new_content_select_options(query: DataCycleCore::Thing.all, query_methods: [], content: nil, scope: nil, limit: nil, ordered_array: nil)
@@ -137,21 +164,24 @@ module DataCycleCore
 
     def to_query_params(options_hash)
       params_hash = {}
+
+      return params_hash if options_hash.blank?
+
       options_hash.each do |key, value|
         if value.is_a?(ActiveRecord::Base)
-          params_hash[key] = { id: value&.id, class: value&.class&.name }
+          params_hash[key] = value.persisted? ? { id: value&.id, class: value&.class&.name } : { class: value&.class&.name, attributes: value.attributes }
         elsif value.is_a?(ActiveRecord::Relation)
           params_hash[key] = { ids: value&.ids, class: value&.klass&.name }
+        elsif value.is_a?(OpenStruct)
+          params_hash[key] = { value: value.to_h, class: 'OpenStruct' }
+        elsif value.is_a?(::Hash)
+          params_hash[key] = to_query_params(value)
         else
           params_hash[key] = value
         end
       end
-      params_hash
-    end
 
-    def add_attribute_options(options, definition, scope)
-      attribute_options = definition.try(:[], 'ui').try(:[], scope.to_s).try(:[], 'options')
-      attribute_options.nil? ? options : options.merge(attribute_options)
+      params_hash
     end
 
     def feature_templates(key, definition, content)
@@ -180,9 +210,9 @@ module DataCycleCore
         end
         return_html
       elsif parents[-2] == 'file_size'
-        "<li>#{I18n.t(parents.join('.'), data: ApplicationController.helpers.number_to_human_size(value, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)}</li>"
+        "<li>#{I18n.t(parents.join('.'), data: ApplicationController.helpers.number_to_human_size(value, locale: active_ui_locale), locale: active_ui_locale)}</li>"
       else
-        "<li>#{I18n.t(parents.join('.'), data: value.is_a?(Array) ? value.join(', ') : value.try(:to_s), locale: DataCycleCore.ui_language)}</li>"
+        "<li>#{I18n.t(parents.join('.'), data: value.is_a?(Array) ? value.join(', ') : value.try(:to_s), locale: active_ui_locale)}</li>"
       end
     end
 
@@ -192,8 +222,8 @@ module DataCycleCore
 
         return (DataCycleCore.uploader_validations[:text_file] || {}).with_indifferent_access.merge({
           class: 'DataCycleCore::TextFile',
-          translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
-          translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
+          translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: active_ui_locale),
+          translation_description: t('uploader.description.text_file', locale: active_ui_locale, default: '')
         })
       end
 
@@ -211,8 +241,8 @@ module DataCycleCore
       {
         format: uploader_model.uploaders[:file].new&.extension_white_list || [],
         class: uploader_model.name,
-        translation: uploader_model.model_name.human(count: 1, locale: DataCycleCore.ui_language),
-        translation_description: t("uploader.description.#{uploader_model.name.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
+        translation: uploader_model.model_name.human(count: 1, locale: active_ui_locale),
+        translation_description: t("uploader.description.#{uploader_model.name.demodulize.underscore}", locale: active_ui_locale, default: '')
       }.with_indifferent_access.merge(DataCycleCore.uploader_validations[uploader_model.name.demodulize.underscore.to_sym] || {})
     end
 
@@ -232,82 +262,6 @@ module DataCycleCore
       partials = partials.map { |p| "data_cycle_core/contents/#{p}_#{partial}" }
 
       render_first_existing_partial(partials, parameters)
-    end
-
-    def attribute_editable?(key, definition, options, content)
-      @attribute_editable ||= Hash.new do |h, k|
-        h[k] = can?(:edit, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :edit, k.dig(2, 'edit_scope')))
-      end
-
-      @attribute_editable[[key, definition, options, content]]
-    end
-
-    def render_attribute_editor(key:, definition:, value:, parameters: { options: { edit_scope: 'edit' } }, content: nil, scope: :edit)
-      parameters[:options] = (parameters[:options] || {}).with_indifferent_access
-      edit_scope = parameters.dig(:options, :edit_scope)
-
-      return if definition['type'] == 'slug' && parameters[:parent]&.embedded?
-
-      return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
-
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope, edit_scope)) && (content.nil? || content&.allowed_feature_attribute?(key.attribute_name_from_key))
-
-      return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
-
-      partials = [
-        definition&.dig('ui', edit_scope, 'partial').presence,
-        definition&.dig('ui', 'edit', 'partial').presence,
-        "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
-        *feature_templates(key, definition, content),
-        definition&.dig('ui', 'edit', 'type')&.underscore_blanks&.prepend(definition['type'].underscore_blanks, '_').presence,
-        definition['type'].underscore_blanks.to_s
-      ].compact
-
-      partials = partials.map { |p| "data_cycle_core/contents/editors/#{p}" }
-
-      parameters[:options][:readonly] = !attribute_editable?(key, definition, parameters[:options], content)
-      parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
-    end
-
-    def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
-
-      return if definition['type'] == 'classification' && !definition['universal'] && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(scope.to_s) } : scope.to_s)
-
-      return if definition['type'] == 'slug' && parameters[:parent]&.embedded?
-
-      type = definition['type'].underscore_blanks
-      type = definition.dig('compute', 'type').underscore_blanks.to_s if definition.dig('compute', 'type').present?
-
-      partials = [
-        definition&.dig('ui', 'show', 'partial').presence,
-        "#{type}_#{key.attribute_name_from_key}",
-        *feature_templates(key, definition, content),
-        definition.dig('ui', 'show', 'type')&.underscore_blanks&.prepend(type, '_').presence,
-        definition.dig('validations', 'format')&.underscore_blanks&.prepend(type, '_').presence,
-        type.to_s
-      ].compact
-
-      partials = partials.map { |p| "data_cycle_core/contents/viewers/#{p}" }
-
-      parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
-
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
-    end
-
-    def render_attribute_history_viewer(key:, definition:, value:, parameters: {}, content: nil)
-      partials = [
-        key.attribute_name_from_key,
-        definition&.dig('ui', 'history', 'type')&.underscore_blanks,
-        "#{definition['type'].underscore_blanks}_#{definition&.dig('validations', 'format')&.underscore_blanks}",
-        definition['type'].underscore_blanks
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/history/#{p}" }
-      begin
-        render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
-      rescue StandardError
-        render_attribute_viewer key: key, definition: definition, value: value, parameters: parameters, content: content, scope: :history
-      end
     end
 
     def render_linked_viewer(key:, definition:, value:, parameters: {}, content: nil)
@@ -469,8 +423,10 @@ module DataCycleCore
       tag.div(options) do
         if value.is_a?(String)
           concat value.html_safe
-        elsif value.is_a?(Hash)
+        elsif value.is_a?(::Hash)
           concat value.map { |k, v| tag.b(k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
+        elsif value.is_a?(::Array)
+          concat value.join(', ').html_safe.to_s
         else
           concat value.html_safe.to_s
         end

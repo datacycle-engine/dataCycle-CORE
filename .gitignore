@@ -9,6 +9,7 @@ pkg/
 **/public/downloads/*
 **/public/uploads
 **/public/assets
+**/private/import
 **/docker/hist
 **/log/
 *.log
@@ -22,6 +23,7 @@ rdoc/
 **/package-lock.json
 coverage
 .env
+.env.production
 benchmark/
 
 # Vite Ruby

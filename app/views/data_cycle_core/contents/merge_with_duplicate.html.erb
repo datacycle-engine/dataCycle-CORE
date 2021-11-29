@@ -5,22 +5,22 @@
   <div>
     <div id="edit-form">
       <% content_for :form_action do %>
-        <i class="fa fa-code-fork" aria-hidden="true"></i> <%= t("content_type.#{@content.template_name.underscore_blanks}", default: @content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('duplicate.merge', locale: DataCycleCore.ui_language) %>
+        <i class="fa fa-code-fork" aria-hidden="true"></i> <%= t('duplicate.merge_with', data: @content.translated_template_name(active_ui_locale), locale: active_ui_locale) %>
       <% end %>
 
       <% content_for :additional_edit_buttons do %>
-        <%= link_to tag.i(class: 'fa fa-exchange', aria_hidden: true), merge_with_duplicate_thing_path(@split_source, source_id: @content.id, locale: @source_locale, source_locale: @locale), title: t('duplicate.switch', locale: DataCycleCore.ui_language), class: 'duplicate-switch-link' %>
+        <%= link_to tag.i(class: 'fa fa-exchange', aria_hidden: true), merge_with_duplicate_thing_path(@split_source, source_id: @content.id, locale: @source_locale, source_locale: @locale), title: t('duplicate.switch', locale: active_ui_locale), class: 'duplicate-switch-link' %>
       <% end %>
 
       <%= render 'form',
-        key_prefix: 'thing[datahash]',
+        key_prefix: DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX,
         content: @content,
         watch_list: @watch_list,
         split_source: @split_source,
         form_data_attributes: {
           duplicate_id: @split_source.id
         },
-        additional_submit_properties: DataCycleCore::Feature::DuplicateCandidate.enabled? ? { title: t('actions.merge_with_duplicate', locale: DataCycleCore.ui_language), additional_class: 'merge-with-duplicate' } : nil,
+        additional_submit_properties: DataCycleCore::Feature::DuplicateCandidate.enabled? ? { title: t('actions.merge_with_duplicate', locale: active_ui_locale), additional_class: 'merge-with-duplicate' } : nil,
         link_action: :merge_with_duplicate %>
     </div>
   </div>

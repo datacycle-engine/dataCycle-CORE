@@ -1,0 +1,142 @@
+version: '3.9'
+
+x-app-env: &default-app-env
+  APP_PROTOCOL: ${APP_PROTOCOL:-http}
+  APP_HOST: ${APP_HOST:-localhost:3003}
+  APPLICATION_ROOT: ${APPLICATION_ROOT:-/app}
+  MONGODB_HOST: ${MONGODB_HOST:-mongodb}
+  POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+  POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+  POSTGRES_VERSION: ${POSTGRES_VERSION:-13}
+  PUBLIC_APPLICATION_PORT: ${PUBLIC_APPLICATION_PORT:-3003}
+  REDIS_SERVER: ${REDIS_SERVER:-redis}
+  SSH_AUTH_SOCK: /ssh-agent
+  HISTFILE: /home/ruby/hist/.bash_history
+  RAILS_ENV: ${RAILS_ENV:-production}
+
+x-app: &default-app
+  image: git.pixelpoint.biz:5050/data-cycle/${GITLAB_CI_PROJECT_NAME}:latest
+  env_file:
+    - ${PWD}/.env.production
+  volumes:
+    - app-tmp:/app/tmp
+    - app-docker:/app/docker
+    - app-public-assets:/app/public/assets
+    - ${BASE_LOG_VOLUME_PATH:-~/data_cycle/log}/app:/app/log
+    - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/app:/app/public/uploads
+    - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/import:/app/private/import
+    - ${BASE_HISTORY_VOLUME_PATH:-~/data_cycle/history}:/home/ruby/hist
+    - ${BASE_BACKUP_VOLUME_PATH:-~/data_cycle/backups}:/app/db/backups
+    - $SSH_AUTH_SOCK:/ssh-agent
+  restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+  extra_hosts:
+    - 'dockerhost:host-gateway'
+
+services:
+  web:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint.sh
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "${DC_DOCKER_SETUP_PATH:-/app/docker/}web/setup.production.sh"]
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+  migrate_project:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+    entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint.sh
+    command: ["/bin/bash"]
+    restart: 'no'
+    profiles: ['migrate']
+  job_worker_default:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+      QUEUE: default,mailers
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    depends_on:
+      - web
+  job_worker_importers:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+      QUEUE: importers
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    depends_on:
+      - web
+  job_worker_cache_invalidation:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+      QUEUE: cache_invalidation
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    depends_on:
+      - web
+  job_worker_search_update:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+      QUEUE: search_update
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    depends_on:
+      - web
+  job_worker_carrierwave:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+      QUEUE: carrierwave
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    depends_on:
+      - web
+  job_worker_webhooks:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+      QUEUE: webhooks
+    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    depends_on:
+      - web
+  scheduler:
+    <<: *default-app
+    environment:
+      <<: *default-app-env
+    command: bin/scheduler
+    depends_on:
+      - web
+  postgres:
+    volumes:
+      - app-docker:/app/docker
+      - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/postgres:/var/lib/postgresql/data
+    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+  mongodb:
+    volumes:
+      - app-docker:/app/docker
+      - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/mongodb:/data/db
+      - ${BASE_LOG_VOLUME_PATH:-~/data_cycle/log}/mongodb:/var/log/mongodb
+    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+  redis:
+    volumes:
+      - app-docker:/app/docker
+      - redis:/data
+    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+  nginx:
+    volumes:
+      - app-docker:/app/docker
+      - app-public-assets:/app/public/assets
+      - app-tmp:/app/tmp
+      - ${BASE_LOG_VOLUME_PATH:-~/data_cycle/log}/nginx:/var/log/datacycle
+      - ${BASE_CACHE_VOLUME_PATH:-~/data_cycle/}/imgproxy_data_cycle:/var/cache/nginx/imgproxy_data_cycle
+      - ${BASE_CACHE_VOLUME_PATH:-~/data_cycle/cache}/data_cycle:/var/cache/nginx/data_cycle
+    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+  imgproxy:
+    env_file:
+      - ${PWD}/.env.production
+    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+volumes:
+  app-docker:
+  app-tmp:
+  app-public-assets:
+  redis:

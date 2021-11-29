@@ -6,7 +6,16 @@ module DataCycleCore
     extend NormalizeService
 
     def self.flatten_datahash_value(datahash, template_hash, debug = false)
-      datahash = flatten_recursive(datahash.to_h, template_hash)
+      datahash = datahash.to_h.dc_deep_dup.with_indifferent_access
+
+      if datahash.key?(:translations) || datahash.key?(:datahash)
+        datahash[:datahash] = flatten_recursive(datahash[:datahash], template_hash)
+        datahash[:translations]&.transform_values! do |locale_hash|
+          flatten_recursive(locale_hash, template_hash)
+        end
+      else
+        datahash = flatten_recursive(datahash, template_hash)
+      end
 
       raise datahash.inspect if debug == true
 
@@ -14,7 +23,11 @@ module DataCycleCore
     end
 
     def self.get_internal_template(name)
-      DataCycleCore::Thing.find_by!(template: true, template_name: name)
+      @get_internal_template ||= Hash.new do |h, key|
+        h[key] = DataCycleCore::Thing.find_by!(template: true, template_name: key)
+      end
+
+      @get_internal_template[name]
     end
 
     def self.create_duplicate(content: nil, current_user: nil)
@@ -29,7 +42,8 @@ module DataCycleCore
             new_content.save!
             new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ 'name': "DUPLICATE: #{content.title}" })
             valid = new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: created)
-            raise ActiveRecord::Rollback, 'dataHash errors found' if valid.dig(:error).present?
+
+            raise ActiveRecord::Rollback, 'dataHash errors found' unless valid
           end
         end
       end
@@ -44,71 +58,77 @@ module DataCycleCore
     end
 
     def self.create_internal_object(template_name, object_params, current_user, is_part_of = nil, source = nil)
-      object = DataCycleCore::Thing.new(object_params.except(:translations))
-      locale = I18n.locale
-      translations = object_params[:translations]&.to_h&.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }
-      locale = translations.keys.first if translations&.keys&.present?
+      template = get_internal_template(template_name)
+      object = DataCycleCore::Thing.new(object_params.except(:translations, :datahash))
+      object_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, template.schema)
+      object_hash[:translations]&.deep_reject! { |_, v| v.blank? && !v.is_a?(FalseClass) }
+      locale = object_hash[:translations]&.keys&.first || I18n.locale
       save_time = Time.zone.now
 
       I18n.with_locale(locale) do
-        template = get_internal_template(template_name)
         object.schema = template.schema
         object.template_name = template.template_name
-        object.created_by = current_user&.id
         object.is_part_of = is_part_of if is_part_of.present?
         object.created_at = save_time
         object.updated_at = save_time
-        object.save
+        object.created_by = current_user&.id
+        object.save(touch: false)
       end
 
-      return object if object_params[:datahash].nil? && translations.nil?
+      return object if object_hash[:datahash].blank? && object_hash[:translations].blank?
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translations&.delete(locale.to_s) || {}), object.schema)
-
-      I18n.with_locale(locale) do
-        valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true, save_time: save_time, check_for_duplicates: true)
-        if valid[:error].present?
-          valid[:error].each { |k, v| v.each { |e| object.errors.add(k, e) } }
-          return object
-        end
-      end
-
-      translations&.each do |l, locale_hash|
-        I18n.with_locale(l) do
-          valid = object.set_data_hash(data_hash: locale_hash, current_user: current_user, prevent_history: true, update_search_all: false, partial_update: true, save_time: save_time)
-          if valid[:error].present?
-            valid[:error].each { |k, v| v.each { |e| object.errors.add(k, e) } }
-            return object
-          end
-        end
-      end
+      object.set_data_hash_with_translations(
+        data_hash: object_hash,
+        current_user: current_user,
+        source: source,
+        new_content: true,
+        save_time: save_time,
+        check_for_duplicates: true
+      )
 
       object
     end
 
-    def self.get_params_from_hash(template_hash)
-      temp_params = []
+    def self.get_params_from_hash(template_hash, translations = true)
+      allowed_params = []
 
       template_hash['properties'].each do |key, value|
         if value['type'] == 'schedule'
-          key = { key.to_sym => [:id, :full_day, :rtimes, :extimes, start_time: [:time], end_time: [:time], yearly_end: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]] }
+          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, start_time: [:time], end_time: [:time], yearly_end: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]]] }
         elsif value['type'] == 'opening_time'
-          key = { key.to_sym => [:valid_from, :valid_until, :holiday, time: [:id, :opens, :closes], rrules: [validations: [day: []]]] }
+          parameter = { key.to_sym => [datahash: [:valid_from, :valid_until, :holiday, time: [datahash: [:id, :opens, :closes]], rrules: [validations: [day: []]]]] }
         elsif value['type'] == 'embedded'
           object_properties = get_internal_template(value['template_name'])
-          key = { key.to_sym => get_params_from_hash(object_properties.schema) }
+          parameter = { key.to_sym => get_params_from_hash(object_properties.schema) }
         elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
-          key = { key.to_sym => get_params_from_hash(value) }
+          parameter = { key.to_sym => get_params_from_hash(value, false) }
         elsif value['type'] == 'classification' || value['type'] == 'linked'
-          key = { key.to_sym => [] }
+          parameter = { key.to_sym => [] }
         else
-          key = key.to_sym
+          parameter = key.to_sym
         end
 
-        temp_params.push(key)
+        allowed_params.push(parameter)
       end
 
-      temp_params
+      return allowed_params unless translations
+
+      { datahash: allowed_params, translations: I18n.available_locales.map { |l| [l, allowed_params] }.to_h }
+    end
+
+    def self.blank?(data)
+      return false if data.is_a?(FalseClass)
+
+      data.is_a?(::Array) ? data.reject(&:blank?).empty? : data.blank?
+    end
+
+    def self.parse_translated_hash(datahash)
+      return {} unless datahash.is_a?(::Hash)
+
+      neutral_hash = datahash.key?(:datahash) ? datahash[:datahash] : datahash.except(:translations, :version_name)
+      translations = datahash[:translations]&.reject { |_, value| value.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
+
+      translations.transform_values { |value| neutral_hash.merge(value).with_indifferent_access }
     end
 
     class << self
@@ -117,18 +137,24 @@ module DataCycleCore
       def flatten_recursive(datahash, template_hash)
         temp_datahash = {}
 
-        datahash.each do |key, value|
+        datahash&.each do |key, value|
           properties = template_hash['properties'][key]
           type = properties['type'] == 'computed' ? properties.dig('compute', 'type') : properties['type']
 
           if value.is_a?(::Hash)
-
             if type == 'embedded'
               object_properties = get_internal_template(properties['template_name'])
               temp_value = []
 
               value.each_value do |object_value|
-                temp_value.push(flatten_recursive(object_value, object_properties.schema))
+                if object_value.key?('datahash') || object_value.key?('translations')
+                  temp_value.push(object_value.tap do |v|
+                    v['datahash'] = flatten_recursive(v['datahash'], object_properties.schema)
+                    v['translations'] = v['translations']&.transform_values { |t| flatten_recursive(t, object_properties.schema) }
+                  end)
+                else
+                  temp_value.push(flatten_recursive(object_value, object_properties.schema))
+                end
               end
 
               value = temp_value

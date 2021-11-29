@@ -1,6 +1,8 @@
 import OpenLayersViewer from './open_layers_viewer';
 import { gpx } from '@tmcw/togeojson';
 import ConfirmationModal from './confirmation_modal';
+import RemoveAllFeaturesControl from './ol_remove_all_features_control';
+import domElementHelpers from '../helpers/dom_element_helpers';
 
 class OpenLayersEditor extends OpenLayersViewer {
   constructor(container) {
@@ -15,7 +17,6 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.$geoCodeButton = $('.geocode-address-button').first();
     this.$mapEditContainer = this.$parentContainer.siblings('.map-edit').first();
     this.$mapInfoContainer = this.$parentContainer.siblings('.map-info').first();
-    this.$removeFeatureButton = this.$mapEditContainer.children('.remove-feature-button').first();
     this.$uploadButton = this.$mapEditContainer.children('.upload-gpx-button').first();
     this.$uploadInput = this.$mapEditContainer.children('.upload-gpx-input').first();
     this.$latitudeField = this.$mapInfoContainer.find('.latitude input').first();
@@ -31,6 +32,7 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     this.initMap().then(() => {
       this.initMapHoverActions();
+      this.initAdditionalControls();
       this.initMapActions();
       if (this.uploadable) this.initUploadActions();
       this.updateMapPosition();
@@ -38,29 +40,18 @@ class OpenLayersEditor extends OpenLayersViewer {
   }
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this));
+    this.$container.on('dc:map:resetPrimaryFeature', this.removeFeature.bind(this));
   }
-  importData(_event, data) {
-    if (
-      ((!this.$elevationField.val() || this.$elevationField.val().length == 0) &&
-        this.$locationField.val().length == 0) ||
-      (data && data.force)
-    ) {
-      this.$elevationField.val(data.value.elevation);
-      this.$latitudeField.val(data.value.y).trigger('change');
-      this.$longitudeField.val(data.value.x).trigger('change');
+  initAdditionalControls() {
+    this.map.addControl(new RemoveAllFeaturesControl());
+  }
+  async importData(event, data) {
+    if (!this.value || (data && data.force)) {
+      this.setUploadedFeature(data.value);
     } else {
-      new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: function () {
-          this.$elevationField.val(data.value.elevation);
-          this.$latitudeField.val(data.value.y).trigger('change');
-          this.$longitudeField.val(data.value.x).trigger('change');
-        }.bind(this)
-      });
+      const target = event.currentTarget;
+
+      domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => this.setUploadedFeature(data.value));
     }
   }
   initMapActions() {
@@ -77,9 +68,6 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     this.$latitudeField.on('change', this.updateMapMarker.bind(this));
     this.$longitudeField.on('change', this.updateMapMarker.bind(this));
-
-    DataCycle.enableElement(this.$removeFeatureButton);
-    if (this.$removeFeatureButton) this.$removeFeatureButton.on('click', this.removeFeature.bind(this));
   }
   initMapDrawableActions() {
     this.drawing = true;
@@ -151,7 +139,7 @@ class OpenLayersEditor extends OpenLayersViewer {
 
     if (this.$geoCodeButton.hasClass('disabled')) return;
 
-    this.$geoCodeButton.append(' <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
+    this.$geoCodeButton.append(' <i class="fa fa-spinner fa-spin fa-fw"></i>');
     this.$geoCodeButton.addClass('disabled');
 
     let addressKey = this.$geoCodeButton.data('address-key');
@@ -164,15 +152,17 @@ class OpenLayersEditor extends OpenLayersViewer {
       .find('.form-element')
       .find('input')
       .each((_index, elem) => {
-        address[elem.name.getKey()] = elem.value;
+        address[elem.name.getAttributeKey()] = elem.value;
       });
 
-    DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: '/things/geocode_address',
       dataType: 'json',
       data: address
-    })
-      .done(data => {
+    });
+
+    promise
+      .then(data => {
         if (data.error) {
           new ConfirmationModal({
             text: data.error
@@ -181,13 +171,15 @@ class OpenLayersEditor extends OpenLayersViewer {
           this.setGeocodedValue(data);
         }
       })
-      .fail((_jqxhr, textStatus, error) => {
+      .catch((_jqxhr, textStatus, error) => {
         console.error(textStatus + ', ' + error);
       })
-      .always(() => {
+      .finally(() => {
         this.$geoCodeButton.find('i.fa').remove();
         this.$geoCodeButton.removeClass('disabled');
       });
+
+    return promise;
   }
   setGeocodedValue(data) {
     if (!this.feature) {
@@ -207,40 +199,40 @@ class OpenLayersEditor extends OpenLayersViewer {
       this.$uploadInput.click();
     }
   }
-  handleUploadFile(evt) {
+  async handleUploadFile(evt) {
     let file = evt.target.files[0] || null;
     if (!file) {
       new ConfirmationModal({
-        text: 'Datei nicht gefunden!'
+        text: await I18n.translate('frontend.gpx.file_missing')
       });
     } else {
       const reader = new FileReader();
       reader.onload = (_gpxFile => {
-        return e => {
+        return async e => {
           let xmlString = e.target.result;
           let parser = new DOMParser();
           let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
           let geoJSON = gpx(xmlDoc);
-          let features = {
+          let featureGeometry = {
             type: 'MultiLineString',
             coordinates: []
           };
           if (geoJSON && geoJSON.features && geoJSON.features.length) {
             geoJSON.features.forEach(feature => {
               if (feature.geometry.type.includes('MultiLineString'))
-                features.coordinates.push(...feature.geometry.coordinates);
+                featureGeometry.coordinates.push(...feature.geometry.coordinates);
               else if (feature.geometry.type.includes('LineString'))
-                features.coordinates.push(feature.geometry.coordinates);
+                featureGeometry.coordinates.push(feature.geometry.coordinates);
             });
           }
 
-          if (!features.coordinates || !features.coordinates.length) {
+          if (!featureGeometry.coordinates || !featureGeometry.coordinates.length) {
             new ConfirmationModal({
-              text: 'Die GPX-Datei beinhaltet keinen Track.',
+              text: await I18n.translate('frontend.gpx.empty'),
               confirmationText: 'Ok'
             });
           } else {
-            this.setUploadedFeature(features);
+            this.setUploadedFeature(featureGeometry);
           }
           this.$uploadInput.val('');
         };
@@ -273,16 +265,18 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.setHiddenFieldValue(geometry);
     this.updateFeature(geometry);
   }
-  updateFeature(newGeometry) {
+  updateFeature(geometry) {
     if (this.feature) this.source.removeFeature(this.feature);
 
-    this.feature = this.featureFromGeoJSON({
-      type: 'Feature',
-      geometry: newGeometry
-    });
-
+    this.feature = this.featureFromGeoJSON(geometry);
     this.source.addFeature(this.feature);
-    this.updateMapPosition();
+
+    if (this.feature) {
+      this.initGeometryEditActions();
+      this.disableDrawableFeature();
+    }
+
+    this.setNewCoordinates();
   }
   updateMapMarker(_event) {
     let valid = true;
@@ -316,11 +310,14 @@ class OpenLayersEditor extends OpenLayersViewer {
   removeFeature(event) {
     event.preventDefault();
 
-    this.source.removeFeature(this.feature);
-    this.feature = undefined;
+    if (this.feature) {
+      this.source.removeFeature(this.feature);
+      this.feature = undefined;
+    }
+
     this.resetCoordinates();
     this.resetHiddenFieldValue();
-    this.initMapDrawableActions();
+    if (!this.drawableInteraction) this.initMapDrawableActions();
   }
   initUploadActions() {
     if (this.$uploadButton) this.$uploadButton.on('click', this.relayUploadClick.bind(this));
@@ -373,10 +370,15 @@ class OpenLayersEditor extends OpenLayersViewer {
       coordinates: this.getFeatureLatLon()
     };
   }
-  setHiddenFieldValue(geoJSON) {
-    this.$locationField.val(this.geoJsonToWkt(geoJSON));
+  setHiddenFieldValue(geometry) {
+    this.value = {
+      type: 'Feature',
+      geometry: geometry
+    };
+    this.$locationField.val(this.geoJsonToWkt(geometry));
   }
   resetHiddenFieldValue() {
+    this.value = null;
     this.$locationField.val('');
   }
 }

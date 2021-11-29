@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rake'
   # Frontend Asset Handling
   # s.add_dependency 'sprockets', '4.0.0'
-  s.add_dependency 'vite_rails'
+  s.add_dependency 'vite_rails', '~> 2.0' # 3.0 has a bug, trying to find entrypoints/application.js
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
@@ -47,7 +47,7 @@ Gem::Specification.new do |s|
   # JSON Parser
   s.add_dependency 'multi_json'
   # XML Parser
-  s.add_dependency 'nokogiri', '~> 1.11.1'
+  s.add_dependency 'nokogiri'
   # authentication
   s.add_dependency 'devise'
   s.add_dependency 'jwt'
@@ -96,6 +96,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # cron jobs gem
   s.add_dependency 'whenever'
+  # rufus scheduler
+  s.add_dependency 'rufus-scheduler'
   # redis
   s.add_dependency 'hiredis'
   s.add_dependency 'redis'

@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Route
+    :name: Gesamtroute
     :type: object
     :schema_type: Place
     :content_type: entity
@@ -72,7 +72,7 @@
         :type: string
         :storage_location: value
       :sections:
-        :label: Teilstrecken
+        :label: Routen
         :type: linked
         :template_name: Section
         :api:
@@ -99,9 +99,6 @@
       # :potential_actions:
       #   :type: mixin
       #   :name: potential_actions
-      :linked_data:
-        :type: mixin
-        :name: linked_data
       :subject_of:
         :label: Thema von
         :type: linked
@@ -112,7 +109,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Route'
+        :default_value: 'Gesamtroute'
       # :cc_rel:
       #   :type: mixin
       #   :name: cc_rel

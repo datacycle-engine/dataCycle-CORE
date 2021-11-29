@@ -13,7 +13,17 @@ module DataCycleCore
         end
 
         def available_containers
-          @available_containers ||= DataCycleCore::Thing.where(template: true).where("schema ->> 'content_type' = ?", 'container').order(:template_name)
+          @available_containers ||= DataCycleCore::Thing.where(template: true, content_type: 'container').order(:template_name)
+        end
+
+        def allowed_container_templates(content)
+          template_names = []
+
+          available_containers.each do |container_template|
+            template_names << container_template.template_name if allowed_templates(container_template)&.include?(content.template_name)
+          end
+
+          template_names
         end
 
         def allowed_templates(content)

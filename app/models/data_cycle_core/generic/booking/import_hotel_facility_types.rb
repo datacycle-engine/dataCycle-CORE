@@ -34,7 +34,7 @@ module DataCycleCore
           mongo_item.where("dump.#{locale}.facility_type_id": parent_data.dig('hotel_facility_type_id'))
         end
 
-        def self.load_parent_classification_alias(raw_data, external_source_id)
+        def self.load_parent_classification_alias(raw_data, external_source_id, _options = {})
           DataCycleCore::Classification
             .find_by(
               external_source_id: external_source_id,

@@ -6,7 +6,9 @@
     :boost: 100.0
     :content_type: embedded
     :api:
-      :type: Schedule
+      :type:
+        - Intangible
+        - Schedule
     :properties:
       :id:
         :label: id

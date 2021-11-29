@@ -8,7 +8,8 @@ module DataCycleCore
 
     def show
       authorize! :show, :object_browser
-      @content = DataCycleCore::Thing.find_by(id: permitted_params[:content_id]) || DataCycleCore::Thing.new { |t| t.id = permitted_params[:content_id] } if permitted_params[:content_id].present?
+      @content = DataCycleCore::Thing.find_by(id: permitted_params[:content_id]) || DataCycleCore::Thing.new(id: permitted_params[:content_id]) if permitted_params[:content_id].present?
+
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         @definition = permitted_params.dig(:definition)
         template_name = @definition.dig(:template_name)
@@ -16,32 +17,20 @@ module DataCycleCore
         @language = Array(@definition.dig(:linked_language) == 'same' ? permitted_params.fetch(:locale) { current_user.default_locale } : 'all')
 
         filter = DataCycleCore::StoredFilter.new
+          .parameters_from_hash(stored_filter)
+          .apply_user_filter(current_user, { scope: 'object_browser', template_name: stored_filter.blank? ? template_name : nil })
         filter.language = @language
 
         @template = DataCycleCore::Thing.find_by(template: true, template_name: template_name)
 
-        if stored_filter.present?
-          stored_filter_params = stored_filter.to_a.map(&:to_h).map do |f|
-            f.each_with_object({}) do |(k, v), hash|
-              hash['t'] = k
-              hash['v'] = v
-            end
-          end
-          stored_filter_params = current_user.default_filter(stored_filter_params, { scope: 'object_browser' })
-          filter.parameters = stored_filter_params
-          query = filter.apply
-        else
-          filter.parameters = current_user.default_filter([], { scope: 'object_browser', template_name: template_name })
-          query = filter.apply
-          query = query.where(template_name: template_name.to_s) if template_name
-        end
+        filter.parameters.concat Array.wrap(permitted_params.dig(:filter, :f)&.values)
 
+        query = filter.apply
+        query = query.where(template_name: template_name.to_s) if template_name && stored_filter.blank?
         query = query.in_validity_period
-        query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search].present?
         query = query.where('things.id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
         query = query.where(id: permitted_params[:filter_ids]) if permitted_params[:filter_ids].present?
-
-        query = query.sort_fulltext_search('DESC', permitted_params[:search]) if permitted_params[:search].present?
+        filter.parameters&.detect { |f| f['t'] == 'fulltext_search' }&.dig('v')&.then { |s| query = query.sort_fulltext_search('DESC', s) }
 
         @per = permitted_params[:per] if permitted_params[:per].present?
         @per ||= DEFAULT_PER
@@ -56,7 +45,11 @@ module DataCycleCore
         @page ||= 1
 
         @results = query.content_includes.page(@page).per(@per)
-        respond_to(:js)
+
+        render json: {
+          count: @total || 0,
+          html: render_to_string(formats: [:html], layout: false)
+        }
       end
     end
 
@@ -101,11 +94,13 @@ module DataCycleCore
     end
 
     def permitted_params
-      params.permit(*permitted_parameter_keys)
+      return @permitted_params if defined? @permitted_params
+
+      DataCycleCore::NormalizeService.normalize_parameters(params.permit(*permitted_parameter_keys))
     end
 
     def permitted_parameter_keys
-      [:per, :page, :id, :locale, :content_id, :external, { filter_ids: [] }, { ids: [] }, :search, { definition: {} }, excluded: []]
+      [:per, :page, :id, :locale, :content_id, :external, { filter_ids: [] }, { ids: [] }, { definition: {} }, filter: {}, excluded: []]
     end
   end
 end

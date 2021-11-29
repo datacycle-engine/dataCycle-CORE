@@ -8,13 +8,14 @@ module DataCycleCore
 
         def title(data_hash: nil)
           data_hash ||= {}
+
           case schema_type
           when 'Organization', 'Event', 'CreativeWork', 'Product', 'Intangible'
             data_hash['name'].presence || name
           when 'Person'
             "#{data_hash['given_name']} #{data_hash['family_name']}".presence || "#{given_name} #{family_name}"
           when 'Place'
-            data_hash['name'].presence || name.presence || I18n.t('common.no_translation', locale: DataCycleCore.ui_language)
+            data_hash['name'].presence || name.presence || 'NO_TRANSLATION'
           end
         end
 
@@ -51,6 +52,14 @@ module DataCycleCore
 
         def coordinates
           "GPS: #{latitude.round(2)}, #{longitude.round(2)}" if latitude.present? && longitude.present?
+        end
+
+        def translated_template_name(locale)
+          I18n.t("template_names.#{template_name}", default: template_name, locale: locale)
+        end
+
+        def icon_class
+          self.class.name.demodulize.underscore_blanks
         end
 
         module ClassMethods

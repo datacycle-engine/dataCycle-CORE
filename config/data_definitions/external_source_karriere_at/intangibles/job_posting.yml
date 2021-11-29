@@ -9,7 +9,9 @@
       :creatable:
         :allowed: false
     :api:
-      :type: JobPosting
+      :type:
+        - Intangible
+        - JobPosting
     :properties:
       :id:
         :label: id

@@ -23,5 +23,37 @@ module DataCycleCore
 
       modes
     end
+
+    def finalize_agbs_label
+      unless I18n.exists?('finalize_agbs_html', locale: active_ui_locale)
+        return tag.span(
+          t('actions.finalize', locale: active_ui_locale),
+          title: t('common.content_not_editable', locale: active_ui_locale),
+          data: {
+            tooltip: true
+          }
+        )
+      end
+
+      t(
+        'actions.finalize_combined_html',
+        locale: active_ui_locale,
+        finalize: tag.span(
+          t('actions.finalize', locale: active_ui_locale),
+          title: t('common.content_not_editable', locale: active_ui_locale),
+          data: {
+            tooltip: true
+          }
+        ),
+        agbs: tag.span(
+          t('actions.finalize_agbs_text', locale: active_ui_locale),
+          title: t('finalize_agbs_html', locale: active_ui_locale),
+          data: {
+            tooltip: true,
+            allow_html: true
+          }
+        )
+      )
+    end
   end
 end

@@ -1,7 +1,7 @@
 import Flatpickr from 'flatpickr';
 import { German } from 'flatpickr/dist/l10n/de.js';
-import ConfirmationModal from './../components/confirmation_modal';
-import DataCycle from './data_cycle';
+import { english } from 'flatpickr/dist/l10n/default';
+import domElementHelpers from '../helpers/dom_element_helpers';
 import castArray from 'lodash/castArray';
 
 class DatePicker {
@@ -12,8 +12,12 @@ class DatePicker {
     this.sibling;
     this.calInstance;
     this.conditionalFormField = this.element.closest('.conditional-form-field');
+    this.localeMapping = {
+      de: German,
+      en: english
+    };
     this.defaultOptions = {
-      locale: German,
+      locale: this.localeMapping[DataCycle.uiLocale],
       altInput: true,
       time_24hr: true,
       allowInput: true,
@@ -52,6 +56,12 @@ class DatePicker {
     };
     this.keyMappings = Object.assign({}, this.startKeys, this.endKeys);
     this.keyRegExp = new RegExp(`(${Object.keys(this.keyMappings).join('|')})`, 'gi');
+    this.eventHandlers = {
+      change: this.updateDatePicker.bind(this),
+      reInit: this.reInit.bind(this),
+      setDate: this.setDate.bind(this),
+      import: this.importData.bind(this)
+    };
 
     this.setup();
   }
@@ -62,16 +72,16 @@ class DatePicker {
     this.initCalInstance();
   }
   initEvents() {
-    $(this.calInstance.altInput).on('change', this.updateDatePicker.bind(this));
-    $(this.calInstance.altInput).on('dc:flatpickr:reInit', this.reInit.bind(this));
-    $(this.calInstance.altInput).on('dc:flatpickr:setDate', this.setDate.bind(this));
-    $(this.calInstance.altInput).on('dc:import:data', this.importData.bind(this));
+    $(this.calInstance.altInput).on('change', this.eventHandlers.change);
+    $(this.calInstance.altInput).on('dc:flatpickr:reInit', this.eventHandlers.reInit);
+    $(this.calInstance.altInput).on('dc:flatpickr:setDate', this.eventHandlers.setDate);
+    $(this.calInstance.altInput).on('dc:import:data', this.eventHandlers.import);
   }
   removeEvents() {
-    $(this.calInstance.altInput).off('change', this.updateDatePicker.bind(this));
-    $(this.calInstance.altInput).off('dc:flatpickr:reInit', this.reInit.bind(this));
-    $(this.calInstance.altInput).off('dc:flatpickr:setDate', this.setDate.bind(this));
-    $(this.calInstance.altInput).off('dc:import:data', this.importData.bind(this));
+    $(this.calInstance.altInput).off('change', this.eventHandlers.change);
+    $(this.calInstance.altInput).off('dc:flatpickr:reInit', this.eventHandlers.reInit);
+    $(this.calInstance.altInput).off('dc:flatpickr:setDate', this.eventHandlers.setDate);
+    $(this.calInstance.altInput).off('dc:import:data', this.eventHandlers.import);
   }
   setupCache() {
     if (!DataCycle.cache.holidays) {
@@ -142,7 +152,7 @@ class DatePicker {
     if (DataCycle.cache.holidays[year]) return;
 
     DataCycle.cache.holidays.loadingHolidays[year] = true;
-    DataCycle.cache.holidays.loadingHolidaysRequest[year] = DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: '/holidays',
       method: 'GET',
       data: {
@@ -150,14 +160,18 @@ class DatePicker {
       },
       dataType: 'json',
       contentType: 'application/json'
-    })
-      .done(data => {
+    });
+
+    promise
+      .then(data => {
         DataCycle.cache.holidays[year] = data || [];
       })
-      .always(_ => {
+      .finally(_ => {
         DataCycle.cache.holidays.loadingHolidays[year] = false;
         DataCycle.cache.holidays.loadingHolidaysRequest[year] = null;
       });
+
+    DataCycle.cache.holidays.loadingHolidaysRequest[year] = promise;
   }
   createDayElement(_dObj, _dStr, _fp, dayElem) {
     if (dayElem.classList.contains('dc-holidays-initialized')) return;
@@ -170,8 +184,12 @@ class DatePicker {
     dayElem.classList.add('dc-holidays-initialized');
   }
   markHoliday(dayElem, year) {
-    if (!DataCycle.cache.holidays[year] && DataCycle.cache.holidays.loadingHolidays[year])
-      return DataCycle.cache.holidays.loadingHolidaysRequest[year].done(_ => this.markHoliday(dayElem, year));
+    if (!DataCycle.cache.holidays[year] && DataCycle.cache.holidays.loadingHolidays[year]) {
+      const promise = DataCycle.cache.holidays.loadingHolidaysRequest[year];
+      promise.then(_ => this.markHoliday(dayElem, year));
+
+      return promise;
+    }
 
     const holiday = DataCycle.cache.holidays[year].find(v => v.date === Flatpickr.formatDate(dayElem.dateObj, 'Y-m-d'));
 
@@ -193,25 +211,18 @@ class DatePicker {
 
     return options;
   }
-  importData(event, data) {
+  async importData(event, data) {
     event.stopImmediatePropagation();
-
-    if (!this.conditionalFormField) return;
 
     if (this.calInstance.altInput.value.length === 0 || (data && data.force)) {
       this.setDate(null, data.value);
       this.updateConditionalField(data.value);
     } else {
-      new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: () => {
-          this.setDate(null, data.value);
-          this.updateConditionalField(data.value);
-        }
+      const target = event.currentTarget;
+
+      domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
+        this.setDate(null, data.value);
+        this.updateConditionalField(data.value);
       });
     }
   }

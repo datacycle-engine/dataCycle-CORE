@@ -63,7 +63,7 @@ class MasonryGrid {
     item.style.gridRow = 'span ' + rowSpan;
   }
   resizeAllMasonryItems(event) {
-    this.grid[0].querySelectorAll('.grid-item').forEach(item => {
+    this.grid[0].querySelectorAll(':scope .grid-item').forEach(item => {
       this.resizeMasonryItem(item);
     });
   }

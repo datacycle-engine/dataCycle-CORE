@@ -1,14 +1,8 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
 
-  <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
-    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
-    <%= definition['label'] %>
-    <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
-  <% end %>
+  <%= attribute_edit_label_tag(key, definition, content, options) %>
 
   <% value = value.first if value.is_a?(Array) || value.is_a?(ActiveRecord::Relation) %>
-  <%# value = value.duplicate if local_assigns[:new_content] && !value.nil? %>
-  <%#= hidden_field_tag key, value&.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
   <%= render 'data_cycle_core/assets/asset_list',
       assets: Array(value),
       class: attribute_editable?(key, definition, options, content) ? 'editable' : nil,
@@ -20,6 +14,9 @@
         key_id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}",
         editable_list_key: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_editable_asset_list",
         asset_type: definition&.dig('asset_type'),
-        label: definition['label'] %>
+        label: translated_attribute_label(key, definition, content, options) %>
+  <% end %>
+  <% if DataCycleCore::Feature::ImageEditor.allowed?(local_assigns[:parent] || content) %>
+    <%= render 'data_cycle_core/contents/editors/features/image_editor', local_assigns %>
   <% end %>
 <% end %>

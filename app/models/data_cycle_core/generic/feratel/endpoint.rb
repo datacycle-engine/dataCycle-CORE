@@ -229,10 +229,10 @@ module DataCycleCore
           # puts
           # puts
 
-          if data.xpath('//@Status').first.value != '0'
-            raise data.xpath('//@Message').first.value if retry_count > 5
-            sleep(3)
-            load_updated_data(lang: lang, range_code: range_code, range_ids: range_ids, deleted_from: deleted_from, retry_count: retry_count + 1)
+          if data.xpath('//@Status').first.value == '1' && data.xpath('//@Message').first.value == 'Organisation access denied.'
+            nil
+          elsif data.xpath('//@Status').first.value != '0'
+            raise data.xpath('//@Message').first.value
           else
             data
               .xpath('//Result/DeletedItems')
@@ -250,7 +250,7 @@ module DataCycleCore
             item_ids = []
             ['RG', 'DI', 'TO'].each do |range_code|
               load_range_ids(range_code).each do |range_id|
-                load_data(type, lang: lang, range_code: range_code, range_ids: range_id, deleted_from: deleted_from).xpath(xpath).each do |xml_data|
+                load_data(type, lang: lang, range_code: range_code, range_ids: range_id, deleted_from: deleted_from)&.xpath(xpath)&.each do |xml_data|
                   item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
                   unless item_ids.include?(item['Id'] || item['Order'])
                     item_ids << item['Id'] || item['Order']
@@ -268,7 +268,7 @@ module DataCycleCore
             range_code = @primary_range_code
             range_id = @primary_range_id
 
-            load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
+            load_data(type, lang: lang, range_code: range_code, range_ids: range_id)&.xpath(xpath)&.each do |xml_data|
               item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
               unless item_ids.include?(item['Id'] || item['Order'])
                 item_ids << item['Id'] || item['Order']
@@ -284,7 +284,7 @@ module DataCycleCore
             range_code = @primary_range_code
             range_id = @primary_range_id
 
-            load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
+            load_data(type, lang: lang, range_code: range_code, range_ids: range_id)&.xpath(xpath)&.each do |xml_data|
               item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
               unless item_ids.include?(item[item_field])
                 item_ids << item[item_field]
@@ -304,11 +304,11 @@ module DataCycleCore
           all_data = load_range_ids_new.map { |range_code, range_id|
             data_loaded =
               if changed_from.present?
-                load_changed_data(type, lang: lang, range_code: range_code, range_ids: range_id, changed_from: changed_from).xpath(changed_xpath)
+                load_changed_data(type, lang: lang, range_code: range_code, range_ids: range_id, changed_from: changed_from)&.xpath(changed_xpath)
               else
-                load_data(type, lang: lang, range_code: range_code, range_ids: range_id, index: true).xpath(xpath)
+                load_data(type, lang: lang, range_code: range_code, range_ids: range_id, index: true)&.xpath(xpath)
               end
-            data_loaded.map { |xml_raw_data|
+            (data_loaded || []).map { |xml_raw_data|
               next if external_keys.present? && !xml_raw_data['Id'].in?(external_keys)
               [xml_raw_data['Id'], range_code, range_id]
             }.compact
@@ -320,7 +320,7 @@ module DataCycleCore
             item_ids = []
             item_hash.each do |range, ids|
               ids.each_slice(@per) do |id_slice|
-                load_data_item(type, lang: lang, range_code: range[0], range_ids: range[1], item_ids: id_slice).xpath(xpath).each do |xml_data|
+                load_data_item(type, lang: lang, range_code: range[0], range_ids: range[1], item_ids: id_slice)&.xpath(xpath)&.each do |xml_data|
                   item = {
                     '_Type' => xml_data.parent.name.singularize,
                     '_RangeCode' => range[0],
@@ -383,10 +383,10 @@ module DataCycleCore
           # puts
           # puts
 
-          if data.xpath('//@Status').first.value != '0'
-            raise data.xpath('//@Message').first.value if retry_count > 5
-            sleep(3)
-            load_data(type, lang: lang, range_code: range_code, range_ids: range_ids, index: index, retry_count: retry_count + 1)
+          if data.xpath('//@Status').first.value == '1' && data.xpath('//@Message').first.value == 'Organisation access denied.'
+            nil
+          elsif data.xpath('//@Status').first.value != '0'
+            raise data.xpath('//@Message').first.value
           else
             data
           end
@@ -417,10 +417,10 @@ module DataCycleCore
           # puts
           # puts
 
-          if data.xpath('//@Status').first.value != '0'
-            raise data.xpath('//@Message').first.value if retry_count > 5
-            sleep(3)
-            load_data_item(type, lang: lang, range_code: range_code, range_ids: range_ids, item_ids: item_ids, retry_count: retry_count + 1)
+          if data.xpath('//@Status').first.value == '1' && data.xpath('//@Message').first.value == 'Organisation access denied.'
+            nil
+          elsif data.xpath('//@Status').first.value != '0'
+            raise data.xpath('//@Message').first.value
           else
             data
           end
@@ -490,10 +490,10 @@ module DataCycleCore
           # puts
           # puts
 
-          if data.xpath('//@Status').first.value != '0'
-            raise data.xpath('//@Message').first.value if retry_count > 5
-            sleep(3)
-            load_changed_data(type, lang: lang, range_code: range_code, range_ids: range_ids, changed_from: changed_from, retry_count: retry_count + 1)
+          if data.xpath('//@Status').first.value == '1' && data.xpath('//@Message').first.value == 'Organisation access denied.'
+            nil
+          elsif data.xpath('//@Status').first.value != '0'
+            raise data.xpath('//@Message').first.value
           else
             data
           end

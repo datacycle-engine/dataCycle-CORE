@@ -1,9 +1,11 @@
 import DurationHelpers from './../helpers/duration_helpers';
-import ObjectHelpers from './../helpers/object_helpers';
+import domElementHelpers from '../helpers/dom_element_helpers';
 import MimeTypes from 'mime';
 import AssetValidator from './asset_validator';
 import unionBy from 'lodash/unionBy';
-import uniqueId from 'lodash/uniqueId';
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import uploadDuplicate from '../templates/uploadDuplicate';
 
 class AssetUploader {
   constructor(reveal) {
@@ -31,6 +33,10 @@ class AssetUploader {
     this.bulkCreateChannel;
     this.files = [];
     this.saving = false;
+    this.createAssetsRequest;
+    this.eventHandlers = {
+      pageLeave: this.pageLeaveHandler.bind(this)
+    };
 
     this.init();
   }
@@ -41,9 +47,6 @@ class AssetUploader {
     this.fileField.on('change', this.validateFiles.bind(this));
     this.reveal.on('dc:upload:setFiles', (e, files) => {
       this.validateFiles(e, files.fileList);
-    });
-    $(window).on('beforeunload', event => {
-      if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
     });
     this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
     this.reveal.on(
@@ -58,6 +61,10 @@ class AssetUploader {
       this.createButton.on('click', this.createAssets.bind(this));
     }
     this.initActionCable();
+  }
+  pageLeaveHandler(e) {
+    e.preventDefault();
+    return (e.returnValue = '');
   }
   removeFileHandler(event) {
     event.preventDefault();
@@ -109,10 +116,12 @@ class AssetUploader {
 
     if (file) this.uploadFile(file);
   }
-  openReveal(event) {
+  openReveal(_event) {
+    $(window).on('beforeunload', this.eventHandlers.pageLeave);
     this.reveal.parent('.reveal-overlay').addClass('content-reveal-overlay');
   }
-  closeReveal(event) {
+  closeReveal(_event) {
+    $(window).off('beforeunload', this.eventHandlers.pageLeave);
     this.contentUploaderField.trigger('dc:upload:filesChanged');
     $('.asset-selector-reveal:visible').trigger('open.zf.reveal');
   }
@@ -145,8 +154,7 @@ class AssetUploader {
               let redirect_path = data.redirect_path;
               if (data && data.flash) {
                 Object.keys(data.flash).forEach((item, index) => {
-                  redirect_path += index == 0 ? '?' : '&';
-                  redirect_path += 'flash[' + item + ']=' + encodeURI(data.flash[item]);
+                  redirect_path += `${index == 0 ? '?' : '&'}flash[${item}]=${encodeURI(data.flash[item])}`;
                 });
               }
               window.location.href = redirect_path;
@@ -170,7 +178,7 @@ class AssetUploader {
     this.files.forEach((file, i) => {
       file.fileField.addClass('creating');
 
-      let attributeValues = ObjectHelpers.deepCopy(file.attributeFieldValues) || [];
+      let attributeValues = cloneDeep(file.attributeFieldValues) || [];
       attributeValues.push({ name: 'thing[datahash][' + this.assetKey + ']', value: file.asset && file.asset.id });
       attributeValues.push({ name: 'thing[uploader_field_id]', value: file.id });
       attributeValues.forEach(a => {
@@ -180,17 +188,21 @@ class AssetUploader {
       formData = formData.concat(attributeValues);
     });
 
-    DataCycle.httpRequest({
+    $(window).off('beforeunload', this.eventHandlers.pageLeave);
+
+    return DataCycle.httpRequest({
       url: '/things/bulk_create',
       method: 'POST',
       data: formData,
       dataType: 'json',
       contentType: 'application/x-www-form-urlencoded'
+    }).catch(e => {
+      if (e.status >= 400) console.error(e.statusText);
     });
   }
-  validateAttributes(file) {
+  async validateAttributes(file) {
     if (this.showNewForm && (!file.attributeFieldValues || !file.attributeFieldValues.length)) {
-      this.updateFileValidated(file, { error: 'Fehlende Metadaten!' });
+      this.updateFileValidated(file, { error: await I18n.translate('frontend.upload.missing_metadata') });
       return;
     }
 
@@ -208,7 +220,7 @@ class AssetUploader {
       data: formData,
       dataType: 'json',
       contentType: 'application/x-www-form-urlencoded'
-    }).always(data => {
+    }).finally(data => {
       this.updateFileValidated(file, data);
     });
   }
@@ -270,18 +282,18 @@ class AssetUploader {
       this.updateFileField(selectedFile, fields);
     }
   }
-  updateFileField(file, fields) {
+  async updateFileField(file, fields) {
     if (!file.valid.valid) return;
 
     if (file.attributeFieldValues) {
       file.attributeFieldValues = file.attributeFieldValues
         .filter(v => !fields.find(f => f.name == v.name))
-        .concat(ObjectHelpers.deepCopy(fields));
+        .concat(cloneDeep(fields));
     } else {
-      file.attributeFieldValues = ObjectHelpers.deepCopy(fields);
+      file.attributeFieldValues = cloneDeep(fields);
     }
 
-    this.setAttributeValues(file);
+    await this.setAttributeValues(file);
     this.validateAttributes(file);
 
     Object.keys(file.attributeValues).forEach((field, i, arr) => {
@@ -298,11 +310,11 @@ class AssetUploader {
       });
     });
   }
-  setAttributeValues(file) {
+  async setAttributeValues(file) {
     if (!file.attributeValues || !Object.keys(file.attributeValues).length)
-      file.attributeValues = ObjectHelpers.deepCopy(this.renderedAttributes);
+      file.attributeValues = cloneDeep(this.renderedAttributes);
 
-    Object.keys(file.attributeValues).forEach(key => {
+    for (let key in file.attributeValues) {
       let values = file.attributeFieldValues.filter(
         f =>
           f.name.includes(key) &&
@@ -311,10 +323,10 @@ class AssetUploader {
       let attribute = file.attributeValues[key];
 
       if (attribute.type == 'boolean') {
-        let value = ObjectHelpers.get(['ui', 'create', 'false_value'], attribute) || 'false';
+        let value = get(attribute, 'ui.create.false_value') || 'false';
         if (values && values.length) value = values.pop().value;
 
-        value = value == 'true' ? 'ja' : 'nein';
+        value = await I18n.translate(`common.${value}`);
 
         Object.assign(attribute, {
           name: key,
@@ -337,7 +349,8 @@ class AssetUploader {
           value: this.renderAttributeHtml(attribute)
         });
       }
-    });
+    }
+
     return file.attributeValues;
   }
   renderAttributeHtml(attribute, value = '') {
@@ -347,17 +360,9 @@ class AssetUploader {
 
     let label = attribute.label;
 
-    return (
-      '<span class="file-label" title="' +
-      label +
-      '">' +
-      label +
-      '</span><span class="file-attribute-value" title="' +
-      $('<span>' + value + '</span>').text() +
-      '">' +
-      value +
-      '</span>'
-    );
+    return `<span class="file-label" title="${label}">${label}</span><span class="file-attribute-value" title="${$(
+      '<span>' + value + '</span>'
+    ).text()}">${value}</span>`;
   }
   renderSpecificField(field, asset, previousField = null) {
     if (asset.fileField.find('.asset-attribute[data-name="' + field.name + '"]').length)
@@ -369,7 +374,7 @@ class AssetUploader {
     else asset.fileField.find('.new-asset-attributes .file-buttons').before(this.attributeValueHtml(field));
   }
   attributeValueHtml(field) {
-    return '<div class="asset-attribute ' + field.type + '" data-name="' + field.name + '">' + field.value + '</div>';
+    return `<div class="asset-attribute ${field.type}" data-name="${field.name}">${field.value}</div>`;
   }
   prepareFileForUpload(file) {
     file.fileField.add(file.fileFormField).removeClass('error finished').addClass('uploading').find('.error').remove();
@@ -391,70 +396,77 @@ class AssetUploader {
     var type = 'POST';
     this.prepareFileForUpload(file);
     var startTime = new Date().getTime();
-    this.ajaxRequests.push(
-      DataCycle.httpRequest({
-        url: url,
-        type: type,
-        enctype: 'multipart/form-data',
-        data: data,
-        dataType: 'json',
-        processData: false,
-        contentType: false,
-        cache: false,
-        xhr: function () {
-          var myXhr = $.ajaxSettings.xhr();
-          if (myXhr.upload) {
-            myXhr.upload.addEventListener(
-              'progress',
-              function (e) {
-                if (e.lengthComputable) {
-                  var elapsedtime = (new Date().getTime() - startTime) / 1000;
-                  var eta = Math.round((e.total / e.loaded) * elapsedtime - elapsedtime);
-                  file.fileField
-                    .add(file.fileFormField)
-                    .find('.upload-progress-bar')
-                    .css('width', (e.loaded / e.total) * 100 + '%');
+
+    const promise = DataCycle.httpRequest({
+      url: url,
+      type: type,
+      enctype: 'multipart/form-data',
+      data: data,
+      dataType: 'json',
+      processData: false,
+      contentType: false,
+      cache: false,
+      xhr: function () {
+        var myXhr = $.ajaxSettings.xhr();
+        if (myXhr.upload) {
+          myXhr.upload.addEventListener(
+            'progress',
+            async function (e) {
+              if (e.lengthComputable) {
+                var elapsedtime = (new Date().getTime() - startTime) / 1000;
+                var eta = Math.round((e.total / e.loaded) * elapsedtime - elapsedtime);
+                file.fileField
+                  .add(file.fileFormField)
+                  .find('.upload-progress-bar')
+                  .css('width', (e.loaded / e.total) * 100 + '%');
+                file.fileField
+                  .add(file.fileFormField)
+                  .find('.upload-number')
+                  .html(
+                    `${Math.round(
+                      (e.loaded / e.total) * 100
+                    )}%, <span class="eta">${DurationHelpers.seconds_to_human_time(eta)}</span>`
+                  );
+                if (e.loaded == e.total) {
                   file.fileField
                     .add(file.fileFormField)
                     .find('.upload-number')
                     .html(
-                      Math.round((e.loaded / e.total) * 100) +
-                        '%, <span class="eta">' +
-                        DurationHelpers.seconds_to_human_time(eta) +
-                        '</span>'
+                      `<i class="fa fa-cog fa-spin fa-fw working-spinner"></i>${await I18n.translate(
+                        'frontend.upload.processing'
+                      )}`
                     );
-                  if (e.loaded == e.total) {
-                    file.fileField
-                      .add(file.fileFormField)
-                      .find('.upload-number')
-                      .html('<i class="fa fa-cog fa-spin fa-fw working-spinner"></i>wird verarbeitet');
-                  }
                 }
-              },
-              false
-            );
-          }
-          return myXhr;
+              }
+            },
+            false
+          );
         }
+        return myXhr;
+      }
+    });
+
+    promise
+      .then(data => {
+        this.updateFileAttributes(file, data);
       })
-        .done(data => {
-          this.updateFileAttributes(file, data);
-        })
-        .fail(data => {
-          file.retryUpload = true;
-          this.resetFileField(file);
-          let error = data.statusText;
-          if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
-          this.renderError(file, error);
-        })
-        .always(_data => {
-          this.updateOverlayButtons(file);
-          DataCycle.enableElement(this.assetReloadButton);
-        })
-    );
+      .catch(data => {
+        file.retryUpload = true;
+        this.resetFileField(file);
+        let error = data.statusText;
+        if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
+        this.renderError(file, error);
+      })
+      .finally(_data => {
+        this.updateOverlayButtons(file);
+        DataCycle.enableElement(this.assetReloadButton);
+      });
+
+    this.ajaxRequests.push(promise);
+
     this.checkRequests();
   }
-  updateFileAttributes(file, data) {
+  async updateFileAttributes(file, data) {
     file.retryUpload = false;
     let error = null;
 
@@ -466,11 +478,11 @@ class AssetUploader {
       error = data.error;
     } else if (!this.createDuplicates && data.duplicateCandidates && data.duplicateCandidates.length) {
       this.resetFileField(file);
-      this.renderError(file, this.renderDuplicateHtml(data.duplicateCandidates));
-      error = 'Duplikat gefunden!';
+      this.renderError(file, await this.renderDuplicateHtml(data.duplicateCandidates));
+      error = await I18n.translate('frontend.upload.found_duplicate');
     } else {
       if (data.duplicateCandidates && data.duplicateCandidates.length)
-        this.renderErrorHtml(file, 'notice', this.renderDuplicateHtml(data.duplicateCandidates));
+        this.renderErrorHtml(file, 'notice', await this.renderDuplicateHtml(data.duplicateCandidates));
 
       file.uploaded = true;
       file.fileField
@@ -478,46 +490,23 @@ class AssetUploader {
         .removeClass('uploading')
         .addClass('finished')
         .find('.upload-number')
-        .html('hochgeladen, OK');
+        .html(await I18n.translate('frontend.upload.uploaded_successfully'));
       file.asset = Object.assign({}, file.asset, data);
       if (!this.showNewForm) this.updateFileValidated(file, {});
       else this.validateAttributes(file);
     }
     this.updateCreateButton(error);
   }
-  renderDuplicateHtml(duplicates) {
-    let id = uniqueId('duplicate_');
-
-    let duplicateHtml =
-      '<a class="possible-duplicates" data-toggle="' +
-      id +
-      '-duplicates-list" title="Duplikate vorhanden" aria-controls="' +
-      id +
-      '-duplicates-list" aria-haspopup="true"><i class="fa fa-exclamation" aria-hidden="true"></i> Duplikate vorhanden</a>';
-    duplicateHtml +=
-      '<div class="dropdown-pane no-bullet bottom left-auto" id="' +
-      id +
-      '-duplicates-list" data-dropdown data-hover="true" data-hover-pane="true" aria-hidden="true"><h5>mögliche Duplikate</h5><ul class="list-items duplicates-list no-bullet">';
-
-    duplicates.forEach(item => {
-      duplicateHtml +=
-        '<li><a target="_blank" class="duplicate-link" href="/things/' +
-        item.id +
-        '"><img class="lazyload" data-src="' +
-        item.thumbnail_url +
-        '"></li>';
-    });
-
-    duplicateHtml += '</ul></div>';
-
-    return duplicateHtml;
+  async renderDuplicateHtml(duplicates) {
+    let randomId = domElementHelpers.randomId('duplicate');
+    return await uploadDuplicate(randomId, duplicates);
   }
   reset(ids = null) {
     if (ids) {
       $(this.files.filter(f => ids.includes(f.id)).forEach(f => f.fileField.remove()));
       this.files = this.files.filter(f => !ids.includes(f.id));
-      this.files.forEach(file => {
-        this.renderError(file, 'Fehler beim Speichern des Inhalts!');
+      this.files.forEach(async file => {
+        this.renderError(file, await I18n.translate('frontend.upload.error_saving_content'));
       });
     } else {
       this.uploadForm.find('.file-for-upload').remove();
@@ -561,8 +550,12 @@ class AssetUploader {
         .foundation();
     }
   }
-  renderError(file, error) {
-    file.fileField.add(file.fileFormField).addClass('error').find('.upload-number').html('Uploadfehler');
+  async renderError(file, error) {
+    file.fileField
+      .add(file.fileFormField)
+      .addClass('error')
+      .find('.upload-number')
+      .html(await I18n.translate('frontend.upload.upload_error'));
 
     this.renderErrorHtml(file, 'error', error);
     this.updateOverlayButtons(file);
@@ -583,16 +576,16 @@ class AssetUploader {
       this.checkFileAndQueue(newFiles[i]);
     }
   }
-  checkFileAndQueue(file, fileOptions = {}) {
+  async checkFileAndQueue(file, fileOptions = {}) {
     if (this.files.find(f => f.file.name == file.name)) return;
 
-    let id = uniqueId('asset_');
+    let randomId = domElementHelpers.randomId('asset');
     fileOptions = Object.assign(
       {
-        id: id,
+        id: randomId,
         file: file,
         target: this.fileField,
-        html: '<i class="fa fa-circle-o-notch fa-spin file-data-loading"></i>',
+        html: '<i class="fa fa-spinner fa-fw fa-spin file-data-loading"></i>',
         fileExtension: this.getFileExtension(file),
         validation: this.validation,
         uploaded: false,
@@ -602,9 +595,9 @@ class AssetUploader {
     );
 
     this.files.push(fileOptions);
-    this.renderInitialFileField(fileOptions);
-    this.validateFile(fileOptions);
-    this.updateCreateButton('Metadaten müssen für jede Datei ausgefüllt werden!');
+    await this.renderInitialFileField(fileOptions);
+    await this.validateFile(fileOptions);
+    this.updateCreateButton(await I18n.translate('frontend.upload.metadata_warning.many'));
 
     return fileOptions;
   }
@@ -614,41 +607,41 @@ class AssetUploader {
     return MimeTypes.getExtension(mimeType) || file.type.split('/').pop();
   }
   fileThumbHtml(thumbHtml) {
-    return (
-      '<div class="file-thumb">' +
-      thumbHtml +
-      '<span class="upload-number-container"><span class="upload-number"></span></span></div>'
-    );
+    return `<div class="file-thumb">${thumbHtml}<span class="upload-number-container"><span class="upload-number"></span></span></div>`;
   }
-  fileMediaHTML(fileOptions, additionalFileInfo = '') {
-    return (
-      '<div class="file-info"><span class="file-label">Datei</span><span class="file-name" title="' +
-      (fileOptions.file && fileOptions.file.name) +
-      '">' +
-      (fileOptions.file && fileOptions.file.name) +
-      '</span><span class="file-details">' +
-      fileOptions.fileExtension +
-      ', ' +
-      fileOptions.file.size.file_size(1) +
-      additionalFileInfo +
-      '</span></div>' +
-      this.buttonHtml()
-    );
+  async fileMediaHTML(fileOptions, additionalFileInfo = '') {
+    return `
+      <div class="file-info">
+        <span class="file-label">Datei</span>
+        <span class="file-name" title="${fileOptions.file && fileOptions.file.name}">${
+      fileOptions.file && fileOptions.file.name
+    }</span>
+        <span class="file-details">${fileOptions.fileExtension}, ${fileOptions.file.size.file_size(
+      1
+    )}${additionalFileInfo}</span>
+      </div>
+      ${await this.buttonHtml()}
+    `;
   }
-  buttonHtml() {
+  async buttonHtml() {
     let html = '<div class="file-buttons">';
     if (this.contentUploader && this.showNewForm)
-      html +=
-        '<button class="button edit-upload-button" title="Inhalt bearbeiten"><i class="fa fa-pencil" aria-hidden="true"></i></button>';
-    html +=
-      '<button class="button retry-upload-button" title="Erneut hochladen"><i class="fa fa-refresh" aria-hidden="true"></i></button><button class="button cancel-upload-button alert" title="Datei entfernen"><i class="fa fa-minus" aria-hidden="true"></i></button></div>';
+      html += `<button class="button edit-upload-button" title="${await I18n.translate(
+        'frontend.upload.edit_content'
+      )}"><i class="fa fa-pencil" aria-hidden="true"></i></button>`;
+    html += `<button class="button retry-upload-button" title="${await I18n.translate(
+      'frontend.upload.retry_upload'
+    )}"><i class="fa fa-refresh" aria-hidden="true"></i></button><button class="button cancel-upload-button alert" title="${await I18n.translate(
+      'frontend.upload.remove_file'
+    )}"><i class="fa fa-minus" aria-hidden="true"></i></button></div>`;
+
     return html;
   }
-  fileAppendHTML(fileOptions) {
+  fileAppendHTML(_fileOptions) {
     return '<div class="upload-progress"><span class="upload-progress-bar"></span></div>';
   }
-  validateFile(fileOptions = {}) {
-    fileOptions.mediaHtml = this.fileMediaHTML(fileOptions);
+  async validateFile(fileOptions = {}) {
+    fileOptions.mediaHtml = await this.fileMediaHTML(fileOptions);
     fileOptions.appendHtml = this.fileAppendHTML(fileOptions);
     if (!fileOptions.fileUrl) fileOptions.fileUrl = URL.createObjectURL(fileOptions.file);
 
@@ -671,8 +664,8 @@ class AssetUploader {
         '"><i class="fa fa-picture-o" aria-hidden="true"></i></object>'
     );
     var theImage = new Image();
-    theImage.onload = function () {
-      fileOptions.mediaHtml = that.fileMediaHTML(
+    theImage.onload = async function () {
+      fileOptions.mediaHtml = await that.fileMediaHTML(
         fileOptions,
         ', ' + theImage.naturalWidth + 'x' + theImage.naturalHeight + 'px'
       );
@@ -691,9 +684,9 @@ class AssetUploader {
     var that = this;
     fileOptions.prependHtml = this.fileThumbHtml('<i class="fa fa-video-camera" aria-hidden="true"></i>');
     var theVideo = document.createElement('video');
-    theVideo.onloadedmetadata = function () {
+    theVideo.onloadedmetadata = async function () {
       window.URL.revokeObjectURL(this.src);
-      fileOptions.mediaHtml = that.fileMediaHTML(
+      fileOptions.mediaHtml = await that.fileMediaHTML(
         fileOptions,
         ', ' +
           theVideo.videoWidth +
@@ -708,7 +701,7 @@ class AssetUploader {
       };
       that.validateAndRender(fileOptions);
     };
-    theVideo.onerror = function () {
+    theVideo.onerror = () => {
       that.validateAndRender(fileOptions);
     };
     theVideo.setAttribute('src', fileOptions.fileUrl);
@@ -729,34 +722,31 @@ class AssetUploader {
     fileOptions.prependHtml = this.fileThumbHtml('<i class="fa fa-file-o" aria-hidden="true"></i>');
     this.validateAndRender(fileOptions);
   }
-  validateAndRender(fileOptions) {
-    fileOptions.html =
-      '<div class="new-asset-attributes">' +
-      fileOptions.prependHtml +
-      fileOptions.mediaHtml +
-      '</div>' +
-      fileOptions.appendHtml;
+  async validateAndRender(fileOptions) {
+    fileOptions.html = `<div class="new-asset-attributes">${fileOptions.prependHtml}${fileOptions.mediaHtml}</div>${fileOptions.appendHtml}`;
 
     fileOptions.validator = new AssetValidator(fileOptions);
-    fileOptions.valid = fileOptions.validator.validate();
+    fileOptions.valid = await fileOptions.validator.validate();
 
     if (fileOptions.validation && !fileOptions.valid.valid) {
       fileOptions.errors = fileOptions.valid.messages.join(', ');
     } else if (!fileOptions.validation) {
-      fileOptions.errors = 'Nicht unterstützes Format (' + fileOptions.fileExtension + ')';
+      fileOptions.errors = await I18n.translate('frontend.upload.format_not_supported', {
+        data: fileOptions.fileExtension
+      });
     }
     this.renderFileField(fileOptions);
     if (!fileOptions.errors) this.uploadFile(fileOptions);
   }
-  updateCreateButton(error = null) {
+  async updateCreateButton(error = null) {
     if (this.files.length && !this.files.filter(f => !f.attributeFieldsValidated || !f.uploaded).length) {
       DataCycle.enableElement(this.createButton);
     } else {
       DataCycle.disableElement(this.createButton);
-      if (!error) error = 'Fehlende Metadaten!';
+      if (!error) error = await I18n.translate('frontend.upload.missing_metadata');
     }
 
-    if (error) this.createButton.attr('title', 'Fehler: ' + error);
+    if (error) this.createButton.attr('title', `${await I18n.translate('frontend.upload.error')}: ${error}`);
     else this.createButton.removeAttr('title');
   }
   renderEditOverlay(fileOptions) {
@@ -787,17 +777,15 @@ class AssetUploader {
     return html;
   }
   updateIdsInClonedErrors(errorText) {
-    let newId = uniqueId('cloned_asset_');
-    errorText = errorText.replaceAll(/(")([^"-]*)(-duplicates-list)/gi, '$1' + newId + '$3');
+    let randomId = domElementHelpers.randomId('cloned_asset');
+    errorText = errorText.replaceAll(/(")([^"-]*)(-duplicates-list)/gi, '$1' + randomId + '$3');
     return errorText;
   }
-  renderInitialFileField(fileOptions) {
+  async renderInitialFileField(fileOptions) {
     fileOptions.fileField = $(
-      '<div class="file-for-upload" title="Metadaten müssen ausgefüllt werden!" data-file="' +
-        fileOptions.file.name +
-        '" data-id="' +
-        fileOptions.id +
-        '"></div>'
+      `<div class="file-for-upload" title="${await I18n.translate(
+        'frontend.upload.metadata_warning.one'
+      )}" data-file="${fileOptions.file.name}" data-id="${fileOptions.id}"></div>`
     ).insertBefore(fileOptions.target);
   }
   renderFileField(fileOptions) {

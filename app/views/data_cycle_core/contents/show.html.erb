@@ -4,6 +4,10 @@
   <%= render_content_partial 'header', content: @content %>
 <% end %>
 
+<% content_for :title do %>
+  <%= "#{@content.translated_template_name(active_ui_locale)}: #{@content.title}" %>
+<% end %>
+
 <% if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container') %>
   <ul class="accordion container-details" data-accordion data-allow-all-closed="true">
     <li class="accordion-item is-active" data-accordion-item>
@@ -12,8 +16,8 @@
       </div>
       <a href="#" class="accordion-title">
         <span><i class="fa fa-chevron-down" aria-hidden="true"></i>
-          <span class="closed"><%= t('common.details.show') %></span>
-          <span class="open"><%= t('common.details.hide') %></span>
+          <span class="closed"><%= t('common.details.show', locale: active_ui_locale) %></span>
+          <span class="open"><%= t('common.details.hide', locale: active_ui_locale) %></span>
         </span>
       </a>
     </li>
@@ -35,11 +39,11 @@
 
   <%= render 'data_cycle_core/duplicate_candidates/duplicate_candidates', content: @content, prefix: local_assigns.dig(:options, :prefix) if DataCycleCore::Feature::DuplicateCandidate.enabled? && can?(:merge_duplicates, @content) && @content.duplicates.any? %>
 
-  <% if @content.related_contents.exists? %>
+  <% if can?(:show_related, @content) && @content.related_contents.exists? %>
     <div id="related-contents-<%= @content&.id %>"
         class="remote-render"
         data-remote-path="data_cycle_core/contents/related"
-        data-remote-options="<%= to_query_params({content: @content, options: options ||= {}}).to_json %>">
+        data-remote-options="<%= to_query_params({ content: @content, options: options ||= {}, locale: I18n.locale }).to_json %>">
     </div>
   <% end %>
 <% end %>

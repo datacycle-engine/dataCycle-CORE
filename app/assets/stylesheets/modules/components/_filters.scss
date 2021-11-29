@@ -107,6 +107,17 @@ $filter-border: #aaa;
           box-shadow: inset 0 1px 2px rgba($black, 0.1);
         }
 
+        &.conditional-value-selector {
+          .advanced-filter-selector {
+            display: block;
+
+            select[disabled],
+            select[disabled] + .select2 {
+              display: none;
+            }
+          }
+        }
+
         .separator {
           padding: 0 1rem;
           &:last-child {
@@ -117,11 +128,15 @@ $filter-border: #aaa;
           }
         }
 
-        &.i {
+        &.i,
+        &.s,
+        &.p {
           box-shadow: 0 0 0 1px $success-color, 0 0 5px 3px $success-color;
         }
 
-        &.e {
+        &.e,
+        &.u,
+        &.b {
           box-shadow: 0 0 4px 2px rgba($alert-color, 0.8);
         }
 
@@ -275,6 +290,14 @@ $filter-border: #aaa;
     strong,
     b {
       color: $primary-color;
+    }
+
+    .select2-container,
+    .tag {
+      strong,
+      b {
+        color: inherit;
+      }
     }
 
     span.title {
@@ -628,8 +651,10 @@ $filter-border: #aaa;
       box-shadow: 0 0 5px lighten($color: $black, $amount: 20%);
 
       &.e,
-      &.u {
+      &.u,
+      &.b {
         box-shadow: 0 0 5px 2px rgba($alert-color, 0.8);
+
         .tag {
           position: relative;
           &::after {
@@ -646,7 +671,8 @@ $filter-border: #aaa;
       }
 
       &.i,
-      &.s {
+      &.s,
+      &.p {
         box-shadow: 0 0 5px 3px $success-color;
       }
 
@@ -1303,6 +1329,7 @@ $filter-border: #aaa;
       }
     }
   }
+
   .result-count {
     display: flex;
     flex-flow: row nowrap;
@@ -1310,16 +1337,25 @@ $filter-border: #aaa;
     padding: 0.6rem;
     margin-right: auto;
     border: 1px solid $light-gray;
+    min-width: 6rem;
 
-    > *:not(:last-child) {
+    &.remote-render,
+    &.remote-rendering {
+      justify-content: flex-start;
+
+      &::before {
+        margin-top: 0.6rem;
+        margin-left: 0.6rem;
+        width: calc(100% - 1.2rem);
+      }
+    }
+
+    b {
       margin-right: 0.3rem;
     }
 
-    .loading {
-      padding: 0;
-      .fa {
-        font-size: 1.3rem;
-      }
+    > *:not(:last-child) {
+      margin-right: 0.3rem;
     }
   }
 }
@@ -1444,13 +1480,20 @@ $filter-border: #aaa;
             }
           }
 
-          &.content-date {
+          &.content-date,
+          &.stored-filter-creator {
             float: right;
+            margin-left: 0.75rem;
             font-size: 0.9rem;
             color: lighten($dark-gray, 10%);
 
             i {
               font-size: 0.9rem;
+              margin: 0;
+            }
+
+            a {
+              color: lighten($dark-gray, 10%);
             }
           }
 

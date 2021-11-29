@@ -13,7 +13,7 @@ module DataCycleCore
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
 
           ActiveRecord::Base.transaction do
-            ActiveRecord::Base.connection.execute("SET LOCAL statement_timeout = #{puma_max_timeout * 1000}")
+            ActiveRecord::Base.connection.execute(ActiveRecord::Base.sanitize_sql_for_conditions(['SET LOCAL statement_timeout = ?', puma_max_timeout * 1000]))
 
             Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
               query = build_search_query
@@ -51,6 +51,19 @@ module DataCycleCore
           end
         end
 
+        def typeahead
+          query = build_search_query
+          result = query.typeahead(permitted_params[:search], @language, permitted_params[:limit] || 10)
+          words = result.to_a.map { |i| i.dig('word') } # score not needed
+          render json: {
+            '@context' => api_plain_context(@language),
+            '@graph' => {
+              '@type' => 'dcls:Statistics',
+              'suggest' => words
+            }
+          }
+        end
+
         def deleted
           deleted_contents = DataCycleCore::Thing::History.where(
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
@@ -74,7 +87,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, uuid: []] + [filter: {}] + ['dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :search, :limit, uuid: []] + [filter: {}] + ['dc:liveData': [:'@id', :minPrice]]
         end
 
         def permitted_filter_parameters

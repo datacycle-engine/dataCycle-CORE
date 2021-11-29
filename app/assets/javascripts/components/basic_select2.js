@@ -1,4 +1,7 @@
+import Select2 from 'select2';
 import difference from 'lodash/difference';
+import i18nDe from '../helpers/select2_i18n_de';
+import i18nEn from '../helpers/select2_i18n_en';
 
 class BasicSelect2 {
   constructor(element) {
@@ -11,8 +14,29 @@ class BasicSelect2 {
       createTag: this.createTag.bind(this)
     };
     this.select2Object = null;
+    this.eventHandlers = {
+      reset: this.reset.bind(this),
+      import: this.import.bind(this),
+      destroy: this.destroy.bind(this),
+      suppressChange: this.suppressChangeEvent.bind(this),
+      resizeDropdown: this.resizeDropdownEvent.bind(this)
+    };
   }
   init() {
+    if (!$.fn.select2) {
+      Select2($);
+      $.fn.select2.defaults.set('width', '100%');
+
+      switch (DataCycle.uiLocale) {
+        case 'de':
+          $.fn.select2.defaults.set('language', i18nDe);
+          break;
+        case 'en':
+          $.fn.select2.defaults.set('language', i18nEn);
+          break;
+      }
+    }
+
     this.initSelect2();
     this.initEventHandlers();
     this.initSpecificEventHandlers();
@@ -25,11 +49,17 @@ class BasicSelect2 {
     this.select2Object = this.$element.data('select2');
   }
   initEventHandlers() {
-    this.$element.closest('form').on('reset', this.reset.bind(this));
-    this.$element.closest('.form-element').on('dc:field:reset', this.reset.bind(this));
-    this.$element.on('dc:import:data', this.import.bind(this));
-    this.$element.on('dc:select:destroy', this.destroy.bind(this));
-    this.$element.parent().on('change', '.select2-search__field', this.suppressChangeEvent.bind(this));
+    this.$element.closest('form').on('reset', this.eventHandlers.reset);
+    this.$element.closest('.form-element').on('dc:field:reset', this.eventHandlers.reset);
+    this.$element.on('dc:import:data', this.eventHandlers.import);
+    this.$element.on('dc:select:destroy', this.eventHandlers.destroy);
+    this.$element.parent().on('change', '.select2-search__field', this.eventHandlers.suppressChange);
+    this.$element.on('change', this.eventHandlers.resizeDropdown);
+  }
+  resizeDropdownEvent(_event) {
+    const $dropdown = this.$element.closest('.dropdown-pane');
+
+    if ($dropdown.length) $dropdown.trigger('dc:dropdown:resize');
   }
   suppressChangeEvent(event) {
     event.stopPropagation();
@@ -39,13 +69,14 @@ class BasicSelect2 {
   }
   destroy(_event) {
     this.$element.select2('destroy');
-    this.$element.closest('form').off('reset');
-    this.$element.off('dc:import:data');
-    this.$element.off('dc:select:destroy');
-    this.$element.closest('.form-element').off('dc:field:reset');
+    this.$element.closest('form').off('reset', this.eventHandlers.reset);
+    this.$element.off('dc:import:data', this.eventHandlers.import);
+    this.$element.off('dc:select:destroy', this.eventHandlers.destroy);
+    this.$element.closest('.form-element').off('dc:field:reset', this.eventHandlers.reset);
+    this.$element.parent().off('change', '.select2-search__field', this.eventHandlers.suppressChange);
   }
   initSpecificEventHandlers() {}
-  import(_event, data) {
+  async import(_event, data) {
     if (!data.value || !data.value.length) return;
 
     let value = this.$element.val();
@@ -56,9 +87,9 @@ class BasicSelect2 {
     data.value = data.value.filter(Boolean);
     let diff = difference(data.value, value);
 
-    if (diff.length) this.loadNewOptions(value, diff);
+    if (diff.length) await this.loadNewOptions(value, diff);
   }
-  loadNewOptions(_value, _options) {}
+  async loadNewOptions(_value, _options) {}
   markMatch(text, term) {
     let match = text.toLowerCase().lastIndexOf(term.toLowerCase());
     let $result = $('<span></span>');
@@ -77,18 +108,36 @@ class BasicSelect2 {
 
     return $result;
   }
+  addCollectionLinksToResults(data, container) {
+    const htmlClass = this.getClassFromData(data);
+    let linkType = null;
+
+    if (htmlClass.includes('watch_list')) linkType = 'watch_lists';
+    else if (htmlClass.includes('stored_filter')) linkType = 'search_history';
+
+    if (linkType)
+      $(container).append(
+        `<a href="/${DataCycle.joinPath(
+          DataCycle.config.EnginePath,
+          linkType,
+          data.id
+        )}" target="_blank" class="open-selection-link"><i class="fa fa-external-link" aria-hidden="true"></i></a>`
+      );
+  }
+  getClassFromData(data) {
+    if (data.html_class) return data.html_class || '';
+    else if (data.element) return $(data.element).attr('class') || '';
+
+    return '';
+  }
   copySelect2Classes(data, container) {
     if (this.select2Object && (container == undefined || $(container).hasClass('select2-selection__rendered')))
       this.select2Object.$selection.find('.select2-selection__rendered').prop('class', 'select2-selection__rendered');
 
-    if (data.class) {
-      $(container).addClass(data.class);
-    } else if (data.element) {
-      $(container).addClass($(data.element).attr('class'));
-    }
+    $(container).addClass(this.getClassFromData(data));
   }
   decorateResult(result) {
-    $(result).html(function (index, value) {
+    $(result).html(function (_index, value) {
       if (value != undefined) {
         var text = value.split(' &gt; ');
         text[text.length - 1] = '<span class="select2-option-title">' + text[text.length - 1] + '</span>';
@@ -99,7 +148,7 @@ class BasicSelect2 {
   removeTreeLabel(result) {
     if (!this.config.treeLabel) return;
 
-    $(result).html((index, value) => {
+    $(result).html((_index, value) => {
       if (value != undefined) {
         return value.replace(this.config.treeLabel + ' &gt; ', '');
       }

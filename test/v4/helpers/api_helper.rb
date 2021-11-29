@@ -20,6 +20,7 @@ module DataCycleCore
           'asset', # disabled asset property for tests,
           'tour', # active after tour refactoring
           'additional_information',
+          'explicit_copyright_notice', # TODO: fix if final solution is in sight ... everywhere ... will change again ...
           'publication_schedule', # creativeWorks: publicationSchedule
           'release_status_comment', # creativeWorks: publicationSchedule
           'dc_potential_action', # TODO: temporary attribute will be moded to potential_action,
@@ -49,7 +50,7 @@ module DataCycleCore
 
       def assert_full_thing_datahash(thing)
         filled_keys = thing.get_data_hash.select { |_k, v| v.present? }.keys
-        excluded_keys = EXCLUDED_PROPERTIES + DataCycleCore.internal_data_attributes + excluded_properties_for(thing)
+        excluded_keys = EXCLUDED_PROPERTIES + DataCycleCore.internal_data_attributes + excluded_properties_for(thing) + thing.virtual_property_names
         assert_equal([], thing.property_names - filled_keys - excluded_keys)
       end
 
@@ -122,7 +123,7 @@ module DataCycleCore
       end
 
       def required_validation_attributes(thing)
-        excluded_keys = EXCLUDED_PROPERTIES + DataCycleCore.internal_data_attributes + excluded_properties_for(thing)
+        excluded_keys = EXCLUDED_PROPERTIES + DataCycleCore.internal_data_attributes + excluded_properties_for(thing) + thing.virtual_property_names
         thing.property_names - excluded_keys
       end
 

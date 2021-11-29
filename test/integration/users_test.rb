@@ -26,7 +26,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal I18n.t('devise.failure.invalid', locale: DataCycleCore.ui_language), flash[:alert]
+      assert_equal I18n.t('devise.failure.invalid', locale: DataCycleCore.ui_locales.first), flash[:alert]
     end
 
     test 'user settings page' do
@@ -62,7 +62,7 @@ module DataCycleCore
       }
 
       assert_redirected_to users_path
-      assert_equal I18n.t(:created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
       assert_select 'li.grid-item .inner .description', user[:email]
       created_user = DataCycleCore::User.find_by(email: user[:email])
@@ -84,7 +84,7 @@ module DataCycleCore
       }
 
       assert_redirected_to users_path
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
       assert_select 'li.grid-item > .inner > .title', "Guest1 #{user.family_name}"
       assert_select 'li.grid-item > .inner > .token', { count: 1, text: /.+/ }
@@ -101,14 +101,14 @@ module DataCycleCore
       }
 
       assert_redirected_to users_path
-      assert_equal I18n.t(:locked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language), flash[:notice]
+      assert_equal I18n.t(:locked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:notice]
 
       post unlock_user_path(user), params: {}, headers: {
         referer: users_path
       }
 
       assert_redirected_to users_path
-      assert_equal I18n.t(:unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language), flash[:notice]
+      assert_equal I18n.t(:unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_locales.first), flash[:notice]
     end
 
     test 'search user by email' do

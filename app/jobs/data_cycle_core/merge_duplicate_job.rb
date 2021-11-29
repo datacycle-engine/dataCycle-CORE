@@ -46,7 +46,7 @@ module DataCycleCore
           next
         end
 
-        content.to_history(save_time: save_time)
+        content.to_history
         update_contents.each do |c|
           c.update_columns(updated_at: save_time, updated_by: nil)
         end

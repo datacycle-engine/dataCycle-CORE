@@ -1,68 +1,11 @@
-import ConfirmationModal from './../components/confirmation_modal';
 import SplitView from './../components/split_view';
+import SimpleFields from '../components/SimpleFields';
 
 export default function () {
-  init('.flex-box .detail-content .properties');
+  if (document.querySelector('.flex-box .detail-content .properties'))
+    new SplitView(document.querySelector('.flex-box .detail-content .properties'));
 
-  function init(container) {
-    new SplitView(container);
-  }
-
-  // add eventhandlers for editor fields
-  $(document).on(
-    'dc:import:data',
-    '.form-element.string:not(.text_editor) > input[type="text"]',
-    function (event, data) {
-      if ($(event.target).val().length === 0 || (data && data.force)) {
-        $(event.target).val(data.value).trigger('input');
-      } else {
-        new ConfirmationModal({
-          text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-          confirmationText: 'Ja',
-          cancelText: 'Nein',
-          confirmationClass: 'success',
-          cancelable: true,
-          confirmationCallback: function () {
-            $(event.target).val(data.value).trigger('input');
-          }
-        });
-      }
-    }
-  );
-
-  $(document).on('dc:import:data', '.form-element.number > input[type="number"]', function (event, data) {
-    if ($(event.target).val().length === 0 || (data && data.force)) {
-      $(event.target).val(data.value).trigger('input');
-    } else {
-      new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: function () {
-          $(event.target).val(data.value).trigger('input');
-        }
-      });
-    }
-  });
-
-  $(document).on('dc:import:data', '.form-element.boolean :checkbox', function (event, data) {
-    if (data && data.force) {
-      $(event.target).prop('checked', data.value);
-    } else {
-      new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: function () {
-          $(event.target).prop('checked', data.value);
-        }
-      });
-    }
-  });
+  new SimpleFields(document);
 
   // SPLIT CONTENT
   if ($('.split-content').length) {

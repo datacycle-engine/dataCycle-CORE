@@ -65,8 +65,8 @@ module DataCycleCore
       assert_equal(13, DataCycleCore::Thing.count - cw_temp)
       assert_equal(13, DataCycleCore::Thing::Translation.count) # - cw_temp (empty translations from Globalize)
       assert_equal(15, DataCycleCore::ClassificationContent.count)
-      assert_equal(1, DataCycleCore::Thing::History.count)
-      assert_equal(1, DataCycleCore::Thing::History::Translation.count)
+      assert_equal(0, DataCycleCore::Thing::History.count)
+      assert_equal(0, DataCycleCore::Thing::History::Translation.count)
 
       data_set.set_data_hash(data_hash: data_hash.merge({ 'name' => 'changed Quiz!' }), partial_update: true)
 
@@ -74,8 +74,8 @@ module DataCycleCore
       assert_equal(13, DataCycleCore::Thing::Translation.count) # - cw_temp (empty translations from Globalize)
       assert_equal(15, DataCycleCore::ClassificationContent.count)
 
-      assert_equal(14, DataCycleCore::Thing::History.count)
-      assert_equal(14, DataCycleCore::Thing::History::Translation.count)
+      assert_equal(13, DataCycleCore::Thing::History.count)
+      assert_equal(13, DataCycleCore::Thing::History::Translation.count)
       assert_equal(15, DataCycleCore::ClassificationContent::History.count)
 
       data_set.histories.each(&:destroy_content)
@@ -120,10 +120,10 @@ module DataCycleCore
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 
-      error = data_set.set_data_hash(data_hash: data_hash, new_content: true)
+      data_set.set_data_hash(data_hash: data_hash, new_content: true)
       returned_data_hash = data_set.get_data_hash
 
-      assert_equal(0, error[:error].count)
+      assert_equal(0, data_set.errors.size)
       assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *DataCycleCore::TestPreparations.excepted_attributes('creative_work')).compact)
       assert_equal(data_hash['question'][0], returned_data_hash['question'][0].compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
 
@@ -131,8 +131,8 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Thing.count - cw_temp)
       assert_equal(2, DataCycleCore::Thing::Translation.count)  # - cw_temp (empty translations from Globalize)
       assert_equal(4, DataCycleCore::ClassificationContent.count)
-      assert_equal(1, DataCycleCore::Thing::History.count)
-      assert_equal(1, DataCycleCore::Thing::History::Translation.count)
+      assert_equal(0, DataCycleCore::Thing::History.count)
+      assert_equal(0, DataCycleCore::Thing::History::Translation.count)
 
       data_set.set_data_hash(data_hash: data_hash.merge({ 'name' => 'changed Quiz!' }), partial_update: true)
 
@@ -140,8 +140,8 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Thing::Translation.count)  # - cw_temp (empty translations from Globalize)
       assert_equal(4, DataCycleCore::ClassificationContent.count)
 
-      assert_equal(3, DataCycleCore::Thing::History.count)
-      assert_equal(3, DataCycleCore::Thing::History::Translation.count)
+      assert_equal(2, DataCycleCore::Thing::History.count)
+      assert_equal(2, DataCycleCore::Thing::History::Translation.count)
       assert_equal(4, DataCycleCore::ClassificationContent::History.count)
 
       data_set.histories.each do |item|

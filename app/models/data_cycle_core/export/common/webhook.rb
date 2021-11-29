@@ -33,9 +33,30 @@ module DataCycleCore
         end
 
         def before(job)
-          first_available_job = Delayed::Job.where(queue: queue_name, delayed_reference_id: @data.id, delayed_reference_type: reference_type).find_by('created_at < ?', job.created_at)
+          previous_job = Delayed::Job.where(queue: queue_name, delayed_reference_id: @data.id, delayed_reference_type: reference_type).order(created_at: :desc).find_by('created_at < ?', job.created_at)
 
-          raise DataCycleCore::Export::Common::Error::WebhookError, "Delayed job sequential error for: #{job.id} (parent: #{first_available_job.id})" unless first_available_job.nil?
+          return if previous_job.nil?
+
+          begin
+            previous_job.invoke_job
+            previous_job.destroy!
+          rescue StandardError
+            raise DataCycleCore::Export::Common::Error::WebhookError, "Delayed job sequential error for: #{job.id} (parent: #{previous_job.id})"
+          end
+        end
+
+        def success(job)
+          # rubocop:disable Security/YAMLLoad, Style/GuardClause
+          if job.created_at
+            Appsignal.add_distribution_value('delayed_job.waiting_time', (Time.zone.now - job.created_at) / 60,
+                                             { job_class: YAML.load(job.handler).class.name, queue: job.queue })
+          end
+
+          if job.attempts
+            Appsignal.add_distribution_value('delayed_job.attempt_count', job.attempts,
+                                             { job_class: YAML.load(job.handler).class.name, queue: job.queue })
+          end
+          # rubocop:enable Security/YAMLLoad, Style/GuardClause
         end
       end
     end

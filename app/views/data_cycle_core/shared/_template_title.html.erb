@@ -1,13 +1,9 @@
-<% template_title = t("content_type.#{content.template_name.underscore_blanks}",
-                      default: content.template_name.titleize,
-                      locale: DataCycleCore.ui_language) %>
-
-<span class="template-title" title="<%= template_title %>">
-  <%= template_title %>
+<span class="template-title" title="<%= content.translated_template_name(active_ui_locale) %>">
+  <%= content.translated_template_name(active_ui_locale) %>
 </span>
 
-<% if local_assigns[:languages].present? && languages.size <= 2 %>
-  <span class="locale">(<%= languages.join(', ') %>)</span>
-<% elsif local_assigns[:languages].present? %>
-  <span class="locale" title="<%= languages.join(', ') %>">(<%= languages[0..1].join(', ') %>, &hellip;)</span>
+<% if local_assigns[:languages].present? %>
+  <span class="template-locale" title="<%= languages.join(', ') %>">
+    (<%= languages.slice(0, 2).join(', ') %><%= ', &hellip;' if languages.size > 2 %>)
+  </span>
 <% end %>

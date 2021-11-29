@@ -1,5 +1,5 @@
 export default (function () {
-  String.prototype.getKey = function () {
+  String.prototype.getAttributeKey = function () {
     return this.split(/[\[\]]+/)
       .filter(elem => elem && elem.length)
       .pop();

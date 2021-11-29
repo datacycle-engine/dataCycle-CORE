@@ -71,6 +71,25 @@ module DataCycleCore
       poi_data_hash
     end
 
+    def poi1
+      poi_data_hash = process_poi1_data_hash(DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'poi1_de'))
+      content = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: poi_data_hash, user: @user)
+      I18n.with_locale(:en) { content.set_data_hash(data_hash: process_poi1_data_hash(DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'poi1_en'))) }
+      content
+    end
+
+    def process_poi1_data_hash(hash)
+      hash['additional_information'] = hash['additional_information']
+        .sort_by { |a| a['name'] }
+        .zip(
+          [
+            DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', 'description'),
+            DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', 'parking')
+          ]
+        ).map { |data, classification| data.merge('universal_classifications' => Array.wrap(classification)) }
+      hash
+    end
+
     def bergfex_snowresort
       snow_resort_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_bergfex_snowresort')
 

@@ -7,11 +7,15 @@ module DataCycleCore
     private
 
     def transform_exisiting_values(bulk_edit_types, template_hash, data_hash, content)
-      bulk_edit_types&.each do |k, v|
+      data_hash[:datahash] ||= {}
+
+      bulk_edit_types[:datahash]&.each do |k, v|
+        data_hash[:datahash][k] ||= nil
+
         if v.include?('add')
-          data_hash[k] = get_content_value(k, template_hash, content) + data_hash[k]
+          data_hash[:datahash][k] = get_content_value(k, template_hash, content) + data_hash[:datahash][k]
         elsif v.include?('remove')
-          data_hash[k] = get_content_value(k, template_hash, content) - data_hash[k]
+          data_hash[:datahash][k] = get_content_value(k, template_hash, content) - data_hash[:datahash][k]
         end
       end
 

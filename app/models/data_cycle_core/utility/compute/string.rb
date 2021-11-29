@@ -19,6 +19,8 @@ module DataCycleCore
               definition.dig('type').constantize.send(definition.dig('name'))
             when 'content'
               args.dig(:data_hash).dig(definition.dig('name')) || args.dig(:content).send(definition.dig('name'))
+            when 'value'
+              args.dig(:data_hash).dig('translation_type') || definition.dig('value')
             else
               raise 'Unknown type for string transformation'
             end
@@ -37,6 +39,26 @@ module DataCycleCore
             end
 
             attribution_name.compact.presence&.join(' / ')&.prepend('(c) ')
+          end
+
+          def number_of_characters(computed_parameters:, data_hash:, **_args)
+            recursive_char_count(data_hash, computed_parameters.first.dig('paths'))&.flatten&.compact&.sum
+          end
+
+          private
+
+          def recursive_char_count(data, parameters)
+            return if parameters.blank? || data.blank?
+
+            parameters.map do |parameter|
+              if parameter.is_a?(::Hash)
+                parameter.map do |k, v|
+                  data.dig(k)&.map { |s| recursive_char_count(s, v) }
+                end
+              else
+                ActionController::Base.helpers.strip_tags(data.dig(parameter).to_s).size
+              end
+            end
           end
         end
       end

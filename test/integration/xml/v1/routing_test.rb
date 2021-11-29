@@ -125,7 +125,7 @@ module DataCycleCore
         test '/xml/v1/classification_trees' do
           get xml_v1_classification_trees_path
 
-          count = DataCycleCore::ClassificationTreeLabel.all.count
+          count = DataCycleCore::ClassificationTreeLabel.where("ARRAY['xml']::VARCHAR[] && visibility").count
 
           assert_response :success
           assert_equal response.content_type, 'application/xml'

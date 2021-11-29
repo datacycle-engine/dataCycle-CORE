@@ -1,4 +1,4 @@
-<% collections, collection_groups, new_index, nested, group_title = get_collection_groups(local_assigns, true) %>
+<% collections, collection_groups, new_index, nested, group_title = get_collection_groups(local_assigns) %>
 
 <% content_for :collection_links do %>
   <% if collection_groups.except(nil).present? %>
@@ -20,5 +20,7 @@
     </ul>
   </li>
 <% else %>
+  <%= render_my_selection content: local_assigns[:content], type: 'editable' %>
+
   <%= yield_content! :collection_links %>
 <% end %>

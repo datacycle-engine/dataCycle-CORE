@@ -28,7 +28,7 @@ module DataCycleCore
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
-                assert_equal('MediaObject', json_data.dig('@type'))
+                assert_equal('MediaObject', json_data.dig('@type').last)
                 assert_equal('PDF', json_data.dig('contentType'))
                 assert_equal(root_url[0...-1] + api_v2_thing_path(id: @content), json_data.dig('@id'))
                 assert_equal(@content.id, json_data.dig('identifier'))
@@ -56,7 +56,11 @@ module DataCycleCore
                 assert_equal(@content.name, json_data.dig('headline'))
                 assert_equal(@content.description, json_data.dig('description'))
                 assert_equal(@content.content_url, json_data.dig('contentUrl'))
-                assert_equal(@content.thumbnail_url, json_data.dig('thumbnailUrl'))
+                if json_data.dig('thumbnailUrl').present?
+                  assert_equal(@content.thumbnail_url, json_data.dig('thumbnailUrl'))
+                else
+                  assert_nil(@content.thumbnail_url)
+                end
                 assert_equal(@content.content_size, json_data.dig('contentSize'))
                 assert_equal(@content.file_format, json_data.dig('fileFormat'))
 

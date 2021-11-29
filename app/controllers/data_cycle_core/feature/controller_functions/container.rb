@@ -17,7 +17,7 @@ module DataCycleCore
           @content = DataCycleCore::Thing.find(params[:id])
           authorize! :edit, @content
 
-          redirect_back(fallback_location: root_path, alert: I18n.t(:invalid_parent, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if parent_params[:parent_id].blank?
+          redirect_back(fallback_location: root_path, alert: I18n.t(:invalid_parent, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return if parent_params[:parent_id].blank?
 
           @parent = DataCycleCore::Thing.find(parent_params[:parent_id])
 
@@ -35,11 +35,10 @@ module DataCycleCore
 
             @content.is_part_of = @parent.id
             @content.save(touch: false)
-            valid = @content.set_data_hash(update_hash)
-            if valid[:error].present?
-              redirect_back(fallback_location: root_path, alert: valid[:error])
+            if @content.set_data_hash(update_hash)
+              redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: helpers.active_ui_locale, data: @parent.title))
             else
-              redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @parent.title))
+              redirect_back(fallback_location: root_path, alert: @content.errors.messages)
             end
           end
         end

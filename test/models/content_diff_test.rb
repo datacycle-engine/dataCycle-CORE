@@ -11,7 +11,7 @@ module DataCycleCore
         'name' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???'
       }
-      content_data = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, prevent_history: true)
+      content_data = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash)
       content_hash = content_data.get_data_hash
 
       # diff = content_data.diff(content_hash)
@@ -69,16 +69,15 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::ClassificationContent::History.count)
 
       history_data = content_data.histories.first
-      temp = history_data.history_valid.last + (history_data.history_valid.first - history_data.history_valid.last) / 2
-      history_data_hash = history_data.get_data_hash(temp)
+      history_data_hash = history_data.get_data_hash
       assert_equal(false, history_data.diff?(content_hash))
       assert_equal(true,  history_data.diff?(content_data.get_data_hash))
       assert_equal(true,  content_data.diff?(history_data_hash))
 
       assert_equal(diff_hash,   history_data.diff(content_data.get_data_hash))
-      assert_equal(diff_hash_t, content_data.diff(history_data.get_data_hash(temp)))
+      assert_equal(diff_hash_t, content_data.diff(history_data.get_data_hash))
 
-      history_hash = history_data.get_data_hash(temp)
+      history_hash = history_data.get_data_hash
       assert_equal(diff_hash_t, content_data.diff(history_hash))
     end
     # TODO: add test incl. embedded + linked

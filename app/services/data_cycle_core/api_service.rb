@@ -306,7 +306,7 @@ module DataCycleCore
       raise 'API Bad Request Error' unless unpermitted_params.is_a?(Hash)
 
       validation_params = unpermitted_params&.deep_symbolize_keys
-      linked_params = validation_params[:filter].delete(:linked) if validation_params.dig(:filter, :linked).present?
+      linked_params = validation_params.delete(:linked) if validation_params.dig(:linked).present?
 
       validation = validator.call(validation_params)
       validation_errors = validation.errors.to_h.present? ? api_errors(validation.errors) : []

@@ -1,3 +1,6 @@
+import loadingIcon from '../templates/loadingIcon';
+import ConfirmationModal from './confirmation_modal';
+
 class AssetSelector {
   constructor(selector) {
     this.reveal = $(selector);
@@ -10,14 +13,13 @@ class AssetSelector {
     this.selectedAssetIds = [];
     this.page = 1;
     this.loading = false;
-    this.requests = [];
+    this.activeRequest;
     this.total = 0;
     this.per = 25;
     this.lastAssetType = '';
     this.assets = [];
     this.editableList = $(`#${this.reveal.data('editable-list-id')}`);
     this.editableFormElement = this.editableList.closest('.form-element');
-    this.loaderIcon = '<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>';
     this.editButton = $(`#${this.reveal.prop('id')}`);
 
     this.init();
@@ -26,9 +28,11 @@ class AssetSelector {
     this.reveal.addClass('initialized');
     this.reveal.on('open.zf.reveal', _ => this.loadAssets(false));
     this.assetList.on('click', 'li:not(.locked)', this.clickOnAsset.bind(this));
+    this.assetList.on('click', '.asset-destroy', this.destroyAsset.bind(this));
     this.reveal.on('click', '.select-asset-link:not(.disabled)', this.selectAssets.bind(this));
     this.assetList.on('dc:asset_list:changed', this.updateButtons.bind(this));
     this.assetList.parent().on('scroll', this.loadMoreOnScroll.bind(this));
+    this.editableList.on('dc:import:data', this.importAsset.bind(this));
 
     if (this.editableList.length) {
       this.initEdtiableList();
@@ -47,8 +51,12 @@ class AssetSelector {
 
     this.updateHiddenField();
   }
+  importAsset(event, data){
+    this.selectedAssetIds = [data.id];
+    this.setSelectedAssets();
+  }
   setSelectedAssets() {
-    this.editableList.html(this.loaderIcon);
+    this.editableList.html(loadingIcon);
     DataCycle.disableElement(this.editButton);
     DataCycle.httpRequest({
       url: '/files/assets',
@@ -58,10 +66,57 @@ class AssetSelector {
         types: this.editableList.data('asset-types'),
         asset_ids: this.selectedAssetIds
       },
-      dataType: 'script',
+      dataType: 'json',
       contentType: 'application/json'
-    }).always((_data, _text, _jqXHR) => {
-      DataCycle.enableElement(this.editButton);
+    })
+      .then(data => {
+        this.editableList.find('.loading').remove();
+
+        if (data.assets && data.assets.length) {
+          const $html = $(data.html).find('>li, >h4.list-title');
+
+          this.editableList.html($html).trigger('dc:asset_list:changed', {
+            assets: data.assets,
+            selected: this.selectedAssetIds
+          });
+          $html.trigger('dc:html:changed').trigger('dc:html:initialized');
+        }
+      })
+      .finally((_data, _text, _jqXHR) => {
+        DataCycle.enableElement(this.editButton);
+      });
+  }
+  async destroyAsset(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const $button = $(event.currentTarget);
+    const $asset = $(event.currentTarget).closest('li[data-id]');
+    const url = $(event.currentTarget).prop('href');
+
+    DataCycle.disableElement($button);
+
+    new ConfirmationModal({
+      text: await I18n.translate('actions.delete_file'),
+      confirmationClass: 'alert',
+      cancelable: true,
+      confirmationCallback: () => {
+        this.total--;
+
+        DataCycle.httpRequest({
+          url: url,
+          method: 'DELETE'
+        })
+          .then(_data => {
+            $asset.remove();
+          })
+          .finally((_data, _text, _jqXHR) => {
+            DataCycle.enableElement($button);
+          });
+      },
+      cancelCallback: () => {
+        DataCycle.enableElement($button);
+      }
     });
   }
   updateHiddenField() {
@@ -97,32 +152,55 @@ class AssetSelector {
   loadAssets(append = true) {
     if (!append) {
       this.page = 1;
-      this.assetList.html(this.loaderIcon);
-    } else this.assetList.append(this.loaderIcon);
+      this.assetList.html(loadingIcon);
+    } else this.assetList.append(loadingIcon);
     DataCycle.disableElement(this.selectButton);
     this.loading = true;
-    this.requests.forEach(request => {
-      request.abort();
-      this.requests = this.requests.filter(r => r != request);
+
+    const promise = DataCycle.httpRequest({
+      url: '/files/assets',
+      method: 'GET',
+      data: {
+        html_target: this.assetList.prop('id'),
+        types: this.assetList.data('asset-types'),
+        selected: this.selectedAssetIds,
+        page: this.page,
+        last_asset_type: this.lastAssetType,
+        append: append
+      },
+      dataType: 'json',
+      contentType: 'application/json'
     });
-    this.requests.push(
-      DataCycle.httpRequest({
-        url: '/files/assets',
-        method: 'GET',
-        data: {
-          html_target: this.assetList.prop('id'),
-          types: this.assetList.data('asset-types'),
+
+    this.activeRequest = promise;
+
+    promise.then(data => {
+      if (this.activeRequest != promise || !data) return;
+
+      this.assetList.find('.loading').remove();
+
+      if (data.assets && data.assets.length) {
+        const $html = $(data.html).find('>li, >h4.list-title');
+
+        this.assetList.append($html).trigger('dc:asset_list:changed', {
+          assets: data.assets,
           selected: this.selectedAssetIds,
-          page: this.page,
           last_asset_type: this.lastAssetType,
+          page: this.page,
+          total: data.total,
           append: append
-        },
-        dataType: 'script',
-        contentType: 'application/json'
-      }).always((_data, _text, jqXHR) => {
-        this.requests = this.requests.filter(r => r != jqXHR);
-      })
-    );
+        });
+        $html.trigger('dc:html:changed').trigger('dc:html:initialized');
+      } else {
+        this.assetList.html(data.html).trigger('dc:asset_list:changed', {
+          selected: this.selectedAssetIds,
+          last_asset_type: '',
+          page: 1,
+          total: 0,
+          append: append
+        });
+      }
+    });
   }
   updateButtons(_event, data) {
     if (data && data.assets && data.assets.length) {

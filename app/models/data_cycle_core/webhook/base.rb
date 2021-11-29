@@ -21,11 +21,13 @@ module DataCycleCore
         end
       end
 
+      def self.available_system_names(data)
+        Array.wrap(DataCycleCore.webhooks) - Array.wrap(data.try(:webhook_source)) - Array.wrap(data.try(:prevent_webhooks))
+      end
+
       def self.get_webhooks_for(action, data)
         DataCycleCore::ExternalSystem
-          .where(name: DataCycleCore.webhooks)
-          .where.not(name: data.try(:webhook_source))
-          .where.not(name: data.try(:prevent_webhooks))
+          .where(name: available_system_names(data))
           .collect { |external_system| validate_webhook(external_system, action, data) }.compact
       end
 

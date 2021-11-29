@@ -61,7 +61,7 @@ class CollectionFilter {
 
     this.collection.trigger('dc:remote:reloadOnNextOpen', { q: filterValue });
   }
-  addNewCollection(event) {
+  addNewCollection(_event) {
     this.newForm.find(':text').val(null);
     this.filterCollection();
     $('.dropdown-pane.watch-lists .list-items').not(this.collection).trigger('dc:remote:reloadOnNextOpen');

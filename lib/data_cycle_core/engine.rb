@@ -110,7 +110,8 @@ module DataCycleCore
       'DataCycleCore::Generic::Common::Webhook',
       'DataCycleCore::Generic::FeratelIdentityServer::Webhook',
       'DataCycleCore::Generic::Sulu::Webhook',
-      'DataCycleCore::Generic::ExternalLink::Webhook'
+      'DataCycleCore::Generic::ExternalLink::Webhook',
+      'DataCycleCore::Generic::Amtangee::Webhook'
     ]
 
     mattr_accessor :excluded_filter_classifications
@@ -122,8 +123,8 @@ module DataCycleCore
       'Zusatzangebot', 'Wetterprognose', 'Piste', 'Lift'
     ]
 
-    mattr_accessor :ui_language
-    self.ui_language = :de
+    mattr_accessor :ui_locales
+    self.ui_locales = [:de, :en]
 
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'named_version', 'day', 'week']
@@ -254,6 +255,9 @@ module DataCycleCore
     # !!!!!!!!!!!!!!!! do not switch on !!!!!!!!!!!!!!!!
     config.i18n.fallbacks = false
     config.action_view.form_with_generates_remote_forms = true
+
+    # disable Query logger in development environment
+    config.active_record.logger = nil if Rails.env.development? && ENV['RAILS_LOG_TO_STDOUT'].blank?
 
     # prevent span tags inside HTML-Attributes for missing translations
     config.action_view.debug_missing_translation = false

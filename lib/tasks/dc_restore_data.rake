@@ -3,7 +3,7 @@
 namespace :dc do
   namespace :restore do
     namespace :contents do
-      desc 'restore contents from history with thing_ids'
+      desc 'restore contents from history with thing_ids [UUID|UUID|UUID|...]'
       task :from_ids, [:ids] => [:environment] do |_, args|
         ids = args.fetch(:ids, '').split('|').map(&:squish)
 
