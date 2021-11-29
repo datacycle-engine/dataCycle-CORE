@@ -14,11 +14,11 @@ module DataCycleCore
         end
 
         def self.data_id(data)
-          data.dig('id', 'text')
+          data.dig('id')
         end
 
         def self.data_name(data)
-          data.dig('title', '#cdata-section')
+          data.dig('title')
         end
       end
     end
