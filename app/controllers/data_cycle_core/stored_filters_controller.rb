@@ -61,7 +61,7 @@ module DataCycleCore
 
       filter_string = select_search_params[:q]&.strip
       filter_proc = ->(query, query_table) { query.where(query_table[:name].matches("%#{filter_string}%")) } if filter_string.present?
-      arel_query = @accessible_stored_filters.combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability), filter_proc)
+      arel_query = @accessible_stored_filters.combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability).conditional_my_selection, filter_proc)
       arel_query = arel_query.take(select_search_params[:max].to_i) if select_search_params[:max].present?
 
       result = ActiveRecord::Base.connection.select_all arel_query.to_sql

@@ -52,6 +52,14 @@ module DataCycleCore
       all.where(my_selection: true)
     end
 
+    def self.conditional_my_selection
+      if DataCycleCore::Feature::MySelection.enabled?
+        all
+      else
+        all.where(arel_table[:my_selection].not_eq(true))
+      end
+    end
+
     private
 
     def split_full_path
