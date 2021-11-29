@@ -1,0 +1,25 @@
+<div class="exceptions-page <%= type %>">
+  <h1 class="exception-title"><b><%= Rack::Utils::SYMBOL_TO_STATUS_CODE[type].presence %></b> <%= t("exceptions_page.#{type}.title", locale: active_ui_locale) %></h1>
+
+  <%= tag.p(t("exceptions_page.#{type}.description_html", locale: active_ui_locale), class: 'exceptions-description') if I18n.exists?("exceptions_page.#{type}.description_html", locale: active_ui_locale) %>
+
+  <div class="exceptions-buttons">
+    <%= link_to root_path(reset: true), class: 'button exceptions-back-button success' do %>
+      <i class="fa fa-undo" aria-hidden="true"></i>
+      <%= t('exceptions_page.back_to_root_link') %>
+    <% end if current_user&.can?(:index, :backend) %>
+
+    <%= link_to '#',
+              class: 'copy-to-clipboard button secondary',
+              title: t('exceptions_page.copy_to_clipboard_title', locale: active_ui_locale),
+              data: {
+                json_value: {
+                  text: request.env['action_dispatch.exception'],
+                  backtrace: request.env['action_dispatch.exception'].backtrace
+                }.to_json
+              } do %>
+      <i class="fa fa-clipboard"></i>
+      <%= t('exceptions_page.copy_to_clipboard_link', locale: active_ui_locale) %>
+    <% end if local_assigns[:exception_copy_button] && request.env['action_dispatch.exception'].present? %>
+  </div>
+</div>
