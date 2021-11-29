@@ -19,6 +19,10 @@ module DataCycleCore
       respond_to(:html, :js)
     end
 
+    def show
+      redirect_to root_path(stored_filter: @stored_filter)
+    end
+
     def update
       if @stored_filter.update(stored_filter_params)
         redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: helpers.active_ui_locale))

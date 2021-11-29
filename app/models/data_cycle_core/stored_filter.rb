@@ -76,7 +76,7 @@ module DataCycleCore
       query
     end
 
-    def from_params_hash(params)
+    def parameters_from_hash(params)
       return self if params.blank?
 
       self.parameters = params.map do |f|
@@ -129,6 +129,7 @@ module DataCycleCore
       query2_table = collections.arel_table
       query2 = collections.arel
       query2.projections = []
+      query2 = query2.where(query2_table[:my_selection].not_eq(true)) unless DataCycleCore::Feature::MySelection.enabled?
       query2 = query2.where(query2_table[:name].not_eq(nil)).project(query2_table[:id], query2_table[:name], Arel::Nodes::SqlLiteral.new("'#{collections.klass.model_name.param_key}'").as('class_name'))
 
       unless filter_proc.nil?
