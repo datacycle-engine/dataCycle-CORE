@@ -453,6 +453,17 @@ de:
         subject: Ein neuer Benutzer wurde erstellt
         text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
         user_link: Benutzer bearbeiten
+    report_generator:
+      downloads_popular: Top 50 Downloads
+      downloads_content: Alle Downloads dieses Inhalts
+      headings:
+        id: ID
+        name: Name
+        downloads_all: Anzahl der Downloads (Gesamt)
+        downloads_by_month: Anzahl der Downloads (Dieses Monat)
+        date_created: Heruntergeladen am
+        email: E-Mail
+        user_display_name: Benutzer
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -464,7 +475,6 @@ de:
     look_at_version: Aktuellen Version mit dieser Version vergleichen
     restored: Wiederhergestellt am %{date}
     created: Inhalt erstellt
-    active_version: Aktuelle Version
 
   data_link_mailer:
     content_download: Inhalt herunterladen
@@ -1118,6 +1128,10 @@ de:
       containers: Container
       entities: Inhalte
       embeddeds: Eingebettete Inhalte
+    reports:
+      root: 'Reports'
+      available_reports: 'Verfügbare Reports'
+
     warning:
       common:
         invalid: Gültigkeitszeitraum überschritten

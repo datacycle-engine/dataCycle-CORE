@@ -67,6 +67,12 @@ module DataCycleCore
         can :download_zip, DataCycleCore::StoredFilter do |_stored_filter|
           DataCycleCore::Feature::Download.collection_enabled?('stored_filter')
         end
+
+        # Reports
+        can [:index, :download_report, :download_global_report], :report
+        can :download_content_report, DataCycleCore::Thing do |content|
+          DataCycleCore::Feature::ReportGenerator.allowed?(content)
+        end
       end
     end
   end

@@ -154,6 +154,9 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/activities', to: 'dash_board#activities'
   get  '/admin/activity_details/:type', to: 'dash_board#activity_details', format: :json
 
+  get  '/reports', to: 'reports#index'
+  get  '/download_reports', to: 'reports#download_report'
+
   if DataCycleCore.main_config.dig(:api, :enabled)
     defaults format: :json do
       namespace :api do

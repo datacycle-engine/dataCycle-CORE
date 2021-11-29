@@ -198,3 +198,12 @@
 :image_editor:
   :enabled: true
 
+:report_generator:
+  :enabled: true
+  :config:
+    :global:
+      :downloads_popular:
+        :enabled: true
+    :content:
+      :downloads_content:
+        :enabled: true

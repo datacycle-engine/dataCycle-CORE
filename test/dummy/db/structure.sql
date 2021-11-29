@@ -223,15 +223,6 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
       END;$$;
 
 
---
--- Name: core_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
---
-
-CREATE TEXT SEARCH DICTIONARY public.core_german (
-    TEMPLATE = pg_catalog.thesaurus,
-    dictfile = 'core_german', dictionary = 'pg_catalog.german_stem' );
-
-
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -2941,7 +2932,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210510120343'),
 ('20210518074537'),
 ('20210518133349'),
-('20210520121223'),
 ('20210520123323'),
 ('20210522171126'),
 ('20210527121641'),
@@ -2954,24 +2944,17 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210709121013'),
 ('20210731090959'),
 ('20210802095013'),
-('20210802130128'),
-('20210803170527'),
 ('20210804140504'),
 ('20210817101040'),
 ('20210908095952'),
 ('20211001085525'),
-('20211004160440'),
 ('20211005125306'),
 ('20211005134137'),
 ('20211007123156'),
-('20211007150305'),
-('20211011060931'),
 ('20211011123517'),
 ('20211014062654'),
 ('20211021062347'),
 ('20211021111915'),
-('20211110092804'),
-('20211115140202'),
 ('20211122075759'),
 ('20211123081845');
 

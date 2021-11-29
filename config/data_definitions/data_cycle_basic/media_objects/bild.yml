@@ -29,6 +29,8 @@
               - jpeg
           :json: true
           :xml: true
+      :report_generator:
+        :allowed: true
     :api:
       :type:
         - CreativeWork
