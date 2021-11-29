@@ -3,6 +3,11 @@ import get from 'lodash/get';
 
 const I18n = {
   cache: {},
+  countMapping(count) {
+    if (count === 0) return 'zero';
+    else if (count === 1) return 'one';
+    else return 'other';
+  },
   async translate(path, substitutions = {}) {
     let text = this.cache[path];
     if (text && typeof text.then === 'function') text = await text;
@@ -11,6 +16,9 @@ const I18n = {
       this.cache[path] = this._loadTranslation(path);
       text = this.cache[path] = await this.cache[path];
     }
+
+    if (text && typeof text === 'object' && substitutions.hasOwnProperty('count'))
+      text = text[this.countMapping(substitutions.count)];
 
     const compiled = template(text, { interpolate: /%{([\s\S]+?)}/g });
 

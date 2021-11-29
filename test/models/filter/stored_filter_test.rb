@@ -8,25 +8,25 @@ module DataCycleCore
       @current_user = User.find_by(email: 'tester@datacycle.at')
     end
 
-    test 'from_params_hash with stringified hash' do
+    test 'parameters_from_hash with stringified hash' do
       stored_filter = DataCycleCore::StoredFilter.new
       params = [{ 'with_classification_aliases_and_treename' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['Person', 'Organisation'] } }]
       expected_parameters = [{ 't' => 'with_classification_aliases_and_treename', 'v' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['Person', 'Organisation'] } }].to_set
 
-      assert_equal expected_parameters, stored_filter.from_params_hash(params).parameters.to_set
+      assert_equal expected_parameters, stored_filter.parameters_from_hash(params).parameters.to_set
       assert_equal expected_parameters, stored_filter.parameters.to_set
     end
 
-    test 'from_params_hash with symbolized hash' do
+    test 'parameters_from_hash with symbolized hash' do
       stored_filter = DataCycleCore::StoredFilter.new
       params = [{ with_classification_aliases_and_treename: { treeLabel: 'Inhaltstypen', aliases: ['Person', 'Organisation'] } }]
       expected_parameters = [{ 't' => 'with_classification_aliases_and_treename', 'v' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['Person', 'Organisation'] } }].to_set
 
-      assert_equal expected_parameters, stored_filter.from_params_hash(params).parameters.to_set
+      assert_equal expected_parameters, stored_filter.parameters_from_hash(params).parameters.to_set
       assert_equal expected_parameters, stored_filter.parameters.to_set
     end
 
-    test 'from_params_hash with ActionController::Parameters' do
+    test 'parameters_from_hash with ActionController::Parameters' do
       stored_filter = DataCycleCore::StoredFilter.new
       params = [
         ActionController::Parameters.new(
@@ -37,16 +37,16 @@ module DataCycleCore
       ]
       expected_parameters = [{ 't' => 'with_classification_aliases_and_treename', 'v' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['Person', 'Organisation'] } }].to_set
 
-      assert_equal expected_parameters, stored_filter.from_params_hash(params).parameters.to_set
+      assert_equal expected_parameters, stored_filter.parameters_from_hash(params).parameters.to_set
       assert_equal expected_parameters, stored_filter.parameters.to_set
     end
 
-    test 'from_params_hash overrides previous parameters' do
+    test 'parameters_from_hash overrides previous parameters' do
       stored_filter = DataCycleCore::StoredFilter.new(parameters: [{ 't' => 'test', 'v' => 'test' }])
       params = [{ 'with_classification_aliases_and_treename' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['Person', 'Organisation'] } }]
       expected_parameters = [{ 't' => 'with_classification_aliases_and_treename', 'v' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['Person', 'Organisation'] } }].to_set
 
-      assert_equal expected_parameters, stored_filter.from_params_hash(params).parameters.to_set
+      assert_equal expected_parameters, stored_filter.parameters_from_hash(params).parameters.to_set
       assert_equal expected_parameters, stored_filter.parameters.to_set
     end
 

@@ -15,7 +15,7 @@ module DataCycleCore
     end
 
     def except(value)
-      self - Array(value)
+      self - Array.wrap(value)
     end
 
     def deep_freeze

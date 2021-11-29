@@ -69,7 +69,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
-  resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
+  resources :stored_filters, only: [:index, :show, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
     get :select_search_or_collection, on: :collection
     get :download_zip, on: :member
