@@ -125,8 +125,8 @@ class BasicSelect2 {
       );
   }
   getClassFromData(data) {
-    if (data.html_class) return data.html_class;
-    else if (data.element) return $(data.element).attr('class');
+    if (data.html_class) return data.html_class || '';
+    else if (data.element) return $(data.element).attr('class') || '';
 
     return '';
   }
