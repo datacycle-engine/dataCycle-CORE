@@ -9,6 +9,7 @@ module DataCycleCore
       prevent_history: false,
       update_search_all: true,
       partial_update: false,
+      partial_update_improved: DataCycleCore.partial_update_improved,
       source: nil,
       new_content: false,
       force_update: false,

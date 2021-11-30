@@ -67,7 +67,17 @@ module DataCycleCore
 
         return false unless validate(data_hash: options.data_hash, schema_hash: partial_schema || schema, current_user: options.current_user)
 
-        return no_changes(options.ui_locale) unless diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
+        # return no_changes(options.ui_locale) unless diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
+
+        differ = diff_obj(options.data_hash, partial_schema, options.partial_update)
+        unless options.force_update
+          return no_changes(options.ui_locale) if differ.diff_hash.blank? && differ.errors[:error].blank?
+
+          if options.partial_update_improved
+            # reduce partial schema to only updated properties:
+            partial_schema['properties'] = partial_schema['properties']&.slice(*differ.diff_hash.keys)
+          end
+        end
 
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
           to_history if write_history
