@@ -71,6 +71,8 @@ class ObjectBrowser {
     this.element.on('click', '.delete-thumbnail', this.clickDeleteThumbnailHandler.bind(this));
     this.element.on('dc:update:chosen', this.updateChosenHandler.bind(this));
     this.element.on('dc:import:data', this.importDataHandler.bind(this));
+    this.overlay.on('open.zf.reveal', this.setOverlayPosition.bind(this));
+    this.overlay.on('closed.zf.reveal', this.resetOverlayPosition.bind(this));
 
     $(document).on(
       'dc:html:changed',
@@ -91,6 +93,33 @@ class ObjectBrowser {
       if (!this.element.closest('.split-content.edit-content').length) this.removeDeletedItem();
     } else this.limitedBy = undefined;
   }
+  setOverlayPosition(_event) {
+    if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
+    else if (this.overlay.data('overlay') === false) document.body.classList.add('object-browser-overlay-open');
+
+    // set breadcrumb link + text
+    var text = $('.breadcrumb ul li:last-child').html();
+    $('.breadcrumb ul li:last-child').html('<a class="close-object-browser" href="#">' + text + '</a>');
+    $('.breadcrumb ul').append(
+      '<li><span class="breadcrumb-text" title="' +
+        this.label.trim() +
+        ' auswählen"><i><i class="fa fa-files-o" aria-hidden="true"></i>' +
+        this.label +
+        ' auswählen</i></span></li>'
+    );
+    $('.breadcrumb ul li').on('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
+  }
+  resetOverlayPosition(_event) {
+    this.overlay.removeClass('full-height');
+
+    if (!$('.reveal.object-browser-overlay:visible').not(this.overlay).length && this.overlay.data('overlay') === false)
+      document.body.classList.remove('object-browser-overlay-open');
+
+    $('.breadcrumb ul li:last-child').remove();
+    var text = $('.breadcrumb ul li:last-child a.close-object-browser').html();
+    $('.breadcrumb ul li:last-child').html(text);
+    $('.breadcrumb ul li').off('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
+  }
   initOverlay(mutations) {
     if (mutations.some(e => e.target.classList.contains('remote-rendered'))) {
       this.overlayInitObserver.disconnect();
@@ -105,7 +134,6 @@ class ObjectBrowser {
 
     this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
     this.overlay.on('closed.zf.reveal', this.closeOverlay.bind(this));
-    this.overlayFilter.find('.object-browser-search').on('change', this.filterItems.bind(this));
     this.overlayFilterForm.on('submit', this.filterItems.bind(this));
     this.overlayFilterForm.find('.buttons button[type="reset"]').on('click', this.resetFilter.bind(this));
     this.overlay.find('.chosen-items-container').on('click', 'li.item', this.clickChosenItemsHandler.bind(this));
@@ -512,43 +540,20 @@ class ObjectBrowser {
     this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
   }
   openOverlay(_ev) {
-    if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
-    else if (this.overlay.data('overlay') === false) document.body.classList.add('object-browser-overlay-open');
-
     this.overlayCount.html('');
     this.preselectedItems = this.chosen.slice(0);
     $(window).on('beforeunload', this.eventHandlers.pageLeave);
     this.resetOverlay();
     this.setPreselected();
     this.updateChosenCounter();
-    // set breadcrumb link + text
-    var text = $('.breadcrumb ul li:last-child').html();
-    $('.breadcrumb ul li:last-child').html('<a class="close-object-browser" href="#">' + text + '</a>');
-    $('.breadcrumb ul').append(
-      '<li><span class="breadcrumb-text" title="' +
-        this.label.trim() +
-        ' auswählen"><i><i class="fa fa-files-o" aria-hidden="true"></i>' +
-        this.label +
-        ' auswählen</i></span></li>'
-    );
-    $('.breadcrumb ul li').on('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
+
     $(window).on('message.object_browser onmessage.object_browser', this.eventHandlers.import);
     let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
     if (difference(this.ids, loaded).length) this.loadMore(loaded);
     else this.loadObjects(false);
   }
   closeOverlay(_ev) {
-    this.overlay.removeClass('full-height');
-
     $(window).off('beforeunload', this.eventHandlers.pageLeave);
-
-    if (!$('.reveal.object-browser-overlay:visible').not(this.overlay).length && this.overlay.data('overlay') === false)
-      document.body.classList.remove('object-browser-overlay-open');
-
-    $('.breadcrumb ul li:last-child').remove();
-    var text = $('.breadcrumb ul li:last-child a.close-object-browser').html();
-    $('.breadcrumb ul li:last-child').html(text);
-    $('.breadcrumb ul li').off('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
     $(window).off('message.object_browser onmessage.object_browser', this.eventHandlers.import);
     $('#asset-upload-reveal-default').off('closed.zf.reveal');
   }
@@ -600,7 +605,10 @@ class ObjectBrowser {
     }
   }
   filterItems(event = null) {
-    if (event) event.preventDefault();
+    if (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
 
     this.page = 1;
     this.loadObjects(false);
