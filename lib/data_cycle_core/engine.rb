@@ -278,6 +278,7 @@ module DataCycleCore
 
     config.before_initialize do |app|
       app.config.time_zone = 'Europe/Vienna'
+      app.config.exceptions_app = routes
     end
 
     config.to_prepare do

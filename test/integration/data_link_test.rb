@@ -52,7 +52,7 @@ module DataCycleCore
 
       get edit_polymorphic_path(readonly_content)
       assert_equal I18n.t(:all, scope: [:unauthorized, :manage], locale: DataCycleCore.ui_locales.first), flash[:alert]
-      assert_redirected_to info_path
+      assert_redirected_to unauthorized_path
     end
 
     test 'create new external link for content and existing user' do
@@ -90,7 +90,7 @@ module DataCycleCore
 
       get edit_polymorphic_path(readonly_content)
       assert_equal I18n.t(:all, scope: [:unauthorized, :manage], locale: DataCycleCore.ui_locales.first), flash[:alert]
-      assert_redirected_to info_path
+      assert_redirected_to unauthorized_path
     end
 
     test 'create new external link for watch_list' do
@@ -176,7 +176,7 @@ module DataCycleCore
       logout
 
       get data_link_path(@data_link)
-      assert_redirected_to info_path
+      assert_redirected_to unauthorized_path
     end
 
     test 'can only edit owned data_links' do

@@ -8,6 +8,11 @@ DataCycleCore::Engine.routes.draw do
     root 'backend#index', as: :authenticated_root
   end
 
+  match '/401', to: 'exceptions#unauthorized', via: :all, as: :unauthorized
+  match '/404', to: 'exceptions#not_found', via: :all, as: :not_found
+  match '/422', to: 'exceptions#unprocessable_entity', via: :all, as: :unprocessable_entity
+  match '/500', to: 'exceptions#internal_server_error', via: :all, as: :internal_server_error
+
   CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
   CONTENT_TABLE ||= ['things'].freeze
 

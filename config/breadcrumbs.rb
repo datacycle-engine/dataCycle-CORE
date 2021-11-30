@@ -5,6 +5,10 @@ crumb :root do
   link to_html_string("<i class='fa fa-folder-open-o' aria-hidden='true'></i> #{DataCycleCore.breadcrumb_root_name}"), root_path, authorized: can?(:index, :backend)
 end
 
+crumb :exception do |type|
+  link to_html_string(exception_title(type)), polymorphic_path(type), authorized: true
+end
+
 # Settings
 crumb :settings do
   link to_html_string(t('data_cycle_core.settings', locale: active_ui_locale)), settings_path, authorized: can?(:settings, :backend)

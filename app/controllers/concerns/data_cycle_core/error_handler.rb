@@ -7,9 +7,9 @@ module DataCycleCore
     included do
       unless Rails.env.development?
         rescue_from CanCan::AccessDenied, with: :unauthorized
-        rescue_from ActiveRecord::RecordNotFound, with: :not_found
+        rescue_from ActiveRecord::RecordNotFound, with: :not_found_exception
         rescue_from ActionController::UnknownFormat, with: :not_acceptable
-        rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity
+        rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity_exception
         rescue_from ActionController::BadRequest, with: :bad_request
       end
 
@@ -30,7 +30,7 @@ module DataCycleCore
       redirect_to_root_with_error exception, :unauthorized
     end
 
-    def unprocessable_entity(exception)
+    def unprocessable_entity_exception(exception)
       redirect_to_root_with_error exception, :unprocessable_entity
     end
 
@@ -64,7 +64,7 @@ module DataCycleCore
       [
         {
           source: {
-            pointer: request.path
+            pointer: request.env['action_dispatch.original_path'] || request.path
           },
           detail: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: :en)
         }
@@ -87,11 +87,11 @@ module DataCycleCore
       head :too_many_requests, { 'Retry-After': 60 }
     end
 
-    def not_found(exception)
+    def not_found_exception(exception)
       respond_to do |format|
-        format.html { render file: Rails.root.join('public', '404'), layout: false, status: :not_found }
+        format.html { render 'data_cycle_core/exceptions/not_found', status: :not_found }
         format.json { render status: :not_found, json: { errors: content_api_error(exception) } }
-        format.js { render status: :not_found, js: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale) }
+        format.js { render status: :not_found, js: I18n.t("exceptions.#{exception.class.name.underscore}", default: @exception_message, locale: helpers.active_ui_locale) }
         format.any { head :not_found }
       end
     end

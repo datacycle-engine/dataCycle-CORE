@@ -101,20 +101,26 @@ class ObjectBrowser {
     this.overlayFilter = this.overlay.find('.object-browser-filter');
     this.overlayCount = this.overlayFilter.find('.item-count');
     this.overlayFilterForm = this.overlayFilter.find('.object-browser-filter-form');
+    this.overlayItemList = this.overlay.children('.items');
 
     this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
     this.overlay.on('closed.zf.reveal', this.closeOverlay.bind(this));
-    this.overlay.children('.items').on('scroll', this.initInfiniteLoading.bind(this));
     this.overlayFilter.find('.object-browser-search').on('change', this.filterItems.bind(this));
     this.overlayFilterForm.on('submit', this.filterItems.bind(this));
     this.overlayFilterForm.find('.buttons button[type="reset"]').on('click', this.resetFilter.bind(this));
     this.overlay.find('.chosen-items-container').on('click', 'li.item', this.clickChosenItemsHandler.bind(this));
-    this.overlay.children('.items').on('click', 'li.item', this.clickItemsHandler.bind(this));
+    this.overlayItemList.on('click', 'li.item', this.clickItemsHandler.bind(this));
     this.overlay
       .find('.chosen-items-container')
       .on('click', '.delete-thumbnail', this.clickChosenItemsDeleteHandler.bind(this));
     this.overlay.find('.buttons .save-object-browser').on('click', this.clickSaveHandler.bind(this));
     this.overlay.on('dc:import:complete', this.importCompleteHandler.bind(this));
+
+    this.infiniteLoadingObserver = new IntersectionObserver(this.startInfiniteLoading.bind(this), {
+      root: this.overlayItemList.get(0),
+      rootMargin: '0px 0px 50px 0px',
+      threshold: 0.1
+    });
 
     this.overlay.trigger('open.zf.reveal');
   }
@@ -219,17 +225,18 @@ class ObjectBrowser {
       this.loadDetails($target.data('id'));
     }
   }
-  initInfiniteLoading(event) {
-    const elem = $(event.currentTarget);
-
+  startInfiniteLoading(entries, _observer) {
     if (
-      elem[0].scrollHeight - elem.scrollTop() - 200 <= elem.outerHeight() &&
-      !this.loading &&
-      this.overlay.children('.items').children('li.item').length < this.total
-    ) {
-      this.page += 1;
-      this.loadObjects();
-    }
+      !entries[0].isIntersecting ||
+      this.loading ||
+      this.overlay.children('.items').children('li.item').length >= this.total
+    )
+      return;
+
+    this.infiniteLoadingObserver.disconnect();
+
+    this.page += 1;
+    this.loadObjects();
   }
   updateLocale(e) {
     e.stopPropagation();
@@ -609,6 +616,8 @@ class ObjectBrowser {
     return this.overlayFilterForm.serializeJSON();
   }
   loadObjects(append = true) {
+    this.infiniteLoadingObserver.disconnect();
+
     if (!append) {
       this.excluded = [];
       this.overlay.children('.items').scrollTop(0);
@@ -671,15 +680,9 @@ class ObjectBrowser {
         if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
       });
       this.loading = false;
-      if (
-        this.overlay.children('.items').children('li.item').length < this.total &&
-        this.overlay.children('.items').children('li.item').last().offset().top -
-          this.overlay.children('.items').offset().top <
-          this.overlay.children('.items').first().outerHeight()
-      ) {
-        this.page += 1;
-        this.loadObjects();
-      }
+
+      if (this.overlay.children('.items').children('li.item').length < this.total)
+        this.infiniteLoadingObserver.observe(this.overlay.children('.items').children('li.item').last().get(0));
     });
 
     return promise;
