@@ -5,12 +5,13 @@ module DataCycleCore
     extend ActiveSupport::Concern
 
     included do
-      # unless Rails.env.development?
-      rescue_from CanCan::AccessDenied, with: :unauthorized
-      rescue_from ActionController::UnknownFormat, with: :not_acceptable
-      rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity_exception
-      rescue_from ActionController::BadRequest, with: :bad_request
-      # end
+      unless Rails.env.development?
+        rescue_from CanCan::AccessDenied, with: :unauthorized
+        rescue_from ActiveRecord::RecordNotFound, with: :not_found_exception
+        rescue_from ActionController::UnknownFormat, with: :not_acceptable
+        rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity_exception
+        rescue_from ActionController::BadRequest, with: :bad_request
+      end
 
       rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
       rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error

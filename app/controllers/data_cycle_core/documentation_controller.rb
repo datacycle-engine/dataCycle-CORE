@@ -24,11 +24,9 @@ module DataCycleCore
         File.file?(p)
       end
 
-      if image_path
-        send_file image_path
-      else
-        raise ActiveRecord::RecordNotFound
-      end
+      raise ActiveRecord::RecordNotFound unless image_path
+
+      send_file image_path
     end
 
     def render_markdown
