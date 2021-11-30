@@ -24,11 +24,9 @@ module DataCycleCore
         File.file?(p)
       end
 
-      if image_path
-        send_file image_path
-      else
-        render status: :not_found, file: Rails.root.join('public', '404.html'), layout: false
-      end
+      raise ActiveRecord::RecordNotFound unless image_path
+
+      send_file image_path
     end
 
     def render_markdown
@@ -42,7 +40,9 @@ module DataCycleCore
 
       markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(HTML_OPTIONS), MARKDOWN_OPTIONS)
 
-      markdown.render(File.read(markdown_path)) if markdown_path
+      raise ActiveRecord::RecordNotFound if markdown_path.nil?
+
+      markdown.render(File.read(markdown_path))
     end
 
     def sanitized_path

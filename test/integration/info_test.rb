@@ -22,7 +22,7 @@ module DataCycleCore
         user: User.find_by(email: 'guest@datacycle.at')&.attributes&.merge(password: 'PdebUfWF9aab2KG6')
       }
 
-      assert_redirected_to info_path
+      assert_redirected_to unauthorized_path
       assert_equal I18n.t('devise.sessions.signed_in', locale: DataCycleCore.ui_locales.first), flash[:notice]
     end
   end

@@ -4,6 +4,8 @@ module DataCycleCore
   module UiLocaleHelper
     def active_ui_locale
       current_user&.ui_locale || DataCycleCore.ui_locales.first
+    rescue StandardError
+      DataCycleCore.ui_locales.first
     end
 
     def translated_attribute_label(key, definition, content, options)

@@ -1,0 +1,24 @@
+<% content_for(:title, flush: true){ strip_tags(exception_title(type)) } %>
+
+<div class="exceptions-page <%= type %>">
+  <h1 class="exception-title"><%= exception_title(type) %></h1>
+
+  <%= tag.p(t("exceptions_page.#{type}", locale: active_ui_locale), class: 'exceptions-description') if I18n.exists?("exceptions_page.#{type}", locale: active_ui_locale) %>
+
+  <div class="exceptions-buttons">
+    <%= link_to root_path(reset: true), class: 'button exceptions-back-button success' do %>
+      <i class="fa fa-undo" aria-hidden="true"></i>
+      <%= t('exceptions_page.back_to_root_link') %>
+    <% end if current_user&.can?(:index, :backend) %>
+
+    <%= link_to '#',
+              class: 'copy-to-clipboard button secondary',
+              title: t('exceptions_page.copy_to_clipboard_title', locale: active_ui_locale),
+              data: {
+                value: request.env['action_dispatch.request_id']
+              } do %>
+      <i class="fa fa-clipboard"></i>
+      <%= t('exceptions_page.copy_to_clipboard_link', locale: active_ui_locale) %>
+    <% end if local_assigns[:exception_copy_button] && request.env['action_dispatch.request_id'].present? %>
+  </div>
+</div>

@@ -211,7 +211,7 @@ module DataCycleCore
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     mongo_item.with_session do |session|
                       if options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
-                        iterate = iterator.call(mongo_item, locale, source_filter)
+                        iterate = iterator.call(mongo_item, locale, source_filter).allow_disk_use(true)
                       else
                         iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
                       end

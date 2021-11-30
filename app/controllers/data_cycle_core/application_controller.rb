@@ -106,7 +106,7 @@ module DataCycleCore
       if (user || current_user)&.can?(:index, :backend)
         root_path
       else
-        info_path
+        unauthorized_path
       end
     end
 

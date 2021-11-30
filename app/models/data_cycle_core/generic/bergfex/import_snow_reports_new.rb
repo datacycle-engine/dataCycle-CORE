@@ -18,7 +18,8 @@ module DataCycleCore
             [
               {
                 '$match': {
-                  "dump.#{locale}": { '$exists': true }
+                  "dump.#{locale}": { '$exists': true },
+                  "dump.#{locale}.datetime.text": { '$gt': (Time.zone.now - 3.months).to_s }
                 }
               }, {
                 '$sort': { "dump.#{locale}.datetime.text": -1 }
