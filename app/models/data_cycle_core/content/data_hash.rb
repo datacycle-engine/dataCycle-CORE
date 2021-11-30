@@ -75,7 +75,7 @@ module DataCycleCore
 
           if options.partial_update_improved
             # reduce partial schema to only updated properties:
-            partial_schema['properties'] = partial_schema['properties']&.slice(*differ.diff_hash.keys)
+            partial_schema['properties']&.slice!(*differ.diff_hash.keys)
           end
         end
 
