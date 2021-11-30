@@ -223,6 +223,15 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
       END;$$;
 
 
+--
+-- Name: core_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
+--
+
+CREATE TEXT SEARCH DICTIONARY public.core_german (
+    TEMPLATE = pg_catalog.thesaurus,
+    dictfile = 'core_german', dictionary = 'pg_catalog.german_stem' );
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -2142,13 +2151,6 @@ CREATE INDEX index_searches_on_classification_ancestors_mapping ON public.search
 
 
 --
--- Name: index_searches_on_content_data_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_searches_on_content_data_id ON public.searches USING btree (content_data_id);
-
-
---
 -- Name: index_searches_on_content_data_id_and_locale; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2282,13 +2284,6 @@ CREATE INDEX index_thing_translations_on_thing_id ON public.thing_translations U
 
 
 --
--- Name: index_things_on_boost_updated_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_things_on_boost_updated_at ON public.things USING btree (boost, updated_at);
-
-
---
 -- Name: index_things_on_boost_updated_at_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2300,13 +2295,6 @@ CREATE INDEX index_things_on_boost_updated_at_id ON public.things USING btree (b
 --
 
 CREATE INDEX index_things_on_content_type ON public.things USING btree (((schema ->> 'content_type'::text)));
-
-
---
--- Name: index_things_on_external_source_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_things_on_external_source_id ON public.things USING btree (external_source_id);
 
 
 --
@@ -2956,6 +2944,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211021062347'),
 ('20211021111915'),
 ('20211122075759'),
-('20211123081845');
+('20211123081845'),
+('20211130111352');
 
 
