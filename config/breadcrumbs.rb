@@ -6,7 +6,7 @@ crumb :root do
 end
 
 crumb :exception do |type|
-  link to_html_string(t("exceptions_page.#{type}.breadcrumb", locale: active_ui_locale)), polymorphic_path(type), authorized: true
+  link to_html_string(exception_title(type)), polymorphic_path(type), authorized: true
 end
 
 # Settings

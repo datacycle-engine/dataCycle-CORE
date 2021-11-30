@@ -4,6 +4,7 @@ module DataCycleCore
   class ExceptionsController < ApplicationController
     include DataCycleCore::ErrorHandler
 
+    rescue_from StandardError, with: :internal_server_error
     skip_before_action :verify_authenticity_token
 
     def not_found
@@ -17,12 +18,21 @@ module DataCycleCore
     def internal_server_error
       respond_to do |format|
         format.html { render status: :internal_server_error }
+        format.json { render status: :internal_server_error, json: { errors: ['Internal Server Error'] } }
+        format.js { render status: :internal_server_error, js: 'Internal Server Error' }
         format.any { head :internal_server_error }
       end
     end
 
     def unauthorized
       render status: :unauthorized
+    end
+
+    # override current_user to catch ActiveRecord::NoDatabaseError and other DB Exceptions
+    def current_user
+      super
+    rescue StandardError
+      nil
     end
   end
 end

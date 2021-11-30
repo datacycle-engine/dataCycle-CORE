@@ -1472,17 +1472,8 @@ de:
 
   exceptions_page:
     back_to_root_link: Zurück zu dataCycle
-    copy_to_clipboard_link: Fehler kopieren
-    copy_to_clipboard_title: Fehler in Zwischenablage kopieren
-    not_found:
-      breadcrumb: Seite nicht gefunden
-      title: Not found
-      description_html: Diese Seite existiert leider nicht
-    internal_server_error:
-      breadcrumb: Interner Server Fehler
-      title: Internal Server Error
-      description_html: Es ist ein unerwarteter Fehler aufgetreten.
-    unauthorized:
-      breadcrumb: Keine Zugriffsberechtigung
-      title: Unauthorized
-      description_html: Sie haben keine Berechtigung, die gewünschte Seite zu öffnen
+    copy_to_clipboard_link: Request-ID kopieren
+    copy_to_clipboard_title: Über die Request-ID kann der Fehler im Monitoring leichter gefunden werden
+    not_found: Diese Seite existiert leider nicht
+    internal_server_error: Es ist ein unerwarteter Fehler aufgetreten
+    unauthorized: Sie haben keine Berechtigung, die gewünschte Seite zu öffnen
