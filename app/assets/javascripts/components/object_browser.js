@@ -83,11 +83,13 @@ class ObjectBrowser {
     this.element.closest('form').on('reset', this.reset.bind(this));
 
     if (this.limitedBy === Object(this.limitedBy)) {
-      let filterItem = this.element;
-      this.limitedBy.forEach(item => {
-        filterItem = filterItem[item[0]](item[1]);
-      });
-      this.limitedBy = filterItem;
+      let filterItem = this.element.get(0);
+
+      for (let i = 0; i < this.limitedBy.length; ++i) {
+        filterItem = filterItem[this.limitedBy[i][0]](this.limitedBy[i][1]);
+      }
+
+      this.limitedBy = $(filterItem);
 
       this.limitedBy.on('change', this.removeDeletedItem.bind(this));
       if (!this.element.closest('.split-content.edit-content').length) this.removeDeletedItem();
@@ -670,7 +672,10 @@ class ObjectBrowser {
       this.overlay.data('total', count);
 
       if (!append) {
-        I18n.translate('common.things_count_html', { count: count, delimited_count: count }).then(countText => {
+        I18n.translate('common.things_count_html', {
+          count: count,
+          delimited_count: count.toLocaleString('de-DE')
+        }).then(countText => {
           this.overlayCount.html(countText);
         });
       }

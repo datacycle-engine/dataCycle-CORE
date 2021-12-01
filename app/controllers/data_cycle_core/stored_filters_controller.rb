@@ -51,9 +51,14 @@ module DataCycleCore
     def search
       authorize! :show, :stored_filter
 
-      stored_filters = DataCycleCore::StoredFilter.where('user_id = ? AND name ILIKE ?', current_user.id, "%#{params[:q]}%").limit(20)
+      stored_filters = DataCycleCore::StoredFilter.accessible_by(current_ability, :update)
+        .includes(:user)
+        .where('name ILIKE ?', "%#{params[:q]}%")
+        .limit(20)
 
-      render json: stored_filters
+      render json: stored_filters.map { |filter|
+        filter.tap { |f| f.name += " | #{f.user.full_name} <#{f.user.email}>" if f.user_id != current_user.id }
+      }
     end
 
     def select_search_or_collection

@@ -6,7 +6,7 @@ crumb :root do
 end
 
 crumb :exception do |type|
-  link to_html_string(exception_title(type)), polymorphic_path(type), authorized: true
+  link to_html_string(exception_title(type)), polymorphic_path("#{type}_exception"), authorized: true
 end
 
 # Settings
