@@ -89,7 +89,7 @@ module DataCycleCore
 
     def not_found(exception)
       respond_to do |format|
-        format.html { render 'data_cycle_core/exceptions/not_found', status: :not_found }
+        format.html { render 'data_cycle_core/exceptions/not_found_exception', status: :not_found }
         format.json { render status: :not_found, json: { errors: content_api_error(exception) } }
         format.js { render status: :not_found, js: I18n.t("exceptions.#{exception.class.name.underscore}", default: @exception_message, locale: helpers.active_ui_locale) }
         format.any { head :not_found }
