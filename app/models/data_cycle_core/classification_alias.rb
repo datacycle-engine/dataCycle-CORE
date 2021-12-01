@@ -256,7 +256,8 @@ module DataCycleCore
 
       classification_tree&.update(parent_classification_alias_id: parent_ca&.id, classification_tree_label_id: tree_label_id)
 
-      invalidate_things_cache
+      add_things_cache_invalidation_job_update
+      add_things_webhooks_job_update
     end
 
     def merge_with(new_classification_alias)
@@ -272,7 +273,8 @@ module DataCycleCore
 
       destroy
 
-      new_classification_alias.send(:invalidate_things_cache)
+      new_classification_alias.send(:add_things_cache_invalidation_job_update)
+      new_classification_alias.send(:add_things_webhooks_job_update)
     end
 
     def to_hash
