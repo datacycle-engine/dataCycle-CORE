@@ -25,7 +25,7 @@ module DataCycleCore
             LIMIT :limit
           SQL
 
-          @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, by_month: by_month, limit: limit])).to_a
+          @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, by_month: by_month, limit: limit]))
         end
       end
     end

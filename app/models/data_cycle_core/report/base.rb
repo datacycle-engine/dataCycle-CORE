@@ -40,11 +40,10 @@ module DataCycleCore
       end
 
       def generate_csv(file_extension: 'csv', separator: ';', mime_type: 'text/csv')
-        return if @data.empty?
         options = { col_sep: separator }
         csv_string = CSV.generate(options) do |csv|
           csv << translated_headings
-          @data.each do |value|
+          @data.to_a.each do |value|
             csv << value.values
           end
         end
@@ -60,7 +59,7 @@ module DataCycleCore
 
         wb.add_worksheet(name: title) do |sheet|
           sheet.add_row translated_headings, style: header
-          @data.each do |value|
+          @data.to_a.each do |value|
             sheet.add_row value.values
           end
         end
@@ -71,7 +70,7 @@ module DataCycleCore
       private
 
       def translated_headings
-        @data.first.keys.map { |key| I18n.t "feature.report_generator.headings.#{key}", default: key, locale: @locale }
+        @data.fields.map { |key| I18n.t "feature.report_generator.headings.#{key}", default: key, locale: @locale }
       end
     end
   end

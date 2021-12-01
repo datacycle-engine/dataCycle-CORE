@@ -27,7 +27,7 @@ module DataCycleCore
             ORDER BY date_created DESC
           SQL
 
-          @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, thing_id: thing_id, date_time_format: date_time_format])).to_a
+          @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, thing_id: thing_id, date_time_format: date_time_format]))
         end
       end
     end

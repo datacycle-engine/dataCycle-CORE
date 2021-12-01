@@ -128,7 +128,7 @@ module DataCycleCore
         referer: users_path
       }
 
-      assert_redirected_to unauthorized_path
+      assert_redirected_to unauthorized_exception_path
       follow_redirect!
       assert_select 'button.show-sidebar > span', 'guest@datacycle.at'
     end
