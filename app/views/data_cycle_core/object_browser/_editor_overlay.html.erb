@@ -9,10 +9,11 @@
       <input name="f[<%= search_id %>][v]" placeholder="<%= t('common.searchterm', locale: active_ui_locale) %>" autofocus class="object-browser-search">
     </div>
 
-    <div class="union-filter">
-      <% union_id = SecureRandom.hex(10) %>
-      <%= hidden_field_tag "f[#{union_id}][t]", :union_filter_ids %>
-      <%= select_tag(
+    <% if definition.dig('ui', 'edit', 'options', 'limited_by').blank? %>
+      <div class="union-filter">
+        <% union_id = SecureRandom.hex(10) %>
+        <%= hidden_field_tag "f[#{union_id}][t]", :union_filter_ids %>
+        <%= select_tag(
           "f[#{union_id}][v]",
           nil,
           {
@@ -28,7 +29,8 @@
             }
           }
         ) %>
-    </div>
+      </div>
+    <% end %>
 
     <div class="buttons">
       <%= button_tag type: :submit, class: "button success" do %>
@@ -42,6 +44,8 @@
     </div>
 
     <span class="item-count"></span>
+
+    <%= tag.i(class: 'fa fa-exclamation-triangle filter-warning', title: t("object_browser.limited_by.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)) if definition.dig('ui', 'edit', 'options', 'limited_by').present? && I18n.exists?("object_browser.limited_by.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale) %>
   </form>
 </div>
 

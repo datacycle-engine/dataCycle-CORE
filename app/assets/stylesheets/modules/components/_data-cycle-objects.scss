@@ -543,6 +543,7 @@
     .object-browser-filter-form {
       display: flex;
       align-items: center;
+      flex: auto;
 
       > * {
         margin-right: 0.6rem;
@@ -551,6 +552,12 @@
         &:last-child {
           margin-right: 0;
         }
+      }
+
+      .filter-warning {
+        font-size: 2.5rem;
+        color: $warning-color;
+        cursor: help;
       }
 
       .fulltext-search {
@@ -659,20 +666,25 @@
           &.round {
             border-radius: 100%;
             background: darken($medium-gray, 3%);
+            width: 2.5rem;
+            height: 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 2.5rem;
+            padding: 0;
           }
         }
       }
 
       .item-count {
         font-style: italic;
-        right: 1rem;
-        position: absolute;
-        top: 0;
-        line-height: 3rem;
+        line-height: 2.5rem;
         color: $dark-gray;
         height: 100%;
         display: flex;
         align-items: center;
+        margin-left: auto;
 
         > * {
           margin-right: 0.3rem;
