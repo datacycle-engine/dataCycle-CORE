@@ -7,15 +7,15 @@ module DataCycleCore
     rescue_from StandardError, with: :internal_server_error
     skip_before_action :verify_authenticity_token
 
-    def not_found
-      not_found_exception(request.env['action_dispatch.exception'])
+    def not_found_exception
+      not_found(request.env['action_dispatch.exception'])
     end
 
-    def unprocessable_entity
-      unprocessable_entity_exception(request.env['action_dispatch.exception'])
+    def unprocessable_entity_exception
+      unprocessable_entity(request.env['action_dispatch.exception'])
     end
 
-    def internal_server_error
+    def internal_server_error_exception
       respond_to do |format|
         format.html { render status: :internal_server_error }
         format.json { render status: :internal_server_error, json: { errors: ['Internal Server Error'] } }
@@ -24,7 +24,7 @@ module DataCycleCore
       end
     end
 
-    def unauthorized
+    def unauthorized_exception
       render status: :unauthorized
     end
 
