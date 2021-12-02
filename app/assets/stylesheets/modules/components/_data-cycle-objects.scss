@@ -662,6 +662,14 @@
         .button {
           padding: 0.5rem 0.8rem;
           border-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 2.5rem;
+
+          .fa {
+            margin-right: 0.3rem;
+          }
 
           &.round {
             border-radius: 100%;
@@ -673,6 +681,10 @@
             justify-content: center;
             line-height: 2.5rem;
             padding: 0;
+
+            .fa {
+              margin: 0;
+            }
           }
         }
       }

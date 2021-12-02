@@ -99,15 +99,15 @@ class ObjectBrowser {
     if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
     else if (this.overlay.data('overlay') === false) document.body.classList.add('object-browser-overlay-open');
 
+    if ($('.breadcrumb ul li:last-child').data('object-browser-id') == this.id) return;
+
     // set breadcrumb link + text
-    var text = $('.breadcrumb ul li:last-child').html();
+    const text = $('.breadcrumb ul li:last-child').html();
     $('.breadcrumb ul li:last-child').html('<a class="close-object-browser" href="#">' + text + '</a>');
     $('.breadcrumb ul').append(
-      '<li><span class="breadcrumb-text" title="' +
-        this.label.trim() +
-        ' auswählen"><i><i class="fa fa-files-o" aria-hidden="true"></i>' +
-        this.label +
-        ' auswählen</i></span></li>'
+      `<li data-object-browser-id="${
+        this.id
+      }"><span class="breadcrumb-text" title="${this.label.trim()} auswählen"><i><i class="fa fa-files-o" aria-hidden="true"></i>${this.label.trim()} auswählen</i></span></li>`
     );
     $('.breadcrumb ul li').on('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
   }
@@ -116,6 +116,8 @@ class ObjectBrowser {
 
     if (!$('.reveal.object-browser-overlay:visible').not(this.overlay).length && this.overlay.data('overlay') === false)
       document.body.classList.remove('object-browser-overlay-open');
+
+    if ($('.breadcrumb ul li:last-child').data('object-browser-id') != this.id) return;
 
     $('.breadcrumb ul li:last-child').remove();
     var text = $('.breadcrumb ul li:last-child a.close-object-browser').html();

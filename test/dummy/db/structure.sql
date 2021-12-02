@@ -223,15 +223,6 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
       END;$$;
 
 
---
--- Name: core_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
---
-
-CREATE TEXT SEARCH DICTIONARY public.core_german (
-    TEMPLATE = pg_catalog.thesaurus,
-    dictfile = 'core_german', dictionary = 'pg_catalog.german_stem' );
-
-
 SET default_tablespace = '';
 
 SET default_with_oids = false;
