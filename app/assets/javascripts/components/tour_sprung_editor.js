@@ -2,6 +2,7 @@ import OpenLayersEditor from './open_layers_editor';
 import lodashGet from 'lodash/get';
 import lodashPick from 'lodash/pick';
 import fetchInject from 'fetch-inject';
+import { RemoveWaypointControl } from './mtk_mapbox_controls';
 
 class TourSprungEditor extends OpenLayersEditor {
   constructor(container) {
@@ -12,6 +13,7 @@ class TourSprungEditor extends OpenLayersEditor {
     this.routeMarkers = [];
     this.highlightedFeatures;
     this.map;
+    this.editor;
     this.draggingMarker;
     this.toursrpungIcons = {
       start: this.iconOptions('start'),
@@ -32,38 +34,26 @@ class TourSprungEditor extends OpenLayersEditor {
   async loadExtenalScripts() {
     return await fetchInject(
       [
-        'https://static.maptoolkit.net/api/v8.9/mtk.css',
-        'https://static.maptoolkit.net/api/v8.9/editor.css',
-        '//unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css',
-        'https://static.maptoolkit.net/api/v8.9/editor.js',
-        '//unpkg.com/leaflet-gesture-handling'
+        'https://static.maptoolkit.net/mtk/v9.7.8/mtk.css',
+        'https://static.maptoolkit.net/api/v9.7.8/editor-gui.css',
+        'https://static.maptoolkit.net/api/v9.7.8/editor-gui.js'
       ],
-      fetchInject([`https://static.maptoolkit.net/api/v8.9/mtk.${document.documentElement.lang}.js`])
+      fetchInject(['https://static.maptoolkit.net/mtk/v9.7.8/mtk.js'])
     );
   }
+  preventEventBubbling(event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
   initMap() {
-    this.highlightedFeatures = L.layerGroup();
-    MTK.init({ apiKey: this.credentials.api_key });
-
-    let controls = [];
-
-    if (this.isLineString()) {
-      let editor = this.configureEditor();
-      if (editor !== undefined) controls.push(editor);
-    }
-
-    MTK.createMap(
+    // this.highlightedFeatures = L.layerGroup();
+    MTK.init({ apiKey: this.credentials.api_key, language: document.documentElement.lang }).createMap(
       this.containerId,
       {
         map: {
+          mapType: 'toursprung-terrain',
           location: this.defaultView(),
-          mapType: 'terrain_v2',
-          controls: controls,
-          options: {
-            fullscreenControl: true,
-            scrollWheelZoom: false,
-            gestureHandling: true
-          }
+          controls: []
         }
       },
       this.configureMap.bind(this)
@@ -72,6 +62,7 @@ class TourSprungEditor extends OpenLayersEditor {
     this.initEventHandlers();
   }
   initEventHandlers() {
+    // this.$container.on('click', this.preventEventBubbling.bind(this));
     this.$container.on('dc:import:data', this.importData.bind(this));
 
     if (this.isPoint()) {
@@ -104,28 +95,29 @@ class TourSprungEditor extends OpenLayersEditor {
   configureMap(map) {
     this.map = map;
 
+    this.configureEditor();
+
     if (this.isPoint() && this.value) this.drawInitialMarker();
     else if (this.isPoint()) this.drawableMarker();
     else if (this.isLineString()) {
-      if (this.value) this.drawInitialRoute();
-
-      this.initMtkEvents();
+      // if (this.value) this.drawInitialRoute();
+      // this.initMtkEvents();
     }
 
-    if (this.additionalValues && this.additionalValues.length) this.drawAdditionalFeatures();
-    this.updateMapPosition();
+    // if (this.additionalValues && this.additionalValues.length) this.drawAdditionalFeatures();
+    // this.updateMapPosition();
   }
   initMtkEvents() {
     MTK.event.addListener(this.map.editor, 'update', data => {
-      this.setMtkLineStyle();
+      // this.setMtkLineStyle();
       this.feature = this.map.editor._polyline();
       let coords = this.reverseCoordinates(data.routeVertices);
       this.setHiddenFieldValue({ type: 'MultiLineString', coordinates: coords });
     });
   }
-  setMtkLineStyle() {
-    this.map.editor._polyline().setStyle(this.lineStyle());
-  }
+  // setMtkLineStyle() {
+  //   this.map.editor._polyline().setStyle(this.lineStyle());
+  // }
   reverseCoordinates(coords, removeZAt = 2) {
     for (let i = 0; i < coords.length; i++) {
       if (Array.isArray(coords[i]) && coords[i].length == 2 && !Array.isArray(coords[i][0])) coords[i].reverse();
@@ -158,13 +150,12 @@ class TourSprungEditor extends OpenLayersEditor {
     this.drawMarkerFeature(coords);
   }
   drawInitialRoute() {
-    let coords = L.GeoJSON.coordsToLatLngs(
-      this.value.geometry.coordinates,
-      this.value.geometry.type.startsWith('Multi') ? 1 : 0
-    );
-    this.map.editor.setSerializedData({ routeVertices: coords });
-    this.setMtkLineStyle();
-    this.feature = this.map.editor._polyline();
+    this.editorGui.editor.loadGeoJSON({
+      type: 'FeatureCollection',
+      features: [this.value]
+    });
+
+    this.feature = this.editorGui.editor.getPolyline();
   }
   drawMarkerFeature(coords) {
     this.feature = this.singleMarker(coords, true)
@@ -204,7 +195,7 @@ class TourSprungEditor extends OpenLayersEditor {
       {
         color: this.colors.default,
         opacity: 1,
-        weight: 5
+        width: 5
       },
       options
     );
@@ -282,27 +273,54 @@ class TourSprungEditor extends OpenLayersEditor {
       features: this.additionalValues
     });
   }
+  editorHtml() {}
   configureEditor() {
     if (this.isLineString()) {
-      return new MTK.Control.Editor({
-        undo: true,
-        upload: this.uploadable,
-        poi: false,
-        wikipedia: false,
-        elevationProfile: false,
-        icons: this.toursrpungIcons
+      this.editor = new MTK.Editor({
+        routeType: 'bike'
+      }).addTo(this.map);
+
+      MTK.event.addListener(this.map, 'click', e => {
+        this.editor.addWaypoint({ lngLat: e.lngLat.toArray() });
       });
+
+      // this.editorGui = new MTK.EditorInterface({
+      //   pois: [
+      //     {
+      //       id: 'alpinhuts',
+      //       resource: {
+      //         name: 'osm',
+      //         filter: ['in', 'kv', 'tourism=alpine_hut']
+      //       }
+      //     },
+      //     {
+      //       id: 'peaks',
+      //       resource: {
+      //         name: 'osm',
+      //         filter: ['in', 'kv', 'natural=peak']
+      //       }
+      //     }
+      //   ]
+      // }).addTo(this.map);
+      // this.editorGui.editor.outline.width = 0;
+      // Object.assign(this.editorGui.editor.line, this.lineStyle());
+      // Object.assign(this.editorGui.editor.dashedLine, this.lineStyle());
+      // TODO: hide waypoint style
     }
+
+    this.map.gl.addControl(new mapboxgl.NavigationControl(), 'top-left');
+    this.map.gl.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+    this.map.gl.addControl(new RemoveWaypointControl(), 'top-left');
   }
   defaultView() {
     const viewOptions = {
       zoom: 7,
-      center: [47.69642, 13.34576]
+      center: [13.34576, 47.69642]
     };
 
     if (this.defaultPosition && this.defaultPosition.zoom) viewOptions.zoom = this.defaultPosition.zoom;
     if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude)
-      viewOptions.center = [this.defaultPosition.latitude, this.defaultPosition.longitude];
+      viewOptions.center = [this.defaultPosition.longitude, this.defaultPosition.latitude];
 
     return viewOptions;
   }
