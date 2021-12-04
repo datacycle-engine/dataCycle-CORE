@@ -15,6 +15,11 @@
   :max_depth: 3
   :v1:
     :enabled: true
+:webdav:
+  :default: v1
+  :enabled: false
+  :v1:
+    :enabled: false
 #  :v2:
 #    :subversions:
 #      - 'test'

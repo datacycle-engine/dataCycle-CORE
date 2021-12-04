@@ -297,3 +297,64 @@
 
 :my_selection:
   :enabled: false
+
+:image_proxy:
+  :enabled: false
+  :frontend:
+    :enabled: false
+  :config:
+    :dynamic:
+    :original:
+    :default:
+      :processing:
+        :resize_type: fit
+        :width: 0
+        :height: 0
+        :enlarge: 0
+        :gravity: ce
+    :thumb:
+      :processing:
+        :resize_type: fit
+        :width: 300
+        :height: 300
+        :enlarge: 0
+        :gravity: ce
+    :web:
+      :processing:
+        :resize_type: fit
+        :width: 2048
+        :height: 2048
+        :enlarge: 0
+        :gravity: ce
+    :web_small:
+      :processing:
+        :resize_type: fit
+        :width: 1500
+        :height: 1500
+        :enlarge: 0
+        :gravity: ce
+
+:report_generator:
+  :enabled: false
+  :config:
+    :global:
+      :downloads_popular:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::Popular
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
+    :content:
+      :downloads_content:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::Content
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
+
+:image_editor:
+  :enabled: false

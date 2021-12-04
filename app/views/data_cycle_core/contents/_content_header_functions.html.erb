@@ -36,6 +36,11 @@
         <button class="link" onclick="window.print();"><i aria-hidden="true" class="fa fa-print"></i></button>
       </li>
     <% end %>
+    <% if can?(:download_content_report, content) %>
+      <li class="has-dropdown">
+        <%= render 'content_reports', content: content %>
+      </li>
+    <% end %>
     <% if can? :clear_all, :cache %>
       <li>
         <%= link_to clear_cache_thing_path(content),

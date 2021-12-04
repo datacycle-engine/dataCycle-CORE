@@ -67,7 +67,7 @@ module DataCycleCore
       end
 
       def errors
-        @errors ||= Hash.new do |h, key|
+        @errors ||= ActiveSupport::HashWithIndifferentAccess.new do |h, key|
           h[key] = ActiveModel::Errors.new(self)
         end
 
@@ -75,11 +75,11 @@ module DataCycleCore
       end
 
       def i18n_errors
-        @errors || {}
+        @errors || ActiveSupport::HashWithIndifferentAccess.new
       end
 
       def warnings
-        @warnings ||= Hash.new do |h, key|
+        @warnings ||= ActiveSupport::HashWithIndifferentAccess.new do |h, key|
           h[key] = ActiveModel::Errors.new(self)
         end
 
@@ -87,7 +87,7 @@ module DataCycleCore
       end
 
       def i18n_warnings
-        @warnings || {}
+        @warnings || ActiveSupport::HashWithIndifferentAccess.new
       end
 
       def valid?(*_args)
@@ -96,9 +96,6 @@ module DataCycleCore
 
       def i18n_valid?
         !i18n_errors&.any? { |(_k, v)| v.present? }
-      end
-
-      def all_translations_valid?
       end
 
       def respond_to?(method_name, include_all = false)

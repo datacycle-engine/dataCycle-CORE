@@ -1,26 +1,6 @@
 {
   "ignored_warnings": [
     {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "9c73b70e7c1058c20b52797a0d5bcdda0c1b8f6aad66f3fe8432ee58286bb9e6",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/controllers/data_cycle_core/api/v4/contents_controller.rb",
-      "line": 16,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "ActiveRecord::Base.connection.execute(\"SET LOCAL statement_timeout = #{(((ENV[\"PUMA_MAX_TIMEOUT\"].to_i or 60) - 1) * 1000)}\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "DataCycleCore::Api::V4::ContentsController",
-        "method": "index"
-      },
-      "user_input": "(((ENV[\"PUMA_MAX_TIMEOUT\"].to_i or 60) - 1) * 1000)",
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "d8daa1f9017fb38eed06349832042a3ca85d9da8ab70d0fee933ae26219a8340",

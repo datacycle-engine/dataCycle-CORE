@@ -158,6 +158,9 @@ de:
         other: Wörter
       max: (noch max. %{data} %{label})
       min: (noch min. %{data} %{label})
+    image_editor:
+      edit_image: Bild bearbeiten
+      unsupported_format: Das Bild wird vom Bild-Editor in ein unterstützes Dateiformat konvertiert.
 
   schedule:
     dtstart: Startzeitpunkt
@@ -450,16 +453,28 @@ de:
         subject: Ein neuer Benutzer wurde erstellt
         text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
         user_link: Benutzer bearbeiten
+    report_generator:
+      downloads_popular: Top 50 Downloads
+      downloads_content: Alle Downloads dieses Inhalts
+      headings:
+        id: ID
+        name: Name
+        downloads_all: Anzahl der Downloads (Gesamt)
+        downloads_by_month: Anzahl der Downloads (Dieses Monat)
+        date_created: Heruntergeladen am
+        email: E-Mail
+        user_display_name: Benutzer
 
   history:
     latest_edits: Letzte Bearbeitungen
-    created_at: erstellt am
-    updated_at: bearbeitet am
+    created_at_html: erstellt am <b>%{date}</b>
+    updated_at_html: bearbeitet in <b>%{language}</b> am <b>%{date}</b>
     valid_since: gültig seit
     differences_to_version: Unterschiede zu Version
     active_version: Aktuelle Version
-    look_at_version: Aktuellen Inhalt mit dieser Version vergleichen
+    look_at_version: Aktuellen Version mit dieser Version vergleichen
     restored: Wiederhergestellt am %{date}
+    created: Inhalt erstellt
 
   data_link_mailer:
     content_download: Inhalt herunterladen
@@ -662,6 +677,7 @@ de:
     finalize_agbs_text: AGBs
     finalize_combined_html: '%{finalize} und %{agbs} akzeptieren'
     copy_to_clipboard: In die Zwischenablage kopieren
+    copy_classification_alias_id_to_clipboard: Klassifizierungs-Alias-ID in die Zwischenablage kopieren
     copied_to_clipboard: In Zwischenablage kopiert.
     save: Speichern
     update: Aktualisieren
@@ -1034,7 +1050,7 @@ de:
         permissions_download: herunterladen
         permissions_read: lesen
         permissions_write: bearbeiten
-        text_file: 'Weitere Infos (PDF)'
+        text_file: Weitere Infos (%{file_types})
         locale: 'E-Mail Sprache'
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar
@@ -1112,6 +1128,10 @@ de:
       containers: Container
       entities: Inhalte
       embeddeds: Eingebettete Inhalte
+    reports:
+      root: 'Reports'
+      available_reports: 'Verfügbare Reports'
+
     warning:
       common:
         invalid: Gültigkeitszeitraum überschritten
@@ -1449,3 +1469,11 @@ de:
   details:
     bild:
       open_url: URL öffnen
+
+  exceptions_page:
+    back_to_root_link: Zurück zu dataCycle
+    copy_to_clipboard_link: Request-ID kopieren
+    copy_to_clipboard_title: Über die Request-ID kann der Fehler im Monitoring leichter gefunden werden
+    not_found: Diese Seite existiert leider nicht
+    internal_server_error: Es ist ein unerwarteter Fehler aufgetreten
+    unauthorized: Sie haben keine Berechtigung, die gewünschte Seite zu öffnen

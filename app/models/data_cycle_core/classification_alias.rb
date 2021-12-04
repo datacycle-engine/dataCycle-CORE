@@ -223,34 +223,41 @@ module DataCycleCore
 
       new_path = Array.wrap(new_path)
 
-      ctl = DataCycleCore::ClassificationTreeLabel.find_by(name: new_path.shift)
+      ctl = DataCycleCore::ClassificationTreeLabel.find_by(name: new_path.first)
 
       return if ctl.nil?
 
-      new_classification_alias = ctl.create_classification_alias(*(new_path.map { |c| { name: c } }))
-
-      return if new_classification_alias.nil?
+      new_ca = DataCycleCore::ClassificationAlias.includes(:classification_alias_path).find_by(classification_alias_paths: { full_path_names: new_path.reverse })
 
       ActiveRecord::Base.transaction do
-        descendants.find_each do |descendant|
-          if destroy_children
-            descendant.merge_with(new_classification_alias)
-          else
-            descendant.move_to_tree(new_classification_alias, ctl.id)
-          end
-        end
+        if new_ca.nil?
+          new_parent = ctl.create_classification_alias(*(new_path[1...-1].map { |c| { name: c } }))
 
-        merge_with(new_classification_alias)
+          descendants.find_each { |d| d.merge_with(self) } if destroy_children
+
+          move_to_tree(new_parent, ctl.id)
+          new_ca = self
+        else
+          if destroy_children
+            descendants.find_each { |d| d.merge_with(new_ca) }
+          else
+            descendants.find_each { |d| d.move_to_tree(new_ca, ctl.id) }
+          end
+
+          merge_with(new_ca)
+        end
       end
 
-      new_classification_alias.send(:invalidate_things_cache)
-      new_classification_alias
+      new_ca
     end
 
     def move_to_tree(parent_ca, tree_label_id)
-      return if parent_ca.nil? || tree_label_id.nil?
+      return if tree_label_id.nil?
 
-      classification_tree&.update(parent_classification_alias_id: parent_ca.id, classification_tree_label_id: tree_label_id)
+      classification_tree&.update(parent_classification_alias_id: parent_ca&.id, classification_tree_label_id: tree_label_id)
+
+      add_things_cache_invalidation_job_update
+      add_things_webhooks_job_update
     end
 
     def merge_with(new_classification_alias)
@@ -265,6 +272,9 @@ module DataCycleCore
       DataCycleCore::StoredFilter.update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")
 
       destroy
+
+      new_classification_alias.send(:add_things_cache_invalidation_job_update)
+      new_classification_alias.send(:add_things_webhooks_job_update)
     end
 
     def to_hash

@@ -455,13 +455,16 @@ en:
         user_link: Edit user
   history:
     latest_edits: Latest edits
-    created_at: created on
-    updated_at: edited on
+    created_at_html: created on <b>%{date}</b>
+    updated_at_html: edited in <b>%{language}</b> on <b>%{date}</b>
     valid_since: effective since
     differences_to_version: Differences to version
     active_version: Current version
-    look_at_version: Compare current content with this version
+    look_at_version: Compare current version with this version
     restored: Recovered on %{date}
+    created: Content created
+    active_version: Current Version
+
   data_link_mailer:
     content_download: Download content
     content_read: Read content
@@ -648,6 +651,7 @@ en:
     finalize_agbs_text: Terms & Conditions
     finalize_combined_html: '%{finalize} and accept %{agbs}'
     copy_to_clipboard: Copy to clipboard
+    copy_classification_alias_id_to_clipboard: Copy Classification-Alias-ID to clipboard
     copied_to_clipboard: Copied to clipboard.
     save: Save
     update: Update
@@ -1040,7 +1044,7 @@ en:
         permissions_download: download
         permissions_read: read
         permissions_write: edit
-        text_file: Further information (PDF)
+        text_file: Further information (%{file_types})
         locale: E-mail language
       data_cycle_core/stored_filter:
         system: Visible for all users
@@ -1452,3 +1456,11 @@ en:
   details:
     bild:
       open_url: Open URL
+
+  exceptions_page:
+    back_to_root_link: back to dataCycle
+    copy_to_clipboard_link: copy Request-ID
+    copy_to_clipboard_title: The error can be found more easily in the monitoring via the Request-ID
+    not_found: Sorry, this page does not exist
+    internal_server_error: An unexpected error has occurred
+    unauthorized: You do not have permission to open the desired page

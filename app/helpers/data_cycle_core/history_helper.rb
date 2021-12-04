@@ -2,15 +2,12 @@
 
 module DataCycleCore
   module HistoryHelper
-    INDICATOR_CLASSES = {
-      '+' => 'has-changes new',
-      '-' => 'has-changes remove',
-      '~' => 'has-changes edit'
-    }.freeze
+    INDICATOR_CLASSES = { '+' => 'has-changes new', '-' => 'has-changes remove', '~' => 'has-changes edit' }.freeze
 
     def attribute_changes(diff, key)
       return nil if diff.blank?
       item_path_array = key.split(/[\[\]]+/)
+
       # diff.dig(*item_path_array)
       save_navigate(diff, item_path_array)
     end
@@ -29,25 +26,17 @@ module DataCycleCore
     end
 
     def changes_class(diff, value)
-      diff.presence&.each do |mode|
-        return INDICATOR_CLASSES[mode[0]] if mode[1].presence&.include?(value)
-      end
+      diff.presence&.each { |mode| return INDICATOR_CLASSES[mode[0]] if mode[1].presence&.include?(value) }
       ''
     end
 
     def changes_mode(diff)
       return '' if diff.blank?
-      if diff.is_a?(Hash) || diff.dig(0).is_a?(Array)
-        INDICATOR_CLASSES['~']
-      else
-        INDICATOR_CLASSES[diff.dig(0)]
-      end
+      diff.is_a?(Hash) || diff.dig(0).is_a?(Array) ? INDICATOR_CLASSES['~'] : INDICATOR_CLASSES[diff.dig(0)]
     end
 
     def changes_by_value(diff, value)
-      diff.presence&.each do |mode|
-        return [[mode[0], value]] if mode[1].presence&.include?(value)
-      end
+      diff.presence&.each { |mode| return [[mode[0], value]] if mode[1].presence&.include?(value) }
       nil
     end
 
@@ -69,24 +58,42 @@ module DataCycleCore
     end
 
     def visible_content_date(content)
-      data = {}
-      if content.created_at.present?
-        data[:created] = safe_join([
-          t('history.created_at', locale: active_ui_locale),
-          l(content.created_at.in_time_zone, locale: active_ui_locale),
-          history_by_link(content.created_by_user)
-        ].compact, ' ')
-      end
+      type = 'created'
+      type = 'updated' if content.histories.exists? ||
+                          (content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i)
 
-      if content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i
-        data[:updated] = tag.span(safe_join([
-          t('history.updated_at', locale: active_ui_locale),
-          l(content.updated_at.in_time_zone, locale: active_ui_locale),
-          history_by_link(content.updated_by_user)
-        ].compact, ' '), title: content.histories.exists? ? nil : strip_tags(data[:created]).presence)
-      end
+      return nil if (date = content.try("#{type}_at")).blank?
 
-      data
+      date_string =
+        safe_join(
+          [
+            t(
+              "history.#{type}_at_html",
+              locale: active_ui_locale,
+              language: content.last_updated_locale,
+              date: l(date.in_time_zone, locale: active_ui_locale, format: :history)
+            ),
+            history_by_link(content.try("#{type}_by_user"))
+          ].compact,
+          ' '
+        )
+
+      title_string =
+        strip_tags(
+          safe_join(
+            [
+              t(
+                'history.created_at_html',
+                locale: active_ui_locale,
+                date: l(content.created_at.in_time_zone, locale: active_ui_locale)
+              ),
+              history_by_link(content.created_by_user)
+            ].compact,
+            ' '
+          )
+        )
+
+      tag.span(date_string, title: title_string)
     end
 
     def history_by_link(user)
@@ -95,7 +102,13 @@ module DataCycleCore
       if user.nil?
         safe_join([link_text, tag.b('System')], ' ')
       else
-        safe_join([link_text, tag.b(tag.a(user.full_name, class: 'email-link', href: "mailto:#{user.email}", title: user.full_name))], ' ')
+        safe_join(
+          [
+            link_text,
+            tag.b(tag.a(user.full_name, class: 'email-link', href: "mailto:#{user.email}", title: user.full_name))
+          ],
+          ' '
+        )
       end
     end
 
@@ -135,62 +148,113 @@ module DataCycleCore
           )
         end
       end
-      tag.span(safe_join(version_name.compact), class: "named-version-container#{' removable' if item[:can_remove_version_name]}", id: "version-name-#{item[:id]}")
+      tag.span(
+        safe_join(version_name.compact),
+        class: "named-version-container#{' removable' if item[:can_remove_version_name]}",
+        id: "version-name-#{item[:id]}"
+      )
     end
 
-    def history_dropdown_line(content, item, watch_list_id, is_active = false, is_last = false)
+    def history_dropdown_line(content, item, watch_list_id, is_active = false)
       data = []
 
-      data.push(history_dropdown_link(is_last && !item[:created_by_user].nil? ? item[:created_by_user] : item[:updated_by_user]))
+      data.push(history_dropdown_link(item[:updated_by_user]))
       data.push(tag.span(item[:locale].presence&.then { |s| "(#{s})" }, class: 'history-locale'))
 
-      history_date = is_last && item[:class_name] == 'DataCycleCore::Thing' ? item[:created_at] : item[:updated_at]
-      data.push(tag.span(l(history_date.in_time_zone, locale: active_ui_locale, format: :history), class: 'history-time', title: l(history_date.in_time_zone, locale: active_ui_locale))) if history_date.present?
-
-      data.push(version_name_html(item)) if DataCycleCore::Feature::NamedVersion.enabled?
-      if can?(:history, content)
+      if item[:updated_at].present?
         data.push(
           tag.span(
-            item[:class_name] == 'DataCycleCore::Thing::History' && !is_active ? link_to(tag.i(class: 'fa fa-history', title: t('history.look_at_version', locale: active_ui_locale)), history_thing_path(content, history_id: item[:id], watch_list_id: watch_list_id)) : nil,
-            class: 'history-link'
+            l(item[:updated_at].in_time_zone, locale: active_ui_locale, format: :history),
+            class: 'history-time',
+            title: l(item[:updated_at].in_time_zone, locale: active_ui_locale)
           )
         )
       end
+
+      data.push(version_name_html(item)) if DataCycleCore::Feature::NamedVersion.enabled?
+
+      history_link =
+        tag.span(class: 'history-link') do
+          if item.key?(:icon)
+            item[:icon]
+          elsif can?(:history, content) && item[:class_name] == 'DataCycleCore::Thing::History'
+            link_to_unless is_active,
+                           tag.i(class: 'fa fa-history', title: t('history.look_at_version', locale: active_ui_locale)),
+                           history_thing_path(content, history_id: item[:id], watch_list_id: watch_list_id)
+          end
+        end
+
+      data.push(history_link)
 
       tag.li(safe_join(data.compact), class: is_active ? 'active' : '')
     end
 
     def complete_history_list(content)
       history_entries = []
-      if content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i
-        history_entries.push(map_to_history_entry(content, content.last_updated_locale))
+      if content.histories.exists? ||
+         (content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i)
+        history_entries.push(
+          map_to_history_entry(item: content, locales: content.last_updated_locale).merge(
+            icon:
+              tag.i(
+                class: 'fa fa-clock-o history-active-version-icon',
+                title: t('history.active_version', locale: active_ui_locale)
+              )
+          )
+        )
+
         history_entries.concat(ordered_history_entries(content))
       end
 
-      locales_without_history = content.translated_locales.difference(content.histories.translated_locales)
-      history_entries.push(map_to_history_entry(content, locales_without_history, false)) if locales_without_history.any?
+      created_locales = content
+        .translations
+        .where('thing_translations.created_at <= ?', content.created_at&.+(10.seconds))
+        .pluck(:locale)
+
+      content.translations.where.not(locale: content.histories.translated_locales + created_locales + [content.last_updated_locale]).each do |created_translation|
+        history_entries.push({
+          id: content.id,
+          class_name: content.class.name,
+          updated_at: [created_translation.created_at, created_translation.updated_at - 1.second, content.updated_at - 1.second].min,
+          locale: created_translation.locale,
+          can_remove_version_name: false
+        }.merge(
+          icon: tag.i(class: 'fa fa-plus history-created-icon', title: t('history.created', locale: active_ui_locale))
+        ))
+      end
+
+      history_entries.push(
+        map_to_history_entry(
+          item: content,
+          locales: created_locales,
+          attribute_type: :created,
+          include_version_name: false
+        ).merge(
+          icon: tag.i(class: 'fa fa-plus history-created-icon', title: t('history.created', locale: active_ui_locale))
+        )
+      )
+
+      history_entries.sort! { |a, b| b[:updated_at].to_i - a[:updated_at].to_i }
 
       history_entries
     end
 
     def ordered_history_entries(content)
-      content.histories.includes(:translations, :created_by_user, :updated_by_user).map do |history|
-        map_to_history_entry(history, history.translated_locales)
-      end
+      content
+        .histories
+        .includes(:translations, :updated_by_user)
+        .map { |history| map_to_history_entry(item: history, locales: history.translated_locales) }
     end
 
-    def map_to_history_entry(item, locales = nil, include_version_name = true)
+    def map_to_history_entry(item:, locales: nil, attribute_type: :updated, include_version_name: true)
       I18n.with_locale(item.first_available_locale) do
         {
           id: item.id,
-          created_by: item.created_by,
-          updated_by: item.updated_by,
-          created_at: item.created_at,
-          updated_at: item.is_a?(DataCycleCore::Thing::History) ? item.history_valid&.first : item.updated_at,
+          updated_by: item.try("#{attribute_type}_by"),
+          updated_at: item.try(:history_valid)&.first || item.try("#{attribute_type}_at"),
           class_name: item.class.name,
           version_name: include_version_name ? item.version_name : nil,
-          created_by_user: item.created_by_user,
-          updated_by_user: item.updated_by_user,
+          updated_by_user: item.try("#{attribute_type}_by_user"),
           locale: Array.wrap(locales).join(', '),
           can_remove_version_name: DataCycleCore::Feature::NamedVersion.enabled? && can?(:remove_version_name, item)
         }

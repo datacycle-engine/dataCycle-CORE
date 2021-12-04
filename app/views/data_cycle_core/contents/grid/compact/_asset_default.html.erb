@@ -1,6 +1,6 @@
 <%= render 'data_cycle_core/contents/grid/compact/tile_wrapper', local_assigns.except(:tile_links).merge(tile_classes: 'asset') do %>
   <%
-      thumbnail_url = object.try(:asset)&.first&.thumbnail_url
+    thumbnail_url = object.try(:asset)&.first&.thumbnail_url
   %>
   <% render_locale = I18n.locale %>
   <% I18n.with_locale(object.first_available_locale) do %>

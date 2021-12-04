@@ -112,7 +112,7 @@ class TextEditor {
       },
       theme: 'snow',
       formats: this.availableFormats[this.mode],
-      readOnly: this.element.readOnly,
+      readOnly: !!this.element.getAttribute('readonly'),
       bounds: this.element
     };
     this.scrollOptions =

@@ -10,6 +10,7 @@
 **/public/downloads/*
 **/public/uploads
 **/public/assets
+**/private/import
 **/lib/assets
 **/test/fixtures/files/shp
 **/tmp/

@@ -189,3 +189,21 @@
 
 :named_version:
   :enabled: true
+
+:image_proxy:
+  :enabled: true
+  :frontend:
+    :enabled: true
+
+:image_editor:
+  :enabled: true
+
+:report_generator:
+  :enabled: true
+  :config:
+    :global:
+      :downloads_popular:
+        :enabled: true
+    :content:
+      :downloads_content:
+        :enabled: true

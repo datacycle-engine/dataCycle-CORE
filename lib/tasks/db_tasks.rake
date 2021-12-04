@@ -22,5 +22,14 @@ namespace :db do
       ActiveRecord::Base.connection.execute('VACUUM FULL;')
       ActiveRecord::Base.connection.execute('ANALYZE;')
     end
+
+    desc 'run VACUUM (FULL) on DB, full(false|true)'
+    task :vacuum, [:full] => [:environment] do |_, args|
+      full = args.fetch(:full, false)
+      sql = 'VACUUM'
+      sql += ' FULL' if full
+      sql += ';'
+      ActiveRecord::Base.connection.execute(sql)
+    end
   end
 end

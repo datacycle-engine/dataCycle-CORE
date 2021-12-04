@@ -13,7 +13,7 @@ module DataCycleCore
           @per = 30
           @max_retry = 5
           @conn = Faraday.new(@host)
-          @conn.authorization :Bearer, @token
+          @conn.request :authorization, :Bearer, @token
         end
 
         def events(lang: :de)

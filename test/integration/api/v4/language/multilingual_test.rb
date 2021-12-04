@@ -370,7 +370,7 @@ module DataCycleCore
                       'dc:translation' => [
                         'de'
                       ],
-                      'contentUrl' => @content.image.first.content_url
+                      'contentUrl' => DataCycleCore::Feature::ImageProxy.enabled? ? DataCycleCore::Feature::ImageProxy.process_image(content: @content.image.first, variant: 'default') : @content.image.first.content_url
                     }
                   )
                 ]
@@ -475,7 +475,7 @@ module DataCycleCore
                         'de'
                       ],
                       'name' => translated_value(@content, 'image.first.name', ['de']),
-                      'contentUrl' => @content.image.first.content_url
+                      'contentUrl' => DataCycleCore::Feature::ImageProxy.enabled? ? DataCycleCore::Feature::ImageProxy.process_image(content: @content.image.first, variant: 'default') : @content.image.first.content_url
                     }
                   )
                 ]

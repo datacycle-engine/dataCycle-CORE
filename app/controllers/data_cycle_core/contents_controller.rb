@@ -80,7 +80,7 @@ module DataCycleCore
       content = DataCycleCore::Thing.find(params[:id])
       type = asset_proxy_params.dig(:type)
       attribute = :content_url
-      attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && content.template_name != 'Bild')
+      attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && !['Bild', 'ImageVariant'].include?(content.template_name))
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
       uri = URI.parse(content.send(attribute))
@@ -187,7 +187,7 @@ module DataCycleCore
         version_name_for_merge(datahash) if merge_duplicate
 
         unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true, force_update: merge_duplicate)
-          flash[:error] = @content.errors.full_messages
+          flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
           redirect_back(fallback_location: root_path) && return
         end
 
@@ -421,7 +421,7 @@ module DataCycleCore
       authorize! :show, DataCycleCore::Thing
       template_filter = select_search_params[:template_name].present?
 
-      filter = DataCycleCore::StoredFilter.new.from_params_hash(select_search_params[:stored_filter])
+      filter = DataCycleCore::StoredFilter.new.parameters_from_hash(select_search_params[:stored_filter])
       query = filter.apply
       query = query
         .fulltext_search(select_search_params[:q])

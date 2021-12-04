@@ -19,6 +19,10 @@ module DataCycleCore
       respond_to(:html, :js)
     end
 
+    def show
+      redirect_to root_path(stored_filter: @stored_filter)
+    end
+
     def update
       if @stored_filter.update(stored_filter_params)
         redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: helpers.active_ui_locale))
@@ -47,9 +51,14 @@ module DataCycleCore
     def search
       authorize! :show, :stored_filter
 
-      stored_filters = DataCycleCore::StoredFilter.where('user_id = ? AND name ILIKE ?', current_user.id, "%#{params[:q]}%").limit(20)
+      stored_filters = DataCycleCore::StoredFilter.accessible_by(current_ability, :update)
+        .includes(:user)
+        .where('name ILIKE ?', "%#{params[:q].gsub(/ \| .*<.*@.*>$/, '')}%")
+        .limit(20)
 
-      render json: stored_filters
+      render json: stored_filters.map { |filter|
+        filter.tap { |f| f.name += " | #{f.user.full_name} <#{f.user.email}>" if f.user_id != current_user.id }
+      }
     end
 
     def select_search_or_collection
@@ -57,7 +66,7 @@ module DataCycleCore
 
       filter_string = select_search_params[:q]&.strip
       filter_proc = ->(query, query_table) { query.where(query_table[:name].matches("%#{filter_string}%")) } if filter_string.present?
-      arel_query = @accessible_stored_filters.combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability), filter_proc)
+      arel_query = @accessible_stored_filters.combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability).conditional_my_selection, filter_proc)
       arel_query = arel_query.take(select_search_params[:max].to_i) if select_search_params[:max].present?
 
       result = ActiveRecord::Base.connection.select_all arel_query.to_sql

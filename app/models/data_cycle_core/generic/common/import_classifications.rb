@@ -36,7 +36,7 @@ module DataCycleCore
                         import_classification(
                           utility_object: utility_object,
                           classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
-                          parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id)
+                          parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id, options)
                         )
                         raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
 
@@ -99,7 +99,7 @@ module DataCycleCore
                           import_classification(
                             utility_object: utility_object,
                             classification_data: child_classification_data.merge({ tree_name: tree_name }),
-                            parent_classification_alias: load_parent_classification_alias.call(classification_data, external_source_id)
+                            parent_classification_alias: load_parent_classification_alias.call(classification_data, external_source_id, options)
                           )
                         end
 

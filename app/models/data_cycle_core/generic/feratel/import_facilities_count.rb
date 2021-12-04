@@ -19,7 +19,7 @@ module DataCycleCore
           load_root_classifications(mongo_item, locale, options).to_a.each do |classification_data|
             next if options[:min_count].present? && item_count < options[:min_count]
             item_count += 1
-            parent_classification_data = load_parent_classification_alias(classification_data['_id'], external_source_id)
+            parent_classification_data = load_parent_classification_alias(classification_data['_id'], external_source_id, options)
             next if parent_classification_data.blank?
 
             classification_data['values'].each do |amount|
@@ -59,7 +59,7 @@ module DataCycleCore
           )
         end
 
-        def self.load_parent_classification_alias(external_key, external_source_id)
+        def self.load_parent_classification_alias(external_key, external_source_id, _options = {})
           DataCycleCore::Classification
             .find_by(
               external_source_id: external_source_id,

@@ -15,7 +15,7 @@ module DataCycleCore
             options.dig(:import, :tree_label),
             method(:load_root_classifications).to_proc,
             ->(_, _, _) { [] },
-            ->(_, _) { nil },
+            ->(_, _, _) { nil },
             method(:extract_data).to_proc,
             options
           )

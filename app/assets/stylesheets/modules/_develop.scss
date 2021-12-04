@@ -312,14 +312,54 @@
       }
     }
   }
-
   &.imageobject,
   &.videoobject {
     span.detail-label {
       font-weight: bold;
-
       > *:not(:last-child) {
         margin-right: 0.3rem;
+      }
+    }
+    .detail-type.encoding.embedded {
+      position: relative;
+      box-shadow: 0 0 1px #9d9d9d;
+      .detail-type {
+        box-shadow: none;
+        padding: 0;
+        &:not(:last-child) {
+          margin-bottom: 1rem;
+        }
+        .detail-label {
+          position: relative;
+          left: 0;
+          top: 0;
+          background: inherit;
+          color: #9d9d9d;
+          padding: 0.4rem 0.7rem;
+        }
+        .detail-content {
+          position: relative;
+          display: inline-block;
+        }
+      }
+    }
+  }
+}
+
+.detail-content.imageobject {
+  .detail-type.encoding.embedded {
+    .image.encoding {
+      .image-container {
+        width: 33%;
+      }
+      .image-data {
+        width: 66%;
+      }
+      .detail-type {
+        .detail-label {
+          color: #333333;
+          padding: 0;
+        }
       }
     }
   }
@@ -1126,6 +1166,11 @@ a.link {
       .fa {
         line-height: 1.2rem;
       }
+
+      .history-created-icon,
+      .history-active-version-icon {
+        color: lighten($dark-gray, 20%);
+      }
     }
   }
 }
@@ -1149,12 +1194,8 @@ a.email-link {
   flex: 0;
 
   &.removable {
-    width: 2.7rem;
-    min-width: 2.7rem;
-  }
-
-  > *:not(:last-child) {
-    margin-right: 0.3rem;
+    width: 2.5rem;
+    min-width: 2.5rem;
   }
 
   .remove-version-name-link {
@@ -1439,7 +1480,7 @@ a.email-link {
     position: absolute;
     animation: fa-spin 2s infinite linear;
     right: 1rem;
-    top: 1rem;
+    top: calc(50% - 0.75rem);
     font-size: 1.5rem;
     line-height: 1.5rem;
   }
@@ -1448,14 +1489,14 @@ a.email-link {
   .select2-selection--single {
     .select2-selection__choice,
     .select2-selection__rendered {
-      &.stored_filter::before {
+      .stored_filter::before {
         content: '\f0b0';
         font-family: FontAwesome;
         position: relative;
         padding: 2px 5px 2px 2px;
       }
 
-      &.watch_list::before {
+      .watch_list::before {
         content: '\f0ca';
         font-family: FontAwesome;
         position: relative;
@@ -3286,4 +3327,12 @@ body {
     font-size: 1.1rem;
     margin-right: 0.3rem;
   }
+}
+.tree-link {
+  .mini-preview-image {
+    padding-right: 0.5rem;
+  }
+}
+.mini-preview-image {
+  display: inline-block;
 }

@@ -41,7 +41,7 @@ module DataCycleCore
             previous_job.invoke_job
             previous_job.destroy!
           rescue StandardError
-            raise DataCycleCore::Export::Common::Error::WebhookError, "Delayed job sequential error for: #{job.id} (parent: #{previous_job.id})"
+            raise DataCycleCore::Export::Common::Error::SequentialError, "Delayed job sequential error for: #{job.id} (parent: #{previous_job.id})"
           end
         end
 

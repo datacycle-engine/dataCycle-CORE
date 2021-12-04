@@ -21,7 +21,7 @@ module DataCycleCore
           I18n.with_locale(locale) do
             DataCycleCore::Generic::KarriereAt::Processing.process_organization(
               utility_object,
-              raw_data.dig('company', 'children'),
+              raw_data.dig('company'),
               options.dig(:import, :transformations, :organization)
             )
             DataCycleCore::Generic::KarriereAt::Processing.process_place(

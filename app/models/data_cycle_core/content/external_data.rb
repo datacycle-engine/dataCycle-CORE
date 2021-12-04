@@ -50,9 +50,9 @@ module DataCycleCore
       end
 
       def external_source_to_external_system_syncs(sync_type = 'import')
-        return if external_source_id.nil? || external_key.nil?
+        return if external_source_id.nil?
 
-        external_system_syncs.where(external_system_id: external_source_id, sync_type: sync_type, external_key: external_key).first_or_create do |sync|
+        external_system_syncs.where(external_system_id: external_source_id, sync_type: sync_type, external_key: external_key || id).first_or_create do |sync|
           sync.status = 'success'
         end
 

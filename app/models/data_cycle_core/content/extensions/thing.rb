@@ -58,6 +58,10 @@ module DataCycleCore
           I18n.t("template_names.#{template_name}", default: template_name, locale: locale)
         end
 
+        def icon_class
+          self.class.name.demodulize.underscore_blanks
+        end
+
         module ClassMethods
           # Deprecated: no replacement
           def from_time(_time)

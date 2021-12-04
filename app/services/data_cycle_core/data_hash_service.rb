@@ -68,11 +68,11 @@ module DataCycleCore
       I18n.with_locale(locale) do
         object.schema = template.schema
         object.template_name = template.template_name
-        object.created_by = current_user&.id
         object.is_part_of = is_part_of if is_part_of.present?
         object.created_at = save_time
         object.updated_at = save_time
-        object.save
+        object.created_by = current_user&.id
+        object.save(touch: false)
       end
 
       return object if object_hash[:datahash].blank? && object_hash[:translations].blank?
@@ -80,7 +80,6 @@ module DataCycleCore
       object.set_data_hash_with_translations(
         data_hash: object_hash,
         current_user: current_user,
-        prevent_history: true,
         source: source,
         new_content: true,
         save_time: save_time,
@@ -121,6 +120,15 @@ module DataCycleCore
       return false if data.is_a?(FalseClass)
 
       data.is_a?(::Array) ? data.reject(&:blank?).empty? : data.blank?
+    end
+
+    def self.parse_translated_hash(datahash)
+      return {} unless datahash.is_a?(::Hash)
+
+      neutral_hash = datahash.key?(:datahash) ? datahash[:datahash] : datahash.except(:translations, :version_name)
+      translations = datahash[:translations]&.reject { |_, value| value.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
+
+      translations.transform_values { |value| neutral_hash.merge(value).with_indifferent_access }
     end
 
     class << self

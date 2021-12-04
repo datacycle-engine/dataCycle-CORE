@@ -30,6 +30,8 @@
           :json: true
           :xml: true
           :indesign: true
+      :report_generator:
+        :allowed: true
     :api:
       :type:
         - CreativeWork
@@ -272,6 +274,12 @@
         :ui:
           :show:
             :disabled: true
+      :gravity:
+        :type: mixin
+        :name: gravity
+      :image_proxy:
+        :type: mixin
+        :name: image_proxy
       :additional_media_properties:
         :type: mixin
         :name: additional_media_properties

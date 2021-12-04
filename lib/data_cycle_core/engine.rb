@@ -110,7 +110,8 @@ module DataCycleCore
       'DataCycleCore::Generic::Common::Webhook',
       'DataCycleCore::Generic::FeratelIdentityServer::Webhook',
       'DataCycleCore::Generic::Sulu::Webhook',
-      'DataCycleCore::Generic::ExternalLink::Webhook'
+      'DataCycleCore::Generic::ExternalLink::Webhook',
+      'DataCycleCore::Generic::Amtangee::Webhook'
     ]
 
     mattr_accessor :excluded_filter_classifications
@@ -277,6 +278,7 @@ module DataCycleCore
 
     config.before_initialize do |app|
       app.config.time_zone = 'Europe/Vienna'
+      app.config.exceptions_app = routes
     end
 
     config.to_prepare do

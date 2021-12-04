@@ -2,8 +2,8 @@
   <%= content.translated_template_name(active_ui_locale) %>
 </span>
 
-<% if local_assigns[:languages].present? && languages.size <= 2 %>
-  <span class="locale">(<%= languages.join(', ') %>)</span>
-<% elsif local_assigns[:languages].present? %>
-  <span class="locale" title="<%= languages.join(', ') %>">(<%= languages[0..1].join(', ') %>, &hellip;)</span>
+<% if local_assigns[:languages].present? %>
+  <span class="template-locale" title="<%= languages.join(', ') %>">
+    (<%= languages.slice(0, 2).join(', ') %><%= ', &hellip;' if languages.size > 2 %>)
+  </span>
 <% end %>

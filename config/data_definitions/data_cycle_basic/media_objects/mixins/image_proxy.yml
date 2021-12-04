@@ -1,8 +1,26 @@
 ---
 - :data:
-    :name: additional_video_properties
+    :name: image_proxy
     :type: mixin
     :properties:
+      :virtual_original_url:
+        :label: Virtual Original Url
+        :storage_location: virtual
+        :type: virtual
+        :virtual:
+          :type: string
+          :module: Utility::Virtual::Asset
+          :method: imgproxy
+          :transformation:
+            :version: original
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: true
+            :name: dc:originalUrl
+        :ui:
+          :show:
+            :disabled: true
       :virtual_content_url:
         :label: Virtual Content Url
         :storage_location: virtual
@@ -10,11 +28,9 @@
         :virtual:
           :type: string
           :module: Utility::Virtual::Asset
-          :method: proxy_url
+          :method: imgproxy
           :transformation:
-            :version: original
-          :parameters:
-            :0: asset
+            :version: default
         :api:
           :disabled: true
           :v4:
@@ -30,12 +46,9 @@
         :virtual:
           :type: string
           :module: Utility::Virtual::Asset
-          :method: proxy_url
+          :method: imgproxy
           :transformation:
             :version: thumb
-            :format: jpeg
-          :parameters:
-            :0: asset
         :api:
           :disabled: true
           :v4:
@@ -51,12 +64,9 @@
         :virtual:
           :type: string
           :module: Utility::Virtual::Asset
-          :method: proxy_url
+          :method: imgproxy
           :transformation:
             :version: web
-            :format: jpeg
-          :parameters:
-            :0: asset
         :api:
           :disabled: true
           :v4:
@@ -72,16 +82,13 @@
         :virtual:
           :type: string
           :module: Utility::Virtual::Asset
-          :method: proxy_url
+          :method: imgproxy
           :transformation:
             :version: web_small
-            :format: jpeg
-          :parameters:
-            :0: asset
         :api:
           :disabled: true
           :v4:
-            :disabled: false
+            :disabled: true
             :name: dc:webSmallUrl
         :ui:
           :show:
@@ -93,15 +100,16 @@
         :virtual:
           :type: string
           :module: Utility::Virtual::Asset
-          :method: proxy_url
+          :method: imgproxy
           :transformation:
             :version: dynamic
-            :width: 700
-            :height: 350
+          :processing:
+            :resize_type: fill
+            :width: 1920
+            :height: 1080
+            :enlarge: 0
+            :gravity: sm
             :format: jpeg
-            :type: smartcrop
-          :parameters:
-            :0: asset
         :api:
           :disabled: true
           :v4:
@@ -110,3 +118,5 @@
         :ui:
           :show:
             :disabled: true
+
+
