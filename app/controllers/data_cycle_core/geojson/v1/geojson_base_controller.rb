@@ -4,24 +4,43 @@ module DataCycleCore
   module Geojson
     module V1
       class GeojsonBaseController < ::DataCycleCore::Api::V4::ApiBaseController
-        # def prepare_url_parameters
-        #   @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
-        #   @api_version = 1
-        # end
+        include ActionController::HttpAuthentication::Basic::ControllerMethods
 
-        # private
+        def prepare_url_parameters
+          @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
+          @api_version = 1
+        end
 
-        # def access_denied(_exception)
-        #   render 'error', locals: { error: 'you need to be logged in to export geojson data.', status: :access_denied }
-        # end
+        private
 
-        # def not_found(exception)
-        #   render 'error', locals: { error: exception.message, status: :not_found }
-        # end
+        def authenticate
+          return if current_user # Basic Auth handled by Devise
 
-        # def set_default_response_format
-        #   request.format = :geojson
-        # end
+          if ActionController::HttpAuthentication::Basic.has_basic_credentials?(request)
+            authenticate_or_request_with_http_basic do |user_name, password|
+              @user = DataCycleCore::User.find_by(email: user_name)
+              raise CanCan::AccessDenied, 'invalid credentials' if @user.nil? || !@user.valid_password?(password)
+              return sign_in @user, store: false
+            end
+          elsif ActionController::HttpAuthentication::Token.token_and_options(request).present?
+            authenticate_or_request_with_http_token do |token|
+              @user = DataCycleCore::User.find_with_token(token: token)
+              return sign_in @user, store: false unless @user.nil?
+
+              @decoded = DataCycleCore::JsonWebToken.decode(token)
+              @user = DataCycleCore::User.find_with_token(@decoded)
+            rescue JSON::ParserError, JWT::DecodeError => e
+              raise CanCan::AccessDenied, e.message
+            end
+          elsif params[:token].present?
+            @user = User.find_by(access_token: params[:token])
+          end
+
+          raise CanCan::AccessDenied, 'invalid or missing authentication token' if @user.nil?
+
+          request.env['devise.skip_trackable'] = true
+          sign_in @user, store: false
+        end
       end
     end
   end
