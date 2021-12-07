@@ -29,6 +29,7 @@ module DataCycleCore
         end
 
         def show
+          # TODO: language?
           @content = DataCycleCore::Thing
             .includes(:translations)
             .find(permitted_params[:id])
@@ -55,8 +56,8 @@ module DataCycleCore
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
-          # TODO: filter languages?
-          # filter.language = @language
+
+          filter.language = @language
           filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
 
           query = filter.apply(skip_ordering: true)
