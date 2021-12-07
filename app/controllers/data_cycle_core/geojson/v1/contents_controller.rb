@@ -8,9 +8,8 @@ module DataCycleCore
       class ContentsController < ::DataCycleCore::Geojson::V1::GeojsonBaseController
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
-        # TODO: needed?
         # include DataCycleCore::ApiHelper
-        # before_action :prepare_url_parameters
+        before_action :prepare_url_parameters
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
@@ -22,20 +21,22 @@ module DataCycleCore
               query = build_search_query
               @contents = query
 
-              render plain: @contents.query.to_geojson, content_type: 'application/vnd.geo+json'
+              I18n.with_locale(@language.first || I18n.locale) do
+                render plain: @contents.query.to_geojson, content_type: 'application/vnd.geo+json'
+              end
             end
           end
         end
 
         def show
-          # TODO: refine includes
           @content = DataCycleCore::Thing
-            # .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             .includes(:translations)
             .find(permitted_params[:id])
           raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
 
-          render plain: @content.to_geojson, content_type: 'application/vnd.geo+json'
+          I18n.with_locale(@language.first || I18n.locale) do
+            render plain: @content.to_geojson, content_type: 'application/vnd.geo+json'
+          end
         end
 
         def build_search_query
@@ -54,6 +55,7 @@ module DataCycleCore
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
+          # TODO: filter languages?
           # filter.language = @language
           filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
 

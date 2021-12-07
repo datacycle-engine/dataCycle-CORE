@@ -6,9 +6,8 @@ module DataCycleCore
       module Geojson
         extend ActiveSupport::Concern
         def geojson_feature
-          # TODO: caching
           factory = RGeo::GeoJSON::EntityFactory.instance
-          Rails.cache.fetch(geojson_cache_key(nil), expires_in: 1.year + Random.rand(7.days)) do
+          Rails.cache.fetch(geojson_cache_key, expires_in: 1.year + Random.rand(7.days)) do
             factory.feature(geojson_geometry, id, geojson_properties)
           end
         end
@@ -49,10 +48,8 @@ module DataCycleCore
 
         private
 
-        def geojson_cache_key(_language)
-          # TODO: language + api_version??
-          # "#{self.class.name.underscore}/#{id}_#{Array(language)&.sort&.join(',')}_#{api_version}_#{updated_at.to_i}_#{template_updated_at.to_i}"
-          "#{self.class.name.underscore}/#{id}_#{updated_at.to_i}_#{template_updated_at.to_i}"
+        def geojson_cache_key
+          "#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{template_updated_at.to_i}"
         end
       end
     end
