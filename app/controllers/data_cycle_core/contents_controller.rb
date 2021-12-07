@@ -421,7 +421,7 @@ module DataCycleCore
       authorize! :show, DataCycleCore::Thing
       template_filter = select_search_params[:template_name].present?
 
-      filter = DataCycleCore::StoredFilter.new.from_params_hash(select_search_params[:stored_filter])
+      filter = DataCycleCore::StoredFilter.new.parameters_from_hash(select_search_params[:stored_filter])
       query = filter.apply
       query = query
         .fulltext_search(select_search_params[:q])

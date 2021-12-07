@@ -108,15 +108,33 @@ class BasicSelect2 {
 
     return $result;
   }
+  addCollectionLinksToResults(data, container) {
+    const htmlClass = this.getClassFromData(data);
+    let linkType = null;
+
+    if (htmlClass.includes('watch_list')) linkType = 'watch_lists';
+    else if (htmlClass.includes('stored_filter')) linkType = 'search_history';
+
+    if (linkType)
+      $(container).append(
+        `<a href="/${DataCycle.joinPath(
+          DataCycle.config.EnginePath,
+          linkType,
+          data.id
+        )}" target="_blank" class="open-selection-link"><i class="fa fa-external-link" aria-hidden="true"></i></a>`
+      );
+  }
+  getClassFromData(data) {
+    if (data.html_class) return data.html_class || '';
+    else if (data.element) return $(data.element).attr('class') || '';
+
+    return '';
+  }
   copySelect2Classes(data, container) {
     if (this.select2Object && (container == undefined || $(container).hasClass('select2-selection__rendered')))
       this.select2Object.$selection.find('.select2-selection__rendered').prop('class', 'select2-selection__rendered');
 
-    if (data.html_class) {
-      $(container).addClass(data.html_class);
-    } else if (data.element) {
-      $(container).addClass($(data.element).attr('class'));
-    }
+    $(container).addClass(this.getClassFromData(data));
   }
   decorateResult(result) {
     $(result).html(function (_index, value) {

@@ -25,6 +25,7 @@
 @import 'modules/documentation';
 @import 'modules/schema';
 @import 'modules/admin_board';
+@import 'modules/exceptions';
 //load logs
 @import 'modules/logs';
 @import 'modules/develop';
@@ -48,3 +49,4 @@
 // load tui-image-editor
 @import 'tui-image-editor/dist/tui-image-editor';
 @import 'modules/components/_image_editor';
+@import 'modules/components/_report';

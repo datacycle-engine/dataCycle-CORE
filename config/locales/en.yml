@@ -1456,3 +1456,11 @@ en:
   details:
     bild:
       open_url: Open URL
+
+  exceptions_page:
+    back_to_root_link: back to dataCycle
+    copy_to_clipboard_link: copy Request-ID
+    copy_to_clipboard_title: The error can be found more easily in the monitoring via the Request-ID
+    not_found: Sorry, this page does not exist
+    internal_server_error: An unexpected error has occurred
+    unauthorized: You do not have permission to open the desired page

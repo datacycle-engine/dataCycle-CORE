@@ -1,5 +1,7 @@
 ---
 name: karriere.at
+identifier: karriereat
+deactivated: true
 credentials:
   host: https://www.karriere.at
   end_point: /extern/feed/kaernten_werbung
@@ -19,48 +21,52 @@ config:
       source_type: jobs
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: karriere.at - Keywords
-      tag_path: keywords.keyword
-      tag_id_path: keywords.keyword.#cdata-section
-      tag_name_path: keywords.keyword.#cdata-section
+      tag_id_path: keywords
+      tag_name_path: keywords
       external_id_prefix: 'karriere.at - Keyword - '
     employment_types:
       sorting: 2
       source_type: jobs
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: karriere.at - Employment Types
-      tag_id_path: employmentTypes.employmentType.id
-      tag_name_path: employmentTypes.employmentType.#cdata-section
+      tag_path: employmentTypes
+      tag_id_path: employmentTypes.id
+      tag_name_path: employmentTypes.label
       external_id_prefix: 'karriere.at - Employment Type - '
     job_fields:
       sorting: 3
       source_type: jobs
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: karriere.at - Job Fields
-      tag_id_path: jobfields.jobfield.id
-      tag_name_path: jobfields.jobfield.#cdata-section
+      tag_path: jobFields
+      tag_id_path: jobFields.id
+      tag_name_path: jobFields.label
       external_id_prefix: 'karriere.at - Job Field - '
     countries:
       sorting: 4
       source_type: jobs
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: karriere.at - Countries
-      tag_path: countries.country
-      tag_id_path: countries.country.#cdata-section
-      tag_name_path: countries.country.#cdata-section
+      tag_path: countries
+      tag_id_path: countries.label
+      tag_name_path: countries.label
       external_id_prefix: 'karriere.at - Country - '
     states:
       sorting: 5
       source_type: jobs
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: karriere.at - States
-      tag_path: states.state
-      tag_id_path: states.state.#cdata-section
-      tag_name_path: states.state.#cdata-section
+      tag_path: states
+      tag_id_path: states.label
+      tag_name_path: states.label
       external_id_prefix: 'karriere.at - State - '
     jobs:
       sorting: 10
       source_type: jobs
       import_strategy: DataCycleCore::Generic::KarriereAt::ImportJob
+      source_filter:
+        seen_at:
+          '$gte': '{{ 3.days.ago.beginning_of_day }}'
       transformations:
         organization:
           template: Organization
@@ -80,3 +86,11 @@ config:
             data_type:
               tree_label: Inhaltstypen
               value: Jobs
+    delete_jobs:
+      sorting: 11
+      import_strategy: DataCycleCore::Generic::Common::DeleteContents
+      source_type: jobs
+      source_filter:
+        seen_at:
+          '$lt': '{{ 3.days.ago.beginning_of_day }}'
+      external_key_path: 'id.text'

@@ -4,7 +4,7 @@ module DataCycleCore
   module CollectionHelper
     BulkUpdateType = Struct.new(:value, :text, :checked)
 
-    def get_collection_groups(local_assigns, include_data_hashes = false)
+    def get_collection_groups(local_assigns)
       collection_group_index = local_assigns[:collection_group_index] || 0
 
       if local_assigns[:collection_group].present?
@@ -13,7 +13,6 @@ module DataCycleCore
         nested = true
       else
         collections = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :watch_list_shares, :user).without_my_selection
-        collections = collections.includes(:watch_list_data_hashes) if include_data_hashes
         collections = collections.fulltext_search(local_assigns[:q]) if local_assigns[:q].present?
         collections = collections.order(updated_at: :desc)
       end

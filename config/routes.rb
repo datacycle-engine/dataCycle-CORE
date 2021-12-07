@@ -8,6 +8,11 @@ DataCycleCore::Engine.routes.draw do
     root 'backend#index', as: :authenticated_root
   end
 
+  match '/401', to: 'exceptions#unauthorized_exception', via: :all, as: :unauthorized_exception
+  match '/404', to: 'exceptions#not_found_exception', via: :all, as: :not_found_exception
+  match '/422', to: 'exceptions#unprocessable_entity_exception', via: :all, as: :unprocessable_entity_exception
+  match '/500', to: 'exceptions#internal_server_error_exception', via: :all, as: :internal_server_error_exception
+
   CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
   CONTENT_TABLE ||= ['things'].freeze
 
@@ -69,7 +74,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
-  resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
+  resources :stored_filters, only: [:index, :show, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
     get :select_search_or_collection, on: :collection
     get :download_zip, on: :member
@@ -153,6 +158,9 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/classifications', to: 'dash_board#classifications'
   get  '/admin/activities', to: 'dash_board#activities'
   get  '/admin/activity_details/:type', to: 'dash_board#activity_details', format: :json
+
+  get  '/reports', to: 'reports#index'
+  get  '/download_reports', to: 'reports#download_report'
 
   if DataCycleCore.main_config.dig(:api, :enabled)
     defaults format: :json do

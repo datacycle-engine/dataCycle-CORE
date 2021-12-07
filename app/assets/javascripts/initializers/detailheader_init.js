@@ -2,6 +2,8 @@ export default function () {
   $(document).on('click', '.copy-to-clipboard', async event => {
     event.preventDefault();
     var text = $(event.currentTarget).data('value');
+    if ($(event.currentTarget).data('json-value')) text = JSON.stringify($(event.currentTarget).data('json-value'));
+
     var inp = document.createElement('input');
     document.body.appendChild(inp);
     inp.value = text;
