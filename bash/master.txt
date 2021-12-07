@@ -37,3 +37,4 @@ DataCycleGIP4Radrouting;git@git.pixelpoint.biz:data-cycle/data-cycle-gip4radrout
 DataCycleGstaad;git@git.pixelpoint.biz:data-cycle/data-cycle-gstaad.git
 DataCycleStadtVillach;git@git.pixelpoint.biz:data-cycle/data-cycle-stadt-villach.git
 DataCycleBrandenburg;git@git.pixelpoint.biz:data-cycle/data-cycle-brandenburg.git
+DataCycleDemoCloud;git@git.pixelpoint.biz:data-cycle/data-cycle-demo-cloud.git
