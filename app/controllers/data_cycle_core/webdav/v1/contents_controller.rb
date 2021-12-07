@@ -102,7 +102,7 @@ module DataCycleCore
 
         def load_collection(id, user)
           watch_list = DataCycleCore::WatchList.find(id)
-          raise ActiveRecord::RecordNotFound if watch_list.blank? || watch_list.user_id != user.id || !user.has_rank?(99)
+          raise ActiveRecord::RecordNotFound if watch_list.blank? || watch_list.user_id != user.id
           watch_list
         end
 

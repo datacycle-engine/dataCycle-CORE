@@ -67,7 +67,7 @@ module DataCycleCore
 
         return false unless validate(data_hash: options.data_hash, schema_hash: partial_schema || schema, current_user: options.current_user)
 
-        return no_changes(options.ui_locale) unless diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
+        return no_changes(options.ui_locale) unless options.force_update || diff?(options.data_hash, partial_schema, options.partial_update)
 
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
           to_history if write_history

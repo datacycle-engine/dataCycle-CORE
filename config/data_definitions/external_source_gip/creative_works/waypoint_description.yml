@@ -34,6 +34,10 @@
         :ui:
           :show:
             :content_area: header
+      :altitude:
+        :label: Höhe (m)
+        :type: number
+        :storage_location: value
       :geo:
         :type: mixin
         :name: geo

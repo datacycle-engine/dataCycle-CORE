@@ -26,10 +26,10 @@ module DataCycleCore
         query = query.where(search_term)
       end
 
-      query = query.where(role: @roles.ids) if @roles.present?
-      query = query.where(user_groups: { id: @user_groups.ids }) if @user_groups.present?
+      query = query.joins(:role).where(role: @roles.ids) if @roles.present?
+      query = query.joins(:user_groups).where(user_groups: { id: @user_groups.ids }) if @user_groups.present?
 
-      @contents = query.includes(:role, :user_groups).order(:email).page(params[:page])
+      @contents = query.preload(:role, :user_groups).order(:email).page(params[:page])
 
       if count_only_params[:count_only].present?
         @count_only = true
