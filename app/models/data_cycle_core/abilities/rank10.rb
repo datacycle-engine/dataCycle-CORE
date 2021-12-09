@@ -44,25 +44,26 @@ module DataCycleCore
 
         # Downloads
         can :download, DataCycleCore::Thing do |content|
-          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Serialize.available_serializers(content)&.except('indesign')&.size&.positive?
+          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.enabled_serializers_for_download(content)&.except('indesign')&.size&.positive?
+        end
+        can :download, DataCycleCore::WatchList do |watch_list|
+          DataCycleCore::Feature::Download.allowed?(watch_list) && DataCycleCore::Feature::Download.enabled_serializers_for_download(watch_list)&.except('indesign')&.size&.positive?
+        end
+        can :download, DataCycleCore::StoredFilter do |stored_filter|
+          DataCycleCore::Feature::Download.allowed?(stored_filter)
         end
         can :download_indesign, DataCycleCore::Thing do |content|
-          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Serialize.available_serializers(content).include?('indesign')
+          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.enabled_serializers_for_download(content)&.include?('indesign')
         end
+        can :download_indesign, DataCycleCore::WatchList do |watch_list|
+          DataCycleCore::Feature::Download.allowed?(watch_list) && DataCycleCore::Feature::Download.enabled_serializers_for_download(watch_list)&.include?('indesign')
+        end
+        # collections
         can :download_zip, DataCycleCore::Thing do |content|
-          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.collection_enabled?('content') && DataCycleCore::Feature::Serialize.available_serializers(content)&.except('indesign')&.size&.positive?
-        end
-        can :download, DataCycleCore::WatchList do |_watch_list|
-          DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list') && DataCycleCore::Feature::Download.enabled_collection_serializers('watch_list')&.except('indesign')&.size&.positive?
-        end
-        can :download_indesign, DataCycleCore::WatchList do |_watch_list|
-          DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list') && DataCycleCore::Feature::Download.enabled_collection_serializers('watch_list').include?('indesign')
+          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.collection_enabled?('thing') && DataCycleCore::Feature::Serialize.available_serializers(content)&.except('indesign')&.size&.positive?
         end
         can :download_zip, DataCycleCore::WatchList do |_watch_list|
           DataCycleCore::Feature::Download.collection_enabled?('watch_list') && DataCycleCore::Feature::Download.enabled_collection_serializers('watch_list')&.except('indesign')&.size&.positive?
-        end
-        can :download, DataCycleCore::StoredFilter do |_stored_filter|
-          DataCycleCore::Feature::Download.collection_serializer_enabled?('stored_filter')
         end
         can :download_zip, DataCycleCore::StoredFilter do |_stored_filter|
           DataCycleCore::Feature::Download.collection_enabled?('stored_filter')

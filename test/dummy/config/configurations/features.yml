@@ -5,24 +5,72 @@
 
 :download:
   :enabled: true
-  :collections:
-    :content:
+  :content:
+    :thing:
       :enabled: true
+      :serializers:
+        :asset: true
+        :archive: false
+        :gpx: true
+        :json: true
+        :indesign: true
+        :xml: true
     :watch_list:
       :enabled: true
       :serializers:
+        :asset: true
+        :archive: false
+        :gpx: true
         :json: true
+        :indesign: false
         :xml: true
     :stored_filter:
       :enabled: true
       :serializers:
+        :asset: true
+        :archive: false
+        :gpx: true
         :json: true
+        :indesign: true
         :xml: true
+  :collections:
+    :thing:
+      :enabled: true
+      :serializers:
+        :asset: true
+        :archive: false
+        :gpx: true
+        :json: true
+        :indesign: true
+        :xml: true
+    :watch_list:
+      :enabled: true
+      :serializers:
+        :asset: true
+        :archive: false
+        :gpx: true
+        :json: true
+        :indesign: true
+        :xml: true
+    :stored_filter:
+      :enabled: true
+      :serializers:
+        :asset: true
+        :archive: false
+        :gpx: true
+        :json: true
+        :indesign: true
+        :xml: true
+  :dependencies:
+    - serialize
 
 :serialize:
   :enabled: true
   :serializers:
     :asset: true
+    :archive: true
+    :gpx: true
+    :indesign: true
     :json: true
     :xml: true
 

@@ -8,8 +8,29 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::Download
         end
 
-        def allowed?(content = nil)
-          enabled? && configuration(content).dig('allowed') && DataCycleCore::Feature::Download.dependencies_allowed?(content) && DataCycleCore::Feature::Serialize.available_serializers(content).size.positive?
+        def allowed?(content)
+          return false unless enabled?
+          return false unless DataCycleCore::Feature::Download.dependencies_enabled?
+          return false unless configuration.dig(:content, content.class.to_s.demodulize.underscore, :enabled)
+          return false unless enabled_serializers_for_download(content).size.positive?
+
+          if content.class.to_s == 'DataCycleCore::Thing'
+            return configuration(content).dig('allowed') && DataCycleCore::Feature::Download.dependencies_allowed?(content)
+          end
+
+          true
+        end
+
+        def enabled_serializers_for_download(content)
+          if content.class.to_s == 'DataCycleCore::Thing'
+            available_serializers = DataCycleCore::Feature::Serialize.available_serializers(content)
+          else
+            available_serializers = DataCycleCore::Feature::Serialize.available_serializers
+          end
+
+          available_download_serializers = configuration.dig(:content, content.class.to_s.demodulize.underscore, :serializers)
+          merged = available_serializers.merge(available_download_serializers).select { |_k, v| v.present? }
+          merged
         end
 
         def collection_enabled?(type)
