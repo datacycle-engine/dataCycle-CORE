@@ -50,7 +50,7 @@ module DataCycleCore
           &.delete("\u0000") # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)
           &.squish
 
-        loop do # to get ridd of more than one occurrence of the tags
+        loop do # to get rid of more than one occurrence of the tags
           new_value = old_value
             &.gsub(%r{(<p>\s*(<br>)*\s*</p>)*$}, '') # remove empty lines from HTML-Editor at the end of the String
             &.gsub(%r{^(<p>\s*(<br>)*\s*</p>)*}, '') # remove empty lines from HTML-Editor at the start of the String
