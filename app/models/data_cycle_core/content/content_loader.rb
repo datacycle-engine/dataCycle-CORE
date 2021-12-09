@@ -56,18 +56,16 @@ module DataCycleCore
         overwritten = overlay_data(I18n.locale).try(:[], relation_a) if overlay_flag
         root_object = overwritten.present? ? overlay.first : self
 
-        if filter.present?
-          relation_contents = root_object.send(relation_name).where(content_contents: {
-            relation_a: relation_a_name,
-            relation_b: relation_b_name,
-            content_filter => filter.apply.select(:id).except(:order)
-          })
-        else
-          relation_contents = root_object.send(relation_name).where(content_contents: {
-            relation_a: relation_a_name,
-            relation_b: relation_b_name
-          })
+        content_contents_condition = {
+          relation_a: relation_a_name,
+          relation_b: relation_b_name
+        }
+        content_contents_condition[content_filter] = filter.apply.select(:id).except(:order) if filter.present?
+
+        relation_contents = self.class.unscoped do
+          root_object.send(relation_name).where(content_contents: content_contents_condition)
         end
+
         relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: languages }) if same_language
         relation_contents
       end
