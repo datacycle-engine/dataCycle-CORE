@@ -17,8 +17,9 @@ class TourSprungEditor extends OpenLayersEditor {
       this.additionalAttributes &&
       this.additionalAttributes.toursprung_pois_target &&
       this.$parentContainer
+        .closest('.form-element.geographic')
         .siblings(`.form-element[data-key*="[${this.additionalAttributes.toursprung_pois_target}]"]`)
-        .first();
+        .find('.object-browser');
   }
   static isAllowedType(type) {
     return type && type.includes('LineString');
@@ -107,9 +108,16 @@ class TourSprungEditor extends OpenLayersEditor {
   initMtkEvents() {
     this.initMouseWheelZoom();
 
-    MTK.event.addListener(this.editorGui.pois, 'selected', pois => {
-      console.log('selected', pois.getSelected());
-    });
+    if (this.editorGui.pois && this.$poisTarget.length) {
+      MTK.event.addListener(this.editorGui.pois, 'selected', (pois, triggerTarget = true) => {
+        if (!triggerTarget) return;
+
+        this.$poisTarget.trigger('dc:import:data', {
+          value: Object.values(pois.getSelected()).map(v => v.remoteid),
+          replace: true
+        });
+      });
+    }
 
     MTK.event.addListener(this.editorGui.editor, 'update', () => {
       this.feature = this.editorGui.editor.getPolyline();
@@ -185,22 +193,26 @@ class TourSprungEditor extends OpenLayersEditor {
     this.additionalPointsLayer = this._addAdditionalPointsLayer();
     this.additionalLinesLayer = this._addAdditionalLinesLayer();
 
+    const pois = [];
+
     for (let i = 0; i < this.additionalValues.length; ++i) {
       const feature = this.additionalValues[i];
 
       if (feature.geometry.type == 'Point') {
-        const iconId = this.iconOptions('default', false, lodashGet(feature, 'properties.style.color', 'default'));
-        const newMarker = new MTK.Marker({
-          description: this.infoOverlayHtml(feature.properties)
-        })
-          .setLngLat(feature.geometry.coordinates)
-          .setImage({ id: iconId, anchor: 'bottom' });
+        if (this.pois && this.editorGui.pois) {
+          pois.push(feature.properties.id);
+        } else {
+          const iconId = this.iconOptions('default', false, lodashGet(feature, 'properties.style.color', 'default'));
+          const newMarker = new MTK.Marker({
+            description: this.infoOverlayHtml(feature.properties)
+          })
+            .setLngLat(feature.geometry.coordinates)
+            .setImage({ id: iconId, anchor: 'bottom' });
 
-        console.log('point', feature, this.editorGui);
+          this.additionalFeatures.push(newMarker);
 
-        this.additionalFeatures.push(newMarker);
-
-        this.additionalPointsLayer.addLayer(newMarker);
+          this.additionalPointsLayer.addLayer(newMarker);
+        }
       } else {
         const newLine = new MTK.Polyline({
           description: this.infoOverlayHtml(feature.properties)
@@ -210,6 +222,37 @@ class TourSprungEditor extends OpenLayersEditor {
 
         this.additionalLinesLayer.addLayer(newLine);
       }
+    }
+
+    this._renderAdditionalPointsAsPois(pois);
+  }
+  _renderAdditionalPointsAsPois(pois) {
+    if (!pois.length) return;
+
+    for (let i = 0; i < this.pois.length; ++i) {
+      fetch(
+        `https://resource.maptoolkit.net/${this.pois[i].resource.name}/search.json?api_key=${
+          this.credentials.api_key
+        }&remoteids=${pois.join(',')}`
+      ).then(response => {
+        if (response.ok)
+          response.json().then(result => {
+            if (!result || !result.features || !result.features.length) return;
+
+            for (let j = 0; j < result.features.length; ++j) {
+              const feature = result.features[j];
+
+              if (this.editorGui.pois._selected[feature.id]) return;
+
+              feature.properties.resource = result.properties.resource;
+              this.editorGui.pois._selected[feature.id] = feature;
+              this.editorGui.pois._updateLayer();
+              this.editorGui.pois._updateResource();
+              this.editorGui.pois.fire('selected', this.editorGui.pois, false);
+              this.editorGui.pois.enabled = false;
+            }
+          });
+      });
     }
   }
   extendEditorInterface() {
