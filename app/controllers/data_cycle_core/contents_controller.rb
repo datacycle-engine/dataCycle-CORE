@@ -259,6 +259,8 @@ module DataCycleCore
       I18n.with_locale(@diff_source.first_available_locale) do
         @data_schema = @content.get_data_hash
         @diff_schema = @diff_source.diff(@data_schema)
+      rescue StandardError
+        redirect_back(fallback_location: root_path, alert: (I18n.t :definition_mismatch, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return
       end
     end
 
