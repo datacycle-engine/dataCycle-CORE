@@ -40,7 +40,7 @@ module DataCycleCore
         end
 
         def self.get_author_data(data)
-          if data.dig('meta', 'authorFull', 'id').present?
+          if data.dig('meta', 'authorFull', 'id').present? && data.dig('meta', 'authorFull', 'name').present?
             {
               'name' => data.dig('meta', 'authorFull', 'name'),
               'external_key' => data.dig('meta', 'authorFull', 'id')
@@ -80,7 +80,7 @@ module DataCycleCore
         end
 
         def self.get_copyright_holder(data)
-          if data.dig('meta', 'source', 'id').present?
+          if data.dig('meta', 'source', 'id').present? && data.dig('meta', 'source', 'name').present?
             {
               'name' => data.dig('meta', 'source', 'name'),
               'external_key' => data.dig('meta', 'source', 'id')
