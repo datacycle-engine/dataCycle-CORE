@@ -53,7 +53,7 @@ module DataCycleCore
 
       stored_filters = DataCycleCore::StoredFilter.accessible_by(current_ability, :update)
         .includes(:user)
-        .where('name ILIKE ?', "%#{params[:q]}%")
+        .where('name ILIKE ?', "%#{params[:q].gsub(/ \| .*<.*@.*>$/, '')}%")
         .limit(20)
 
       render json: stored_filters.map { |filter|

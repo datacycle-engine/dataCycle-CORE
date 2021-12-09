@@ -4,7 +4,7 @@ module DataCycleCore
   module Export
     module Common
       module Error
-        class WebhookError < GenericError
+        class SequentialError < GenericError
           def initialize(msg = '')
             super
           end

@@ -810,6 +810,7 @@ en:
       no_watchlist: No content collection was chosen
       content_duplication_invalid: The duplicate could not be created!
       bulk_update_error: An error occurred while saving, please try again
+      definition_mismatch: the versions cannot be compared, because the data-definitions of these versions don't match
     success:
       created: '%{data} was successfully created.'
       ready_to_send: '%{data} has been successfully created and can now be sent.'

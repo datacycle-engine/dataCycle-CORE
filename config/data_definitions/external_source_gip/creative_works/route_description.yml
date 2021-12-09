@@ -12,6 +12,8 @@
         :allowed: true
       :creatable:
         :allowed: true
+      :translatable:
+        :allowed: true
       :download:
         :allowed: true
       :serialize:
@@ -123,6 +125,12 @@
             :options:
               :data-size: full
         :advanced_search: true
+      :live_status:
+        :label: Live Status
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true
+        :default_value: 'true'
       :image:
         :label: Bilder
         :type: linked
