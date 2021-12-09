@@ -51,18 +51,20 @@ module DataCycleCore
           end
         end
 
-        def tours(*)
-          load_main_objects('Tour')
+        def tours(lang: :de)
+          load_main_objects('Tour', lang)
         end
 
         protected
 
-        def load_main_objects(kind)
+        def load_main_objects(kind, lang)
           Enumerator.new do |yielder|
             paging_params = load_paging_stats("Get#{kind}ListPaging")
             (1..paging_params[:pages]).each do |page|
               load_list("Get#{kind}List", page, kind).each do |item_id|
-                yielder << load_details("Get#{kind}Details", item_id)[kind]
+                data = load_details("Get#{kind}Details", item_id)[kind]
+                next if Array.wrap(data.dig('OBJECT_TEXT_NAME', 'string')).detect { |i| i['lang'].match(lang.to_s) }.blank?
+                yielder << data
               end
             end
           end
