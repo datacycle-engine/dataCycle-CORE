@@ -306,6 +306,12 @@
       :contact_info:
         :type: mixin
         :name: contact_info
+      :snow_telephone:
+        :label: Schneetelefon
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :name: dc:snowTelephone
       :geo:
         :type: mixin
         :name: geo
