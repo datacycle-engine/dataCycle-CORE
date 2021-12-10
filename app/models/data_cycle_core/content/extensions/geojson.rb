@@ -37,7 +37,9 @@ module DataCycleCore
         class_methods do
           def as_geojson
             factory = RGeo::GeoJSON::EntityFactory.instance
-            feature_collection = factory.feature_collection(all.includes(:translations).map(&:geojson_feature).flatten)
+            # oder über outer joins
+            filtered_objects = all.includes(:translations).to_a
+            feature_collection = factory.feature_collection(filtered_objects.map(&:geojson_feature).flatten)
             RGeo::GeoJSON.encode(feature_collection)
           end
 
