@@ -122,7 +122,7 @@ class TourSprungEditor extends OpenLayersEditor {
     MTK.event.addListener(this.editorGui.editor, 'update', () => {
       this.feature = this.editorGui.editor.getPolyline();
 
-      this.setHiddenFieldValue(this.feature.toGeoJSON().geometry);
+      this.setHiddenFieldValue(this.getGeoJsonFromFeature());
     });
   }
   drawInitialRoute() {
@@ -368,6 +368,7 @@ class TourSprungEditor extends OpenLayersEditor {
     if (!this.feature) return;
 
     let geometry = this.feature.toGeoJSON(this.precision).geometry;
+
     geometry.coordinates = this.shortenCoordinates(geometry.coordinates);
 
     return geometry;
@@ -383,7 +384,6 @@ class TourSprungEditor extends OpenLayersEditor {
     this.setNewCoordinates();
   }
   setNewCoordinates() {
-    this.setCoordinates();
     this.setHiddenFieldValue(this.getGeoJsonFromFeature());
 
     if (this.feature)
