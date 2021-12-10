@@ -57,7 +57,7 @@
             :type: text_editor
             :options:
               :data-size: full
-        :advanced_search: true        
+        :advanced_search: true
       :tourism_region:
         :label: Tourismus-Region
         :type: classification
@@ -253,6 +253,17 @@
       :contact_info:
         :type: mixin
         :name: contact_info
+      :snow_telephone:
+        :label: Schneetelefon
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :name: dc:snowTelephone
+        :ui: # invisible only her for compatibility with snow_resort_new and snow_resort_overlay
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :geo:
         :type: mixin
         :name: geo
