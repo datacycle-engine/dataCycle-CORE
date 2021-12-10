@@ -44,10 +44,7 @@ module DataCycleCore
 
         # Downloads
         can :download, [DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter] do |content|
-          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.enabled_serializers_for_download(content)&.except('indesign')&.size&.positive?
-        end
-        can :download_indesign, [DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter] do |content|
-          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.enabled_serializers_for_download(content)&.include?('indesign')
+          DataCycleCore::Feature::Download.allowed?(content)
         end
         # collections
         can :download_zip, DataCycleCore::Thing do |content|

@@ -85,7 +85,7 @@ module DataCycleCore
         Zip::File.open(zipfile_fullname, Zip::File::CREATE) do |zipfile|
           indesign_items.each do |content|
             languages.each do |language|
-              serializer = ('DataCycleCore::Serialize::' + serialize_format.first.to_s.classify + 'Serializer').constantize
+              serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
               serialized_content, response_mime_type = serializer.try(serialize_method, content, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
