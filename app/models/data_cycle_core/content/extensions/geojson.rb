@@ -20,17 +20,14 @@ module DataCycleCore
           as_geojson.to_json
         end
 
-        def geojson_geometry
-          # coordinate precision -> not implemented in rgeo
-          if line.present? && location.present?
-            # binding.pry
-            # TODO: 3D or not?
-            # factory = RGeo::Geographic.spherical_factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true)
-            factory = RGeo::Geographic.spherical_factory
-            return factory.collection([line, location])
+        def geojson_geometry(content = self)
+          # TODO: coordinate precision -> not implemented in rgeo
+          if content.line.present? && content.location.present?
+            factory = RGeo::Geographic.spherical_factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true)
+            return factory.collection([content.line, content.location])
           end
-          return line unless line.nil?
-          return location unless location.nil?
+          return content.line unless content.line.nil?
+          return content.location unless content.location.nil?
         end
 
         def geojson_properties
@@ -40,7 +37,7 @@ module DataCycleCore
         class_methods do
           def as_geojson
             factory = RGeo::GeoJSON::EntityFactory.instance
-            feature_collection = factory.feature_collection(all.includes(:translations).map(&:geojson_feature))
+            feature_collection = factory.feature_collection(all.includes(:translations).map(&:geojson_feature).flatten)
             RGeo::GeoJSON.encode(feature_collection)
           end
 

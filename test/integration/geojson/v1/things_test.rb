@@ -108,14 +108,11 @@ module DataCycleCore
 
           assert_response(:success)
           assert_equal('application/vnd.geo+json', response.content_type)
-          # TODO: 2D or 3D?
-          # factory = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 })
-          # coder = RGeo::GeoJSON.coder(geo_factory: factory)
-          # geojson_data = coder.decode(response.body)
-          geojson_data = RGeo::GeoJSON.decode(response.body)
+          factory = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 })
+          coder = RGeo::GeoJSON.coder(geo_factory: factory)
+          geojson_data = coder.decode(response.body)
 
-          assert_equal(RGeo::Cartesian.preferred_factory.collection([@test_tour2.line, @test_tour2.location]).as_text, geojson_data.geometry.as_text)
-          # assert_equal(@test_tour.line.as_text, geojson_data.geometry.as_text)
+          assert_equal(factory.collection([@test_tour2.line, @test_tour2.location]).as_text, geojson_data.geometry.as_text)
           assert_equal('GeometryCollection', geojson_data.geometry.geometry_type.type_name)
           assert_equal(@test_tour2.id, geojson_data.feature_id)
           assert_equal('Test-TOUR', geojson_data['name'])
