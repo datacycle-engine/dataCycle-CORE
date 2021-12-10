@@ -47,22 +47,20 @@
       </div>
     </fieldset>
 
-    <% if DataCycleCore::Feature::Serialize.asset_versions(content).present? %>
-      <% DataCycleCore::Feature::Serialize.asset_versions(content)&.each do |key, value| %>
-        <fieldset class="active transformation hidden <%= key %>">
-          <legend><%= t('common.download.available_transformations', locale: active_ui_locale) %></legend>
-          <div class="form-element">
+    <% DataCycleCore::Feature::Serialize.asset_versions(content)&.each do |key, value| %>
+      <fieldset class="active transformation hidden <%= key %>">
+        <legend><%= t('common.download.available_transformations', locale: active_ui_locale) %></legend>
+        <div class="form-element">
 
-            <% (['none'] + Array(value)).each_with_index do |t_format, i| %>
-              <div>
-                <%= radio_button_tag "transformation[#{key}][format]", t_format, i == 0 %>
-                <%= label_tag "transformation[#{key}][format][#{t_format}]", "#{t("common.download.format.#{t_format}", default: t_format, locale: active_ui_locale)}" %>
-              </div>
-            <% end %>
+          <% (['none'] + Array(value)).each_with_index do |t_format, i| %>
+            <div>
+              <%= radio_button_tag "transformation[#{key}][format]", t_format, i == 0 %>
+              <%= label_tag "transformation[#{key}][format][#{t_format}]", "#{t("common.download.format.#{t_format}", default: t_format, locale: active_ui_locale)}" %>
+            </div>
+          <% end %>
 
-          </div>
-        </fieldset>
-      <% end %>
+        </div>
+      </fieldset>
     <% end %>
   <% end %>
 

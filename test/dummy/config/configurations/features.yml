@@ -18,18 +18,18 @@
     :watch_list:
       :enabled: true
       :serializers:
-        :asset: true
+        :asset: false
         :archive: false
-        :gpx: true
+        :gpx: false
         :json: true
-        :indesign: false
+        :indesign: true
         :xml: true
     :stored_filter:
       :enabled: true
       :serializers:
-        :asset: true
+        :asset: false
         :archive: false
-        :gpx: true
+        :gpx: false
         :json: true
         :indesign: true
         :xml: true

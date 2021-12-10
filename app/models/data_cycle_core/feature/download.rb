@@ -14,9 +14,7 @@ module DataCycleCore
           return false unless configuration.dig(:content, content.class.to_s.demodulize.underscore, :enabled)
           return false unless enabled_serializers_for_download(content).size.positive?
 
-          if content.class.to_s == 'DataCycleCore::Thing'
-            return configuration(content).dig('allowed') && DataCycleCore::Feature::Download.dependencies_allowed?(content)
-          end
+          return configuration(content).dig('allowed') && DataCycleCore::Feature::Download.dependencies_allowed?(content) if content.class.to_s == 'DataCycleCore::Thing'
 
           true
         end
@@ -29,8 +27,7 @@ module DataCycleCore
           end
 
           available_download_serializers = configuration.dig(:content, content.class.to_s.demodulize.underscore, :serializers)
-          merged = available_serializers.merge(available_download_serializers).select { |_k, v| v.present? }
-          merged
+          available_download_serializers.select { |k, v| v.present? && available_serializers.dig(k).present? }
         end
 
         def collection_enabled?(type)
