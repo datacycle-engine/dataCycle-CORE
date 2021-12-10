@@ -29,7 +29,7 @@ module DataCycleCore
           ".#{ext}"
         end
 
-        def serialize(content, _language, version, transformation = nil)
+        def serialize_thing(content, _language, version, transformation = nil)
           if remote?(content)
             conn = Faraday.new do |f|
               f.request :retry, {

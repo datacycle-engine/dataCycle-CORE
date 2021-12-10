@@ -16,7 +16,7 @@ module DataCycleCore
           '.xml'
         end
 
-        def serialize(content, language, _version, _transformation = nil)
+        def serialize_thing(content, language, _version, _transformation = nil)
           Nokogiri::XML(
             DataCycleCore::Xml::V1::ContentsController.renderer.new(
               http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),

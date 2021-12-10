@@ -7,21 +7,7 @@ module DataCycleCore
     def download_content(content, serialize_format, languages, version = nil, transformation = nil)
       serializer = serializer_for_content(content, serialize_format)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless serializer
-      download_generic(content: content, serializer: serializer, languages: languages, version: version, serialize_method: :serialize, transformation: transformation)
-    end
-
-    def download_watch_list(watch_list, serialize_format, languages, version = nil)
-      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_serializer_format?('watch_list', serialize_format)
-      serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
-
-      download_generic(content: watch_list, serializer: serializer, languages: languages, version: version, serialize_method: :serialize_watch_list)
-    end
-
-    def download_stored_filter(stored_filter, serialize_format, languages, version = nil)
-      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_serializer_format?('stored_filter', serialize_format)
-      serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
-
-      download_generic(content: stored_filter, serializer: serializer, languages: languages, version: version, serialize_method: :serialize_stored_filter)
+      download_generic(content: content, serializer: serializer, languages: languages, version: version, serialize_method: serializer_method_for_content(content), transformation: transformation)
     end
 
     def download_collection(collection, items, serialize_format, languages, version = nil)
@@ -43,7 +29,7 @@ module DataCycleCore
 
                 next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
-                serialized_content, response_mime_type = serializer.serialize(content, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
+                serialized_content, response_mime_type = serializer.serialize_thing(content, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
 
                 next unless serialized_content
 
@@ -110,7 +96,7 @@ module DataCycleCore
             assets.each do |asset|
               serializer = serializer_for_content(asset, 'asset')
               next unless serializer
-              serialized_content, response_mime_type = serializer.serialize(asset, nil, version.is_a?(Hash) ? (version.dig(asset.id) || 'original') : version)
+              serialized_content, response_mime_type = serializer.serialize_thing(asset, nil, version.is_a?(Hash) ? (version.dig(asset.id) || 'original') : version)
               next unless serialized_content
 
               mime_type = serializer.mime_type(serialized_content, asset).presence || response_mime_type
@@ -191,7 +177,11 @@ module DataCycleCore
 
     def serializer_for_content(content, serialize_format = nil)
       return if content.blank?
-      ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize if DataCycleCore::Feature::Serialize.allowed_serializer?(content, serialize_format)
+      ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize if DataCycleCore::Feature::Download.enabled_serializer_for_download?(content, serialize_format)
+    end
+
+    def serializer_method_for_content(content)
+      "serialize_#{content.class.to_s.demodulize.underscore}".to_sym
     end
   end
 end

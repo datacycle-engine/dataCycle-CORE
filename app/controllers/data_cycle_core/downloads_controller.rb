@@ -19,14 +19,14 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       serialize_format = params[:serialize_format]
       languages = params[:language]
-      download_watch_list(@watch_list, serialize_format, [languages])
+      download_content(@watch_list, serialize_format, [languages])
     end
 
     def stored_filters
       @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
       serialize_format = params[:serialize_format]
       languages = params[:language]
-      download_stored_filter(@stored_filter, serialize_format, [languages])
+      download_content(@stored_filter, serialize_format, [languages])
     end
 
     def thing_collections

@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Serialize
-    class JsonSerializer
+    class JsonSerializer < BaseSerializer
       class << self
         def translatable?
           true
@@ -16,7 +16,7 @@ module DataCycleCore
           '.json'
         end
 
-        def serialize(content, language, _version, _transformation = nil)
+        def serialize_thing(content, language, _version, _transformation = nil)
           DataCycleCore::Api::V3::ContentsController.renderer.new(
             http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
             https: Rails.application.config.force_ssl

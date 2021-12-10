@@ -30,6 +30,11 @@ module DataCycleCore
           available_download_serializers.select { |k, v| v.present? && available_serializers.dig(k).present? }
         end
 
+        def enabled_serializer_for_download?(content, serializer)
+          enabled_serializers_for_download(content).dig(serializer).present?
+        end
+
+        # refactor
         def collection_enabled?(type)
           enabled? && configuration.dig('collections', type, 'enabled')
         end

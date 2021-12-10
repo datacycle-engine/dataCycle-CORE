@@ -98,7 +98,7 @@ module DataCycleCore
       serialize_format = params[:serialize_format]
       languages = params[:language]
       authorize! :download, @stored_filter
-      download_stored_filter(@stored_filter, serialize_format, languages)
+      download_content(@stored_filter, serialize_format, languages)
     end
 
     def download_zip

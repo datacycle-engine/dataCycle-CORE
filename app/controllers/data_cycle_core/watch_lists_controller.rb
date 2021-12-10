@@ -318,7 +318,7 @@ module DataCycleCore
         end
         download_indesign_collection(@watch_list, download_items, serialize_format, languages, :serialize_watch_list)
       else
-        download_watch_list(@watch_list, serialize_format, languages)
+        download_content(@watch_list, serialize_format, languages)
       end
     end
 
