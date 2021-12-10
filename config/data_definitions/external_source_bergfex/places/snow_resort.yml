@@ -47,6 +47,17 @@
         :inverse_of: about
         :link_direction: inverse
         :template_name: Skigebiets-Beschreibung
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true        
       :tourism_region:
         :label: Tourismus-Region
         :type: classification
