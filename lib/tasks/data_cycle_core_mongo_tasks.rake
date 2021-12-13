@@ -93,6 +93,18 @@ namespace :data_cycle_core do
       puts ''
     end
 
+    desc 'print full name of a mongodb'
+    task :name, [:uuid] => [:environment] do |_, args|
+      external_system = DataCycleCore::ExternalSystem.find_by(id: args[:uuid])
+      if external_system.blank?
+        puts 'Id is not a valid external System.'
+        exit 1
+      end
+
+      db_name = external_system.database_name
+      puts db_name
+    end
+
     private
 
     def backup_directory(suffix = nil, create: false)
