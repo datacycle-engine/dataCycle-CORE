@@ -20,7 +20,7 @@ module DataCycleCore
         }.freeze
 
         after_action :log_activity
-        before_action :authenticate, :set_default_response_format
+        before_action :authenticate_user!, :set_default_response_format
 
         def permitted_params
           @permitted_params ||= params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
@@ -47,15 +47,15 @@ module DataCycleCore
 
         private
 
-        def authenticate
-          return if current_user
+        # def authenticate
+        #   return if current_user
 
-          user = User.find_by(access_token: params[:token]) if params[:token].present?
+        #   user = User.find_by(access_token: params[:token]) if params[:token].present?
 
-          raise CanCan::AccessDenied, 'invalid or missing authentication token' unless user
-          request.env['devise.skip_trackable'] = true
-          sign_in user, store: false
-        end
+        #   raise CanCan::AccessDenied, 'invalid or missing authentication token' unless user
+        #   request.env['devise.skip_trackable'] = true
+        #   sign_in user, store: false
+        # end
 
         def set_default_response_format
           request.format = :json unless permitted_params[:format]

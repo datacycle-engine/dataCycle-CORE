@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Devise.setup do |config|
-  config.router_name = :data_cycle_core # "DataCycleCore::User"
+  config.router_name = :data_cycle_core
   config.parent_controller = 'DataCycleCore::ApplicationController'
   config.mailer_sender = 'webmaster@pixelpoint.at'
   config.mailer = 'DataCycleCore::UserMailer'
@@ -21,6 +21,7 @@ Devise.setup do |config|
   config.http_authenticatable = true
 
   config.warden do |manager|
-    manager.default_strategies(scope: :user).unshift :guest_user
+    manager.default_strategies(scope: :user).unshift :guest_user, :api_bearer_token, :api_token, :download_token
+    manager.failure_app = DataCycleCore::CustomDeviseFailureApp
   end
 end
