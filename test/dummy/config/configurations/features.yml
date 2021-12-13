@@ -31,7 +31,7 @@
         :archive: false
         :gpx: false
         :json: true
-        :indesign: true
+        :indesign: false
         :xml: true
   :collections:
     :thing:

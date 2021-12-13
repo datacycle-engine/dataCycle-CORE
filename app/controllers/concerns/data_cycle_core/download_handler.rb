@@ -55,7 +55,7 @@ module DataCycleCore
       send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
     end
 
-    def download_indesign_collection(collection, items, serialize_format, languages, serialize_method = :serialize, version = nil)
+    def download_indesign_collection(collection, items, serialize_format, languages, serialize_method = :serialize_thing, version = nil)
       languages ||= [I18n.locale]
       download_dir = Rails.root.join('public', 'downloads')
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
@@ -66,7 +66,6 @@ module DataCycleCore
 
       assets = items.select { |item| item.try(:template_name) == 'Bild' }
       indesign_items = items.reject { |item| item.try(:template_name) == 'Bild' }
-
       unless File.exist?(zipfile_fullname)
         Zip::File.open(zipfile_fullname, Zip::File::CREATE) do |zipfile|
           indesign_items.each do |content|
@@ -122,7 +121,7 @@ module DataCycleCore
 
     protected
 
-    def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize, transformation: nil)
+    def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize_thing, transformation: nil)
       language = languages&.first&.to_sym || I18n.locale
       serialized_content, response_mime_type = serializer.try(serialize_method, content, language, version, transformation)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content
