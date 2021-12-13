@@ -13,7 +13,7 @@ module DataCycleCore
             'application/json'
           end
 
-          def serialize_thing(content, language, _version, _transformation = nil)
+          def serialize_thing(content, language)
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
                 DataCycleCore::Serialize::SerializedData::Content.new(
@@ -26,13 +26,14 @@ module DataCycleCore
                       template: 'data_cycle_core/api/v3/contents/show',
                       layout: false
                     ),
-                  mime_type: mime_type
+                  mime_type: mime_type,
+                  file_name: file_name(content, language),
                 )
               ]
             )
           end
 
-          def serialize_watch_list(watch_list, language, _version, _transformation = nil)
+          def serialize_watch_list(watch_list, language)
             pagination_contents = watch_list.watch_list_data_hashes.order(created_at: :desc).page(1).per(watch_list.watch_list_data_hashes.count)
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
@@ -46,13 +47,14 @@ module DataCycleCore
                       template: 'data_cycle_core/api/v3/watch_lists/show',
                       layout: false
                     ),
-                  mime_type: mime_type
+                  mime_type: mime_type,
+                  file_name: file_name(watch_list, language),
                 )
               ]
             )
           end
 
-          def serialize_stored_filter(stored_filter, language, _version, _transformation = nil)
+          def serialize_stored_filter(stored_filter, language)
             contents = stored_filter.apply
             pagination_contents = contents.page(1).per(contents.count)
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
@@ -67,7 +69,8 @@ module DataCycleCore
                       template: 'data_cycle_core/api/v3/contents/index',
                       layout: false
                     ),
-                  mime_type: mime_type
+                  mime_type: mime_type,
+                  file_name: file_name(stored_filter, language),
                 )
               ]
             )

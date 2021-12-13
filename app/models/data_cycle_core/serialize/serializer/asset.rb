@@ -31,9 +31,20 @@ module DataCycleCore
             ".#{ext}"
           end
 
-          def serialize_thing(content, _language, version, transformation = nil)
+          def serialize_thing(content, language, version = nil, transformation = nil)
+            content = content.is_a?(Array) ? content : [content]
+            DataCycleCore::Serialize::SerializedData::ContentCollection.new(
+              content
+                .select { |item| item.template_name == 'Bild' }
+                .map { |item| serialize(item, language, version, transformation) }
+            )
+          end
+
+          def serialize(content, language, version = nil, transformation = nil)
+            version ||= 'original'
             data = nil
             mime_type = nil
+            remote = false
             if remote?(content)
               conn = Faraday.new do |f|
                 f.request :retry, {
@@ -45,18 +56,17 @@ module DataCycleCore
               if response.success?
                 data = response.body
                 mime_type = response.headers&.dig('content-type')
+                remote = true
               end
             else
               data = create_asset(content, version, transformation)
               mime_type = mime_type(data, content)
             end
-            DataCycleCore::Serialize::SerializedData::ContentCollection.new(
-              [
-                DataCycleCore::Serialize::SerializedData::Content.new(
-                  data: data,
-                  mime_type: mime_type
-                )
-              ]
+            DataCycleCore::Serialize::SerializedData::Content.new(
+              data: data,
+              mime_type: mime_type,
+              file_name: file_name(content, language, version),
+              remote: remote
             )
           end
 

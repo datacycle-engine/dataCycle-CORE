@@ -29,7 +29,8 @@ module DataCycleCore
                       ),
                       &:noblanks
                     )&.to_xml,
-                  mime_type: mime_type
+                  mime_type: mime_type,
+                  file_name: file_name(content, language),
                 )
               ]
             )
@@ -51,7 +52,8 @@ module DataCycleCore
                       ),
                       &:noblanks
                     )&.to_xml,
-                  mime_type: mime_type
+                  mime_type: mime_type,
+                  file_name: file_name(watch_list, language),
                 )
               ]
             )
@@ -75,7 +77,8 @@ module DataCycleCore
                       ),
                       &:noblanks
                     )&.to_xml,
-                  mime_type: mime_type
+                  mime_type: mime_type,
+                  file_name: file_name(stored_filter, language),
                 )
               ]
             )

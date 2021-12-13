@@ -78,7 +78,8 @@ module DataCycleCore
               [
                 DataCycleCore::Serialize::SerializedData::Content.new(
                   data: builder.to_xml,
-                  mime_type: mime_type
+                  mime_type: mime_type,
+                  file_name: file_name(content),
                 )
               ]
             )

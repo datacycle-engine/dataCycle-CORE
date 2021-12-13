@@ -4,12 +4,14 @@ module DataCycleCore
   module Serialize
     module SerializedData
       class Content
-        attr_accessor :data, :file, :mime_type
+        attr_accessor :data, :file, :mime_type, :file_name, :remote
 
-        def initialize(data:, mime_type:, file: false)
+        def initialize(data:, mime_type:, file_name: ,file: false, remote: false)
           @data = data
           @file = file
           @mime_type = mime_type
+          @file_name = file_name
+          @remote = remote
         end
 
         def file_extension
