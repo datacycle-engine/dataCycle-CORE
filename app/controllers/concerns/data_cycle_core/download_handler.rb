@@ -16,7 +16,7 @@ module DataCycleCore
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
       cleanup_files(download_dir)
 
-      zipfile_name = "#{object.name.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
+      zipfile_name = "#{object.name&.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
       zipfile_fullname = File.join(download_dir, zipfile_name)
 
       unless File.exist?(zipfile_fullname)
@@ -26,7 +26,6 @@ module DataCycleCore
               next unless content.translated_locales.include?(language.to_sym)
               serialize_format.each do |format|
                 serializer = serializer_for_content(content, format)
-
                 next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
                 collection = serializer.serialize_thing(content, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
@@ -166,7 +165,7 @@ module DataCycleCore
 
     def serializer_for_content(content, serialize_format = nil)
       return if content.blank?
-      ('DataCycleCore::Serialize::Serializer::' + serialize_format.to_s.classify).constantize if DataCycleCore::Feature::Download.enabled_serializer_for_download?(content, serialize_format)
+      ('DataCycleCore::Serialize::Serializer::' + serialize_format.to_s.classify).constantize if DataCycleCore::Feature::Download.enabled_serializer_for_download?(content, :content, serialize_format)
     end
 
     def serializer_method_for_content(content)

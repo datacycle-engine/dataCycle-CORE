@@ -2,8 +2,8 @@
 
 module DataCycleCore
   module DownloadHelpers
-    def available_download_serializers(content)
-      DataCycleCore::Feature::Download.enabled_serializers_for_download(content)
+    def available_download_serializers(content, scope = :content)
+      DataCycleCore::Feature::Download.enabled_serializers_for_download(content, scope)
     end
 
     def available_locales_for_select(content)

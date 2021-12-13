@@ -8,7 +8,6 @@
       :enabled: false
       :serializers:
         :asset: false
-        :archive: false
         :gpx: false
         :json: false
         :indesign: false
@@ -17,7 +16,6 @@
       :enabled: false
       :serializers:
         :asset: false
-        :archive: false
         :gpx: false
         :json: false
         :indesign: false
@@ -26,7 +24,6 @@
       :enabled: false
       :serializers:
         :asset: false
-        :archive: false
         :gpx: false
         :json: false
         :indesign: false
@@ -36,11 +33,12 @@
       :enabled: false
       :serializers:
         :asset: false
-        :archive: false
         :gpx: false
         :json: false
         :indesign: false
         :xml: false
+      :mandatory_serializers:
+        :archive: true
     :watch_list:
       :enabled: false
       :serializers:
@@ -50,15 +48,18 @@
         :json: false
         :indesign: false
         :xml: false
+      :mandatory_serializers:
+        :archive: true
     :stored_filter:
       :enabled: false
       :serializers:
         :asset: false
-        :archive: false
         :gpx: false
         :json: false
         :indesign: false
         :xml: false
+      :mandatory_serializers:
+        :archive: true
   :dependencies:
     - serialize
 
