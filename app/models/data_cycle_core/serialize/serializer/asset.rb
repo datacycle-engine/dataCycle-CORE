@@ -23,6 +23,7 @@ module DataCycleCore
             )
           end
 
+          # legacy method for indesign downloader
           def file_extension(mime_type)
             ext = MiniMime.lookup_by_content_type(mime_type.to_s)&.extension
             return if ext.blank?
@@ -31,6 +32,8 @@ module DataCycleCore
           end
 
           def serialize_thing(content, _language, version, transformation = nil)
+            data = nil
+            mime_type = nil
             if remote?(content)
               conn = Faraday.new do |f|
                 f.request :retry, {
@@ -39,13 +42,28 @@ module DataCycleCore
                 f.response :follow_redirects
               end
               response = conn.get content.content_url
-
-              return response.body, response.headers&.dig('content-type') if response.success?
+              if response.success?
+                data = response.body
+                mime_type = response.headers&.dig('content-type')
+              end
             else
-              return content.asset.try(version, recreate: true)&.dynamic_version(name: version, options: transformation, process: true) if version.present? && transformation.present? && (content.asset&.versions&.key?(version.to_sym) || version == 'original')
-              return content.asset.try(version, recreate: true) if version.present? && content.asset&.versions&.key?(version.to_sym)
-              return content.asset&.file if content.asset&.file.present?
+              data = create_asset(content, version, transformation)
+              mime_type = mime_type(data, content)
             end
+            DataCycleCore::Serialize::SerializedData::ContentCollection.new(
+              [
+                DataCycleCore::Serialize::SerializedData::Content.new(
+                  data: data,
+                  mime_type: mime_type
+                )
+              ]
+            )
+          end
+
+          def create_asset(content, version, transformation)
+            return content.asset.try(version, recreate: true)&.dynamic_version(name: version, options: transformation, process: true) if version.present? && transformation.present? && (content.asset&.versions&.key?(version.to_sym) || version == 'original')
+            return content.asset.try(version, recreate: true) if version.present? && content.asset&.versions&.key?(version.to_sym)
+            content.asset&.file.presence
           end
         end
       end

@@ -11,12 +11,8 @@ module DataCycleCore
             false
           end
 
-          def mime_type(_serialized_content, _content)
-            'gpx/xml'
-          end
-
-          def file_extension(_mime_type)
-            '.gpx'
+          def mime_type(_serialized_content = nil, _content = nil)
+            'application/gpx+xml'
           end
 
           def file_name_prefix(content)
@@ -78,8 +74,14 @@ module DataCycleCore
                 end
               end
             end
-
-            builder.to_xml
+            DataCycleCore::Serialize::SerializedData::ContentCollection.new(
+              [
+                DataCycleCore::Serialize::SerializedData::Content.new(
+                  data: builder.to_xml,
+                  mime_type: mime_type
+                )
+              ]
+            )
           end
         end
       end
