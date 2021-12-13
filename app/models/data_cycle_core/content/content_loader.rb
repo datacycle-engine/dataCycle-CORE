@@ -63,7 +63,7 @@ module DataCycleCore
         content_contents_condition[content_filter] = filter.apply.select(:id).except(:order) if filter.present?
 
         relation_contents = self.class.unscoped do
-          root_object.i18n.send(relation_name).where(content_contents: content_contents_condition)
+          root_object.send(relation_name).where(content_contents: content_contents_condition).i18n
         end
 
         relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: languages }) if same_language
