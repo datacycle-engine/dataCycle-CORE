@@ -8,6 +8,10 @@ module DataCycleCore
           configuration(content).dig('serializers').select { |k, _| enabled_serializers.dig(k) }
         end
 
+        def available_serializer?(content, serializer)
+          available_serializers(content).dig(serializer).present?
+        end
+
         def enabled_serializers
           configuration.dig('serializers').select { |_, v| v.present? }
         end

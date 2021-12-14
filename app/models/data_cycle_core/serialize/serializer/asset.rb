@@ -35,10 +35,16 @@ module DataCycleCore
             content = content.is_a?(Array) ? content : [content]
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               content
-                .select { |item| item.template_name == 'Bild' }
+                .select { |item| serializable?(item) }
                 .map { |item| serialize(item, language, version, transformation) }
             )
           end
+
+          def serializable?(content)
+            DataCycleCore::Feature::Serialize.available_serializer?(content, name.demodulize.underscore) && content.asset_property_names.present?
+          end
+
+          private
 
           def serialize(content, language, version = nil, transformation = nil)
             version ||= 'original'

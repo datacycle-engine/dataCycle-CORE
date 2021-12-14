@@ -23,7 +23,18 @@ module DataCycleCore
             Rails.application.config.action_mailer.default_url_options
           end
 
-          def serialize_thing(content, _language, _version, _transformation = nil)
+          def serialize_thing(content, _language, _version = nil, _transformation = nil)
+            content = content.is_a?(Array) ? content : [content]
+            DataCycleCore::Serialize::SerializedData::ContentCollection.new(
+              content
+                .select { |item| serializable?(item) }
+                .map { |item| serialize(item) }
+            )
+          end
+
+          private
+
+          def serialize(content)
             builder = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
               xml.gpx(version: '1.1', creator: 'dataCycle', xmlns: 'http://www.topografix.com/GPX/1/1') do
                 xml.metadata do
@@ -74,14 +85,10 @@ module DataCycleCore
                 end
               end
             end
-            DataCycleCore::Serialize::SerializedData::ContentCollection.new(
-              [
-                DataCycleCore::Serialize::SerializedData::Content.new(
-                  data: builder.to_xml,
-                  mime_type: mime_type,
-                  file_name: file_name(content),
-                )
-              ]
+            DataCycleCore::Serialize::SerializedData::Content.new(
+              data: builder.to_xml,
+              mime_type: mime_type,
+              file_name: file_name(content)
             )
           end
         end

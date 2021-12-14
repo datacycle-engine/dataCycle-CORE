@@ -6,7 +6,7 @@ module DataCycleCore
       class Content
         attr_accessor :data, :file, :mime_type, :file_name, :remote
 
-        def initialize(data:, mime_type:, file_name: ,file: false, remote: false)
+        def initialize(data:, mime_type:, file_name:, file: false, remote: false)
           @data = data
           @file = file
           @mime_type = mime_type
@@ -19,6 +19,10 @@ module DataCycleCore
           return if ext.blank?
 
           ".#{ext}"
+        end
+
+        def file_name_with_extension
+          "#{@file_name}#{file_extension}"
         end
 
         def file?

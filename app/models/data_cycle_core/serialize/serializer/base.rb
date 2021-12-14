@@ -42,6 +42,10 @@ module DataCycleCore
               "#{content.template_name}_#{SecureRandom.uuid}"
             end
           end
+
+          def serializable?(content)
+            DataCycleCore::Feature::Serialize.available_serializer?(content, name.demodulize.underscore)
+          end
         end
       end
     end

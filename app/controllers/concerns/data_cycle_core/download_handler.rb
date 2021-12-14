@@ -10,7 +10,7 @@ module DataCycleCore
       download_generic(content: content, serializer: serializer, languages: languages, version: version, serialize_method: serializer_method_for_content(content), transformation: transformation)
     end
 
-    def download_collection(object, items, serialize_format, languages, version = nil)
+    def download_collection(object, items, serialize_format, languages, _version = nil)
       languages ||= [I18n.locale]
       download_dir = Rails.root.join('public', 'downloads')
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
@@ -36,8 +36,8 @@ module DataCycleCore
 
                 next unless serialized_content
 
-                file_name = serialized_content.file_name
-                file_name = "#{file_name.split('.').slice(0, -1)}_#{SecureRandom.uuid}#{serialized_content.file_extension}" if zipfile.find_entry(file_name)
+                file_name = serialized_content.file_name_with_extension
+                file_name = "#{file_name.split('.')[0...-1].join('.')}_#{SecureRandom.uuid}#{serialized_content.file_extension}" if zipfile.find_entry(file_name)
 
                 download_file = create_download_file(serialized_content, file_name)
                 zipfile.add(file_name, download_file)
@@ -48,7 +48,6 @@ module DataCycleCore
       end
 
       object.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
-
       send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
     end
 
@@ -92,7 +91,7 @@ module DataCycleCore
           end
           if assets.size.positive?
             assets.each do |asset|
-              serializer = serializer_for_content(asset, :content,  'asset')
+              serializer = serializer_for_content(asset, :content, 'asset')
               next unless serializer
 
               collection = serializer.serialize_thing(asset, nil, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
@@ -129,11 +128,11 @@ module DataCycleCore
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
 
       mime_type = serialized_content.mime_type
-      file_name = serialized_content.file_name
+      file_name = serialized_content.file_name_with_extension
 
       download_file = create_download_file(serialized_content, file_name)
       content.activities.create(user: current_user, activity_type: 'download')
-      send_file download_file, filename: file_name.to_s, disposition: 'attachment', type: mime_type
+      send_file download_file, filename: file_name, disposition: 'attachment', type: mime_type
     end
 
     # remove all files older than 2 hours
