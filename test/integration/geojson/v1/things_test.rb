@@ -5,12 +5,11 @@ require 'test_helper'
 module DataCycleCore
   module Geojson
     module V1
-      class ThingTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
-
-        setup do
+      class ThingTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
           @routes = Engine.routes
+          @current_user = User.find_by(email: 'tester@datacycle.at')
+
           @test_tour = DataCycleCore::DummyDataHelper.create_data('tour')
 
           @test_poi = DataCycleCore::DummyDataHelper.create_data('poi')
@@ -24,16 +23,14 @@ module DataCycleCore
 
           @test_tour2 = DataCycleCore::DummyDataHelper.create_data('tour')
 
-          lat_long2 = {
-            'latitude': 46.123456789,
-            'longitude': 14.123456789
-          }
-          @test_tour2.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long2)
           @test_tour2.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@test_tour2.longitude, @test_tour2.latitude)
           @test_tour2.save
 
           @test_article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
-          sign_in(User.find_by(email: 'tester@datacycle.at'))
+        end
+
+        setup do
+          sign_in(@current_user)
         end
 
         test 'geojson of stored tour exists' do
