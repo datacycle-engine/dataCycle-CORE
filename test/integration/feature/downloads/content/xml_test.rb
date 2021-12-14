@@ -6,14 +6,17 @@ module DataCycleCore
   module Feature
     module Downloads
       module Content
-        class XmlTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
+        class XmlTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+          before(:all) do
+            @routes = Engine.routes
+            @current_user = User.find_by(email: 'tester@datacycle.at')
+            @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Article Test' })
+            @serialize_config = DataCycleCore.features[:serialize].deep_dup
+            @download_config = DataCycleCore.features[:download].deep_dup
+          end
 
           setup do
-            @routes = Engine.routes
-            @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Article Test' })
-            sign_in(User.find_by(email: 'tester@datacycle.at'))
+            sign_in(@current_user)
           end
 
           test 'check if xml serializer is disabled' do
@@ -29,6 +32,7 @@ module DataCycleCore
 
           test 'enable xml serializer and render xml download for article' do
             DataCycleCore.features[:serialize][:serializers][:xml] = true
+            DataCycleCore.features[:download][:content][:thing][:serializers][:xml] = true
 
             get download_thing_path(@content), params: { serialize_format: 'xml' }, headers: {
               referer: thing_path(@content)
@@ -43,6 +47,7 @@ module DataCycleCore
 
           test 'enable xml serializer and test downloads controller' do
             DataCycleCore.features[:serialize][:serializers][:xml] = true
+            DataCycleCore.features[:download][:content][:thing][:serializers][:xml] = true
 
             get "/downloads/things/#{@content.id}", params: { serialize_format: 'xml' }, headers: {
               referer: thing_path(@content)
@@ -56,7 +61,10 @@ module DataCycleCore
           end
 
           def teardown
-            DataCycleCore.features[:serialize][:serializers][:xml] = false
+            DataCycleCore.features[:serialize][:serializers] = @serialize_config[:serializers].deep_dup
+            DataCycleCore.features[:download][:content] = @download_config[:content].deep_dup
+            DataCycleCore::Feature::Serialize.reload
+            DataCycleCore::Feature::Download.reload
           end
         end
       end

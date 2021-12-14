@@ -6,19 +6,23 @@ module DataCycleCore
   module Feature
     module Downloads
       module Content
-        class AssetTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
-
-          setup do
+        class AssetTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+          before(:all) do
             @routes = Engine.routes
-            sign_in(@current_user = User.find_by(email: 'tester@datacycle.at'))
+            @current_user = User.find_by(email: 'tester@datacycle.at')
+            DataCycleCore::ImageUploader.enable_processing = true
             @image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')), creator: @current_user)
             image_data_hash = {
               'name' => 'image_headline',
               'asset' => @image.id
             }
             @content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash, user: @current_user)
+            @serialize_config = DataCycleCore.features[:serialize].deep_dup
+            @download_config = DataCycleCore.features[:download].deep_dup
+          end
+
+          setup do
+            sign_in(@current_user)
           end
 
           test 'check if asset serializer is disabled' do
@@ -32,18 +36,69 @@ module DataCycleCore
             assert_equal(302, response.status)
           end
 
-          test 'enable asset serializer and render json asset for image' do
+          test 'enable asset serializer and render asset for image' do
             DataCycleCore.features[:serialize][:serializers][:asset] = true
+            DataCycleCore.features[:download][:content][:thing][:serializers][:asset] = true
 
             get download_thing_path(@content), params: { serialize_format: 'asset' }, headers: {
               referer: thing_path(@content)
             }
             assert_response :success
+
             assert_equal('image/jpeg', response.headers.dig('Content-Type'))
+            content_disposition = response.headers.dig('Content-Disposition').split(';')
+            assert_equal('attachment', content_disposition.first)
+            assert_equal(' filename="image_headline-original.jpeg"', content_disposition.last)
+
+            # version web in png
+            get download_thing_path(@content), params: { serialize_format: 'asset', version: 'web', transformation: { web: { format: 'png' } } }, headers: {
+              referer: thing_path(@content)
+            }
+            assert_response :success
+
+            assert_equal('image/png', response.headers.dig('Content-Type'))
+            content_disposition = response.headers.dig('Content-Disposition').split(';')
+            assert_equal('attachment', content_disposition.first)
+            assert_equal(' filename="image_headline-web.png"', content_disposition.last)
+
+            # version thumb
+            get download_thing_path(@content), params: { serialize_format: 'asset', version: 'thumb_preview' }, headers: {
+              referer: thing_path(@content)
+            }
+            assert_response :success
+
+            assert_equal('image/jpeg', response.headers.dig('Content-Type'))
+            content_disposition = response.headers.dig('Content-Disposition').split(';')
+            assert_equal('attachment', content_disposition.first)
+            assert_equal(' filename="image_headline-thumb_preview.jpeg"', content_disposition.last)
+
+            ### @todo error handling
+            #  transformation does not match version => transformation is ignored
+            get download_thing_path(@content), params: { serialize_format: 'asset', version: 'web', transformation: { asdf: { format: 'png' } } }, headers: {
+              referer: thing_path(@content)
+            }
+            assert_response :success
+
+            assert_equal('image/jpeg', response.headers.dig('Content-Type'))
+            content_disposition = response.headers.dig('Content-Disposition').split(';')
+            assert_equal('attachment', content_disposition.first)
+            assert_equal(' filename="image_headline-web.jpeg"', content_disposition.last)
+
+            #  invalid version => raise an error
+            get download_thing_path(@content), params: { serialize_format: 'asset', version: 'test', transformation: { asdf: { format: 'png' } } }, headers: {
+              referer: thing_path(@content)
+            }
+            assert_response :success
+
+            assert_equal('image/jpeg', response.headers.dig('Content-Type'))
+            content_disposition = response.headers.dig('Content-Disposition').split(';')
+            assert_equal('attachment', content_disposition.first)
+            assert_equal(' filename="image_headline-web.jpeg"', content_disposition.last)
           end
 
           test 'enable asset serializer and test downloads controller' do
             DataCycleCore.features[:serialize][:serializers][:asset] = true
+            DataCycleCore.features[:download][:content][:thing][:serializers][:asset] = true
 
             get "/downloads/things/#{@content.id}", params: { serialize_format: 'asset' }, headers: {
               referer: thing_path(@content)
@@ -53,7 +108,13 @@ module DataCycleCore
           end
 
           def teardown
-            DataCycleCore.features[:serialize][:serializers][:asset] = false
+            DataCycleCore.features[:serialize][:serializers] = @serialize_config[:serializers].deep_dup
+            DataCycleCore.features[:download][:content] = @download_config[:content].deep_dup
+            DataCycleCore::Feature::Serialize.reload
+            DataCycleCore::Feature::Download.reload
+          end
+          after(:all) do
+            DataCycleCore::ImageUploader.enable_processing = false
           end
         end
       end
