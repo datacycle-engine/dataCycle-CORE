@@ -14,6 +14,7 @@
               <li>
                 <%= link_to tag.i(class: 'fa fa-bolt', aria_hidden: true),
                             restore_history_version_thing_path(id: @content.id, history_id: @diff_source&.id),
+                            method: :post,
                             class: 'button alert clear restore-version-button',
                             title: t('history.restore.version.title', locale: active_ui_locale),
                             data: {
