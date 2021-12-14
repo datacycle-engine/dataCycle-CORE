@@ -13,10 +13,5 @@ module DataCycleCore
         authenticate_with_token(token)
       end
     end
-
-    # def request_http_token_authentication(realm = 'Application', _message = nil)
-    #   headers['WWW-Authenticate'] = %(Token realm="#{realm.delete('"')}")
-    #   raise CanCan::AccessDenied, 'HTTP Token: Access denied.'
-    # end
   end
 end

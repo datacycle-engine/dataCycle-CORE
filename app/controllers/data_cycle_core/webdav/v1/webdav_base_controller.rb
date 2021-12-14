@@ -10,7 +10,6 @@ module DataCycleCore
         include CanCan::ControllerAdditions
         include ActiveSupport::Rescuable
         include DataCycleCore::ErrorHandler
-        # include ActionController::HttpAuthentication::Basic::ControllerMethods
         include DataCycleCore::WebdavHelper
         helper DataCycleCore::WebdavHelper
 
@@ -30,14 +29,6 @@ module DataCycleCore
         end
 
         private
-
-        # def authenticate
-        #   authenticate_or_request_with_http_basic do |user_name, password|
-        #     @user = DataCycleCore::User.find_by(email: user_name)
-        #     raise CanCan::AccessDenied, 'invalid or missing authentication token' if @user.nil? || !@user.valid_password?(password)
-        #     sign_in @user, store: false
-        #   end
-        # end
 
         def forbidden(_exception)
           plain_error(:forbidden)

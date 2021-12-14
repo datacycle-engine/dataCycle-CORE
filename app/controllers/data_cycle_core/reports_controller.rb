@@ -37,26 +37,5 @@ module DataCycleCore
     def permitted_parameter_keys
       [:type, :identifier, :thing_id]
     end
-
-    # def authenticate
-    #   return if current_user
-
-    #   if request.headers['Authorization'].present?
-    #     authenticate_or_request_with_http_token do |token|
-    #       @decoded = DataCycleCore::JsonWebToken.decode(token)
-    #       @user = DataCycleCore::User.find_with_token(@decoded)
-    #     rescue JWT::DecodeError, JSON::ParserError => e
-    #       raise CanCan::AccessDenied, e.message
-    #     end
-    #   elsif params[:token].present?
-    #     @user = User.find_by(access_token: params[:token])
-    #   end
-
-    #   raise CanCan::AccessDenied, 'invalid or missing authentication token' if @user.nil?
-
-    #   request.env['devise.skip_trackable'] = true
-    #   sign_in @user, store: false
-    #   remove_instance_variable(:@current_ability)
-    # end
   end
 end

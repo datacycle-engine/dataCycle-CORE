@@ -3,7 +3,7 @@
 module DataCycleCore
   class ContentLocksController < ApplicationController
     skip_before_action :verify_authenticity_token
-    before_action :authenticate_user! # from devise (authenticate)
+    before_action :authenticate_user!, :decode_token # from devise (authenticate)
 
     def update
       return(head :no_content) if @decoded[:lock_ids].blank?
@@ -35,18 +35,10 @@ module DataCycleCore
       raise 'Content Lock destroy/update failed - Browser Windows closed'
     end
 
-    # def authenticate
-    #   binding.pry
-
-    #   raise CanCan::AccessDenied, 'invalid or missing authentication token' if params[:token].blank?
-
-    #   @decoded = DataCycleCore::JsonWebToken.decode(params[:token])
-    #   @user = DataCycleCore::User.find(@decoded[:user_id])
-
-    #   request.env['devise.skip_trackable'] = true
-    #   sign_in @user, store: false
-    # rescue JWT::DecodeError, JSON::ParserError => e
-    #   raise CanCan::AccessDenied, e.message
-    # end
+    def decode_token
+      @decoded = DataCycleCore::JsonWebToken.decode(params[:token]) || {}
+    rescue JWT::DecodeError, JSON::ParserError
+      @decoded = {}
+    end
   end
 end

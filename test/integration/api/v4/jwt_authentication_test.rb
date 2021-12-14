@@ -86,7 +86,7 @@ module DataCycleCore
             Authorization: "Bearer #{@current_user.access_token}"
           }, params: {}
 
-          assert_response :unauthorized
+          assert_response :success
         end
 
         test '/api/v4/auth/login - login with token in header as Authorization -> Unauthorized' do

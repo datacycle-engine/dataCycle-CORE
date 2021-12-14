@@ -10,9 +10,7 @@ module DataCycleCore
         include CanCan::ControllerAdditions
         include ActiveSupport::Rescuable
         include DataCycleCore::ErrorHandler
-        # include ActionController::HttpAuthentication::Token::ControllerMethods
         include DataCycleCore::ApiService
-        # include DataCycleCore::Authentication
         helper DataCycleCore::ApiHelper
 
         wrap_parameters format: []
@@ -31,7 +29,7 @@ module DataCycleCore
           links: 1
         }.freeze
 
-        # after_action :log_activity, unless: -> { params[:sl] }
+        after_action :log_activity, unless: -> { params[:sl] }
         before_action :authenticate_user!, :set_default_response_format
 
         # TODO: move validate_api_params to be called before permitted_params
@@ -102,31 +100,6 @@ module DataCycleCore
         end
 
         private
-
-        # def request_http_token_authentication(realm = 'Application', _message = nil)
-        #   headers['WWW-Authenticate'] = %(Token realm="#{realm.delete('"')}")
-        #   raise CanCan::AccessDenied, 'HTTP Token: Access denied.'
-        # end
-
-        # def authenticate
-        #   return if current_user
-
-        #   if request.headers['Authorization'].present?
-        #     authenticate_or_request_with_http_token do |token|
-        #       @decoded = DataCycleCore::JsonWebToken.decode(token)
-        #       @user = DataCycleCore::User.find_with_token(@decoded)
-        #     rescue JWT::DecodeError, JSON::ParserError => e
-        #       raise CanCan::AccessDenied, e.message
-        #     end
-        #   elsif params[:token].present?
-        #     @user = User.find_by(access_token: params[:token])
-        #   end
-
-        #   raise CanCan::AccessDenied, 'invalid or missing authentication token' if @user.nil?
-
-        #   request.env['devise.skip_trackable'] = true
-        #   sign_in @user, store: false
-        # end
 
         def set_default_response_format
           request.format = :json unless permitted_params[:format]

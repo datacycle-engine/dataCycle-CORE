@@ -72,31 +72,5 @@ module DataCycleCore
 
       download_collection(@stored_filter, download_items, serialize_format, languages)
     end
-
-    # private
-
-    # def authenticate
-    #   return if current_user
-
-    #   if request.headers['Authorization'].present?
-    #     authenticate_or_request_with_http_token do |token|
-    #       @decoded = DataCycleCore::JsonWebToken.decode(token)
-    #       @user = DataCycleCore::User.find_with_token(@decoded)
-    #     rescue JWT::DecodeError, JSON::ParserError => e
-    #       raise CanCan::AccessDenied, e.message
-    #     end
-    #   elsif params[:token].present?
-    #     @user = User.find_by(access_token: params[:token])
-    #   elsif params[:download_token].present? && Rails.cache.exist?("download_#{params[:download_token]}")
-    #     @user = User.find(Rails.cache.read("download_#{params[:download_token]}"))
-    #     DataCycleCore::Download.remove_token(key: "download_#{params[:download_token]}")
-    #   end
-
-    #   raise CanCan::AccessDenied, 'invalid or missing authentication token' if @user.nil?
-
-    #   request.env['devise.skip_trackable'] = true
-    #   sign_in @user, store: false
-    #   @current_user = @user
-    # end
   end
 end
