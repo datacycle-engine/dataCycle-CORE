@@ -33,6 +33,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::ContentWarnings
       include DataCycleCore::Content::Extensions::Api
       include DataCycleCore::Content::Extensions::SyncApi
+      include DataCycleCore::Content::Extensions::Geojson
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay
@@ -322,7 +323,7 @@ module DataCycleCore
         (known_names - virtual_property_names).map { |property_name|
           property_value = attribute_to_h(property_name, timestamp)
           { property_name.to_s => property_value }
-        }.inject(&:merge).deep_stringify_keys
+        }.inject(&:merge)&.deep_stringify_keys || {}
       end
 
       def attribute_to_h(property_name, timestamp = Time.zone.now)
