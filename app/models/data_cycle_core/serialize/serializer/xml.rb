@@ -14,6 +14,7 @@ module DataCycleCore
           end
 
           def serialize_thing(content, language, _version = nil, _transformation = nil)
+            content = content.is_a?(Array) ? content : [content]
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               content
                 .select { |item| serializable?(item) }

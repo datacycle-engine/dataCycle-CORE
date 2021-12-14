@@ -5,10 +5,10 @@
   :enabled: true
   :content:
     :thing:
-      :enabled: false
+      :enabled: true
       :serializers:
         :asset: false
-        :gpx: false
+        :gpx: true
         :json: false
         :indesign: false
         :xml: false
