@@ -28,6 +28,7 @@ de:
       not_found_in_database: Ungültige Anmeldedaten.
       timeout: Ihre Sitzung ist abgelaufen, bitte melden Sie sich erneut an.
       unauthenticated: Sie müssen sich anmelden oder registrieren, bevor Sie fortfahren können.
+      unauthenticated_json: invalid or missing authentication token
       unconfirmed: Sie müssen Ihren Account bestätigen, bevor Sie fortfahren können.
       user:
         invalid_saml_response: Sie müssen sich anmelden oder registrieren, bevor Sie fortfahren können.
