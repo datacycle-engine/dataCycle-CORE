@@ -37,7 +37,8 @@ module DataCycleCore
                       layout: false
                     ),
                   mime_type: mime_type,
-                  file_name: file_name(watch_list, language)
+                  file_name: file_name(watch_list, language),
+                  id: watch_list.id
                 )
               ]
             )
@@ -59,7 +60,8 @@ module DataCycleCore
                       layout: false
                     ),
                   mime_type: mime_type,
-                  file_name: file_name(stored_filter, language)
+                  file_name: file_name(stored_filter, language),
+                  id: stored_filter.id
                 )
               ]
             )
@@ -79,7 +81,8 @@ module DataCycleCore
                   layout: false
                 ),
               mime_type: mime_type,
-              file_name: file_name(content, language)
+              file_name: file_name(content, language),
+              id: content.id
             )
           end
         end

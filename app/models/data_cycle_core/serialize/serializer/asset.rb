@@ -72,7 +72,8 @@ module DataCycleCore
               data: data,
               mime_type: mime_type,
               file_name: file_name(content, language, version),
-              remote: remote
+              remote: remote,
+              id: content.id
             )
           end
 

@@ -13,26 +13,12 @@ module DataCycleCore
             'application/xml'
           end
 
-          def serialize_thing(content, language, _version, _transformation = nil)
+          def serialize_thing(content, language, _version = nil, _transformation = nil)
+            content = content.is_a?(Array) ? content : [content]
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
-              [
-                DataCycleCore::Serialize::SerializedData::Content.new(
-                  data:
-                    Nokogiri::XML(
-                      DataCycleCore::Xml::V1::ContentsController.renderer.new(
-                        http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
-                        https: Rails.application.config.force_ssl
-                      ).render(
-                        assigns: { content: content, language: language, include_parameters: ['linked'], mode_parameters: ['indesign'] },
-                        template: 'data_cycle_core/xml/v1/contents/show',
-                        layout: false
-                      ),
-                      &:noblanks
-                    )&.to_xml,
-                  mime_type: mime_type,
-                  file_name: file_name(content, language),
-                )
-              ]
+              content
+                .select { |item| serializable?(item) }
+                .map { |item| serialize(item, language) }
             )
           end
 
@@ -54,6 +40,7 @@ module DataCycleCore
                     )&.to_xml,
                   mime_type: mime_type,
                   file_name: file_name(watch_list, language),
+                  id: watch_list.id
                 )
               ]
             )
@@ -79,8 +66,31 @@ module DataCycleCore
                     )&.to_xml,
                   mime_type: mime_type,
                   file_name: file_name(stored_filter, language, version),
+                  id: stored_filter.id
                 )
               ]
+            )
+          end
+
+          private
+
+          def serialize(content, language)
+            DataCycleCore::Serialize::SerializedData::Content.new(
+              data:
+                Nokogiri::XML(
+                  DataCycleCore::Xml::V1::ContentsController.renderer.new(
+                    http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+                    https: Rails.application.config.force_ssl
+                  ).render(
+                    assigns: { content: content, language: language, include_parameters: ['linked'], mode_parameters: ['indesign'] },
+                    template: 'data_cycle_core/xml/v1/contents/show',
+                    layout: false
+                  ),
+                  &:noblanks
+                )&.to_xml,
+              mime_type: mime_type,
+              file_name: file_name(content, language),
+              id: content.id
             )
           end
         end

@@ -60,50 +60,42 @@ module DataCycleCore
       zipfile_name = "#{object.name.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
       zipfile_fullname = File.join(download_dir, zipfile_name)
 
-      assets = items.select { |item| item.try(:template_name) == 'Bild' }
-      indesign_items = items.reject { |item| item.try(:template_name) == 'Bild' }
       unless File.exist?(zipfile_fullname)
         Zip::File.open(zipfile_fullname, Zip::File::CREATE) do |zipfile|
-          indesign_items.each do |content|
-            languages.each do |language|
-              serializer = ('DataCycleCore::Serialize::Serializer::' + serialize_format.to_s.classify).constantize
+          languages.each do |language|
+            serializer = serializer_for_content(object, :content, serialize_format)
+            next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
-              next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
+            collection = serializer.try(serialize_method, object, language, version)
+            raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
-              collection = serializer.try(serialize_method, content, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
-              raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
+            serialized_content = collection.first
+            raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
 
-              serialized_content = collection.first
-              raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
+            next unless serialized_content
 
-              next unless serialized_content
+            file_name = serialized_content.file_name_with_extension
+            file_name = "#{file_name.split('.')[0...-1].join('.')}_#{SecureRandom.uuid}#{serialized_content.file_extension}" if zipfile.find_entry(file_name)
 
-              file_extension = serialized_content.file_extension
-
-              file_name = serializer.file_name(content, language, version)
-              file_name += "_#{SecureRandom.uuid}" if zipfile.find_entry("#{file_name}#{file_extension}")
-              file_name += file_extension
-
-              download_file = create_download_file(serializer, serialized_content, content, file_name)
-
-              zipfile.add(file_name, download_file)
-            end
+            download_file = create_download_file(serialized_content, file_name)
+            zipfile.add(file_name, download_file)
           end
-          if assets.size.positive?
-            assets.each do |asset|
-              serializer = serializer_for_content(asset, :content, 'asset')
-              next unless serializer
 
-              collection = serializer.serialize_thing(asset, nil, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
-              raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
+          if items.size.positive?
+            language = languages&.first&.to_sym || I18n.locale
+            serializer = 'DataCycleCore::Serialize::Serializer::Asset'.classify.constantize
+            next unless serializer
 
-              serialized_content = collection.first
+            collection = serializer.serialize_thing(items, language)
+            raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
+
+            collection.each do |serialized_content|
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
 
               next unless serialized_content
 
-              file_name = "images/#{asset.id}#{serialized_content.file_extension}"
-              download_file = create_download_file(serializer, serialized_content, asset, file_name)
+              file_name = "images/#{serialized_content.id}#{serialized_content.file_extension}"
+              download_file = create_download_file(serialized_content, file_name)
 
               next if zipfile.find_entry(file_name)
               zipfile.add(file_name, download_file)

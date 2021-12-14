@@ -37,7 +37,7 @@
         :asset: true
         :gpx: true
         :json: true
-        :indesign: true
+        :indesign: false
         :xml: true
       :mandatory_serializers:
         :archive: true
@@ -47,7 +47,7 @@
         :asset: true
         :gpx: true
         :json: true
-        :indesign: true
+        :indesign: false
         :xml: true
       :mandatory_serializers:
         :archive: true
@@ -57,7 +57,7 @@
         :asset: true
         :gpx: true
         :json: true
-        :indesign: true
+        :indesign: false
         :xml: true
       :mandatory_serializers:
         :archive: true

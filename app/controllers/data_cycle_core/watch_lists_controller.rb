@@ -308,7 +308,7 @@ module DataCycleCore
       authorize! :download, @watch_list
 
       if serialize_format == 'indesign'
-        download_items = [@watch_list]
+        download_items = []
         @watch_list.things.all.to_a.select do |thing|
           download_items += [thing] if thing.template_name == 'Bild' && can?(:download, thing)
           items = thing.linked_contents.where(template_name: 'Bild').to_a.select do |linked_item|
