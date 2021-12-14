@@ -173,13 +173,24 @@ class ObjectBrowser {
     $('#new_' + this.id + '.in-object-browser form').trigger('reset');
   }
   async importDataHandler(_event, data) {
-    let newItems = [];
+    let newItems = [],
+      removedItems = [];
+
     if (data.external_ids != undefined) newItems = data.external_ids;
-    else if (data.value && data.value.length) {
-      newItems = difference(
-        data.value,
-        $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
+    else if (data.value) {
+      const existingIds = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) =>
+        $(val).data('id')
       );
+      newItems = difference(data.value, existingIds);
+      removedItems = difference(existingIds, data.value);
+    }
+
+    if (data.replace) {
+      const query = removedItems.map(r => `> .media-thumbs > .object-thumbs > li.item[data-id="${r}"]`);
+
+      this.element.find(query.join(', ')).each((_index, item) => {
+        this.removeThumbObject(item, false);
+      });
     }
 
     if (

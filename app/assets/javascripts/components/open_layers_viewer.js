@@ -112,6 +112,7 @@ class OpenLayersViewer {
     this.afterValue = this.$container.data('after-position');
     this.type = this.$container.data('type');
     this.additionalValues = this.$container.data('additionalValues');
+    this.additionalAttributes = this.$container.data('additional-attributes');
     this.feature;
     this.additionalFeatures = [];
     this.infoOverlay;
@@ -510,10 +511,10 @@ class OpenLayersViewer {
 
     if (this.defaultPosition && this.defaultPosition.zoom) viewOptions.zoom = this.defaultPosition.zoom;
     if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude) {
-      let newCoords = new this.ol.geom.Point([this.defaultPosition.longitude, this.defaultPosition.latitude]).transform(
-        'EPSG:4326',
-        'EPSG:3857'
-      );
+      const newCoords = new this.ol.geom.Point([
+        this.defaultPosition.longitude,
+        this.defaultPosition.latitude
+      ]).transform('EPSG:4326', 'EPSG:3857');
       viewOptions.center = newCoords.getCoordinates();
     }
 

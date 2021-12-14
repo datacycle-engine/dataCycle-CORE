@@ -318,6 +318,14 @@ module DataCycleCore
         }.inject(&:merge).deep_stringify_keys
       end
 
+      def to_h_partial(partial_properties, timestamp = Time.zone.now)
+        known_names = partial_properties.select { |i| i.in?(property_names) }
+        (known_names - virtual_property_names).map { |property_name|
+          property_value = attribute_to_h(property_name, timestamp)
+          { property_name.to_s => property_value }
+        }.inject(&:merge).deep_stringify_keys
+      end
+
       def attribute_to_h(property_name, timestamp = Time.zone.now)
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id

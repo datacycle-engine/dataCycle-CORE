@@ -24,6 +24,9 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.$elevationField = this.$mapInfoContainer.find('.elevation input').first();
     this.$locationField = this.$parentContainer.siblings('input.location-data:hidden').first();
   }
+  static isAllowedType(type) {
+    return true;
+  }
   setup() {
     this.setZoomMethod();
     this.initFeatures();
