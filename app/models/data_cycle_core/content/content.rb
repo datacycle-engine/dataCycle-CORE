@@ -33,6 +33,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::ContentWarnings
       include DataCycleCore::Content::Extensions::Api
       include DataCycleCore::Content::Extensions::SyncApi
+      include DataCycleCore::Content::Extensions::Geojson
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay
