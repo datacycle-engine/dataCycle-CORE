@@ -26,10 +26,11 @@ REMOTE_COMPOSER_PROJECT_NAME=$(read_var REMOTE_COMPOSER_PROJECT_NAME $ENV_FILE)
 LOCAL_COMPOSE_PROJECT_NAME=$(read_var COMPOSE_PROJECT_NAME $ENV_FILE)
 
 # local mongodb name
-LOCAL_MONGO=$(docker exec -it "$LOCAL_COMPOSE_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name[$MONGO_UUID] | tail -n 1)
+LOCAL_MONGO=$(docker exec -it "$LOCAL_COMPOSE_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name[$MONGO_UUID] | tail -n 1 | tr -d '\r')
+# LOCAL_MONGO="data_cycle_development_$MONGO_UUID"
 
 # remote mongodb name
-REMOTE_MONGO=$(DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name[$MONGO_UUID] | tail -n 1)
+REMOTE_MONGO=$(DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name[$MONGO_UUID] | tail -n 1 | tr -d '\r')
 # REMOTE_MONGO="data_cycle_production_$MONGO_UUID"
 
 
@@ -38,9 +39,11 @@ echo "REMOTE_DOCKER_HOST          : $REMOTE_DOCKER_HOST"
 echo "REMOTE_DOCKER_ENV           : $REMOTE_DOCKER_ENV"
 echo "REMOTE_COMPOSER_PROJECT_NAME: $REMOTE_COMPOSER_PROJECT_NAME"
 echo "LOCAL_COMPOSE_PROJECT_NAME  : $LOCAL_COMPOSE_PROJECT_NAME"
+echo "################## MONGO VARS"
 echo "MONGO_UUID                  : $MONGO_UUID"
 echo "LOCAL_MONGO                 : $LOCAL_MONGO"
 echo "REMOTE_MONGO                : $REMOTE_MONGO"
+echo ""
 
 ERROR="Id is not a valid external System."
 NOT_DEF="(See full trace by running task with --trace)"
@@ -60,8 +63,13 @@ if [ ! -d ./db/backups/development/mongo/download ]; then
   mkdir -p ./db/backups/development/mongo/download;
 fi
 
+echo "dump mongodb ..."
+DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_mongodb_1 mongodump --db $REMOTE_MONGO --archive=/tmp/"$REMOTE_MONGO"_download.archive
 
-DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_mongodb_1 mongodump --db $REMOTE_MONGO --archive > /tmp/"$REMOTE_MONGO"_download.archive
-DOCKER_HOST="$REMOTE_DOCKER_HOST" docker cp "$REMOTE_COMPOSER_PROJECT_NAME"_mongodb_1:tmp/"$REMOTE_MONGO"_download.archive ./db/backups/development/.
+echo "downloading ... "
+echo "$REMOTE_DOCKER_HOST docker cp ${REMOTE_COMPOSER_PROJECT_NAME}_mongodb_1:/tmp/${REMOTE_MONGO}_download.archive ./db/backups/development/."
+DOCKER_HOST="$REMOTE_DOCKER_HOST" docker cp "$REMOTE_COMPOSER_PROJECT_NAME"_mongodb_1:/tmp/"$REMOTE_MONGO"_download.archive ./db/backups/development/.
 
-docker exec -it "$LOCAL_COMPOSE_PROJECT_NAME"_mongodb_1 mongorestore --archive=./db/backups/development/"$REMOTE_MONGO"_download.archive --drop --nsFrom="$REMOTE_MONGO".* --nsTo="$LOCAL_MONGO".*
+echo "restoring mongodb local ... "
+docker cp ./db/backups/development/"$REMOTE_MONGO"_download.archive "$LOCAL_COMPOSE_PROJECT_NAME"_mongodb_1:/tmp/"$REMOTE_MONGO"_download.archive
+docker exec -it "$LOCAL_COMPOSE_PROJECT_NAME"_mongodb_1 mongorestore --archive=/tmp/"$REMOTE_MONGO"_download.archive --drop --nsFrom="$REMOTE_MONGO".* --nsTo="$LOCAL_MONGO".*
