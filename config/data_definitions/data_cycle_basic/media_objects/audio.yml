@@ -16,6 +16,7 @@
         :allowed: true
         :serializers:
           :asset: true
+          :archive: true
           :json: true
           :xml: true
     :api:

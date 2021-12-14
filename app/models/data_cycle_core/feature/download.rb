@@ -39,6 +39,13 @@ module DataCycleCore
         def enabled_serializer_for_download?(content, scope, serializer)
           enabled_serializers_for_download(content, scope).dig(serializer).present?
         end
+
+        def mandatory_serializers_for_download(content, scope)
+          return [] unless allowed?(content, scope)
+          available_serializers = DataCycleCore::Feature::Serialize.available_serializers
+          available_download_serializers = configuration.dig(scope, content.class.to_s.demodulize.underscore, :mandatory_serializers)
+          available_download_serializers.select { |k, v| v.present? && available_serializers.dig(k).present? }.keys
+        end
       end
     end
   end

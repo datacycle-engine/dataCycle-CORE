@@ -27,6 +27,7 @@
             :web:
               - png
               - jpeg
+          :archive: true
           :json: true
           :xml: true
           :indesign: true
