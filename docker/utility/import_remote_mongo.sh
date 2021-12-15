@@ -24,8 +24,8 @@ REMOTE_DOCKER_HOST=$(read_var REMOTE_DOCKER_HOST $ENV_FILE)
 REMOTE_DOCKER_ENV=$(read_var REMOTE_DOCKER_ENV $ENV_FILE)
 REMOTE_COMPOSER_PROJECT_NAME=$(read_var REMOTE_COMPOSER_PROJECT_NAME $ENV_FILE)
 LOCAL_COMPOSE_PROJECT_NAME=$(read_var COMPOSE_PROJECT_NAME $ENV_FILE)
-LOCAL_MONGO=$(docker exec -it "$LOCAL_COMPOSE_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name[$MONGO_UUID] | tail -n 1 | tr -d '\r')
-REMOTE_MONGO=$(DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name[$MONGO_UUID] | tail -n 1 | tr -d '\r')
+LOCAL_MONGO=$(docker exec -it "$LOCAL_COMPOSE_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name[$MONGO_UUID] | tail -n 1 | tr -d '[:cntrl:]')
+REMOTE_MONGO=$(DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name[$MONGO_UUID] | tail -n 1 | tr -d '[:cntrl:]')
 
 print_header_message "ENV vars loaded: $ENV_FILE";
 echo "REMOTE_DOCKER_HOST          : $REMOTE_DOCKER_HOST"
