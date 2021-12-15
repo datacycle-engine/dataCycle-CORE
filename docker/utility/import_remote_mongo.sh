@@ -14,18 +14,18 @@ if [ -z "$ENV_FILE" ]; then ENV_FILE='.env'; fi
 set -eu
 
 function read_var() {
-  VAR=$(grep -w "^$1" $2 | xargs)
+  VAR=$(grep -w "^$1" "$2" | xargs)
   IFS="=" read -ra VAR <<< "$VAR"
-  if [ -z ${VAR[1]+x} ]; then >&2 echo "env var $1 is not set!";  exit 1; fi
-  echo ${VAR[1]}
+  if [ -z "${VAR[1]+x}" ]; then >&2 echo "env var $1 is not set!";  exit 1; fi
+  echo "${VAR[1]}"
 }
 
 REMOTE_DOCKER_HOST=$(read_var REMOTE_DOCKER_HOST $ENV_FILE)
 REMOTE_DOCKER_ENV=$(read_var REMOTE_DOCKER_ENV $ENV_FILE)
 REMOTE_COMPOSER_PROJECT_NAME=$(read_var REMOTE_COMPOSER_PROJECT_NAME $ENV_FILE)
 LOCAL_COMPOSE_PROJECT_NAME=$(read_var COMPOSE_PROJECT_NAME $ENV_FILE)
-LOCAL_MONGO=$(docker exec -it "$LOCAL_COMPOSE_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name[$MONGO_UUID] | tail -n 1 | tr -d '[:cntrl:]')
-REMOTE_MONGO=$(DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name[$MONGO_UUID] | tail -n 1 | tr -d '[:cntrl:]')
+LOCAL_MONGO=$(docker exec -it "$LOCAL_COMPOSE_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name["$MONGO_UUID"] | tail -n 1 | tr -d '[:cntrl:]')
+REMOTE_MONGO=$(DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name["$MONGO_UUID"] | tail -n 1 | tr -d '[:cntrl:]')
 
 print_header_message "ENV vars loaded: $ENV_FILE";
 echo "REMOTE_DOCKER_HOST          : $REMOTE_DOCKER_HOST"
@@ -57,7 +57,7 @@ if [ ! -d ./db/backups/development/mongo/download ]; then
 fi
 
 echo "dump mongodb ..."
-DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_mongodb_1 mongodump --db $REMOTE_MONGO --archive=/tmp/"$REMOTE_MONGO"_download.archive
+DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_mongodb_1 mongodump --db "$REMOTE_MONGO" --archive=/tmp/"$REMOTE_MONGO"_download.archive
 
 echo "downloading ... "
 echo "$REMOTE_DOCKER_HOST docker cp ${REMOTE_COMPOSER_PROJECT_NAME}_mongodb_1:/tmp/${REMOTE_MONGO}_download.archive ./db/backups/development/."
