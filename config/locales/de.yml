@@ -475,6 +475,12 @@ de:
     look_at_version: Aktuellen Version mit dieser Version vergleichen
     restored: Wiederhergestellt am %{date}
     created: Inhalt erstellt
+    restore:
+      version:
+        title: Diese Version wiederherstellen
+        confirmation_html: Die Version <i>%{history_version_html}</i> als aktuelle Version wiederherstellen?<br><br>Die aktuelle Version wird dadurch überschrieben.
+        restored_version_name: Version vom %{date} wiederhergestellt.
+        restored: Die Version vom %{date} wurde erfolgreich wiederhergestellt.
 
   data_link_mailer:
     content_download: Inhalt herunterladen

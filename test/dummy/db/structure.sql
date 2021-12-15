@@ -2002,6 +2002,13 @@ CREATE UNIQUE INDEX index_classifications_on_id ON public.classifications USING 
 
 
 --
+-- Name: index_content_content_histories_on_content_a_history_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_content_histories_on_content_a_history_id ON public.content_content_histories USING btree (content_a_history_id);
+
+
+--
 -- Name: index_content_contents_on_content_b_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2936,6 +2943,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211021111915'),
 ('20211122075759'),
 ('20211123081845'),
-('20211130111352');
+('20211130111352'),
+('20211214135559');
 
 

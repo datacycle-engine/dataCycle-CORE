@@ -463,7 +463,12 @@ en:
     look_at_version: Compare current version with this version
     restored: Recovered on %{date}
     created: Content created
-    active_version: Current Version
+    restore:
+      version:
+        title: restore this version
+        confirmation_html: Restore version <i>%{history_version_html}</i> as current version?<br><br>The current version will be overwritten.
+        restored_version_name: restored version from %{date}.
+        restored: The version from %{date} was successfully restored.
 
   data_link_mailer:
     content_download: Download content
