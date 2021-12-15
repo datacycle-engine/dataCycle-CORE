@@ -44,6 +44,25 @@ module DataCycleCore
             DataCycleCore::Feature::Serialize.available_serializer?(content, name.demodulize.underscore) && content.asset_property_names.present?
           end
 
+          def file_name(content, language = nil, version = nil)
+            content_title = content.try(:title) || content.try(:name)
+            version = content.asset&.versions&.key?(version.to_sym) ? version : 'original'
+
+            if content_title.present?
+              content_title = "#{try(:file_name_prefix, content)}#{content_title}" if respond_to?(:file_name_prefix)
+              content_title += "_#{language}" if translatable? && language.present?
+              content_title += "-#{version.parameterize(separator: '_')}"
+
+              return content_title.parameterize(separator: '_').to_s
+            end
+
+            if content.try(:asset)&.file&.path&.present?
+              File.basename(content.try(:asset)&.file&.path)
+            else
+              "#{content.template_name}_#{SecureRandom.uuid}"
+            end
+          end
+
           private
 
           def serialize(content, language, version = nil, transformation = nil)

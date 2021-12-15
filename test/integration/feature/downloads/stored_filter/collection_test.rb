@@ -6,28 +6,40 @@ module DataCycleCore
   module Feature
     module Downloads
       module StoredFilter
-        class CollectionTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
+        class CollectionTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+          before(:all) do
+            @routes = Engine.routes
+            @current_user = User.find_by(email: 'tester@datacycle.at')
+            image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')), creator: @current_user)
+            image_data_hash = {
+              'name' => 'image_headline',
+              'asset' => image.id
+            }
+            @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
+            @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Article Test' })
+            @stored_filter = DataCycleCore::StoredFilter.create(
+              name: 'TestFilter',
+              user_id: @current_user.id,
+              language: ['de'],
+              parameters: [],
+              api: true
+            )
+            @serialize_config = DataCycleCore.features[:serialize].deep_dup
+            @download_config = DataCycleCore.features[:download].deep_dup
+          end
 
           setup do
-            @routes = Engine.routes
-
-            @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Article Test' })
-            sign_in(User.find_by(email: 'tester@datacycle.at'))
-
-            post(
-              stored_filters_path,
-              params: { stored_filter: { name: 'TestFilter' } },
-              headers: { referer: root_path }
-            )
-            @stored_filter = User.find_by(email: 'tester@datacycle.at').stored_filters.presence&.find_by(name: 'TestFilter')
-            @stored_filter.update(api: true)
+            sign_in(@current_user)
           end
 
           test 'check if content collection serializer is disabled' do
-            asset_serializer_setting = DataCycleCore.features.dig(:download, :collections, :stored_filter, :enabled)
-            assert_not asset_serializer_setting
+            assert_not DataCycleCore.features.dig(:serialize, :serializers, :asset)
+            assert_not DataCycleCore.features.dig(:serialize, :serializers, :json)
+            assert_not DataCycleCore.features.dig(:serialize, :serializers, :xml)
+            assert_not DataCycleCore.features.dig(:download, :collections, :stored_filter, :enabled)
+            assert_not DataCycleCore.features.dig(:download, :collections, :stored_filter, :serializers, :asset)
+            assert_not DataCycleCore.features.dig(:download, :collections, :stored_filter, :serializers, :json)
+            assert_not DataCycleCore.features.dig(:download, :collections, :stored_filter, :serializers, :xml)
 
             get download_zip_stored_filter_path(@stored_filter), params: { serialize_format: { 'asset' => 1, 'json' => 1, 'xml' => 1 } }, headers: {
               referer: stored_filter_path(@stored_filter)
@@ -38,6 +50,9 @@ module DataCycleCore
 
           test 'enable content collection and test zip download' do
             DataCycleCore.features[:download][:collections][:stored_filter][:enabled] = true
+            DataCycleCore.features[:download][:collections][:stored_filter][:serializers][:asset] = true
+            DataCycleCore.features[:download][:collections][:stored_filter][:serializers][:json] = true
+            DataCycleCore.features[:download][:collections][:stored_filter][:serializers][:xml] = true
             DataCycleCore.features[:serialize][:serializers][:asset] = true
             DataCycleCore.features[:serialize][:serializers][:json] = true
             DataCycleCore.features[:serialize][:serializers][:xml] = true
@@ -52,6 +67,9 @@ module DataCycleCore
 
           test 'enable content collection and test zip download via downloads controller' do
             DataCycleCore.features[:download][:collections][:stored_filter][:enabled] = true
+            DataCycleCore.features[:download][:collections][:stored_filter][:serializers][:asset] = true
+            DataCycleCore.features[:download][:collections][:stored_filter][:serializers][:json] = true
+            DataCycleCore.features[:download][:collections][:stored_filter][:serializers][:xml] = true
             DataCycleCore.features[:serialize][:serializers][:asset] = true
             DataCycleCore.features[:serialize][:serializers][:json] = true
             DataCycleCore.features[:serialize][:serializers][:xml] = true
@@ -62,10 +80,10 @@ module DataCycleCore
           end
 
           def teardown
-            DataCycleCore.features[:download][:collections][:stored_filter][:enabled] = false
-            DataCycleCore.features[:serialize][:serializers][:asset] = false
-            DataCycleCore.features[:serialize][:serializers][:json] = false
-            DataCycleCore.features[:serialize][:serializers][:xml] = false
+            DataCycleCore.features[:serialize][:serializers] = @serialize_config[:serializers].deep_dup
+            DataCycleCore.features[:download][:collections] = @download_config[:collections].deep_dup
+            DataCycleCore::Feature::Serialize.reload
+            DataCycleCore::Feature::Download.reload
           end
         end
       end

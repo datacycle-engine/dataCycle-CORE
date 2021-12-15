@@ -6,23 +6,24 @@ module DataCycleCore
   module Feature
     module Downloads
       module StoredFilter
-        class JsonTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
+        class JsonTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+          before(:all) do
+            @routes = Engine.routes
+            @current_user = User.find_by(email: 'tester@datacycle.at')
+            @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Article Test' })
+            @stored_filter = DataCycleCore::StoredFilter.create(
+              name: 'TestFilter',
+              user_id: @current_user.id,
+              language: ['de'],
+              parameters: [],
+              api: true
+            )
+            @serialize_config = DataCycleCore.features[:serialize].deep_dup
+            @download_config = DataCycleCore.features[:download].deep_dup
+          end
 
           setup do
-            @routes = Engine.routes
-
-            @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Article Test' })
-            sign_in(User.find_by(email: 'tester@datacycle.at'))
-
-            post(
-              stored_filters_path,
-              params: { stored_filter: { name: 'TestFilter' } },
-              headers: { referer: root_path }
-            )
-            @stored_filter = User.find_by(email: 'tester@datacycle.at').stored_filters.presence&.find_by(name: 'TestFilter')
-            @stored_filter.update(api: true)
+            sign_in(@current_user)
           end
 
           test 'check if json serializer is disabled for stored_filters' do
@@ -38,8 +39,8 @@ module DataCycleCore
 
           test 'enable stored_filter json serializer and render json download for stored_filter' do
             DataCycleCore.features[:serialize][:serializers][:json] = true
-            DataCycleCore.features[:download][:collections][:stored_filter][:enabled] = true
-            DataCycleCore.features[:download][:collections][:stored_filter][:serializers][:json] = true
+            DataCycleCore.features[:download][:content][:stored_filter][:enabled] = true
+            DataCycleCore.features[:download][:content][:stored_filter][:serializers][:json] = true
 
             get download_stored_filter_path(@stored_filter), params: { serialize_format: 'json' }, headers: {
               referer: stored_filter_path(@stored_filter)
@@ -51,8 +52,8 @@ module DataCycleCore
 
           test 'enable stored_filter json serializer and test downloads controller' do
             DataCycleCore.features[:serialize][:serializers][:json] = true
-            DataCycleCore.features[:download][:collections][:stored_filter][:enabled] = true
-            DataCycleCore.features[:download][:collections][:stored_filter][:serializers][:json] = true
+            DataCycleCore.features[:download][:content][:stored_filter][:enabled] = true
+            DataCycleCore.features[:download][:content][:stored_filter][:serializers][:json] = true
 
             get "/downloads/stored_filters/#{@stored_filter.id}", params: { serialize_format: 'json' }, headers: {
               referer: stored_filter_path(@stored_filter)
@@ -63,9 +64,10 @@ module DataCycleCore
           end
 
           def teardown
-            DataCycleCore.features[:serialize][:serializers][:json] = false
-            DataCycleCore.features[:download][:collections][:stored_filter][:enabled] = false
-            DataCycleCore.features[:download][:collections][:stored_filter][:serializers][:json] = false
+            DataCycleCore.features[:serialize][:serializers] = @serialize_config[:serializers].deep_dup
+            DataCycleCore.features[:download][:content] = @download_config[:content].deep_dup
+            DataCycleCore::Feature::Serialize.reload
+            DataCycleCore::Feature::Download.reload
           end
         end
       end

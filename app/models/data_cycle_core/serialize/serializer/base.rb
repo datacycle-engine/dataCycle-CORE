@@ -25,13 +25,12 @@ module DataCycleCore
             raise NotImplementedError, 'Implement this method in a child class'
           end
 
-          def file_name(content, language = nil, version = nil)
+          def file_name(content, language = nil, _version = nil)
             content_title = content.try(:title) || content.try(:name)
 
             if content_title.present?
               content_title = "#{try(:file_name_prefix, content)}#{content_title}" if respond_to?(:file_name_prefix)
               content_title += "_#{language}" if translatable? && language.present?
-              content_title += "-#{version.parameterize(separator: '_')}" if version.present?
 
               return content_title.parameterize(separator: '_').to_s
             end

@@ -37,7 +37,7 @@ module DataCycleCore
         end
 
         def enabled_serializer_for_download?(content, scope, serializer)
-          enabled_serializers_for_download(content, scope).dig(serializer).present?
+          enabled_serializers_for_download(content, scope)&.dig(serializer).present?
         end
 
         def mandatory_serializers_for_download(content, scope)

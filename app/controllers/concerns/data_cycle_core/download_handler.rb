@@ -26,6 +26,7 @@ module DataCycleCore
               serializer = serializer_for_content(object, :collections, format)
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
               # version? WTF?
+              # see kw media archive
               # collection = serializer.serialize_thing(items, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
               collection = serializer.serialize_thing(items, language)
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)

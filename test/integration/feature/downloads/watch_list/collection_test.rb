@@ -6,21 +6,36 @@ module DataCycleCore
   module Feature
     module Downloads
       module WatchList
-        class CollectionTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
-
-          setup do
+        class CollectionTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+          before(:all) do
             @routes = Engine.routes
+            @current_user = User.find_by(email: 'tester@datacycle.at')
+            image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')), creator: @current_user)
+            image_data_hash = {
+              'name' => 'image_headline',
+              'asset' => image.id
+            }
+            @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
             @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Article Test' })
             @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
             DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
-            sign_in(User.find_by(email: 'tester@datacycle.at'))
+            DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @image.id, hashable_type: @image.class.name)
+            @serialize_config = DataCycleCore.features[:serialize].deep_dup
+            @download_config = DataCycleCore.features[:download].deep_dup
+          end
+
+          setup do
+            sign_in(@current_user)
           end
 
           test 'check if content collection serializer is disabled' do
-            asset_serializer_setting = DataCycleCore.features.dig(:download, :collections, :watch_list, :enabled)
-            assert_not asset_serializer_setting
+            assert_not DataCycleCore.features.dig(:serialize, :serializers, :asset)
+            assert_not DataCycleCore.features.dig(:serialize, :serializers, :json)
+            assert_not DataCycleCore.features.dig(:serialize, :serializers, :xml)
+            assert_not DataCycleCore.features.dig(:download, :collections, :watch_list, :enabled)
+            assert_not DataCycleCore.features.dig(:download, :collections, :watch_list, :serializers, :asset)
+            assert_not DataCycleCore.features.dig(:download, :collections, :watch_list, :serializers, :json)
+            assert_not DataCycleCore.features.dig(:download, :collections, :watch_list, :serializers, :xml)
 
             get download_zip_watch_list_path(@watch_list), params: { serialize_format: { 'asset' => 1, 'json' => 1, 'xml' => 1 } }, headers: {
               referer: watch_list_path(@watch_list)
@@ -47,6 +62,9 @@ module DataCycleCore
 
           test 'enable content collection and test zip download via downloads controller' do
             DataCycleCore.features[:download][:collections][:watch_list][:enabled] = true
+            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:asset] = true
+            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:json] = true
+            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:xml] = true
             DataCycleCore.features[:serialize][:serializers][:asset] = true
             DataCycleCore.features[:serialize][:serializers][:json] = true
             DataCycleCore.features[:serialize][:serializers][:xml] = true
@@ -57,13 +75,10 @@ module DataCycleCore
           end
 
           def teardown
-            DataCycleCore.features[:download][:collections][:watch_list][:enabled] = false
-            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:asset] = false
-            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:json] = false
-            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:xml] = false
-            DataCycleCore.features[:serialize][:serializers][:asset] = false
-            DataCycleCore.features[:serialize][:serializers][:json] = false
-            DataCycleCore.features[:serialize][:serializers][:xml] = false
+            DataCycleCore.features[:serialize][:serializers] = @serialize_config[:serializers].deep_dup
+            DataCycleCore.features[:download][:collections] = @download_config[:collections].deep_dup
+            DataCycleCore::Feature::Serialize.reload
+            DataCycleCore::Feature::Download.reload
           end
         end
       end
