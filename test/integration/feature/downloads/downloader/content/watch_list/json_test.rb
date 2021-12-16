@@ -25,8 +25,9 @@ module DataCycleCore
 
               test 'check if json serializer is disabled for watch_lists' do
                 assert_not DataCycleCore.features.dig(:serialize, :serializers, :json)
-                assert_not DataCycleCore.features.dig(:download, :content, :watch_list, :enabled)
-                assert_not DataCycleCore.features.dig(:download, :content, :watch_list, :serializers, :json)
+                assert_not DataCycleCore.features.dig(:download, :downloader, :content, :watch_list, :enabled)
+                assert_not DataCycleCore.features.dig(:download, :downloader, :content, :watch_list, :serializers, :json)
+                assert_not DataCycleCore::Feature::Download.allowed?(@watch_list)
 
                 get download_watch_list_path(@watch_list), params: { serialize_format: 'json' }, headers: {
                   referer: watch_list_path(@watch_list)
@@ -39,6 +40,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:serializers][:json] = true
+                assert DataCycleCore::Feature::Download.allowed?(@watch_list)
 
                 get download_watch_list_path(@watch_list), params: { serialize_format: 'json' }, headers: {
                   referer: watch_list_path(@watch_list)
@@ -53,6 +55,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:serializers][:json] = true
+                assert DataCycleCore::Feature::Download.allowed?(@watch_list)
 
                 get "/downloads/watch_lists/#{@watch_list.id}", params: { serialize_format: 'json' }, headers: {
                   referer: watch_list_path(@watch_list)

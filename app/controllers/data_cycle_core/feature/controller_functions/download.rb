@@ -14,14 +14,16 @@ module DataCycleCore
           transformation = permitted_download_params.dig(:transformation, version)&.reject { |_k, v| v == 'none' }
           authorize! :download, @object
 
-          if serialize_format == 'indesign'
-            asset_items = @object.linked_contents.where(template_name: 'Bild').to_a.select do |thing|
-              can? :download, thing
-            end
-            download_indesign_collection(@object, ([@object] + asset_items), serialize_format, languages)
-          else
-            download_content(@object, serialize_format, languages, version, transformation)
-          end
+          download_content(@object, serialize_format, languages, version, transformation)
+          # @todo move indesign
+          # if serialize_format == 'indesign'
+          #   asset_items = @object.linked_contents.where(template_name: 'Bild').to_a.select do |thing|
+          #     can? :download, thing
+          #   end
+          #   download_indesign_collection(@object, ([@object] + asset_items), serialize_format, languages)
+          # else
+          #   download_content(@object, serialize_format, languages, version, transformation)
+          # end
         end
 
         def download_zip

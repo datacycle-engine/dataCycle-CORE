@@ -29,6 +29,7 @@ module DataCycleCore
 
               test 'check if content collection serializer is disabled' do
                 assert_not DataCycleCore.features.dig(:download, :downloader, :archive, :zip, :thing, :enabled)
+                assert_not DataCycleCore::Feature::Download.allowed?(@content, [:archive, :zip])
 
                 get download_zip_thing_path(@content), params: { serialize_format: { 'asset' => 1, 'json' => 1, 'xml' => 1 } }, headers: {
                   referer: thing_path(@content)
@@ -48,6 +49,7 @@ module DataCycleCore
                   json: true,
                   xml: true
                 }
+                assert DataCycleCore::Feature::Download.allowed?(@content, [:archive, :zip])
 
                 get download_zip_thing_path(@content), params: { serialize_format: { 'asset' => 1, 'json' => 1, 'xml' => 1 } }, headers: {
                   referer: thing_path(@content)
@@ -67,6 +69,7 @@ module DataCycleCore
                   json: true,
                   xml: true
                 }
+                assert DataCycleCore::Feature::Download.allowed?(@content, [:archive, :zip])
 
                 get "/downloads/thing_collections/#{@content.id}", params: { serialize_format: 'asset, json, xml' }, headers: {
                   referer: thing_path(@content)

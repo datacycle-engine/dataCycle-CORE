@@ -306,20 +306,21 @@ module DataCycleCore
       serialize_format = params[:serialize_format]
       languages = params[:language]
       authorize! :download, @watch_list
-
-      if serialize_format == 'indesign'
-        download_items = []
-        @watch_list.things.all.to_a.select do |thing|
-          download_items += [thing] if thing.template_name == 'Bild' && can?(:download, thing)
-          items = thing.linked_contents.where(template_name: 'Bild').to_a.select do |linked_item|
-            can? :download, linked_item
-          end
-          download_items += items
-        end
-        download_indesign_collection(@watch_list, download_items, serialize_format, languages, :serialize_watch_list)
-      else
-        download_content(@watch_list, serialize_format, languages)
-      end
+      download_content(@watch_list, serialize_format, languages)
+      # @todo move indesign
+      # if serialize_format == 'indesign'
+      #   download_items = []
+      #   @watch_list.things.all.to_a.select do |thing|
+      #     download_items += [thing] if thing.template_name == 'Bild' && can?(:download, thing)
+      #     items = thing.linked_contents.where(template_name: 'Bild').to_a.select do |linked_item|
+      #       can? :download, linked_item
+      #     end
+      #     download_items += items
+      #   end
+      #   download_indesign_collection(@watch_list, download_items, serialize_format, languages, :serialize_watch_list)
+      # else
+      #   download_content(@watch_list, serialize_format, languages)
+      # end
     end
 
     def download_zip

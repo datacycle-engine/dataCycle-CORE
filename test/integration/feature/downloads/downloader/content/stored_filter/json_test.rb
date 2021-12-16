@@ -30,8 +30,9 @@ module DataCycleCore
 
               test 'check if json serializer is disabled for stored_filters' do
                 assert_not DataCycleCore.features.dig(:serialize, :serializers, :json)
-                assert_not DataCycleCore.features.dig(:download, :collections, :stored_filter, :enabled)
-                assert_not DataCycleCore.features.dig(:download, :collections, :stored_filter, :serializers, :json)
+                assert_not DataCycleCore.features.dig(:download, :downloader, :content, :stored_filter, :enabled)
+                assert_not DataCycleCore.features.dig(:download, :downloader, :content, :stored_filter, :serializers, :json)
+                assert_not DataCycleCore::Feature::Download.allowed?(@stored_filter)
 
                 get download_stored_filter_path(@stored_filter), params: { serialize_format: 'json' }, headers: {
                   referer: stored_filter_path(@stored_filter)
@@ -43,6 +44,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:serializers][:json] = true
+                assert DataCycleCore::Feature::Download.allowed?(@stored_filter)
 
                 get download_stored_filter_path(@stored_filter), params: { serialize_format: 'json' }, headers: {
                   referer: stored_filter_path(@stored_filter)
@@ -56,6 +58,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:stored_filter][:serializers][:json] = true
+                assert DataCycleCore::Feature::Download.allowed?(@stored_filter)
 
                 get "/downloads/stored_filters/#{@stored_filter.id}", params: { serialize_format: 'json' }, headers: {
                   referer: stored_filter_path(@stored_filter)

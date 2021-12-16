@@ -25,8 +25,9 @@ module DataCycleCore
 
               test 'check if xml serializer is disabled for watch_lists' do
                 assert_not DataCycleCore.features.dig(:serialize, :serializers, :xml)
-                assert_not DataCycleCore.features.dig(:download, :content, :watch_list, :enabled)
-                assert_not DataCycleCore.features.dig(:download, :content, :watch_list, :serializers, :xml)
+                assert_not DataCycleCore.features.dig(:download, :downloader, :content, :watch_list, :enabled)
+                assert_not DataCycleCore.features.dig(:download, :downloader, :content, :watch_list, :serializers, :xml)
+                assert_not DataCycleCore::Feature::Download.allowed?(@watch_list)
 
                 get download_watch_list_path(@watch_list), params: { serialize_format: 'xml' }, headers: {
                   referer: watch_list_path(@watch_list)
@@ -39,6 +40,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:xml] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:serializers][:xml] = true
+                assert DataCycleCore::Feature::Download.allowed?(@watch_list)
 
                 get download_watch_list_path(@watch_list), params: { serialize_format: 'xml' }, headers: {
                   referer: watch_list_path(@watch_list)
@@ -55,6 +57,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:xml] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:enabled] = true
                 DataCycleCore.features[:download][:downloader][:content][:watch_list][:serializers][:xml] = true
+                assert DataCycleCore::Feature::Download.allowed?(@watch_list)
 
                 get "/downloads/watch_lists/#{@watch_list.id}", params: { serialize_format: 'xml' }, headers: {
                   referer: watch_list_path(@watch_list)
@@ -69,7 +72,7 @@ module DataCycleCore
 
               def teardown
                 DataCycleCore.features[:serialize][:serializers] = @serialize_config[:serializers].deep_dup
-                DataCycleCore.features[:download][:content] = @download_config[:content].deep_dup
+                DataCycleCore.features[:download][:downloader] = @download_config[:downloader].deep_dup
                 DataCycleCore::Feature::Serialize.reload
                 DataCycleCore::Feature::Download.reload
               end

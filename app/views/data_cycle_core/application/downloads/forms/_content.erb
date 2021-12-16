@@ -37,7 +37,6 @@
     <fieldset class="active version hidden">
       <legend><%= t('common.download.available_versions', locale: active_ui_locale) %></legend>
       <div class="form-element">
-
         <% ([:original] + Array(content.asset&.versions&.keys)).each_with_index do |version, i| %>
           <div>
             <%= radio_button_tag "version", version, i == 0 %>

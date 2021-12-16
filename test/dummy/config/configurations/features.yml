@@ -19,7 +19,7 @@
       :watch_list:
         :enabled: true
         :serializers:
-          :asset: true
+          :asset: false
           :gpx: false
           :json: true
           :indesign: false
@@ -27,7 +27,7 @@
       :stored_filter:
         :enabled: true
         :serializers:
-          :asset: true
+          :asset: false
           :gpx: false
           :json: true
           :indesign: false

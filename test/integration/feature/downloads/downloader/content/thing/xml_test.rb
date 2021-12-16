@@ -22,8 +22,9 @@ module DataCycleCore
               end
 
               test 'check if xml serializer is disabled' do
-                xml_serializer_setting = DataCycleCore.features.dig(:serialize, :serializers, :xml)
-                assert_not xml_serializer_setting
+                assert_not DataCycleCore.features.dig(:serialize, :serializers, :xml)
+                assert_not DataCycleCore.features.dig(:download, :downloader, :content, :thing, :serializers, :xml)
+                assert_not DataCycleCore::Feature::Download.allowed?(@content)
 
                 get download_thing_path(@content), params: { serialize_format: 'xml' }, headers: {
                   referer: thing_path(@content)

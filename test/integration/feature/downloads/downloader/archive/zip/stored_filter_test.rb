@@ -8,7 +8,7 @@ module DataCycleCore
       module Downloader
         module Archive
           module Zip
-            class CollectionTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+            class StoredFilterTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
               before(:all) do
                 @routes = Engine.routes
                 @current_user = User.find_by(email: 'tester@datacycle.at')
@@ -19,9 +19,13 @@ module DataCycleCore
                 }
                 @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
                 @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Article Test' })
-                @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
-                DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
-                DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @image.id, hashable_type: @image.class.name)
+                @stored_filter = DataCycleCore::StoredFilter.create(
+                  name: 'TestFilter',
+                  user_id: @current_user.id,
+                  language: ['de'],
+                  parameters: [],
+                  api: true
+                )
                 @serialize_config = DataCycleCore.features[:serialize].deep_dup
                 @download_config = DataCycleCore.features[:download].deep_dup
               end
@@ -31,10 +35,11 @@ module DataCycleCore
               end
 
               test 'check if content collection serializer is disabled' do
-                assert_not DataCycleCore.features.dig(:download, :downloader, :archive, :zip, :watch_list, :enabled)
+                assert_not DataCycleCore.features.dig(:download, :downloader, :archive, :zip, :stored_filter, :enabled)
+                assert_not DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :zip])
 
-                get download_zip_watch_list_path(@watch_list), params: { serialize_format: { 'asset' => 1, 'json' => 1, 'xml' => 1 } }, headers: {
-                  referer: watch_list_path(@watch_list)
+                get download_zip_stored_filter_path(@stored_filter), params: { serialize_format: { 'asset' => 1, 'json' => 1, 'xml' => 1 } }, headers: {
+                  referer: stored_filter_path(@stored_filter)
                 }
 
                 assert_equal(302, response.status)
@@ -45,16 +50,18 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:serialize][:serializers][:xml] = true
                 DataCycleCore.features[:download][:downloader][:archive][:zip][:enabled] = true
-                DataCycleCore.features[:download][:downloader][:archive][:zip][:watch_list][:enabled] = true
-                DataCycleCore.features[:download][:downloader][:archive][:zip][:watch_list][:serializers] = {
+                DataCycleCore.features[:download][:downloader][:archive][:zip][:stored_filter][:enabled] = true
+                DataCycleCore.features[:download][:downloader][:archive][:zip][:stored_filter][:serializers] = {
                   asset: true,
                   json: true,
                   xml: true
                 }
+                assert DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :zip])
 
-                get download_zip_watch_list_path(@watch_list), params: { serialize_format: { 'asset' => 1, 'json' => 1, 'xml' => 1 } }, headers: {
-                  referer: watch_list_path(@watch_list)
+                get download_zip_stored_filter_path(@stored_filter), params: { serialize_format: { 'asset' => 1, 'json' => 1, 'xml' => 1 } }, headers: {
+                  referer: stored_filter_path(@stored_filter)
                 }
+
                 assert_response :success
                 assert_equal('application/zip', response.headers.dig('Content-Type'))
               end
@@ -64,14 +71,15 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:json] = true
                 DataCycleCore.features[:serialize][:serializers][:xml] = true
                 DataCycleCore.features[:download][:downloader][:archive][:zip][:enabled] = true
-                DataCycleCore.features[:download][:downloader][:archive][:zip][:watch_list][:enabled] = true
-                DataCycleCore.features[:download][:downloader][:archive][:zip][:watch_list][:serializers] = {
+                DataCycleCore.features[:download][:downloader][:archive][:zip][:stored_filter][:enabled] = true
+                DataCycleCore.features[:download][:downloader][:archive][:zip][:stored_filter][:serializers] = {
                   asset: true,
                   json: true,
                   xml: true
                 }
+                assert DataCycleCore::Feature::Download.allowed?(@stored_filter, [:archive, :zip])
 
-                get "/downloads/watch_list_collections/#{@watch_list.id}", params: { serialize_format: 'asset, json, xml' }
+                get "/downloads/stored_filter_collections/#{@stored_filter.id}", params: { serialize_format: 'asset, json, xml' }
                 assert_response :success
                 assert_equal('application/zip', response.headers.dig('Content-Type'))
               end
