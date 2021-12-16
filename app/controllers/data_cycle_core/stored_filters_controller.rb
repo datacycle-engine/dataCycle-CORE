@@ -107,7 +107,7 @@ module DataCycleCore
       serialize_formats = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
       languages = params[:language]
 
-      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@stored_filter, :collections, serialize_formats)
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@stored_filter, [:archive, :zip], serialize_formats)
 
       items = @stored_filter.apply
       download_items = items.to_a.select do |thing|

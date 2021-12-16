@@ -48,7 +48,7 @@ module DataCycleCore
         end
         # collections
         can :download_zip, [DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter] do |content|
-          DataCycleCore::Feature::Download.allowed?(content, :collections)
+          DataCycleCore::Feature::Download.allowed?(content, [:archive, :zip])
         end
 
         # Reports

@@ -5,7 +5,7 @@ module DataCycleCore
     extend ActiveSupport::Concern
 
     def download_content(content, serialize_format, languages, version = nil, transformation = nil)
-      serializer = serializer_for_content(content, :content, serialize_format)
+      serializer = serializer_for_content(content, [:content], serialize_format)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless serializer
       download_generic(content: content, serializer: serializer, languages: languages, version: version, serialize_method: serializer_method_for_content(content), transformation: transformation)
     end
@@ -23,7 +23,7 @@ module DataCycleCore
         Zip::File.open(zipfile_fullname, Zip::File::CREATE) do |zipfile|
           languages.each do |language|
             serialize_format.each do |format|
-              serializer = serializer_for_content(object, :collections, format)
+              serializer = serializer_for_content(object, [:archive, :zip], format)
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
               # version? WTF?
               # see kw media archive
@@ -41,7 +41,7 @@ module DataCycleCore
                 zipfile.add(file_name, download_file)
               end
             end
-            DataCycleCore::Feature::Download.mandatory_serializers_for_download(object, :collections).each do |format|
+            DataCycleCore::Feature::Download.mandatory_serializers_for_download(object, [:archive, :zip]).each_key do |format|
               serializer = ('DataCycleCore::Serialize::Serializer::' + format.to_s.classify).constantize
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
               # version? WTF?
@@ -79,7 +79,7 @@ module DataCycleCore
       unless File.exist?(zipfile_fullname)
         Zip::File.open(zipfile_fullname, Zip::File::CREATE) do |zipfile|
           languages.each do |language|
-            serializer = serializer_for_content(object, :content, serialize_format)
+            serializer = serializer_for_content(object, [:content], serialize_format)
             next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
             collection = serializer.try(serialize_method, object, language, version)
@@ -167,7 +167,7 @@ module DataCycleCore
       download_file
     end
 
-    def serializer_for_content(content, scope = :content, serialize_format = nil)
+    def serializer_for_content(content, scope = [:content], serialize_format = nil)
       return if content.blank?
       ('DataCycleCore::Serialize::Serializer::' + serialize_format.to_s.classify).constantize if DataCycleCore::Feature::Download.enabled_serializer_for_download?(content, scope, serialize_format)
     end

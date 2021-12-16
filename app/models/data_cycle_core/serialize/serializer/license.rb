@@ -3,7 +3,7 @@
 module DataCycleCore
   module Serialize
     module Serializer
-      class Archive < Base
+      class License < Base
         class << self
           def translatable?
             true

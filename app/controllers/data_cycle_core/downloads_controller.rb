@@ -37,7 +37,7 @@ module DataCycleCore
       serialize_formats = params[:serialize_format]&.split(',')&.map(&:strip)
       languages = params[:language]&.split(',')
 
-      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@object, :collections, serialize_formats)
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@object, [:archive, :zip], serialize_formats)
 
       download_items = ([@object] + @object.content_b_linked).to_a.select do |thing|
         DataCycleCore::Feature::Download.allowed?(thing)
@@ -51,7 +51,7 @@ module DataCycleCore
       languages = params[:language]&.split(',')
       versions = params.permit(versions: {}).dig(:versions)&.to_h
 
-      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@watch_list, :collections, serialize_formats)
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@watch_list, [:archive, :zip], serialize_formats)
 
       download_items = @watch_list.things.all.to_a.select do |thing|
         DataCycleCore::Feature::Download.allowed?(thing)
@@ -65,7 +65,7 @@ module DataCycleCore
       serialize_formats = params[:serialize_format]&.split(',')&.map(&:strip) || ['asset']
       languages = params[:language]&.split(',')
 
-      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@stored_filter, :collections, serialize_formats)
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@stored_filter, [:archive, :zip], serialize_formats)
 
       items = @stored_filter.apply
       download_items = items.to_a.select do |thing|

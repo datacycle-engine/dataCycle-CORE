@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module DownloadHelpers
-    def available_download_serializers(content, scope = :content)
+    def available_download_serializers(content, scope = [:content])
       DataCycleCore::Feature::Download.enabled_serializers_for_download(content, scope)
     end
 

@@ -5,70 +5,85 @@
 
 :download:
   :enabled: true
-  :content:
-    :thing:
+  :downloader:
+    :content:
       :enabled: true
-      :serializers:
-        :asset: true
-        :gpx: true
-        :json: true
-        :indesign: true
-        :xml: true
-    :watch_list:
-      :enabled: true
-      :serializers:
-        :asset: false
-        :gpx: false
-        :json: true
-        :indesign: true
-        :xml: true
-    :stored_filter:
-      :enabled: true
-      :serializers:
-        :asset: false
-        :gpx: false
-        :json: true
-        :indesign: false
-        :xml: true
-  :collections:
-    :thing:
-      :enabled: true
-      :serializers:
-        :asset: true
-        :gpx: true
-        :json: true
-        :indesign: false
-        :xml: true
-      :mandatory_serializers:
-        :archive: true
-    :watch_list:
-      :enabled: true
-      :serializers:
-        :asset: true
-        :gpx: true
-        :json: true
-        :indesign: false
-        :xml: true
-      :mandatory_serializers:
-        :archive: true
-    :stored_filter:
-      :enabled: true
-      :serializers:
-        :asset: true
-        :gpx: true
-        :json: true
-        :indesign: false
-        :xml: true
-      :mandatory_serializers:
-        :archive: true
-  :dependencies:
-    - serialize
+      :thing:
+        :enabled: true
+        :serializers:
+          :asset: true
+          :gpx: true
+          :json: true
+          :indesign: false
+          :xml: true
+      :watch_list:
+        :enabled: true
+        :serializers:
+          :asset: true
+          :gpx: false
+          :json: true
+          :indesign: false
+          :xml: true
+      :stored_filter:
+        :enabled: true
+        :serializers:
+          :asset: true
+          :gpx: false
+          :json: true
+          :indesign: false
+          :xml: true
+    :archive:
+      :zip:
+        :enabled: true
+        :thing:
+          :enabled: true
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: true
+        :watch_list:
+          :enabled: true
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: true
+        :stored_filter:
+          :enabled: true
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: true
+      :indesign:
+        :enabled: true
+        :thing:
+          :enabled: true
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+            :indesign: true
+        :watch_list:
+          :enabled: true
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+            :indesign: true
+        :stored_filter:
+          :enabled: true
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+            :indesign: true
+    :dependencies:
+      - serialize
 
 :serialize:
   :enabled: true
   :serializers:
     :asset: true
-    :archive: true
+    :license: true
     :gpx: true
     :indesign: true
     :json: true
