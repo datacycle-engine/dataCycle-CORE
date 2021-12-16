@@ -154,6 +154,18 @@
           :linked_attribute: route_number
           :parameters:
             :linked: geoname_route
+      :round_trip:
+        :label: Rundkurs
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true
+        :default_value: 'false'
+      :one_way:
+        :label: Einbahn
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true
+        :default_value: 'false'
       :line:
         :label: Route
         :storage_location: column

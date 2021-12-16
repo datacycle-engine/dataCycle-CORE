@@ -7,19 +7,37 @@ module DataCycleCore
         as_of(timestamp).try(:to_h, timestamp)
       end
 
+      def get_data_hash_partial(keys, timestamp = Time.zone.now)
+        as_of(timestamp).try(:to_h_partial, keys, timestamp)
+      end
+
       def diff(data, template = nil, partial_update = false)
+        # differ = DataCycleCore::MasterData::DiffData.new
+        # if template.present?
+        #   # differ.diff(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update).diff_hash
+        #   differ.diff(a: get_data_hash_partial(data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update).diff_hash
+        # else
+        #   differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update: partial_update).diff_hash
+        # end
+        diff_obj(data, template, partial_update).diff_hash
+      end
+
+      def diff_obj(data, template = nil, partial_update = false)
         differ = DataCycleCore::MasterData::DiffData.new
         if template.present?
-          differ.diff(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update).diff_hash
+          # differ.diff(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update).diff_hash
+          differ.diff(a: get_data_hash_partial(data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update)
         else
-          differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update: partial_update).diff_hash
+          differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update: partial_update)
         end
       end
 
       def diff?(data, template = nil, partial_update = false)
         differ = DataCycleCore::MasterData::DiffData.new
         if template.present?
-          differ.diff?(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update)
+          # byebug
+          # differ.diff?(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update)
+          differ.diff?(a: get_data_hash_partial(data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update)
         else
           differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update: partial_update)
         end
@@ -56,18 +74,16 @@ module DataCycleCore
         overwritten = overlay_data(I18n.locale).try(:[], relation_a) if overlay_flag
         root_object = overwritten.present? ? overlay.first : self
 
-        if filter.present?
-          relation_contents = root_object.send(relation_name).where(content_contents: {
-            relation_a: relation_a_name,
-            relation_b: relation_b_name,
-            content_filter => filter.apply.select(:id).except(:order)
-          })
-        else
-          relation_contents = root_object.send(relation_name).where(content_contents: {
-            relation_a: relation_a_name,
-            relation_b: relation_b_name
-          })
+        content_contents_condition = {
+          relation_a: relation_a_name,
+          relation_b: relation_b_name
+        }
+        content_contents_condition[content_filter] = filter.apply.select(:id).except(:order) if filter.present?
+
+        relation_contents = self.class.unscoped do
+          root_object.send(relation_name).where(content_contents: content_contents_condition).i18n
         end
+
         relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: languages }) if same_language
         relation_contents
       end
