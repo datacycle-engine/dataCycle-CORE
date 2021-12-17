@@ -68,7 +68,7 @@
           :mandatory_serializers:
             :asset: true
         :stored_filter:
-          :enabled: true
+          :enabled: false
           :serializers:
             :indesign: true
           :mandatory_serializers:

@@ -9,15 +9,15 @@ module DataCycleCore
             true
           end
 
-          def mime_type(_serialized_content = nil, _content = nil)
+          def mime_type
             'text/plain'
           end
 
-          def serialize_thing(content, language, _version = nil, _transformation = nil)
+          def serialize_thing(content:, language:, **_options)
             content = content.is_a?(Array) ? content : [content]
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
-                copyright_notice(content.select { |item| serializable?(item) }, language),
+                copyright_notice(content, language),
                 common_text_bla(language)
               ]
             )
@@ -28,7 +28,7 @@ module DataCycleCore
           def copyright_notice(content, language)
             data = []
             content.each do |item|
-              data << (item.try(:computed_attribution_name) || "#{item.id} - #{item.name}") if item.respond_to?(:computed_attribution_name)
+              data << (item.try(:computed_attribution_name).presence || "#{item.id} - #{item.name}")
             end
             DataCycleCore::Serialize::SerializedData::Content.new(
               data: data.join("\r\n"),

@@ -13,7 +13,7 @@ module DataCycleCore
             content.asset&.file.blank? && content.content_url.present?
           end
 
-          def mime_type(serialized_content, content)
+          def mime_type(serialized_content:, content:)
             (
               serialized_content.try(:content_type) ||
                 MiniMime.lookup_by_extension(content.try(:file_format)&.downcase.to_s)&.content_type ||
@@ -31,36 +31,17 @@ module DataCycleCore
             ".#{ext}"
           end
 
-          def serialize_thing(content, language, version = nil, transformation = nil)
+          def serialize_thing(content:, language:, **options)
             content = content.is_a?(Array) ? content : [content]
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               content
                 .select { |item| serializable?(item) }
-                .map { |item| serialize(item, language, version, transformation) }
+                .map { |item| serialize(item, language, options.dig(:version), options.dig(:transformation)) }
             )
           end
 
           def serializable?(content)
             DataCycleCore::Feature::Serialize.available_serializer?(content, name.demodulize.underscore) && content.asset_property_names.present?
-          end
-
-          def file_name(content, language = nil, version = nil)
-            content_title = content.try(:title) || content.try(:name)
-            version = content.asset&.versions&.key?(version.to_sym) ? version : 'original'
-
-            if content_title.present?
-              content_title = "#{try(:file_name_prefix, content)}#{content_title}" if respond_to?(:file_name_prefix)
-              content_title += "_#{language}" if translatable? && language.present?
-              content_title += "-#{version.parameterize(separator: '_')}"
-
-              return content_title.parameterize(separator: '_').to_s
-            end
-
-            if content.try(:asset)&.file&.path&.present?
-              File.basename(content.try(:asset)&.file&.path)
-            else
-              "#{content.template_name}_#{SecureRandom.uuid}"
-            end
           end
 
           private
@@ -85,13 +66,13 @@ module DataCycleCore
               end
             else
               data = create_asset(content, version, transformation)
-              mime_type = mime_type(data, content)
+              mime_type = mime_type(serialized_content: data, content: content)
             end
             DataCycleCore::Serialize::SerializedData::Content.new(
               data: data,
               mime_type: mime_type,
-              file_name: file_name(content, language, version),
-              remote: remote,
+              file_name: file_name(content: content, language: language, version: content.asset&.versions&.key?(version.to_sym) ? version : 'original'),
+              is_remote: remote,
               id: content.id
             )
           end

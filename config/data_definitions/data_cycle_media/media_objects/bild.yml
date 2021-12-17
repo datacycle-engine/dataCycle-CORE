@@ -27,8 +27,8 @@
             :web:
               - png
               - jpeg
-          :archive: true
           :json: true
+          :license: true
           :xml: true
           :indesign: true
       :report_generator:

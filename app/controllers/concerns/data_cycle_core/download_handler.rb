@@ -28,7 +28,8 @@ module DataCycleCore
               # version? WTF?
               # see kw media archive
               # collection = serializer.serialize_thing(items, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
-              collection = serializer.serialize_thing(items, language)
+              # serializer.try(serialize_method, content: content, language: language, options: {version: version, transformation: transformation})
+              collection = serializer.serialize_thing(content: items, language: language)
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
               collection.each do |serialized_content|
@@ -46,7 +47,7 @@ module DataCycleCore
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
               # version? WTF?
               # collection = serializer.serialize_thing(items, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
-              collection = serializer.serialize_thing(items, language)
+              collection = serializer.serialize_thing(content: items, language: language)
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
               collection.each do |serialized_content|
@@ -67,7 +68,7 @@ module DataCycleCore
       send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
     end
 
-    def download_indesign_collection(object, items, serialize_format, languages, serialize_method = :serialize_thing, _version = nil)
+    def download_indesign_collection(object, items, serialize_format, languages, serialize_method = :serialize_thing)
       languages ||= [I18n.locale]
       download_dir = Rails.root.join('public', 'downloads')
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
@@ -83,7 +84,7 @@ module DataCycleCore
               serializer = serializer_for_content(object, [:archive, :indesign], format)
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
-              collection = serializer.try(serialize_method, object, language)
+              collection = serializer.try(serialize_method, content: object, language: language)
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
               collection.each do |serialized_content|
                 raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
@@ -100,7 +101,7 @@ module DataCycleCore
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
               # version? WTF?
               # collection = serializer.serialize_thing(items, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
-              collection = serializer.serialize_thing(items, language)
+              collection = serializer.serialize_thing(content: items, language: language)
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
               collection.each do |serialized_content|
                 raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
@@ -130,7 +131,7 @@ module DataCycleCore
     def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize_thing, transformation: nil)
       language = languages&.first&.to_sym || I18n.locale
 
-      collection = serializer.try(serialize_method, content, language, version, transformation)
+      collection = serializer.try(serialize_method, content: content, language: language, version: version, transformation: transformation)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
       serialized_content = collection.first
@@ -156,12 +157,12 @@ module DataCycleCore
     end
 
     def create_download_file(serialized_content, file_name)
-      return serialized_content.data.path if serialized_content.file?
+      return serialized_content.data.path if serialized_content.local_file?
 
       download_dir = Rails.root.join('public', 'downloads')
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
       download_file = File.join(download_dir, file_name)
-      file_mode = 'wb' if serialized_content.remote
+      file_mode = 'wb' if serialized_content.remote?
       File.open(File.join(download_file), file_mode || 'w') do |f|
         f.write serialized_content.data
       end

@@ -9,11 +9,11 @@ module DataCycleCore
             true
           end
 
-          def mime_type(_serialized_content = nil, _content = nil)
+          def mime_type
             'application/json'
           end
 
-          def serialize_thing(content, language, _version = nil, _transformation = nil)
+          def serialize_thing(content:, language:, **_options)
             content = content.is_a?(Array) ? content : [content]
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               content
@@ -22,7 +22,8 @@ module DataCycleCore
             )
           end
 
-          def serialize_watch_list(watch_list, language, _version = nil, _transformation = nil)
+          def serialize_watch_list(content:, language:, **_options)
+            watch_list = content.is_a?(Array) ? content.first : content
             pagination_contents = watch_list.watch_list_data_hashes.order(created_at: :desc).page(1).per(watch_list.watch_list_data_hashes.count)
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
@@ -37,14 +38,15 @@ module DataCycleCore
                       layout: false
                     ),
                   mime_type: mime_type,
-                  file_name: file_name(watch_list, language),
+                  file_name: file_name(content: watch_list, language: language),
                   id: watch_list.id
                 )
               ]
             )
           end
 
-          def serialize_stored_filter(stored_filter, language, _version = nil, _transformation = nil)
+          def serialize_stored_filter(content:, language:, **_options)
+            stored_filter = content.is_a?(Array) ? content.first : content
             contents = stored_filter.apply
             pagination_contents = contents.page(1).per(contents.count)
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
@@ -60,7 +62,7 @@ module DataCycleCore
                       layout: false
                     ),
                   mime_type: mime_type,
-                  file_name: file_name(stored_filter, language),
+                  file_name: file_name(content: stored_filter, language: language),
                   id: stored_filter.id
                 )
               ]
@@ -81,7 +83,7 @@ module DataCycleCore
                   layout: false
                 ),
               mime_type: mime_type,
-              file_name: file_name(content, language),
+              file_name: file_name(content: content, language: language),
               id: content.id
             )
           end

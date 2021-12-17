@@ -6,32 +6,32 @@ module DataCycleCore
       class Base
         class << self
           def translatable?
-            raise NotImplementedError, 'Implement this method in a child class'
+            raise NotImplementedError
           end
 
-          def mime_type(_serialized_content, _content)
-            raise NotImplementedError, 'Implement this method in a child class'
+          def mime_type
+            raise NotImplementedError
           end
 
-          def serialize_thing(_content, _language, _version, _transformation = nil)
-            raise NotImplementedError, 'Implement this method in a child class'
+          def serialize_thing(content:, language:, **options)
+            raise NotImplementedError
           end
 
-          def serialize_watch_list(_watch_list, _language, _version, _transformation = nil)
-            raise NotImplementedError, 'Implement this method in a child class'
+          def serialize_watch_list(content:, language:, **options)
+            raise NotImplementedError
           end
 
-          def serialize_stored_filter(_stored_filter, _language, _version, _transformation = nil)
-            raise NotImplementedError, 'Implement this method in a child class'
+          def serialize_stored_filter(content:, language:, **options)
+            raise NotImplementedError
           end
 
-          def file_name(content, language = nil, _version = nil)
+          def file_name(content:, **options)
             content_title = content.try(:title) || content.try(:name)
 
             if content_title.present?
               content_title = "#{try(:file_name_prefix, content)}#{content_title}" if respond_to?(:file_name_prefix)
-              content_title += "_#{language}" if translatable? && language.present?
-
+              content_title += "_#{options[:language]}" if translatable? && options.dig(:language).present?
+              content_title += "-#{options[:version]}" if options.dig(:version).present?
               return content_title.parameterize(separator: '_').to_s
             end
 
