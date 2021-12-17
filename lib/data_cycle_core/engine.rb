@@ -196,6 +196,9 @@ module DataCycleCore
 
     mattr_accessor :partial_update_improved
     self.partial_update_improved = false
+
+    mattr_accessor :transitive_classification_paths
+    self.transitive_classification_paths = false
   end
 
   def self.setup

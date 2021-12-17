@@ -1,0 +1,443 @@
+# frozen_string_literal: true
+
+class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.2]
+  disable_ddl_transaction!
+
+  def up
+    execute <<-SQL.squish
+      DROP VIEW IF EXISTS classification_alias_paths_transitive;
+
+      CREATE TABLE classification_alias_paths_transitive (
+        id uuid PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+        classification_alias_id uuid NOT NULL,
+        ancestor_ids uuid[],
+        full_path_ids uuid[],
+        full_path_names varchar[],
+        link_types varchar[]
+      );
+
+      CREATE OR REPLACE FUNCTION generate_ca_paths_transitive (
+        classification_alias_ids uuid[]
+      )
+        RETURNS SETOF uuid
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        DELETE FROM classification_alias_paths_transitive
+        WHERE classification_alias_id = ANY (classification_alias_ids);
+        RETURN QUERY WITH RECURSIVE paths (
+          id,
+          ancestors_ids,
+          full_path_ids,
+          full_path_names,
+          link_types
+      ) AS (
+          SELECT
+            classification_alias_links.child_classification_alias_id AS id,
+            ARRAY[]::uuid[] AS ancestors_ids,
+            ARRAY[classification_alias_links.child_classification_alias_id] AS full_path_ids,
+            ARRAY[classification_aliases.internal_name,
+            classification_tree_labels.name] AS full_path_names,
+            ARRAY[]::text[] AS link_types
+          FROM (((classification_alias_links
+                JOIN classification_aliases ON ((classification_aliases.id = classification_alias_links.child_classification_alias_id)))
+              JOIN classification_trees ON (((classification_trees.parent_classification_alias_id IS NULL)
+                    AND (classification_trees.classification_alias_id = classification_aliases.id))))
+            JOIN classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
+        WHERE (classification_alias_links.parent_classification_alias_id IS NULL)
+      UNION ALL
+      SELECT
+        classification_alias_links.child_classification_alias_id AS id,
+        (classification_alias_links.parent_classification_alias_id || paths_1.ancestors_ids) AS ancestors_ids,
+        (classification_aliases.id || paths_1.full_path_ids) AS full_path_ids,
+        (classification_aliases.internal_name || paths_1.full_path_names) AS full_path_names,
+        (classification_alias_links.link_type || paths_1.link_types) AS link_types
+      FROM ((classification_alias_links
+          JOIN classification_aliases ON ((classification_aliases.id = classification_alias_links.child_classification_alias_id)))
+        JOIN paths paths_1 ON ((paths_1.id = classification_alias_links.parent_classification_alias_id)))
+      WHERE (classification_alias_links.child_classification_alias_id <> ALL (paths_1.full_path_ids)))
+      INSERT INTO classification_alias_paths_transitive (
+        classification_alias_id,
+        ancestor_ids,
+        full_path_ids,
+        full_path_names,
+        link_types)
+      SELECT
+        paths.id,
+        paths.ancestors_ids,
+        paths.full_path_ids,
+        paths.full_path_names,
+        paths.link_types
+      FROM
+        paths
+      RETURNING
+        classification_alias_id;
+        RETURN;
+      END;
+      $$;
+
+      CREATE OR REPLACE FUNCTION generate_ca_paths_transitive_trigger_1 ()
+        RETURNS TRIGGER
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        PERFORM
+          generate_ca_paths_transitive (NEW.id || '{}'::uuid[]);
+        RETURN NEW;
+      END;
+      $$;
+
+      CREATE OR REPLACE FUNCTION generate_ca_paths_transitive_trigger_2 ()
+        RETURNS TRIGGER
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        PERFORM
+          generate_ca_paths_transitive (NEW.parent_classification_alias_id || (NEW.classification_alias_id || '{}'::uuid[]));
+        RETURN NEW;
+      END;
+      $$;
+
+      CREATE OR REPLACE FUNCTION generate_ca_paths_transitive_trigger_3 ()
+        RETURNS TRIGGER
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        PERFORM
+          generate_ca_paths_transitive (ARRAY_AGG(classification_alias_id))
+        FROM (
+          SELECT
+            classification_trees.classification_alias_id
+          FROM
+            classification_trees
+          WHERE
+            classification_trees.classification_tree_label_id = NEW.id) "classification_trees_alias";
+        RETURN NEW;
+      END;
+      $$;
+
+      CREATE TRIGGER generate_ca_paths_transitive_trigger
+        AFTER INSERT ON classification_aliases
+        FOR EACH ROW
+        EXECUTE PROCEDURE generate_ca_paths_transitive_trigger_1 ();
+
+      CREATE TRIGGER update_ca_paths_transitive_trigger
+        AFTER UPDATE OF internal_name ON classification_aliases
+        FOR EACH ROW
+        WHEN (OLD.internal_name IS DISTINCT FROM NEW.internal_name)
+        EXECUTE PROCEDURE generate_ca_paths_transitive_trigger_1 ();
+
+      CREATE TRIGGER generate_ca_paths_transitive_trigger
+        AFTER INSERT ON classification_trees
+        FOR EACH ROW
+        EXECUTE FUNCTION generate_ca_paths_transitive_trigger_2 ();
+
+      CREATE TRIGGER update_ca_paths_transitive_trigger
+        AFTER UPDATE OF parent_classification_alias_id,
+        classification_alias_id,
+        classification_tree_label_id ON classification_trees
+        FOR EACH ROW
+        WHEN (OLD.parent_classification_alias_id IS DISTINCT FROM NEW.parent_classification_alias_id OR
+          OLD.classification_alias_id IS DISTINCT FROM NEW.classification_alias_id OR NEW.classification_tree_label_id IS
+          DISTINCT FROM OLD.classification_tree_label_id)
+        EXECUTE FUNCTION generate_ca_paths_transitive_trigger_2 ();
+
+      CREATE TRIGGER generate_ca_paths_transitive_trigger
+        AFTER INSERT ON classification_tree_labels
+        FOR EACH ROW
+        EXECUTE FUNCTION generate_ca_paths_transitive_trigger_3 ();
+
+      CREATE TRIGGER update_ca_paths_transitive_trigger
+        AFTER UPDATE OF name ON classification_tree_labels
+        FOR EACH ROW
+        WHEN (OLD.name IS DISTINCT FROM NEW.name)
+        EXECUTE FUNCTION generate_ca_paths_transitive_trigger_3 ();
+
+      CREATE OR REPLACE FUNCTION generate_collected_cl_content_relations_transitive (
+        content_ids uuid[],
+        excluded_classification_ids uuid[]
+      )
+        RETURNS uuid[]
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        DELETE FROM collected_classification_content_relations
+        WHERE content_id = ANY (content_ids);
+        WITH direct_classification_content_relations AS (
+          SELECT DISTINCT
+            things.id "thing_id",
+            classification_groups.classification_alias_id "classification_alias_id"
+          FROM
+            things
+            JOIN classification_contents ON things.id = classification_contents.content_data_id
+            JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
+              AND classification_groups.deleted_at IS NULL
+          WHERE
+            things.id = ANY (content_ids)
+            AND classification_contents.classification_id <> ALL (excluded_classification_ids)
+      ),
+      full_classification_content_relations AS (
+        SELECT DISTINCT
+          things.id "thing_id",
+          UNNEST(classification_alias_paths_transitive.full_path_ids) "classification_alias_id"
+        FROM
+          things
+          JOIN classification_contents ON things.id = classification_contents.content_data_id
+          JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
+            AND classification_groups.deleted_at IS NULL
+          JOIN classification_alias_paths_transitive ON classification_groups.classification_alias_id =
+            classification_alias_paths_transitive.classification_alias_id
+        WHERE
+          things.id = ANY (content_ids)
+          AND classification_contents.classification_id <> ALL (excluded_classification_ids))
+      INSERT INTO collected_classification_content_relations (
+        content_id,
+        direct_classification_alias_ids,
+        full_classification_alias_ids)
+      SELECT
+        things.id "content_id",
+        direct_content_classification_ids "direct_classification_alias_ids",
+        full_content_classification_ids "full_classification_alias_ids"
+      FROM
+        things
+        JOIN (
+          SELECT
+            thing_id,
+            ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids"
+          FROM
+            direct_classification_content_relations
+          GROUP BY
+            thing_id) "direct_relations" ON direct_relations.thing_id = things.id
+        JOIN (
+          SELECT
+            thing_id,
+            ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids"
+          FROM
+            full_classification_content_relations
+          GROUP BY
+            thing_id) "full_relations" ON full_relations.thing_id = things.id;
+        RETURN content_ids;
+      END;
+      $$;
+
+      CREATE OR REPLACE FUNCTION generate_ccc_relations_transitive_trigger_1 ()
+        RETURNS TRIGGER
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        PERFORM
+          generate_collected_cl_content_relations_transitive (ARRAY_AGG(content_id), ARRAY[]::uuid[])
+        FROM (
+          SELECT
+            content_id
+          FROM
+            collected_classification_content_relations
+          WHERE
+            NEW.classification_alias_id = ANY (direct_classification_alias_ids)) "collected_classification_content_relations_alias";
+        RETURN NEW;
+      END;
+      $$;
+
+      CREATE OR REPLACE FUNCTION generate_ccc_relations_transitive_trigger_2 ()
+        RETURNS TRIGGER
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        PERFORM
+          generate_collected_cl_content_relations_transitive (ARRAY[NEW.content_data_id]::uuid[], ARRAY[]::uuid[]);
+        RETURN NEW;
+      END;
+      $$;
+
+      CREATE OR REPLACE FUNCTION delete_ccc_relations_transitive_trigger_1 ()
+        RETURNS TRIGGER
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        PERFORM
+          generate_collected_cl_content_relations_transitive (ARRAY[OLD.content_data_id]::uuid[], ARRAY[OLD.classification_id]::uuid[]);
+        RETURN NEW;
+      END;
+      $$;
+
+      CREATE OR REPLACE FUNCTION delete_ccc_relations_transitive_trigger_2 ()
+        RETURNS TRIGGER
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        PERFORM
+          generate_collected_cl_content_relations_transitive (ARRAY_AGG(id), ARRAY[]::uuid[])
+        FROM ( SELECT DISTINCT
+            things.id
+          FROM
+            things
+            JOIN classification_contents ON things.id = classification_contents.content_data_id
+            JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
+              AND classification_groups.deleted_at IS NULL
+          WHERE
+            classification_groups.classification_id = OLD.classification_id) "things_alias";
+        RETURN NEW;
+      END;
+      $$;
+
+      CREATE OR REPLACE FUNCTION generate_ccc_relations_transitive_trigger_3 ()
+        RETURNS TRIGGER
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        PERFORM
+          generate_collected_cl_content_relations_transitive (ARRAY_AGG(id), ARRAY[]::uuid[])
+        FROM ( SELECT DISTINCT
+            things.id
+          FROM
+            things
+            JOIN classification_contents ON things.id = classification_contents.content_data_id
+            JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
+              AND classification_groups.deleted_at IS NULL
+          WHERE
+            classification_groups.classification_id = NEW.classification_id) "things_alias";
+        RETURN NEW;
+      END;
+      $$;
+
+      CREATE TRIGGER generate_ccc_relations_transitive_trigger
+        AFTER INSERT OR UPDATE ON classification_alias_paths_transitive
+        FOR EACH ROW
+        EXECUTE FUNCTION generate_ccc_relations_transitive_trigger_1 ();
+
+      ALTER TABLE classification_alias_paths_transitive DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
+
+      CREATE TRIGGER generate_ccc_relations_transitive_trigger
+        AFTER INSERT ON classification_contents
+        FOR EACH ROW
+        EXECUTE FUNCTION generate_ccc_relations_transitive_trigger_2 ();
+
+      ALTER TABLE classification_contents DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
+
+      CREATE TRIGGER delete_ccc_relations_transitive_trigger
+        AFTER DELETE ON classification_contents
+        FOR EACH ROW
+        EXECUTE FUNCTION delete_ccc_relations_transitive_trigger_1 ();
+
+      ALTER TABLE classification_contents DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
+
+      CREATE TRIGGER update_ccc_relations_transitive_trigger
+        AFTER UPDATE OF content_data_id,
+        classification_id,
+        relation ON classification_contents
+        FOR EACH ROW
+        WHEN (OLD.content_data_id IS DISTINCT FROM NEW.content_data_id OR OLD.classification_id IS DISTINCT FROM
+          NEW.classification_id OR OLD.relation IS DISTINCT FROM NEW.relation)
+        EXECUTE FUNCTION generate_ccc_relations_transitive_trigger_2 ();
+
+      ALTER TABLE classification_contents DISABLE TRIGGER update_ccc_relations_transitive_trigger;
+
+      CREATE TRIGGER delete_ccc_relations_transitive_trigger
+        AFTER DELETE ON classification_groups
+        FOR EACH ROW
+        EXECUTE FUNCTION delete_ccc_relations_transitive_trigger_2 ();
+
+      ALTER TABLE classification_groups DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
+
+      CREATE TRIGGER generate_ccc_relations_transitive_trigger
+        AFTER INSERT ON classification_groups
+        FOR EACH ROW
+        EXECUTE FUNCTION generate_ccc_relations_transitive_trigger_3 ();
+
+      ALTER TABLE classification_groups DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
+
+      CREATE TRIGGER update_ccc_relations_transitive_trigger
+        AFTER UPDATE OF deleted_at ON classification_groups
+        FOR EACH ROW
+        WHEN (OLD.deleted_at IS DISTINCT FROM NEW.deleted_at)
+        EXECUTE FUNCTION delete_ccc_relations_transitive_trigger_2 ();
+
+      ALTER TABLE classification_groups DISABLE TRIGGER update_ccc_relations_transitive_trigger;
+    SQL
+  end
+
+  def down
+    execute <<-SQL.squish
+      DROP TABLE IF EXISTS classification_alias_paths_transitive;
+
+      CREATE OR REPLACE RECURSIVE VIEW classification_alias_paths_transitive (id, ancestors_ids, full_path_ids,
+        full_path_names, link_types)
+      AS (
+        SELECT
+          child_classification_alias_id "id",
+          ARRAY[]::uuid[] "ancestors_ids",
+          ARRAY[child_classification_alias_id] "full_path_ids",
+          ARRAY[internal_name, classification_tree_labels.name] "full_path_names",
+          ARRAY[]::text[] "link_types"
+        FROM
+          classification_alias_links
+          JOIN classification_aliases ON classification_aliases.id = classification_alias_links.child_classification_alias_id
+          JOIN classification_trees ON classification_trees.parent_classification_alias_id IS NULL
+            AND classification_trees.classification_alias_id = classification_aliases.id
+          JOIN classification_tree_labels ON classification_tree_labels.id = classification_tree_label_id
+        WHERE
+          classification_alias_links.parent_classification_alias_id IS NULL
+        UNION ALL
+        SELECT
+          child_classification_alias_id "id",
+          classification_alias_links.parent_classification_alias_id || ancestors_ids "ancestors_ids",
+          classification_aliases.id || full_path_ids "full_path_ids",
+          classification_aliases.internal_name || full_path_names "full_path_names",
+          classification_alias_links.link_type || link_types "link_types"
+        FROM
+          classification_alias_links
+          JOIN classification_aliases ON classification_aliases.id = classification_alias_links.child_classification_alias_id
+          JOIN classification_alias_paths_transitive ON classification_alias_paths_transitive.id =
+            classification_alias_links.parent_classification_alias_id
+        WHERE
+          child_classification_alias_id != ALL (full_path_ids));
+
+      DROP TRIGGER IF EXISTS generate_ca_paths_transitive_trigger ON classification_aliases;
+
+      DROP TRIGGER IF EXISTS update_ca_paths_transitive_trigger ON classification_aliases;
+
+      DROP TRIGGER IF EXISTS generate_ca_paths_transitive_trigger ON classification_trees;
+
+      DROP TRIGGER IF EXISTS update_ca_paths_transitive_trigger ON classification_trees;
+
+      DROP TRIGGER IF EXISTS generate_ca_paths_transitive_trigger ON classification_tree_labels;
+
+      DROP TRIGGER IF EXISTS update_ca_paths_transitive_trigger ON classification_tree_labels;
+
+      DROP FUNCTION generate_ca_paths_transitive;
+
+      DROP FUNCTION generate_ca_paths_transitive_trigger_1;
+
+      DROP FUNCTION generate_ca_paths_transitive_trigger_2;
+
+      DROP FUNCTION generate_ca_paths_transitive_trigger_3;
+
+      DROP TRIGGER IF EXISTS generate_ccc_relations_transitive_trigger ON
+        classification_alias_paths_transitive;
+
+      DROP TRIGGER IF EXISTS generate_ccc_relations_transitive_trigger ON classification_contents;
+
+      DROP TRIGGER IF EXISTS delete_ccc_relations_transitive_trigger ON classification_contents;
+
+      DROP TRIGGER IF EXISTS update_ccc_relations_transitive_trigger ON classification_contents;
+
+      DROP TRIGGER IF EXISTS delete_ccc_relations_transitive_trigger ON classification_groups;
+
+      DROP TRIGGER IF EXISTS generate_ccc_relations_transitive_trigger ON classification_groups;
+
+      DROP TRIGGER IF EXISTS update_ccc_relations_transitive_trigger ON classification_groups;
+
+      DROP FUNCTION generate_collected_cl_content_relations_transitive;
+
+      DROP FUNCTION generate_ccc_relations_transitive_trigger_1;
+
+      DROP FUNCTION generate_ccc_relations_transitive_trigger_2;
+
+      DROP FUNCTION delete_ccc_relations_transitive_trigger_1;
+
+      DROP FUNCTION delete_ccc_relations_transitive_trigger_2;
+
+      DROP FUNCTION generate_ccc_relations_transitive_trigger_3;
+    SQL
+  end
+end
