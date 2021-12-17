@@ -50,6 +50,9 @@ module DataCycleCore
         can :download_zip, [DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter] do |content|
           DataCycleCore::Feature::Download.allowed?(content, [:archive, :zip])
         end
+        can :download_indesign, [DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter] do |content|
+          DataCycleCore::Feature::Download.allowed?(content, [:archive, :indesign])
+        end
 
         # Reports
         can [:index, :download_report, :download_global_report], :report

@@ -59,6 +59,7 @@ DataCycleCore::Engine.routes.draw do
       get :load_more_duplicates, on: :member
       get :download_zip, on: :member
       get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
+      get :download_indesign, on: :member
       get :create_duplication, on: :member
       get :clear_cache, on: :member
       get 'asset/:type', on: :member, action: :asset, constraints: { type: '(content|thumb|original)' }
@@ -119,6 +120,7 @@ DataCycleCore::Engine.routes.draw do
     patch :bulk_update, on: :member
     post :validate, on: :member
     get :download_zip, on: :member
+    get :download_indesign, on: :member
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
     delete :clear, on: :member

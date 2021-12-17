@@ -336,7 +336,7 @@ module DataCycleCore
       assert_equal(['indesign'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@content, [:archive, :indesign]).keys.sort)
 
       # check mandatory serializers
-      assert_equal(['asset', 'indesign'], DataCycleCore::Feature::Download.mandatory_serializers_for_download(@content, [:archive, :indesign]).keys.sort)
+      assert_equal(['asset'], DataCycleCore::Feature::Download.mandatory_serializers_for_download(@content, [:archive, :indesign]).keys.sort)
 
       assert_not(DataCycleCore::Feature::Download.allowed?(@watch_list))
       assert_not(DataCycleCore::Feature::Download.allowed?(@stored_filter))
@@ -371,7 +371,7 @@ module DataCycleCore
       assert_equal(['indesign'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@watch_list, [:archive, :indesign]).keys.sort)
 
       # check mandatory serializers
-      assert_equal(['asset', 'indesign'], DataCycleCore::Feature::Download.mandatory_serializers_for_download(@watch_list, [:archive, :indesign]).keys.sort)
+      assert_equal(['asset'], DataCycleCore::Feature::Download.mandatory_serializers_for_download(@watch_list, [:archive, :indesign]).keys.sort)
 
       assert_not(DataCycleCore::Feature::Download.allowed?(@watch_list))
       assert_not(DataCycleCore::Feature::Download.allowed?(@stored_filter))
@@ -406,7 +406,7 @@ module DataCycleCore
       assert_equal(['indesign'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@stored_filter, [:archive, :indesign]).keys.sort)
 
       # check mandatory serializers
-      assert_equal(['asset', 'indesign'], DataCycleCore::Feature::Download.mandatory_serializers_for_download(@stored_filter, [:archive, :indesign]).keys.sort)
+      assert_equal(['asset'], DataCycleCore::Feature::Download.mandatory_serializers_for_download(@stored_filter, [:archive, :indesign]).keys.sort)
 
       assert_not(DataCycleCore::Feature::Download.allowed?(@watch_list))
       assert_not(DataCycleCore::Feature::Download.allowed?(@stored_filter))

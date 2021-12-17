@@ -22,7 +22,7 @@ module DataCycleCore
             )
           end
 
-          def serialize_watch_list(watch_list, language, _version, _transformation = nil)
+          def serialize_watch_list(watch_list, language, _version = nil, _transformation = nil)
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
                 DataCycleCore::Serialize::SerializedData::Content.new(
@@ -46,7 +46,7 @@ module DataCycleCore
             )
           end
 
-          def serialize_stored_filter(stored_filter, language, _version, _transformation = nil)
+          def serialize_stored_filter(stored_filter, language, _version = nil, _transformation = nil)
             contents = stored_filter.apply
             pagination_contents = contents.page(1).per(contents.count)
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
@@ -70,6 +70,10 @@ module DataCycleCore
                 )
               ]
             )
+          end
+
+          def serializable?(content)
+            DataCycleCore::Feature::Serialize.available_serializer?(content, name.demodulize.underscore) && content.asset_property_names.blank?
           end
 
           private

@@ -61,21 +61,18 @@
             :indesign: true
           :mandatory_serializers:
             :asset: true
-            :indesign: true
         :watch_list:
           :enabled: false
           :serializers:
             :indesign: true
           :mandatory_serializers:
             :asset: true
-            :indesign: true
         :stored_filter:
           :enabled: false
           :serializers:
             :indesign: true
           :mandatory_serializers:
             :asset: true
-            :indesign: true
     :dependencies:
       - serialize
 
