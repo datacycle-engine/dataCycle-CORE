@@ -147,7 +147,8 @@ module DataCycleCore
                 ].reject(&:blank?).join("\n\n"),
                 data: {
                   title: ca.full_path
-                }
+                },
+                disabled: !c.assignable
               }
             ]
           }

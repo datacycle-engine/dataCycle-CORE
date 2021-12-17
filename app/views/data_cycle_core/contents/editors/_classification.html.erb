@@ -33,23 +33,6 @@
             }.merge(definition.dig('ui', 'edit', 'options') || {})
           ) %>
     <% else %>
-      <% available_items = classification_items&.map { |c|
-            [
-              c.try(:internal_name),
-              c&.primary_classification.try(:id),
-              {
-                title: [
-                  c.full_path,
-                  c.description
-                ].reject(&:blank?).join("\n\n"),
-                data: {
-                  title: c.full_path,
-                },
-                disabled: !c.assignable
-              }
-            ]
-          } %>
-
       <%= select_tag(
             key,
             simple_classification_select_options(value, classification_items, DataCycleCore::Classification),
