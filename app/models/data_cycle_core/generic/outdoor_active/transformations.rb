@@ -15,17 +15,17 @@ module DataCycleCore
             {
               'id' => 'external_key',
               'title' => 'name',
-              'shortText' => 'description',
-              'longText' => 'text',
               'altitude' => 'elevation',
               'fax' => 'fax_number',
               'phone' => 'telephone',
-              'homepage' => 'url',
-              'businessHours' => 'hours_available',
-              'fee' => 'price',
-              'gettingThere' => 'directions'
+              'homepage' => 'url'
             }
           )
+          .>> t(:add_field, 'description', ->(s) { s.dig('shortText') })
+          .>> t(:add_field, 'text', ->(s) { s.dig('longText') })
+          .>> t(:add_field, 'directions', ->(s) { s.dig('gettingThere') })
+          .>> t(:add_field, 'hours_available', ->(s) { s.dig('businessHours') })
+          .>> t(:add_field, 'price', ->(s) { s.dig('fee') })
           .>> t(:add_field, 'content_score', ->(s) { s.dig('ranking')&.to_f || 0 })
           .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'place', external_source_id) })
           .>> t(:map_value, 'elevation', ->(s) { s.try(:to_f) })
@@ -68,8 +68,6 @@ module DataCycleCore
             {
               'id' => 'external_key',
               'title' => 'name',
-              'shortText' => 'description',
-              'longText' => 'text',
               'altitude' => 'elevation',
               'minAltitude' => 'min_altitude',
               'maxAltitude' => 'max_altitude',
@@ -78,15 +76,17 @@ module DataCycleCore
               'difficulty' => 'difficulty_rating',
               'qualityOfExperience' => 'experience_rating',
               'landscape' => 'landscape_rating',
-              'technique' => 'technique_rating',
-              'directions' => 'instructions',
-              'gettingThere' => 'directions',
-              'publicTransit' => 'directions_public_transport',
-              'safetyGuidelines' => 'safety_instructions',
-              'tip' => 'suggestion',
-              'additionalInformation' => 'additional_information'
+              'technique' => 'technique_rating'
             }
           )
+          .>> t(:add_field, 'description', ->(s) { s.dig('shortText') })
+          .>> t(:add_field, 'text', ->(s) { s.dig('longText') })
+          .>> t(:add_field, 'instructions', ->(s) { s.dig('directions') })
+          .>> t(:add_field, 'directions', ->(s) { s.dig('gettingThere') })
+          .>> t(:add_field, 'directions_public_transport', ->(s) { s.dig('publicTransit') })
+          .>> t(:add_field, 'safety_instructions', ->(s) { s.dig('safetyGuidelines') })
+          .>> t(:add_field, 'suggestion', ->(s) { s.dig('tip') })
+          .>> t(:add_field, 'additional_information', ->(s) { s.dig('additionalInformation') })
           .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'tour', external_source_id) })
           .>> t(:add_field, 'schedule', ->(s) { load_tour_season(s.dig('season')) })
           .>> t(:map_value, 'elevation', ->(s) { s&.to_f })
