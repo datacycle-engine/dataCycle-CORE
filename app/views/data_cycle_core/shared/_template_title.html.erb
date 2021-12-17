@@ -4,6 +4,6 @@
 
 <% if local_assigns[:languages].present? %>
   <span class="template-locale" title="<%= languages.join(', ') %>">
-    (<%= languages.slice(0, 2).join(', ') %><%= ', &hellip;' if languages.size > 2 %>)
+    (<%= languages.slice(0, 2).join(', ') %><%= ', &hellip;'.html_safe if languages.size > 2 %>)
   </span>
 <% end %>

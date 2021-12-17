@@ -12,12 +12,12 @@ module DataCycleCore
           @per = 100
         end
 
-        def ratings(*)
+        def ratings(lang:)
           total = load_facility_count.dig('data', 'facilities_count').to_i
           pages = total.fdiv(@per).ceil
           Enumerator.new do |yielder|
             (1..pages).each do |page|
-              load_facilities(page)&.dig('data', 'facilities')&.each do |event|
+              load_facilities(page, lang)&.dig('data', 'facilities')&.each do |event|
                 yielder << event
               end
             end
@@ -26,39 +26,37 @@ module DataCycleCore
 
         protected
 
-        def load_facilities(page)
+        def load_facilities(page, lang)
           query = <<-EOS
             {
               facilities(limit: #{@per}, offset: #{(page - 1) * @per}) {
                 uuid
                 base_data {
-                  name_de
+                  name_#{lang}
                 }
                 public_pdf {
-                  url_for_short_report { de }
-                  url_for_allergic { de }
-                  url_for_deaf { de }
-                  url_for_generations { de }
-                  url_for_mental { de }
-                  url_for_visual { de }
-                  url_for_walking { de }
-                  url_for_wheelchair { de }
+                  url_for_short_report { #{lang} }
+                  url_for_allergic { #{lang} }
+                  url_for_deaf { #{lang} }
+                  url_for_generations { #{lang} }
+                  url_for_mental { #{lang} }
+                  url_for_visual { #{lang} }
+                  url_for_walking { #{lang} }
+                  url_for_wheelchair { #{lang} }
                 }
                 short_report {
-                  deaf_and_partially_deaf_de
-                  mental_de
-                  visual_and_partially_visual_de
-                  wheelchair_and_walking_de
+                  deaf_and_partially_deaf_#{lang}
+                  mental_#{lang}
+                  visual_and_partially_visual_#{lang}
+                  wheelchair_and_walking_#{lang}
                 }
                 certificate_data {
                   certified_from
                   certified_to
                   certificate_type {
-                    icon_url_de
-                    icon_url_en
+                    icon_url_#{lang}
                     key
-                    label_de
-                    label_en
+                    label_#{lang}
                   }
                   deaf {
                     icon_url
@@ -98,13 +96,11 @@ module DataCycleCore
                 grouped_search_criteria {
                   guest_group {
                     key
-                    name_de
-                    name_en
+                    name_#{lang}
                   }
                   search_criteria {
                     id
-                    name_de
-                    name_en
+                    name_#{lang}
                   }
                 }
               }

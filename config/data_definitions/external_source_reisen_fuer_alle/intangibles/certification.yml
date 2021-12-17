@@ -8,6 +8,9 @@
       :type:
         - Intangible
         - 'dc:certification'
+    :features:
+      :translatable:
+        :allowed: true
     :properties:
       :id:
         :label: id
@@ -158,11 +161,6 @@
                 :type: text_editor
                 :options:
                   :data-size: full
-      :short_report_pdf:
-        :label: Prüfbericht Reisen für Alle
-        :type: linked
-        :template_name: PDF
-        :global: true
       :licence_owner:
         :label: Lizenznehmer
         :type: classification
