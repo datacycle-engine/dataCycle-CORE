@@ -15,7 +15,6 @@
         :serializers:
           :asset: true
           :json: true
-          :license: true
           :xml: true
           :indesign: true
     :api:

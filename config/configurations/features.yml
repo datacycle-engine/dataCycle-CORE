@@ -77,12 +77,12 @@
 :serialize:
   :enabled: true
   :serializers:
-    :asset: true
+    :asset: false
     :license: true
     :gpx: true
     :indesign: false
-    :json: true
-    :xml: true
+    :json: false
+    :xml: false
 
 :overlay:
   :enabled: true
