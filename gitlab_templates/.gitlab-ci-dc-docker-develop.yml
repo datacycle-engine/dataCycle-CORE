@@ -162,6 +162,7 @@ deploy-docker-job_develop:
     - apk add bash
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
+    - cat $(pwd)/.env.production
     - echo "APPSIGNAL_APP_REVISION=$CI_COMMIT_SHA" >> $(pwd)/.env.production
   script:
     # update ssh config of deployment target to support bigger number of active sessions
