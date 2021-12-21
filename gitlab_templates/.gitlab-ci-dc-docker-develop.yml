@@ -177,7 +177,7 @@ deploy-docker-job_develop:
   environment:
     name: $GITLAB_DEVELOPMENT_ENVIRONMENT
     url: $DOCKER_DEVELOPMENT_URL
-    on_stop: stop-docker-job
+    on_stop: stop-docker-job_develop
   when: manual
 
 stop-docker-job_develop:
