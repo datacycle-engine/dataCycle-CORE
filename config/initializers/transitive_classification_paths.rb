@@ -3,6 +3,8 @@
 # switch active triggers according to configuration
 Rails.application.configure do
   config.after_initialize do
+    next unless ActiveRecord::Base.connection.table_exists?('classification_alias_paths_transitive')
+
     result = ActiveRecord::Base.connection.execute <<-SQL.squish
       SELECT
         tgenabled
