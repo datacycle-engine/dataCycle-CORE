@@ -41,8 +41,11 @@ module DataCycleCore
             end
 
             if @feratel # TODO: allow for more than one id!!
-              feratel_key = raw_data['third_party_ids'].detect { |i| i['key'] == 'deskline_id' }&.dig('value')
-              raw_data['feratel'] = { external_system_id: @feratel.id, external_key: feratel_key, limit: 1 } if feratel_key.present?
+              feratel_keys = raw_data['third_party_ids']
+                .select { |i| i['key'] == 'deskline_id' || i['key'] == 'deskline_id_2' }
+                .map { |i| i.dig('value') }
+                .map { |i| { external_system_id: @feratel.id, external_key: i, limit: 1 } }
+              raw_data['feratel'] = feratel_keys if feratel_keys.present?
             end
 
             if @outdoor_active
