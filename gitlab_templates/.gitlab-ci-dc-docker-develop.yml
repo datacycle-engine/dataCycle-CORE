@@ -134,11 +134,11 @@ before_script:
 ######################### Master / Production - Systems
 build_caches_develop:
   <<: *docker_develop_ci
-  extends: .build_caches_config_develop
+  extends: .build_caches_config
 
 code_validation_develop:
   <<: *docker_develop_ci
-  extends: .code_validation_config_develop
+  extends: .code_validation_config
 
 build-docker-job_develop:
   <<: *docker_develop_ci
