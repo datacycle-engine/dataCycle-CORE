@@ -1,6 +1,9 @@
 image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
 
 variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  DOCKER_URL_DEVELOPMENT: ''
+  GITLAB_ENVIRONMENT_DEVELOPMENT: ''
   PRODUCTION_URL: ''
 
 .local_test_vars: &local_test_vars
@@ -11,37 +14,9 @@ variables:
     POSTGRES_DB: data-cycle-base_test
     POSTGRES_PORT: '5432'
     MONGODB_HOST: mongodb
+    #    POSTGRES_VERSION: 13
     RAILS_ENV: test
     TZ: Europe/Vienna
-
-stages:
-  - build
-  - check
-  - test
-  - deploy
-
-before_script:
-  # uncomment for local testing
-  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-  # uncomment for local testing END
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
-
-  - rm -Rf vendor/gems/data-cycle-core
-  - git submodule sync --recursive
-  - git submodule update --init --recursive --force
-
-  - gem install bundler
-  - bundle config set --local path 'cache/bundler'
-  - bundle install
-
-  - dpkg-reconfigure -f noninteractive tzdata
-  - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-  - export RUBYOPT="-W:no-deprecated -W:no-experimental"
 
 cache:
   key: application-cache
@@ -64,7 +39,7 @@ services:
     alias: mongodb
 
 ########################################################################
-######################### Job Configuration HiddenFields
+######################### Job Configuration
 .job_cache_config:
   cache:
     key: application-cache
@@ -101,41 +76,3 @@ services:
     - bundle exec rubocop --format fuubar
     - bundle exec fasterer
 
-.deploy_config:
-  <<: *local_test_vars
-  extends: .job_cache_config
-  stage: deploy
-  cache:
-    policy: pull-push
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bundle exec cap $CI_COMMIT_REF_NAME deploy
-  allow_failure: false
-
-########################################################################
-######################### Branch Configuration
-.master_ci_config: &master_ci
-  only:
-    - master
-  tags:
-    - dc-master
-
-########################################################################
-######################### Master / Production - Systems
-build_caches:
-  <<: *master_ci
-  extends: .build_caches_config
-
-code_validation:
-  <<: *master_ci
-  extends: .code_validation_config
-
-deploy:
-  <<: *master_ci
-  extends: .deploy_config
-  tags:
-    - dc-deploy
-  environment:
-    name: production
-    url: $PRODUCTION_URL
-  when: manual
