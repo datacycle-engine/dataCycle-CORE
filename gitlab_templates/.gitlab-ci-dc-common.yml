@@ -116,8 +116,8 @@ services:
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-    - docker build --pull -f vendor/gems/data-cycle-core/Dockerfile -t "$CI_REGISTRY_IMAGE" --target production .
-    - docker push "$CI_REGISTRY_IMAGE"
+    - docker build --pull -f vendor/gems/data-cycle-core/Dockerfile -t "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG" --target production .
+    - docker push "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG"
   after_script:
     - docker logout $CI_REGISTRY
 

@@ -15,7 +15,7 @@ x-app-env: &default-app-env
   RAILS_ENV: ${RAILS_ENV:-production}
 
 x-app: &default-app
-  image: git.pixelpoint.biz:5050/data-cycle/${GITLAB_CI_PROJECT_NAME}:latest
+  image: $CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG
   env_file:
     - ${PWD}/.env.production
   volumes:
