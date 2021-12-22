@@ -13,6 +13,7 @@ module DataCycleCore
           .>> t(:add_field, 'external_key', ->(s) { s.dig('featureMember', 'GeoName', 'fid') })
           .>> t(:reject_keys, ['name'])
           .>> t(:add_field, 'name', ->(s) { s.dig('featureMember', 'GeoName', 'featureName', 'text') })
+          .>> t(:add_field, 'description', ->(s) { s.dig('featureMember', 'GeoName', 'schreib6', 'text') })
           .>> t(:add_field, 'route_number', ->(s) { s.dig('featureMember', 'GeoName', 'externalId', 'text') })
           .>> t(:add_field, 'sections', ->(s) { load_feature_sections(s.dig('featureMember', 'GeoName', 'refs', 'ReferenceItem'), external_source_id) })
           .>> t(:add_field, 'line', ->(s) { load_all_sections(s.dig('sections')) })

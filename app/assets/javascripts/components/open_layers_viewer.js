@@ -120,13 +120,21 @@ class OpenLayersViewer {
     this.featureOverlaySource;
     this.highlightedFeature;
     this.icons = iconPaths;
-    this.colors = {
+    this.colorsHandler = {
+      get: function (target, name) {
+        if (target.hasOwnProperty(name)) return target[name];
+        else if (name) return name;
+        else target['default'];
+      }
+    };
+    this.definedColors = {
       default: '#1779ba',
       red: '#cc4b37',
       green: '#90c062',
       white: '#ffffff',
       gray: '#767676'
     };
+    this.colors = new Proxy(this.definedColors, this.colorsHandler);
     this.scrollTexts = {
       ctrlKey: 'Strg+Scrollen zum Zoomen',
       metaKey: '⌘+Scrollen zum Zoomen',
