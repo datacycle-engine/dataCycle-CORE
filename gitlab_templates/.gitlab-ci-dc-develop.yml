@@ -1,7 +1,9 @@
 ########################################################################
 ######################### Development / Staging - Systems
-variables:
-  DEVELOPMENT_URL: ''
+include:
+  - project: 'data-cycle/data-cycle-core'
+    ref: develop
+    file: '/gitlab_templates/.gitlab-ci-dc-common.yml'
 
 .development_ci_config: &development_ci
   only:

@@ -2,37 +2,9 @@
 ######################### DOCKER setup for DC
 
 include:
-  #  - project: 'data-cycle/data-cycle-core'
-  #    ref: develop
-  #    file: '/gitlab_templates/.gitlab-ci-dc-main.yml'
-  #  - project: 'data-cycle/data-cycle-core'
-  #    ref: develop
-  #    file: '/gitlab_templates/.gitlab-ci-dc-develop.yml'
-  #  - project: 'data-cycle/data-cycle-core'
-  #    ref: develop
-  #    file: '/gitlab_templates/.gitlab-ci-dc-local-test.yml'
   - project: 'data-cycle/data-cycle-core'
     ref: develop
     file: '/gitlab_templates/.gitlab-ci-dc-common.yml'
-
-
-#image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
-
-#variables:
-#  GIT_SUBMODULE_STRATEGY: recursive
-#  DOCKER_URL_DEVELOPMENT: ''
-#  GITLAB_ENVIRONMENT_DEVELOPMENT: ''
-
-#.local_test_vars: &local_test_vars
-#  variables:
-#    POSTGRES_USER: postgres
-#    POSTGRES_PASSWORD: 'password'
-#    POSTGRES_HOST: postgres
-#    POSTGRES_DB: data-cycle-base_test
-#    POSTGRES_PORT: '5432'
-#    MONGODB_HOST: mongodb
-#    RAILS_ENV: test
-#    TZ: Europe/Vienna
 
 stages:
   - build
@@ -42,20 +14,6 @@ stages:
   - deploy
 
 before_script:
-  #  # uncomment for local testing
-  #  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-  #  - eval $(ssh-agent -s)
-  #  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-  #  # uncomment for local testing END
-  #  - mkdir -p ~/.ssh
-  #  - chmod 700 ~/.ssh
-  #  - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
-  #  - chmod 644 ~/.ssh/known_hosts
-  #
-  #  - rm -Rf vendor/gems/data-cycle-core
-  #  - git submodule sync --recursive
-  #  - git submodule update --init --recursive --force
-
   - gem install bundler
   - bundle config set --local path 'cache/bundler'
   - bundle install
@@ -63,64 +21,6 @@ before_script:
   - dpkg-reconfigure -f noninteractive tzdata
   - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
   - export RUBYOPT="-W:no-deprecated -W:no-experimental"
-
-#cache:
-#  key: application-cache
-#  untracked: false
-#  paths:
-#    - cache/bundler
-#    - node_modules
-#    - public/assets
-#    - tmp/cache/vite
-#    # - lib/assets
-#    # Enable for local rails test
-#    # - vendor/gems/data-cycle-core/node_modules
-#    # - vendor/gems/data-cycle-core/lib/assets
-#
-#services:
-#  - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
-#    alias: postgres
-#    command: ['postgres']
-#  - name: mvertes/alpine-mongo:4.0.6-1
-#    alias: mongodb
-
-########################################################################
-######################### Job Configuration HiddenFields
-#.job_cache_config_develop:
-#  cache:
-#    key: application-cache
-#    paths:
-#      - cache/bundler
-#      - node_modules
-#      - public/assets
-#      - tmp/cache/vite
-#      # - lib/assets
-#      # Enable for local rails test
-#      # - vendor/gems/data-cycle-core/node_modules
-#      # - vendor/gems/data-cycle-core/lib/assets
-#    policy: pull
-#
-#.build_caches_config_develop:
-#  <<: *local_test_vars
-#  stage: build
-#  script:
-#    - gem install bundler
-#    - bundle config set --local path 'cache/bundler'
-#    - bundle install
-#    - cd $CI_PROJECT_DIR
-#    - yarn
-#    - yarn upgrade
-#
-#.code_validation_config_develop:
-#  <<: *local_test_vars
-#  extends: .job_cache_config_develop
-#  stage: check
-#  script:
-#    - bundle exec bundle-audit update
-#    - bundle exec bundle audit check --ignore CVE-2021-21288 CVE-2021-21305
-#    - bundle exec brakeman -c vendor/gems/data-cycle-core/config/brakeman.yml
-#    - bundle exec rubocop --format fuubar
-#    - bundle exec fasterer
 
 ########################################################################
 ######################### Branch Configuration
@@ -131,7 +31,7 @@ before_script:
     - dc-docker
 
 ########################################################################
-######################### Master / Production - Systems
+######################### Job configuration
 build_caches_develop:
   <<: *docker_develop_ci
   extends: .build_caches_config
