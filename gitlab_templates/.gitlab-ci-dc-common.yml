@@ -1,7 +1,6 @@
 image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
 
 variables:
-  GIT_SUBMODULE_STRATEGY: recursive
   PRODUCTION_URL: ''
   DEVELOPMENT_URL: ''
   DOCKER_URL: ''
@@ -111,6 +110,7 @@ services:
   image: docker:20.10
   variables:
     DOCKER_BUILDKIT: 1
+    GIT_SUBMODULE_STRATEGY: recursive
   services:
     - docker:dind
   before_script:
@@ -127,6 +127,7 @@ services:
   allow_failure: false
   variables:
     DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    GIT_SUBMODULE_STRATEGY: recursive
   before_script:
     # Configure SSH
     - eval $(ssh-agent -s)
@@ -158,6 +159,7 @@ services:
   allow_failure: false
   variables:
     DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    GIT_SUBMODULE_STRATEGY: recursive
   before_script:
     # Configure SSH
     - eval $(ssh-agent -s)

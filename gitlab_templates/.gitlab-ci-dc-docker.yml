@@ -20,7 +20,6 @@ before_script:
 ######################### Branch Configuration
 .docker_ci_config: &docker_ci
   only:
-    - docker
     - master
   tags:
     - dc-docker
