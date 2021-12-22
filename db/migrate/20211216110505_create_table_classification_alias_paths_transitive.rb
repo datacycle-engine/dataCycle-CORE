@@ -24,21 +24,24 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
         AS $$
       BEGIN
         DELETE FROM classification_alias_paths_transitive
-        WHERE classification_alias_id = ANY (classification_alias_ids);
+        WHERE full_path_ids && classification_alias_ids;
         RETURN QUERY WITH RECURSIVE paths (
           id,
           ancestors_ids,
           full_path_ids,
           full_path_names,
-          link_types
+          link_types,
+          tree_label_name,
+          classification_alias_id
       ) AS (
           SELECT
             classification_alias_links.child_classification_alias_id AS id,
             ARRAY[]::uuid[] AS ancestors_ids,
             ARRAY[classification_alias_links.child_classification_alias_id] AS full_path_ids,
-            ARRAY[classification_aliases.internal_name,
-            classification_tree_labels.name] AS full_path_names,
-            ARRAY[]::text[] AS link_types
+            ARRAY[classification_aliases.internal_name] AS full_path_names,
+            ARRAY[]::text[] AS link_types,
+            classification_tree_labels.name,
+            classification_aliases.id
           FROM (((classification_alias_links
                 JOIN classification_aliases ON ((classification_aliases.id = classification_alias_links.child_classification_alias_id)))
               JOIN classification_trees ON (((classification_trees.parent_classification_alias_id IS NULL)
@@ -46,17 +49,22 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
             JOIN classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
         WHERE (classification_alias_links.parent_classification_alias_id IS NULL)
           AND classification_aliases.id = ANY (classification_alias_ids)
-      UNION ALL
-      SELECT
-        classification_alias_links.child_classification_alias_id AS id,
-        (classification_alias_links.parent_classification_alias_id || paths_1.ancestors_ids) AS ancestors_ids,
-        (classification_aliases.id || paths_1.full_path_ids) AS full_path_ids,
-        (classification_aliases.internal_name || paths_1.full_path_names) AS full_path_names,
-        (classification_alias_links.link_type || paths_1.link_types) AS link_types
-      FROM ((classification_alias_links
-          JOIN classification_aliases ON ((classification_aliases.id = classification_alias_links.child_classification_alias_id)))
-        JOIN paths paths_1 ON ((paths_1.id = classification_alias_links.parent_classification_alias_id)))
-      WHERE (classification_alias_links.child_classification_alias_id <> ALL (paths_1.full_path_ids)))
+        UNION ALL
+        SELECT
+          classification_alias_links.parent_classification_alias_id AS id,
+          (paths_1.ancestors_ids || classification_alias_links.parent_classification_alias_id) AS ancestors_ids,
+          (paths_1.full_path_ids || classification_aliases.id) AS full_path_ids,
+          (paths_1.full_path_names || classification_aliases.internal_name) AS full_path_names,
+          (paths_1.link_types || classification_alias_links.link_type) AS link_types,
+          classification_tree_labels.name,
+          paths_1.classification_alias_id
+        FROM ((classification_alias_links
+            JOIN classification_aliases ON ((classification_aliases.id = classification_alias_links.parent_classification_alias_id)))
+          JOIN paths paths_1 ON ((paths_1.id = classification_alias_links.child_classification_alias_id))
+          JOIN classification_trees ON (((classification_trees.parent_classification_alias_id IS NULL)
+                AND (classification_trees.classification_alias_id = classification_aliases.id)))
+          JOIN classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
+        WHERE (classification_alias_links.parent_classification_alias_id <> ALL (paths_1.full_path_ids)))
       INSERT INTO classification_alias_paths_transitive (
         classification_alias_id,
         ancestor_ids,
@@ -64,10 +72,10 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
         full_path_names,
         link_types)
       SELECT
-        paths.id,
+        paths.classification_alias_id,
         paths.ancestors_ids,
         paths.full_path_ids,
-        paths.full_path_names,
+        paths.full_path_names || paths.tree_label_name,
         paths.link_types
       FROM
         paths
@@ -83,7 +91,7 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
         AS $$
       BEGIN
         PERFORM
-          generate_ca_paths_transitive (NEW.id || '{}'::uuid[]);
+          generate_ca_paths_transitive (ARRAY[NEW.id]::uuid[]);
         RETURN NEW;
       END;
       $$;
@@ -94,7 +102,7 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
         AS $$
       BEGIN
         PERFORM
-          generate_ca_paths_transitive (NEW.parent_classification_alias_id || (NEW.classification_alias_id || '{}'::uuid[]));
+          generate_ca_paths_transitive (NEW.parent_classification_alias_id || ARRAY[NEW.classification_alias_id]::uuid[]);
         RETURN NEW;
       END;
       $$;
@@ -231,14 +239,12 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
         FROM ( SELECT DISTINCT
             classification_contents.content_data_id
           FROM
-            classification_alias_paths_transitive
+            new_classification_alias_paths_transitive
             INNER JOIN classification_groups ON classification_groups.classification_alias_id =
-        classification_alias_paths_transitive.classification_alias_id
-            INNER JOIN classification_contents ON classification_contents.classification_id = classification_groups.classification_id
-          WHERE
-            classification_alias_paths_transitive.full_path_ids @> ARRAY[NEW.classification_alias_id]::uuid[])
-        "collected_classification_content_relations_alias";
-        RETURN NEW;
+        new_classification_alias_paths_transitive.classification_alias_id
+            INNER JOIN classification_contents ON classification_contents.classification_id =
+        classification_groups.classification_id) "collected_classification_content_relations_alias";
+        RETURN NULL;
       END;
       $$;
 
@@ -264,52 +270,19 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
       END;
       $$;
 
-      CREATE OR REPLACE FUNCTION delete_ccc_relations_transitive_trigger_2 ()
-        RETURNS TRIGGER
-        LANGUAGE PLPGSQL
-        AS $$
-      BEGIN
-        PERFORM
-          generate_collected_cl_content_relations_transitive (ARRAY_AGG(id), ARRAY[]::uuid[])
-        FROM ( SELECT DISTINCT
-            things.id
-          FROM
-            things
-            JOIN classification_contents ON things.id = classification_contents.content_data_id
-            JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
-              AND classification_groups.deleted_at IS NULL
-          WHERE
-            classification_groups.classification_id = OLD.classification_id) "things_alias";
-        RETURN NEW;
-      END;
-      $$;
-
-      CREATE OR REPLACE FUNCTION generate_ccc_relations_transitive_trigger_3 ()
-        RETURNS TRIGGER
-        LANGUAGE PLPGSQL
-        AS $$
-      BEGIN
-        PERFORM
-          generate_collected_cl_content_relations_transitive (ARRAY_AGG(id), ARRAY[]::uuid[])
-        FROM ( SELECT DISTINCT
-            things.id
-          FROM
-            things
-            JOIN classification_contents ON things.id = classification_contents.content_data_id
-            JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
-              AND classification_groups.deleted_at IS NULL
-          WHERE
-            classification_groups.classification_id = NEW.classification_id) "things_alias";
-        RETURN NEW;
-      END;
-      $$;
-
       CREATE TRIGGER generate_ccc_relations_transitive_trigger
-        AFTER INSERT OR UPDATE ON classification_alias_paths_transitive
-        FOR EACH ROW
+        AFTER INSERT ON classification_alias_paths_transitive REFERENCING NEW TABLE AS new_classification_alias_paths_transitive
+        FOR EACH STATEMENT
         EXECUTE FUNCTION generate_ccc_relations_transitive_trigger_1 ();
 
       ALTER TABLE classification_alias_paths_transitive DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
+
+      CREATE TRIGGER update_ccc_relations_transitive_trigger
+        AFTER UPDATE ON classification_alias_paths_transitive REFERENCING NEW TABLE AS new_classification_alias_paths_transitive
+        FOR EACH STATEMENT
+        EXECUTE FUNCTION generate_ccc_relations_transitive_trigger_1 ();
+
+      ALTER TABLE classification_alias_paths_transitive DISABLE TRIGGER update_ccc_relations_transitive_trigger;
 
       CREATE TRIGGER generate_ccc_relations_transitive_trigger
         AFTER INSERT ON classification_contents
@@ -336,17 +309,39 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
 
       ALTER TABLE classification_contents DISABLE TRIGGER update_ccc_relations_transitive_trigger;
 
+      CREATE OR REPLACE FUNCTION delete_ca_paths_transitive_trigger_1 ()
+        RETURNS TRIGGER
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        PERFORM
+          generate_ca_paths_transitive (ARRAY[OLD.classification_alias_id]::uuid[]);
+        RETURN NEW;
+      END;
+      $$;
+
+      CREATE OR REPLACE FUNCTION generate_ca_paths_transitive_trigger_4 ()
+        RETURNS TRIGGER
+        LANGUAGE PLPGSQL
+        AS $$
+      BEGIN
+        PERFORM
+          generate_ca_paths_transitive (ARRAY[NEW.classification_alias_id]::uuid[]);
+        RETURN NEW;
+      END;
+      $$;
+
       CREATE TRIGGER delete_ccc_relations_transitive_trigger
         AFTER DELETE ON classification_groups
         FOR EACH ROW
-        EXECUTE FUNCTION delete_ccc_relations_transitive_trigger_2 ();
+        EXECUTE FUNCTION delete_ca_paths_transitive_trigger_1 ();
 
       ALTER TABLE classification_groups DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
 
       CREATE TRIGGER generate_ccc_relations_transitive_trigger
         AFTER INSERT ON classification_groups
         FOR EACH ROW
-        EXECUTE FUNCTION generate_ccc_relations_transitive_trigger_3 ();
+        EXECUTE FUNCTION generate_ca_paths_transitive_trigger_4 ();
 
       ALTER TABLE classification_groups DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
 
@@ -354,7 +349,7 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
         AFTER UPDATE OF deleted_at ON classification_groups
         FOR EACH ROW
         WHEN (OLD.deleted_at IS DISTINCT FROM NEW.deleted_at)
-        EXECUTE FUNCTION delete_ccc_relations_transitive_trigger_2 ();
+        EXECUTE FUNCTION generate_ca_paths_transitive_trigger_4 ();
 
       ALTER TABLE classification_groups DISABLE TRIGGER update_ccc_relations_transitive_trigger;
 
@@ -442,6 +437,9 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
       DROP TRIGGER IF EXISTS generate_ccc_relations_transitive_trigger ON
         classification_alias_paths_transitive;
 
+      DROP TRIGGER IF EXISTS update_ccc_relations_transitive_trigger ON
+        classification_alias_paths_transitive;
+
       DROP TRIGGER IF EXISTS generate_ccc_relations_transitive_trigger ON classification_contents;
 
       DROP TRIGGER IF EXISTS delete_ccc_relations_transitive_trigger ON classification_contents;
@@ -454,6 +452,10 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
 
       DROP TRIGGER IF EXISTS update_ccc_relations_transitive_trigger ON classification_groups;
 
+      DROP FUNCTION delete_ca_paths_transitive_trigger_1;
+
+      DROP FUNCTION generate_ca_paths_transitive_trigger_4;
+
       DROP FUNCTION generate_collected_cl_content_relations_transitive;
 
       DROP FUNCTION generate_ccc_relations_transitive_trigger_1;
@@ -461,10 +463,6 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
       DROP FUNCTION generate_ccc_relations_transitive_trigger_2;
 
       DROP FUNCTION delete_ccc_relations_transitive_trigger_1;
-
-      DROP FUNCTION delete_ccc_relations_transitive_trigger_2;
-
-      DROP FUNCTION generate_ccc_relations_transitive_trigger_3;
 
       DROP INDEX IF EXISTS classification_alias_paths_transitive_full_path_ids;
 
