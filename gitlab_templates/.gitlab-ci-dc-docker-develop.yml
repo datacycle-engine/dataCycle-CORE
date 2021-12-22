@@ -1,11 +1,5 @@
 ########################################################################
 ######################### DOCKER setup for DC
-
-include:
-  - project: 'data-cycle/data-cycle-core'
-    ref: develop
-    file: '/gitlab_templates/.gitlab-ci-dc-common.yml'
-
 stages:
   - build
   - check
