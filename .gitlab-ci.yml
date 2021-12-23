@@ -67,8 +67,8 @@ build_docker_job:
   <<: *docker_ci
   extends: .build_docker_config
   script:
-    - docker build --pull -f Dockerfile-core -t "$CI_REGISTRY_IMAGE" --target production .
-    - docker push "$CI_REGISTRY_IMAGE"
+    - docker build --pull -f Dockerfile-core -t "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG" --target production .
+    - docker push "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG"
 
 deploy_docker_job:
   <<: *docker_ci
