@@ -22,6 +22,7 @@ module DataCycleCore
       unless File.exist?(zipfile_fullname)
         Zip::File.open(zipfile_fullname, Zip::File::CREATE) do |zipfile|
           languages.each do |language|
+            serialized_collections = []
             serialize_format.each do |format|
               serializer = serializer_for_content(object, [:archive, :zip], format)
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
@@ -30,6 +31,7 @@ module DataCycleCore
               # collection = serializer.serialize_thing(items, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
               # serializer.try(serialize_method, content: content, language: language, options: {version: version, transformation: transformation})
               collection = serializer.serialize_thing(content: items, language: language)
+              serialized_collections << collection
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
               collection.each do |serialized_content|
@@ -47,7 +49,7 @@ module DataCycleCore
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
               # version? WTF?
               # collection = serializer.serialize_thing(items, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
-              collection = serializer.serialize_thing(content: items, language: language)
+              collection = serializer.serialize_thing(content: items, language: language, serialized_collections: serialized_collections)
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
               collection.each do |serialized_content|

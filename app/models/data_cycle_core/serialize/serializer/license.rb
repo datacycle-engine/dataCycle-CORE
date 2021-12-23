@@ -13,38 +13,52 @@ module DataCycleCore
             'text/plain'
           end
 
-          def serialize_thing(content:, language:, **_options)
+          def serialize_thing(content:, language:, **options)
             content = content.is_a?(Array) ? content : [content]
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
-                copyright_notice(content, language),
-                common_text_bla(language)
+                copyright_file(content, language, file_names_by_content_id(options.dig(:serialized_collections) || [])),
+                introduction_file(language)
               ]
             )
           end
 
           private
 
-          def copyright_notice(content, language)
+          def copyright_file(content, language, content_ids_with_filenames)
             data = []
             content.each do |item|
-              data << (item.try(:computed_attribution_name).presence || "#{item.id} - #{item.name}")
+              license_string = item.try(:computed_attribution_name).presence || item.name.to_s
+              (content_ids_with_filenames.dig(item.id) || []).each do |file_name|
+                data << [file_name, license_string].join(': ')
+              end
             end
             DataCycleCore::Serialize::SerializedData::Content.new(
               data: data.join("\r\n"),
               mime_type: mime_type,
-              file_name: "enter_copyright_file_name-here_#{language}",
+              file_name: I18n.t('feature.serialize.license.copyright.file_name', default: 'copyright', locale: language),
               id: SecureRandom.uuid
             )
           end
 
-          def common_text_bla(language)
+          def introduction_file(language)
             DataCycleCore::Serialize::SerializedData::Content.new(
-              data: "some random text goes here\r\nblaaaaaaaaaaaaaaaaaaaaaaaaaa - language: #{language}",
+              data: I18n.t('feature.serialize.license.introducton.text', default: 'Your text goes here', locale: language),
               mime_type: mime_type,
-              file_name: "enter_file_name#{language}",
+              file_name: I18n.t('feature.serialize.license.introducton.file_name', default: 'introduction', locale: language),
               id: SecureRandom.uuid
             )
+          end
+
+          def file_names_by_content_id(serialized_collections)
+            content_ids_with_filenames = {}
+            serialized_collections.each do |serialized_collection|
+              serialized_collection.each do |serialized_content|
+                content_ids_with_filenames[serialized_content.id] = [] if content_ids_with_filenames[serialized_content.id].blank?
+                content_ids_with_filenames[serialized_content.id] << serialized_content.file_name_with_extension
+              end
+            end
+            content_ids_with_filenames
           end
         end
       end

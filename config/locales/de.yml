@@ -446,6 +446,17 @@ de:
       version_name_removed: Der Versionsname wurde entfernt!
     download:
       missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
+    serialize:
+      license:
+        copyright:
+          file_name: nutzungsbedingungen
+        introducton:
+          file_name: einleitungstext
+          text: 'Überschrift
+          
+          Hier könnte Ihre Enleitung stehen
+          
+          COPYRIGHT dataCycle'
     gip_key_figure:
       button_title: Ermittlung des Wertes für %{data} über ein Web-Service der GIP auf Basis der zugrundeliegenden Geo-Daten
     user_api:
