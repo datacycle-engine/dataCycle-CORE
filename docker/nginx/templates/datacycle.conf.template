@@ -42,8 +42,8 @@ server {
   error_page 500 502 504 /500.html;
   error_page 503 @503;
 
-  access_log /var/log/datacycle/nginx.access.log;
-  error_log /var/log/datacycle/nginx.error.log;
+  #access_log /var/log/datacycle/nginx.access.log;
+  #error_log /var/log/datacycle/nginx.error.log;
 
   gzip on;
   gzip_vary on;
