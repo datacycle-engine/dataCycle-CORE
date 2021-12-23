@@ -24,7 +24,7 @@ Rails.application.configure do
 
     ActiveRecord::Base.connection.execute <<-SQL.squish
       ALTER TABLE classification_alias_paths_transitive #{transitive_triggers} TRIGGER generate_ccc_relations_transitive_trigger;
-      ALTER TABLE classification_alias_paths_transitive #{transitive_triggers} TRIGGER update_ccc_relations_transitive_trigger;
+      ALTER TABLE classification_alias_paths_transitive #{transitive_triggers} TRIGGER delete_ccc_relations_transitive_trigger;
       ALTER TABLE classification_contents #{transitive_triggers} TRIGGER delete_ccc_relations_transitive_trigger;
       ALTER TABLE classification_contents #{transitive_triggers} TRIGGER generate_ccc_relations_transitive_trigger;
       ALTER TABLE classification_contents #{transitive_triggers} TRIGGER update_ccc_relations_transitive_trigger;
