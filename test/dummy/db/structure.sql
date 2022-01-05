@@ -2044,6 +2044,13 @@ CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (ite
 
 
 --
+-- Name: index_external_system_syncs_on_syncalbe_id_and_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_external_system_syncs_on_syncalbe_id_and_external_key ON public.external_system_syncs USING btree (syncable_id, external_key);
+
+
+--
 -- Name: index_external_system_syncs_on_unique_attributes; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2293,6 +2300,13 @@ CREATE INDEX index_things_on_boost_updated_at_id ON public.things USING btree (b
 --
 
 CREATE INDEX index_things_on_content_type ON public.things USING btree (((schema ->> 'content_type'::text)));
+
+
+--
+-- Name: index_things_on_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_external_key ON public.things USING btree (external_key);
 
 
 --
@@ -2944,6 +2958,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211122075759'),
 ('20211123081845'),
 ('20211130111352'),
-('20211214135559');
+('20211214135559'),
+('20220105142232');
 
 
