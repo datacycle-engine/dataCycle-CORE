@@ -123,6 +123,7 @@
   :classification_alias_ids: all
   :external_source: false
   :external_system: true
+  :id: true
   :creator: true
   :classification_tree_ids: true
   :date_range: all

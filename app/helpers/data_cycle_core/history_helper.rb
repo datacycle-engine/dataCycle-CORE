@@ -260,5 +260,16 @@ module DataCycleCore
         }
       end
     end
+
+    def history_version_html(content)
+      date = content.try(:history_valid)&.first || content.try(:updated_at)
+
+      history_html = ActionView::OutputBuffer.new
+      history_html << t('history.updated_at_html', locale: active_ui_locale, language: content.last_updated_locale || content.first_available_locale, date: l(date, locale: active_ui_locale, format: :history)) if date.present?
+      history_html << ' '
+      history_html << history_by_link(content.updated_by_user)
+
+      history_html
+    end
   end
 end

@@ -1873,22 +1873,22 @@ select {
       margin-top: -100px;
     }
 
-    .ol-viewport {
-      .scroll-overlay {
-        position: absolute;
-        display: flex;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        color: white;
-        font-size: 1.2rem;
-        justify-content: center;
-        align-items: center;
-        background-color: rgba(black, 0.5);
-      }
+    .scroll-overlay {
+      position: absolute;
+      display: flex;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      color: white;
+      font-size: 1.2rem;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(black, 0.5);
+    }
 
+    .ol-viewport {
       .ol-attribution:not(.ol-collapsed) {
         display: flex;
         flex-flow: row nowrap;
@@ -1914,6 +1914,7 @@ select {
           padding: 0.5rem 0.75rem;
           box-shadow: 0 0 1px rgba($black, 0.8);
           min-width: 200px;
+          font-size: 0.9rem;
 
           .ol-popup-closer,
           .ol-popup-content .ol-popup-detail-link {
@@ -1930,56 +1931,29 @@ select {
         }
       }
     }
-    .leaflet-popup {
-      pointer-events: none;
-      margin-bottom: 0;
+    .mapboxgl-popup-content {
+      padding-right: 2rem;
 
-      .leaflet-popup-tip-container {
-        display: none;
+      .ol-popup-detail-link {
+        float: right;
       }
 
-      .leaflet-popup-content-wrapper {
-        display: block;
-        font-size: 1rem;
-        background: white;
-        box-shadow: 0 0 1px rgba($black, 0.8);
-        min-width: 200px;
-        padding: 0.5rem 0.75rem;
-        border-radius: 0;
-
-        .leaflet-popup-content {
-          margin: 0;
-          padding: 0;
-
-          p {
-            margin: 0 0 0.5rem 0;
-
-            &:last-child {
-              margin-bottom: 0;
-            }
-          }
+      p {
+        &:last-of-type {
+          margin-bottom: 0;
         }
       }
 
-      .leaflet-popup-close-button {
-        margin-top: 0.5rem;
-        margin-right: 0.5rem;
+      .mapboxgl-popup-close-button {
+        padding: 0.4rem 0.6rem;
+        top: 0;
         font-size: 1.2rem;
-        padding: 0;
-        height: 1.2rem;
-        width: 1.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        font-weight: bold;
         color: $primary-color;
-      }
 
-      .leaflet-popup-close-button,
-      .ol-popup-detail-link {
-        position: relative;
-        pointer-events: auto;
-        float: right;
-        margin-left: 0.5rem;
+        &:hover {
+          background: none;
+        }
       }
     }
   }

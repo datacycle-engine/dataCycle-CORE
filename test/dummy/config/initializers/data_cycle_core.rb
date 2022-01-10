@@ -12,6 +12,7 @@ DataCycleCore.setup do |config|
 
   config.external_sources_path = Rails.root.join('..', '..', 'config', 'external_sources').freeze
   config.external_systems_path = Rails.root.join('..', '..', 'config', 'external_systems').freeze
+  config.partial_update_improved = true
 
   if Rails.env.test?
     config.default_template_paths = [

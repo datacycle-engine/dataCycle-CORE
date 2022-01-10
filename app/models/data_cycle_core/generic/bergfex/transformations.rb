@@ -52,6 +52,7 @@ module DataCycleCore
             'addons' => 'addons_old'
           })
           .>> t(:add_field, 'name', ->(s) { s.dig('name_old', 'text') || s.dig('name_old', '#cdata-section') })
+          .>> t(:add_field, 'description', ->(s) { s.dig('remarks', '#cdata-section') })
           .>> t(:add_links, 'bergfex_status_icon', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('bergfexStatusIcon', 'id').present? ? ["Bergfex - Status - Icon -#{s&.dig('bergfexStatusIcon', 'id')}"] : [] })
           .>> t(:add_field, 'latitude', ->(s) { s.dig('lat', 'text')&.to_f })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('lng', 'text')&.to_f })
@@ -111,6 +112,7 @@ module DataCycleCore
             'addons' => 'addons_old'
           })
           .>> t(:add_field, 'name', ->(s) { s.dig('name_old', 'text') || s.dig('name_old', '#cdata-section') })
+          .>> t(:add_field, 'description', ->(s) { s.dig('remarks', '#cdata-section') })
           .>> t(:add_links, 'bergfex_status_icon', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('bergfexStatusIcon', 'id').present? ? ["Bergfex - Status - Icon -#{s&.dig('bergfexStatusIcon', 'id')}"] : [] })
           .>> t(:add_field, 'latitude', ->(s) { s.dig('lat', 'text')&.to_f })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('lng', 'text')&.to_f })

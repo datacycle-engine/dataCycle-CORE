@@ -61,6 +61,8 @@ module DataCycleCore
                   }]
                 }.with_indifferent_access]
               }]
+            else
+              data_hash['opening_hours_description'] = []
             end
           end
           data_hash

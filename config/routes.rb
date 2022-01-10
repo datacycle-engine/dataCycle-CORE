@@ -51,6 +51,7 @@ DataCycleCore::Engine.routes.draw do
     resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things) do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
+      post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_system_id/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
@@ -331,6 +332,24 @@ DataCycleCore::Engine.routes.draw do
                 match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
               end
             end
+          end
+        end
+      end
+    end
+
+    defaults format: 'application/vnd.geo+json' do
+      namespace :geojson do
+        namespace :v1 do
+          scope path: '(/:api_subversion)' do
+            match 'things', to: 'contents#index', as: 'contents_index', via: [:get, :post]
+            match 'things/:id', to: 'contents#show', as: 'content_show', via: [:get, :post]
+
+            match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
+            match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+
+            # TODO: how to work with watch_lists?
+            match 'collections', to: 'watch_lists#index', via: [:get, :post]
+            match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
           end
         end
       end

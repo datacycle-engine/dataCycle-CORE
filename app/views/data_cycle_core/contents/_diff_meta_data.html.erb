@@ -3,8 +3,5 @@
     <%= content.translated_template_name(active_ui_locale) %> (<%= I18n.locale %>)
   </span>
 
-  <% date = content.history? ? content.history_valid&.first : content.updated_at %>
-  <%= t('history.updated_at_html', locale: active_ui_locale, language: content.last_updated_locale, date: l(date, locale: active_ui_locale, format: :history)) if date.present? %>
-
-  <%= history_by_link(content.updated_by_user) %>
+  <%= history_version_html(content) %>
 </span>

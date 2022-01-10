@@ -15,7 +15,7 @@ x-app-env: &default-app-env
   RAILS_ENV: ${RAILS_ENV:-production}
 
 x-app: &default-app
-  image: git.pixelpoint.biz:5050/data-cycle/${GITLAB_CI_PROJECT_NAME}:latest
+  image: $CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG
   env_file:
     - ${PWD}/.env.production
   volumes:
@@ -23,8 +23,8 @@ x-app: &default-app
     - app-docker:/app/docker
     - app-public-assets:/app${CORE_DUMMY_PREFIX:-}/public/assets
     - ${BASE_LOG_VOLUME_PATH:-~/data_cycle/log}/app:/app${CORE_DUMMY_PREFIX:-}/log
-    - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/app:/app${CORE_DUMMY_PREFIX:-}/public/uploads
-    - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/import:/app${CORE_DUMMY_PREFIX:-}/private/import
+    - ${BASE_DC_PUBLIC_UPLOADS_VOLUME_PATH:-~/data_cycle/dcdata}/app:/app${CORE_DUMMY_PREFIX:-}/public/uploads
+    - ${BASE_DC_IMPORT_VOLUME_PATH:-~/data_cycle/dcdata}/import:/app${CORE_DUMMY_PREFIX:-}/private/import
     - ${BASE_HISTORY_VOLUME_PATH:-~/data_cycle/history}:/home/ruby/hist
     - ${BASE_BACKUP_VOLUME_PATH:-~/data_cycle/backups}:/app${CORE_DUMMY_PREFIX:-}/db/backups
     - $SSH_AUTH_SOCK:/ssh-agent
@@ -47,8 +47,10 @@ services:
     <<: *default-app
     environment:
       <<: *default-app-env
+    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/entrypoint.sh
     command: ["/bin/bash"]
     restart: 'no'
+    profiles: ['migrate']
   job_worker_default:
     <<: *default-app
     environment:

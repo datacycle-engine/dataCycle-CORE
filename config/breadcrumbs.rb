@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 # Root crumb
-crumb :root do
+crumb :root do |stored_filter|
   link to_html_string("<i class='fa fa-folder-open-o' aria-hidden='true'></i> #{DataCycleCore.breadcrumb_root_name}"), root_path, authorized: can?(:index, :backend)
+
+  link stored_filter.name, '#', authorized: false if stored_filter.present? && stored_filter.name.present?
 end
 
 crumb :exception do |type|

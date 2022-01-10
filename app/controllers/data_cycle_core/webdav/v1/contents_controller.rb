@@ -7,7 +7,7 @@ module DataCycleCore
         PUMA_MAX_TIMEOUT = 600
 
         after_action :log_activity, except: [:options]
-        skip_before_action :authenticate, only: [:options]
+        skip_before_action :authenticate_user!, only: [:options]
 
         def index
           @props = parse_request(request.body)

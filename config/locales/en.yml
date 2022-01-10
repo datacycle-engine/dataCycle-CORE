@@ -212,6 +212,8 @@ en:
     all: All
     import: Imported
     export: Exports
+    internal: internal
+    external: external
     duplicate: Duplicates
     auto_translation_submit: Automatic translation started
     source_language: Select source language
@@ -463,7 +465,12 @@ en:
     look_at_version: Compare current version with this version
     restored: Recovered on %{date}
     created: Content created
-    active_version: Current Version
+    restore:
+      version:
+        title: restore this version
+        confirmation_html: Restore version <i>%{history_version_html}</i> as current version?<br><br>The current version will be overwritten.
+        restored_version_name: restored version from %{date}.
+        restored: The version from %{date} was successfully restored.
 
   data_link_mailer:
     content_download: Download content
@@ -563,6 +570,7 @@ en:
     validity_period: filter by validity period...
     date_range: filter by date...
     boolean: filter by Boolean criteria...
+    id: filter by id ...
     advanced_attributes: filter by attributes...
     geo_radius: filter by radius...
     geo_within_classification: filter by geographical location...
@@ -810,6 +818,7 @@ en:
       no_watchlist: No content collection was chosen
       content_duplication_invalid: The duplicate could not be created!
       bulk_update_error: An error occurred while saving, please try again
+      definition_mismatch: the versions cannot be compared, because the data-definitions of these versions don't match
     success:
       created: '%{data} was successfully created.'
       ready_to_send: '%{data} has been successfully created and can now be sent.'

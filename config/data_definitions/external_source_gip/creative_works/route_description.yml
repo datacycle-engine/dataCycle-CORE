@@ -127,9 +127,10 @@
         :advanced_search: true
       :live_status:
         :label: Live Status
-        :type: string
+        :type: boolean
         :storage_location: value
-        :search: true
+        :advanced_search: true
+        :default_value: 'true'
       :image:
         :label: Bilder
         :type: linked

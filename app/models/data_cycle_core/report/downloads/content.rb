@@ -14,7 +14,7 @@ module DataCycleCore
                 "thing_translations"."name", 
                 to_char("activities"."created_at", :date_time_format) as date_created,
                 "users"."email",
-                concat("users"."family_name", "users"."given_name") as user_display_name
+                concat("users"."given_name", ' ', "users"."family_name") as user_display_name
             FROM things
             JOIN thing_translations ON things.id = thing_translations.thing_id
             JOIN activities ON things.id = activities.activitiable_id 

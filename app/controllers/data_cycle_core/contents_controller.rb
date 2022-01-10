@@ -259,6 +259,33 @@ module DataCycleCore
       I18n.with_locale(@diff_source.first_available_locale) do
         @data_schema = @content.get_data_hash
         @diff_schema = @diff_source.diff(@data_schema)
+
+        render
+      rescue StandardError
+        redirect_back(fallback_location: root_path, alert: (I18n.t :definition_mismatch, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return
+      end
+    end
+
+    def restore_history_version
+      @content = DataCycleCore::Thing.find(params[:id])
+      @history = @content.histories.find(params[:history_id]) if params[:history_id].present?
+
+      redirect_back(fallback_location: root_path) && return if @history.nil? || @content.nil?
+
+      I18n.with_locale(@history.first_available_locale) do
+        history_hash = @history.get_data_hash
+        history_date = (@history.try(:history_valid)&.first || @history.try(:updated_at))&.in_time_zone
+        history_date_string = I18n.l(history_date, locale: helpers.active_ui_locale, format: :history) if history_date.present?
+
+        if @content.set_data_hash(data_hash: history_hash, version_name: I18n.t(:restored_version_name, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string))
+          flash[:success] = I18n.t(:restored, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string)
+        else
+          flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
+        end
+
+        redirect_to thing_path(@content, watch_list_params)
+      rescue StandardError
+        redirect_back(fallback_location: root_path, alert: (I18n.t :definition_mismatch, scope: [:controllers, :error], locale: helpers.active_ui_locale))
       end
     end
 

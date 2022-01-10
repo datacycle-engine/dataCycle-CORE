@@ -221,6 +221,8 @@ de:
     all: Alle
     import: Importiert
     export: Exportiert
+    internal: intern
+    external: extern
     duplicate: Duplikate
     auto_translation_submit: Automatische Übersetzung gestartet
     source_language: 'Quellsprache wählen'
@@ -463,7 +465,7 @@ de:
         downloads_by_month: Anzahl der Downloads (Dieses Monat)
         date_created: Heruntergeladen am
         email: E-Mail
-        user_display_name: Benutzer
+        user_display_name: Account
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -475,6 +477,12 @@ de:
     look_at_version: Aktuellen Version mit dieser Version vergleichen
     restored: Wiederhergestellt am %{date}
     created: Inhalt erstellt
+    restore:
+      version:
+        title: Diese Version wiederherstellen
+        confirmation_html: Die Version <i>%{history_version_html}</i> als aktuelle Version wiederherstellen?<br><br>Die aktuelle Version wird dadurch überschrieben.
+        restored_version_name: Version vom %{date} wiederhergestellt.
+        restored: Die Version vom %{date} wurde erfolgreich wiederhergestellt.
 
   data_link_mailer:
     content_download: Inhalt herunterladen
@@ -586,6 +594,7 @@ de:
     geo_within_classification: nach geografischer Lage filtern...
     geo_filter: nach geografischer Lage filtern...
     relation_filter: auf Basis von verknüpften Inhalten filtern ...
+    id: nach IDs filtern ...
     union_filter_ids: mehrere Sammlungen kombinieren...
     related_to: nach verknüpften Inhalten filtern ...
     in_schedule: nach Termin filtern...
@@ -822,6 +831,7 @@ de:
       no_watchlist: Es wurde keine Inhaltssammlung gewählt
       content_duplication_invalid: 'Das Duplikat konnte nicht erstellt werden!'
       bulk_update_error: Beim Speichern ist ein Fehler aufgetreten, bitte versuchen Sie es erneut
+      definition_mismatch: Die Versionen können nicht verglichen werden, weil die Datendefinitionen nicht überein stimmen
     success:
       created: '%{data} wurde erfolgreich erstellt.'
       ready_to_send: '%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden.'
