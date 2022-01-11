@@ -21,7 +21,11 @@ module DataCycleCore
                   xml.point outdoor_active_point(content.location) if content.respond_to?(:location) && content.location.present?
                   outdoor_active_contact(content, xml)
                   outdoor_active_descriptons(content, xml)
-                  outdoor_active_images(content, xml)
+                  parent_data = {
+                    'source' => Functions.outdoor_active_system_source_keys(content, external_system).first&.name,
+                    'name' => content.name
+                  }
+                  outdoor_active_images(content, xml, parent_data)
                 end
               end
 
@@ -76,7 +80,7 @@ module DataCycleCore
           xml
         end
 
-        def self.outdoor_active_images(content, xml)
+        def self.outdoor_active_images(content, xml, parent_data)
           # TODO: missing:
           # point
 
@@ -87,8 +91,8 @@ module DataCycleCore
               next if content.try(image_attribute).blank?
               content.try(image_attribute).each do |image|
                 xml.image('id' => image.id, 'src' => image.content_url) do
-                  xml.source @source
-                  xml.author image.try(:author)&.first&.name if image.try(:author).present?
+                  xml.source image.copyright_holder.first&.name || parent_data.dig('source')
+                  xml.author image.try(:author)&.first&.name || parent_data.dig('name')
                   image.translations.each do |translation|
                     I18n.with_locale(translation.locale) do
                       xml.description('lang' => translation.locale) do

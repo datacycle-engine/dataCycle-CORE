@@ -221,6 +221,8 @@ de:
     all: Alle
     import: Importiert
     export: Exportiert
+    internal: intern
+    external: extern
     duplicate: Duplikate
     auto_translation_submit: Automatische Übersetzung gestartet
     source_language: 'Quellsprache wählen'
@@ -603,6 +605,7 @@ de:
     geo_within_classification: nach geografischer Lage filtern...
     geo_filter: nach geografischer Lage filtern...
     relation_filter: auf Basis von verknüpften Inhalten filtern ...
+    id: nach IDs filtern ...
     union_filter_ids: mehrere Sammlungen kombinieren...
     related_to: nach verknüpften Inhalten filtern ...
     in_schedule: nach Termin filtern...
@@ -1092,6 +1095,9 @@ de:
     user_details: Benutzerdetails
     user_links: Benutzerlinks
     classifications: 'Klassifizierungen'
+    classifications_adminitration:
+      classification:
+        submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
     show_contents_for_tree_label: 'Inhalte in %{data} auflisten'

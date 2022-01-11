@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
+FIXNUM_MAX ||= (2**(0.size * 8 - 2) - 1)
 
 namespace :data_cycle_core do
   namespace :import do
