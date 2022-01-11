@@ -1,8 +1,5 @@
 ########################################################################
 ######################### Development / Staging - Systems
-variables:
-  DEVELOPMENT_URL: ''
-
 .development_ci_config: &development_ci
   only:
     - develop

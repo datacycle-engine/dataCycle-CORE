@@ -8,7 +8,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
-            transformation: DataCycleCore::Generic::ReisenFuerAlle::Transformations.to_rating(utility_object.external_source.id),
+            transformation: DataCycleCore::Generic::ReisenFuerAlle::Transformations.to_rating(utility_object.external_source.id, I18n.locale.to_s),
             default: { template: 'Zertifizierung' },
             config: config
           )
