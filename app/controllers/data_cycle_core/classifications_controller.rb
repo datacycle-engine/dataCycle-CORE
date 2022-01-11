@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class ClassificationsController < ApplicationController
-    FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
+    FIXNUM_MAX ||= (2**(0.size * 8 - 2) - 1)
 
     DEFAULT_CLASSIFICATION_SEARCH_LIMIT = 128
 

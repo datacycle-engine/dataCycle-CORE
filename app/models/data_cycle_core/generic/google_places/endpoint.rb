@@ -5,7 +5,7 @@ module DataCycleCore
     module GooglePlaces
       class Endpoint
         SCALE = 112_000.0 # ~ km/1° longitude
-        FIXNUM_MAX = (2**(0.size * 4 - 2) - 1)
+        FIXNUM_MAX ||= (2**(0.size * 4 - 2) - 1)
 
         attr_reader :border, :bbox, :factory
         def initialize(host: nil, end_point: nil, key: nil, bbox: nil, **options)
