@@ -36,7 +36,7 @@ module DataCycleCore
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               content
                 .select { |item| serializable?(item) }
-                .map { |item| serialize(item, language, options.dig(:version), options.dig(:transformation)) }
+                .map { |item| serialize(item, language, (options.dig(:version) || options.dig(:versions, item.id)), options.dig(:transformation)) }
             )
           end
 
@@ -52,23 +52,38 @@ module DataCycleCore
             mime_type = nil
             remote = false
             if DataCycleCore::Feature::ImageProxy.enabled? && DataCycleCore::Feature::ImageProxy.supported_content_type?(content)
-              data_url = DataCycleCore::Feature::ImageProxy.process_image(
-                content: content,
-                variant: 'dynamic',
-                image_processing: {
-                  'resize_type' => 'fit',
-                  'width' => 1150,
-                  'height' => 1370,
-                  'enlarge' => 0,
-                  'gravity' => 'ce',
-                  'format' => 'png'
-                }
-              )
+
+              proxy_format = transformation&.dig('format')
+
+              case version
+              when 'thumb_preview'
+                proxy_variant = 'thumb'
+              when 'original'
+                proxy_variant = 'original'
+                proxy_variant = 'default' if proxy_format.present?
+              else
+                proxy_variant = 'web'
+              end
+
+              if proxy_format.present?
+                processing_instructions = DataCycleCore::Feature::ImageProxy.config.dig(proxy_variant, 'processing')
+                processing_instructions['format'] = proxy_format
+
+                data_url = DataCycleCore::Feature::ImageProxy.process_image(
+                  content: content,
+                  variant: 'dynamic',
+                  image_processing: processing_instructions
+                )
+              else
+                data_url = DataCycleCore::Feature::ImageProxy.process_image(
+                  content: content,
+                  variant: proxy_variant
+                )
+              end
 
               uri = URI.parse(data_url)
               # used for local development and docker env.
               uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && uri.hostname == 'localhost'
-
 
               conn = Faraday.new do |con|
                 con.use FaradayMiddleware::FollowRedirects, limit: 5
@@ -80,27 +95,25 @@ module DataCycleCore
                 mime_type = response.headers&.dig('content-type')
                 remote = true
               end
-            else
-              if remote?(content)
-                conn = Faraday.new do |f|
-                  f.request :retry, {
-                    max: 2
-                  }
-                  f.request :options, {
-                    timeout: 5
-                  }
-                  f.response :follow_redirects
-                end
-                response = conn.get content.content_url
-                if response.success?
-                  data = response.body
-                  mime_type = response.headers&.dig('content-type')
-                  remote = true
-                end
-              else
-                data = create_asset(content, version, transformation)
-                mime_type = mime_type(serialized_content: data, content: content)
+            elsif remote?(content)
+              conn = Faraday.new do |f|
+                f.request :retry, {
+                  max: 2
+                }
+                f.request :options, {
+                  timeout: 5
+                }
+                f.response :follow_redirects
               end
+              response = conn.get content.content_url
+              if response.success?
+                data = response.body
+                mime_type = response.headers&.dig('content-type')
+                remote = true
+              end
+            else
+              data = create_asset(content, version, transformation)
+              mime_type = mime_type(serialized_content: data, content: content)
             end
             DataCycleCore::Serialize::SerializedData::Content.new(
               data: data,
