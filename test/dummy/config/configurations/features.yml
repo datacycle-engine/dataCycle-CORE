@@ -14,23 +14,16 @@
           :asset: true
           :gpx: true
           :json: true
-          :indesign: false
           :xml: true
       :watch_list:
         :enabled: true
         :serializers:
-          :asset: false
-          :gpx: false
           :json: true
-          :indesign: false
           :xml: true
       :stored_filter:
         :enabled: true
         :serializers:
-          :asset: false
-          :gpx: false
           :json: true
-          :indesign: false
           :xml: true
     :archive:
       :zip:

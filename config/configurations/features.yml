@@ -38,19 +38,19 @@
           # used from downloader.download.content.thing.serializers. can be overruled here.
           # :serializers:
           :mandatory_serializers:
-            :license: true
+            :license: false
         :watch_list:
           :enabled: false
           # used from downloader.download.content.thing.serializers. can be overruled here.
           # :serializers:
           :mandatory_serializers:
-            :license: true
+            :license: false
         :stored_filter:
           :enabled: false
           # used from downloader.download.content.thing.serializers. can be overruled here.
           # :serializers:
           :mandatory_serializers:
-            :license: true
+            :license: false
       :indesign:
         :enabled: false
         :thing:
