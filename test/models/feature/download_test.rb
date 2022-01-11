@@ -205,7 +205,7 @@ module DataCycleCore
       assert_equal(['json', 'xml'], DataCycleCore::Feature::Download.enabled_serializers_for_download(@content, [:archive, :zip]).keys.sort)
 
       # check mandatory serializers
-      assert_equal(['license'], DataCycleCore::Feature::Download.mandatory_serializers_for_download(@content, [:archive, :zip]).keys.sort)
+      assert_equal([], DataCycleCore::Feature::Download.mandatory_serializers_for_download(@content, [:archive, :zip]).keys.sort)
 
       assert_not(DataCycleCore::Feature::Download.allowed?(@watch_list))
       assert_not(DataCycleCore::Feature::Download.allowed?(@stored_filter))

@@ -21,6 +21,7 @@ module DataCycleCore
                 @content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash, user: @current_user)
                 @serialize_config = DataCycleCore.features[:serialize].deep_dup
                 @download_config = DataCycleCore.features[:download].deep_dup
+                @image_proxy_config = DataCycleCore.features[:image_proxy].deep_dup
               end
 
               setup do
@@ -42,6 +43,7 @@ module DataCycleCore
               test 'enable asset serializer and render asset for image' do
                 DataCycleCore.features[:serialize][:serializers][:asset] = true
                 DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:asset] = true
+                DataCycleCore.features[:image_proxy][:enabled] = false
 
                 get download_thing_path(@content), params: { serialize_format: 'asset' }, headers: {
                   referer: thing_path(@content)
@@ -106,6 +108,7 @@ module DataCycleCore
               test 'enable asset serializer and test downloads controller' do
                 DataCycleCore.features[:serialize][:serializers][:asset] = true
                 DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:asset] = true
+                DataCycleCore.features[:image_proxy][:enabled] = false
 
                 get "/downloads/things/#{@content.id}", params: { serialize_format: 'asset' }, headers: {
                   referer: thing_path(@content)
@@ -140,8 +143,10 @@ module DataCycleCore
               def teardown
                 DataCycleCore.features[:serialize][:serializers] = @serialize_config[:serializers].deep_dup
                 DataCycleCore.features[:download][:downloader] = @download_config[:downloader].deep_dup
+                DataCycleCore.features[:image_proxy][:enabled] = @image_proxy_config[:enabled]
                 DataCycleCore::Feature::Serialize.reload
                 DataCycleCore::Feature::Download.reload
+                DataCycleCore::Feature::ImageProxy.reload
               end
               after(:all) do
                 DataCycleCore::ImageUploader.enable_processing = false
