@@ -10,7 +10,7 @@ module DataCycleCore
       download_generic(content: content, serializer: serializer, languages: languages, version: version, serialize_method: serializer_method_for_content(content), transformation: transformation)
     end
 
-    def download_collection(object, items, serialize_format, languages, _version = nil)
+    def download_collection(object, items, serialize_format, languages, versions = nil)
       languages ||= [I18n.locale]
       download_dir = Rails.root.join('public', 'downloads')
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
@@ -26,11 +26,7 @@ module DataCycleCore
             serialize_format.each do |format|
               serializer = serializer_for_content(object, [:archive, :zip], format)
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
-              # version? WTF?
-              # see kw media archive
-              # collection = serializer.serialize_thing(items, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
-              # serializer.try(serialize_method, content: content, language: language, options: {version: version, transformation: transformation})
-              collection = serializer.serialize_thing(content: items, language: language)
+              collection = serializer.serialize_thing(content: items, language: language, versions: versions)
               serialized_collections << collection
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
@@ -47,8 +43,6 @@ module DataCycleCore
             DataCycleCore::Feature::Download.mandatory_serializers_for_download(object, [:archive, :zip]).each_key do |format|
               serializer = ('DataCycleCore::Serialize::Serializer::' + format.to_s.classify).constantize
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
-              # version? WTF?
-              # collection = serializer.serialize_thing(items, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
               collection = serializer.serialize_thing(content: items, language: language, serialized_collections: serialized_collections)
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
