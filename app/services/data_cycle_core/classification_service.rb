@@ -47,6 +47,8 @@ module DataCycleCore
       SQL
 
       DataCycleCore::RunTaskJob.set(queue: 'default').perform_later('db:configure:rebuild_ccc_relations')
+    rescue ActiveRecord::NoDatabaseError
+      nil
     end
   end
 end
