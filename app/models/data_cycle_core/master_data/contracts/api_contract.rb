@@ -42,6 +42,7 @@ module DataCycleCore
           optional(:sort).filled(SORTING_VALIDATION)
           optional(:fields).filled(:string)
           optional(:include).filled(:string)
+          optional(:classification_trees) { str? | array? }
         end
 
         WATCHLIST = Dry::Schema.Params do

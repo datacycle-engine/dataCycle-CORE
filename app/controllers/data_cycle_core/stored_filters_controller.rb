@@ -24,7 +24,9 @@ module DataCycleCore
     end
 
     def update
-      if @stored_filter.update(stored_filter_params)
+      cleaned_params = stored_filter_params
+      cleaned_params[:classification_tree_labels] = stored_filter_params[:classification_tree_labels]&.map(&:presence)&.compact
+      if @stored_filter.update(cleaned_params)
         redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: helpers.active_ui_locale))
       else
         redirect_back(fallback_location: root_path, alert: (I18n.t :not_saved, scope: [:controllers, :errors], data: 'Filter', locale: helpers.active_ui_locale))
@@ -123,7 +125,7 @@ module DataCycleCore
     end
 
     def stored_filter_params
-      params.require(:stored_filter).permit(:id, :name, :system, :api, :linked_stored_filter_id, api_users: [])
+      params.require(:stored_filter).permit(:id, :name, :system, :api, :linked_stored_filter_id, classification_tree_labels: [], api_users: [])
     end
 
     def select_search_params

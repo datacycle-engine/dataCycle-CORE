@@ -7,6 +7,8 @@ default_options = {
   fields: @fields_parameters,
   languages: @language,
   field_filter: @field_filter,
+  classification_trees: @classification_trees_parameters,
+  classification_trees_filter: @classification_trees_filter,
   transformation_mapping: content.attribute_transformation_mapping('v4')
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
