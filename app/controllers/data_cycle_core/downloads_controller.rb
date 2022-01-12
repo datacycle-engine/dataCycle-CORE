@@ -6,6 +6,7 @@ module DataCycleCore
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
     before_action :authenticate_user! # from devise (authenticate)
+    after_action :reset_watch_list, only: :watch_list_collections, if: -> { params[:reset].present? }
 
     def things
       @object = DataCycleCore::Thing.find_by(id: permitted_download_params[:id])
@@ -76,6 +77,10 @@ module DataCycleCore
     end
 
     private
+
+    def reset_watch_list
+      @watch_list.watch_list_data_hashes.delete_all
+    end
 
     def permitted_download_params
       params.permit(:id, :serialize_format, :version, :language)
