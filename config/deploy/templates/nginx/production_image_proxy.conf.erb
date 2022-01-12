@@ -188,7 +188,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $http_host;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$signature/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/;
+        proxy_pass https://self_<%= fetch(:application) %>_<%= fetch(:rails_env) %>/asset/$thing/$signature/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
     }
 
     location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
