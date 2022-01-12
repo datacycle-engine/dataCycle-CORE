@@ -143,7 +143,7 @@ module DataCycleCore
               def teardown
                 DataCycleCore.features[:serialize][:serializers] = @serialize_config[:serializers].deep_dup
                 DataCycleCore.features[:download][:downloader] = @download_config[:downloader].deep_dup
-                DataCycleCore.features[:image_proxy][:enabled] = @image_proxy_config[:enabled]
+                DataCycleCore.features[:image_proxy][:enabled] = @image_proxy_config[:enabled].deep_dup
                 DataCycleCore::Feature::Serialize.reload
                 DataCycleCore::Feature::Download.reload
                 DataCycleCore::Feature::ImageProxy.reload
