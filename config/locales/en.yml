@@ -1076,6 +1076,9 @@ en:
     user_details: User details
     user_links: User links
     classifications: Classifications
+    classifications_adminitration:
+      classification:
+        submit_loading_message: Saving may take several minutes, please be patient
     this_classification: This classification
     this_classification_tree: This classification tree
     show_contents_for_tree_label: List contents in %{data}

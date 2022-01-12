@@ -1085,6 +1085,9 @@ de:
     user_details: Benutzerdetails
     user_links: Benutzerlinks
     classifications: 'Klassifizierungen'
+    classifications_adminitration:
+      classification:
+        submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
     show_contents_for_tree_label: 'Inhalte in %{data} auflisten'

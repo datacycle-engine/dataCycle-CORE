@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-DATABASE_DUMP_EXCLUDES = {
+DATABASE_DUMP_EXCLUDES ||= {
   'review' => [
     'delayed_jobs',
     'subscriptions',
