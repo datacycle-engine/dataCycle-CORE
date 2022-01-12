@@ -326,9 +326,9 @@ GEM
     google-cloud-vision-v1p3beta1 (0.5.3)
       gapic-common (>= 0.7, < 2.a)
       google-cloud-errors (~> 1.0)
-    google-protobuf (3.18.0)
-    google-protobuf (3.18.0-universal-darwin)
-    google-protobuf (3.18.0-x86_64-linux)
+    google-protobuf (3.19.3)
+    google-protobuf (3.19.3-x86_64-darwin)
+    google-protobuf (3.19.3-x86_64-linux)
     googleapis-common-protos (1.3.12)
       google-protobuf (~> 3.14)
       googleapis-common-protos-types (~> 1.2)
@@ -664,4 +664,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.2.29
+   2.3.4
