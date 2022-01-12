@@ -91,7 +91,6 @@ module DataCycleCore
 
           json_data = JSON.parse(response.body)
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
-          assert_equal(1, poi.dig('image')&.size)
           assert_equal(1, poi.dig('dc:classification')&.size)
 
           # add whitelist to stored_filter
@@ -119,6 +118,32 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
           assert_equal(1, poi.dig('dc:classification')&.size)
+        end
+
+        test '/api/v4/endpoints/:uuid with a valid fulltext stored_filter and restrict for classification_trees in linked data' do
+          tree1 = Array.wrap(DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltspools').id)
+          tree2 = Array.wrap(DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id)
+          poi_name = 'Test-POI'
+          fulltext_filter = add_fulltext_filter(poi_name)
+
+          get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
+          json_data = JSON.parse(response.body)
+          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          assert_equal(1, poi.dig('image', 0, 'dc:classification')&.size)
+
+          fulltext_filter.classification_tree_labels = tree1
+          fulltext_filter.save
+          get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
+          json_data = JSON.parse(response.body)
+          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          assert_equal(1, poi.dig('image', 0, 'dc:classification')&.size)
+
+          fulltext_filter.classification_tree_labels = tree2
+          fulltext_filter.save
+          get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
+          json_data = JSON.parse(response.body)
+          poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
+          assert_nil(poi.dig('image', 0, 'dc:classification')&.size)
         end
 
         test '/api/v4/endpoints/:uuid with a valid stored_filter and filter for linked' do
