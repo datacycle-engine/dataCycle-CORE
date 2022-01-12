@@ -92,6 +92,10 @@ module DataCycleCore
       self&.role&.rank == rank
     end
 
+    def is_role?(role_name)
+      role&.name == role_name.to_s
+    end
+
     def has_user_group?(group_name)
       user_groups.exists?(name: group_name)
     end
@@ -145,6 +149,14 @@ module DataCycleCore
       )
     end
 
+    def add_ability(condition, *action, definition)
+      return unless condition.include?(self)
+
+      binding.pry
+
+      ability.send(action.shift, action, definition.model_class)
+    end
+
     private
 
     def set_default_role
@@ -152,7 +164,9 @@ module DataCycleCore
     end
 
     def ability
-      @ability ||= DataCycleCore::Ability.new(self)
+      return @ability if defined? @ability
+
+      @ability = DataCycleCore::Ability.new(self)
     end
 
     def execute_update_webhooks
