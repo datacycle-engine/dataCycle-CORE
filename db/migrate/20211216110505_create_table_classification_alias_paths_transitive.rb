@@ -451,6 +451,9 @@ class CreateTableClassificationAliasPathsTransitive < ActiveRecord::Migration[5.
 
       CREATE INDEX IF NOT EXISTS index_classification_contents_on_classification_id ON classification_contents (classification_id, content_data_id);
     SQL
+
+    execute('VACUUM classification_alias_paths_transitive;')
+    execute('ANALYZE classification_alias_paths_transitive;')
   end
 
   def down
