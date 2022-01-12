@@ -1084,7 +1084,8 @@ CREATE TABLE public.stored_filters (
     updated_at timestamp without time zone NOT NULL,
     api_users text[],
     linked_stored_filter_id uuid,
-    sort_parameters jsonb
+    sort_parameters jsonb,
+    classification_tree_labels uuid[]
 );
 
 
@@ -2959,6 +2960,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211123081845'),
 ('20211130111352'),
 ('20211214135559'),
-('20220105142232');
+('20220105142232'),
+('20220111132413');
 
 

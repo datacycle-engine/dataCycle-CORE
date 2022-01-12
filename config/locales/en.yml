@@ -1060,7 +1060,7 @@ en:
         api: Retrievable via API
         api_users: Users permitted for API
         linked_stored_filter_id: Filter for linked content
-        classification_tree_labels: Allowed classification trees
+        classification_tree_labels: Limit to classification trees
         name: Name
       data_cycle_core/asset:
         name: Name
