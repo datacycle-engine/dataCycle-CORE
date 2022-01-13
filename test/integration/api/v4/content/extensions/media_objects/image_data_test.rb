@@ -11,12 +11,12 @@ module DataCycleCore
             class ImageDataTest < DataCycleCore::V4::Base
               before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('full_image')
+                @image_proxy_config = DataCycleCore.features[:image_proxy].deep_dup
               end
 
               test 'api_v4_thing_path validate full image with default params and enabled image proxy' do
-                is_enabled = DataCycleCore::Feature::ImageProxy.enabled?
                 DataCycleCore.features[:image_proxy][:enabled] = true
-                DataCycleCore::Feature::ImageProxy.instance_variable_set(:@enabled, true)
+                DataCycleCore::Feature::ImageProxy.reload
                 assert DataCycleCore::Feature::ImageProxy.enabled?
 
                 assert_full_thing_datahash(@content)
@@ -127,15 +127,11 @@ module DataCycleCore
 
                 assert_equal([], required_attributes)
                 assert_equal({}, json_validate)
-
-                DataCycleCore.features[:image_proxy][:enabled] = is_enabled
-                DataCycleCore::Feature::ImageProxy.instance_variable_set(:@enabled, is_enabled)
               end
 
               test 'api_v4_thing_path validate full image with default params and disabled image proxy' do
-                is_enabled = DataCycleCore::Feature::ImageProxy.enabled?
                 DataCycleCore.features[:image_proxy][:enabled] = false
-                DataCycleCore::Feature::ImageProxy.instance_variable_set(:@enabled, false)
+                DataCycleCore::Feature::ImageProxy.reload
                 assert_not DataCycleCore::Feature::ImageProxy.enabled?
 
                 assert_full_thing_datahash(@content)
@@ -245,9 +241,11 @@ module DataCycleCore
 
                 assert_equal([], required_attributes)
                 assert_equal({}, json_validate)
+              end
 
-                DataCycleCore.features[:image_proxy][:enabled] = is_enabled
-                DataCycleCore::Feature::ImageProxy.instance_variable_set(:@enabled, is_enabled)
+              def teardown
+                DataCycleCore.features[:image_proxy][:enabled] = @image_proxy_config[:enabled].dup
+                DataCycleCore::Feature::ImageProxy.reload
               end
             end
           end

@@ -44,6 +44,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:asset] = true
                 DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:asset] = true
                 DataCycleCore.features[:image_proxy][:enabled] = false
+                DataCycleCore::Feature::ImageProxy.reload
 
                 get download_thing_path(@content), params: { serialize_format: 'asset' }, headers: {
                   referer: thing_path(@content)
@@ -109,6 +110,7 @@ module DataCycleCore
                 DataCycleCore.features[:serialize][:serializers][:asset] = true
                 DataCycleCore.features[:download][:downloader][:content][:thing][:serializers][:asset] = true
                 DataCycleCore.features[:image_proxy][:enabled] = false
+                DataCycleCore::Feature::ImageProxy.reload
 
                 get "/downloads/things/#{@content.id}", params: { serialize_format: 'asset' }, headers: {
                   referer: thing_path(@content)

@@ -7,6 +7,7 @@ module DataCycleCore
     include ActiveJob::TestHelper
 
     before(:all) do
+      @image_proxy_config = DataCycleCore.features[:image_proxy].deep_dup
       DataCycleCore::ImageUploader.enable_processing = true
     end
 
@@ -22,9 +23,8 @@ module DataCycleCore
     end
 
     test 'image proxy enabled' do
-      is_enabled = DataCycleCore::Feature::ImageProxy.enabled?
       DataCycleCore.features[:image_proxy][:enabled] = true
-      DataCycleCore::Feature::ImageProxy.instance_variable_set(:@enabled, true)
+      DataCycleCore::Feature::ImageProxy.reload
       assert DataCycleCore::Feature::ImageProxy.enabled?
 
       image = upload_image 'test_rgb.jpg'
@@ -35,16 +35,11 @@ module DataCycleCore
       # unknown variant or variant with incorrect configuration must return nil
       assert_nil(DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: 'dynamic'))
       assert_nil(DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: 'unkown'))
-
-      DataCycleCore.features[:image_proxy][:enabled] = is_enabled
-      DataCycleCore::Feature::ImageProxy.instance_variable_set(:@enabled, is_enabled)
     end
 
     test 'image proxy disabled' do
-      is_enabled = DataCycleCore::Feature::ImageProxy.enabled?
       DataCycleCore.features[:image_proxy][:enabled] = false
-      DataCycleCore::Feature::ImageProxy.instance_variable_set(:@enabled, false)
-
+      DataCycleCore::Feature::ImageProxy.reload
       assert_not DataCycleCore::Feature::ImageProxy.enabled?
 
       image = upload_image 'test_rgb.jpg'
@@ -55,15 +50,10 @@ module DataCycleCore
       config.each do |variant, _processing|
         assert_nil DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: variant)
       end
-
-      DataCycleCore.features[:image_proxy][:enabled] = is_enabled
-      DataCycleCore::Feature::ImageProxy.instance_variable_set(:@enabled, is_enabled)
     end
 
     test 'image proxy frontend enabled' do
-      is_frontend_enabled = DataCycleCore::Feature::ImageProxy.frontend_enabled?
       DataCycleCore.features[:image_proxy][:frontend][:enabled] = true
-
       assert DataCycleCore::Feature::ImageProxy.frontend_enabled?
 
       image = upload_image 'test_rgb.jpg'
@@ -71,14 +61,10 @@ module DataCycleCore
 
       assert_equal(content.thumbnail_url, DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: 'thumb'))
       assert_equal(content.asset_web_url, DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: 'web'))
-
-      DataCycleCore.features[:image_proxy][:frontend][:enabled] = is_frontend_enabled
     end
 
     test 'image proxy frontend disabled' do
-      is_frontend_enabled = DataCycleCore::Feature::ImageProxy.frontend_enabled?
       DataCycleCore.features[:image_proxy][:frontend][:enabled] = false
-
       assert_not DataCycleCore::Feature::ImageProxy.frontend_enabled?
 
       image = upload_image 'test_rgb.jpg'
@@ -86,14 +72,11 @@ module DataCycleCore
 
       assert_equal(content.thumbnail_url, content.thumbnail_url)
       assert_equal(content.asset_web_url, content.asset.web.url)
-
-      DataCycleCore.features[:image_proxy][:frontend][:enabled] = is_frontend_enabled
     end
 
     test 'image proxy can handle local and external things' do
-      is_enabled = DataCycleCore::Feature::ImageProxy.enabled?
       DataCycleCore.features[:image_proxy][:enabled] = true
-      DataCycleCore::Feature::ImageProxy.instance_variable_set(:@enabled, true)
+      DataCycleCore::Feature::ImageProxy.reload
       assert DataCycleCore::Feature::ImageProxy.enabled?
 
       # local content
@@ -108,9 +91,6 @@ module DataCycleCore
       assert external_content.external?
 
       validate_proxy_urls(DataCycleCore::Feature::ImageProxy.config, content)
-
-      DataCycleCore.features[:image_proxy][:enabled] = is_enabled
-      DataCycleCore::Feature::ImageProxy.instance_variable_set(:@enabled, is_enabled)
     end
 
     def validate_proxy_urls(config, content)
@@ -138,6 +118,12 @@ module DataCycleCore
         }
       )
       assert allowed_schemes.include?(Addressable::URI.parse(dynamic_url).scheme)
+    end
+
+    def teardown
+      DataCycleCore.features[:image_proxy][:enabled] = @image_proxy_config[:enabled].dup
+      DataCycleCore.features[:image_proxy][:frontend] = @image_proxy_config[:frontend].deep_dup
+      DataCycleCore::Feature::ImageProxy.reload
     end
   end
 end
