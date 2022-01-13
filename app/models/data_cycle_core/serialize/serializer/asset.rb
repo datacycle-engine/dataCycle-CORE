@@ -100,9 +100,6 @@ module DataCycleCore
                 f.request :retry, {
                   max: 2
                 }
-                f.request :options, {
-                  timeout: 5
-                }
                 f.response :follow_redirects
               end
               response = conn.get content.content_url
