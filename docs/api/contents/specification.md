@@ -4,6 +4,7 @@
 {
     "apiSubversion": "String",
     "fields": "String",
+    "classification_trees": "[UUID]",
     "filter": {
         "contentId": {
             "in": "[UUID]",
@@ -264,6 +265,8 @@
 \* = implicit sorting
 
 \*\* = default sorting defined within project
+
+/classification_trees = classification_tree_label_id / experimental
 
 ## Available attributes for "attributeName"
 

@@ -14,8 +14,8 @@ module DataCycleCore
 
       @tree2 = DataCycleCore::ClassificationTreeLabel.create!(name: 'Tree 2')
       @tree3 = DataCycleCore::ClassificationTreeLabel.create!(name: 'Tree 3')
-      @tree2.create_classification_alias('mapped 1')
-      @tree3.create_classification_alias('mapped 2')
+      @tree2.create_classification_alias('parent 1', 'mapped 1')
+      @tree3.create_classification_alias('parent 2', 'mapped 2')
 
       tag1 = DataCycleCore::ClassificationAlias.for_tree(@tags.name).find_by!(internal_name: 'Tag 1')
       mapped1 = DataCycleCore::ClassificationAlias.for_tree(@tree2.name).find_by!(internal_name: 'mapped 1')
@@ -65,6 +65,18 @@ module DataCycleCore
       items = DataCycleCore::Filter::Search.new(:de).classification_alias_ids_with_subtree(fetch_classification_alias_ids(@tags.name, 'Tag 1')).not_classification_alias_ids_with_subtree(fetch_classification_alias_ids(@tree3.name, 'mapped 2'))
 
       assert_equal(0, items.count)
+    end
+
+    test 'filter contents based on mapped (1 hop) parent classifications by id' do
+      items = DataCycleCore::Filter::Search.new(:de).classification_alias_ids_with_subtree(fetch_classification_alias_ids(@tree2.name, 'parent 1'))
+
+      assert_equal(1, items.count)
+    end
+
+    test 'filter contents based on mapped (2 hops) parent classifications by id' do
+      items = DataCycleCore::Filter::Search.new(:de).classification_alias_ids_with_subtree(fetch_classification_alias_ids(@tree3.name, 'parent 2'))
+
+      assert_equal(1, items.count)
     end
 
     private
