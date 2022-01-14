@@ -133,7 +133,7 @@ class DataCycle {
     Rails.enableElement(element);
     if (element.nodeName == 'A') element.classList.remove('disabled');
   }
-  async _checkForConditionRecursive(node, type) {
+  _checkForConditionRecursive(node, type) {
     for (let i = 0; i < node.children.length; i++) {
       this._checkForConditionRecursive(node.children[i], type);
     }
