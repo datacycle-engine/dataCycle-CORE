@@ -20,9 +20,10 @@ module DataCycleCore
       tag1 = DataCycleCore::ClassificationAlias.for_tree(@tags.name).find_by!(internal_name: 'Tag 1')
       mapped1 = DataCycleCore::ClassificationAlias.for_tree(@tree2.name).find_by!(internal_name: 'mapped 1')
       mapped2 = DataCycleCore::ClassificationAlias.for_tree(@tree3.name).find_by!(internal_name: 'mapped 2')
+      parent1 = DataCycleCore::ClassificationAlias.for_tree(@tree2.name).find_by!(internal_name: 'parent 1')
 
       mapped1.update(classification_ids: [mapped1.primary_classification.id, tag1.primary_classification.id])
-      mapped2.update(classification_ids: [mapped2.primary_classification.id, mapped1.primary_classification.id])
+      mapped2.update(classification_ids: [mapped2.primary_classification.id, parent1.primary_classification.id])
     end
 
     after(:all) do
