@@ -199,6 +199,8 @@ module DataCycleCore
 
     mattr_accessor :transitive_classification_paths
     self.transitive_classification_paths = false
+
+    mattr_accessor :permissions_list
   end
 
   def self.setup

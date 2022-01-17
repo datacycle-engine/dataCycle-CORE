@@ -4,12 +4,14 @@ module DataCycleCore
   module Abilities
     module Segments
       class UsersByRole
-        def initialize(role)
-          @role = role
+        attr_accessor :roles
+
+        def initialize(roles)
+          @roles = Array.wrap(roles)
         end
 
         def include?(user)
-          user.is_role?(@role)
+          user.is_role?(*roles)
         end
       end
     end

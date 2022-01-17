@@ -149,14 +149,6 @@ module DataCycleCore
       )
     end
 
-    def add_ability(condition, *action, definition)
-      return unless condition.include?(self)
-
-      binding.pry
-
-      ability.send(action.shift, action, definition.model_class)
-    end
-
     private
 
     def set_default_role
