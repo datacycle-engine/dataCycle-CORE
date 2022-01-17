@@ -50,19 +50,19 @@ class CleanupHelper
 
     def orphaned_embedded(template_array, embedded_name)
       template_string = "'" + template_array.map(&:to_s).join("', '") + "'"
-      where_string = <<-EOS
-      things.id NOT IN (
-        SELECT things.id FROM things
-        INNER JOIN content_contents ON content_contents.content_b_id = things.id
-        INNER JOIN things things2 ON content_contents.content_a_id = things2.id
-        WHERE things.template = false
-        AND things.template_name = '#{embedded_name}'
-        AND things2.template = false
-        AND things2.template_name IN (#{template_string})
-      )
-      EOS
+      where_string = <<-SQL.squish
+        things.id NOT IN (
+          SELECT things.id FROM things
+          INNER JOIN content_contents ON content_contents.content_b_id = things.id
+          INNER JOIN things things2 ON content_contents.content_a_id = things2.id
+          WHERE things.template = false
+          AND things.template_name = '#{embedded_name}'
+          AND things2.template = false
+          AND things2.template_name IN (#{template_string})
+        )
+      SQL
 
-      DataCycleCore::Thing.where(template: false, template_name: embedded_name).where(where_string)
+      DataCycleCore::Thing.where(template: false, template_name: embedded_name).where(ActiveRecord::Base.send(:sanitize_sql_for_conditions, where_string))
     end
   end
 end

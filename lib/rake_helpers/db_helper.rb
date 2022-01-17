@@ -36,7 +36,7 @@ class DbHelper
       backup_dir = Rails.root.join(*(['db', 'backups'] + Array.wrap(suffix)))
 
       if create && !Dir.exist?(backup_dir)
-        puts "Creating #{backup_dir} .."
+        puts "Creating #{backup_dir} .." # rubocop:disable Rails/Output
         FileUtils.mkdir_p(backup_dir)
       end
 
@@ -53,9 +53,9 @@ class DbHelper
 
     def status_relation(data, data_class, linked_class)
       if data.positive?
-        puts "[ERROR] Inconsitency for #{linked_class} in #{data_class} (#{data})"
+        puts "[ERROR] Inconsitency for #{linked_class} in #{data_class} (#{data})" # rubocop:disable Rails/Output
       else
-        puts "[OK]    checked references, #{data_class} -> #{linked_class}"
+        puts "[OK]    checked references, #{data_class} -> #{linked_class}" # rubocop:disable Rails/Output
       end
     end
   end
