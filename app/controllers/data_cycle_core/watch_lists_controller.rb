@@ -306,43 +306,44 @@ module DataCycleCore
       serialize_format = params[:serialize_format]
       languages = params[:language]
       authorize! :download, @watch_list
-      download_watch_list(@watch_list, serialize_format, languages)
+      download_content(@watch_list, serialize_format, languages)
     end
 
     def download_zip
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       authorize! :download_zip, @watch_list
-      serialize_format = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      serialize_formats = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
       languages = params[:language]
 
-      redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_format.blank?
-
-      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('watch_list', serialize_format)
+      redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@watch_list, [:archive, :zip], serialize_formats)
 
       download_items = @watch_list.things.all.to_a.select do |thing|
         can? :download, thing
       end
 
-      download_collection(@watch_list, download_items, serialize_format, languages)
+      download_collection(@watch_list, download_items, serialize_formats, languages)
     end
 
     def download_indesign
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       authorize! :download_indesign, @watch_list
-      serialize_format = [params.dig(:serialize_format)]
+      serialize_formats = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
       languages = params[:language]
 
-      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('watch_list', serialize_format)
+      redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@watch_list, [:archive, :indesign], serialize_formats)
 
-      download_items = [@watch_list]
+      download_items = []
       @watch_list.things.all.to_a.select do |thing|
+        download_items += [thing] if thing.template_name == 'Bild' && can?(:download, thing)
         items = thing.linked_contents.where(template_name: 'Bild').to_a.select do |linked_item|
           can? :download, linked_item
         end
         download_items += items
       end
 
-      download_indesign_collection(@watch_list, download_items, serialize_format, languages, :serialize_watch_list)
+      download_indesign_collection(@watch_list, download_items, serialize_formats, languages, :serialize_watch_list)
     end
 
     def clear

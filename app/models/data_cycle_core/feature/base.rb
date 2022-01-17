@@ -77,6 +77,12 @@ module DataCycleCore
           false
         end
 
+        def reload
+          remove_instance_variable(:@configuration) if instance_variable_defined?(:@configuration)
+          remove_instance_variable(:@enabled) if instance_variable_defined?(:@enabled)
+          self
+        end
+
         def cache_key(content)
           if content.is_a?(DataCycleCore::Schedule)
             [name.underscore, 'configuration', content&.id, {}, []]

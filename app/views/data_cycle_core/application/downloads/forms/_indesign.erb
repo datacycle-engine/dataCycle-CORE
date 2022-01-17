@@ -23,13 +23,10 @@
   <fieldset class="active serialize_formats">
     <legend><%= t('common.download.available_formats', locale: active_ui_locale) %></legend>
     <div class="form-element">
-      <% available_download_serializers(content).each_key.with_index do |serializer_key, i| %>
-        <% next unless serializer_key == 'indesign' %>
-        <div>
-          <%= radio_button_tag "serialize_format", serializer_key, true %>
-          <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: active_ui_locale)}" %>
-        </div>
-      <% end %>
+      <div>
+        <%= radio_button_tag "serialize_format[indesign]", '1', true %>
+        <%= label_tag "serialize_format[indesign]", "#{t('common.download.indesign', locale: active_ui_locale)}" %>
+      </div>
     </div>
   </fieldset>
 

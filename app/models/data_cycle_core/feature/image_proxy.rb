@@ -7,7 +7,7 @@ module DataCycleCore
   module Feature
     class ImageProxy < Base
       class << self
-        SUPPORTED_FRONTEND_CONTENT_TYPES = ['Bild', 'ImageVariant'].freeze
+        SUPPORTED_CONTENT_TYPES = ['Bild', 'ImageVariant'].freeze
         SUPPORTED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'avif', 'webp', 'gif'].freeze
 
         def data_hash_module
@@ -32,7 +32,6 @@ module DataCycleCore
           return unless processable?(content: content, variant: variant)
 
           image_processing = image_processing.presence || config.dig(variant, 'processing')
-
           target_url = [
             Rails.application.config.asset_host,
             'asset',
@@ -67,14 +66,14 @@ module DataCycleCore
           (enabled? && DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:frontend, :enabled))
         end
 
-        def supported_frontend_content_type?(content)
-          (frontend_enabled? && SUPPORTED_FRONTEND_CONTENT_TYPES.include?(content.template_name))
+        def supported_content_type?(content)
+          SUPPORTED_CONTENT_TYPES.include?(content.template_name)
         end
 
         private
 
         def processable?(content:, variant:)
-          enabled? && content.is_a?(DataCycleCore::Thing) && supported_frontend_content_type?(content) && config.include?(variant) && (content&.asset.present? || content.try(:content_url)&.present?)
+          enabled? && content.is_a?(DataCycleCore::Thing) && supported_content_type?(content) && config.include?(variant) && (content&.asset.present? || content.try(:content_url)&.present?)
         end
 
         def image_filename(content, variant, processing)

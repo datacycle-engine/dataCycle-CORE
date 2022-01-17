@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rake_helpers/db_helper'
+require 'rake_helpers/time_helper'
 
 DATABASE_DUMP_EXCLUDES ||= {
   'review' => [
@@ -52,7 +53,7 @@ namespace :data_cycle_core do
       sh cmd
       puts ''
       puts "Dumped to file: #{full_path}"
-      puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
+      puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
       puts ''
     end
 
@@ -163,7 +164,7 @@ namespace :data_cycle_core do
           ActiveRecord::Base.connection.execute('ANALYZE;')
           puts ''
           puts "Restored from file: #{file}"
-          puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
+          puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
           puts ''
         end
       else

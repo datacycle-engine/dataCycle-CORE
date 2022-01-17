@@ -42,8 +42,8 @@ server {
   error_page 500 502 504 /500.html;
   error_page 503 @503;
 
-  access_log /var/log/datacycle/nginx.access.log;
-  error_log /var/log/datacycle/nginx.error.log;
+  #access_log /var/log/datacycle/nginx.access.log;
+  #error_log /var/log/datacycle/nginx.error.log;
 
   gzip on;
   gzip_vary on;
@@ -265,6 +265,8 @@ server {
   location @image_proxy_redirect {
     set $saved_redirect_location $upstream_http_location;
     resolver 127.0.0.11 8.8.8.8 8.8.4.4;
+
+    proxy_ssl_server_name on;
 
     proxy_pass $saved_redirect_location;
     proxy_cache imgproxy_data_cycle;
