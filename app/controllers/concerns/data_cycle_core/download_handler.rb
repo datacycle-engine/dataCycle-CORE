@@ -70,7 +70,7 @@ module DataCycleCore
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
       cleanup_files(download_dir)
 
-      zipfile_name = "#{object.name.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
+      zipfile_name = "#{object.name&.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
       zipfile_fullname = File.join(download_dir, zipfile_name)
 
       unless File.exist?(zipfile_fullname)
@@ -95,22 +95,21 @@ module DataCycleCore
             DataCycleCore::Feature::Download.mandatory_serializers_for_download(object, [:archive, :indesign]).each_key do |format|
               serializer = ('DataCycleCore::Serialize::Serializer::' + format.to_s.classify).constantize
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
-              # version? WTF?
-              # collection = serializer.serialize_thing(items, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
               collection = serializer.serialize_thing(content: items, language: language)
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
               collection.each do |serialized_content|
                 raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
 
                 if format == 'asset'
-                  file_name = "images/#{serialized_content.id}#{serialized_content.file_extension}"
+                  processed_file_name = "#{serialized_content.id}#{serialized_content.file_extension}"
+                  file_name = "images/#{processed_file_name}"
                   next if zipfile.find_entry(file_name)
+                  download_file = create_download_file(serialized_content, processed_file_name)
                 else
                   file_name = serialized_content.file_name_with_extension
                   file_name = "#{file_name.split('.')[0...-1].join('.')}_#{SecureRandom.uuid}#{serialized_content.file_extension}" if zipfile.find_entry(file_name)
+                  download_file = create_download_file(serialized_content, file_name)
                 end
-
-                download_file = create_download_file(serialized_content, file_name)
                 zipfile.add(file_name, download_file)
               end
             end
