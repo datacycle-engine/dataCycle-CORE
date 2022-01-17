@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rake_helpers/db_helper'
+require 'rake_helpers/time_helper'
 
 namespace :data_cycle_core do
   namespace :mongo do
@@ -68,7 +69,7 @@ namespace :data_cycle_core do
       sh cmd
       puts ''
       puts "Dumped to file: #{file_name}"
-      puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
+      puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
       puts ''
     end
 
@@ -91,7 +92,7 @@ namespace :data_cycle_core do
       puts "DB source: #{origin_db_name}"
       puts "DB target: #{db_name}"
       puts "reloaded: #{dir}/#{file_name}"
-      puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
+      puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
       puts ''
     end
 
