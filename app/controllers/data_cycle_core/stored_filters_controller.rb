@@ -100,23 +100,23 @@ module DataCycleCore
       serialize_format = params[:serialize_format]
       languages = params[:language]
       authorize! :download, @stored_filter
-      download_stored_filter(@stored_filter, serialize_format, languages)
+      download_content(@stored_filter, serialize_format, languages)
     end
 
     def download_zip
       @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
       authorize! :download_zip, @stored_filter
-      serialize_format = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      serialize_formats = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
       languages = params[:language]
 
-      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('stored_filter', serialize_format)
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@stored_filter, [:archive, :zip], serialize_formats)
 
       items = @stored_filter.apply
       download_items = items.to_a.select do |thing|
         can? :download, thing
       end
 
-      download_collection(@stored_filter, download_items, serialize_format, languages)
+      download_collection(@stored_filter, download_items, serialize_formats, languages)
     end
 
     private

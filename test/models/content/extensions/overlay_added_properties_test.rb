@@ -3,9 +3,11 @@
 require 'test_helper'
 
 module DataCycleCore
-  class OverlayAddedPropertiesTest < ActiveSupport::TestCase
+  class OverlayAddedPropertiesTest < DataCycleCore::TestCases::ActiveSupportTestCase
+    include ActiveJob::TestHelper
+
     def create_thing
-      DataCycleCore::TestPreparations.create_content(template_name: 'Thing-With-Overlay', data_hash: { name: 'Test' })
+      DataCycleCore::TestPreparations.create_content(template_name: 'Thing-With-Overlay', data_hash: { name: 'Test-Thing-With-Overlay' })
     end
 
     def update_thing(thing, data_hash)
@@ -50,7 +52,7 @@ module DataCycleCore
 
     test 'overwriten name, added description (not present in definition of thing)' do
       thing = create_thing_with_overlay
-      assert_equal('Test', thing.name)
+      assert_equal('Test-Thing-With-Overlay', thing.name)
       assert_equal('Test Overlay', thing.name_overlay)
       assert_nil(thing.description) # no exception as it is handled by active_record
       assert_raise(NoMethodError) { thing.description_overlay }

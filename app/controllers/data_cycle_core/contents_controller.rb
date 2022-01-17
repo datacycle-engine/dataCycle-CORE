@@ -87,7 +87,6 @@ module DataCycleCore
 
       # used for local development and docker env.
       uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && uri.hostname == 'localhost'
-
       redirect_to(uri.to_s)
     end
 

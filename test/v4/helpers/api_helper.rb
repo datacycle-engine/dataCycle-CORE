@@ -25,7 +25,8 @@ module DataCycleCore
           'release_status_comment', # creativeWorks: publicationSchedule
           'dc_potential_action', # TODO: temporary attribute will be moded to potential_action,
           'validity_schedule', # TODO: check if should be tested with full thing
-          'slug'
+          'slug',
+          'computed_attribution_name'
         ].freeze
 
       def assert_api_count_result(count)
