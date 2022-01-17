@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/time_helper'
+
 namespace :data_cycle_core do
   namespace :update do
     desc 'import all external_system configs'
@@ -126,7 +128,7 @@ namespace :data_cycle_core do
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_template_sql"].reenable
       end
       puts '-' * 80 + " \r"
-      puts "total time: #{format_time(Time.zone.now - temp, 6, 6, 's')} \r"
+      puts "total time: #{TimeHelper.format_time(Time.zone.now - temp, 6, 6, 's')} \r"
     end
 
     desc 'replace a given data-definition with its recent template'
@@ -154,7 +156,7 @@ namespace :data_cycle_core do
 
       affected_items = ActiveRecord::Base.connection.update(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_sql))
 
-      puts "#{args[:template_name].ljust(41)} | #{(affected_items || 0).to_s.rjust(8)} | #{(total_items || 0).to_s.rjust(8)} | #{format_time(Time.zone.now - temp, 5, 6, 's')} \r"
+      puts "#{args[:template_name].ljust(41)} | #{(affected_items || 0).to_s.rjust(8)} | #{(total_items || 0).to_s.rjust(8)} | #{TimeHelper.format_time(Time.zone.now - temp, 5, 6, 's')} \r"
 
       next unless args.fetch(:history, false).to_s == 'true'
 
@@ -172,7 +174,7 @@ namespace :data_cycle_core do
 
       affected_history_items = ActiveRecord::Base.connection.update(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_history_sql))
 
-      puts "#{'thing_histories'.ljust(15)} | #{args[:template_name].ljust(25)} | #{(affected_history_items || 0).to_s.rjust(7)} | #{(total_history_items || 0).to_s.rjust(7)} | #{format_time(Time.zone.now - temp, 5, 6, 's')} \r"
+      puts "#{'thing_histories'.ljust(15)} | #{args[:template_name].ljust(25)} | #{(affected_history_items || 0).to_s.rjust(7)} | #{(total_history_items || 0).to_s.rjust(7)} | #{TimeHelper.format_time(Time.zone.now - temp, 5, 6, 's')} \r"
     end
 
     desc 'auto_tag all images (without Cloud Vision Tags)'
@@ -193,11 +195,5 @@ namespace :data_cycle_core do
         end
       end
     end
-  end
-
-  private
-
-  def format_time(time, n, m, unit)
-    time.round(m).to_s.split('.').zip([->(x) { x.rjust(n) }, ->(x) { x.ljust(m, '0') }]).map { |x, f| f.call(x) }.join('.') + " #{unit}"
   end
 end
