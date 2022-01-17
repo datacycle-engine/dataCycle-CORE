@@ -8,9 +8,8 @@ export default function () {
     init(event.target);
   });
 
-  $('.edit-content-form .form-element.number.duration > .duration-slider > div > :input[type="number"]').on(
-    'dc:import:data',
-    async (event, data) => {
+  $('.edit-content-form .form-element.number.duration > .duration-slider > div > :input[type="number"]')
+    .on('dc:import:data', async (event, data) => {
       if ($(event.target).val().length === 0) {
         $(event.target).val(data.value).trigger('change');
       } else {
@@ -20,8 +19,8 @@ export default function () {
           $(target).val(data.value).trigger('change');
         });
       }
-    }
-  );
+    })
+    .addClass('dc-import-data');
 
   function init(element = document) {
     $(element)

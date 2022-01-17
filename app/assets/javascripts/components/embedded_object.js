@@ -54,7 +54,10 @@ class EmbeddedObject {
       this.setSwapClasses(event.currentTarget)
     );
 
-    this.element.off('dc:import:data', this.eventHandlers.import).on('dc:import:data', this.eventHandlers.import);
+    this.element
+      .off('dc:import:data', this.eventHandlers.import)
+      .on('dc:import:data', this.eventHandlers.import)
+      .addClass('dc-import-data');
 
     this.addEventHandlers();
   }

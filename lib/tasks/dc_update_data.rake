@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/time_helper'
+
 namespace :dc do
   namespace :update_data do
     desc 'update all computed attributes'
@@ -41,7 +43,7 @@ namespace :dc do
           end
         end
 
-        puts "#{''.ljust(41)} | #{(items_to_update || 0).to_s.rjust(8)} | #{(items_to_update || 0).to_s.rjust(8)} | #{format_time(Time.zone.now - temp, 5, 6, 's')} \r"
+        puts "#{''.ljust(41)} | #{(items_to_update || 0).to_s.rjust(8)} | #{(items_to_update || 0).to_s.rjust(8)} | #{TimeHelper.format_time(Time.zone.now - temp, 5, 6, 's')} \r"
       end
 
       if dry_run
@@ -78,17 +80,4 @@ namespace :dc do
       end
     end
   end
-end
-
-def zsh?
-  ENV['SHELL']&.split('/')&.last == 'zsh'
-end
-
-def error(msg)
-  puts msg
-  exit(-1)
-end
-
-def format_time(time, n, m, unit)
-  time.round(m).to_s.split('.').zip([->(x) { x.rjust(n) }, ->(x) { x.ljust(m, '0') }]).map { |x, f| f.call(x) }.join('.') + " #{unit}"
 end

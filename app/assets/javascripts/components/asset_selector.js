@@ -32,7 +32,7 @@ class AssetSelector {
     this.reveal.on('click', '.select-asset-link:not(.disabled)', this.selectAssets.bind(this));
     this.assetList.on('dc:asset_list:changed', this.updateButtons.bind(this));
     this.assetList.parent().on('scroll', this.loadMoreOnScroll.bind(this));
-    this.editableList.on('dc:import:data', this.importAsset.bind(this));
+    this.editableList.on('dc:import:data', this.importAsset.bind(this)).addClass('dc-import-data');
 
     if (this.editableList.length) {
       this.initEdtiableList();
@@ -51,7 +51,7 @@ class AssetSelector {
 
     this.updateHiddenField();
   }
-  importAsset(event, data){
+  importAsset(event, data) {
     this.selectedAssetIds = [data.id];
     this.setSelectedAssets();
   }

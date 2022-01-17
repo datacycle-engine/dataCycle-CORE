@@ -70,7 +70,7 @@ class ObjectBrowser {
     this.overlayInitObserver.observe(this.overlay.get(0), { attributes: true, attributeFilter: ['class'] });
     this.element.on('click', '.delete-thumbnail', this.clickDeleteThumbnailHandler.bind(this));
     this.element.on('dc:update:chosen', this.updateChosenHandler.bind(this));
-    this.element.on('dc:import:data', this.importDataHandler.bind(this));
+    this.element.on('dc:import:data', this.importDataHandler.bind(this)).addClass('dc-import-data');
     this.overlay.on('open.zf.reveal', this.setOverlayPosition.bind(this));
     this.overlay.on('closed.zf.reveal', this.resetOverlayPosition.bind(this));
 

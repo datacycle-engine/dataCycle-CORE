@@ -31,14 +31,14 @@ class SimpleFields {
   watchForNewField(type, condition, subSelect) {
     DataCycle.htmlObserver.addCallbacks.push([
       e => condition(e),
-      e => $(e).find(subSelect).on('dc:import:data', this[`${type}EventHandler`].bind(this))
+      e => $(e).find(subSelect).on('dc:import:data', this[`${type}EventHandler`].bind(this)).addClass('dc-import-data')
     ]);
   }
   addEventHandlers(type, selector) {
     const elements = this.container.querySelectorAll(selector);
 
     for (let i = 0; i < elements.length; ++i) {
-      $(elements[i]).on('dc:import:data', this[`${type}EventHandler`].bind(this));
+      $(elements[i]).on('dc:import:data', this[`${type}EventHandler`].bind(this)).addClass('dc-import-data');
     }
   }
   stringEventHandler(event, data) {

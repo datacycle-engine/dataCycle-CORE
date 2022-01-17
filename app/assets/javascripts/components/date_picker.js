@@ -75,13 +75,13 @@ class DatePicker {
     $(this.calInstance.altInput).on('change', this.eventHandlers.change);
     $(this.calInstance.altInput).on('dc:flatpickr:reInit', this.eventHandlers.reInit);
     $(this.calInstance.altInput).on('dc:flatpickr:setDate', this.eventHandlers.setDate);
-    $(this.calInstance.altInput).on('dc:import:data', this.eventHandlers.import);
+    $(this.calInstance.altInput).on('dc:import:data', this.eventHandlers.import).addClass('dc-import-data');
   }
   removeEvents() {
     $(this.calInstance.altInput).off('change', this.eventHandlers.change);
     $(this.calInstance.altInput).off('dc:flatpickr:reInit', this.eventHandlers.reInit);
     $(this.calInstance.altInput).off('dc:flatpickr:setDate', this.eventHandlers.setDate);
-    $(this.calInstance.altInput).off('dc:import:data', this.eventHandlers.import);
+    $(this.calInstance.altInput).off('dc:import:data', this.eventHandlers.import).removeClass('dc-import-data');
   }
   setupCache() {
     if (!DataCycle.cache.holidays) {

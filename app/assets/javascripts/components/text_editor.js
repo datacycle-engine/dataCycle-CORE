@@ -148,7 +148,7 @@ class TextEditor {
   addEventHandlers() {
     this.editor.on('selection-change', this.updateEditorHander.bind(this));
     $(this.editor.container).closest('form').on('reset', this.resetEditor.bind(this));
-    $(this.editor.container).on('dc:import:data', this.importData.bind(this));
+    $(this.editor.container).on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
   }
   async importData(event, data) {
     if (this.editor.getText().trim().length > 1 && (!data || !data.force)) {
