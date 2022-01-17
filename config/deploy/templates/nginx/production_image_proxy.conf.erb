@@ -248,6 +248,8 @@ server {
         set $saved_redirect_location $upstream_http_location;
         resolver 8.8.8.8 8.8.4.4;
 
+        proxy_ssl_server_name on;
+
         proxy_pass $saved_redirect_location;
         proxy_cache imgproxy_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
 
