@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/shell_helper'
+require 'rake_helpers/cleanup_helper'
+
 namespace :dc do
   namespace :clean_up do
     desc 'Remove all data from external_source'
@@ -36,12 +39,12 @@ namespace :dc do
       index = 0
 
       has_no_relation.find_each do |data_item|
-        progress_bar(items_to_delete, index)
+        ShellHelper.progress_bar(items_to_delete, index)
         index += 1
 
         data_item.destroy_content
       end
-      progress_bar(items_to_delete, items_to_delete)
+      ShellHelper.progress_bar(items_to_delete, items_to_delete)
 
       if index.positive? && initial_external_contents_count != external_contents.size
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:clean_up:external_source_data"].reenable
@@ -64,9 +67,9 @@ namespace :dc do
     task external_data_check: :environment do
       puts "checking ExternalSystems (#{DataCycleCore::ExternalSystem.count}) dependencies:"
       linked_data = DataCycleCore::ExternalSystem.all.map { |item|
-        name = identify_external_source(item)
+        name = CleanupHelper.identify_external_source(item)
         next if name.blank?
-        linked = linked(name)
+        linked = CleanupHelper.linked(name)
         next if linked.blank?
         { external_source_id: item.id, name: item.name, linked: linked }
       }.compact
@@ -103,7 +106,7 @@ namespace :dc do
       if dirty_data.size.positive?
         puts "\nSuggested cleanup Tasks:"
         dirty_data.each do |task|
-          puts "#{task[:name].ljust(35)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:external_data#{zsh? ? '\\' : ''}[#{task[:id]},\"#{task[:template].tr(' ', '\\ ')}\"#{zsh? ? '\\' : ''}]"
+          puts "#{task[:name].ljust(35)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:external_data#{ShellHelper.zsh? ? '\\' : ''}[#{task[:id]},\"#{task[:template].tr(' ', '\\ ')}\"#{ShellHelper.zsh? ? '\\' : ''}]"
         end
       else
         puts "\n[done] ... looks good"
@@ -113,10 +116,10 @@ namespace :dc do
     desc 'delete orphaned external_data'
     task :external_data, [:external_source_id, :template] => [:environment] do |_, args|
       template = DataCycleCore::Thing.find_by(template: false, template_name: args.fetch(:template))
-      error('Error: No template found!') if template.blank?
+      ShellHelper.error('Error: No template found!') if template.blank?
 
       external_source = DataCycleCore::ExternalSystem.find_by(id: args.fetch(:external_source_id))
-      error('Error: No ExternalSystem found!') if external_source.blank?
+      ShellHelper.error('Error: No ExternalSystem found!') if external_source.blank?
 
       orphans = DataCycleCore::Thing.left_outer_joins(:content_content_b).where(
         things: {
@@ -133,42 +136,11 @@ namespace :dc do
 
       index = 0
       orphans.each do |orphan|
-        progress_bar(items_to_delete, index)
+        ShellHelper.progress_bar(items_to_delete, index)
         index += 1
         orphan.destroy_content(save_history: false, destroy_linked: true)
       end
-      progress_bar(items_to_delete, items_to_delete)
-    end
-
-    def identify_external_source(item)
-      return nil if item.config.blank?
-      item.config.dig('download_config').first[1].dig('endpoint').split('::')[-2]
-    end
-
-    def linked(external_source)
-      core_data_templates = {
-        'Booking' => ['Unterkunft'],
-        'EventDatabase' => ['Event'],
-        'Feratel' => ['Event', 'POI', 'Unterkunft'],
-        'MediaArchive' => ['Bild', 'Video'],
-        'OutdoorActive' => ['POI', 'Tour'],
-        'VTicket' => ['Event'],
-        'Xamoom' => ['Örtlichkeit']
-      }.dig(external_source)
-      return if core_data_templates.blank?
-      core_data_templates&.map { |template|
-        thing_template = DataCycleCore::Thing.find_by(template_name: template, template: true)
-        thing_template.linked_property_names.map do |linked_item|
-          properties = thing_template.properties_for(linked_item)
-          if properties.dig('template_name').present?
-            { relation: linked_item, template: properties.dig('template_name') }
-          elsif properties.dig('stored_filter').present?
-            properties.dig('stored_filter').first.dig('with_classification_aliases_and_treename', 'aliases').map do |item|
-              { relation: linked_item, template: item }
-            end
-          end
-        end
-      }&.flatten&.uniq
+      ShellHelper.progress_bar(items_to_delete, items_to_delete)
     end
 
     desc 'Check all embedded for orphaned data (does not modify the data)'
@@ -177,8 +149,8 @@ namespace :dc do
       puts '-' * 70
 
       orphaned_data = []
-      embedded.each do |key, value|
-        orphans = orphaned_embedded(value.uniq, key)
+      CleanupHelper.embedded.each do |key, value|
+        orphans = CleanupHelper.orphaned_embedded(value.uniq, key)
         total = DataCycleCore::Thing.where(template: false, template_name: key).count
         puts "#{key.ljust(25)}  |   total: #{total.to_s.rjust(6)}   |   orphaned: #{orphans.size.to_s.rjust(6)}"
         orphaned_data.push(key) if orphans.size.positive?
@@ -188,7 +160,7 @@ namespace :dc do
       if orphaned_data.size.positive?
         puts "\nSuggested cleanup Tasks:"
         orphaned_data.each do |embedded|
-          puts "#{embedded.to_s.ljust(25)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:embedded#{zsh? ? '\\' : ''}[\"#{embedded.tr(' ', '\\ ')}\"#{zsh? ? '\\' : ''}]"
+          puts "#{embedded.to_s.ljust(25)} bundle exec rails #{ENV['CORE_RAKE_PREFIX']}dc:clean_up:embedded#{ShellHelper.zsh? ? '\\' : ''}[\"#{embedded.tr(' ', '\\ ')}\"#{ShellHelper.zsh? ? '\\' : ''}]"
         end
       else
         puts "\n[done] ... looks good"
@@ -199,22 +171,22 @@ namespace :dc do
     task :embedded, [:embedded] => [:environment] do |_, args|
       embedded_template = args.fetch(:embedded)
       template = DataCycleCore::Thing.find_by(template_name: embedded_template)
-      error("Error: No embedded template found for #{embedded_template}") if template.blank?
-      error("Error: #{embedded_template} is not an embedded template!") unless template.schema.dig('content_type') == 'embedded'
+      ShellHelper.error("Error: No embedded template found for #{embedded_template}") if template.blank?
+      ShellHelper.error("Error: #{embedded_template} is not an embedded template!") unless template.schema.dig('content_type') == 'embedded'
 
       main_templates = embedded[embedded_template]
-      orphans = orphaned_embedded(main_templates, embedded_template)
+      orphans = CleanupHelper.orphaned_embedded(main_templates, embedded_template)
       items_to_delete = orphans.count
       puts "#{('embedded: ' + embedded_template).ljust(25)} used in:  #{main_templates.map(&:to_s)}"
       puts "Deleting #{items_to_delete.to_s.rjust(6)} #{' ' * 88} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
 
       index = 0
       orphans.each do |orphan|
-        progress_bar(items_to_delete, index)
+        ShellHelper.progress_bar(items_to_delete, index)
         index += 1
         orphan.destroy_content(save_history: false)
       end
-      progress_bar(items_to_delete, items_to_delete)
+      ShellHelper.progress_bar(items_to_delete, items_to_delete)
     end
 
     desc 'find_orphaned_things in mongodb'
@@ -223,7 +195,7 @@ namespace :dc do
       external_system_id = args.fetch(:external_system_id, false)
       template_name = args.fetch(:template_name, false)
 
-      error 'invalid number of arguments' unless collection_name.present? && external_system_id.present? && template_name.present?
+      ShellHelper.error 'invalid number of arguments' unless collection_name.present? && external_system_id.present? && template_name.present?
 
       external_system = DataCycleCore::ExternalSystem.find(external_system_id)
       things = DataCycleCore::Thing.where(template: false, template_name: template_name, external_source_id: external_system.id)
@@ -244,58 +216,5 @@ namespace :dc do
       end
       puts "things (#{template_name}) missing in mongoDB: #{things_missing}\n"
     end
-
-    def embedded
-      embedded_hash = {}
-      DataCycleCore::Thing.where(template: true).find_each.select { |temp| temp.content_type == 'entity' }.map do |main_temp|
-        main_temp.embedded_property_names.map do |embedded_item|
-          properties = main_temp.properties_for(embedded_item)
-          if embedded_hash.key?(properties.dig('template_name'))
-            embedded_hash[properties.dig('template_name')].push(main_temp.template_name)
-          else
-            embedded_hash[properties.dig('template_name')] = [main_temp.template_name]
-          end
-        end
-      end
-      embedded_hash.map { |key, value| { key => value.uniq } }.reduce({}, &:merge)
-    end
-
-    def orphaned_embedded(template_array, embedded_name)
-      template_string = "'" + template_array.map(&:to_s).join("', '") + "'"
-      where_string = <<-EOS
-      things.id NOT IN (
-        SELECT things.id FROM things
-        INNER JOIN content_contents ON content_contents.content_b_id = things.id
-        INNER JOIN things things2 ON content_contents.content_a_id = things2.id
-        WHERE things.template = false
-        AND things.template_name = '#{embedded_name}'
-        AND things2.template = false
-        AND things2.template_name IN (#{template_string})
-      )
-      EOS
-
-      DataCycleCore::Thing.where(template: false, template_name: embedded_name).where(where_string)
-    end
   end
-end
-
-def progress_bar(total_items, index, interval = nil)
-  if index >= total_items
-    print "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
-    return
-  end
-  interval ||= [total_items / 100.0, 1.0].max.round(0)
-  return unless (index % interval).zero?
-  fraction = (((index * 1.0) / total_items) * 100.0).round(0)
-  fraction = 100 if fraction > 100
-  print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-end
-
-def zsh?
-  ENV['SHELL']&.split('/')&.last == 'zsh'
-end
-
-def error(msg)
-  puts msg
-  exit(-1)
 end

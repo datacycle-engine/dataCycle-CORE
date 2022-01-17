@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/db_helper'
+
 DATABASE_DUMP_EXCLUDES ||= {
   'review' => [
     'delayed_jobs',
@@ -25,16 +27,16 @@ namespace :data_cycle_core do
     desc 'Dumps the database to backups (mode = review|activities|full)'
     task :dump, [:backup_name, :format, :mode] => [:environment] do |_, args|
       temp = Time.zone.now
-      dump_fmt = ensure_format(args[:format])
-      dump_sfx = suffix_for_format(dump_fmt)
-      backup_dir = backup_directory(Rails.env, create: true)
+      dump_fmt = DbHelper.ensure_format(args[:format])
+      dump_sfx = DbHelper.suffix_for_format(dump_fmt)
+      backup_dir = DbHelper.backup_directory(Rails.env, create: true)
       full_path  = nil
       cmd        = nil
 
       pgclusters = ''
       pgclusters = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main " unless ENV.fetch('PGCLUSTER_DISABLED', false)
 
-      with_config do |host, port, db, user, password|
+      DbHelper.with_config do |host, port, db, user, password|
         if args[:backup_name].nil?
           full_path = "#{backup_dir}/#{Time.zone.now.strftime('%Y%m%d%H%M%S')}_#{db}.#{dump_sfx}"
         else
@@ -62,13 +64,13 @@ namespace :data_cycle_core do
         pgclusters = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main " unless ENV.fetch('PGCLUSTER_DISABLED', false)
 
         if table_name.present?
-          dump_fmt   = ensure_format(args[:format])
-          dump_sfx   = suffix_for_format(dump_fmt)
-          backup_dir = backup_directory(Rails.env, create: true)
+          dump_fmt   = DbHelper.ensure_format(args[:format])
+          dump_sfx   = DbHelper.suffix_for_format(dump_fmt)
+          backup_dir = DbHelper.backup_directory(Rails.env, create: true)
           full_path  = nil
           cmd        = nil
 
-          with_config do |host, port, db, user, password|
+          DbHelper.with_config do |host, port, db, user, password|
             if args[:backup_name].nil?
               full_path = "#{backup_dir}/#{Time.zone.now.strftime('%Y%m%d%H%M%S')}_#{db}.#{table_name.parameterize.underscore}.#{dump_sfx}"
             else
@@ -91,7 +93,7 @@ namespace :data_cycle_core do
     desc 'Clean up database backups'
     task clean_up_dumps: :environment do
       max_files = 5
-      backup_dir = backup_directory(Rails.env)
+      backup_dir = DbHelper.backup_directory(Rails.env)
       files = Dir.glob("#{backup_dir}/[0-9]*.*").sort_by { |f| File.mtime(f) }.reverse
       puts "checking directory: #{backup_dir}"
 
@@ -107,7 +109,7 @@ namespace :data_cycle_core do
 
     desc 'Show the existing database backups'
     task dumps: :environment do
-      backup_dir = backup_directory(Rails.env)
+      backup_dir = DbHelper.backup_directory(Rails.env)
       puts backup_dir.to_s
 
       puts 'backup dir does not exists' unless system "cd #{backup_dir} && du -hs --time *"
@@ -124,8 +126,8 @@ namespace :data_cycle_core do
         file = nil
         cmd  = nil
 
-        with_config do |host, port, db, user, password|
-          backup_dir = backup_directory
+        DbHelper.with_config do |host, port, db, user, password|
+          backup_dir = DbHelper.backup_directory
           files      = Dir.glob("#{backup_dir}/**/*#{pattern}*")
 
           case files.size
@@ -133,7 +135,7 @@ namespace :data_cycle_core do
             puts "No backups found for the pattern '#{pattern}'"
           when 1
             file = files.first
-            fmt = format_for_file file
+            fmt = DbHelper.format_for_file file
             case fmt
             when nil
               puts "No recognized dump file suffix: #{file}"
@@ -219,57 +221,6 @@ namespace :data_cycle_core do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:seed"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs:all"].invoke
       puts 'Reset Complete...'
-    end
-
-    private
-
-    def ensure_format(format)
-      return format if ['c', 'p', 't', 'd'].include?(format)
-
-      case format
-      when 'dump' then 'c'
-      when 'sql' then 'p'
-      when 'tar' then 't'
-      when 'dir' then 'd'
-      else 'd'
-      end
-    end
-
-    def suffix_for_format(suffix)
-      case suffix
-      when 'c' then 'dump'
-      when 'p' then 'sql'
-      when 't' then 'tar'
-      when 'd' then 'dir'
-      end
-    end
-
-    def format_for_file(file)
-      case file
-      when /\.dump$/ then 'c'
-      when /\.sql$/  then 'p'
-      when /\.dir$/  then 'd'
-      when /\.tar$/  then 't'
-      end
-    end
-
-    def backup_directory(suffix = nil, create: false)
-      backup_dir = Rails.root.join('db', 'backups', suffix.nil? ? '' : suffix)
-
-      if create && !Dir.exist?(backup_dir)
-        puts "Creating #{backup_dir} .."
-        FileUtils.mkdir_p(backup_dir)
-      end
-
-      backup_dir
-    end
-
-    def with_config
-      yield ActiveRecord::Base.connection_config[:host],
-        ActiveRecord::Base.connection_config[:port],
-        ActiveRecord::Base.connection_config[:database],
-        ActiveRecord::Base.connection_config[:username],
-        ActiveRecord::Base.connection_config[:password]
     end
   end
 end
