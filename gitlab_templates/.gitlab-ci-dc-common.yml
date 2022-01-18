@@ -154,7 +154,7 @@ services:
   when: manual
 
 .stop_docker_config:
-  stage: deploy
+  stage: .post
   image: docker:20.10
   allow_failure: false
   variables:
