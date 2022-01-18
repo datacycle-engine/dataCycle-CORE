@@ -3,32 +3,49 @@
 module DataCycleCore
   module Abilities
     class PermissionsList
-      attr_accessor :list
+      def self.list
+        unless defined? @list
+          @list = []
+          new.permissions
+        end
 
-      def initialize
-        @list = []
+        @list
+      end
+
+      def permissions
+        raise 'core abilities not implemented yet, please override the permissions in each project'
       end
 
       def add_permission(condition, *actions, definition)
-        list.push({
+        raise 'missing condition in permission' if condition.blank?
+        raise 'missing actions in permission' if actions.blank?
+        raise 'missing definition in permission' if definition.blank?
+
+        self.class.list.push({
           condition: condition,
           actions: actions,
           definition: definition
         })
       end
 
-      def filtered_list(user)
+      def self.filtered_list(user)
         list.select { |l| l[:condition].include?(user) }
       end
 
-      def add_abilities_for_user(user, ability)
-        filtered_list(user).each do |permission|
-          parameters = [permission[:actions].first, permission[:actions].from(1), permission[:definition].subject]
+      def self.add_abilities_for_user(ability)
+        filtered_list(ability.user).each do |permission|
+          definition = permission[:definition].clone
+          definition.instance_variable_set(:@user, ability.user)
+          definition.instance_variable_set(:@session, ability.session)
 
-          parameters.push(permission[:definition].conditions) if permission[:definition].respond_to?(:conditions)
-          parameters.push(permission[:definition].to_proc) if permission[:definition].respond_to?(:to_proc)
+          parameters = [permission[:actions].first, permission[:actions].from(1), definition.subject]
 
-          ability.send(*parameters)
+          parameters.push(definition.conditions) if definition.respond_to?(:conditions)
+          # parameters.push(&definition.to_proc) if definition.respond_to?(:to_proc)
+
+          next ability.send(*parameters) unless definition.respond_to?(:to_proc)
+
+          ability.send(*parameters, &definition.to_proc)
         end
       end
     end

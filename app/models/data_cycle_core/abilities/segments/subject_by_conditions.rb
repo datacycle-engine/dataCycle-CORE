@@ -3,10 +3,10 @@
 module DataCycleCore
   module Abilities
     module Segments
-      class SubjectByConditions
+      class SubjectByConditions < Base
         attr_reader :subject, :conditions
 
-        def initialize(subject, *conditions)
+        def initialize(subject, **conditions)
           @subject = subject
           @conditions = conditions
         end
