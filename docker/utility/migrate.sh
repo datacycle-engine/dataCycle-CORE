@@ -28,6 +28,6 @@ bundle exec rake ${CORE_RAKE_PREFIX:-}data_cycle_core:refactor:import_update_all
 # bundle exec rake dc:update_data:computed_attributes
 
 # cleanup db dumps
-bundle exec rake ${CORE_RAKE_PREFIX:-}data_cycle_core:db:clean_up_dumps
+# bundle exec rake ${CORE_RAKE_PREFIX:-}data_cycle_core:db:clean_up_dumps
 
 echo "### MIGRATIONS DONE ###"
