@@ -3,11 +3,11 @@
 
 echo "### POST MIGRATIONS START ###"
 
-# check if db exists
-bundle exec rake db:version
-
 # migrate data after restart
 bundle exec rake db:migrate:with_data
+
+# run postgresql: VACUUM ANALYZE
+bundle exec rake db:maintenance:vacuum
 
 # update computed attribtues
 # bundle exec rake dc:update_data:computed_attributes
