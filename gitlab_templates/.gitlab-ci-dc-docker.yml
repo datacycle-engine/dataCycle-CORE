@@ -53,6 +53,13 @@ stop_docker_job:
     name: $GITLAB_ENVIRONMENT
     action: stop
 
+restart_docker_job:
+  <<: *docker_ci
+  extends: .restart_docker_config
+  environment:
+    name: $GITLAB_ENVIRONMENT
+    url: $DOCKER_URL
+
 post_deploy_docker_job:
   <<: *docker_ci
   extends: .post_deploy_docker_config
