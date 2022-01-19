@@ -63,7 +63,6 @@ services:
     - gem install bundler
     - bundle config set --local path 'cache/bundler'
     - bundle install
-    - cd $CI_PROJECT_DIR
     - yarn
     - yarn upgrade
 

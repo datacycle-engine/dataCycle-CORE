@@ -21,9 +21,6 @@ before_script:
   - gem install bundler
   - bundle config set --local path 'cache/bundler'
   - bundle install
-
-  - dpkg-reconfigure -f noninteractive tzdata
-  - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
   - export RUBYOPT="-W:no-deprecated -W:no-experimental"
 
 ########################################################################
@@ -108,7 +105,6 @@ post_deploy_docker_job:
   environment:
     name: $GITLAB_ENVIRONMENT
     url: $DOCKER_URL
-
 
 ########################################################################
 ######################### Master
