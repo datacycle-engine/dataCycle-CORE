@@ -15,7 +15,7 @@ module DataCycleCore
     end
 
     test 'move tree to higher level' do
-      assert(@paths.map(&:full_path).all? { |p| p.include?('parent 1') })
+      assert(@paths.reload.map(&:full_path).all? { |p| p.include?('parent 1') })
 
       @classification.classification_tree.update_column(:parent_classification_alias_id, nil)
 
@@ -23,7 +23,7 @@ module DataCycleCore
     end
 
     test 'move tree to lower level' do
-      assert(@paths.map(&:full_path).all? { |p| p.include?('parent 1') })
+      assert(@paths.reload.map(&:full_path).all? { |p| p.include?('parent 1') })
 
       new_parent = DataCycleCore::ClassificationAlias.for_tree(@tags.name).find_by!(internal_name: 'parent 2_1')
 
