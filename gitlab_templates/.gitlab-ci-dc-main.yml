@@ -17,7 +17,7 @@ before_script:
   - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
 
-  - sudo chown -R ruby:ruby vendor/gems/data-cycle-core
+  - chown -R ruby:ruby vendor/gems/data-cycle-core
   - rm -Rf vendor/gems/data-cycle-core
   - git submodule sync --recursive
   - git submodule update --init --recursive --force
