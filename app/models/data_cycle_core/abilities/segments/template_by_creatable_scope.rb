@@ -3,7 +3,7 @@
 module DataCycleCore
   module Abilities
     module Segments
-      class CreatableByScope < Base
+      class TemplateByCreatableScope < Base
         attr_reader :subject, :scopes
 
         def initialize(scopes)
@@ -18,7 +18,7 @@ module DataCycleCore
         end
 
         def to_proc
-          ->(item, scope, content) { include?(item, scope, content) }
+          ->(item, scope, content = nil) { include?(item, scope, content) }
         end
       end
     end

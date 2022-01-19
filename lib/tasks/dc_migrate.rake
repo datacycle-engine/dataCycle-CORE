@@ -227,7 +227,7 @@ namespace :dc do
     desc 'migrate uniq external_keys for OutdoorActive additionalInformation'
     task oa_external_key: :environment do
       es = DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive')
-      return if es.blank?
+      exit(1) if es.blank?
 
       contents = DataCycleCore::Thing.where(template_name: 'Ergänzende Information', external_source_id: es.id, external_key: nil).includes(:classifications, :translations)
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Ergänzende Information')

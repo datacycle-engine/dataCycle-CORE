@@ -485,7 +485,9 @@ module DataCycleCore
     private
 
     def set_watch_list
-      watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
+      return if params[:watch_list_id].blank?
+
+      watch_list = DataCycleCore::WatchList.find(params[:watch_list_id])
       authorize! :show, watch_list
       @watch_list = watch_list
     end

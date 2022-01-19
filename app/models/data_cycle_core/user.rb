@@ -156,7 +156,9 @@ module DataCycleCore
     end
 
     def ability
-      @ability ||= DataCycleCore::Ability.new(self)
+      return @ability if defined? @ability
+
+      @ability = DataCycleCore::Ability.new(self)
     end
 
     def execute_update_webhooks
