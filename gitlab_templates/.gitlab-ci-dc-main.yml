@@ -17,10 +17,10 @@ before_script:
   - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
 
-  - chown -R ruby:ruby vendor/gems/data-cycle-core
   - rm -Rf vendor/gems/data-cycle-core
   - git submodule sync --recursive
   - git submodule update --init --recursive --force
+  - chown -R ruby:ruby vendor/gems/data-cycle-core
 
   - gem install bundler
   - bundle config set --local path 'cache/bundler'
