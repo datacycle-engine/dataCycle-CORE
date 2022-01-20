@@ -46,6 +46,7 @@ class ObjectBrowser {
     this.content_type = this.element.data('content-type');
     this.prefix = selector.data('prefix');
     this.activeRequest;
+    this.activeCountRequest;
     this.eventHandlers = {
       pageLeave: this.pageLeaveHandler.bind(this),
       submitWithoutRedirect: this.submitWithoutRedirectHandler.bind(this),
@@ -638,6 +639,53 @@ class ObjectBrowser {
   serializeFilter() {
     return this.overlayFilterForm.serializeJSON();
   }
+  showParams() {
+    return {
+      page: this.page,
+      per: this.overlay_per,
+      type: this.type,
+      locale: this.locale,
+      key: this.key,
+      definition: this.definition,
+      options: this.options,
+      filter: this.serializeFilter(),
+      objects: this.chosen,
+      editable: this.editable,
+      excluded: this.excluded,
+      content_id: this.content_id,
+      content_type: this.content_type,
+      prefix: this.prefix,
+      filter_ids: this.filteredIds()
+    };
+  }
+  loadCount() {
+    this.overlayCount.html(loadingIcon());
+
+    const promise = DataCycle.httpRequest({
+      url: '/object_browser/show',
+      method: 'POST',
+      dataType: 'json',
+      data: JSON.stringify(Object.assign(this.showParams(), { count_only: true })),
+      contentType: 'application/json'
+    });
+
+    this.activeCountRequest = promise;
+
+    promise.then(async data => {
+      if (this.activeCountRequest != promise || !data) return;
+
+      const count = data.count || 0;
+      this.total = count;
+      this.overlay.data('total', count);
+
+      I18n.translate('common.things_count_html', {
+        count: count,
+        delimited_count: count.toLocaleString('de-DE')
+      }).then(countText => {
+        this.overlayCount.html(countText);
+      });
+    });
+  }
   loadObjects(append = true) {
     this.infiniteLoadingObserver.disconnect();
 
@@ -645,7 +693,7 @@ class ObjectBrowser {
       this.excluded = [];
       this.overlay.children('.items').scrollTop(0);
       this.overlay.children('.items').html(loadingIcon());
-      this.overlayCount.html(loadingIcon());
+      this.loadCount();
     }
     this.overlay.find('.items .loading').show();
     this.loading = true;
@@ -654,24 +702,7 @@ class ObjectBrowser {
       url: '/object_browser/show',
       method: 'POST',
       dataType: 'json',
-      data: JSON.stringify({
-        page: this.page,
-        per: this.overlay_per,
-        type: this.type,
-        locale: this.locale,
-        key: this.key,
-        definition: this.definition,
-        options: this.options,
-        filter: this.serializeFilter(),
-        objects: this.chosen,
-        editable: this.editable,
-        excluded: this.excluded,
-        content_id: this.content_id,
-        content_type: this.content_type,
-        prefix: this.prefix,
-        filter_ids: this.filteredIds(),
-        append: append
-      }),
+      data: JSON.stringify(Object.assign(this.showParams(), { append: append })),
       contentType: 'application/json'
     });
 
@@ -680,23 +711,10 @@ class ObjectBrowser {
     promise.then(async data => {
       if (this.activeRequest != promise || !data) return;
 
-      const count = data.count || 0;
-      this.total = count;
-      this.overlay.data('total', count);
-
-      if (!append) {
-        I18n.translate('common.things_count_html', {
-          count: count,
-          delimited_count: count.toLocaleString('de-DE')
-        }).then(countText => {
-          this.overlayCount.html(countText);
-        });
-      }
-
       this.overlay.find('.items .loading').hide();
 
       let html = data.html;
-      if (count == 0) html = `<span class="no-results">${await I18n.translate('common.no_results')}</span>`;
+      if (!data.has_contents) html = `<span class="no-results">${await I18n.translate('common.no_results')}</span>`;
       $(html)
         .insertBefore(this.overlay.find('.items .loading'))
         .trigger('dc:html:changed')
@@ -707,7 +725,7 @@ class ObjectBrowser {
       });
       this.loading = false;
 
-      if (this.overlay.children('.items').children('li.item').length < this.total)
+      if (!data.last_page)
         this.infiniteLoadingObserver.observe(this.overlay.children('.items').children('li.item').last().get(0));
     });
 
