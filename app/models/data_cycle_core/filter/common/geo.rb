@@ -20,7 +20,10 @@ module DataCycleCore
           return self if sw_lon.blank? || sw_lat.blank? || ne_lon.blank? || ne_lat.blank?
 
           reflect(
-            @query.where(contains(thing[:location], get_box(get_point(sw_lon.to_f, sw_lat.to_f), get_point(ne_lon.to_f, ne_lat.to_f))).eq('true'))
+            @query.where(
+              intersects(thing[:location], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326))
+              .or(intersects(thing[:line], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326)))
+            )
           )
         end
 
@@ -28,7 +31,10 @@ module DataCycleCore
           return self if sw_lon.blank? || sw_lat.blank? || ne_lon.blank? || ne_lat.blank?
 
           reflect(
-            @query.where.not(contains(thing[:location], get_box(get_point(sw_lon.to_f, sw_lat.to_f), get_point(ne_lon.to_f, ne_lat.to_f))).eq('true'))
+            @query.where.not(
+              intersects(thing[:location], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326))
+              .and(intersects(thing[:line], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326)))
+            )
           )
         end
 

@@ -13,6 +13,9 @@ module DataCycleCore
       create_content('Örtlichkeit', { name: 'PLACE 1', location: RGeo::Geographic.spherical_factory(srid: 4326).point(10, 10) })
       create_content('Event', { name: 'DDD', overlay: [{ name: 'EEE' }], sub_event: [{ name: 'FFF' }] })
 
+      factory3d = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
+      create_content('Tour', { name: 'TOUR 1', line: factory3d.multi_line_string([factory3d.line_string([factory3d.point(10, 10, 0), factory3d.point(20, 20, 0), factory3d.point(30, 30, 0)])]) })
+
       validity_period = { valid_from: Date.current.to_s, valid_until: Date.current.to_s }
       multiling = create_content('Artikel', { name: 'XYZ de', validity_period: validity_period })
       multiling.external_source_id = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive').id
@@ -62,9 +65,9 @@ module DataCycleCore
         create_content('Artikel', { name: 'AAA Englisch' })
       end
 
-      assert_equal 9, DataCycleCore::Filter::Search.new(:de).count
+      assert_equal 10, DataCycleCore::Filter::Search.new(:de).count
       assert_equal 2, DataCycleCore::Filter::Search.new(:en).count
-      assert_equal 10, DataCycleCore::Filter::Search.new(nil).count
+      assert_equal 11, DataCycleCore::Filter::Search.new(nil).count
     end
 
     test 'finds embedded_data' do
@@ -104,7 +107,7 @@ module DataCycleCore
       assert_equal(1, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_external_source(external_source_id)
-      assert_equal(8, items.count)
+      assert_equal(9, items.count)
     end
 
     test 'test query for subscriptions' do
@@ -124,7 +127,7 @@ module DataCycleCore
     test 'test query for date_range (created_at)' do
       items = DataCycleCore::Filter::Search.new(:de)
         .date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
-      assert_equal(9, items.count)
+      assert_equal(10, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
         .not_date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
@@ -133,7 +136,7 @@ module DataCycleCore
 
     test 'test query for validity_period' do
       items = DataCycleCore::Filter::Search.new(:de).validity_period({ from: Date.current, until: Date.current })
-      assert_equal(7, items.count)
+      assert_equal(8, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_validity_period({ from: Date.current, until: Date.current })
       assert_equal(2, items.count)
@@ -171,7 +174,7 @@ module DataCycleCore
       assert_equal(2, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).boolean('false', 'duplicate_candidates')
-      assert_equal(10, items.count)
+      assert_equal(11, items.count)
       DataCycleCore::ImageUploader.enable_processing = false
     end
 
@@ -181,7 +184,7 @@ module DataCycleCore
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_classification_tree_ids(tree_label_id)
-      assert_equal(6, items.count)
+      assert_equal(7, items.count)
     end
 
     test 'has method to include joined tables' do
@@ -200,11 +203,11 @@ module DataCycleCore
     end
 
     test 'supports geo queries' do
-      assert_equal(1, DataCycleCore::Filter::Search.new(:de).within_box(1, 1, 20, 20).count)
+      assert_equal(2, DataCycleCore::Filter::Search.new(:de).within_box(1, 1, 20, 20).count)
     end
 
     test 'supports geo radius' do
-      assert_equal(1, DataCycleCore::Filter::Search.new(:de).geo_radius({ 'lon' => '10', 'lat' => '10', 'distance' => '10' }).count)
+      assert_equal(2, DataCycleCore::Filter::Search.new(:de).geo_radius({ 'lon' => '10', 'lat' => '10', 'distance' => '10' }).count)
     end
 
     test 'supports geo search within polygon' do
@@ -238,7 +241,7 @@ module DataCycleCore
 
       assert_equal(1, DataCycleCore::Filter::Search.new(:de).like_relation_filter([image.id], 'image').count) # find the article
       assert_equal(article.id, DataCycleCore::Filter::Search.new(:de).like_relation_filter([image.id], 'image').query.first.id) # find the article
-      assert_equal(10, DataCycleCore::Filter::Search.new(:de).not_like_relation_filter([image.id], 'image').count) # find all except article
+      assert_equal(11, DataCycleCore::Filter::Search.new(:de).not_like_relation_filter([image.id], 'image').count) # find all except article
       assert DataCycleCore::Filter::Search.new(:de).not_like_relation_filter([image.id], 'image').query.ids.exclude?(article.id) # find all except article
     end
 
