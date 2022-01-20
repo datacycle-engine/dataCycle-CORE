@@ -79,6 +79,10 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('ST_Contains', [geom1, geom2])
       end
 
+      def st_intersects(geom1, geom2)
+        Arel::Nodes::NamedFunction.new('ST_Intersects', [geom1, geom2])
+      end
+
       def st_disjoint(geom1, geom2)
         Arel::Nodes::NamedFunction.new('ST_Disjoint', [geom1, geom2])
       end
