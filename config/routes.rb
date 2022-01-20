@@ -6,6 +6,7 @@ DataCycleCore::Engine.routes.draw do
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root
+    post '/', to: 'backend#index'
   end
 
   match '/401', to: 'exceptions#unauthorized_exception', via: :all, as: :unauthorized_exception
@@ -50,6 +51,7 @@ DataCycleCore::Engine.routes.draw do
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
     resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things) do
       post :import, on: :collection
+      post '/', on: :member, action: :show
       get 'history/:history_id', action: :history, on: :member, as: :history
       post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
@@ -74,7 +76,11 @@ DataCycleCore::Engine.routes.draw do
     end
   end
 
-  resources :subscriptions, only: [:index, :create, :destroy]
+  resources :subscriptions, only: [:index, :destroy] do
+    post '/', on: :collection, action: :index
+    post '/create', on: :collection, action: :create
+  end
+
   resources :stored_filters, only: [:index, :show, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
     get :select_search_or_collection, on: :collection
@@ -82,7 +88,10 @@ DataCycleCore::Engine.routes.draw do
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection
   end
-  resources :classification_tree_labels, only: :show, param: :ctl_id
+
+  resources :classification_tree_labels, only: :show, param: :ctl_id do
+    post '/', on: :member, action: :show
+  end
 
   defaults format: :json do
     resource :content_locks, only: :update do
@@ -113,6 +122,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resources :watch_lists do
+    post '/', on: :member, action: :show
     delete :remove_item, on: :member
     get :add_item, on: :member
     post :add_related_items, on: :collection
@@ -408,7 +418,9 @@ DataCycleCore::Engine.routes.draw do
   # post 'contents/upload', to: 'contents#upload'
   # # post 'contents/new', to: 'contents#new'
 
-  resources :publications, only: :index
+  resources :publications, only: :index do
+    post '/', on: :collection, action: :index
+  end
 
   get :add_filter, controller: :application
   get :add_tag_group, controller: :application

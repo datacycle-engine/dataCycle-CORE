@@ -16,11 +16,14 @@ const initializers = import.meta.globEager('./initializers/*.js');
 import foundationInit from './initializers/foundation_init';
 import validationInit from './initializers/validation_init';
 import appSignalInit from './initializers/app_signal_init';
+import UrlReplacer from './helpers/url_replacer';
 
 export default (dataCycleConfig = {}) => {
   DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
 
   appSignalInit();
+
+  UrlReplacer.paramsToStoredFilterId();
 
   $(function () {
     for (const path in initializers) {

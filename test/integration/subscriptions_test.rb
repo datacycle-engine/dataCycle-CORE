@@ -14,7 +14,7 @@ module DataCycleCore
     end
 
     test 'subscribe article' do
-      post subscriptions_path, xhr: true, params: {
+      post create_subscriptions_path, xhr: true, params: {
         subscribable_id: @content.id,
         subscribable_type: @content.class.name
       }, headers: {

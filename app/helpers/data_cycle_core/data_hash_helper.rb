@@ -18,8 +18,8 @@ module DataCycleCore
       validation['properties'].each do |prop|
         next if INTERNAL_PROPERTIES.include?(prop[0]) || prop[1]['sorting'].blank?
         next if type.present? && prop[1]['type'] != type
+        next if content_area&.!=('content') && prop[1].dig('ui', 'show', 'content_area') != content_area
         next if content_area == 'content' && prop[1].dig('ui', 'show', 'content_area').present?
-        next if content_area.present? && prop[1].dig('ui', 'show', 'content_area') != content_area
 
         ordered_properties[prop[1]['sorting'].to_i] = prop
       end

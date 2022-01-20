@@ -52,7 +52,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'devise'
   s.add_dependency 'jwt'
   # authorization
-  s.add_dependency 'cancancan'
+  s.add_dependency 'cancancan', '>= 3.3.0'
   # pagination
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes

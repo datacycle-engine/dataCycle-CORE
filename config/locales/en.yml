@@ -1076,6 +1076,7 @@ en:
     user_details: User details
     user_links: User links
     classifications: Classifications
+    dashboard: Dashboard
     classifications_adminitration:
       classification:
         submit_loading_message: Saving may take several minutes, please be patient

@@ -27,6 +27,8 @@ module DataCycleCore
 
       @current_ability = DataCycleCore::Ability.new(current_user, session)
       current_user&.instance_variable_set(:@ability, @current_ability)
+
+      @current_ability
     end
 
     def clear_all_caches

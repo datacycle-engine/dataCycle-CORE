@@ -11,14 +11,14 @@ module DataCycleCore
           @subject = DataCycleCore::Thing
         end
 
-        def include?(obj, scope, _content)
+        def include?(obj, scope, _content = nil)
           return obj&.creatable?(scope) if scopes.include?('all')
 
           obj&.creatable?(scope) && scopes.include?(scope)
         end
 
         def to_proc
-          ->(item, scope, content = nil) { include?(item, scope, content) }
+          ->(*args) { include?(*args) }
         end
       end
     end

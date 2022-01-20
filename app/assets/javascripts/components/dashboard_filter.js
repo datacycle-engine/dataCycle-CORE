@@ -18,6 +18,7 @@ class DashboardFilter {
     this.$sortableOrderInputs = this.$searchForm.find(
       '.mode-container .filter-sortable .filter-sortable-checkbox-wrapper :input'
     );
+    this.currentStoredFilterId = this.$searchForm.data('storedFilterId');
 
     this.defaultFilterOptions = {
       splitListClass: 'split-list',

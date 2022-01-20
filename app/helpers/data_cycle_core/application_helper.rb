@@ -123,6 +123,14 @@ module DataCycleCore
       end
     end
 
+    def dashboard_title
+      title = t('data_cycle_core.dashboard', locale: active_ui_locale)
+
+      title << ": #{@stored_filter.name}" if @stored_filter&.name.present?
+
+      title
+    end
+
     # Returns the full title on a per-page basis.
     def full_title
       base_title = 'dataCycle'

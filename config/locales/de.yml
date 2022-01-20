@@ -455,9 +455,9 @@ de:
         introducton:
           file_name: einleitungstext
           text: 'Überschrift
-          
+
           Hier könnte Ihre Enleitung stehen
-          
+
           COPYRIGHT dataCycle'
     gip_key_figure:
       button_title: Ermittlung des Wertes für %{data} über ein Web-Service der GIP auf Basis der zugrundeliegenden Geo-Daten
@@ -1096,6 +1096,7 @@ de:
     user_details: Benutzerdetails
     user_links: Benutzerlinks
     classifications: 'Klassifizierungen'
+    dashboard: Dashboard
     classifications_adminitration:
       classification:
         submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
