@@ -26,6 +26,7 @@ module DataCycleCore
                 xml.Addresses
                 xml.CustomAttributes
                 xml.HandicapFacilities
+                xml.GuestCards
               end
             end
           end
@@ -142,6 +143,7 @@ module DataCycleCore
                 xml.HotSpots
                 xml.CustomAttributes
                 xml.HandicapFacilities
+                xml.GuestCards
               end
             end
           end
