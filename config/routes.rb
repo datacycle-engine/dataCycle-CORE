@@ -51,7 +51,6 @@ DataCycleCore::Engine.routes.draw do
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
     resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things) do
       post :import, on: :collection
-      post '/', on: :member, action: :show
       get 'history/:history_id', action: :history, on: :member, as: :history
       post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
@@ -73,12 +72,13 @@ DataCycleCore::Engine.routes.draw do
       delete :remove_locks, on: :member
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
       post :attribute_value, on: :member
+      post '/', on: :member, action: :show
     end
   end
 
   resources :subscriptions, only: [:index, :destroy] do
-    post '/', on: :collection, action: :index
     post '/create', on: :collection, action: :create
+    post '/', on: :collection, action: :index
   end
 
   resources :stored_filters, only: [:index, :show, :create, :update, :destroy], path: :search_history do
@@ -122,7 +122,6 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resources :watch_lists do
-    post '/', on: :member, action: :show
     delete :remove_item, on: :member
     get :add_item, on: :member
     post :add_related_items, on: :collection
@@ -134,6 +133,7 @@ DataCycleCore::Engine.routes.draw do
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
     delete :clear, on: :member
+    post '/', on: :member, action: :show
   end
 
   resources :classifications, only: [:index, :create] do

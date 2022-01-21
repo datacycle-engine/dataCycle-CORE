@@ -8,7 +8,7 @@ PATH
       addressable
       amazing_print
       bcrypt_pbkdf
-      cancancan
+      cancancan (>= 3.3.0)
       carrierwave (~> 0.5)
       carrierwave_backgrounder (~> 0.4.2)
       daemons
@@ -664,4 +664,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.3.4
+   2.3.5
