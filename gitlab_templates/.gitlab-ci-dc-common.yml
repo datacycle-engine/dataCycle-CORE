@@ -207,7 +207,7 @@ services:
   when: manual
 
 .post_deploy_docker_config:
-  stage: post_deploy
+  stage: post-deploy
   image: docker:20.10
   allow_failure: false
   variables:
