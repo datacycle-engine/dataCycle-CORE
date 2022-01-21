@@ -69,7 +69,7 @@ services:
 .code_validation_config:
   <<: *local_test_vars
   extends: .job_cache_config
-  stage: check
+  stage: test
   script:
     - bundle exec bundle-audit update
     - bundle exec bundle audit check --ignore CVE-2021-21288 CVE-2021-21305
