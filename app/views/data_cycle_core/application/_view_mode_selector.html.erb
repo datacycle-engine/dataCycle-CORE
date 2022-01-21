@@ -1,8 +1,6 @@
 <% @mode ||= 'grid' %>
 
 <div class="mode-container <%= local_assigns[:additional_classes] %>">
-  <%# TODO: refactor to post request %>
-
   <%= tag.span(class: 'result-count remote-render',
       data: {
         remote_render_params: to_query_params(
