@@ -6,14 +6,12 @@ stages:
   - test
   - build-docker
   - deploy
+  - post-deploy
 
 before_script:
   - gem install bundler
   - bundle config set --local path 'cache/bundler'
   - bundle install
-
-  - dpkg-reconfigure -f noninteractive tzdata
-  - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
   - export RUBYOPT="-W:no-deprecated -W:no-experimental"
 
 ########################################################################
@@ -52,6 +50,13 @@ stop_docker_job:
   environment:
     name: $GITLAB_ENVIRONMENT
     action: stop
+
+restart_docker_job:
+  <<: *docker_ci
+  extends: .restart_docker_config
+  environment:
+    name: $GITLAB_ENVIRONMENT
+    url: $DOCKER_URL
 
 post_deploy_docker_job:
   <<: *docker_ci
