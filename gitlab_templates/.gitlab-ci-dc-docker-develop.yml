@@ -6,6 +6,7 @@ stages:
   - test
   - build-docker
   - deploy
+  - post-deploy
 
 before_script:
   - gem install bundler
