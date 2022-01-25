@@ -443,6 +443,13 @@ module DataCycleCore
       redirect_back(fallback_location: root_path)
     end
 
+    def destroy_auto_translate
+      authorize! :destroy, :auto_translate
+      thing = DataCycleCore::Thing.find(params[:id])
+      thing.destroy_auto_translations
+      redirect_back(fallback_location: root_path)
+    end
+
     def select_search
       authorize! :show, DataCycleCore::Thing
       template_filter = select_search_params[:template_name].present?

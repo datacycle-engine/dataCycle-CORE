@@ -1,3 +1,7 @@
 - Inhaltstypen | filter:
     - $$Text:
         - $$Übersetzung
+
+- Übersetzungstyp | filter:
+    - $$Manuell
+    - $$Automatisch

@@ -171,6 +171,13 @@
       display: inline;
       position: relative;
       vertical-align: top;
+      > span[title] {
+        color: $body-font-color;
+        opacity: 0.3;
+        transition: all ease-in-out 0.25s;
+        padding: 0 0.5rem;
+        cursor: help;
+      }
       > a,
       > .link {
         display: inline-block;

@@ -431,6 +431,8 @@ module DataCycleCore
         value ||
           if property_definition['storage_location'] == 'column'
             send(property_name)
+          elsif property_definition['tree_label'].present?
+            load_classifications(property_name, overlay_flag)
           else
             convert_to_type(
               property_definition.dig('compute', 'type'),
