@@ -4,6 +4,8 @@ module DataCycleCore
   class ExceptionsController < ApplicationController
     include DataCycleCore::ErrorHandler
 
+    helper DataCycleCore::ExceptionHelper
+
     rescue_from StandardError, with: :internal_server_error_exception
     skip_before_action :verify_authenticity_token
 
