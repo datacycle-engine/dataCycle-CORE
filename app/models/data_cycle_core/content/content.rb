@@ -8,7 +8,8 @@ module DataCycleCore
       NEW_STORAGE_LOCATION = {
         'value' => 'metadata',
         'translated_value' => 'content',
-        'column' => 'column'
+        'column' => 'column',
+        'classification' => 'classification'
       }.freeze
       PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
       WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks].freeze
@@ -431,7 +432,7 @@ module DataCycleCore
         value ||
           if property_definition['storage_location'] == 'column'
             send(property_name)
-          elsif property_definition['tree_label'].present?
+          elsif property_definition['storage_location'] == 'classification'
             load_classifications(property_name, overlay_flag)
           else
             convert_to_type(

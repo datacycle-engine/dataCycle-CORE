@@ -86,6 +86,7 @@
         :label: Typ der Übersetzung (gesamter Datensatz)
         :type: computed
         :tree_label: Übersetzungstyp
+        :storage_location: classification
         :compute:
           :type: classification
           :module: Utility::Compute::Classification
