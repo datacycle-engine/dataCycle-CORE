@@ -62,7 +62,7 @@ class DataList {
   }
   users_callback_method(data) {
     data.forEach(element => {
-      if (element && element.name && element.id)
+      if (element && element.email && element.id)
         this.list.insertAdjacentHTML(
           'beforeend',
           `<option data-familyname="${element.family_name}" data-givenname="${element.given_name}" data-id="${element.id}" value="${element.email}">`
@@ -84,12 +84,24 @@ class DataList {
         );
       else userIdInput.value = selectedOption.dataset.id;
 
-      if (givenNameField) givenNameField.setAttribute('readonly', true);
-      if (familyNameField) familyNameField.setAttribute('readonly', true);
+      if (givenNameField) {
+        givenNameField.setAttribute('readonly', true);
+        givenNameField.value = selectedOption.dataset.givenname;
+      }
+      if (familyNameField) {
+        familyNameField.setAttribute('readonly', true);
+        familyNameField.value = selectedOption.dataset.familyname;
+      }
     } else {
       if (userIdInput) userIdInput.remove();
-      if (givenNameField) givenNameField.removeAttribute('readonly');
-      if (familyNameField) familyNameField.removeAttribute('readonly');
+      if (givenNameField) {
+        givenNameField.removeAttribute('readonly');
+        givenNameField.value = '';
+      }
+      if (familyNameField) {
+        familyNameField.removeAttribute('readonly');
+        familyNameField.value = '';
+      }
     }
   }
   search_history_callback_method(data) {
