@@ -100,7 +100,16 @@ module DataCycleCore
                 concat(
                   tag.ul(class: 'no-bullet') do
                     DataCycleCore::ClassificationTreeLabel.visible('tree_view').presence&.each do |tree_label|
-                      concat(tag.li(link_to_unless(tree_label.id == params_hash[:ctl_id], tree_label.name, params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge({ mode: mode, ctl_id: tree_label.id }))))
+                      concat(
+                        tag.li(
+                          link_to_unless(
+                            tree_label.id == params_hash[:ctl_id],
+                            t("filter.#{tree_label.name.presence&.underscore_blanks}", default: tree_label.name, locale: active_ui_locale),
+                            params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset)
+                              .merge({ mode: mode, ctl_id: tree_label.id })
+                          )
+                        )
+                      )
                     end
                   end
                 )
@@ -108,7 +117,12 @@ module DataCycleCore
             )
           elsif DataCycleCore::ClassificationTreeLabel.visible('tree_view').present?
             tree_label = DataCycleCore::ClassificationTreeLabel.visible('tree_view').first
-            link_to_unless(tree_label.id == params_hash[:ctl_id], mode_icon(mode, tree_label.name), params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge({ mode: mode, ctl_id: tree_label.id }))
+            link_to_unless(
+              tree_label.id == params_hash[:ctl_id],
+              mode_icon(mode, t("filter.#{tree_label.name.presence&.underscore_blanks}", default: tree_label.name, locale: active_ui_locale)),
+              params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset)
+                .merge({ mode: mode, ctl_id: tree_label.id })
+            )
           end
         end
       else

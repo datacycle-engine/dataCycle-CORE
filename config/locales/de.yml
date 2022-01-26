@@ -859,7 +859,7 @@ de:
       locked: '%{data} wurde gesperrt.'
       unlocked: '%{data} wurde freigegeben.'
       invalidated: '%{data} wurde deaktiviert.'
-      updated_multiple: '%{data} wurden aktualisiert.'
+      updated_user_settings: 'Benutzereinstellungen wurden aktualisiert.'
       moved_to: 'Inhalt in %{data} verschoben'
       become_user: 'Eingeloggt als %{data}.'
       duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
@@ -1031,7 +1031,7 @@ de:
         access_token: API Token
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
         represented_by: Repräsentiert durch
-        ui_locale: UI Sprache
+        ui_locale: Sprache der Benutzeroberfläche
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname
