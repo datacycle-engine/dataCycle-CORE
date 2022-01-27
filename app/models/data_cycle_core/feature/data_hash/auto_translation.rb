@@ -4,10 +4,6 @@ module DataCycleCore
   module Feature
     module DataHash
       module AutoTranslation
-        def auto_translate
-          return if about.blank?
-        end
-
         # create/update translations
         def create_update_translations
           additional_infos = load_translated_content
