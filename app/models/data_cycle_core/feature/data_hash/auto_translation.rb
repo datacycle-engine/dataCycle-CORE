@@ -23,13 +23,7 @@ module DataCycleCore
               new_content.template_name = template.template_name
               new_content.external_source_id = external_source_id
             end
-
-            if content.new_record?
-              content.save! # need id to add linked_data
-              translated_classification = ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch')
-            else
-              translated_classification = content.translated_classification.presence&.pluck(:id) || ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch')
-            end
+            translated_classification = content.translated_classification.presence&.pluck(:id) || ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch')
 
             translations_created[classification] = []
             description_type = ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', classification)
