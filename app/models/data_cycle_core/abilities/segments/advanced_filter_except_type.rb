@@ -11,7 +11,7 @@ module DataCycleCore
           @subject = Array.wrap(subject).map(&:to_sym)
         end
 
-        def include?(type, *_args)
+        def include?(view, name=nil , type=nil, *_args)
           types.exclude?(type.to_s)
         end
 

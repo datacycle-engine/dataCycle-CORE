@@ -39,8 +39,8 @@ module DataCycleCore
           definition.instance_variable_set(:@session, ability.session)
 
           parameters = [permission[:actions].first.to_sym, permission[:actions].from(1), definition.subject]
+          parameters.push(definition.scope) if definition.respond_to?(:scope)
           parameters.push(definition.conditions) if definition.respond_to?(:conditions)
-
           next ability.send(*parameters) unless definition.respond_to?(:to_proc)
 
           ability.send(*parameters, &definition.to_proc)

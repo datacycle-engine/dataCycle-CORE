@@ -4,24 +4,31 @@ module DataCycleCore
   module Abilities
     module Segments
       class DataAttributeAllowed < Base
-        attr_reader :subject
+        attr_reader :subject, :method_names
 
-        def initialize
+        def initialize(method_names)
           @subject = DataCycleCore::DataAttribute
+          @method_names = Array.wrap(method_names).map(&:to_sym)
         end
 
         def include?(attribute)
-          [
-            attribute_not_disabled?(attribute),
-            attribute_not_in_overlay?(attribute),
-            attribute_not_external?(attribute),
-            attribute_not_releasable?(attribute),
-            attribute_tree_label_visible?(attribute)
-          ].all?
+          method_names.all? { |method_name| send(method_name, attribute) }
         end
 
         def to_proc
           ->(*args) { include?(*args) }
+        end
+
+        def attribute_not_included_in_publication_schedule?(attribute)
+          return true unless DataCycleCore::Feature::PublicationSchedule.allowed?(attribute.content)
+          !(
+            (attribute.key =~ Regexp.union(*DataCycleCore.features.dig(:publication_schedule, :classification_keys))) &&
+              !DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(attribute.content, attribute.key)
+          )
+        end
+
+        def attribute_not_read_only?(attribute)
+          attribute.definition.deep_stringify_keys.dig('ui', attribute.scope.to_s, 'readonly').to_s != 'true'
         end
 
         def attribute_not_disabled?(attribute)
