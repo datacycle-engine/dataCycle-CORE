@@ -12,7 +12,7 @@ module DataCycleCore
 
     def attribute_editable?(key, definition, options, content)
       @attribute_editable ||= Hash.new do |h, k|
-        h[k] = can?(:edit, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :edit, k.dig(2, 'edit_scope')))
+        h[k] = can?(:update, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :update, k.dig(2, 'edit_scope')))
       end
 
       @attribute_editable[[key, definition, options, content]]
@@ -24,7 +24,7 @@ module DataCycleCore
 
       return render_linked_viewer(options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.definition['type'] == 'linked' && options.definition['link_direction'] == 'inverse'
 
-      return unless can?(:show, DataCycleCore::DataAttribute.new(
+      return unless can?(:edit, DataCycleCore::DataAttribute.new(
                                   options.key,
                                   options.definition,
                                   options.parameters[:options],

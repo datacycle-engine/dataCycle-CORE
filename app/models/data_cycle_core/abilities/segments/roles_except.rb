@@ -10,7 +10,7 @@ module DataCycleCore
           except = Array.wrap(except).map(&:to_s)
           @allowed = DataCycleCore::Role.where.not(name: except).pluck(:name)
           @subject = DataCycleCore::Role
-          @conditions = {name: @allowed}
+          @conditions = { name: @allowed }
         end
       end
     end

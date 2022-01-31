@@ -11,7 +11,7 @@ module DataCycleCore
           @method_names = Array.wrap(method_names).map(&:to_sym)
         end
 
-        def include?(content)
+        def include?(content, _scope = nil)
           method_names.any? { |method_name| send(method_name, content) }
         end
 

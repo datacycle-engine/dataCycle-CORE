@@ -6,7 +6,7 @@ module DataCycleCore
       class StoredFilterByApiUsers < Base
         attr_reader :subject, :scope
 
-        def initialize(**additional_conditions)
+        def initialize(**_additional_conditions)
           @subject = DataCycleCore::StoredFilter
           @scope = ['api = ? AND ? = ANY(api_users)', true, user&.id]
         end
