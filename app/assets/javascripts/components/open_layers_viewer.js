@@ -112,6 +112,7 @@ class OpenLayersViewer {
     this.afterValue = this.$container.data('after-position');
     this.type = this.$container.data('type');
     this.additionalValues = this.$container.data('additionalValues');
+    this.additionalAttributes = this.$container.data('additional-attributes');
     this.feature;
     this.additionalFeatures = [];
     this.infoOverlay;
@@ -119,13 +120,21 @@ class OpenLayersViewer {
     this.featureOverlaySource;
     this.highlightedFeature;
     this.icons = iconPaths;
-    this.colors = {
+    this.colorsHandler = {
+      get: function (target, name) {
+        if (target.hasOwnProperty(name)) return target[name];
+        else if (name) return name;
+        else target['default'];
+      }
+    };
+    this.definedColors = {
       default: '#1779ba',
       red: '#cc4b37',
       green: '#90c062',
       white: '#ffffff',
       gray: '#767676'
     };
+    this.colors = new Proxy(this.definedColors, this.colorsHandler);
     this.scrollTexts = {
       ctrlKey: 'Strg+Scrollen zum Zoomen',
       metaKey: '⌘+Scrollen zum Zoomen',
@@ -510,10 +519,10 @@ class OpenLayersViewer {
 
     if (this.defaultPosition && this.defaultPosition.zoom) viewOptions.zoom = this.defaultPosition.zoom;
     if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude) {
-      let newCoords = new this.ol.geom.Point([this.defaultPosition.longitude, this.defaultPosition.latitude]).transform(
-        'EPSG:4326',
-        'EPSG:3857'
-      );
+      const newCoords = new this.ol.geom.Point([
+        this.defaultPosition.longitude,
+        this.defaultPosition.latitude
+      ]).transform('EPSG:4326', 'EPSG:3857');
       viewOptions.center = newCoords.getCoordinates();
     }
 

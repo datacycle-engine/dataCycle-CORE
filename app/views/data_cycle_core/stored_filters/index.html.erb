@@ -35,6 +35,7 @@
                 <%= stored_search.linked_stored_filter.name %>
               </span>
             <% end %>
+
             <span class="stored-filter-creator">
               <i class="fa fa-user" aria-hidden="true"></i>
               <a class="email-link" href="mailto:<%= stored_search.user.email %>"
@@ -43,7 +44,11 @@
               </a>
             </span>
 
-            <span class="content-date"><i class="fa fa-clock-o" aria-hidden="true"></i><%= l(stored_search.created_at.to_datetime, locale: active_ui_locale) %></span>
+            <span class="content-date">
+              <i class="fa fa-clock-o" aria-hidden="true"></i>
+              <%= l(stored_search.created_at.to_datetime, locale: active_ui_locale) %>
+            </span>
+
             <span class="content-attributes">
               <%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_search %>
             </span>

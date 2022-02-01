@@ -5,24 +5,77 @@
 
 :download:
   :enabled: true
-  :collections:
+  :downloader:
     :content:
       :enabled: true
-    :watch_list:
-      :enabled: true
-      :serializers:
-        :json: true
-        :xml: true
-    :stored_filter:
-      :enabled: true
-      :serializers:
-        :json: true
-        :xml: true
+      :thing:
+        :enabled: true
+        :serializers:
+          :asset: true
+          :gpx: true
+          :json: true
+          :xml: true
+      :watch_list:
+        :enabled: true
+        :serializers:
+          :json: true
+          :xml: true
+      :stored_filter:
+        :enabled: true
+        :serializers:
+          :json: true
+          :xml: true
+    :archive:
+      :zip:
+        :enabled: true
+        :thing:
+          :enabled: true
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: true
+        :watch_list:
+          :enabled: true
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: true
+        :stored_filter:
+          :enabled: true
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: true
+      :indesign:
+        :enabled: true
+        :thing:
+          :enabled: true
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :watch_list:
+          :enabled: true
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :stored_filter:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+    :dependencies:
+      - serialize
 
 :serialize:
   :enabled: true
   :serializers:
     :asset: true
+    :license: true
+    :gpx: true
+    :indesign: true
     :json: true
     :xml: true
 
@@ -189,3 +242,21 @@
 
 :named_version:
   :enabled: true
+
+:image_proxy:
+  :enabled: true
+  :frontend:
+    :enabled: true
+
+:image_editor:
+  :enabled: true
+
+:report_generator:
+  :enabled: true
+  :config:
+    :global:
+      :downloads_popular:
+        :enabled: true
+    :content:
+      :downloads_content:
+        :enabled: true

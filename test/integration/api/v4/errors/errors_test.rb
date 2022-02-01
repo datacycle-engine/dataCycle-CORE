@@ -356,7 +356,7 @@ module DataCycleCore
             get api_v4_collection_path(params)
             error_object = {
               'source' => {
-                'pointer' => request.path
+                'pointer' => request.env&.dig('warden.options', :attempted_path)
               },
               'detail' => 'invalid or missing authentication token'
             }

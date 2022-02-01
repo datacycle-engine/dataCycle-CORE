@@ -17,10 +17,43 @@ namespace :db do
   end
 
   namespace :maintenance do
-    desc 'run VACUUM FULL and ANALYZE on DB'
-    task vacuum_full: :environment do
-      ActiveRecord::Base.connection.execute('VACUUM FULL;')
-      ActiveRecord::Base.connection.execute('ANALYZE;')
+    desc 'run VACUUM (FULL) on DB, full(false|true)'
+    task :vacuum, [:full] => [:environment] do |_, args|
+      full = args.fetch(:full, false)
+      sql = 'VACUUM'
+      sql += ' FULL' if full
+      sql += ' ANALYZE;'
+      ActiveRecord::Base.connection.execute(sql)
+    end
+  end
+
+  namespace :configure do
+    desc 'rebuild collected_classification_content_relations according to configuration'
+    task rebuild_ccc_relations: :environment do
+      function_to_rebuild = DataCycleCore.transitive_classification_paths ? 'generate_collected_cl_content_relations_transitive' : 'generate_collected_classification_content_relations'
+
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        SELECT
+          #{function_to_rebuild} (ARRAY_AGG(id), ARRAY[]::uuid[])
+        FROM
+          things
+        WHERE
+          TEMPLATE = FALSE;
+      SQL
+    end
+
+    desc 'rebuild classification_alias_paths_transitive'
+    task rebuild_cap_transitive: :environment do
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        SELECT generate_ca_paths_transitive(ARRAY_AGG(id)) FROM classification_aliases;
+      SQL
+    end
+
+    desc 'rebuild classification_alias_paths'
+    task rebuild_ca_paths: :environment do
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        SELECT generate_classification_alias_paths(ARRAY_AGG(id)) FROM classification_aliases;
+      SQL
     end
   end
 end

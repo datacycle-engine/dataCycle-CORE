@@ -75,3 +75,22 @@
             :disabled: true
           :show:
             :disabled: true
+      :computed_attribution_name:
+        :label: hidden attribution name
+        :storage_location: translated_value
+        :type: computed
+        :search: true
+        :external: false
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: attribution_name
+          :parameters:
+            :0: copyright_holder
+            :1: author
+        :api:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+

@@ -26,6 +26,7 @@ module DataCycleCore
                 xml.Addresses
                 xml.CustomAttributes
                 xml.HandicapFacilities
+                xml.GuestCards
               end
             end
           end
@@ -126,7 +127,7 @@ module DataCycleCore
               xml.Filters('DateFrom' => changed_from.to_s(:long_datetime),
                           'Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
                           'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d')) do
-                xml.Infrastructure('Status' => 'All')
+                xml.ChangedInfrastructure('Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
                     xml.Language('Value' => l.to_s)
@@ -142,6 +143,7 @@ module DataCycleCore
                 xml.HotSpots
                 xml.CustomAttributes
                 xml.HandicapFacilities
+                xml.GuestCards
               end
             end
           end

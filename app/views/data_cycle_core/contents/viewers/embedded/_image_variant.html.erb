@@ -1,0 +1,67 @@
+<% I18n.with_locale(local_assigns[:locale]) do %>
+  <div class="detail-content imageobject">
+    <div class="row align-center">
+      <div class="image encoding">
+        <%
+          thumbnail_url = object.try(:asset_web_url) || object.try(:thumbnail_url)
+        %>
+        <% if thumbnail_url.present? %>
+          <div class="image-container stripes">
+            <%= render_attribute_viewer key: "#{key}[#{index}][thumbnail_url]",
+                                        definition: object.schema['properties']['thumbnail_url'],
+                                        value: thumbnail_url,
+                                        parameters: { 
+                                          options: {hide_label: true},
+                                          parent: object 
+                                        },
+                                        content: object %>
+          </div>
+        <% end %>
+        <div class="image-data">
+          <dl>
+            <% if ['width', 'height', 'content_size', 'file_format', 'date_created', 'date_modified', 'upload_date'].any?{|val| object.try(val.to_sym).present? } %>
+              <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
+              <dd>
+                <% if object.width&.to_i&.positive? ||  object.height&.to_i&.positive? %>
+                  <%= object.width&.to_i %>px/<%= object.height&.to_i %>px
+                <% end %>
+                <% if object.content_size&.to_i&.positive? %>
+                  (<%= number_to_human_size(object.content_size) %>)
+                <% end %>
+                <% if object.file_format.present? %>
+                  <br />
+                  <strong>Format:</strong> <%= object.file_format %>
+                <% end %>
+              </dd>
+              <% ['date_created', 'date_modified', 'upload_date'].each do |property_name| %>
+                <% next if object.try(property_name.to_sym).blank? %>
+                <dd>
+                  <%= render_attribute_viewer key: "#{key}[#{index}][#{property_name}]",
+                                              definition: object.schema['properties'][property_name],
+                                              value: object.try(property_name.to_sym),
+                                              parameters: {
+                                                options: {},
+                                                parent: object
+                                              },
+                                              content: content %>
+                </dd>
+              <% end %>
+            <% end %>
+            <% if object.try(:gravity).present? %>
+              <dd>
+                <%= render_attribute_viewer key: "#{key}[#{index}][gravity]",
+                                            definition: object.schema['properties']['gravity'],
+                                            value: object.try(:gravity),
+                                            parameters: {
+                                              options: {},
+                                              parent: object
+                                            },
+                                            content: content %>
+              </dd>
+            <% end %>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

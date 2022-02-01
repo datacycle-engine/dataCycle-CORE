@@ -14,7 +14,7 @@ module DataCycleCore
         def jobs(*)
           Enumerator.new do |yielder|
             load_data.each do |item|
-              yielder << item.dig('children')
+              yielder << item
             end
           end
         end
@@ -32,10 +32,12 @@ module DataCycleCore
             req.params['fbclid'] = @fbclid
           end
 
-          xml_data = Nokogiri::XML(response.body)
+          data = JSON.parse(response.body)
+          # xml_data = Nokogiri::XML(response.body)
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{url} ? fbclid = #{@fbclid}", response) unless response.success?
-          xml_data.children.first.children.detect { |item| item.name == 'data' }.to_hash.dig('job')
+          # xml_data.children.first.children.detect { |item| item.name == 'data' }.to_hash.dig('job')
+          data['data']
         end
       end
     end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/shell_helper'
+
 namespace :dc do
   namespace :local_dev do
     # RAILS_ENV=development rake dc:local_dev:init
@@ -24,7 +26,7 @@ namespace :dc do
         exit(-1)
       end
 
-      input = prompt 'Please enter Postgres Password'
+      input = ShellHelper.prompt 'Please enter Postgres Password'
 
       if input.present?
         File.open(Rails.root.join('tmp', '.env'), 'w') do |file|
@@ -89,11 +91,6 @@ namespace :dc do
       end
 
       puts 'AUTOMATIC I18N TRANSLATION FINISHED...'
-    end
-
-    def prompt(*args)
-      print(*args)
-      STDIN.gets.strip
     end
   end
 end

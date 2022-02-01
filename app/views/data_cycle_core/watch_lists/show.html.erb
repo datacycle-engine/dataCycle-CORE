@@ -14,7 +14,7 @@
         <ul class="no-bullet">
           <li>
             <div id="show-history-link" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
-              <%= t('history.created_at', locale: active_ui_locale) %> <%= l(@watch_list&.created_at&.in_time_zone, locale: active_ui_locale) %>
+              <%= t('history.created_at_html', locale: active_ui_locale, date: l(@watch_list&.created_at&.in_time_zone, locale: active_ui_locale, format: :history)) %>
               <span> <%= t('terms.from', locale: active_ui_locale) %> </span>
               <span><strong><a class="email-link" title="<%= @watch_list&.user&.full_name %>" href="mailto:<%= "#{@watch_list&.user&.email}" %>"><%= @watch_list&.user&.full_name %></a></strong></span>
             </div>
@@ -49,6 +49,21 @@
                 <%= render 'data_cycle_core/application/preview/widget', content: @watch_list %>
               </li>
             <% end %>
+          <% end %>
+
+          <% if DataCycleCore.main_config.dig(:webdav, :enabled) %>
+            <li>
+              <span class="link" aria_hidden="true">
+                <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
+                                            class: 'copy-to-clipboard',
+                                            data: {
+                                                value: send("webdav_#{DataCycleCore.main_config.dig(:webdav, :default)}_contents_index_url", api_subversion: nil, id: @watch_list)
+                                            },
+                                            title: t('actions.copy_to_clipboard', locale: active_ui_locale) do %>
+                  <i class="fa fa-hdd-o" aria-hidden="true"></i>
+                <% end %>
+              </span>
+            </li>
           <% end %>
 
           <%= tag.li render('data_links', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>

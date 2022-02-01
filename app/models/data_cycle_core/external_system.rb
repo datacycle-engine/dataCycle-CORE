@@ -245,6 +245,7 @@ module DataCycleCore
       format(default_options.dig('external_detail_url'), locale: I18n.locale, external_key: content.external_key)
     end
 
+    # e.g. search for ID: query(:infrastructure_items) { |coll| coll.where({'external_id' => '3479fb74-a008-4ca5-a48f-becebee70e79'}).first }
     def query(collection_name)
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
       Mongoid.override_database("#{mongo_class.database_name}_#{id}")

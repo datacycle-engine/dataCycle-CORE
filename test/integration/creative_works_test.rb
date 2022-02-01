@@ -83,11 +83,16 @@ module DataCycleCore
 
     test 'show content history' do
       get thing_path(@content)
+
+      @content.set_data_hash(data_hash: {
+        name: 'changed name'
+      }.deep_stringify_keys, partial_update: true)
+
       assert_response :success
       assert_select ".detail-header > .title > .translatable-attribute-container > .translatable-attribute.#{I18n.locale}", 1
       get history_thing_path(@content, history_id: @content.histories&.first&.id)
       assert_response :success
-      assert_select('.detail-content .type.properties .has-changes', count: 2) # title & slug
+      assert_select('.detail-content .type.properties .has-changes', count: 1) # title & slug
     end
 
     test 'delete content' do

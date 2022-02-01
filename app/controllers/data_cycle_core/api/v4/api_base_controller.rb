@@ -10,7 +10,6 @@ module DataCycleCore
         include CanCan::ControllerAdditions
         include ActiveSupport::Rescuable
         include DataCycleCore::ErrorHandler
-        include ActionController::HttpAuthentication::Token::ControllerMethods
         include DataCycleCore::ApiService
         helper DataCycleCore::ApiHelper
 
@@ -31,7 +30,7 @@ module DataCycleCore
         }.freeze
 
         after_action :log_activity, unless: -> { params[:sl] }
-        before_action :authenticate, :set_default_response_format
+        before_action :authenticate_user!, :set_default_response_format
 
         # TODO: move validate_api_params to be called before permitted_params
         def permitted_params
@@ -40,7 +39,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, section: {}, page: {}, content_id: [], 'dc:liveData': []]
+          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, section: {}, page: {}, content_id: [], 'dc:liveData': [], classification_trees: []]
         end
 
         def page_parameters
@@ -92,6 +91,8 @@ module DataCycleCore
           @include_parameters = parse_tree_params(permitted_params.dig(:include))
           @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
           @field_filter = @fields_parameters.present?
+          @classification_trees_parameters = Array.wrap(permitted_params.dig(:classification_trees))
+          @classification_trees_filter = @classification_trees_parameters.present?
           @live_data = permitted_params.dig(:'dc:liveData')
           @section_parameters = section_parameters
           @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
@@ -101,31 +102,6 @@ module DataCycleCore
         end
 
         private
-
-        def request_http_token_authentication(realm = 'Application', _message = nil)
-          headers['WWW-Authenticate'] = %(Token realm="#{realm.delete('"')}")
-          raise CanCan::AccessDenied, 'HTTP Token: Access denied.'
-        end
-
-        def authenticate
-          return if current_user
-
-          if request.headers['Authorization'].present?
-            authenticate_or_request_with_http_token do |token|
-              @decoded = DataCycleCore::JsonWebToken.decode(token)
-              @user = DataCycleCore::User.find_with_token(@decoded)
-            rescue JWT::DecodeError, JSON::ParserError => e
-              raise CanCan::AccessDenied, e.message
-            end
-          elsif params[:token].present?
-            @user = User.find_by(access_token: params[:token])
-          end
-
-          raise CanCan::AccessDenied, 'invalid or missing authentication token' if @user.nil?
-
-          request.env['devise.skip_trackable'] = true
-          sign_in @user, store: false
-        end
 
         def set_default_response_format
           request.format = :json unless permitted_params[:format]

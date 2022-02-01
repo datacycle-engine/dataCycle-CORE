@@ -50,6 +50,9 @@ module DataCycleCore
             req.params['partner'] = @partner
           end
 
+          # it seems like bergfex returns status 500 for lake data in Winter??
+          return [] if response.status == 500
+
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
           [Nokogiri::XML(response.body).xpath('//lakes').first.to_hash['lake']].flatten
         end

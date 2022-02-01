@@ -72,13 +72,17 @@ module DataCycleCore
             )
           end
 
-          content.metadata ||= {}
-          content.schema = template.schema
-          content.template_name = template.template_name
-          content.created_by = data['created_by']
+          created = false
           content.webhook_source = utility_object&.external_source&.name
-          created = content.new_record?
-          content.save!
+
+          if content.new_record?
+            content.metadata ||= {}
+            content.schema = template.schema
+            content.template_name = template.template_name
+            content.created_by = data['created_by']
+            created = true
+            content.save!
+          end
 
           global_attributes = {}
           (content.global_property_names + DataCycleCore::Feature::OverlayAttributeService.call(content)).each do |attribute|
@@ -119,14 +123,16 @@ module DataCycleCore
             normalized_data = global_data
           end
 
-          current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
-          invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true) || true
+          current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
+          invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true)
+          partial_update_improved = utility_object.external_source.default_options&.fetch('partial_update_improved', DataCycleCore.partial_update_improved) && !created
           valid = content.set_data_hash(
             data_hash: normalized_data,
             prevent_history: !utility_object.history,
             update_search_all: true,
             current_user: current_user,
             partial_update: !created,
+            partial_update_improved: partial_update_improved,
             new_content: created,
             invalidate_related_cache: invalidate_related_cache
           )
@@ -205,7 +211,7 @@ module DataCycleCore
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     mongo_item.with_session do |session|
                       if options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
-                        iterate = iterator.call(mongo_item, locale, source_filter)
+                        iterate = iterator.call(mongo_item, locale, source_filter).allow_disk_use(true)
                       else
                         iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
                       end
@@ -328,6 +334,79 @@ module DataCycleCore
           end
         end
 
+        def self.import_paging(utility_object:, iterator:, data_processor:, options:)
+          init_logging(utility_object) do |logging|
+            init_mongo_db(utility_object) do
+              importer_name = options.dig(:import, :name)
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+
+              each_locale(utility_object.locales) do |locale|
+                item_count = 0
+                begin
+                  logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
+                  source_filter = options&.dig(:import, :source_filter) || {}
+                  source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
+                  source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
+                  if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
+                    source_filter = source_filter.merge({
+                      '$or' => [{
+                        'updated_at' => { '$gte' => utility_object.external_source.last_successful_import }
+                      }, {
+                        "dump.#{locale}.updated_at" => { '$gte' => utility_object.external_source.last_successful_import }
+                      }]
+                    })
+                  end
+
+                  GC.start
+
+                  times = [Time.current]
+
+                  utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                    if options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
+                      iterate = iterator.call(mongo_item, locale, source_filter)
+                    else
+                      iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
+                    end
+
+                    external_keys = iterate.map { |c| c[:external_id] }
+                    min = (options[:min_count] || 1) - 1
+                    max = (options[:max_count] || external_keys.size) - 1
+                    keys = external_keys[min..max]
+
+                    keys.each do |external_id|
+                      item_count += 1
+
+                      if options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
+                        query = iterator.call(mongo_item, locale, source_filter.merge('external_id' => external_id))
+                      else
+                        query = iterator.call(mongo_item, locale, source_filter.merge('external_id' => external_id)).all.no_timeout.max_time_ms(fixnum_max)
+                      end
+
+                      content_data = query.first[:dump][locale]
+                      data_processor.call(
+                        utility_object: utility_object,
+                        raw_data: content_data,
+                        locale: locale,
+                        options: options
+                      )
+
+                      times << Time.current
+
+                      logging.info("Imported    #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)} | #{external_id}")
+
+                      next unless (item_count % 10).zero?
+                      GC.start
+                    end
+                  end
+                ensure
+                  logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
+                end
+              end
+            end
+          end
+        end
+
         def self.logging_without_mongo(utility_object:, data_processor:, options:)
           importer_name = options.dig(:import, :name)
           init_logging(utility_object) do |logging|
@@ -397,7 +476,7 @@ module DataCycleCore
         end
 
         def self.logging_delta
-          100
+          @logging_delta ||= 100
         end
       end
     end

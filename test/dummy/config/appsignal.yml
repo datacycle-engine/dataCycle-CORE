@@ -4,7 +4,7 @@ default: &defaults
   push_api_key: "ffb2c81e-7d56-4706-8f4c-d7a3e47240f9"
 
   # Your app's name
-  name: "core.datacycle.at"
+  name: <%= ENV["APPSIGNAL_APP_NAME"] %>
 
   # Actions that should not be monitored by AppSignal
   # ignore_actions:
@@ -44,6 +44,7 @@ development:
 production:
   <<: *defaults
   active: true
+  revision: <%= ENV["APPSIGNAL_APP_REVISION"] %>
 #  enable_frontend_error_catching: true
   enable_gc_instrumentation: true
 
@@ -53,6 +54,6 @@ review:
 
 staging:
   <<: *defaults
-  active: true
+  active: false
 #  enable_frontend_error_catching: true
   enable_gc_instrumentation: true

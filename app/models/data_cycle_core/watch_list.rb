@@ -4,7 +4,9 @@ module DataCycleCore
   class WatchList < ApplicationRecord
     validates :full_path, presence: true
 
-    scope :by_user, ->(user) { where user: user }
+    scope :by_user, ->(user) { where(user: user) }
+    scope :my_selection, -> { unscope(where: :my_selection).where(my_selection: true) }
+    scope :without_my_selection, -> { unscope(where: :my_selection).where(my_selection: false) }
 
     has_many :watch_list_data_hashes, dependent: :delete_all
     has_many :things, through: :watch_list_data_hashes, source: :hashable, source_type: 'DataCycleCore::Thing'
@@ -44,12 +46,12 @@ module DataCycleCore
       watch_list_data_hashes.clear
     end
 
-    def self.without_my_selection
-      all.where(my_selection: false)
-    end
-
-    def self.my_selection
-      all.where(my_selection: true)
+    def self.conditional_my_selection
+      if DataCycleCore::Feature::MySelection.enabled?
+        all
+      else
+        all.where(arel_table[:my_selection].not_eq(true))
+      end
     end
 
     private

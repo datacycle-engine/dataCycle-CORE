@@ -5,6 +5,8 @@ module DataCycleCore
     class DuplicateCandidate < Base
       EXCEPT_PROPERTIES = ['id', 'external_key', 'slug', 'date_created', 'date_modified', 'date_deleted'].freeze
       WEIGHTING = 5
+      DISTANCE_METERS = 100
+      DISTANCE_METERS_NAME_GEO = 10
 
       class << self
         def content_module
@@ -58,7 +60,7 @@ module DataCycleCore
           ).where( # prefilter with name
             'similarity(thing_translations.name, ?) > 0.8', content.name
           ).where( # prefilter location
-            content.location.blank? ? 'location IS NULL' : "ST_Distance(location, 'SRID=4326;#{content.location&.to_s}'::geometry) < 100"
+            content.location.blank? ? 'location IS NULL' : "ST_DWithin(location, ST_GeographyFromText('SRID=4326;#{content.location&.to_s}'), #{DISTANCE_METERS})"
           ).where.not(id: content.id)
             .map { |d|
               diff = content.diff(d.get_data_hash.except(*except), relevant_schema)
@@ -73,7 +75,7 @@ module DataCycleCore
             template_name: content.template_name,
             name: content.name
           ).where( # prefilter location
-            content.location.blank? ? 'location IS NULL' : "ST_Distance(location, 'SRID=4326;#{content.location&.to_s}'::geometry) < 10"
+            content.location.blank? ? 'location IS NULL' : "ST_DWithin(location, ST_GeographyFromText('SRID=4326;#{content.location&.to_s}'), #{DISTANCE_METERS_NAME_GEO})"
           ).where.not(id: content.id)
             .map { |d|
               { content: d, method: 'data_metric_hamming', score: 83 }

@@ -25,6 +25,7 @@
 @import 'modules/documentation';
 @import 'modules/schema';
 @import 'modules/admin_board';
+@import 'modules/exceptions';
 //load logs
 @import 'modules/logs';
 @import 'modules/develop';
@@ -41,7 +42,12 @@
 @import 'modules/components/embedded_attribute';
 @import 'modules/components/object_attribute';
 @import 'modules/components/icons';
+@import 'modules/components/mtk_editor';
 @import 'flatpickr/dist/flatpickr.min';
 @import 'modules/components/date_picker';
 @import 'ol/ol';
 @import 'select2/dist/css/select2.min';
+// load tui-image-editor
+@import 'tui-image-editor/dist/tui-image-editor';
+@import 'modules/components/_image_editor';
+@import 'modules/components/_report';

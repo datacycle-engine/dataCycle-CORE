@@ -3,20 +3,5 @@
     <%= content.translated_template_name(active_ui_locale) %> (<%= I18n.locale %>)
   </span>
 
-  <% if content.history? %>
-    <% if content.history_valid&.first.present? %>
-      <%= t('history.updated_at', locale: active_ui_locale) %>
-      <strong><%= l(Time.zone.at(content.history_valid&.first), locale: active_ui_locale) %></strong>
-    <% end %>
-  <% elsif content.updated_at.present? %>
-    <%= t('history.valid_since', locale: active_ui_locale) %>
-    <strong><%= l(Time.zone.at(content.updated_at), locale: active_ui_locale) %></strong>
-  <% end %>
-
-  <% if content.updated_by_user.present? %>
-    <% person = content.updated_by_user %>
-    <%= t('terms.from', locale: active_ui_locale) %> <strong><a href="mailto:<%= person.email %>"><%= person.full_name %></a></strong>
-  <% else %>
-    <%= t('terms.from', locale: active_ui_locale) %> <strong>System</strong>
-  <% end %>
+  <%= history_version_html(content) %>
 </span>

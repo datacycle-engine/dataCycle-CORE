@@ -18,6 +18,7 @@ unless content.schema.nil?
     api_property_definition = api_definition(prop)
     next if attribute_disabled?(prop) && prop.dig('type') != 'linked' # ignore linked disabled (legacy of bidirectional links)
     next if prop.dig('type') == 'classification' && api_property_definition.dig('partial').blank?
+    next if prop.dig('type') == 'computed' && prop.dig('storage_location') == 'classification'
     next if options[:hidden_attributes].include?(key)
     next if options[:combined_attributes].include?(key)
 

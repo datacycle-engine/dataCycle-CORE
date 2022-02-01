@@ -10,7 +10,7 @@ class CheckBoxSelector {
   }
   initEventHandlers() {
     this.$element.closest('.form-element').on('dc:field:reset', this.reset.bind(this));
-    this.$element.on('dc:import:data', this.import.bind(this));
+    this.$element.on('dc:import:data', this.import.bind(this)).addClass('dc-import-data');
   }
   reset(_event) {
     this.$inputFields.each((_, item) => $(item).prop('checked', false));

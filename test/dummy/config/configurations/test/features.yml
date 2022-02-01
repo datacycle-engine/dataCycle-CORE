@@ -5,24 +5,84 @@
 
 :download:
   :enabled: true
-  :collections:
+  :downloader:
     :content:
-      :enabled: false
-    :watch_list:
-      :enabled: false
-      :serializers:
-        :json: false
-        :xml: false
-    :stored_filter:
-      :enabled: false
-      :serializers:
-        :json: false
-        :xml: false
+      :enabled: true
+      :thing:
+        :enabled: true
+        :serializers:
+          :asset: false
+          :gpx: true
+          :json: false
+          :indesign: false
+          :xml: false
+      :watch_list:
+        :enabled: false
+        :serializers:
+          :asset: false
+          :gpx: false
+          :json: false
+          :indesign: false
+          :xml: false
+      :stored_filter:
+        :enabled: false
+        :serializers:
+          :asset: false
+          :gpx: false
+          :json: false
+          :indesign: false
+          :xml: false
+    :archive:
+      :zip:
+        :enabled: false
+        :thing:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+        :watch_list:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+        :stored_filter:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+      :indesign:
+        :enabled: false
+        :thing:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :watch_list:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :stored_filter:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+    :dependencies:
+      - serialize
 
 :serialize:
   :enabled: true
   :serializers:
     :asset: false
+    :license: true
+    :gpx: true
+    :indesign: false
     :json: false
     :xml: false
 

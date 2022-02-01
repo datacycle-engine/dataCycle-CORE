@@ -8,7 +8,8 @@ module DataCycleCore
       NEW_STORAGE_LOCATION = {
         'value' => 'metadata',
         'translated_value' => 'content',
-        'column' => 'column'
+        'column' => 'column',
+        'classification' => 'classification'
       }.freeze
       PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
       WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks].freeze
@@ -33,6 +34,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::ContentWarnings
       include DataCycleCore::Content::Extensions::Api
       include DataCycleCore::Content::Extensions::SyncApi
+      include DataCycleCore::Content::Extensions::Geojson
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay
@@ -67,7 +69,7 @@ module DataCycleCore
       end
 
       def errors
-        @errors ||= Hash.new do |h, key|
+        @errors ||= ActiveSupport::HashWithIndifferentAccess.new do |h, key|
           h[key] = ActiveModel::Errors.new(self)
         end
 
@@ -75,11 +77,11 @@ module DataCycleCore
       end
 
       def i18n_errors
-        @errors || {}
+        @errors || ActiveSupport::HashWithIndifferentAccess.new
       end
 
       def warnings
-        @warnings ||= Hash.new do |h, key|
+        @warnings ||= ActiveSupport::HashWithIndifferentAccess.new do |h, key|
           h[key] = ActiveModel::Errors.new(self)
         end
 
@@ -87,7 +89,7 @@ module DataCycleCore
       end
 
       def i18n_warnings
-        @warnings || {}
+        @warnings || ActiveSupport::HashWithIndifferentAccess.new
       end
 
       def valid?(*_args)
@@ -96,9 +98,6 @@ module DataCycleCore
 
       def i18n_valid?
         !i18n_errors&.any? { |(_k, v)| v.present? }
-      end
-
-      def all_translations_valid?
       end
 
       def respond_to?(method_name, include_all = false)
@@ -320,6 +319,14 @@ module DataCycleCore
         }.inject(&:merge).deep_stringify_keys
       end
 
+      def to_h_partial(partial_properties, timestamp = Time.zone.now)
+        known_names = partial_properties.select { |i| i.in?(property_names) }
+        (known_names - virtual_property_names).map { |property_name|
+          property_value = attribute_to_h(property_name, timestamp)
+          { property_name.to_s => property_value }
+        }.inject(&:merge)&.deep_stringify_keys || {}
+      end
+
       def attribute_to_h(property_name, timestamp = Time.zone.now)
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
@@ -425,6 +432,8 @@ module DataCycleCore
         value ||
           if property_definition['storage_location'] == 'column'
             send(property_name)
+          elsif property_definition['storage_location'] == 'classification'
+            load_classifications(property_name, overlay_flag)
           else
             convert_to_type(
               property_definition.dig('compute', 'type'),

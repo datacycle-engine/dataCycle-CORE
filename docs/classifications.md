@@ -12,19 +12,18 @@ Um genau diese Unterschiede auflösen zu können, bietet dataCycle einen speziel
 
 ![Klassifizierungsmapping](images/classification_mapping.svg 'Klassifizierungsmapping')
 
-
 ## Sichtbarkeit von Klassifizierungsbäumen
 
 Durch die weitreichenden Möglichkeiten in Bezug auf Klassifizierungen innerhalb von dataCycle kann die Anzahl der mit einem Inhalt verknüpften Klassifizierungen sehr leicht sehr groß werden. Um trotzdem eine möglichst gute Übersichtlichkeit zu gewährleisten, können die einzelnen Klassifizierungsbäume in verschiedenen Bereichen des dataCycle-Backends ein- bzw. ausgeblendet werden. Es stehen dazu in der Klassifizierungsadministration die folgenden Bereiche zur Verfügung:
 
-* Detail-Ansicht: _Klassifizierungen werden in der Detailansicht direkt im Header angezeigt_
+- Detail-Ansicht: _Klassifizierungen werden in der Detailansicht direkt im Header angezeigt_
 
-* Detail-Ansicht (standardmäßig eingeklappt): _Klassifizierungen werden im Header der Detailansicht versteckt und können über "weitere Klassifizierungen" angezeigt werden_
+- Detail-Ansicht (standardmäßig eingeklappt): _Klassifizierungen werden im Header der Detailansicht versteckt und können über "weitere Klassifizierungen" angezeigt werden_
 
-* Bearbeitungs-Ansicht: _Klassifizierungen werden in der Bearbeitungsansicht angezeigt_
+- Bearbeitungs-Ansicht: _Klassifizierungen werden in der Bearbeitungsansicht angezeigt_
 
-* API: _Klassifizierungen werden über die API ausgeliefert_
+- API: _Klassifizierungen werden über die API ausgeliefert_
 
-* Kachel: _Klassifizierungen werden in der Kachel-Ansicht von Inhalten (z.B. am Dashboard) angezeigt_
+- Kachel: _Klassifizierungen werden in der Kachel-Ansicht von Inhalten (z.B. am Dashboard) angezeigt_
 
 Durch die Möglichkeit, Klassifizierungen in unterschiedlichen Bereichen ein- bzw. auszublenden, kann die Anzahl der angezeigten Klassifizierungen in den unterschiedlichen Bereichen optimal auf die spezifischen Anforderungen angepasst und die einzelnen Bereiche damit entsprechend übersichtlich gestaltet werden. Sind einzelne Klassifizierungsbäume, die beispielsweise von einem externen System importiert und über das Klassifizierungsmapping vereinheitlicht werden, am Dashboard nicht notwendig, können diese für den Bereich _Kachel_ - also die am Dashboard verwendete Ansicht für Inhalte - ausgeblendet werden.

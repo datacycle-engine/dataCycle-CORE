@@ -2,6 +2,7 @@
 
 module DataCycleCore
   class RegistrationsController < Devise::RegistrationsController
+    before_action :configure_permitted_parameters, if: :devise_controller?
     include DataCycleCore::ErrorHandler
 
     layout 'data_cycle_core/devise'
@@ -27,6 +28,14 @@ module DataCycleCore
         set_minimum_password_length
         respond_with resource
       end
+    end
+
+    protected
+
+    def configure_permitted_parameters
+      update_attrs = [user_group_ids: []]
+      devise_parameter_sanitizer.permit :sign_up, keys: update_attrs
+      devise_parameter_sanitizer.permit :account_update, keys: update_attrs
     end
 
     private

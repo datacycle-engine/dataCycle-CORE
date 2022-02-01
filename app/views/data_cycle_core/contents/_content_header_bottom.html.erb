@@ -72,7 +72,7 @@
 
   <%= link_to thing_path(content, watch_list_id: @watch_list),
               method: :delete,
-              class:'button-prime small delete-content-link',
+              class:'button-prime small alert delete-content-link',
               data: {
                   confirm: "#{content.template_name} #{t('actions.delete', locale: active_ui_locale)}? #{(content.try(:children)&.any? || content.try(:is_related?))? t('common.children_present_html', locale: active_ui_locale) : '' }"
               },

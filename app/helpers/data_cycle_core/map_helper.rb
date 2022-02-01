@@ -11,14 +11,18 @@ module DataCycleCore
         next child_keys.map! { |ck| additional_map_values(c.try(ck)&.includes(:translations), paths[ck]) }.flatten.compact if child_keys.present?
 
         value_to_geojson(
-          c.try(paths['geo'].to_s),
-          {
-            title: I18n.with_locale(c.first_available_locale) { c.try(paths['title'].to_s) },
-            thingPath: thing_path(c),
-            style: { color: 'gray', width: 4 }
-          }
+          c.try(paths['geo'].to_s), geojson_properties(c, paths)
         )
       }.flatten.compact.uniq
+    end
+
+    def geojson_properties(content, paths)
+      {
+        title: I18n.with_locale(content.first_available_locale) { content.try(paths['title'].to_s) },
+        id: content.id,
+        thingPath: thing_path(content),
+        style: { color: 'gray', width: 4 }
+      }
     end
 
     def value_to_geojson(value, properties = {})

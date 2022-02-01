@@ -80,14 +80,13 @@ module DataCycleCore
       content = DataCycleCore::Thing.find(params[:id])
       type = asset_proxy_params.dig(:type)
       attribute = :content_url
-      attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && content.template_name != 'Bild')
+      attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && !['Bild', 'ImageVariant'].include?(content.template_name))
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
       uri = URI.parse(content.send(attribute))
 
       # used for local development and docker env.
       uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && uri.hostname == 'localhost'
-
       redirect_to(uri.to_s)
     end
 
@@ -187,7 +186,7 @@ module DataCycleCore
         version_name_for_merge(datahash) if merge_duplicate
 
         unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true, force_update: merge_duplicate)
-          flash[:error] = @content.errors.full_messages
+          flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
           redirect_back(fallback_location: root_path) && return
         end
 
@@ -259,6 +258,33 @@ module DataCycleCore
       I18n.with_locale(@diff_source.first_available_locale) do
         @data_schema = @content.get_data_hash
         @diff_schema = @diff_source.diff(@data_schema)
+
+        render
+      rescue StandardError
+        redirect_back(fallback_location: root_path, alert: (I18n.t :definition_mismatch, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return
+      end
+    end
+
+    def restore_history_version
+      @content = DataCycleCore::Thing.find(params[:id])
+      @history = @content.histories.find(params[:history_id]) if params[:history_id].present?
+
+      redirect_back(fallback_location: root_path) && return if @history.nil? || @content.nil?
+
+      I18n.with_locale(@history.first_available_locale) do
+        history_hash = @history.get_data_hash
+        history_date = (@history.try(:history_valid)&.first || @history.try(:updated_at))&.in_time_zone
+        history_date_string = I18n.l(history_date, locale: helpers.active_ui_locale, format: :history) if history_date.present?
+
+        if @content.set_data_hash(data_hash: history_hash, version_name: I18n.t(:restored_version_name, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string))
+          flash[:success] = I18n.t(:restored, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string)
+        else
+          flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
+        end
+
+        redirect_to thing_path(@content, watch_list_params)
+      rescue StandardError
+        redirect_back(fallback_location: root_path, alert: (I18n.t :definition_mismatch, scope: [:controllers, :error], locale: helpers.active_ui_locale))
       end
     end
 
@@ -417,11 +443,18 @@ module DataCycleCore
       redirect_back(fallback_location: root_path)
     end
 
+    def destroy_auto_translate
+      authorize! :destroy, :auto_translate
+      thing = DataCycleCore::Thing.find(params[:id])
+      thing.destroy_auto_translations
+      redirect_back(fallback_location: root_path)
+    end
+
     def select_search
       authorize! :show, DataCycleCore::Thing
       template_filter = select_search_params[:template_name].present?
 
-      filter = DataCycleCore::StoredFilter.new.from_params_hash(select_search_params[:stored_filter])
+      filter = DataCycleCore::StoredFilter.new.parameters_from_hash(select_search_params[:stored_filter])
       query = filter.apply
       query = query
         .fulltext_search(select_search_params[:q])

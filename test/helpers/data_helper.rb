@@ -12,17 +12,19 @@ module DataCycleCore
     def assert_thing_counts(before, after, diff)
       # puts "#{after} - #{before} °= #{diff}"
       before.zip(after.zip(diff)).map(&:flatten).each do |item|
-        assert_equal(item[1] - item[0], item[2])
+        assert_equal(item[2], item[1] - item[0])
       end
     end
 
     private
 
     def thing_counts
-      [DataCycleCore::Thing.count,
-       DataCycleCore::Thing::History.count,
-       DataCycleCore::ContentContent.count,
-       DataCycleCore::ContentContent::History.count]
+      [
+        DataCycleCore::Thing.count,
+        DataCycleCore::Thing::History.count,
+        DataCycleCore::ContentContent.count,
+        DataCycleCore::ContentContent::History.count
+      ]
     end
   end
 end

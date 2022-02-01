@@ -24,7 +24,7 @@ module DataCycleCore
           mongo_item.where("dump.#{locale}.ParentID": parent_category_data['Id'])
         end
 
-        def self.load_parent_classification_alias(raw_data, external_source_id)
+        def self.load_parent_classification_alias(raw_data, external_source_id, _options = {})
           DataCycleCore::Classification
             .find_by(external_source_id: external_source_id, external_key: raw_data['ParentID'])
             .try(:primary_classification_alias)

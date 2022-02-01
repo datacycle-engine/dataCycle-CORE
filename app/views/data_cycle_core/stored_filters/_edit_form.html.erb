@@ -17,6 +17,12 @@
         <%= f.collection_select(:linked_stored_filter_id, local_assigns[:saved_stored_searches].where.not({ stored_filters: { id: stored_search.id }}), :id, :name, { include_blank: true }, { class: 'single-select', multiple: false, data: { placeholder: '' }}) %>
       </div>
     </div>
+    <div class="form-element">
+      <%= f.label :classification_tree_labels %>
+      <div class="v-select white">
+        <%= f.collection_select(:classification_tree_labels, DataCycleCore::ClassificationTreeLabel.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+      </div>
+    </div>
   <% end %>
   <div class="buttons">
     <%= f.button t('actions.save', locale: active_ui_locale),

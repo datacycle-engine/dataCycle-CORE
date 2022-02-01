@@ -51,7 +51,7 @@ module DataCycleCore
 
     def save_filter(new_filter: nil)
       new_filter ||= @stored_filter
-      new_filter.user_id = current_user.id
+      new_filter.user_id ||= current_user.id
       new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && !new_filter.persisted?
       new_filter.system = filter_params[:system] if params[:stored_filter].present? && filter_params[:system].present?
       new_filter.parameters = @stored_filter.parameters
@@ -146,6 +146,8 @@ module DataCycleCore
         if @stored_filter
           authorize! :api, @stored_filter
           @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
+          @classification_trees_parameters |= Array.wrap(@stored_filter.classification_tree_labels)
+          @classification_trees_filter = @classification_trees_parameters.present?
         elsif (@watch_list = DataCycleCore::WatchList.without_my_selection.find_by(id: endpoint_id))
         else
           raise ActiveRecord::RecordNotFound

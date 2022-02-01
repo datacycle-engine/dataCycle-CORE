@@ -8,13 +8,18 @@ DataCycleCore::Engine.routes.draw do
     root 'backend#index', as: :authenticated_root
   end
 
+  match '/401', to: 'exceptions#unauthorized_exception', via: :all, as: :unauthorized_exception
+  match '/404', to: 'exceptions#not_found_exception', via: :all, as: :not_found_exception
+  match '/422', to: 'exceptions#unprocessable_entity_exception', via: :all, as: :unprocessable_entity_exception
+  match '/500', to: 'exceptions#internal_server_error_exception', via: :all, as: :internal_server_error_exception
+
   CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
   CONTENT_TABLE ||= ['things'].freeze
 
   root to: redirect('users/sign_in')
 
   get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
-  get '/docs/*path', to: 'documentation#show'
+  get '/docs/*path', to: 'documentation#show', as: :docs_with_path
   get '/docs', to: 'documentation#show'
 
   get :clear_all_caches, controller: :application
@@ -46,6 +51,7 @@ DataCycleCore::Engine.routes.draw do
     resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things) do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
+      post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_system_id/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
@@ -56,6 +62,7 @@ DataCycleCore::Engine.routes.draw do
       get :download_indesign, on: :member
       get :create_duplication, on: :member
       get :clear_cache, on: :member
+      get :destroy_auto_translate, on: :member
       get 'asset/:type', on: :member, action: :asset, constraints: { type: '(content|thumb|original)' }
       post :validate, on: :member
       post :validate, on: :collection
@@ -69,7 +76,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
-  resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
+  resources :stored_filters, only: [:index, :show, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
     get :select_search_or_collection, on: :collection
     get :download_zip, on: :member
@@ -153,6 +160,9 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/classifications', to: 'dash_board#classifications'
   get  '/admin/activities', to: 'dash_board#activities'
   get  '/admin/activity_details/:type', to: 'dash_board#activity_details', format: :json
+
+  get  '/reports', to: 'reports#index'
+  get  '/download_reports', to: 'reports#download_report'
 
   if DataCycleCore.main_config.dig(:api, :enabled)
     defaults format: :json do
@@ -328,6 +338,24 @@ DataCycleCore::Engine.routes.draw do
       end
     end
 
+    defaults format: 'application/vnd.geo+json' do
+      namespace :geojson do
+        namespace :v1 do
+          scope path: '(/:api_subversion)' do
+            match 'things', to: 'contents#index', as: 'contents_index', via: [:get, :post]
+            match 'things/:id', to: 'contents#show', as: 'content_show', via: [:get, :post]
+
+            match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
+            match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+
+            # TODO: how to work with watch_lists?
+            match 'collections', to: 'watch_lists#index', via: [:get, :post]
+            match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
+          end
+        end
+      end
+    end
+
     defaults format: :xml do
       namespace :xml do
         namespace :v1 do
@@ -349,7 +377,28 @@ DataCycleCore::Engine.routes.draw do
         end
       end
     end
+
+    if DataCycleCore.main_config.dig(:webdav, :enabled)
+      defaults format: :xml do
+        namespace :webdav do
+          if DataCycleCore.main_config.dig(:webdav, :v1, :enabled)
+            namespace :v1 do
+              scope path: '(/:api_subversion)' do
+                match 'endpoints/:id/things/:file_name(.:extention)', to: 'contents#show', via: :propfind, as: 'contents_show'
+                get 'endpoints/:id/things/:file_name(.:extention)', to: 'contents#download'
+                match 'endpoints/:id/(things)', to: 'contents#index', via: :propfind, as: 'contents_index'
+                get 'endpoints/:id/(things)', to: 'contents#show_collection'
+                match 'endpoints/*whatever', to: 'contents#options', via: :options
+              end
+            end
+          end
+        end
+      end
+
+      root to: 'webdav/v1/contents#options', via: :options # Microsoft Explorer is weired
+    end
   end
+
   namespace :object_browser do
     post :show
     post :details

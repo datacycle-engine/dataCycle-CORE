@@ -24,6 +24,9 @@ class OpenLayersEditor extends OpenLayersViewer {
     this.$elevationField = this.$mapInfoContainer.find('.elevation input').first();
     this.$locationField = this.$parentContainer.siblings('input.location-data:hidden').first();
   }
+  static isAllowedType(type) {
+    return true;
+  }
   setup() {
     this.setZoomMethod();
     this.initFeatures();
@@ -39,7 +42,7 @@ class OpenLayersEditor extends OpenLayersViewer {
     });
   }
   initEventHandlers() {
-    this.$container.on('dc:import:data', this.importData.bind(this));
+    this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
     this.$container.on('dc:map:resetPrimaryFeature', this.removeFeature.bind(this));
   }
   initAdditionalControls() {
