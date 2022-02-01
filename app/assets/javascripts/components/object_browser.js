@@ -245,7 +245,7 @@ class ObjectBrowser {
   clickItemsHandler(event) {
     const $target = $(event.currentTarget);
 
-    if ($target.closest('a.show-link').length || $target.closest('a.edit-link').length) return;
+    if (event.target.closest('a.show-link') || event.target.closest('a.edit-link')) return;
 
     event.preventDefault();
     event.stopImmediatePropagation();

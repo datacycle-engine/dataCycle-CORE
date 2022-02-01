@@ -46,6 +46,7 @@ header {
   border-top: 5px solid $customercolor;
 
   .top-bar {
+    display: flex;
     height: 4.1rem;
     width: 100%;
     padding: 0;
@@ -58,8 +59,9 @@ header {
       float: left;
 
       img {
-        height: 50px;
-        width: auto;
+        height: auto;
+        max-height: 50px;
+        width: 100%;
       }
     }
 
@@ -75,6 +77,22 @@ header {
 
     .top-bar-title {
       padding: 0;
+      flex: 1 1 auto;
+    }
+
+    .top-bar-right {
+      ul.menu {
+        display: flex;
+        li {
+          flex: 1 1 auto;
+          a,
+          button {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+        }
+      }
     }
   }
 

@@ -29,7 +29,7 @@ module DataCycleCore
       elsif translation_object.key?(:method)
         view_helpers.send(
           translation_object[:method],
-          translation_object[:value],
+          *Array.wrap(translation_object[:value]),
           substitutions.merge(locale: locale)
         )
       else

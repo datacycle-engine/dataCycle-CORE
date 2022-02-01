@@ -1,6 +1,6 @@
 - Inhaltstypen | filter:
     - $$Asset:
-        - $$Audio      
+        - $$Audio
         - $$Bild
         - $$Video
     - $$Ort:
@@ -177,6 +177,8 @@
     - Spanien
     - Tschechien
     - Ungarn
+
+- Dateiformate | all:
 
 - Ländercodes | show, edit, api, xml:
     - AF | Afghanistan

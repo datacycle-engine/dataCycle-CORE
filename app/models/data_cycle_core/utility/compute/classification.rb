@@ -22,6 +22,12 @@ module DataCycleCore
               &.map { |classification_alias| classification_alias.description || classification_alias.name || classification_alias.internal_name }
               &.join(',')
           end
+
+          def value(**args)
+            values = args.dig(:computed_parameters).presence&.try(:flatten)
+            return unless values.size == 1
+            args.dig(:data_hash).dig('translated_classification') || DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(values.first.dig('tree'), values.first.dig('value'))
+          end
         end
       end
     end

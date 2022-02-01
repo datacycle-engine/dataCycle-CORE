@@ -10,6 +10,13 @@ module DataCycleCore
       scope: :edit
     }).freeze
 
+    DURATION_UNITS = {
+      months: 12,
+      days: 31,
+      hours: 24,
+      minutes: 60
+    }.freeze
+
     def attribute_editable?(key, definition, options, content)
       @attribute_editable ||= Hash.new do |h, k|
         h[k] = can?(:update, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :update, k.dig(2, 'edit_scope')))
@@ -98,6 +105,12 @@ module DataCycleCore
 
     def embedded_key_prefix(key, index)
       "#{key}[#{index}]#{ATTRIBUTE_DATAHASH_PREFIX}"
+    end
+
+    def iso8601_duration_to_parts(duration)
+      return {} if duration.blank?
+
+      ActiveSupport::Duration.parse(duration).parts
     end
   end
 end

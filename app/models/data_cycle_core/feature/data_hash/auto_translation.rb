@@ -4,33 +4,29 @@ module DataCycleCore
   module Feature
     module DataHash
       module AutoTranslation
-        def auto_translate
-          return if about.blank?
-        end
-
         # create/update translations
         def create_update_translations
           additional_infos = load_translated_content
           return { 'error' => 'Nothing to translate' } if additional_infos.blank?
-          template = DataCycleCore::Thing.find_by(template_name: 'Übersetzung', template: true)
+          template = Thing.find_by(template_name: 'Übersetzung', template: true)
           return { 'error' => 'Data Type not found!' } if template.blank?
-          data_type = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
+          data_type = ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
           translations_created = {}
           timestamp = Time.zone.now
 
           additional_infos.each do |classification, locale_data_hash|
-            content = DataCycleCore::Thing.find_or_create_by(external_source_id: external_source_id, external_key: "#{classification}:#{external_key}") do |new_content|
+            content = Thing.find_or_create_by(external_source_id: external_source_id, external_key: "#{classification}:#{external_key}") do |new_content|
               new_content.metadata ||= {}
               new_content.schema = template.schema
               new_content.template_name = template.template_name
               new_content.external_source_id = external_source_id
             end
-            content.save! if content.new_record? # need id to add linked_data
+            translated_classification = content.translated_classification.presence&.pluck(:id) || ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch')
 
             translations_created[classification] = []
-            description_type = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', classification)
+            description_type = ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', classification)
 
             locale_data_hash.each do |locale, data_hash|
               I18n.with_locale(locale) do
@@ -43,6 +39,7 @@ module DataCycleCore
                     'translation_type' => 'imported',
                     'modified' => timestamp,
                     'description_type' => [description_type],
+                    'translated_classification' => translated_classification,
                     'data_type' => [data_type],
                     'about' => [id]
                   },
@@ -61,17 +58,16 @@ module DataCycleCore
           source_locale = source_locale.to_s
           additional_translations = subject_of
           return { 'error' => 'Nothing to translate' } if additional_translations.blank?
-          template = DataCycleCore::Thing.find_by(template_name: 'Übersetzung', template: true)
+          template = Thing.find_by(template_name: 'Übersetzung', template: true)
           return { 'error' => 'Data Type not found!' } if template.blank?
-          data_type = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
+          data_type = ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
-          translatable_locales = DataCycleCore::Feature::Translate.allowed_languages & I18n.available_locales.map(&:to_s)
+          translatable_locales = Feature::Translate.allowed_languages & I18n.available_locales.map(&:to_s)
           # translatable_locales = ['de', 'en', 'it', 'nl'] - [source_locale] # Remove!!!
-          endpoint = DataCycleCore::Feature::Translate.endpoint
+          endpoint = Feature::Translate.endpoint
 
           translations_done = {}
-
           additional_translations.each do |content|
             next if content.blank?
             available_locales = content.available_locales.map(&:to_s)
@@ -79,6 +75,7 @@ module DataCycleCore
 
             source_data = {}
             classification = nil
+            translated_classification = content.translated_classification.presence&.pluck(:id) || ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch')
             I18n.with_locale(source_locale) do
               source_data = { 'name' => content.name, 'description' => content.description, 'modified' => content.modified }
               classification = content.description_type.first.name
@@ -104,6 +101,7 @@ module DataCycleCore
                     'name' => classification,
                     'description' => description,
                     'translation_type' => 'automatic',
+                    'translated_classification' => translated_classification,
                     'modified' => source_data.dig('modified'),
                     'source_locale' => source_locale,
                     'about' => [id]
@@ -127,14 +125,34 @@ module DataCycleCore
               {
                 classification: classification.name,
                 locale => {
-                  name: DataCycleCore::MasterData::DataConverter.string_to_string(info.name),
-                  description: DataCycleCore::MasterData::DataConverter.string_to_string(info.description)
+                  name: MasterData::DataConverter.string_to_string(info.name),
+                  description: MasterData::DataConverter.string_to_string(info.description)
                 }
               }
             end
           }.group_by { |i| i.delete(:classification) }
             .map { |classification, data_array| { classification => data_array.inject(&:merge) } }
             .inject(&:merge)
+        end
+
+        def destroy_auto_translations
+          destroy_locales = translations.map { |i| i.locale if i.content['translation_type'] == 'manual' }.compact
+          if (available_locales.map(&:to_s) - destroy_locales).present?
+            destroy_locales.each do |locale|
+              I18n.with_locale(locale) { destroy_content(destroy_locale: true) }
+            end
+            I18n.with_locale((available_locales.map(&:to_s) - destroy_locales).first) do
+              set_data_hash(
+                data_hash: {
+                  translated_classification: ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch'),
+                  translation_type: translation_type
+                },
+                partial_update: true
+              )
+            end
+          else
+            destroy_content
+          end
         end
 
         def destroy_all_translated_content

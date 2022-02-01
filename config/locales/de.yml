@@ -164,6 +164,12 @@ de:
 
   schedule:
     dtstart: Startzeitpunkt
+    duration:
+      root: Dauer
+      months: Monate
+      days: Tage
+      hours: Stunden
+      minutes: Minuten
     dtend: Endzeitpunkt
     full_day: Ganztägig
     rrule: Wiederholungen
@@ -265,6 +271,7 @@ de:
     status: Status
     confirm_delete_all_caches: Wirklich alle Caches leeren?
     confirm_delete_cache: Wirklich den Cache leeren?
+    confirm_delete_autotranslation: Wirklich alle manuellen Übersetzungen löschen?
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
     download_gpx: Als GPX-Datei herunterladen
     duplicate_content: Inhalt duplizieren
@@ -821,7 +828,8 @@ de:
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
-
+      schedule:
+        duration_too_long: 'Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)'
   controllers:
     error:
       invalid_parent: 'Ungültiges Eltern Objekt.'
@@ -1109,6 +1117,9 @@ de:
     cache:
       clear_all: Alle Caches leeren
       clear: Cache leeren
+    autotranslate:
+      clear: Manuelle Übersetzungen löschen
+      auto: Für diesen Datensatz wurden alle Übersetzungen automatisch angelegt.
     classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
     classification_relations:
       one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'
@@ -1228,7 +1239,7 @@ de:
         text: Beschreibung
         price: Preis
         description: Kurzbeschreibung
-        directions_public_transport: Öffentliche Verekehrsmittel
+        directions_public_transport: Öffentliche Verkehrsmittel
         instructions: Wegbeschreibung
         safety_instructions: Sicherheitshinweise
         equipment: Ausrüstung

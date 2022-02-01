@@ -156,6 +156,12 @@ en:
 
   schedule:
     dtstart: Start time
+    duration:
+      root: Duration
+      months: Months
+      days: Days
+      hours: Hours
+      minutes: Minutes
     dtend: End time
     full_day: All day
     rrule: Repeats
@@ -256,6 +262,7 @@ en:
     status: Status
     confirm_delete_all_caches: Really clear all caches?
     confirm_delete_cache: Really clear the cache?
+    confirm_delete_autotranslation: Really delete all manual translations?
     content_not_editable: Content cannot be edited afterwards.
     download_gpx: Download as GPX file
     duplicate_content: Duplicate content
@@ -802,6 +809,8 @@ en:
       address_ambiguous: Address not unique
       telephone_din5008: The format of the telephone number is not according to DIN
         5008, valid example +43 1 123456
+      schedule:
+        duration_too_long: 'The schedule with start time %{data} lasts longer than %{max} (This could probably also be achieved via repeating schedules)'
   controllers:
     error:
       invalid_parent: Invalid parent object.
@@ -1094,6 +1103,9 @@ en:
     cache:
       clear_all: Empty all caches
       clear: Clear cache
+    autotranslate:
+      clear: Delete manual translations
+      auto: All translations were automatically generated
     classification_tree_relations: 'ATTENTION: There are contents linked to this classification
       tree!'
     classification_relations:
