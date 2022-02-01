@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class Schedule < BasicValidator
         def keywords
-          ['valid_dates', 'closed_range']
+          ['valid_dates', 'closed_range', 'soft_max_duration']
         end
 
         def validate(data, template, _strict = false)
@@ -175,6 +175,44 @@ module DataCycleCore
           true
         rescue StandardError
           false
+        end
+
+        def check_valid_duration(schedule_hash, value)
+          schedule = DataCycleCore::Schedule.new.from_hash(schedule_hash)
+
+          return if schedule.nil? || schedule.duration.nil? || schedule.duration.zero?
+
+          max = ActiveSupport::Duration.parse(value)
+
+          return if schedule.duration <= max
+
+          (@error[:warning][@template_key] ||= []) << {
+            path: 'validation.warnings.schedule.duration_too_long',
+            substitutions: {
+              data: {
+                method: 'l',
+                value: schedule&.dtstart,
+                substitutions: {
+                  format: :edit
+                }
+              },
+              max: {
+                method: 'distance_of_time_in_words',
+                value: [
+                  Time.zone.now,
+                  Time.zone.now + max
+                ]
+              }
+            }
+          }
+        end
+
+        def soft_max_duration(data, value)
+          return unless value
+
+          data.each do |data_item|
+            check_valid_duration(data_item, value)
+          end
         end
       end
     end

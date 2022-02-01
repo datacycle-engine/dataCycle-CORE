@@ -53,7 +53,7 @@ describe DataCycleCore::MasterData::Differs::Schedule do
       end
     end
 
-    it 'recognizes an hashes from UI as existing schedules without changes' do
+    it 'recognizes hashes from UI as existing schedules without changes' do
       start_time = Time.zone.now.change(hour: 9, minute: 0)
       a_schedule = IceCube::Schedule.new(start_time, duration: 0) do |s|
         s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9))
@@ -65,11 +65,8 @@ describe DataCycleCore::MasterData::Differs::Schedule do
       schedule_hash = { 'event_schedule' => { '0' =>
         {
           'id' => a.id,
-          'rtimes' => '',
-          'extimes' => '',
           'start_time' => { 'time' => start_time.strftime('%Y-%m-%d %H:%M') },
-          'end_time' => { 'time' => start_time.strftime('%Y-%m-%d %H:%M') },
-          'rrules' => [{ 'rule_type' => 'IceCube::DailyRule', 'interval' => '1', 'until' => '' }]
+          'rrules' => [{ 'rule_type' => 'IceCube::DailyRule', 'interval' => '1' }]
         } } }
 
       template = DataCycleCore::Thing.find_by(template: true, template_name: 'Event')
