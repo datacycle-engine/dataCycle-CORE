@@ -3,6 +3,13 @@
 module DataCycleCore
   module Abilities
     class PermissionsList
+      include DataCycleCore::Abilities::Permissions::Roles::Common
+      include DataCycleCore::Abilities::Permissions::Roles::Guest
+      include DataCycleCore::Abilities::Permissions::Roles::ExternalUser
+      include DataCycleCore::Abilities::Permissions::Roles::Standard
+      include DataCycleCore::Abilities::Permissions::Roles::Admin
+      include DataCycleCore::Abilities::Permissions::Roles::SuperAdmin
+
       def self.list
         unless defined? @list
           @list = []
