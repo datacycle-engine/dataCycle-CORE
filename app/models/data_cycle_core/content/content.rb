@@ -514,7 +514,8 @@ module DataCycleCore
               .keep_if { |k, v|
                 ['computed', 'virtual', 'asset'].exclude?(v['type']) &&
                   (v['type'] != 'linked' || v['link_direction'] != 'inverse') &&
-                  t.allowed_feature_attribute?(k.attribute_name_from_key)
+                  t.allowed_feature_attribute?(k.attribute_name_from_key) &&
+                  v.dig('ui', 'bulk_edit', 'disabled').to_s != 'true'
               }
               .sort_by { |_, v| v['sorting'] }
               .map! { |(k, v)| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }] }
