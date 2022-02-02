@@ -23,13 +23,6 @@ module DataCycleCore
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(:object_browser)
             )
 
-            # Role
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :index,
-              DataCycleCore::Abilities::Segments::RolesExcept.new([:super_admin, :admin, :standard])
-            )
-
             # UserApi
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
@@ -206,6 +199,14 @@ module DataCycleCore
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
               :can, :update,
               DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::User, :id)
+            )
+
+            ### Features
+            # ViewMode
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can, :tree,
+              DataCycleCore::Abilities::Segments::SubjectByEnabledFeature.new(:view_mode, DataCycleCore::Feature::ViewMode)
             )
           end
         end

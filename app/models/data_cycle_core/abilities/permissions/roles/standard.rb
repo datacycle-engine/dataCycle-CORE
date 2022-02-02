@@ -29,13 +29,6 @@ module DataCycleCore
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(:object_browser)
             )
 
-            # Role
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :index,
-              DataCycleCore::Abilities::Segments::RolesExcept.new([:super_admin, :admin])
-            )
-
             # UserApi
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
