@@ -9,7 +9,7 @@
         <i class="fa fa-clipboard" aria-hidden="true"></i>
       </span>
       <% unless data_link.creator == current_user %>
-        <i class="fa fa-user"
+        <i class="fa fa-user dc-foundation-tooltip"
           aria-hidden="true"
           title="<%= "<b>#{t('common.creator', locale: active_ui_locale)}:</b> #{data_link.creator.full_name} &#x3C;#{data_link.creator.email}&#x3E;" if data_link.creator.present? %>"
           data-allow-html="true"></i>
