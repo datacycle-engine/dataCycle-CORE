@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# autoload_paths
+
 # rails essentials
 require 'rails'
 require 'active_model/railtie'
