@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.7.1'
 
   # rails
-  s.add_dependency 'rails', '~> 5.2.4'
+  s.add_dependency 'rails', '~> 6.0.4'
   s.add_dependency 'rake'
   # Frontend Asset Handling
   # s.add_dependency 'sprockets', '4.0.0'
