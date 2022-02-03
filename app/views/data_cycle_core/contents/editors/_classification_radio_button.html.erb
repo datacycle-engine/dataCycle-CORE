@@ -9,9 +9,11 @@
       <%= radio_button_tag key + '[]', '', true, id: sanitize_to_id(key + '[]') %>
       <%= label_tag key + '[]', "#{t("common.no_selection", locale: active_ui_locale)}" %>
     </li>
-    <%= collection_radio_buttons(nil, key + '[]', classification_items, :primary_classification_id, :internal_name, {}, { disabled: !attribute_editable?(key, definition, options, content), namespace: local_assigns.dig(:options, :prefix) }) do |rb| %>
+    <%= collection_radio_buttons(nil, key + '[]', classification_items, :primary_classification_id, :internal_name, {}, { namespace: local_assigns.dig(:options, :prefix) }) do |rb| %>
       <li class="radiobutton-wrap">
-        <%= rb.radio_button value: rb.value, checked: (value&.ids&.include?(rb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))) %>
+        <%= rb.radio_button value: rb.value,
+                            checked: (value&.ids&.include?(rb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))),
+                            disabled: !rb.object.assignable || !attribute_editable?(key, definition, options, content)  %>
         <% if rb.object.try(:description).present? %>
           <%= rb.label title: rb.object.try(:description), class: 'dc-foundation-tooltip', data: { allow_html: true } do %>
             <%= rb.text %> <i class="fa fa-info-circle" aria-hidden="true"></i>
