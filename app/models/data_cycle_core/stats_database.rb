@@ -33,18 +33,31 @@ module DataCycleCore
 
     def load_pg_stats
       @pg_tables = {}
-      tables = ActiveRecord::Base.connection.execute("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;")
-      tables.each do |table|
-        name = table['tablename']
-        next if EXCLUDED_TABLES.include?(name)
 
-        res = ActiveRecord::Base.connection.execute("SELECT pg_total_relation_size('#{name}');")
-        count = ActiveRecord::Base.connection.execute("SELECT count(1) AS count FROM #{name};")
+      stats_sql = <<-SQL.squish
+        SELECT
+          relname AS tablename,
+          pg_total_relation_size(relid) AS total_size,
+          pg_relation_size(relid) AS data_size,
+          pg_table_size(relid) - pg_relation_size(relid) AS toast_size,
+          pg_indexes_size(relid) AS index_size
+        FROM
+          pg_catalog.pg_statio_user_tables
+        WHERE
+          relname NOT IN (?)
+        ORDER BY
+          pg_total_relation_size(relid) DESC;
+      SQL
 
-        @pg_tables[name] = {
-          size: res[0]['pg_total_relation_size'],
-          count: count[0]['count']
-        }
+      stats_res = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [stats_sql, EXCLUDED_TABLES]))
+      stats_res.each do |stat_res|
+        @pg_tables[stat_res['tablename']] = stat_res.except('tablename')
+      end
+
+      count_sql = @pg_tables.keys.map { |t_name| "SELECT '#{t_name}' AS tablename, count(*) AS count FROM #{t_name}" }.join(' UNION ')
+      count_res = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, count_sql))
+      count_res.each do |count_r|
+        @pg_tables[count_r['tablename']]['count'] = count_r['count']
       end
     end
 
