@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.7.1'
 
   # rails
-  s.add_dependency 'rails', '~> 6.0.4'
+  s.add_dependency 'rails', '~> 6.1.4'
   s.add_dependency 'rake'
   # Frontend Asset Handling
   # s.add_dependency 'sprockets', '4.0.0'
@@ -34,7 +34,8 @@ Gem::Specification.new do |s|
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
-  s.add_dependency 'pg', '~> 0.21'
+  # s.add_dependency 'pg', '~> 0.21'
+  s.add_dependency 'pg'
   s.add_dependency 'rgeo'
   s.add_dependency 'rgeo-geojson'
   s.add_dependency 'rgeo-proj4'
