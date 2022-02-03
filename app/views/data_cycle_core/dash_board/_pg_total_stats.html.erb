@@ -1,36 +1,15 @@
 <div>
-<div class='card'>
-    <div class='card-divider'>
+  <div class="card pg-stats accordion" data-accordion data-allow-all-closed="true">
+    <div class="accordion-item" data-accordion-item>
+      <div class="card-divider accordion-title">
         <h5><%= @stat_outdoor_active.pg_name %></h5>
-    </div>
-    <div class='card-section'>
-        Total-size<%="&nbsp;&#8614&nbsp;#{number_to_human_size(@stat_outdoor_active.pg_size)}".html_safe %>
-    </div>
+        <h6>Total-size <b><%= number_to_human_size(@stat_outdoor_active.pg_size, locale: active_ui_locale) %></b></h6>
+      </div>
 
-    <div class='card-section'>
-        Content: <br />
-        <ul>
-            <% @stat_outdoor_active.pg_content.each do |key, value| %>
-                <%=content_tag(:li, "#{key}: #{value}")%>
-            <% end %>
-        </ul>
+      <div class="accordion-content card-section remote-render"
+            data-tab-content
+            data-remote-path="data_cycle_core/dash_board/pg_stats">
+      </div>
     </div>
-    <div class='card-section'>
-        Relations: <br />
-        <ul>
-          <%=content_tag(:li, "Content &#8644 Content: #{@stat_outdoor_active.pg_content_content}".html_safe)%>
-          <%=content_tag(:li, "Content &#8644 Classifications: #{@stat_outdoor_active.pg_classification_content}".html_safe)%>
-        </ul>
-    </div>
-
-    <div class='card-section'>
-        Categorization:
-        <ul>
-            <%=content_tag(:li, "Classifications: #{@stat_outdoor_active.pg_classifications}")%>
-            <%=content_tag(:li, "Class. Aliases: #{@stat_outdoor_active.pg_aliases}") %>
-            <%=content_tag(:li, "Class. Tree Labels: #{@stat_outdoor_active.pg_tree_label}") %>
-            <%=content_tag(:li, "Class. Tree Nodes: #{@stat_outdoor_active.pg_tree_nodes}") %>
-        </ul>
-    </div>
-</div>
+  </div>
 </div>

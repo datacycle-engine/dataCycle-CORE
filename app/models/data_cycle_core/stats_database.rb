@@ -3,22 +3,49 @@
 module DataCycleCore
   class StatsDatabase
     attr_accessor(
-      :stat_update, :pg_name, :pg_size, :pg_content, :pg_content_content,
-      :pg_classification_content, :pg_classifications, :pg_aliases, :pg_overlays,
-      :pg_content_history, :pg_tree_label, :pg_tree_nodes, :mongo_categories,
-      :mongo_pois, :mongo_regions, :import_modules
+      :stat_update, :pg_name, :pg_size, :pg_overlays,
+      :pg_content_history, :mongo_categories,
+      :mongo_pois, :mongo_regions, :import_modules,
+      :pg_tables
     )
 
-    def initialize(user_id)
-      @import_modules = []
-      load_postgres_data
-      load_mongo_data(user_id)
+    EXCLUDED_TABLES = [
+      'ar_internal_metadata',
+      'schema_migrations',
+      'spatial_ref_sys'
+    ].freeze
+
+    def initialize(user_id, stats_only = false)
+      update(user_id, stats_only)
     end
 
-    def update(user_id)
-      load_postgres_data
-      load_mongo_data(user_id)
+    def update(user_id, stats_only = false)
+      if stats_only
+        load_pg_stats
+      else
+        @import_modules = []
+        load_postgres_data
+        load_mongo_data(user_id)
+      end
+
       self
+    end
+
+    def load_pg_stats
+      @pg_tables = {}
+      tables = ActiveRecord::Base.connection.execute("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;")
+      tables.each do |table|
+        name = table['tablename']
+        next if EXCLUDED_TABLES.include?(name)
+
+        res = ActiveRecord::Base.connection.execute("SELECT pg_total_relation_size('#{name}');")
+        count = ActiveRecord::Base.connection.execute("SELECT count(1) AS count FROM #{name};")
+
+        @pg_tables[name] = {
+          size: res[0]['pg_total_relation_size'],
+          count: count[0]['count']
+        }
+      end
     end
 
     private
@@ -28,20 +55,7 @@ module DataCycleCore
 
       @pg_name = ActiveRecord::Base.connection.current_database
       sql = ActiveRecord::Base.send(:sanitize_sql_for_conditions, "SELECT pg_database_size('#{@pg_name}');")
-
       @pg_size = ActiveRecord::Base.connection.execute(sql).first['pg_database_size']
-      @pg_classifications = Classification.count
-      @pg_aliases = ClassificationAlias.count
-      @pg_classification_content = ClassificationContent.count
-      @pg_tree_label = ClassificationTreeLabel.count
-      @pg_tree_nodes = ClassificationTree.count
-      @pg_content = {}
-      @pg_content['Thing'] = DataCycleCore::Thing.count
-      @pg_content['Thing-Translations'] = DataCycleCore::Thing::Translation.count
-      @pg_content['History'] = DataCycleCore::Thing::History.count
-      @pg_content['History-Translations'] = DataCycleCore::Thing::History::Translation.count
-
-      @pg_content_content = DataCycleCore::ContentContent.count
     end
 
     def load_mongo_data(_user_id)

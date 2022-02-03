@@ -11,7 +11,7 @@
         in queue:
         <ul>
           <% queued_jobs.each do |queue, count| %>
-            <%= content_tag(:li, "#{count} (#{queue})", class: queue == :wrong_queue ? 'alert-color' : '')  if count.positive? %>
+            <%= content_tag(:li, "#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", class: queue == :wrong_queue ? 'alert-color' : '')  if count.positive? %>
           <% end %>
         </ul>
       <% else %>
@@ -39,7 +39,7 @@
         failed:
         <ul>
           <% failed_jobs.each do |queue, count| %>
-            <%= content_tag(:li, "#{count} (#{queue})") if count.positive? %>
+            <%= content_tag(:li, "#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})") if count.positive? %>
           <% end %>
         </ul>
       <% else %>
