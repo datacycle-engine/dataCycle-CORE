@@ -38,8 +38,7 @@ module DataCycleCore
         SELECT
           relname AS tablename,
           pg_total_relation_size(relid) AS total_size,
-          pg_relation_size(relid) AS data_size,
-          pg_table_size(relid) - pg_relation_size(relid) AS toast_size,
+          pg_table_size(relid) AS data_size,
           pg_indexes_size(relid) AS index_size
         FROM
           pg_catalog.pg_statio_user_tables
