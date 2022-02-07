@@ -13,7 +13,8 @@
                                ),
                                {
                                    multiple: true,
-                                   class: 'multi-select'
+                                   class: 'multi-select',
+                                   id: "language_#{SecureRandom.hex(10)}"
                                }
                     ) %>
       </div>
@@ -23,7 +24,7 @@
   <fieldset class="active template">
     <legend><%= t('common.download.available_formats', locale: active_ui_locale) %></legend>
     <div class="form-element">
-      <% DataCycleCore::Feature::Serialize.enabled_serializers.except('indesign').each_key.with_index do |serializer_key, index| %>
+      <% available_download_serializers(content, [:archive, :zip]).each_key.with_index do |serializer_key, index| %>
         <div>
           <%= check_box_tag "serialize_format[#{serializer_key}]", '1', index&.zero? %>
           <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: active_ui_locale)}" %>

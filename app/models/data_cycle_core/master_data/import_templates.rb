@@ -213,7 +213,7 @@ module DataCycleCore
             )
           end
           optional(:storage_location) do
-            str? & included_in?(['column', 'value', 'translated_value', 'virtual'])
+            str? & included_in?(['column', 'value', 'translated_value', 'virtual', 'classification'])
           end
           optional(:template_name) { str? }
           optional(:validations) { hash? }

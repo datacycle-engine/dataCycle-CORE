@@ -196,6 +196,9 @@ module DataCycleCore
 
     mattr_accessor :partial_update_improved
     self.partial_update_improved = false
+
+    mattr_accessor :transitive_classification_paths
+    self.transitive_classification_paths = false
   end
 
   def self.setup
@@ -282,6 +285,7 @@ module DataCycleCore
     config.before_initialize do |app|
       app.config.time_zone = 'Europe/Vienna'
       app.config.exceptions_app = routes
+      app.middleware.insert_before Rack::Runtime, DataCycleCore::FixParamEncodingMiddleware
     end
 
     config.to_prepare do

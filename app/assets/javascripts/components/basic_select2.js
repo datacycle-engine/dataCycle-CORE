@@ -51,7 +51,7 @@ class BasicSelect2 {
   initEventHandlers() {
     this.$element.closest('form').on('reset', this.eventHandlers.reset);
     this.$element.closest('.form-element').on('dc:field:reset', this.eventHandlers.reset);
-    this.$element.on('dc:import:data', this.eventHandlers.import);
+    this.$element.on('dc:import:data', this.eventHandlers.import).addClass('dc-import-data');
     this.$element.on('dc:select:destroy', this.eventHandlers.destroy);
     this.$element.parent().on('change', '.select2-search__field', this.eventHandlers.suppressChange);
     this.$element.on('change', this.eventHandlers.resizeDropdown);
@@ -70,7 +70,7 @@ class BasicSelect2 {
   destroy(_event) {
     this.$element.select2('destroy');
     this.$element.closest('form').off('reset', this.eventHandlers.reset);
-    this.$element.off('dc:import:data', this.eventHandlers.import);
+    this.$element.off('dc:import:data', this.eventHandlers.import).removeClass('dc-import-data');
     this.$element.off('dc:select:destroy', this.eventHandlers.destroy);
     this.$element.closest('.form-element').off('dc:field:reset', this.eventHandlers.reset);
     this.$element.parent().off('change', '.select2-search__field', this.eventHandlers.suppressChange);

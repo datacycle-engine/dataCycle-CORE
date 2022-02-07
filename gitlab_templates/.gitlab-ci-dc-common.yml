@@ -1,4 +1,4 @@
-image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
+image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.0
 
 variables:
   PRODUCTION_URL: ''
@@ -34,10 +34,10 @@ cache:
     # - vendor/gems/data-cycle-core/lib/assets
 
 services:
-  - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
+  - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4'
     alias: postgres
     command: ['postgres']
-  - name: mvertes/alpine-mongo:4.0.6-1
+  - name: mongo:4.4.8-focal
     alias: mongodb
 
 ########################################################################
@@ -63,7 +63,6 @@ services:
     - gem install bundler
     - bundle config set --local path 'cache/bundler'
     - bundle install
-    - cd $CI_PROJECT_DIR
     - yarn
     - yarn upgrade
 
@@ -154,7 +153,7 @@ services:
   when: manual
 
 .stop_docker_config:
-  stage: deploy
+  stage: .post
   image: docker:20.10
   allow_failure: false
   variables:
@@ -179,3 +178,57 @@ services:
   after_script:
     - docker logout $CI_REGISTRY
   when: manual
+
+.restart_docker_config:
+  stage: .post
+  image: docker:20.10
+  allow_failure: false
+  variables:
+    DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    # Configure SSH
+    - eval $(ssh-agent -s)
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # Configure Docker
+    - apk add docker-compose
+    - apk add bash
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
+  script:
+    # update ssh config of deployment target to support bigger number of active sessions
+    # e.g. MaxSessions 20
+    - echo "$DOCKER_HOST"
+    - docker-compose --env-file .env.production up --scale job_worker_cache_invalidation=2 --scale job_worker_search_update=3 -d --force-recreate
+  after_script:
+    - docker logout $CI_REGISTRY
+  when: manual
+
+.post_deploy_docker_config:
+  stage: post-deploy
+  image: docker:20.10
+  allow_failure: false
+  variables:
+    DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    # Configure SSH
+    - eval $(ssh-agent -s)
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # Configure Docker
+    - apk add docker-compose
+    - apk add bash
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
+    - echo "APPSIGNAL_APP_REVISION=$CI_COMMIT_SHA" >> $(pwd)/.env.production
+  script:
+    # update ssh config of deployment target to support bigger number of active sessions
+    # e.g. MaxSessions 20
+    - echo "$DOCKER_HOST"
+    - docker-compose --env-file .env.production --profile migrate run migrate_project bash /app/docker/utility/post_migrate.sh
+  after_script:
+    - docker logout $CI_REGISTRY

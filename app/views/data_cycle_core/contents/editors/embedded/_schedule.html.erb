@@ -58,28 +58,31 @@
         <% end %>
       </div>
 
-      <div class="form-element end">
-        <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[end_time][time]")}" do %>
-          <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
-          <%= t('schedule.dtend', locale: active_ui_locale) %>
+      <% duration = iso8601_duration_to_parts(value&.dig(:duration)) %>
+
+      <div class="form-element duration">
+        <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[duration]")}", class: 'duration-label' do %>
+          <%= t('schedule.duration.root', locale: active_ui_locale) %>
         <% end %>
 
-        <% end_time = full_day ? value&.dig(:start_time, :time)&.in_time_zone&.+(value&.dig(:duration).to_i)&.beginning_of_day&.-(1.second)&.to_date : value&.dig(:start_time, :time)&.in_time_zone&.+(value&.dig(:duration).to_i) %>
+        <% DataCycleCore::AttributeEditorHelper::DURATION_UNITS.each do |unit, max| %>
+          <div class="duration-<%= unit %> duration-part">
+            <%= number_field_tag "#{embedded_prefix}[duration][#{unit}]",
+              duration[unit.to_sym]&.positive? ? duration[unit.to_sym] : nil,
+              class: "date #{'read-only' if readonly}",
+              id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[duration][#{unit}]")}",
+              step: 1,
+              min: 0,
+              placeholder: 0,
+              max: max,
+              readonly: readonly %>
 
-        <% if readonly %>
-          <%= text_field_tag "#{embedded_prefix}[end_time][time]",
-            l(end_time, format: :edit, locale: active_ui_locale),
-            class: 'read-only date',
-            id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[end_time][time]")}", readonly: true %>
-        <% else %>
-          <%= datetime_field_tag "#{embedded_prefix}[end_time][time]", end_time, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[end_time][time]")}", data: { type: 'datepicker', disable_time: full_day } %>
+            <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[duration][#{unit}]")}" do %>
+              <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
+              <%= t("schedule.duration.#{unit}", locale: active_ui_locale) %>
+            <% end %>
+          </div>
         <% end %>
-      </div>
-
-      <div class="fullday">
-        <%= hidden_field_tag "#{embedded_prefix}[full_day]", full_day ? '1' : nil if readonly %>
-        <%= check_box_tag "#{embedded_prefix}[full_day]", '1', full_day, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[full_day]")}", disabled: readonly %>
-        <%= label_tag "#{embedded_prefix}[full_day]", t('schedule.full_day', locale: active_ui_locale) %>
       </div>
     </div>
 
@@ -103,12 +106,12 @@
           <span class="yearly"><%= t('schedule.every.neutrum', locale: active_ui_locale) %></span>
         <% end %>
         <%= number_field_tag "#{embedded_prefix}[rrules][][interval]", value&.dig(:rrules, 0, :interval) || 1, in: 1..30, step: 1, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[rrules][interval]")}", readonly: readonly %>
-        <span class="after-label">
+        <label class="after-label">
           <span class="daily"><%= t('schedule.day', locale: active_ui_locale) %></span>
           <span class="weekly"><%= t('schedule.week', locale: active_ui_locale) %></span>
           <span class="monthly"><%= t('schedule.month', locale: active_ui_locale) %></span>
           <span class="yearly"><%= t('schedule.year', locale: active_ui_locale) %></span>
-        </span>
+        </label>
       </div>
 
       <div class="weekly form-element">

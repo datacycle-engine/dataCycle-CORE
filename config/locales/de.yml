@@ -164,6 +164,12 @@ de:
 
   schedule:
     dtstart: Startzeitpunkt
+    duration:
+      root: Dauer
+      months: Monate
+      days: Tage
+      hours: Stunden
+      minutes: Minuten
     dtend: Endzeitpunkt
     full_day: Ganztägig
     rrule: Wiederholungen
@@ -265,6 +271,7 @@ de:
     status: Status
     confirm_delete_all_caches: Wirklich alle Caches leeren?
     confirm_delete_cache: Wirklich den Cache leeren?
+    confirm_delete_autotranslation: Wirklich alle manuellen Übersetzungen löschen?
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
     download_gpx: Als GPX-Datei herunterladen
     duplicate_content: Inhalt duplizieren
@@ -448,6 +455,17 @@ de:
       version_name_removed: Der Versionsname wurde entfernt!
     download:
       missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
+    serialize:
+      license:
+        copyright:
+          file_name: nutzungsbedingungen
+        introducton:
+          file_name: einleitungstext
+          text: 'Überschrift
+
+          Hier könnte Ihre Enleitung stehen
+
+          COPYRIGHT dataCycle'
     gip_key_figure:
       button_title: Ermittlung des Wertes für %{data} über ein Web-Service der GIP auf Basis der zugrundeliegenden Geo-Daten
     user_api:
@@ -462,7 +480,7 @@ de:
         id: ID
         name: Name
         downloads_all: Anzahl der Downloads (Gesamt)
-        downloads_by_month: Anzahl der Downloads (Dieses Monat)
+        downloads_by_month: Anzahl der Downloads (%{date})
         date_created: Heruntergeladen am
         email: E-Mail
         user_display_name: Account
@@ -810,7 +828,8 @@ de:
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
-
+      schedule:
+        duration_too_long: 'Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)'
   controllers:
     error:
       invalid_parent: 'Ungültiges Eltern Objekt.'
@@ -1067,6 +1086,7 @@ de:
         api: Über API abrufbar
         api_users: Für API zugelassene Benutzer
         linked_stored_filter_id: Filter für verknüpfte Inhalte
+        classification_tree_labels: Auf Klassifizierungsbäume einschränken
         name: Name
       data_cycle_core/asset:
         name: Name
@@ -1084,6 +1104,9 @@ de:
     user_details: Benutzerdetails
     user_links: Benutzerlinks
     classifications: 'Klassifizierungen'
+    classifications_adminitration:
+      classification:
+        submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
     show_contents_for_tree_label: 'Inhalte in %{data} auflisten'
@@ -1093,6 +1116,9 @@ de:
     cache:
       clear_all: Alle Caches leeren
       clear: Cache leeren
+    autotranslate:
+      clear: Manuelle Übersetzungen löschen
+      auto: Für diesen Datensatz wurden alle Übersetzungen automatisch angelegt.
     classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
     classification_relations:
       one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'
@@ -1212,7 +1238,7 @@ de:
         text: Beschreibung
         price: Preis
         description: Kurzbeschreibung
-        directions_public_transport: Öffentliche Verekehrsmittel
+        directions_public_transport: Öffentliche Verkehrsmittel
         instructions: Wegbeschreibung
         safety_instructions: Sicherheitshinweise
         equipment: Ausrüstung

@@ -5,11 +5,12 @@ module DataCycleCore
     module Validators
       class Date < BasicValidator
         def date_keywords
-          ['min']
+          ['min', 'required']
         end
 
         def validate(data, template, _strict = false)
           if data.blank?
+            required(data, template['validations']['required']) if template.key?('validations') && template.dig('validations', 'required')
             # ignore
             return @error
           end
@@ -59,6 +60,10 @@ module DataCycleCore
               min: value
             }
           }
+        end
+
+        def required(data, value)
+          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && data.blank?
         end
       end
     end

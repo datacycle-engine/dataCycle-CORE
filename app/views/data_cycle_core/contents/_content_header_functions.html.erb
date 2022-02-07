@@ -4,7 +4,12 @@
 
     <%= render 'locale_links', local_assigns if content.try(:translated_locales)&.many? %>
 
-    <%= render 'auto_translation', local_assigns if DataCycleCore::Feature::AutoTranslation.allowed?(content) %>
+    <% if can? :create, :auto_translate %>
+      <%= render 'auto_translation', local_assigns if DataCycleCore::Feature::AutoTranslation.allowed?(content) %>
+    <% end %>
+    <% if can? :destroy, :auto_translate %>
+      <%= render 'reset_auto_translation', local_assigns if content.template_name == 'Übersetzung' %>
+    <% end %>
 
     <% if can?(:index, content) && content.content_type?('entity') %>
       <li class="has-dropdown">

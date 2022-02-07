@@ -42,7 +42,7 @@ class OpenLayersEditor extends OpenLayersViewer {
     });
   }
   initEventHandlers() {
-    this.$container.on('dc:import:data', this.importData.bind(this));
+    this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
     this.$container.on('dc:map:resetPrimaryFeature', this.removeFeature.bind(this));
   }
   initAdditionalControls() {

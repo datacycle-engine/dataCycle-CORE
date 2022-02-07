@@ -17,6 +17,7 @@ module DataCycleCore
         can :show_admin_activities, :dash_board
         can [:create_api, :create_api_with_users], DataCycleCore::StoredFilter
         can :restore_version, DataCycleCore::Thing::History
+        can [:create, :destroy], :auto_translate
       end
     end
   end

@@ -20,13 +20,14 @@ before_script:
   - rm -Rf vendor/gems/data-cycle-core
   - git submodule sync --recursive
   - git submodule update --init --recursive --force
+  - chown -R ruby:ruby vendor/gems/data-cycle-core
 
   - gem install bundler
   - bundle config set --local path 'cache/bundler'
   - bundle install
 
-  - dpkg-reconfigure -f noninteractive tzdata
-  - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+#  - dpkg-reconfigure -f noninteractive tzdata
+#  - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
   - export RUBYOPT="-W:no-deprecated -W:no-experimental"
 
 ########################################################################

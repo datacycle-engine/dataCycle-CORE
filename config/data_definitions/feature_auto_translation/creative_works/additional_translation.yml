@@ -6,7 +6,7 @@
     :content_type: entity
     :features:
       :translatable:
-        :allowed: true 
+        :allowed: true
     :properties:
       :id:
         :label: id
@@ -50,7 +50,7 @@
           :show:
             :content_area: header
       :translation_type:
-        :label: Typ der Übersetzung
+        :label: Typ der Übersetzung (pro Sprache)
         :type: computed
         :storage_location: translated_value
         :compute:
@@ -82,6 +82,19 @@
            disabled: true
         :api:
           :disabled: true
+      :translated_classification:
+        :label: Typ der Übersetzung (gesamter Datensatz)
+        :type: computed
+        :tree_label: Übersetzungstyp
+        :storage_location: classification
+        :compute:
+          :type: classification
+          :module: Utility::Compute::Classification
+          :method: value
+          :parameters:
+            :0:
+              :value: 'Manuell'
+              :tree: 'Übersetzungstyp'
       :data_type:
         :label: Inhaltstyp
         :type: classification

@@ -241,9 +241,12 @@ class AssetUploader {
     if (!fileAttributes) return;
     if (data.key) fileAttributes = fileAttributes.filter(a => a.name.includes(data.key));
 
-    file.fileField.trigger('dc:form:importAttributeValues', {
-      locale: data && data.locale,
-      attributes: fileAttributes
+    window.requestAnimationFrame(() => {
+      // wait for event to be initialized
+      file.fileField.trigger('dc:form:importAttributeValues', {
+        locale: data && data.locale,
+        attributes: fileAttributes
+      });
     });
   }
   setFormFieldValues(event, data = undefined) {
@@ -304,9 +307,13 @@ class AssetUploader {
     let neighbors = this.files;
     if (selectedFile) neighbors = neighbors.filter(file => file.id != selectedFile.id);
 
-    neighbors.forEach(file => {
-      file.fileField.trigger('dc:form:importAttributeValues', {
-        attributes: file.attributeFieldValues
+    window.requestAnimationFrame(() => {
+      // wait for event to be initialized
+
+      neighbors.forEach(file => {
+        file.fileField.trigger('dc:form:importAttributeValues', {
+          attributes: file.attributeFieldValues
+        });
       });
     });
   }

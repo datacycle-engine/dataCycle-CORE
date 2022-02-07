@@ -45,6 +45,14 @@ module DataCycleCore
             recursive_char_count(data_hash, computed_parameters.first.dig('paths'))&.flatten&.compact&.sum
           end
 
+          def linked_gip_route_attribute(computed_parameters:, computed_definition:, **args)
+            return args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key)) if computed_parameters.first.blank?
+
+            # when called from UpdateComputedPropertiesJob, linked items are objects, not id-strings
+            content = computed_parameters&.first&.first.is_a?(::String) ? DataCycleCore::Thing.find(computed_parameters&.first&.first) : computed_parameters&.first&.first
+            content&.send(computed_definition&.dig('compute', 'linked_attribute').to_s)
+          end
+
           private
 
           def recursive_char_count(data, parameters)

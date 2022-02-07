@@ -24,7 +24,9 @@ module DataCycleCore
     end
 
     def update
-      if @stored_filter.update(stored_filter_params)
+      cleaned_params = stored_filter_params
+      cleaned_params[:classification_tree_labels] = stored_filter_params[:classification_tree_labels]&.map(&:presence)&.compact
+      if @stored_filter.update(cleaned_params)
         redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: helpers.active_ui_locale))
       else
         redirect_back(fallback_location: root_path, alert: (I18n.t :not_saved, scope: [:controllers, :errors], data: 'Filter', locale: helpers.active_ui_locale))
@@ -98,23 +100,23 @@ module DataCycleCore
       serialize_format = params[:serialize_format]
       languages = params[:language]
       authorize! :download, @stored_filter
-      download_stored_filter(@stored_filter, serialize_format, languages)
+      download_content(@stored_filter, serialize_format, languages)
     end
 
     def download_zip
       @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
       authorize! :download_zip, @stored_filter
-      serialize_format = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      serialize_formats = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
       languages = params[:language]
 
-      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('stored_filter', serialize_format)
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@stored_filter, [:archive, :zip], serialize_formats)
 
       items = @stored_filter.apply
       download_items = items.to_a.select do |thing|
         can? :download, thing
       end
 
-      download_collection(@stored_filter, download_items, serialize_format, languages)
+      download_collection(@stored_filter, download_items, serialize_formats, languages)
     end
 
     private
@@ -123,7 +125,7 @@ module DataCycleCore
     end
 
     def stored_filter_params
-      params.require(:stored_filter).permit(:id, :name, :system, :api, :linked_stored_filter_id, api_users: [])
+      params.require(:stored_filter).permit(:id, :name, :system, :api, :linked_stored_filter_id, classification_tree_labels: [], api_users: [])
     end
 
     def select_search_params

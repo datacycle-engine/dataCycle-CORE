@@ -3,8 +3,8 @@
 require 'test_helper'
 
 module DataCycleCore
-  class ScheduleTest < ActiveSupport::TestCase
-    def setup
+  class ScheduleTest < DataCycleCore::TestCases::ActiveSupportTestCase
+    setup do
       @schedule = DataCycleCore::Schedule.new
       @dtstart = Time.parse('2019-11-20T9:00').in_time_zone
       duration = 7.hours
@@ -131,12 +131,33 @@ module DataCycleCore
       assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
 
-    test 'handling non recurring schedule' do
+    test 'handling long non recurring schedule with end_time' do
       dtstart = Time.parse('2019-11-20T9:00').in_time_zone
       dtend = Time.parse('2020-01-03T16:00').in_time_zone
 
       schedule = DataCycleCore::Schedule.new
       schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time: dtend })
+      schedule.save
+      assert_equal(dtstart, schedule.dtstart)
+      assert_equal(dtend, schedule.dtend)
+      expected_serialization = {
+        '@context' => 'https://schema.org/',
+        '@type' => 'Schedule',
+        'inLanguage' => 'de',
+        'startDate' => '2019-11-20',
+        'startTime' => '09:00',
+        'duration' => 'P1M14DT7H',
+        'scheduleTimezone' => 'Europe/Vienna'
+      }
+      assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
+    end
+
+    test 'handling long non recurring schedule with duration' do
+      dtstart = Time.parse('2019-11-20T9:00').in_time_zone
+      dtend = Time.parse('2020-01-03T16:00').in_time_zone
+
+      schedule = DataCycleCore::Schedule.new
+      schedule.schedule_object = IceCube::Schedule.new(dtstart, { duration: (dtend - dtstart).to_i })
       schedule.save
       assert_equal(dtstart, schedule.dtstart)
       assert_equal(dtend, schedule.dtend)

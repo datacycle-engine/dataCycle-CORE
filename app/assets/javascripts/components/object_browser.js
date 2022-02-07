@@ -70,7 +70,7 @@ class ObjectBrowser {
     this.overlayInitObserver.observe(this.overlay.get(0), { attributes: true, attributeFilter: ['class'] });
     this.element.on('click', '.delete-thumbnail', this.clickDeleteThumbnailHandler.bind(this));
     this.element.on('dc:update:chosen', this.updateChosenHandler.bind(this));
-    this.element.on('dc:import:data', this.importDataHandler.bind(this));
+    this.element.on('dc:import:data', this.importDataHandler.bind(this)).addClass('dc-import-data');
     this.overlay.on('open.zf.reveal', this.setOverlayPosition.bind(this));
     this.overlay.on('closed.zf.reveal', this.resetOverlayPosition.bind(this));
 
@@ -244,7 +244,7 @@ class ObjectBrowser {
   clickItemsHandler(event) {
     const $target = $(event.currentTarget);
 
-    if ($target.closest('a.show-link').length || $target.closest('a.edit-link').length) return;
+    if (event.target.closest('a.show-link') || event.target.closest('a.edit-link')) return;
 
     event.preventDefault();
     event.stopImmediatePropagation();
