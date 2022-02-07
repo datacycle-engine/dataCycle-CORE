@@ -87,6 +87,8 @@ class ObjectBrowser {
       let filterItem = this.element.get(0);
 
       for (let i = 0; i < this.limitedBy.length; ++i) {
+        if (!filterItem) continue;
+
         filterItem = filterItem[this.limitedBy[i][0]](this.limitedBy[i][1]);
       }
 
@@ -725,7 +727,7 @@ class ObjectBrowser {
       });
       this.loading = false;
 
-      if (!data.last_page)
+      if (!data.last_page && data.has_contents)
         this.infiniteLoadingObserver.observe(this.overlay.children('.items').children('li.item').last().get(0));
     });
 
