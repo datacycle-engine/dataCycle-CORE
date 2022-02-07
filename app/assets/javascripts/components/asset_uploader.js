@@ -330,6 +330,11 @@ class AssetUploader {
       let attribute = file.attributeValues[key];
 
       if (attribute.type == 'boolean') {
+        const otherAttributeFieldValues = file.attributeFieldValues.filter(v => v.name.getAttributeKey() != key);
+        const attributeFieldValue = file.attributeFieldValues.filter(v => v.name.getAttributeKey() == key).pop();
+        file.attributeFieldValues = otherAttributeFieldValues;
+        if (attributeFieldValue) file.attributeFieldValues.push(attributeFieldValue);
+
         let value = get(attribute, 'ui.create.false_value') || 'false';
         if (values && values.length) value = values.pop().value;
 
