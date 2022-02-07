@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.7.1'
 
   # rails
-  s.add_dependency 'rails', '~> 6.1.4'
+  s.add_dependency 'rails', '~> 7.0.1'
   s.add_dependency 'rake'
   # Frontend Asset Handling
   # s.add_dependency 'sprockets', '4.0.0'
@@ -41,7 +41,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rgeo-proj4'
   s.add_dependency 'rgeo-shapefile'
   # mongoDB driver
-  s.add_dependency 'mongoid', '~> 7.0.6'
+  s.add_dependency 'mongoid'
   # REST Client
   s.add_dependency 'faraday'
   s.add_dependency 'faraday_middleware'
@@ -71,7 +71,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'jbuilder'
 
-  s.add_dependency 'acts_as_paranoid', '~> 0.6.0'
+  s.add_dependency 'acts_as_paranoid'
   s.add_dependency 'dry-transformer'
   s.add_dependency 'dry-validation'
   s.add_dependency 'hashdiff', '>= 0.4.0'
@@ -88,7 +88,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'mini_magick'
   s.add_dependency 'pdf-reader'
   s.add_dependency 'streamio-ffmpeg'
-  s.add_dependency 'taglib-ruby', '~> 1.0.0'
+  s.add_dependency 'taglib-ruby'
 
   # Image Optimization
   s.add_dependency 'image_optim'
@@ -115,7 +115,7 @@ Gem::Specification.new do |s|
   # URI (https://tools.ietf.org/html/rfc3986) and IRI (https://tools.ietf.org/html/rfc3987) Parser
   s.add_dependency 'addressable'
 
-  s.add_dependency 'puma', '~> 4.3.6'
+  s.add_dependency 'puma'
   s.add_dependency 'puma-status'
   s.add_dependency 'puma_worker_killer'
 
