@@ -169,7 +169,7 @@ module DataCycleCore
           id,
           self.class.name,
           'update',
-          WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.compact
+          WEBHOOK_ACCESSORS.index_with { |a| try(a) }.compact
         )
       end
     end
@@ -182,7 +182,7 @@ module DataCycleCore
           id,
           self.class.name,
           'create',
-          WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.compact
+          WEBHOOK_ACCESSORS.index_with { |a| try(a) }.compact
         )
       end
     end

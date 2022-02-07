@@ -135,7 +135,7 @@ module Translations
 
           ['pluck', 'group', 'select'].each do |method_name|
             define_method method_name do |*attrs, &block|
-              return super(*attrs, &block) if (method_name == 'select' && block.present?)
+              return super(*attrs, &block) if method_name == 'select' && block.present?
 
               if ::ActiveRecord::VERSION::STRING < '7.0'
                 return super(*attrs, &block) unless @klass.respond_to?(:translation_attribute?)
