@@ -83,7 +83,7 @@ module DataCycleCore
 
               uri = URI.parse(data_url)
               # used for local development and docker env.
-              uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && uri.hostname == 'localhost'
+              uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'
 
               conn = Faraday.new do |con|
                 con.use FaradayMiddleware::FollowRedirects, limit: 5
