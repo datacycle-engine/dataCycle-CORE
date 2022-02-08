@@ -1,7 +1,7 @@
 import OpenLayersViewer from './open_layers_viewer';
 import { gpx } from '@tmcw/togeojson';
 import ConfirmationModal from './confirmation_modal';
-import RemoveAllFeaturesControl from './ol_remove_all_features_control';
+import RemoveAllFeaturesControl from './map_controls/ol_remove_all_features_control';
 import domElementHelpers from '../helpers/dom_element_helpers';
 
 class OpenLayersEditor extends OpenLayersViewer {

@@ -34,5 +34,20 @@ module DataCycleCore
         properties: properties.reject { |_, v| v.blank? }.presence
       }.compact
     end
+
+    def additional_map_values_overlay(content, definition, options)
+      paths = definition&.dig('ui', 'edit', 'options', 'additional_value_paths')
+
+      return unless definition&.dig('ui', 'edit', 'options', 'additional_values_overlay').to_s == 'true' && paths.present?
+
+      paths.each_with_object({}) do |(k, v), a|
+        value = v || {}
+        value['definition'] = content.properties_for(k)
+
+        next unless attribute_editable?(k, value['definition'], options, content)
+
+        a[k] = value
+      end
+    end
   end
 end

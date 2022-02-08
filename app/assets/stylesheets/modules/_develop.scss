@@ -1869,6 +1869,21 @@ select {
     height: 450px;
     z-index: 0;
 
+    .dc-additional-values-overlay {
+      display: none;
+      position: absolute;
+      left: 50px;
+      top: 10px;
+      padding: 1rem;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+
+      &.active {
+        display: block;
+      }
+    }
+
     .mtk-editor-modal-window {
       margin-top: -100px;
     }

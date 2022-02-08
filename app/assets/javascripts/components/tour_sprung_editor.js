@@ -1,6 +1,8 @@
 import OpenLayersEditor from './open_layers_editor';
 import lodashGet from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import fetchInject from 'fetch-inject';
+import AdditionalValuesFilterControl from './map_controls/mapbox_additional_values_filter_control';
 
 class TourSprungEditor extends OpenLayersEditor {
   constructor(container) {
@@ -12,7 +14,6 @@ class TourSprungEditor extends OpenLayersEditor {
     this.map;
     this.editorGui;
     this.draggingMarker;
-    this.pois = this.additionalAttributes && this.additionalAttributes.toursprung_pois;
     this.$poisTarget =
       this.additionalAttributes &&
       this.additionalAttributes.toursprung_pois_target &&
@@ -199,20 +200,16 @@ class TourSprungEditor extends OpenLayersEditor {
       const feature = this.additionalValues[i];
 
       if (feature.geometry.type == 'Point') {
-        if (this.pois && this.editorGui.pois) {
-          pois.push(feature.properties.id);
-        } else {
-          const iconId = this.iconOptions('default', false, lodashGet(feature, 'properties.style.color', 'default'));
-          const newMarker = new MTK.Marker({
-            description: this.infoOverlayHtml(feature.properties)
-          })
-            .setLngLat(feature.geometry.coordinates)
-            .setImage({ id: iconId, anchor: 'bottom' });
+        const iconId = this.iconOptions('default', false, lodashGet(feature, 'properties.style.color', 'default'));
+        const newMarker = new MTK.Marker({
+          description: this.infoOverlayHtml(feature.properties)
+        })
+          .setLngLat(feature.geometry.coordinates)
+          .setImage({ id: iconId, anchor: 'bottom' });
 
-          this.additionalFeatures.push(newMarker);
+        this.additionalFeatures.push(newMarker);
 
-          this.additionalPointsLayer.addLayer(newMarker);
-        }
+        this.additionalPointsLayer.addLayer(newMarker);
       } else {
         const newLine = new MTK.Polyline({
           description: this.infoOverlayHtml(feature.properties)
@@ -222,37 +219,6 @@ class TourSprungEditor extends OpenLayersEditor {
 
         this.additionalLinesLayer.addLayer(newLine);
       }
-    }
-
-    this._renderAdditionalPointsAsPois(pois);
-  }
-  _renderAdditionalPointsAsPois(pois) {
-    if (!pois.length) return;
-
-    for (let i = 0; i < this.pois.length; ++i) {
-      fetch(
-        `https://resource.maptoolkit.net/${this.pois[i].resource.name}/search.json?api_key=${
-          this.credentials.api_key
-        }&remoteids=${pois.join(',')}`
-      ).then(response => {
-        if (response.ok)
-          response.json().then(result => {
-            if (!result || !result.features || !result.features.length) return;
-
-            for (let j = 0; j < result.features.length; ++j) {
-              const feature = result.features[j];
-
-              if (this.editorGui.pois._selected[feature.id]) return;
-
-              feature.properties.resource = result.properties.resource;
-              this.editorGui.pois._selected[feature.id] = feature;
-              this.editorGui.pois._updateLayer();
-              this.editorGui.pois._updateResource();
-              this.editorGui.pois.fire('selected', this.editorGui.pois, false);
-              this.editorGui.pois.enabled = false;
-            }
-          });
-      });
     }
   }
   extendEditorInterface() {
@@ -329,12 +295,12 @@ class TourSprungEditor extends OpenLayersEditor {
   configureEditor() {
     this.map.gl.addControl(new mapboxgl.NavigationControl(), 'top-left');
     this.map.gl.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+    if (!isEmpty(this.additionalValuesOverlay))
+      this.map.gl.addControl(new AdditionalValuesFilterControl(this.additionalValuesOverlay), 'bottom-left');
 
     this.extendEditorInterface();
 
-    this.editorGui = new this.extendedEditorInterface({
-      pois: this.pois
-    }).addTo(this.map);
+    this.editorGui = new this.extendedEditorInterface().addTo(this.map);
 
     const waypointLayerDefinition = this.editorGui.editor.getLayerDefinitions().find(v => v.type == 'symbol');
     const waypointLayerId = waypointLayerDefinition && waypointLayerDefinition.id;

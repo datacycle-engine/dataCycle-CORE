@@ -112,7 +112,7 @@ class OpenLayersViewer {
     this.afterValue = this.$container.data('after-position');
     this.type = this.$container.data('type');
     this.additionalValues = this.$container.data('additionalValues');
-    this.additionalAttributes = this.$container.data('additional-attributes');
+    this.additionalValuesOverlay = this.$container.data('additionalValuesOverlay');
     this.feature;
     this.additionalFeatures = [];
     this.infoOverlay;
