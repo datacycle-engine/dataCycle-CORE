@@ -1,6 +1,6 @@
 import jQuery from 'jquery';
 import Rails from '@rails/ujs';
-import ActionCable from 'actioncable';
+import ActionCable from '@rails/actioncable';
 import DataCycleSingleton from './components/data_cycle';
 import I18n from './components/i18n';
 

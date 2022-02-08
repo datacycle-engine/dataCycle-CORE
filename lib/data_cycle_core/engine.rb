@@ -82,9 +82,6 @@ require 'vite_rails'
 
 require 'holidays'
 
-# require '..', '..', 'app', 'middlewares', 'data_cycle_core', 'fix_param_encoding_middleware'
-# require 'middlewares/data_cycle_core/fix_param_encoding_middleware'
-
 module DataCycleCore
   mattr_accessor :breadcrumb_root_name
   self.breadcrumb_root_name = 'Dashboard'
