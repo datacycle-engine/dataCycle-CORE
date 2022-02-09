@@ -1,4 +1,4 @@
-image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:latest
+image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.0
 
 variables:
   PRODUCTION_URL: ''
@@ -34,10 +34,10 @@ cache:
     # - vendor/gems/data-cycle-core/lib/assets
 
 services:
-  - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:latest'
+  - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4'
     alias: postgres
     command: ['postgres']
-  - name: mvertes/alpine-mongo:4.0.6-1
+  - name: mongo:4.4.8-focal
     alias: mongodb
 
 ########################################################################
@@ -63,7 +63,6 @@ services:
     - gem install bundler
     - bundle config set --local path 'cache/bundler'
     - bundle install
-    - cd $CI_PROJECT_DIR
     - yarn
     - yarn upgrade
 
@@ -208,7 +207,7 @@ services:
   when: manual
 
 .post_deploy_docker_config:
-  stage: .post
+  stage: post-deploy
   image: docker:20.10
   allow_failure: false
   variables:

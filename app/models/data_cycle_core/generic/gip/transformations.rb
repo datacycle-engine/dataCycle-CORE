@@ -8,14 +8,13 @@ module DataCycleCore
           DataCycleCore::Generic::Common::Functions[*args]
         end
 
-        def self.to_route_feature(external_source_id)
+        def self.to_route_feature(_external_source_id)
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { s.dig('featureMember', 'GeoName', 'fid') })
           .>> t(:reject_keys, ['name'])
           .>> t(:add_field, 'name', ->(s) { s.dig('featureMember', 'GeoName', 'featureName', 'text') })
           .>> t(:add_field, 'description', ->(s) { s.dig('featureMember', 'GeoName', 'schreib6', 'text') })
           .>> t(:add_field, 'route_number', ->(s) { s.dig('featureMember', 'GeoName', 'externalId', 'text') })
-          .>> t(:add_field, 'sections', ->(s) { load_feature_sections(s.dig('featureMember', 'GeoName', 'refs', 'ReferenceItem'), external_source_id) })
           .>> t(:add_field, 'line', ->(s) { load_all_sections(s.dig('sections')) })
           .>> t(:reject_keys, ['boundedBy', 'schemaLocation', 'featureMember']) # 'featureMember'
           .>> t(:strip_all)
@@ -28,15 +27,6 @@ module DataCycleCore
           .>> t(:add_field, 'line', ->(s) { load_all_sections(s.dig('sections')) })
           .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: prefix + s['value'])&.ids })
           .>> t(:strip_all)
-        end
-
-        def self.load_feature_sections(refs, external_source_id)
-          return [] if refs.blank?
-          external_keys = Array.wrap(refs)
-            .map { |i| i.dig('fid') }
-            .map { |i| i.split('_').last }
-            .map { |i| "Event_#{i}" }
-          DataCycleCore::Thing.where(external_key: external_keys, external_source_id: external_source_id)&.ids
         end
 
         def self.load_all_sections(data)
@@ -74,6 +64,7 @@ module DataCycleCore
           .>> t(:add_links, 'referencetype', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'type') ? Array.wrap("Gip - REFERENCETYPE - #{s.dig('properties', 'type')}") : [] })
           .>> t(:add_links, 'orgcode', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'externalorgcode') ? Array.wrap("Gip - ORGCODE - #{s.dig('properties', 'externalorgcode')}") : [] })
           .>> t(:add_field, 'name', ->(s) { "#{s['caption']} - #{DataCycleCore::Classification.find_by(id: s['minortyperef']).name}" })
+          .>> t(:add_field, 'routes', ->(s) { load_feature_routes(s.dig('properties', 'geoNameId1'), external_source_id) })
           .>> t(:reject_keys, ['id', 'caption', 'bbox', 'geometry', 'properties'])
           .>> t(:strip_all)
         end
@@ -141,6 +132,12 @@ module DataCycleCore
           owner = data.dig('properties', 'objectid')&.digits&.last
           return Array.wrap("Gip - DATABASE - #{owner}") unless owner.nil?
           []
+        end
+
+        def self.load_feature_routes(route_id, external_source_id)
+          return [] if route_id.blank?
+
+          DataCycleCore::Thing.where(external_key: "GeoName_#{route_id}", external_source_id: external_source_id)&.ids
         end
       end
     end

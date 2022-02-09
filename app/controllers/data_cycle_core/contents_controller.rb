@@ -86,7 +86,7 @@ module DataCycleCore
       uri = URI.parse(content.send(attribute))
 
       # used for local development and docker env.
-      uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && uri.hostname == 'localhost'
+      uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'
       redirect_to(uri.to_s)
     end
 
@@ -440,6 +440,13 @@ module DataCycleCore
     def clear_cache
       authorize! :clear, :cache
       Rails.cache.delete_matched("*#{params[:id]}*")
+      redirect_back(fallback_location: root_path)
+    end
+
+    def destroy_auto_translate
+      authorize! :destroy, :auto_translate
+      thing = DataCycleCore::Thing.find(params[:id])
+      thing.destroy_auto_translations
       redirect_back(fallback_location: root_path)
     end
 

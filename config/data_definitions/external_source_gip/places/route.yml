@@ -35,16 +35,6 @@
             :content_area: none
         :api:
           :minimal: true
-      # :content_classifications:
-      #   :type: mixin
-      #   :name: content_classifications
-      # :additional_information:
-      #   :label: Ergänzende Information
-      #   :type: embedded
-      #   :template_name: Ergänzende Information
-      #   :api:
-      #     :v4:
-      #       :name: dc:additionalInformation
       :description:
         :label: Kurzbeschreibung
         :type: string
@@ -55,18 +45,6 @@
             :type: text_editor
             :options:
               :data-size: basic
-      #   :advanced_search: true
-      # :text:
-      #   :label: Beschreibung
-      #   :type: string
-      #   :storage_location: translated_value
-      #   :search: true
-      #   :ui:
-      #     :edit:
-      #       :type: text_editor
-      #       :options:
-      #         :data-size: basic
-      #   :advanced_search: true
       :route_number:
         :label: Nummer der Radroute
         :type: string
@@ -74,15 +52,10 @@
       :sections:
         :label: Routen
         :type: linked
-        :template_name: Section
+        :inverse_of: routes
+        :link_direction: inverse
         :api:
           minimal: true
-      # :image:
-      #   :label: Bilder
-      #   :type: linked
-      #   :template_name: Bild
-      #   :api:
-      #     :minimal: true
       :line:
         :label: Gesamtstrecke
         :storage_location: column
@@ -96,9 +69,6 @@
                 :sections:
                   :geo: line
                   :title: title
-      # :potential_actions:
-      #   :type: mixin
-      #   :name: potential_actions
       :subject_of:
         :label: Thema von
         :type: linked
@@ -110,9 +80,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: 'Gesamtroute'
-      # :cc_rel:
-      #   :type: mixin
-      #   :name: cc_rel
       :meta_data:
         :type: mixin
         :name: meta_data

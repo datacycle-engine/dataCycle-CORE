@@ -123,37 +123,35 @@
         :ui:
           :show:
             :content_area: header
-      :geoname_route:
-        :label: Bestehende Gesamtroute
+      :routes:
+        :label: Gesamtroute
         :type: linked
         :template_name: Gesamtroute
-        :validations:
-          :max: 1
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
-      :geoname_name:
-        :label: Name der Radroute
-        :type: string
+        :inverse_of: sections
+        :api:
+          minimal: true
+      :route_name:
+        :label: Name der Gesamtroute
+        :type: computed
         :storage_location: value
-        :default_value:
-          :module: DataCycleCore::Utility::DefaultValue::String
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
           :method: linked_gip_route_attribute
           :linked_attribute: name
           :parameters:
-            :linked: geoname_route
-      :geoname_number:
-        :label: Nummer der Radroute
-        :type: string
+            :linked: routes
+      :route_number:
+        :label: Nummer der Gesamtroute
+        :type: computed
         :storage_location: value
-        :default_value:
-          :module: DataCycleCore::Utility::DefaultValue::String
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
           :method: linked_gip_route_attribute
           :linked_attribute: route_number
           :parameters:
-            :linked: geoname_route
+            :linked: routes
       :round_trip:
         :label: Rundkurs
         :type: boolean

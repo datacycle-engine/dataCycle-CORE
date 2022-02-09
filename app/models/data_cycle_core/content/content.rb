@@ -8,7 +8,8 @@ module DataCycleCore
       NEW_STORAGE_LOCATION = {
         'value' => 'metadata',
         'translated_value' => 'content',
-        'column' => 'column'
+        'column' => 'column',
+        'classification' => 'classification'
       }.freeze
       PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
       WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks].freeze
@@ -431,6 +432,8 @@ module DataCycleCore
         value ||
           if property_definition['storage_location'] == 'column'
             send(property_name)
+          elsif property_definition['storage_location'] == 'classification'
+            load_classifications(property_name, overlay_flag)
           else
             convert_to_type(
               property_definition.dig('compute', 'type'),
@@ -542,7 +545,9 @@ module DataCycleCore
       end
 
       def set_property_value(property_name, property_definition, value)
-        Appsignal.send_error(e, nil, "method set_property_value is deprecated use set_data_hash instead. Thing: #{id}(#{template_name}) - #{property_name}")
+        Appsignal.send_error(e) do |transaction|
+          transaction.set_namespace("method set_property_value is deprecated use set_data_hash instead. Thing: #{id}(#{template_name}) - #{property_name}")
+        end
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
         ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}")
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',

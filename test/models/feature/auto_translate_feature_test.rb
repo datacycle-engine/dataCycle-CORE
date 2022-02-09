@@ -52,6 +52,51 @@ module DataCycleCore
       assert_equal({}, content.create_update_auto_translations)
     end
 
+    test 'automatically set updated translations as manual updates' do
+      content = @content = DataCycleCore::DummyDataHelper.create_data('poi1')
+      content.create_update_translations
+      translation = content.subject_of.find_by(name: 'name1_de')
+      I18n.with_locale(:en) { translation.set_data_hash(data_hash: { 'description' => 'new_descriptions' }) }
+      changed_data = I18n.with_locale(:en) { translation.get_data_hash }
+      assert_equal('manual', changed_data.dig('translation_type'))
+      assert_equal('Manuell', changed_data.dig('translated_classification').first.name)
+    end
+
+    test 'delete translations marked as manual updates' do
+      content = @content = DataCycleCore::DummyDataHelper.create_data('poi1')
+      content.create_update_translations
+      translation = content.subject_of.find_by(name: 'name1_de')
+      assert_equal(2, translation.available_locales.size)
+      I18n.with_locale(:en) { translation.set_data_hash(data_hash: { 'description' => 'new_descriptions' }) }
+      translation.destroy_auto_translations
+      assert_equal(1, translation.available_locales.size)
+      assert_equal(:de, translation.available_locales.first)
+    end
+
+    test 'delete thing if single translation marked as manual is deleted' do
+      content = @content = DataCycleCore::DummyDataHelper.create_data('poi1')
+      content.create_update_translations
+      translation = content.subject_of.find_by(name: 'name2_de')
+      assert_equal(1, translation.available_locales.size)
+      translation.set_data_hash(data_hash: { 'description' => 'new_descriptions' })
+      changed_data = translation.get_data_hash
+      assert_equal('manual', changed_data.dig('translation_type'))
+      assert_equal('Manuell', changed_data.dig('translated_classification').first.name)
+      translation.destroy_auto_translations
+      assert_raises ActiveRecord::RecordNotFound do
+        translation.reload
+      end
+    end
+
+    test 'destroy all translated_content' do
+      content = @content = DataCycleCore::DummyDataHelper.create_data('poi1')
+      content.create_update_translations
+      assert_equal(2, content.subject_of.count)
+      content.destroy_all_translated_content
+      content.reload
+      assert_equal(0, content.subject_of.count)
+    end
+
     def additional_infos
       {
         'description' => {

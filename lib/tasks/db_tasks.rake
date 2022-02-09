@@ -48,5 +48,12 @@ namespace :db do
         SELECT generate_ca_paths_transitive(ARRAY_AGG(id)) FROM classification_aliases;
       SQL
     end
+
+    desc 'rebuild classification_alias_paths'
+    task rebuild_ca_paths: :environment do
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        SELECT generate_classification_alias_paths(ARRAY_AGG(id)) FROM classification_aliases;
+      SQL
+    end
   end
 end

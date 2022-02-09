@@ -1,0 +1,19 @@
+<% classification = content.translated_classification&.first&.name %>
+<% if classification == 'Manuell' %>
+  <li>
+    <%= link_to destroy_auto_translate_thing_path(content),
+                  method: :get,
+                  data: {
+                      confirm: "#{t('common.confirm_delete_autotranslation', locale: active_ui_locale) }"
+                  },
+                  title: t('data_cycle_core.autotranslate.clear', locale: active_ui_locale), 'aria-haspopup': true do %>
+      <span class="icon"><i class="fa fa-cloud" aria-hidden="true"></i></span>
+    <% end %>
+  </li>
+<% else %>
+  <li>
+    <span class='link' title="<%=t('data_cycle_core.autotranslate.auto', locale: active_ui_locale)%>">
+      <span class="icon"><i class="fa fa-cloud-download" aria-hidden="true"></i></span>
+    </span>
+  </li>
+<% end %>

@@ -49,6 +49,16 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('ST_MakeBox2D', [point1, point2])
       end
 
+      def st_makeenvelope(xmin, ymin, xmax, ymax, srid)
+        Arel::Nodes::NamedFunction.new('ST_MakeEnvelope', [
+                                         Arel::Nodes::SqlLiteral.new(xmin.to_s),
+                                         Arel::Nodes::SqlLiteral.new(ymin.to_s),
+                                         Arel::Nodes::SqlLiteral.new(xmax.to_s),
+                                         Arel::Nodes::SqlLiteral.new(ymax.to_s),
+                                         Arel::Nodes::SqlLiteral.new(srid.to_s)
+                                       ])
+      end
+
       def st_dwithin(geom1, geom2, distance)
         Arel::Nodes::NamedFunction.new('ST_DWithin', [geom1, geom2, distance])
       end
@@ -69,12 +79,20 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('ST_Contains', [geom1, geom2])
       end
 
+      def st_intersects(geom1, geom2)
+        Arel::Nodes::NamedFunction.new('ST_Intersects', [geom1, geom2])
+      end
+
       def st_disjoint(geom1, geom2)
         Arel::Nodes::NamedFunction.new('ST_Disjoint', [geom1, geom2])
       end
 
       def contains(geo1, geo2)
         Arel::Nodes::InfixOperation.new('@', geo1, geo2)
+      end
+
+      def intersects(geo1, geo2)
+        overlap(geo1, geo2)
       end
 
       def in_range(range, date)
