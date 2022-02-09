@@ -51,5 +51,12 @@ module DataCycleCore
         a[k] = value
       end
     end
+
+    def additional_map_values_filter(tree_label)
+      DataCycleCore::ClassificationAlias
+        .includes(:classification_tree_label, :primary_classification)
+        .where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: tree_label })
+        .order(created_at: :asc)
+    end
   end
 end

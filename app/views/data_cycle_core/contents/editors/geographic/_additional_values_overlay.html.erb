@@ -1,10 +1,10 @@
 <ul class="dc-additional-values-filter accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
   <% additional_values.each do |key, value| %>
-    <% filters = value.dig('definition', 'ui', 'edit', 'filters', 'classification_tree') %>
+    <% tree_label = value.dig('definition', 'ui', 'edit', 'filters', 'classification_tree') %>
     <%= tag.li(
-      class: "dc-additional-values-filter-item #{'accordion-item' if filters.present?}",
+      class: "dc-additional-values-filter-item #{'accordion-item' if tree_label.present?}",
       data: {
-        accordion_item: filters.present? ? true: nil
+        accordion_item: tree_label.present? ? true: nil
       }
     ) do %>
       <%= label_tag "dc_map_additional_value_#{key}", class: 'dc-additional-values-filter-title' do %>
@@ -12,11 +12,22 @@
         <%= tag.span(value['label'], class: 'attribute-label-text') %>
       <% end %>
 
-      <% if filters.present? %>
+      <% if tree_label.present? %>
         <a href="#" class="accordion-title"></a>
 
         <div class="accordion-content" data-tab-content>
-          <%= filters %>
+          <ul class="no-bullet additional-map-values-filter-items">
+            <%= collection_check_boxes(nil, "additional_values_filter[#{tree_label}]", additional_map_values_filter(tree_label), :id, :internal_name, {}, {}) do |cb| %>
+              <li class="additional-map-values-filter-item">
+                <%= cb.label title: cb.object.try(:description), class: 'dc-foundation-tooltip', data: { allow_html: true } do %>
+                  <%= cb.check_box value: cb.value %>
+                  <span class="attribute-label-text">
+                    <%= cb.text %> <%= tag.i(class: 'fa fa-info-circle') if cb.object.try(:description).present? %>
+                  </span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
         </div>
       <% end %>
     <% end %>
