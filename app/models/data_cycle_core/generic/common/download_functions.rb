@@ -126,7 +126,9 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  Appsignal.send_error(e, nil, 'background')
+                  Appsignal.send_error(e) do |transaction|
+                    transaction.set_namespace('background')
+                  end
                   logging.error(nil, nil, nil, e)
                   success = false
                 ensure
