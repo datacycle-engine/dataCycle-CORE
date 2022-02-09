@@ -46,6 +46,8 @@ module DataCycleCore
 
         next unless attribute_editable?(k, value['definition'], options, content)
 
+        value['label'] = translated_attribute_label(k, value['definition'], content, options)
+
         a[k] = value
       end
     end

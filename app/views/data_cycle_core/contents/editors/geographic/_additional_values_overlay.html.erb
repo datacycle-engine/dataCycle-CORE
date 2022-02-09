@@ -1,5 +1,24 @@
-<ul class="dc-additional-values-filter">
+<ul class="dc-additional-values-filter accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
   <% additional_values.each do |key, value| %>
-    <li><%= key %></li>
+    <% optional_filters = value.dig('definition', 'ui', 'edit', 'optional_filters', 'classification_tree') %>
+    <%= tag.li(
+      class: "dc-additional-values-filter-item #{'accordion-item' if optional_filters.present?}",
+      data: {
+        accordion_item: optional_filters.present? ? true: nil
+      }
+    ) do %>
+      <%= label_tag "dc_map_additional_value_#{key}", class: 'dc-additional-values-filter-title' do %>
+        <%= check_box_tag "dc_map_additional_value_#{key}" %>
+        <%= tag.span(value['label'], class: 'attribute-label-text') %>
+      <% end %>
+
+      <% if optional_filters.present? %>
+        <a href="#" class="accordion-title"></a>
+
+        <div class="accordion-content" data-tab-content>
+          <%= optional_filters %>
+        </div>
+      <% end %>
+    <% end %>
   <% end %>
 </ul>
