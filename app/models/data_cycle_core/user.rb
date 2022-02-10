@@ -31,7 +31,7 @@ module DataCycleCore
     has_one :my_selection, -> { where(my_selection: true) }, class_name: 'DataCycleCore::WatchList'
     has_many :subscriptions, dependent: :destroy
     has_many :things_subscribed, through: :subscriptions, source: :subscribable, source_type: 'DataCycleCore::Thing'
-    belongs_to :role
+    belongs_to :role, optional: true
 
     has_many :things_created, class_name: 'DataCycleCore::Thing', foreign_key: :created_by
     has_many :things_updated, class_name: 'DataCycleCore::Thing', foreign_key: :updated_by
@@ -57,7 +57,7 @@ module DataCycleCore
     has_many :external_systems, through: :external_system_syncs
 
     has_many :activities, dependent: :destroy
-    belongs_to :creator, class_name: 'DataCycleCore::User'
+    belongs_to :creator, class_name: 'DataCycleCore::User', optional: true
     has_many :created_users, class_name: 'DataCycleCore::User', foreign_key: :creator_id
 
     before_create :set_default_role
