@@ -64,7 +64,7 @@ DataCycleCore::Engine.routes.draw do
       get :create_duplication, on: :member
       get :clear_cache, on: :member
       get :destroy_auto_translate, on: :member
-      get 'asset/:type', on: :member, action: :asset, constraints: { type: '(content|thumb|original)' }
+      get 'asset/:type', on: :member, action: :asset, constraints: { type: /(content|thumb|original)/ }
       post :validate, on: :member
       post :validate, on: :collection
       get :select_search, on: :collection
