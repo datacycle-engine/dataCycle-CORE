@@ -182,7 +182,7 @@ class Validator {
   }
   singleError(key, type = 'error') {
     return $(
-      `<span class="single_${type}" data-attribute-key="${key}"><i class="fa fa-times close-error" aria-hidden="true"></i></span></span>`
+      `<span class="single_${type}" data-attribute-key="${key}"><i class="fa fa-times close-${type}" aria-hidden="true"></i></span></span>`
     );
   }
   async renderErrorMessage(data, validationContainer, type = 'error', itemClass = 'alert') {

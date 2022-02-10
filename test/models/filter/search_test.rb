@@ -220,13 +220,13 @@ module DataCycleCore
     end
 
     test 'supports geo search within polygon' do
-      assert_equal(2, DataCycleCore::Filter::Search.new(:de).geo_within_classification(@alias_id1).count)
+      assert_equal(1, DataCycleCore::Filter::Search.new(:de).geo_within_classification(@alias_id1).count)
       assert_equal(0, DataCycleCore::Filter::Search.new(:de).geo_within_classification(@alias_id2).count)
     end
 
     test 'supports geo search not within polygon' do
       assert_equal(0, DataCycleCore::Filter::Search.new(:de).not_geo_within_classification(@alias_id1).count)
-      assert_equal(2, DataCycleCore::Filter::Search.new(:de).not_geo_within_classification(@alias_id2).count)
+      assert_equal(1, DataCycleCore::Filter::Search.new(:de).not_geo_within_classification(@alias_id2).count)
     end
 
     # test 'test thesaurus is installed' do

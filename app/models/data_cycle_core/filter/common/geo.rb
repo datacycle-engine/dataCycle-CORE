@@ -73,14 +73,14 @@ module DataCycleCore
               .where(classification_polygon[:classification_alias_id].eq(id))
 
             contains_queries << st_intersects(sub_query, st_transform(thing[:location], 3035))
-            contains_queries << st_intersects(sub_query, st_transform(thing[:line], 3035))
+            # contains_queries << st_intersects(sub_query, st_transform(thing[:line], 3035))
           end
 
           reflect(
             @query
               .where(
                 contains(thing[:location], st_makeenvelope(-90.0, -180.0, 90.0, 180.0, 4326))
-                .or(contains(thing[:line], st_makeenvelope(-90.0, -180.0, 90.0, 180.0, 4326)))
+                # .or(contains(thing[:line], st_makeenvelope(-90.0, -180.0, 90.0, 180.0, 4326)))
               )
               .where(contains_queries.reduce(:or))
           )
@@ -97,14 +97,14 @@ module DataCycleCore
               .where(classification_polygon[:classification_alias_id].eq(id))
 
             contains_queries << st_disjoint(sub_query, st_transform(thing[:location], 3035))
-            contains_queries << st_disjoint(sub_query, st_transform(thing[:line], 3035))
+            # contains_queries << st_disjoint(sub_query, st_transform(thing[:line], 3035))
           end
 
           reflect(
             @query
               .where(
                 contains(thing[:location], st_makeenvelope(-90.0, -180.0, 90.0, 180.0, 4326))
-                .or(contains(thing[:line], st_makeenvelope(-90.0, -180.0, 90.0, 180.0, 4326)))
+                # .or(contains(thing[:line], st_makeenvelope(-90.0, -180.0, 90.0, 180.0, 4326)))
               )
               .where(contains_queries.reduce(:or))
           )
