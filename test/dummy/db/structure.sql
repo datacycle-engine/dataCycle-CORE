@@ -315,15 +315,6 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
       END;$$;
 
 
---
--- Name: core_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
---
-
-CREATE TEXT SEARCH DICTIONARY public.core_german (
-    TEMPLATE = pg_catalog.thesaurus,
-    dictfile = 'core_german', dictionary = 'pg_catalog.german_stem' );
-
-
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -351,8 +342,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -1904,10 +1895,10 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
--- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -3182,7 +3173,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211217094832'),
 ('20220105142232'),
 ('20220111132413'),
-('20220113113445'),
-('20220203142912');
+('20220113113445');
 
 
