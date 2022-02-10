@@ -79,26 +79,26 @@ ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaStatements.prepend SchemaSta
 
 # activerecord/lib/active_record/connection_adapters/postgresql_adapter.rb
 # @todo update or replace
-# require 'active_record/connection_adapters/postgresql_adapter'
-# ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::NATIVE_DATABASE_TYPES[:interval] = { name: 'interval' }
-# ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.class_eval do
-#   alias_method :initialize_type_map_without_interval, :initialize_type_map
-#   define_method :initialize_type_map do |m|
-#     initialize_type_map_without_interval(m)
-#     m.register_type 'interval' do |_, _, sql_type|
-#       precision = extract_precision(sql_type)
-#       ::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::OID::Interval.new(precision: precision)
-#     end
-#   end
-#
-#   alias_method :configure_connection_without_interval, :configure_connection
-#   define_method :configure_connection do
-#     configure_connection_without_interval
-#     execute('SET intervalstyle = iso_8601', 'SCHEMA')
-#   end
-#
-#   ActiveRecord::Type.register(:interval, ::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::OID::Interval, adapter: :postgresql)
-# end
+require 'active_record/connection_adapters/postgresql_adapter'
+ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::NATIVE_DATABASE_TYPES[:interval] = { name: 'interval' }
+ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.class_eval do
+  alias_method :initialize_type_map_without_interval, :initialize_type_map
+  define_method :initialize_type_map do |m|
+    initialize_type_map_without_interval(m)
+    m.register_type 'interval' do |_, _, sql_type|
+      precision = extract_precision(sql_type)
+      ::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::OID::Interval.new(precision: precision)
+    end
+  end
+
+  alias_method :configure_connection_without_interval, :configure_connection
+  define_method :configure_connection do
+    configure_connection_without_interval
+    execute('SET intervalstyle = iso_8601', 'SCHEMA')
+  end
+
+  ActiveRecord::Type.register(:interval, ::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::OID::Interval, adapter: :postgresql)
+end
 
 module ActiveSupport
   class Duration

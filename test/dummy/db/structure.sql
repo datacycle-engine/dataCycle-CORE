@@ -17,6 +17,13 @@ CREATE SCHEMA public;
 
 
 --
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
+
+--
 -- Name: delete_ca_paths_transitive_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 

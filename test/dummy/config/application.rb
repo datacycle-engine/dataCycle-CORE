@@ -24,7 +24,9 @@ Bundler.require(*Rails.groups)
 module Dummy
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.0
+
+    config.load_defaults 6.1
+    # config.autoloader = :zeitwerk
     # ActiveRecord::Tasks::DatabaseTasks.structure_dump_flags = ['--clean', '--if-exists']
 
     # Settings in config/environments/* take precedence over those specified here.
