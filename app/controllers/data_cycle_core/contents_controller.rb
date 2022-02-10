@@ -489,6 +489,36 @@ module DataCycleCore
       render json: values.reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }.to_json
     end
 
+    def geojson_for_map_editor
+      authorize! :index, DataCycleCore::Thing
+
+      filter_params = geojson_for_map_editor_params[:filter]
+
+      render(plain: { type: 'FeatureCollection', features: [] }.to_json, content_type: 'application/vnd.geo+json') && return if filter_params.blank?
+
+      @stored_filter = DataCycleCore::StoredFilter.new.apply
+      filter_array = []
+
+      filter_params.to_h.each_value do |value|
+        template_name = value.dig(:definition, :template_name)
+        filter_hash = value.dig(:definition, :stored_filter)
+        group_filter = DataCycleCore::StoredFilter.new
+          .parameters_from_hash(filter_hash)
+          .apply_user_filter(current_user, { scope: 'object_browser', template_name: value.dig(:definition, :stored_filter).blank? ? template_name : nil })
+
+        group_filter.parameters.concat Array.wrap(value[:filters])
+
+        query = group_filter.apply
+        query = query.where(template_name: template_name.to_s) if template_name && filter_hash.blank?
+        query = query.in_validity_period
+        filter_array.push(query)
+      end
+
+      @stored_filter = @stored_filter.union_filter(filter_array)
+
+      render plain: @stored_filter.query.select(:id, :line, :location, :updated_at, :template_updated_at, :schema).to_geojson, content_type: 'application/vnd.geo+json'
+    end
+
     private
 
     def set_watch_list
@@ -585,6 +615,10 @@ module DataCycleCore
 
     def load_more_duplicates_params
       params.permit(:id, :prefix)
+    end
+
+    def geojson_for_map_editor_params
+      params.permit(filter: {})
     end
   end
 end

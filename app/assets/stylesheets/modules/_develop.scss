@@ -1879,6 +1879,42 @@ select {
       border-radius: 4px;
       box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
       min-width: 10rem;
+      width: auto;
+      z-index: 2;
+      max-height: calc(100% - 20px);
+      overflow: hidden;
+      max-width: calc(100% - 100px);
+
+      .loading-spinner {
+        display: none;
+        position: absolute;
+        background: rgba(255, 255, 255, 0.8);
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        z-index: 1;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+      }
+
+      .dc-additional-values-filter-container {
+        max-height: 100%;
+        max-width: 100%;
+        overflow: auto;
+        padding: 1px;
+        width: 100%;
+        height: 100%;
+      }
+
+      &.loading {
+        pointer-events: none;
+
+        .loading-spinner {
+          display: flex;
+        }
+      }
 
       &.remote-render,
       &.remote-rendering {
@@ -1889,7 +1925,7 @@ select {
       }
 
       &.active {
-        display: block;
+        display: flex;
       }
 
       * {

@@ -65,6 +65,7 @@ DataCycleCore::Engine.routes.draw do
       get :destroy_auto_translate, on: :member
       get 'asset/:type', on: :member, action: :asset, constraints: { type: '(content|thumb|original)' }
       post :validate, on: :member
+      get :geojson_for_map_editor, on: :collection, defaults: { format: 'application/vnd.geo+json' }
       post :validate, on: :collection
       get :select_search, on: :collection
       get :render_embedded_object, on: :member

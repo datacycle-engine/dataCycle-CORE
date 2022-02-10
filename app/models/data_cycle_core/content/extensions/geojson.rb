@@ -31,7 +31,7 @@ module DataCycleCore
         end
 
         def geojson_properties
-          { name: name }
+          { name: title }
         end
 
         class_methods do

@@ -296,7 +296,7 @@ class TourSprungEditor extends OpenLayersEditor {
     this.map.gl.addControl(new mapboxgl.NavigationControl(), 'top-left');
     this.map.gl.addControl(new mapboxgl.FullscreenControl(), 'top-right');
     if (!isEmpty(this.additionalValuesOverlay))
-      this.map.gl.addControl(new AdditionalValuesFilterControl(this.additionalValuesOverlay), 'bottom-left');
+      this.map.gl.addControl(new AdditionalValuesFilterControl(this), 'bottom-left');
 
     this.extendEditorInterface();
 
