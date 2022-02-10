@@ -429,6 +429,12 @@ module DataCycleCore
       rescue ActiveSupport::Duration::ISO8601Parser::ParsingError
         ActiveSupport::Duration.build(0)
       end
+
+      def iso8601_duration_to_parts(duration)
+        return {} if duration.blank?
+
+        ActiveSupport::Duration.parse(duration).parts
+      end
     end
   end
 
