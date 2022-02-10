@@ -25,8 +25,31 @@ module Dummy
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
 
+    # config.load_defaults 5.0
+    # Finished in 223.621026s, 4.9101 runs/s, 12.9013 assertions/s.
+    # 1098 runs, 2885 assertions, 64 failures, 520 errors, 0 skips
+
+    # config.load_defaults 6.0
+    # Finished in 223.922188s, 4.9035 runs/s, 12.8750 assertions/s.
+    # 1098 runs, 2883 assertions, 65 failures, 520 errors, 0 skips
+
     config.load_defaults 6.1
-    # config.autoloader = :zeitwerk
+    # Finished in 226.624124s, 4.8450 runs/s, 12.7215 assertions/s.
+    # 1098 runs, 2883 assertions, 65 failures, 520 errors, 0 skips
+    # translation gem
+
+    # rails 7.0
+    # monkey_patch: postgresql adapters: duration
+    # active_record updates 
+    # mongoid current: 7.3 (<= 7.0)
+
+    # ruby 3.0
+    # keyword_argument seperation
+
+    # used for backward compatibility (Rails < 5.0)
+    config.active_record.belongs_to_required_by_default = false
+
+    config.autoloader = :zeitwerk
     # ActiveRecord::Tasks::DatabaseTasks.structure_dump_flags = ['--clean', '--if-exists']
 
     # Settings in config/environments/* take precedence over those specified here.
