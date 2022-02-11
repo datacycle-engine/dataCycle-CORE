@@ -3,13 +3,13 @@
 require 'test_helper'
 
 module DataCycleCore
-  class ClassificationTreeLabelTest < ActionDispatch::IntegrationTest
-    include Devise::Test::IntegrationHelpers
-    include Engine.routes.url_helpers
+  class ClassificationTreeLabelTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+    before(:all) do
+      DataCycleCore::Thing.where(template: false).delete_all
+      @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+    end
 
     setup do
-      @routes = Engine.routes
-      @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
       sign_in(User.find_by(email: 'tester@datacycle.at'))
     end
 
@@ -41,7 +41,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse(response.body)
 
       assert_equal ids.size, json_data.size

@@ -5,13 +5,13 @@ require 'test_helper'
 module DataCycleCore
   module Xml
     module V1
-      class RoutingTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
+      class RoutingTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
+          DataCycleCore::Thing.where(template: false).delete_all
+          @test_content = DataCycleCore::DummyDataHelper.create_data('tour')
+        end
 
         setup do
-          @routes = Engine.routes
-          @test_content = DataCycleCore::DummyDataHelper.create_data('tour')
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
@@ -20,7 +20,7 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.count
 
           assert_response(:success)
-          assert_equal(response.content_type, 'application/xml')
+          assert_equal(response.content_type, 'application/xml; charset=utf-8')
           xml_data = Nokogiri::XML(response.body)
           assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
@@ -33,7 +33,7 @@ module DataCycleCore
           included_params.each do |param|
             get(xml_v1_contents_search_path(include: param))
             assert_response(:success)
-            assert_equal(response.content_type, 'application/xml')
+            assert_equal(response.content_type, 'application/xml; charset=utf-8')
             xml_data = Nokogiri::XML(response.body)
             assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
           end
@@ -42,7 +42,7 @@ module DataCycleCore
           mode_params.each do |param|
             get(xml_v1_contents_search_path(mode: param))
             assert_response(:success)
-            assert_equal(response.content_type, 'application/xml')
+            assert_equal(response.content_type, 'application/xml; charset=utf-8')
             xml_data = Nokogiri::XML(response.body)
             assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
           end
@@ -53,7 +53,7 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.schema_type('CreativeWork').count
 
           assert_response :success
-          assert_equal response.content_type, 'application/xml'
+          assert_equal response.content_type, 'application/xml; charset=utf-8'
           xml_data = Nokogiri::XML(response.body)
           assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
@@ -63,7 +63,7 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.schema_type('Place').count
 
           assert_response :success
-          assert_equal response.content_type, 'application/xml'
+          assert_equal response.content_type, 'application/xml; charset=utf-8'
           xml_data = Nokogiri::XML(response.body)
           assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
@@ -73,7 +73,7 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.schema_type('Event').count
 
           assert_response :success
-          assert_equal response.content_type, 'application/xml'
+          assert_equal response.content_type, 'application/xml; charset=utf-8'
           xml_data = Nokogiri::XML(response.body)
           assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
@@ -83,7 +83,7 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.schema_type('Person').count
 
           assert_response :success
-          assert_equal response.content_type, 'application/xml'
+          assert_equal response.content_type, 'application/xml; charset=utf-8'
           xml_data = Nokogiri::XML(response.body)
           assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
@@ -93,7 +93,7 @@ module DataCycleCore
           count = DataCycleCore::Filter::Search.new.schema_type('Organization').count
 
           assert_response :success
-          assert_equal response.content_type, 'application/xml'
+          assert_equal response.content_type, 'application/xml; charset=utf-8'
           xml_data = Nokogiri::XML(response.body)
           assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
@@ -117,7 +117,7 @@ module DataCycleCore
           get xml_v1_thing_path(id: content)
 
           assert_response :success
-          assert_equal response.content_type, 'application/xml'
+          assert_equal response.content_type, 'application/xml; charset=utf-8'
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
           assert_equal(name, xml_data.dig('RDF', 'thing', 'name'))
         end
@@ -128,7 +128,7 @@ module DataCycleCore
           count = DataCycleCore::ClassificationTreeLabel.where("ARRAY['xml']::VARCHAR[] && visibility").count
 
           assert_response :success
-          assert_equal response.content_type, 'application/xml'
+          assert_equal response.content_type, 'application/xml; charset=utf-8'
           xml_data = Nokogiri::XML(response.body)
           assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'classificationTree' })
 
@@ -137,13 +137,13 @@ module DataCycleCore
 
           get xml_v1_classification_tree_path(id: test_classification)
           assert_response :success
-          assert_equal response.content_type, 'application/xml'
+          assert_equal response.content_type, 'application/xml; charset=utf-8'
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
           assert_equal(test_classification, xml_data.dig('RDF', 'classificationTree', 'id'))
 
           get classifications_xml_v1_classification_tree_path(id: test_classification)
           assert_response :success
-          assert_equal response.content_type, 'application/xml'
+          assert_equal response.content_type, 'application/xml; charset=utf-8'
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
           assert_equal(true, xml_data.dig('RDF', 'classifications', 'classification').count.positive?)
         end

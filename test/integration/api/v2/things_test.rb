@@ -6,13 +6,13 @@ require 'json'
 module DataCycleCore
   module Api
     module V2
-      class ThingTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
+      class ThingTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
+          DataCycleCore::Thing.where(template: false).delete_all
+          @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+        end
 
         setup do
-          @routes = Engine.routes
-          @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
@@ -20,7 +20,7 @@ module DataCycleCore
           get api_v2_thing_path(id: @content)
 
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = JSON.parse(response.body)
           assert_equal('TestArtikel', json_data['headline'])
         end
@@ -29,7 +29,7 @@ module DataCycleCore
           get(api_v2_things_path)
 
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = JSON.parse(response.body)
 
           assert(json_data.dig('data').present?)
@@ -65,17 +65,17 @@ module DataCycleCore
         test 'stored article can be found in different ways' do
           get(api_v2_contents_search_path)
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data_search = JSON.parse(response.body)
 
           get(api_v2_things_path)
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data_things = JSON.parse(response.body)
 
           get(api_v2_creative_works_path)
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data_creative_works = JSON.parse(response.body)
 
           assert(json_data_search != json_data_things)
@@ -87,12 +87,12 @@ module DataCycleCore
         test 'sorted article is also found in V1 and has the same values as V2' do
           get(api_v1_contents_search_path)
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data_search_old = JSON.parse(response.body)
 
           get(api_v2_contents_search_path)
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data_search = JSON.parse(response.body)
           data_hash = json_data_search['data'].first
 

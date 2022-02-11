@@ -5,12 +5,12 @@ require 'test_helper'
 module DataCycleCore
   module Api
     module V2
-      class CreativeWorkTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
+      class CreativeWorkTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
+          DataCycleCore::Thing.where(template: false).delete_all
+        end
 
         setup do
-          @routes = Engine.routes
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
@@ -33,7 +33,7 @@ module DataCycleCore
           get api_v2_thing_path(id: content)
 
           assert_response :success
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse response.body
           assert_equal name, json_data['headline']
         end

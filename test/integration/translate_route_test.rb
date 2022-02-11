@@ -22,7 +22,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse(response.body)
 
       assert_equal I18n.translate('hello', locale: @current_user.ui_locale), json_data['text']
@@ -32,7 +32,7 @@ module DataCycleCore
       get i18n_translate_path, xhr: true
 
       assert_response :bad_request
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse(response.body)
       assert_equal 'PATH_MISSING', json_data['error']
 
@@ -42,7 +42,7 @@ module DataCycleCore
         referer: root_path
       }
       assert_response :not_found
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse(response.body)
       assert_equal 'TRANSLATION_MISSING', json_data['error']
     end
@@ -59,7 +59,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse(response.body)
 
       assert_equal I18n.translate('hello', locale: @current_user.ui_locale), json_data['text']

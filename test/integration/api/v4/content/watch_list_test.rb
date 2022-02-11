@@ -21,7 +21,7 @@ module DataCycleCore
             get api_v4_collections_path
 
             assert_response :success
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data['@graph'].length)
           end
@@ -31,7 +31,7 @@ module DataCycleCore
             follow_redirect!
 
             assert_response :success
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal('Merkliste 1', json_data.dig('meta', 'collection', 'name'))
             assert_equal(0, json_data.dig('meta', 'total'))
@@ -43,7 +43,7 @@ module DataCycleCore
             get api_v4_collections_path(user_email: 'tester@datacycle.at')
 
             assert_response :success
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal('Merkliste 1', json_data.dig('@graph', 0, 'name'))
@@ -66,11 +66,11 @@ module DataCycleCore
             filter.update(api: true)
             get api_v4_stored_filter_path(id: filter.id)
             assert_response :success
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
 
             get api_v4_users_path
             assert_response :success
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(['@context', '@graph'], json_data.keys)

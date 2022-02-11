@@ -68,7 +68,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @content_overlay)
 
             assert_response(:success)
-            assert_equal('application/json', response.content_type)
+            assert_equal('application/json; charset=utf-8', response.content_type)
             json_data = JSON.parse(response.body).dig('@graph').first
             header = json_data.slice(*full_header_attributes)
             data = full_header_data(@content_overlay)

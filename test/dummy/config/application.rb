@@ -40,7 +40,7 @@ module Dummy
 
     # rails 7.0
     # monkey_patch: postgresql adapters: duration
-    # active_record updates 
+    # active_record updates
     # mongoid current: 7.0.x, mongoid > 7.3 may be required for rails 7. monogid > 7.0 will break some code
 
     # ruby 3.0

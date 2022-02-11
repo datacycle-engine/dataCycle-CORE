@@ -8,12 +8,9 @@ module DataCycleCore
       module Content
         module Extensions
           module Events
-            class Event < ActionDispatch::IntegrationTest
-              include Devise::Test::IntegrationHelpers
-              include Engine.routes.url_helpers
-
-              setup do
-                @routes = Engine.routes
+            class Event < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+              before(:all) do
+                DataCycleCore::Thing.where(template: false).delete_all
                 @content = DataCycleCore::DummyDataHelper.create_data('event')
                 event_schedule = @content.get_data_hash
                 event_schedule['event_schedule'] = [{
@@ -24,6 +21,9 @@ module DataCycleCore
                   'duration' => 10.days.to_i
                 }]
                 @content.set_data_hash(prevent_history: true, data_hash: event_schedule)
+              end
+
+              setup do
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 
@@ -31,7 +31,7 @@ module DataCycleCore
                 get xml_v1_thing_path(id: @content)
 
                 assert_response(:success)
-                assert_equal('application/xml', response.content_type)
+                assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')
 
                 # validate header
@@ -117,7 +117,7 @@ module DataCycleCore
                 get xml_v1_thing_path(id: @content)
 
                 assert_response(:success)
-                assert_equal('application/xml', response.content_type)
+                assert_equal('application/xml; charset=utf-8', response.content_type)
 
                 xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')
 
@@ -148,7 +148,7 @@ module DataCycleCore
                 get xml_v1_thing_path(id: @content)
 
                 assert_response(:success)
-                assert_equal('application/xml', response.content_type)
+                assert_equal('application/xml; charset=utf-8', response.content_type)
 
                 xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')
 
@@ -166,19 +166,19 @@ module DataCycleCore
               test 'stored item can be found via different endpoints' do
                 get(xml_v1_things_path)
                 assert_response(:success)
-                assert_equal('application/xml', response.content_type)
+                assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'Event' }
                 assert_equal(@content.id, xml_data.dig('identifier'))
 
                 get(xml_v1_contents_search_path)
                 assert_response(:success)
-                assert_equal('application/xml', response.content_type)
+                assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'Event' }
                 assert_equal(@content.id, xml_data.dig('identifier'))
 
                 get(xml_v1_events_path)
                 assert_response(:success)
-                assert_equal('application/xml', response.content_type)
+                assert_equal('application/xml; charset=utf-8', response.content_type)
                 xml_data = [Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')].flatten.detect { |item| item&.dig('contentType') == 'Event' }
                 assert_equal(@content.id, xml_data.dig('identifier'))
               end
