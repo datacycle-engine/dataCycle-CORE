@@ -517,11 +517,11 @@ module DataCycleCore
           'FeatureCollection',
           'features',
           array_agg(jsonb_build_object('type', 'Feature', 'id', things.id, 'geometry', ST_AsGeoJSON (
-                CASE WHEN things.line IS NULL THEN
+            ST_Simplify(ST_Force2D(CASE WHEN things.line IS NULL THEN
                   things.location
                 ELSE
                   things.line
-                END)::jsonb, 'properties', jsonb_build_object('name', thing_translations.name)))) AS geojson
+                END), 0.00001), 6)::jsonb, 'properties', jsonb_build_object('name', thing_translations.name)))) AS geojson
       SQL
 
       query_sql = query.query.joins(:translations).where(thing_translations: { locale: 'de' }).except(:order).select(select_query).to_sql
