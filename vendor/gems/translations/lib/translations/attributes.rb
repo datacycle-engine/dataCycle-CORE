@@ -63,12 +63,12 @@ module Translations
         def #{attribute}(**options)
           return super() if options.delete(:super)
           #{set_locale_from_options_inline}
-          translation_backends[:#{attribute}].read(locale, options)
+          translation_backends[:#{attribute}].read(locale, **options)
         end
         def #{attribute}?(**options)
           return super() if options.delete(:super)
           #{set_locale_from_options_inline}
-          translation_backends[:#{attribute}].present?(locale, options)
+          translation_backends[:#{attribute}].present?(locale, **options)
         end
       EOM
     end
@@ -78,7 +78,7 @@ module Translations
         def #{attribute}=(value, **options)
           return super(value) if options.delete(:super)
           #{set_locale_from_options_inline}
-          translation_backends[:#{attribute}].write(locale, value, options)
+          translation_backends[:#{attribute}].write(locale, value, **options)
         end
       EOM
     end

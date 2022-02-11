@@ -147,7 +147,7 @@ module Translations
           end
         end
 
-        def translation_for(locale, _)
+        def translation_for(locale, **_)
           # puts "#{locale.class}"
           # puts "translation_for(#{locale}) --> #{translations.in_locale(locale)}"
           translation = translations.in_locale(locale)
