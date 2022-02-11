@@ -14,6 +14,9 @@ class TourSprungEditor extends OpenLayersEditor {
     this.map;
     this.editorGui;
     this.draggingMarker;
+    this.additionalSources = {};
+    this.additionalLayers = {};
+    this.baseLayerId = null;
     this.$poisTarget =
       this.additionalAttributes &&
       this.additionalAttributes.toursprung_pois_target &&
@@ -168,58 +171,132 @@ class TourSprungEditor extends OpenLayersEditor {
       options
     );
   }
-  _addAdditionalPointsLayer() {
-    return new MTK.CollectionLayer(MTK.Marker, {
-      states: {
-        click: {
-          'mtk:popup': {
-            html: '${description}'
-          }
+  _additionalLineLayer(key) {
+    const beforeLayerDefinition = this.map.getLayers().find(l => l.id) || {};
+    const beforeLayer =
+      this.map.gl.getStyle().layers.find(l => l.type === 'line' && l.source === beforeLayerDefinition.id) || {};
+    const layerId = `additional_values_lines_${key}`;
+
+    this.map.gl.addLayer(
+      {
+        id: layerId,
+        type: 'line',
+        source: `additional_values_${key}`,
+        filter: ['==', '$type', 'LineString'],
+        paint: {
+          'line-color': this.definedColors.gray,
+          'line-opacity': 0.75,
+          'line-width': 5
         }
-      }
-    }).addTo(this.map);
+      },
+      beforeLayer.id
+    );
+
+    this._addPopupForLayer(layerId);
+
+    return layerId;
   }
-  _addAdditionalLinesLayer() {
-    return new MTK.CollectionLayer(MTK.Polyline, {
-      states: {
-        click: {
-          'mtk:popup': {
-            html: '${description}'
-          }
+  _additionalPointLayer(key) {
+    const layerId = `additional_filtered_point_${key}`;
+
+    this.map.gl.addLayer(
+      {
+        id: layerId,
+        type: 'circle',
+        source: `additional_values_${key}`,
+        filter: ['==', '$type', 'Point'],
+        paint: {
+          'circle-radius': 5,
+          'circle-stroke-width': 2,
+          'circle-color': this.definedColors.default,
+          'circle-stroke-color': this.definedColors.white
         }
-      }
-    }).addTo(this.map);
+      },
+      this.baseLayerId
+    );
+
+    this._addPopupForLayer(layerId);
+
+    return layerId;
   }
+  _addPopupForLayer(layerId) {
+    const popup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false
+    });
+
+    this.map.gl.on('mouseenter', layerId, e => {
+      // Change the cursor style as a UI indicator.
+      this.map.gl.getCanvas().style.cursor = 'pointer';
+
+      // Copy coordinates array.
+      // const coordinates = e.features[0].geometry.coordinates.slice();
+      const description = e.features[0].properties.name;
+
+      // Ensure that if the map is zoomed out such that multiple
+      // copies of the feature are visible, the popup appears
+      // over the copy being pointed to.
+      // while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+      //   coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      // }
+
+      // console.log(coordinates);
+
+      // Populate the popup and set its coordinates
+      // based on the feature found.
+      popup.setLngLat(e.lngLat).setHTML(description).addTo(this.map.gl);
+    });
+
+    this.map.gl.on('mouseleave', layerId, e => {
+      this.map.gl.getCanvas().style.cursor = '';
+      popup.remove();
+    });
+  }
+  // _addAdditionalPointsLayer() {
+  //   return new MTK.CollectionLayer(MTK.Marker, {
+  //     states: {
+  //       click: {
+  //         'mtk:popup': {
+  //           html: '${description}'
+  //         }
+  //       }
+  //     }
+  //   }).addTo(this.map);
+  // }
+  // _addAdditionalLinesLayer() {
+  //   return new MTK.CollectionLayer(MTK.Polyline, {
+  //     states: {
+  //       click: {
+  //         'mtk:popup': {
+  //           html: '${description}'
+  //         }
+  //       }
+  //     }
+  //   }).addTo(this.map);
+  // }
   drawAdditionalFeatures() {
-    this.additionalPointsLayer = this._addAdditionalPointsLayer();
-    this.additionalLinesLayer = this._addAdditionalLinesLayer();
-
-    const pois = [];
-
-    for (let i = 0; i < this.additionalValues.length; ++i) {
-      const feature = this.additionalValues[i];
-
-      if (feature.geometry.type == 'Point') {
-        const iconId = this.iconOptions('default', false, lodashGet(feature, 'properties.style.color', 'default'));
-        const newMarker = new MTK.Marker({
-          description: this.infoOverlayHtml(feature.properties)
-        })
-          .setLngLat(feature.geometry.coordinates)
-          .setImage({ id: iconId, anchor: 'bottom' });
-
-        this.additionalFeatures.push(newMarker);
-
-        this.additionalPointsLayer.addLayer(newMarker);
-      } else {
-        const newLine = new MTK.Polyline({
-          description: this.infoOverlayHtml(feature.properties)
-        }).setLngLats(feature.geometry.coordinates);
-
-        this.additionalFeatures.push(newLine);
-
-        this.additionalLinesLayer.addLayer(newLine);
-      }
-    }
+    // this.additionalPointsLayer = this._addAdditionalPointsLayer();
+    // this.additionalLinesLayer = this._addAdditionalLinesLayer();
+    // const pois = [];
+    // for (let i = 0; i < this.additionalValues.length; ++i) {
+    //   const feature = this.additionalValues[i];
+    //   if (feature.geometry.type == 'Point') {
+    //     const iconId = this.iconOptions('default', false, lodashGet(feature, 'properties.style.color', 'default'));
+    //     const newMarker = new MTK.Marker({
+    //       description: this.infoOverlayHtml(feature.properties)
+    //     })
+    //       .setLngLat(feature.geometry.coordinates)
+    //       .setImage({ id: iconId, anchor: 'bottom' });
+    //     this.additionalFeatures.push(newMarker);
+    //     this.additionalPointsLayer.addLayer(newMarker);
+    //   } else {
+    //     const newLine = new MTK.Polyline({
+    //       description: this.infoOverlayHtml(feature.properties)
+    //     }).setLngLats(feature.geometry.coordinates);
+    //     this.additionalFeatures.push(newLine);
+    //     this.additionalLinesLayer.addLayer(newLine);
+    //   }
+    // }
   }
   extendEditorInterface() {
     const uploadable = this.uploadable;
@@ -302,10 +379,12 @@ class TourSprungEditor extends OpenLayersEditor {
 
     this.editorGui = new this.extendedEditorInterface().addTo(this.map);
 
+    console.log(this.editorGui.editor.getLayerDefinitions());
+
     const waypointLayerDefinition = this.editorGui.editor.getLayerDefinitions().find(v => v.type == 'symbol');
-    const waypointLayerId = waypointLayerDefinition && waypointLayerDefinition.id;
-    if (waypointLayerId)
-      this.map.gl.setLayoutProperty(waypointLayerId, 'icon-size', [
+    this.baseLayerId = waypointLayerDefinition && waypointLayerDefinition.id;
+    if (this.baseLayerId)
+      this.map.gl.setLayoutProperty(this.baseLayerId, 'icon-size', [
         'case',
         ['==', ['get', 'icon'], 'end'],
         0.8,

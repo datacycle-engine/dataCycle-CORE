@@ -492,31 +492,43 @@ module DataCycleCore
     def geojson_for_map_editor
       authorize! :index, DataCycleCore::Thing
 
-      filter_params = geojson_for_map_editor_params[:filter]
+      render(plain: { type: 'FeatureCollection', features: [] }.to_json, content_type: 'application/vnd.geo+json') && return if map_editor_params.blank?
 
-      render(plain: { type: 'FeatureCollection', features: [] }.to_json, content_type: 'application/vnd.geo+json') && return if filter_params.blank?
+      template_name = map_editor_params[:template_name]
+      filter_hash = map_editor_params[:stored_filter]
+      stored_filter = DataCycleCore::StoredFilter.new
+        .parameters_from_hash(filter_hash)
+        .apply_user_filter(current_user, { scope: 'object_browser', template_name: filter_hash.blank? ? template_name : nil })
 
-      @stored_filter = DataCycleCore::StoredFilter.new.apply
-      filter_array = []
-
-      filter_params.to_h.each_value do |value|
-        template_name = value.dig(:definition, :template_name)
-        filter_hash = value.dig(:definition, :stored_filter)
-        group_filter = DataCycleCore::StoredFilter.new
-          .parameters_from_hash(filter_hash)
-          .apply_user_filter(current_user, { scope: 'object_browser', template_name: value.dig(:definition, :stored_filter).blank? ? template_name : nil })
-
-        group_filter.parameters.concat Array.wrap(value[:filters])
-
-        query = group_filter.apply
-        query = query.where(template_name: template_name.to_s) if template_name && filter_hash.blank?
-        query = query.in_validity_period
-        filter_array.push(query)
+      if map_editor_params[:filter].present?
+        stored_filter.parameters.concat Array.wrap({
+          't' => 'classification_alias_ids',
+          'm' => 'i',
+          'v' => map_editor_params[:filter]
+        })
       end
 
-      @stored_filter = @stored_filter.union_filter(filter_array)
+      query = stored_filter.apply
+      query = query.where(template_name: template_name.to_s) if template_name && filter_hash.blank?
+      query = query.in_validity_period
 
-      render plain: @stored_filter.query.select(:id, :line, :location, :updated_at, :template_updated_at, :schema).to_geojson, content_type: 'application/vnd.geo+json'
+      select_query = <<-SQL.squish
+        jsonb_build_object('type',
+          'FeatureCollection',
+          'features',
+          array_agg(jsonb_build_object('type', 'Feature', 'id', things.id, 'geometry', ST_AsGeoJSON (
+                CASE WHEN things.line IS NULL THEN
+                  things.location
+                ELSE
+                  things.line
+                END)::jsonb, 'properties', jsonb_build_object('name', thing_translations.name)))) AS geojson
+      SQL
+
+      query_sql = query.query.joins(:translations).where(thing_translations: { locale: 'de' }).except(:order).select(select_query).to_sql
+
+      result = ActiveRecord::Base.connection.execute(query_sql)
+
+      render plain: result.first['geojson'], content_type: 'application/vnd.geo+json'
     end
 
     private
@@ -617,8 +629,8 @@ module DataCycleCore
       params.permit(:id, :prefix)
     end
 
-    def geojson_for_map_editor_params
-      params.permit(filter: {})
+    def map_editor_params
+      params.permit(:template_name, filter: [], stored_filter: {})
     end
   end
 end

@@ -1,4 +1,6 @@
 import DomElementHelpers from '../../helpers/dom_element_helpers';
+import pull from 'lodash/pull';
+import pick from 'lodash/pick';
 
 class AdditionalValuesFilterControl {
   constructor(editor) {
@@ -13,7 +15,6 @@ class AdditionalValuesFilterControl {
     this._setupControls();
     this._setupOverlay();
     this._addEventHandlers();
-    this._addGeoJsonSource();
 
     return this.container;
   }
@@ -49,16 +50,12 @@ class AdditionalValuesFilterControl {
   }
   _initializeOverlay(_event) {
     this.controlOverlay.querySelectorAll('.dc-additional-values-filter-item').forEach(group => {
-      const definition = DomElementHelpers.parseDataAttribute(group.dataset.definition);
+      const definition = DomElementHelpers.parseDataAttribute(group.dataset.definition) || {};
 
       this.activeFilters[group.dataset.groupKey] = {
         enabled: false,
-        filters: {
-          t: 'classification_alias_ids',
-          m: 'i',
-          v: []
-        },
-        definition: definition
+        filter: [],
+        definition: pick(definition, ['template_name', 'stored_filter'])
       };
 
       group
@@ -69,41 +66,33 @@ class AdditionalValuesFilterControl {
         .forEach(specificFilter => specificFilter.addEventListener('change', this._specificFilterChanged.bind(this)));
     });
   }
-  _addGeoJsonSource() {
-    this.map.addSource('additional_filtered_values', {
+  _addGeoJsonSource(key, data) {
+    const sourceId = `additional_values_${key}`;
+    this.editor.additionalSources[key] = sourceId;
+
+    this.map.addSource(sourceId, {
       type: 'geojson',
-      data: { type: 'FeatureCollection', features: [] }
+      data: data
     });
 
-    this.map.addLayer({
-      id: 'additional_filtered_lines',
-      type: 'line',
-      source: 'additional_filtered_values',
-      filter: ['==', '$type', 'LineString'],
-      paint: {
-        'line-color': this.editor.definedColors.default,
-        'line-opacity': 0.75,
-        'line-width': 5
-      }
+    this.map.on('sourcedata', data => {
+      if (data.sourceId === sourceId && this.map.isSourceLoaded(sourceId))
+        this.controlOverlay
+          .querySelector(`.dc-additional-values-filter-item[data-group-key="${key}"]`)
+          .classList.remove('source-loading');
     });
 
-    this.map.addLayer({
-      id: 'additional_filtered_points',
-      type: 'circle',
-      source: 'additional_filtered_values',
-      filter: ['==', '$type', 'Point'],
-      paint: {
-        'circle-radius': 5,
-        'circle-stroke-width': 2,
-        'circle-color': this.editor.definedColors.red,
-        'circle-stroke-color': this.editor.definedColors.white
-      }
-    });
+    this.editor.additionalLayers[key] = {
+      point: this.editor._additionalPointLayer(key),
+      line: this.editor._additionalLineLayer(key)
+    };
   }
-  _removeGeoJsonSource() {
-    this.map.removeLayer('additional_filtered_points');
-    this.map.removeLayer('additional_filtered_lines');
-    this.map.removeSource('additional_filtered_values');
+  _removeGeoJsonSource(key) {
+    this.map.removeLayer(this.editor.additionalLayers[key].point);
+    this.map.removeLayer(this.editor.additionalLayers[key].line);
+    this.map.removeSource(this.editor.additionalSources[key]);
+    delete this.editor.additionalSources[key];
+    delete this.editor.additionalLayers[key];
   }
   _openOverlay(event) {
     event.preventDefault();
@@ -129,47 +118,32 @@ class AdditionalValuesFilterControl {
 
     this.activeFilters[target.value].enabled = target.checked;
 
-    this._loadGeoJson();
+    this._loadGeoJson(target.value);
   }
   _specificFilterChanged(event) {
     const target = event.currentTarget;
 
-    if (target.checked) this.activeFilters[target.dataset.groupKey].filters.v.push(target.value);
-    else
-      this.activeFilters[target.dataset.groupKey].filters.v = this.activeFilters[
-        target.dataset.groupKey
-      ].filters.v.filter(id => id !== target.value);
+    if (target.checked) this.activeFilters[target.dataset.groupKey].filter.push(target.value);
+    else pull(this.activeFilters[target.dataset.groupKey].filter, target.value);
 
-    if (this.activeFilters[target.dataset.groupKey].enabled) this._loadGeoJson();
+    if (this.activeFilters[target.dataset.groupKey].enabled) this._loadGeoJson(target.dataset.groupKey);
   }
-  _loadGeoJson() {
-    // this.controlOverlay.classList.add('loading');
+  _loadGeoJson(key) {
+    let dataSource;
 
-    const filters = Object.fromEntries(Object.entries(this.activeFilters).filter(([_k, v]) => v.enabled));
+    if (this.activeFilters[key].enabled) {
+      const params = Object.assign({}, this.activeFilters[key].definition);
+      params.filter = this.activeFilters[key].filter;
 
-    this.map
-      .getSource('additional_filtered_values')
-      .setData(`/things/geojson_for_map_editor?${$.param({ filter: filters })}`);
+      dataSource = `/things/geojson_for_map_editor?${$.param(params)}`;
+    } else dataSource = { type: 'FeatureCollection', features: [] };
 
-    // const request = DataCycle.httpRequest({
-    //   url: '/things/geojson_for_map_editor',
-    //   method: 'POST',
-    //   data: {
-    //     filter: filters
-    //   }
-    // });
+    this.controlOverlay
+      .querySelector(`.dc-additional-values-filter-item[data-group-key="${key}"]`)
+      .classList.add('source-loading');
 
-    // this.activeRequest = request;
-
-    // request
-    //   .then(data => {
-    //     if (this.activeRequest !== request) return;
-
-    //     this.map.getSource('additional_filtered_values').setData(data);
-    //   })
-    //   .finally(() => {
-    //     this.controlOverlay.classList.remove('loading');
-    //   });
+    if (!this.editor.additionalSources[key]) this._addGeoJsonSource(key, dataSource);
+    else this.map.getSource(`additional_values_${key}`).setData(dataSource);
   }
 }
 
