@@ -6,8 +6,7 @@ DataCycleCore.setup do |config|
 
   # Configure sensitive parameters which will be filtered from the log file.
   Rails.application.config.filter_parameters += [:password]
-  # Require `belongs_to` associations by default. Previous versions had false.
-  Rails.application.config.active_record.belongs_to_required_by_default = true
+
   Rails.application.config.session_store :cookie_store, key: '_dummy_session', same_site: :lax
 
   config.external_sources_path = Rails.root.join('..', '..', 'config', 'external_sources').freeze

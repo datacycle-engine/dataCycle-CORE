@@ -33,7 +33,7 @@ module Dummy
     # Finished in 223.922188s, 4.9035 runs/s, 12.8750 assertions/s.
     # 1098 runs, 2883 assertions, 65 failures, 520 errors, 0 skips
 
-    config.load_defaults 6.1
+    # config.load_defaults 6.1
     # Finished in 226.624124s, 4.8450 runs/s, 12.7215 assertions/s.
     # 1098 runs, 2883 assertions, 65 failures, 520 errors, 0 skips
     # translation gem
@@ -46,10 +46,6 @@ module Dummy
     # ruby 3.0
     # keyword_argument seperation
 
-    # used for backward compatibility (Rails < 5.0)
-    config.active_record.belongs_to_required_by_default = false
-
-    config.autoloader = :zeitwerk
     # ActiveRecord::Tasks::DatabaseTasks.structure_dump_flags = ['--clean', '--if-exists']
 
     # Settings in config/environments/* take precedence over those specified here.

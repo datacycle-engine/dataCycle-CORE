@@ -285,6 +285,11 @@ module DataCycleCore
     config.autoload_once_paths << "#{root}/app/middlewares"
 
     config.before_initialize do |app|
+      ### used for backward compatibility (Rails < 5.0)
+      app.config.load_defaults 6.1
+      app.config.autoloader = :zeitwerk
+      app.config.active_record.belongs_to_required_by_default = false
+      ###
       app.config.time_zone = 'Europe/Vienna'
       app.config.exceptions_app = routes
       app.middleware.insert_before Rack::Runtime, DataCycleCore::FixParamEncodingMiddleware
