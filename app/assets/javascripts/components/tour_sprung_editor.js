@@ -184,9 +184,14 @@ class TourSprungEditor extends OpenLayersEditor {
         source: `additional_values_${key}`,
         filter: ['==', '$type', 'LineString'],
         paint: {
-          'line-color': this.definedColors.gray,
+          'line-color': [
+            'case',
+            ['boolean', ['feature-state', 'selected'], false],
+            this.definedColors.default,
+            this.definedColors.gray
+          ],
           'line-opacity': 0.75,
-          'line-width': 5
+          'line-width': ['case', ['boolean', ['feature-state', 'selected'], false], 7, 5]
         }
       },
       beforeLayer.id
@@ -206,9 +211,14 @@ class TourSprungEditor extends OpenLayersEditor {
         source: `additional_values_${key}`,
         filter: ['==', '$type', 'Point'],
         paint: {
-          'circle-radius': 5,
+          'circle-radius': ['case', ['boolean', ['feature-state', 'selected'], false], 7, 5],
           'circle-stroke-width': 2,
-          'circle-color': this.definedColors.default,
+          'circle-color': [
+            'case',
+            ['boolean', ['feature-state', 'selected'], false],
+            this.definedColors.red,
+            this.definedColors.default
+          ],
           'circle-stroke-color': this.definedColors.white
         }
       },
@@ -222,25 +232,15 @@ class TourSprungEditor extends OpenLayersEditor {
   _addPopupForLayer(layerId) {
     const popup = new mapboxgl.Popup({
       closeButton: false,
-      closeOnClick: false
+      closeOnClick: false,
+      className: 'additional-feature-popup'
     });
 
     this.map.gl.on('mouseenter', layerId, e => {
       // Change the cursor style as a UI indicator.
       this.map.gl.getCanvas().style.cursor = 'pointer';
 
-      // Copy coordinates array.
-      // const coordinates = e.features[0].geometry.coordinates.slice();
       const description = e.features[0].properties.name;
-
-      // Ensure that if the map is zoomed out such that multiple
-      // copies of the feature are visible, the popup appears
-      // over the copy being pointed to.
-      // while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-      //   coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-      // }
-
-      // console.log(coordinates);
 
       // Populate the popup and set its coordinates
       // based on the feature found.
@@ -378,8 +378,6 @@ class TourSprungEditor extends OpenLayersEditor {
     this.extendEditorInterface();
 
     this.editorGui = new this.extendedEditorInterface().addTo(this.map);
-
-    console.log(this.editorGui.editor.getLayerDefinitions());
 
     const waypointLayerDefinition = this.editorGui.editor.getLayerDefinitions().find(v => v.type == 'symbol');
     this.baseLayerId = waypointLayerDefinition && waypointLayerDefinition.id;

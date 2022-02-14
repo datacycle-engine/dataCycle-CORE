@@ -512,23 +512,7 @@ module DataCycleCore
       query = query.where(template_name: template_name.to_s) if template_name && filter_hash.blank?
       query = query.in_validity_period
 
-      select_query = <<-SQL.squish
-        jsonb_build_object('type',
-          'FeatureCollection',
-          'features',
-          array_agg(jsonb_build_object('type', 'Feature', 'id', things.id, 'geometry', ST_AsGeoJSON (
-            ST_Simplify(ST_Force2D(CASE WHEN things.line IS NULL THEN
-                  things.location
-                ELSE
-                  things.line
-                END), 0.00001), 6)::jsonb, 'properties', jsonb_build_object('name', thing_translations.name)))) AS geojson
-      SQL
-
-      query_sql = query.query.joins(:translations).where(thing_translations: { locale: 'de' }).except(:order).select(select_query).to_sql
-
-      result = ActiveRecord::Base.connection.execute(query_sql)
-
-      render plain: result.first['geojson'], content_type: 'application/vnd.geo+json'
+      render plain: query.query.to_geojson, content_type: 'application/vnd.geo+json'
     end
 
     private

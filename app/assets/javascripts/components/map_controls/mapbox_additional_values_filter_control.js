@@ -7,7 +7,8 @@ class AdditionalValuesFilterControl {
     this.editor = editor;
     this.config = editor.additionalValuesOverlay;
     this.activeFilters = {};
-    this.activeRequest = null;
+    this.layerFilters = {};
+    this.enabled = false;
   }
   onAdd(map) {
     this.map = map;
@@ -46,7 +47,7 @@ class AdditionalValuesFilterControl {
     this.map.getContainer().appendChild(this.controlOverlay);
   }
   _addEventHandlers() {
-    this.controlButton.addEventListener('click', this._openOverlay.bind(this));
+    this.controlButton.addEventListener('click', this._toggleOverlay.bind(this));
   }
   _initializeOverlay(_event) {
     this.controlOverlay.querySelectorAll('.dc-additional-values-filter-item').forEach(group => {
@@ -72,7 +73,8 @@ class AdditionalValuesFilterControl {
 
     this.map.addSource(sourceId, {
       type: 'geojson',
-      data: data
+      data: data,
+      generateId: true
     });
 
     this.map.on('sourcedata', data => {
@@ -86,6 +88,35 @@ class AdditionalValuesFilterControl {
       point: this.editor._additionalPointLayer(key),
       line: this.editor._additionalLineLayer(key)
     };
+
+    this._addClickableFeatures(key, 'point');
+    this._addClickableFeatures(key, 'line');
+  }
+  _addClickableFeatures(key, type) {
+    console.log(this.editor.additionalLayers[key]);
+
+    this.map.on('click', this.editor.additionalLayers[key][type], e => {
+      if (!this.enabled) return;
+
+      e.preventDefault();
+
+      const feature = e.features[0];
+
+      console.log('click on feature', feature);
+
+      this.map.setFeatureState(
+        { source: this.editor.additionalSources[key], id: feature.id },
+        { selected: !feature.state.selected }
+      );
+
+      feature.properties.selected = !feature.state.selected;
+
+      if (feature.state.selected) {
+        // trigger objectbrowser event
+      } else {
+        // trigger objectbrowser event
+      }
+    });
   }
   _removeGeoJsonSource(key) {
     this.map.removeLayer(this.editor.additionalLayers[key].point);
@@ -94,13 +125,22 @@ class AdditionalValuesFilterControl {
     delete this.editor.additionalSources[key];
     delete this.editor.additionalLayers[key];
   }
-  _openOverlay(event) {
+  _toggleOverlay(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    if (this.controlOverlay.classList.contains('active')) this.controlOverlay.classList.remove('active');
-    else {
+    if (this.controlOverlay.classList.contains('active')) {
+      this.enabled = false;
+      this.controlOverlay.classList.remove('active');
+      this.editor.editorGui.editor.clickable = true;
+      this.editor.editorGui.editor._enabled = true;
+      this.editor.editorGui.editor.visibility = 'visible';
+    } else {
+      this.enabled = true;
       this.controlOverlay.classList.add('active');
+      this.editor.editorGui.editor.clickable = false;
+      this.editor.editorGui.editor._enabled = false;
+      this.editor.editorGui.editor.visibility = 'none';
 
       if (this.controlOverlay.classList.contains('remote-render')) {
         $(this.controlOverlay).one('dc:html:changed', this._initializeOverlay.bind(this));
@@ -128,6 +168,20 @@ class AdditionalValuesFilterControl {
 
     if (this.activeFilters[target.dataset.groupKey].enabled) this._loadGeoJson(target.dataset.groupKey);
   }
+  _showAdditionalFeatures(key) {
+    this.map.setFilter('airport', ['has', 'abbrev']);
+  }
+  _hideAdditionalFeatures(key) {
+    console.log('_hideAdditionalFeatures', this.map.getLayer(this.editor.additionalLayers[key].point));
+
+    this.layerFilters[key] = {
+      point: this.map.getLayer(this.editor.additionalLayers[key].point).filter,
+      line: this.map.getLayer(this.editor.additionalLayers[key].line).filter
+    };
+
+    this.map.setFilter(this.editor.additionalLayers[key].point, ['==', 'selected', true]);
+    this.map.setFilter(this.editor.additionalLayers[key].line, ['==', 'selected', true]);
+  }
   _loadGeoJson(key) {
     let dataSource;
 
@@ -136,7 +190,9 @@ class AdditionalValuesFilterControl {
       params.filter = this.activeFilters[key].filter;
 
       dataSource = `/things/geojson_for_map_editor?${$.param(params)}`;
-    } else dataSource = { type: 'FeatureCollection', features: [] };
+    } else {
+      this._hideAdditionalFeatures(key);
+    }
 
     this.controlOverlay
       .querySelector(`.dc-additional-values-filter-item[data-group-key="${key}"]`)

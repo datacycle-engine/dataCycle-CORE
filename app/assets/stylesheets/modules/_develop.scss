@@ -1869,6 +1869,15 @@ select {
     height: 450px;
     z-index: 0;
 
+    .additional-feature-popup {
+      pointer-events: none;
+
+      .mapboxgl-popup-content,
+      .mapboxgl-popup-tip {
+        pointer-events: none;
+      }
+    }
+
     .dc-additional-values-overlay {
       display: none;
       position: absolute;
