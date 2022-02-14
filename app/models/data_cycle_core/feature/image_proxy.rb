@@ -105,7 +105,7 @@ module DataCycleCore
           salt = [Rails.application.secrets.imgproxy_salt].pack('H*')
 
           application_url = Rails.application.config.asset_host
-          application_url = "http://nginx:#{ENV.fetch('PUBLIC_APPLICATION_PORT')}" if ENV.fetch('APP_DOCKER_ENV') { nil }.present?
+          application_url = "http://nginx:#{ENV.fetch('PUBLIC_APPLICATION_PORT')}" if ENV.fetch('APP_DOCKER_ENV') { nil } != 'production'
 
           url = [
             application_url,

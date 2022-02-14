@@ -49,6 +49,7 @@ services:
       - PUBLIC_APPLICATION_HOST=${PUBLIC_APPLICATION_HOST:-localhost}
       - APP_PROTOCOL=${APP_PROTOCOL:-http}
       - IMGPROXY_PORT=${IMGPROXY_PORT:-9000}
+      - IMGPROXY_DC_SIGNATURE_URL=${IMGPROXY_DC_SIGNATURE_URL:-http://nginx:3003}
       - RAILS_ENV=${RAILS_ENV:-development}
     depends_on:
       - web
