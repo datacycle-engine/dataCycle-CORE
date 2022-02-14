@@ -42,6 +42,10 @@ require 'test_cases/action_dispatch_integration_test'
 # to be shown.
 Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 
+# FIX for delayed_jobs in TEST environment with rails 6.x:
+# https://github.com/rails/rails/issues/37270
+(ActiveJob::Base.descendants << ActiveJob::Base).each(&:disable_test_adapter)
+
 # # Load fixtures from the engine
 # if ActiveSupport::TestCase.respond_to?(:fixture_path=)
 #   ActiveSupport::TestCase.fixture_path = File.expand_path("../fixtures", __FILE__)

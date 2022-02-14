@@ -76,11 +76,8 @@ module DataCycleCore
       content2.set_data_hash(data_hash: { name: 'TestArtikel 2' }.deep_stringify_keys, partial_update: true)
       content3.set_data_hash(data_hash: { name: 'TestArtikel 2' }.deep_stringify_keys, partial_update: true)
 
-      perform_enqueued_jobs do
-        image1.merge_with_duplicate(image2)
-      end
+      image1.merge_with_duplicate(image2)
 
-      assert_performed_jobs 6
       assert_nil DataCycleCore::Thing.find_by(id: image2.id)
 
       # FIXME: Destroying a content removes content_relations in the history entries
@@ -156,11 +153,8 @@ module DataCycleCore
       image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_f.id, external_key: external_key_f, sync_type: 'duplicate')
       image_oa.external_system_syncs.find_or_create_by!(external_system_id: external_source_f.id, external_key: external_key_v, sync_type: 'link')
 
-      perform_enqueued_jobs do
-        image_f.merge_with_duplicate(image_oa)
-      end
+      image_f.merge_with_duplicate(image_oa)
 
-      assert_performed_jobs 1
       assert_nil DataCycleCore::Thing.find_by(id: image_oa.id)
 
       assert_equal external_source_f.id, image_f.external_source.id

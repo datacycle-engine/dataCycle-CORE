@@ -13,13 +13,14 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.cache_classes = true
 
-  config.action_view.cache_template_loading = true
+  config.active_job.queue_adapter = :inline
+  # config.action_view.cache_template_loading = true
 
   # Do not eager load code on boot. This avoids loading your whole application
   # just for the purpose of running a single test. If you are using a tool that
   # preloads Rails for running tests, you may have to set it to true.
   # @todo validate after fixed tests
-  config.eager_load = false
+  config.eager_load = true
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
