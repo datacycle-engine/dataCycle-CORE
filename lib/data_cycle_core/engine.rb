@@ -296,13 +296,19 @@ module DataCycleCore
     end
 
     config.to_prepare do
+      Rails.autoloaders.main.ignore(
+        [
+          "#{Rails.root}/app/extensions",
+          "#{Rails.root}/app/decorators"
+        ]
+      )
       Dir.glob(
         [
           Rails.root + 'app/decorators/**/*_decorator*.rb',
           Rails.root + 'app/extensions/**/*.rb'
         ]
       ).each do |c|
-        require_dependency(c)
+        load c
       end
 
       Devise::Mailer.layout 'data_cycle_core/email' # email.haml or email.erb
