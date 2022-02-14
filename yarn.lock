@@ -2,35 +2,35 @@
 # yarn lockfile v1
 
 
-"@appsignal/core@=1.1.16":
-  version "1.1.16"
-  resolved "https://registry.yarnpkg.com/@appsignal/core/-/core-1.1.16.tgz#78361017a2a9cd0defa0f8980fbcdab5a5cfca1d"
-  integrity sha512-bfbN/v2FeBJ0keu/8NAqhk2z6HoEQ2kW9BWYW/FspMrkpf+aQLDJ00m8MhR4fHwF1kXCtxQ+PWwJf/7Ig22ezg==
+"@appsignal/core@=1.1.17":
+  version "1.1.17"
+  resolved "https://registry.yarnpkg.com/@appsignal/core/-/core-1.1.17.tgz#2076e44d1125a63678fc9e24c49e83a2523ed0f9"
+  integrity sha512-UwsuXHmQ+KwLbTUuAqlnUMbfyglpr44h57daM/PXXbDtBJInGP6GDqccFp/p2C+8lUhDlvyCxaRb1uxDeXzUeA==
   dependencies:
-    "@appsignal/types" "=2.1.7"
+    "@appsignal/types" "=3.0.0"
     isomorphic-unfetch "^3.1.0"
     tslib "^2.3.0"
 
 "@appsignal/javascript@^1.3.12":
-  version "1.3.21"
-  resolved "https://registry.yarnpkg.com/@appsignal/javascript/-/javascript-1.3.21.tgz#411d33b442e82716209cfa266dfba42ff9932b67"
-  integrity sha512-o1zzLhMiPV+hYwOh5nSSbTyATVeP8NAnnba6oEHg42FigQTwTQ6NNmWJOLhSX1bXdIuDBYFSmY1oPhUcDbKyXg==
+  version "1.3.22"
+  resolved "https://registry.yarnpkg.com/@appsignal/javascript/-/javascript-1.3.22.tgz#29613c2f8025bd37a2c0d44c286319dd0f131b28"
+  integrity sha512-XdLz6CQr9wrzG7526+6j3oU5ALsdHN4oNeWMnYRTu7qt5EIv1pcL1RTzlk4aK3gHAPZo6B/DJcM+ftzjzj69cA==
   dependencies:
-    "@appsignal/core" "=1.1.16"
-    "@appsignal/types" "=2.1.7"
+    "@appsignal/core" "=1.1.17"
+    "@appsignal/types" "=3.0.0"
     tslib "^2.3.0"
 
 "@appsignal/plugin-window-events@^1.0.6":
-  version "1.0.16"
-  resolved "https://registry.yarnpkg.com/@appsignal/plugin-window-events/-/plugin-window-events-1.0.16.tgz#be662df49c09f66f161ad9fd8b8b67405ac35a76"
-  integrity sha512-WfN3LIiHg+R/VUpNU+H9gkxFfP4aTF6oQiR7x7iL3pUc80FUiA/o+HbHu51OkwRYD1fuQ9MNZieifZGJbJ/vcw==
+  version "1.0.17"
+  resolved "https://registry.yarnpkg.com/@appsignal/plugin-window-events/-/plugin-window-events-1.0.17.tgz#f011898308340b27e98d2f0f22650bf00a42400e"
+  integrity sha512-RW3JVxQD2ePxvF3HIcuuor4t6JWsPPYNjRVEFAFLnvKEeZUgtzPNaOOCJQ07VAojbVPiag7d+LlivCOwh/u8Kg==
   dependencies:
-    "@appsignal/types" "=2.1.7"
+    "@appsignal/types" "=3.0.0"
 
-"@appsignal/types@=2.1.7":
-  version "2.1.7"
-  resolved "https://registry.yarnpkg.com/@appsignal/types/-/types-2.1.7.tgz#4d7a26460fa3c8cc07379430a4c18f971917f861"
-  integrity sha512-a1xs27N7KVMxjdiIgnCsPZP95mjsZym82bCsYzir8C+kh1dpa72uY3e2uO7AK2amKLWaQK34uQQS4ouVo1PIbA==
+"@appsignal/types@=3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@appsignal/types/-/types-3.0.0.tgz#7cbfe9220224d6631954610688fa9a8f6c531f75"
+  integrity sha512-L0OAKaro7209Du39UF2ZWU8CzUJxeeKaW6Zyu2FA2SGdW3HK0PoJxY7A8R52KdZiXzMlCAlrOjvoDvT/ct0RIg==
 
 "@mapbox/node-pre-gyp@^1.0.0":
   version "1.0.8"
@@ -99,9 +99,9 @@
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
 
 "@types/node@*":
-  version "17.0.16"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.16.tgz#e3733f46797b9df9e853ca9f719c8a6f7b84cd26"
-  integrity sha512-ydLaGVfQOQ6hI1xK2A5nVh8bl0OGoIfYMxPWHqqYe9bTkWCfqiVvZoh2I/QF2sNSkZzZyROBoTefIEI+PB6iIA==
+  version "17.0.17"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.17.tgz#a8ddf6e0c2341718d74ee3dc413a13a042c45a0c"
+  integrity sha512-e8PUNQy1HgJGV3iU/Bp2+D/DXh3PYeyli8LgIwsQcs1Ar1LoaWHSIT6Rw+H2rNJmiq6SNWiDytfx8+gYj7wDHw==
 
 abab@^2.0.0:
   version "2.0.5"
@@ -1340,10 +1340,17 @@ mimic-response@^2.0.0:
   resolved "https://registry.yarnpkg.com/mimic-response/-/mimic-response-2.1.0.tgz#d13763d35f613d09ec37ebb30bac0469c0ee8f43"
   integrity sha512-wXqjST+SLt7R009ySCglWBCFpjUygmCIfD790/kVbiGmUgfYGuB14PiTd5DwVxSV4NcYHjzMkoj5LjQZwTQLEA==
 
-minimatch@^3.0.4, minimatch@~3.0.2:
-  version "3.0.5"
-  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.0.5.tgz#4da8f1290ee0f0f8e83d60ca69f8f134068604a3"
-  integrity sha512-tUpxzX0VAzJHjLu0xUfFv1gwVp9ba3IOuRAVH2EGuRW8a5emA2FlACLqiT/lDVtS1W+TGNwqz3sWaNyLgDJWuw==
+minimatch@^3.0.4:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.1.1.tgz#879ad447200773912898b46cd516a7abbb5e50b0"
+  integrity sha512-reLxBcKUPNBnc/sVtAbxgRVFSegoGeLaSjmphNhcwcolhYLRgtJscn5mRl6YRZNQv40Y7P6JM2YhSIsbL9OB5A==
+  dependencies:
+    brace-expansion "^1.1.7"
+
+minimatch@~3.0.2:
+  version "3.0.7"
+  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.0.7.tgz#e78aeb8dceccb0d12b57a75872da43bc68e7d7ca"
+  integrity sha512-pYjbG0o9W2Wb3KVBuV6s7R/bzS/iS3HPiHcFcDee5GGiN1M5MErXqgS4jGn8pwVwTZAoy7B8bYb/+AqQU0NhZA==
   dependencies:
     brace-expansion "^1.1.7"
 
@@ -1540,7 +1547,7 @@ pn@^1.1.0:
   resolved "https://registry.yarnpkg.com/pn/-/pn-1.1.0.tgz#e2f4cef0e219f463c179ab37463e4e1ecdccbafb"
   integrity sha512-2qHaIQr2VLRFoxe2nASzsV6ef4yOOH+Fi9FBOVH6cqeSgUnoyySPZkxzLuzd+RYOQTRpROA0ztTMqxROKSb/nA==
 
-postcss@^8.4.5:
+postcss@^8.4.6:
   version "8.4.6"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.6.tgz#c5ff3c3c457a23864f32cb45ac9b741498a09ae1"
   integrity sha512-OovjwIzs9Te46vlEx7+uXB0PLijpwjXGKXjVGGPIGubGpq7uh5Xgf6D6FiJ/SzJMBosHDp6a2hiXOS97iBXcaA==
@@ -1750,9 +1757,9 @@ rollup-plugin-gzip@^2.5.0:
   integrity sha512-l9h3g0imsGvhjcSsxNRLHNW/gqRSSgaJLCKKWYeRclPHvDMDewmI43ZyiGJ3nc3+sZNy1pJnWzB3Bvm+tJI2jQ==
 
 rollup@^2.59.0:
-  version "2.67.1"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.67.1.tgz#4402665706fa00f321d446ce45f880e02cf54f01"
-  integrity sha512-1Sbcs4OuW+aD+hhqpIRl+RqooIpF6uQcfzU/QSI7vGkwADY6cM4iLsBGRM2CGLXDTDN5y/yShohFmnKegSPWzg==
+  version "2.67.2"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.67.2.tgz#d95e15f60932ad21e05a870bd0aa0b235d056f04"
+  integrity sha512-hoEiBWwZtf1QdK3jZIq59L0FJj4Fiv4RplCO4pvCRC86qsoFurWB4hKQIjoRf3WvJmk5UZ9b0y5ton+62fC7Tw==
   optionalDependencies:
     fsevents "~2.3.2"
 
@@ -2054,12 +2061,12 @@ vite-plugin-ruby@^2.0.4:
     fast-glob "^3.2.4"
 
 vite@^2.3.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-2.8.0.tgz#0646ab9eee805fb24b667889644ac04bc516d0d3"
-  integrity sha512-ed5rjyeysttuPJX/aKSA0gTB/8ZKLM5xF6FtEuKy1B9DiQbDNFMVMQxnb9JesgBPUMMIJxC8w5KZ/KNWLKFXoA==
+  version "2.8.2"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-2.8.2.tgz#6bced4a0a8b0db24636f5159c3f371c156521a58"
+  integrity sha512-zawfykcPVPYva4KusIWORNLr324Qx86/3NpfQSIOJdjnL5pYhwDoImLYMOh4lFLcP/7//tNuWM2vx2F5OSVC9w==
   dependencies:
     esbuild "^0.14.14"
-    postcss "^8.4.5"
+    postcss "^8.4.6"
     resolve "^1.22.0"
     rollup "^2.59.0"
   optionalDependencies:
