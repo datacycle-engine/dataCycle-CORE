@@ -298,8 +298,8 @@ module DataCycleCore
     config.to_prepare do
       Rails.autoloaders.main.ignore(
         [
-          "#{Rails.root}/app/extensions",
-          "#{Rails.root}/app/decorators"
+          Rails.root.join('app', 'extensions'),
+          Rails.root.join('app', 'decorators')
         ]
       )
       Dir.glob(
