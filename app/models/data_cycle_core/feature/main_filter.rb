@@ -107,11 +107,7 @@ module DataCycleCore
 
         def filterable_classification_aliases(allowed_labels, excluded = [])
           query = DataCycleCore::ClassificationAlias
-            .includes(:classification_tree_label, :parent_classification_alias, sub_classification_alias: [
-                        sub_classification_alias: [
-                          sub_classification_alias: :sub_classification_alias
-                        ]
-                      ])
+            .includes(:classification_tree_label, :parent_classification_alias, :sub_classification_alias)
             .where(classification_tree_labels: { name: allowed_labels }, classification_trees: { parent_classification_alias: nil })
           query = query.where.not(classification_tree_labels: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded)).order(created_at: :asc)
           query.group_by { |ca| ca.classification_tree_label&.name }.sort_by { |k, _v| allowed_labels.index(k) }.to_h
