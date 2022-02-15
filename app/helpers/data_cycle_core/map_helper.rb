@@ -40,14 +40,17 @@ module DataCycleCore
 
     def additional_map_values_overlay(content, definition, options)
       paths = definition&.dig('ui', 'edit', 'options', 'additional_value_paths')
+      overlay_paths = definition&.dig('ui', 'edit', 'options', 'additional_values_overlay')
 
-      return unless definition&.dig('ui', 'edit', 'options', 'additional_values_overlay').to_s == 'true' && paths.present?
+      return unless overlay_paths.present? && paths.present?
+
+      paths = paths.slice(*overlay_paths) if overlay_paths.is_a?(::Array)
 
       paths.each_with_object({}) do |(k, v), a|
         value = v || {}
         value['definition'] = content.properties_for(k)
 
-        next unless attribute_editable?(k, value['definition'], options, content)
+        next unless attribute_editable?(k, value['definition'], options, content) && value.dig('definition', 'type') == 'linked'
 
         value['label'] = translated_attribute_label(k, value['definition'], content, options)
 

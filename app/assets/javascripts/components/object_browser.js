@@ -368,6 +368,7 @@ class ObjectBrowser {
       .remove();
     item.remove();
     if (this.chosen.length == 0) this.renderHiddenField();
+    this.element.trigger('dc:objectBrowser:change', { key: this.key, ids: this.chosen });
     if (triggerChange) this.element.closest('.form-element').trigger('change');
   }
   renderHiddenField() {
@@ -445,6 +446,8 @@ class ObjectBrowser {
             .addClass('dc-fd-initialized');
         });
     }
+
+    this.element.trigger('dc:objectBrowser:change', { key: this.key, ids: this.chosen });
   }
   addObject(id, element, _event) {
     if (this.chosen.indexOf(id) === -1) {

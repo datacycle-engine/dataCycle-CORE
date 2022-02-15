@@ -252,8 +252,6 @@ class TourSprungEditor extends OpenLayersEditor {
       data: this.additionalValues
     });
 
-    console.log(this.additionalValues);
-
     this.selectedAdditionalLayer = {
       point: this._additionalPointLayer('selected', true),
       line: this._additionalLineLayer('selected', true)

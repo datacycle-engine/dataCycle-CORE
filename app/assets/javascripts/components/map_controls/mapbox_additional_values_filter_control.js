@@ -13,6 +13,7 @@ class AdditionalValuesFilterControl {
     this.lastLoadedFilter = {};
     this.additionalSources = {};
     this.additionalLayers = {};
+    this.additionalValueTargets = {};
     this.enabled = false;
   }
   onAdd(map) {
@@ -53,9 +54,30 @@ class AdditionalValuesFilterControl {
   }
   _addEventHandlers() {
     this.controlButton.addEventListener('click', this._toggleOverlay.bind(this));
+
+    this._addOverlayTargetEvents();
+  }
+  _addOverlayTargetEvents() {
+    for (const key of Object.keys(this.config)) {
+      this.additionalValueTargets[key] = this.editor.$parentContainer
+        .closest('.form-element.geographic')
+        .siblings(`.form-element[data-key*="[${key}]"]`)
+        .find('.object-browser');
+
+      if (!this.additionalValueTargets[key].length) continue;
+
+      this.additionalValueTargets[key].on('dc:objectBrowser:change', this._linkedChangeHandler.bind(this));
+    }
+  }
+  async _linkedChangeHandler(event, data) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const geoJson = await this._loadGeojson(data.key.getAttributeKey(), { ids: data.ids });
+
+    console.log('_linkedChangeHandler', geoJson);
   }
   _initializeOverlay(_event) {
-    // additionalValues layer
     this._addClickableFeatures('additional_values_point_selected');
     this._addClickableFeatures('additional_values_line_selected');
 
@@ -69,7 +91,6 @@ class AdditionalValuesFilterControl {
       };
 
       this.geojsonValues[group.dataset.groupKey] = this.editor._createFeatureCollection();
-
       this._addGeoJsonSource(group.dataset.groupKey, this.geojsonValues[group.dataset.groupKey]);
 
       group
@@ -128,24 +149,24 @@ class AdditionalValuesFilterControl {
 
     if (index === -1) return;
 
-    const additionalValueFeature = this.editor.additionalValues.features.splice(index, 1)[0];
+    this.editor.additionalValues.features.splice(index, 1)[0];
 
-    console.log('_unselectFeature', additionalValueFeature);
-
-    // trigger objectbrowser event
+    for (const target of Object.values(this.additionalValueTargets)) {
+      $(target).find(`ul.object-thumbs li.item[data-id="${featureId}"] .delete-thumbnail`).trigger('click');
+    }
   }
-  _selectFeature(feature) {
+  _selectFeature(feature, key) {
     feature.properties.selected = true;
 
     this.editor.additionalValues.features.push(feature);
 
-    console.log('_selectFeature', feature);
-
-    // trigger objectbrowser event
+    this.additionalValueTargets[key].trigger('dc:import:data', {
+      value: [feature.properties.id]
+    });
   }
   _addClickableFeatures(layerId, layerKey = null) {
     this.map.on('click', layerId, e => {
-      if (!this.enabled) return;
+      if (!this.enabled || e.defaultPrevented) return;
 
       e.preventDefault();
 
@@ -153,7 +174,7 @@ class AdditionalValuesFilterControl {
       const [key, feature] = this._findRenderedFeature(featureId, layerKey);
 
       if (layerId.includes('selected')) this._unselectFeature(feature, featureId);
-      else this._selectFeature(feature);
+      else this._selectFeature(feature, key);
 
       if (key) this.map.getSource(this.additionalSources[key]).setData(this.geojsonValues[key]);
       this.map.getSource(this.editor.selectedAdditionalSource).setData(this.editor.additionalValues);
@@ -224,16 +245,19 @@ class AdditionalValuesFilterControl {
       this.map.setLayoutProperty(this.additionalLayers[key].line, 'visibility', 'none');
     }
   }
-  async _reloadGeoJson(key) {
-    const params = Object.assign({}, this.activeFilters[key].definition);
+  _loadGeojson(key, additionalParams = {}) {
+    const params = Object.assign({}, this.activeFilters[key].definition, additionalParams);
     params.filter = this.activeFilters[key].filter;
 
-    const data = await DataCycle.httpRequest({
+    DataCycle.httpRequest({
       url: '/things/geojson_for_map_editor',
-      method: 'GET',
+      method: 'POST',
       data: params,
       dataType: 'json'
     });
+  }
+  async _reloadGeoJson(key) {
+    const data = await this._loadGeojson(key);
 
     if (!data || !data.features) return;
 

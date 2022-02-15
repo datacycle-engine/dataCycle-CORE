@@ -590,7 +590,7 @@ module DataCycleCore
     end
 
     def map_editor_params
-      params.permit(:template_name, filter: [], stored_filter: {})
+      params.permit(:template_name, ids: [], filter: [], stored_filter: {})
     end
   end
 end
