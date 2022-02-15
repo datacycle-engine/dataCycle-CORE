@@ -1,5 +1,4 @@
 import OpenLayersEditor from './open_layers_editor';
-import lodashGet from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import fetchInject from 'fetch-inject';
 import AdditionalValuesFilterControl from './map_controls/mapbox_additional_values_filter_control';
@@ -14,9 +13,10 @@ class TourSprungEditor extends OpenLayersEditor {
     this.map;
     this.editorGui;
     this.draggingMarker;
-    this.additionalSources = {};
-    this.additionalLayers = {};
-    this.baseLayerId = null;
+    this.selectedAdditionalSource = 'additional_values_selected';
+    this.selectedAdditionalLayer;
+    this.lastPointLayerId;
+    this.lastLineLayerId;
     this.$poisTarget =
       this.additionalAttributes &&
       this.additionalAttributes.toursprung_pois_target &&
@@ -72,7 +72,7 @@ class TourSprungEditor extends OpenLayersEditor {
     if (this.value) this.drawInitialRoute();
     this.initMtkEvents();
 
-    if (this.additionalValues && this.additionalValues.length) this.drawAdditionalFeatures();
+    this.drawAdditionalFeatures();
     this.updateMapPosition();
   }
   initMouseWheelZoom() {
@@ -130,10 +130,7 @@ class TourSprungEditor extends OpenLayersEditor {
     });
   }
   drawInitialRoute() {
-    this.editorGui.editor.loadGeoJSON({
-      type: 'FeatureCollection',
-      features: [this.value]
-    });
+    this.editorGui.editor.loadGeoJSON(this._createFeatureCollection([this.value]));
 
     this.feature = this.editorGui.editor.getPolyline();
   }
@@ -171,61 +168,58 @@ class TourSprungEditor extends OpenLayersEditor {
       options
     );
   }
-  _additionalLineLayer(key) {
+  _initLastLineLayerId() {
     const beforeLayerDefinition = this.map.getLayers().find(l => l.id) || {};
-    const beforeLayer =
-      this.map.gl.getStyle().layers.find(l => l.type === 'line' && l.source === beforeLayerDefinition.id) || {};
-    const layerId = `additional_values_lines_${key}`;
+    this.lastLineLayerId = (
+      this.map.gl.getStyle().layers.find(l => l.type === 'line' && l.source === beforeLayerDefinition.id) || {}
+    ).id;
+  }
+  _additionalLineLayer(key, selected = false) {
+    const layerId = `additional_values_line_${key}`;
+
+    if (!this.lastLineLayerId) this._initLastLineLayerId();
 
     this.map.gl.addLayer(
       {
         id: layerId,
         type: 'line',
         source: `additional_values_${key}`,
-        filter: ['==', '$type', 'LineString'],
+        filter: ['all', ['==', '$type', 'LineString'], [selected ? 'has' : '!has', 'selected']],
         paint: {
-          'line-color': [
-            'case',
-            ['boolean', ['feature-state', 'selected'], false],
-            this.definedColors.default,
-            this.definedColors.gray
-          ],
+          'line-color': selected ? this.definedColors.default : this.definedColors.gray,
           'line-opacity': 0.75,
-          'line-width': ['case', ['boolean', ['feature-state', 'selected'], false], 7, 5]
+          'line-width': selected ? 7 : 5
         }
       },
-      beforeLayer.id
+      this.lastLineLayerId
     );
 
     this._addPopupForLayer(layerId);
+    this.lastLineLayerId = layerId;
 
     return layerId;
   }
-  _additionalPointLayer(key) {
-    const layerId = `additional_filtered_point_${key}`;
+  _additionalPointLayer(key, selected = false) {
+    const layerId = `additional_values_point_${key}`;
 
     this.map.gl.addLayer(
       {
         id: layerId,
         type: 'circle',
         source: `additional_values_${key}`,
-        filter: ['==', '$type', 'Point'],
+        filter: ['all', ['==', '$type', 'Point'], [selected ? 'has' : '!has', 'selected']],
         paint: {
-          'circle-radius': ['case', ['boolean', ['feature-state', 'selected'], false], 7, 5],
+          'circle-radius': selected ? 7 : 5,
           'circle-stroke-width': 2,
-          'circle-color': [
-            'case',
-            ['boolean', ['feature-state', 'selected'], false],
-            this.definedColors.red,
-            this.definedColors.default
-          ],
+          'circle-color': selected ? this.definedColors.red : this.definedColors.default,
           'circle-stroke-color': this.definedColors.white
         }
       },
-      this.baseLayerId
+      this.lastPointLayerId
     );
 
     this._addPopupForLayer(layerId);
+    this.lastPointLayerId = layerId;
 
     return layerId;
   }
@@ -252,51 +246,18 @@ class TourSprungEditor extends OpenLayersEditor {
       popup.remove();
     });
   }
-  // _addAdditionalPointsLayer() {
-  //   return new MTK.CollectionLayer(MTK.Marker, {
-  //     states: {
-  //       click: {
-  //         'mtk:popup': {
-  //           html: '${description}'
-  //         }
-  //       }
-  //     }
-  //   }).addTo(this.map);
-  // }
-  // _addAdditionalLinesLayer() {
-  //   return new MTK.CollectionLayer(MTK.Polyline, {
-  //     states: {
-  //       click: {
-  //         'mtk:popup': {
-  //           html: '${description}'
-  //         }
-  //       }
-  //     }
-  //   }).addTo(this.map);
-  // }
   drawAdditionalFeatures() {
-    // this.additionalPointsLayer = this._addAdditionalPointsLayer();
-    // this.additionalLinesLayer = this._addAdditionalLinesLayer();
-    // const pois = [];
-    // for (let i = 0; i < this.additionalValues.length; ++i) {
-    //   const feature = this.additionalValues[i];
-    //   if (feature.geometry.type == 'Point') {
-    //     const iconId = this.iconOptions('default', false, lodashGet(feature, 'properties.style.color', 'default'));
-    //     const newMarker = new MTK.Marker({
-    //       description: this.infoOverlayHtml(feature.properties)
-    //     })
-    //       .setLngLat(feature.geometry.coordinates)
-    //       .setImage({ id: iconId, anchor: 'bottom' });
-    //     this.additionalFeatures.push(newMarker);
-    //     this.additionalPointsLayer.addLayer(newMarker);
-    //   } else {
-    //     const newLine = new MTK.Polyline({
-    //       description: this.infoOverlayHtml(feature.properties)
-    //     }).setLngLats(feature.geometry.coordinates);
-    //     this.additionalFeatures.push(newLine);
-    //     this.additionalLinesLayer.addLayer(newLine);
-    //   }
-    // }
+    this.map.gl.addSource(this.selectedAdditionalSource, {
+      type: 'geojson',
+      data: this.additionalValues
+    });
+
+    console.log(this.additionalValues);
+
+    this.selectedAdditionalLayer = {
+      point: this._additionalPointLayer('selected', true),
+      line: this._additionalLineLayer('selected', true)
+    };
   }
   extendEditorInterface() {
     const uploadable = this.uploadable;
@@ -380,9 +341,9 @@ class TourSprungEditor extends OpenLayersEditor {
     this.editorGui = new this.extendedEditorInterface().addTo(this.map);
 
     const waypointLayerDefinition = this.editorGui.editor.getLayerDefinitions().find(v => v.type == 'symbol');
-    this.baseLayerId = waypointLayerDefinition && waypointLayerDefinition.id;
-    if (this.baseLayerId)
-      this.map.gl.setLayoutProperty(this.baseLayerId, 'icon-size', [
+    this.lastPointLayerId = waypointLayerDefinition && waypointLayerDefinition.id;
+    if (this.lastPointLayerId)
+      this.map.gl.setLayoutProperty(this.lastPointLayerId, 'icon-size', [
         'case',
         ['==', ['get', 'icon'], 'end'],
         0.8,

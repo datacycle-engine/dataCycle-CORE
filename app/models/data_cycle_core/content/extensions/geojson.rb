@@ -26,7 +26,7 @@ module DataCycleCore
           SELECT
             json_build_object('type', 'FeatureCollection', 'crs', json_build_object('type', 'name', 'properties',
               json_build_object('name', 'urn:ogc:def:crs:EPSG::4326')), 'features', json_agg(json_build_object('type', 'Feature',
-              'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry)::json, 'properties', json_build_object(#{ADDITIONAL_GEOJSON_PROPERTIES.keys.map { |k| "'#{k}', t.#{k}" }.join(', ')}))))
+              'geometry', ST_AsGeoJSON (t.geometry)::json, 'id', t.id, 'properties', json_build_object(#{ADDITIONAL_GEOJSON_PROPERTIES.keys.map { |k| "'#{k}', t.#{k}" }.join(', ')}))))
           FROM (:from_query) AS t
         SQL
 
@@ -50,7 +50,7 @@ module DataCycleCore
         end
 
         def to_geojson(simplify_factor = SIMPLIFY_FACTOR)
-          self.class.where(id: id).limit(1).to_geojson(simplify_factor, TO_GEOJSON_DETAIL_QUERY_SQL)
+          self.class.where(id: id).limit(1).to_geojson(simplify_factor: simplify_factor, query: TO_GEOJSON_DETAIL_QUERY_SQL)
         end
 
         def geojson_geometry(content = self)
@@ -68,7 +68,7 @@ module DataCycleCore
         end
 
         class_methods do
-          def geojson_default_scope(simplify_factor = SIMPLIFY_FACTOR)
+          def geojson_default_scope(simplify_factor: SIMPLIFY_FACTOR)
             all.except(:order)
               .left_outer_joins(:translations)
               .where(thing_translations: { locale: I18n.locale })
@@ -89,8 +89,10 @@ module DataCycleCore
             RGeo::GeoJSON.encode(feature_collection)
           end
 
-          def to_geojson(simplify_factor = SIMPLIFY_FACTOR, query = TO_GEOJSON_QUERY_SQL)
-            things_query = all.geojson_default_scope(simplify_factor)
+          def to_geojson(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, query: TO_GEOJSON_QUERY_SQL)
+            things_query = all.geojson_default_scope(simplify_factor: simplify_factor)
+
+            query += ' WHERE t.geometry IS NOT NULL' unless include_without_geometry
 
             ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, [query.gsub(':from_query', things_query.to_sql)])).first&.values&.first
           end

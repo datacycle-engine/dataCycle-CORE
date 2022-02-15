@@ -2,24 +2,27 @@
 
 module DataCycleCore
   module MapHelper
-    def additional_map_values(contents, paths)
-      return if paths.blank? || contents.blank?
+    def additional_map_values(contents, paths, return_collection = true)
+      return return_collection ? { type: 'FeatureCollection', features: Array.wrap(result) } : nil if paths.blank? || contents.blank?
 
-      Array.wrap(contents).map! { |c|
+      result = Array.wrap(contents).map! { |c|
         child_keys = (paths.keys & (c.linked_property_names | c.embedded_property_names))
 
-        next child_keys.map! { |ck| additional_map_values(c.try(ck)&.includes(:translations), paths[ck]) }.flatten.compact if child_keys.present?
+        next child_keys.map! { |ck| additional_map_values(c.try(ck)&.includes(:translations), paths[ck], false) }.flatten.compact if child_keys.present?
 
         value_to_geojson(
           c.try(paths['geo'].to_s), geojson_properties(c, paths)
         )
       }.flatten.compact.uniq
+
+      return_collection ? { type: 'FeatureCollection', features: Array.wrap(result) } : result
     end
 
     def geojson_properties(content, paths)
       {
-        title: I18n.with_locale(content.first_available_locale) { content.try(paths['title'].to_s) },
         id: content.id,
+        name: I18n.with_locale(content.first_available_locale) { content.try(paths['title'].to_s) },
+        selected: true,
         thingPath: thing_path(content),
         style: { color: 'gray', width: 4 }
       }

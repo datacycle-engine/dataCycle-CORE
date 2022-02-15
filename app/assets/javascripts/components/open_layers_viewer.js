@@ -160,6 +160,12 @@ class OpenLayersViewer {
     this.wktFormat = new this.ol.format.WKT();
     this.resizeObserver;
   }
+  _createFeatureCollection(data = []) {
+    return {
+      type: 'FeatureCollection',
+      features: data
+    };
+  }
   setup() {
     this.setZoomMethod();
     this.initFeatures();
@@ -270,13 +276,8 @@ class OpenLayersViewer {
     if (!this.feature && this.value) this.feature = this.featureFromGeoJSON(this.value);
     if (this.beforeValue) this.additionalFeatures = this.featuresFromGeoJSON(this.beforeValue);
     if (this.afterValue) this.feature = this.featureFromGeoJSON(this.afterValue);
-    if (this.additionalValues && this.additionalValues.length)
-      this.additionalFeatures.push(
-        ...this.featuresFromGeoJSON({
-          type: 'FeatureCollection',
-          features: this.additionalValues
-        })
-      );
+    if (this.additionalValues && this.additionalValues.features && this.additionalValues.features.length)
+      this.additionalFeatures.push(...this.featuresFromGeoJSON(this.additionalValues));
 
     if (this.$popupContainer.length) this.initInfoOverlay();
     this.initFeatureLayer();
