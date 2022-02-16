@@ -51,6 +51,20 @@ class AdditionalValuesFilterControl {
     this.controlOverlay.dataset.remoteOptions = JSON.stringify({ additional_values: this.config });
 
     this.map.getContainer().appendChild(this.controlOverlay);
+
+    this._initOverlayData();
+  }
+  _initOverlayData() {
+    for (const [key, value] of Object.entries(this.config)) {
+      this.activeFilters[key] = {
+        enabled: false,
+        filter: [],
+        definition: pick(value.definition, ['template_name', 'stored_filter'])
+      };
+
+      this.geojsonValues[key] = this.editor._createFeatureCollection();
+      this._addGeoJsonSource(key, this.geojsonValues[key]);
+    }
   }
   _addEventHandlers() {
     this.controlButton.addEventListener('click', this._toggleOverlay.bind(this));
@@ -73,26 +87,21 @@ class AdditionalValuesFilterControl {
     event.preventDefault();
     event.stopPropagation();
 
-    const geoJson = await this._loadGeojson(data.key.getAttributeKey(), { ids: data.ids });
+    const key = data.key.getAttributeKey();
+    let changedFeatures = [];
 
-    console.log('_linkedChangeHandler', geoJson);
+    if (data.ids && data.ids.length) {
+      const geoJson = await this._loadGeojson(key, { ids: data.ids });
+      changedFeatures = geoJson.features || [];
+    }
+
+    this.editor.additionalValues[key].features = changedFeatures;
+    this.map.getSource(this.editor.selectedAdditionalSources[key]).setData(this.editor.additionalValues[key]);
   }
   _initializeOverlay(_event) {
-    this._addClickableFeatures('additional_values_point_selected');
-    this._addClickableFeatures('additional_values_line_selected');
+    this._initClickableSelectedFeatures();
 
     this.controlOverlay.querySelectorAll('.dc-additional-values-filter-item').forEach(group => {
-      const definition = DomElementHelpers.parseDataAttribute(group.dataset.definition) || {};
-
-      this.activeFilters[group.dataset.groupKey] = {
-        enabled: false,
-        filter: [],
-        definition: pick(definition, ['template_name', 'stored_filter'])
-      };
-
-      this.geojsonValues[group.dataset.groupKey] = this.editor._createFeatureCollection();
-      this._addGeoJsonSource(group.dataset.groupKey, this.geojsonValues[group.dataset.groupKey]);
-
       group
         .querySelector('input.dc-additional-values-filter-group')
         .addEventListener('change', this._groupChanged.bind(this));
@@ -100,6 +109,14 @@ class AdditionalValuesFilterControl {
         .querySelectorAll('input.dc-additional-values-filter-specific')
         .forEach(specificFilter => specificFilter.addEventListener('change', this._specificFilterChanged.bind(this)));
     });
+  }
+  _initClickableSelectedFeatures() {
+    for (const [key, value] of Object.entries(this.editor.selectedAdditionalLayers)) {
+      if (!this.config[key]) continue;
+
+      this._addClickableFeatures(value.point, key);
+      this._addClickableFeatures(value.line, key);
+    }
   }
   _addGeoJsonSource(key, data) {
     const sourceId = `additional_values_${key}`;
@@ -112,7 +129,7 @@ class AdditionalValuesFilterControl {
     });
 
     this.map.on('sourcedata', data => {
-      if (data.sourceId === sourceId && this.map.isSourceLoaded(sourceId))
+      if (this.enabled && data.sourceId === sourceId && this.map.isSourceLoaded(sourceId))
         this.controlOverlay
           .querySelector(`.dc-additional-values-filter-item[data-group-key="${key}"]`)
           .classList.remove('source-loading');
@@ -126,58 +143,37 @@ class AdditionalValuesFilterControl {
     this._addClickableFeatures(this.additionalLayers[key].point, key);
     this._addClickableFeatures(this.additionalLayers[key].line, key);
   }
-  _findRenderedFeature(featureId, key = null) {
-    if (key) return [key, this.geojsonValues[key].features.find(f => f.properties.id === featureId)];
-
-    let feature;
-
-    for (const [k, v] of Object.entries(this.geojsonValues)) {
-      feature = v.features.find(f => f.properties.id === featureId);
-
-      if (feature) {
-        key = k;
-        break;
-      }
-    }
-
-    return [key, feature];
-  }
-  _unselectFeature(feature, featureId) {
-    if (feature) delete feature.properties.selected;
-
-    const index = this.editor.additionalValues.features.findIndex(f => f.properties.id === featureId);
+  _unselectFeature(featureId, key) {
+    const index = this.editor.additionalValues[key].features.findIndex(f => f.properties.id === featureId);
 
     if (index === -1) return;
 
-    this.editor.additionalValues.features.splice(index, 1)[0];
+    this.editor.additionalValues[key].features.splice(index, 1)[0];
 
-    for (const target of Object.values(this.additionalValueTargets)) {
-      $(target).find(`ul.object-thumbs li.item[data-id="${featureId}"] .delete-thumbnail`).trigger('click');
-    }
+    $(this.additionalValueTargets[key])
+      .find(`ul.object-thumbs li.item[data-id="${featureId}"] .delete-thumbnail`)
+      .trigger('click', { preventDefault: true });
   }
   _selectFeature(feature, key) {
-    feature.properties.selected = true;
-
-    this.editor.additionalValues.features.push(feature);
+    this.editor.additionalValues[key].features.push(feature);
 
     this.additionalValueTargets[key].trigger('dc:import:data', {
       value: [feature.properties.id]
     });
   }
-  _addClickableFeatures(layerId, layerKey = null) {
+  _addClickableFeatures(layerId, key) {
     this.map.on('click', layerId, e => {
       if (!this.enabled || e.defaultPrevented) return;
 
       e.preventDefault();
 
       const featureId = e.features[0].properties.id;
-      const [key, feature] = this._findRenderedFeature(featureId, layerKey);
+      const feature = this.geojsonValues[key].features.find(f => f.properties.id === featureId);
 
-      if (layerId.includes('selected')) this._unselectFeature(feature, featureId);
+      if (layerId.includes('selected')) this._unselectFeature(featureId, key);
       else this._selectFeature(feature, key);
 
-      if (key) this.map.getSource(this.additionalSources[key]).setData(this.geojsonValues[key]);
-      this.map.getSource(this.editor.selectedAdditionalSource).setData(this.editor.additionalValues);
+      this.map.getSource(this.editor.selectedAdditionalSources[key]).setData(this.editor.additionalValues[key]);
     });
   }
   _removeGeoJsonSource(key) {
@@ -215,12 +211,20 @@ class AdditionalValuesFilterControl {
       }
     }
   }
-  _groupChanged(event) {
+  async _groupChanged(event) {
     const target = event.currentTarget;
 
     this.activeFilters[target.value].enabled = target.checked;
 
-    this._reloadData(target.value);
+    await this._reloadData(target.value);
+
+    this._updateLayerVisibilities(target.value);
+  }
+  _updateLayerVisibilities(key) {
+    const visibility = this.activeFilters[key].enabled ? 'visible' : 'none';
+
+    this.map.setLayoutProperty(this.additionalLayers[key].point, 'visibility', visibility);
+    this.map.setLayoutProperty(this.additionalLayers[key].line, 'visibility', visibility);
   }
   _specificFilterChanged(event) {
     const target = event.currentTarget;
@@ -231,30 +235,32 @@ class AdditionalValuesFilterControl {
     if (this.activeFilters[target.dataset.groupKey].enabled) this._reloadData(target.dataset.groupKey);
   }
   async _reloadData(key) {
-    if (this.activeFilters[key].enabled) {
-      this.controlOverlay
-        .querySelector(`.dc-additional-values-filter-item[data-group-key="${key}"]`)
-        .classList.add('source-loading');
+    if (!this.activeFilters[key].enabled) return;
 
-      if (!isEqual(this.activeFilters[key].filter, this.lastLoadedFilter[key])) await this._reloadGeoJson(key);
+    this.controlOverlay
+      .querySelector(`.dc-additional-values-filter-item[data-group-key="${key}"]`)
+      .classList.add('source-loading');
 
-      this.map.setLayoutProperty(this.additionalLayers[key].point, 'visibility', 'visible');
-      this.map.setLayoutProperty(this.additionalLayers[key].line, 'visibility', 'visible');
-    } else {
-      this.map.setLayoutProperty(this.additionalLayers[key].point, 'visibility', 'none');
-      this.map.setLayoutProperty(this.additionalLayers[key].line, 'visibility', 'none');
-    }
+    if (!isEqual(this.activeFilters[key].filter, this.lastLoadedFilter[key])) await this._reloadGeoJson(key);
   }
-  _loadGeojson(key, additionalParams = {}) {
+  async _loadGeojson(key, additionalParams = {}) {
     const params = Object.assign({}, this.activeFilters[key].definition, additionalParams);
     params.filter = this.activeFilters[key].filter;
 
-    DataCycle.httpRequest({
+    const data = await DataCycle.httpRequest({
       url: '/things/geojson_for_map_editor',
       method: 'POST',
       data: params,
       dataType: 'json'
     });
+
+    if (!data || !data.features) return;
+
+    for (const feature of data.features) {
+      feature.properties.id = feature.id;
+    }
+
+    return data;
   }
   async _reloadGeoJson(key) {
     const data = await this._loadGeojson(key);
@@ -263,15 +269,8 @@ class AdditionalValuesFilterControl {
 
     this.lastLoadedFilter[key] = this.activeFilters[key].filter.slice();
 
-    for (let i = 0; i < data.features.length; ++i) {
-      data.features[i].properties.id = data.features[i].id;
-
-      if (this.editor.additionalValues.features.some(v => v.properties.id === data.features[i].id))
-        data.features[i].properties.selected = true;
-    }
-
     this.geojsonValues[key] = data;
-    this.map.getSource(this.additionalSources[key]).setData(this.geojsonValues[key]);
+    await this.map.getSource(this.additionalSources[key]).setData(this.geojsonValues[key]);
   }
 }
 

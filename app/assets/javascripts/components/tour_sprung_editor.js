@@ -13,10 +13,8 @@ class TourSprungEditor extends OpenLayersEditor {
     this.map;
     this.editorGui;
     this.draggingMarker;
-    this.selectedAdditionalSource = 'additional_values_selected';
-    this.selectedAdditionalLayer;
-    this.lastPointLayerId;
-    this.lastLineLayerId;
+    this.selectedAdditionalSources = {};
+    this.selectedAdditionalLayers = {};
     this.$poisTarget =
       this.additionalAttributes &&
       this.additionalAttributes.toursprung_pois_target &&
@@ -168,38 +166,46 @@ class TourSprungEditor extends OpenLayersEditor {
       options
     );
   }
-  _initLastLineLayerId() {
-    const beforeLayerDefinition = this.map.getLayers().find(l => l.id) || {};
-    this.lastLineLayerId = (
-      this.map.gl.getStyle().layers.find(l => l.type === 'line' && l.source === beforeLayerDefinition.id) || {}
-    ).id;
+  _getLastLineLayerId() {
+    return this.map.gl
+      .getStyle()
+      .layers.find(
+        l =>
+          (l.type === 'background' && l.id === 'mtk-raster-layers') || (l.type === 'line' && l.id.includes('selected'))
+      ).id;
   }
-  _additionalLineLayer(key, selected = false) {
+  _getLastPointLayerId() {
+    return this.map.gl
+      .getStyle()
+      .layers.find(
+        l =>
+          (l.type === 'background' && l.id === 'mtk-symbol-layers') ||
+          (l.type === 'symbol' && l.source === 'mtk-editor-1') ||
+          (l.type === 'circle' && l.id.includes('selected'))
+      ).id;
+  }
+  _additionalLineLayer(key) {
     const layerId = `additional_values_line_${key}`;
-
-    if (!this.lastLineLayerId) this._initLastLineLayerId();
 
     this.map.gl.addLayer(
       {
         id: layerId,
         type: 'line',
         source: `additional_values_${key}`,
-        filter: ['all', ['==', '$type', 'LineString'], [selected ? 'has' : '!has', 'selected']],
+        filter: ['==', '$type', 'LineString'],
         paint: {
-          'line-color': selected ? this.definedColors.default : this.definedColors.gray,
-          'line-opacity': 0.75,
-          'line-width': selected ? 7 : 5
+          'line-color': key.includes('selected') ? this.definedColors.default : this.definedColors.gray,
+          'line-width': key.includes('selected') ? 7 : 5
         }
       },
-      this.lastLineLayerId
+      this._getLastLineLayerId()
     );
 
-    this._addPopupForLayer(layerId);
-    this.lastLineLayerId = layerId;
+    // this._addPopupForLayer(layerId);
 
     return layerId;
   }
-  _additionalPointLayer(key, selected = false) {
+  _additionalPointLayer(key) {
     const layerId = `additional_values_point_${key}`;
 
     this.map.gl.addLayer(
@@ -207,55 +213,64 @@ class TourSprungEditor extends OpenLayersEditor {
         id: layerId,
         type: 'circle',
         source: `additional_values_${key}`,
-        filter: ['all', ['==', '$type', 'Point'], [selected ? 'has' : '!has', 'selected']],
+        filter: ['==', '$type', 'Point'],
         paint: {
-          'circle-radius': selected ? 7 : 5,
+          'circle-radius': key.includes('selected') ? 7 : 5,
           'circle-stroke-width': 2,
-          'circle-color': selected ? this.definedColors.red : this.definedColors.default,
+          'circle-color': key.includes('selected') ? this.definedColors.red : this.definedColors.default,
           'circle-stroke-color': this.definedColors.white
         }
       },
-      this.lastPointLayerId
+      this._getLastPointLayerId()
     );
 
-    this._addPopupForLayer(layerId);
-    this.lastPointLayerId = layerId;
+    // this._addPopupForLayer(layerId);
 
     return layerId;
   }
-  _addPopupForLayer(layerId) {
+  _addPopup() {
     const popup = new mapboxgl.Popup({
       closeButton: false,
       closeOnClick: false,
       className: 'additional-feature-popup'
     });
 
-    this.map.gl.on('mouseenter', layerId, e => {
+    this.map.gl.on('mousemove', e => {
       // Change the cursor style as a UI indicator.
-      this.map.gl.getCanvas().style.cursor = 'pointer';
+      // this.map.gl.getCanvas().style.cursor = 'pointer';
 
-      const description = e.features[0].properties.name;
+      console.log(this.selectedAdditionalLayers, this.map.gl);
+
+      const features = this.map.gl.queryRenderedFeatures(e.point, { layers: ['Equipements'] });
+
+      // const description = e.features[0].properties.name;
 
       // Populate the popup and set its coordinates
       // based on the feature found.
-      popup.setLngLat(e.lngLat).setHTML(description).addTo(this.map.gl);
+      // popup.setLngLat(e.lngLat).setHTML(description).addTo(this.map.gl);
     });
 
-    this.map.gl.on('mouseleave', layerId, e => {
-      this.map.gl.getCanvas().style.cursor = '';
-      popup.remove();
-    });
+    // this.map.gl.on('mouseleave', layerId, e => {
+    //   this.map.gl.getCanvas().style.cursor = '';
+    //   popup.remove();
+    // });
   }
   drawAdditionalFeatures() {
-    this.map.gl.addSource(this.selectedAdditionalSource, {
-      type: 'geojson',
-      data: this.additionalValues
-    });
+    for (const [key, value] of Object.entries(this.additionalValues)) {
+      this.selectedAdditionalSources[key] = `additional_values_selected_${key}`;
 
-    this.selectedAdditionalLayer = {
-      point: this._additionalPointLayer('selected', true),
-      line: this._additionalLineLayer('selected', true)
-    };
+      this.map.gl.addSource(this.selectedAdditionalSources[key], {
+        type: 'geojson',
+        data: value
+      });
+
+      this.selectedAdditionalLayers[key] = {
+        point: this._additionalPointLayer(`selected_${key}`),
+        line: this._additionalLineLayer(`selected_${key}`)
+      };
+    }
+
+    this._addPopup();
   }
   extendEditorInterface() {
     const uploadable = this.uploadable;
@@ -339,9 +354,9 @@ class TourSprungEditor extends OpenLayersEditor {
     this.editorGui = new this.extendedEditorInterface().addTo(this.map);
 
     const waypointLayerDefinition = this.editorGui.editor.getLayerDefinitions().find(v => v.type == 'symbol');
-    this.lastPointLayerId = waypointLayerDefinition && waypointLayerDefinition.id;
-    if (this.lastPointLayerId)
-      this.map.gl.setLayoutProperty(this.lastPointLayerId, 'icon-size', [
+    const waypointLayerId = waypointLayerDefinition && waypointLayerDefinition.id;
+    if (waypointLayerId)
+      this.map.gl.setLayoutProperty(waypointLayerId, 'icon-size', [
         'case',
         ['==', ['get', 'icon'], 'end'],
         0.8,
@@ -393,13 +408,29 @@ class TourSprungEditor extends OpenLayersEditor {
         center: this.feature.lngLat
       });
   }
+  getBoundsForGeojson(geoJson) {
+    const bounds = new mapboxgl.LngLatBounds();
+
+    for (const feature of geoJson.features) {
+      if (!feature || !feature.geometry) continue;
+
+      if (feature.geometry.type === 'Point') bounds.extend(feature.geometry.coordinates);
+      else if (feature.geometry.type === 'MultiLineString') {
+        for (const lineStrings of feature.geometry.coordinates) {
+          for (const coords of lineStrings) bounds.extend([coords[0], coords[1]]);
+        }
+      }
+    }
+
+    return bounds;
+  }
   updateMapPosition() {
     let bounds = new mapboxgl.LngLatBounds();
 
     if (this.feature) bounds.extend(this.feature.getBounds());
-    if (this.additionalFeatures && this.additionalFeatures.length) {
-      bounds.extend(this.additionalPointsLayer.getBounds());
-      bounds.extend(this.additionalLinesLayer.getBounds());
+
+    for (const geoJson of Object.values(this.additionalValues)) {
+      bounds.extend(this.getBoundsForGeojson(geoJson));
     }
 
     this.map.gl.fitBounds(bounds, {

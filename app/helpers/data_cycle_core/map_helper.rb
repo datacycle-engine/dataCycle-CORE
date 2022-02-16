@@ -2,20 +2,33 @@
 
 module DataCycleCore
   module MapHelper
-    def additional_map_values(contents, paths, return_collection = true)
-      return return_collection ? { type: 'FeatureCollection', features: Array.wrap(result) } : nil if paths.blank? || contents.blank?
+    def additional_map_values(contents, paths, values = {}, key_prefix = nil)
+      return values if paths.blank? || contents.blank?
 
-      result = Array.wrap(contents).map! { |c|
+      Array.wrap(contents).each do |c|
         child_keys = (paths.keys & (c.linked_property_names | c.embedded_property_names))
 
-        next child_keys.map! { |ck| additional_map_values(c.try(ck)&.includes(:translations), paths[ck], false) }.flatten.compact if child_keys.present?
+        if child_keys.present?
+          child_keys.each do |ck|
+            additional_map_values(c.try(ck)&.includes(:translations), paths[ck], values, [key_prefix, ck].compact.join('_'))
+          end
+        end
 
-        value_to_geojson(
-          c.try(paths['geo'].to_s), geojson_properties(c, paths)
+        next if paths['geo'].blank?
+
+        values[key_prefix] ||= {
+          type: 'FeatureCollection',
+          features: []
+        }
+
+        (values[key_prefix][:features]).push(
+          value_to_geojson(
+            c.try(paths['geo'].to_s), geojson_properties(c, paths)
+          )
         )
-      }.flatten.compact.uniq
+      end
 
-      return_collection ? { type: 'FeatureCollection', features: Array.wrap(result) } : result
+      values
     end
 
     def geojson_properties(content, paths)

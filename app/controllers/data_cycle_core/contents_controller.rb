@@ -486,6 +486,7 @@ module DataCycleCore
 
       query = stored_filter.apply
       query = query.where(template_name: template_name.to_s) if template_name && filter_hash.blank?
+      query = query.where(id: map_editor_params[:ids]) if map_editor_params[:ids].present?
       query = query.in_validity_period
 
       render plain: query.query.to_geojson(include_without_geometry: false), content_type: 'application/vnd.geo+json'
