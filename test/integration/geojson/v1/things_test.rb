@@ -99,21 +99,6 @@ module DataCycleCore
           assert_equal('Test-POI', geojson_data['name'])
         end
 
-        # content with LINE and LOCATION should not be possible
-        # test 'geometry_collection is correct' do
-        #   get geojson_v1_content_show_path(id: @test_tour2)
-
-        #   assert_response(:success)
-        #   assert_equal('application/vnd.geo+json', response.content_type)
-        #   factory = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 })
-        #   coder = RGeo::GeoJSON.coder(geo_factory: factory)
-        #   geojson_data = coder.decode(response.body)
-
-        #   assert_equal('GeometryCollection', geojson_data.geometry.geometry_type.type_name)
-        #   assert_equal(@test_tour2.id, geojson_data.feature_id)
-        #   assert_equal('Test-TOUR', geojson_data['name'])
-        # end
-
         # TODO: following list:
         # test languages output (watch_list + stored_filter)
         # test Model
