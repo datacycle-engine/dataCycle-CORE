@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Skigebiet
+    :name: Skigebiet # replaced by external_source_bergfex -> places -> snow_resort.yml (Skigebiet)
     :type: object
     :schema_type: Place
     :content_type: entity
@@ -23,7 +23,7 @@
         - LocalBusiness
         - LodgingBusiness
         - Resort
-        - SportsActivityLocation        
+        - SportsActivityLocation
         - SkiResort
     :properties:
       :id:

@@ -35,7 +35,9 @@ module DataCycleCore
         external_source = ExternalSystem.find(uuid)
         external_source.import
       rescue StandardError => e
-        Appsignal.send_error(e, nil, "import job failed - #{external_source.id}")
+        Appsignal.send_error(e) do |transaction|
+          transaction.set_namespace("import job failed - #{external_source.id}")
+        end
         external_source.config['last_import_failed'] = true
         external_source.config['last_import_exception'] = "#{e} (#{Time.zone.now})"
         external_source.save!
