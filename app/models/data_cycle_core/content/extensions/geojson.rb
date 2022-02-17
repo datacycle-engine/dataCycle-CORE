@@ -7,7 +7,7 @@ module DataCycleCore
         extend ActiveSupport::Concern
 
         SIMPLIFY_FACTOR = 0.00001
-        GEOMETRY_PRECISION = 0.00001
+        GEOMETRY_PRECISION = 5
         CRS_SQL = ", 'crs', json_build_object('type', 'name', 'properties', json_build_object('name', 'urn:ogc:def:crs:EPSG::4326'))"
 
         ADDITIONAL_GEOJSON_PROPERTIES = {
@@ -52,7 +52,6 @@ module DataCycleCore
                 Array.wrap(ADDITIONAL_GEOJSON_PROPERTIES.map { |k, v| "#{v} AS #{k}" }).prepend(
                   ActiveRecord::Base.send(:sanitize_sql_array, [
                                             geojson_content_select_sql,
-                                            geometry_precision: GEOMETRY_PRECISION,
                                             simplify_factor: simplify_factor
                                           ])
                 ).join(', ')
@@ -96,7 +95,7 @@ module DataCycleCore
           def geojson_content_select_sql
             <<-SQL.squish
               things.id AS id,
-              ST_Simplify (ST_ReducePrecision (ST_Force2D (#{geojson_geometry_sql}), :geometry_precision), :simplify_factor, TRUE) AS geometry
+              ST_Simplify (ST_Force2D (#{geojson_geometry_sql}), :simplify_factor, TRUE) AS geometry
             SQL
           end
 
@@ -109,7 +108,7 @@ module DataCycleCore
 
           def geojson_detail_select_sql(include_crs = false)
             <<-SQL.squish
-              json_build_object('type', 'Feature'#{CRS_SQL if include_crs}, 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry)::json, 'properties',
+              json_build_object('type', 'Feature'#{CRS_SQL if include_crs}, 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry, #{GEOMETRY_PRECISION})::json, 'properties',
                 json_build_object(#{ADDITIONAL_GEOJSON_PROPERTIES.keys.map { |k| "'#{k}', t.#{k}" }.join(', ')}))
             SQL
           end

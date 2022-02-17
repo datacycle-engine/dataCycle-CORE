@@ -93,7 +93,7 @@ module DataCycleCore
           assert_equal('application/vnd.geo+json', response.content_type)
           geojson_data = RGeo::GeoJSON.decode(response.body)
 
-          assert_equal(@test_poi.location.coordinates.map { |c| c.round(Math.log10(DataCycleCore::Content::Extensions::Geojson::GEOMETRY_PRECISION).abs) }, geojson_data.geometry.coordinates)
+          assert_equal(@test_poi.location.coordinates.map { |c| c.round(DataCycleCore::Content::Extensions::Geojson::GEOMETRY_PRECISION) }, geojson_data.geometry.coordinates)
           assert_equal('Point', geojson_data.geometry.geometry_type.type_name)
           assert_equal(@test_poi.id, geojson_data.feature_id)
           assert_equal('Test-POI', geojson_data['name'])
