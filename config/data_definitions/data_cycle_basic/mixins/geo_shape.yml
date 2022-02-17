@@ -33,9 +33,6 @@
                   :geo: location
                   :title: title
                 :contains_place:
-                  :poi:
-                    :geo: location
-                    :title: title
                   :geo: line
                   :title: title
         :api:

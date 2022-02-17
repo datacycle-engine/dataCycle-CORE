@@ -95,11 +95,12 @@ class AdditionalValuesFilterControl {
       changedFeatures = geoJson.features || [];
     }
 
-    this.editor.additionalValues[key].features = changedFeatures;
-    this.map.getSource(this.editor.selectedAdditionalSources[key]).setData(this.editor.additionalValues[key]);
+    this._additionalValuesByKey(key).features = changedFeatures;
+    this.map.getSource(this._additionalValueSourceByKey(key)).setData(this._additionalValuesByKey(key));
   }
   _initializeOverlay(_event) {
-    this._initClickableSelectedFeatures();
+    this._initClickableFeatures(this.editor.selectedAdditionalLayers);
+    this._initClickableFeatures(this.additionalLayers);
 
     this.controlOverlay.querySelectorAll('.dc-additional-values-filter-item').forEach(group => {
       group
@@ -110,8 +111,8 @@ class AdditionalValuesFilterControl {
         .forEach(specificFilter => specificFilter.addEventListener('change', this._specificFilterChanged.bind(this)));
     });
   }
-  _initClickableSelectedFeatures() {
-    for (const [key, value] of Object.entries(this.editor.selectedAdditionalLayers)) {
+  _initClickableFeatures(layers) {
+    for (const [key, value] of Object.entries(layers)) {
       if (!this.config[key]) continue;
 
       this._addClickableFeatures(value.point, key);
@@ -139,23 +140,31 @@ class AdditionalValuesFilterControl {
       point: this.editor._additionalPointLayer(key),
       line: this.editor._additionalLineLayer(key)
     };
+  }
+  _additionalValuesByKey(key) {
+    if (!this.editor.additionalValues[key]) this.editor.additionalValues[key] = this.editor._createFeatureCollection();
 
-    this._addClickableFeatures(this.additionalLayers[key].point, key);
-    this._addClickableFeatures(this.additionalLayers[key].line, key);
+    return this.editor.additionalValues[key];
+  }
+  _additionalValueSourceByKey(key) {
+    if (!this.editor.selectedAdditionalSources[key])
+      this.editor._addSelectedSourceAndLayers(key, this.editor._createFeatureCollection());
+
+    return this.editor.selectedAdditionalSources[key];
   }
   _unselectFeature(featureId, key) {
-    const index = this.editor.additionalValues[key].features.findIndex(f => f.properties.id === featureId);
+    const index = this._additionalValuesByKey(key).features.findIndex(f => f.properties.id === featureId);
 
     if (index === -1) return;
 
-    this.editor.additionalValues[key].features.splice(index, 1)[0];
+    this._additionalValuesByKey(key).features.splice(index, 1)[0];
 
     $(this.additionalValueTargets[key])
       .find(`ul.object-thumbs li.item[data-id="${featureId}"] .delete-thumbnail`)
       .trigger('click', { preventDefault: true });
   }
   _selectFeature(feature, key) {
-    this.editor.additionalValues[key].features.push(feature);
+    this._additionalValuesByKey(key).features.push(feature);
 
     this.additionalValueTargets[key].trigger('dc:import:data', {
       value: [feature.properties.id]
@@ -173,12 +182,16 @@ class AdditionalValuesFilterControl {
       if (layerId.includes('selected')) this._unselectFeature(featureId, key);
       else this._selectFeature(feature, key);
 
-      this.map.getSource(this.editor.selectedAdditionalSources[key]).setData(this.editor.additionalValues[key]);
+      this.map.getSource(this._additionalValueSourceByKey(key)).setData(this._additionalValuesByKey(key));
     });
   }
   _removeGeoJsonSource(key) {
     this.map.removeLayer(this.additionalLayers[key].point);
     this.map.removeLayer(this.additionalLayers[key].line);
+    this.editor.allRenderedLayers = this.editor.allRenderedLayers.filter(
+      l => l !== this.additionalLayers[key].point && l !== this.additionalLayers[key].line
+    );
+
     this.map.removeSource(this.additionalSources[key]);
     delete this.additionalSources[key];
     delete this.additionalLayers[key];

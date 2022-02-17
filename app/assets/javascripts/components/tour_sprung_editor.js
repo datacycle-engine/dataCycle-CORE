@@ -15,6 +15,7 @@ class TourSprungEditor extends OpenLayersEditor {
     this.draggingMarker;
     this.selectedAdditionalSources = {};
     this.selectedAdditionalLayers = {};
+    this.allRenderedLayers = [];
     this.$poisTarget =
       this.additionalAttributes &&
       this.additionalAttributes.toursprung_pois_target &&
@@ -73,11 +74,20 @@ class TourSprungEditor extends OpenLayersEditor {
     this.drawAdditionalFeatures();
     this.updateMapPosition();
   }
+  _disableScrollingOnMapOverlays() {
+    this.$parentContainer.siblings('.map-info').on('wheel', event => {
+      if (event.originalEvent[this.zoomMethod]) event.preventDefault();
+    });
+
+    this.$container.on('wheel', event => {
+      if (event.originalEvent[this.zoomMethod]) event.preventDefault();
+    });
+  }
   initMouseWheelZoom() {
     this.map.gl.scrollZoom.disable();
 
     this.map.gl.on('wheel', event => {
-      if (!event.originalEvent[this.zoomMethod]) {
+      if (!event.originalEvent[this.zoomMethod] && document.fullscreenElement != this.$container.get(0)) {
         if (this.map.gl.scrollZoom._enabled) this.map.gl.scrollZoom.disable();
 
         if (!this.$container.find('.scroll-overlay').length) {
@@ -108,6 +118,7 @@ class TourSprungEditor extends OpenLayersEditor {
     });
   }
   initMtkEvents() {
+    this._disableScrollingOnMapOverlays();
     this.initMouseWheelZoom();
 
     if (this.editorGui.pois && this.$poisTarget.length) {
@@ -195,13 +206,14 @@ class TourSprungEditor extends OpenLayersEditor {
         filter: ['==', '$type', 'LineString'],
         paint: {
           'line-color': key.includes('selected') ? this.definedColors.default : this.definedColors.gray,
-          'line-width': key.includes('selected') ? 7 : 5
+          'line-opacity': key.includes('selected') ? 1 : 0.75,
+          'line-width': 5
         }
       },
       this._getLastLineLayerId()
     );
 
-    // this._addPopupForLayer(layerId);
+    this.allRenderedLayers.push(layerId);
 
     return layerId;
   }
@@ -224,7 +236,7 @@ class TourSprungEditor extends OpenLayersEditor {
       this._getLastPointLayerId()
     );
 
-    // this._addPopupForLayer(layerId);
+    this.allRenderedLayers.push(layerId);
 
     return layerId;
   }
@@ -236,38 +248,36 @@ class TourSprungEditor extends OpenLayersEditor {
     });
 
     this.map.gl.on('mousemove', e => {
-      // Change the cursor style as a UI indicator.
-      // this.map.gl.getCanvas().style.cursor = 'pointer';
+      const feature = this.map.gl.queryRenderedFeatures(e.point, { layers: this.allRenderedLayers })[0];
 
-      console.log(this.selectedAdditionalLayers, this.map.gl);
+      if (feature) {
+        this.map.gl.getCanvas().style.cursor = 'pointer';
+        popup
+          .setLngLat(feature.geometry.type !== 'Point' ? e.lngLat : feature.geometry.coordinates)
+          .setHTML(feature.properties.name)
+          .addTo(this.map.gl);
+      } else {
+        this.map.gl.getCanvas().style.cursor = '';
+        popup.remove();
+      }
+    });
+  }
+  _addSelectedSourceAndLayers(key, data) {
+    this.selectedAdditionalSources[key] = `additional_values_selected_${key}`;
 
-      const features = this.map.gl.queryRenderedFeatures(e.point, { layers: ['Equipements'] });
-
-      // const description = e.features[0].properties.name;
-
-      // Populate the popup and set its coordinates
-      // based on the feature found.
-      // popup.setLngLat(e.lngLat).setHTML(description).addTo(this.map.gl);
+    this.map.gl.addSource(this.selectedAdditionalSources[key], {
+      type: 'geojson',
+      data: data
     });
 
-    // this.map.gl.on('mouseleave', layerId, e => {
-    //   this.map.gl.getCanvas().style.cursor = '';
-    //   popup.remove();
-    // });
+    this.selectedAdditionalLayers[key] = {
+      point: this._additionalPointLayer(`selected_${key}`),
+      line: this._additionalLineLayer(`selected_${key}`)
+    };
   }
   drawAdditionalFeatures() {
     for (const [key, value] of Object.entries(this.additionalValues)) {
-      this.selectedAdditionalSources[key] = `additional_values_selected_${key}`;
-
-      this.map.gl.addSource(this.selectedAdditionalSources[key], {
-        type: 'geojson',
-        data: value
-      });
-
-      this.selectedAdditionalLayers[key] = {
-        point: this._additionalPointLayer(`selected_${key}`),
-        line: this._additionalLineLayer(`selected_${key}`)
-      };
+      this._addSelectedSourceAndLayers(key, value);
     }
 
     this._addPopup();
@@ -432,6 +442,8 @@ class TourSprungEditor extends OpenLayersEditor {
     for (const geoJson of Object.values(this.additionalValues)) {
       bounds.extend(this.getBoundsForGeojson(geoJson));
     }
+
+    if (isEmpty(bounds)) return;
 
     this.map.gl.fitBounds(bounds, {
       padding: 50,
