@@ -37,7 +37,7 @@ class AdditionalValuesFilterControl {
     this.controlButton = document.createElement('button');
     this.controlButton.className = 'dc-additional-values-overlay-button';
     this.controlButton.type = 'button';
-    this.controlButton.title = 'show Additional Value Filters';
+    I18n.translate('frontend.map.filter.button_title').then(text => (this.controlButton.title = text));
     this.container.appendChild(this.controlButton);
 
     const icon = document.createElement('i');
