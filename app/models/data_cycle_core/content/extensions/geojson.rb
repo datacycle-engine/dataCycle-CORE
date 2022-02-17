@@ -8,35 +8,11 @@ module DataCycleCore
 
         SIMPLIFY_FACTOR = 0.00001
         GEOMETRY_PRECISION = 0.00001
-        SELECT_SQL = <<-SQL.squish
-          things.id AS id,
-          ST_Simplify (ST_ReducePrecision (ST_Force2D (
-                CASE WHEN things.line IS NULL THEN
-                  things.location
-                ELSE
-                  things.line
-                END), :geometry_precision), :simplify_factor, TRUE) AS geometry
-        SQL
+        CRS_SQL = ", 'crs', json_build_object('type', 'name', 'properties', json_build_object('name', 'urn:ogc:def:crs:EPSG::4326'))"
 
         ADDITIONAL_GEOJSON_PROPERTIES = {
           name: 'thing_translations.name'
         }.freeze
-
-        TO_GEOJSON_QUERY_SQL = <<-SQL.squish
-          SELECT
-            json_build_object('type', 'FeatureCollection', 'crs', json_build_object('type', 'name', 'properties',
-              json_build_object('name', 'urn:ogc:def:crs:EPSG::4326')), 'features', json_agg(json_build_object('type', 'Feature',
-              'geometry', ST_AsGeoJSON (t.geometry)::json, 'id', t.id, 'properties', json_build_object(#{ADDITIONAL_GEOJSON_PROPERTIES.keys.map { |k| "'#{k}', t.#{k}" }.join(', ')}))))
-          FROM (:from_query) AS t
-        SQL
-
-        TO_GEOJSON_DETAIL_QUERY_SQL = <<-SQL.squish
-          SELECT
-            json_build_object('type', 'Feature', 'crs', json_build_object('type', 'name', 'properties',
-              json_build_object('name', 'urn:ogc:def:crs:EPSG::4326')), 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry)::json, 'properties',
-              json_build_object(#{ADDITIONAL_GEOJSON_PROPERTIES.keys.map { |k| "'#{k}', t.#{k}" }.join(', ')}))
-          FROM (:from_query) AS t
-        SQL
 
         def geojson_feature
           factory = RGeo::GeoJSON::EntityFactory.instance
@@ -50,7 +26,7 @@ module DataCycleCore
         end
 
         def to_geojson(simplify_factor = SIMPLIFY_FACTOR)
-          self.class.where(id: id).limit(1).to_geojson(simplify_factor: simplify_factor, query: TO_GEOJSON_DETAIL_QUERY_SQL)
+          self.class.where(id: id).limit(1).to_geojson(simplify_factor: simplify_factor, geojson_query: self.class.geojson_sql(self.class.geojson_detail_select_sql))
         end
 
         def geojson_geometry(content = self)
@@ -75,7 +51,7 @@ module DataCycleCore
               .select(
                 Array.wrap(ADDITIONAL_GEOJSON_PROPERTIES.map { |k, v| "#{v} AS #{k}" }).prepend(
                   ActiveRecord::Base.send(:sanitize_sql_array, [
-                                            SELECT_SQL,
+                                            geojson_content_select_sql,
                                             geometry_precision: GEOMETRY_PRECISION,
                                             simplify_factor: simplify_factor
                                           ])
@@ -89,12 +65,59 @@ module DataCycleCore
             RGeo::GeoJSON.encode(feature_collection)
           end
 
-          def to_geojson(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, query: TO_GEOJSON_QUERY_SQL)
-            things_query = all.geojson_default_scope(simplify_factor: simplify_factor)
+          def to_geojson(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, geojson_query: geojson_sql(geojson_select_sql))
+            geojson_result(
+              all.geojson_default_scope(simplify_factor: simplify_factor),
+              geojson_query,
+              include_without_geometry
+            )
+          end
 
-            query += ' WHERE t.geometry IS NOT NULL' unless include_without_geometry
+          def geojson_result(things_query, geojson_query, include_without_geometry)
+            geojson_query += ' WHERE t.geometry IS NOT NULL' unless include_without_geometry
 
-            ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_array, [query.gsub(':from_query', things_query.to_sql)])).first&.values&.first
+            ActiveRecord::Base.connection.execute(
+              ActiveRecord::Base.send(:sanitize_sql_array, [
+                                        geojson_query.gsub(':from_query', things_query.to_sql)
+                                      ])
+            ).first&.values&.first
+          end
+
+          def geojson_geometry_sql
+            <<-SQL.squish
+              CASE WHEN things.line IS NULL THEN
+                things.location
+              ELSE
+                things.line
+              END
+            SQL
+          end
+
+          def geojson_content_select_sql
+            <<-SQL.squish
+              things.id AS id,
+              ST_Simplify (ST_ReducePrecision (ST_Force2D (#{geojson_geometry_sql}), :geometry_precision), :simplify_factor, TRUE) AS geometry
+            SQL
+          end
+
+          def geojson_sql(select_sql)
+            <<-SQL.squish
+              SELECT #{select_sql}
+              FROM (:from_query) AS t
+            SQL
+          end
+
+          def geojson_detail_select_sql(include_crs = false)
+            <<-SQL.squish
+              json_build_object('type', 'Feature'#{CRS_SQL if include_crs}, 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry)::json, 'properties',
+                json_build_object(#{ADDITIONAL_GEOJSON_PROPERTIES.keys.map { |k| "'#{k}', t.#{k}" }.join(', ')}))
+            SQL
+          end
+
+          def geojson_select_sql
+            <<-SQL.squish
+              json_build_object('type', 'FeatureCollection'#{CRS_SQL}, 'features', json_agg(#{geojson_detail_select_sql}))
+            SQL
           end
         end
 
