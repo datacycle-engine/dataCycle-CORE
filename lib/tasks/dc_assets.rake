@@ -28,6 +28,28 @@ namespace :dc do
         puts 'END'
         puts "--> OPTIMIZING time: #{((Time.zone.now - temp) / 60).to_i} min"
       end
+
+      desc 'Update Images file size'
+      task update_file_size: :environment do
+        temp = Time.zone.now
+
+        assets = DataCycleCore::Image.where(file_size: 0)
+        items_count = assets.size
+        return if items_count.zero?
+
+        puts "START UPDATE FILE SIZE ==> Images (#{items_count})"
+
+        progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+        assets.each do |asset|
+          progressbar.increment
+          asset.file_size = asset.file.size || asset.file.file.size
+          asset.save!
+        end
+
+        puts 'END'
+        puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
+      end
     end
   end
 end
