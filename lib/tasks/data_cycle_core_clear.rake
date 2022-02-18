@@ -84,21 +84,27 @@ namespace :data_cycle_core do
     task :activities, [:include_downloads, :max_age] => [:environment] do |_, args|
       max_age = args.fetch(:max_age, nil) || (Time.zone.now - 3.months).to_date.to_s
       include_downloads = args.fetch(:include_downloads, false)
-      if include_downloads == 'true'
-        raw_query = <<-SQL.squish
-          DELETE
-          FROM activities
-          WHERE activities.created_at < :max_age
-        SQL
-      else
-        raw_query = <<-SQL.squish
-          DELETE 
-          FROM activities
-          WHERE activities.activity_type != 'download'
-          AND activities.created_at < :max_age
-        SQL
-      end
-      ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, max_age: max_age]))
+
+      persistent_activities = DataCycleCore.persistent_activities
+      persistent_activities -= ['downloads'] if include_downloads.to_s != 'true'
+
+      raw_query = <<-SQL.squish
+        DELETE
+        FROM activities
+        WHERE activities.created_at < :max_age
+        AND activities.activity_type NOT IN (:persistent_activities)
+      SQL
+
+      ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.send(
+          :sanitize_sql_for_conditions,
+          [
+            raw_query,
+            max_age: max_age,
+            persistent_activities: persistent_activities
+          ]
+        )
+      )
     end
   end
 end
