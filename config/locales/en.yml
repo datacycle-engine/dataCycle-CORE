@@ -122,6 +122,8 @@ en:
         ctrlKey: Use Ctrl+Scroll to zoom the map
         metaKey: Use ⌘+Scroll to zoom the map
         pinch: Use two fingers to zoom/scroll the map
+      filter:
+        button_title: edit linked contents
     remote_render:
       error: Error loading content.
       reload: Reload

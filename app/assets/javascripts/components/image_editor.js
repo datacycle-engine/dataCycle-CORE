@@ -197,7 +197,7 @@ class ImageEditor {
         .catch(data => {
           let error = data.statusText;
           if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
-          console.error(error);
+          console.error('error');
         });
     });
   }

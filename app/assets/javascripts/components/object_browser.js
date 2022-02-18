@@ -237,11 +237,11 @@ class ObjectBrowser {
 
     this.removeObject($target.closest('li.item').data('id'), event);
   }
-  async clickDeleteThumbnailHandler(event) {
+  async clickDeleteThumbnailHandler(event, data = {}) {
     event.preventDefault();
     event.stopPropagation();
     if (await this.validate('-', this.chosen.length - 1)) {
-      this.removeThumbObject(event.target);
+      this.removeThumbObject(event.target, !data.preventDefault);
     }
   }
   clickItemsHandler(event) {
@@ -371,7 +371,10 @@ class ObjectBrowser {
       .remove();
     item.remove();
     if (this.chosen.length == 0) this.renderHiddenField();
-    if (triggerChange) this.element.closest('.form-element').trigger('change');
+    if (triggerChange) {
+      this.element.trigger('dc:objectBrowser:change', { key: this.key, ids: this.chosen });
+      this.element.closest('.form-element').trigger('change');
+    }
   }
   renderHiddenField() {
     this.objectListElement.classList.remove('has-items');
@@ -448,6 +451,8 @@ class ObjectBrowser {
             .addClass('dc-fd-initialized');
         });
     }
+
+    this.element.trigger('dc:objectBrowser:change', { key: this.key, ids: this.chosen });
   }
   addObject(id, element, _event) {
     if (this.chosen.indexOf(id) === -1) {
