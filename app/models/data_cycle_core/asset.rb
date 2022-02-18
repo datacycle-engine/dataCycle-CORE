@@ -35,7 +35,7 @@ module DataCycleCore
     def update_asset_attributes
       return if file.blank?
       self.content_type = file.file.content_type
-      self.file_size = file.size
+      self.file_size = file.file.size
       self.name ||= file.file.filename
       begin
         self.metadata = file.metadata&.to_utf8 if file.respond_to?(:metadata) && file.metadata.try(:to_utf8)&.to_json.present?
