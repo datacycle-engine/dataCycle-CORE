@@ -16,13 +16,6 @@ class TourSprungEditor extends OpenLayersEditor {
     this.selectedAdditionalSources = {};
     this.selectedAdditionalLayers = {};
     this.allRenderedLayers = [];
-    this.$poisTarget =
-      this.additionalAttributes &&
-      this.additionalAttributes.toursprung_pois_target &&
-      this.$parentContainer
-        .closest('.form-element.geographic')
-        .siblings(`.form-element[data-key*="[${this.additionalAttributes.toursprung_pois_target}]"]`)
-        .find('.object-browser');
   }
   static isAllowedType(type) {
     return type && type.includes('LineString');
@@ -120,17 +113,6 @@ class TourSprungEditor extends OpenLayersEditor {
   initMtkEvents() {
     this._disableScrollingOnMapOverlays();
     this.initMouseWheelZoom();
-
-    if (this.editorGui.pois && this.$poisTarget.length) {
-      MTK.event.addListener(this.editorGui.pois, 'selected', (pois, triggerTarget = true) => {
-        if (!triggerTarget) return;
-
-        this.$poisTarget.trigger('dc:import:data', {
-          value: Object.values(pois.getSelected()).map(v => v.remoteid),
-          replace: true
-        });
-      });
-    }
 
     MTK.event.addListener(this.editorGui.editor, 'update', () => {
       this.feature = this.editorGui.editor.getPolyline();
