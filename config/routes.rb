@@ -405,8 +405,7 @@ DataCycleCore::Engine.routes.draw do
           end
         end
       end
-
-      root to: 'webdav/v1/contents#options', via: :options # Microsoft Explorer is weired
+      match '/', to: 'webdav/v1/contents#options', via: [:options] # Microsoft Explorer is weired
     end
   end
 
