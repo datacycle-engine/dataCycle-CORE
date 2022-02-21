@@ -158,12 +158,14 @@
         :storage_location: value
         :advanced_search: true
         :default_value: 'false'
+        :global: true
       :one_way:
         :label: Einbahn
         :type: boolean
         :storage_location: value
         :advanced_search: true
         :default_value: 'false'
+        :global: true
       :line:
         :label: Route
         :storage_location: column

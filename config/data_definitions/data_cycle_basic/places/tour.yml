@@ -110,14 +110,14 @@
       :geo_shape:
         :type: mixin
         :name: geo_shape
-      :geo_contains:
-        :type: mixin
-        :name: geo_contains
       :poi:
         :label: POIS
         :type: linked
         :template_name: POI
         :inverse_of: tour
+      :geo_contains:
+        :type: mixin
+        :name: geo_contains
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string

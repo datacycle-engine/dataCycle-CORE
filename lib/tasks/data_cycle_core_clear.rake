@@ -79,5 +79,33 @@ namespace :data_cycle_core do
     task classifications: :environment do
       ActiveRecord::Base.connection.execute(delete_soft_deleted_classifications)
     end
+
+    desc 'Remove activities except type donwload older than 3 monts [include_downloads=false, max_age=today-3months]'
+    task :activities, [:include_downloads, :max_age] => [:environment] do |_, args|
+      max_age = args.fetch(:max_age, nil) || (Time.zone.now - 3.months).to_date.to_s
+      include_downloads = args.fetch(:include_downloads, false)
+
+      persistent_activities = DataCycleCore.persistent_activities
+      persistent_activities -= ['downloads'] if include_downloads.to_s == 'true'
+
+      raw_query = <<-SQL.squish
+        DELETE
+        FROM activities
+        WHERE activities.created_at < :max_age
+      SQL
+
+      raw_query += ' AND activities.activity_type NOT IN (:persistent_activities)' if persistent_activities.present?
+
+      ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.send(
+          :sanitize_sql_for_conditions,
+          [
+            raw_query,
+            max_age: max_age,
+            persistent_activities: persistent_activities
+          ]
+        )
+      )
+    end
   end
 end
