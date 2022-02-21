@@ -16,7 +16,8 @@ module DataCycleCore
 
     validates :name, presence: true
 
-    after_update :add_things_cache_invalidation_job_update, :add_things_webhooks_job_update, if: :cached_attributes_changed?
+    after_update :add_things_cache_invalidation_job_update, if: :trigger_things_cache_invalidation?
+    after_update :add_things_webhooks_job_update, if: :trigger_things_webhooks?
 
     acts_as_paranoid
 
@@ -128,6 +129,14 @@ module DataCycleCore
     end
 
     private
+
+    def trigger_things_cache_invalidation?
+      change_behaviour&.include?('clear_cache') && cached_attributes_changed?
+    end
+
+    def trigger_things_webhooks?
+      change_behaviour&.include?('trigger_webhooks') && cached_attributes_changed?
+    end
 
     def cached_attributes_changed?
       return @cached_attributes_changed if defined? @cached_attributes_changed
