@@ -600,7 +600,8 @@ CREATE TABLE public.classification_tree_labels (
     updated_at timestamp without time zone NOT NULL,
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
-    visibility character varying[] DEFAULT '{}'::character varying[]
+    visibility character varying[] DEFAULT '{}'::character varying[],
+    change_behaviour character varying[] DEFAULT '{trigger_webhooks,clear_cache}'::character varying[]
 );
 
 
@@ -2637,6 +2638,13 @@ CREATE UNIQUE INDEX unique_duplicate_index ON public.thing_duplicates USING btre
 
 
 --
+-- Name: user_group_users_on_user_id_user_group_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX user_group_users_on_user_id_user_group_id ON public.user_group_users USING btree (user_id, user_group_id);
+
+
+--
 -- Name: validity_period_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3180,6 +3188,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211217094832'),
 ('20220105142232'),
 ('20220111132413'),
-('20220113113445');
+('20220113113445'),
+('20220218095025'),
+('20220221123152');
 
 

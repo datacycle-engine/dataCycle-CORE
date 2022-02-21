@@ -44,7 +44,9 @@ module DataCycleCore
 
         external_source.import(options) if success
       rescue StandardError => e
-        Appsignal.send_error(e, nil, "download import job failed - #{external_source.id}")
+        Appsignal.send_error(e) do |transaction|
+          transaction.set_namespace("download import job failed - #{external_source.id}")
+        end
         external_source.config['last_download_import_failed'] = true
         external_source.config['last_download_import_exception'] = "#{e} (#{Time.zone.now})"
         external_source.save!

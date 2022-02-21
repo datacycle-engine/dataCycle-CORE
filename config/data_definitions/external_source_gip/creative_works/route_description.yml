@@ -126,7 +126,7 @@
               :data-size: full
         :advanced_search: true
       :live_status:
-        :label: Live Status
+        :label: Live Status (offen)
         :type: boolean
         :storage_location: value
         :advanced_search: true

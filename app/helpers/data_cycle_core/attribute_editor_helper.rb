@@ -106,11 +106,5 @@ module DataCycleCore
     def embedded_key_prefix(key, index)
       "#{key}[#{index}]#{ATTRIBUTE_DATAHASH_PREFIX}"
     end
-
-    def iso8601_duration_to_parts(duration)
-      return {} if duration.blank?
-
-      ActiveSupport::Duration.parse(duration).parts
-    end
   end
 end
