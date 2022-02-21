@@ -56,12 +56,17 @@ header {
 
     .logo {
       padding: 0 0 0 1rem;
-      float: left;
+      display: flex;
+      width: auto;
+      flex: auto;
+      float: none;
+      align-items: center;
+      justify-content: flex-start;
 
       img {
         height: auto;
         max-height: 50px;
-        width: 100%;
+        min-width: 100px;
       }
     }
 
@@ -78,6 +83,17 @@ header {
     .top-bar-title {
       padding: 0;
       flex: 1 1 auto;
+      display: flex;
+      float: none;
+
+      a {
+        display: flex;
+        flex: auto;
+      }
+    }
+
+    .top-bar-splitter {
+      flex: auto;
     }
 
     .top-bar-right {
