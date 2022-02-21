@@ -195,6 +195,9 @@ module DataCycleCore
   mattr_accessor :cache_invalidation_depth
   self.cache_invalidation_depth = 3
 
+  mattr_accessor :cache_invalidation_depth
+  self.cache_invalidation_depth = 3
+
   mattr_accessor :holidays_country_code
   self.holidays_country_code = :at
 
