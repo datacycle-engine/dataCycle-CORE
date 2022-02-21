@@ -188,6 +188,9 @@ module DataCycleCore
     mattr_accessor :classification_visibilities
     self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'filter', 'tile', 'list', 'tree_view']
 
+    mattr_accessor :classification_change_behaviour
+    self.classification_change_behaviour = ['trigger_webhooks', 'clear_cache']
+
     mattr_accessor :cache_invalidation_depth
     self.cache_invalidation_depth = 3
 

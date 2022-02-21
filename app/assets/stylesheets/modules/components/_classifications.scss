@@ -136,11 +136,14 @@ ul.backend-treeview-list,
         }
       }
       .ca-collection-checkboxes {
+        display: flex;
+        flex-flow: row wrap;
         padding: 3rem 1rem 1.5rem 1rem;
         border: 1px solid $light-gray;
         background: $light-gray;
         box-shadow: none;
         transition: background-color 0.1s, box-shadow 0.1s;
+
         > label {
           display: block;
           position: absolute;
@@ -149,9 +152,28 @@ ul.backend-treeview-list,
           z-index: 12;
           color: $dark-gray;
         }
+
         &:hover {
           z-index: 1;
           box-shadow: 0 0 7px $primary-color;
+        }
+
+        .ca-checkbox {
+          flex: auto;
+          width: calc(33% - 0.5rem);
+          max-width: calc(33% - 0.5rem);
+          background: rgba(255, 255, 255, 0.5);
+          margin: 0.25rem;
+          border-radius: 4px;
+          box-shadow: 0 0 1px #aaa;
+
+          > label {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0.2rem 0.5rem;
+            cursor: pointer;
+          }
         }
       }
     }
