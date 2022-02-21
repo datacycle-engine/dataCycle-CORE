@@ -658,14 +658,19 @@ de:
 
   classification_visibilities:
     backend: Dashboard
-    show: Detail-Ansicht
-    api: API
-    tile: Kachel
+    show: Detail-Ansicht (immer sichtbar)
     show_more: Detail-Ansicht (standardmäßig eingeklappt)
     edit: Bearbeitungs-Ansicht
+    api: API
+    tile: Kachel
     filter: Erweiterte Dashboard-Filter
     list: Listenansicht
     tree_view: Wurzel in der Baumansicht
+    xml: XML
+
+  classification_change_behaviour:
+    trigger_webhooks: Webhooks für Inhalte auslösen
+    clear_cache: Cache für Inhalte leeren
 
   pagination:
     next: Weitere Ergebnisse
@@ -1015,6 +1020,7 @@ de:
         user_id: Eigentümer
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
+        change_behaviour: Änderungsverhalten
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: 'Beschreibungstext'
