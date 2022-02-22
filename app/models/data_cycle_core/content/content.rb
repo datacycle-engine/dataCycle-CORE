@@ -16,8 +16,7 @@ module DataCycleCore
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :original_id, :duplicate_id
-      attr_accessor(*WEBHOOK_ACCESSORS)
+      attr_accessor :datahash, :original_id, :duplicate_id, *WEBHOOK_ACCESSORS
       attr_writer :webhook_data
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
@@ -161,11 +160,9 @@ module DataCycleCore
       end
 
       def translatable_property_names
-        @translatable_property_names ||= begin
-          property_definitions.select { |property_name, definition|
-            translatable_property?(property_name, definition)
-          }.keys
-        end
+        @translatable_property_names ||= property_definitions.select { |property_name, definition|
+          translatable_property?(property_name, definition)
+        }.keys
       end
 
       def translated_columns
@@ -366,7 +363,7 @@ module DataCycleCore
       end
 
       def history?
-        respond_to?('history_valid')
+        respond_to?(:history_valid)
       end
 
       def collect_properties(definition = schema, parents = [])

@@ -155,6 +155,28 @@ module DataCycleCore
         data_hash
       end
 
+      def default_value(key, user)
+        definition = properties_with_default_values[key]
+
+        return if definition.blank?
+
+        value = DataCycleCore::Utility::DefaultValue::Base.default_values(key, definition, {}, self, user)
+
+        return if value.blank? && !value.is_a?(FalseClass)
+
+        if plain_property_names.include?(key) && definition['storage_location'] != 'column'
+          @get_property_value[[key, definition, I18n.locale, nil, false]] = convert_to_type(definition['type'], value, definition)
+        elsif definition['storage_location'] == 'column'
+          send("#{key}=", value)
+        elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
+          @get_property_value[[key, definition, I18n.locale, nil, false]] = DataCycleCore::Thing.where(id: value)
+        elsif classification_property_names.include?(key)
+          @get_property_value[[key, definition, I18n.locale, nil, false]] = DataCycleCore::Classification.where(id: value)
+        end
+
+        send(key)
+      end
+
       def inherit_source_attributes(data_hash:, source:)
         I18n.with_locale(source.first_available_locale) do
           source_data_hash = source.get_data_hash
@@ -301,7 +323,7 @@ module DataCycleCore
           set_linked(key, value, properties)
         when 'embedded'
           set_embedded(key, value, properties['template_name'], properties['translated'], options)
-        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object'
+        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object', 'computed'
           save_values(key, value, properties)
         when 'classification'
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
@@ -309,8 +331,6 @@ module DataCycleCore
           set_asset_id(value, key, properties['asset_type'])
         when 'schedule', 'opening_time'
           set_schedule(value, key)
-        when 'computed'
-          save_values(key, value, properties)
         when 'slug'
           save_slug(key, value, options.data_hash)
         when 'key'
@@ -355,7 +375,7 @@ module DataCycleCore
         if send(location.to_s).blank? # set to json field (could be empty)
           send("#{location}=", { key => save_data })
         else
-          send(location.to_s).method('[]=').call(key, save_data)
+          send(location.to_s).method(:[]=).call(key, save_data)
         end
       end
 

@@ -164,7 +164,7 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
-    def content_view_cache_key(item:, locale: 'de', mode:, watch_list:)
+    def content_view_cache_key(item:, mode:, watch_list:, locale: 'de')
       "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}_#{active_ui_locale}"
     end
 
@@ -217,7 +217,21 @@ module DataCycleCore
         DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) || {}
       else
         DataCycleCore.new_dialog.dig('default')
-      end.transform_values { |v| v&.select { |t| t.include?(filter.to_s) }&.map { |t| t.remove('**list').squish }&.except(except) }
+      end.transform_values do |v|
+        v&.map { |t|
+          key = Array.wrap(t).first
+
+          next unless key.include?(filter.to_s)
+          next if Array.wrap(except).include?(key)
+
+          if t.is_a?(::Array)
+            t[0] = t[0]&.remove('**list')&.squish
+            t
+          else
+            t&.remove('**list')&.squish
+          end
+        }&.compact
+      end
     end
 
     def new_attribute_labels(template)
@@ -411,7 +425,7 @@ module DataCycleCore
     def link_to_condition(condition, name, options = {}, html_options = {}, &block)
       if condition
         link_to(name, options, html_options, &block)
-      elsif block_given?
+      elsif block
         block.arity <= 1 ? capture(name, &block) : capture(name, options, html_options, &block)
       else
         ERB::Util.html_escape(name)

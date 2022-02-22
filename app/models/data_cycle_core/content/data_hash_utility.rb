@@ -7,11 +7,7 @@ module DataCycleCore
 
       # validate nil,"",[],{},[nil],[""] as blank.
       def is_blank?(data)
-        return true if data.blank?
-        if data.is_a?(::Array)
-          return true if data.length == 1 && data[0].blank?
-        end
-        false
+        DataCycleCore::DataHashService.blank?(data)
       end
 
       def get_validity(validity_hash)
@@ -45,8 +41,8 @@ module DataCycleCore
         [from, to]
       end
 
-      def name_property_selector(include_overlay = false)
-        property_selector(include_overlay) { |definition| yield(definition) }.keys
+      def name_property_selector(include_overlay = false, &block)
+        property_selector(include_overlay, &block).keys
       end
 
       def property_selector(include_overlay = false)
