@@ -71,6 +71,7 @@ de:
     datahash: Datahash
     api: JSON API
     relations: Relationen
+    meta-data: Metadaten
 
   dash_board:
     download_full: Download (full)

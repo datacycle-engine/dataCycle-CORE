@@ -2546,10 +2546,12 @@ input.normalized {
       &#schema,
       &#datahash,
       &#json-api,
+      &#meta-data,
       &#related-content {
         .schema-nav,
         .datahash-nav,
         .json-api-nav,
+        .meta-data-nav,
         .json-related-content {
           padding: 0.5rem;
           text-align: right;
