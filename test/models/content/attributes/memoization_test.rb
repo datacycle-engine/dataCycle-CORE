@@ -31,6 +31,34 @@ module DataCycleCore
 
           assert_equal new_comment, @content.release_status_comment
         end
+
+        test 'set memoized plain_property_names' do
+          @content.plain_property_names.except('id').each.with_index do |property_name, index|
+            @content.set_memoized_attribute(property_name, "test-string-#{index}")
+
+            assert_equal("test-string-#{index}", @content.send(property_name))
+          end
+        end
+
+        test 'set memoized linked_property_names and embedded_property_names' do
+          (@content.linked_property_names + @content.embedded_property_names).each.with_index do |property_name, index|
+            value = DataCycleCore::Thing.where(template: false).limit(1).offset(index)
+
+            @content.set_memoized_attribute(property_name, value)
+
+            assert_equal(value, @content.send(property_name))
+          end
+        end
+
+        test 'set memoized classification_property_names' do
+          @content.classification_property_names.each.with_index do |property_name, index|
+            value = DataCycleCore::Classification.limit(1).offset(index)
+
+            @content.set_memoized_attribute(property_name, value)
+
+            assert_equal(value, @content.send(property_name))
+          end
+        end
       end
     end
   end

@@ -100,10 +100,12 @@ en:
         one: Metadata must be filled in!
         many: Metadata must be filled in for each file!
       edit_content: Edit content
+      edit_locked: Content can be edited only after the upload has finished
       retry_upload: Upload again
       format_not_supported: Unsupported format (%{data})
       error: Error
       remove_file: Remove file
+      file: File
     cancel: Cancel
     ok: Okay
     content_lock:
@@ -422,7 +424,7 @@ en:
     system_dialog: Select images via system dialog
     or: or
     select_from_datacycle: Use %{data} already uploaded
-    copy_all_title: take all attributes from this %{single} for all %{multiple}
+    copy_all_title: "take all attributes from this %{single} for all %{multiple}\n\nthe attribute %{name} will not be taken over here, but can be taken over with the corresponding button directly at the field."
   external_connection_states:
     success: Successfully synchronized
     pending: is synchronized

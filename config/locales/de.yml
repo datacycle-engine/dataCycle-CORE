@@ -109,10 +109,12 @@ de:
         one: Metadaten müssen ausgefüllt werden!
         many: Metadaten müssen für jede Datei ausgefüllt werden!
       edit_content: Inhalt bearbeiten
+      edit_locked: Inhalt kann erst bearbeitet werden, nachdem der Upload fertig ist
       retry_upload: Erneut hochladen
       format_not_supported: Nicht unterstützes Format (%{data})
       error: Fehler
       remove_file: Datei entfernen
+      file: Datei
     cancel: Abbrechen
     ok: Ok
     content_lock:
@@ -424,7 +426,7 @@ de:
     system_dialog: Bilder über Systemdialog auswählen
     or: oder
     select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
-    copy_all_title: 'alle Attribute von diesem %{single} für alle %{multiple} übernehmen'
+    copy_all_title: "Alle Attribute von diesem %{single} für alle %{multiple} übernehmen\n\nDas Attribut %{name} wird hier nicht übernommen, kann allerdings mit dem entsprechenden Button direkt beim Feld übernommen werden"
 
   external_connection_states:
     success: Erfolgreich synchronisiert

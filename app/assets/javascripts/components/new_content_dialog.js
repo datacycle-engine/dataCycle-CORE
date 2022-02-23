@@ -49,10 +49,13 @@ class NewContentDialog {
     if (this.referencedAssetField) {
       this.updateNavigationButtons();
       this.addCopyAttributeButtons(this.form);
+
       this.reveal.on('open.zf.reveal', event => {
         this.form.trigger('dc:form:enable');
         this.updateNavigationButtons(event);
       });
+
+      this.referencedAssetField.on('dc:form:uploadedFilesChanged', this.updateNavigationButtons.bind(this));
       this.referencedAssetField.on('dc:form:importAttributeValues', this.importAttributeValues.bind(this));
       this.form.on('dc:form:submitWithoutRedirect', this.copyToReferenceField.bind(this));
       this.form.find('.set-all-attributes').on('click', this.copyToAllReferenceFields.bind(this));
@@ -183,7 +186,11 @@ class NewContentDialog {
     const formFields = $(container)
       .find('> fieldset > .form-element, > .form-element')
       .addBack('.form-element')
-      .filter((_i, item) => !$(item).prev('.copy-attribute-to-all').length && !item.closest('.conditional-form-field'));
+      .filter(
+        (_i, item) =>
+          !$(item).prev('.copy-attribute-to-all').length &&
+          !$(item).parents('.form-element').last().prev('.copy-attribute-to-all').length
+      );
 
     let button = $(
       `<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle ${this.templateTranslationPlural} übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-spinner fa-fw fa-spin"></i></button>`
@@ -264,7 +271,7 @@ class NewContentDialog {
     this.prevAssetButton.on('click', this.prevAssetForm.bind(this));
   }
   updateNavigationButtons(event) {
-    event && event.preventDefault();
+    if (event) event.preventDefault();
 
     if (this.referencedAssetField.siblings('.file-for-upload').length) {
       if (!this.nextAssetButton) this.createNextAssetButton();
@@ -272,17 +279,17 @@ class NewContentDialog {
     }
 
     if (this.nextAssetButton && this.prevAssetButton) {
-      if (this.referencedAssetField.is(':last-of-type')) this.nextAssetButton.hide();
+      if (!this.referencedAssetField.next('.file-for-upload.finished').length) this.nextAssetButton.hide();
       else this.nextAssetButton.show();
 
-      if (this.referencedAssetField.is(':first-of-type')) this.prevAssetButton.hide();
+      if (!this.referencedAssetField.prev('.file-for-upload.finished').length) this.prevAssetButton.hide();
       else this.prevAssetButton.show();
     }
   }
   nextAssetForm(event) {
     event.preventDefault();
     this.reveal.foundation('close');
-    let nextAsset = this.referencedAssetField.next('.file-for-upload');
+    let nextAsset = this.referencedAssetField.next('.file-for-upload.finished');
 
     if (nextAsset && nextAsset.length)
       $('.reveal.new-content-reveal#' + nextAsset.find('.edit-upload-button').data('open')).foundation('open');
@@ -290,7 +297,7 @@ class NewContentDialog {
   prevAssetForm(event) {
     event.preventDefault();
     this.reveal.foundation('close');
-    let prevAsset = this.referencedAssetField.prev('.file-for-upload');
+    let prevAsset = this.referencedAssetField.prev('.file-for-upload.finished');
 
     if (prevAsset && prevAsset.length)
       $('.reveal.new-content-reveal#' + prevAsset.find('.edit-upload-button').data('open')).foundation('open');

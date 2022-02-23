@@ -234,6 +234,18 @@ module DataCycleCore
       end
     end
 
+    def content_uploader_data_hash(content, asset)
+      return {} if asset.nil?
+
+      asset_key = content&.asset_property_names&.first
+
+      return {} if asset_key.nil?
+
+      content.set_memoized_attribute(asset_key, asset)
+
+      { asset_key => asset.id }.with_indifferent_access
+    end
+
     def new_attribute_labels(template)
       template&.schema&.dig('properties')&.slice(*new_dialog_config(template, nil, '**list').values.flatten)&.map { |k, v| v['type'] == 'object' ? v['properties']&.map { |o_k, o_v| [o_k, o_v.slice('type', 'label', 'ui')] }.to_h : { k => v.slice('type', 'label', 'ui') } }&.reduce({}, :merge)
     end

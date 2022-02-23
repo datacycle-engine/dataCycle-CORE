@@ -1407,6 +1407,13 @@ body .v-select {
       left: 1rem;
       box-shadow: 0 0 3px $dark-gray;
     }
+
+    .warning-icon {
+      color: $warning-color;
+      cursor: help;
+      padding-left: 0.3rem;
+    }
+
     fieldset {
       > li {
         list-style: none;

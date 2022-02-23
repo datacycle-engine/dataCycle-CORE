@@ -553,6 +553,18 @@ module DataCycleCore
         reload_memoized [property_name, property_definition]
       end
 
+      def set_memoized_attribute(key, value)
+        return if DataCycleCore::DataHashService.blank?(value)
+
+        definition = properties_for(key)
+
+        if definition&.[]('storage_location') == 'column'
+          send("#{key}=", value)
+        else
+          (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false]] = value
+        end
+      end
+
       private
 
       def reload_memoized(key = nil)

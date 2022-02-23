@@ -155,23 +155,25 @@ module DataCycleCore
         data_hash
       end
 
-      def default_value(key, user)
+      def default_value(key, user, data_hash = {})
         definition = properties_with_default_values[key]
 
         return if definition.blank?
 
-        value = DataCycleCore::Utility::DefaultValue::Base.default_values(key, definition, {}, self, user)
+        value = DataCycleCore::Utility::DefaultValue::Base.default_values(key, definition, data_hash, self, user)
 
         return if value.blank? && !value.is_a?(FalseClass)
 
         if plain_property_names.include?(key) && definition['storage_location'] != 'column'
-          @get_property_value[[key, definition, I18n.locale, nil, false]] = convert_to_type(definition['type'], value, definition)
+          set_memoized_attribute(key, convert_to_type(definition['type'], value, definition))
         elsif definition['storage_location'] == 'column'
-          send("#{key}=", value)
+          set_memoized_attribute(key, value)
         elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
-          @get_property_value[[key, definition, I18n.locale, nil, false]] = DataCycleCore::Thing.where(id: value)
+          set_memoized_attribute(key, DataCycleCore::Thing.where(id: value))
         elsif classification_property_names.include?(key)
-          @get_property_value[[key, definition, I18n.locale, nil, false]] = DataCycleCore::Classification.where(id: value)
+          set_memoized_attribute(key, DataCycleCore::Classification.where(id: value))
+        elsif asset_property_names.include?(key)
+          set_memoized_attribute(key, DataCycleCore::Asset.where(id: value))
         end
 
         send(key)

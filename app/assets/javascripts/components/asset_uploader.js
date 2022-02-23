@@ -383,7 +383,8 @@ class AssetUploader {
       asset.fileField
         .find('.new-asset-attributes .asset-attribute[data-name="' + previousField.name + '"]')
         .after(this.attributeValueHtml(field));
-    else asset.fileField.find('.new-asset-attributes .file-buttons').before(this.attributeValueHtml(field));
+    else
+      asset.fileField.find('.new-asset-attributes .file-attributes-container').append(this.attributeValueHtml(field));
   }
   attributeValueHtml(field) {
     return `<div class="asset-attribute ${field.type}" data-name="${field.name}">${field.value}</div>`;
@@ -506,8 +507,22 @@ class AssetUploader {
       file.asset = Object.assign({}, file.asset, data);
       if (!this.showNewForm) this.updateFileValidated(file, {});
       else this.validateAttributes(file);
+
+      this.initEditForm(file);
     }
     this.updateCreateButton(error);
+  }
+  async initEditForm(file) {
+    if (this.contentUploader && this.showNewForm)
+      file.fileField
+        .append(this.renderEditOverlay(file))
+        .foundation()
+        .addClass('dc-fd-initialized')
+        .find('.file-buttons .edit-upload-button')
+        .prop('disabled', false)
+        .attr('title', await I18n.translate('frontend.upload.edit_content'));
+
+    file.fileField.siblings('.file-for-upload.finished').trigger('dc:form:uploadedFilesChanged');
   }
   async renderDuplicateHtml(duplicates) {
     let randomId = domElementHelpers.randomId('duplicate');
@@ -623,23 +638,27 @@ class AssetUploader {
   }
   async fileMediaHTML(fileOptions, additionalFileInfo = '') {
     return `
+    <div class="file-info-container">
+      <div class="file-detail-container">
       <div class="file-info">
-        <span class="file-label">Datei</span>
+        <span class="file-label">${await I18n.translate('frontend.upload.file')}</span>
         <span class="file-name" title="${fileOptions.file && fileOptions.file.name}">${
       fileOptions.file && fileOptions.file.name
     }</span>
-        <span class="file-details">${fileOptions.fileExtension}, ${fileOptions.file.size.file_size(
+        <span class="file-details">(${fileOptions.fileExtension}, ${fileOptions.file.size.file_size(
       1
-    )}${additionalFileInfo}</span>
+    )}${additionalFileInfo})</span>
       </div>
       ${await this.buttonHtml()}
-    `;
+      </div>
+      <div class="file-attributes-container"></div>
+    </div>`;
   }
   async buttonHtml() {
     let html = '<div class="file-buttons">';
     if (this.contentUploader && this.showNewForm)
-      html += `<button class="button edit-upload-button" title="${await I18n.translate(
-        'frontend.upload.edit_content'
+      html += `<button class="button edit-upload-button" disabled="true" title="${await I18n.translate(
+        'frontend.upload.edit_locked'
       )}"><i class="fa fa-pencil" aria-hidden="true"></i></button>`;
     html += `<button class="button retry-upload-button" title="${await I18n.translate(
       'frontend.upload.retry_upload'
@@ -770,8 +789,13 @@ class AssetUploader {
     this.remoteOptions.search_param = fileOptions.file.name;
     this.remoteOptions.content_uploader = true;
     this.remoteOptions.asset_class = fileOptions.validation.class;
+    this.remoteOptions.asset_key = this.assetKey;
     this.remoteOptions.options.prefix = fileOptions.id;
     this.remoteOptions.options.render_attributes = true;
+    this.remoteOptions.asset = {
+      class: fileOptions.validation.class,
+      id: fileOptions.asset.id
+    };
 
     let html = $(
       '<div class="reveal new-content-reveal" id="' +
@@ -804,11 +828,12 @@ class AssetUploader {
     fileOptions.fileField = this.reveal.find('.file-for-upload[data-id="' + fileOptions.id + '"]');
     fileOptions.fileField.html(fileOptions.html);
 
-    if (this.contentUploader && this.showNewForm)
-      fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation().addClass('dc-fd-initialized');
     if (fileOptions.errors) {
       this.renderError(fileOptions, fileOptions.errors);
-      fileOptions.fileField.find('.file-buttons .edit-upload-button').hide();
+      fileOptions.fileField
+        .find('.file-buttons .edit-upload-button')
+        .prop('disabled', true)
+        .attr('title', fileOptions.errors);
     } else this.updateOverlayButtons(fileOptions);
   }
   resetFileField(file) {
