@@ -65,7 +65,7 @@ module DataCycleCore
       options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
 
       I18n.with_locale(options.locale) do
-        content = options.parameters[:parent] ||options.content
+        content = options.parameters[:parent] || options.content
 
         if DataCycleCore::DataHashService.blank?(options.value)
           content.default_value(options.key.attribute_name_from_key, current_user) if !content.persisted? || content.template
