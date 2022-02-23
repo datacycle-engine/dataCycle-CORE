@@ -128,6 +128,8 @@ de:
         ctrlKey: Verwende Strg+Scrollen zum Zoomen der Karte
         metaKey: 'Verwende ⌘+Scrollen zum Zoomen der Karte'
         pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
+      filter:
+        button_title: Verknüpfte Inhalte bearbeiten
     remote_render:
       error: Fehler beim Laden des Inhalts.
       reload: Neu laden
@@ -164,6 +166,12 @@ de:
 
   schedule:
     dtstart: Startzeitpunkt
+    duration:
+      root: Dauer
+      months: Monate
+      days: Tage
+      hours: Stunden
+      minutes: Minuten
     dtend: Endzeitpunkt
     full_day: Ganztägig
     rrule: Wiederholungen
@@ -649,14 +657,19 @@ de:
 
   classification_visibilities:
     backend: Dashboard
-    show: Detail-Ansicht
-    api: API
-    tile: Kachel
+    show: Detail-Ansicht (immer sichtbar)
     show_more: Detail-Ansicht (standardmäßig eingeklappt)
     edit: Bearbeitungs-Ansicht
+    api: API
+    tile: Kachel
     filter: Erweiterte Dashboard-Filter
     list: Listenansicht
     tree_view: Wurzel in der Baumansicht
+    xml: XML
+
+  classification_change_behaviour:
+    trigger_webhooks: Webhooks für Inhalte auslösen
+    clear_cache: Cache für Inhalte leeren
 
   pagination:
     next: Weitere Ergebnisse
@@ -822,7 +835,8 @@ de:
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
-
+      schedule:
+        duration_too_long: 'Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)'
   controllers:
     error:
       invalid_parent: 'Ungültiges Eltern Objekt.'
@@ -1005,6 +1019,7 @@ de:
         user_id: Eigentümer
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
+        change_behaviour: Änderungsverhalten
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: 'Beschreibungstext'

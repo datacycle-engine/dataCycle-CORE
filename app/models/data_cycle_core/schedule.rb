@@ -19,7 +19,7 @@ module DataCycleCore
 
     def to_h
       item_hash = @schedule_object&.to_hash || {}
-      item_hash[:duration] = duration.to_f
+      item_hash[:duration] = duration.iso8601 if duration&.positive?
       item_hash[:id] = id
       item_hash[:relation] = relation
       item_hash[:dtstart] = dtstart if dtstart.present?
@@ -104,12 +104,11 @@ module DataCycleCore
       by_day = nil
       by_month = nil
       by_month_day = nil
-      iso_duration = @schedule_object.duration.present? && @schedule_object.start_time && @schedule_object.end_time ? iso8601_duration(@schedule_object.start_time, @schedule_object.end_time) : nil
       if @schedule_object&.recurrence_rules&.first.present?
         rule = @schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
-        end_date = @schedule_object&.last&.in_time_zone&.+(@schedule_object&.duration&.presence || 0)&.to_s(:only_date) if end_date.blank? && @schedule_object.terminating?
-        end_time = @schedule_object&.last&.in_time_zone&.+(@schedule_object&.duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && @schedule_object.terminating?
+        end_date = @schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.to_s(:only_date) if end_date.blank? && @schedule_object.terminating?
+        end_time = @schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && @schedule_object.terminating?
         repeat_count = rule&.occurrence_count
         repeat_frequency = to_repeat_frequency(rule_hash)
         by_day = rule_hash.dig(:validations, :day)
@@ -125,7 +124,7 @@ module DataCycleCore
         'endDate' => end_date,
         'startTime' => start_time,
         'endTime' => end_time,
-        'duration' => iso_duration,
+        'duration' => duration&.positive? ? duration.iso8601 : nil,
         'repeatCount' => repeat_count,
         'exceptDate' => exdate&.map(&:iso8601)&.presence,
         'dc:additionalDate' => rdate&.map(&:iso8601)&.presence,
@@ -149,13 +148,12 @@ module DataCycleCore
       by_day = nil
       by_month = nil
       by_month_day = nil
-      iso_duration = @schedule_object.duration.present? && @schedule_object.start_time && @schedule_object.end_time ? iso8601_duration(@schedule_object.start_time, @schedule_object.end_time) : nil
       if @schedule_object&.recurrence_rules&.first.present?
         rule = @schedule_object&.recurrence_rules&.first
         rule_ical = rule.to_ical
         rule_hash = rule.to_hash
-        end_date = @schedule_object&.last&.in_time_zone&.+(@schedule_object&.duration&.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && @schedule_object.terminating?
-        end_time = @schedule_object&.last&.in_time_zone&.+(@schedule_object&.duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && @schedule_object.terminating?
+        end_date = @schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && @schedule_object.terminating?
+        end_time = @schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && @schedule_object.terminating?
         repeat_count = rule&.occurrence_count
         repeat_frequency = /FREQ=(.+?);/.match(rule_ical).try(:send, '[]', 1)&.downcase&.presence
         by_day = rule_hash.dig(:validations, :day)
@@ -172,7 +170,7 @@ module DataCycleCore
         'endDate' => end_date,
         'startTime' => start_time,
         'endTime' => end_time,
-        'duration' => iso_duration,
+        'duration' => duration&.positive? ? duration.iso8601 : nil,
         'repeatCount' => repeat_count,
         'exceptDate' => exdate&.map(&:to_s)&.presence,
         'additionalDate' => rdate&.map(&:to_s)&.presence,
@@ -197,12 +195,11 @@ module DataCycleCore
       by_day = nil
       by_month = nil
       by_month_day = nil
-      iso_duration = @schedule_object.duration.present? && @schedule_object.start_time && @schedule_object.end_time ? iso8601_duration(@schedule_object.start_time, @schedule_object.end_time) : nil
       if @schedule_object&.recurrence_rules&.first.present?
         rule = @schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
-        end_date = @schedule_object&.last&.in_time_zone&.+(@schedule_object&.duration&.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && @schedule_object.terminating?
-        end_time = @schedule_object&.last&.in_time_zone&.+(@schedule_object&.duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && @schedule_object.terminating?
+        end_date = @schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && @schedule_object.terminating?
+        end_time = @schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && @schedule_object.terminating?
         by_day = rule_hash.dig(:validations, :day)
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
@@ -216,7 +213,7 @@ module DataCycleCore
         'endDate' => end_date,
         'startTime' => start_time,
         'endTime' => end_time,
-        'duration' => iso_duration,
+        'duration' => duration&.positive? ? duration.iso8601 : nil,
         'repeatCount' => repeat_count,
         'exceptDate' => exdate&.map(&:to_s)&.presence,
         'additionalDate' => rdate&.map(&:to_s)&.presence,
@@ -287,7 +284,8 @@ module DataCycleCore
       return if @schedule_object.blank?
       self.rrule = @schedule_object.recurrence_rules&.first&.to_ical
       self.dtstart = @schedule_object.start_time
-      self.duration = @schedule_object.duration if @schedule_object.duration.positive?
+      schedule_object_duration = iso8601_duration(@schedule_object.start_time, @schedule_object.end_time)
+      self.duration = schedule_object_duration.iso8601 if schedule_object_duration.positive?
       self.dtend = @schedule_object.terminating? ? (@schedule_object.last || @schedule_object.start_time) + (duration || 0) : nil
       self.rdate = @schedule_object.recurrence_times
       self.exdate = @schedule_object.extimes
@@ -295,21 +293,11 @@ module DataCycleCore
     end
 
     def iso8601_duration(start_time, end_time)
+      return ActiveSupport::Duration.build(0) if end_time.nil?
+
       time_hash = distance_of_time_in_words_hash(start_time, end_time)
-      return 'PT0S' if time_hash.empty?
 
-      output = +'P'
-      output << "#{time_hash[:years]}Y" if time_hash[:years]&.positive?
-      output << "#{time_hash[:months]}M" if time_hash[:months]&.positive?
-      output << "#{(time_hash[:weeks] || 0) * 7 + (time_hash[:days] || 0)}D" if time_hash[:weeks]&.positive? || time_hash[:days]&.positive?
-      if time_hash[:seconds]&.positive? || time_hash[:minutes]&.positive? || time_hash[:hours]&.positive?
-        output << 'T'
-        output << "#{time_hash[:hours]}H" if time_hash[:hours]&.positive?
-        output << "#{time_hash[:minutes]}M" if time_hash[:minutes]&.positive?
-        output << "#{time_hash[:seconds]}S" if time_hash[:seconds]&.positive?
-      end
-
-      output
+      self.class.parts_to_iso8601_duration(time_hash)
     end
 
     def occurs_between?(from = dtstart, to = dtend)
@@ -330,16 +318,9 @@ module DataCycleCore
           next nil if s.dig('start_time', 'time').blank?
 
           start_time = s.dig('start_time', 'time')&.in_time_zone
-          end_time = s.dig('end_time', 'time')&.in_time_zone
-          end_time ||= start_time if s.dig('yearly_end').blank?
+          duration = parts_to_iso8601_duration(s['duration'])
 
-          if s['full_day'] == '1'
-            start_time = start_time.beginning_of_day
-            s['duration'] = (end_time.beginning_of_day - start_time.beginning_of_day) + 1.day
-          elsif end_time.present?
-            s['duration'] = end_time - start_time
-          end
-
+          s['duration'] = duration.iso8601
           s['start_time'] = {
             time: start_time.to_s,
             zone: start_time.time_zone.name
@@ -424,7 +405,35 @@ module DataCycleCore
         end_time = end_time.to_datetime
         end_time += 1.day if end_time < start_time
 
-        ((end_time - start_time) * 24 * 60 * 60).to_i
+        ((end_time - start_time) * 24 * 60 * 60)
+      end
+
+      def parts_to_iso8601_duration(duration_hash)
+        return ActiveSupport::Duration.build(0) if duration_hash.blank?
+        return ActiveSupport::Duration.build(duration_hash.to_i) unless duration_hash.is_a?(::Hash)
+
+        duration_hash = duration_hash.transform_values(&:to_i).with_indifferent_access
+
+        output = +'P'
+        output << "#{duration_hash[:years]}Y" if duration_hash[:years]&.positive?
+        output << "#{duration_hash[:months]}M" if duration_hash[:months]&.positive?
+        output << "#{(duration_hash[:weeks] || 0) * 7 + (duration_hash[:days] || 0)}D" if duration_hash[:weeks]&.positive? || duration_hash[:days]&.positive?
+        if duration_hash[:seconds]&.positive? || duration_hash[:minutes]&.positive? || duration_hash[:hours]&.positive?
+          output << 'T'
+          output << "#{duration_hash[:hours]}H" if duration_hash[:hours]&.positive?
+          output << "#{duration_hash[:minutes]}M" if duration_hash[:minutes]&.positive?
+          output << "#{duration_hash[:seconds]}S" if duration_hash[:seconds]&.positive?
+        end
+
+        ActiveSupport::Duration.parse(output)
+      rescue ActiveSupport::Duration::ISO8601Parser::ParsingError
+        ActiveSupport::Duration.build(0)
+      end
+
+      def iso8601_duration_to_parts(duration)
+        return {} if duration.blank?
+
+        ActiveSupport::Duration.parse(duration).parts
       end
     end
   end

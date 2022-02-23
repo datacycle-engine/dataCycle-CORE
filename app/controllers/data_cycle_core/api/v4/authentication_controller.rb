@@ -16,7 +16,7 @@ module DataCycleCore
 
           @user.update_column(:jti, SecureRandom.uuid)
 
-          @user.user_groups << DataCycleCore::Feature::UserApi.default_user_groups unless DataCycleCore::Feature::UserApi.default_user_groups.nil?
+          @user.user_groups = (@user.user_groups + DataCycleCore::Feature::UserApi.default_user_groups).uniq unless DataCycleCore::Feature::UserApi.default_user_groups.nil?
 
           valid_until = Time.zone.now + (DataCycleCore.features.dig(:user_api, :expiration_time) || 24.hours)
           token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @user.id, jti: @user.jti }, exp: valid_until)

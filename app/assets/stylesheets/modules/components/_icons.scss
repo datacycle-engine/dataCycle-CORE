@@ -50,7 +50,8 @@
     &.strukturierter_artikel,
     &.radroutenbeschreibung,
     &.angebot,
-    &.inhaltsblock {
+    &.inhaltsblock,
+    &.beschreibungstext {
       &::before {
         content: '\f15c';
       }

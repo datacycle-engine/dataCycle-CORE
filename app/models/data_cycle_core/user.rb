@@ -92,6 +92,10 @@ module DataCycleCore
       self&.role&.rank == rank
     end
 
+    def is_role?(*role_names)
+      role&.name&.in?(Array.wrap(role_names).map(&:to_s))
+    end
+
     def has_user_group?(group_name)
       user_groups.exists?(name: group_name)
     end
@@ -152,7 +156,9 @@ module DataCycleCore
     end
 
     def ability
-      @ability ||= DataCycleCore::Ability.new(self)
+      return @ability if defined? @ability
+
+      @ability = DataCycleCore::Ability.new(self)
     end
 
     def execute_update_webhooks
