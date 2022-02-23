@@ -1,8 +1,9 @@
 import OpenLayersViewer from './open_layers_viewer';
 import { gpx } from '@tmcw/togeojson';
 import ConfirmationModal from './confirmation_modal';
-import RemoveAllFeaturesControl from './ol_remove_all_features_control';
+import RemoveAllFeaturesControl from './map_controls/ol_remove_all_features_control';
 import domElementHelpers from '../helpers/dom_element_helpers';
+import isEmpty from 'lodash/isEmpty';
 
 class OpenLayersEditor extends OpenLayersViewer {
   constructor(container) {
@@ -245,7 +246,7 @@ class OpenLayersEditor extends OpenLayersViewer {
     DataCycle.enableElement(this.$uploadButton);
   }
   geoJsonToWkt(geometry) {
-    if (!geometry || !geometry.coordinates || !geometry.coordinates.length) return;
+    if (this._coordinatesEmpty(geometry && geometry.coordinates)) return;
 
     if (geometry.type.startsWith('LineString')) {
       geometry.type = 'Multi' + geometry.type;
@@ -373,11 +374,20 @@ class OpenLayersEditor extends OpenLayersViewer {
       coordinates: this.getFeatureLatLon()
     };
   }
+  _coordinatesEmpty(coords) {
+    if (isEmpty(coords)) return true;
+
+    if (Array.isArray(coords) && coords.some(c => Array.isArray(c)))
+      return coords.every(c => this._coordinatesEmpty(c));
+
+    return false;
+  }
   setHiddenFieldValue(geometry) {
     this.value = {
       type: 'Feature',
       geometry: geometry
     };
+
     this.$locationField.val(this.geoJsonToWkt(geometry));
   }
   resetHiddenFieldValue() {

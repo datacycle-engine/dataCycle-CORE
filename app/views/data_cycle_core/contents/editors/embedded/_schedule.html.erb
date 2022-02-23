@@ -58,7 +58,7 @@
         <% end %>
       </div>
 
-      <% duration = iso8601_duration_to_parts(value&.dig(:duration)) %>
+      <% duration = DataCycleCore::Schedule.iso8601_duration_to_parts(value&.dig(:duration)) %>
 
       <div class="form-element duration">
         <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[duration]")}", class: 'duration-label' do %>

@@ -227,10 +227,13 @@ module DataCycleCore
     def create_params
       return @create_params if defined? @create_params
       @create_params = begin
+        params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
+        params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
+
         normalize_names(params).permit(
           :classification_tree_label_id,
           :classification_tree_id,
-          classification_tree_label: [:id, :name, :internal, visibility: []],
+          classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
           classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
         )
       end
@@ -240,9 +243,10 @@ module DataCycleCore
       return @update_params if defined? @update_params
       @update_params = begin
         params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
+        params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
 
         normalize_names(params).permit(
-          classification_tree_label: [:id, :name, :internal, visibility: []],
+          classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
           classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
         )
       end

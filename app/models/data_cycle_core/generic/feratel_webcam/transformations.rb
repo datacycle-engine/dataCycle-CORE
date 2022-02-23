@@ -12,6 +12,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { "Feratel Webcams - Piste - #{s.dig('ski_region_id')} - #{s.dig('c')}" })
           .>> t(:add_field, 'name', ->(s) { s.dig('c') || '__NO_NAME__' })
+          .>> t(:add_links, 'snow_resort', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Thing.where(external_key: "Feratel Webcams - Schigebiet - #{s.dig('ski_region_id')}")&.pluck(:external_key) })
           .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: "Feratel Webcams - Unterkategorie - #{s.dig('st')}", external_source_id: external_source_id)&.ids })
           .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: "Feratel Webcams - Unterkategorie - #{s.dig('typ')}", external_source_id: external_source_id)&.ids })
           .>> t(:strip_all)
@@ -21,6 +22,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { "Feratel Webcams - Lift - #{s.dig('ski_region_id')} - #{s.dig('c')}" })
           .>> t(:add_field, 'name', ->(s) { s.dig('c') || '__NO_NAME__' })
+          .>> t(:add_links, 'snow_resort', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap("Feratel Webcams - Schigebiet - #{s.dig('ski_region_id')}") })
           .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: "Feratel Webcams - Unterkategorie - #{s.dig('st')}", external_source_id: external_source_id)&.ids })
           .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: "Feratel Webcams - Unterkategorie - #{s.dig('typ')}", external_source_id: external_source_id)&.ids })
           .>> t(:strip_all)
@@ -39,11 +41,11 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { "Feratel Webcams - Schigebiet - #{s.dig('rid')}" })
           .>> t(:add_field, 'name', ->(s) { s.dig('c') || '__NO_NAME__' })
-          .>> t(:add_links, 'lift_details', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Thing.where('external_key ILIKE ? AND external_source_id = ?', "Feratel Webcams - Lift - #{s.dig('rid').downcase} - %", external_source_id)&.pluck(:external_key) })
-          .>> t(:add_links, 'slope_details', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Thing.where('external_key ILIKE ? AND external_source_id = ?', "Feratel Webcams - Piste - #{s.dig('rid').downcase} - %", external_source_id)&.pluck(:external_key) })
           .>> t(:add_links, 'amenity_feature', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Thing.where('external_key ILIKE ? AND external_source_id = ?', "Feratel Webcams - Zusatzangebot - #{s.dig('rid').downcase} - %", external_source_id)&.pluck(:external_key) })
           .>> t(:strip_all)
         end
+        # .>> t(:add_links, 'lift_details', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Thing.where('external_key ILIKE ? AND external_source_id = ?', "Feratel Webcams - Lift - #{s.dig('rid').downcase} - %", external_source_id)&.pluck(:external_key) })
+        # .>> t(:add_links, 'slope_details', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Thing.where('external_key ILIKE ? AND external_source_id = ?', "Feratel Webcams - Piste - #{s.dig('rid').downcase} - %", external_source_id)&.pluck(:external_key) })
 
         def self.to_image
           t(:stringify_keys)

@@ -122,6 +122,8 @@ en:
         ctrlKey: Use Ctrl+Scroll to zoom the map
         metaKey: Use ⌘+Scroll to zoom the map
         pinch: Use two fingers to zoom/scroll the map
+      filter:
+        button_title: edit linked contents
     remote_render:
       error: Error loading content.
       reload: Reload
@@ -627,6 +629,12 @@ en:
     filter: Advanced Dashboard Filters
     list: List view
     tree_view: Root in the tree view
+    xml: XML
+
+  classification_change_behaviour:
+    trigger_webhooks: trigger webhooks for contents
+    clear_cache: clear cache for contents
+
   pagination:
     next: Further results
     prev: Previous results
@@ -995,6 +1003,7 @@ en:
         user_id: Owner
       data_cycle_core/classification_tree_label:
         visibility: Visibility
+        change_behaviour: Change behavior
       data_cycle_core/classification_alias:
         assignable: Assignable
         description: Description text

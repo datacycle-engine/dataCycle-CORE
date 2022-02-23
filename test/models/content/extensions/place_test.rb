@@ -68,6 +68,12 @@ module DataCycleCore
       assert_equal(true, expected_hash['location'].srid == resulted_hash['location'].srid)
     end
 
+    test 'tour has correct WKT 1.2 string representation' do
+      test_tour = DataCycleCore::DummyDataHelper.create_data('tour')
+
+      assert test_tour.line.as_text.include?('MULTILINESTRING Z')
+    end
+
     # TODO: move to emebedded tests
     # test 'create place and add 3 places, check for order' do
     #   cw_temp = DataCycleCore::CreativeWork.count
