@@ -274,6 +274,7 @@ ul.asset-list {
       height: 8rem;
       margin-top: 1rem;
       opacity: 0.5;
+
       &:hover,
       &.is-dragover {
         opacity: 1;
@@ -360,6 +361,7 @@ ul.asset-list {
   display: flex;
   flex-flow: column;
   transition: all 0.3s;
+  background: rgba($dark-gray, 0.05);
 
   .new-asset-attributes {
     flex: auto;
@@ -405,6 +407,7 @@ ul.asset-list {
 
       .file-attributes-container {
         display: flex;
+        flex: auto;
       }
     }
   }
@@ -577,11 +580,11 @@ ul.asset-list {
   }
   .file-label {
     font-size: 0.9rem;
-    color: darken($medium-gray, 10%);
+    color: $dark-gray;
     margin-bottom: 0.3rem;
   }
   .file-name {
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin-bottom: 0.2rem;
   }
   .file-name,
@@ -661,6 +664,15 @@ ul.asset-list {
     }
   }
   &.error {
+    border-color: $alert-color;
+    background: rgba($alert-color, 0.05);
+
+    .file-thumb,
+    .asset-attribute,
+    .file-info-container .file-detail-container {
+      border-color: rgba($alert-color, 0.5);
+    }
+
     .upload-number {
       color: $alert-color;
     }
@@ -670,6 +682,15 @@ ul.asset-list {
   }
 
   &.uploading {
+    border-color: $primary-color;
+    background: rgba($primary-color, 0.05);
+
+    .file-thumb,
+    .asset-attribute,
+    .file-info-container .file-detail-container {
+      border-color: rgba($primary-color, 0.5);
+    }
+
     .upload-number {
       color: $primary-color;
     }
@@ -686,6 +707,15 @@ ul.asset-list {
   }
 
   &.finished {
+    border-color: $warning-color;
+    background: rgba($warning-color, 0.05);
+
+    .file-thumb,
+    .asset-attribute,
+    .file-info-container .file-detail-container {
+      border-color: rgba($warning-color, 0.5);
+    }
+
     .upload-number {
       color: $success-color;
     }
@@ -713,13 +743,22 @@ ul.asset-list {
       width: calc(100% - 2rem);
       height: calc(100% - 2.5rem);
       margin: 1rem 1rem 1.5rem 1rem;
-      background: rgba($white, 0.5);
+      background: rgba($white, 0.3);
       font-size: 4rem;
       line-height: 4rem;
     }
   }
 
   &.validated {
+    border-color: $success-color;
+    background: rgba($success-color, 0.05);
+
+    .file-thumb,
+    .asset-attribute,
+    .file-info-container .file-detail-container {
+      border-color: rgba($success-color, 0.5);
+    }
+
     .upload-progress-bar {
       background: $success-color;
     }
@@ -743,7 +782,6 @@ ul.asset-list {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba($white, 0.8);
     padding: 0.5rem;
 
     .button {
@@ -780,18 +818,24 @@ ul.asset-list {
     border: none;
     margin: -1rem -1rem 1rem -1rem;
 
-    .file-info {
-      flex: 1;
-    }
+    .new-asset-attributes {
+      .file-info {
+        flex: 1;
+      }
 
-    .file-info-container {
-      justify-content: flex-end;
-    }
+      .file-info-container {
+        justify-content: flex-end;
 
-    .file-buttons,
-    .file-attributes-container {
-      display: none;
-      pointer-events: none;
+        .file-detail-container {
+          border: none;
+        }
+      }
+
+      .file-buttons,
+      .file-attributes-container {
+        display: none;
+        pointer-events: none;
+      }
     }
   }
 }

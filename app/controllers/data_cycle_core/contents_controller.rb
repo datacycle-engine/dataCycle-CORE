@@ -462,7 +462,7 @@ module DataCycleCore
         end
       end
 
-      render json: values.reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }.to_json
+      render json: values.reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.to_json
     end
 
     def geojson_for_map_editor
@@ -492,7 +492,27 @@ module DataCycleCore
       render plain: query.query.to_geojson(include_without_geometry: false), content_type: 'application/vnd.geo+json'
     end
 
+    def attribute_default_value
+      authorize! :index, DataCycleCore::Thing
+
+      template = DataCycleCore::Thing.find_by!(template: true, template_name: default_value_params[:template_name])
+
+      I18n.with_locale(default_value_params[:locale] || DataCycleCore.ui_locales.first) do
+        render(
+          json: template.default_values_as_form_data(
+            keys: default_value_params[:keys],
+            data_hash: default_value_params[:data_hash] || {},
+            user: current_user
+          )
+        ) && return
+      end
+    end
+
     private
+
+    def default_value_params
+      params.permit(:template_name, :locale, keys: [], data_hash: {})
+    end
 
     def set_watch_list
       return if params[:watch_list_id].blank?
@@ -577,15 +597,13 @@ module DataCycleCore
 
     def source_params
       return @source_params if defined? @source_params
-      @source_params = begin
-        if params[:source]
-          ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_locale)
-        elsif params[:source_id].present?
-          params.permit(:source_id, :source_locale)
-        else
-          {}
-        end
-      end
+      @source_params = if params[:source]
+                         ActionController::Parameters.new(params[:source].split(',').collect { |x| x.strip.split('=>') }.to_h).permit(:source_id, :source_locale)
+                       elsif params[:source_id].present?
+                         params.permit(:source_id, :source_locale)
+                       else
+                         {}
+                       end
     end
 
     def load_more_duplicates_params

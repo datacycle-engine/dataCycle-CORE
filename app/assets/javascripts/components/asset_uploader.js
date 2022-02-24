@@ -296,11 +296,75 @@ class AssetUploader {
       file.attributeFieldValues = cloneDeep(fields);
     }
 
+    this._updateAttributeFieldValues(file);
+  }
+  async _updateAttributeFieldValues(file) {
     await this.setAttributeValues(file);
     this.validateAttributes(file);
-
+    this._renderAllAttributes(file);
+  }
+  _renderAllAttributes(file) {
     Object.keys(file.attributeValues).forEach((field, i, arr) => {
       this.renderSpecificField(file.attributeValues[field], file, file.attributeValues[arr[i - 1]]);
+    });
+  }
+  _initialAttributeHtml(file) {
+    const attributesHtml = [];
+
+    for (const [key, value] of Object.entries(this._fileAttributeValues(file))) {
+      attributesHtml.push(
+        this.attributeValueHtml({
+          name: key,
+          type: value.type,
+          value: this.renderAttributeHtml(value)
+        })
+      );
+    }
+
+    return attributesHtml.join('');
+  }
+  _attributesWithBlankDefaultValues(file) {
+    return Object.entries(file.attributeValues)
+      .filter(([_key, value]) => value.default_value)
+      .map(v => v[0])
+      .filter(
+        key =>
+          !file.attributeFieldValues ||
+          !file.attributeFieldValues.length ||
+          file.attributeFieldValues.some(
+            f =>
+              f.name.includes(`[${key}]`) &&
+              f.name.includes(key) &&
+              (!f.name.includes('[translations]') || f.name.includes('[translations][' + this.locale + ']')) &&
+              f.value &&
+              f.value != false
+          )
+      );
+  }
+  _loadDefaultValues(file) {
+    const data_hash = {};
+    data_hash[this.assetKey] = file.asset.id;
+
+    DataCycle.httpRequest({
+      url: '/things/attribute_default_value',
+      method: 'POST',
+      data: {
+        locale: this.locale,
+        template_name: this.templateName,
+        keys: this._attributesWithBlankDefaultValues(file),
+        data_hash: data_hash
+      },
+      dataType: 'json'
+    }).then(data => {
+      const blankValues = this._attributesWithBlankDefaultValues(file);
+      const defaultValues = Object.fromEntries(Object.entries(data).filter(([key]) => blankValues.includes(key)));
+
+      for (const value of Object.values(defaultValues)) {
+        file.attributeFieldValues = (file.attributeFieldValues || []).filter(v => v.name !== value[0].name);
+        file.attributeFieldValues.push(...value);
+      }
+
+      this._updateAttributeFieldValues(file);
     });
   }
   updateNeighborForms(selectedFile) {
@@ -317,17 +381,19 @@ class AssetUploader {
       });
     });
   }
-  async setAttributeValues(file) {
+  _fileAttributeValues(file) {
     if (!file.attributeValues || !Object.keys(file.attributeValues).length)
       file.attributeValues = cloneDeep(this.renderedAttributes);
 
-    for (let key in file.attributeValues) {
+    return file.attributeValues;
+  }
+  async setAttributeValues(file) {
+    for (const [key, attribute] of Object.entries(this._fileAttributeValues(file))) {
       let values = file.attributeFieldValues.filter(
         f =>
           f.name.includes(key) &&
           (!f.name.includes('[translations]') || f.name.includes('[translations][' + this.locale + ']'))
       );
-      let attribute = file.attributeValues[key];
 
       if (attribute.type == 'boolean') {
         const otherAttributeFieldValues = file.attributeFieldValues.filter(v => v.name.getAttributeKey() != key);
@@ -508,6 +574,7 @@ class AssetUploader {
       if (!this.showNewForm) this.updateFileValidated(file, {});
       else this.validateAttributes(file);
 
+      this._loadDefaultValues(file);
       this.initEditForm(file);
     }
     this.updateCreateButton(error);
@@ -638,8 +705,6 @@ class AssetUploader {
   }
   async fileMediaHTML(fileOptions, additionalFileInfo = '') {
     return `
-    <div class="file-info-container">
-      <div class="file-detail-container">
       <div class="file-info">
         <span class="file-label">${await I18n.translate('frontend.upload.file')}</span>
         <span class="file-name" title="${fileOptions.file && fileOptions.file.name}">${
@@ -649,10 +714,7 @@ class AssetUploader {
       1
     )}${additionalFileInfo})</span>
       </div>
-      ${await this.buttonHtml()}
-      </div>
-      <div class="file-attributes-container"></div>
-    </div>`;
+      ${await this.buttonHtml()}`;
   }
   async buttonHtml() {
     let html = '<div class="file-buttons">';
@@ -754,7 +816,16 @@ class AssetUploader {
     this.validateAndRender(fileOptions);
   }
   async validateAndRender(fileOptions) {
-    fileOptions.html = `<div class="new-asset-attributes">${fileOptions.prependHtml}${fileOptions.mediaHtml}</div>${fileOptions.appendHtml}`;
+    fileOptions.html = `<div class="new-asset-attributes">${fileOptions.prependHtml}
+      <div class="file-info-container">
+        <div class="file-detail-container">
+          ${fileOptions.mediaHtml}
+        </div>
+        <div class="file-attributes-container">
+          ${this._initialAttributeHtml(fileOptions)}
+        </div>
+      </div>
+    </div>${fileOptions.appendHtml}`;
 
     fileOptions.validator = new AssetValidator(fileOptions);
     fileOptions.valid = await fileOptions.validator.validate();
@@ -786,7 +857,7 @@ class AssetUploader {
       this.remoteOptions.options = {
         force_render: true
       };
-    this.remoteOptions.search_param = fileOptions.file.name;
+    // this.remoteOptions.search_param = fileOptions.file.name;
     this.remoteOptions.content_uploader = true;
     this.remoteOptions.asset_class = fileOptions.validation.class;
     this.remoteOptions.asset_key = this.assetKey;

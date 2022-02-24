@@ -137,48 +137,6 @@ module DataCycleCore
         end
       end
 
-      def add_default_values(data_hash:, current_user: nil, new_content: false, force: false)
-        if new_content || force
-          props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }
-        elsif translated_locales.presence&.exclude?(I18n.locale)
-          props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }.slice(*translatable_property_names)
-        else
-          props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }.slice(*data_hash.keys)
-        end
-
-        return data_hash if props.blank?
-
-        props.each do |property_name, property_definition|
-          data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, data_hash, self, current_user)
-        end
-
-        data_hash
-      end
-
-      def default_value(key, user, data_hash = {})
-        definition = properties_with_default_values[key]
-
-        return if definition.blank?
-
-        value = DataCycleCore::Utility::DefaultValue::Base.default_values(key, definition, data_hash, self, user)
-
-        return if value.blank? && !value.is_a?(FalseClass)
-
-        if plain_property_names.include?(key) && definition['storage_location'] != 'column'
-          set_memoized_attribute(key, convert_to_type(definition['type'], value, definition))
-        elsif definition['storage_location'] == 'column'
-          set_memoized_attribute(key, value)
-        elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
-          set_memoized_attribute(key, DataCycleCore::Thing.where(id: value))
-        elsif classification_property_names.include?(key)
-          set_memoized_attribute(key, DataCycleCore::Classification.where(id: value))
-        elsif asset_property_names.include?(key)
-          set_memoized_attribute(key, DataCycleCore::Asset.where(id: value))
-        end
-
-        send(key)
-      end
-
       def inherit_source_attributes(data_hash:, source:)
         I18n.with_locale(source.first_available_locale) do
           source_data_hash = source.get_data_hash

@@ -74,6 +74,7 @@ DataCycleCore::Engine.routes.draw do
       delete :remove_locks, on: :member
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
       post :attribute_value, on: :member
+      post :attribute_default_value, on: :collection, defaults: { format: 'application/json' }
       post '/', on: :member, action: :show
     end
   end

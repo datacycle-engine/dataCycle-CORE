@@ -246,8 +246,19 @@ module DataCycleCore
       { asset_key => asset.id }.with_indifferent_access
     end
 
+    def attribute_label_for_uploader(key, value)
+      return value['properties']&.map { |k, v| attribute_label_for_uploader(k, v) }&.reduce({}, :merge) if value['type'] == 'object'
+
+      { key => value.slice('type', 'label', 'ui').merge({ default_value: value.key?('default_value') }) }
+    end
+
     def new_attribute_labels(template)
-      template&.schema&.dig('properties')&.slice(*new_dialog_config(template, nil, '**list').values.flatten)&.map { |k, v| v['type'] == 'object' ? v['properties']&.map { |o_k, o_v| [o_k, o_v.slice('type', 'label', 'ui')] }.to_h : { k => v.slice('type', 'label', 'ui') } }&.reduce({}, :merge)
+      template
+        &.schema
+        &.[]('properties')
+        &.slice(*new_dialog_config(template, nil, '**list').values.flatten)
+        &.map { |key, value| attribute_label_for_uploader(key, value) }
+        &.reduce({}, :merge)
     end
 
     def uploader_validation_to_text(value, parents = ['uploader', 'validation'])

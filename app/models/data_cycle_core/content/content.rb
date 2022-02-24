@@ -34,6 +34,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::Api
       include DataCycleCore::Content::Extensions::SyncApi
       include DataCycleCore::Content::Extensions::Geojson
+      include DataCycleCore::Content::Extensions::DefaultValue
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay
@@ -558,11 +559,21 @@ module DataCycleCore
 
         definition = properties_for(key)
 
-        if definition&.[]('storage_location') == 'column'
-          send("#{key}=", value)
-        else
-          (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false]] = value
+        if definition['storage_location'] == 'column'
+          return send("#{key}=", value)
+        elsif plain_property_names.include?(key)
+          value = convert_to_type(definition['type'], value, definition)
+        elsif value.is_a?(ActiveRecord::Relation) || (value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base))
+          return (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false]] = value
+        elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
+          value = DataCycleCore::Thing.where(id: value)
+        elsif classification_property_names.include?(key)
+          value = DataCycleCore::Classification.where(id: value)
+        elsif asset_property_names.include?(key)
+          value = DataCycleCore::Asset.where(id: value)
         end
+
+        (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false]] = value
       end
 
       private
