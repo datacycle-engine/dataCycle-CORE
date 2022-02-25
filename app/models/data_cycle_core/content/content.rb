@@ -559,9 +559,9 @@ module DataCycleCore
 
         definition = properties_for(key)
 
-        if definition['storage_location'] == 'column'
-          return send("#{key}=", value)
-        elsif plain_property_names.include?(key)
+        return send("#{key}=", value) if definition['storage_location'] == 'column'
+
+        if plain_property_names.include?(key)
           value = convert_to_type(definition['type'], value, definition)
         elsif value.is_a?(ActiveRecord::Relation) || (value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base))
           return (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false]] = value

@@ -598,7 +598,7 @@ module DataCycleCore
     def source_params
       return @source_params if defined? @source_params
       @source_params = if params[:source]
-                         ActionController::Parameters.new(params[:source].split(',').collect { |x| x.strip.split('=>') }.to_h).permit(:source_id, :source_locale)
+                         ActionController::Parameters.new(params[:source].split(',').to_h { |x| x.strip.split('=>') }).permit(:source_id, :source_locale)
                        elsif params[:source_id].present?
                          params.permit(:source_id, :source_locale)
                        else
