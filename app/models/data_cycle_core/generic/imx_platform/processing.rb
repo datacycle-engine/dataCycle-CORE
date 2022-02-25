@@ -5,7 +5,6 @@ module DataCycleCore
     module ImxPlatform
       module Processing
         def self.process_poi(utility_object, raw_data, config)
-          byebug
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
