@@ -19,7 +19,8 @@ module DataCycleCore
             changed_from = @params[:changed_from]&.to_date&.to_s(:db) || '2000-01-01'
             ids = load_ids(lang: lang, method: 'FindGastro2Ids', field: 'addressbaseIds', changed_from: changed_from, retry_count: 0).map { |i| i.dig('id') }
             ids.each do |object_id|
-              yielder << load_address_details(object_id: object_id, retry_count: 0)
+              object_data = load_address_details(object_id: object_id, retry_count: 0)
+              yielder << object_data if object_data.present?
             end
           end
         end
@@ -30,7 +31,8 @@ module DataCycleCore
             changed_from = @params[:changed_from]&.to_date&.to_s(:db) || '2000-01-01'
             ids = load_ids(lang: lang, method: 'FindApartmentIds', field: 'addressbaseIds', changed_from: changed_from, retry_count: 0).map { |i| i.dig('id') }
             ids.each do |object_id|
-              yielder << load_address_details(object_id: object_id, retry_count: 0)
+              object_data = load_address_details(object_id: object_id, retry_count: 0)
+              yielder << object_data if object_data.present?
             end
           end
         end
@@ -41,7 +43,8 @@ module DataCycleCore
             changed_from = @params[:changed_from]&.to_date&.to_s(:db) || '2000-01-01'
             ids = load_ids(lang: lang, method: 'FindAddressPoiIds', field: 'addressPoiIds', changed_from: changed_from, retry_count: 0)
             ids&.map { |i| i.dig('id') }&.each do |object_id|
-              yielder << load_address_details(object_id: object_id, retry_count: 0)
+              object_data = load_address_details(object_id: object_id, retry_count: 0)
+              yielder << object_data if object_data.present?
             end
           end
         end
@@ -79,7 +82,7 @@ module DataCycleCore
           end
 
           if response.status == 404 # weird error handling if object_id is not found
-            []
+            {}
           elsif response.success?
             JSON.parse(response.body)['Addressbase'] || []
           else
