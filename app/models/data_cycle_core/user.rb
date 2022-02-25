@@ -4,13 +4,12 @@ module DataCycleCore
   class User < ApplicationRecord
     include Content::ExternalData
 
-    devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
+    devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable, :omniauthable
     devise :registerable, :confirmable if DataCycleCore::Feature::UserRegistration.enabled?
 
     WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
-    attr_accessor :skip_callbacks
-    attr_accessor(*WEBHOOK_ACCESSORS)
+    attr_accessor :skip_callbacks, *WEBHOOK_ACCESSORS
 
     WEBHOOKS_ATTRIBUTES = [
       'access_token',

@@ -2,7 +2,13 @@
 
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
-                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions', registrations: 'data_cycle_core/registrations', confirmations: 'data_cycle_core/confirmations' }
+                     controllers: {
+                       passwords: 'data_cycle_core/passwords',
+                       sessions: 'data_cycle_core/sessions',
+                       registrations: 'data_cycle_core/registrations',
+                       confirmations: 'data_cycle_core/confirmations',
+                       omniauth_callbacks: 'data_cycle_core/omniauth'
+                     }
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root

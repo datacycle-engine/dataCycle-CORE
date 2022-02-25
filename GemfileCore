@@ -27,6 +27,9 @@ gem 'dotenv-rails'
 
 gem 'jb'
 
+# OmniAuth Authentication
+gem 'omniauth-rails_csrf_protection'
+
 group :test do
   gem 'minitest-hooks'
 end
