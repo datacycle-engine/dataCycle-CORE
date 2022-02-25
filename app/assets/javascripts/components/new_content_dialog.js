@@ -95,12 +95,29 @@ class NewContentDialog {
     if (config && config.allFiles) this.reveal.foundation('close');
     else this.nextAssetForm(event);
 
-    this.processFormData(formData, null, config && config.allFiles);
+    this.processFormData(formData, null, config && config.allFiles, config && config.copyPrimary);
   }
-  copyToAllReferenceFields(_event) {
-    this.form.trigger('submit', { allFiles: true });
+  async copyToAllReferenceFields(event) {
+    const target = event.currentTarget;
+
+    if (this.primaryAttributeKey) {
+      new ConfirmationModal({
+        text: await I18n.translate('frontend.upload.confirm_all_to_all_html', {
+          label: target.dataset.primaryAttributeLabel,
+          template: this.templateTranslationPlural
+        }),
+        confirmationText: await I18n.translate('common.yes'),
+        cancelText: await I18n.translate('common.no'),
+        confirmationClass: 'warning',
+        cancelable: true,
+        confirmationCallback: () => this.form.trigger('submit', { allFiles: true, copyPrimary: true }),
+        cancelCallback: () => this.form.trigger('submit', { allFiles: true })
+      });
+    } else {
+      this.form.trigger('submit', { allFiles: true });
+    }
   }
-  copySingleToAllReferenceFields(event) {
+  async copySingleToAllReferenceFields(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
 
@@ -110,9 +127,12 @@ class NewContentDialog {
 
     if (formElementKey.includes(`[${this.primaryAttributeKey}]`)) {
       new ConfirmationModal({
-        text: `${formElement.data('label')} wirklich für alle ${this.templateTranslationPlural} übernehmen?`,
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
+        text: await I18n.translate('frontend.upload.confirm_single_to_all_html', {
+          label: formElement.data('label'),
+          template: this.templateTranslationPlural
+        }),
+        confirmationText: await I18n.translate('common.yes'),
+        cancelText: await I18n.translate('common.no'),
         confirmationClass: 'warning',
         cancelable: true,
         confirmationCallback: () => this.processSingleFormData(formElementKey, $target)

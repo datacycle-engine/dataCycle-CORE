@@ -376,7 +376,7 @@ ul.asset-list {
 
       .file-detail-container {
         display: flex;
-        border-bottom: 1px solid $medium-gray;
+        border-bottom: 1px solid rgba($medium-gray, 0.4);
 
         .file-info {
           display: flex;
@@ -387,7 +387,7 @@ ul.asset-list {
           min-width: 3rem;
           align-items: center;
           padding: 0.5rem;
-          color: lighten($black, 10%);
+          color: $dark-gray;
 
           span.notice {
             white-space: nowrap;
@@ -441,7 +441,7 @@ ul.asset-list {
     align-items: center;
     justify-content: flex-start;
     position: relative;
-    border-right: 1px solid $medium-gray;
+    border-right: 1px solid rgba($medium-gray, 0.4);
 
     .fa {
       font-size: 4rem;
@@ -543,7 +543,7 @@ ul.asset-list {
     padding: 0.5rem;
 
     &:not(:last-child) {
-      border-right: 1px solid $medium-gray;
+      border-right: 1px solid rgba($medium-gray, 0.4);
     }
   }
   .file-info {
@@ -586,6 +586,7 @@ ul.asset-list {
   .file-name {
     font-size: 0.9rem;
     margin-bottom: 0.2rem;
+    font-weight: 600;
   }
   .file-name,
   .file-attribute-value {
@@ -631,7 +632,7 @@ ul.asset-list {
     height: 0.4rem;
     width: 100%;
     padding: 0;
-    background: lighten($light-gray, 5%);
+    background: rgba($medium-gray, 0.4);
 
     .upload-progress-bar {
       display: block;
@@ -670,7 +671,7 @@ ul.asset-list {
     .file-thumb,
     .asset-attribute,
     .file-info-container .file-detail-container {
-      border-color: rgba($alert-color, 0.5);
+      border-color: rgba($alert-color, 0.2);
     }
 
     .upload-number {
@@ -678,6 +679,9 @@ ul.asset-list {
     }
     .upload-progress {
       background: $alert-color;
+    }
+    .upload-progress {
+      background: rgba($alert-color, 0.2);
     }
   }
 
@@ -688,7 +692,7 @@ ul.asset-list {
     .file-thumb,
     .asset-attribute,
     .file-info-container .file-detail-container {
-      border-color: rgba($primary-color, 0.5);
+      border-color: rgba($primary-color, 0.2);
     }
 
     .upload-number {
@@ -696,6 +700,9 @@ ul.asset-list {
     }
     .upload-progress-bar {
       background: $primary-color;
+    }
+    .upload-progress {
+      background: rgba($primary-color, 0.2);
     }
 
     .file-buttons {
@@ -713,11 +720,14 @@ ul.asset-list {
     .file-thumb,
     .asset-attribute,
     .file-info-container .file-detail-container {
-      border-color: rgba($warning-color, 0.5);
+      border-color: rgba($warning-color, 0.2);
     }
 
     .upload-number {
       color: $success-color;
+    }
+    .upload-progress {
+      background: rgba($success-color, 0.2);
     }
 
     &.asset-uploader-file {
@@ -756,7 +766,7 @@ ul.asset-list {
     .file-thumb,
     .asset-attribute,
     .file-info-container .file-detail-container {
-      border-color: rgba($success-color, 0.5);
+      border-color: rgba($success-color, 0.2);
     }
 
     .upload-progress-bar {

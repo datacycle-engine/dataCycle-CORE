@@ -62,21 +62,20 @@
       <%= t('actions.next', locale: active_ui_locale) %>
     </button>
     <% if local_assigns[:content_uploader] %>
-      <button class="button submit set-all-attributes"
+      <button class="button submit warning set-all-attributes"
               data-disable
-              type="button"
-              title="<%= t('upload.copy_all_title',
-                single: asset_model_name&.human(count: 1, locale: active_ui_locale),
-                multiple: asset_model_name&.human(count: 2, locale: active_ui_locale),
-                name: translated_attribute_label(
+              data-primary-attribute-label="<%= translated_attribute_label(
                   primary_attribute_key,
                   local_assigns[:template]&.properties_for(primary_attribute_key),
                   local_assigns[:template],
                   {}
-                ),
+                ) %>"
+              type="button"
+              title="<%= t('upload.copy_all_title',
+                single: asset_model_name&.human(count: 1, locale: active_ui_locale),
+                multiple: asset_model_name&.human(count: 2, locale: active_ui_locale),
                 locale: active_ui_locale) %>">
-        <%= t('actions.set_all_attributes', data: asset_model_name&.human(count: 2, locale: active_ui_locale) , locale: active_ui_locale) %>
-        <i class="fa fa-info warning-icon" aria-hidden="true"></i>
+        <%= t('actions.set_all_attributes', locale: active_ui_locale) %>
         <span class="copy-icon fa-stack">
           <i class="fa fa-clone"></i>
           <i class="fa fa-arrow-right fa-stack-1x"></i>

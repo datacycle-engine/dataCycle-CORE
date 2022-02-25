@@ -327,19 +327,20 @@ class AssetUploader {
     return Object.entries(file.attributeValues)
       .filter(([_key, value]) => value.default_value)
       .map(v => v[0])
-      .filter(
-        key =>
+      .filter(key => {
+        return (
           !file.attributeFieldValues ||
           !file.attributeFieldValues.length ||
-          file.attributeFieldValues.some(
-            f =>
+          !file.attributeFieldValues.some(f => {
+            return (
               f.name.includes(`[${key}]`) &&
-              f.name.includes(key) &&
               (!f.name.includes('[translations]') || f.name.includes('[translations][' + this.locale + ']')) &&
               f.value &&
               f.value != false
-          )
-      );
+            );
+          })
+        );
+      });
   }
   _loadDefaultValues(file) {
     const data_hash = {};

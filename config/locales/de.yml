@@ -115,6 +115,8 @@ de:
       error: Fehler
       remove_file: Datei entfernen
       file: Datei
+      confirm_single_to_all_html: '%{label} wirklich für alle %{template} übernehmen?'
+      confirm_all_to_all_html: '<h5>Alle Attribute für alle %{template} übernehmen</h5><p>Soll auch <b>%{label}</b> für alle %{template} übernommen werden?</p>'
     cancel: Abbrechen
     ok: Ok
     content_lock:
@@ -426,7 +428,7 @@ de:
     system_dialog: Bilder über Systemdialog auswählen
     or: oder
     select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
-    copy_all_title: "Alle Attribute von diesem %{single} für alle %{multiple} übernehmen\n\nDas Attribut %{name} wird hier nicht übernommen, kann allerdings mit dem entsprechenden Button direkt beim Feld übernommen werden"
+    copy_all_title: "Alle Attribute von diesem %{single} für alle %{multiple} übernehmen"
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -760,7 +762,7 @@ de:
     delete_items_in_watch_list: Alle Inhalte dieser Inhaltssammlung löschen
     save_without_redirect: Zwischenspeichern
     set_and_next: 'übernehmen und weiter'
-    set_all_attributes: 'für alle %{data} übernehmen'
+    set_all_attributes: 'für alle übernehmen'
     close_overlay: schließen
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
     copyable_from: '%{data} übernehmen'

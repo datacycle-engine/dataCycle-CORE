@@ -106,6 +106,8 @@ en:
       error: Error
       remove_file: Remove file
       file: File
+      confirm_single_to_all_html: 'really apply %{label} to all %{template}?'
+      confirm_all_to_all_html: '<h5>Apply all attributes to all %{template}</h5><p>Should <b>%{label}</b> also be applied to all %{template}?</p>'
     cancel: Cancel
     ok: Okay
     content_lock:
@@ -424,7 +426,7 @@ en:
     system_dialog: Select images via system dialog
     or: or
     select_from_datacycle: Use %{data} already uploaded
-    copy_all_title: "take all attributes from this %{single} for all %{multiple}\n\nthe attribute %{name} will not be taken over here, but can be taken over with the corresponding button directly at the field."
+    copy_all_title: "take all attributes from this %{single} for all %{multiple}"
   external_connection_states:
     success: Successfully synchronized
     pending: is synchronized
@@ -728,7 +730,7 @@ en:
     delete_items_in_watch_list: Delete all contents of this content collection
     save_without_redirect: Save
     set_and_next: take over and continue
-    set_all_attributes: apply for all %{data}
+    set_all_attributes: apply for all
     close_overlay: close
     remove_locks: Release content for editing (remove lock)
     copyable_from: Apply %{data}
