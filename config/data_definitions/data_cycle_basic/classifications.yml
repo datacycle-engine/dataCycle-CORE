@@ -77,7 +77,8 @@
 - Informationstypen | all:
 
 - $$Externe Informationstypen | all:
-    - description | OutdoorActive
+    - description | OutdoorActive/imx_platform
+    - description_long | imx_platform
     - text | OutdoorActive
     - directions | OutdoorActive
     - directions_public_transport | OutdoorActive

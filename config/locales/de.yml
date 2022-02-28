@@ -1253,6 +1253,9 @@ de:
         suggestion: Tipps
         additional_information: Zusatzinformationen
         maps: Literatur
+    imx_platform:
+      description: Beschreibung
+      description_long: Detailbeschreibung
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
