@@ -359,9 +359,10 @@ class AssetUploader {
     }).then(data => {
       const blankValues = this._attributesWithBlankDefaultValues(file);
       const defaultValues = Object.fromEntries(Object.entries(data).filter(([key]) => blankValues.includes(key)));
+      file.attributeFieldValues ||= [];
 
       for (const value of Object.values(defaultValues)) {
-        file.attributeFieldValues = (file.attributeFieldValues || []).filter(v => v.name !== value[0].name);
+        file.attributeFieldValues = file.attributeFieldValues.filter(v => v.name !== value[0].name);
         file.attributeFieldValues.push(...value);
       }
 

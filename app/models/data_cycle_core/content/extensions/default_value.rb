@@ -37,10 +37,12 @@ module DataCycleCore
         def default_values_as_form_data(keys:, user:, data_hash: {})
           return_value = {}
 
+          data_hash = data_hash.to_h if data_hash.is_a?(ActionController::Parameters)
+
           data_hash.each { |key, value| set_memoized_attribute(key, value) }
 
           keys&.each do |key|
-            value = default_value(key.attribute_name_from_key, user, data_hash.to_h)
+            value = default_value(key.attribute_name_from_key, user, data_hash)
 
             next if DataCycleCore::DataHashService.blank?(value)
 
