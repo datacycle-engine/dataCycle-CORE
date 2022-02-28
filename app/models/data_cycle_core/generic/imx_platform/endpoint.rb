@@ -49,6 +49,16 @@ module DataCycleCore
           end
         end
 
+        # def event(lang: :de)
+        #   # external_keys = @params[:external_keys]
+        #   changed_from = @params[:changed_from]&.to_date&.to_s(:db) || '2000-01-01'
+        #   ids = load_ids(lang: lang, method: 'FindEventIds', field: 'addressPoiIds', changed_from: changed_from, retry_count: 0)
+        #   ids&.map { |i| i.dig('id') }&.each do |object_id|
+        #     object_data = load_address_details(object_id: object_id, retry_count: 0)
+        #     yielder << object_data if object_data.present?
+        #   end
+        # end
+
         protected
 
         def load_ids(lang:, method:, field:, changed_from:, retry_count: 0)
