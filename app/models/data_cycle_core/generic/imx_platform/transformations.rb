@@ -31,7 +31,10 @@ module DataCycleCore
 
         def self.to_image
           t(:locale_string, 'name', ['pooledMedium', 'title'])
+          .>> t(:map_value, 'name', ->(v) { v.nil? ? '__NO_NAME__' : v })
           .>> t(:add_field, 'content_url', ->(s) { s.dig('deeplink') })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('deeplink') })
+          .>> t(:add_field, 'url', ->(s) { s.dig('deeplink') })
           .>> t(:add_field, 'external_key', ->(s) { "ImxPlatform - AddressbaseImage - #{s.dig('id')}" })
           .>> t(:reject_keys, ['id'])
         end

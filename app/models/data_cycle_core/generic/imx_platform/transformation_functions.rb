@@ -51,7 +51,12 @@ module DataCycleCore
           contact_info['telephone'] = contact_data.dig('address', 'phone1') || contact_data.dig('address', 'phone2')
           contact_info['fax_number'] = contact_data.dig('address', 'fax')
           contact_info['email'] = contact_data.dig('address', 'email')
-          contact_info['url'] = contact_data.dig('address', 'homepage')
+          contact_info['url'] =
+            if contact_data.dig('address', 'homepage').is_a?(::Hash)
+              contact_data.dig('address', 'homepage', I18n.locale.to_s)
+            else
+              contact_data.dig('address', 'homepage')
+            end
           data['contact_info'] = contact_info
           address = {}
           address['street_address'] = [contact_data.dig('address', 'street'), contact_data.dig('address', 'streetNo')].join(' ')
