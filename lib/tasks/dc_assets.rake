@@ -92,7 +92,7 @@ namespace :dc do
 
         progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
 
-        exif_property_names = ['name', 'license_classification', 'keyword_classifications', 'copyright_holder', 'author']
+        exif_property_names = ['license_classification', 'keyword_classifications', 'copyright_holder', 'author']
         properties = images.first.properties_with_default_values.select { |k, _v| exif_property_names.include?(k) }
 
         images.each do |image|
@@ -102,7 +102,7 @@ namespace :dc do
           properties.each do |property_name, property_definition|
             update_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, data_hash, image)
           end
-
+          update_hash['name'] = image.asset.metadata['Headline'] if image.asset.metadata.dig('Headline').present?
           image.available_locales.each do |locale|
             I18n.with_locale(locale) { image.set_data_hash(data_hash: update_hash, partial_update: true) }
           end
