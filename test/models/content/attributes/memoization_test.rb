@@ -33,31 +33,24 @@ module DataCycleCore
         end
 
         test 'set memoized plain_property_names' do
-          @content.plain_property_names.except('id').each.with_index do |property_name, index|
-            @content.set_memoized_attribute(property_name, "test-string-#{index}")
-
-            assert_equal("test-string-#{index}", @content.send(property_name))
-          end
+          @content.set_memoized_attribute('name', 'test-string-0')
+          assert_equal('test-string-0', @content.send(:name))
         end
 
         test 'set memoized linked_property_names and embedded_property_names' do
-          (@content.linked_property_names + @content.embedded_property_names).each.with_index do |property_name, index|
-            value = DataCycleCore::Thing.where(template: false).limit(1).offset(index)
+          value1 = DataCycleCore::Thing.where(template: false).limit(1).offset(0)
+          @content.set_memoized_attribute('image', value1)
+          assert_equal(value1, @content.send(:image))
 
-            @content.set_memoized_attribute(property_name, value)
-
-            assert_equal(value, @content.send(property_name))
-          end
+          value2 = DataCycleCore::Thing.where(template: false).limit(1).offset(1)
+          @content.set_memoized_attribute('potential_action', value2)
+          assert_equal(value2, @content.send(:potential_action))
         end
 
         test 'set memoized classification_property_names' do
-          @content.classification_property_names.each.with_index do |property_name, index|
-            value = DataCycleCore::Classification.limit(1).offset(index)
-
-            @content.set_memoized_attribute(property_name, value)
-
-            assert_equal(value, @content.send(property_name))
-          end
+          value = DataCycleCore::Classification.limit(1).offset(0)
+          @content.set_memoized_attribute('tags', value)
+          assert_equal(value, @content.send(:tags))
         end
       end
     end
