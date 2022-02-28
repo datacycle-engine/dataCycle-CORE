@@ -47,6 +47,8 @@ module DataCycleCore
 
         # trigger update of dependent computed properties
         add_update_dependent_computed_properties_job
+
+        add_update_exif_values_job
       end
 
       def before_destroy_data_hash(_options)
@@ -205,6 +207,11 @@ module DataCycleCore
 
       def add_related_cache_invalidation_job
         DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'invalidate_related_cache')
+      end
+
+      def add_update_exif_values_job
+        return if template_name != 'Bild' || exif_property_names.blank?
+        DataCycleCore::WriteExifDataJob.perform_later(id)
       end
 
       def add_update_dependent_computed_properties_job
