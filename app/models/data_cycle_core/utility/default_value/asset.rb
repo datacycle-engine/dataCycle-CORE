@@ -32,7 +32,7 @@ module DataCycleCore
           create_or_map = property_definition.dig('default_value', 'parameters', '2', 'create') || false
           return if meta_data.blank? || meta_property_keys.blank?
 
-          search_values = meta_property_keys.map { |attribute| meta_data.dig(attribute) }&.flatten&.uniq
+          search_values = meta_property_keys.map { |attribute| meta_data.dig(attribute) }&.flatten&.reject(&:blank?)&.uniq
           return if search_values.blank?
 
           if create_or_map
@@ -47,6 +47,10 @@ module DataCycleCore
           end
         end
 
+        def self.filename_to_string(property_parameters:, **_args)
+          DataCycleCore::Asset.find_by(id: property_parameters&.first)&.name
+        end
+
         def self.exif_to_string(property_parameters:, property_definition:, **_args)
           meta_data = DataCycleCore::Asset.find_by(id: property_parameters&.first)&.metadata
           meta_property_keys = property_definition.dig('default_value', 'parameters', '1', 'metadata')
@@ -56,6 +60,13 @@ module DataCycleCore
           value = meta_data.dig(meta_property_keys.detect { |attribute| meta_data.dig(attribute).present? })
           value = value.is_a?(Array) ? value.join(', ') : value
           value
+        end
+
+        def self.exif_to_headline(property_parameters:, property_definition:, **_args)
+          headline = exif_to_string(property_parameters: property_parameters, property_definition: property_definition)
+          return headline if headline.present?
+
+          filename_to_string(property_parameters: property_parameters)
         end
 
         def self.exif_to_linked(property_parameters:, property_definition:, **_args)
