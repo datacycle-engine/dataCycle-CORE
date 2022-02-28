@@ -137,6 +137,34 @@ module DataCycleCore
       end
     end
 
+    def self.from_omniauth(auth)
+      return if auth&.info&.email.blank?
+
+      new_user = find_or_initialize_by(email: auth.info.email) do |user|
+        user.email = auth.info.email
+        user.password = Devise.friendly_token[0, 20]
+        user.given_name = auth.info.first_name
+        user.family_name = auth.info.last_name
+        user.role = DataCycleCore::Role.find_by(name: Devise.omniauth_configs[auth.provider.to_sym].options[:default_role]) if Devise.omniauth_configs[auth.provider.to_sym]&.options&.[](:default_role).present?
+      end
+
+      if new_user.provider.blank? && new_user.uid.blank?
+        new_user.provider = auth.provider
+        new_user.uid = auth.uid
+      end
+
+      new_user.confirmed_at = Time.zone.now if DataCycleCore::Feature::UserRegistration.enabled? && new_user.confirmed_at.blank?
+      new_user.external = true
+      new_user.additional_attributes ||= {}
+      new_user.additional_attributes[auth.provider] = {
+        info: auth.info,
+        raw_info: auth.dig('extra', 'raw_info')
+      }
+
+      new_user.save!
+      new_user
+    end
+
     def as_user_api_json
       as_json(
         only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],

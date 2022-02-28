@@ -29,6 +29,7 @@ gem 'jb'
 
 # OmniAuth Authentication
 gem 'omniauth-rails_csrf_protection'
+gem 'omniauth-azure-activedirectory-v2'
 
 group :test do
   gem 'minitest-hooks'
