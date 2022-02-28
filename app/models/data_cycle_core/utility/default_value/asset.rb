@@ -17,7 +17,7 @@ module DataCycleCore
         end
 
         def self.color_space_classification(property_parameters:, property_definition:, **_args)
-          color_space = DataCycleCore::Asset.find_by(id: property_parameters&.first)&.metadata&.dig('colorspace')
+          color_space = DataCycleCore::Asset.find_by(id: property_parameters&.first)&.metadata&.dig('ImColorSpace')
 
           return [] if color_space.blank?
 

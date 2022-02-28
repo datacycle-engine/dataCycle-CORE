@@ -76,10 +76,13 @@ module DataCycleCore
     end
 
     def metadata
+      image = ::MiniMagick::Image.new(current_path)
+      colorspace = { ImColorSpace: image.data.dig('colorspace') }
       exif_data = MiniExiftool.new(current_path, { replace_invalid_chars: true })
       exif_data
         .to_hash
         .transform_values { |value| value.is_a?(String) ? value.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '').delete("\u0000") : value }
+        .merge!(colorspace)
     end
 
     def set_phash
