@@ -43,7 +43,7 @@ module DataCycleCore
         end
 
         def self.add_info(data, fields, external_source_id)
-          additional_information = fields.map do |type|
+          additional_information = fields.map { |type|
             next if data[type].blank?
             external_key = "ImxPlatform - AdditionalInformation - #{data.dig('id')} - #{type}"
             {
@@ -53,7 +53,7 @@ module DataCycleCore
               'universal_classifications' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', type)),
               'description' => data[type]
             }.compact
-          end.compact
+          }.compact
           data['additional_information'] = additional_information
           data
         end
