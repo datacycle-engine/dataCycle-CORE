@@ -33,6 +33,7 @@ PATH
       json-schema
       jwt
       kaminari
+      mini_exiftool_vendored
       mini_magick
       mini_mime
       mongoid (~> 7.0.6)
@@ -437,6 +438,9 @@ GEM
     mimemagic (0.4.3)
       nokogiri (~> 1)
       rake
+    mini_exiftool (2.10.2)
+    mini_exiftool_vendored (9.2.7.v1)
+      mini_exiftool (>= 1.6.0)
     mini_magick (4.11.0)
     mini_mime (1.1.2)
     mini_portile2 (2.8.0)
@@ -690,4 +694,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.3.7
+   2.3.8
