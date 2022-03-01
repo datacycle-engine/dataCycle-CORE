@@ -41,7 +41,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, { section: {}, page: {}, content_id: [], 'dc:liveData': [], classification_trees: [] }]
+          [:api_subversion, :token, :include, :fields, :language, :content_id, :sort, :format, section: {}, page: {}, content_id: [], 'dc:liveData': [], classification_trees: []]
         end
 
         def page_parameters
