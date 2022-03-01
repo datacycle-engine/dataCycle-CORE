@@ -14,6 +14,7 @@ x-app-env: &default-app-env
   HISTFILE: /home/ruby/hist/.bash_history
   RAILS_ENV: ${RAILS_ENV:-development}
   MAILHOG_HOST: mailhog
+  VITE_RUBY_HOST: 0.0.0.0
 
 x-app: &default-app
   build:
@@ -71,6 +72,8 @@ services:
       - '${PWD}:/app'
       - redis:/data
   nginx:
+    ports:
+      - '3036:3036'
     volumes:
       - '${PWD}:/app'
       - nginx-log:/var/log/datacycle
