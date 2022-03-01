@@ -109,7 +109,7 @@ module DataCycleCore
         def self.get_image_external_keys(hash)
           return [] if hash['gallery'].blank? && hash['teaser'].blank?
           image_urls = ([hash.dig('teaser')].compact + hash.dig('gallery')&.map { |item| item.dig('link') }&.compact).uniq
-          image_urls.map { |data| "Pimcore - EventImage - #{data}" }
+          image_urls.map { |data| DataCycleCore::MasterData::DataConverter.string_to_string("Pimcore - EventImage - #{CGI.unescape(data)}") }
         end
 
         def self.opening_hours(data, external_source_id, external_key)
