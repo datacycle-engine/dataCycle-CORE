@@ -17,6 +17,9 @@ module DataCycleCore
 
             Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
               query = build_search_query
+
+              render(plain: query.query.to_geojson, content_type: GEOJSON_CONTENT_TYPE) && return if accept_geojson?
+
               query = apply_ordering(query)
 
               @pagination_contents = apply_paging(query)
@@ -36,6 +39,8 @@ module DataCycleCore
             .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             .find(permitted_params[:id])
           raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
+
+          render(plain: @content.to_geojson, content_type: GEOJSON_CONTENT_TYPE) && return if accept_geojson?
         end
 
         def select
@@ -87,7 +92,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :search, :limit, uuid: []] + [filter: {}] + ['dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :search, :limit, { uuid: [] }] + [filter: {}] + ['dc:liveData': [:@id, :minPrice]]
         end
 
         def permitted_filter_parameters
