@@ -44,7 +44,9 @@ class ImageEditor {
     this.setup();
   }
   setFileFormat(mimeType) {
-    const fileFormat = mimeType.split('/').at(-1);
+    const fileFormatArr = mimeType.split('/')
+    const fileFormat = fileFormatArr[fileFormatArr.length - 1];
+
     this.updateOuterEditButton(this.supportedFileExtensions.includes(fileFormat)).then(r => {});
     return fileFormat === 'jpeg' || fileFormat === 'jpg' ? 'jpeg' : 'png';
   }
