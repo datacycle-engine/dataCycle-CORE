@@ -101,15 +101,15 @@ module DataCycleCore
         def self.to_event_image
           t(:add_field, 'external_key', ->(s) { DataCycleCore::MasterData::DataConverter.string_to_string("Pimcore - EventImage - #{CGI.unescape(s.dig('link'))}") })
           .>> t(:add_field, 'name', ->(s) { CGI.unescape(s.dig('link')).split('/')&.last })
-          .>> t(:add_field, 'content_url', ->(s) { CGI.unescape(s.dig('link')) })
-          .>> t(:add_field, 'thumbnail_url', ->(s) { CGI.unescape(s.dig('link')) })
+          .>> t(:add_field, 'content_url', ->(s) { s.dig('link') })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('link') })
           .>> t(:reject_keys, ['link', 'index', 'gallery_size'])
         end
 
         def self.get_image_external_keys(hash)
           return [] if hash['gallery'].blank? && hash['teaser'].blank?
           image_urls = ([hash.dig('teaser')].compact + hash.dig('gallery')&.map { |item| item.dig('link') }&.compact).uniq
-          image_urls.map { |data| "Pimcore - EventImage - #{data}" }
+          image_urls.map { |data| DataCycleCore::MasterData::DataConverter.string_to_string("Pimcore - EventImage - #{CGI.unescape(data)}") }
         end
 
         def self.opening_hours(data, external_source_id, external_key)

@@ -142,7 +142,7 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
-    def content_view_cache_key(item:, locale: 'de', mode:, watch_list:)
+    def content_view_cache_key(item:, mode:, watch_list:, locale: 'de')
       "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}_#{active_ui_locale}"
     end
 
@@ -389,7 +389,7 @@ module DataCycleCore
     def link_to_condition(condition, name, options = {}, html_options = {}, &block)
       if condition
         link_to(name, options, html_options, &block)
-      elsif block_given?
+      elsif block
         block.arity <= 1 ? capture(name, &block) : capture(name, options, html_options, &block)
       else
         ERB::Util.html_escape(name)
@@ -421,14 +421,14 @@ module DataCycleCore
       options = { class: "flash flash-notification callout #{alert_class}" }
       options[:data] = { closable: '' } if closable
       tag.div(options) do
-        if value.is_a?(String)
+        if value.is_a?(::String)
           concat value.html_safe
         elsif value.is_a?(::Hash)
           concat value.map { |k, v| tag.b(k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
         elsif value.is_a?(::Array)
           concat value.join(', ').html_safe.to_s
         else
-          concat value.html_safe.to_s
+          concat value.to_s.html_safe
         end
         concat close_link if closable
       end
