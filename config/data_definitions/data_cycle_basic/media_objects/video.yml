@@ -174,6 +174,20 @@
           :method: file_format
           :parameters:
             :0: asset
+      :file_type:
+        :label: Dateiformat - Klassifizierung
+        :type: classification
+        :tree_label: Dateiformate
+        :default_value:
+          :module: DataCycleCore::Utility::DefaultValue::Asset
+          :method: file_type_classification
+          :parameters:
+            :0: asset
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :content_area: header
       :duration:
         :label: Dauer
         :storage_location: value
@@ -248,6 +262,9 @@
       :license_fields:
         :type: mixin
         :name: license_fields
+      :image_proxy:
+        :type: mixin
+        :name: image_proxy
       :additional_media_properties:
         :type: mixin
         :name: additional_media_properties

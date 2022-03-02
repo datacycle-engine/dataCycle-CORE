@@ -111,7 +111,8 @@ class OpenLayersViewer {
     this.beforeValue = this.$container.data('before-position');
     this.afterValue = this.$container.data('after-position');
     this.type = this.$container.data('type');
-    this.additionalValues = this.$container.data('additionalValues');
+    this.additionalValues = this.$container.data('additionalValues') || {};
+    this.additionalValuesOverlay = this.$container.data('additionalValuesOverlay');
     this.feature;
     this.additionalFeatures = [];
     this.infoOverlay;
@@ -119,13 +120,21 @@ class OpenLayersViewer {
     this.featureOverlaySource;
     this.highlightedFeature;
     this.icons = iconPaths;
-    this.colors = {
+    this.colorsHandler = {
+      get: function (target, name) {
+        if (target.hasOwnProperty(name)) return target[name];
+        else if (name) return name;
+        else target['default'];
+      }
+    };
+    this.definedColors = {
       default: '#1779ba',
       red: '#cc4b37',
       green: '#90c062',
       white: '#ffffff',
       gray: '#767676'
     };
+    this.colors = new Proxy(this.definedColors, this.colorsHandler);
     this.scrollTexts = {
       ctrlKey: 'Strg+Scrollen zum Zoomen',
       metaKey: '⌘+Scrollen zum Zoomen',
@@ -150,6 +159,12 @@ class OpenLayersViewer {
     this.geoJsonFormat = new this.ol.format.GeoJSON();
     this.wktFormat = new this.ol.format.WKT();
     this.resizeObserver;
+  }
+  _createFeatureCollection(data = []) {
+    return {
+      type: 'FeatureCollection',
+      features: data
+    };
   }
   setup() {
     this.setZoomMethod();
@@ -261,13 +276,10 @@ class OpenLayersViewer {
     if (!this.feature && this.value) this.feature = this.featureFromGeoJSON(this.value);
     if (this.beforeValue) this.additionalFeatures = this.featuresFromGeoJSON(this.beforeValue);
     if (this.afterValue) this.feature = this.featureFromGeoJSON(this.afterValue);
-    if (this.additionalValues && this.additionalValues.length)
-      this.additionalFeatures.push(
-        ...this.featuresFromGeoJSON({
-          type: 'FeatureCollection',
-          features: this.additionalValues
-        })
-      );
+
+    for (const geoJSON of Object.values(this.additionalValues)) {
+      this.additionalFeatures.push(...this.featuresFromGeoJSON(geoJSON));
+    }
 
     if (this.$popupContainer.length) this.initInfoOverlay();
     this.initFeatureLayer();
@@ -322,7 +334,7 @@ class OpenLayersViewer {
       html += `<a href="${featureProperties.thingPath}" target="_blank" class="ol-popup-detail-link"><i class="fa fa-eye" aria-hidden="true"></i></a>`;
     }
 
-    if (featureProperties.title && featureProperties.title.length) html += `<p>${featureProperties.title}</p>`;
+    if (featureProperties.name && featureProperties.name.length) html += `<p>${featureProperties.name}</p>`;
 
     return html;
   }
@@ -452,7 +464,7 @@ class OpenLayersViewer {
         return true;
       }
 
-      if (!e.originalEvent[self.zoomMethod]) {
+      if (!e.originalEvent[self.zoomMethod] && document.fullscreenElement != self.$container.get(0)) {
         if (!$(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').length) {
           const $element = $(
             '<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text"></div></div>'
@@ -510,10 +522,10 @@ class OpenLayersViewer {
 
     if (this.defaultPosition && this.defaultPosition.zoom) viewOptions.zoom = this.defaultPosition.zoom;
     if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude) {
-      let newCoords = new this.ol.geom.Point([this.defaultPosition.longitude, this.defaultPosition.latitude]).transform(
-        'EPSG:4326',
-        'EPSG:3857'
-      );
+      const newCoords = new this.ol.geom.Point([
+        this.defaultPosition.longitude,
+        this.defaultPosition.latitude
+      ]).transform('EPSG:4326', 'EPSG:3857');
       viewOptions.center = newCoords.getCoordinates();
     }
 

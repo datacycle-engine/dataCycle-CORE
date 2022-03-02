@@ -76,7 +76,7 @@ module DataCycleCore
       query
     end
 
-    def from_params_hash(params)
+    def parameters_from_hash(params)
       return self if params.blank?
 
       self.parameters = params.map do |f|

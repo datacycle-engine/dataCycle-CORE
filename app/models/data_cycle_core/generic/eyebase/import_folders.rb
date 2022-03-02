@@ -43,7 +43,7 @@ module DataCycleCore
           generate_aggregation(mongo_item, parent_category_data.dig('path'), locale).map { |i| { 'dump' => { locale => i } } }
         end
 
-        def self.load_parent_classification_alias(raw_data, external_source_id)
+        def self.load_parent_classification_alias(raw_data, external_source_id, _options = {})
           DataCycleCore::Classification
             .find_by(
               external_source_id: external_source_id,

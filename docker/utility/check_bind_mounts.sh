@@ -1,10 +1,19 @@
 #!/bin/bash
 set -eu
 
-## mongodb | app | postgres
+## mongodb | postgres
 echo "$BASE_DATA_VOLUME_PATH"
-mkdir -p $BASE_DATA_VOLUME_PATH/{app,mongodb,postgres}
-sudo chgrp -R 1000 $BASE_DATA_VOLUME_PATH/app
+mkdir -p $BASE_DATA_VOLUME_PATH/{mongodb,postgres}
+
+## app
+echo "$BASE_DC_PUBLIC_UPLOADS_VOLUME_PATH"
+mkdir -p $BASE_DC_PUBLIC_UPLOADS_VOLUME_PATH/app
+sudo chgrp -R 1000 $BASE_DC_PUBLIC_UPLOADS_VOLUME_PATH/app
+
+## import
+echo "$BASE_DC_IMPORT_VOLUME_PATH"
+mkdir -p $BASE_DC_IMPORT_VOLUME_PATH/import
+sudo chgrp -R 1000 $BASE_DC_IMPORT_VOLUME_PATH/import
 
 # nginx | app | mongodb
 echo "$BASE_LOG_VOLUME_PATH"

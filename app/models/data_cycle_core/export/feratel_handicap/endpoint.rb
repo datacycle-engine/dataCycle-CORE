@@ -14,32 +14,39 @@ module DataCycleCore
         end
 
         def content_request(method: :post, transformation:, path:, utility_object:, data:)
-          return if data.linked_thing.find_by(template_name: ['Unterkunft', 'POI'])&.external_key.blank?
-          body = transformations.try(transformation, data, utility_object)
+          external_source_id = DataCycleCore::ExternalSystem.find_by(identifier: 'feratel')&.id
+          return if external_source_id.blank?
+          external_keys = data.linked_thing.where(template_name: ['Unterkunft', 'POI'], external_source_id: external_source_id)&.pluck(:external_key)&.compact
+          return if external_keys.blank?
 
-          # puts Nokogiri::XML(body, &:noblanks).to_xml(indent: 2)
-          # puts
-          # puts
+          external_keys.each do |feratel_id|
+            body = transformations.try(transformation, data, feratel_id, utility_object)
 
-          url = 'http://interface.deskline.net/' + path
-          @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
-
-          begin
-            @response = Faraday.run_request(method, url, URI.encode_www_form('xmlString' => body), { 'Content-Type' => 'application/x-www-form-urlencoded' })
-
-            # puts Nokogiri::XML(@response.body, &:noblanks).to_xml(indent: 2)
+            # puts Nokogiri::XML(body, &:noblanks).to_xml(indent: 2)
             # puts
             # puts
 
-            @output_file.info("#{@response&.env&.dig(:method)&.to_s&.upcase} #{@response&.env&.dig(:url)} #{@response.body}", "#{data&.id} - #{@response&.env&.dig(:status)} #{@response&.env&.dig(:reason_phrase)}")
-            @output_file.try(:close)
-          rescue Faraday::Error => e
-            @output_file.error(e.try(:response)&.dig(:status), "#{data&.id}_#{I18n.locale}", nil, e.try(:response)&.dig(:body))
-            @output_file.try(:close)
-            raise e
+            url = 'http://interface.deskline.net/' + path
+            @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
+
+            begin
+              @output_file.info(Nokogiri::XML(body, &:noblanks).to_xml(indent: 2))
+
+              @response = Faraday.run_request(method, url, URI.encode_www_form('xmlString' => body), { 'Content-Type' => 'application/x-www-form-urlencoded' })
+
+              # puts Nokogiri::XML(@response.body, &:noblanks).to_xml(indent: 2)
+              # puts
+              # puts
+
+              @output_file.info("#{@response&.env&.dig(:method)&.to_s&.upcase} #{@response&.env&.dig(:url)} #{@response.body}", "#{data&.id} - #{@response&.env&.dig(:status)} #{@response&.env&.dig(:reason_phrase)}")
+              @output_file.try(:close)
+            rescue Faraday::Error => e
+              @output_file.error(e.try(:response)&.dig(:status), "#{data&.id}_#{I18n.locale}", nil, e.try(:response)&.dig(:body))
+              @output_file.try(:close)
+              raise e
+            end
           end
-
-          @response
+          @response # return last response
         end
       end
     end

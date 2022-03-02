@@ -51,7 +51,7 @@ class BasicSelect2 {
   initEventHandlers() {
     this.$element.closest('form').on('reset', this.eventHandlers.reset);
     this.$element.closest('.form-element').on('dc:field:reset', this.eventHandlers.reset);
-    this.$element.on('dc:import:data', this.eventHandlers.import);
+    this.$element.on('dc:import:data', this.eventHandlers.import).addClass('dc-import-data');
     this.$element.on('dc:select:destroy', this.eventHandlers.destroy);
     this.$element.parent().on('change', '.select2-search__field', this.eventHandlers.suppressChange);
     this.$element.on('change', this.eventHandlers.resizeDropdown);
@@ -70,7 +70,7 @@ class BasicSelect2 {
   destroy(_event) {
     this.$element.select2('destroy');
     this.$element.closest('form').off('reset', this.eventHandlers.reset);
-    this.$element.off('dc:import:data', this.eventHandlers.import);
+    this.$element.off('dc:import:data', this.eventHandlers.import).removeClass('dc-import-data');
     this.$element.off('dc:select:destroy', this.eventHandlers.destroy);
     this.$element.closest('.form-element').off('dc:field:reset', this.eventHandlers.reset);
     this.$element.parent().off('change', '.select2-search__field', this.eventHandlers.suppressChange);
@@ -108,15 +108,33 @@ class BasicSelect2 {
 
     return $result;
   }
+  addCollectionLinksToResults(data, container) {
+    const htmlClass = this.getClassFromData(data);
+    let linkType = null;
+
+    if (htmlClass.includes('watch_list')) linkType = 'watch_lists';
+    else if (htmlClass.includes('stored_filter')) linkType = 'search_history';
+
+    if (linkType)
+      $(container).append(
+        `<a href="/${DataCycle.joinPath(
+          DataCycle.config.EnginePath,
+          linkType,
+          data.id
+        )}" target="_blank" class="open-selection-link"><i class="fa fa-external-link" aria-hidden="true"></i></a>`
+      );
+  }
+  getClassFromData(data) {
+    if (data.html_class) return data.html_class || '';
+    else if (data.element) return $(data.element).attr('class') || '';
+
+    return '';
+  }
   copySelect2Classes(data, container) {
     if (this.select2Object && (container == undefined || $(container).hasClass('select2-selection__rendered')))
       this.select2Object.$selection.find('.select2-selection__rendered').prop('class', 'select2-selection__rendered');
 
-    if (data.html_class) {
-      $(container).addClass(data.html_class);
-    } else if (data.element) {
-      $(container).addClass($(data.element).attr('class'));
-    }
+    $(container).addClass(this.getClassFromData(data));
   }
   decorateResult(result) {
     $(result).html(function (_index, value) {

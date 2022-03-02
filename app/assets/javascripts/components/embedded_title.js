@@ -16,8 +16,15 @@ class EmbeddedTitle {
   getSourceValue() {
     if (!this.$sourceField.length) return;
 
-    if (this.$sourceField.hasClass('detail-content')) return this.$sourceField.text().trim();
-    else return this.$sourceField.val().trim();
+    let value;
+    const tempDivElement = document.createElement('div');
+
+    if (this.$sourceField.hasClass('detail-content')) value = this.$sourceField.text();
+    else value = this.$sourceField.val();
+
+    tempDivElement.innerHTML = value;
+
+    return (tempDivElement.textContent || tempDivElement.innerText || '').trim();
   }
   updateEmbeddedTitle(_event) {
     if (!this.$targetField.length) return;

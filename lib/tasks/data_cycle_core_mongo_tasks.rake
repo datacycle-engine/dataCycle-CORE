@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/db_helper'
+require 'rake_helpers/time_helper'
+
 namespace :data_cycle_core do
   namespace :mongo do
     desc 'List all external_systems'
@@ -11,7 +14,7 @@ namespace :data_cycle_core do
 
     desc 'Show the existing database archives'
     task dumps: :environment do
-      backup_dir = backup_directory([Rails.env, 'mongo'])
+      backup_dir = DbHelper.backup_directory([Rails.env, 'mongo'])
       puts backup_dir.to_s
       DataCycleCore::ExternalSystem.find_each do |es|
         db_name = es.database_name
@@ -23,7 +26,7 @@ namespace :data_cycle_core do
     desc 'Clean up database backups'
     task clean_up_dumps: :environment do
       max_files = 5
-      backup_dir = backup_directory([Rails.env, 'mongo'])
+      backup_dir = DbHelper.backup_directory([Rails.env, 'mongo'])
       puts "checking directory: #{backup_dir}"
       DataCycleCore::ExternalSystem.find_each do |es|
         db_name = es.database_name
@@ -44,8 +47,8 @@ namespace :data_cycle_core do
     desc 'Dump a mongo db'
     task :dump, [:external_system_id, :download] => [:environment] do |_, args|
       temp = Time.zone.now
-      backup_dir = backup_directory([Rails.env, 'mongo'], create: true)
-      download_dir = backup_directory([Rails.env, 'mongo', 'download'], create: true)
+      backup_dir = DbHelper.backup_directory([Rails.env, 'mongo'], create: true)
+      download_dir = DbHelper.backup_directory([Rails.env, 'mongo', 'download'], create: true)
       date = Time.zone.now.to_s(:compact_datetime)
       file_name = nil
 
@@ -66,7 +69,7 @@ namespace :data_cycle_core do
       sh cmd
       puts ''
       puts "Dumped to file: #{file_name}"
-      puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
+      puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
       puts ''
     end
 
@@ -75,8 +78,8 @@ namespace :data_cycle_core do
       temp = Time.zone.now
       file_name = args[:file_name]
 
-      dir = backup_directory([Rails.env, 'mongo'], create: true)
-      dir = backup_directory([Rails.env, 'mongo', 'download'], create: true) if args[:downloaded] == 'true'
+      dir = DbHelper.backup_directory([Rails.env, 'mongo'], create: true)
+      dir = DbHelper.backup_directory([Rails.env, 'mongo', 'download'], create: true) if args[:downloaded] == 'true'
 
       origin_db_name = file_name.split('_')[0..-2].join('_')
       external_system_id = file_name.split('_')[-2]
@@ -89,21 +92,20 @@ namespace :data_cycle_core do
       puts "DB source: #{origin_db_name}"
       puts "DB target: #{db_name}"
       puts "reloaded: #{dir}/#{file_name}"
-      puts "Duration: #{format_time(Time.zone.now - temp, 0, 6, 's')}"
+      puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
       puts ''
     end
 
-    private
-
-    def backup_directory(suffix = nil, create: false)
-      backup_dir = Rails.root.join(*(['db', 'backups'] + Array.wrap(suffix)))
-
-      if create && !Dir.exist?(backup_dir)
-        puts "Creating #{backup_dir} .."
-        FileUtils.mkdir_p(backup_dir)
+    desc 'print full name of a mongodb'
+    task :name, [:uuid] => [:environment] do |_, args|
+      external_system = DataCycleCore::ExternalSystem.find_by(id: args[:uuid])
+      if external_system.blank?
+        puts 'Id is not a valid external System.'
+        exit 1
       end
 
-      backup_dir
+      db_name = external_system.database_name
+      puts db_name
     end
   end
 end

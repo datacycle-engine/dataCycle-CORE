@@ -49,6 +49,17 @@
         :inverse_of: about
         :link_direction: inverse
         :template_name: Skigebiets-Beschreibung
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
       :tourism_region:
         :label: Tourismus-Region
         :type: classification
@@ -75,6 +86,10 @@
         :api:
           :v4:
             :name: 'odta:seasonStart'
+        :ui:
+          :edit:
+            :options:
+              :class: daterange
       :season_end:
         :label: Saisonend
         :type: date
@@ -82,6 +97,10 @@
         :api:
           :v4:
             :name: 'odta:seasonEnd'
+        :ui:
+          :edit:
+            :options:
+              :class: daterange
       :status:
         :label: Status
         :type: classification
@@ -298,6 +317,12 @@
       :contact_info:
         :type: mixin
         :name: contact_info
+      :snow_telephone:
+        :label: Schneetelefon
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :name: dc:snowTelephone
       :geo:
         :type: mixin
         :name: geo

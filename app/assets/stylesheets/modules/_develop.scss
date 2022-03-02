@@ -312,14 +312,54 @@
       }
     }
   }
-
   &.imageobject,
   &.videoobject {
     span.detail-label {
       font-weight: bold;
-
       > *:not(:last-child) {
         margin-right: 0.3rem;
+      }
+    }
+    .detail-type.encoding.embedded {
+      position: relative;
+      box-shadow: 0 0 1px #9d9d9d;
+      .detail-type {
+        box-shadow: none;
+        padding: 0;
+        &:not(:last-child) {
+          margin-bottom: 1rem;
+        }
+        .detail-label {
+          position: relative;
+          left: 0;
+          top: 0;
+          background: inherit;
+          color: #9d9d9d;
+          padding: 0.4rem 0.7rem;
+        }
+        .detail-content {
+          position: relative;
+          display: inline-block;
+        }
+      }
+    }
+  }
+}
+
+.detail-content.imageobject {
+  .detail-type.encoding.embedded {
+    .image.encoding {
+      .image-container {
+        width: 33%;
+      }
+      .image-data {
+        width: 66%;
+      }
+      .detail-type {
+        .detail-label {
+          color: #333333;
+          padding: 0;
+        }
       }
     }
   }
@@ -1126,6 +1166,11 @@ a.link {
       .fa {
         line-height: 1.2rem;
       }
+
+      .history-created-icon,
+      .history-active-version-icon {
+        color: lighten($dark-gray, 20%);
+      }
     }
   }
 }
@@ -1149,12 +1194,8 @@ a.email-link {
   flex: 0;
 
   &.removable {
-    width: 2.7rem;
-    min-width: 2.7rem;
-  }
-
-  > *:not(:last-child) {
-    margin-right: 0.3rem;
+    width: 2.5rem;
+    min-width: 2.5rem;
   }
 
   .remove-version-name-link {
@@ -1439,7 +1480,7 @@ a.email-link {
     position: absolute;
     animation: fa-spin 2s infinite linear;
     right: 1rem;
-    top: 1rem;
+    top: calc(50% - 0.75rem);
     font-size: 1.5rem;
     line-height: 1.5rem;
   }
@@ -1448,14 +1489,14 @@ a.email-link {
   .select2-selection--single {
     .select2-selection__choice,
     .select2-selection__rendered {
-      &.stored_filter::before {
+      .stored_filter::before {
         content: '\f0b0';
         font-family: FontAwesome;
         position: relative;
         padding: 2px 5px 2px 2px;
       }
 
-      &.watch_list::before {
+      .watch_list::before {
         content: '\f0ca';
         font-family: FontAwesome;
         position: relative;
@@ -1828,26 +1869,168 @@ select {
     height: 450px;
     z-index: 0;
 
+    .additional-feature-popup {
+      pointer-events: none;
+
+      .mapboxgl-popup-content,
+      .mapboxgl-popup-tip {
+        pointer-events: none;
+      }
+    }
+
+    .dc-additional-values-overlay {
+      display: none;
+      position: absolute;
+      left: 50px;
+      top: 10px;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+      min-width: 10rem;
+      width: auto;
+      z-index: 2;
+      max-height: calc(100% - 20px);
+      overflow: hidden;
+      max-width: calc(100% - 100px);
+
+      .dc-additional-values-filter-container {
+        max-height: 100%;
+        max-width: 100%;
+        overflow: auto;
+        padding: 1px;
+        width: 100%;
+        height: 100%;
+      }
+
+      &.remote-render,
+      &.remote-rendering {
+        &::before {
+          margin: 1rem;
+          width: calc(100% - 2rem);
+        }
+      }
+
+      &.active {
+        display: flex;
+      }
+
+      * {
+        color: $black;
+        background: transparent;
+        border: none;
+      }
+
+      .dc-additional-values-filter {
+        margin: 0;
+
+        .dc-additional-values-filter-item {
+          display: flex;
+          flex-flow: row wrap;
+          align-items: center;
+          position: relative;
+
+          .loading-spinner {
+            display: none;
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            z-index: 1;
+            align-items: start;
+            justify-content: start;
+            overflow: hidden;
+
+            .fa {
+              font-size: 1rem;
+            }
+          }
+
+          &.source-loading {
+            pointer-events: none;
+
+            .loading-spinner {
+              display: flex;
+            }
+          }
+
+          &:not(:last-of-type) {
+            border-bottom: 1px solid $light-gray;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+          }
+
+          label {
+            position: relative;
+            top: 0;
+            left: 0;
+            padding: 0;
+            z-index: unset;
+            flex: auto;
+            display: flex;
+            align-items: center;
+
+            input {
+              margin: 0 0.5rem 0 0;
+            }
+
+            .attribute-label-text {
+              line-height: 1rem;
+            }
+          }
+
+          .accordion-title {
+            flex: 0;
+            padding: 0;
+            display: block;
+            height: 1rem;
+            width: 3rem;
+            position: relative;
+
+            &::before {
+              position: relative;
+              top: 0;
+              right: 0;
+              margin-top: 0;
+              display: flex;
+              height: 1rem;
+              width: 1rem;
+              align-items: center;
+              justify-content: center;
+              font-size: 1rem;
+            }
+          }
+
+          .accordion-content {
+            width: 100%;
+            padding: 1rem 1rem 0.5rem 1rem;
+          }
+        }
+      }
+    }
+
     .mtk-editor-modal-window {
       margin-top: -100px;
     }
 
-    .ol-viewport {
-      .scroll-overlay {
-        position: absolute;
-        display: flex;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        color: white;
-        font-size: 1.2rem;
-        justify-content: center;
-        align-items: center;
-        background-color: rgba(black, 0.5);
-      }
+    .scroll-overlay {
+      position: absolute;
+      display: flex;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      color: white;
+      font-size: 1.2rem;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(black, 0.5);
+    }
 
+    .ol-viewport {
       .ol-attribution:not(.ol-collapsed) {
         display: flex;
         flex-flow: row nowrap;
@@ -1873,6 +2056,7 @@ select {
           padding: 0.5rem 0.75rem;
           box-shadow: 0 0 1px rgba($black, 0.8);
           min-width: 200px;
+          font-size: 0.9rem;
 
           .ol-popup-closer,
           .ol-popup-content .ol-popup-detail-link {
@@ -1889,56 +2073,29 @@ select {
         }
       }
     }
-    .leaflet-popup {
-      pointer-events: none;
-      margin-bottom: 0;
+    .mapboxgl-popup-content {
+      padding-right: 2rem;
 
-      .leaflet-popup-tip-container {
-        display: none;
+      .ol-popup-detail-link {
+        float: right;
       }
 
-      .leaflet-popup-content-wrapper {
-        display: block;
-        font-size: 1rem;
-        background: white;
-        box-shadow: 0 0 1px rgba($black, 0.8);
-        min-width: 200px;
-        padding: 0.5rem 0.75rem;
-        border-radius: 0;
-
-        .leaflet-popup-content {
-          margin: 0;
-          padding: 0;
-
-          p {
-            margin: 0 0 0.5rem 0;
-
-            &:last-child {
-              margin-bottom: 0;
-            }
-          }
+      p {
+        &:last-of-type {
+          margin-bottom: 0;
         }
       }
 
-      .leaflet-popup-close-button {
-        margin-top: 0.5rem;
-        margin-right: 0.5rem;
+      .mapboxgl-popup-close-button {
+        padding: 0.4rem 0.6rem;
+        top: 0;
         font-size: 1.2rem;
-        padding: 0;
-        height: 1.2rem;
-        width: 1.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        font-weight: bold;
         color: $primary-color;
-      }
 
-      .leaflet-popup-close-button,
-      .ol-popup-detail-link {
-        position: relative;
-        pointer-events: auto;
-        float: right;
-        margin-left: 0.5rem;
+        &:hover {
+          background: none;
+        }
       }
     }
   }
@@ -3286,4 +3443,12 @@ body {
     font-size: 1.1rem;
     margin-right: 0.3rem;
   }
+}
+.tree-link {
+  .mini-preview-image {
+    padding-right: 0.5rem;
+  }
+}
+.mini-preview-image {
+  display: inline-block;
 }

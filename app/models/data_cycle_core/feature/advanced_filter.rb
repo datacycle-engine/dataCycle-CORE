@@ -48,13 +48,15 @@ module DataCycleCore
         def relation_filter(user, value)
           return [] unless value.is_a?(Hash)
 
-          value.map do |k, v|
+          value.map { |k, v|
+            next unless v
+
             [
               I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
               'relation_filter',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
-          end
+          }.compact
         end
 
         def union_filter_ids(user, value)
@@ -161,35 +163,41 @@ module DataCycleCore
 
         def inactive_things(user, value)
           return [] unless value
-          value.map do |k, _v|
+          value.map { |k, v|
+            next unless v
+
             [
               I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
               'inactive_things',
               data: { name: k, advancedType: k }
             ]
-          end
+          }.compact
         end
 
         def in_schedule(user, value)
           return [] unless value
-          value.map do |k, _v|
+          value.map { |k, v|
+            next unless v
+
             [
               I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
               'in_schedule',
               data: { name: k, advancedType: k }
             ]
-          end
+          }.compact
         end
 
         def validity_period(user, value)
           return [] unless value
-          value.map do |k, _v|
+          value.map { |k, v|
+            next unless v
+
             [
               I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
               'validity_period',
               data: { name: k, advancedType: k }
             ]
-          end
+          }.compact
         end
 
         def always_visible?

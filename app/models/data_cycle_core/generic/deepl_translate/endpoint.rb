@@ -59,7 +59,7 @@ module DataCycleCore
           response = connection.post do |req|
             req.body = {
               auth_key: @key,
-              text: text,
+              text: Nokogiri::HTML5.fragment(text).to_xml, # transform HTML Entities to valid XML
               target_lang: target_locale.to_s.upcase,
               source_lang: source_locale.to_s.upcase,
               tag_handling: 'xml'

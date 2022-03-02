@@ -7,7 +7,7 @@ module DataCycleCore
         def self.process_slope(utility_object, raw_data, config)
           ski_region_data = raw_data.dig('co', 'pl', 'pcs', 'pc')&.detect { |i| i.dig('t') == '4' }&.dig('pcc')
           return if ski_region_data.blank?
-          ski_region_id = ski_region_data.dig('rid').downcase
+          ski_region_id = ski_region_data.dig('rid')
           Array.wrap(
             ski_region_data.dig('pccd')
             &.detect { |i| i.dig('t') == '1' }
@@ -26,7 +26,7 @@ module DataCycleCore
         def self.process_lift(utility_object, raw_data, config)
           ski_region_data = raw_data.dig('co', 'pl', 'pcs', 'pc')&.detect { |i| i.dig('t') == '4' }&.dig('pcc')
           return if ski_region_data.blank?
-          ski_region_id = ski_region_data.dig('rid').downcase
+          ski_region_id = ski_region_data.dig('rid')
           Array.wrap(
             ski_region_data.dig('pccd')
             &.detect { |i| i.dig('t') == '0' }
@@ -45,7 +45,7 @@ module DataCycleCore
         def self.process_infrastructure(utility_object, raw_data, config)
           ski_region_data = raw_data.dig('co', 'pl', 'pcs', 'pc')&.detect { |i| i.dig('t') == '4' }&.dig('pcc')
           return if ski_region_data.blank?
-          ski_region_id = ski_region_data.dig('rid').downcase
+          ski_region_id = ski_region_data.dig('rid')
           Array.wrap(
             ski_region_data.dig('pccd')
             &.detect { |i| i.dig('t') == '2' }

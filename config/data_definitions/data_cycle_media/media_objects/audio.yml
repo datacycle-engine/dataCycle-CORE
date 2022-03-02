@@ -105,6 +105,20 @@
           :method: file_format
           :parameters:
             :0: asset
+      :file_type:
+        :label: Dateiformat - Klassifizierung
+        :type: classification
+        :tree_label: Dateiformate
+        :default_value:
+          :module: DataCycleCore::Utility::DefaultValue::Asset
+          :method: file_type_classification
+          :parameters:
+            :0: asset
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :content_area: header
       :duration:
         :label: Dauer
         :storage_location: value

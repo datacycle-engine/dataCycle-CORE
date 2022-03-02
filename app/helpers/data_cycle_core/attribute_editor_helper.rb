@@ -10,6 +10,13 @@ module DataCycleCore
       scope: :edit
     }).freeze
 
+    DURATION_UNITS = {
+      months: 12,
+      days: 31,
+      hours: 24,
+      minutes: 60
+    }.freeze
+
     def attribute_editable?(key, definition, options, content)
       @attribute_editable ||= Hash.new do |h, k|
         h[k] = can?(:edit, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :edit, k.dig(2, 'edit_scope')))

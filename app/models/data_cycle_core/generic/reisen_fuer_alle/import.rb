@@ -25,25 +25,13 @@ module DataCycleCore
           I18n.with_locale(locale) do
             next if raw_data.dig('third_party_ids').blank?
 
-            if raw_data.dig('certificate_data', 'certificate_type').present?
-              type_icon_data = {
-                'name' => raw_data.dig('certificate_data', 'certificate_type', 'label_de'),
-                'description' => raw_data.dig('certificate_data', 'certificate_type', 'key'),
-                'url' => raw_data.dig('certificate_data', 'certificate_type', 'icon_url_de')
-              }
-              DataCycleCore::Generic::ReisenFuerAlle::Processing.process_icon(
-                utility_object,
-                type_icon_data,
-                options.dig(:import, :transformations, :icon)
-              )
-            end
-
             ['deaf', 'mental', 'partiall_deaf', 'partially_visual', 'visual', 'walking', 'wheelchair'].each do |kind|
               next if raw_data.dig('certificate_data', kind, 'level') == 'none'
               next if raw_data.dig('certificate_data', kind, 'icon_url').blank?
               icon_data = {
                 'name' => "#{kind} - #{raw_data.dig('certificate_data', kind, 'level')}",
-                'url' => raw_data.dig('certificate_data', kind, 'icon_url')
+                'url' => raw_data.dig('certificate_data', kind, 'icon_url'),
+                'description' => 'none'
               }
               DataCycleCore::Generic::ReisenFuerAlle::Processing.process_icon(
                 utility_object,
@@ -52,9 +40,12 @@ module DataCycleCore
               )
             end
 
-            if @feratel
-              feratel_key = raw_data['third_party_ids'].detect { |i| i['key'] == 'deskline_id' }&.dig('value')
-              raw_data['feratel'] = { external_system_id: @feratel.id, external_key: feratel_key, limit: 1 } if feratel_key.present?
+            if @feratel # TODO: allow for more than one id!!
+              feratel_keys = raw_data['third_party_ids']
+                .select { |i| i['key'] == 'deskline_id' || i['key'] == 'deskline_id_2' }
+                .map { |i| i.dig('value') }
+                .map { |i| { external_system_id: @feratel.id, external_key: i, limit: 1 } }
+              raw_data['feratel'] = feratel_keys if feratel_keys.present?
             end
 
             if @outdoor_active

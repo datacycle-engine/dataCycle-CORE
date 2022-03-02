@@ -52,9 +52,9 @@
           :show:
             :content_area: header
       :referencetype:
-        :label: Radroutentyp
+        :label: Typ des Verortungsobjektes
         :type: classification
-        :tree_label: Radroutentyp
+        :tree_label: Typ des Verortungsobjektes
         :validations:
           :required: true
         :ui:
@@ -117,43 +117,55 @@
           :show:
             :content_area: header
       :bikeroute:
-        :label: Radroutenausprägung
+        :label: Radroutentyp
         :type: classification
-        :tree_label: Radroutenausprägung
+        :tree_label: Radroutentyp
         :ui:
           :show:
             :content_area: header
-      :geoname_route:
-        :label: Bestehende Gesamtroute
+      :routes:
+        :label: Gesamtroute
         :type: linked
         :template_name: Gesamtroute
-        :validations:
-          :max: 1
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
-      :geoname_name:
-        :label: Name der Radroute
-        :type: string
+        :inverse_of: sections
+        :api:
+          minimal: true
+      :route_name:
+        :label: Name der Gesamtroute
+        :type: computed
         :storage_location: value
-        :default_value:
-          :module: DataCycleCore::Utility::DefaultValue::String
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
           :method: linked_gip_route_attribute
           :linked_attribute: name
           :parameters:
-            :linked: geoname_route
-      :geoname_number:
-        :label: Nummer der Radroute
-        :type: string
+            :linked: routes
+      :route_number:
+        :label: Nummer der Gesamtroute
+        :type: computed
         :storage_location: value
-        :default_value:
-          :module: DataCycleCore::Utility::DefaultValue::String
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
           :method: linked_gip_route_attribute
           :linked_attribute: route_number
           :parameters:
-            :linked: geoname_route
+            :linked: routes
+      :round_trip:
+        :label: Rundkurs
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true
+        :default_value: 'false'
+        :global: true
+      :one_way:
+        :label: Einbahn
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true
+        :default_value: 'false'
+        :global: true
       :line:
         :label: Route
         :storage_location: column
@@ -164,9 +176,6 @@
             :type: LineString
             :options:
               :data_upload: true
-      :linked_data:
-        :type: mixin
-        :name: linked_data
       :subject_of:
         :label: Thema von
         :type: linked

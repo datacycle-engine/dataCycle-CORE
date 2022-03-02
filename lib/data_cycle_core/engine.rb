@@ -110,7 +110,8 @@ module DataCycleCore
       'DataCycleCore::Generic::Common::Webhook',
       'DataCycleCore::Generic::FeratelIdentityServer::Webhook',
       'DataCycleCore::Generic::Sulu::Webhook',
-      'DataCycleCore::Generic::ExternalLink::Webhook'
+      'DataCycleCore::Generic::ExternalLink::Webhook',
+      'DataCycleCore::Generic::Amtangee::Webhook'
     ]
 
     mattr_accessor :excluded_filter_classifications
@@ -187,11 +188,23 @@ module DataCycleCore
     mattr_accessor :classification_visibilities
     self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'filter', 'tile', 'list', 'tree_view']
 
+    mattr_accessor :classification_change_behaviour
+    self.classification_change_behaviour = ['trigger_webhooks', 'clear_cache']
+
     mattr_accessor :cache_invalidation_depth
     self.cache_invalidation_depth = 3
 
     mattr_accessor :holidays_country_code
     self.holidays_country_code = :at
+
+    mattr_accessor :partial_update_improved
+    self.partial_update_improved = false
+
+    mattr_accessor :transitive_classification_paths
+    self.transitive_classification_paths = false
+
+    mattr_accessor :persistent_activities
+    self.persistent_activities = ['downloads']
   end
 
   def self.setup
@@ -255,6 +268,9 @@ module DataCycleCore
     config.i18n.fallbacks = false
     config.action_view.form_with_generates_remote_forms = true
 
+    # disable Query logger in development environment
+    config.active_record.logger = nil if Rails.env.development? && ENV['RAILS_LOG_TO_STDOUT'].blank?
+
     # prevent span tags inside HTML-Attributes for missing translations
     config.action_view.debug_missing_translation = false
 
@@ -274,6 +290,8 @@ module DataCycleCore
 
     config.before_initialize do |app|
       app.config.time_zone = 'Europe/Vienna'
+      app.config.exceptions_app = routes
+      app.middleware.insert_before Rack::Runtime, DataCycleCore::FixParamEncodingMiddleware
     end
 
     config.to_prepare do

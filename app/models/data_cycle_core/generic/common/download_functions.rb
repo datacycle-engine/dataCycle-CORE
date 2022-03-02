@@ -43,7 +43,9 @@ module DataCycleCore
                   logging.info("Single download item: #{item_name}", item_id)
                 end
               rescue StandardError => e
-                Appsignal.send_error(e, nil, 'background')
+                Appsignal.send_error(e) do |transaction|
+                  transaction.set_namespace('background')
+                end
                 logging.error(nil, nil, nil, e)
               end
             end
@@ -111,7 +113,9 @@ module DataCycleCore
                         item.save!
                         logging.item_processed(item_name, item_id, item_count, max_string)
                       rescue StandardError => e
-                        Appsignal.send_error(e, nil, 'background')
+                        Appsignal.send_error(e) do |transaction|
+                          transaction.set_namespace('background')
+                        end
                         logging.error(item_name, item_id, item_data, e)
                         success = false
                       end
@@ -126,7 +130,9 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  Appsignal.send_error(e, nil, 'background')
+                  Appsignal.send_error(e) do |transaction|
+                    transaction.set_namespace('background')
+                  end
                   logging.error(nil, nil, nil, e)
                   success = false
                 ensure
@@ -191,7 +197,9 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      Appsignal.send_error(e, nil, 'background')
+                      Appsignal.send_error(e) do |transaction|
+                        transaction.set_namespace('background')
+                      end
                       logging.error(item_name, item_id, item_data, e)
                       success = false
                     end
@@ -206,7 +214,9 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                Appsignal.send_error(e, nil, 'background')
+                Appsignal.send_error(e) do |transaction|
+                  transaction.set_namespace('background')
+                end
                 logging.error(nil, nil, nil, e)
                 success = false
               ensure
@@ -275,7 +285,9 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      Appsignal.send_error(e, nil, 'background')
+                      Appsignal.send_error(e) do |transaction|
+                        transaction.set_namespace('background')
+                      end
                       logging.error(item_name, item_id, item_data, e)
                       success = false
                     end
@@ -290,7 +302,9 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                Appsignal.send_error(e, nil, 'background')
+                Appsignal.send_error(e) do |transaction|
+                  transaction.set_namespace('background')
+                end
                 logging.error(nil, nil, nil, e)
                 success = false
               ensure
@@ -301,7 +315,7 @@ module DataCycleCore
           success
         end
 
-        def self.download_test(download_object:, data_id:, data_name:, raw_data:)
+        def self.dump_test_data(download_object:, data_id:, data_name:, raw_data:)
           init_mongo_db(download_object) do
             init_logging(download_object) do |logging|
               download_object.source_object.with(download_object.source_type) do |mongo_item|
@@ -313,7 +327,32 @@ module DataCycleCore
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)
               rescue StandardError => e
-                Appsignal.send_error(e, nil, 'background')
+                Appsignal.send_error(e) do |transaction|
+                  transaction.set_namespace('background')
+                end
+                logging.error(nil, nil, nil, e)
+              end
+            end
+          end
+          true
+        end
+
+        def self.dump_raw_data(download_object:, data_id:, data_name:, raw_data:, options:)
+          init_mongo_db(download_object) do
+            init_logging(download_object) do |logging|
+              download_object.source_object.with(download_object.source_type) do |mongo_item|
+                locale = options.dig(:download, :locales)&.first || :de
+                item_id = data_id.call(raw_data)
+                item_name = data_name.call(raw_data)
+                item = mongo_item.find_or_initialize_by('external_id': item_id)
+                item.dump = { locale => raw_data }
+                item.save!
+                GC.start
+                logging.info("Single download_all item #{item_name}", item_id)
+              rescue StandardError => e
+                Appsignal.send_error(e) do |transaction|
+                  transaction.set_namespace('background')
+                end
                 logging.error(nil, nil, nil, e)
               end
             end
@@ -372,7 +411,9 @@ module DataCycleCore
                         item.save!
                         logging.item_processed('delete', item_id, item_count, max_string)
                       rescue StandardError => e
-                        Appsignal.send_error(e, nil, 'background')
+                        Appsignal.send_error(e) do |transaction|
+                          transaction.set_namespace('background')
+                        end
                         logging.error('delete', item_id, item_data, e)
                         success = false
                       end
@@ -387,7 +428,9 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  Appsignal.send_error(e, nil, 'background')
+                  Appsignal.send_error(e) do |transaction|
+                    transaction.set_namespace('background')
+                  end
                   logging.error(nil, nil, nil, e)
                   success = false
                 ensure
@@ -461,7 +504,9 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  Appsignal.send_error(e, nil, 'background')
+                  Appsignal.send_error(e) do |transaction|
+                    transaction.set_namespace('background')
+                  end
                   logging.error(nil, nil, nil, e)
                   success = false
                 ensure
@@ -535,7 +580,9 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  Appsignal.send_error(e, nil, 'background')
+                  Appsignal.send_error(e) do |transaction|
+                    transaction.set_namespace('background')
+                  end
                   logging.error(nil, nil, nil, e)
                   success = false
                 ensure

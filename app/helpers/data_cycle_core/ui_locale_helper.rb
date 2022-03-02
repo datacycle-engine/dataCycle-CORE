@@ -4,6 +4,8 @@ module DataCycleCore
   module UiLocaleHelper
     def active_ui_locale
       current_user&.ui_locale || DataCycleCore.ui_locales.first
+    rescue StandardError
+      DataCycleCore.ui_locales.first
     end
 
     def translated_attribute_label(key, definition, content, options)
@@ -49,9 +51,16 @@ module DataCycleCore
     def attribute_translatable?(key, definition, content)
       I18n.available_locales.many? &&
         content&.translatable? &&
-        (content&.translatable_property?(key.attribute_name_from_key, definition) &&
-        definition&.dig('type') != 'object') ||
-        (definition&.dig('type') == 'embedded' && !definition&.dig('translated'))
+        (
+          (
+            content&.translatable_property?(key.attribute_name_from_key, definition) &&
+            definition&.dig('type') != 'object'
+          ) ||
+          (
+            definition&.dig('type') == 'embedded' &&
+            !definition&.dig('translated')
+          )
+        )
     end
 
     def attribute_viewer_label_tag(key, definition, content, options)

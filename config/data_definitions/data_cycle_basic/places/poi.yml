@@ -136,3 +136,6 @@
       :additional_properties:
         :type: mixin
         :name: additional_properties
+      :additional_poi_properties:
+        :type: mixin
+        :name: additional_poi_properties

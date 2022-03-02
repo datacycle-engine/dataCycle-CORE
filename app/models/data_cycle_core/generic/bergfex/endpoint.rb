@@ -8,6 +8,7 @@ module DataCycleCore
           @host = host
           @end_point = end_point
           @partner = partner
+          @partner_lakes = options.dig(:partner_lakes)
         end
 
         def lakes(lang: :de)
@@ -47,8 +48,11 @@ module DataCycleCore
         def load_lake_data
           response = Faraday.new.get do |req|
             req.url(@host + @end_point + 'seen/xml/')
-            req.params['partner'] = @partner
+            req.params['partner'] = @partner_lakes || @partner
           end
+
+          # it seems like bergfex returns status 500 for lake data in Winter??
+          return [] if response.status == 500
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
           [Nokogiri::XML(response.body).xpath('//lakes').first.to_hash['lake']].flatten

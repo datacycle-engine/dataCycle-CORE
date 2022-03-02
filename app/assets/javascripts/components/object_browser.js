@@ -12,8 +12,10 @@ class ObjectBrowser {
     this.element = selector;
     this.objectListElement = this.element.find('> .media-thumbs > .object-thumbs').get(0);
     this.id = selector.prop('id');
-    this.overlay = $('#object_browser_' + this.id);
-    this.label = $('[for=' + this.id + ']').text();
+    this.overlay = $(`#object_browser_${this.id}`);
+    this.label = $('[for=' + this.id + ']')
+      .text()
+      .trim();
     this.overlay_per = 25;
     this.per = selector.data('per') || 5;
     this.type = selector.data('type');
@@ -33,7 +35,6 @@ class ObjectBrowser {
     this.editable = selector.data('editable');
     this.page = 1;
     this.loading = false;
-    this.search = '';
     this.total = 0;
     this.ids = selector.data('objects') || [];
     this.chosen = this.ids.slice(0);
@@ -52,11 +53,11 @@ class ObjectBrowser {
       breadcrumbClick: this.breadcrumbClickHandler.bind(this),
       import: this.import.bind(this)
     };
+    this.overlayInitObserver = new MutationObserver(this.initOverlay.bind(this));
 
     this.setup();
   }
   setup() {
-    var self = this;
     this.sortable = new Sortable(this.element.find('> .media-thumbs > .object-thumbs').get(0), {
       handle: '.draggable-handle',
       draggable: 'li.item'
@@ -65,132 +66,220 @@ class ObjectBrowser {
       this.ids,
       $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
     );
-    // initialize all eventhandlers
-    this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
-    this.overlay.on('closed.zf.reveal', this.closeOverlay.bind(this));
-    this.overlay.children('.items').on(
-      'scroll',
-      function (event) {
-        var elem = $(event.currentTarget);
-        if (
-          elem[0].scrollHeight - elem.scrollTop() - 200 <= elem.outerHeight() &&
-          !this.loading &&
-          this.overlay.children('.items').children('li.item').length < this.total
-        ) {
-          this.page += 1;
-          this.loadObjects();
-        }
-      }.bind(this)
-    );
-    this.overlay.find('.object-browser-search').on('change', function (event) {
-      event.preventDefault();
-      self.search = $(this).val();
-      self.page = 1;
-      self.loadObjects(false);
-    });
-    this.overlay.find('.chosen-items-container').on('click', 'li.item', function (event) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      if (self.selected != $(this).data('id')) {
-        self.loadDetails($(this).data('id'));
-      }
-    });
-    this.overlay.children('.items').on('click', 'li.item', function (event) {
-      if ($(event.target).closest('a.show-link').length || $(event.target).closest('a.edit-link').length) return;
 
-      event.preventDefault();
-      event.stopImmediatePropagation();
+    this.overlayInitObserver.observe(this.overlay.get(0), { attributes: true, attributeFilter: ['class'] });
+    this.element.on('click', '.delete-thumbnail', this.clickDeleteThumbnailHandler.bind(this));
+    this.element.on('dc:update:chosen', this.updateChosenHandler.bind(this));
+    this.element.on('dc:import:data', this.importDataHandler.bind(this)).addClass('dc-import-data');
+    this.overlay.on('open.zf.reveal', this.setOverlayPosition.bind(this));
+    this.overlay.on('closed.zf.reveal', this.resetOverlayPosition.bind(this));
 
-      if (self.selected != $(this).data('id')) {
-        $(this).addClass('in-object-browser');
-        self.loadDetails($(this).data('id'));
-      }
-      if (self.chosen.indexOf($(this).data('id')) == -1) {
-        self.addObject($(this).data('id'), $(this).clone(), event);
-      } else {
-        self.removeObject($(this).data('id'), event);
-      }
-    });
-    this.element.on('click', '.delete-thumbnail', async event => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (await this.validate('-', this.chosen.length - 1)) {
-        this.removeThumbObject(event.target);
-      }
-    });
-    this.overlay.find('.chosen-items-container').on('click', '.delete-thumbnail', function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      self.removeObject($(this).closest('li.item').data('id'), event);
-    });
-    this.overlay.find('.buttons .save-object-browser').on('click', async event => {
-      event.preventDefault();
-      if (await this.validate()) {
-        this.setChosen();
-        this.overlay.foundation('close');
-        this.element.closest('.form-element').trigger('change');
-      }
-    });
-    this.element.on('dc:update:chosen', (_event, data) => {
-      this.chosen = union(this.chosen, data.chosen);
-      $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) =>
-        $(elem).remove()
-      );
-      this.updateChosenCounter();
-      this.overlay.find('.items li.item .reveal.media-preview').each(function () {
-        if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
-      });
-      this.element.find('.object-thumbs li.item .reveal.media-preview').each((_index, element) => {
-        $(element).foundation().addClass('dc-fd-initialized');
-      });
-    });
-    this.element.on('dc:import:data', async (_event, data) => {
-      let newItems = [];
-      if (data.external_ids != undefined) newItems = data.external_ids;
-      else if (data.value && data.value.length) {
-        newItems = difference(
-          data.value,
-          $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) => $(val).data('id'))
-        );
-      }
-      if (newItems.length > 0 && (await this.validate('+', this.chosen.length + newItems.length))) {
-        await this.findObjects(newItems, data.external_ids != undefined);
-      }
-    });
-    this.overlay.on('dc:import:complete', (event, data) => {
-      this.excluded = union(this.excluded, data && data.ids);
-      this.overlay
-        .children('.items')
-        .find('[data-id=' + data.ids[0] + ']')
-        .get(0)
-        .scrollIntoView({
-          behavior: 'smooth'
-        });
-
-      data.ids.forEach(id => {
-        this.addObject(id, this.overlay.find('[data-id=' + id + ']').clone(), event);
-      });
-
-      $('#new_' + this.id + '.in-object-browser form').trigger('reset');
-    });
     $(document).on(
       'dc:html:changed',
-      '#new_' + this.id + '.in-object-browser .new-content-form',
+      `#new_${this.id}.in-object-browser .new-content-form`,
       this.initNewFormHandlers.bind(this)
     );
     this.element.on('dc:locale:changed', this.updateLocale.bind(this));
     this.element.closest('form').on('reset', this.reset.bind(this));
 
     if (this.limitedBy === Object(this.limitedBy)) {
-      let filterItem = this.element;
-      this.limitedBy.forEach(item => {
-        filterItem = filterItem[item[0]](item[1]);
-      });
-      this.limitedBy = filterItem;
+      let filterItem = this.element.get(0);
+
+      for (let i = 0; i < this.limitedBy.length; ++i) {
+        filterItem = filterItem[this.limitedBy[i][0]](this.limitedBy[i][1]);
+      }
+
+      this.limitedBy = $(filterItem);
 
       this.limitedBy.on('change', this.removeDeletedItem.bind(this));
       if (!this.element.closest('.split-content.edit-content').length) this.removeDeletedItem();
     } else this.limitedBy = undefined;
+  }
+  setOverlayPosition(_event) {
+    if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
+    else if (this.overlay.data('overlay') === false) document.body.classList.add('object-browser-overlay-open');
+
+    if ($('.breadcrumb ul li:last-child').data('object-browser-id') == this.id) return;
+
+    // set breadcrumb link + text
+    const text = $('.breadcrumb ul li:last-child').html();
+    $('.breadcrumb ul li:last-child').html('<a class="close-object-browser" href="#">' + text + '</a>');
+    $('.breadcrumb ul').append(
+      `<li data-object-browser-id="${
+        this.id
+      }"><span class="breadcrumb-text" title="${this.label.trim()} auswählen"><i><i class="fa fa-files-o" aria-hidden="true"></i>${this.label.trim()} auswählen</i></span></li>`
+    );
+    $('.breadcrumb ul li').on('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
+  }
+  resetOverlayPosition(_event) {
+    this.overlay.removeClass('full-height');
+
+    if (!$('.reveal.object-browser-overlay:visible').not(this.overlay).length && this.overlay.data('overlay') === false)
+      document.body.classList.remove('object-browser-overlay-open');
+
+    if ($('.breadcrumb ul li:last-child').data('object-browser-id') != this.id) return;
+
+    $('.breadcrumb ul li:last-child').remove();
+    var text = $('.breadcrumb ul li:last-child a.close-object-browser').html();
+    $('.breadcrumb ul li:last-child').html(text);
+    $('.breadcrumb ul li').off('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
+  }
+  initOverlay(mutations) {
+    if (mutations.some(e => e.target.classList.contains('remote-rendered'))) {
+      this.overlayInitObserver.disconnect();
+      this.initOverlayHandlers();
+    }
+  }
+  initOverlayHandlers(_element) {
+    this.overlayFilter = this.overlay.find('.object-browser-filter');
+    this.overlayCount = this.overlayFilter.find('.item-count');
+    this.overlayFilterForm = this.overlayFilter.find('.object-browser-filter-form');
+    this.overlayItemList = this.overlay.children('.items');
+
+    this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
+    this.overlay.on('closed.zf.reveal', this.closeOverlay.bind(this));
+    this.overlayFilterForm.on('submit', this.filterItems.bind(this));
+    this.overlayFilterForm.find('.buttons button[type="reset"]').on('click', this.resetFilter.bind(this));
+    this.overlay.find('.chosen-items-container').on('click', 'li.item', this.clickChosenItemsHandler.bind(this));
+    this.overlayItemList.on('click', 'li.item', this.clickItemsHandler.bind(this));
+    this.overlay
+      .find('.chosen-items-container')
+      .on('click', '.delete-thumbnail', this.clickChosenItemsDeleteHandler.bind(this));
+    this.overlay.find('.buttons .save-object-browser').on('click', this.clickSaveHandler.bind(this));
+    this.overlay.on('dc:import:complete', this.importCompleteHandler.bind(this));
+
+    this.infiniteLoadingObserver = new IntersectionObserver(this.startInfiniteLoading.bind(this), {
+      root: this.overlayItemList.get(0),
+      rootMargin: '0px 0px 50px 0px',
+      threshold: 0.1
+    });
+
+    this.overlay.trigger('open.zf.reveal');
+  }
+  importCompleteHandler(event, data) {
+    this.excluded = union(this.excluded, data && data.ids);
+    this.overlay
+      .children('.items')
+      .find('[data-id=' + data.ids[0] + ']')
+      .get(0)
+      .scrollIntoView({
+        behavior: 'smooth'
+      });
+
+    data.ids.forEach(id => {
+      this.addObject(id, this.overlay.find('[data-id=' + id + ']').clone(), event);
+    });
+
+    $('#new_' + this.id + '.in-object-browser form').trigger('reset');
+  }
+  async importDataHandler(_event, data) {
+    let newItems = [],
+      removedItems = [];
+
+    if (data.external_ids != undefined) newItems = data.external_ids;
+    else if (data.value) {
+      const existingIds = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, _i) =>
+        $(val).data('id')
+      );
+      newItems = difference(data.value, existingIds);
+      removedItems = difference(existingIds, data.value);
+    }
+
+    if (data.replace) {
+      const query = removedItems.map(r => `> .media-thumbs > .object-thumbs > li.item[data-id="${r}"]`);
+
+      this.element.find(query.join(', ')).each((_index, item) => {
+        this.removeThumbObject(item, false);
+      });
+    }
+
+    if (
+      newItems.length > 0 &&
+      (await this.validate(
+        '+',
+        this.chosen.length + newItems.length,
+        I18n.translate('frontend.split_view.copy_linked_error')
+      ))
+    ) {
+      await this.findObjects(newItems, data.external_ids != undefined);
+    }
+  }
+  updateChosenHandler(_event, data) {
+    this.chosen = union(this.chosen, data.chosen);
+    $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((_index, elem) =>
+      $(elem).remove()
+    );
+    this.updateChosenCounter();
+    this.overlay.find('.items li.item .reveal.media-preview').each((_i, element) => {
+      if ($(element).prop('id').indexOf('overlay_') == -1) $(element).prop('id', 'overlay_' + $(element).prop('id'));
+    });
+    this.element.find('.object-thumbs li.item .reveal.media-preview').each((_i, element) => {
+      $(element).foundation().addClass('dc-fd-initialized');
+    });
+  }
+  async clickSaveHandler(event) {
+    event.preventDefault();
+
+    if (await this.validate()) {
+      this.setChosen();
+      this.overlay.foundation('close');
+      this.element.closest('.form-element').trigger('change');
+    }
+  }
+  clickChosenItemsDeleteHandler(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const $target = $(event.currentTarget);
+
+    this.removeObject($target.closest('li.item').data('id'), event);
+  }
+  async clickDeleteThumbnailHandler(event, data = {}) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (await this.validate('-', this.chosen.length - 1)) {
+      this.removeThumbObject(event.target, !data.preventDefault);
+    }
+  }
+  clickItemsHandler(event) {
+    const $target = $(event.currentTarget);
+
+    if (event.target.closest('a.show-link') || event.target.closest('a.edit-link')) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    if (this.selected != $target.data('id')) {
+      $target.addClass('in-object-browser');
+      this.loadDetails($target.data('id'));
+    }
+    if (this.chosen.indexOf($target.data('id')) == -1) {
+      this.addObject($target.data('id'), $target.clone(), event);
+    } else {
+      this.removeObject($target.data('id'), event);
+    }
+  }
+  clickChosenItemsHandler(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const $target = $(event.currentTarget);
+    if (this.selected != $target.data('id')) {
+      this.loadDetails($target.data('id'));
+    }
+  }
+  startInfiniteLoading(entries, _observer) {
+    if (
+      !entries[0].isIntersecting ||
+      this.loading ||
+      this.overlay.children('.items').children('li.item').length >= this.total
+    )
+      return;
+
+    this.infiniteLoadingObserver.disconnect();
+
+    this.page += 1;
+    this.loadObjects();
   }
   updateLocale(e) {
     e.stopPropagation();
@@ -279,7 +368,10 @@ class ObjectBrowser {
       .remove();
     item.remove();
     if (this.chosen.length == 0) this.renderHiddenField();
-    if (triggerChange) this.element.closest('.form-element').trigger('change');
+    if (triggerChange) {
+      this.element.trigger('dc:objectBrowser:change', { key: this.key, ids: this.chosen });
+      this.element.closest('.form-element').trigger('change');
+    }
   }
   renderHiddenField() {
     this.objectListElement.classList.remove('has-items');
@@ -310,15 +402,19 @@ class ObjectBrowser {
       contentType: 'application/json'
     });
   }
-  async validate(type = '~', new_length = this.chosen.length) {
+  async validate(type = '~', new_length = this.chosen.length, errorPrefix = '') {
     if (type != '-' && this.max != 0 && new_length > this.max) {
       new ConfirmationModal({
-        text: `${this.label}: ${await I18n.translate('frontend.maximum_embedded', { data: this.max })}`
+        text: `${this.label}: ${await errorPrefix}${await I18n.translate('frontend.maximum_embedded', {
+          data: this.max
+        })}`
       });
       return false;
     } else if (type != '+' && this.min != 0 && new_length < this.min) {
       new ConfirmationModal({
-        text: `${this.label}: ${await I18n.translate('frontend.minimum_embedded', { data: this.min })}`
+        text: `${this.label}: ${await errorPrefix}${await I18n.translate('frontend.minimum_embedded', {
+          data: this.min
+        })}`
       });
       return false;
     }
@@ -352,6 +448,8 @@ class ObjectBrowser {
             .addClass('dc-fd-initialized');
         });
     }
+
+    this.element.trigger('dc:objectBrowser:change', { key: this.key, ids: this.chosen });
   }
   addObject(id, element, _event) {
     if (this.chosen.indexOf(id) === -1) {
@@ -440,10 +538,9 @@ class ObjectBrowser {
     });
   }
   resetOverlay() {
-    this.overlay.find('.object-browser-search').val('');
+    this.overlayFilterForm.get(0).reset();
     this.overlay.find('.chosen-items-container li.item').remove();
     this.chosen = [];
-    this.search = '';
     this.excluded = [];
     this.page = 1;
   }
@@ -463,43 +560,20 @@ class ObjectBrowser {
     this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
   }
   openOverlay(_ev) {
-    if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
-    else if (this.overlay.data('overlay') === false) document.body.classList.add('object-browser-overlay-open');
-
-    this.overlay.find('.object-browser-header .item-count').text('');
+    this.overlayCount.html('');
     this.preselectedItems = this.chosen.slice(0);
     $(window).on('beforeunload', this.eventHandlers.pageLeave);
     this.resetOverlay();
     this.setPreselected();
     this.updateChosenCounter();
-    // set breadcrumb link + text
-    var text = $('.breadcrumb ul li:last-child').html();
-    $('.breadcrumb ul li:last-child').html('<a class="close-object-browser" href="#">' + text + '</a>');
-    $('.breadcrumb ul').append(
-      '<li><span class="breadcrumb-text" title="' +
-        this.label.trim() +
-        ' auswählen"><i><i class="fa fa-files-o" aria-hidden="true"></i>' +
-        this.label +
-        ' auswählen</i></span></li>'
-    );
-    $('.breadcrumb ul li').on('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
+
     $(window).on('message.object_browser onmessage.object_browser', this.eventHandlers.import);
     let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
     if (difference(this.ids, loaded).length) this.loadMore(loaded);
     else this.loadObjects(false);
   }
   closeOverlay(_ev) {
-    this.overlay.removeClass('full-height');
-
     $(window).off('beforeunload', this.eventHandlers.pageLeave);
-
-    if (!$('.reveal.object-browser-overlay:visible').not(this.overlay).length && this.overlay.data('overlay') === false)
-      document.body.classList.remove('object-browser-overlay-open');
-
-    $('.breadcrumb ul li:last-child').remove();
-    var text = $('.breadcrumb ul li:last-child a.close-object-browser').html();
-    $('.breadcrumb ul li:last-child').html(text);
-    $('.breadcrumb ul li').off('click', '.close-object-browser', this.eventHandlers.breadcrumbClick);
     $(window).off('message.object_browser onmessage.object_browser', this.eventHandlers.import);
     $('#asset-upload-reveal-default').off('closed.zf.reveal');
   }
@@ -550,11 +624,33 @@ class ObjectBrowser {
       return promise;
     }
   }
+  filterItems(event = null) {
+    if (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+
+    this.page = 1;
+    this.loadObjects(false);
+  }
+  resetFilter(event = null, triggerReload = true) {
+    if (event) event.preventDefault();
+
+    this.overlayFilterForm.get(0).reset();
+
+    if (triggerReload) this.filterItems();
+  }
+  serializeFilter() {
+    return this.overlayFilterForm.serializeJSON();
+  }
   loadObjects(append = true) {
+    this.infiniteLoadingObserver.disconnect();
+
     if (!append) {
       this.excluded = [];
       this.overlay.children('.items').scrollTop(0);
       this.overlay.children('.items').html(loadingIcon());
+      this.overlayCount.html(loadingIcon());
     }
     this.overlay.find('.items .loading').show();
     this.loading = true;
@@ -571,7 +667,7 @@ class ObjectBrowser {
         key: this.key,
         definition: this.definition,
         options: this.options,
-        search: this.search,
+        filter: this.serializeFilter(),
         objects: this.chosen,
         editable: this.editable,
         excluded: this.excluded,
@@ -592,7 +688,16 @@ class ObjectBrowser {
       const count = data.count || 0;
       this.total = count;
       this.overlay.data('total', count);
-      this.overlay.find('.object-browser-header .item-count').text(count);
+
+      if (!append) {
+        I18n.translate('common.things_count_html', {
+          count: count,
+          delimited_count: count.toLocaleString('de-DE')
+        }).then(countText => {
+          this.overlayCount.html(countText);
+        });
+      }
+
       this.overlay.find('.items .loading').hide();
 
       let html = data.html;
@@ -606,15 +711,9 @@ class ObjectBrowser {
         if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
       });
       this.loading = false;
-      if (
-        this.overlay.children('.items').children('li.item').length < this.total &&
-        this.overlay.children('.items').children('li.item').last().offset().top -
-          this.overlay.children('.items').offset().top <
-          this.overlay.children('.items').first().outerHeight()
-      ) {
-        this.page += 1;
-        this.loadObjects();
-      }
+
+      if (this.overlay.children('.items').children('li.item').length < this.total)
+        this.infiniteLoadingObserver.observe(this.overlay.children('.items').children('li.item').last().get(0));
     });
 
     return promise;

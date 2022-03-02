@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/time_helper'
+
 namespace :dc do
   namespace :update_data do
     desc 'update all computed attributes'
@@ -41,7 +43,7 @@ namespace :dc do
           end
         end
 
-        puts "#{''.ljust(41)} | #{(items_to_update || 0).to_s.rjust(8)} | #{(items_to_update || 0).to_s.rjust(8)} | #{format_time(Time.zone.now - temp, 5, 6, 's')} \r"
+        puts "#{''.ljust(41)} | #{(items_to_update || 0).to_s.rjust(8)} | #{(items_to_update || 0).to_s.rjust(8)} | #{TimeHelper.format_time(Time.zone.now - temp, 5, 6, 's')} \r"
       end
 
       if dry_run
@@ -51,11 +53,12 @@ namespace :dc do
     end
 
     desc 'add default values for all attributes'
-    task :add_defaults, [:template_names, :webhooks] => [:environment] do |_, args|
+    task :add_defaults, [:template_names, :webhooks, :imported] => [:environment] do |_, args|
       template_names = args.template_names&.split('|')&.map(&:squish)
 
       contents = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded')
       contents = contents.where(template_name: template_names) if template_names.present?
+      contents = contents.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
 
@@ -66,7 +69,7 @@ namespace :dc do
           I18n.with_locale(locale) do
             data_hash = {}
             content.add_default_values(data_hash: data_hash, force: true)
-            content.prevent_webhooks = args.webhooks&.downcase == 'false'
+            content.prevent_webhooks = args.webhooks&.to_s&.downcase == 'false'
             begin
               content.set_data_hash(data_hash: data_hash, partial_update: true)
             rescue StandardError => e
@@ -78,17 +81,4 @@ namespace :dc do
       end
     end
   end
-end
-
-def zsh?
-  ENV['SHELL']&.split('/')&.last == 'zsh'
-end
-
-def error(msg)
-  puts msg
-  exit(-1)
-end
-
-def format_time(time, n, m, unit)
-  time.round(m).to_s.split('.').zip([->(x) { x.rjust(n) }, ->(x) { x.ljust(m, '0') }]).map { |x, f| f.call(x) }.join('.') + " #{unit}"
 end

@@ -45,15 +45,16 @@ module DataCycleCore
           render plain: responses.to_json, content_type: 'application/json', status: errors.size.positive? ? :bad_request : :ok
         end
 
-        # def create
-        #   strategy = api_strategy
-        #   content = content_params.as_json
-        #
-        #   created = strategy.create content
-        #
-        #   # FIXME: Jbuilder Bug: tries to render jbuilder partial
-        #   render plain: { 'created' => created }.to_json, content_type: 'application/json'
-        # end
+        def create
+          strategy, external_system = api_strategy
+          render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?
+          content = content_params.as_json
+
+          response = strategy.create(content, external_system)
+          errors = response[:error] || []
+
+          render plain: Array.wrap(response).to_json, content_type: 'application/json', status: errors.size.positive? ? :bad_request : :ok
+        end
 
         def destroy
           strategy, external_system = api_strategy
@@ -117,7 +118,8 @@ module DataCycleCore
         end
 
         def content_params
-          params.require(:@graph)
+          return params[:@graph] if params.key?(:@graph)
+          params
         end
 
         def permitted_parameter_keys

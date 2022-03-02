@@ -22,6 +22,10 @@ module DataCycleCore
       class InvalidSerializationFormatError < StandardError
       end
     end
+    module Report
+      class ProcessingError < StandardError
+      end
+    end
     class RecordNotFoundError < StandardError
     end
     class DeprecatedMethodError < StandardError

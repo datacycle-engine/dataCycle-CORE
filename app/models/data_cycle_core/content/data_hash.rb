@@ -67,10 +67,19 @@ module DataCycleCore
 
         return false unless validate(data_hash: options.data_hash, schema_hash: partial_schema || schema, current_user: options.current_user)
 
-        return no_changes(options.ui_locale) unless diff?(options.data_hash, partial_schema, options.partial_update) || options.force_update
+        unless options.force_update
+          differ = diff_obj(options.data_hash, partial_schema, options.partial_update)
+          return no_changes(options.ui_locale) if differ.diff_hash.blank? && differ.errors[:error].blank?
+
+          if options.partial_update_improved
+            # reduce partial schema to only updated properties:
+            partial_schema['properties']&.slice!(*differ.diff_hash.keys)
+          end
+        end
 
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
-          to_history unless id.nil? || options.prevent_history
+          to_history if write_history
+          self.write_history = !options.prevent_history
 
           set_template_data_hash(options, partial_schema&.dig('properties') || property_definitions)
 
@@ -98,10 +107,9 @@ module DataCycleCore
         options = DataCycleCore::Content::DataHashOptions.new(**args)
         return {} if options.data_hash.blank? && !options.force_update
 
-        translations = options.data_hash[:translations]
-        locale = translations&.keys&.first || I18n.locale
-        datahash = ((options.data_hash.key?(:datahash) ? options.data_hash[:datahash] : options.data_hash.except(:translations, :version_name)) || {}).merge(translations&.delete(locale.to_s) || {}).with_indifferent_access
+        translations = DataCycleCore::DataHashService.parse_translated_hash(options.data_hash)
         version_name = (options.data_hash.key?(:version_name) ? options.data_hash[:version_name] : options.version_name).presence
+        locale, datahash = translations.shift
 
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
           I18n.with_locale(locale) do
@@ -111,9 +119,7 @@ module DataCycleCore
           if translations.present?
             translations.each do |l, locale_hash|
               I18n.with_locale(l) do
-                next if locale_hash.deep_reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }.blank?
-
-                raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :ui_locale).merge(data_hash: locale_hash, update_search_all: false, partial_update: true, version_name: version_name&.+(" (#{I18n.locale})")))
+                raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :ui_locale, :prevent_history, :source, :force_update).merge(data_hash: locale_hash, update_search_all: false, partial_update: true, version_name: version_name&.+(" (#{I18n.locale})")))
               end
             end
 
@@ -324,6 +330,8 @@ module DataCycleCore
           save_to_jsonb(key, value, properties, 'metadata')
         when 'translated_value'
           save_to_jsonb(key, value, properties, 'content')
+        when 'classification'
+          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal']) if properties.dig('compute', 'type') == 'classification'
         end
       end
 

@@ -8,7 +8,7 @@ namespace :dc do
 
       abort('External System Id missing!') if external_system_id.blank?
 
-      contents = DataCycleCore::Thing.where(external_source_id: external_system_id).where.not(external_key: nil)
+      contents = DataCycleCore::Thing.where(external_source_id: external_system_id)
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
 
@@ -17,9 +17,6 @@ namespace :dc do
 
         progressbar.increment
       end
-
-      ignored = DataCycleCore::Thing.where(external_source_id: external_system_id, external_key: nil).size
-      puts "IGNORED #{ignored} things due to missing external_key" if ignored.positive?
 
       schedules = DataCycleCore::Schedule.where(external_source_id: external_system_id)
       puts "MIGRATING: schedules (#{schedules.size})..."
@@ -239,7 +236,7 @@ namespace :dc do
         locale = item.available_locales.first
         parent_external_key = DataCycleCore::ContentContent.where(content_b_id: item.id).first.content_a.external_key
         item.external_key = "#{desc}:#{locale}:#{parent_external_key}"
-        item.save!
+        item.save!(touch: false)
         progressbar.increment
       end
     end

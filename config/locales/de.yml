@@ -128,6 +128,8 @@ de:
         ctrlKey: Verwende Strg+Scrollen zum Zoomen der Karte
         metaKey: 'Verwende ⌘+Scrollen zum Zoomen der Karte'
         pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
+      filter:
+        button_title: Verknüpfte Inhalte bearbeiten
     remote_render:
       error: Fehler beim Laden des Inhalts.
       reload: Neu laden
@@ -141,6 +143,7 @@ de:
         overlay_text: Sollen alle verfügbaren Sprachen übernommen werden?
         confirmation_text: Ja
         cancel_text: Nein, nur die aktuelle Sprache
+      copy_linked_error: 'Das Attribut konnte nicht übernommen werden: '
     validate:
       save_and_change_language: Wollen Sie speichern und auf die neue Sprache wechseln?
       agbs: AGBs müssen akzeptiert werden!
@@ -157,9 +160,18 @@ de:
         other: Wörter
       max: (noch max. %{data} %{label})
       min: (noch min. %{data} %{label})
+    image_editor:
+      edit_image: Bild bearbeiten
+      unsupported_format: Das Bild wird vom Bild-Editor in ein unterstützes Dateiformat konvertiert.
 
   schedule:
     dtstart: Startzeitpunkt
+    duration:
+      root: Dauer
+      months: Monate
+      days: Tage
+      hours: Stunden
+      minutes: Minuten
     dtend: Endzeitpunkt
     full_day: Ganztägig
     rrule: Wiederholungen
@@ -217,6 +229,8 @@ de:
     all: Alle
     import: Importiert
     export: Exportiert
+    internal: intern
+    external: extern
     duplicate: Duplikate
     auto_translation_submit: Automatische Übersetzung gestartet
     source_language: 'Quellsprache wählen'
@@ -259,6 +273,7 @@ de:
     status: Status
     confirm_delete_all_caches: Wirklich alle Caches leeren?
     confirm_delete_cache: Wirklich den Cache leeren?
+    confirm_delete_autotranslation: Wirklich alle manuellen Übersetzungen löschen?
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
     download_gpx: Als GPX-Datei herunterladen
     duplicate_content: Inhalt duplizieren
@@ -442,6 +457,17 @@ de:
       version_name_removed: Der Versionsname wurde entfernt!
     download:
       missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
+    serialize:
+      license:
+        copyright:
+          file_name: nutzungsbedingungen
+        introducton:
+          file_name: einleitungstext
+          text: 'Überschrift
+
+          Hier könnte Ihre Enleitung stehen
+
+          COPYRIGHT dataCycle'
     gip_key_figure:
       button_title: Ermittlung des Wertes für %{data} über ein Web-Service der GIP auf Basis der zugrundeliegenden Geo-Daten
     user_api:
@@ -449,16 +475,34 @@ de:
         subject: Ein neuer Benutzer wurde erstellt
         text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
         user_link: Benutzer bearbeiten
+    report_generator:
+      downloads_popular: Top 50 Downloads
+      downloads_content: Alle Downloads dieses Inhalts
+      headings:
+        id: ID
+        name: Name
+        downloads_all: Anzahl der Downloads (Gesamt)
+        downloads_by_month: Anzahl der Downloads (%{date})
+        date_created: Heruntergeladen am
+        email: E-Mail
+        user_display_name: Account
 
   history:
     latest_edits: Letzte Bearbeitungen
-    created_at: erstellt am
-    updated_at: bearbeitet am
+    created_at_html: erstellt am <b>%{date}</b>
+    updated_at_html: bearbeitet in <b>%{language}</b> am <b>%{date}</b>
     valid_since: gültig seit
     differences_to_version: Unterschiede zu Version
     active_version: Aktuelle Version
-    look_at_version: Aktuellen Inhalt mit dieser Version vergleichen
+    look_at_version: Aktuellen Version mit dieser Version vergleichen
     restored: Wiederhergestellt am %{date}
+    created: Inhalt erstellt
+    restore:
+      version:
+        title: Diese Version wiederherstellen
+        confirmation_html: Die Version <i>%{history_version_html}</i> als aktuelle Version wiederherstellen?<br><br>Die aktuelle Version wird dadurch überschrieben.
+        restored_version_name: Version vom %{date} wiederhergestellt.
+        restored: Die Version vom %{date} wurde erfolgreich wiederhergestellt.
 
   data_link_mailer:
     content_download: Inhalt herunterladen
@@ -570,6 +614,7 @@ de:
     geo_within_classification: nach geografischer Lage filtern...
     geo_filter: nach geografischer Lage filtern...
     relation_filter: auf Basis von verknüpften Inhalten filtern ...
+    id: nach IDs filtern ...
     union_filter_ids: mehrere Sammlungen kombinieren...
     related_to: nach verknüpften Inhalten filtern ...
     in_schedule: nach Termin filtern...
@@ -612,14 +657,19 @@ de:
 
   classification_visibilities:
     backend: Dashboard
-    show: Detail-Ansicht
-    api: API
-    tile: Kachel
+    show: Detail-Ansicht (immer sichtbar)
     show_more: Detail-Ansicht (standardmäßig eingeklappt)
     edit: Bearbeitungs-Ansicht
+    api: API
+    tile: Kachel
     filter: Erweiterte Dashboard-Filter
     list: Listenansicht
     tree_view: Wurzel in der Baumansicht
+    xml: XML
+
+  classification_change_behaviour:
+    trigger_webhooks: Webhooks für Inhalte auslösen
+    clear_cache: Cache für Inhalte leeren
 
   pagination:
     next: Weitere Ergebnisse
@@ -661,6 +711,7 @@ de:
     finalize_agbs_text: AGBs
     finalize_combined_html: '%{finalize} und %{agbs} akzeptieren'
     copy_to_clipboard: In die Zwischenablage kopieren
+    copy_classification_alias_id_to_clipboard: Klassifizierungs-Alias-ID in die Zwischenablage kopieren
     copied_to_clipboard: In Zwischenablage kopiert.
     save: Speichern
     update: Aktualisieren
@@ -784,7 +835,8 @@ de:
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
-
+      schedule:
+        duration_too_long: 'Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)'
   controllers:
     error:
       invalid_parent: 'Ungültiges Eltern Objekt.'
@@ -805,6 +857,7 @@ de:
       no_watchlist: Es wurde keine Inhaltssammlung gewählt
       content_duplication_invalid: 'Das Duplikat konnte nicht erstellt werden!'
       bulk_update_error: Beim Speichern ist ein Fehler aufgetreten, bitte versuchen Sie es erneut
+      definition_mismatch: Die Versionen können nicht verglichen werden, weil die Datendefinitionen nicht überein stimmen
     success:
       created: '%{data} wurde erfolgreich erstellt.'
       ready_to_send: '%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden.'
@@ -966,6 +1019,7 @@ de:
         user_id: Eigentümer
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
+        change_behaviour: Änderungsverhalten
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: 'Beschreibungstext'
@@ -1033,13 +1087,14 @@ de:
         permissions_download: herunterladen
         permissions_read: lesen
         permissions_write: bearbeiten
-        text_file: 'Weitere Infos (PDF)'
+        text_file: Weitere Infos (%{file_types})
         locale: 'E-Mail Sprache'
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar
         api: Über API abrufbar
         api_users: Für API zugelassene Benutzer
         linked_stored_filter_id: Filter für verknüpfte Inhalte
+        classification_tree_labels: Auf Klassifizierungsbäume einschränken
         name: Name
       data_cycle_core/asset:
         name: Name
@@ -1057,6 +1112,9 @@ de:
     user_details: Benutzerdetails
     user_links: Benutzerlinks
     classifications: 'Klassifizierungen'
+    classifications_adminitration:
+      classification:
+        submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
     show_contents_for_tree_label: 'Inhalte in %{data} auflisten'
@@ -1066,6 +1124,9 @@ de:
     cache:
       clear_all: Alle Caches leeren
       clear: Cache leeren
+    autotranslate:
+      clear: Manuelle Übersetzungen löschen
+      auto: Für diesen Datensatz wurden alle Übersetzungen automatisch angelegt.
     classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
     classification_relations:
       one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'
@@ -1111,6 +1172,10 @@ de:
       containers: Container
       entities: Inhalte
       embeddeds: Eingebettete Inhalte
+    reports:
+      root: 'Reports'
+      available_reports: 'Verfügbare Reports'
+
     warning:
       common:
         invalid: Gültigkeitszeitraum überschritten
@@ -1181,7 +1246,7 @@ de:
         text: Beschreibung
         price: Preis
         description: Kurzbeschreibung
-        directions_public_transport: Öffentliche Verekehrsmittel
+        directions_public_transport: Öffentliche Verkehrsmittel
         instructions: Wegbeschreibung
         safety_instructions: Sicherheitshinweise
         equipment: Ausrüstung
@@ -1448,3 +1513,11 @@ de:
   details:
     bild:
       open_url: URL öffnen
+
+  exceptions_page:
+    back_to_root_link: Zurück zu dataCycle
+    copy_to_clipboard_link: Request-ID kopieren
+    copy_to_clipboard_title: Über die Request-ID kann der Fehler im Monitoring leichter gefunden werden
+    not_found: Diese Seite existiert leider nicht
+    internal_server_error: Es ist ein unerwarteter Fehler aufgetreten
+    unauthorized: Sie haben keine Berechtigung, die gewünschte Seite zu öffnen

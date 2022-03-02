@@ -13,7 +13,8 @@
                                ),
                                {
                                    multiple: false,
-                                   class: 'multi-select'
+                                   class: 'multi-select',
+                                   id: "language_#{SecureRandom.hex(10)}"
                                }
                     ) %>
       </div>
@@ -23,7 +24,7 @@
   <fieldset class="active serialize_formats">
     <legend><%= t('common.download.available_formats', locale: active_ui_locale) %></legend>
     <div class="form-element">
-      <% available_download_serializers(content).except('indesign').each_key.with_index do |serializer_key, i| %>
+      <% available_download_serializers(content).each_key.with_index do |serializer_key, i| %>
         <div>
           <%= radio_button_tag "serialize_format", serializer_key, i == 0 %>
           <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: active_ui_locale)}" %>
@@ -36,7 +37,6 @@
     <fieldset class="active version hidden">
       <legend><%= t('common.download.available_versions', locale: active_ui_locale) %></legend>
       <div class="form-element">
-
         <% ([:original] + Array(content.asset&.versions&.keys)).each_with_index do |version, i| %>
           <div>
             <%= radio_button_tag "version", version, i == 0 %>
@@ -47,22 +47,20 @@
       </div>
     </fieldset>
 
-    <% if DataCycleCore::Feature::Serialize.asset_versions(content).present? %>
-      <% DataCycleCore::Feature::Serialize.asset_versions(content)&.each do |key, value| %>
-        <fieldset class="active transformation hidden <%= key %>">
-          <legend><%= t('common.download.available_transformations', locale: active_ui_locale) %></legend>
-          <div class="form-element">
+    <% DataCycleCore::Feature::Serialize.asset_versions(content)&.each do |key, value| %>
+      <fieldset class="active transformation hidden <%= key %>">
+        <legend><%= t('common.download.available_transformations', locale: active_ui_locale) %></legend>
+        <div class="form-element">
 
-            <% (['none'] + Array(value)).each_with_index do |t_format, i| %>
-              <div>
-                <%= radio_button_tag "transformation[#{key}][format]", t_format, i == 0 %>
-                <%= label_tag "transformation[#{key}][format][#{t_format}]", "#{t("common.download.format.#{t_format}", default: t_format, locale: active_ui_locale)}" %>
-              </div>
-            <% end %>
+          <% (['none'] + Array(value)).each_with_index do |t_format, i| %>
+            <div>
+              <%= radio_button_tag "transformation[#{key}][format]", t_format, i == 0 %>
+              <%= label_tag "transformation[#{key}][format][#{t_format}]", "#{t("common.download.format.#{t_format}", default: t_format, locale: active_ui_locale)}" %>
+            </div>
+          <% end %>
 
-          </div>
-        </fieldset>
-      <% end %>
+        </div>
+      </fieldset>
     <% end %>
   <% end %>
 

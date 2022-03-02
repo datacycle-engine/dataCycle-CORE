@@ -26,7 +26,7 @@
 <%= render *content_partial('properties', { content: content, options: options }) %>
 
 <% if @mode_parameters.include?('indesign') %>
-    <Image href="file:///images/<%= content.id %><%= DataCycleCore::Serialize::AssetSerializer.file_extension(DataCycleCore::Serialize::AssetSerializer.mime_type(nil, content)) %>" />
+    <Image href="file:///images/<%= content.id %><%= DataCycleCore::Serialize::Serializer::Asset.file_extension(DataCycleCore::Serialize::Serializer::Asset.mime_type(serialized_content: nil, content: content)) %>" />
 <% end %>
 
 <%#= render render_partial('combined_properties'), content: content, options: options %>

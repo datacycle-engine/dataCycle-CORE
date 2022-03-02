@@ -31,7 +31,7 @@ module DataCycleCore
             )
 
             external_source_id = utility_object.external_source.id
-            parent_classification_data = load_parent_classification_alias(classification_data['id'], external_source_id)
+            parent_classification_data = load_parent_classification_alias(classification_data['id'], external_source_id, options)
 
             usage_types.each do |usage_type|
               child_classification_data = {
@@ -60,7 +60,7 @@ module DataCycleCore
           logging.phase_finished("#{options.dig(:importer_name)}(#{options.dig(:phase_name)}) #{locale}", item_count)
         end
 
-        def self.load_parent_classification_alias(external_key, external_source_id)
+        def self.load_parent_classification_alias(external_key, external_source_id, _options = {})
           DataCycleCore::Classification
             .find_by(
               external_source_id: external_source_id,

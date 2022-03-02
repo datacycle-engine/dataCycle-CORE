@@ -6,7 +6,7 @@
     :content_type: entity
     :features:
       :translatable:
-        :allowed: true 
+        :allowed: true
     :properties:
       :id:
         :label: id
@@ -27,13 +27,13 @@
             :options:
               :data-size: basic
         :advanced_search: true
+        :global: true
       :about:
         :label: About
         :type: linked
         :inverse_of: subject_of
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
@@ -50,7 +50,7 @@
           :show:
             :content_area: header
       :translation_type:
-        :label: Typ der Übersetzung
+        :label: Typ der Übersetzung (pro Sprache)
         :type: computed
         :storage_location: translated_value
         :compute:
@@ -69,8 +69,8 @@
         :type: datetime
         :storage_location: translated_value
         :ui:
-         :edit:
-           disabled: true
+          :edit:
+            disabled: true
         :api:
           :disabled: true
       :source_locale:
@@ -78,15 +78,28 @@
         :type: string
         :storage_location: translated_value
         :ui:
-         :edit:
-           disabled: true
+          :edit:
+            disabled: true
         :api:
           :disabled: true
+      :translated_classification:
+        :label: Typ der Übersetzung (gesamter Datensatz)
+        :type: computed
+        :tree_label: Übersetzungstyp
+        :storage_location: classification
+        :compute:
+          :type: classification
+          :module: Utility::Compute::Classification
+          :method: value
+          :parameters:
+            :0:
+              :value: 'Manuell'
+              :tree: 'Übersetzungstyp'
       :data_type:
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Übersetzung"
+        :default_value: 'Übersetzung'
       :meta_data:
         :type: mixin
         :name: meta_data

@@ -235,6 +235,11 @@
   &.accordion-close-all,
   &.accordion-open-all {
     background-color: $dark-gray;
+
+    &:focus,
+    &:hover {
+      background-color: lighten($dark-gray, 10%);
+    }
   }
 }
 

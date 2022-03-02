@@ -17,7 +17,6 @@ module DataCycleCore
 
       @person.set_data_hash(data_hash: { given_name: 'Maxi' }.stringify_keys, current_user: @user, partial_update: true)
 
-      assert_nil @person.histories.last.representation_of
       assert_equal @user, @person.histories.first.representation_of
     end
   end

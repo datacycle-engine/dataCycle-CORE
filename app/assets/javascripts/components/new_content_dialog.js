@@ -12,13 +12,13 @@ class NewContentDialog {
     this.$formWrapper = this.form.closest('.new-content-form');
     this.id = this.$formWrapper.attr('id');
     this.locale = this.form.find(':input[name="locale"]').val() || 'de';
-    this.activeLocale = this.locale;
     this.reveal = this.form.closest('.reveal.new-content-reveal');
     this.primaryAttributeKey = this.form.data('primary-attribute-key');
     this.templateTranslationPlural = this.form.data('template-translation');
     this.referencedAssetField;
     this.nextAssetButton;
     this.prevAssetButton;
+    this.translatedFieldInitObserver = new MutationObserver(this.initTranslatableField.bind(this));
 
     this.init();
     this.initEventHandlers();
@@ -37,10 +37,6 @@ class NewContentDialog {
     this.form.on('reset', this.resetForm.bind(this));
     this.form.on('change', ':input[name="locale"]', this.updateLocales.bind(this));
     this.form.on('dc:multistep:goto', this.goTo.bind(this));
-    this.form.on('click', '.translated-attribute-locale', event => {
-      event.preventDefault();
-      this.changeTranslation(event.target);
-    });
     this.form.on('keypress', event => {
       if (event.which == 13 && this.form.find('fieldset.active:not(:last-of-type)').length) {
         event.preventDefault();
@@ -48,7 +44,7 @@ class NewContentDialog {
       }
     });
     this.form.on('click', '.copy-attribute-to-all', this.copySingleToAllReferenceFields.bind(this));
-    this.form.find('.translated-attribute.active').trigger('dc:remote:render');
+    this.form.find('.translatable-attribute.active').trigger('dc:remote:render');
 
     if (this.referencedAssetField) {
       this.updateNavigationButtons();
@@ -60,10 +56,10 @@ class NewContentDialog {
       this.referencedAssetField.on('dc:form:importAttributeValues', this.importAttributeValues.bind(this));
       this.form.on('dc:form:submitWithoutRedirect', this.copyToReferenceField.bind(this));
       this.form.find('.set-all-attributes').on('click', this.copyToAllReferenceFields.bind(this));
-      this.form.on('dc:html:initialized', '.translated-attribute', event => {
-        event.stopPropagation();
-        this.addCopyAttributeButtons(event.currentTarget);
-        this.triggerSyncWithContentUploader(event);
+      this.translatedFieldInitObserver.observe(this.form.get(0), {
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class']
       });
 
       this.$formWrapper.on('dc:html:initialized', event => {
@@ -71,6 +67,20 @@ class NewContentDialog {
 
         this.triggerSyncWithContentUploader();
       });
+    }
+  }
+  initTranslatableField(mutations) {
+    for (let i = 0; i < mutations.length; ++i) {
+      if (
+        mutations[i].target.classList.contains('dc-import-data') &&
+        !mutations[i].target.classList.contains('triggered-sync-with-uploader')
+      ) {
+        mutations[i].target.classList.add('triggered-sync-with-uploader');
+        const formElement = mutations[i].target.closest('.form-element');
+
+        this.addCopyAttributeButtons(formElement);
+        this.triggerSyncWithContentUploader(formElement);
+      }
     }
   }
   copyToReferenceField(event, config = {}) {
@@ -91,7 +101,8 @@ class NewContentDialog {
     event.preventDefault();
     event.stopImmediatePropagation();
 
-    const formElement = $(event.currentTarget).next('.form-element');
+    const $target = $(event.currentTarget);
+    const formElement = $target.next('.form-element');
     const formElementKey = formElement.data('key');
 
     if (formElementKey.includes(`[${this.primaryAttributeKey}]`)) {
@@ -101,10 +112,10 @@ class NewContentDialog {
         cancelText: 'Nein',
         confirmationClass: 'warning',
         cancelable: true,
-        confirmationCallback: () => this.processSingleFormData(formElementKey, $(event.currentTarget))
+        confirmationCallback: () => this.processSingleFormData(formElementKey, $target)
       });
     } else {
-      this.processSingleFormData(formElementKey, $(event.currentTarget));
+      this.processSingleFormData(formElementKey, $target);
     }
   }
   processSingleFormData(formElementKey, target) {
@@ -169,7 +180,10 @@ class NewContentDialog {
     );
   }
   addCopyAttributeButtons(container) {
-    const formFields = $(container).find('> fieldset > .form-element, > .form-element').addBack('.form-element');
+    const formFields = $(container)
+      .find('> fieldset > .form-element, > .form-element')
+      .addBack('.form-element')
+      .filter((_i, item) => !$(item).prev('.copy-attribute-to-all').length && !item.closest('.conditional-form-field'));
 
     let button = $(
       `<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle ${this.templateTranslationPlural} übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-spinner fa-fw fa-spin"></i></button>`
@@ -183,12 +197,16 @@ class NewContentDialog {
         .prev('.copy-attribute-to-all')
         .addClass('primary-attribute-button');
   }
-  triggerSyncWithContentUploader(event = null) {
+  triggerSyncWithContentUploader(target = null) {
     let key;
+    const locale = this.form.find('> .available-attribute-locales .list-items > li.active a').data('locale');
 
-    if (event) key = $(event.currentTarget).find('> .form-element').data('key');
+    if (target) key = target.dataset.key;
 
-    this.referencedAssetField.trigger('dc:upload:syncWithForm', { key: key, locale: event ? this.activeLocale : null });
+    this.referencedAssetField.trigger('dc:upload:syncWithForm', {
+      key: key,
+      locale: target ? locale : null
+    });
   }
   importAttributeValues(event, data = null) {
     event.preventDefault();
@@ -202,7 +220,7 @@ class NewContentDialog {
       this.form
         .find('[data-key="' + key + '"]')
         .find(DataCycle.config.EditorSelectors.join(', '))
-        .trigger('dc:import:data', {
+        .triggerHandler('dc:import:data', {
           value: typeof groupedAttributes[key] == 'string' ? groupedAttributes[key].trim() : groupedAttributes[key],
           locale: data.locale || 'de',
           force: true
@@ -293,16 +311,6 @@ class NewContentDialog {
       DataCycle.disableElement(this.form);
     }
   }
-  changeTranslation(target) {
-    this.activeLocale = $(target).data('locale');
-    $(target).closest('.translated-attribute-locales').find('.translated-attribute-locale').removeClass('active');
-    $(target).addClass('active');
-    this.form.find('.translated-attribute.active').removeClass('active');
-    this.form
-      .find('.translated-attribute.' + $(target).data('locale'))
-      .addClass('active')
-      .trigger('dc:remote:render');
-  }
   next(event) {
     event.preventDefault();
     let activeFieldset = this.form.find('fieldset.active');
@@ -370,7 +378,7 @@ class NewContentDialog {
   renderContentForm() {
     this.form.find('.search-warning').hide();
     this.form.find('fieldset:not(.template)').trigger('dc:html:remove').remove();
-    this.form.find('.translated-attribute-locales, .form-thumbnail').remove();
+    this.form.find('.available-attribute-locales, .form-thumbnail').remove();
     this.form
       .find('.buttons')
       .before(
@@ -402,7 +410,6 @@ class NewContentDialog {
     DataCycle.enableElement(this.form);
     this.form.find('.single_error').remove();
     this.form.removeData('template');
-    this.changeTranslation(this.form.find('.translated-attribute-locale[data-locale="' + this.locale + '"]'));
     this.goTo(undefined, this.form.find('fieldset').index(this.form.find('fieldset').first()));
   }
   updateLocales(event) {
