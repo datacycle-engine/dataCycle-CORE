@@ -4,13 +4,12 @@ module DataCycleCore
   class User < ApplicationRecord
     include Content::ExternalData
 
-    devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
+    devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable, :omniauthable
     devise :registerable, :confirmable if DataCycleCore::Feature::UserRegistration.enabled?
 
     WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
-    attr_accessor :skip_callbacks
-    attr_accessor(*WEBHOOK_ACCESSORS)
+    attr_accessor :skip_callbacks, *WEBHOOK_ACCESSORS
 
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
@@ -136,6 +135,34 @@ module DataCycleCore
       elsif token[:user].present? && token.dig(:user, :email).present? && DataCycleCore.features.dig(:user_api, :enabled)
         User.find_or_initialize_by(email: token.dig(:user, :email)).update_with_token(token)
       end
+    end
+
+    def self.from_omniauth(auth)
+      return if auth&.info&.email.blank?
+
+      new_user = find_or_initialize_by(email: auth.info.email) do |user|
+        user.email = auth.info.email
+        user.password = Devise.friendly_token[0, 20]
+        user.given_name = auth.info.first_name
+        user.family_name = auth.info.last_name
+        user.role = DataCycleCore::Role.find_by(name: Devise.omniauth_configs[auth.provider.to_sym].options[:default_role]) if Devise.omniauth_configs[auth.provider.to_sym]&.options&.[](:default_role).present?
+      end
+
+      if new_user.provider.blank? && new_user.uid.blank?
+        new_user.provider = auth.provider
+        new_user.uid = auth.uid
+      end
+
+      new_user.confirmed_at = Time.zone.now if DataCycleCore::Feature::UserRegistration.enabled? && new_user.confirmed_at.blank?
+      new_user.external = true
+      new_user.additional_attributes ||= {}
+      new_user.additional_attributes[auth.provider] = {
+        info: auth.info,
+        raw_info: auth.dig('extra', 'raw_info')
+      }
+
+      new_user.save!
+      new_user
     end
 
     def as_user_api_json
