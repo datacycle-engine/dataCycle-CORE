@@ -1,5 +1,6 @@
 import QuillHelpers from './../helpers/quill_helpers';
 import ConfirmationModal from './../components/confirmation_modal';
+import UuidHelper from './../helpers/uuid_helper';
 
 class NewContentDialog {
   constructor(form) {
@@ -154,7 +155,7 @@ class NewContentDialog {
     let requests = [];
 
     formData.forEach((v, i) => {
-      if (v && v.value.isUuid()) {
+      if (v && UuidHelper.isUuid(v.value)) {
         const promise = DataCycle.httpRequest({
           url: `/api/v4/universal/${v.value}`,
           method: 'POST',
@@ -264,7 +265,7 @@ class NewContentDialog {
 
       let key = v.name.normalizeKey();
 
-      if (groupedValues[key] || v.value.isUuid()) {
+      if (groupedValues[key] || UuidHelper.isUuid(v.value)) {
         if (!Array.isArray(groupedValues[key])) groupedValues[key] = [groupedValues[key]].filter(Boolean);
 
         groupedValues[key].push(v.value);

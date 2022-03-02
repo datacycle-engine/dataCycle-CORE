@@ -8,8 +8,8 @@
       checked: value,
       disabled: !attribute_editable?(key, definition, options, content)
     },
-    definition.dig('ui', local_assigns.dig(:options, :ui_scope), 'true_value') || 'true',
-    definition.dig('ui', local_assigns.dig(:options, :ui_scope), 'false_value') || 'false' %>
+    'true',
+    'false' %>
 
   <%= attribute_edit_label_tag(key, definition, content, options) %>
 <% end %>

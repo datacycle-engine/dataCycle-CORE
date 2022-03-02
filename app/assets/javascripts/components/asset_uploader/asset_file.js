@@ -1,5 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep';
 import unionBy from 'lodash/unionBy';
+import get from 'lodash/get';
 import domElementHelpers from '../../helpers/dom_element_helpers';
 import uploadDuplicate from '../../templates/uploadDuplicate';
 import MimeTypes from 'mime';
@@ -112,7 +113,7 @@ class AssetFile {
     return this.asset.id;
   }
   updateValidated(data) {
-    if (data && data.error && Object.keys(data.error).length) {
+    if (data && data.errors && Object.keys(data.errors).length) {
       this.attributeFieldsValidated = false;
     } else {
       this.attributeFieldsValidated = true;
@@ -157,7 +158,7 @@ class AssetFile {
         this.attributeFieldValues = otherAttributeFieldValues;
         if (attributeFieldValue) this.attributeFieldValues.push(attributeFieldValue);
 
-        let value = get(attribute, 'ui.create.false_value') || 'false';
+        let value = 'false';
         if (values && values.length) value = values.pop().value;
 
         value = await I18n.translate(`common.${value}`);
@@ -198,7 +199,7 @@ class AssetFile {
   }
   async validateAttributes() {
     if (this.uploader.showNewForm && (!this.attributeFieldValues || !this.attributeFieldValues.length)) {
-      this.updateValidated({ error: await I18n.translate('frontend.upload.missing_metadata') });
+      this.updateValidated({ errors: { metadata: await I18n.translate('frontend.upload.missing_metadata') } });
       return;
     }
 
@@ -216,9 +217,13 @@ class AssetFile {
       data: formData,
       dataType: 'json',
       contentType: 'application/x-www-form-urlencoded'
-    }).finally(data => {
-      this.updateValidated(data);
-    });
+    })
+      .then(data => {
+        this.updateValidated(data);
+      })
+      .catch(response => {
+        this.updateValidated({ errors: { reponse: response.statusText } });
+      });
   }
   _renderAllAttributes() {
     Object.keys(this.attributeValues).forEach((field, i, arr) => {
@@ -493,7 +498,7 @@ class AssetFile {
         if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
         this._renderError(error);
       })
-      .finally(_data => {
+      .finally(() => {
         this._updateOverlayButtons();
         DataCycle.enableElement(this.uploader.assetReloadButton);
       });
