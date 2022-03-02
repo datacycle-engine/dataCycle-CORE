@@ -101,8 +101,8 @@ module DataCycleCore
         def self.to_event_image
           t(:add_field, 'external_key', ->(s) { DataCycleCore::MasterData::DataConverter.string_to_string("Pimcore - EventImage - #{CGI.unescape(s.dig('link'))}") })
           .>> t(:add_field, 'name', ->(s) { CGI.unescape(s.dig('link')).split('/')&.last })
-          .>> t(:add_field, 'content_url', ->(s) { CGI.unescape(s.dig('link')) })
-          .>> t(:add_field, 'thumbnail_url', ->(s) { CGI.unescape(s.dig('link')) })
+          .>> t(:add_field, 'content_url', ->(s) { s.dig('link') })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('link') })
           .>> t(:reject_keys, ['link', 'index', 'gallery_size'])
         end
 
