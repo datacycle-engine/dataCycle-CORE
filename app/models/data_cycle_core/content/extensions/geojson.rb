@@ -26,7 +26,7 @@ module DataCycleCore
         end
 
         def to_geojson(simplify_factor = SIMPLIFY_FACTOR)
-          self.class.where(id: id).limit(1).to_geojson(simplify_factor: simplify_factor, geojson_query: self.class.geojson_sql(self.class.geojson_detail_select_sql))
+          self.class.where(id: id).limit(1).to_geojson(simplify_factor: simplify_factor, geojson_query: self.class.geojson_sql(self.class.geojson_detail_select_sql(true)))
         end
 
         def geojson_geometry(content = self)
