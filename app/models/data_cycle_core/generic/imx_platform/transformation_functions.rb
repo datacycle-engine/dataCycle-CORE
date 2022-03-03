@@ -76,7 +76,7 @@ module DataCycleCore
           data['contact_info'] = contact_info
           address = {}
           address['street_address'] = [contact_data.dig('address', 'street'), contact_data.dig('address', 'streetNo')].join(' ')
-          address['postal_code'] = contact_data.dig('address', 'zipcode')
+          address['postal_code'] = contact_data.dig('address', 'zipcode') if contact_data.dig('address', 'zipcode').present? && contact_data.dig('address', 'zipcode') != '*****'
           address['address_locality'] = contact_data.dig('address', 'city')
           data['address'] = address
           data
