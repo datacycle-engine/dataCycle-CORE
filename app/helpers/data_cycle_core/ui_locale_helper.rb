@@ -25,7 +25,7 @@ module DataCycleCore
             label = k[0].titleize
           end
 
-          label.concat(" (#{I18n.locale})") if attribute_translatable?(k[0], k[1], k[2])
+          label += " (#{I18n.locale})" if attribute_translatable?(k[0], k[1], k[2])
 
           label
         end
