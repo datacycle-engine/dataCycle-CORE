@@ -8,6 +8,9 @@ module DataCycleCore
 
     layout 'data_cycle_core/devise'
 
+    def pixelpoint_login
+    end
+
     private
 
     def set_locale
