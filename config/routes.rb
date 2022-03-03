@@ -22,7 +22,7 @@ DataCycleCore::Engine.routes.draw do
 
   if ENV['PIXELPOINT_AAD_V2_CLIENT_ID'].present?
     devise_scope :user do
-      get '/users/pixelpoint_login', to: 'sessions#pixelpoint_login'
+      get '/users/sign_in_with_pixelpoint', to: 'sessions#new_pixelpoint'
     end
   end
 

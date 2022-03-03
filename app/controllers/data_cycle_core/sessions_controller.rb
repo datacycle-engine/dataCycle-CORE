@@ -8,7 +8,7 @@ module DataCycleCore
 
     layout 'data_cycle_core/devise'
 
-    def pixelpoint_login
+    def new_pixelpoint
     end
 
     private
