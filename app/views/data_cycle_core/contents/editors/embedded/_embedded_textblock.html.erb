@@ -8,7 +8,7 @@
   <%= tag.div class: "content-object-item textblock draggable_#{sanitize_to_id(key)}",
     id: "#{sanitize_to_id(key)}_item_#{index}",
     data: {
-      id: object.template || local_assigns[:duplicated_content] ? nil : object.id,
+      id: object.template ? nil : object.id,
       index: index
     } do %>
     <%= hidden_field_tag("#{new_prefix}[id]", object.id) unless object.template || local_assigns[:duplicated_content] %>
