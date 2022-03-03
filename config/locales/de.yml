@@ -1519,6 +1519,7 @@ de:
   details:
     bild:
       open_url: URL öffnen
+      exif_data: Bild-Metadaten (EXIF/IPTC/XMP)
 
   exceptions_page:
     back_to_root_link: Zurück zu dataCycle

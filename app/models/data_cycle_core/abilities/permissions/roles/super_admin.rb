@@ -101,6 +101,12 @@ module DataCycleCore
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing)
             )
 
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can, :show_exif_data,
+              DataCycleCore::Abilities::Segments::ThingByTemplateName.new('Bild')
+            )
+
             # StoredFilter
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
