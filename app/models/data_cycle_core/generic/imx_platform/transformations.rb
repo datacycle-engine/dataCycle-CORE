@@ -25,12 +25,14 @@ module DataCycleCore
           .>> t(:reject_keys, ['id'])
         end
 
-        def self.to_image
+        def self.to_image(external_source_id)
           t(:locale_string, 'name', ['pooledMedium', 'title'])
           .>> t(:map_value, 'name', ->(v) { v.nil? ? '__NO_NAME__' : v })
           .>> t(:add_field, 'content_url', ->(s) { s.dig('deeplink') })
           .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('deeplink') })
           .>> t(:add_field, 'url', ->(s) { s.dig('deeplink') })
+          .>> t(:add_links, 'imx_client', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('pooledMedium', 'client', 'id').present? ? ["imx.platform - Client - #{s.dig('pooledMedium', 'client', 'id')}"] : [] })
+          .>> t(:universal_classifications, ->(s) { s.dig('imx_client') })
           .>> t(:add_field, 'external_key', ->(s) { "ImxPlatform - AddressbaseImage - #{s.dig('id')}" })
           .>> t(:reject_keys, ['id'])
         end
