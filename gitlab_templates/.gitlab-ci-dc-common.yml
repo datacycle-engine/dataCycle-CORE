@@ -224,7 +224,7 @@ services:
     - apk add bash
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
-    - echo "APPSIGNAL_APP_REVISION=$CI_COMMIT_SHA" >> $(pwd)/.env.production
+    - echo -e "\nPIXELPOINT_AAD_V2_CLIENT_ID=$PIXELPOINT_AAD_V2_CLIENT_ID\nPIXELPOINT_AAD_V2_TENANT_ID=$PIXELPOINT_AAD_V2_TENANT_ID\nPIXELPOINT_AAD_V2_CLIENT_SECRET=$PIXELPOINT_AAD_V2_CLIENT_SECRET\nAPPSIGNAL_APP_REVISION=$CI_COMMIT_SHA" >> $(pwd)/.env.production
   script:
     # update ssh config of deployment target to support bigger number of active sessions
     # e.g. MaxSessions 20
