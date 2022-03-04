@@ -40,12 +40,13 @@ module DataCycleCore
 
         def self.parse_line(metainfos)
           return nil if metainfos.blank?
-          Array
+          line_string = Array
             .wrap(metainfos)
             .select { |i| i.dig('data', '_entityType') == 'TourAddressbase' }
             .map { |i| i.dig('data', 'geometry') }
             .first
-            &.then { |i| DataCycleCore::Generic::OutdoorActive::Transformations.tour(i) }
+          return nil if line_string.blank? || line_string.split(',')&.size&.<=(2)
+          DataCycleCore::Generic::OutdoorActive::Transformations.tour(line_string)
         end
       end
     end
