@@ -15,7 +15,6 @@ module DataCycleCore
         end
 
         def self.process_image(utility_object, raw_data, config)
-          byebug
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
