@@ -11,6 +11,7 @@ module DataCycleCore
         def self.to_poi(external_source_id)
           t(:add_field, 'external_key', ->(s) { "ImxPlatform - PoiId - #{s.dig('id')}" })
           .>> t(:parse_contact)
+          .>> t(:add_field, 'line', ->(s) { parse_line(s.dig('metainfos')) })
           .>> t(:locale_string, 'description', 'shortDescription')
           .>> t(:locale_string, 'description_long', 'longDescription')
           .>> t(:add_info, ['description', 'description_long'], external_source_id)
@@ -35,6 +36,16 @@ module DataCycleCore
           .>> t(:universal_classifications, ->(s) { s.dig('imx_client') })
           .>> t(:add_field, 'external_key', ->(s) { "ImxPlatform - AddressbaseImage - #{s.dig('id')}" })
           .>> t(:reject_keys, ['id'])
+        end
+
+        def self.parse_line(metainfos)
+          return nil if metainfos.blank?
+          Array
+            .wrap(metainfos)
+            .select { |i| i.dig('data', '_entityType') == 'TourAddressbase' }
+            .map { |i| i.dig('data', 'geometry') }
+            .first
+            &.then { |i| DataCycleCore::Generic::OutdoorActive::Transformations.tour(i) }
         end
       end
     end
