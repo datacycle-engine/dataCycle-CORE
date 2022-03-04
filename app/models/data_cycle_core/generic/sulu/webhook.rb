@@ -12,7 +12,7 @@ module DataCycleCore
 
           init_logging do |logging|
             errors = update_content(data: data)
-            errors = nil if errors.dig('error').blank?
+            errors = nil if errors.blank?
             if errors.present?
               logging.error('update', data['id'], raw_data, errors)
             else
@@ -27,6 +27,7 @@ module DataCycleCore
         def update_content(data:)
           thing = DataCycleCore::Thing.find(data['id'])
           thing.set_data_hash(data_hash: data, partial_update: true, prevent_history: false)
+          thing.errors.messages
         end
 
         def init_logging
@@ -36,6 +37,7 @@ module DataCycleCore
           logging.close if logging.respond_to?(:close)
         end
       end
+
       class Contract < DataCycleCore::MasterData::Contracts::GeneralContract
         schema do
           required(:@id) { str? }
