@@ -4,11 +4,12 @@ module DataCycleCore
   module Abilities
     module Segments
       class DataAttribute < Base
-        attr_reader :subject, :method_names
+        attr_reader :subject, :method_names, :except_list
 
-        def initialize(method_names)
+        def initialize(method_names, except_list = {})
           @subject = DataCycleCore::DataAttribute
           @method_names = Array.wrap(method_names).map(&:to_sym)
+          @except_list = except_list
         end
 
         def include?(attribute)
@@ -59,6 +60,10 @@ module DataCycleCore
           return true if tree_label_external_id.blank?
 
           tree_label_external_id == attribute.content.try(:external_source_id)
+        end
+
+        def attribute_not_excluded?(attribute)
+          except_list.dig(attribute.content.template_name.to_sym)&.include?(attribute.key.attribute_name_from_key) != true
         end
       end
     end
