@@ -840,6 +840,7 @@ de:
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
+      required: 'sollte ausgefüllt werden.'
       schedule:
         duration_too_long: 'Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)'
   controllers:

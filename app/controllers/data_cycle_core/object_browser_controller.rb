@@ -93,7 +93,7 @@ module DataCycleCore
     def permitted_params
       return @permitted_params if defined? @permitted_params
 
-      DataCycleCore::NormalizeService.normalize_parameters(params.permit(*permitted_parameter_keys))
+      @permitted_params = DataCycleCore::NormalizeService.normalize_parameters(params.permit(*permitted_parameter_keys))
     end
 
     def permitted_parameter_keys

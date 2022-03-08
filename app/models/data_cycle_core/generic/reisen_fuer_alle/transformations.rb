@@ -41,6 +41,7 @@ module DataCycleCore
         end
 
         def self.transform_pdfs(s, lang)
+          return nil if s.nil?
           {
             'short_report' => s.dig('url_for_short_report', lang),
             'allergic' => s.dig('url_for_allergic', lang),
@@ -54,6 +55,7 @@ module DataCycleCore
         end
 
         def self.transform_short_report(s, lang)
+          return nil if s.nil?
           {
             'deaf' => s.dig("deaf_and_partially_deaf_#{lang}"),
             'mental' => s.dig("mental_#{lang}"),
