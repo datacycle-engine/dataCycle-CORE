@@ -812,6 +812,7 @@ en:
       address_ambiguous: Address not unique
       telephone_din5008: The format of the telephone number is not according to DIN
         5008, valid example +43 1 123456
+      required: 'should be filled in.'
       schedule:
         duration_too_long: 'The schedule with start time %{data} lasts longer than %{max} (This could probably also be achieved via repeating schedules)'
   controllers:

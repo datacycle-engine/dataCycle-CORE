@@ -38,7 +38,7 @@
   <div class="map-info detail_object <%= 'linestring-info' if is_line_string %>">
     <div class="content-object-item">
       <span class="embedded-header">
-        <%= attribute_edit_label_tag(key, definition, content, options) %>
+        <%= attribute_edit_label_tag(**local_assigns) %>
       </span>
 
       <% if !is_line_string %>

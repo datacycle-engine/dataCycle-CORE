@@ -591,7 +591,9 @@ module DataCycleCore
     end
 
     def map_editor_params
-      params.permit(:template_name, ids: [], filter: [], stored_filter: {})
+      return @map_editor_params if defined? @map_editor_params
+
+      @map_editor_params = DataCycleCore::NormalizeService.normalize_parameters(params.permit(:template_name, ids: [], filter: [], stored_filter: {}))
     end
   end
 end

@@ -156,5 +156,26 @@ module DataCycleCore
         value&.pluck(:id)
       )
     end
+
+    def classification_select_config(key, definition, options, content, additional_options = {})
+      single_select = definition.dig('ui', 'edit', 'options', 'multiple') == false || definition.dig('validations', 'max') == 1
+
+      {
+        multiple: !single_select,
+        include_blank: single_select,
+        disabled: !attribute_editable?(key, definition, options, content),
+        class: 'multi-select',
+        data: {
+          allow_clear: definition.dig('validations', 'required') != true,
+          tree_label: definition['tree_label'],
+          max: 20,
+          close_on_select: single_select,
+          placeholder: '',
+          find_path: find_classifications_path,
+          search_path: search_classifications_path
+        },
+        id: "#{options&.dig(:prefix)}#{sanitize_to_id(key)}"
+      }.with_indifferent_access.merge(additional_options).merge(definition.dig('ui', 'edit', 'options') || {})   
+    end
   end
 end
