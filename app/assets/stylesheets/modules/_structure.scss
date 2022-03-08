@@ -653,3 +653,21 @@ ul.footer-links {
     line-height: 1.5;
   }
 }
+
+.pixelpoint-sso-login {
+  display: flex;
+  width: 3.6rem;
+  opacity: 0.7;
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  cursor: default;
+  transition: opacity 0.2s ease;
+  padding: 0.3rem;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    opacity: 1;
+  }
+}
