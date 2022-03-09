@@ -151,9 +151,7 @@ module DataCycleCore
     end
 
     def contextual_content(local_assigns)
-      return local_assigns[:parent] if local_assigns.key?(:parent)
-
-      local_assigns[:content]
+      local_assigns[:parent] || local_assigns[:content]
     end
   end
 end
