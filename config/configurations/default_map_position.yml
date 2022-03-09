@@ -1,8 +1,9 @@
 :longitude: 13.34576
 :latitude: 47.69642
 :zoom: 7
-:editor: 'BaseMap'
-# :editor: 'OpenStreetMap'
+# :viewer: 'https://map.pixeldev.at/styles/pp-street/style.json'
+:editor: 'https://map.pixeldev.at/styles/pp-street/style.json'
+# :editor: 'BaseMapAt'
 # :editor: 'TourSprung'
 # :credentials:
 #   :api_key: 'sandbox'

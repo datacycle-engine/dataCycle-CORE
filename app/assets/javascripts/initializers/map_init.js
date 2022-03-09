@@ -1,10 +1,12 @@
 import OpenLayersViewer from './../components/open_layers_viewer';
 import OpenLayersEditor from './../components/open_layers_editor';
 import TourSprungEditor from './../components/tour_sprung_editor';
+import MapLibreGlViewer from './../components/maplibre_gl_viewer';
 
 const mapEditors = {
   OpenLayers: OpenLayersEditor,
-  TourSprung: TourSprungEditor
+  TourSprung: TourSprungEditor,
+  MapLibreGl: MapLibreGlViewer
 };
 
 export default function () {
@@ -31,6 +33,6 @@ function initMap(item) {
       return new mapEditors[editor](item).setup();
     else return new OpenLayersEditor(item).setup();
   } else {
-    return new OpenLayersViewer(item).setup();
+    return new MapLibreGlViewer(item).setup();
   }
 }
