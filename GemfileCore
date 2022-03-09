@@ -65,6 +65,7 @@ group :development, :test, :review do
   gem 'pry-byebug'
   gem 'rb-readline'
 
+  gem 'capistrano-bundler', '~> 1.6.0'
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
   gem 'capistrano3-delayed-job'
