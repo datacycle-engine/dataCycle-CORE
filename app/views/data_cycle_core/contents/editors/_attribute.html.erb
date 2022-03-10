@@ -15,7 +15,7 @@
 ].reject(&:blank?).uniq.join(' ') %>" data-key="<%= key %>" data-readonly="<%= !attribute_editable?(key, definition, options, content) %>" data-id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>">
 
   <%= render 'data_cycle_core/contents/editors/features/copyable_attribute', local_assigns if DataCycleCore::Feature::CopyableAttribute.copyable_attribute?(content, key) %>
-  <%= render 'data_cycle_core/contents/editors/features/gip_key_figure', local_assigns if DataCycleCore::Feature::GipKeyFigure.allowed_attribute_key?(content, key) %>
+  <%= render 'data_cycle_core/contents/editors/features/geo_key_figure', local_assigns if DataCycleCore::Feature::GeoKeyFigure.allowed_attribute_key?(content, key) %>
 
   <%= yield %>
 

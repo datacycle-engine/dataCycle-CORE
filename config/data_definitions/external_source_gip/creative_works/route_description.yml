@@ -22,7 +22,7 @@
           :xml: true
           :json: true
           :indesign: true
-      :gip_key_figure:
+      :geo_key_figure:
         :allowed: true
     :properties:
       :id:
@@ -84,7 +84,7 @@
             :type: number
             :storage_location: value
             :features:
-              :gip_key_figure:
+              :geo_key_figure:
                 :part_id_path:
                   - about
           :duration:
@@ -92,7 +92,7 @@
             :type: number
             :storage_location: value
             :features:
-              :gip_key_figure:
+              :geo_key_figure:
                 :part_id_path:
                   - about
             :ui:
@@ -103,7 +103,7 @@
             :type: number
             :storage_location: value
             :features:
-              :gip_key_figure:
+              :geo_key_figure:
                 :part_id_path:
                   - about
           :descent:
@@ -111,7 +111,7 @@
             :type: number
             :storage_location: value
             :features:
-              :gip_key_figure:
+              :geo_key_figure:
                 :part_id_path:
                   - about
       :description:

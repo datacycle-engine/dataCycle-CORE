@@ -468,8 +468,8 @@ de:
           Hier könnte Ihre Enleitung stehen
 
           COPYRIGHT dataCycle'
-    gip_key_figure:
-      button_title: Ermittlung des Wertes für %{data} über ein Web-Service der GIP auf Basis der zugrundeliegenden Geo-Daten
+    geo_key_figure:
+      button_title: Ermittlung des Wertes für %{data} über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
     user_api:
       mailer:
         subject: Ein neuer Benutzer wurde erstellt

@@ -456,9 +456,8 @@ en:
       version_name_removed: The version name has been removed!
     download:
       missing_serialize_format: At least one format must be selected
-    gip_key_figure:
-      button_title: Determination of the value for %{data} via a web service of the
-        GIP on the basis of the underlying geo-data
+    geo_key_figure:
+      button_title: Determination of the value for %{data} via a web service on the basis of the underlying geo-data
     user_api:
       mailer:
         subject: A new user has been created
