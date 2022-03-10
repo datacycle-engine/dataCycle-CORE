@@ -26,6 +26,8 @@ module DataCycleCore
 
         def update_content(data:)
           thing = DataCycleCore::Thing.find(data['id'])
+          # transform  url -> sulu_url
+          data['sulu_url'] = data.delete('url')
           thing.set_data_hash(data_hash: data, partial_update: true, prevent_history: false)
           thing.errors.messages
         end

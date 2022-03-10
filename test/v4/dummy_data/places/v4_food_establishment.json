@@ -5,7 +5,7 @@
   "price_range": "<p>price-info</p>",
   "contact_info": {
     "url": "https://datacycle.info",
-    "name": "contact_person",
+    "contact_name": "contact_person",
     "email": "rainer@datacycle.at",
     "telephone": "+43 676 123 456",
     "fax_number": "+43 676 123 456 01"
