@@ -45,7 +45,7 @@ class RenameSimpleObjectKeys < ActiveRecord::Migration[5.2]
     end
 
     # url -> same_as (main_object) for Skibebiet, SnowResortOverlay, Skigebiet Bergfex
-    DataCycleCore::Thing.where(template: false, template_name: ['Skibebiet', 'SnowResortOverlay', 'Skigebiet Bergfex']).each do |thing|
+    DataCycleCore::Thing.where(template: false, template_name: ['Skigebiet', 'SnowResortOverlay', 'Skigebiet Bergfex']).each do |thing|
       thing.available_locales.each do |locale|
         I18n.with_locale(locale) do
           next unless thing.content&.key?('url')
