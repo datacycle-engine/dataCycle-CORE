@@ -44,8 +44,8 @@ class RenameSimpleObjectKeys < ActiveRecord::Migration[5.2]
       end
     end
 
-    # url -> same_as (main_object) for Skibebiet, SnowResortOverlay, Skigebiet Bergfex
-    DataCycleCore::Thing.where(template: false, template_name: ['Skibebiet', 'SnowResortOverlay', 'Skigebiet Bergfex']).each do |thing|
+    # url -> same_as (main_object) for Skigebiet, SnowResortOverlay, Skigebiet Bergfex
+    DataCycleCore::Thing.where(template: false, template_name: ['Skigebiet', 'SnowResortOverlay', 'Skigebiet Bergfex']).each do |thing|
       thing.available_locales.each do |locale|
         I18n.with_locale(locale) do
           next unless thing.content&.key?('url')
@@ -97,8 +97,8 @@ class RenameSimpleObjectKeys < ActiveRecord::Migration[5.2]
       end
     end
 
-    # same_as -> url (main_object) for Skibebiet, SnowResortOverlay, Skigebiet Bergfex
-    DataCycleCore::Thing.where(template: false, template_name: ['Skibebiet', 'SnowResortOverlay', 'Skigebiet Bergfex']).each do |thing|
+    # same_as -> url (main_object) for Skigebiet, SnowResortOverlay, Skigebiet Bergfex
+    DataCycleCore::Thing.where(template: false, template_name: ['Skigebiet', 'SnowResortOverlay', 'Skigebiet Bergfex']).each do |thing|
       thing.available_locales.each do |locale|
         I18n.with_locale(locale) do
           next unless thing.content&.key?('same_as')
