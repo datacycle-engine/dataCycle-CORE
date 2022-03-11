@@ -458,6 +458,7 @@ en:
       missing_serialize_format: At least one format must be selected
     geo_key_figure:
       button_title: Determination of the value for %{data} via a web service on the basis of the underlying geo-data
+      button_title_all: Determination of the values via a web service on the basis of the underlying geo-data
     user_api:
       mailer:
         subject: A new user has been created

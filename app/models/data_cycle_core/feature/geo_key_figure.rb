@@ -19,6 +19,10 @@ module DataCycleCore
         def local(content)
           configuration(content).dig('local')
         end
+
+        def has_allowed_attribute_key?(content, definition)
+          definition&.[]('properties')&.keys&.any? { |key| allowed_attribute_key?(content, key) }
+        end
       end
     end
   end

@@ -80,9 +80,10 @@ class TourSprungEditor extends OpenLayersEditor {
   async _computeKeyFigure(event, data = {}) {
     event.preventDefault();
 
-    if (!this.elevationProfile) this._setElevationProfileFromFeature();
+    if (!this.elevationProfile && !this.elevationProfilePromise) this._setElevationProfileFromFeature();
 
     await this.elevationProfilePromise;
+    this.elevationProfilePromise = null;
 
     const keyFigures = this.elevationProfile.getData();
     const key = data.attributeKey;

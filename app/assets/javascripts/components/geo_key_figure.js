@@ -3,6 +3,7 @@ class GeoKeyFigure {
     this.$element = $(element);
     this.url = this.$element.prop('href');
     this.$formElement = this.$element.closest('.form-element');
+    this.$triggerAllButton = this.$element.closest('.content-object-item').find('.geo-key-figure-button-all');
     this.key = this.$element.data('key');
     this.fullKey = this.$element.data('fullKey');
     this.local = this.$element.data('local');
@@ -19,6 +20,7 @@ class GeoKeyFigure {
     }
 
     this.$element.on('click', this._computeKeyFigure.bind(this));
+    this.$triggerAllButton.on('click', this._computeKeyFigure.bind(this));
   }
   partSelectorString() {
     return (this.partSelector = '.form-element' + this.partIdPath.map(v => '[data-key*="[' + v + ']"]').join(''));
@@ -32,6 +34,8 @@ class GeoKeyFigure {
   _computeKeyFigure(event) {
     event.preventDefault();
     event.stopPropagation();
+
+    if (this.$element.hasClass('disabled')) return;
 
     DataCycle.disableElement(this.$element);
 

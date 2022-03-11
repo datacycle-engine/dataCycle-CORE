@@ -173,7 +173,7 @@ class ConfirmationModal {
       if (field.style.oldTopValue) field.style.top = field.dataset.oldTopValue;
       if (field.style.oldOpacityValue) field.style.opacity = field.dataset.oldOpacityValue;
       if (field.style.oldLeftValue) field.style.left = field.dataset.oldLeftValue;
-    }, 300);
+    }, 100);
   }
 }
 
