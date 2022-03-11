@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'rubocop'
-require 'bundler/audit/cli'
-
 namespace :dc do
   namespace :validate do
     namespace :code do
