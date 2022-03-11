@@ -127,6 +127,7 @@
         :storage_location: translated_value
         :api:
           :type: Action
+          :name: potentialAction
         :properties:
           :action_name:
             :label: Name
