@@ -49,20 +49,20 @@ module DataCycleCore
       def message
         message = [original_error.message]
 
-        return message.join("\n").delete("\u0000").encode('UTF-8', invalid: :replace, undef: :replace, replace: '') if original_error.try(:response).nil?
+        if original_error.try(:response).present?
+          if original_error.response.key?(:request)
+            message.push('===================================================================')
+            message.push("request_method: #{original_error.response.dig(:request, :method)}") if original_error.response[:request].key?(:method)
+            message.push("request_url_path: #{original_error.response.dig(:request, :url_path)}") if original_error.response[:request].key?(:url_path)
+            message.push("request_body: #{original_error.response.dig(:request, :body)}") if original_error.response[:request].key?(:body)
+          end
 
-        if original_error.response.key?(:request)
           message.push('===================================================================')
-          message.push("request_method: #{original_error.response.dig(:request, :method)}") if original_error.response[:request].key?(:method)
-          message.push("request_url_path: #{original_error.response.dig(:request, :url_path)}") if original_error.response[:request].key?(:url_path)
-          message.push("request_body: #{original_error.response.dig(:request, :body)}") if original_error.response[:request].key?(:body)
+          message.push("response_status: #{original_error.response[:status]}") if original_error.response.key?(:status)
+          message.push("response_body: #{original_error.response[:body]}") if original_error.response.key?(:body)
         end
 
-        message.push('===================================================================')
-        message.push("response_status: #{original_error.response[:status]}") if original_error.response.key?(:status)
-        message.push("response_body: #{original_error.response[:body]}") if original_error.response.key?(:body)
-
-        message.join("\n").delete("\u0000").encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
+        message.map { |s| s.to_s.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '').delete("\u0000") }.join("\n")
       end
 
       def backtrace
