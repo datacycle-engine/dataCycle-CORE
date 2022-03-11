@@ -84,7 +84,7 @@ module DataCycleCore
                       'postalCode' => @content.address.postal_code,
                       'addressLocality' => @content.address.address_locality,
                       'addressCountry' => @content.country_code.first.classification_aliases.first.name,
-                      'name' => @content.contact_info.name,
+                      'name' => @content.contact_info.contact_name,
                       'telephone' => @content.contact_info.telephone,
                       'faxNumber' => @content.contact_info.fax_number,
                       'email' => @content.contact_info.email,

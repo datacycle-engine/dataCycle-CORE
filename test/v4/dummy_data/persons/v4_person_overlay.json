@@ -9,7 +9,7 @@
   },
   "country_code": "AT",
   "contact_info": {
-    "name": "Ansprechpartner Overlay",
+    "contact_name": "Ansprechpartner Overlay",
     "telephone": "Telephone Overlay",
     "fax_number": "FaxNumber Overlay",
     "email": "Email Overlay",

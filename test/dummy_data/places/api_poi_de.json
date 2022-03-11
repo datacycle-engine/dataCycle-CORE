@@ -7,7 +7,7 @@
     "address_country": "AddressCountry"
   },
   "contact_info": {
-    "name": "Ansprechpartner",
+    "contact_name": "Ansprechpartner",
     "telephone": "Telephone",
     "fax_number": "FaxNumber",
     "email": "Email",
@@ -18,8 +18,8 @@
   "latitude": 1,
   "longitude": 10,
   "elevation": 11.7,
-  "potentialAction": {
+  "potential_action": [{
     "name": "Action - Test",
-    "url": "url - Test"
-  }
+    "url": "https://url.com/action"
+  }]
 }
