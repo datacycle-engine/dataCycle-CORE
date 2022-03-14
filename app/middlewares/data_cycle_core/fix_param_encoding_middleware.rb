@@ -12,7 +12,7 @@ module DataCycleCore
       rescue Rack::Utils::InvalidParameterError
         env['QUERY_STRING'] = URI.encode_www_form(
           URI.decode_www_form(
-            env['QUERY_STRING'].to_s.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+            DataCycleCore::NormalizeService.normalize_encoding(env['QUERY_STRING'].to_s)
           )
         )
       end
