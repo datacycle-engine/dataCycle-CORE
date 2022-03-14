@@ -69,7 +69,7 @@ namespace :dc do
           exif_data = MiniExiftool.new(asset.original.file.file, { replace_invalid_chars: true })
           asset.metadata = exif_data
             .to_hash
-            .transform_values { |value| value.is_a?(String) ? value.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '').delete("\u0000") : value }
+            .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
           asset.save!
         end
 

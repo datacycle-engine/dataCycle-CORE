@@ -81,7 +81,7 @@ module DataCycleCore
       exif_data = MiniExiftool.new(current_path, { replace_invalid_chars: true })
       exif_data
         .to_hash
-        .transform_values { |value| value.is_a?(String) ? value.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '').delete("\u0000") : value }
+        .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
         .merge!(colorspace)
     end
 
