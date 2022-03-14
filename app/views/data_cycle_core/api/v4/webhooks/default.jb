@@ -4,13 +4,19 @@ json = {}
 json['@id'] = @content.id
 
 if @content.is_a?(DataCycleCore::Thing)
-  json.merge! render 'context', languages: @language
+  json.merge!(render('context', languages: @language))
 
-  json.merge!(Rails.cache.fetch(api_v4_cache_key(@content, @language, @include_parameters, @fields_parameters, @api_subversion, nil, @linked_stored_filter&.id, @classification_trees_parameters), expires_in: 1.year + Random.rand(7.days)) do
+  cache_key = api_v4_cache_key(@content, @language, @include_parameters, @fields_parameters, @api_subversion, nil, @linked_stored_filter&.id, @classification_trees_parameters)
+
+  graph = Rails.cache.fetch(cache_key, expires_in: 1.year + Random.rand(7.days)) do
     I18n.with_locale(@content.first_available_locale(@language)) do
       render('content_details', content: @content, options: { languages: @language })
     end
-  end)
+  end
+
+  raise DataCycleCore::Error::ApiCacheReadError.new({ cache_key: cache_key, cache_content: graph }) unless graph.is_a?(::Hash) && graph['@id'] == @content.id
+
+  json.merge!(graph)
 end
 
 json['token'] = @token if @token.present?
