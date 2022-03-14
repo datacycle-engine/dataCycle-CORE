@@ -69,5 +69,28 @@ module DataCycleCore
         (original_error.try(:backtrace) || super)&.take(5)
       end
     end
+
+    class ApiCacheReadError < StandardError
+      attr_reader :cache_key, :graph
+
+      def initialize(options)
+        @cache_key = options[:cache_key]
+        @graph = options[:cache_content]
+
+        super
+      end
+
+      def message
+        DataCycleCore::NormalizeService.normalize_encoding([
+          "exception: #{self.class.name}",
+          "cache_key: #{cache_key}",
+          "cache_content: #{graph.to_json}"
+        ].join("\n"))
+      end
+
+      def backtrace
+        super&.take(5)
+      end
+    end
   end
 end
