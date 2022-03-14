@@ -60,7 +60,7 @@ class GeoKeyFigure {
 
     if (!ids || !ids.length) return DataCycle.enableElement(this.$element);
 
-    const fullUrl = `${this.url}?key=${this.key}${ids.map(v => '&part_ids[]=' + v)}`;
+    const fullUrl = `${this.url}?key=${this.key}&${ids.map(v => 'part_ids[]=' + v).join('&')}`;
 
     DataCycle.httpRequest({ url: fullUrl })
       .then(data => {
