@@ -364,8 +364,8 @@ module DataCycleCore
               'validThrough' => offer_object.offer_period.valid_through.as_json,
               'potentialAction' => {
                 '@type' => 'Action',
-                'name' => offer_object.potentialAction.name,
-                'url' => offer_object.potentialAction.url
+                'name' => offer_object.potential_action.action_name,
+                'url' => offer_object.potential_action.action_url
               },
               'additionalProperty' => [
                 {

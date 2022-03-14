@@ -44,7 +44,7 @@ module DataCycleCore
           .>> t(:add_field, 'max_value', ->(s) { s.dig('lifts', 'total') })
           .>> t(:reject_keys, ['lifts'])
           .>> t(:nest, 'lifts', ['value', 'max_value'])
-          .>> t(:add_field, 'url', ->(s) { s.dig('skimapLink', 'thumbnail') })
+          .>> t(:add_field, 'same_as', ->(s) { s.dig('skimapLink', 'thumbnail') })
           .>> t(:add_field, 'value', ->(s) { s.dig('slopes', 'open') })
           .>> t(:add_field, 'max_value', ->(s) { s.dig('slopes', 'total') })
           .>> t(:nest, 'count_open_slopes', ['value', 'max_value'])

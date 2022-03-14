@@ -51,4 +51,30 @@
       }
     }
   }
+
+  .mtk-control-styles-current {
+    label.mtk-control-styles-current-name {
+      top: unset;
+      padding: 0;
+      color: $black;
+      line-height: 1.4rem;
+    }
+  }
+
+  .mtk-control-styles-group {
+    h2.mtk-control-styles-group-name {
+      font-size: 1.2rem;
+    }
+
+    label.mtk-control-styles-group-list-item-name {
+      position: relative;
+      margin: 0;
+      padding: 0;
+      left: unset;
+      top: unset;
+      text-align: center;
+      color: $black;
+      line-height: 1rem;
+    }
+  }
 }

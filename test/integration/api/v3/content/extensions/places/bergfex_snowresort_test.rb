@@ -51,7 +51,7 @@ module DataCycleCore
 
                 # content data
                 assert_equal(@content.name, json_data.dig('name'))
-                assert_equal(@content.url, json_data.dig('sameAs'))
+                assert_equal(@content.same_as, json_data.dig('sameAs'))
 
                 # TODO: (move to Transformations tests)
                 # API: Transformation: address
@@ -137,7 +137,7 @@ module DataCycleCore
                 data_hash = {
                   'overlay' => [{
                     'name' => 'overlay_name',
-                    'url' => 'LINK URL',
+                    'same_as' => 'LINK URL',
                     'image' => [overlay_image.id]
                   }]
                 }
@@ -154,7 +154,7 @@ module DataCycleCore
 
                 # content data
                 assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
-                assert_equal(data_hash.dig('overlay').first.dig('url'), json_data.dig('sameAs'))
+                assert_equal(data_hash.dig('overlay').first.dig('same_as'), json_data.dig('sameAs'))
                 assert_equal(overlay_image.id, json_data.dig('image').first.dig('identifier'))
               end
 

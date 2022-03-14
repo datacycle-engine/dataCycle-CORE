@@ -11,6 +11,10 @@ module DataCycleCore
       split(/[\[\]]+/).last&.underscore
     end
 
+    def attribute_path_from_key
+      split(/[\[\]]+/).flatten.except(['thing', 'datahash', 'translations', *I18n.available_locales.map(&:to_s)]).reject { |s| s =~ /^\d+$/ }
+    end
+
     def underscore_blanks
       underscore.parameterize(separator: '_')
     end

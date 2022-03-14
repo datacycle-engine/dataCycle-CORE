@@ -3,6 +3,17 @@ import isEmpty from 'lodash/isEmpty';
 import fetchInject from 'fetch-inject';
 import AdditionalValuesFilterControl from './map_controls/mapbox_additional_values_filter_control';
 
+const mtkLibrary = ['https://static.maptoolkit.net/mtk/v9.7.9/mtk.js'];
+const defaultMtkScripts = [
+  'https://static.maptoolkit.net/mtk/v9.7.9/mtk.css',
+  'https://static.maptoolkit.net/api/v9.7.9/editor-gui.css',
+  'https://static.maptoolkit.net/api/v9.7.9/editor-gui.js'
+];
+const mtkElevationProfile = [
+  'https://static.maptoolkit.net/api/v9.7.9/elevationprofile.css',
+  'https://static.maptoolkit.net/api/v9.7.9/elevationprofile.js'
+];
+
 class TourSprungEditor extends OpenLayersEditor {
   constructor(container) {
     super(container);
@@ -16,6 +27,15 @@ class TourSprungEditor extends OpenLayersEditor {
     this.selectedAdditionalSources = {};
     this.selectedAdditionalLayers = {};
     this.allRenderedLayers = [];
+    this.showElevationProfile = this.$container.data('elevationProfile');
+    this.elevationProfile;
+    this.elevationProfilePromise;
+    this.keyFiguresMapping = {
+      duration: 'cycling_duration',
+      length: 'distance',
+      max_altitude: 'highest_point',
+      min_altitude: 'lowest_point'
+    };
   }
   static isAllowedType(type) {
     return type && type.includes('LineString');
@@ -30,14 +50,7 @@ class TourSprungEditor extends OpenLayersEditor {
       });
   }
   async loadExtenalScripts() {
-    return await fetchInject(
-      [
-        'https://static.maptoolkit.net/mtk/v9.7.8/mtk.css',
-        'https://static.maptoolkit.net/api/v9.7.8/editor-gui.css',
-        'https://static.maptoolkit.net/api/v9.7.8/editor-gui.js'
-      ],
-      fetchInject(['https://static.maptoolkit.net/mtk/v9.7.8/mtk.js'])
-    );
+    return await fetchInject(defaultMtkScripts, fetchInject(mtkLibrary));
   }
   initMap() {
     MTK.init({ apiKey: this.credentials.api_key, language: document.documentElement.lang }).createMap(
@@ -46,7 +59,7 @@ class TourSprungEditor extends OpenLayersEditor {
         map: {
           mapType: 'toursprung-terrain',
           location: this.defaultView(),
-          controls: []
+          controls: [[new MTK.StyleControl(), 'bottom-right']]
         }
       },
       this.configureMap.bind(this)
@@ -55,6 +68,29 @@ class TourSprungEditor extends OpenLayersEditor {
   }
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
+    this.$container.on('dc:geoKeyFigure:compute', this._computeKeyFigure.bind(this));
+  }
+  _setElevationProfileFromFeature() {
+    this.elevationProfilePromise = new Promise(async (resolve, _reject) => {
+      if (!this.elevationProfile) await this._renderElevationProfile();
+
+      this.elevationProfile.setPolyline(this.feature, {}, () => resolve());
+    });
+  }
+  async _computeKeyFigure(event, data = {}) {
+    event.preventDefault();
+
+    if (!this.elevationProfile && !this.elevationProfilePromise) this._setElevationProfileFromFeature();
+
+    await this.elevationProfilePromise;
+    this.elevationProfilePromise = null;
+
+    const keyFigures = this.elevationProfile.getData();
+    const key = data.attributeKey;
+
+    if (!key || !keyFigures) return;
+
+    data.callback(Math.round(keyFigures[this.keyFiguresMapping[key] || key]));
   }
   configureMap(map) {
     this.map = map;
@@ -118,6 +154,14 @@ class TourSprungEditor extends OpenLayersEditor {
       this.feature = this.editorGui.editor.getPolyline();
 
       this.setHiddenFieldValue(this.getGeoJsonFromFeature());
+
+      if (this.showElevationProfile || this.elevationProfile) this._setElevationProfileFromFeature();
+    });
+
+    this.map.on('maptypechanged', _event => {
+      this.allRenderedLayers = [];
+      this.drawAdditionalFeatures();
+      this._changeMtkLineStyle();
     });
   }
   drawInitialRoute() {
@@ -316,8 +360,7 @@ class TourSprungEditor extends OpenLayersEditor {
 
         b.addControl(new mapboxgl.NavigationControl(), 'top-left');
 
-        container.querySelector('.mtk-editor-routing').remove();
-        container.querySelector('.mtk-editor-reverse-route').remove();
+        container.querySelector('.mtk-editor-routing').remove(); // remove bike/car/foot icons
 
         const buttons = container.querySelectorAll('.mtk-editor-button');
 
@@ -335,16 +378,15 @@ class TourSprungEditor extends OpenLayersEditor {
 
     this.extendedEditorInterface = CustomEditorInterface;
   }
-  configureEditor() {
-    this.map.gl.addControl(new mapboxgl.NavigationControl(), 'top-left');
-    this.map.gl.addControl(new mapboxgl.FullscreenControl(), 'top-right');
-    if (!isEmpty(this.additionalValuesOverlay))
-      this.map.gl.addControl(new AdditionalValuesFilterControl(this), 'bottom-left');
-
-    this.extendEditorInterface();
-
-    this.editorGui = new this.extendedEditorInterface().addTo(this.map);
-
+  _captureClickEvents() {
+    const mapBoxControls = this.$container.get(0).querySelectorAll('.mapboxgl-ctrl');
+    for (const control of mapBoxControls) {
+      control.addEventListener('click', event => {
+        event.preventDefault();
+      });
+    }
+  }
+  _changeMtkLineStyle() {
     const waypointLayerDefinition = this.editorGui.editor.getLayerDefinitions().find(v => v.type == 'symbol');
     const waypointLayerId = waypointLayerDefinition && waypointLayerDefinition.id;
     if (waypointLayerId)
@@ -360,6 +402,26 @@ class TourSprungEditor extends OpenLayersEditor {
     this.editorGui.editor.outline.width = 0;
     Object.assign(this.editorGui.editor.line, this.lineStyle());
     Object.assign(this.editorGui.editor.dashedLine, this.lineStyle());
+  }
+  async _renderElevationProfile() {
+    if (!this.elevationProfile) await fetchInject(mtkElevationProfile);
+
+    this.elevationProfile = new MTK.ElevationProfile();
+    this.elevationProfile._container.querySelector('rect.mtk-elevation-close').dispatchEvent(new Event('click'));
+    if (this.showElevationProfile) this.elevationProfile.addTo(this.map);
+  }
+  configureEditor() {
+    this.map.gl.addControl(new mapboxgl.NavigationControl(), 'top-left');
+    this.map.gl.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+    if (!isEmpty(this.additionalValuesOverlay))
+      this.map.gl.addControl(new AdditionalValuesFilterControl(this), 'bottom-left');
+
+    this.extendEditorInterface();
+    this._captureClickEvents();
+
+    this.editorGui = new this.extendedEditorInterface().addTo(this.map);
+
+    this._changeMtkLineStyle();
   }
   defaultView() {
     const viewOptions = {

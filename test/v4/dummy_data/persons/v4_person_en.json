@@ -2,7 +2,7 @@
   "honorific_prefix": "prefix - EN",
   "honorific_suffix": "suffix - EN",
   "contact_info": {
-    "name": "Ansprechpartner - EN",
+    "contact_name": "Ansprechpartner - EN",
     "telephone": "Telephone - EN",
     "fax_number": "FaxNumber - EN",
     "email": "Email - EN",

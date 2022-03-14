@@ -4,9 +4,9 @@
   "text": "<p>Long Description</p>",
   "price": "ab 3€",
   "description": "<p>Description juhu</p>",
-  "potentialAction": {
-    "url": "https://booking.link",
-    "name": "booking.link"
+  "potential_action": {
+    "action_url": "https://booking.link",
+    "action_name": "booking.link"
   },
   "slug": "Angebot"
 }

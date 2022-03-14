@@ -13,13 +13,12 @@
             :name: address
         :advanced_search: true
         :properties:
-          :name:
+          :contact_name:
             :label: Ansprechpartner
             :type: string
             :storage_location: translated_value
             :advanced_search: true
             :api:
-              :name: contact_name
               :v4:
                 :name: name
           :telephone:

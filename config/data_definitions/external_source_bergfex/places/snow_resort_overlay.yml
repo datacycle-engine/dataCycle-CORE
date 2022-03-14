@@ -23,14 +23,13 @@
             :type: text_editor
             :options:
               :data-size: full
-      :url:
+      :same_as:
         :label: Link
         :type: string
         :storage_location: translated_value
-        :api:
-          :name: sameAs
-        :xml:
-          :name: sameAs
+        :ui:
+          :show:
+            :type: url
       :postal_address:
         :type: mixin
         :name: postal_address
