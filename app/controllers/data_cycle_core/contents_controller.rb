@@ -448,7 +448,7 @@ module DataCycleCore
       values = {}
 
       attribute_value_params[:keys].each do |key|
-        key_path = key.gsub(/\[datahash\]|\[translations\]\[[^\]]*\]/, '').scan(/\[(.*?)\]/).flatten
+        key_path = key.attribute_path_from_key
         key_locale = key.scan(/\[translations\]\[([^\]]*)\]/).flatten.first
 
         next if key_path.blank?
