@@ -1,0 +1,22 @@
+#dc-tooltip {
+  display: none;
+  position: absolute;
+  background: $black;
+  color: $white;
+  padding: 0.5rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  pointer-events: none;
+  z-index: 9999;
+
+  #dc-tooltip-arrow {
+    position: absolute;
+    background: inherit;
+    width: 8px;
+    height: 8px;
+    transform: rotate(45deg);
+  }
+}
+[data-dc-tooltip] {
+  cursor: help;
+}

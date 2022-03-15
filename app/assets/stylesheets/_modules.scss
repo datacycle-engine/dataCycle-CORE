@@ -43,6 +43,7 @@
 @import 'modules/components/object_attribute';
 @import 'modules/components/icons';
 @import 'modules/components/mtk_editor';
+@import 'modules/components/tooltip';
 @import 'flatpickr/dist/flatpickr.min';
 @import 'modules/components/date_picker';
 @import 'ol/ol';
@@ -52,4 +53,4 @@
 @import 'modules/components/_image_editor';
 @import 'modules/components/_report';
 
-@import  "tabulator-tables/dist/css/tabulator.min.css";
+@import 'tabulator-tables/dist/css/tabulator.min.css';
