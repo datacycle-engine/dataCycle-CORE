@@ -24,6 +24,13 @@
           :indesign: true
       :geo_key_figure:
         :allowed: true
+        :part_id_path:
+            - about
+        :attribute_keys:
+          - length
+          - duration
+          - ascent
+          - descent
     :properties:
       :id:
         :label: id
@@ -83,18 +90,10 @@
             :label: Länge (m)
             :type: number
             :storage_location: value
-            :features:
-              :geo_key_figure:
-                :part_id_path:
-                  - about
           :duration:
             :label: Fahrzeit (min)
             :type: number
             :storage_location: value
-            :features:
-              :geo_key_figure:
-                :part_id_path:
-                  - about
             :ui:
               :edit:
                 :partial: number
@@ -102,18 +101,10 @@
             :label: Aufstieg (m)
             :type: number
             :storage_location: value
-            :features:
-              :geo_key_figure:
-                :part_id_path:
-                  - about
           :descent:
             :label: Abstieg (m)
             :type: number
             :storage_location: value
-            :features:
-              :geo_key_figure:
-                :part_id_path:
-                  - about
       :description:
         :label: Text
         :type: string

@@ -16,8 +16,7 @@ module DataCycleCore
         def geo_key_figure
           render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'GeoKeyFigure', locale: helpers.active_ui_locale) }.to_json, content_type: 'application/json') && return if geo_key_figure_params[:id].blank? || geo_key_figure_params[:part_ids].blank?
 
-          content = DataCycleCore::Thing.find(geo_key_figure_params[:id])
-          new_value = content.get_key_figure(geo_key_figure_params[:part_ids], geo_key_figure_params[:key])
+          new_value = DataCycleCore::Feature::GeoKeyFigure.get_key_figure(geo_key_figure_params[:part_ids], geo_key_figure_params[:key])
 
           render plain: { newValue: new_value }.to_json, content_type: 'application/json'
         end

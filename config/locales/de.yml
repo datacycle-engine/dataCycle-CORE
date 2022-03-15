@@ -840,6 +840,7 @@ de:
       start_date: 'Kein Start-Datum angegeben, setze auf 1970-01-01.'
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
+      key_figure_not_found: Kennzahl nicht gefunden
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
       required: 'sollte ausgefüllt werden.'
       schedule:

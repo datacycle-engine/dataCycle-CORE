@@ -819,6 +819,7 @@ en:
       start_date: No start date given, set to 1970-01-01.
       address_not_found: Address not found
       address_ambiguous: Address not unique
+      key_figure_not_found: Key Figure not found
       telephone_din5008: The format of the telephone number is not according to DIN
         5008, valid example +43 1 123456
       required: 'should be filled in.'
