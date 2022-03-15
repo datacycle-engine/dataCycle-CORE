@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Generic
-    module GIPKeyFigures
+    module GipKeyFigures
       class Endpoint
         def initialize(host: nil, end_point: nil, key: nil, **options)
           @host = host
