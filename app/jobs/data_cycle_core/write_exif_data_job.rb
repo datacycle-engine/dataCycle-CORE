@@ -35,7 +35,7 @@ module DataCycleCore
       asset = thing.asset
       return if asset.blank?
 
-      exif_data = MiniExiftool.new(asset.original.file.file, { replace_invalid_chars: true })
+      exif_data = MiniExiftool.new(asset.original.file.file, { replace_invalid_chars: true, ignore_minor_errors: true })
 
       updated_values = {}
 
