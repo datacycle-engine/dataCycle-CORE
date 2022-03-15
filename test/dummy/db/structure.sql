@@ -254,7 +254,7 @@ CREATE FUNCTION public.generate_content_content_links_trigger() RETURNS trigger
 
 CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN INSERT INTO watch_lists (name, user_id, created_at, updated_at, full_path, full_path_names, my_selection) SELECT 'Meine Auswahl', users.id, NOW(), NOW(), 'Meine Auswahl', ARRAY[]::varchar[], TRUE FROM users INNER JOIN roles ON roles.id = users.role_id WHERE users.id = NEW.id AND roles.rank <> 0; RETURN NEW; END; $$;
+    AS $$ BEGIN IF EXISTS ( SELECT FROM roles WHERE roles.id = NEW.role_id AND roles.rank <> 0) THEN INSERT INTO watch_lists ( name, user_id, created_at, updated_at, full_path, full_path_names, my_selection) SELECT 'Meine Auswahl', users.id, NOW(), NOW(), 'Meine Auswahl', ARRAY[]::varchar[], TRUE FROM users INNER JOIN roles ON roles.id = users.role_id WHERE users.id = NEW.id AND roles.rank <> 0 AND NOT EXISTS ( SELECT FROM watch_lists WHERE watch_lists.my_selection AND watch_lists.user_id = users.id); ELSE DELETE FROM watch_lists WHERE watch_lists.user_id = NEW.id AND watch_lists.my_selection; END IF; RETURN NEW; END; $$;
 
 
 --
@@ -2927,6 +2927,13 @@ CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE OF content_a_id
 
 
 --
+-- Name: users update_my_selection_watch_list; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_my_selection_watch_list AFTER UPDATE OF role_id ON public.users FOR EACH ROW WHEN ((old.role_id IS DISTINCT FROM new.role_id)) EXECUTE PROCEDURE public.generate_my_selection_watch_list();
+
+
+--
 -- Name: schedules update_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -3190,6 +3197,5 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220111132413'),
 ('20220113113445'),
 ('20220218095025'),
-('20220221123152');
-
-
+('20220221123152'),
+('20220304071341');

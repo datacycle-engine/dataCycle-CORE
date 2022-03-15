@@ -11,5 +11,5 @@
     definition.dig('ui', local_assigns.dig(:options, :ui_scope), 'true_value') || 'true',
     definition.dig('ui', local_assigns.dig(:options, :ui_scope), 'false_value') || 'false' %>
 
-  <%= attribute_edit_label_tag(key, definition, content, options) %>
+  <%= attribute_edit_label_tag(**local_assigns) %>
 <% end %>

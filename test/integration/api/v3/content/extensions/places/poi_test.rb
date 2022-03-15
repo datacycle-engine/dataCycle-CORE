@@ -75,7 +75,6 @@ module DataCycleCore
                 contact_info = @content.contact_info.to_h.transform_keys { |key| key.camelize(:lower) }
                 address = { '@type' => 'PostalAddress' }.merge(postal_address).merge(contact_info)
                 address['addressCountry'] = 'AT'
-                address['contactName'] = address.delete('name')
 
                 assert_equal(address, json_data.dig('address'))
 
@@ -159,7 +158,7 @@ module DataCycleCore
                 api_v3_json = JSON.parse(response.body)
 
                 # openingHoursSpecification has been changed in APIv3
-                excepted_params = ['@id', 'image', 'photo', 'logo', 'openingHoursSpecification']
+                excepted_params = ['@id', 'image', 'photo', 'logo', 'openingHoursSpecification', 'potentialAction']
 
                 assert_equal(api_v3_json.except(*excepted_params), api_v2_json.except(*excepted_params))
                 assert_equal(api_v3_json.dig('image').first.except(*excepted_params), api_v2_json.dig('image').first.except(*excepted_params))

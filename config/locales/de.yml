@@ -468,8 +468,9 @@ de:
           Hier könnte Ihre Enleitung stehen
 
           COPYRIGHT dataCycle'
-    gip_key_figure:
-      button_title: Ermittlung des Wertes für %{data} über ein Web-Service der GIP auf Basis der zugrundeliegenden Geo-Daten
+    geo_key_figure:
+      button_title: Ermittlung des Wertes für %{data} über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
+      button_title_all: Ermittlung der Werte über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
     user_api:
       mailer:
         subject: Ein neuer Benutzer wurde erstellt
@@ -834,7 +835,9 @@ de:
       start_date: 'Kein Start-Datum angegeben, setze auf 1970-01-01.'
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
+      key_figure_not_found: Kennzahl nicht gefunden
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
+      required: 'sollte ausgefüllt werden.'
       schedule:
         duration_too_long: 'Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)'
   controllers:

@@ -81,15 +81,22 @@
         :api:
           :type: ViewAction
         :properties:
-          :name:
+          :action_name:
             :label: Name
             :type: string
             :storage_location: translated_value
             :default_value: Link
-          :url:
+            :api:
+              :name: name
+          :action_url:
             :label: URL
             :type: string
             :storage_location: translated_value
+            :ui:
+              :show:
+                :type: url
+            :api:
+              :name: url
       :date_posted:
         :label: Veröffentlichungsdatum
         :type: datetime

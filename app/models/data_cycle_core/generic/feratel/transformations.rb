@@ -411,12 +411,12 @@ module DataCycleCore
           .>> t(:add_field, 'external_key', ->(s) { "LandLord:#{s.dig('Id')}" })
           .>> t(:reject_keys, ['Id'])
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
-          .>> t(:add_field, 'name', ->(s) { [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
+          .>> t(:add_field, 'contact_name', ->(s) { [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
           .>> t(:add_field, 'feratel_documents', ->(s) { Array.wrap(s.dig('Documents', 'Document')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['AddressContactDocument']))
           .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
           .>> t(:map_value, 'url', ->(s) { parse_url(s) })
-          .>> t(:nest, 'contact_info', ['name', 'email', 'fax_number', 'telephone', 'url'])
+          .>> t(:nest, 'contact_info', ['contact_name', 'email', 'fax_number', 'telephone', 'url'])
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
           .>> t(:add_field, 'name', ->(s) { s.dig('Company') || [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
@@ -427,10 +427,10 @@ module DataCycleCore
           .>> t(:add_field, 'external_key', ->(s) { "Organizer:#{s.dig('Id')}" })
           .>> t(:reject_keys, ['Id'])
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate')&.in_time_zone })
-          .>> t(:add_field, 'name', ->(s) { [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
+          .>> t(:add_field, 'contact_name', ->(s) { [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
           .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
           .>> t(:map_value, 'url', ->(s) { parse_url(s) })
-          .>> t(:nest, 'contact_info', ['name', 'email', 'fax_number', 'telephone', 'url'])
+          .>> t(:nest, 'contact_info', ['contact_name', 'email', 'fax_number', 'telephone', 'url'])
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
           .>> t(:add_field, 'name', ->(s) { s.dig('Company') || [s.dig('Title'), s.dig('FirstName'), s.dig('LastName')].compact.join(' ').presence })
@@ -512,7 +512,7 @@ module DataCycleCore
           .>> t(:add_field, 'latitude', ->(s) { s.dig('Position', 'Latitude')&.to_f&.then { |v| v.zero? ? nil : v } })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('Position', 'Longitude')&.to_f&.then { |v| v.zero? ? nil : v } })
           .>> t(:location)
-          .>> t(:add_field, 'name',
+          .>> t(:add_field, 'contact_name',
                 lambda do |s|
                   [
                     s.dig('Company', 'text'),
@@ -523,7 +523,7 @@ module DataCycleCore
           .>> t(:add_field, 'url', ->(s) { parse_url(s.dig('URL', 'text')) })
           .>> t(:add_field, 'telephone', ->(s) { s.dig('Mobile', 'text') || s.dig('Phone', 'text') })
           .>> t(:add_field, 'fax_number', ->(s) { s.dig('Fax', 'text') })
-          .>> t(:nest, 'contact_info', ['name', 'email', 'fax_number', 'telephone', 'url'])
+          .>> t(:nest, 'contact_info', ['contact_name', 'email', 'fax_number', 'telephone', 'url'])
           .>> t(:add_field, 'name',
                 lambda do |s|
                   [

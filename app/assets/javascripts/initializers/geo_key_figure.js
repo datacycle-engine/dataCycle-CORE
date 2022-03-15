@@ -1,4 +1,4 @@
-import GipKeyFigure from '../components/gip_key_figure';
+import GeoKeyFigure from '../components/geo_key_figure';
 
 export default function () {
   init();
@@ -11,9 +11,9 @@ export default function () {
 
   function init(element = document) {
     $(element)
-      .find('.gip-key-figure-button')
+      .find('.geo-key-figure-button')
       .each((_, elem) => {
-        new GipKeyFigure(elem);
+        new GeoKeyFigure(elem);
       });
   }
 }

@@ -149,5 +149,9 @@ module DataCycleCore
         render(partial, params)
       end
     end
+
+    def contextual_content(local_assigns)
+      local_assigns[:parent] || local_assigns[:content]
+    end
   end
 end
