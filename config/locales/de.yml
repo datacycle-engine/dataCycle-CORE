@@ -80,6 +80,7 @@ de:
     download: Download
     download_import: Download & Import
     delete: delete
+    errors_were_encountered: errors were encountered
 
   notification:
     frequency:

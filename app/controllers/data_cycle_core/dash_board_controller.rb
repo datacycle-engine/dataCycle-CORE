@@ -107,7 +107,7 @@ module DataCycleCore
         @errors = errors
         puts 'errors:'
         ap errors
-        flash[:error] = 'errors were encountered'
+        flash[:error] = I18n.t('dash_board.errors_were_encountered', locale: helpers.active_ui_locale)
       end
       redirect_to admin_path
     end

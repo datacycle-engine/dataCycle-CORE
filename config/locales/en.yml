@@ -73,6 +73,8 @@ en:
     download: Download
     download_import: Download &amp; Import
     delete: delete
+    errors_were_encountered: errors were encountered
+
   notification:
     frequency:
       always: immediately on change
