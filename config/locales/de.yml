@@ -156,6 +156,11 @@ de:
       warning: 'Warnung:'
       ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
       final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
+      errors:
+        no_data: 'Keine Daten angegeben für %{data}.'
+        key_figure_not_found: Kennzahl nicht gefunden.
+        endpoint_error: Fehler bei der Verbindung zum Server.
+        gip_no_plausible_route: Keine geeignete Route für die Berechnung der Kennzahlen gefunden. Bitte stellen Sie sicher, dass genau eine Hauptroute in Richtung hinzugefügt wurde.
     word_counter:
       chars:
         one: Zeichen
@@ -840,7 +845,6 @@ de:
       start_date: 'Kein Start-Datum angegeben, setze auf 1970-01-01.'
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
-      key_figure_not_found: Kennzahl nicht gefunden
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
       required: 'sollte ausgefüllt werden.'
       schedule:
@@ -1262,6 +1266,9 @@ de:
         suggestion: Tipps
         additional_information: Zusatzinformationen
         maps: Literatur
+    imx_platform:
+      description: Beschreibung
+      description_long: Detailbeschreibung
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

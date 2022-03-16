@@ -94,7 +94,7 @@ module DataCycleCore
 
       template_hash['properties'].each do |key, value|
         if value['type'] == 'schedule'
-          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], yearly_end: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]]] }
+          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]]] }
         elsif value['type'] == 'opening_time'
           parameter = { key.to_sym => [datahash: [:valid_from, :valid_until, :holiday, time: [datahash: [:id, :opens, :closes]], rrules: [validations: [day: []]]]] }
         elsif value['type'] == 'embedded'

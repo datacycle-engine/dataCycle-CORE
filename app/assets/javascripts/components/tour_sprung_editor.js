@@ -409,6 +409,7 @@ class TourSprungEditor extends OpenLayersEditor {
     this.elevationProfile = new MTK.ElevationProfile();
     this.elevationProfile._container.querySelector('rect.mtk-elevation-close').dispatchEvent(new Event('click'));
     if (this.showElevationProfile) this.elevationProfile.addTo(this.map);
+    this.$container.trigger('dc:map:elevationProfileInitialized');
   }
   configureEditor() {
     this.map.gl.addControl(new mapboxgl.NavigationControl(), 'top-left');

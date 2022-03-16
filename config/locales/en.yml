@@ -150,6 +150,11 @@ en:
       ignore_warnings: Warnings are present (%{data}).<br>Should the content be saved
         anyway?</br>
       final_save: The content is finally sent and <br>cannot be edited afterwards</br>.
+      errors:
+        no_data: No data specified for %{data}
+        key_figure_not_found: Key Figure not found
+        endpoint_error: Error while retreiving data.
+        gip_no_plausible_route: No Route for Key Figures found. Please select one Hauptroute in Richtung.
     word_counter:
       chars:
         one: Character
@@ -819,7 +824,6 @@ en:
       start_date: No start date given, set to 1970-01-01.
       address_not_found: Address not found
       address_ambiguous: Address not unique
-      key_figure_not_found: Key Figure not found
       telephone_din5008: The format of the telephone number is not according to DIN
         5008, valid example +43 1 123456
       required: 'should be filled in.'
@@ -1267,6 +1271,10 @@ en:
         suggestion: Tips
         additional_information: Additional information
         maps: Literature
+    imx_platform:
+      description: Description
+      description_long: Detailed description
+
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
       <ul> <li>Formats: %{image_types}</li> <li>Dimensions: %{image_dimensions}</li>

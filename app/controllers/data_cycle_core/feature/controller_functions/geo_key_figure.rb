@@ -18,6 +18,15 @@ module DataCycleCore
 
           new_value = DataCycleCore::Feature::GeoKeyFigure.get_key_figure(geo_key_figure_params[:part_ids], geo_key_figure_params[:key])
 
+          if new_value.try(:error).present?
+            render(
+              plain: {
+                error: DataCycleCore::LocalizationService.translate_and_substitute(new_value.error, helpers.active_ui_locale)
+              }.to_json,
+              content_type: 'application/json'
+            ) && return
+          end
+
           render plain: { newValue: new_value }.to_json, content_type: 'application/json'
         end
 

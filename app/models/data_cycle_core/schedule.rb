@@ -328,7 +328,7 @@ module DataCycleCore
 
           s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day.to_s(:iso8601) if s.dig('rrules', 0, 'until').present?
           s['rrules'][0]['validations'] ||= {}
-          s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present? && s.dig('yearly_end').blank?
+          s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present?
           s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
           s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
           s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
@@ -340,13 +340,9 @@ module DataCycleCore
             s.except!('rrules')
           when 'IceCube::YearlyRule'
             from_yday = start_time&.to_date&.yday
-            to_yday = s.dig('yearly_end', 'time')&.to_date&.yday
-            if to_yday.present?
-              to_yday = -366 + to_yday if from_yday > to_yday
-              s['rrules'][0]['validations']['day_of_year'] = [from_yday, to_yday]
-            else
-              s.dig('rrules', 0, 'validations')&.delete('day')
-            end
+
+            s['rrules'][0]['validations']['day_of_year'] = [from_yday]
+            s.dig('rrules', 0, 'validations')&.delete('day')
           else
             s.dig('rrules', 0, 'validations')&.delete('day')
           end
@@ -417,7 +413,7 @@ module DataCycleCore
         output = +'P'
         output << "#{duration_hash[:years]}Y" if duration_hash[:years]&.positive?
         output << "#{duration_hash[:months]}M" if duration_hash[:months]&.positive?
-        output << "#{(duration_hash[:weeks] || 0) * 7 + (duration_hash[:days] || 0)}D" if duration_hash[:weeks]&.positive? || duration_hash[:days]&.positive?
+        output << "#{((duration_hash[:weeks] || 0) * 7) + (duration_hash[:days] || 0)}D" if duration_hash[:weeks]&.positive? || duration_hash[:days]&.positive?
         if duration_hash[:seconds]&.positive? || duration_hash[:minutes]&.positive? || duration_hash[:hours]&.positive?
           output << 'T'
           output << "#{duration_hash[:hours]}H" if duration_hash[:hours]&.positive?
