@@ -21,6 +21,14 @@ class GeoKeyFigure {
 
     this.$element.on('click', this._computeKeyFigure.bind(this));
     this.$triggerAllButton.on('click', this._computeKeyFigure.bind(this));
+    if (!this.local) {
+      this.setButtonStatus(false, { ids: this.getValues() });
+      $(this.partSelectorString()).on('dc:objectBrowser:change', this.setButtonStatus.bind(this));
+    } else {
+      $(this.partSelectorString())
+        .find(DataCycle.config.EditorSelectors.join(', '))
+        .on('dc:map:elevationProfileInitialized', this.enableButtons.bind(this));
+    }
   }
   partSelectorString() {
     return (this.partSelector = '.form-element' + this.partIdPath.map(v => '[data-key*="[' + v + ']"]').join(''));
@@ -29,7 +37,8 @@ class GeoKeyFigure {
     return $(this.partSelectorString())
       .find(':input')
       .serializeArray()
-      .map(v => v && v.value);
+      .map(v => v && v.value)
+      .filter(n => n);
   }
   _computeKeyFigure(event) {
     event.preventDefault();
@@ -64,7 +73,13 @@ class GeoKeyFigure {
 
     DataCycle.httpRequest({ url: fullUrl })
       .then(data => {
-        if (data) this.setNewValue(data.newValue);
+        if (data) {
+          if (data.newValue) this.setNewValue(data.newValue);
+          if (data.error) this.showErrorMessage(data.error);
+        }
+      })
+      .catch(async () => {
+        this.showErrorMessage(await I18n.translate('frontend.validate.errors.endpoint_error'));
       })
       .finally(() => {
         DataCycle.enableElement(this.$element);
@@ -77,6 +92,29 @@ class GeoKeyFigure {
       value: value,
       locale: this.locale
     });
+  }
+  showErrorMessage(message) {
+    $('body').trigger('dc:flash:renderMessage', { type: 'alert', text: message });
+  }
+  setButtonStatus(event, data) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    if (data.ids.length > 0) {
+      this.enableButtons();
+    } else {
+      this.disableButtons();
+    }
+  }
+  enableButtons() {
+    DataCycle.enableElement(this.$element);
+    DataCycle.enableElement(this.$triggerAllButton);
+  }
+  disableButtons() {
+    DataCycle.disableElement(this.$element, this.$element.html());
+    DataCycle.disableElement(this.$triggerAllButton, this.$triggerAllButton.html());
   }
 }
 
