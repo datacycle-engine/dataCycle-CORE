@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FixScheduleOccurrencesAgain < ActiveRecord::Migration[6.1]
+class FixScheduleOccurrencesAgain < ActiveRecord::Migration[5.2]
   # uncomment the following line to disable transactions
   # disable_ddl_transaction!
 
