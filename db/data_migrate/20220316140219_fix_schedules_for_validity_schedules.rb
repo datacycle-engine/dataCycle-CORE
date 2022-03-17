@@ -5,15 +5,7 @@ class FixSchedulesForValiditySchedules < ActiveRecord::Migration[5.2]
   # disable_ddl_transaction!
 
   def up
-    execute <<-SQL.squish
-      UPDATE
-        schedules
-      SET
-        rrule = REPLACE(rrule, 'BYYEARDAY=' || array_to_string(get_byyearday (rrule::rrule), ','),
-          'BYYEARDAY=' || (get_byyearday (rrule::rrule))[1])
-      WHERE
-        array_length(get_byyearday (rrule::rrule), 1) > 1;
-    SQL
+    DataCycleCore::RunTaskJob.set(queue: 'default').perform_later('dc:migrate:remove_multiple_byyearday')
   end
 
   def down
