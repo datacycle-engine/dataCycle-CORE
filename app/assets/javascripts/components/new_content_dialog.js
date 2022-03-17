@@ -367,21 +367,25 @@ class NewContentDialog {
   }
   goTo(event, data) {
     if (event) event.preventDefault();
+
+    const $fromSet = this.form.find('fieldset.active');
+    const fromIndex = this.form.find('fieldset').index($fromSet);
+    const toIndex = data !== undefined ? data : event && $(event.target).data('index');
+    const $toSet = this.form.find('fieldset:eq(' + toIndex + ')');
+
     if (
-      this.form.find('fieldset.active').hasClass('template') &&
-      this.form.find(':input[name="template"]').val() !== null &&
-      this.form.find(':input[name="template"]').val() != this.form.data('template')
-    ) {
+      $fromSet.hasClass('template') &&
+      fromIndex !== toIndex &&
+      this.form.data('template') !== this.form.find(':input[name="template"]').val()
+    )
       this.renderContentForm();
-    }
-    let index = data !== undefined ? data : event && $(event.target).data('index');
-    this.form.find('fieldset.active').removeClass('active');
-    this.form
-      .find('fieldset:eq(' + index + ')')
-      .addClass('active')
-      .trigger('dc:remote:render');
-    if (this.form.find('fieldset.active').hasClass('template') || this.form.find('fieldset.active').hasClass('iframe'))
+
+    $fromSet.removeClass('active');
+    $toSet.addClass('active').trigger('dc:remote:render');
+
+    if ($toSet.hasClass('template') || $toSet.hasClass('iframe'))
       this.form.closest('.reveal:not(.full)').foundation('_updatePosition');
+
     this.updateForm();
   }
   updateWarningLevel() {

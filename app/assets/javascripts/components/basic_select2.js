@@ -65,7 +65,11 @@ class BasicSelect2 {
     event.stopPropagation();
   }
   reset(_event) {
-    this.$element.val(null).trigger('change', { type: 'reset' });
+    this.$element.find('option').prop('selected', function () {
+      return this.defaultSelected;
+    });
+
+    this.$element.trigger('change', { type: 'reset' });
   }
   destroy(_event) {
     this.$element.select2('destroy');
