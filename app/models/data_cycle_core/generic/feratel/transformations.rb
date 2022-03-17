@@ -368,9 +368,7 @@ module DataCycleCore
           to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 23, 59, 59).end_of_day
           to_date += 1.year if from_date > to_date
           from_yday = from_date.to_date.yday
-          to_yday = to_date.to_date.yday
-          to_yday = -366 + to_yday if from_yday > to_yday
-          rrule = IceCube::Rule.yearly.day_of_year(from_yday, to_yday)
+          rrule = IceCube::Rule.yearly.day_of_year(from_yday)
           options = { end_time: to_date.end_of_day }
           schedule_object = IceCube::Schedule.new(from_date, options) do |s|
             s.add_recurrence_rule(rrule)

@@ -12,24 +12,32 @@ module DataCycleCore
         end
 
         def get_key_figure(part_ids, key)
-          @part_ids = part_ids
+          part_ids = part_ids.reject(&:blank?)
 
-          unless part_ids.present? && key.present? && voo_id.present?
+          unless part_ids.present? && key.present?
             return OpenStruct.new(error: {
-              path: 'validation.warnings.no_data',
+              path: 'frontend.validate.errors.no_data',
               substitutions: {
-                data: 'GeoKeyFeature'
+                data: 'GIP Kennzahlen'
               }
             })
           end
 
+          @voo_id = voo_id(part_ids)
+
+          if @voo_id.blank?
+            return OpenStruct.new(error: {
+              path: 'frontend.validate.errors.gip_no_plausible_route'
+            })
+          end
+
           data = Rails.cache.fetch(key_figure_cache_key, expires_in: 1.hour) do
-            load_data(id: voo_id)
+            load_data(id: @voo_id)
           end
 
           if data.blank?
-            OpenStruct.new(error: {
-              path: 'validation.warnings.key_figure_not_found'
+            return OpenStruct.new(error: {
+              path: 'frontend.validate.errors.key_figure_not_found'
             })
           end
 
@@ -37,37 +45,55 @@ module DataCycleCore
 
           if key_figure.blank?
             return OpenStruct.new(error: {
-              path: 'validation.warnings.key_figure_not_found'
+              path: 'frontend.validate.errors.key_figure_not_found'
             })
           end
 
           key_figure
         end
 
-        def voo_id
-          @voo_id ||= find_voo_id
-        end
-
-        def find_voo_id
+        def voo_id(part_ids)
           result_id = nil
 
-          @part_ids&.map { |id|
+          sections = part_ids&.map { |id|
             content = DataCycleCore::Thing.find(id)
             if content.template_name == 'Gesamtroute'
               content.sections
             else
               content
             end
-          }&.flatten&.uniq(&:id)&.each do |section|
-            next unless section.template_name == 'Route' && section.minortyperef.first.name == 'R: Hauptroute in Richtung'
-            @content_updated_at = section.updated_at
-            result_id = section.external_key.sub(/^Event_/, '')
+          }&.flatten&.uniq(&:id)
+
+          # if only one section we use this for key figures
+          if sections.length == 1
+            @content_updated_at = sections&.first&.updated_at
+            return sections&.first&.external_key&.sub(/^Event_/, '')
           end
+
+          # only one 'Hauptroute in Richtung' is allowed, this is then taken for key figures, if there are more or none we return an error
+          main_route_count = 0
+          sections&.each do |section|
+            next unless section&.template_name == 'Route' && section&.minortyperef&.first&.name == 'R: Hauptroute in Richtung'
+
+            if main_route_count.positive?
+              result_id = nil
+              break
+            else
+              result_id = section&.external_key&.sub(/^Event_/, '')
+            end
+
+            @content_updated_at = section&.updated_at
+
+            main_route_count += 1
+          end
+
           result_id
         end
 
         def parse_key_figures(raw_data, key)
           return if raw_data.blank?
+          return if raw_data.dig('features').blank?
+
           raw_data.dig('features').first[mapped_key(key)]
         end
 
@@ -78,10 +104,10 @@ module DataCycleCore
             req.params['usr'] = @key
           end
 
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + id + 'geocode/json'}", response) unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join(@host, @end_point, id)}", response) unless response.success?
           data = JSON.parse(response.body)
 
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']}, error loading data from #{@host + @end_point + id + 'geocode/json'}", response) unless data.try(:length)
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']}, error loading data from #{File.join(@host, @end_point, id)}", response) unless data.try(:length)
           data
         end
 
@@ -101,7 +127,7 @@ module DataCycleCore
         end
 
         def key_figure_cache_key
-          "gip_key_figure_#{voo_id}_#{@content_updated_at.iso8601}"
+          "gip_key_figure_#{@voo_id}_#{@content_updated_at.iso8601}"
         end
       end
     end

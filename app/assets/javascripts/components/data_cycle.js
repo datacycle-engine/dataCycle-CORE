@@ -109,9 +109,17 @@ class DataCycle {
 
     return response;
   }
-  _prepareElement(element) {
+  _prepareElement(element, innerHTML = undefined) {
     if (element instanceof $) element = element[0];
     if (!element) return;
+
+    if (innerHTML != undefined) {
+      element.dataset.dcDisableWith = element.dataset.disableWith;
+      element.dataset.disableWith = innerHTML;
+    } else if (element.dataset.dcDisableWith) {
+      element.dataset.disableWith = element.dataset.dcDisableWith;
+      delete element.dataset.dcDisableWith;
+    }
 
     if (element.nodeName == 'A' && !element.dataset.disableWith) element.dataset.disableWith = element.innerHTML;
     else if (element.nodeName == 'BUTTON' && !element.dataset.disable && !element.dataset.disableWith)
@@ -119,8 +127,8 @@ class DataCycle {
 
     return element;
   }
-  disableElement(element) {
-    element = this._prepareElement(element);
+  disableElement(element, innerHTML = undefined) {
+    element = this._prepareElement(element, innerHTML);
     if (!element) return;
 
     Rails.disableElement(element);
