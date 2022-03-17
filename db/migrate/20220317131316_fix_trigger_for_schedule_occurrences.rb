@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FixTriggerForScheduleOccurrences < ActiveRecord::Migration[6.1]
+class FixTriggerForScheduleOccurrences < ActiveRecord::Migration[5.2]
   def up
     execute <<~SQL.squish
       CREATE OR REPLACE FUNCTION generate_schedule_occurences (
