@@ -23,7 +23,7 @@ class FixTriggerForScheduleOccurrences < ActiveRecord::Migration[5.2]
             ELSE
               duration
             END AS duration,
-            unnest(get_occurrences (schedules.rrule::rrule, schedules.dtstart AT TIME ZONE current_setting('TIMEZONE')))
+            unnest(get_occurrences (schedules.rrule::rrule, schedules.dtstart AT TIME ZONE 'Europe/Vienna'))
         AT TIME ZONE 'Europe/Vienna' AS occurence
           FROM
             schedules
@@ -43,7 +43,7 @@ class FixTriggerForScheduleOccurrences < ActiveRecord::Migration[5.2]
               duration
             END AS duration,
             unnest(get_occurrences ((schedules.rrule || ';UNTIL=2037-12-31')::rrule, schedules.dtstart AT TIME ZONE
-        current_setting('TIMEZONE'))) AT TIME ZONE 'Europe/Vienna' AS occurence
+            'Europe/Vienna')) AT TIME ZONE 'Europe/Vienna' AS occurence
           FROM
             schedules
           WHERE
