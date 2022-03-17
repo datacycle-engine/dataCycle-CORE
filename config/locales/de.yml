@@ -1259,6 +1259,12 @@ de:
     imx_platform:
       description: Beschreibung
       description_long: Detailbeschreibung
+    timm4:
+      intro: Einleitung
+      description: Beschreibung
+      positionDescription: Lage
+      pricesDescription: Preisinformation
+      keywords: Stichworte
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
