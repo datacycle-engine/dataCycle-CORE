@@ -29,11 +29,12 @@ module DataCycleCore
         def self.exif_to_classification(property_parameters:, property_definition:, **_args)
           meta_data = DataCycleCore::Asset.find_by(id: property_parameters&.first)&.metadata
           meta_property_keys = property_definition.dig('default_value', 'parameters', '1', 'metadata')
+          default_value = property_definition.dig('default_value', 'parameters', '1', 'default')
           create_or_map = property_definition.dig('default_value', 'parameters', '2', 'create') || false
           return if meta_data.blank? || meta_property_keys.blank?
 
           search_values = meta_property_keys.map { |attribute| meta_data.dig(attribute) }&.flatten&.reject(&:blank?)&.uniq
-          return if search_values.blank?
+          return if search_values.blank? && default_value.blank?
 
           if create_or_map
             tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: property_definition&.dig('tree_label'))
@@ -43,7 +44,9 @@ module DataCycleCore
             end
             classification_ids
           else
-            DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), search_values)
+            classification_ids = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), search_values)
+            return classification_ids if classification_ids.present?
+            return DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), default_value) if default_value.present?
           end
         end
 

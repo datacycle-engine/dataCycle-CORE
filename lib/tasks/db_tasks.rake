@@ -38,7 +38,14 @@ namespace :db do
       sql = 'VACUUM'
       sql += ' FULL' if full
       sql += ' ANALYZE;'
+
       ActiveRecord::Base.connection.execute(sql)
+
+      next if full
+
+      DbHelper.with_config do |_host, _port, db, _user, _password|
+        ActiveRecord::Base.connection.execute("REINDEX DATABASE \"#{db}\";")
+      end
     end
   end
 

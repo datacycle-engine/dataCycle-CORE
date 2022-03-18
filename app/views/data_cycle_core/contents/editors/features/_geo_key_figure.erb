@@ -1,5 +1,5 @@
 <%= link_to geo_key_figure_thing_path(id: content.id),
-    class: 'geo-key-figure-button',
+    class: 'geo-key-figure-button disabled',
     remote: true,
     title: t('feature.geo_key_figure.button_title', data: translated_attribute_label(key, definition, local_assigns[:content], local_assigns[:options]), locale: active_ui_locale),
     data: {

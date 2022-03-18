@@ -29,6 +29,12 @@
       justify-content: center;
       text-align: center;
       z-index: 12;
+
+      &.disabled {
+        color: $dark-gray;
+        text-shadow: none;
+        cursor: not-allowed;
+      }
     }
 
     &.focus {
