@@ -163,11 +163,24 @@ module DataCycleCore
         result_header = validate_header.call(template)
         errors = {}
         error = result_header.errors.to_h
-
         errors[:head] = error if error.present?
+
         error = validate_properties(template[:data])
         errors[:properties] = error if error.present?
+
+        error = validate_property_names(template.dig(:data, :properties))
+        errors[:property_names] = error if error.present?
+
         errors
+      end
+
+      def self.validate_property_names(properties)
+        simple_objects = properties.select { |_, v| v['type'] == 'object' }
+        return if simple_objects.blank?
+        sub_keys = simple_objects.map { |_, v| v['properties'].keys }.flatten
+        root_keys = properties.keys
+        return if (root_keys & sub_keys).blank?
+        "Simple Objects Error: keys #{root_keys & sub_keys} are not unique!"
       end
 
       def self.validate_properties(template)

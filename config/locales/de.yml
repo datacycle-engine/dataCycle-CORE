@@ -151,6 +151,11 @@ de:
       warning: 'Warnung:'
       ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
       final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
+      errors:
+        no_data: 'Keine Daten angegeben für %{data}.'
+        key_figure_not_found: Kennzahl nicht gefunden.
+        endpoint_error: Fehler bei der Verbindung zum Server.
+        gip_no_plausible_route: Keine geeignete Route für die Berechnung der Kennzahlen gefunden. Bitte stellen Sie sicher, dass genau eine Hauptroute in Richtung hinzugefügt wurde.
     word_counter:
       chars:
         one: Zeichen
@@ -468,8 +473,9 @@ de:
           Hier könnte Ihre Enleitung stehen
 
           COPYRIGHT dataCycle'
-    gip_key_figure:
-      button_title: Ermittlung des Wertes für %{data} über ein Web-Service der GIP auf Basis der zugrundeliegenden Geo-Daten
+    geo_key_figure:
+      button_title: Ermittlung des Wertes für %{data} über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
+      button_title_all: Ermittlung der Werte über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
     user_api:
       mailer:
         subject: Ein neuer Benutzer wurde erstellt
@@ -835,6 +841,7 @@ de:
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
+      required: 'sollte ausgefüllt werden.'
       schedule:
         duration_too_long: 'Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)'
   controllers:
@@ -1253,6 +1260,9 @@ de:
         suggestion: Tipps
         additional_information: Zusatzinformationen
         maps: Literatur
+    imx_platform:
+      description: Beschreibung
+      description_long: Detailbeschreibung
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

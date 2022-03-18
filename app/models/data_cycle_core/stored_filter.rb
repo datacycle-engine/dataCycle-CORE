@@ -136,8 +136,7 @@ module DataCycleCore
         query2 = filter_proc.call(query2, query2_table)
       end
 
-      query = Arel::SelectManager.new(Arel::Nodes::TableAlias.new(query1.union(:all, query2), 'combined_collections_and_searches')).project(Arel.star).order('name ASC')
-      query
+      Arel::SelectManager.new(Arel::Nodes::TableAlias.new(query1.union(:all, query2), 'combined_collections_and_searches')).project(Arel.star).order('name ASC')
     end
   end
 end

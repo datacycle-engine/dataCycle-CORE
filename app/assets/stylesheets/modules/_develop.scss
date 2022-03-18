@@ -14,7 +14,8 @@
   }
 
   .form-element {
-    .gip-key-figure-button {
+    .geo-key-figure-button,
+    .geo-key-figure-button-all {
       font-size: 1.1rem;
       position: absolute;
       right: 0.5rem;
@@ -27,6 +28,25 @@
       align-items: center;
       justify-content: center;
       text-align: center;
+      z-index: 12;
+
+      &.disabled {
+        color: $dark-gray;
+        text-shadow: none;
+        cursor: not-allowed;
+      }
+    }
+
+    &.focus {
+      .geo-key-figure-button,
+      .geo-key-figure-button-all {
+        z-index: 20;
+      }
+    }
+
+    .geo-key-figure-button-all {
+      right: 1rem;
+      top: 1rem;
     }
 
     label + select {
@@ -3425,7 +3445,7 @@ body {
   z-index: 1010 !important;
   background: white !important;
   pointer-events: none !important;
-  transition: opacity 0.3s ease-in;
+  transition: opacity 0.1s ease-in;
   opacity: 0;
   position: fixed !important;
   width: calc(50% - 3rem) !important;

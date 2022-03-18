@@ -14,7 +14,7 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { s.dig('title') })
           .>> t(:add_field, 'description', ->(s) { s.dig('contentText')&.gsub(/\n/, '<br/>') })
           .>> t(:add_field, 'same_as', ->(s) { s.dig('staticUrl') })
-          .>> t(:add_field, 'potential_action', ->(s) { { 'url' => s.dig('url') } })
+          .>> t(:add_field, 'potential_action', ->(s) { { 'action_url' => s.dig('url') } })
           .>> t(:add_field, 'snippet', ->(s) { unescape_html(s.dig('snippet')) })
           .>> t(:add_field, 'date_posted', ->(s) { s.dig('showDate') })
           .>> t(:add_field, 'date_created', ->(s) { s.dig('createDate') })

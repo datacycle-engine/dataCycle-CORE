@@ -319,6 +319,19 @@
   &:after {
     clear: both;
   }
+
+  .tile-property {
+    &.image {
+      max-height: 50px;
+      display: flex;
+      margin-top: 0.5rem;
+
+      img {
+        max-height: 50px;
+        margin-right: 0.5rem;
+      }
+    }
+  }
 }
 
 .expired-item-overlay {
@@ -1086,6 +1099,19 @@
     .no-entries {
       text-align: center;
       padding: 10rem 0;
+    }
+
+    .tile-property {
+      &.image {
+        max-height: 50px;
+        display: flex;
+        margin-top: 0.5rem;
+
+        img {
+          max-height: 50px;
+          margin-right: 0.5rem;
+        }
+      }
     }
   }
 
