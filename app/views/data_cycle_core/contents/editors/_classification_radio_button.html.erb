@@ -15,7 +15,7 @@
                             checked: (value&.ids&.include?(rb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))),
                             disabled: !rb.object.assignable || !attribute_editable?(key, definition, options, content)  %>
         <% if rb.object.try(:description).present? %>
-          <%= rb.label title: rb.object.try(:description), class: 'dc-foundation-tooltip', data: { allow_html: true } do %>
+          <%= rb.label data: { dc_tooltip: rb.object.try(:description) } do %>
             <%= rb.text %> <i class="fa fa-info-circle" aria-hidden="true"></i>
           <% end %>
         <% else %>

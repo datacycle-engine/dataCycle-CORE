@@ -1,10 +1,12 @@
 import { computePosition, autoPlacement, autoUpdate, arrow, offset } from '@floating-ui/dom';
+import domElementHelpers from '../helpers/dom_element_helpers';
 
 class Tooltips {
   constructor() {
     this.tooltip = document.getElementById('dc-tooltip');
     this.referenceElement;
-    this.cleanup;
+    this.cleanups = {};
+    this.dataChangedObserver = new MutationObserver(this.updateTooltipContent.bind(this));
 
     this.init();
   }
@@ -39,31 +41,81 @@ class Tooltips {
   }
   initNewTooltips() {
     DataCycle.htmlObserver.addCallbacks.push([
-      e => e.dataset.dcTooltip !== undefined,
+      e => e.dataset.dcTooltip !== undefined && !e.classList.contains('dc-tt-initialized'),
       this.addEventsForTooltip.bind(this)
     ]);
   }
   addEventsForTooltip(tooltip) {
-    tooltip.addEventListener('mouseenter', this.showTooltip.bind(this));
+    tooltip.dataset.dcTooltipId = domElementHelpers.randomId();
+
+    tooltip.addEventListener('mouseenter', this.showTooltipDelayed.bind(this));
     tooltip.addEventListener('mouseleave', this.hideTooltip.bind(this));
+
+    tooltip.classList.add('dc-tt-initialized');
   }
-  showTooltip(event) {
+  addAutoUpdate() {
+    return autoUpdate(this.referenceElement, this.tooltip, this.updatePosition.bind(this), {
+      ancestorScroll: false,
+      ancestorResize: true,
+      elementResize: true
+    });
+  }
+  showTooltipDelayed(event) {
     if (!event.target.dataset.dcTooltip) return;
 
     this.referenceElement = event.target;
-    this.tooltip.style.display = 'block';
-    this.tooltipContent.innerHTML = this.referenceElement.dataset.dcTooltip.trim();
 
-    this.updatePosition();
-    this.cleanup = autoUpdate(this.referenceElement, this.tooltip, this.updatePosition.bind(this));
+    setTimeout(this.showTooltip.bind(this, event.target), 300);
   }
+  async showTooltip(target) {
+    if (
+      !this.referenceElement ||
+      this.referenceElement.dataset.dcTooltipId !== target.dataset.dcTooltipId ||
+      this.cleanups.hasOwnProperty(target.dataset.dcTooltipId)
+    )
+      return;
+
+    this.tooltip.style.display = 'block';
+    this.updateTooltipContent();
+    await this.updatePosition();
+
+    this.cleanups[this.referenceElement.dataset.dcTooltipId] = this.addAutoUpdate();
+
+    this.watchTooltipContent();
+
+    $(this.tooltip).trigger('dc:tooltip:open');
+  }
+
   hideTooltip(_event) {
     this.tooltip.style.display = '';
+    this.cleanupTooltips();
+    this.referenceElement = undefined;
 
-    if (this.cleanup) this.cleanup();
+    this.stopWatchingTooltipContent();
+
+    $(this.tooltip).trigger('dc:tooltip:close');
   }
-  updatePosition() {
-    computePosition(this.referenceElement, this.tooltip, {
+  cleanupTooltips() {
+    for (const key of Object.keys(this.cleanups)) {
+      this.cleanups[key]();
+      delete this.cleanups[key];
+    }
+  }
+  watchTooltipContent() {
+    this.dataChangedObserver.disconnect();
+    this.dataChangedObserver.observe(this.referenceElement, {
+      attributes: true,
+      attributeFilter: ['data-dc-tooltip']
+    });
+  }
+  stopWatchingTooltipContent() {
+    this.dataChangedObserver.disconnect();
+  }
+  updateTooltipContent() {
+    this.tooltipContent.innerHTML = this.referenceElement.dataset.dcTooltip.trim();
+  }
+  async updatePosition() {
+    const position = await computePosition(this.referenceElement, this.tooltip, {
       middleware: [
         offset(6),
         autoPlacement({ padding: 5 }),
@@ -71,7 +123,9 @@ class Tooltips {
           element: this.tooltipArrow
         })
       ]
-    }).then(this.positionTooltip.bind(this));
+    });
+
+    this.positionTooltip(position);
   }
   positionTooltip({ x, y, placement, middlewareData }) {
     Object.assign(this.tooltip.style, {

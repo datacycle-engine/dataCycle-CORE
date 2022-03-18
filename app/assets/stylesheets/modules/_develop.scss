@@ -1688,7 +1688,7 @@ select:-moz-focusring {
 .thumbnail-tooltip {
   text-align: center;
   max-width: 90vw;
-  max-width: 90vh;
+  max-height: 90vh;
 
   img {
     width: auto;

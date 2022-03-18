@@ -8,6 +8,8 @@
   font-size: 0.8rem;
   pointer-events: none;
   z-index: 9999;
+  max-width: 90vw;
+  max-height: 90vh;
 
   #dc-tooltip-arrow {
     position: absolute;
@@ -17,6 +19,6 @@
     transform: rotate(45deg);
   }
 }
-[data-dc-tooltip] {
+[data-dc-tooltip]:not(button):not(a):not(.button) {
   cursor: help;
 }
