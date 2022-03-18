@@ -263,8 +263,7 @@ module DataCycleCore
             @query
               .where(
                 search_exists(
-                  Arel.sql(advanced_query_string(query_string, attribute_path, attribute_path_exists)),
-                  true
+                  Arel.sql(advanced_query_string(query_string, attribute_path, attribute_path_exists))
                 )
               )
           )
