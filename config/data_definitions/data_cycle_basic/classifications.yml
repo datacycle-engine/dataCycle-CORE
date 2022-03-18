@@ -117,6 +117,14 @@
     - positionDescription | TIMM4
     - pricesDescription | TIMM4
     - keywords | TIMM4
+    - culinarySpecialities | TIMM4
+    - furtherSpecialities | TIMM4
+    - dishes | TIMM4
+    - barrierFreeDescription | TIMM4
+    - restDays | TIMM4
+    - companyHoliday | TIMM4
+    - meetingPoint | TIMM4
+    - timesComment | TIMM4
 
 - POI - Kategorien | all:
 
