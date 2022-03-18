@@ -290,6 +290,7 @@ class MapLibreGlViewer {
         filter: ['==', ['geometry-type'], 'LineString'],
         layout: {
           'icon-image': `start_${iconColor}`,
+          'icon-offset': [0, -15],
           'symbol-placement': 'point'
         },
         paint: {
