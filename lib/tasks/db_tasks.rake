@@ -33,12 +33,20 @@ namespace :db do
 
   namespace :maintenance do
     desc 'run VACUUM (FULL) on DB, full(false|true)'
-    task :vacuum, [:full] => [:environment] do |_, args|
+    task :vacuum, [:full, :reindex] => [:environment] do |_, args|
       full = args.fetch(:full, false)
+      reindex = args.fetch(:reindex, false)
       sql = 'VACUUM'
-      sql += ' FULL' if full
+      sql += ' FULL' if full.to_s == 'true'
       sql += ' ANALYZE;'
+
       ActiveRecord::Base.connection.execute(sql)
+
+      next if full.to_s == 'true' || reindex.to_s != 'true'
+
+      DbHelper.with_config do |_host, _port, db, _user, _password|
+        ActiveRecord::Base.connection.execute("REINDEX DATABASE \"#{db}\";")
+      end
     end
   end
 
