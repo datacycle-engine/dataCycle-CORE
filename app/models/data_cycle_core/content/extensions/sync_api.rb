@@ -88,7 +88,7 @@ module DataCycleCore
                     .to_hash
                     .merge({ 'ancestors' => primary_classification.ancestors&.map(&:to_hash) })
                     .merge({ 'attribute_name' => 'universal_classifications' })
-                }.compact
+                }&.compact
                 Array.wrap(classification_data) + classification_mappings
               }.presence&.flatten
             }&.compact&.flatten
