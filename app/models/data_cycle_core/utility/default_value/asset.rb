@@ -26,10 +26,14 @@ module DataCycleCore
           Array.wrap(tree_label&.create_classification_alias(color_space)&.primary_classification&.id)
         end
 
-        def self.exif_to_classification(property_parameters:, property_definition:, **_args)
+        def self.exif_to_classification(property_parameters:, property_definition:, content:, **_args)
           meta_data = DataCycleCore::Asset.find_by(id: property_parameters&.first)&.metadata
           meta_property_keys = property_definition.dig('default_value', 'parameters', '1', 'metadata')
           default_value = property_definition.dig('default_value', 'parameters', '1', 'default')
+          default_value_import = property_definition.dig('default_value', 'parameters', '1', 'default_import')
+
+          default_value = default_value_import if content.local_import && default_value.blank? && default_value_import.present?
+
           create_or_map = property_definition.dig('default_value', 'parameters', '2', 'create') || false
           return if meta_data.blank? || meta_property_keys.blank?
 
@@ -72,9 +76,13 @@ module DataCycleCore
           filename_to_string(property_parameters: property_parameters)
         end
 
-        def self.exif_to_linked(property_parameters:, property_definition:, **_args)
+        def self.exif_to_linked(property_parameters:, property_definition:, content:, **_args)
           meta_data = DataCycleCore::Asset.find_by(id: property_parameters&.first)&.metadata
           meta_property_keys = property_definition.dig('default_value', 'parameters', '1', 'metadata')
+
+          default_value = property_definition.dig('default_value', 'parameters', '1', 'default')
+          default_value_import = property_definition.dig('default_value', 'parameters', '1', 'default_import')
+          default_value = default_value_import if content.local_import && default_value.blank? && default_value_import.present?
 
           return if meta_data.blank? || meta_property_keys.blank?
 
@@ -90,6 +98,7 @@ module DataCycleCore
 
             return Array.wrap(query.first.id) if query.first.present?
           end
+          return default_value if default_value.present?
           nil
         end
       end
