@@ -170,10 +170,12 @@ module DataCycleCore
 
                 dtstart = "#{dstart.to_s(:only_date)}T#{time['startTime']}".in_time_zone
                 dtend =
-                  if time['endTime'].present? && time['endTime'] != '00:00:00'
-                    "#{dend.to_s(:only_date)}T#{time['endTime']}".in_time_zone
-                  else
+                  if time['endTime'] == '00:00:00'
                     dend.end_of_day
+                  elsif time['endTime'].present?
+                    "#{dend.to_s(:only_date)}T#{time['endTime']}".in_time_zone
+                  else # endTime is NULL
+                    dtstart + 1.minute
                   end
                 data['event_schedule'] << {
                   start_time: { time: dtstart, zone: dtstart.time_zone.name },
@@ -191,6 +193,25 @@ module DataCycleCore
           days = (dend - dstart) / 1.day.to_i
           return (0..6).to_a if days >= 6
           (0..days).map { |i| (dstart + i.days).wday }.sort.uniq
+        end
+
+        def self.add_potential_action(data, external_source_id)
+          potential_action = []
+
+          ['menuDownload', 'recipeSuggestionDownload'].each do |item|
+            link = data[item]&.strip
+            next if link.blank?
+            potential_action << {
+              'id' => DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: link)&.id,
+              'name' => I18n.t("import.timm4.#{item}", default: [item]),
+              'url' => link,
+              'action_type' => DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('ActionTypes', 'Download'),
+              'external_key' => link
+            }
+          end
+
+          data['potential_action'] = potential_action
+          data
         end
       end
     end

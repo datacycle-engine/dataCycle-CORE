@@ -51,6 +51,7 @@ module DataCycleCore
           .>> t(:add_links, 'timm4_classifications', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['classifications'])&.map { |i| "TIMM4 - Gastronomy - Classification - #{i}" } })
           .>> t(:universal_classifications, ->(s) { s.dig('timm4_classifications') })
           .>> t(:add_links, 'timm4_equipment', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['equipmentFeatures'])&.map { |i| "TIMM4 - Gastronomy - Equipment feature - #{i}" } })
+          .>> t(:add_potential_action, external_source_id)
           .>> t(:universal_classifications, ->(s) { s.dig('timm4_equipment') })
         end
 

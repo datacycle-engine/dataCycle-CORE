@@ -1277,6 +1277,8 @@ de:
       companyHoliday: Betriebsferien
       meetingPoint: Treffpunkt
       timesComment: Erläuterung Beginnzeiten
+      menuDownload: Speisekarte herunterladen
+      recipeSuggestionDownload: Rezept herunterladen
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
