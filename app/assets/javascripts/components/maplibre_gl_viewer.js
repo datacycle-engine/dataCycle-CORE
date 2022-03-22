@@ -476,7 +476,6 @@ class MapLibreGlViewer {
     });
   }
   initMapHoverActions(layerId, source) {
-    // TODO: mouse pointer
     this.map.on('mousemove', layerId, e => {
       if (e.features.length > 0) {
         if (this.hoveredStateId) {
@@ -484,6 +483,7 @@ class MapLibreGlViewer {
         }
         this.hoveredStateId = e.features[0].id;
         this.map.setFeatureState({ source: source, id: this.hoveredStateId }, { hover: true });
+        this.map.getCanvas().style.cursor = 'pointer';
       }
     });
     this.map.on('mouseleave', layerId, () => {
@@ -491,6 +491,7 @@ class MapLibreGlViewer {
         this.map.setFeatureState({ source: source, id: this.hoveredStateId }, { hover: false });
       }
       this.hoveredStateId = null;
+      this.map.getCanvas().style.cursor = '';
     });
   }
   updateMapPosition() {
