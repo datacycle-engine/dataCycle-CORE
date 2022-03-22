@@ -1270,6 +1270,22 @@ de:
     imx_platform:
       description: Beschreibung
       description_long: Detailbeschreibung
+    timm4:
+      intro: Einleitung
+      description: Beschreibung
+      positionDescription: Lage
+      pricesDescription: Preisinformation
+      keywords: Stichworte
+      culinarySpecialities: Kulinarische Spezialitäten
+      furtherSpecialities: Weiter Spezialitäten
+      dishes: Gerichte
+      barrierFreeDescription: Barrierefreiheit
+      restDays: Ruhetage
+      companyHoliday: Betriebsferien
+      meetingPoint: Treffpunkt
+      timesComment: Erläuterung Beginnzeiten
+      menuDownload: Speisekarte herunterladen
+      recipeSuggestionDownload: Rezept herunterladen
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
