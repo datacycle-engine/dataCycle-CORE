@@ -298,33 +298,8 @@ CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS trigger
 --
 
 CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig
-    LANGUAGE plpgsql
-    AS $$
-      DECLARE
-        dict regconfig;
-      BEGIN
-        SELECT
-          CASE
-            WHEN lang = 'da' THEN 'pg_catalog.danish'
-            WHEN lang = 'nl' THEN 'pg_catalog.dutch'
-            WHEN lang = 'en' THEN 'pg_catalog.english'
-            WHEN lang = 'fi' THEN 'pg_catalog.finnish'
-            WHEN lang = 'fr' THEN 'pg_catalog.french'
-            WHEN lang = 'de' THEN 'pg_catalog.german'
-            WHEN lang = 'de-CH' THEN 'pg_catalog.german'
-            WHEN lang = 'hu' THEN 'pg_catalog.hungarian'
-            WHEN lang = 'it' THEN 'pg_catalog.italian'
-            WHEN lang = 'no' THEN 'pg_catalog.norwegian'
-            WHEN lang = 'pt' THEN 'pg_catalog.portuguese'
-            WHEN lang = 'ru' THEN 'pg_catalog.russian'
-            WHEN lang = 'es' THEN 'pg_catalog.spanish'
-            WHEN lang = 'sv' THEN 'pg_catalog.swedish'
-            WHEN lang = 'tr' THEN 'pg_catalog.turkish'
-            ELSE 'pg_catalog.simple'
-          END
-        INTO dict;
-        RETURN dict;
-      END; $$;
+    LANGUAGE sql
+    AS $$ SELECT pg_dict_mappings.dict::regconfig FROM pg_dict_mappings WHERE pg_dict_mappings.locale IN (lang, 'simple') LIMIT 1; $$;
 
 
 --
@@ -338,15 +313,6 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
       	NEW.words := pg_catalog.to_tsvector(get_dict(NEW.locale), NEW.full_text::text);
         RETURN NEW;
       END;$$;
-
-
---
--- Name: core_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
---
-
-CREATE TEXT SEARCH DICTIONARY public.core_german (
-    TEMPLATE = pg_catalog.thesaurus,
-    dictfile = 'core_german', dictionary = 'pg_catalog.german_stem' );
 
 
 SET default_tablespace = '';
@@ -376,8 +342,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -1049,6 +1015,16 @@ CREATE TABLE public.external_systems (
     last_import timestamp without time zone,
     last_successful_import timestamp without time zone,
     deactivated boolean DEFAULT false
+);
+
+
+--
+-- Name: pg_dict_mappings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.pg_dict_mappings (
+    locale character varying NOT NULL,
+    dict character varying NOT NULL
 );
 
 
@@ -1930,10 +1906,10 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
--- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -2644,6 +2620,13 @@ CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btre
 
 
 --
+-- Name: pg_dict_mappings_locale_dict_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX pg_dict_mappings_locale_dict_idx ON public.pg_dict_mappings USING btree (locale, dict);
+
+
+--
 -- Name: thing_translations_name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2968,13 +2951,6 @@ CREATE TRIGGER update_my_selection_watch_list AFTER UPDATE OF role_id ON public.
 
 
 --
--- Name: users update_my_selection_watch_list; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER update_my_selection_watch_list AFTER UPDATE OF role_id ON public.users FOR EACH ROW WHEN ((old.role_id IS DISTINCT FROM new.role_id)) EXECUTE FUNCTION public.generate_my_selection_watch_list();
-
-
---
 -- Name: schedules update_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -3205,7 +3181,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210510120343'),
 ('20210518074537'),
 ('20210518133349'),
-('20210520121223'),
 ('20210520123323'),
 ('20210522171126'),
 ('20210527121641'),
@@ -3218,42 +3193,32 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210709121013'),
 ('20210731090959'),
 ('20210802095013'),
-('20210802130128'),
-('20210803170527'),
 ('20210804140504'),
 ('20210817101040'),
 ('20210908095952'),
 ('20211001085525'),
-('20211004160440'),
 ('20211005125306'),
 ('20211005134137'),
 ('20211007123156'),
-('20211007150305'),
-('20211011060931'),
 ('20211011123517'),
 ('20211014062654'),
 ('20211021062347'),
 ('20211021111915'),
-('20211110092804'),
-('20211115140202'),
 ('20211122075759'),
 ('20211123081845'),
 ('20211130111352'),
 ('20211214135559'),
 ('20211216110505'),
 ('20211217094832'),
-('20211217111102'),
 ('20220105142232'),
 ('20220111132413'),
 ('20220113113445'),
-('20220113150316'),
-('20220119101040'),
-('20220125101015'),
 ('20220218095025'),
 ('20220221123152'),
 ('20220304071341'),
 ('20220316115212'),
 ('20220317105304'),
-('20220317131316');
+('20220317131316'),
+('20220322104259');
 
 
