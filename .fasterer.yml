@@ -1,6 +1,5 @@
 speedups:
- each_with_index_vs_while: false
-#  fetch_with_argument_vs_block: true
+  each_with_index_vs_while: false
 
 exclude_paths:
   - 'app/controllers/data_cycle_core/api/v1/api_base_controller.rb'

@@ -67,7 +67,7 @@ module DataCycleCore
           .>> t(:universal_classifications, ->(s) { s.dig('timm4_category') })
           .>> t(:add_links, 'timm4_music_category', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['musicCategory'])&.map { |i| "TIMM4 - Events - Music category - #{i}" } })
           .>> t(:universal_classifications, ->(s) { s.dig('timm4_music_category') })
-          .>> t(:add_schedule)
+          .>> t(:add_schedule, external_source_id, ->(s) { s.dig('external_key') })
         end
 
         def self.to_tour(external_source_id)

@@ -144,7 +144,7 @@ module DataCycleCore
           data
         end
 
-        def self.add_schedule(data)
+        def self.add_schedule(data, external_source_id, external_key)
           return data if data['dates'].blank?
           data['event_schedule'] = []
           data['dates'].each do |date|
@@ -156,10 +156,18 @@ module DataCycleCore
             if data['times'].blank?
               dtstart = dstart
               dtend = dend.end_of_day
+              # data['event_schedule'] << {
+              #   start_time: { time: dtstart, zone: dtstart.time_zone.name },
+              #   end_time: { time: dtend, zone: dtend.time_zone.name },
+              #   duration: dtend.to_i - dtstart.to_i
+              # }
               data['event_schedule'] << {
                 start_time: { time: dtstart, zone: dtstart.time_zone.name },
-                end_time: { time: dtend, zone: dtend.time_zone.name },
-                duration: dtend.to_i - dtstart.to_i
+                duration: 1.day.to_i,
+                rrules: [{
+                  rule_type: 'IceCube::DailyRule',
+                  until: dtend
+                }]
               }
             else
               wdays = days(dstart, dend)
@@ -175,7 +183,7 @@ module DataCycleCore
                   elsif time['endTime'].present?
                     "#{dend.to_s(:only_date)}T#{time['endTime']}".in_time_zone
                   else # endTime is NULL
-                    dtstart + 1.minute
+                    dtstart
                   end
                 data['event_schedule'] << {
                   start_time: { time: dtstart, zone: dtstart.time_zone.name },
@@ -184,6 +192,14 @@ module DataCycleCore
                 }
               end
             end
+          end
+          data['event_schedule'].map! do |item|
+            schedule_key = Digest::SHA1.hexdigest "#{external_key.call(data)}-#{item.to_json}"
+            item.merge({
+              id: DataCycleCore::Schedule.find_by(external_source_id: external_source_id, external_key: schedule_key)&.id,
+              external_source_id: external_source_id,
+              external_key: schedule_key
+            })
           end
           data
         end
