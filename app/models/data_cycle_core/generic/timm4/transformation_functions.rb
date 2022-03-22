@@ -152,6 +152,7 @@ module DataCycleCore
             next if date['date'].present? && date['dateEnd'].present? && date['date'].in_time_zone > date['dateEnd'].in_time_zone
             dstart = date['date'].in_time_zone
             dend = date['dateEnd']&.in_time_zone || dstart
+            dend = dstart if dend > (Time.zone.now + 5.years)
 
             if data['times'].blank?
               dtstart = dstart
