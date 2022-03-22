@@ -8,6 +8,8 @@ class ExportDictionaryMappingsToTable < ActiveRecord::Migration[5.2]
         dict varchar NOT NULL
       );
 
+      CREATE UNIQUE INDEX pg_dict_mappings_locale_dict_idx ON pg_dict_mappings (locale, dict);
+
       INSERT INTO pg_dict_mappings (
         locale,
         dict)
@@ -57,17 +59,15 @@ class ExportDictionaryMappingsToTable < ActiveRecord::Migration[5.2]
         'tr',
         'pg_catalog.turkish');
 
-      CREATE INDEX pg_dict_mappings_locale_dict_idx ON pg_dict_mappings (locale, dict);
-
       DROP FUNCTION get_dict;
 
       CREATE OR REPLACE FUNCTION get_dict (
         lang varchar
       )
-        RETURNS varchar
+        RETURNS regconfig
         AS $$
         SELECT
-          pg_dict_mappings.dict
+          pg_dict_mappings.dict::regconfig
         FROM
           pg_dict_mappings
         WHERE
