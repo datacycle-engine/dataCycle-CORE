@@ -10,6 +10,8 @@ module DataCycleCore
       return if missing_locales.blank?
 
       PgDictMapping.create(missing_locales.map { |v| { locale: v, dict: 'pg_catalog.simple' } })
+    rescue ActiveRecord::NoDatabaseError
+      nil
     end
   end
 end
