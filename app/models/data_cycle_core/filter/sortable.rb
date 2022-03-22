@@ -130,7 +130,7 @@ module DataCycleCore
               "things.boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
-              2 * ts_rank_cd(searches.words, plainto_tsquery(get_dict(searches.locale), :search),16) +
+              2 * ts_rank_cd(searches.words, plainto_tsquery(pg_dict_mappings.dict::regconfig, :search),16) +
               1 * similarity(searches.full_text, :search_string))"
             ),
             search_string: "%#{search_string}%",
@@ -139,7 +139,7 @@ module DataCycleCore
         )
         reflect(
           @query
-            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
             .reorder(
               Arel.sql(sanitized_order_string(order_string, ordering, true)),
               Arel.sql('things.updated_at DESC'),

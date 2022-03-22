@@ -1276,6 +1276,22 @@ en:
     imx_platform:
       description: Description
       description_long: Detailed description
+    timm4:
+      intro: Introduction
+      description: Description
+      positionDescription: Position
+      pricesDescription: Priceinformation
+      keywords: Keywords
+      culinarySpecialities: Culinary Specialities
+      furtherSpecialities: Further Specialities
+      dishes: Dishes
+      barrierFreeDescription: Barrier free description
+      restDays: Rest days
+      companyHoliday: Company holidays
+      meetingPoint: Meeting Point
+      timesComment: Entrance details
+      menuDownload: Download menu
+      recipeSuggestionDownload: Download suggested recipe
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
