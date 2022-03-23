@@ -1,9 +1,9 @@
 <% excluded_types ||= [] %>
 <%= tag.li(data: { children: item.sub_classification_alias.size > 0 ? item.sub_classification_alias.size : nil }) do %>
   <input type="checkbox" name="f[<%= identifier %>][v][]" value="<%= item.id %>" id="<%= identifier %>_<%= item.id %>" <%= 'checked' if local_assigns[:value]&.include?(item.id) %> />
-  <label for="<%= identifier %>_<%= item.id %>">
+  <label for="<%= identifier %>_<%= item.id %>" data-dc-tooltip="<%= classification_tooltip(item) %>">
     <span class="title">
-      <span class="inner-title"><%= I18n.with_locale(item.first_available_locale(active_ui_locale)){ item.name } %></span>
+      <span class="inner-title"><%= item.internal_name %></span>
     </span>
   </label>
 

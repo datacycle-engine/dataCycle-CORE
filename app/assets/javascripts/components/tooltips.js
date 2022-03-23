@@ -1,4 +1,4 @@
-import { computePosition, autoPlacement, autoUpdate, arrow, offset } from '@floating-ui/dom';
+import { computePosition, autoPlacement, autoUpdate, arrow, offset, hide } from '@floating-ui/dom';
 import domElementHelpers from '../helpers/dom_element_helpers';
 
 class Tooltips {
@@ -41,7 +41,7 @@ class Tooltips {
   }
   initNewTooltips() {
     DataCycle.htmlObserver.addCallbacks.push([
-      e => e.dataset.dcTooltip !== undefined && !e.classList.contains('dc-tt-initialized'),
+      e => e.dataset.dcTooltip && !e.dataset.dcTooltipId,
       this.addEventsForTooltip.bind(this)
     ]);
   }
@@ -50,13 +50,11 @@ class Tooltips {
 
     tooltip.addEventListener('mouseenter', this.showTooltipDelayed.bind(this));
     tooltip.addEventListener('mouseleave', this.hideTooltip.bind(this));
-
-    tooltip.classList.add('dc-tt-initialized');
   }
   addAutoUpdate() {
     return autoUpdate(this.referenceElement, this.tooltip, this.updatePosition.bind(this), {
       ancestorScroll: false,
-      ancestorResize: true,
+      ancestorResize: false,
       elementResize: true
     });
   }
@@ -75,25 +73,32 @@ class Tooltips {
     )
       return;
 
-    this.tooltip.style.display = 'block';
     this.updateTooltipContent();
-    await this.updatePosition();
-
-    this.cleanups[this.referenceElement.dataset.dcTooltipId] = this.addAutoUpdate();
-
     this.watchTooltipContent();
 
-    $(this.tooltip).trigger('dc:tooltip:open');
+    this.tooltip.style.display = 'block';
+    this.cleanups[this.referenceElement.dataset.dcTooltipId] = this.addAutoUpdate();
+    await this.updatePosition();
   }
 
   hideTooltip(_event) {
-    this.tooltip.style.display = '';
+    Object.assign(this.tooltip.style, {
+      left: '',
+      top: '',
+      display: ''
+    });
+
+    Object.assign(this.tooltipArrow.style, {
+      left: '',
+      top: '',
+      right: '',
+      bottom: ''
+    });
+
     this.cleanupTooltips();
     this.referenceElement = undefined;
 
     this.stopWatchingTooltipContent();
-
-    $(this.tooltip).trigger('dc:tooltip:close');
   }
   cleanupTooltips() {
     for (const key of Object.keys(this.cleanups)) {
@@ -121,7 +126,8 @@ class Tooltips {
         autoPlacement({ padding: 5 }),
         arrow({
           element: this.tooltipArrow
-        })
+        }),
+        hide({ strategy: 'referenceHidden' })
       ]
     });
 
@@ -134,6 +140,9 @@ class Tooltips {
     });
 
     const { x: arrowX, y: arrowY } = middlewareData.arrow;
+    const { referenceHidden } = middlewareData.hide;
+
+    if (referenceHidden) return this.hideTooltip();
 
     const staticSide = {
       top: 'bottom',

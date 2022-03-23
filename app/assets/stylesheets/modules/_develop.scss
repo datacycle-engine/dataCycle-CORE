@@ -1082,7 +1082,8 @@ video {
 }
 
 // Submit button errors
-.tooltip {
+.tooltip,
+#dc-tooltip {
   .tooltip-error,
   .tooltip-warning {
     display: block;
@@ -2363,10 +2364,12 @@ select {
   max-width: 90vw;
 }
 
-.tooltip p:last-child {
-  margin-bottom: 0;
+.tooltip,
+#dc-tooltip {
+  p:last-child {
+    margin-bottom: 0;
+  }
 }
-
 .status-container {
   margin-top: 1rem;
 }
@@ -3472,5 +3475,9 @@ body {
   }
 }
 .mini-preview-image {
+  display: inline-block;
+}
+
+.edit-button-form {
   display: inline-block;
 }

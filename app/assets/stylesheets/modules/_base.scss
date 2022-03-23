@@ -210,8 +210,11 @@ footer {
   vertical-align: middle;
 }
 
-.tooltip .external-system-icon:not(.success, .pending, .error, .failure) {
-  color: inherit;
+.tooltip,
+#dc-tooltip {
+  .external-system-icon:not(.success, .pending, .error, .failure) {
+    color: inherit;
+  }
 }
 
 .external-system-icon {

@@ -89,6 +89,9 @@ de:
       day: täglich
       week: wöchentlich
 
+  classifications:
+    tooltip_translations: Übersetzungen
+
   frontend:
     load_error: Fehler beim Laden des Inhalts.
     text_editor:

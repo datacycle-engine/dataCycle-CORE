@@ -14,14 +14,14 @@ module DataCycleCore
     # TODO: refactor
     def get_classifications_for_id(uids, tree_label = nil)
       unless uids.nil?
-        if !tree_label.nil?
+        if tree_label.nil?
+          @selected_classifications = DataCycleCore::ClassificationAlias.find(uids)
+        else
           allowed_classifications = get_classifications_for_name(tree_label)
             .classification_trees
             .map { |classification| classification.sub_classification_alias.id }
           allowed_uids = uids.select { |uid| allowed_classifications.include?(uid) }
           @selected_classifications = DataCycleCore::ClassificationAlias.find(allowed_uids)
-        else
-          @selected_classifications = DataCycleCore::ClassificationAlias.find(uids)
         end
       end
     rescue StandardError
@@ -75,7 +75,20 @@ module DataCycleCore
     end
 
     def classification_tooltip(classification_alias)
-      safe_join([classification_alias.full_path, classification_alias.description.presence].compact, '<br><br>')
+      tooltip_html = []
+
+      tooltip_html << tag.div(classification_alias.full_path, class: 'tag-full-path') if classification_alias.try(:full_path).present?
+      tooltip_html << "<div class=\"tag-description\">#{classification_alias.description}</div>" if classification_alias.try(:description).present?
+      tooltip_html << tag.div(
+        tag.span(I18n.t('classifications.tooltip_translations', locale: active_ui_locale), class: 'tag-translations-header') +
+        tag.ul(
+          safe_join(classification_alias.name_i18n.map { |k, v| tag.li(v, data: { locale: "#{k}:" }) }),
+          class: 'tag-translations-list'
+        ),
+        class: 'tag-translations'
+      )
+
+      tooltip_html.compact.join('<br>')
     end
 
     def expected_classification_alias(c)
@@ -83,9 +96,12 @@ module DataCycleCore
     end
 
     def expected_value_id(c, expected_type)
-      if c.is_a?(expected_type) then c&.id
-      elsif expected_type == DataCycleCore::Classification then c&.primary_classification&.id
-      else c&.primary_classification_alias&.id
+      if c.is_a?(expected_type)
+        c&.id
+      elsif expected_type == DataCycleCore::Classification
+        c&.primary_classification&.id
+      else
+        c&.primary_classification_alias&.id
       end
     end
 
@@ -117,10 +133,10 @@ module DataCycleCore
               ca.internal_name,
               expected_value_id(c, expected_type),
               {
-                title: [
-                  ca.full_path,
-                  ca.description
-                ].reject(&:blank?).join("\n\n")
+                data: {
+                  dc_tooltip: classification_tooltip(ca),
+                  full_path: ca.full_path
+                }
               }
             ]
           }
@@ -141,12 +157,9 @@ module DataCycleCore
               ca.internal_name,
               expected_value_id(c, expected_type),
               {
-                title: [
-                  ca.full_path,
-                  ca.description
-                ].reject(&:blank?).join("\n\n"),
                 data: {
-                  title: ca.full_path
+                  dc_tooltip: classification_tooltip(ca),
+                  full_path: ca.full_path
                 },
                 disabled: !c.assignable
               }
