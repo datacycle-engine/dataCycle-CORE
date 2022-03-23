@@ -13,8 +13,7 @@ module DataCycleCore
               .where(
                 search_exists(
                   search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
-                    .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql('subquery.config')))),
-                  false,
+                    .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql('pg_dict_mappings.dict::regconfig')))),
                   true
                 )
               )
@@ -54,7 +53,7 @@ module DataCycleCore
                 "boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
-              2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
+              2 * ts_rank_cd(searches.words, plainto_tsquery(get_dict(searches.locale), :search),16) +
               1 * similarity(searches.full_text, :search_string))"
               ),
               search_string: "%#{search_string}%",
@@ -70,11 +69,12 @@ module DataCycleCore
                 (#{order_string}) as fulltext_boost
               FROM
                 "searches"
+              JOIN (SELECT get_dict(searches.locale) AS config, searches.locale AS locale FROM searches GROUP BY searches.locale) as subquery ON subquery.locale = searches.locale
               WHERE
                 #{search[:locale].in(@locale).to_sql}
                 AND (
                   #{search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" }).to_sql}
-                  OR #{tsmatch(search[:words], tsquery(quoted(normalized_name.squish))).to_sql}
+                  OR #{tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql('subquery.config'))).to_sql}
                 )
               ORDER BY
                 content_data_id, fulltext_boost DESC
@@ -88,9 +88,10 @@ module DataCycleCore
                 (#{order_string}) as fulltext_boost
               FROM
                 "searches"
+              JOIN (SELECT get_dict(searches.locale) AS config, searches.locale AS locale FROM searches GROUP BY searches.locale) as subquery ON subquery.locale = searches.locale
               WHERE
                   #{search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" }).to_sql}
-                  OR #{tsmatch(search[:words], tsquery(quoted(normalized_name.squish))).to_sql}
+                  OR #{tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql('subquery.config'))).to_sql}
               ORDER BY
                 content_data_id, fulltext_boost DESC
             )

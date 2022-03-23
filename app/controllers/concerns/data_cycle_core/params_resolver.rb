@@ -44,7 +44,11 @@ module DataCycleCore
     private
 
     def parse_json_string(value)
-      JSON.parse(value)
+      parsed_value = JSON.parse(value)
+
+      return value if parsed_value.is_a?(::String) && parsed_value != value
+
+      parsed_value
     rescue JSON::ParserError, TypeError
       value
     end
