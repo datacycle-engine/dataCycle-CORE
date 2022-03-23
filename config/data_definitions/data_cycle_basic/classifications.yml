@@ -172,6 +172,11 @@
     - $$mittel
     - $$schwierig
 
+- OutdoorActive - Status | all:
+    - $$geöffnet
+    - $$geschlossen
+    - $$Winteraktivität
+
 - Länder | all:
     - Andorra
     - Dänemark
