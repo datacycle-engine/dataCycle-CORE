@@ -15,7 +15,7 @@ module DataCycleCore
         can :clear, :cache
 
         # Contents
-        can [:set_life_cycle, :move_content], DataCycleCore::Thing
+        can [:set_life_cycle, :view_life_cycle, :move_content], DataCycleCore::Thing
 
         can :destroy, DataCycleCore::Thing do |content|
           content.try(:external_source_id).blank?
