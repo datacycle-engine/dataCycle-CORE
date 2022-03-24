@@ -75,6 +75,7 @@ module DataCycleCore
               :show_external_connections,
               :subscribe,
               :history,
+              :view_life_cycle,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing)
             )
 

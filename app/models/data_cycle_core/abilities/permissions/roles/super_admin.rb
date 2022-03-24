@@ -97,6 +97,7 @@ module DataCycleCore
               :remove_lock,
               :translate,
               :set_life_cycle,
+              :view_life_cycle,
               :move_content,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing)
             )

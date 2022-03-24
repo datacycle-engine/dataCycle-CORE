@@ -11,6 +11,8 @@ module DataCycleCore
 
         can [:create, :destroy], :auto_translate
 
+        can [:view_life_cycle], DataCycleCore::Thing
+
         can [:read, :update, :import, :set_life_cycle, :move_content], DataCycleCore::Thing do |content|
           content.try(:external_source_id).blank? ||
             DataCycleCore::Feature::Overlay.allowed?(content) ||

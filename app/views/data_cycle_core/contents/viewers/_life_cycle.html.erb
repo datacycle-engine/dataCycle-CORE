@@ -1,4 +1,4 @@
-<% if DataCycleCore::Feature::LifeCycle.allowed?(content) && [@split_source, @diff_source].all?(&:nil?) %>
+<% if DataCycleCore::Feature::LifeCycle.allowed?(content) && [@split_source, @diff_source].all?(&:nil?) && can?(:view_life_cycle, content) %>
   <div class="content-pool-buttons">
     <% DataCycleCore::Feature::LifeCycle.ordered_classifications(content).each do |stage_name, stage| %>
 
