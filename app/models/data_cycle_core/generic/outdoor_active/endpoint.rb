@@ -124,6 +124,7 @@ module DataCycleCore
             req.params['key'] = @key
             req.params['lang'] = lang
             req.params['fallback'] = false
+            req.params['display'] = 'external'
           end
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("DataCycle::Generic::OutdoorActive -> error loading data from #{File.join([@host, @end_point, @project] + url_path)} / lang:#{lang}", response) unless response.success?
