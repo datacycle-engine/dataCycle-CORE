@@ -50,7 +50,7 @@ class MapLibreGlViewer {
     this.sources = {};
     this.layers = {};
     this.allRenderedLayers = [];
-    this.hoveredStateId = null;
+    this.hoveredStateId = {};
   }
   setup() {
     this.initMap();
@@ -211,6 +211,7 @@ class MapLibreGlViewer {
     // if (this.additionalFeatures.length > 0) this._addSelectedSourceAndLayers('secondary', this.additionalFeatures[0]); // TODO:
 
     this.additionalFeatures = this.additionalValues;
+
     for (const [key, value] of Object.entries(this.additionalFeatures)) {
       this._addSelectedSourceAndLayers(key, value);
     }
@@ -260,12 +261,11 @@ class MapLibreGlViewer {
         paint: {
           'line-color': this.definedColors.white,
           'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0],
-          'line-width': 8
+          'line-width': this.getStyleCaseExpression('width', ['+', ['get', 'width'], 4], 9)
         }
       }
       // this._getLastLineLayerId() // TODO:
     );
-    this.initMapHoverActions(`${layerId}_hover`, source);
 
     this.map.addLayer(
       {
@@ -274,14 +274,14 @@ class MapLibreGlViewer {
         source: source,
         filter: ['==', '$type', 'LineString'],
         paint: {
-          'line-color': lineColor,
+          'line-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), lineColor),
           'line-opacity': iconColor === 'gray' ? 0.75 : 1,
-          'line-width': 5
+          'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
         }
       }
       // this._getLastLineLayerId() // TODO:
     );
-    // we are adding only start point, because then we can use symbol-placement point TODO: check if this is always true
+    // we are adding only start point, because then we can use symbol-placement point
     this.map.addLayer(
       {
         id: `${layerId}_hover_start`,
@@ -289,7 +289,11 @@ class MapLibreGlViewer {
         source: source,
         filter: ['==', ['geometry-type'], 'LineString'],
         layout: {
-          'icon-image': `start_${iconColor}`,
+          'icon-image': this.getStyleCaseExpression(
+            'color',
+            ['concat', 'start_', ['get', 'color']],
+            `start_${iconColor}`
+          ),
           'icon-offset': [0, -15],
           'symbol-placement': 'point'
         },
@@ -299,10 +303,11 @@ class MapLibreGlViewer {
       }
       // this._getLastPointLayerId() // TODO:
     );
-    // not necessary
-    // this.initMapHoverActions(hoverLayerId + '_start', source);
 
-    // this.allRenderedLayers.push(layerId);  // TODO:
+    this.initMapHoverActions(`${layerId}_hover`, source);
+
+    if (layerId.includes('selected'))
+      this.allRenderedLayers.push(`${layerId}_hover`, layerId, `${layerId}_hover_start`);
 
     return layerId;
   }
@@ -385,16 +390,25 @@ class MapLibreGlViewer {
       const feature = this.map.queryRenderedFeatures(e.point, { layers: this.allRenderedLayers })[0];
 
       if (feature) {
-        this.map.getCanvas().style.cursor = 'pointer';
         popup
           .setLngLat(feature.geometry.type !== 'Point' ? e.lngLat : feature.geometry.coordinates)
           .setHTML(feature.properties.name)
           .addTo(this.map);
+
+        this._highlightLinked(feature);
       } else {
-        this.map.getCanvas().style.cursor = '';
         popup.remove();
       }
     });
+  }
+  _highlightLinked(feature) {
+    let listElement = $('li[data-id*="' + feature.properties.thingPath.split('/').pop() + '"]');
+
+    listElement.addClass('highlight');
+
+    setTimeout(() => {
+      listElement.removeClass('highlight');
+    }, 1000);
   }
   _addSourceAndLayer(key, data) {
     this.sources[key] = `feature_source_${key}`;
@@ -425,15 +439,13 @@ class MapLibreGlViewer {
       point: this._additionalPointLayer(`selected_${key}`), // TODO:
       line: this._lineLayer(layerId, this.selectedAdditionalSources[key])
     };
-
-    this.allRenderedLayers.push(layerId);
   }
   _disableScrollingOnMapOverlays() {
     this.$parentContainer.siblings('.map-info').on('wheel', event => {
       if (event.originalEvent[this.zoomMethod]) event.preventDefault();
     });
 
-    this.$container.on('wheel', event => {
+    this.$container.on('wheel', '*', event => {
       if (event.originalEvent[this.zoomMethod]) event.preventDefault();
     });
   }
@@ -478,19 +490,19 @@ class MapLibreGlViewer {
   initMapHoverActions(layerId, source) {
     this.map.on('mousemove', layerId, e => {
       if (e.features.length > 0) {
-        if (this.hoveredStateId) {
-          this.map.setFeatureState({ source: source, id: this.hoveredStateId }, { hover: false });
+        if (this.hoveredStateId[layerId]) {
+          this.map.setFeatureState({ source: source, id: this.hoveredStateId[layerId] }, { hover: false });
         }
-        this.hoveredStateId = e.features[0].id;
-        this.map.setFeatureState({ source: source, id: this.hoveredStateId }, { hover: true });
+        this.hoveredStateId[layerId] = e.features[0].id;
+        this.map.setFeatureState({ source: source, id: this.hoveredStateId[layerId] }, { hover: true });
         this.map.getCanvas().style.cursor = 'pointer';
       }
     });
     this.map.on('mouseleave', layerId, () => {
-      if (this.hoveredStateId != null) {
-        this.map.setFeatureState({ source: source, id: this.hoveredStateId }, { hover: false });
+      if (this.hoveredStateId[layerId] != null) {
+        this.map.setFeatureState({ source: source, id: this.hoveredStateId[layerId] }, { hover: false });
       }
-      this.hoveredStateId = null;
+      this.hoveredStateId[layerId] = null;
       this.map.getCanvas().style.cursor = '';
     });
   }
@@ -518,13 +530,12 @@ class MapLibreGlViewer {
       for (const feature of geoJson.features) {
         if (!feature || !feature.geometry) continue;
 
-        return this.addBoundsForFeature(bounds, feature);
+        this.addBoundsForFeature(bounds, feature);
       }
     } else {
       return this.addBoundsForFeature(bounds, geoJson);
     }
-
-    // return bounds;
+    return bounds;
   }
   addBoundsForFeature(bounds, feature) {
     if (feature.geometry.type === 'Point') bounds.extend(feature.geometry.coordinates);
@@ -534,6 +545,20 @@ class MapLibreGlViewer {
       }
     }
     return bounds;
+  }
+  getStyleCaseExpression(property, output, fallback) {
+    return ['case', ['boolean', ['to-boolean', ['get', property]]], output, fallback];
+  }
+  getColorMatchHexExpression() {
+    let matchEx = ['match', ['get', 'color']];
+
+    for (const [name, value] of Object.entries(this.definedColors)) {
+      matchEx.push(name, value);
+    }
+
+    matchEx.push(this.definedColors.default);
+
+    return matchEx;
   }
 }
 
