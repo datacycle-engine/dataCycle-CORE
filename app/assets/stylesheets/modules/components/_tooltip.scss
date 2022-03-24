@@ -53,10 +53,11 @@
   }
 }
 
-[data-dc-tooltip]:not(button):not(a):not(.button):not(label) {
+[data-dc-tooltip]:not(button):not(a):not(.button):not(label):not(.copy-to-clipboard) {
   cursor: help;
 }
 
-.select2-results__option [data-dc-tooltip] {
+.select2-results__option [data-dc-tooltip],
+a [data-dc-tooltip] {
   cursor: inherit !important;
 }

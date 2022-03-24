@@ -17,7 +17,7 @@
   <% if current_user.access_token.present? %>
     <div class="row columns access-token">
       <span class="icon"><i class="fa fa-key" aria-hidden="true"></i></span>
-      <span class="title copy-to-clipboard with-shadow" title="<%= DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale) %>" data-value="<%= current_user.access_token %>"><%= current_user.access_token %></span>
+      <span class="title copy-to-clipboard with-shadow" data-dc-tooltip="<%= DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale) %>" data-value="<%= current_user.access_token %>"><%= current_user.access_token %></span>
     </div>
   <% end %>
 </div>

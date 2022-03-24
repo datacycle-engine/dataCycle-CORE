@@ -50,9 +50,9 @@ module DataCycleCore
       title = t("view_modes.#{mode}", locale: active_ui_locale)
       title += " (#{version})" if version.present?
       case mode
-      when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, title: title)
-      when 'list' then tag.i(class: 'fa fa-th-list', aria_hidden: true, title: title)
-      when 'tree' then tag.i(class: 'fa fa-sitemap', aria_hidden: true, title: title)
+      when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, data: { dc_tooltip: title })
+      when 'list' then tag.i(class: 'fa fa-th-list', aria_hidden: true, data: { dc_tooltip: title })
+      when 'tree' then tag.i(class: 'fa fa-sitemap', aria_hidden: true, data: { dc_tooltip: title })
       end
     end
 

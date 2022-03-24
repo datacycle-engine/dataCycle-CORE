@@ -4,12 +4,11 @@
   <%= yield :buttons %>
 
   <%= link_to create_duplication_thing_path(content),
-                method: :get,
                 class: 'button-prime small',
                 data: {
-                    confirm: "#{content.template_name} #{t('actions.duplicate_content', locale: active_ui_locale)}?"
-                },
-                title: t('common.duplicate_content', locale: active_ui_locale) do %>
+                    confirm: "#{content.template_name} #{t('actions.duplicate_content', locale: active_ui_locale)}?",
+                    dc_tooltip: t('common.duplicate_content', locale: active_ui_locale)
+                } do %>
     <i class="fa fa-clone" aria-hidden="true"></i>
   <% end if DataCycleCore::Feature::DuplicateContent.enabled? && can?(:create, content, 'duplicate') && content.content_type?('entity') %>
 
@@ -23,7 +22,7 @@
       button_title: t('actions.create_from_existing', locale: active_ui_locale) if can?(:create, content, 'duplicate') && content.content_type?('entity') && !content.api_type&.include?('MediaObject') %>
 
   <% if can?(:move_content, content) && DataCycleCore::Feature::Container.enabled? && DataCycleCore::Feature::Container.allowed_container_templates(content).present? %>
-    <%= link_to "#", class:'button-prime small', data: { open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: active_ui_locale) do %>
+    <%= link_to "#", class:'button-prime small', data: { open: 'move-to-container-overlay', click_open: false, dc_tooltip: t('actions.move_to_container', locale: active_ui_locale) } do %>
       <i class="fa fa-folder" aria-hidden="true"></i>
     <% end %>
     <%= render 'move_to_container_overlay', content: content %>
