@@ -11,8 +11,10 @@ module DataCycleCore
 
           return [] if file_types.blank?
 
-          tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: property_definition&.dig('tree_label'))
+          classification_alias_candidate = DataCycleCore::ClassificationAlias.classification_for_tree_with_name(property_definition&.dig('tree_label'), file_types&.last)
+          return Array.wrap(classification_alias_candidate) if classification_alias_candidate.present?
 
+          tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: property_definition&.dig('tree_label'))
           Array.wrap(tree_label&.create_classification_alias(*Array.wrap(file_types))&.primary_classification&.id)
         end
 
@@ -21,8 +23,10 @@ module DataCycleCore
 
           return [] if color_space.blank?
 
-          tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: property_definition&.dig('tree_label'))
+          classification_alias_candidate = DataCycleCore::ClassificationAlias.classification_for_tree_with_name(property_definition&.dig('tree_label'), color_space)
+          return Array.wrap(classification_alias_candidate) if classification_alias_candidate.present?
 
+          tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: property_definition&.dig('tree_label'))
           Array.wrap(tree_label&.create_classification_alias(color_space)&.primary_classification&.id)
         end
       end
