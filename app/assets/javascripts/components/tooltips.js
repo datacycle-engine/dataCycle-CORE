@@ -125,6 +125,7 @@ class Tooltips {
   async updatePosition() {
     const position = await computePosition(this.referenceElement, this.tooltip, {
       placement: this.referenceElement.dataset.dcTooltipPlacement || 'bottom',
+      strategy: 'fixed',
       middleware: [
         offset(6),
         flip({ padding: 5 }),
