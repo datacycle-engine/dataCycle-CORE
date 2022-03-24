@@ -81,6 +81,10 @@ en:
       named_version: when versions are changed
       day: daily
       week: weekly
+
+  classifications:
+    tooltip_translations: Translations
+
   frontend:
     load_error: Error loading content.
     text_editor:

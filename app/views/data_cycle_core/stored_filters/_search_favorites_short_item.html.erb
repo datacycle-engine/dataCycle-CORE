@@ -1,0 +1,8 @@
+<li>
+  <%= link_to root_path(stored_filter: stored_filter.id) do %>
+    <span class="title <%= 'global' if stored_filter.system %>"><i class="fa fa-filter" aria-hidden="true"></i> <%= stored_filter.name %></span>
+    <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), locale: active_ui_locale) %></span>
+  <% end %>
+
+  <%= render 'data_cycle_core/application/preview/widget_list', content: stored_filter if DataCycleCore::Feature::Preview.enabled? && stored_filter.api %>
+</li>

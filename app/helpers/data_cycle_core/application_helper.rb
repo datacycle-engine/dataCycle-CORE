@@ -14,31 +14,6 @@ module DataCycleCore
       primary: :primary
     }.freeze
 
-    def available_locales_with_names
-      @available_locales_with_names ||= Hash.new do |h, key|
-        h[key] = I18n
-          .t('locales', locale: key)
-          .slice(*I18n.available_locales)
-          .transform_values(&:capitalize)
-          .sort_by { |_, v| v.to_s }
-          .to_h
-      end
-
-      @available_locales_with_names[active_ui_locale]
-    end
-
-    def available_locales_with_all
-      @available_locales_with_all ||= Hash.new do |h, key|
-        if I18n.available_locales&.many?
-          h[key] = available_locales_with_names.reverse_merge({ all: t('common.all', locale: active_ui_locale) })
-        else
-          h[key] = available_locales_with_names
-        end
-      end
-
-      @available_locales_with_all[active_ui_locale]
-    end
-
     def ice_cube_select_options
       IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly, :monthly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: active_ui_locale), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
     end

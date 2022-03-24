@@ -11,8 +11,6 @@ class SimpleSelect2 extends BasicSelect2 {
     return Object.assign({}, this.defaultOptions, {
       width: '100%',
       matcher: this.matcher.bind(this),
-      templateResult: this.templateResult.bind(this),
-      templateSelection: this.templateSelection.bind(this),
       language: this.languageOptions()
     });
   }
@@ -42,24 +40,6 @@ class SimpleSelect2 extends BasicSelect2 {
     this.query = params;
 
     return '';
-  }
-  templateResult(data) {
-    let title = $(data.element).data('title');
-
-    if (data.loading) {
-      return data.text;
-    }
-
-    let term = this.query.term || '';
-    let titleValue = title || data.text;
-    let result = titleValue ? this.markMatch(titleValue, term) : null;
-    this.removeTreeLabel(result);
-    this.decorateResult(result);
-
-    return result;
-  }
-  templateSelection(data) {
-    return this.removeTreeLabelFromSelection(data.text);
   }
   matcher(params, data) {
     if (params.term === undefined || !params.term.trim().length) {
@@ -95,10 +75,9 @@ class SimpleSelect2 extends BasicSelect2 {
     return null;
   }
   optionMatches(data, params) {
-    return (
-      data.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1 ||
-      (data.title !== undefined && data.title.toLowerCase().indexOf(params.term.toLowerCase()) > -1)
-    );
+    const title = data.element && data.element.dataset.fullPath ? data.element.dataset.fullPath : data.text;
+
+    return title.toLowerCase().indexOf(params.term.toLowerCase()) > -1;
   }
   reloadData(event) {
     event.preventDefault();

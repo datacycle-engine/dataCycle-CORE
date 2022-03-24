@@ -1,10 +1,9 @@
 <div class="status-container">
   Status:
-  <%= tag.span class: "status dc-foundation-tooltip",
+  <%= tag.span class: "status",
     data: {
-      allow_html: true
-    },
-    title: content.release_status_comment do %>
+      dc_tooltip: content.release_status_comment
+    } do %>
     <%= tag.strong content.release_status_id.first&.primary_classification_alias&.internal_name %>
     <%= tag.i class: 'fa fa-comment' if content.release_status_comment.present? %>
   <% end %>

@@ -32,6 +32,18 @@
   resolved "https://registry.yarnpkg.com/@appsignal/types/-/types-3.0.0.tgz#7cbfe9220224d6631954610688fa9a8f6c531f75"
   integrity sha512-L0OAKaro7209Du39UF2ZWU8CzUJxeeKaW6Zyu2FA2SGdW3HK0PoJxY7A8R52KdZiXzMlCAlrOjvoDvT/ct0RIg==
 
+"@floating-ui/core@^0.6.1":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@floating-ui/core/-/core-0.6.1.tgz#aed861a1b6dbebadf14a9dd829ba67f4f3ae795c"
+  integrity sha512-Y30eVMcZva8o84c0HcXAtDO4BEzPJMvF6+B7x7urL2xbAqVsGJhojOyHLaoQHQYjb6OkqRq5kO+zeySycQwKqg==
+
+"@floating-ui/dom@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-0.4.1.tgz#3e164482d7f036527f65a794bdf054d2cc44fcbf"
+  integrity sha512-VAdIkn+zc4VB3pSemBk2JwjXlbVEBUbQft4V5jGpUeA9Vxd1fQD5eL3dMIMLVW003NYCOoW42JjjyBPNTpr8uQ==
+  dependencies:
+    "@floating-ui/core" "^0.6.1"
+
 "@mapbox/node-pre-gyp@^1.0.0":
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/@mapbox/node-pre-gyp/-/node-pre-gyp-1.0.8.tgz#32abc8a5c624bc4e46c43d84dfb8b26d33a96f58"

@@ -10,12 +10,8 @@
         <%= cb.check_box value: cb.value,
                           checked: (value&.ids&.include?(cb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(cb.value))),
                           disabled: !cb.object.assignable || !attribute_editable?(key, definition, options, content) %>
-        <% if cb.object.try(:description).present? %>
-          <%= cb.label title: cb.object.try(:description), class: 'dc-foundation-tooltip', data: { allow_html: true } do %>
-            <%= cb.text %> <i class="fa fa-info-circle" aria-hidden="true"></i>
-          <% end %>
-        <% else %>
-          <%= cb.label %>
+        <%= cb.label data: { dc_tooltip: classification_tooltip(cb.object) } do %>
+          <%= cb.text %> <%= tag.i(class: 'fa fa-info-circle') if cb.object.try(:description).present? %>
         <% end %>
       </li>
     <% end %>
