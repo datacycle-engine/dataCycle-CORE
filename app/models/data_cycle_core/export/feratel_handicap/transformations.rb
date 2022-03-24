@@ -34,11 +34,11 @@ module DataCycleCore
                     data.available_locales.map do |locale|
                       I18n.with_locale(locale) do
                         next if data.public_pdf.blank?
-                        xml.Parameter('Name' => 'ShortReport', 'Language' => locale.to_s, 'Value' => data.public_pdf.short_report) if data.public_pdf.short_report.present?
-                        xml.Parameter('Name' => 'Wheelchair', 'Language' => locale.to_s, 'Value' => data.public_pdf.wheelchair) if data.public_pdf.wheelchair.present?
-                        xml.Parameter('Name' => 'Deaf', 'Language' => locale.to_s, 'Value' => data.public_pdf.deaf) if data.public_pdf.deaf.present?
-                        xml.Parameter('Name' => 'Visual', 'Language' => locale.to_s, 'Value' => data.public_pdf.visual) if data.public_pdf.visual.present?
-                        xml.Parameter('Name' => 'Mental', 'Language' => locale.to_s, 'Value' => data.public_pdf.mental) if data.public_pdf.mental.present?
+                        xml.Parameter('Name' => "ShortReport#{locale.to_s.capitalize}", 'Value' => data.public_pdf.short_report) if data.public_pdf.short_report.present?
+                        xml.Parameter('Name' => "Wheelchair#{locale.to_s.capitalize}", 'Value' => data.public_pdf.wheelchair) if data.public_pdf.wheelchair.present?
+                        xml.Parameter('Name' => "Deaf#{locale.to_s.capitalize}", 'Value' => data.public_pdf.deaf) if data.public_pdf.deaf.present?
+                        xml.Parameter('Name' => "Visual#{locale.to_s.capitalize}", 'Value' => data.public_pdf.visual) if data.public_pdf.visual.present?
+                        xml.Parameter('Name' => "Mental#{locale.to_s.capitalize}", 'Value' => data.public_pdf.mental) if data.public_pdf.mental.present?
                       end
                     end
                   end
