@@ -6,6 +6,7 @@ module DataCycleCore
 
     before_action :authenticate_user!, except: [:show, :get_text_file] # from devise (authenticate)
     load_and_authorize_resource except: [:show, :get_text_file] # from cancancan (authorize)
+    after_action :update_receiver_locale, only: [:create, :update]
 
     def show
       link = DataCycleCore::DataLink.find_by(id: params[:id])
@@ -91,6 +92,12 @@ module DataCycleCore
     end
 
     private
+
+    def update_receiver_locale
+      return unless @data_link.locale.present? && @data_link.receiver.is_role?('guest')
+
+      @data_link.receiver.update_columns(ui_locale: @data_link.locale)
+    end
 
     def create_link_params
       params[:data_link][:valid_until] = params.dig(:data_link, :valid_until)&.to_datetime&.end_of_day.to_s

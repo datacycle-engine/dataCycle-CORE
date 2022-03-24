@@ -20,7 +20,11 @@
   }
 
   .tag-full-path {
-    font-style: italic;
+    font-weight: bold;
+  }
+
+  .tag-description {
+    max-width: 40vw;
   }
 
   .tag-translations {
@@ -34,12 +38,14 @@
 
       li {
         position: relative;
+        font-style: italic;
 
         &::before {
           content: attr(data-locale);
           position: absolute;
           right: calc(100% + 0.3rem);
           font-weight: bold;
+          font-style: normal;
           white-space: nowrap;
         }
       }
@@ -47,7 +53,7 @@
   }
 }
 
-[data-dc-tooltip]:not(button):not(a):not(.button) {
+[data-dc-tooltip]:not(button):not(a):not(.button):not(label) {
   cursor: help;
 }
 

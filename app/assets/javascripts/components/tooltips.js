@@ -1,4 +1,4 @@
-import { computePosition, autoPlacement, autoUpdate, arrow, offset, hide } from '@floating-ui/dom';
+import { computePosition, autoUpdate, arrow, offset, hide, flip, shift } from '@floating-ui/dom';
 import domElementHelpers from '../helpers/dom_element_helpers';
 
 class Tooltips {
@@ -52,11 +52,7 @@ class Tooltips {
     tooltip.addEventListener('mouseleave', this.hideTooltip.bind(this));
   }
   addAutoUpdate() {
-    return autoUpdate(this.referenceElement, this.tooltip, this.updatePosition.bind(this), {
-      ancestorScroll: false,
-      ancestorResize: false,
-      elementResize: true
-    });
+    return autoUpdate(this.referenceElement, this.tooltip, this.updatePosition.bind(this));
   }
   showTooltipDelayed(event) {
     if (!event.target.dataset.dcTooltip) return;
@@ -77,8 +73,8 @@ class Tooltips {
     this.watchTooltipContent();
 
     this.tooltip.style.display = 'block';
-    this.cleanups[this.referenceElement.dataset.dcTooltipId] = this.addAutoUpdate();
     await this.updatePosition();
+    this.cleanups[this.referenceElement.dataset.dcTooltipId] = this.addAutoUpdate();
   }
 
   hideTooltip(_event) {
@@ -95,6 +91,7 @@ class Tooltips {
       bottom: ''
     });
 
+    this.cleanupTooltipAttributes();
     this.cleanupTooltips();
     this.referenceElement = undefined;
 
@@ -118,12 +115,20 @@ class Tooltips {
   }
   updateTooltipContent() {
     this.tooltipContent.innerHTML = this.referenceElement.dataset.dcTooltip.trim();
+    if (this.referenceElement.dataset.dcTooltipClass)
+      this.tooltip.classList.add(this.referenceElement.dataset.dcTooltipClass.trim());
+  }
+  cleanupTooltipAttributes() {
+    if (this.referenceElement.dataset.dcTooltipClass)
+      this.tooltip.classList.remove(this.referenceElement.dataset.dcTooltipClass.trim());
   }
   async updatePosition() {
     const position = await computePosition(this.referenceElement, this.tooltip, {
+      placement: this.referenceElement.dataset.dcTooltipPlacement || 'bottom',
       middleware: [
         offset(6),
-        autoPlacement({ padding: 5 }),
+        flip({ padding: 5 }),
+        shift({ padding: 5 }),
         arrow({
           element: this.tooltipArrow
         }),

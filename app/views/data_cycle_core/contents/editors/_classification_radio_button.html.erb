@@ -14,12 +14,8 @@
         <%= rb.radio_button value: rb.value,
                             checked: (value&.ids&.include?(rb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))),
                             disabled: !rb.object.assignable || !attribute_editable?(key, definition, options, content)  %>
-        <% if rb.object.try(:description).present? %>
-          <%= rb.label data: { dc_tooltip: rb.object.try(:description) } do %>
-            <%= rb.text %> <i class="fa fa-info-circle" aria-hidden="true"></i>
-          <% end %>
-        <% else %>
-          <%= rb.label %>
+        <%= rb.label data: { dc_tooltip: classification_tooltip(rb.object) } do %>
+          <%= rb.text %> <%= tag.i(class: 'fa fa-info-circle') if rb.object.try(:description).present? %>
         <% end %>
       </li>
     <% end %>

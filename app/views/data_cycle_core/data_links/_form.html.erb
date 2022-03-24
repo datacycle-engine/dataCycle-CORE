@@ -53,10 +53,10 @@
     <%= render 'data_cycle_core/contents/new/shared/content_uploader', type: 'text_file' %>
   </div>
 
-  <% if DataCycleCore.features.dig(:translated_data_link_mails, :enabled) %>
+  <% if DataCycleCore::Feature::TranslatedDataLink.enabled? %>
     <div class="form-element">
       <%= f.label :locale, DataCycleCore::DataLink.human_attribute_name("locale", locale: active_ui_locale) %>
-      <%= f.select :locale, available_locales_with_names.slice(*DataCycleCore.features.dig(:translated_data_link_mails, :locales).map(&:to_sym)).invert %>
+      <%= f.select :locale, DataCycleCore::Feature::TranslatedDataLink.locales, { selected: data_link.locale.presence || active_ui_locale } %>
     </div>
   <% end %>
 
