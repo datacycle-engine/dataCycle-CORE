@@ -78,7 +78,11 @@ module DataCycleCore
       tooltip_html = []
 
       tooltip_html << tag.div(classification_alias.full_path, class: 'tag-full-path') if classification_alias.try(:full_path).present?
-      tooltip_html << "<div class=\"tag-description\">#{classification_alias.description}</div>" if classification_alias.try(:description).present?
+
+      I18n.with_locale(classification_alias.first_available_locale(active_ui_locale)) do
+        tooltip_html << "<div class=\"tag-description\">#{classification_alias.description}</div>" if classification_alias.try(:description).present?
+      end
+
       tooltip_html << tag.div(
         tag.span(I18n.t('classifications.tooltip_translations', locale: active_ui_locale), class: 'tag-translations-header') +
         tag.ul(
