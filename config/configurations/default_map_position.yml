@@ -5,5 +5,6 @@
 :editor: 'https://map.pixeldev.at/styles/pp-street/style.json'
 # :editor: 'BaseMapAt'
 # :editor: 'TourSprung'
-# :credentials:
+:credentials:
+  :pp_api_key: '1bb99e3a056f9ff374e7c1f6f64ae638'
 #   :api_key: 'sandbox'
