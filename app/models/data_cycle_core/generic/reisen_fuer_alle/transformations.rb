@@ -21,7 +21,7 @@ module DataCycleCore
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { generate_icon_external_keys(s, lang) })
           .>> t(:add_field, 'name', ->(s) { s.dig('base_data', "name_#{lang}") })
           .>> t(:map_value, 'public_pdf', ->(s) { transform_pdfs(s, lang) })
-          .>> t(:map_value, 'short_report', ->(s) { transform_short_report(s, lang) })
+          .>> t(:map_value, 'short_reports', ->(s) { transform_short_reports(s, lang) })
           .>> t(:add_links, 'search_criteria', DataCycleCore::Classification, external_source_id,
                 lambda { |s|
                   Array.wrap(s.dig('grouped_search_criteria')).map { |g|
@@ -54,7 +54,7 @@ module DataCycleCore
           }
         end
 
-        def self.transform_short_report(s, lang)
+        def self.transform_short_reports(s, lang)
           return nil if s.nil?
           {
             'deaf' => s.dig("deaf_and_partially_deaf_#{lang}"),
