@@ -310,6 +310,10 @@ module DataCycleCore
     end
 
     module ClassMethods
+      def until_as_utc_iso8601(until_date, until_time)
+        "#{until_date.in_time_zone.to_date.iso8601}T#{until_time.in_time_zone.strftime('%T')}+00:00"
+      end
+
       def to_h_from_schedule_params(value)
         return nil if value.blank? || value.values.blank?
 
@@ -326,7 +330,7 @@ module DataCycleCore
             zone: start_time.time_zone.name
           }
 
-          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day.to_s(:iso8601) if s.dig('rrules', 0, 'until').present?
+          s['rrules'][0]['until'] = until_as_utc_iso8601(s.dig('rrules', 0, 'until'), start_time) if s.dig('rrules', 0, 'until').present?
           s['rrules'][0]['validations'] ||= {}
           s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present?
           s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
@@ -387,7 +391,7 @@ module DataCycleCore
                 validations: {
                   day: days
                 },
-                until: s['valid_until']&.in_time_zone&.end_of_day&.to_s(:iso8601)
+                until: until_as_utc_iso8601(s['valid_until'], t['opens'])
               }]
             }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: t['id']).with_indifferent_access.compact
           end
