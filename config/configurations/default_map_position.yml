@@ -1,9 +1,14 @@
 :longitude: 13.34576
 :latitude: 47.69642
 :zoom: 7
-# :viewer: 'https://map.pixeldev.at/styles/pp-street/style.json'
-:editor: 'https://map.pixeldev.at/styles/pp-street/style.json'
-# :editor: 'BaseMapAt'
+:styles:
+  - street: 'https://map.pixeldev.at/styles/pp-street/style.json'
+  # - topo: 'https://map.pixeldev.at/styles/pp-topo/style.json'
+  # - bright: 'https://map.pixeldev.at/styles/pp-bright/style.json'
+  # - basemap: 'https://map.pixeldev.at/styles/basemap-overlay/style.json'
+  # - winter: 'https://map.pixeldev.at/styles/pp-winter/style.json'
+:editor: 'MapLibreGl'
+# :editor: 'OpenStreetMap'
 # :editor: 'TourSprung'
 :credentials:
   :pp_api_key: '1bb99e3a056f9ff374e7c1f6f64ae638'

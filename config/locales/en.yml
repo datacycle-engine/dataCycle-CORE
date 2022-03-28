@@ -134,6 +134,12 @@ en:
         pinch: Use two fingers to zoom/scroll the map
       filter:
         button_title: edit linked contents
+      styles:
+        topo: Topo
+        street: Standard
+        bright: Bright
+        basemap: BasemapAT
+        winter: Winter
     remote_render:
       error: Error loading content.
       reload: Reload

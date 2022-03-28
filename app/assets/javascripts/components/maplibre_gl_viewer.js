@@ -42,6 +42,7 @@ class MapLibreGlViewer {
     this.zoomMethod = 'ctrlKey';
     this.mouseZoomTimeout;
     this.mapOptions = this.$container.data('map-options');
+    this.mapStyles = this.mapOptions.styles;
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
     this.defaultPosition = pick(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.highDpi = window.devicePixelRatio > 1;
@@ -98,8 +99,10 @@ class MapLibreGlViewer {
     // this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
   }
   mapBaseLayer() {
-    if (typeof this['baseLayer' + this.mapBackend] == 'function') return this['baseLayer' + this.mapBackend]();
-    else if (this.mapBackend) return this.mapBackend;
+    let baseStyle = Object.values(this.mapStyles[0])[0];
+
+    if (typeof this['baseLayer' + baseStyle] == 'function') return this['baseLayer' + baseStyle]();
+    else if (baseStyle) return baseStyle;
     else return 'https://map.pixeldev.at/styles/pp-street/style.json';
   }
   baseLayerBaseMapAt() {

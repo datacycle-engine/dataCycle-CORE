@@ -139,6 +139,12 @@ de:
         pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
       filter:
         button_title: Verknüpfte Inhalte bearbeiten
+      styles:
+        topo: Topo
+        street: Standard
+        bright: Bright
+        basemap: BasemapAT
+        winter: Winter
     remote_render:
       error: Fehler beim Laden des Inhalts.
       reload: Neu laden
