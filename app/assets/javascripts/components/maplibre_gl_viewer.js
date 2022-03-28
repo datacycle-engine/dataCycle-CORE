@@ -31,9 +31,11 @@ class MapLibreGlViewer {
     };
     this.definedColors = {
       default: '#1779ba',
+      lightBlue: '#1dbde5',
       red: '#cc4b37',
       green: '#90c062',
       white: '#ffffff',
+      yellow: '#ffae00',
       gray: '#767676'
     };
     this.colors = new Proxy(this.definedColors, this.colorsHandler);
@@ -92,6 +94,7 @@ class MapLibreGlViewer {
     this.updateMapPosition();
   }
   initEventHandlers() {
+    // TODO:
     // this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
   }
   mapBaseLayer() {
@@ -218,16 +221,6 @@ class MapLibreGlViewer {
 
     this._addPopup();
   }
-  // lineStyle(options = {}) {
-  //   return Object.assign(
-  //     {
-  //       color: this.colors.default,
-  //       opacity: 1,
-  //       width: 5
-  //     },
-  //     options
-  //   );
-  // }
   _getLastLineLayerId() {
     return this.map
       .getStyle()
@@ -248,8 +241,8 @@ class MapLibreGlViewer {
       lineColor = this.definedColors.default;
       iconColor = 'default';
     } else if (layerId.includes('selected')) {
-      lineColor = this.definedColors.red;
-      iconColor = 'red';
+      lineColor = this.definedColors.lightBlue;
+      iconColor = 'lightBlue';
     }
 
     this.map.addLayer(
@@ -311,71 +304,54 @@ class MapLibreGlViewer {
 
     return layerId;
   }
-  _pointLayer(key) {
-    const layerId = `feature_point_${key}`;
+  _pointLayer(layerId, source) {
+    let pointColor = this.definedColors.gray;
+    let circleRadius = 5;
+
+    if (layerId.includes('feature')) {
+      pointColor = this.definedColors.default;
+      circleRadius = 7;
+    } else if (layerId.includes('selected')) {
+      pointColor = this.definedColors.lightBlue;
+      circleRadius = 7;
+    }
 
     this.map.addLayer(
       {
         id: layerId,
         type: 'circle',
-        source: `feature_source_${key}`,
+        source: source,
         filter: ['==', '$type', 'Point'],
         paint: {
-          'circle-radius': key.includes('selected') ? 7 : 5,
-          'circle-stroke-width': 2,
-          'circle-color': key.includes('selected') ? this.definedColors.red : this.definedColors.default,
+          'circle-radius': circleRadius,
+          'circle-stroke-width': 4,
+          'circle-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), pointColor),
           'circle-stroke-color': this.definedColors.white
         }
       }
       // this._getLastPointLayerId() // TODO:
     );
 
-    this.allRenderedLayers.push(layerId);
-
-    return layerId;
-  }
-  // _additionalLineLayer(key) {
-  //   const layerId = `additional_values_line_${key}`;
-
-  //   this.map.addLayer(
-  //     {
-  //       id: layerId,
-  //       type: 'line',
-  //       source: `additional_values_${key}`,
-  //       filter: ['==', '$type', 'LineString'],
-  //       paint: {
-  //         'line-color': key.includes('selected') ? this.definedColors.red : this.definedColors.gray,
-  //         'line-opacity': key.includes('selected') ? 1 : 0.75,
-  //         'line-width': 5
-  //       }
-  //     }
-  //     // this._getLastLineLayerId() // TODO:
-  //   );
-
-  //   this.allRenderedLayers.push(layerId);
-
-  //   return layerId;
-  // }
-  _additionalPointLayer(key) {
-    const layerId = `additional_values_point_${key}`;
-
     this.map.addLayer(
       {
-        id: layerId,
+        id: `${layerId}_hover`,
         type: 'circle',
-        source: `additional_values_source_${key}`,
+        source: source,
         filter: ['==', '$type', 'Point'],
         paint: {
-          'circle-radius': key.includes('selected') ? 7 : 5,
-          'circle-stroke-width': 2,
-          'circle-color': key.includes('selected') ? this.definedColors.red : this.definedColors.gray,
-          'circle-stroke-color': this.definedColors.white
+          'circle-radius': circleRadius + 2,
+          'circle-stroke-width': 4,
+          'circle-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), pointColor),
+          'circle-stroke-color': this.definedColors.white,
+          'circle-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0],
+          'circle-stroke-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0]
         }
       }
       // this._getLastPointLayerId() // TODO:
     );
+    this.initMapHoverActions(`${layerId}_hover`, source);
 
-    this.allRenderedLayers.push(layerId);
+    if (layerId.includes('selected')) this.allRenderedLayers.push(`${layerId}_hover`, layerId);
 
     return layerId;
   }
@@ -412,7 +388,6 @@ class MapLibreGlViewer {
   }
   _addSourceAndLayer(key, data) {
     this.sources[key] = `feature_source_${key}`;
-    const layerId = `feature_line_${key}`;
 
     this.map.addSource(this.sources[key], {
       type: 'geojson',
@@ -421,13 +396,12 @@ class MapLibreGlViewer {
     });
 
     this.layers[key] = {
-      point: this._pointLayer(key),
-      line: this._lineLayer(layerId, this.sources[key])
+      point: this._pointLayer(`feature_point_${key}`, this.sources[key]),
+      line: this._lineLayer(`feature_line_${key}`, this.sources[key])
     };
   }
   _addSelectedSourceAndLayers(key, data) {
     this.selectedAdditionalSources[key] = `additional_values_source_selected_${key}`;
-    const layerId = `additional_values_line_selected_${key}`;
 
     this.map.addSource(this.selectedAdditionalSources[key], {
       type: 'geojson',
@@ -436,8 +410,8 @@ class MapLibreGlViewer {
     });
 
     this.selectedAdditionalLayers[key] = {
-      point: this._additionalPointLayer(`selected_${key}`), // TODO:
-      line: this._lineLayer(layerId, this.selectedAdditionalSources[key])
+      point: this._pointLayer(`additional_values_point_selected_${key}`, this.selectedAdditionalSources[key]),
+      line: this._lineLayer(`additional_values_line_selected_${key}`, this.selectedAdditionalSources[key])
     };
   }
   _disableScrollingOnMapOverlays() {
@@ -495,7 +469,6 @@ class MapLibreGlViewer {
         }
         this.hoveredStateId[layerId] = e.features[0].id;
         this.map.setFeatureState({ source: source, id: this.hoveredStateId[layerId] }, { hover: true });
-        this.map.getCanvas().style.cursor = 'pointer';
       }
     });
     this.map.on('mouseleave', layerId, () => {
@@ -503,7 +476,6 @@ class MapLibreGlViewer {
         this.map.setFeatureState({ source: source, id: this.hoveredStateId[layerId] }, { hover: false });
       }
       this.hoveredStateId[layerId] = null;
-      this.map.getCanvas().style.cursor = '';
     });
   }
   updateMapPosition() {
