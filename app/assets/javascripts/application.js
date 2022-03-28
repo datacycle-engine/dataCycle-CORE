@@ -1,10 +1,10 @@
 import jQuery from 'jquery';
 import Rails from '@rails/ujs';
-import * as ActionCable from '@rails/actioncable';
+import { createConsumer } from '@rails/actioncable';
 import DataCycleSingleton from './components/data_cycle';
 import I18n from './components/i18n';
 
-Object.assign(window, { $: jQuery, jQuery, Rails, actionCable: ActionCable.createConsumer(), I18n });
+Object.assign(window, { $: jQuery, jQuery, Rails, actionCable: createConsumer(), I18n });
 
 import 'jquery-serializejson';
 import 'lazysizes';
