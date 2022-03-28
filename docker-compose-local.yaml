@@ -87,15 +87,19 @@ services:
   #   image: varnish:7.1
   #   environment:
   #     - VARNISH_SIZE=2G
+  #   command: "-s static=file,/var/lib/varnish/,1G"
   #   extra_hosts:
   #   - 'dockerhost:host-gateway'
   #   volumes:
   #     - ./../../../docker/default.vcl:/etc/varnish/default.vcl
+  #     # - ./../../../docker/storage:/tmp/varnish_storage
   #   ports:
   #     - '8080:80'
   #   depends_on:
   #     - nginx
-  #varnishncsa -F "%m %U%q ---- %{Varnish:handling}x"
+  # varnishncsa -F "%m %U%q ---- %{Varnish:handling}x"
+  # 15d5d8a6-4282-4aa3-917b-3444ae8701cd
+  # varnishadm ban req.http.host == localhost:8080 '&&' req.url '~' '*15d5d8a6-4282-4aa3-917b-3444ae8701cd~'
 volumes:
   mongodb-data:
   mongodb-log:
