@@ -83,6 +83,19 @@ services:
       DNSDOCK_ALIAS: localhost
     ports:
       - '127.0.0.1:${PUBLIC_MAILHOG_PORT:-1025}:8025'
+  # varnish:
+  #   image: varnish:7.1
+  #   environment:
+  #     - VARNISH_SIZE=2G
+  #   extra_hosts:
+  #   - 'dockerhost:host-gateway'
+  #   volumes:
+  #     - ./../../../docker/default.vcl:/etc/varnish/default.vcl
+  #   ports:
+  #     - '8080:80'
+  #   depends_on:
+  #     - nginx
+  #varnishncsa -F "%m %U%q ---- %{Varnish:handling}x"
 volumes:
   mongodb-data:
   mongodb-log:
