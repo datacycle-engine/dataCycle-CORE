@@ -23,27 +23,27 @@ en:
     en: English
     ar: Arabic
     bg: Bulgarian
-    cs: czech
-    da: danish
-    es: spanish
+    cs: Czech
+    da: Danish
+    es: Spanish
     fr: French
-    fi: finnish
-    it: italian
-    hu: hungarian
-    hr: croatian
-    ja: japanese
-    ko: korean
-    nl: dutch
-    pt: portuguese
-    pl: polish
+    fi: Finnish
+    it: Italian
+    hu: Hungarian
+    hr: Croatian
+    ja: Japanese
+    ko: Korean
+    nl: Dutch
+    pt: Portuguese
+    pl: Polish
     ro: Romanian
     ru: Russian
     sl: Slovenian
-    sk: slovak
+    sk: Slovak
     sv: Swedish
-    tr: turkish
-    uk: ukrainian
-    de-CH: swiss-german
+    tr: Turkish
+    uk: Ukrainian
+    de-CH: Swiss-german
     nl-BE: Flemish
     zh: Chinese
   roles:
@@ -73,12 +73,18 @@ en:
     download: Download
     download_import: Download &amp; Import
     delete: delete
+    errors_were_encountered: errors were encountered
+
   notification:
     frequency:
       always: immediately on change
       named_version: when versions are changed
       day: daily
       week: weekly
+
+  classifications:
+    tooltip_translations: Translations
+
   frontend:
     load_error: Error loading content.
     text_editor:
@@ -100,10 +106,14 @@ en:
         one: Metadata must be filled in!
         many: Metadata must be filled in for each file!
       edit_content: Edit content
+      edit_locked: Content can be edited only after the upload has finished
       retry_upload: Upload again
       format_not_supported: Unsupported format (%{data})
       error: Error
       remove_file: Remove file
+      file: File
+      confirm_single_to_all_html: 'really apply %{label} to all %{template}?'
+      confirm_all_to_all_html: '<h5>Apply all attributes to all %{template}</h5><p>Should <b>%{label}</b> also be applied to all %{template}?</p>'
     cancel: Cancel
     ok: Okay
     content_lock:
@@ -427,7 +437,7 @@ en:
     system_dialog: Select images via system dialog
     or: or
     select_from_datacycle: Use %{data} already uploaded
-    copy_all_title: take all attributes from this %{single} for all %{multiple}
+    copy_all_title: "take all attributes from this %{single} for all %{multiple}"
   external_connection_states:
     success: Successfully synchronized
     pending: is synchronized
@@ -553,6 +563,11 @@ en:
     relation_filter:
       contained_in: is contained in
       not_contained_in: is not included in
+      equal: equals
+      not_equal: not equals
+      placeholder:
+        thing: content
+        collection_or_stored_filter: '%{collection} or %{stored_filter}'
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
     union_filter_ids: in stored searches / %{collections}
@@ -726,7 +741,7 @@ en:
     delete_items_in_watch_list: Delete all contents of this content collection
     save_without_redirect: Save
     set_and_next: take over and continue
-    set_all_attributes: apply for all %{data}
+    set_all_attributes: apply for all
     close_overlay: close
     remove_locks: Release content for editing (remove lock)
     copyable_from: Apply %{data}
@@ -858,7 +873,7 @@ en:
       locked: '%{data} has been locked.'
       unlocked: '%{data} has been released.'
       invalidated: '%{data} has been disabled.'
-      updated_multiple: '%{data} have been updated.'
+      updated_user_settings: 'User settings have been updated.'
       moved_to: Content moved to %{data}
       become_user: Logged in as %{data}.
       duplicate_false_positive: '%{data} was removed from the possible duplicates'
@@ -1037,7 +1052,7 @@ en:
         access_token: API Token
         default_locale: Default language for searches and new content
         represented_by: Represented by
-        ui_locale: UI language
+        ui_locale: user interface language
       data_cycle_core/thing:
         name: Name
         legal_name: Company name
@@ -1100,6 +1115,7 @@ en:
     user_details: User details
     user_links: User links
     classifications: Classifications
+    dashboard: Dashboard
     classifications_adminitration:
       classification:
         submit_loading_message: Saving may take several minutes, please be patient
@@ -1184,6 +1200,11 @@ en:
       common:
         invalid: Validity period exceeded
         translation_missing: No translation available
+
+    reports:
+      root: 'Reports'
+      available_reports: 'Available Reports'
+
   import:
     booking:
       hotel_important_information: Important information

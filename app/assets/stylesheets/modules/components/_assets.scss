@@ -274,6 +274,7 @@ ul.asset-list {
       height: 8rem;
       margin-top: 1rem;
       opacity: 0.5;
+
       &:hover,
       &.is-dragover {
         opacity: 1;
@@ -360,16 +361,53 @@ ul.asset-list {
   display: flex;
   flex-flow: column;
   transition: all 0.3s;
+  background: rgba($dark-gray, 0.05);
 
   .new-asset-attributes {
     flex: auto;
     display: flex;
     flex-flow: row;
-    > * {
-      padding: 1rem 0.5rem;
 
-      &:not(:last-of-type) {
-        border-right: 1px solid $medium-gray;
+    .file-info-container {
+      flex: auto;
+      display: flex;
+      flex-flow: column;
+      width: calc(100% - 9rem);
+
+      .file-detail-container {
+        display: flex;
+        border-bottom: 1px solid rgba($medium-gray, 0.4);
+
+        .file-info {
+          display: flex;
+          flex-flow: row;
+          font-size: 0.9rem;
+          flex: auto;
+          margin: 0;
+          min-width: 3rem;
+          align-items: center;
+          padding: 0.5rem;
+          color: $dark-gray;
+
+          span.notice {
+            white-space: nowrap;
+            border-left: 1px solid $medium-gray;
+            padding-left: 0.5rem;
+          }
+
+          > span {
+            margin: 0 0.5rem 0 0;
+
+            &:last-child {
+              margin-right: 0;
+            }
+          }
+        }
+      }
+
+      .file-attributes-container {
+        display: flex;
+        flex: auto;
       }
     }
   }
@@ -403,6 +441,7 @@ ul.asset-list {
     align-items: center;
     justify-content: flex-start;
     position: relative;
+    border-right: 1px solid rgba($medium-gray, 0.4);
 
     .fa {
       font-size: 4rem;
@@ -494,7 +533,6 @@ ul.asset-list {
     text-shadow: 0 0 1px;
   }
 
-  .file-info,
   .asset-attribute {
     display: flex;
     flex-flow: column;
@@ -502,6 +540,11 @@ ul.asset-list {
     flex: 1;
     margin: 0;
     min-width: 3rem;
+    padding: 0.5rem;
+
+    &:not(:last-child) {
+      border-right: 1px solid rgba($medium-gray, 0.4);
+    }
   }
   .file-info {
     .possible-duplicates {
@@ -537,27 +580,25 @@ ul.asset-list {
   }
   .file-label {
     font-size: 0.9rem;
-    color: darken($medium-gray, 10%);
-    font-style: italic;
+    color: $dark-gray;
     margin-bottom: 0.3rem;
   }
   .file-name {
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin-bottom: 0.2rem;
+    font-weight: 600;
   }
   .file-name,
-  .file-label,
-  .file-details,
   .file-attribute-value {
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .file-name,
-  .file-label {
+  .file-label,
+  .file-details {
     white-space: nowrap;
   }
   .file-details {
-    font-size: 0.8rem;
     color: $dark-gray;
   }
 
@@ -591,7 +632,7 @@ ul.asset-list {
     height: 0.4rem;
     width: 100%;
     padding: 0;
-    background: lighten($light-gray, 5%);
+    background: rgba($medium-gray, 0.4);
 
     .upload-progress-bar {
       display: block;
@@ -624,20 +665,44 @@ ul.asset-list {
     }
   }
   &.error {
+    border-color: $alert-color;
+    background: rgba($alert-color, 0.05);
+
+    .file-thumb,
+    .asset-attribute,
+    .file-info-container .file-detail-container {
+      border-color: rgba($alert-color, 0.2);
+    }
+
     .upload-number {
       color: $alert-color;
     }
     .upload-progress {
       background: $alert-color;
     }
+    .upload-progress {
+      background: rgba($alert-color, 0.2);
+    }
   }
 
   &.uploading {
+    border-color: $primary-color;
+    background: rgba($primary-color, 0.05);
+
+    .file-thumb,
+    .asset-attribute,
+    .file-info-container .file-detail-container {
+      border-color: rgba($primary-color, 0.2);
+    }
+
     .upload-number {
       color: $primary-color;
     }
     .upload-progress-bar {
       background: $primary-color;
+    }
+    .upload-progress {
+      background: rgba($primary-color, 0.2);
     }
 
     .file-buttons {
@@ -649,8 +714,20 @@ ul.asset-list {
   }
 
   &.finished {
+    border-color: $warning-color;
+    background: rgba($warning-color, 0.05);
+
+    .file-thumb,
+    .asset-attribute,
+    .file-info-container .file-detail-container {
+      border-color: rgba($warning-color, 0.2);
+    }
+
     .upload-number {
       color: $success-color;
+    }
+    .upload-progress {
+      background: rgba($success-color, 0.2);
     }
 
     &.asset-uploader-file {
@@ -676,13 +753,22 @@ ul.asset-list {
       width: calc(100% - 2rem);
       height: calc(100% - 2.5rem);
       margin: 1rem 1rem 1.5rem 1rem;
-      background: rgba($white, 0.5);
+      background: rgba($white, 0.3);
       font-size: 4rem;
       line-height: 4rem;
     }
   }
 
   &.validated {
+    border-color: $success-color;
+    background: rgba($success-color, 0.05);
+
+    .file-thumb,
+    .asset-attribute,
+    .file-info-container .file-detail-container {
+      border-color: rgba($success-color, 0.2);
+    }
+
     .upload-progress-bar {
       background: $success-color;
     }
@@ -706,24 +792,24 @@ ul.asset-list {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba($white, 0.8);
-    padding: 1rem;
+    padding: 0.5rem;
 
     .button {
       border-radius: 50%;
-      height: 3rem;
-      width: 3rem;
+      height: 2rem;
+      width: 2rem;
       display: flex;
       padding: 0;
       transition: all 0.3s;
       align-items: center;
       justify-content: center;
+
       &:not(:last-of-type) {
         margin-right: 0.5rem;
       }
 
       .fa {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
       }
 
       &.retry-upload-button {
@@ -742,16 +828,24 @@ ul.asset-list {
     border: none;
     margin: -1rem -1rem 1rem -1rem;
 
-    .file-thumb {
-      border: none;
-    }
+    .new-asset-attributes {
+      .file-info {
+        flex: 1;
+      }
 
-    .file-info {
-      flex: 1;
-    }
-    .file-buttons {
-      display: none;
-      pointer-events: none;
+      .file-info-container {
+        justify-content: flex-end;
+
+        .file-detail-container {
+          border: none;
+        }
+      }
+
+      .file-buttons,
+      .file-attributes-container {
+        display: none;
+        pointer-events: none;
+      }
     }
   }
 }

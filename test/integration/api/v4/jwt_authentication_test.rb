@@ -39,7 +39,7 @@ module DataCycleCore
           }, headers: {}
 
           assert_response :success
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
@@ -55,7 +55,7 @@ module DataCycleCore
           }
 
           assert_response :success
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
@@ -74,7 +74,7 @@ module DataCycleCore
 
           assert_response :success
 
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
@@ -118,7 +118,7 @@ module DataCycleCore
 
           assert_response :success
 
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
@@ -138,7 +138,7 @@ module DataCycleCore
 
           assert_response :success
 
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
@@ -157,7 +157,7 @@ module DataCycleCore
           post api_v4_users_create_path, params: user_data.merge(token: @current_user.access_token).deep_transform_keys { |k| k.to_s.camelize(:lower) }, headers: {}
 
           assert_response :created
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
@@ -170,7 +170,7 @@ module DataCycleCore
           }, params: {}
 
           assert_response :success
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
 
           user_data['email'] = "tester_3_#{Time.now.getutc.to_i}@datacycle.at"
 
@@ -195,7 +195,7 @@ module DataCycleCore
 
           assert_response :success
 
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse(response.body)
           assert_equal user_data['email'], json_data.dig('@graph', 'userData', 'email')
           assert DataCycleCore::User.where(email: user_data['email']).exists?
@@ -209,7 +209,7 @@ module DataCycleCore
 
           assert_response :success
 
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse(response.body)
           assert_equal user_data['email'], json_data.dig('@graph', 'userData', 'email')
           assert_equal user_data['family_name'], DataCycleCore::User.find_by(email: user_data['email']).family_name

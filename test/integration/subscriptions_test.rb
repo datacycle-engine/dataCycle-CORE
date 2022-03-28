@@ -3,18 +3,18 @@
 require 'test_helper'
 
 module DataCycleCore
-  class SubscriptionsTest < ActionDispatch::IntegrationTest
-    include Devise::Test::IntegrationHelpers
-    include Engine.routes.url_helpers
+  class SubscriptionsTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+    before(:all) do
+      DataCycleCore::Thing.where(template: false).delete_all
+      @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+    end
 
     setup do
-      @routes = Engine.routes
-      @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
       sign_in(User.find_by(email: 'tester@datacycle.at'))
     end
 
     test 'subscribe article' do
-      post subscriptions_path, xhr: true, params: {
+      post create_subscriptions_path, xhr: true, params: {
         subscribable_id: @content.id,
         subscribable_type: @content.class.name
       }, headers: {

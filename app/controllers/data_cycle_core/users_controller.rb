@@ -50,7 +50,7 @@ module DataCycleCore
       @user.raw_password = permitted_params[:password] if permitted_params[:password].present?
 
       if @user.save
-        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer', locale: helpers.active_ui_locale
+        flash[:success] = I18n.t :created, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
       else
         flash[:error] = @user.try(:errors).try(:first).try(:[], 1)
       end
@@ -74,12 +74,12 @@ module DataCycleCore
       end
 
       if @user.send(method, @permitted_params)
-        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzer', locale: helpers.active_ui_locale
+        flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
 
         bypass_sign_in(@user) if current_user == @user && !@permitted_params[:password].nil?
 
         if params[:user_settings]
-          redirect_to(settings_path, notice: I18n.t(:updated_multiple, scope: [:controllers, :success], data: 'Benutzereinstellungen', locale: helpers.active_ui_locale))
+          redirect_to(settings_path, notice: I18n.t(:updated_user_settings, scope: [:controllers, :success], locale: helpers.active_ui_locale))
         elsif Rails.env.development?
           redirect_to edit_user_path(@user)
         elsif can? :index, DataCycleCore::User
@@ -96,13 +96,13 @@ module DataCycleCore
     def destroy
       @user.lock_access!
 
-      redirect_to users_path, notice: I18n.t(:locked, scope: [:controllers, :success], data: 'Benutzer', locale: helpers.active_ui_locale)
+      redirect_to users_path, notice: I18n.t(:locked, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)
     end
 
     def unlock
       @user.unlock_access!
 
-      redirect_to users_path, notice: I18n.t(:unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: helpers.active_ui_locale)
+      redirect_to users_path, notice: I18n.t(:unlocked, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)
     end
 
     def search

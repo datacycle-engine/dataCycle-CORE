@@ -4,8 +4,20 @@ module DataCycleCore
   class Ability
     include CanCan::Ability
 
+    attr_accessor :user, :session
+
     def initialize(user, session = {})
       return unless user
+
+      @user = user
+      @session = session
+
+      load_abilities
+    end
+
+    private
+
+    def load_abilities
       can :show, :all
 
       [*0..10, 99].select { |r| r <= user.role&.rank.to_i }.each do |rank|

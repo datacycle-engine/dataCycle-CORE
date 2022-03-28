@@ -1,8 +1,13 @@
+<%
+  asset_model_name = local_assigns[:asset_class]&.constantize&.model_name
+  primary_attribute_key = new_dialog_config(local_assigns[:template], 'asset')&.values&.first&.first
+%>
+
 <%= form_with url: things_path,
   local: !local_assigns[:object_browser],
   html: {
     class: "validation-form multi-step#{' disabled' if local_assigns[:search_required] && local_assigns[:search_param].blank? && cannot?(:create_without_search, local_assigns[:template] || DataCycleCore::Thing)}",
-    data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :options, :content_uploader).merge({ primary_attribute_key: new_dialog_config(local_assigns[:template], 'asset')&.values&.first&.first, template_translation: local_assigns[:asset_class]&.constantize&.model_name&.human(count: 2, locale: active_ui_locale) }))
+    data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :options, :content_uploader).merge({ primary_attribute_key: primary_attribute_key, template_translation: asset_model_name&.human(count: 2, locale: active_ui_locale) }))
   } do %>
 
   <div class="form-crumbs"></div>
@@ -57,8 +62,20 @@
       <%= t('actions.next', locale: active_ui_locale) %>
     </button>
     <% if local_assigns[:content_uploader] %>
-      <button class="button submit set-all-attributes" data-disable type="button" title="<%= t('upload.copy_all_title', single: local_assigns[:asset_class]&.constantize&.model_name&.human(count: 1, locale: active_ui_locale), multiple: local_assigns[:asset_class]&.constantize&.model_name&.human(count: 2, locale: active_ui_locale), locale: active_ui_locale) %>">
-        <%= t('actions.set_all_attributes', data: local_assigns[:asset_class]&.constantize&.model_name&.human(count: 2, locale: active_ui_locale) , locale: active_ui_locale) %>
+      <button class="button submit warning set-all-attributes"
+              data-disable
+              data-primary-attribute-label="<%= translated_attribute_label(
+                  primary_attribute_key,
+                  local_assigns[:template]&.properties_for(primary_attribute_key),
+                  local_assigns[:template],
+                  {}
+                ) %>"
+              type="button"
+              title="<%= t('upload.copy_all_title',
+                single: asset_model_name&.human(count: 1, locale: active_ui_locale),
+                multiple: asset_model_name&.human(count: 2, locale: active_ui_locale),
+                locale: active_ui_locale) %>">
+        <%= t('actions.set_all_attributes', locale: active_ui_locale) %>
         <span class="copy-icon fa-stack">
           <i class="fa fa-clone"></i>
           <i class="fa fa-arrow-right fa-stack-1x"></i>

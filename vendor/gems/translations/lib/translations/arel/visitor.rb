@@ -16,8 +16,8 @@ module Translations
 
       private
 
-      def visit(object)
-        super
+      def visit(object, collector = nil)
+        super(object, collector)
       rescue TypeError
         visit_default(object)
       end

@@ -191,6 +191,9 @@ module DataCycleCore
 
     def complete_history_list(content)
       history_entries = []
+
+      return history_entries if content.nil?
+
       if content.histories.exists? ||
          (content.updated_at.present? && content.updated_at.to_i != content.created_at.to_i)
         history_entries.push(

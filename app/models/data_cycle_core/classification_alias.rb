@@ -97,7 +97,7 @@ module DataCycleCore
     def self.classification_for_tree_with_name(tree_name, *names)
       for_tree(tree_name)
         .with_internal_name(names)
-        .primary_classifications.pluck(:id).first
+        .primary_classifications.pick(:id)
     end
 
     def self.classifications_for_tree_with_name(tree_name, *names)

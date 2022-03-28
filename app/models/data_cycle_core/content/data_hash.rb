@@ -47,6 +47,8 @@ module DataCycleCore
 
         # trigger update of dependent computed properties
         add_update_dependent_computed_properties_job
+
+        add_update_exif_values_job
       end
 
       def before_destroy_data_hash(_options)
@@ -113,13 +115,13 @@ module DataCycleCore
 
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
           I18n.with_locale(locale) do
-            raise ActiveRecord::Rollback unless set_data_hash(options.to_h.merge(data_hash: datahash, version_name: version_name&.+(" (#{I18n.locale})")))
+            raise ActiveRecord::Rollback unless set_data_hash(**options.to_h.merge(data_hash: datahash, version_name: version_name&.+(" (#{I18n.locale})")))
           end
 
           if translations.present?
             translations.each do |l, locale_hash|
               I18n.with_locale(l) do
-                raise ActiveRecord::Rollback unless set_data_hash(options.to_h.slice(:current_user, :ui_locale, :prevent_history, :source, :force_update).merge(data_hash: locale_hash, update_search_all: false, partial_update: true, version_name: version_name&.+(" (#{I18n.locale})")))
+                raise ActiveRecord::Rollback unless set_data_hash(**options.to_h.slice(:current_user, :ui_locale, :prevent_history, :source, :force_update).merge(data_hash: locale_hash, update_search_all: false, partial_update: true, version_name: version_name&.+(" (#{I18n.locale})")))
               end
             end
 
@@ -135,24 +137,6 @@ module DataCycleCore
         computed_property_names.each do |computed_property|
           data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(computed_property, properties_for(computed_property), data_hash, self)
         end
-      end
-
-      def add_default_values(data_hash:, current_user: nil, new_content: false, force: false)
-        if new_content || force
-          props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }
-        elsif translated_locales.presence&.exclude?(I18n.locale)
-          props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }.slice(*translatable_property_names)
-        else
-          props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }.slice(*data_hash.keys)
-        end
-
-        return data_hash if props.blank?
-
-        props.each do |property_name, property_definition|
-          data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, data_hash, self, current_user)
-        end
-
-        data_hash
       end
 
       def inherit_source_attributes(data_hash:, source:)
@@ -172,7 +156,7 @@ module DataCycleCore
             id,
             self.class.name,
             'create',
-            WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.merge(webhook_data: webhook_data.to_h).compact
+            WEBHOOK_ACCESSORS.index_with { |a| try(a) }.merge(webhook_data: webhook_data.to_h).compact
           )
         end
       end
@@ -187,7 +171,7 @@ module DataCycleCore
             id,
             self.class.name,
             'update',
-            WEBHOOK_ACCESSORS.map { |a| [a, try(a)] }.to_h.merge(webhook_data: webhook_data.to_h).compact
+            WEBHOOK_ACCESSORS.index_with { |a| try(a) }.merge(webhook_data: webhook_data.to_h).compact
           )
         end
       end
@@ -223,6 +207,11 @@ module DataCycleCore
 
       def add_related_cache_invalidation_job
         DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'invalidate_related_cache')
+      end
+
+      def add_update_exif_values_job
+        return if template_name != 'Bild' || exif_property_names.blank?
+        DataCycleCore::WriteExifDataJob.perform_later(id)
       end
 
       def add_update_dependent_computed_properties_job
@@ -301,7 +290,7 @@ module DataCycleCore
           set_linked(key, value, properties)
         when 'embedded'
           set_embedded(key, value, properties['template_name'], properties['translated'], options)
-        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object'
+        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object', 'computed'
           save_values(key, value, properties)
         when 'classification'
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
@@ -309,8 +298,6 @@ module DataCycleCore
           set_asset_id(value, key, properties['asset_type'])
         when 'schedule', 'opening_time'
           set_schedule(value, key)
-        when 'computed'
-          save_values(key, value, properties)
         when 'slug'
           save_slug(key, value, options.data_hash)
         when 'key'
@@ -355,7 +342,7 @@ module DataCycleCore
         if send(location.to_s).blank? # set to json field (could be empty)
           send("#{location}=", { key => save_data })
         else
-          send(location.to_s).method('[]=').call(key, save_data)
+          send(location.to_s).method(:[]=).call(key, save_data)
         end
       end
 

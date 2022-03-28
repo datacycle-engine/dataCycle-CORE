@@ -15,7 +15,7 @@ module DataCycleCore
     end
 
     def delayed_reference_id
-      arguments[0].to_s
+      Array.wrap(arguments).join('_')
     end
 
     def delayed_reference_type

@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.7.1'
 
   # rails
-  s.add_dependency 'rails', '~> 5.2.4'
+  s.add_dependency 'rails', '~> 6.1'
   s.add_dependency 'rake'
   # Frontend Asset Handling
   # s.add_dependency 'sprockets', '4.0.0'
@@ -34,7 +34,8 @@ Gem::Specification.new do |s|
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
-  s.add_dependency 'pg', '~> 0.21'
+  # s.add_dependency 'pg', '~> 0.21'
+  s.add_dependency 'pg'
   s.add_dependency 'rgeo'
   s.add_dependency 'rgeo-geojson'
   s.add_dependency 'rgeo-proj4'
@@ -52,7 +53,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'devise'
   s.add_dependency 'jwt'
   # authorization
-  s.add_dependency 'cancancan'
+  s.add_dependency 'cancancan', '>= 3.3.0'
   # pagination
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes
@@ -70,7 +71,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'jbuilder'
 
-  s.add_dependency 'acts_as_paranoid', '~> 0.6.0'
+  s.add_dependency 'acts_as_paranoid'
   s.add_dependency 'dry-transformer'
   s.add_dependency 'dry-validation'
   s.add_dependency 'hashdiff', '>= 0.4.0'
@@ -87,7 +88,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'mini_magick'
   s.add_dependency 'pdf-reader'
   s.add_dependency 'streamio-ffmpeg'
-  s.add_dependency 'taglib-ruby', '~> 1.0.0'
+  s.add_dependency 'taglib-ruby'
 
   # Image Optimization
   s.add_dependency 'image_optim'
@@ -114,7 +115,7 @@ Gem::Specification.new do |s|
   # URI (https://tools.ietf.org/html/rfc3986) and IRI (https://tools.ietf.org/html/rfc3987) Parser
   s.add_dependency 'addressable'
 
-  s.add_dependency 'puma', '~> 4.3.6'
+  s.add_dependency 'puma'
   s.add_dependency 'puma-status'
   s.add_dependency 'puma_worker_killer'
 
@@ -133,4 +134,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'dotiw'
 
   s.add_dependency 'holidays'
+
+  s.add_dependency 'mini_exiftool_vendored'
 end

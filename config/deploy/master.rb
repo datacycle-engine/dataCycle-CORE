@@ -15,7 +15,7 @@ set :application_root_path, 'test/dummy/'
 set :server_name, 'core.datacycle.at'
 set :deploy_user, 'pixelpoint'
 set :appsignal_env, 'production'
-set :rvm_ruby_version, '2.7.1'
+set :rvm_ruby_version, '2.7.4'
 set :application, 'data-cycle-core-master'
 
 namespace :deploy do

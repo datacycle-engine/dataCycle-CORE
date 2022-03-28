@@ -1,6 +1,6 @@
 import jQuery from 'jquery';
 import Rails from '@rails/ujs';
-import ActionCable from 'actioncable';
+import ActionCable from '@rails/actioncable';
 import DataCycleSingleton from './components/data_cycle';
 import I18n from './components/i18n';
 
@@ -16,11 +16,14 @@ const initializers = import.meta.globEager('./initializers/*.js');
 import foundationInit from './initializers/foundation_init';
 import validationInit from './initializers/validation_init';
 import appSignalInit from './initializers/app_signal_init';
+import UrlReplacer from './helpers/url_replacer';
 
 export default (dataCycleConfig = {}) => {
   DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
 
   appSignalInit();
+
+  UrlReplacer.paramsToStoredFilterId();
 
   try {
     Rails.start();

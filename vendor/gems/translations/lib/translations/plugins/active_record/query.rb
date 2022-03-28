@@ -134,7 +134,13 @@ module Translations
           end
 
           ['pluck', 'group', 'select'].each do |method_name|
-            define_method method_name do |*attrs|
+            define_method method_name do |*attrs, &block|
+              return super(*attrs, &block) if method_name == 'select' && block.present?
+
+              if ::ActiveRecord::VERSION::STRING < '7.0'
+                return super(*attrs, &block) unless @klass.respond_to?(:translation_attribute?)
+              end
+
               return super(*attrs) unless attrs.any?(&@klass.method(:translation_attribute?))
 
               keys = attrs.dup

@@ -17,8 +17,8 @@ module DataCycleCore
         can :create, DataCycleCore::Thing do |template, scope|
           scope == 'asset' && template&.creatable?(scope)
         end
-
-        can :edit, DataCycleCore::DataAttribute do |attribute|
+        can :edit, DataCycleCore::DataAttribute
+        can :update, DataCycleCore::DataAttribute do |attribute|
           if attribute.definition.dig('ui', 'edit', 'readonly')
             false
           elsif DataCycleCore::Feature::PublicationSchedule.allowed?(attribute.content)
@@ -36,6 +36,21 @@ module DataCycleCore
               attribute.definition.dig('global')
             )
           end
+        end
+
+        cannot :edit, DataCycleCore::DataAttribute do |attribute|
+          attribute.definition.dig('ui', attribute.scope.to_s, 'disabled') == true ||
+            (
+              !DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
+              DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
+            ) ||
+            (attribute.content.try(:external_source_id).blank? && DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)) ||
+            (
+              attribute.definition.dig('tree_label').present? && cached_tree_labels[attribute.definition.dig('tree_label')]&.external_source_id.present? &&
+              (cached_tree_labels[attribute.definition.dig('tree_label')]&.external_source_id != attribute.content.try(:external_source_id) && !attribute.definition.dig('global') && attribute.scope.to_s == 'edit')
+            ) ||
+            (attribute.definition.dig('external') && attribute.content.try(:external_source_id).blank? && attribute.scope.to_s == 'edit') ||
+            (DataCycleCore::Feature::Releasable.attribute_keys(attribute.content).include?(attribute.key.attribute_name_from_key) && attribute.scope.to_s == 'show')
         end
 
         cannot :show, DataCycleCore::DataAttribute do |attribute|

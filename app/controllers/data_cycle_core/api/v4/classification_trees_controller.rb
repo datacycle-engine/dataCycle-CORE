@@ -38,7 +38,7 @@ module DataCycleCore
 
           if permitted_params.dig(:filter, :attribute).present?
             filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
-            @classification_aliases = @classification_aliases.with_deleted if filter.key?(:'dct:deleted')
+            @classification_aliases = @classification_tree_label.classification_aliases_with_deleted if filter.key?(:'dct:deleted')
             @classification_aliases = apply_filters(@classification_aliases, filter)
           end
 

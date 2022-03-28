@@ -6,13 +6,13 @@ require 'json'
 module DataCycleCore
   module Api
     module V1
-      class RoutingTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
+      class RoutingTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
+          DataCycleCore::Thing.where(template: false).delete_all
+          @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'Merkliste 1')
+        end
 
         setup do
-          @routes = Engine.routes
-          @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'Merkliste 1')
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
@@ -20,7 +20,7 @@ module DataCycleCore
           get api_v1_collections_path
 
           assert_response :success
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse response.body
           assert_equal 1, json_data['collections'].length
         end
@@ -29,7 +29,7 @@ module DataCycleCore
           get api_v1_collection_path(@watch_list)
 
           assert_response :success
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse response.body
           assert_equal 'Merkliste 1', json_data.dig('collection', 'name')
           assert_equal 0, json_data.dig('collection', 'items').length
@@ -55,7 +55,7 @@ module DataCycleCore
           get api_v1_stored_filter_path(filter)
 
           assert_response :success
-          assert_equal response.content_type, 'application/json'
+          assert_equal response.content_type, 'application/json; charset=utf-8'
         end
       end
     end

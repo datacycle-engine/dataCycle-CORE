@@ -1,6 +1,13 @@
 <% filter_config = DataCycleCore::Feature::MainFilter.available_filters(view: view_type, user: current_user, selected_filters: @filters) %>
 
-<%= form_tag('', :method => "get", id: "search-form", data: { add_filter_path: add_filter_path, add_tag_group_path: add_tag_group_path }) do %>
+<%= form_with(url: request.path, local: true, id: 'search-form', data: {
+  add_filter_path: add_filter_path,
+  add_tag_group_path: add_tag_group_path,
+  stored_filter: @stored_filter&.id,
+  mode: @mode,
+  ctl_id: @classification_tree_label&.id,
+  ct_id: @classification_tree&.id
+}) do %>
   <%= hidden_field_tag 'mode', @mode %>
   <%= hidden_field_tag 'ct_id', @classification_tree&.id %>
   <%= hidden_field_tag 'ctl_id', @classification_tree_label&.id %>

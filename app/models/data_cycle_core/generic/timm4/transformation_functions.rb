@@ -135,7 +135,7 @@ module DataCycleCore
             .map { |section| section['line'] }
             .map { |line|
               line
-                .split(' ')
+                .split
                 .each_slice(2)
                 .map { |long, lat| factory.point(lat.to_f, long.to_f) }
             }

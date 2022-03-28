@@ -22,6 +22,8 @@ namespace :dc do
 
         abort('ERROR: error moving to new path') unless new_ca.is_a?(DataCycleCore::ClassificationAlias)
 
+        puts('WARNING: classifications moved to another tree! Check if relation in DataCycleCore::ClassificationContent needs to be updated!') if from_path.first != to_path.first
+
         puts("SUCCESS: successfully moved classification to new path: #{new_ca.reload.full_path}")
       end
     end

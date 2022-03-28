@@ -53,7 +53,7 @@ module DataCycleCore
                 assert_equal('image/jpeg', response.headers.dig('Content-Type'))
                 content_disposition = response.headers.dig('Content-Disposition').split(';')
                 assert_equal('attachment', content_disposition.first)
-                assert_equal(' filename="image_headline-original.jpeg"', content_disposition.last)
+                assert_equal(' filename="image_headline-original.jpeg"', content_disposition.second)
 
                 # version thumb
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'thumb_preview' }, headers: {
@@ -63,7 +63,7 @@ module DataCycleCore
                 assert_equal('image/jpeg', response.headers.dig('Content-Type'))
                 content_disposition = response.headers.dig('Content-Disposition').split(';')
                 assert_equal('attachment', content_disposition.first)
-                assert_equal(' filename="image_headline-thumb_preview.jpeg"', content_disposition.last)
+                assert_equal(' filename="image_headline-thumb_preview.jpeg"', content_disposition.second)
 
                 # version web in png
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'web' }, headers: {
@@ -73,7 +73,7 @@ module DataCycleCore
                 assert_equal('image/jpeg', response.headers.dig('Content-Type'))
                 content_disposition = response.headers.dig('Content-Disposition').split(';')
                 assert_equal('attachment', content_disposition.first)
-                assert_equal(' filename="image_headline-web.jpeg"', content_disposition.last)
+                assert_equal(' filename="image_headline-web.jpeg"', content_disposition.second)
 
                 # version web in png
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'web', transformation: { web: { format: 'png' } } }, headers: {
@@ -83,7 +83,7 @@ module DataCycleCore
                 assert_equal('image/png', response.headers.dig('Content-Type'))
                 content_disposition = response.headers.dig('Content-Disposition').split(';')
                 assert_equal('attachment', content_disposition.first)
-                assert_equal(' filename="image_headline-web.png"', content_disposition.last)
+                assert_equal(' filename="image_headline-web.png"', content_disposition.second)
 
                 #  transformation does not match version => transformation is ignored, version web is processed
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'web', transformation: { asdf: { format: 'png' } } }, headers: {
@@ -93,7 +93,7 @@ module DataCycleCore
                 assert_equal('image/jpeg', response.headers.dig('Content-Type'))
                 content_disposition = response.headers.dig('Content-Disposition').split(';')
                 assert_equal('attachment', content_disposition.first)
-                assert_equal(' filename="image_headline-web.jpeg"', content_disposition.last)
+                assert_equal(' filename="image_headline-web.jpeg"', content_disposition.second)
 
                 #  invalid version => original file will be processed
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'test' }, headers: {
@@ -103,7 +103,7 @@ module DataCycleCore
                 assert_equal('image/jpeg', response.headers.dig('Content-Type'))
                 content_disposition = response.headers.dig('Content-Disposition').split(';')
                 assert_equal('attachment', content_disposition.first)
-                assert_equal(' filename="image_headline-original.jpeg"', content_disposition.last)
+                assert_equal(' filename="image_headline-original.jpeg"', content_disposition.second)
               end
 
               test 'enable asset serializer and test downloads controller' do
@@ -119,7 +119,7 @@ module DataCycleCore
                 assert_equal('image/jpeg', response.headers.dig('Content-Type'))
                 content_disposition = response.headers.dig('Content-Disposition').split(';')
                 assert_equal('attachment', content_disposition.first)
-                assert_equal(' filename="image_headline-original.jpeg"', content_disposition.last)
+                assert_equal(' filename="image_headline-original.jpeg"', content_disposition.second)
 
                 # version thumb
                 get download_thing_path(@content), params: { serialize_format: 'asset', version: 'thumb_preview' }, headers: {
@@ -129,7 +129,7 @@ module DataCycleCore
                 assert_equal('image/jpeg', response.headers.dig('Content-Type'))
                 content_disposition = response.headers.dig('Content-Disposition').split(';')
                 assert_equal('attachment', content_disposition.first)
-                assert_equal(' filename="image_headline-thumb_preview.jpeg"', content_disposition.last)
+                assert_equal(' filename="image_headline-thumb_preview.jpeg"', content_disposition.second)
 
                 # version web
                 get "/downloads/things/#{@content.id}", params: { serialize_format: 'asset', version: 'web' }, headers: {
@@ -139,7 +139,7 @@ module DataCycleCore
                 assert_equal('image/jpeg', response.headers.dig('Content-Type'))
                 content_disposition = response.headers.dig('Content-Disposition').split(';')
                 assert_equal('attachment', content_disposition.first)
-                assert_equal(' filename="image_headline-web.jpeg"', content_disposition.last)
+                assert_equal(' filename="image_headline-web.jpeg"', content_disposition.second)
               end
 
               def teardown

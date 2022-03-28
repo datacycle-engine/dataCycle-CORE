@@ -41,7 +41,6 @@ module DataCycleCore
                   next unless asset_file.save
 
                   image_data = {
-                    'name' => title,
                     'asset' => asset_file.id
                   }
 

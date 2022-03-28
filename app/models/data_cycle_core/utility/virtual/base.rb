@@ -11,7 +11,7 @@ module DataCycleCore
             virtual_parameters = properties.dig('virtual', 'parameters')&.values
             language ||= content.first_available_locale
 
-            virtual_value = method_name.try(:call, { virtual_parameters: virtual_parameters, key: key, content: content, virtual_definition: properties, language: language })
+            virtual_value = method_name.try(:call, **{ virtual_parameters: virtual_parameters, key: key, content: content, virtual_definition: properties, language: language })
             virtual_value
           end
         end
