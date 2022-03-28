@@ -944,14 +944,14 @@ module DataCycleCore
           res
             .flatten
             .sort_by { |o| o[:event_date][:start_date] }
-            .map { |item|
+            .map do |item|
               schedule_key = Digest::SHA1.hexdigest "#{data.dig('external_key')}-#{item.to_json}"
               item.merge({
                 id: DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: schedule_key)&.id,
                 external_source_id: external_source_id,
                 external_key: schedule_key
               })
-            }
+            end
         end
 
         def self.event_duration(type, value)
@@ -1043,14 +1043,14 @@ module DataCycleCore
           end
           res
             .sort_by { |item| item[:dtstart] }
-            .map { |item|
+            .map do |item|
               schedule_key = Digest::SHA1.hexdigest "#{data.dig('external_key')}-#{item.to_json}"
               item.merge({
                 id: DataCycleCore::Schedule.find_by(external_source_id: external_source_id, external_key: schedule_key)&.id,
                 external_source_id: external_source_id,
                 external_key: schedule_key
               })
-            }
+            end
         end
 
         def self.load_day_nr(day)
