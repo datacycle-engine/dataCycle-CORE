@@ -17,6 +17,7 @@ class MapLibreGlViewer {
     this.value = this.$container.data('value');
     this.beforeValue = this.$container.data('before-position');
     this.afterValue = this.$container.data('after-position');
+    this.type = this.$container.data('type');
     this.additionalValues = this.$container.data('additionalValues') || {};
     this.additionalValuesOverlay = this.$container.data('additionalValuesOverlay');
     this.feature;
@@ -60,25 +61,22 @@ class MapLibreGlViewer {
     this.map.on('load', this.configureMap.bind(this));
   }
   initMap() {
-    // street: 'https://map.pixeldev.at/styles/pp-street/style.json'
-    // topo: 'https://map.pixeldev.at/styles/pp-topo/style.json',
-    // bright: 'https://map.pixeldev.at/styles/pp-bright/style.json',
-    // basemap: 'https://map.pixeldev.at/styles/basemap-overlay/style.json',
-    // winter: 'https://map.pixeldev.at/styles/pp-winter/style.json',
     this.map = new maplibregl.Map({
       container: this.containerId,
       style: this.mapBaseLayer(),
       center: this.defaultCenter(),
       zoom: this.defaultZoom(),
       transformRequest: (url, resourceType) => {
-        if (!url.includes('map.pixeldev.at')) return;
         if (url.includes('maptoolkit.net')) return `${url}?api_key=${this.credentials.api_key}`;
-        return {
-          headers: {
-            Authorization: `Bearer ${this.credentials.pp_api_key}`
-          },
-          url: url
-        };
+        else if (url.includes('map.pixeldev.at')) {
+          return {
+            headers: {
+              Authorization: `Bearer ${this.credentials.pp_api_key}`
+            },
+            url: url
+          };
+        }
+        return;
       }
     });
   }
@@ -534,6 +532,12 @@ class MapLibreGlViewer {
     matchEx.push(this.definedColors.default);
 
     return matchEx;
+  }
+  isPoint() {
+    return this.type.includes('Point');
+  }
+  isLineString() {
+    return this.type.includes('LineString');
   }
 }
 
