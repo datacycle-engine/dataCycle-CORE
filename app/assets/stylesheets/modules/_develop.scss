@@ -1911,7 +1911,7 @@ select {
       width: auto;
       z-index: 2;
       max-height: calc(100% - 20px);
-      overflow: hidden;
+      overflow: auto;
       max-width: calc(100% - 100px);
 
       .dc-additional-values-filter-container {
@@ -1944,11 +1944,57 @@ select {
       .dc-additional-values-filter {
         margin: 0;
 
-        .dc-additional-values-filter-item {
+        .overlay-filter-label {
           display: flex;
-          flex-flow: row wrap;
-          align-items: center;
+
+          input {
+            display: none;
+          }
+
+          label::before {
+            content: '';
+            font-family: FontAwesome;
+            display: flex;
+            background-color: white;
+            border: 1px solid darken($medium-gray, 5%);
+            border-radius: 4px;
+            height: 16px;
+            width: 16px;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            margin-right: 0.5rem;
+            color: white;
+            transition: all 0.2s ease;
+          }
+
+          > input:indeterminate + label {
+            &::before {
+              content: '\f068';
+              background-color: $primary-color;
+              border-color: $primary-color;
+            }
+          }
+
+          > input:checked + label {
+            &::before {
+              content: '\f00c';
+              background-color: $primary-color;
+              border-color: $primary-color;
+            }
+          }
+        }
+
+        .dc-additional-values-filter-item,
+        .additional-map-values-filter-item {
+          display: flex;
+          flex-flow: column nowrap;
+          justify-content: center;
           position: relative;
+
+          &:not(:last-of-type) {
+            margin-bottom: 0.2rem;
+          }
 
           .loading-spinner {
             display: none;
@@ -1976,7 +2022,7 @@ select {
             }
           }
 
-          &:not(:last-of-type) {
+          &.dc-additional-values-filter-item:not(:last-of-type) {
             border-bottom: 1px solid $light-gray;
             margin-bottom: 0.5rem;
             padding-bottom: 0.5rem;
@@ -1991,6 +2037,8 @@ select {
             flex: auto;
             display: flex;
             align-items: center;
+            margin-right: 1.5rem;
+            margin-left: 0;
 
             input {
               margin: 0 0.5rem 0 0;
@@ -1998,16 +2046,19 @@ select {
 
             .attribute-label-text {
               line-height: 1rem;
+              white-space: nowrap;
             }
           }
 
           .accordion-title {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 1rem;
             flex: 0;
             padding: 0;
             display: block;
             height: 1rem;
-            width: 3rem;
-            position: relative;
 
             &::before {
               position: relative;
@@ -2025,7 +2076,7 @@ select {
 
           .accordion-content {
             width: 100%;
-            padding: 1rem 1rem 0.5rem 1rem;
+            padding: 0.5rem 0 0.5rem 1rem;
           }
         }
       }
