@@ -157,11 +157,7 @@ module DataCycleCore
             if data['times'].blank?
               dtstart = dstart
               dtend = dend.end_of_day
-              # data['event_schedule'] << {
-              #   start_time: { time: dtstart, zone: dtstart.time_zone.name },
-              #   end_time: { time: dtend, zone: dtend.time_zone.name },
-              #   duration: dtend.to_i - dtstart.to_i
-              # }
+
               data['event_schedule'] << {
                 start_time: { time: dtstart, zone: dtstart.time_zone.name },
                 duration: 1.day.to_i,
