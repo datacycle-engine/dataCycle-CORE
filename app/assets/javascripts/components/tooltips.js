@@ -73,8 +73,8 @@ class Tooltips {
     this.watchTooltipContent();
 
     this.tooltip.style.display = 'block';
-    await this.updatePosition();
     this.cleanups[this.referenceElement.dataset.dcTooltipId] = this.addAutoUpdate();
+    await this.updatePosition();
   }
 
   hideTooltip(_event) {
