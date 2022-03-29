@@ -31,7 +31,6 @@ class TourSprungEditor extends OpenLayersEditor {
     this.elevationProfile;
     this.elevationProfilePromise;
     this.keyFiguresMapping = {
-      duration: 'cycling_duration',
       length: 'distance',
       max_altitude: 'highest_point',
       min_altitude: 'lowest_point'

@@ -28,6 +28,14 @@
     }
   }
 
+  .mtk-elevation-profile {
+    pointer-events: none;
+
+    svg.mtk-elevation-svg {
+      pointer-events: auto;
+    }
+  }
+
   .mapboxgl-ctrl-top-left {
     height: 100%;
 

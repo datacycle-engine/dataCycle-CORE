@@ -48,7 +48,7 @@ module DataCycleCore
           (key.attribute_path_from_key & template_keys).any?
         end
 
-        def configuration(content = nil)
+        def configuration(content = nil, attribute_key = nil)
           @configuration ||= Hash.new do |h, key|
             config = ActiveSupport::HashWithIndifferentAccess.new
             config.merge!(DataCycleCore.features.dig(name.demodulize.underscore.to_sym) || {})
@@ -59,7 +59,7 @@ module DataCycleCore
 
             h[key] = config.compact
           end
-          @configuration[cache_key(content)]
+          @configuration[cache_key(content, attribute_key)]
         end
 
         def content_module
@@ -84,11 +84,24 @@ module DataCycleCore
           self
         end
 
-        def cache_key(content)
+        def cache_key(content, key = nil)
           if content.is_a?(DataCycleCore::Schedule)
-            [name.underscore, 'configuration', content&.id, {}, []]
+            [
+              name.underscore,
+              'configuration',
+              content&.id,
+              {},
+              []
+            ]
           else
-            [name.underscore, 'configuration', content&.id, content&.schema, content&.collect_properties]
+            [
+              name.underscore,
+              'configuration',
+              content&.id,
+              content&.schema,
+              key.present? ? content&.collect_properties&.select { |v| v.is_a?(::Array) ? v.include?(key.attribute_name_from_key) : v == key.attribute_name_from_key } :
+              content&.collect_properties
+            ]
           end
         end
       end
