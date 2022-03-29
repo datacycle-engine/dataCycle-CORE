@@ -15,6 +15,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     this.modifyInteraction;
     this.drawableInteraction;
     this.drawing = false;
+    this.draw;
     this.precision = 5;
     this.$geoCodeButton = $('.geocode-address-button').first();
     this.$mapEditContainer = this.$parentContainer.siblings('.map-edit').first();
@@ -70,38 +71,30 @@ class MapLibreGlEditor extends MapLibreGlViewer {
   // }
 
   initAdditionalControls() {
-    const draw = new MapboxDraw({
+    this.initDrawControl();
+    // this.map.addControl(new RemoveAllFeaturesControl());
+  }
+  initDrawControl() {
+    this.draw = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
-        point: true,
-        // point: this.isPoint(),
-        // line_string: this.isLineString(),
+        point: this.isPoint(),
+        line_string: this.isLineString(),
         trash: true
       },
-      defaultMode: this.isPoint() ? 'draw_point' : 'draw_line_string',
-      styles: [
-        {
-          id: 'highlight-active-points',
-          type: 'circle',
-          filter: ['all', ['==', '$type', 'Point'], ['==', 'meta', 'feature'], ['==', 'active', 'true']],
-          paint: {
-            'circle-radius': 7,
-            'circle-color': '#000000'
-          }
-        },
-        {
-          id: 'points-are-blue',
-          type: 'circle',
-          filter: ['all', ['==', '$type', 'Point'], ['==', 'meta', 'feature'], ['==', 'active', 'false']],
-          paint: {
-            'circle-radius': 5,
-            'circle-color': '#000088'
-          }
-        }
-      ]
+      defaultMode: this.isPoint() ? 'draw_point' : 'draw_line_string', // TODO: if already then select mode
+      styles: this.isPoint() ? this._getDrawPointStyle() : this._getDrawLineStyle()
     });
-    this.map.addControl(draw);
-    // this.map.addControl(new RemoveAllFeaturesControl());
+    this.map.addControl(this.draw);
+
+    this.map.on('draw.create', event => {
+      this.feature = event.features[0];
+      // this.feature.setStyle();
+      // this.disableDrawableFeature(); // TODO:
+      // this.setCoordinates(); // TODO:
+      this.setHiddenFieldValue(this.feature);
+      // this.initGeometryEditActions(); // TODO:
+    });
   }
   // async importData(event, data) {
   //   if (!this.value || (data && data.force)) {
@@ -299,17 +292,20 @@ class MapLibreGlEditor extends MapLibreGlViewer {
   //   }
   //   DataCycle.enableElement(this.$uploadButton);
   // }
-  // geoJsonToWkt(geometry) {
-  //   if (this._coordinatesEmpty(geometry && geometry.coordinates)) return;
+  // geoJsonToWkt(geoJson) {
+  //   const wkt = wkx.Geometry.parseGeoJSON(geoJson).toEwkt();
+  //   return wkt;
 
-  //   if (geometry.type.startsWith('LineString')) {
-  //     geometry.type = 'Multi' + geometry.type;
-  //     geometry.coordinates = [geometry.coordinates];
-  //   }
+  //   // if (this._coordinatesEmpty(geometry && geometry.coordinates)) return;
 
-  //   if (geometry.type.includes('LineString')) geometry.coordinates = this.addZCoordinate(geometry.coordinates);
+  //   // if (geometry.type.startsWith('LineString')) {
+  //   //   geometry.type = 'Multi' + geometry.type;
+  //   //   geometry.coordinates = [geometry.coordinates];
+  //   // }
 
-  //   return this.wktFormat.writeGeometry(this.geoJsonFormat.readGeometry(geometry));
+  //   // if (geometry.type.includes('LineString')) geometry.coordinates = this.addZCoordinate(geometry.coordinates);
+
+  //   // return this.wktFormat.writeGeometry(this.geoJsonFormat.readGeometry(geometry));
   // }
   // addZCoordinate(coords) {
   //   for (let i = 0; i < coords.length; i++) {
@@ -436,18 +432,165 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 
   //   return false;
   // }
-  // setHiddenFieldValue(geometry) {
-  //   this.value = {
-  //     type: 'Feature',
-  //     geometry: geometry
-  //   };
+  setHiddenFieldValue(geoJson) {
+    this.value = geoJson;
 
-  //   this.$locationField.val(this.geoJsonToWkt(geometry));
-  // }
-  // resetHiddenFieldValue() {
-  //   this.value = null;
-  //   this.$locationField.val('');
-  // }
+    if (geoJson.geometry.type.startsWith('LineString')) {
+      geoJson.geometry.type = 'Multi' + geoJson.geometry.type;
+      geoJson.geometry.coordinates = [geoJson.geometry.coordinates];
+    }
+
+    this.$locationField.val(JSON.stringify(geoJson));
+  }
+  resetHiddenFieldValue() {
+    this.value = null;
+    this.$locationField.val('');
+  }
+  _getDrawPointStyle() {
+    return [
+      {
+        id: 'gl-draw-point-highlight',
+        type: 'circle',
+        filter: ['all', ['==', '$type', 'Point'], ['==', 'meta', 'feature'], ['==', 'active', 'true']],
+        paint: {
+          'circle-radius': 7,
+          'circle-color': this.definedColors.default,
+          'circle-stroke-width': 4,
+          'circle-stroke-color': this.definedColors.white
+        }
+      },
+      {
+        id: 'gl-draw-point',
+        type: 'circle',
+        filter: ['all', ['==', '$type', 'Point'], ['==', 'meta', 'feature'], ['==', 'active', 'false']],
+        paint: {
+          'circle-radius': 5,
+          'circle-color': this.definedColors.default,
+          'circle-stroke-width': 4,
+          'circle-stroke-color': this.definedColors.white
+        }
+      }
+    ];
+  }
+  // TODO:
+  _getDrawLineStyle() {
+    return [
+      // ACTIVE (being drawn)
+      // line stroke
+      {
+        id: 'gl-draw-line',
+        type: 'line',
+        filter: ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static']],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': '#D20C0C',
+          'line-dasharray': [0.2, 2],
+          'line-width': 2
+        }
+      },
+      // polygon fill
+      {
+        id: 'gl-draw-polygon-fill',
+        type: 'fill',
+        filter: ['all', ['==', '$type', 'Polygon'], ['!=', 'mode', 'static']],
+        paint: {
+          'fill-color': '#D20C0C',
+          'fill-outline-color': '#D20C0C',
+          'fill-opacity': 0.1
+        }
+      },
+      // polygon mid points
+      {
+        id: 'gl-draw-polygon-midpoint',
+        type: 'circle',
+        filter: ['all', ['==', '$type', 'Point'], ['==', 'meta', 'midpoint']],
+        paint: {
+          'circle-radius': 3,
+          'circle-color': '#fbb03b'
+        }
+      },
+      // polygon outline stroke
+      // This doesn't style the first edge of the polygon, which uses the line stroke styling instead
+      {
+        id: 'gl-draw-polygon-stroke-active',
+        type: 'line',
+        filter: ['all', ['==', '$type', 'Polygon'], ['!=', 'mode', 'static']],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': '#D20C0C',
+          'line-dasharray': [0.2, 2],
+          'line-width': 2
+        }
+      },
+      // vertex point halos
+      {
+        id: 'gl-draw-polygon-and-line-vertex-halo-active',
+        type: 'circle',
+        filter: ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static']],
+        paint: {
+          'circle-radius': 5,
+          'circle-color': '#FFF'
+        }
+      },
+      // vertex points
+      {
+        id: 'gl-draw-polygon-and-line-vertex-active',
+        type: 'circle',
+        filter: ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static']],
+        paint: {
+          'circle-radius': 3,
+          'circle-color': '#D20C0C'
+        }
+      },
+
+      // INACTIVE (static, already drawn)
+      // line stroke
+      {
+        id: 'gl-draw-line-static',
+        type: 'line',
+        filter: ['all', ['==', '$type', 'LineString'], ['==', 'mode', 'static']],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': '#000',
+          'line-width': 3
+        }
+      },
+      // polygon fill
+      {
+        id: 'gl-draw-polygon-fill-static',
+        type: 'fill',
+        filter: ['all', ['==', '$type', 'Polygon'], ['==', 'mode', 'static']],
+        paint: {
+          'fill-color': '#000',
+          'fill-outline-color': '#000',
+          'fill-opacity': 0.1
+        }
+      },
+      // polygon outline
+      {
+        id: 'gl-draw-polygon-stroke-static',
+        type: 'line',
+        filter: ['all', ['==', '$type', 'Polygon'], ['==', 'mode', 'static']],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': '#000',
+          'line-width': 3
+        }
+      }
+    ];
+  }
 }
 
 export default MapLibreGlEditor;

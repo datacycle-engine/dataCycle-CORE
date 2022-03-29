@@ -198,6 +198,9 @@ module DataCycleCore
             value = value.blank? ? nil : value.to_f
           elsif type == 'number'
             value = value.blank? ? nil : value.to_i
+          elsif type == 'geographic'
+            factory = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 })
+            value = RGeo::GeoJSON.decode(value, geo_factory: factory).geometry.as_text
           end
 
           temp_datahash[key] = value
