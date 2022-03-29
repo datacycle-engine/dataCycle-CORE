@@ -27,6 +27,20 @@ module DataCycleCore
                   xml.Parameters do
                     xml.Parameter('Name' => 'GUID', 'Value' => feratel_id)
                     xml.Parameter('Name' => 'FacilityList', 'Value' => feratel_classification_ids)
+                    if data.certification_period.present?
+                      xml.Parameter('Name' => 'CertifiedFrom', 'Value' => data.certification_period&.certified_from)
+                      xml.Parameter('Name' => 'CertifiedTo', 'Value' => data.certification_period&.certified_to)
+                    end
+                    data.available_locales.map do |locale|
+                      I18n.with_locale(locale) do
+                        next if data.public_pdf.blank?
+                        xml.Parameter('Name' => "ShortReport#{locale.to_s.capitalize}", 'Value' => data.public_pdf.short_report) if data.public_pdf.short_report.present?
+                        xml.Parameter('Name' => "Wheelchair#{locale.to_s.capitalize}", 'Value' => data.public_pdf.wheelchair) if data.public_pdf.wheelchair.present?
+                        xml.Parameter('Name' => "Deaf#{locale.to_s.capitalize}", 'Value' => data.public_pdf.deaf) if data.public_pdf.deaf.present?
+                        xml.Parameter('Name' => "Visual#{locale.to_s.capitalize}", 'Value' => data.public_pdf.visual) if data.public_pdf.visual.present?
+                        xml.Parameter('Name' => "Mental#{locale.to_s.capitalize}", 'Value' => data.public_pdf.mental) if data.public_pdf.mental.present?
+                      end
+                    end
                   end
                 end
               end

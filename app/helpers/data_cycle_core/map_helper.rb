@@ -70,9 +70,10 @@ module DataCycleCore
 
     def additional_map_values_filter(tree_label)
       DataCycleCore::ClassificationAlias
-        .includes(:classification_tree_label)
-        .where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: tree_label })
+        .includes(:classification_tree_label, :parent_classification_alias)
+        .where(classification_tree_labels: { name: tree_label })
         .order(created_at: :asc)
+        .group_by { |c| c.parent_classification_alias&.id }
     end
   end
 end

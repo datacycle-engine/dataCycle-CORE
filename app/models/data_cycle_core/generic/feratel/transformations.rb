@@ -188,7 +188,7 @@ module DataCycleCore
           .>> t(:merge_array_values, 'additional_information', 'feratel_guest_cards_descriptions')
           .>> t(:add_links, 'feratel_facilities_additional_services', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:ensure_classification_tree, 'feratel_facilities_additional_services', 'Feratel - Merkmale - Services')
-          .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details')) }) # .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
+          .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details'), external_source_id) }) # .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
           .>> t(:strip_all)
         end
 
@@ -555,8 +555,8 @@ module DataCycleCore
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "Location:#{s.dig('external_key')}" })
           .>> t(:add_field, 'feratel_super_events', ->(s) { s.dig('SerialEvents', 'SerialEvent').is_a?(Hash) ? [s.dig('SerialEvents', 'SerialEvent')] : s.dig('SerialEvents', 'SerialEvent') })
           .>> t(:add_links, 'super_event', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('feratel_super_events')&.map { |e| e&.dig('Id') } })
-          .>> t(:add_field, 'schedule', ->(s) { load_event_schedules(s) }) # deprecated as_of(16.3.2020)
-          .>> t(:add_field, 'event_schedule', ->(s) { load_schedules(s) })
+          .>> t(:add_field, 'schedule', ->(s) { load_event_schedules(s, external_source_id) }) # deprecated as_of(16.3.2020)
+          .>> t(:add_field, 'event_schedule', ->(s) { load_schedules(s, external_source_id) })
           .>> t(:add_field, 'feratel_event_tags', ->(s) { load_feratel_event_tags([s.dig('Visibility'), (s.dig('IsTopEvent') == 'true' ? 'Top-Event' : nil)]) })
           .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
@@ -899,7 +899,7 @@ module DataCycleCore
           end
         end
 
-        def self.load_event_schedules(data)
+        def self.load_event_schedules(data, external_source_id)
           available_dates = data.dig('Dates', 'Date').is_a?(Hash) ? [data.dig('Dates', 'Date')] : data.dig('Dates', 'Date')
           available_start_times = data.dig('StartTimes', 'StartTime').is_a?(Hash) ? [data.dig('StartTimes', 'StartTime')] : data.dig('StartTimes', 'StartTime')
           duration = event_duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text'))
@@ -941,7 +941,17 @@ module DataCycleCore
               }
             end
           end
-          res.flatten.sort_by { |o| o[:event_date][:start_date] }
+          res
+            .flatten
+            .sort_by { |o| o[:event_date][:start_date] }
+            .map do |item|
+              schedule_key = Digest::SHA1.hexdigest "#{data.dig('external_key')}-#{item.to_json}"
+              item.merge({
+                id: DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: schedule_key)&.id,
+                external_source_id: external_source_id,
+                external_key: schedule_key
+              })
+            end
         end
 
         def self.event_duration(type, value)
@@ -962,9 +972,9 @@ module DataCycleCore
           end
         end
 
-        def self.load_schedules(data)
-          available_dates = data.dig('Dates', 'Date').is_a?(Hash) ? [data.dig('Dates', 'Date')] : data.dig('Dates', 'Date')
-          available_start_times = data.dig('StartTimes', 'StartTime').is_a?(Hash) ? [data.dig('StartTimes', 'StartTime')] : data.dig('StartTimes', 'StartTime')
+        def self.load_schedules(data, external_source_id)
+          available_dates = Array.wrap(data.dig('Dates', 'Date'))
+          available_start_times = Array.wrap(data.dig('StartTimes', 'StartTime'))
           duration = duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text')) || duration(data.dig('Durations', 'Type'), data.dig('Durations', 'Duration')) || 0
           options = {}
           options = { duration: duration } if duration.positive?
@@ -984,6 +994,7 @@ module DataCycleCore
                 dtend = nil
                 if dend.present?
                   dtend = "#{dend}T#{tstart}".in_time_zone
+                  untild = dtend
                   if duration == 1.day && dstart == dend
                     dtend = dtend.end_of_day
                   elsif duration < 1.day
@@ -991,7 +1002,13 @@ module DataCycleCore
                   end
                 elsif duration.present?
                   dtend = dtstart + duration
+                  untild = dtstart
+                else
+                  dtend = dtstart
+                  untild = dtstart
                 end
+                untildt = DataCycleCore::Schedule.until_as_utc_iso8601(untild, dtstart).to_datetime.utc
+
                 active_days = time_item
                   .except('Time')
                   .select { |_day, val| val == 'true' }
@@ -1005,7 +1022,7 @@ module DataCycleCore
                 rrule.hour_of_day(time.hour)
                 rrule.minute_of_hour(time.minute) if time.minute.positive?
                 rrule.day(active_days) if active_days.present?
-                rrule.until(dtend.end_of_day)
+                rrule.until(untildt)
                 schedule_object = IceCube::Schedule.new(dtstart, options) do |s|
                   s.add_recurrence_rule(rrule)
                 end
@@ -1024,7 +1041,16 @@ module DataCycleCore
               }
             end
           end
-          res.sort_by { |item| item[:dtstart] }
+          res
+            .sort_by { |item| item[:dtstart] }
+            .map do |item|
+              schedule_key = Digest::SHA1.hexdigest "#{data.dig('external_key')}-#{item.to_json}"
+              item.merge({
+                id: DataCycleCore::Schedule.find_by(external_source_id: external_source_id, external_key: schedule_key)&.id,
+                external_source_id: external_source_id,
+                external_key: schedule_key
+              })
+            end
         end
 
         def self.load_day_nr(day)
