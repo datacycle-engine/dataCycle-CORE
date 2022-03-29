@@ -85,24 +85,17 @@ module DataCycleCore
         end
 
         def cache_key(content, key = nil)
-          if content.is_a?(DataCycleCore::Schedule)
-            [
-              name.underscore,
-              'configuration',
-              content&.id,
-              {},
-              []
-            ]
-          else
-            [
-              name.underscore,
-              'configuration',
-              content&.id,
-              content&.schema,
-              key.present? ? content&.collect_properties&.select { |v| v.is_a?(::Array) ? v.include?(key.attribute_name_from_key) : v == key.attribute_name_from_key } :
-              content&.collect_properties
-            ]
-          end
+          [
+            name.underscore,
+            'configuration',
+            content&.id,
+            content.try(:schema),
+            if key.present?
+              content.try(:collect_properties)&.select { |v| v.is_a?(::Array) ? v.include?(key.attribute_name_from_key) : v == key.attribute_name_from_key }
+            else
+              content.try(:collect_properties)
+            end
+          ]
         end
       end
     end
