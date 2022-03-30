@@ -90,7 +90,7 @@ module DataCycleCore
           class: 'tag-translations-list'
         ),
         class: 'tag-translations'
-      )
+      ) if classification_alias.name_i18n.keys.many?
 
       tooltip_html.compact.join('<br>')
     end
