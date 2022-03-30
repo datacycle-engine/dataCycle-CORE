@@ -83,14 +83,16 @@ module DataCycleCore
         tooltip_html << "<div class=\"tag-description\">#{classification_alias.description}</div>" if classification_alias.try(:description).present?
       end
 
-      tooltip_html << tag.div(
-        tag.span(I18n.t('classifications.tooltip_translations', locale: active_ui_locale), class: 'tag-translations-header') +
-        tag.ul(
-          safe_join(classification_alias.name_i18n.sort.map { |k, v| tag.li(v, data: { locale: "#{k}:" }) }),
-          class: 'tag-translations-list'
-        ),
-        class: 'tag-translations'
-      ) if classification_alias.name_i18n.keys.many?
+      if classification_alias.name_i18n.keys.many?
+        tooltip_html << tag.div(
+          tag.span(I18n.t('classifications.tooltip_translations', locale: active_ui_locale), class: 'tag-translations-header') +
+          tag.ul(
+            safe_join(classification_alias.name_i18n.sort.map { |k, v| tag.li(v, data: { locale: "#{k}:" }) }),
+            class: 'tag-translations-list'
+          ),
+          class: 'tag-translations'
+        )
+      end
 
       tooltip_html.compact.join('<br>')
     end
