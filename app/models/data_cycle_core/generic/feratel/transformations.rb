@@ -900,8 +900,8 @@ module DataCycleCore
         end
 
         def self.load_event_schedules(data, external_source_id)
-          available_dates = data.dig('Dates', 'Date').is_a?(Hash) ? [data.dig('Dates', 'Date')] : data.dig('Dates', 'Date')
-          available_start_times = data.dig('StartTimes', 'StartTime').is_a?(Hash) ? [data.dig('StartTimes', 'StartTime')] : data.dig('StartTimes', 'StartTime')
+          available_dates = Array.wrap(data.dig('Dates', 'Date')).uniq
+          available_start_times = Array.wrap(data.dig('StartTimes', 'StartTime')).uniq
           duration = event_duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text'))
 
           res = []
@@ -973,8 +973,8 @@ module DataCycleCore
         end
 
         def self.load_schedules(data, external_source_id)
-          available_dates = Array.wrap(data.dig('Dates', 'Date'))
-          available_start_times = Array.wrap(data.dig('StartTimes', 'StartTime'))
+          available_dates = Array.wrap(data.dig('Dates', 'Date')).uniq
+          available_start_times = Array.wrap(data.dig('StartTimes', 'StartTime')).uniq
           duration = duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text')) || duration(data.dig('Durations', 'Type'), data.dig('Durations', 'Duration')) || 0
           options = {}
           options = { duration: duration } if duration.positive?
