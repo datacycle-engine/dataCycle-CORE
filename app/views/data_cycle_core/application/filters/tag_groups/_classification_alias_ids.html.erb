@@ -13,13 +13,13 @@
       <% value.each do |ca_id| %>
         <label for="<%= target %>_<%= ca_id %>">
           <a class="tag" data-dc-tooltip="<%= classification_tooltip(classification_aliases[ca_id]) %>">
-            <%= I18n.with_locale(classification_aliases[ca_id]&.first_available_locale(active_ui_locale)){ classification_aliases[ca_id].try(:internal_name) } %><i class="fa fa-times" aria-hidden="true"></i>
+            <%= I18n.with_locale(classification_aliases[ca_id]&.first_available_locale(active_ui_locale)){ classification_title(classification_aliases[ca_id]) } %><i class="fa fa-times" aria-hidden="true"></i>
           </a>
         </label>
       <% end %>
     <% else %>
       <% value.each do |ca_id| %>
-        <span class="tag" data-dc-tooltip="<%= classification_tooltip(classification_aliases[ca_id]) %>"><%= classification_aliases[ca_id].try(:internal_name) %></span>
+        <span class="tag" data-dc-tooltip="<%= classification_tooltip(classification_aliases[ca_id]) %>"><%= classification_title(classification_aliases[ca_id]) %></span>
       <% end %>
     <% end %>
   </span>
