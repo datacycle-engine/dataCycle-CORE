@@ -428,7 +428,7 @@ class TourSprungEditor extends OpenLayersEditor {
   }
   configureEditor() {
     this.map.gl.addControl(new mapboxgl.NavigationControl(), 'top-left');
-    this.map.gl.addControl(new MTK.GeocoderControl(), 'top-right');
+    new MTK.GeocoderControl().addTo(this.map, 'top-right');
     this.map.gl.addControl(new mapboxgl.FullscreenControl(), 'top-right');
     this._styleControlWithOptions().addTo(this.map, 'bottom-right');
 
