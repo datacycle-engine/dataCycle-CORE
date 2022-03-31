@@ -32,7 +32,8 @@ module DataCycleCore
         def geojson_geometry(content = self)
           # TODO: coordinate precision -> not implemented in rgeo
           if content.line.present? && content.location.present?
-            factory = RGeo::Geographic.spherical_factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true)
+            longlat_projection = RGeo::CoordSys::Proj4.new('EPSG:4326')
+            factory = RGeo::Geographic.spherical_factory(srid: 4326, proj4: longlat_projection, has_z_coordinate: true)
             return factory.collection([content.line, content.location])
           end
           return content.line unless content.line.nil?
