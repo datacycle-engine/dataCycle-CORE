@@ -51,14 +51,26 @@ class TourSprungEditor extends OpenLayersEditor {
   async loadExtenalScripts() {
     return await fetchInject(defaultMtkScripts, fetchInject(mtkLibrary));
   }
+  _styleControlWithOptions() {
+    const controlConfig = {};
+
+    if (this.mapOptions.maptypes) controlConfig.maptypes = this.mapOptions.maptypes;
+    if (this.mapOptions.maplayers)
+      controlConfig.layers = this.mapOptions.maplayers.map(v => {
+        v.value = new MTK.StyleLayer(v.value);
+        return v;
+      });
+
+    return new MTK.StyleControl(controlConfig);
+  }
   initMap() {
     MTK.init({ apiKey: this.credentials.api_key, language: document.documentElement.lang }).createMap(
       this.containerId,
       {
         map: {
-          mapType: 'toursprung-terrain',
+          mapType: this.mapOptions.maptype || 'toursprung-terrain',
           location: this.defaultView(),
-          controls: [[new MTK.StyleControl(), 'bottom-right']]
+          controls: []
         }
       },
       this.configureMap.bind(this)
@@ -93,6 +105,8 @@ class TourSprungEditor extends OpenLayersEditor {
   }
   configureMap(map) {
     this.map = map;
+
+    if (this.mapOptions.i18n) MTK.i18n = Object.assign({}, this.mapOptions.i18n);
 
     this.configureEditor();
 
@@ -387,16 +401,18 @@ class TourSprungEditor extends OpenLayersEditor {
   }
   _changeMtkLineStyle() {
     const waypointLayerDefinition = this.editorGui.editor.getLayerDefinitions().find(v => v.type == 'symbol');
+
     const waypointLayerId = waypointLayerDefinition && waypointLayerDefinition.id;
-    if (waypointLayerId)
+    if (waypointLayerId) {
       this.map.gl.setLayoutProperty(waypointLayerId, 'icon-size', [
         'case',
         ['==', ['get', 'icon'], 'end'],
         0.8,
         ['==', ['get', 'icon'], 'start'],
         0.6,
-        0
+        0.3
       ]);
+    }
 
     this.editorGui.editor.outline.width = 0;
     Object.assign(this.editorGui.editor.line, this.lineStyle());
@@ -412,14 +428,17 @@ class TourSprungEditor extends OpenLayersEditor {
   }
   configureEditor() {
     this.map.gl.addControl(new mapboxgl.NavigationControl(), 'top-left');
+    this.map.gl.addControl(new MTK.GeocoderControl(), 'top-right');
     this.map.gl.addControl(new mapboxgl.FullscreenControl(), 'top-right');
-    if (!isEmpty(this.additionalValuesOverlay))
-      this.map.gl.addControl(new AdditionalValuesFilterControl(this), 'bottom-left');
+    this._styleControlWithOptions().addTo(this.map, 'bottom-right');
 
     this.extendEditorInterface();
     this._captureClickEvents();
 
     this.editorGui = new this.extendedEditorInterface().addTo(this.map);
+
+    if (!isEmpty(this.additionalValuesOverlay))
+      this.map.gl.addControl(new AdditionalValuesFilterControl(this), 'top-left');
 
     this._changeMtkLineStyle();
   }

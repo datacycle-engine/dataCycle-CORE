@@ -28,6 +28,10 @@
     }
   }
 
+  .mtk-control-styles .mtk-control-styles-group + .mtk-control-styles-group {
+    margin-top: 0;
+  }
+
   .mtk-elevation-profile {
     pointer-events: none;
 
