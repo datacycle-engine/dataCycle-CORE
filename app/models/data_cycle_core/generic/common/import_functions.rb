@@ -260,10 +260,12 @@ module DataCycleCore
                               options: options
                             )
                           end
-                        rescue exception => e
-                          logging.info(e.message)
-                          logging.info(e.backtrace)
-                          raise e
+                        rescue StandardError => e
+                          logging.info("E: #{e.message}")
+                          e.backtrace.each do |line|
+                            logging.info("E: #{line}")
+                          end
+                          raise e.exception
                         ensure
                           Marshal.dump({ count: item_count, timestamp: Time.current }, write)
                           write.close
