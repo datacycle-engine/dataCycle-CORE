@@ -1,0 +1,19 @@
+<% I18n.with_locale(item.content_location.first.first_available_locale(local_assigns[:language], active_ui_locale)) do %>
+
+  <% if item.content_location.first.try(:address).present? || item.content_location.first.try(:name).present? %>
+
+    <div class="content-location">
+      <% if item.content_location.first.try(:name).present? %>
+        <span class="content-location-name has-tip" title="<%= item.content_location.first.name %>">
+          <%= item.content_location.first.name %>
+        </span>
+      <% end %>
+
+      <% if item.content_location.first.try(:address).present? %>
+        <%= item.content_location.first.address_block&.html_safe %>
+      <% end %>
+    </div>
+
+  <% end %>
+
+<% end %>

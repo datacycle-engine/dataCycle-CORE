@@ -1,0 +1,22 @@
+{
+  "name": "Test-Article - 1",
+  "alternative_headline": "Test - alternative Headline",
+  "link_name": "Test - Linkname",
+  "text": "<p>long-description</p>",
+  "description": "<p>short-description</p>",
+  "url": "http://www.url.com",
+  "internal_name": "Article Internal Name",
+  "use_guidelines": "cc_use_guidlines",
+  "license": "cc_license",
+  "attribution_url": "attribution_url",
+  "license_classification": "CC0",
+  "tags": "Tag 2",
+  "potential_action": [
+    {
+      "url": "https://booking.link",
+      "name": "booking.link",
+      "sluck": "booking-link"
+    }
+  ],
+  "slug": "Test-Article-1"
+}

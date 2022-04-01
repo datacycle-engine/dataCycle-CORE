@@ -1,0 +1,28 @@
+# frozen_string_literal: true
+
+json = {}
+json.merge! render 'context', languages: @language
+
+unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
+  json['@graph'] = []
+
+  @contents.map do |item|
+    json['@graph'] << Rails.cache.fetch(api_v4_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion, nil, @linked_stored_filter&.id, @classification_trees_parameters), expires_in: 1.year + Random.rand(7.days)) do
+      I18n.with_locale(item.first_available_locale(@language)) do
+        render('content_details', content: item, options: { languages: @language })
+      end
+    end
+  end
+end
+json.merge! render 'pagination_links',
+                   objects: @pagination_contents || @contents,
+                   object_url: (lambda do |params|
+                     File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
+                   end)
+
+json.merge! render 'live_data'
+unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
+  (json['meta'] ||= {})['collection'] = @watch_list.as_json(only: [:id, :name]) unless @watch_list.nil?
+end
+
+json

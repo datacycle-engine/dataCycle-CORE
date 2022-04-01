@@ -1,0 +1,29 @@
+# frozen_string_literal: true
+
+json = {}
+unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
+  if @permitted_params.dig(:page, :limit)&.to_i&.positive?
+    json['meta'] = {
+      total: objects.limit(nil).offset(nil).count
+    }
+  else
+    json['meta'] = {
+      total: objects.total_count,
+      pages: objects.total_pages
+    }
+  end
+end
+if request.request_method == 'POST'
+  common_params = {}
+else
+  common_params = @permitted_params.to_h.reject { |k, _| ['id', 'format', 'page', 'api_subversion'].include?(k) }
+end
+
+common_params = common_params.merge(page: { offset: @permitted_params.dig(:page, :offset).to_i }) if @permitted_params.dig(:page, :offset)&.to_i&.positive?
+
+unless @permitted_params.dig(:section, :links)&.to_i&.zero? || @permitted_params.dig(:page, :limit)&.to_i&.positive?
+  json['links'] = {}
+  json['links']['prev'] = object_url.call(common_params.deep_merge(page: { number: objects.prev_page, size: objects.limit_value })) if objects.prev_page
+  json['links']['next'] = object_url.call(common_params.deep_merge(page: { number: objects.next_page, size: objects.limit_value })) if objects.next_page
+end
+json

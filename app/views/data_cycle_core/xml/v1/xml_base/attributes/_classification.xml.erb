@@ -1,0 +1,16 @@
+<% unless @mode_parameters.include?('compact') %>
+  <% classification_aliases = content.send(key).includes(:classification_aliases).map(&:classification_aliases).flatten.uniq %>
+  <% if classification_aliases.present? && definition.dig('xml', 'disabled').blank? %>
+    <% key_new = definition.dig('xml', 'name') || key.camelize(:lower) %>
+    <% if definition.dig('xml', 'transformation', 'method') == 'serialize' && definition.dig('xml', 'transformation', 'name') == 'string' %>
+      <<%=key_new%>>
+      <% classification_aliases.each do |classification_alias| %>
+        <type><%=definition.dig('xml', 'type') || 'Enumeration'%></type>
+        <name><%=normalize_string(classification_alias.name).html_safe%></name>
+      <% end %>
+      </<%=key_new%>>
+    <% else %>
+      <%= render render_partial('classifications'), classification_aliases: classification_aliases, key: key_new, definition: definition, cache: true %>
+    <% end %>
+  <% end %>
+<% end %>

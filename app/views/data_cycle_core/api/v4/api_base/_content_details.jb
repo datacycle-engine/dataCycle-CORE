@@ -1,0 +1,34 @@
+# frozen_string_literal: true
+
+default_options = {
+  hidden_attributes: DataCycleCore::Feature::OverlayAttributeService.call(content),
+  combined_attributes: content.combined_property_names('v4'),
+  include: @include_parameters,
+  fields: @fields_parameters,
+  languages: @language,
+  expand_language: @expand_language || false,
+  field_filter: @field_filter,
+  classification_trees: @classification_trees_parameters,
+  classification_trees_filter: @classification_trees_filter,
+  transformation_mapping: content.attribute_transformation_mapping('v4')
+}
+options = default_options.merge(defined?(options) ? options || {} : {})
+options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
+
+json ||= {}
+
+json.merge! render 'content_header', content: content, options: options
+json.merge! render 'content_translations', content: content, options: options
+
+if in_language?(content, options)
+  json.merge! render 'content_classifications', content: content, options: options if options[:field_filter] == false || (included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields]))
+
+  json.merge! render 'content_properties', content: content, options: options
+  json.merge! render 'combined_properties', content: content, options: options if options[:field_filter] == false || (included_attribute?('additionalProperty', options[:include]) || included_attribute?('additionalProperty', options[:fields]))
+
+  json.merge! render 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
+  json.merge! render 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
+
+  json.merge! render 'external', content: content if (included_attribute?('identifier', options[:include]) || included_attribute?('identifier', options[:fields])) && (content.external? || content.synch?)
+end
+json

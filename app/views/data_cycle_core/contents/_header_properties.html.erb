@@ -1,0 +1,8 @@
+<% ordered_validation_properties(validation: content.schema, content_area: 'header', scope: :show, exclude_types: 'classification').each do |key, prop| %>
+
+  <% next if DataCycleCore::Feature::LifeCycle.attribute_keys(content)&.include?(key) %>
+  <% value = content.try(key.to_sym) %>
+
+  <%= render_attribute_viewer key: key, definition: prop, value: value, parameters: { options: {} }, content: content %>
+
+<% end %>

@@ -1,0 +1,8 @@
+<div class="off-canvas position-right" id="settings-off-canvas" data-off-canvas data-content-overlay="false">
+  <%= render 'data_cycle_core/application/side_bar/user_details', local_assigns %>
+  <%= render 'data_cycle_core/application/side_bar/user_links', local_assigns %>
+
+  <% if can?(:index, DataCycleCore::Classification) || can?(:index, DataCycleCore::User) || can?(:index, DataCycleCore::UserGroup) %>
+    <%= render 'data_cycle_core/application/side_bar/administration', local_assigns %>
+  <% end %>
+</div>

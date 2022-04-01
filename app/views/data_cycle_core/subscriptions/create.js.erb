@@ -1,0 +1,3 @@
+$('#subscribe-link i.fa').removeClass('fa-bell-o').addClass('fa-bell');
+$('#subscribe-link .subscriber-count').html(parseInt($('#subscribe-link .subscriber-count').text()) + 1);
+$('#subscribe').html('<h5><%= t('actions.subscribed_to', data: t('common.contents', count: 1, locale: active_ui_locale), locale: active_ui_locale) %></h5><%= escape_javascript(render 'subscriptions', content: @subscription.subscribable) %>');

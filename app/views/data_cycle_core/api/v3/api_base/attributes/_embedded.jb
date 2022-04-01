@@ -1,0 +1,55 @@
+# frozen_string_literal: true
+
+json ||= {}
+key_new = definition.dig('api', 'name') || key.camelize(:lower)
+# json.set! key_new do
+
+if content.translations.size > 1 && @include_parameters.include?('translations')
+  content.translations.each do |translation|
+    I18n.with_locale(translation.locale) do
+      (json[key_new] ||= {})[translation.locale] = []
+      translated_objects = content.send(key)
+      translated_objects.presence&.includes(:translations, :classifications)&.each do |translated_object|
+        # add context
+        # json[key_new][translation.locale].push render 'content_properties', content: translated_object, options: options
+        json[key_new][translation.locale].push render 'content_details', content: translated_object, options: options.merge({ header_type: :embedded_to_linked, combined_attributes: translated_object.combined_property_names })
+
+        # if translated_object.schema.present?
+        #
+        #   json.content_partial! 'context', content: translated_object
+        #   ordered_api_properties(validation: translated_object.schema).each do |key, prop|
+        #     object_value = translated_object.try(key.to_sym)
+        #     json.partial!(*(render_api_attribute key: key, definition: prop, value: object_value, parameters: { options: options }, content: translated_object))
+        #   end
+        #
+        # end
+      end
+      json[key_new][translation.locale] = json[key_new][translation.locale]&.map { |o| o.dig(definition.dig('api', 'transformation', 'key')) }&.compact.presence if definition.dig('api', 'transformation', 'method') == 'map' && definition.dig('api', 'transformation', 'key').present?
+    end
+  end
+else
+  json[key_new] = []
+  value.presence&.includes(:translations, :classifications)&.each do |object|
+    I18n.with_locale(object.first_available_locale) do
+      # add context
+      # json[key_new].push render 'content_properties', content: object, options: options, context: true
+      json[key_new].push render 'content_details', content: object, options: options.merge({ header_type: :embedded_to_linked, combined_attributes: object.combined_property_names }), context: true
+
+      # if object.schema.present?
+      #
+      #   json.content_partial! 'context', content: object
+      #   ordered_api_properties(validation: object.schema).each do |key, prop|
+      #     object_value = object.try(key.to_sym)
+      #     json.partial!(*(render_api_attribute key: key, definition: prop, value: object_value, parameters: { options: options }, content: object))
+      #   end
+      #
+      # end
+    end
+  end
+  json[key_new] = json[key_new]&.map { |o| o.dig(definition.dig('api', 'transformation', 'key')) }&.compact.presence if definition.dig('api', 'transformation', 'method') == 'map' && definition.dig('api', 'transformation', 'key').present?
+end
+
+# end
+
+# end
+json

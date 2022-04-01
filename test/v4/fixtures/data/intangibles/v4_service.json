@@ -1,0 +1,13 @@
+{
+  "url": "http://service-url.at",
+  "name": "Service",
+  "text": "<p>Long Description</p>",
+  "description": "<p>Description juhu</p>",
+  "meeting_point": "<p>Meeting Point juhu</p>",
+  "additional_information": [{
+    "name": "equipment",
+    "description": "<p>equipment juhu</p>",
+    "slug": "equipment"
+  }],
+  "slug": "Service"
+}

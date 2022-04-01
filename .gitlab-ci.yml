@@ -1,0 +1,41 @@
+########################################################################
+######################### DOCKER setup for DC core
+
+include:
+  - project: 'datacycle/utilities/datacycle-gitlab'
+    ref: master
+    file: '.gitlab-ci-dc-common.yml'
+
+stages:
+  - build
+  - check
+  - test
+
+before_script:
+  - gem install bundler
+  - bundle config set --local path 'cache/bundler'
+  - bundle install
+  - export RUBYOPT="-W:no-deprecated -W:no-experimental"
+
+########################################################################
+######################### Branch Configuration
+.master_ci_config: &master_ci
+  only:
+    - develop
+    - master
+  tags:
+    - dc-opensource
+
+########################################################################
+######################### Docker / Develop
+build_caches:
+  <<: *master_ci
+  extends: .build_caches_config
+
+code_validation:
+  <<: *master_ci
+  extends: .code_validation_config
+
+rails_test:
+  <<: *master_ci
+  extends: .rails_test_config

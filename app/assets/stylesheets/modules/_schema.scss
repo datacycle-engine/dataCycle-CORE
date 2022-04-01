@@ -1,0 +1,54 @@
+body.schema {
+  main {
+    max-width: 960px;
+    margin: auto;
+
+    h1 {
+      font: bold 24px Helvetica, Arial, sans-serif;
+      letter-spacing: -1px;
+      margin: 1em 0 0 0;
+    }
+
+    table {
+      border-spacing: 3px;
+      border-collapse: separate;
+      margin: 1em 0 5em 0;
+      border: 1px solid #98a0a6;
+      line-height: 160%;
+
+      thead,
+      tbody,
+      tfoot {
+        th,
+        td {
+          padding: 0 5px 0 5px;
+        }
+      }
+
+      th {
+        text-align: left;
+        background: #c7cbce;
+        padding-left: 5px;
+
+        &:last-child {
+          width: 60%;
+        }
+      }
+
+      tbody {
+        th {
+          font-family: Courier, monospace;
+          white-space: nowrap;
+
+          .fa {
+            vertical-align: middle;
+          }
+        }
+
+        td {
+          font-family: 'Lucida Grande', 'Lucida Sans Unicode', Verdana, Tahoma, Arial, sans-serif;
+        }
+      }
+    }
+  }
+}

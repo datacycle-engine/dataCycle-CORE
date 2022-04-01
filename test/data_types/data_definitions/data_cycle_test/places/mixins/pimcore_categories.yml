@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: pimcore_categories
+    :type: mixin
+    :properties: ~

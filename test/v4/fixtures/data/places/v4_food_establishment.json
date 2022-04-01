@@ -1,0 +1,14 @@
+{
+  "name": "Test-Food-Establishment 1",
+  "text": "<p>long-description</p>",
+  "description": "<p>short-description</p>",
+  "price_range": "<p>price-info</p>",
+  "contact_info": {
+    "url": "https://datacycle.info",
+    "contact_name": "contact_person",
+    "email": "rainer@datacycle.at",
+    "telephone": "+43 676 123 456",
+    "fax_number": "+43 676 123 456 01"
+  },
+  "slug": "Test-Food-Establishment-1"
+}

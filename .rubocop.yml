@@ -1,0 +1,201 @@
+# author: rainer@pixelpoint.at
+inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-performance
+  - rubocop-rails
+
+AllCops:
+  TargetRubyVersion: 2.7.4
+  # TargetRailsVersion: 5.2.3
+  DisplayCopNames: true
+  NewCops: enable
+  Exclude:
+    - 'node_modules/**/*'
+    - 'tmp/**/*'
+    - 'cache/**/*'
+    - 'bash/**/*'
+    - 'test/dummy/db/migrate_6_1/**/*'
+    - 'test/dummy/db/migrate_7_0/**/*'
+
+#Rails:
+#  Enabled: true
+
+#######################################################
+########## Bundler
+Bundler/OrderedGems:
+  Enabled: false
+
+Style/FetchEnvVar:
+  Enabled: false
+
+#######################################################
+########## Layout
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
+Layout/LineLength:
+  Enabled: false
+
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: false
+
+Style/RedundantInitialize:
+  Enabled: false
+
+#######################################################
+########## Lint
+
+#Lint/SplatKeywordArguments:
+#  Enabled: false
+
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true
+
+#######################################################
+########## Style
+
+Style/SlicingWithRange:
+  Enabled: false
+
+Style/AsciiComments:
+  Enabled: false
+
+Style/BlockDelimiters:
+  EnforcedStyle: braces_for_chaining
+
+Style/ConditionalAssignment:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
+Style/MixinUsage:
+  Exclude:
+    - 'bin/setup'
+    - 'bin/update'
+    - 'test/dummy/bin/setup'
+    - 'test/dummy/bin/update'
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+Style/NestedTernaryOperator:
+  Enabled: false
+
+Style/RedundantReturn:
+  AllowMultipleReturnValues: true
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/WordArray:
+  EnforcedStyle: brackets
+
+Style/ExponentialNotation:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+
+# test
+Style/HashTransformKeys:
+  Enabled: false
+
+# test
+Style/HashTransformValues:
+  Enabled: false
+
+#######################################################
+########## Metrics
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/BlockNesting:
+  Max: 5
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+#######################################################
+########## Naming
+
+Naming/HeredocDelimiterNaming:
+  Enabled: false
+
+Naming/MethodParameterName:
+  MinNameLength: 1
+
+#######################################################
+########## Rails
+
+Rails/CreateTableWithTimestamps:
+  Enabled: false
+
+Rails/FilePath:
+  EnforcedStyle: arguments
+
+Rails/HelperInstanceVariable:
+  Enabled: false
+
+Rails/ReflectionClassName:
+  Enabled: false
+
+Rails/ApplicationController:
+  Exclude:
+    - 'app/controllers/data_cycle_core/missing_asset_controller.rb'
+
+Rails/RakeEnvironment:
+  Enabled: false
+
+Rails/SkipsModelValidations:
+  Enabled: false
+
+Rails/DotSeparatedKeys:
+  Enabled: false
+
+#######################################################
+########## Security
+
+Security/YAMLLoad:
+  Exclude:
+    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
+    - 'app/models/data_cycle_core/master_data/import_templates.rb'
+    - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
+    - 'app/models/data_cycle_core/master_data/import_mixins.rb'

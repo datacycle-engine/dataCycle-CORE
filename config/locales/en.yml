@@ -1,0 +1,1694 @@
+---
+en:
+  i18n:
+    transliterate:
+      rule:
+        Ä: Ae
+        ä: ae
+        Ö: Oe
+        ö: oe
+        Ü: Ue
+        ü: ue
+        ß: ss
+  title: dataCycle
+  hello: Hello!
+  welcome: Welcome!
+  order:
+    header: Sorting
+    title: Title
+    updated: Edited
+  submit: Create
+
+  attribute_labels:
+    additional_information:
+      one: Description block
+      other: Description blocks
+    aggregate_rating:
+      one: Tour rating
+      other: Tour ratings
+    key_figures_container: Key figures
+
+  footer_links:
+    privacy_policy: Privacy policy
+    imprint: Imprint
+    terms_and_conditions: Terms & Conditions
+
+  locales:
+    de: German
+    en: English
+    ar: Arabic
+    bg: Bulgarian
+    cs: Czech
+    da: Danish
+    es: Spanish
+    fr: French
+    fi: Finnish
+    it: Italian
+    hu: Hungarian
+    hr: Croatian
+    ja: Japanese
+    ko: Korean
+    nl: Dutch
+    pt: Portuguese
+    pl: Polish
+    ro: Romanian
+    ru: Russian
+    sl: Slovenian
+    sk: Slovak
+    sv: Swedish
+    tr: Turkish
+    uk: Ukrainian
+    de-CH: Swiss-german
+    nl-BE: Flemish
+    zh: Chinese
+  roles:
+    super_admin: Administrator (DataCycle)
+    admin: Administrator
+    user: User
+    standard: Standard
+    guest: Guest
+    external_user: External user
+  view_modes:
+    grid: Tiles
+    list: List view
+    tree: Tree view
+    map: Map
+  new_step_title:
+    title: Image description
+    copyright: Copyright
+    agbs: AGBs
+  admin_panel:
+    schema: Scheme
+    datahash: Datahash
+    api: JSON API
+    relations: Relations
+  dash_board:
+    download_full: Download (full)
+    import_full: Import (full)
+    import: Import
+    download: Download
+    download_import: Download &amp; Import
+    delete: delete
+    errors_were_encountered: errors were encountered
+
+  notification:
+    frequency:
+      always: immediately on change
+      named_version: when versions are changed
+      day: daily
+      week: weekly
+
+  classifications:
+    tooltip_translations: Translations
+
+  user:
+    user_not_confirmed: The email address has not been confirmed yet
+
+  frontend:
+    load_error: Error loading content.
+    text_editor:
+      insertNbsp: Insert protected space
+      replaceAllNbsp: replace all protected spaces with normal spaces
+      replaced_all_nbsp: replaced all protected spaces with normal spaces!
+    override_warning: Should the field %{data} be overwritten?
+    override_focus: highlight fields
+    reload_page: Reload page
+    upload:
+      running: There are still uploads in progress!
+      missing_metadata: Missing metadata!
+      processing: is being processed
+      found_duplicate: Duplicates found!
+      uploaded_successfully: uploaded, OK
+      error_saving_content: Error saving the content!
+      upload_error: Upload error
+      metadata_warning:
+        one: Metadata must be filled in!
+        many: Metadata must be filled in for each file!
+      edit_content: Edit content
+      edit_locked: Content can be edited only after the upload has finished
+      retry_upload: Upload again
+      format_not_supported: Unsupported format (%{data})
+      error: Error
+      remove_file: Remove file
+      file: File
+      confirm_single_to_all_html: 'really apply %{label} to all %{template}?'
+      confirm_all_to_all_html: '<h5>Apply all attributes to all %{template}</h5><p>Should <b>%{label}</b> also be applied to all %{template}?</p>'
+    cancel: Cancel
+    ok: Okay
+    content_lock:
+      renew_lock: The content will be released again in %{min}min.<br><br>Do you want
+        to extend the lock by %{renew}min?
+      released: The content has been released again and can no longer be saved.
+    update_stored_filter: 'Update filter parameters?<br><br>Warning: Also affects
+      saved searches that use this search.'
+    maximum_embedded: 'Maximum number: %{data}'
+    minimum_embedded: 'Minimum number: %{data}'
+    gpx:
+      file_missing: File not found!
+      empty: The GPX file does not contain a track.
+    map:
+      scroll_notice:
+        ctrlKey: Use Ctrl+Scroll to zoom the map
+        metaKey: Use ⌘+Scroll to zoom the map
+        pinch: Use two fingers to zoom/scroll the map
+      filter:
+        button_title: edit linked contents
+      upload_gpx:
+        button_title: Upload GPX file
+      styles:
+        osm: OpenStreetMap
+        topo: Topo
+        street: Standard
+        bright: Bright
+        basemap: BasemapAT
+        winter: Winter
+        toursprung: Toursprung
+    remote_render:
+      error: Error loading content.
+      reload: Reload
+    split_view:
+      translate_all: Translate all
+      copy_all: All take over
+      translate: Translate
+      copy: accept
+      translate_error: Error loading the translation
+      copy_all_translations:
+        overlay_text: Copy all available languages?
+        confirmation_text: 'yes'
+        cancel_text: no, only current language
+      copy_linked_error: 'attribute could not be copied: '
+    validate:
+      save_and_change_language: Do you want to save and switch to the new language?
+      agbs: AGBs must be accepted!
+      error: 'Error:'
+      warning: 'Warning:'
+      ignore_warnings: Warnings are present (%{data}).<br>Should the content be saved
+        anyway?</br>
+      final_save: The content is finally sent and <br>cannot be edited afterwards</br>.
+      errors:
+        no_data: No data specified for %{data}
+        key_figure_not_found: Key Figure not found
+        endpoint_error: Error while retreiving data.
+        gip_no_plausible_route: No Route for Key Figures found. Please select one Hauptroute in Richtung.
+    word_counter:
+      chars:
+        one: Character
+        other: Characters
+      word:
+        one: Word
+        other: Words
+      max: '(still max %{data} %{label})'
+      min: '(still min. %{data} %{label})'
+    image_editor:
+      edit_image: edit image
+      unsupported_format: The image will be converted to a supported file format by the image editor.
+      save_error: The image could not be saved
+
+  schedule:
+    dtstart: Start time
+    duration:
+      root: Duration
+      months: Months
+      days: Days
+      hours: Hours
+      minutes: Minutes
+    dtend: End time
+    full_day: All day
+    rrule: Repeats
+    single_occurrence: once
+    daily: daily
+    weekly: weekly
+    monthly: monthly
+    yearly: annual
+    every:
+      maskulin: every
+      feminin: any
+      neutrum: any
+    day: Day
+    week: Week
+    'on': at
+    month: Month
+    weekday: Weekday
+    dayofmonth: monthday
+    year: Year
+    next: Further dates
+    prev: Previous dates
+    rdate: Additional dates
+    exdate: Dates excluded
+    ongoing: ongoing
+    filter_labels:
+      all: All periods (except %{exceptions})
+      event_schedule: Dates (Events)
+      opening_hours_specification: Opening hours
+      dining_hours_specification: Hot kitchen
+      hours_available: Dates (Services/Experiences)
+      validity_schedule: Validity period
+  opening_time:
+    valid_from: Validity from
+    valid_until: By
+    weekday: Weekday
+    holiday: Holiday
+    time: Time
+    opens: open from
+    closes: By
+    closed: closed
+
+  collection:
+    new: new %{data}
+    filter: 'filter %{data} ...'
+
+  content_external_data:
+    primary_external_system_tooltip: This system is the primary external system
+    toolip: Use this external system as the primary external system
+    primary_system_switched: The primary external system was successfully switched
+    duplicate_record_html: There is already a <a href="%{url}" target="_blank">content</a> in the target external system
+
+  common:
+    'true': 'Yes'
+    'false': 'No'
+    loading: Loading ...
+    load_more: '... show more content'
+    load_all: '... show all contents'
+    are_you_sure: Are you sure?
+    language: Language
+    all: All
+    import: Imported
+    export: Exports
+    internal: internal
+    external: external
+    duplicate: Duplicates
+    auto_translation_submit: Automatic translation started
+    source_language: Select source language
+    choose_language: Select language
+    searchterm: Search Keyword
+    active_filters: Active filters
+    no_results: No content was found for your filter criteria.
+    additional_filters:
+      show: show more filters
+      hide: Hide other filters
+    filter:
+      show: Show filters
+      hide: Hide filters
+    details:
+      show: Show details
+      hide: Hide details
+    contents:
+      zero: No contents
+      one: Content
+      other: Contents
+    things_count_html:
+      zero: No contents
+      one: '<b>%{delimited_count}</b> Content'
+      other: '<b>%{delimited_count}</b> Contents'
+    users_count_html:
+      zero: No users
+      one: '<b>%{delimited_count}</b> User'
+      other: '<b>%{delimited_count}</b> User'
+    user_groups_count_html:
+      zero: No user groups
+      one: '<b>%{delimited_count}</b> User group'
+      other: '<b>%{delimited_count}</b> user groups'
+    splitsource: Template
+    choose_splitsource: Select template
+    load_splitsource: Load template
+    compare: compare
+    compare_contents: Compare contents
+    version: Version
+    comment: Comment
+    status: Status
+    confirm_delete_all_caches: Really clear all caches?
+    confirm_delete_cache: Really clear the cache?
+    confirm_delete_autotranslation: Really delete all manual translations?
+    content_not_editable: Content cannot be edited afterwards.
+    download_gpx: Download as GPX file
+    duplicate_content: Duplicate content
+    no_search: You must perform a search before you can create new content.
+    publications: Planned publications
+    publications_calendar: Publication calendar
+    show_more: Show more
+    show_less: Show less
+    expired_content: Validity period exceeded!
+    entries: Entries
+    is: is
+    is_not: is not
+    greater: greater than
+    lower: less than
+    similar: is similar
+    like: contains
+    not_like: does not contain
+    blank: is empty
+    present: is filled in
+    is_true: 'TRUE'
+    is_false: 'FALSE'
+    has: contains
+    has_not: does not contain
+    assigned: assigned to
+    not_assigned: unallocated
+    no_translation: No translation available
+    max: maximum
+    min: at least
+    in: 'on'
+    not_in: not in
+    landscape: Landscape
+    portrait: Portrait
+    height: Height
+    width: Wide
+    exclude: Exception
+    children_present_html: '<br><br><b>Attention.</b><p>There are linked contents,
+      these are also deleted!</p>'
+    creator: Creator
+    abo_changed_title:
+      one: A subscribed content (%{title}) was changed
+      other: Subscribed content has been changed
+    abo_finalized_title:
+      one: Editing of a subscribed content completed
+      other: Editing of subscribed content completed
+    abo_changed:
+      one: A subscribed content has changed.
+      other: 'The following subscribed content has changed:'
+    abo_finalized:
+      one: Editing of shared content by an external party has been completed.
+      other: Editing of shared content by external parties has been completed.
+    parent: Container
+    subscribe_text: Click here to be informed regularly about changes.
+    unsubscribe_text: Already subscribed.
+    life_cycle: Life cycle
+    create_new_content: Create new content
+    data_type: Content type
+    select_asset: Select %{data}
+    select_asset_title: Uploaded files
+    my_assets: My files
+    select_assets: Link files
+    warning: Attention!
+    warnings: Warnings
+    external_connections:
+      one: External link
+      other: External links
+    create_via_mediaarchive: '%{data} create via media archive'
+    normalize: Normalize
+    required_field: This field is mandatory
+    preview: Preview
+    duplicates: Duplicates
+    duplicates_exist:
+      one: '%{data} possible duplicate'
+      other: '%{data} possible duplicates'
+    cant_create_duplicate: File cannot be imported because it is a duplicate
+    related_items: Linked contents
+    generated_value_placeholder: This value is set automatically
+    merge_warning_html: The duplicate is deleted.<br>Continue?</br>
+    additional_classifications: further classifications
+    bulk_edit_locked_html: '<br><br>At least one content cannot be edited by you,
+      so bulk editing is blocked.'
+    bulk_update:
+      check_box_labels:
+        override_html: <span class="attribute-title">%{data}</span> overwrite
+        add_html: 'Append to existing <span class="attribute-title">%{data}</span> '
+        remove_html: 'Remove selected <span class="attribute-title">%{data}</span> '
+      button:
+        limited: A maximum of %{data} Contents can be edited at the same time.
+    watch_list_external_things_locked_html: '<br><br><i>At least one content is imported
+      from an external system and cannot be deleted!</i>'
+    content_locked_html: The content is currently being edited by %{user} and is available
+      for editing again in <span class="locked-until">%{data}</span>.
+    content_locked_with_name_html: '%{name} is currently being edited by %{user} and
+      is available for editing again in <span class="locked-until">%{data}</span>.'
+    multiple_content_locks_html: <span class="lock-count">%{data}</span> Contents
+      are currently being edited
+    download:
+      available_formats: Available formats
+      available_versions: Available file versions
+      available_transformations: Available file formats
+      asset: File
+      json: JSON format
+      gpx: GPX file
+      xml: XML format
+      indesign: Adobe InDesign
+      version:
+        original: Original
+        default: Default
+        thumb_preview: Thumbnail
+        web: Web
+      format:
+        none: Original format
+      confirmation:
+        download: Download
+        terms_not_checked: The terms of use must be accepted
+        terms_of_use_html: 'Terms of use'
+        terms_of_use_link_html: 'I accept the %{link}'
+        terms_of_use_link_text: Terms of use
+        download_start: Start download
+        download_preparing: Download is being prepared ...
+    help: Help
+    mode_switcher_title: View
+    date: Date
+    longitude: Longitude
+    latitude: Latitude
+    distance: Radius
+    center_point: Center
+    placeholder:
+      longitude: Longitude, e.g. 14.30
+      latitude: Latitude, e.g. 46.61
+      distance: Radius in meters
+    available_widgets: Available widgets
+    widgets:
+      list: List view
+      map: Map view
+    user_registration:
+      terms_conditions: I accept the <a href="%{url}" target="_blank">general terms
+        and conditions</a>.
+      privacy_policy: I agree with the processing of my data according to the <a href="%{url}"
+        target="_blank">privacy policy</a>.
+    no_selection: no selection
+    external_name: Title
+    external_alternate_name: Alternative title
+    external_locale: Language
+    external_key: External Id
+    inverse_linked: Inverse reference
+    has_overlay: This content has an overlay
+    no_name: untitled
+    o_clock: Watch
+    and: and
+    'yes': 'Yes'
+    'no': 'No'
+    merged_with_version_name: 'merged with %{name} (#%{id})'
+
+  embedded:
+    move_down: move down
+    move_up: move up
+    open_all: Open all
+    close_all: Close all
+    button_title: Add %{title}
+  upload:
+    drag_and_drop_html: '<p><b>Just drop one or more %{type} here!</b></p><p>or</p><p><u><b>select
+      via system dialog</b></u></p>'
+    system_dialog: Select images via system dialog
+    or: or
+    select_from_datacycle: Use %{data} already uploaded
+    copy_all_title: 'take all attributes from this %{single} for all %{multiple}'
+  external_connection_states:
+    success: Successfully synchronized
+    pending: is synchronized
+    error: |-
+      An error has occurred.
+      Synchronization will be retried at specified intervals.
+    failure: |-
+      A fatal error has occurred.
+      The content cannot be synchronized.
+    export: External system
+  duplicate:
+    candidates: Possible duplicates
+    score: Score
+    merge: merge
+    merge_with: 'merge %{data}'
+    merge_content: Merge contents
+    mark_false_positive: no duplicate
+    switch: Swap original and duplicate
+    duplicate: Duplicate
+    original: Original
+  tile_links:
+    details: to the detailed view
+    full_size: open full-size
+    media_archive: open in the media archive
+  feature:
+    content_score:
+      tooltip:
+        title_html: '<b>Content score</b>'
+        min: 'minimal: %{value}'
+        optimal: 'optimal: %{value}'
+        max: 'maximal: %{value}'
+    duplicate_candidate:
+      manual_button: Select manually for merging
+    releasable:
+      version_and_status: Version & Status
+    named_version:
+      input_label: Version name
+      version_name: 'Version: %{name}'
+      remove_version_name: Remove version name
+      confirm_remove: Remove version name "%{name}"?
+      version_name_removed: The version name has been removed!
+    download:
+      missing_serialize_format: At least one format must be selected
+    geo_key_figure:
+      button_title: Determination of the value for %{data} via a web service on the basis of the underlying geo-data
+      button_title_all: Determination of the values via a web service on the basis of the underlying geo-data
+    user_api:
+      mailer:
+        subject: A new user has been created
+        text_html: The new user %{name} (%{email}) has been created.
+        user_link: Edit user
+
+  compare:
+    switch_contents: switch contents
+
+  history:
+    latest_edits: Latest edits
+    created_at_html: created on <b>%{date}</b>
+    updated_at_html: edited in <b>%{language}</b> on <b>%{date}</b>
+    valid_since: effective since
+    differences_to_version: Differences to version
+    active_version: compare with current version
+    # look_at_version: compare current version with this version
+    restored: Recovered on %{date}
+    created: Content created
+    switch_versions: switch versions
+    active_source: source version
+    active_target: target version
+    use_as_source: use as source version in comparison
+    use_as_target: use as target version in comparison
+    different_locales: The two versions were edited in different languages, changes to translated attributes are not considered
+    restore:
+      version:
+        title: restore this version
+        confirmation_html: Restore version <i>%{history_version_html}</i> as current version?<br><br>The current version will be overwritten.
+        restored_version_name: restored version from %{date}.
+        restored: The version from %{date} was successfully restored.
+
+  data_link_mailer:
+    content_download: Download content
+    content_read: Read content
+    content_write: Edit content
+    watch_list:
+      default: the content collection
+    thing:
+      nominativ: the content
+      akkusativ: the content
+    stored_filter:
+      default: the stored search
+    send_subject: Shared link to a content
+    update_subject: Shared content collection has been updated
+    notice: Note
+    from: '%{from}'
+  filter:
+    add: Add filter
+    language: Language
+    external_source: External source
+    external_system: External systems
+    creator: Creator
+    classification_tree_ids: Classification tree
+    created_at: Creation date
+    updated_at: Update date
+    validity_period: Validity period
+    upload_date: Upload date
+    duplicate_candidates: Potential duplicates present
+    not_duplicate_candidates: no potential duplicates available
+    bookable: bookable
+    not_bookable: not bookable
+    width: Wide
+    height: Height
+    order: Order
+    content_size: File size
+    contact_info_email: Email
+    contact_info_telephone: Phone number
+    contact_info_fax_number: Fax number
+    address_postal_code: POSTCODE
+    address_street_address: Street
+    address_address_locality: Location
+    address_address_country: Country
+    mandatory_license: Copyright naming obligatory
+    price: Price
+    min_price: Price (Min)
+    max_price: Price (Max)
+    duration: Duration
+    copyright_year: Copyright year
+    floor_size: Room size
+    total_time: Cooking time
+    water_temp_temperature: Water temperature
+    water_temp_temp_at: Water temperature measured on
+    area: Area
+    depth: Depth
+    length_nordic_classic: Trail length Nordic Classic
+    length_nordic_skating: Trail length Nordic Skating
+    elevation: Sea level
+    depth_of_snow: Snow depth
+    depth_of_fresh_snow: Fresh snow
+    caption: Caption
+    description: Description
+    alternative_headline: Subtitle
+    geo_radius: Perimeter
+    geo_within_classification: Location
+    event_location: Venue
+    inactive_things: Expired contents
+    in_schedule: Date
+    relation_filter:
+      contained_in: is contained in
+      not_contained_in: is not included in
+      equal: equals
+      not_equal: not equals
+      placeholder:
+        thing: content
+        collection_or_stored_filter: '%{collection} or %{stored_filter}'
+    related_to: is linked to
+    feratel_content_score: Feratel - Content Score
+    union_filter_ids: in stored searches / %{collections}
+    related_to_method:
+      related: contingent on
+      not_related: not related to
+    max_number_of_people: max. number of persons
+    total_number_of_beds: Total number of beds
+    number_of_rooms: Total number of units
+    number_of_accommodations: Number of residential units
+    linked_image: Linked image
+    linked_location: Linked location
+    linked_author: Linked photographer
+    linked_copyright_holder: Related rights holder
+    linked_provider: Linked service provider
+    in_schedule_types:
+      absolute: Fixed period
+      relative: Relative period
+      before: Sync and corrected by dr.jackson for
+      in: 'on'
+      num: Number
+      unit: Unit
+  filter_groups:
+    classification_alias_ids: filter by classifications ...
+    classification_tree_ids: filter by classification tree ...
+    creator: filter by person ...
+    external_source: filter by external sources ...
+    external_system: filter by external systems ...
+    validity_period: filter by validity period ...
+    date_range: filter by date ...
+    boolean: filter by Boolean criteria ...
+    id: filter by id ...
+    advanced_attributes: filter by attributes ...
+    geo_radius: filter by radius ...
+    geo_within_classification: filter by geographical location ...
+    geo_filter: filter by geographical location ...
+    relation_filter: Filter based on linked content ...
+    union_filter_ids: combine several collections ...
+    related_to: filter by linked content ...
+    in_schedule: filter by date ...
+    inactive_things: filter for expired content ...
+  sortable:
+    default: Standard
+    created_at: Creation date
+    translated_name: Name
+    updated_at: Update date
+    width: Width
+    height: Height
+    upload_date: Upload date
+    ordering:
+      asc: Ascending
+      desc: Descending
+  object_browser:
+    details:
+      created_at: created
+      updated_at: Edited
+      title: Title
+      info: Info
+      copyright: Copyright
+  terms:
+    valid: valid
+    from: From
+    until: By
+    min: min
+    max: max
+    value_exists: Not empty
+    text: Text
+  list_titles:
+    teaser: Teaser text
+    text: Continuous text
+  pronoun:
+    my:
+      one: my
+      other: my
+  classification_visibilities:
+    backend: Dashboard
+    show: Detail view
+    api: API
+    tile: Tile
+    show_more: Detail view (collapsed by default)
+    edit: Editing view
+    filter: Advanced Dashboard Filters
+    list: List view
+    tree_view: Root in the tree view
+    xml: XML
+
+  classification_change_behaviour:
+    trigger_webhooks: trigger webhooks for contents
+    clear_cache: clear cache for contents
+
+  pagination:
+    next: Further results
+    prev: Previous results
+  actions:
+    show: show
+    edit: edit
+    edit_data: 'edit %{data}'
+    manage: 'manage %{data}'
+    lock: lock
+    unlock: Sync and corrected by dr.jackson for
+    delete: delete
+    choose_type: Select content type
+    new: Create %{data}
+    new_asset: Save %{data}
+    generate: Generate %{data}
+    send: send
+    send_with_data: Send %{data}
+    delete_with_data: Delete %{data}
+    subscribe: subscribe
+    subscribe_to: 'subscribe to %{data}'
+    auto_translate: 'automatic translation'
+    translate: 'translate'
+    translate_create: 'Create translations'
+    unsubscribe: Delete subscription
+    subscribed_to: 'subscribed to %{data}'
+    reset:
+      one: Reset
+      other: Reset search
+    filter: search now
+    move_to: Move to %{data}
+    duplicate_content: duplicate
+    read: read
+    write: Write
+    save_and_send: Send
+    save_without_send: Save (no e-mail dispatch)
+    finalize: Complete processing
+    finalize_agbs_text: Terms & Conditions
+    finalize_combined_html: '%{finalize} and accept %{agbs}'
+    copy_to_clipboard: Copy to clipboard
+    copy_classification_alias_id_to_clipboard: Copy Classification-Alias-ID to clipboard
+    copied_to_clipboard: Copied to clipboard.
+    save: Save
+    update: Update
+    upload: Upload files
+    become: Log in as %{data}
+    create_from_existing: Create content using this template
+    move_to_container: Move content
+    move: move
+    geocode: Take over geocoordinates from %{title}
+    upload_gpx: Upload GPX file
+    remove_feature: Delete geometry
+    open_asset: Open file
+    download: landing off
+    download_content: Download content
+    download_indesign: Download content for Adobe InDesign
+    download_zip: Download content as ZIP archive
+    download_asset: Download file
+    download_asset_version: Download file (%{data} version)
+    preview_content: Show preview
+    processing_asset: File is being processed ...
+    processing_image: Image is being processed ...
+    searching: search
+    next: Go to
+    back: Back
+    add_files: Add files
+    delete_file: Really delete the file?
+    uploaded: Uploaded
+    back_to_select: Back to the selection
+    delete_translation: Delete translation (%{data})
+    delete_with_translated_html: Delete embedded record?<br><br>Existing translations
+      of this embedded record will also be deleted!
+    discard_changes: discard changes
+    save_changes: Save and close
+    merge_with_duplicate: Save changes, delete duplicate and close view
+    reload: Reload page
+    redirect_to_login: to the registration
+    external_detail: Open in external system
+    external_edit: Edit in external system
+    open_as_source: Load as template
+    close_source: Close template
+    bulk_edit: process in bulk
+    add_items_to_watch_list: add to %{data}
+    add: add
+    delete_items_in_watch_list: Delete all contents of this content collection
+    save_without_redirect: Save
+    set_and_next: take over and continue
+    set_all_attributes: apply for all
+    close_overlay: close
+    remove_locks: Release content for editing (remove lock)
+    copyable_from: Apply %{data}
+    copyable_from_clear: '%{data} discard'
+    logout: Logout
+    clear: 'remove all contents from %{data}'
+    remove_content_from: 'Remove %{name} from %{collection}?'
+    remove_from: 'remove from %{collection}'
+
+  validation:
+    errors:
+      slug: '%{data} is already the slug of another record.'
+      min: '%{data} too short, should be at least %{min} long, but is only %{length}
+        long.'
+      max: '%{data} too long, should be at most %{max} long, but is %{length} long.'
+      min_number: '%{data} too small, should be %{value}, but is only %{data}.'
+      max_number: '%{data} too high, should be %{value}, but is %{data}.'
+      min_datetime: Time %{data} should be after %{min}.
+      min_date: Date %{data} should be after %{min}.
+      match: '%{data} does not match %{expression}.'
+      format: Format string %{format_string} for %{data} unknown.
+      uuid: 'Expect uuid for %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0'
+      date_time: '%{data} is not a valid time/date format.'
+      date: '%{data} is not a valid date format.'
+      key: '%{data} is not a valid uuid format.'
+      boolean: "%{data} is not a valid boolean format. (Only 'true' or 'false' allowed)"
+      url: "%{data} is not a valid url (valid example: 'https://www.example.com')."
+      string: '%{template} is not a string, but %{label}.'
+      geo: Incorrect data type specified for %{template} (%{data}). Expect Geometric/Geographical
+        type, or a WKT formatted string.
+      geo_no_linestring: At least two points must be specified for this type
+      schedule:
+        general: Incorrect data type specified for %{template} (%{data}). Expect DataCycleCore::Schedule,
+          or a valid hash.
+        time: "DateTime format incorrect for %{template} (%{data}), expect a hash
+          with { time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
+        date_time_array: DateTimeArray format incorrect for %{template} (%{data}),
+          expect an array of ActiveSupport::TimeWithZone
+        rrule: RRULE format false for %{template} { "data".
+        thing_id: thing_id is a required field.
+        relation: relation is a mandatory field.
+        invalid: The entry with start time %{data} does not contain valid dates
+        until_missing: An end time must be specified for the entry with start time
+          %{data}.
+      number: '%{template} is not a numeric value, but %{class} (value: %{data}).'
+      no_data: No data given.
+      no_validation: No validation data specified.
+      data_type: Wrong data type specified for %{template} %{data}. UUID or UUID array
+        was expected.
+      data_format_embedded: Data specified in wrong fromat for %{template} %{data}.
+        A hash or array of hashes was expected.
+      data_array_format: Elements of the data array for %{template} have wrong format
+        %{key}.
+      classification: "No classification found for %{key} in classification_tree with
+        label: '%{label}' and tree_label '%{tree_label}'."
+      asset_upload: File could not be uploaded
+      asset_convert: File could not be processed
+      min_ref: Too few references specified, %{data} should be at least %{value}.
+      max_ref: Too many references specified, %{data} should be at most %{value}.
+      data_format: Elements of the link array for %{template} have the wrong format
+        %{key}.
+      not_found: Data for %{template} with uuid %{key} not found in table %{table}.
+      integer: '%{data} is not an integer.'
+      float: '%{data} is not a float.'
+      object_type: Wrong data type for %{data}. Type %{type} is not defined.
+      wrong_object_type: Object Type %{data} is not an embedded data type and has
+        no 'properties'.
+      no_template: No matching data type template found for %{name}.
+      no_fields: No fields specified for 'from-date' and/or 'to-date'.
+      convert_date: Date could not be converted to validate time span.
+      daterange: Invalid time span, 'from' (%{from}) is after 'to' (%{to}).
+      classification_conflict: There are conflicts in publication dates.
+      not_deleted: An error occurred while deleting %{data}.
+      not_saved: An error occurred while saving %{data}.
+      file_too_large: File too large (max. %{max}).
+      wrong_content_type: '%{content_type} Files are not allowed.'
+      required: is a mandatory field and must be filled in.
+      unknown_activity_type: Unknown type for Activity
+    warnings:
+      string: '%{key} is not a valid keyword for string. Found for %{data} in %{template}'
+      no_data: No data specified for %{data}
+      no_evaluate: '%{data} not specified in the evaluation data.'
+      keyword: '%{key} is not a valid keyword for %{type}'
+      convert: Failed to convert %{data} to 'date_time' format for time span validation.
+      end_date: No end date specified, set to 9999-12-31.
+      start_date: No start date given, set to 1970-01-01.
+      address_not_found: Address not found
+      address_ambiguous: Address not unique
+      telephone_din5008: The format of the telephone number is not according to DIN
+        5008, valid example +43 1 123456
+      required: 'should be filled in.'
+      schedule:
+        duration_too_long: 'The schedule with start time %{data} lasts longer than %{max} (This could probably also be achieved via repeating schedules)'
+  controllers:
+    error:
+      invalid_parent: Invalid parent object.
+      invalid_parent_attr: Invalid Parent Attributes.
+      no_permission: No authorization.
+      invalid: '%{data} could not be created.'
+      email_exists: A link already exists for this e-mail
+      no_source: No valid template specified
+      wrong_content_type: Unsupported file type
+      missing_parameter: Parameter missing!
+      duplicate:
+        type_mismatch: Contents of different types cannot be merged!
+        cannot_merge_self: The content cannot be merged with itself!
+      session_expired: The session has expired, please log in again.
+      token_invalid: The session has expired, please reload the page.
+      no_shared_attributes: There are no attributes that occur with all content
+      no_selected_attributes: No attributes were selected for overwriting
+      external_items: At least one content is imported from an external system and
+        cannot be deleted!
+      no_watchlist: No content collection was chosen
+      content_duplication_invalid: The duplicate could not be created!
+      bulk_update_error: An error occurred while saving, please try again
+      definition_mismatch: the versions cannot be compared, because the data-definitions of these versions don't match
+      user_locked: A user with this email already exists and is locked. Please contact an administrator to unlock the user.
+    success:
+      created: '%{data} was successfully created.'
+      ready_to_send: '%{data} has been successfully created and can now be sent.'
+      updated: '%{data} has been updated.'
+      destroyed: '%{data} has been deleted.'
+      destroyed_translation: Translation %{language} of %{data} was deleted.
+      added_to: 'Added to %{type}: %{data} added.'
+      removed_from: 'Removed from %{type}: %{data} removed.'
+      sent: Email has been sent.
+      saved: '%{data} was created.'
+      saved_and_sent: '%{data} was created and sent.'
+      updated_and_sent: '%{data} has been updated and sent.'
+      invalid_mail: No valid email address.
+      locked: '%{data} has been locked.'
+      unlocked: '%{data} has been released.'
+      invalidated: '%{data} has been disabled.'
+      updated_user_settings: 'User settings have been updated.'
+      moved_to: Content moved to %{data}
+      become_user: Logged in as %{data}.
+      duplicate_false_positive: '%{data} was removed from the possible duplicates'
+      merged_with_duplicate: Contents are merged in the background
+      bulk_updated:
+        one: '<b>%{count}</b> Content was updated'
+        other: '<b>%{count}</b> Contents have been updated'
+      bulk_deleted:
+        one: '<b>%{count}</b> Content was deleted'
+        other: '<b>%{count}</b> Contents have been deleted'
+      bulk_created:
+        one: '<b>%{count}</b> Content was created'
+        other: '<b>%{count}</b> Contents were created'
+      removed_lock: Content has been released
+      cleared_collection: 'removed all contents from %{data}'
+    warning:
+      no_changes: No new version was created because no changes were made to the content.
+    info:
+      not_modified: '%{data} has not been changed.'
+      created_duplication: '%{data} was successfully duplicated.'
+      content_updated: The content has been changed.<br>Please reload the page to
+        ensure that these changes are not overwritten.</br>
+      bulk_updated_skipped_html: '<br>No translations were created if a content does not exist in the language: %{counts}'
+      bulk_deleted_external_html:
+        one: '<br><b>%{count}</b> Content was not deleted because it was imported
+          from an external system.'
+        other: '<br><b>%{count}</b> Content was not deleted because it was imported
+          from an external system.'
+      bulk_deleted_not_allowed_html:
+        one: '<br><b>%{count}</b> Content was not deleted because you do not have
+          permission to do so.'
+        other: '<br><b>%{count}</b> Content was not deleted because you do not have
+          permission to do so.'
+    job:
+      added: '%{data}/%{uuid} added to the job queue.'
+      imported: "'%{data}' were imported from YAML file."
+      running: Job is already in the job queue.
+  activerecord:
+    errors:
+      messages:
+        record_invalid: Invalid entry
+      models:
+        data_cycle_core/asset:
+          attributes:
+            file:
+              blank: File must not be empty
+        data_cycle_core/image:
+          attributes:
+            file:
+              blank: File must not be empty
+        data_cycle_core/audio:
+          attributes:
+            file:
+              blank: File must not be empty
+        data_cycle_core/video:
+          attributes:
+            file:
+              blank: File must not be empty
+        data_cycle_core/pdf:
+          attributes:
+            file:
+              blank: File must not be empty
+        data_cycle_core/watch_list:
+          attributes:
+            full_path:
+              blank: must not be empty.
+        data_cycle_core/user:
+          attributes:
+            password:
+              blank: Password must not be empty.
+              too_short: Password too short.
+            current_password:
+              blank: Enter current password for confirmation.
+              invalid: Wrong password.
+            email:
+              blank: E-mail must not be empty.
+              taken: A user already exists for this e-mail.
+              invalid: Not a valid email.
+        data_cycle_core/user_group:
+          attributes:
+            name:
+              blank: Name must not be blank.
+    models:
+      data_cycle_core/user:
+        one: User
+        other: Users
+      data_cycle_core/user_organization: Organization
+      data_cycle_core/user_group:
+        one: User group
+        other: User groups
+      data_cycle_core/subscription:
+        zero: No subscriptions (only contents)
+        one: Subscription (only contents)
+        other: Subscriptions (only contents)
+      data_cycle_core/watch_list:
+        one: Content collection
+        other: Content collections
+      data_cycle_core/data_link:
+        one: External link
+        other: External links
+      data_cycle_core/stored_filter:
+        one: Saved search
+        other: Saved searches
+      data_cycle_core/content/content:
+        one: Content
+        other: Contents
+      data_cycle_core/external_source:
+        one: External source
+        other: External sources
+      data_cycle_core/external_system:
+        one: External synchronization
+        other: External synchronizations
+      data_cycle_core/asset:
+        one: Asset
+        other: Assets
+      data_cycle_core/text_file:
+        one: Text document
+        other: Text documents
+      data_cycle_core/pdf:
+        one: Pdf
+        other: Pdfs
+      data_cycle_core/image:
+        one: Image
+        other: Images
+      data_cycle_core/video:
+        one: Video
+        other: Videos
+      data_cycle_core/audio:
+        one: Audio file
+        other: Audio files
+      data_cycle_core/data_cycle_file:
+        one: File
+        other: Files
+      data_cycle_core/role:
+        one: User role
+        other: User roles
+      data_cycle_core/classification_alias:
+        one: Classification
+        other: Classifications
+    attributes:
+      data_cycle_core/watch_list:
+        name: Name
+        full_path: Name (including folder path)
+        user_group_ids: User groups
+        user_ids: User
+        user_id: Owner
+      data_cycle_core/classification_tree_label:
+        visibility: Visibility
+        change_behaviour: Change behavior
+      data_cycle_core/classification_alias:
+        assignable: Assignable
+        description: Description text
+        classification_ids: Classification Mapping
+        internal_name: Language neutral name
+        uri: External URI
+        external_keys: External Keys
+        mapped_to_string: Classifications mapped from
+      data_cycle_core/user_group:
+        name: Name
+        user_ids: User
+        classification_ids_markets: Markets
+        classification_ids_output_channels: Output channels
+      data_cycle_core/user:
+        given_name: First name
+        family_name: Family name
+        password: Password
+        new_password: New password
+        current_password: Current password
+        email: Email
+        role_id: Roll
+        user_group_ids: User groups
+        external: SSO
+        notification_frequency: Subscription notification
+        access_token: API Token
+        default_locale: Default language for searches and new content
+        represented_by: Represented by
+        ui_locale: user interface language
+        locked_at: locked
+      data_cycle_core/thing:
+        name: Name
+        legal_name: Company name
+        given_name: First name
+        family_name: Family name
+        job_title: Job title
+        street: Street
+        country: Country
+        plz: POSTCODE
+        address: Location
+        longitude: Longitude
+        latitude: Latitude
+        elevation: Sea level (m)
+        external_key: External Id
+      data_cycle_core/person:
+        given_name: First name
+        family_name: Family name
+        job_title: Job title
+      data_cycle_core/organization:
+        name: Name
+        legal_name: Company name
+      data_cycle_core/place:
+        name: Name
+        street: Street
+        country: Country
+        plz: POSTCODE
+        address: Location
+        longitude: Longitude
+        latitude: Latitude
+        elevation: Sea level (m)
+      data_cycle_core/data_link:
+        comment: Comment
+        permissions: Authorizations
+        validity_period: Validity period (from - to)
+        valid_from: Valid from
+        valid_until: By
+        permissions_download: download
+        permissions_read: read
+        permissions_write: edit
+        text_file: Further information (%{file_types})
+        locale: E-mail language
+      data_cycle_core/stored_filter:
+        system: Visible for all users
+        api: Retrievable via API
+        api_users: Users permitted for API
+        linked_stored_filter_id: Filter for linked content
+        classification_tree_labels: Limit to classification trees
+        name: Name
+      data_cycle_core/asset:
+        name: Name
+        file: File
+      data_cycle_core/external_source:
+        name: Name
+  unauthorized:
+    manage:
+      all: No access authorization!
+  data_cycle_core:
+    administration: Administration
+    user_settings: User actions
+    user_details: User details
+    user_links: User links
+    classifications: Classifications
+    dashboard: Dashboard
+    classifications_adminitration:
+      classification:
+        submit_loading_message: Saving may take several minutes, please be patient
+      download_tree: download classification tree as CSV
+      download_tree_with_contents: download classification tree including contents as CSV
+      download_tree_for_mappings: download classification tree for defining mappings as CSV
+    this_classification: This classification
+    this_classification_tree: This classification tree
+    show_contents_for_tree_label: List contents in %{data}
+    settings: Settings
+    publication_date: Publication date
+    publications_calendar: Publication calendar
+    cache:
+      clear_all: Empty all caches
+      clear: Clear cache
+    autotranslate:
+      clear: Delete manual translations
+      auto: All translations were automatically generated
+    classification_tree_relations: 'ATTENTION: There are contents linked to this classification
+      tree!'
+    classification_relations:
+      one: 'ATTENTION: <b>1</b> content is linked to this classification!'
+      other: 'ATTENTION: <b>%{count}</b> contents are linked to this classification!'
+    child_classification_relations:
+      one: 'ATTENTION: <b>1</b> classification is assigned to %{data}. This is also
+        deleted!'
+      other: 'ATTENTION: %{data} are assigned to <b>%{count}</b> classifications.<br>These
+        are also deleted!</br>'
+    stored_searches:
+      my_searches: My searches
+      my_saved: My saved searches
+      show_in_my_saved_searches: show details
+      last: Last searched
+      saved:
+        one: Saved search
+        other: Saved searches
+      show_all_saved: View all saved searches
+      show_search_history: View entire history
+      save: Save search
+      history: Search History
+      load_more: ... show more searches
+      load_all: show all searches
+      filter_searches: filter searches ...
+      count_html:
+        zero: '<b>No</b> searches'
+        one: '<b>%{count}</b> searches'
+        other: '<b>%{count}</b> searches'
+      form:
+        api: API
+      update_params: save and apply search parameters
+    watch_list:
+      locked_by_data_link: Add/Remove Content Locked (Active External Links)
+      mailer:
+        subject:
+          one: 'Contents were added/removed to/from a %{type}.'
+          other: 'Contents were added/removed to/from several %{type}'
+        text_html:
+          one: 'The following content was added/removed to/from %{link}:'
+          other: 'The following contents were added/removed to/from %{link}:'
+    upload: Upload new media
+    data_links:
+      write_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
+        Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
+        has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
+        font-weight: bold;font-style: italic">%{title}</span></a>" with you and asks
+        for your additions and feedback. <br><br>Please make any changes to text,
+        images and videos directly in the form.</span>'
+      read_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
+        Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
+        has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
+        font-weight: bold;font-style: italic">%{title}</span></a>" with you and asks
+        for your feedback.</span>'
+      download_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
+        Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
+        has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
+        font-weight: bold;font-style: italic">%{title}</span></a>" with you.<br><br>%{n_type}
+        is now available for download.</span>'
+      updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lato'',
+        ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} "<a
+        href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
+        font-weight: bold;font-style: italic">%{title}</span></a>" has been updated.
+        Content has been added or removed.</span>'
+      create_link: create new link
+    documentation:
+      root: Documentation
+      overview: Overview
+      architecture: System architecture
+      data_structure: Data structure
+      classifications: Classifications
+      api:
+        root: Data interface
+        classifications: Classifications
+        contents:
+          root: Contents
+          specification: Specification
+        webhooks:
+          root: Webhooks
+          json_ld: JSON-LD
+
+    schema:
+      root: Scheme
+      containers: Container
+      entities: Contents
+      embeddeds: Embedded content
+    warning:
+      common:
+        invalid: Validity period exceeded
+        translation_missing: No translation available
+
+    reports:
+      root: 'Reports'
+      available_reports: 'Available Reports'
+
+  import:
+    booking:
+      hotel_important_information: Important information
+      hotel_description: Brief description
+    feratel:
+      meeting_point: Meeting point
+      additional_service:
+        Arrival Information: Travel information
+        Cancellation Information: Cancellation policy
+        Difficulty: Level of difficulty
+        Equipment: Equipment
+        FAQ / good to know: FAQ / useful hints
+        Included Services: Included services
+        Meeting Point: Meeting point
+        Opening hours: Opening hours
+        Payment: Payment modalities
+        Price Information: Price
+        Rental Equipment: Rental equipment
+        Requirements: Prerequisite
+        ServiceDescription: Description
+        Suitable for: Suitable for
+      event:
+        EventHeader: Description
+        EventHeaderShort: Brief description
+        AdditionalService: Additional service
+        CurrentInformation: Current information
+        GuestCardClassification: Guest card services
+      serial_event:
+        EventGroup: Description
+      infrastructure:
+        AdditionalService: Additional service
+        CurrentInformation: Current information
+        GuestCardClassification: Guest card services
+        InfrastructureLong: Detailed description
+        InfrastructureOpeningTimes: Opening hours
+        InfrastructurePriceInfo: Price information
+        InfrastructureShort: Brief description
+      GuestCards:
+        GuestCardClassification: Guest card services
+      accommodation:
+        CurrentInformation: Current information
+        SEOKeywords: SEO keywords
+        ServiceProviderArrivalVoucher: Travel arrangements
+        ServiceProviderConditions: Additional information
+        ServiceProviderDescription: Description
+      GTC:
+        GTC: General terms and conditions of business
+      package:
+        PackageShortText: Brief description
+        Package: Description
+    outdoor_active:
+      place:
+        directions: Approach
+        parking: Parking
+        hours_available: Opening hours
+        text: Description
+        price: Price
+        description: Brief description
+      tour:
+        directions: Approach
+        parking: Parking
+        hours_available: Opening hours
+        text: Description
+        price: Price
+        description: Brief description
+        directions_public_transport: Public transport
+        instructions: Directions
+        safety_instructions: Safety instructions
+        equipment: Equipment
+        suggestion: Tips
+        additional_information: Additional information
+        maps: Literature
+      ratings:
+        technique_rating: Technique
+        condition_rating: Stamina
+        experience_rating: Experience
+        landscape_rating: Landscape
+        difficulty_rating: Difficulty
+    imx_platform:
+      description: Description
+      description_long: Detailed description
+    gem2go:
+      description: Description
+    timm4:
+      intro: Introduction
+      description: Description
+      positionDescription: Position
+      pricesDescription: Priceinformation
+      keywords: Keywords
+      culinarySpecialities: Culinary Specialities
+      furtherSpecialities: Further Specialities
+      dishes: Dishes
+      barrierFreeDescription: Barrier free description
+      restDays: Rest days
+      companyHoliday: Company holidays
+      meetingPoint: Meeting Point
+      timesComment: Entrance details
+      menuDownload: Download menu
+      recipeSuggestionDownload: Download suggested recipe
+    toubiz:
+      abstract: Abstract
+      description: Description
+      additionalBookingInformation: Additional booking information
+      currentInformation: Current information
+      additionalLocationInformation: Additional location information
+      additionalHostInformation: Additional host information
+    destination_one:
+      facility_unterhaltung: Facility upkeep
+      info_wegbelag: Info pavement
+      kitchen_spezialitaeten: Gastronomic specialities
+      kitchen_zeiten: Kitchen opening hours
+      object_betriebsurlaub: Plant holidays
+      price_info: Price information
+      price_reducedinfo: Price reduced information
+      room_sonstige: Room miscellaneous
+      route_start: Route start
+      route_start_ort: Route start place
+      route_ziel: Route destination
+      socialdescription: Social description
+      socialtitle: Social title
+      web_seo_beschreibung: web_seo_beschreibung
+      web_seo_keywords: web_seo_keywords
+      web_seo_titel: web_seo_titel
+      additionaltext_feature_barrierefreiheit: Accessiblity
+      additionaltext_feature_eignung: Accessiblity levels
+      additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: hygiene and anti infection measures
+      dayoff: Day off
+      details: Details
+      directions: Directions
+      iframe_height: iframe_height
+      iframe_titel: iframe_title
+      iframe_url: iframe_url
+      moreinfo: Additional information
+      openings: Opening hours
+      packagefeature: Package feature
+      packagetripinfo: Package trip information
+      station: Station
+      subtitle: Subtitle
+      teaser: Teaser
+
+  media_archive:
+    allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
+      <ul> <li>Formats: %{image_types}</li> <li>Dimensions: %{image_dimensions}</li>
+      </ul> </li> <li><b>Video:</b> <ul> <li>Formats: %{video_types}</li> <li>Codecs:
+      h264 (audio: mp3/aac)</li> </ul> </li> </ul>'
+  uploader:
+    restrictions: Restrictions
+    validation:
+      format: 'Allowed formats: <span class="value">%{data}</span>'
+      format_not_supported: Unsupported format (%{data})
+      dimensions:
+        exclude:
+          format: 'The following formats are allowed in any size: <span class="value">%{data}</span>'
+        landscape:
+          min:
+            width: 'Minimum width for media in landscape format: <span class="value">%{data}px</span>'
+            height: 'Minimum height for media in landscape format: <span class="value">%{data}px</span>'
+          max:
+            width: 'Maximum width for media in landscape format: <span class="value">%{data}px</span>'
+            height: 'Maximum height for media in landscape format: <span class="value">%{data}px</span>'
+        portrait:
+          min:
+            width: 'Minimum width for portrait media: <span class="value">%{data}px</span>'
+            height: 'Minimum height for portrait media: <span class="value">%{data}px</span>'
+          max:
+            width: 'Maximum width for portrait media: <span class="value">%{data}px</span>'
+            height: 'Maximum height for portrait media: <span class="value">%{data}px</span>'
+        logo:
+          max:
+            height: 'Maximum height for logos: <span class="value">%{data}px</span>'
+      codec:
+        video: 'Allowed video codecs: <span class="value">%{data}</span>'
+        audio: 'Allowed audio codecs: <span class="value">%{data}</span>'
+      file_size:
+        max: 'Maximum file size: <span class="value">%{data}</span>'
+        min: 'Minimum file size: <span class="value">%{data}</span>'
+    close_warning_html: '<p>This window must remain open during the upload!<br>However,
+      you can continue working in parallel in a new tab.</br> </p>'
+    continue_in_new_tab: Continue working in new tab
+  date:
+    abbr_day_names:
+      - So
+      - Mon
+      - Tue
+      - Mi
+      - Do
+      - Fri
+      - Sat
+    abbr_month_names:
+      -
+      - Jan
+      - Feb
+      - Mar
+      - Apr
+      - May
+      - Jun
+      - Jul
+      - Aug
+      - Sep
+      - Oct
+      - Nov
+      - Dec
+    day_names:
+      - Sunday
+      - Monday
+      - Tuesday
+      - Wednesday
+      - Thursday
+      - Friday
+      - Saturday
+    formats:
+      default: '%d.%m.%Y'
+      long: '%e. %B %Y'
+      short: '%e. %b'
+      full: '%A, %e. %B %Y'
+      edit: '%d.%m.%Y'
+    month_names:
+      -
+      - January
+      - February
+      - March
+      - April
+      - May
+      - June
+      - July
+      - August
+      - September
+      - October
+      - November
+      - December
+    order:
+      - day
+      - month
+      - year
+  datetime:
+    distance_in_words:
+      about_x_hours:
+        one: about an hour
+        other: about %{count} hours
+      about_x_months:
+        one: last month or so
+        other: about %{count} months
+      about_x_years:
+        one: a year or so
+        other: about %{count} years
+      almost_x_years:
+        one: almost a year
+        other: almost %{count} years
+      half_a_minute: half a minute
+      less_than_x_minutes:
+        one: less than a minute
+        other: less than %{count} minutes
+      less_than_x_seconds:
+        one: less than a second
+        other: less than %{count} seconds
+      over_x_years:
+        one: more than a year
+        other: more than %{count} years
+      x_seconds:
+        one: in a second
+        other: '%{count} seconds'
+      x_minutes:
+        one: in a minute
+        other: '%{count} minutes'
+      x_hours:
+        one: an hour
+        other: '%{count} hours'
+      x_days:
+        one: one day
+        other: '%{count} days'
+      x_months:
+        one: one month
+        other: '%{count} months'
+      x_years:
+        one: a year
+        other: '%{count} years'
+    prompts:
+      day: Day
+      hour: Hours
+      minute: Minute
+      month: Month
+      second: Second
+      year: Year
+      week: Week
+  number:
+    currency:
+      format:
+        delimiter: '.'
+        format: '%n %u'
+        precision: 2
+        separator: ','
+        significant: false
+        strip_insignificant_zeros: false
+        unit: '€'
+    format:
+      delimiter: '.'
+      precision: 2
+      separator: ','
+      significant: false
+      strip_insignificant_zeros: false
+    human:
+      decimal_units:
+        format: '%n %u'
+        units:
+          billion:
+            one: Billion
+            other: Billion
+          million:
+            one: Million
+            other: Million
+          quadrillion:
+            one: Quadrillion
+            other: Quadrillions
+          thousand: Thousand
+          trillion:
+            one: Billion
+            other: Trillion
+          unit:
+      format:
+        delimiter:
+        precision: 3
+        significant: true
+        strip_insignificant_zeros: true
+      storage_units:
+        format: '%n %u'
+        units:
+          byte:
+            one: Byte
+            other: Bytes
+          gb: GB
+          kb: KB
+          mb: MB
+          tb: TB
+    percentage:
+      format:
+        delimiter:
+        format: '%n %'
+    precision:
+      format:
+        delimiter:
+  support:
+    array:
+      last_word_connector: ' and '
+      two_words_connector: ' and '
+      words_connector: ', '
+  time:
+    am: in the morning
+    formats:
+      default: "%A, %d. %B %Y, %H:%M o'clock"
+      long: "%A, %d. %B %Y, %H:%M o'clock"
+      short: "%d. %B, %H:%M o'clock"
+      edit: '%d.%m.%Y %H:%M'
+      history: "%d.%m.%Y, %H:%M o'clock"
+      time_only: '%H:%M'
+    pm: in the afternoon
+  external_sources:
+    bergfex:
+      snow_report:
+        type:
+          village: Snow depth location
+          base: Valley (slope)
+          top: Mountain (slope)
+  errors:
+    messages:
+      extension_white_list_error: Invalid file type
+  exceptions:
+    action_controller/invalid_authenticity_token: Invalid or missing CSRF token, please
+      log in again
+    data_cycle_core/error/download/invalid_serialization_format_error: The selected
+      download method is not supported
+    data_cycle_core/error/api/bad_request_error:
+      unknown_parameter: Unknown Query Parameter
+      invalid_parameter: Invalid Query Parameter
+    data_cycle_core/error/api/expired_content_error:
+      expired_content: Content is expired
+    active_record/record_not_found: Not found
+    data_cycle_core/error/filter/date_filter_range_error: 'error in filter params: end date must be equal or greater then start date in date filters'
+    data_cycle_core/error/filter/union_filter_recursion_error: 'error in filter params: stored filters cannot filter on themselves inside union filters (infinite recursion)'
+
+  details:
+    bild:
+      open_url: Open URL
+
+  exceptions_page:
+    back_to_root_link: back to dataCycle
+    copy_to_clipboard_link: copy Request-ID
+    copy_to_clipboard_title: The error can be found more easily in the monitoring via the Request-ID
+    not_found: Sorry, this page does not exist
+    internal_server_error: An unexpected error has occurred
+    unauthorized: You do not have permission to open the desired page

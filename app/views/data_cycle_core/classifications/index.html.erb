@@ -1,0 +1,31 @@
+<% breadcrumb :classifications, autoroot: false %>
+
+<div id="classification-administration" class="row">
+  <div class="small-12 columns">
+    <h1><%= t('data_cycle_core.classifications', locale: active_ui_locale) %></h1>
+
+    <% external_systems = DataCycleCore::ExternalSystem.all %>
+
+    <% @classification_tree_labels.group_by { |tree_label|
+        tree_label.external_source_id || external_systems.select { |s|
+          tree_label.name.downcase.start_with?(s.name.downcase) || tree_label.name.downcase.start_with?(s.identifier.downcase)
+        }.first&.id
+      }.each do |external_source_id, tree_labels| %>
+
+      <% if external_source_id %>
+        <h4><%= DataCycleCore::ExternalSystem.find(external_source_id).name %></h4>
+      <% end %>
+
+      <ul class="classification_trees backend-treeview-list">
+        <%= render partial: 'classification_tree_label', collection: tree_labels, as: :tree_label %>
+
+        <% unless external_source_id %>
+          <li class="new-classification-tree-label">
+            <a href="#" class="create button-prime small"><i class="fa fa-plus"></i></a>
+            <%= render 'classification_tree_label_form', classification_tree_label: DataCycleCore::ClassificationTreeLabel.new %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+</div>

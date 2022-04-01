@@ -1,0 +1,19 @@
+{
+  "all": {
+    "sourceCodeDir": "app/assets",
+    "additionalEntrypoints": ["app/assets/images/*", "../../app/assets/{images,fonts}/*"],
+    "watchAdditionalPaths": ["../../app/assets/**/*"],
+    "publicOutputDir": "assets/build",
+    "assetsDir": ""
+  },
+  "development": {
+    "autoBuild": true,
+    "host": "127.0.0.1",
+    "publicOutputDir": "assets/dev-build",
+    "port": 3036
+  },
+  "test": {
+    "autoBuild": true,
+    "publicOutputDir": "assets/test-build"
+  }
+}

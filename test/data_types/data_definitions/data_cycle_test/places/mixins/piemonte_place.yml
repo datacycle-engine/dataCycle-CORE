@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: piemonte_place
+    :type: mixin
+    :properties:
+      :piemonte_venue_category:
+        :label: EventsPiemonte - VenueCategories
+        :type: classification
+        :tree_label: EventsPiemonte - VenueCategories
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

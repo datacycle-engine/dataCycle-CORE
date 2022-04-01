@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+
+<d:multistatus xmlns:d="DAV:">
+  <%= render 'file', { id: @id }.merge(propstat(@content)) %>
+</d:multistatus>

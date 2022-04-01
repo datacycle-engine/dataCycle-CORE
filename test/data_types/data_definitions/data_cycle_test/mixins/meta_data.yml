@@ -1,0 +1,114 @@
+---
+- :data:
+    :name: meta_data
+    :type: mixin
+    :properties:
+      :universal_classifications:
+        :type: classification
+        :external: true
+        :universal: true
+        :ui:
+          :show:
+            :content_area: header
+            :partial: universal_classifications
+      :date_created:
+        :label: Erstellungsdatum
+        :type: datetime
+        :storage_location: value
+        :ui:
+          :edit:
+            disabled: true
+          :show:
+            :type: date
+      :date_modified:
+        :label: Änderungsdatum
+        :type: datetime
+        :storage_location: value
+        :ui:
+          :edit:
+            disabled: true
+          :show:
+            :type: date
+      :date_deleted:
+        :label: Gelöschtdatum
+        :type: datetime
+        :storage_location: value
+        :ui:
+          :edit:
+            disabled: true
+          :show:
+            :type: date
+      :slug:
+        :label: slug
+        :storage_location: column
+        :type: slug
+        :default_value:
+          module: DataCycleCore::Utility::DefaultValue::Slug
+          method: generate_slug
+        :advanced_search: true
+        :search: true
+        :global: true
+        :ui:
+          :bulk_edit:
+            :disabled: true
+        :api:
+          :name: dc:slug
+      :external_key:
+        :label: external_key
+        :type: string
+        :storage_location: column
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :disabled: true
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :default_value:
+          :module: DataCycleCore::Utility::DefaultValue::Classification
+          :method: schema_types
+          :condition:
+            :except_content_type: embedded
+            :schema_key_present: schema_ancestors
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+      :internal_content_score:
+        :label: Interner Content Score
+        :type: number
+        :storage_location: translated_value
+        :advanced_search: true
+        :compute:
+          :module: Utility::Compute::ContentScore
+          :method: calculate_from_feature
+        :xml:
+          disabled: true
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: append
+              :name: dc:contentScore
+        :ui:
+          :show:
+            :disabled: true
+            :content_area: content_score
+            :type: content_score
+          :edit:
+            :disabled: true
+        :validations:
+          :min: 0
+          :max: 100

@@ -1,0 +1,18 @@
+<% if value.present? && definition.dig('xml', 'disabled').blank? && definition.dig('api', 'disabled').blank? # ask also for api disabled for safety reasons %>
+  <% data = content.send(key).includes(:translations, :classifications) %>
+  <% if data.present? %>
+    <% key_new = definition.dig('xml', 'name') || key.camelize(:lower) %>
+    <<%=key_new%>>
+    <% data.each do |item| %>
+      <% next if @thing_ids.include?("#{key_new}_#{item.id}") %>
+      <% @thing_ids << "#{key_new}_#{item.id}" %>
+      <% if @include_parameters.include?('linked') %>
+        <%= render *content_partial('details', content: item) %>
+      <% else %>
+        <%= render *content_partial('header', content: item, options: options.merge({ header_type: :linked })) %>
+        <%= render *content_partial('footer', content: item) %>
+      <% end %>
+    <% end %>
+    </<%=key_new%>>
+  <% end %>
+<% end %>

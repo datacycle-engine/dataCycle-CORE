@@ -1,0 +1,38 @@
+<table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%">
+  <tr>
+    <td style="background:white;padding:24pt;border-radius: 7px;box-shadow: 0px 5px 18px 2px rgba(0, 0, 0, 0.15);">
+      <table border="0" cellspacing="0" cellpadding="0"
+     width="100%" style="width:100%;">
+        <tr>
+          <td>
+            <span style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b><%= t('hello', locale: @user.ui_locale) %></b></span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:12pt 0 0 0;">
+            <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%= t('common.abo_finalized', count: @contents.size, locale: @user.ui_locale) %></span>
+          </td>
+        </tr>
+        <tr>
+          <td width="100%" style="width:100%;padding:0;height:24pt">
+            <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
+
+              <% @contents.each do |content| %>
+                <% I18n.with_locale(content.first_available_locale) do %>
+                  <p>
+                    <a href="<%= polymorphic_url(content) %>">
+                      <span style="color:#333333;text-decoration:underline;text-underline:underline">
+                        <%= content.template_name %> (<%= content.translated_locales&.join(', ') %>): <%= content.title.blank? ? content.id : content.title %>
+                      </span>
+                    </a>
+                  </p>
+                <% end %>
+              <% end %>
+
+            </span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

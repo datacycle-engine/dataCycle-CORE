@@ -1,0 +1,16 @@
+{
+  "name": "Headline - EN",
+  "description": "<p>Description - EN</p>",
+  "same_as": "https://www.sameas-en.link",
+  "potential_action": "https://potential-actions.link",
+  "url": "http://external-url-en.link",
+  "use_guidelines": "cc_use_guidlines",
+  "virtual_location": [
+    {
+      "url": "http://link-en.at",
+      "name": "Virtueller Veranstaltungsort - EN"
+    }
+  ],
+  "feratel_content_score": 77.77,
+  "content_score": 77.77
+}

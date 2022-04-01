@@ -1,0 +1,18 @@
+{
+  "given_name": "Max Overlay",
+  "family_name": "Musterman Overlay ",
+  "address": {
+    "street_address": "StreeAddress Overlay",
+    "postal_code": "PostCode Overlay",
+    "address_locality": "AddressLocality Overlay",
+    "address_country": "AddressCountry Overlay"
+  },
+  "country_code": "AT",
+  "contact_info": {
+    "contact_name": "Ansprechpartner Overlay",
+    "telephone": "Telephone Overlay",
+    "fax_number": "FaxNumber Overlay",
+    "email": "Email Overlay",
+    "url": "https://overlay.url.com"
+  }
+}

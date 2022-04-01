@@ -1,0 +1,32 @@
+<%= tag.div render('data_cycle_core/contents/editors/metadata/locales_list'), class: 'available-attribute-locales' if template.translatable? && I18n.available_locales&.many? %>
+
+<% data_hash = content_uploader_data_hash(template, local_assigns[:asset]) %>
+
+<% new_dialog_config(template, template&.asset_property_names&.first)&.each_with_index do |(field_title, a_keys), index| %>
+  <fieldset>
+    <% if index === 0 %>
+      <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns.merge((template.translatable? && I18n.available_locales&.many?) ? { locale: (current_user&.default_locale || active_ui_locale) } : {}) %>
+    <% else %>
+      <legend><%= t("new_step_title.#{field_title}", locale: active_ui_locale) %></legend>
+    <% end %>
+    <%= tag.div(callouts&.dig(field_title.to_sym, :text), class: "callout #{callouts&.dig(field_title.to_sym, :classes).presence || 'primary'}") if local_assigns[:callouts] && callouts&.dig(field_title.to_sym).present? %>
+
+    <%
+      a_keys.presence&.each do |a_key|
+        a_key = Array.wrap(a_key)
+        a_definition = template.schema.dig('properties', *a_key)&.deep_reject{ |k, v| k == 'readonly' }
+
+        next unless a_definition.present?
+
+        concat render_attribute_editor(
+          content: template,
+          key: a_key,
+          prefix: DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX,
+          value: a_key.first == 'name' && local_assigns[:search_param].present? ? local_assigns[:search_param] : template.default_value(a_key.first.attribute_name_from_key, current_user, data_hash),
+          definition: a_definition,
+          parameters: { options: { edit_scope: 'new' }.merge(local_assigns[:options] || {}) }
+        )
+      end
+    %>
+  </fieldset>
+<% end %>

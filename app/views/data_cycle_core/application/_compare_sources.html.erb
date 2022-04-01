@@ -1,0 +1,6 @@
+<% random_id = SecureRandom.hex(10) %>
+
+<a data-toggle="<%= random_id %>"><i class="fa fa-arrows-h" aria-hidden="true"></i></a>
+<div class="dropdown-pane no-bullet bottom" id="<%= random_id %>" data-dropdown>
+  <%= render 'data_cycle_core/application/compare_sources_dropdown', local_assigns %>
+</div>

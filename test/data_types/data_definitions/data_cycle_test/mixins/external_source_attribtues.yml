@@ -1,0 +1,65 @@
+---
+- :data:
+    :name: external_source_attributes
+    :type: mixin
+    :properties:
+      :feratel_content_score: # legacy (in alten gespeicherten Suchen verwendet z.B.: Burgenland, Neusiedlersee)
+        :label: ContentScore (Feratel)
+        :type: number
+        :storage_location: translated_value
+        :external: true
+        :validations:
+          :format: float
+        :advanced_search: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :ui:
+          :edit:
+            :disabled: true
+      :content_score: # general score used by: Feratel/OutdoorActive
+        :label: ContentScore
+        :type: number
+        :storage_location: translated_value
+        :external: true
+        :validations:
+          :format: float
+        :advanced_search: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :ui:
+          :edit:
+            :disabled: true
+      :external_status:
+        :label: Externer Status
+        :type: classification
+        :tree_label: Externer Status
+        :global: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :disabled: true
+      :external_content_score:
+        :label: Externer Content Score
+        :type: embedded
+        :template_name: ContentScore
+        :external: true
+        :translated: true
+        :ui:
+          :show:
+            :content_area: content_score
+          :edit:
+            :disabled: true
+        :api:
+          :transformation:
+            :method: append
+            :name: dc:contentScore

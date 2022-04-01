@@ -1,0 +1,15 @@
+ul.report-list{
+  list-style: none;
+  margin-left: 0;
+  margin-top: 1rem;
+  li {
+    border-top: 1px solid #e5e5e5;
+    a {
+      display: block;
+      padding: 0.5rem;
+      span.icon{
+        padding-right: 0.5rem;
+      }
+    }
+  }
+}

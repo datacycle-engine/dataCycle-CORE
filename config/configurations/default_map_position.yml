@@ -1,0 +1,9 @@
+:longitude: 13.34576
+:latitude: 47.69642
+:zoom: 7
+:editor: 'MapLibreGl'
+:styles:
+  # - :id: osm
+  #   :value: 'OSM'
+  - :id: basemap
+    :value: 'BaseMapAt'

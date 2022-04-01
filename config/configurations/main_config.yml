@@ -1,0 +1,29 @@
+:api:
+  :default: v4
+  :enabled: true
+  :v1:
+    :enabled: true
+  :v2:
+    :enabled: true
+  :v3:
+    :enabled: true
+  :v4:
+    :enabled: true
+:sync_api:
+  :default: v1
+  :enabled: true
+  :max_depth: 3
+  :v1:
+    :enabled: true
+:webdav:
+  :default: v1
+  :enabled: false
+  :v1:
+    :enabled: false
+#  :v2:
+#    :subversions:
+#      - 'test'
+#:ui:
+#  :dashboard:
+#    :page:
+#      :size: 25

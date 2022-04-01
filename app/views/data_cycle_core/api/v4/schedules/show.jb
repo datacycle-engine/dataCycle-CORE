@@ -1,0 +1,23 @@
+# frozen_string_literal: true
+
+default_options = {
+  include: @include_parameters,
+  fields: @fields_parameters,
+  field_filter: @field_filter,
+  languages: @language,
+  full: true
+}
+options = default_options.merge(defined?(options) ? options || {} : {})
+
+json = {}
+
+json.merge! render 'context', languages: @language
+
+unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
+  json['@graph'] = []
+
+  json['@graph'] << Rails.cache.fetch(api_v4_cache_key(@content, @language, @include_parameters, @fields_parameters, @api_subversion), expires_in: 1.year + Random.rand(7.days)) do
+    render('data_cycle_core/api/v4/api_base/attributes/schedule', id: id, content: nil, options: options)
+  end
+end
+json

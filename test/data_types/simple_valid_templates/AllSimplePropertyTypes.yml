@@ -1,0 +1,27 @@
+---
+- :data:
+    :name: All Simple Property Types
+    :type: object
+    :content_type: entity
+    :schema_type: Thing_WithAllSimplePropertyTypes
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :string_property:
+        :label: String
+        :type: string
+      :datetime_property:
+        :label: DateTime
+        :type: datetime
+      :date_property:
+        :label: Datei
+        :type: date
+      :number_property:
+        :label: Number
+        :type: number
+      :disabled_property:
+        :label: Disabled Property
+        :type: string
+        :api:
+          :disabled: true

@@ -1,0 +1,17 @@
+<%= render 'data_cycle_core/contents/viewers/attribute',
+      local_assigns.merge(data_attributes: {
+        id: (value&.presence&.ids || [] ),
+        editor: "classification"
+      }) do %>
+  <span class="detail-content tags">
+    <% objects = value&.primary_classification_aliases&.includes(:classification_alias_path, :classification_tree_label, :primary_classification) || [] %>
+
+    <% objects = objects.concat(new_relations(options.dig(:item_diff), 'classifications')&.primary_classification_aliases&.includes(:classification_alias_path, :classification_tree_label, :primary_classification)) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+
+    <% objects.presence&.each do |a| %>
+      <span class="tag <%= changes_class(options.dig(:item_diff), a.primary_classification.id) %>" data-dc-tooltip="<%= classification_tooltip(a) %>">
+        <%= a.internal_name %>
+      </span>
+    <% end %>
+  </span>
+<% end %>

@@ -1,0 +1,23 @@
+<% breadcrumb :edit_content, @content, @watch_list %>
+
+<% content_for :top_content do %>
+
+  <div>
+    <div id="edit-form">
+      <%= render 'form',
+        key_prefix: DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX,
+        content: @content,
+        watch_list: @watch_list,
+        split_source: @split_source,
+        subscribe_notice: true,
+        link_action: :split_view %>
+    </div>
+  </div>
+
+<% end %>
+
+<% content_for :title do %>
+  <%= "#{@content.translated_template_name(active_ui_locale)}: " +
+      "#{@content.title} " +
+      "<#{t('actions.edit', locale: active_ui_locale).upcase}>" %>
+<% end %>

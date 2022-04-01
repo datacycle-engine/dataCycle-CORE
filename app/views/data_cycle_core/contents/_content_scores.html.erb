@@ -1,0 +1,10 @@
+<% content_for :content_scores, flush: true do %>
+  <% options ||= {} %>
+  <% options[:content_area] = 'content_score' %>
+  <% ordered_validation_properties(validation: content.schema, content_area: options[:content_area], scope: :show).each do |key, prop| %>
+    <% value = content.try(key.to_sym) %>
+    <%= render_attribute_viewer key: key, definition: prop, value: value, parameters: { options: options }, content: content if value.present? %>
+  <% end %>
+<% end %>
+
+<%= tag.div(yield_content!(:content_scores), class: 'content-scores') if content_for?(:content_scores) %>

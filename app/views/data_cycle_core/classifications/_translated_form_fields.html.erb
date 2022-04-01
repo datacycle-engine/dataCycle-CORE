@@ -1,0 +1,15 @@
+<% I18n.with_locale(locale) do %>
+  <%= label_tag "classification_alias[translation][#{locale}][name]", "#{DataCycleCore::ClassificationAlias.human_attribute_name(:name, locale: active_ui_locale)} (#{locale})", class: 'ca-label' %>
+  <%= text_field_tag "classification_alias[translation][#{locale}][name]", classification_alias&.name, class: 'ca-input-field', disabled: classification_alias&.id.present? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
+
+  <div class="form-element">
+    <div class="editor-block">
+      <%= label_tag "classification_alias[translation][#{locale}][description]", "#{DataCycleCore::ClassificationAlias.human_attribute_name(:description, locale: active_ui_locale)} (#{locale})" %>
+      <%= hidden_field_tag "classification_alias[translation][#{locale}][description]", classification_alias&.description, id: (classification_alias&.id.present? ? "#{classification_alias&.id}_" : '') + "classification_alias_#{locale}_description" %>
+
+      <div class="quill-editor" data-hidden-field-id="<%= "#{classification_alias&.id}_" if classification_alias&.id.present? %>classification_alias_<%= locale %>_description" data-size="minimal" data-default-value="<%= classification_alias&.description %>">
+        <%= classification_alias&.description&.html_safe %>
+      </div>
+    </div>
+  </div>
+<% end %>

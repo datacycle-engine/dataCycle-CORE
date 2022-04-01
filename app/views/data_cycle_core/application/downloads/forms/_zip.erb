@@ -1,0 +1,43 @@
+<%= form_with url: polymorphic_path([:download_zip, content]),
+              method: :get,
+              local: true,
+              class: 'download-content-form' do %>
+
+  <fieldset class="active template">
+    <legend><%= t('common.choose_language', locale: active_ui_locale) %></legend>
+    <div class="form-element">
+      <div class="v-select white">
+        <%= select_tag('language[]',
+                               options_for_select(
+                                   available_locales_for_select(content),
+                                   I18n.locale
+                               ),
+                               {
+                                   multiple: true,
+                                   class: 'multi-select',
+                                   id: "language_#{SecureRandom.hex(10)}"
+                               }
+                    ) %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="active template">
+    <legend><%= t('common.download.available_formats', locale: active_ui_locale) %></legend>
+    <div class="form-element">
+      <% available_download_serializers(content, [:archive, :zip]).each_key.with_index do |serializer_key, index| %>
+        <div>
+          <%= check_box_tag "serialize_format[#{serializer_key}]", '1', index&.zero? %>
+          <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: active_ui_locale)}" %>
+        </div>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <div class="buttons">
+    <%= button_tag 'download',
+                       type: :submit,
+                       class: "button submit" %>
+  </div>
+
+<% end %>

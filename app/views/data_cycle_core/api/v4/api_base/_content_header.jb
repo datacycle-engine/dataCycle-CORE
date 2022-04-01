@@ -1,0 +1,20 @@
+# frozen_string_literal: true
+
+default_options = {
+  header_type: :full
+}
+options = default_options.merge(defined?(options) ? options || {} : {})
+options[:languages] = [I18n.locale] if options[:languages].blank?
+
+json = {}
+
+unless options[:header_type] == :overlay
+  json['@id'] = content.id
+  json['@type'] = content.api_type
+  json['dc:entityUrl'] = api_v4_thing_url(@api_subversion, content, { language: serialize_language(@language) }) if select_attributes(options[:fields]).include?('dc:entityUrl')
+  json['dct:modified'] = content.updated_at if select_attributes(options[:fields]).include?('dct:modified') || select_attributes(options[:include]).include?('dct:modified')
+  json['dct:created'] = content.created_at if select_attributes(options[:fields]).include?('dct:created') || select_attributes(options[:include]).include?('dct:created')
+  json['dc:touched'] = content.created_at if select_attributes(options[:fields]).include?('dc:touched') || select_attributes(options[:include]).include?('dc:touched')
+end
+
+json.compact

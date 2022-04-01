@@ -1,0 +1,32 @@
+<% random_id = SecureRandom::hex(10) %>
+<div id="new-object-circle">
+  <a data-toggle="<%= random_id %>" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
+  <div class="reveal new-object" id="<%= random_id %>" data-reveal data-append-to="#new-object-circle" data-v-offset="auto">
+    <a class="option last" href="#" data-open="newWatchList"><i class="fa fa-folder-open-o" aria-hidden="true"></i>Neue <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %> erstellen</a>
+  </div>
+</div>
+
+<!-- testing -->
+
+<% if !@watch_list.nil? %>
+
+  <div class="reveal new-item" id="newWatchList" data-reveal>
+    <h3>Neue <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %> erstellen</h3>
+
+    <%= form_for :watch_list, :url => {:action => "create"} do |f| %>
+
+      <%= hidden_field_tag 'template', 'WatchList' %>
+      <div class="validation-container form-element">
+        <%= f.label :full_path %>
+        <%= f.text_field :full_path, class: 'form-control', value:'' %>
+      </div>
+      <%= f.submit t(:submit, locale: active_ui_locale), class: "button primary", data: { disable_with: t(:submit, locale: active_ui_locale) } %>
+
+    <% end %>
+
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+<% end %>

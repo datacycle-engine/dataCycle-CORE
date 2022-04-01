@@ -1,0 +1,19 @@
+<ul class="clickable-menu">
+  <li class="dropdown-menu-item search-history-short">
+    <i class="fa fa-clock-o" aria-hidden="true"></i>
+    <span class="title"><%= t('data_cycle_core.stored_searches.last', locale: active_ui_locale) %></span>
+    <%= link_to tag.i(class: 'fa fa-external-link'), stored_filters_path, target: :_blank, class: 'search-history-short-link', data: { dc_tooltip: t('data_cycle_core.stored_searches.show_search_history', count: 1, locale: active_ui_locale) } %>
+
+    <ul class="no-bullet remote-render" data-remote-path="data_cycle_core/stored_filters/search_history_short">
+    </ul>
+  </li>
+
+  <li class="dropdown-menu-item search-favorites-short">
+    <i class="fa fa-filter" aria-hidden="true"></i>
+    <span class="title"><%= t('data_cycle_core.stored_searches.saved', count: 2, locale: active_ui_locale) %></span>
+    <%= link_to tag.i(class: 'fa fa-external-link '), saved_searches_stored_filters_path, target: :_blank, class: 'search-favorites-short-link', data: { dc_tooltip: t('data_cycle_core.stored_searches.show_all_saved', count: 1, locale: active_ui_locale) } %>
+
+    <ul class="no-bullet remote-render" data-remote-path="data_cycle_core/stored_filters/search_favorites_short">
+    </ul>
+  </li>
+</ul>

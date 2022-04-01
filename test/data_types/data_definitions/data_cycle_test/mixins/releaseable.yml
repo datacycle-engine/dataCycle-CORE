@@ -1,0 +1,32 @@
+---
+- :data:
+    :name: releasable
+    :type: mixin
+    :properties:
+      :release_status_id:
+        :label: Status
+        :type: classification
+        :tree_label: Release-Stati
+        :default_value: freigegeben
+        :ui:
+          :show:
+            :content_area: none
+          :edit:
+            :options:
+              :multiple: false
+              :data-allow-clear: false
+        :api:
+          :disabled: true
+      :release_status_comment:
+        :label: Kommentar
+        :type: string
+        :storage_location: value
+        :ui:
+          :show:
+            :content_area: none
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: none
+        :api:
+          :disabled: true

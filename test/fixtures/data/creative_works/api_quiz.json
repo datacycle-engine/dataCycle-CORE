@@ -1,0 +1,27 @@
+{
+  "name": "Headline",
+  "alternative_headline": "Alternative Headline",
+  "description": "Description",
+  "link_name": "LinkName",
+  "text": "Text",
+  "url": "http://www.myurl.com",
+  "question": [
+    {
+      "name": "Question Name",
+      "text": "Question Text",
+      "accepted_answer": [
+        {
+          "text": "AcceptedAnswer Text"
+        }
+      ],
+      "suggested_answer": [
+        {
+          "text": "SuggestedAnswer Text"
+        },
+        {
+          "text": "SuggestedAnswer Text"
+        }
+      ]
+    }
+  ]
+}

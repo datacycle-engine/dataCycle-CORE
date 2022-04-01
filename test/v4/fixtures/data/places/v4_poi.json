@@ -1,0 +1,41 @@
+{
+  "name": "Test-POI 1",
+  "text": "<p>long-description</p>",
+  "description": "<p>short-description</p>",
+  "address": {
+    "street_address": "StreeAddress",
+    "postal_code": "PostCode",
+    "address_locality": "AddressLocality",
+    "address_country": "AddressCountry"
+  },
+  "country_code": "AT",
+  "contact_info": {
+    "url": "https://datacycle.info",
+    "contact_name": "contact_person",
+    "email": "rainer@datacycle.at",
+    "telephone": "+43 676 123 456",
+    "fax_number": "+43 676 123 456 01"
+  },
+  "potential_action": [
+    {
+      "url": "https://booking.link",
+      "name": "booking.link"
+    }
+  ],
+  "use_guidelines": "cc_use_guidlines",
+  "license": "cc_license",
+  "attribution_url": "attribution_url",
+  "license_classification": "CC0",
+  "price_range": "test price_range",
+  "author": "test author",
+  "price": "test price",
+  "directions": "test directions",
+  "parking": "test parking",
+  "hours_available": "test hours_available",
+  "latitude": 1,
+  "longitude": 10,
+  "elevation": 11.7,
+  "feratel_content_score": 77.77,
+  "content_score": 77.77,
+  "slug": "Test-POI-1"
+}

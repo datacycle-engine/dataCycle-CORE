@@ -1,0 +1,79 @@
+---
+- :data:
+    :name: ImageWithComputedAttribute
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :author:
+        :label: Fotograf
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_holder:
+        :label: Rechteinhaber
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_notice_computed:
+        :label: Urheberrechtsvermerk (automatisch)
+        :type: string
+        :storage_location: value
+        :compute:
+          :module: Utility::Compute::Copyright
+          :method: copyright_notice
+          :parameters:
+            - license_classification
+            - author
+            - copyright_holder
+            - copyright_year
+        :search: true
+        :api:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+      :copyright_notice_override:
+        :label: Urheberrechtsvermerk (manuell)
+        :storage_location: value
+        :type: string
+        :search: true
+        :api:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: false
+      :copyright_notice:
+        :label: Urheberrechtsvermerk
+        :type: string
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: take_first
+          :parameters:
+            - copyright_notice_override
+            - copyright_notice_computed
+        :api:
+          :disabled: false
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true

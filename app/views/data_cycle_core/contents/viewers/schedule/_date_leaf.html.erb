@@ -1,0 +1,18 @@
+<span class="calender-leaf">
+  <% if object.try(:dtstart).present? %>
+    <span class="leaf-duration"><%= l(object.dtstart, format: :time_only, locale: active_ui_locale) %>
+
+      <% if object.dtstart&.to_s(:only_date) == object.dtend&.to_s(:only_date) && object.dtstart&.to_s(:only_time) != object.dtend&.to_s(:only_time) %>
+        - <%= l(object.dtend, format: :time_only, locale: active_ui_locale) %>
+      <% end %>
+    </span>
+  <% end %>
+
+  <span class="leaf-date">
+    <i class="fa fa-calendar-o leaf-background" aria-hidden="true"></i>
+
+    <span class="leaf-month"><%= l(date, format: "%b", locale: active_ui_locale) %></span>
+    <span class="leaf-day"><%= l(date, format: "%e", locale: active_ui_locale) %></span>
+    <span class="leaf-year"><%= l(date, format: "%Y", locale: active_ui_locale) %></span>
+  </span>
+</span>

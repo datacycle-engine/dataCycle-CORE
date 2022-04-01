@@ -1,0 +1,100 @@
+<%= form_with model: content, local: true, html: { class: 'edit-content-form validation-form' } do |f| %>
+  <%= hidden_field_tag 'uuid', content.id %>
+  <%= hidden_field_tag :table, content.class.table_name %>
+
+  <section class="edit-header">
+    <div class="row expanded">
+      <div class="column edit-header-functions">
+        <div class="edit-name">
+          <i class="fa fa-pencil" aria-hidden="true"></i> <%== "#{content.model_name.human(locale: active_ui_locale)} #{t('actions.edit', locale: active_ui_locale)}" %>
+        </div>
+        <ul>
+          <li class="buttons">
+            <%= link_to previous_authorized_crumb.url do %>
+              <button type="button" class="button discard top" title="<%= t('actions.discard_changes', locale: active_ui_locale) %>"><i class="fa fa-times" aria-hidden="true"></i></button>
+            <% end if previous_authorized_crumb.present? %>
+
+            <%= tag.button(
+              tag.i(class: 'fa fa-check'),
+              class: 'button-prime submit submit-edit-form',
+              title: t('actions.save_changes', locale: active_ui_locale),
+              data: {
+                disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw')
+              }
+            ) %>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="row">
+    <div class="column">
+      <div class="detail-header editor">
+
+        <div class="detail-header-info">
+          <span class="icon">
+            <i class="fa fa-users" aria-hidden="true"></i>
+          </span>
+          <span class="title"><%= content.model_name.human(locale: active_ui_locale) %></span>
+        </div>
+
+        <div class="form-element input">
+          <%= f.label :name, DataCycleCore::UserGroup.human_attribute_name(:name, locale: active_ui_locale) %>
+          <%= f.text_field :name, required: true %>
+        </div>
+
+        <div class="form-element">
+          <div class="v-select">
+            <%= f.label :user_ids, DataCycleCore::UserGroup.human_attribute_name(:user_ids, locale: active_ui_locale) %>
+            <%= hidden_field_tag 'user_group[user_ids][]', nil, id: 'hidden_user_group_user_ids' %>
+            <%= f.select(
+                  :user_ids,
+                  content.users.map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
+                  {
+                    include_blank: true
+                  },
+                  {
+                    multiple: true,
+                    class: 'async-select',
+                    data: {
+                      max: 20,
+                      placeholder: '',
+                      search_path: search_users_path,
+                      close_on_select: false
+                    }
+                  }
+                ) %>
+          </div>
+        </div>
+
+        <% DataCycleCore::Feature::UserGroupClassification.attribute_relations.each do |key, config| %>
+          <div class="form-element">
+            <%= f.label "user_group_classification_ids_#{key}", DataCycleCore::UserGroup.human_attribute_name("classification_ids_#{key}", locale: active_ui_locale) %>
+            <div class="v-select">
+              <% classification_items = classification_alias_filter_items(config['tree_label'], { internal_name: :asc }) %>
+              <% async = classification_items.size > DataCycleCore.max_asynch_classification_items %>
+              <%= hidden_field_tag 'user_group[classification_ids][]' %>
+              <%= select_tag('user_group[classification_ids][]',
+                async ? async_classification_select_options(content.try(key).primary_classifications, DataCycleCore::Classification) : simple_classification_select_options(content.try(key).primary_classifications, classification_items, DataCycleCore::Classification),
+                {
+                  id: "user_group_classification_ids_#{key}",
+                  multiple: config.key?('multiple') ? config['multiple'] : true,
+                  include_blank: true,
+                  class: async ? 'async-select' : 'multi-select',
+                  data: {
+                    tree_label: config['tree_label'],
+                    allow_clear: true,
+                    placeholder: '',
+                    close_on_select: false,
+                  }
+                }
+              ) %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+<% end %>

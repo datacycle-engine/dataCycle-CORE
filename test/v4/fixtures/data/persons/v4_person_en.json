@@ -1,0 +1,14 @@
+{
+  "honorific_prefix": "prefix - EN",
+  "honorific_suffix": "suffix - EN",
+  "contact_info": {
+    "contact_name": "Ansprechpartner - EN",
+    "telephone": "Telephone - EN",
+    "fax_number": "FaxNumber - EN",
+    "email": "Email - EN",
+    "url": "https://url-en.com"
+  },
+  "job_title": "JobTitle - EN",
+  "description": "<p>Description - EN</p>",
+  "use_guidelines": "cc_use_guidlines - EN"
+}

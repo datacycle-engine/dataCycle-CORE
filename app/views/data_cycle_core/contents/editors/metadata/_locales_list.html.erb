@@ -1,0 +1,34 @@
+<% random_id = SecureRandom.hex(10) %>
+<a data-toggle="<%= random_id %>-locales-menu"><i class="fa fa-language" aria-hidden="true"></i></a>
+<div class="dropdown-pane no-bullet bottom attribute-locale-switcher" id="<%= random_id %>-locales-menu" data-dropdown>
+  <h5><%= local_assigns[:title] || t('common.choose_language', locale: active_ui_locale) %></h5>
+  <ul class="list-items">
+    <% available_locales_with_names.each do |l| %>
+      <li class="<%= "active" if l.first == I18n.locale %>">
+        <a class="available-attribute-locale" data-locale="<%= l.first %>"><%= l.last %></a>
+
+        <% if local_assigns[:content]&.translated_locales&.include?(l.first) %>
+          <span class="buttons">
+            <% if @split_source.nil? %>
+              <%= link_to tag.i(class: 'fa fa-columns', aria_hidden: true),
+                            polymorphic_path(
+                              [local_assigns[:link_action], content],
+                              watch_list_id: @watch_list,
+                              locale: I18n.locale,
+                              source_id: content.id,
+                              source_locale: l.first
+                            ),
+                            data: {
+                              locale: l.first,
+                            },
+                            class: 'load-as-split-source-link',
+                            title: t('actions.open_as_source', locale: active_ui_locale) %>
+            <% end %>
+
+            <i class="fa fa-language" aria-hidden="true"></i>
+          </span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</div>

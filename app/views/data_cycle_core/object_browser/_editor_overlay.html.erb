@@ -1,0 +1,94 @@
+<div class="object-browser-header object-browser-filter">
+  <form class="object-browser-filter-form">
+    <div class="fulltext-search">
+      <span class="search-icon">
+        <i class="fa fa-search" aria-hidden="true"></i>
+      </span>
+      <% search_id = SecureRandom.hex(10) %>
+      <%= hidden_field_tag "f[#{search_id}][t]", :fulltext_search %>
+      <input name="f[<%= search_id %>][v]" placeholder="<%= t('common.searchterm', locale: active_ui_locale) %>" autofocus class="object-browser-search">
+    </div>
+
+    <% if definition.dig('ui', 'edit', 'options', 'limited_by').blank? %>
+      <div class="union-filter">
+        <% union_id = SecureRandom.hex(10) %>
+        <%= hidden_field_tag "f[#{union_id}][t]", :union_filter_ids %>
+        <%= select_tag(
+          "f[#{union_id}][v]",
+          nil,
+          {
+            class: 'async-select',
+            include_blank: true,
+            data: {
+              max: 20,
+              placeholder: t('filter.relation_filter.placeholder.collection_or_stored_filter',
+                collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
+                stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
+                locale: active_ui_locale),
+              search_path: select_search_or_collection_stored_filters_path
+            }
+          }
+        ) %>
+      </div>
+    <% end %>
+
+    <div class="buttons">
+      <%= button_tag type: :submit, class: "button success" do %>
+        <i class="fa fa-search" aria-hidden="true"></i>
+        <%= t('actions.filter', locale: active_ui_locale) %>
+      <% end %>
+
+      <%= button_tag type: :reset, class: 'button clear alert round reset-button', data: { dc_tooltip: t('actions.reset', count: 2, locale: active_ui_locale) } do %>
+        <i class="fa fa-times" aria-hidden="true"></i>
+      <% end %>
+    </div>
+
+    <span class="item-count"></span>
+
+    <%= tag.i(class: 'fa fa-exclamation-triangle filter-warning', data: { dc_tooltip: limited_by_warning(content, definition, key, 'filter_warning') }) if definition.dig('ui', 'edit', 'options', 'limited_by').present? %>
+  </form>
+</div>
+
+<ul class="items margin-bottom-10 no-bullet">
+  <div class="loading">
+    <i class="fa fa-spinner fa-spin fa-fw"></i>
+  </div>
+</ul>
+
+<div class="item-info">
+  <div class="item-info-scrollable"></div>
+</div>
+
+<div class="object-browser-footer">
+  <div class="chosen-items items">
+    <ul class="chosen-items-container no-bullet"></ul>
+  </div>
+  <div class="buttons">
+    <span class="button-title">
+      <sup>
+        <span class="chosen-counter"></span>
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </sup>
+    </span>
+    <a class="button-prime success small save-object-browser">
+      <i class="fa fa-check" aria-hidden="true"></i>
+    </a>
+
+    <% form_parameters = object_browser_new_form_parameters({
+            content: content,
+            button_class: 'small new-content-button',
+            locale: I18n.locale,
+            object_browser: true,
+            key: html_id,
+            scope: 'object_browser',
+            disabled: definition&.dig('ui', 'edit', 'options', 'limited_by').present?,
+            dc_tooltip: limited_by_warning(content, definition, key, 'create_button_warning')
+        }, definition) %>
+
+    <%= render 'data_cycle_core/contents/new_content_button', form_parameters if form_parameters.present? && local_assigns[:hide_new_button].blank? %>
+
+    <button class="button-prime small close-object-browser" type="button" data-close>
+      <i aria-hidden="true" class="fa fa-times"></i>
+    </button>
+  </div>
+</div>

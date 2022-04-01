@@ -1,0 +1,14 @@
+<div class="row">
+    <div class="small-12 columns">
+        <h1>Klassifizierungen</h1>
+
+        <% DataCycleCore::ClassificationTreeLabel.uniq.each do |tree_label| %>
+            <h2><%= tree_label.name %></h2>
+            <ul>
+                <% tree_label.classification_trees.where(parent_classification_alias: nil).includes(:sub_classification_alias).each do |tree| %>
+                    <%= render 'classification_tree', tree: tree %>
+                <% end %>
+            </ul>
+        <% end %>
+    </div>
+</div>

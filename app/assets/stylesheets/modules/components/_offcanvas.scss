@@ -1,0 +1,139 @@
+// offcanvas
+#settings-off-canvas {
+  padding-top: calc(4.1rem + 5px);
+  max-height: 100vh;
+
+  .settings-row {
+    padding: 1rem;
+    margin: 0 0.1rem;
+    color: $black;
+    border-bottom: 1px solid $medium-gray;
+
+    .edit-user-link {
+      width: 85%;
+
+      .icon-edit {
+        padding: 0 0.3rem;
+        width: auto;
+        margin: 0 0 0 0.5rem;
+
+        .fa {
+          margin: 0;
+        }
+      }
+    }
+
+    .user-settings-link,
+    .logout-link {
+      .icon {
+        padding: 0 0.3rem;
+        width: auto;
+
+        .fa {
+          margin: 0;
+        }
+      }
+    }
+
+    .copy-to-clipboard {
+      font-size: 0.9rem;
+    }
+
+    a {
+      color: $black;
+      outline-width: 0;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+    }
+
+    .row {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      &:not(:first-child) {
+        padding-left: 1.5rem;
+      }
+      position: relative;
+      margin-bottom: 1rem;
+      &.access-token {
+        white-space: nowrap;
+      }
+    }
+
+    span {
+      &.icon {
+        width: 2.2rem;
+        flex: 0;
+        flex-basis: auto;
+        text-align: center;
+        i {
+          margin-right: 0.3rem;
+        }
+
+        &.icon-edit {
+          text-align: right;
+        }
+      }
+      &.title {
+        position: relative;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: auto;
+      }
+    }
+
+    .heading {
+      font-weight: bold;
+    }
+
+    .inner-content {
+      font-size: 1.1rem;
+      .more {
+        text-align: center;
+        i {
+          font-size: 1.5rem;
+          display: inline-block;
+        }
+      }
+    }
+  }
+  .named-stored-filters {
+    li {
+      position: relative;
+      padding-right: 1rem;
+      .stored-filter-link {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        line-height: 1.4rem;
+        i {
+          color: $primary-color;
+        }
+      }
+      &.system-filter {
+        font-weight: bold;
+      }
+      &.more-link {
+        padding-left: 2.3rem;
+        font-size: 1.5rem;
+        line-height: 1rem;
+        a {
+          color: $primary-color;
+        }
+      }
+      .buttons {
+        position: absolute;
+        right: 0;
+        .alert {
+          color: map-get($foundation-palette, alert);
+        }
+      }
+    }
+  }
+}
+
+#settings-off-canvas.is-open {
+  box-shadow: 0px 0 20px 0px rgba($black, 0.25);
+}

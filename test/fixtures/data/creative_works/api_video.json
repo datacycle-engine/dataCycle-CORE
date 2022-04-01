@@ -1,0 +1,15 @@
+{
+  "name": "Headline",
+  "caption": "Caption",
+  "description": "Description",
+  "content_url": "https://content.url.com",
+  "thumbnail_url": "https://thumbnail.url.com",
+  "url": "https://url.com",
+  "width": 1920,
+  "height": 1080,
+  "content_size": 500,
+  "file_format": "image/jpg",
+  "duration": 150,
+  "video_frame_size": "1900x2000",
+  "video_quality": "4K"
+}

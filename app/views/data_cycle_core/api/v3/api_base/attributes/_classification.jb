@@ -1,0 +1,22 @@
+# frozen_string_literal: true
+
+json ||= {}
+
+unless @mode_parameters.include?('compact')
+  classification_aliases = content.send(key).includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
+  if classification_aliases.present?
+    key_new = definition.dig('api', 'name') || key.camelize(:lower)
+    if definition.dig('api', 'transformation', 'method') == 'serialize' && definition.dig('api', 'transformation', 'name') == 'string'
+      json[key_new] = classification_aliases.map do |classification_alias|
+        {
+          '@type' => definition.dig('api', 'type') || 'Enumeration',
+          'name' => classification_alias.description || classification_alias.name || classification_aliases.internal_name
+        }
+      end
+    else
+      json.merge! render 'classifications', classification_aliases: classification_aliases, key: key_new, definition: definition
+    end
+  end
+end
+
+json

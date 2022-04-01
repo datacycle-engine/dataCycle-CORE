@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="<%= active_ui_locale %>">
+  <head>
+    <%= render 'head' %>
+  </head>
+  <body class="<%= controller_name %> devise with-glass" style="<%= dc_background_image_style %>">
+    <%= display_flash_messages_new %>
+
+    <%= yield %>
+
+    <% if ENV['PIXELPOINT_AAD_V2_CLIENT_ID'].present? %>
+      <%= link_to image_tag(dc_image_path('pixelpoint_logo.svg'), alt: 'Pixelpoint Logo', class: 'pixelpoint-sso-logo'), user_pixelpoint_aad_v2_omniauth_authorize_path, method: :post, class: 'pixelpoint-sso-login' %>
+    <% end %>
+  </body>
+</html>

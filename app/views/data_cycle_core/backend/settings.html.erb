@@ -1,0 +1,107 @@
+<% content_for(:title, t('data_cycle_core.settings', locale: active_ui_locale)) %>
+
+<% breadcrumb :settings %>
+
+<% content_for :top_content do %>
+
+  <div>
+
+    <div id="edit-form">
+
+      <%= form_for current_user do |f| %>
+        <%= hidden_field_tag 'uuid', current_user.id %>
+        <%= hidden_field_tag 'user_settings', true %>
+
+        <section class="edit-header">
+          <div class="row expanded">
+            <div class="column edit-header-functions">
+              <div class="edit-name">
+                <i class="fa fa-pencil" aria-hidden="true"></i> <%= "#{current_user.model_name.human(locale: active_ui_locale)}-#{t('data_cycle_core.settings', locale: active_ui_locale)} #{t('actions.edit', locale: active_ui_locale)}" %>
+              </div>
+              <ul>
+                <li class="buttons">
+                  <%= link_to previous_authorized_crumb.url do %>
+                    <button type="button" class="button discard top" aria-haspopup="true" title="<%= t('actions.discard_changes', locale: active_ui_locale) %>"><i class="fa fa-times" aria-hidden="true"></i></button>
+                  <% end if previous_authorized_crumb.present? %>
+
+                  <%= tag.button(
+                      tag.i(class: 'fa fa-check'),
+                      class: 'button-prime submit submit-edit-form',
+                      title: t('actions.save_changes', locale: active_ui_locale),
+                      data: {
+                        disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw')
+                      }
+                    ) %>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <div class="row">
+          <div class="column">
+            <div class="detail-header editor">
+
+              <div class="detail-header-info">
+                <span class="icon">
+                  <i class="fa fa-cogs" aria-hidden="true"></i>
+                </span>
+                <span class="title"><%= "#{current_user.model_name.human(locale: active_ui_locale)}-#{t('data_cycle_core.settings', locale: active_ui_locale)}" %></span>
+              </div>
+
+              <div class="form-element validation-container">
+                <%= f.label :notification_frequency, DataCycleCore::User.human_attribute_name(:notification_frequency, locale: active_ui_locale) %>
+                <div class="v-select">
+                  <%= f.select :notification_frequency,
+                      DataCycleCore.notification_frequencies.except(DataCycleCore::Feature::NamedVersion.enabled? ? nil : 'named_version').map{ |f|
+                        [
+                          t("notification.frequency.#{f}", locale: active_ui_locale),
+                          f
+                        ]
+                      },
+                      {},
+                      class: 'single-select',
+                      data: {
+                        allow_clear: false
+                      } %>
+                </div>
+              </div>
+
+              <div class="form-element">
+                <%= f.label :default_locale, DataCycleCore::User.human_attribute_name(:default_locale, locale: active_ui_locale) %>
+                <div class="v-select">
+                  <%= f.select :default_locale,
+                      available_locales_with_names.invert,
+                      {},
+                      class: 'single-select',
+                      data: {
+                        allow_clear: false
+                      } %>
+                </div>
+              </div>
+
+              <% if DataCycleCore.ui_locales.many? && can?(:change_ui_locale, current_user) %>
+                <div class="form-element">
+                  <%= f.label :ui_locale, DataCycleCore::User.human_attribute_name(:ui_locale, locale: active_ui_locale) %>
+                  <div class="v-select">
+                    <%= f.select :ui_locale,
+                        available_locales_with_names.slice(*DataCycleCore.ui_locales.map(&:to_sym)).invert,
+                        {},
+                        class: 'single-select',
+                        data: {
+                          allow_clear: false
+                        } %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+      <% end %>
+
+    </div>
+
+  </div>
+
+<% end %>

@@ -1,0 +1,43 @@
+.form-element.linked {
+  &[readonly],
+  &[data-readonly='true'],
+  &[disabled],
+  &.disabled {
+    .linked-editor-header {
+      cursor: not-allowed !important;
+      background: lighten($light-gray, 5%) !important;
+    }
+  }
+
+  &:hover > .linked-editor-header > .attribute-edit-label {
+    color: $primary-color;
+  }
+
+  .linked-editor-header {
+    display: flex;
+    align-items: center;
+    z-index: 12;
+    background: $white;
+    border-radius: $global-radius;
+
+    .attribute-edit-label {
+      position: relative;
+      top: unset;
+      left: unset;
+      padding: 0.7rem 1rem;
+      flex: auto;
+      transition: $color-transition;
+    }
+
+    .show-objectbrowser {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 0.3rem 0.5rem;
+      height: 2rem;
+      width: 2rem;
+      margin: 0 0.5rem;
+    }
+  }
+}

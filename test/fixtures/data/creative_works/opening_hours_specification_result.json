@@ -1,0 +1,22 @@
+[
+  {
+    "@context": "http://schema.org",
+    "@type": "OpeningHoursSpecification",
+    "contentType": "Öffnungszeit",
+    "validFrom": "2019-10-10",
+    "validThrough": "2019-10-17",
+    "dayOfWeek": ["https://schema.org/Monday"],
+    "opens": "10:00",
+    "closes": "11:00"
+  },
+  {
+    "@context": "http://schema.org",
+    "@type": "OpeningHoursSpecification",
+    "contentType": "Öffnungszeit",
+    "validFrom": "2019-10-10",
+    "validThrough": "2019-10-17",
+    "dayOfWeek": ["https://schema.org/Monday"],
+    "opens": "13:00",
+    "closes": "14:00"
+  }
+]

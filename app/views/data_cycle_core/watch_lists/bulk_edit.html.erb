@@ -1,0 +1,13 @@
+<% breadcrumb :bulk_edit, @watch_list, :name %>
+
+<% content_for :top_content do %>
+
+  <div>
+    <div id="edit-form">
+      <%= render 'data_cycle_core/contents/bulk_edit_form',
+      key_prefix: DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX,
+      watch_list: @watch_list %>
+    </div>
+  </div>
+
+<% end %>

@@ -1,0 +1,21 @@
+:file:
+  :format:
+    - mp4
+    - png
+    - jpg
+:image:
+  :dimensions:
+    :landscape:
+      :max:
+        :width: 250
+        :height: 200
+      :min:
+        :width: 150
+        :height: 100
+    :portrait:
+      :max:
+        :width: 200
+        :height: 250
+      :min:
+        :width: 100
+        :height: 150

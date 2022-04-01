@@ -1,0 +1,7 @@
+<%= render 'data_cycle_core/contents/viewers/attribute', local_assigns do %>
+
+  <span class="detail-content">
+    <%= number_to_human_size(value) if value.present? %>
+  </span>
+
+<% end %>

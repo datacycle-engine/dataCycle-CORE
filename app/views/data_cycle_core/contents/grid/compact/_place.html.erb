@@ -1,0 +1,7 @@
+<% content_for :additional_tile_attributes, flush: true do %>
+  <%= tag.div(sanitize(object.address_block, tags: ['br']), class: 'tile-property address-line') if object.address_block.present? %>
+
+  <%#= tag.span(data: { location_for: local_assigns[:key], location_data: { lng: object.location&.x, lat: object.location&.y }.to_json }) if object.try(:location).present? %>
+<% end %>
+
+<%= render 'data_cycle_core/contents/grid/compact/default', local_assigns %>

@@ -1,0 +1,72 @@
+<legend><%= t('actions.new', data: template&.translated_template_name(active_ui_locale), locale: active_ui_locale) %></legend>
+
+<%= hidden_field_tag :table, :things %>
+<%= hidden_field_tag :scope, local_assigns[:scope] %>
+
+<% data_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name(template&.schema&.dig('properties', 'data_type', 'default_value')).with_descendants.preload(:classification_alias_path, :classifications) %>
+
+<% if data_types.many? %>
+  <div class="form-element">
+    <%= label_tag "#{local_assigns.dig(:options, :prefix)}thing_datahash_data_type", t('common.data_type', locale: active_ui_locale) %>
+    <div class="v-select white">
+      <%= select_tag "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[data_type][]", options_for_select(data_types.map { |c|
+        [
+          c.name,
+          c.primary_classification&.id,
+          {
+            title: [
+              c.full_path,
+              c.description
+            ].reject(&:blank?).join("\n\n"),
+            data: {
+              title: c.full_path
+            }
+          }
+        ] if c.primary_classification&.id.present? }.compact), {
+        class: 'single-select',
+        data: {
+          tree_label: 'Inhaltstypen',
+          allow_clear: false
+        },
+        id: "#{local_assigns.dig(:options, :prefix)}thing_datahash_data_type"
+      } %>
+    </div>
+  </div>
+<% end %>
+
+<% if I18n.available_locales.many? && !template.translatable? %>
+  <div class="form-element">
+    <%= label_tag "#{local_assigns.dig(:options, :prefix)}thing_locale", t('common.language', locale: active_ui_locale) %>
+    <div class="v-select white">
+      <%= select_tag 'thing[locale]', options_for_select(available_locales_with_names.invert, current_user.default_locale || local_assigns[:locale]), {
+        class: 'single-select',
+        data: {
+          allow_clear: false
+        },
+        id: "#{local_assigns.dig(:options, :prefix)}thing_locale"
+      } %>
+    </div>
+  </div>
+<% else %>
+  <%= hidden_field_tag :locale, local_assigns[:locale], id: "#{local_assigns.dig(:options, :prefix)}locale" %>
+<% end %>
+
+<% if local_assigns[:content]&.content_type?('container') && content.try(:children).present? %>
+  <%= render 'data_cycle_core/contents/new/shared/sources', content: content, prefix: local_assigns.dig(:options, :prefix) %>
+<% elsif local_assigns[:source].present? %>
+  <%= hidden_field_tag 'source', "source_id=>#{source.id},source_table=>#{source.class.table_name}", id: "#{local_assigns.dig(:options, :prefix)}source" %>
+<% end %>
+
+<% if DataCycleCore::Feature::Container.enabled? && DataCycleCore::Feature::Container.allowed_container_templates(template).present? %>
+  <%= render 'data_cycle_core/contents/new/shared/container',
+              parent_templates: DataCycleCore::Feature::Container.allowed_container_templates(template),
+              parent: local_assigns[:parent],
+              prefix: local_assigns.dig(:options, :prefix) %>
+<% end %>
+
+<% if template.content_type?('container') && DataCycleCore::Feature::LifeCycle.allowed?(template) %>
+  <div class="form-element">
+    <%= label_tag "#{local_assigns.dig(:options, :prefix)}thing_datahash_#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}", t('common.life_cycle', locale: active_ui_locale) %>
+    <%= select_tag "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}][]", options_for_select(DataCycleCore::Feature::LifeCycle.creatable_stages(template), DataCycleCore::Feature::LifeCycle.default_alias_id(template)), { id: "#{local_assigns.dig(:options, :prefix)}thing_datahash_#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}" } %>
+  </div>
+<% end %>

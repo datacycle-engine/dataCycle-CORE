@@ -1,0 +1,27 @@
+<% unless dataCycleObject.try(:validity_period).nil?  %>
+
+  <% if !dataCycleObject.validity_period.try(:valid_from).nil? || !dataCycleObject.validity_period.try(:valid_until).nil? %>
+
+    <div class="validity_period">
+      <i class="fa fa-clock-o" aria-hidden="true"></i>
+      <% definition = dataCycleObject.properties_for('validity_period') %>
+      <%= attribute_viewer_label_tag(key: 'validity_period', definition: definition, content: dataCycleObject, parent: local_assigns[:parent]) %>
+
+      <% unless dataCycleObject.validity_period.try(:valid_from).nil? %>
+        <% from_definition = definition.dig('properties', 'valid_from') %>
+        <%= attribute_viewer_label_tag(key: 'valid_from', definition: from_definition, content: dataCycleObject, parent: local_assigns[:parent]) %>
+        <span class="date">
+          <%= l(dataCycleObject.validity_period.valid_from.to_date, locale: active_ui_locale) %>
+        </span>
+      <% end %>
+
+      <% unless dataCycleObject.validity_period.try(:valid_until).nil? %>
+        <% until_definition = definition.dig('properties', 'valid_until') %>
+        <%= attribute_viewer_label_tag(key: 'valid_until', definition: until_definition, content: dataCycleObject, parent: local_assigns[:parent]) %>
+        <span class="date"><%= l(dataCycleObject.validity_period.valid_until.to_date, locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+
+  <% end %>
+
+<% end %>

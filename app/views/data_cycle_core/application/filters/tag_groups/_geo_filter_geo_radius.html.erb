@@ -1,0 +1,18 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-globe" aria-hidden="true"></i>
+    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
+  </span>
+
+  <span class="tags-container">
+    <% unless value['lon'].empty? or value['lat'].empty? %>
+      <span class="tag"><%= t("common.center_point", locale: active_ui_locale) %>: <%= value['lon'] %>°, <%= value['lat'] %>°</span>
+    <% end %>
+
+    <% unless value['distance'].empty? %>
+      <span class="tag"><%= t("common.distance", locale: active_ui_locale) %>: <%= value['distance'] %> m</span>
+    <% end %>
+  </span>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons == 'a' %>
+</span>

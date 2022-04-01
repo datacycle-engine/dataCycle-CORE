@@ -1,0 +1,34 @@
+# frozen_string_literal: true
+
+json ||= {}
+
+if @linked_stored_filter.present?
+  data = content.send(key + '_overlay', @linked_stored_filter).includes(:translations, :classifications)
+else
+  data = content.send(key + '_overlay').includes(:translations, :classifications)
+end
+
+if data.present?
+  api_property_definition = api_definition(definition)
+
+  key_new = attribute_key(key, definition)
+  key_new = api_property_definition.dig('transformation', 'name') if api_property_definition.dig('transformation', 'method') == 'append'
+  new_fields = subtree_for(key_new, options[:fields])
+  new_include = subtree_for(key_new, options[:include])
+
+  json[key_new] = data.map { |item|
+    if options[:field_filter] && new_fields.present?
+      Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion, nil, @linked_stored_filter&.id), expires_in: 1.year + Random.rand(7.days)) do
+        render 'content_details', content: item, options: { include: new_include, fields: new_fields, field_filter: options[:field_filter], languages: options[:languages] }
+      end
+    elsif included_attribute?(key_new, options[:include])
+      Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion, nil, @linked_stored_filter&.id), expires_in: 1.year + Random.rand(7.days)) do
+        render 'content_details', content: item, options: { include: new_include, fields: new_fields, field_filter: false, languages: options[:languages] }
+      end
+    else
+      render 'content_header', content: item, options: { fields: new_fields, field_filter: options[:field_filter], header_type: :minimal, languages: options[:languages] }
+    end
+  }.compact.presence
+end
+
+json.compact

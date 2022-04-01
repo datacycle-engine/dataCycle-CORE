@@ -1,0 +1,9 @@
+{
+  "name": "Headline",
+  "description": "Description",
+  "content_url": "https://content.url.com",
+  "width": 1920,
+  "height": 1080,
+  "content_size": 500,
+  "file_format": "image/jpg"
+}

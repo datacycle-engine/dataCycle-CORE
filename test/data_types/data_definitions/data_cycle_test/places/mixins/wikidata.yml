@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: wikidata
+    :type: mixin
+    :properties:
+      :wikidata_classification:
+        :label: Wikidata - Classification
+        :type: classification
+        :tree_label: Wikidata - Classification
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

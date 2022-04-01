@@ -1,0 +1,20 @@
+<a id="generate_report" data-toggle="generate_reports"><i class="fa fa-table" aria-hidden="true"></i></a>
+
+<div class="dropdown-pane no-bullet bottom" id="generate_reports" data-dropdown>
+  <h5><%= t('data_cycle_core.reports.available_reports', locale: active_ui_locale) %></h5>
+  <% DataCycleCore::Feature::ReportGenerator.content_reports(content).each do |key, report| %>
+    <div class="row">
+      <h6><%= t("feature.report_generator.#{key}", locale: active_ui_locale) %></h6>
+    </div>
+    <ul class="report-list">
+      <% report.dig('allowed_formats').each do |format| %>
+        <li>
+          <%= link_to download_reports_path(type: format, identifier: key, thing_id: content.id), class: '' do %>
+            <span class="icon"><i class="fa fa-download" aria-hidden="true"></i></span>
+            <span class="title"><%= format %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

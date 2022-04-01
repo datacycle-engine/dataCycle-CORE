@@ -1,0 +1,21 @@
+<div class="detail-header-info">
+  <div class="type <%= content.template_name.underscore_blanks %>">
+    <%= render 'data_cycle_core/shared/icon', icon_type: content.template_name.underscore_blanks, icon_class: content.try(:icon_class) || content.class.name.demodulize.underscore_blanks %>
+
+    <%= render 'data_cycle_core/shared/template_title', content: content, languages: [I18n.locale.to_s] %>
+
+    <%= link_to(
+          tag.i(
+            class: 'fa fa-link',
+            aria_hidden: true
+          ),
+          users_path(q: content.representation_of.email),
+          target: :_blank,
+          title: "#{content.representation_of.full_name} <#{content.representation_of.email}>"
+        ) if can?(:show_representation_of, DataCycleCore::User) && content.representation_of.present? %>
+
+    <%= render('data_cycle_core/contents/content_score', key: nil, content: content, definition: content.content_score_definition(nil)) if content.try(:content_score_allowed?) %>
+  </div>
+</div>
+
+<%= render_content_partial 'header_functions', content: content %>

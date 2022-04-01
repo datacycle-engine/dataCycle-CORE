@@ -1,0 +1,7 @@
+<% content_for :additional_tile_attributes, flush: true do %>
+  <div class="tile-property event-period">
+    <%= render 'data_cycle_core/contents/grid/attributes/event_period', item: object if object.try(:start_date).present? || object.try(:end_date).present? %>
+  </div>
+<% end %>
+
+<%= render 'data_cycle_core/contents/grid/compact/default', local_assigns %>

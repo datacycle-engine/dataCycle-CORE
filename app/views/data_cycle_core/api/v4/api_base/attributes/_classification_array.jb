@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+json ||= {}
+key_new = attribute_key(key, definition)
+
+classification_aliases = content.send(key + '_overlay').includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
+res = classification_aliases.presence.map { |classification_alias| classification_alias.uri || classification_alias.name || classification_alias.internal_name }
+
+json = { key_new => res } if res.present?
+json

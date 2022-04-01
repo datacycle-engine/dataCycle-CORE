@@ -1,0 +1,39 @@
+<div class="content-uploader" data-asset-uploader="asset-upload-reveal-<%= "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}" %>">
+  <% uploader_validation = uploader_validation(asset_type: local_assigns[:type]) %>
+  <% type_translation = "data_cycle_core/#{local_assigns.dig(:type)}".classify.constantize.model_name.human(count: 2, locale: active_ui_locale) %>
+  <% if local_assigns[:type].present? && uploader_validation.present? %>
+    <div class="callout primary content-uploader-validations">
+      <%= tag.i class: 'fa fa-info-circle', aria_hidden: true, title: uploader_validation[:translation_description] if uploader_validation[:translation_description].present? %>
+      <ul>
+        <%= uploader_validation_to_text(uploader_validation&.except(:translation, :translation_description, :class)).html_safe %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="drag-and-drop-field">
+    <%= t('upload.drag_and_drop_html', locale: active_ui_locale, type: type_translation) %>
+  </div>
+  <div class="content-upload-button-field">
+    <input type="file" accept="<%= uploader_validation[:format].presence&.map{ |e| ".#{e}" }&.join(', ') %>" class="content-upload-field" id="<%= local_assigns.dig(:options, :prefix) %>content-upload-button" name="asset[]" multiple>
+  </div>
+  <%= render 'data_cycle_core/application/asset_import', key: "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}", asset_type: local_assigns.dig(:type), uploader_validation: uploader_validation, template: local_assigns[:template], create_content: local_assigns[:create_content], remote_options: to_query_params(local_assigns.except(:button_class)), type_translation: type_translation %>
+  <% if local_assigns[:create_content] %>
+    <p class="separator"><b><%= t('upload.or', locale: active_ui_locale) %></b></p>
+    <button type="button" class="button asset-selector-button" data-disable data-open="asset-selector-<%= "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}" %>"><%= t('upload.select_from_datacycle', data: type_translation, locale: active_ui_locale) %></button>
+    <div class="full reveal asset-selector-reveal" id="asset-selector-<%= "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}" %>" data-reveal data-multiple-opened="true" data-v-offset="0" data-multi-select="true" data-content-uploader-id="asset-upload-reveal-<%= "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}" %>">
+      <div class="asset-list-container">
+        <h3><%= t('common.select_asset_title', locale: active_ui_locale) %></h3>
+        <div class="scrollable-asset-list">
+          <%= render 'data_cycle_core/assets/asset_list', class: 'selectable', key: "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}", assets: nil, asset_types: DataCycleCore.asset_objects.select { |a| a.underscore.include?(local_assigns.dig(:type)) } %>
+        </div>
+        <div class="buttons">
+          <a class="select-asset-link success button" data-disable="true">
+            <%= t('common.select_asset', locale: active_ui_locale, data: type_translation) %>
+          </a>
+        </div>
+      </div>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  <% end %>
+</div>

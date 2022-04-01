@@ -1,0 +1,55 @@
+<div class="settings-row">
+  <div class="row columns">
+    <h5><%= t('data_cycle_core.administration', locale: active_ui_locale) %></h5>
+  </div>
+
+  <% if can? :index, DataCycleCore::Classification %>
+    <div class="row columns">
+      <%= link_to classifications_path, class: 'classifications-link' do %>
+        <span class="icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
+        <span class="title"><%= t('data_cycle_core.classifications', locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if can? :index, DataCycleCore::User %>
+    <div class="row columns">
+      <%= link_to index_users_path, class: 'users-link' do %>
+        <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span>
+        <span class="title"><%= t('actions.manage', data: DataCycleCore::User.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if can? :index, DataCycleCore::UserGroup %>
+    <div class="row columns">
+      <%= link_to user_groups_path, class: 'user-groups-link' do %>
+        <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+        <span class="title"><%= t('actions.manage', locale: active_ui_locale, data: DataCycleCore::UserGroup.model_name.human(count: 2, locale: active_ui_locale)) %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if can?(:index, :report) && DataCycleCore::Feature::ReportGenerator.enabled? %>
+    <div class="row columns">
+      <%= link_to reports_path do %>
+        <span class="icon"><i class="fa fa-table " aria-hidden="true"></i></span>
+        <span class="title"><%= t('data_cycle_core.reports.root', locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if can? :clear_all, :cache %>
+    <div class="row columns">
+      <%= link_to clear_all_caches_path,
+              method: :get,
+              data: {
+                  confirm: "#{t('common.confirm_delete_all_caches', locale: active_ui_locale) }",
+                  dc_tooltip: t('data_cycle_core.cache.clear_all', locale: active_ui_locale)
+              } do %>
+        <span class="icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
+        <span class="title"><%= t('data_cycle_core.cache.clear_all', locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,60 @@
+# frozen_string_literal: true
+
+require 'bundler/gem_tasks'
+require 'rspec/core/rake_task'
+require 'yaml'
+
+RSpec::Core::RakeTask.new(:spec)
+
+task default: :spec
+
+task :setup do
+  ['lib', 'spec'].each do |path|
+    $LOAD_PATH.unshift(File.expand_path("../#{path}", __FILE__))
+  end
+  require 'database'
+  exit if config['database'] == ':memory:'
+end
+
+namespace :db do
+  desc 'Create the database'
+  task create: :setup do
+    commands = {
+      'postgres' => "psql -c 'create database #{config['database']};' -U #{config['username']} >/dev/null"
+    }
+    `#{commands[driver] || true}`
+    $CHILD_STATUS.success? ? puts('Database successfully created.') : puts('There was an error creating the database.')
+  end
+
+  desc 'Drop the database'
+  task drop: :setup do
+    commands = {
+      'postgres' => "psql -c 'drop database #{config['database']};' -U #{config['username']} >/dev/null"
+    }
+    `#{commands[driver] || true}`
+    $CHILD_STATUS.success? ? puts('Database successfully dropped.') : puts('There was an error dropping the database.')
+  end
+
+  desc 'Set up the database schema'
+  task up: :setup do
+    orm = 'active_record'
+    return unless orm
+
+    require orm
+    require 'database'
+    require "#{orm}/schema"
+    DB = Translation::Test::Database.connect(orm)
+    Translation::Test::Schema.up
+  end
+
+  desc 'Drop and recreate the database schema'
+  task reset: [:drop, :create]
+
+  def config
+    Translation::Test::Database.config[driver]
+  end
+
+  def driver
+    Mobility::Test::Database.driver
+  end
+end

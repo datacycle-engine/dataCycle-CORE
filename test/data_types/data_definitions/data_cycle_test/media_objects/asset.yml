@@ -1,0 +1,199 @@
+---
+- :data:
+    :name: Datei
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: entity
+    :boost: 10.0
+    :features:
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :asset: true
+          :json: true
+          :xml: true
+          :indesign: true
+    :api:
+      :type:
+        - CreativeWork
+        - MediaObject
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: data_cycle_file
+        :api:
+          :disabled: true
+        :ui:
+          :edit:
+            :readonly: true
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+        :advanced_search: true
+      :content_url:
+        :label: Datei URL
+        :type: string
+        :storage_location: value
+        :compute:
+          :module: Utility::Compute::Asset
+          :method: content_url
+          :parameters:
+            - asset
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :minimal: true
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
+      :content_size:
+        :label: Dateigröße
+        :type: number
+        :storage_location: value
+        :compute:
+          :module: Utility::Compute::Asset
+          :method: file_size
+          :parameters:
+            - asset
+        :advanced_search: true
+        :ui:
+          :edit:
+            :disabled: true
+      :file_format: # has to be valid MimeType
+        :label: Dateiformat
+        :type: string
+        :storage_location: value
+        :compute:
+          :module: Utility::Compute::Asset
+          :method: file_format
+          :parameters:
+            - asset
+            - content_url
+        :ui:
+          :edit:
+            :disabled: true
+      :file_type:
+        :label: Dateiformat - Klassifizierung
+        :type: classification
+        :storage_location: classification
+        :tree_label: Dateiformate
+        :compute:
+          :module: Utility::Compute::Asset
+          :method: file_type_classification
+          :parameters:
+            - file_format
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :disabled: true
+      :upload_date:
+        :label: Hochgeladen am
+        :type: date
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :placeholder: tt.mm.jjjj
+              :class: daterange
+        :default_value:
+          module: DataCycleCore::Utility::DefaultValue::Date
+          method: beginning_of_day
+        :advanced_search: true
+      :author:
+        :label: Fotograf
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_holder:
+        :label: Rechteinhaber
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_year:
+        :label: Copyright - Jahr
+        :type: number
+        :storage_location: value
+        :advanced_search: true
+        :ui:
+          :show:
+            :options:
+              :delimiter: ''
+      :content_location:
+        :label: Ort
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :validations:
+          :max: 1
+      :keywords:
+        :label: Keywords
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            - tags
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :additional_media_properties:
+        :type: mixin
+        :name: additional_media_properties
+      :additional_asset_properties:
+        :type: mixin
+        :name: additional_asset_properties
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Datei'
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

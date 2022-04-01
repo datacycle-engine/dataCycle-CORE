@@ -1,0 +1,33 @@
+<div class="accordion-content" data-tab-content>
+  <ul class="no-bullet additional-map-values-filter-items" data-accordion data-allow-all-closed="true" data-multi-expand="true">
+    <%= collection_check_boxes(nil, "additional_values_filter[classification_tree]", items[local_assigns[:parent_classification_alias_id]], :id, :internal_name, {}, {}) do |cb| %>
+      <%= tag.li(class: "additional-map-values-filter-item #{'accordion-item' if items.key?(cb.value)}", data: { accordion_item: items.key?(cb.value) ? true : nil }) do %>
+        <%= tag.div(class: 'overlay-filter-label', data: { dc_tooltip: cb.object.try(:description) }) do %>
+          <%= cb.check_box value: cb.value,
+                      id: "#{random_id}_#{cb.value.underscore_blanks}",
+                      class: 'dc-additional-values-filter-specific',
+                      data: {
+                        group_key: key
+                      } %>
+
+          <%= cb.label for: "#{random_id}_#{cb.value.underscore_blanks}" do %>
+            <span class="attribute-label-text" title="<%= cb.text %>">
+              <%= cb.text %> <%= tag.i(class: 'fa fa-info-circle') if cb.object.try(:description).present? %>
+            </span>
+          <% end %>
+
+        <% end %>
+
+        <% if items.key?(cb.value) %>
+          <a href="#" class="accordion-title"></a>
+
+          <%= render 'data_cycle_core/contents/editors/geographic/overlay_classification_tree_level',
+                    items: items,
+                    random_id: random_id,
+                    key: key,
+                    parent_classification_alias_id: cb.value %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </ul>
+</div>

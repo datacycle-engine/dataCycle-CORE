@@ -1,0 +1,48 @@
+<div class="reveal new-item" id="move-to-container-overlay" data-reveal>
+  <h3><%= t('actions.move_to_container', locale: active_ui_locale) %></h3>
+
+  <%= form_for :thing, :url => set_parent_thing_path(content), html: { class: 'validation-form' } do |f| %>
+    <div class="form-element">
+      <%= label_tag 'parent_id', 'Thema' %>
+
+      <div class="v-select white">
+        <% I18n.with_locale(active_ui_locale) do %>
+          <%= select_tag(
+              'parent_id',
+              async_thing_select_options(nil, true),
+              {
+                multiple: false,
+                include_blank: false,
+                class: 'async-select',
+                id: SecureRandom.hex,
+                data: {
+                  max: 20,
+                  allow_clear: false,
+                  placeholder: t('common.parent', locale: active_ui_locale),
+                  search_path: select_search_things_path,
+                  query_params: {
+                    template_name: DataCycleCore::Feature::Container.allowed_container_templates(content),
+                    exclude: content.try(:parent)&.id
+                  }
+                }
+              }
+            ) %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <%= button_tag t('actions.move', locale: active_ui_locale),
+            class: "button primary",
+            data: {
+              disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.move', locale: active_ui_locale)}"
+            },
+            type: :submit %>
+    </div>
+
+  <% end %>
+
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

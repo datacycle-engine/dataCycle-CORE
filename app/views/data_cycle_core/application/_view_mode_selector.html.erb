@@ -1,0 +1,52 @@
+<% @mode ||= 'grid' %>
+
+<div class="mode-container <%= local_assigns[:additional_classes] %>">
+  <%= tag.span(class: 'result-count loading',
+      data: {
+        additional_form_parameters: to_query_params({
+              content_class: local_assigns[:content_class] || 'things',
+              count_mode: @classification_tree_label.nil? ? nil : 'classification_tree_label'
+            }).to_json
+      }
+    ) %>
+
+  <% if @mode != 'map' && (content_for?(:sortable) || local_assigns[:sortable].present?) %>
+    <%= yield :sortable %>
+    <span class="filter-sortable">
+      <%= select_tag(
+                      "s[v][m]",
+                      options_for_select(
+                          sortable.map { |s|
+                            [
+                                s.dig(:label),
+                                s.dig(:method)
+                            ]
+                          }, @sort_params.presence&.first&.dig('m')
+                      ),
+                      {:include_blank => I18n.t('sortable.default', default: 'default', locale: active_ui_locale)}
+                  ) %>
+      <span class="filter-sortable-checkbox-wrapper">
+        <%= check_box nil,
+                              "s[v][o]",
+                              {
+                                  checked: @sort_params.presence&.first&.dig('o') != 'DESC',
+                                  disabled: !@sort_params.presence&.first&.dig('m')&.in?(sortable.map{ |v| v[:method] })
+                              },
+                              'ASC',
+                              'DESC' %>
+        <label for="s[v][o]">
+          <%= tag.i(class: 'fa fa-sort-asc sort-asc') %>
+          <%= tag.i(class: 'fa fa-sort-desc sort-desc') %>
+        </label>
+      </span>
+    </span>
+  <% end %>
+
+  <% if DataCycleCore::Feature::ViewMode.enabled? && local_assigns[:mode_selector] %>
+    <div class="mode-switcher">
+      <% DataCycleCore::Feature::ViewMode.allowed_modes(current_user).each do |mode| %>
+        <%= mode_link(mode, @mode == mode, request.params) %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

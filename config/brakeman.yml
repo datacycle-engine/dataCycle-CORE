@@ -1,0 +1,6 @@
+---
+:skip_files:
+  - app/models/data_cycle_core/generic/common/import_tags.rb
+  - app/models/generic/rubbish/convert_to_md.rb
+  - node_modules/
+  - cache/

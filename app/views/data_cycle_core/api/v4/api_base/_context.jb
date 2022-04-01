@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+json ||= {}
+
+unless @permitted_params.dig(:section, :'@context')&.to_i&.zero?
+  json = {
+    '@context' => api_plain_context(languages, @expand_language)
+  }
+end
+json

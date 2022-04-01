@@ -1,0 +1,32 @@
+<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", :creator %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
+
+  <div class="advanced-filter-title">
+    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+  </div>
+
+  <div class="advanced-filter-mode">
+    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("common.has", locale: active_ui_locale), 'i'], [t("common.has_not", locale: active_ui_locale), 'e']], filter_method) %>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <%= select_tag("f[#{identifier}][v]",
+      options_for_select(DataCycleCore::User.all.map { |e| ["#{e.try(:full_name)} <#{e.email}>", e.id, { title: e.email }] }, value),
+      {
+        multiple: true,
+        class: 'multi-select',
+        data: {
+          placeholder: ''
+        }
+      }) %>
+  </div>
+
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

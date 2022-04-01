@@ -1,0 +1,14 @@
+<div class="translatable-attribute-container" data-attribute-key="<%= key.attribute_name_from_key %>">
+  <% content&.translated_locales&.each do |a_locale| %>
+    <div class="translatable-attribute remote-render <%= a_locale.to_s %><%= ' active' if I18n.locale == a_locale %>"
+      data-remote-render-function="render_specific_translatable_attribute_viewer"
+      data-remote-render-params="<%= to_query_params(
+        key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{a_locale.to_s}]"),
+        locale: a_locale,
+        definition: definition,
+        content: content
+      ).to_json %>"
+      data-remote-options="<%= to_query_params(local_assigns.dig(:parameters)&.slice(:parent, :options) || {}).to_json %>">
+    </div>
+  <% end %>
+</div>

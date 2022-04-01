@@ -1,0 +1,57 @@
+<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", :classification_alias_ids %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
+
+  <div class="advanced-filter-title">
+    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'classification_tree_label' %>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+  </div>
+
+  <div class="advanced-filter-mode">
+    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("common.has", locale: active_ui_locale), 'i'], [t("common.has_not", locale: active_ui_locale), 'e']], filter_method) %>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <% classification_items = classification_alias_filter_items(filter_title) %>
+
+    <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
+      <%= select_tag(
+          "f[#{identifier}][v]",
+          async_classification_select_options(@selected_classification_aliases&.values_at(*value)),
+          {
+            multiple: true,
+            class: 'async-select',
+            data: {
+              tree_label: filter_title,
+              max: 20,
+              placeholder: '',
+              alias_ids: true,
+              find_path: find_classifications_path,
+              search_path: search_classifications_path
+            }
+          }
+        ) %>
+    <% else %>
+      <%= select_tag(
+          "f[#{identifier}][v]",
+          simple_classification_select_options(@selected_classification_aliases&.values_at(*value), classification_items),
+          {
+            multiple: true,
+            class: 'multi-select',
+            data: {
+              tree_label: filter_title,
+              max: 20,
+              placeholder: ''
+            }
+          }
+        ) %>
+    <% end %>
+  </div>
+
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

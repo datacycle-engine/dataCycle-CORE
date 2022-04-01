@@ -1,0 +1,21 @@
+<% breadcrumb :index, 'users' %>
+
+<% content_for :top_content do %>
+  <%= render 'filter', filter_model: DataCycleCore::User, form_path: index_users_path if user_signed_in? %>
+<% end %>
+
+<%= render 'results', content_class: 'users', contents: @contents %>
+<% random_id = SecureRandom::hex(10) %>
+<% if can? :create_user, DataCycleCore::User %>
+  <% content_for :new_button do %>
+    <a data-toggle="<%= random_id %>" class="button-prime new-object-circle"><i class="fa fa-plus" aria-hidden="true"></i></a>
+    <div class="reveal new-object" id="<%= random_id %>" data-reveal data-v-offset="auto" data-close-on-click="true">
+      <a class="option" href="#" data-open="new_data_cycle_core_user"><i class="fa fa-user" aria-hidden="true"></i><%= t('actions.new', data: DataCycleCore::User.model_name.human(locale: active_ui_locale), locale: active_ui_locale ) %></a>
+      <a class="option last" href="#" data-open="new_data_cycle_core_user_organization"><i class="fa fa-users" aria-hidden="true"></i><%= t('actions.new', data: DataCycleCore::UserOrganization.model_name.human(locale: active_ui_locale), locale: active_ui_locale ) %></a>
+    </div>
+
+    <%= render 'new', type: DataCycleCore::User %>
+    <%= render 'new', type: DataCycleCore::UserOrganization %>
+
+  <% end %>
+<% end %>

@@ -1,0 +1,39 @@
+<div class="reveal" id="<%= "add-items-to-watch-list-overlay-#{template_name.underscore_blanks}-#{relation_a}" %>" data-reveal>
+  <h3><%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %></h3>
+
+  <%= form_with url: add_related_items_watch_lists_path, local: true, id: "add-items-to-watch-list-form-#{SecureRandom.hex(10)}" do |f| %>
+    <%= hidden_field_tag :template_name, template_name %>
+    <%= hidden_field_tag :relation_a, relation_a %>
+    <%= hidden_field_tag :content_id, content.id %>
+    <div class="validation-container form-element">
+      <%= f.label :watch_list_id, ActionView::OutputBuffer.new("#{DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
+      <div class="v-select white">
+        <%= f.select(:watch_list_id,
+          [],
+          {},
+          {
+            required: true,
+            class: 'async-select',
+            id: "add-items-to-watch-list-select-#{SecureRandom.hex(10)}",
+            data: {
+              tags: true,
+              max: 20,
+              placeholder: '',
+              search_path: search_watch_lists_path
+            }
+          }) %>
+      </div>
+    </div>
+    <div class="buttons">
+      <%= f.button t('actions.add', locale: active_ui_locale),
+        class: 'button primary',
+        data: {
+          disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.add', locale: active_ui_locale)}"
+        },
+        type: :submit %>
+    </div>
+  <% end %>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

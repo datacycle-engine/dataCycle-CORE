@@ -1,0 +1,11 @@
+<footer style="--dc-footer-image-url: url('<%= dc_image_path('dc-logo.svg') %>');">
+  <% if DataCycleCore.logo.dig('footer_links').present? %>
+    <div class="columns footer-links-container">
+      <ul class="footer-links">
+        <% DataCycleCore.logo.dig('footer_links').each do |text, url| %>
+          <li><%= link_to I18n.t("footer_links.#{text}", default: text, locale: active_ui_locale), url, target: :_blank %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</footer>

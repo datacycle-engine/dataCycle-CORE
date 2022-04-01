@@ -1,0 +1,70 @@
+#dc-tooltip {
+  display: none;
+  position: fixed;
+  background: $black;
+  color: $white;
+  padding: 0.5rem 0.7rem;
+  border-radius: $global-radius;
+  font-size: 0.8rem;
+  pointer-events: none;
+  z-index: 9999;
+  max-width: 90vw;
+  max-height: 90vh;
+
+  #dc-tooltip-arrow {
+    position: absolute;
+    background: inherit;
+    width: 8px;
+    height: 8px;
+    transform: rotate(45deg);
+  }
+
+  #dc-tooltip-content {
+    .fa {
+      font-size: 0.9rem;
+      line-height: 0.9rem;
+      vertical-align: middle;
+      display: inline-flex;
+    }
+  }
+
+  .tag-full-path {
+    font-weight: bold;
+  }
+
+  .tag-description {
+    max-width: 40vw;
+  }
+
+  .tag-translations {
+    .tag-translations-header {
+      font-weight: bold;
+    }
+
+    ul.tag-translations-list {
+      list-style-type: none;
+      margin: 0 0 0 1rem;
+
+      li {
+        position: relative;
+        font-weight: bold;
+
+        .tag-translations-locales {
+          font-weight: normal;
+          font-style: italic;
+        }
+      }
+    }
+  }
+}
+
+[data-dc-tooltip]:not([data-dc-tooltip='']):not([disabled]):not(button):not(a):not(.button):not(label):not(.copy-to-clipboard):not([data-open]:not([data-toggle])) {
+  cursor: help;
+}
+
+.select2-results__option [data-dc-tooltip],
+.select2-selection [data-dc-tooltip],
+a [data-dc-tooltip],
+.ql-formats [data-dc-tooltip] {
+  cursor: inherit !important;
+}

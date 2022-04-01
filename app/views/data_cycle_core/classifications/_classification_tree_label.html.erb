@@ -1,0 +1,66 @@
+<li id="<%= tree_label.id %>" class="classification_tree_label">
+  <span class="inner-item">
+    <%= tag.fa(class: 'fa fa-eye-slash') if tree_label.internal? %>
+    <%= link_to tree_label.name, classifications_path(classification_tree_label_id: tree_label.id),
+            class: 'name',
+            data: {
+                remote: true,
+                disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"
+            } %>
+
+    <%= link_to tag.i(class: 'fa fa-pencil'), '#',
+                class: 'edit',
+                data: {
+                  dc_tooltip: t('actions.edit_data', data: tree_label.name, locale: active_ui_locale)
+                } if can?(:edit, tree_label) %>
+
+    <%= link_to tag.i(class: 'fa fa-trash-o'),
+                classifications_path(classification_tree_label_id: tree_label.id),
+                class: 'destroy',
+                data: {
+                  remote: true,
+                  method: :delete,
+                  confirm: render('classification_tree_label_removal_warning', classification_tree_label: tree_label),
+                  disable_with: tag.i(class: 'fa fa-spinner fa-spin'),
+                  dc_tooltip: t('actions.delete_with_data', data: tree_label.name, locale: active_ui_locale)
+                } if can?(:destroy, tree_label) %>
+
+    <% if can?(:download, tree_label) %>
+      <%= link_to tag.i(class: 'fa fa-download'),
+                  download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv),
+                  class: 'download',
+                  data: {
+                    dc_tooltip: t('data_cycle_core.classifications_adminitration.download_tree', locale: active_ui_locale)
+                  } %>
+
+      <%= link_to tag.i(class: 'fa fa-download') + tag.i(class: 'fa fa-plus'),
+                  download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv, include_contents: true),
+                  class: 'download download-with-contents',
+                  data: {
+                    dc_tooltip: t('data_cycle_core.classifications_adminitration.download_tree_with_contents', locale: active_ui_locale)
+                  } %>
+
+      <%= link_to tag.i(class: 'fa fa-download') + tag.i(class: 'fa fa-arrows-h'),
+                  download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv, for_mapping_import: true),
+                  class: 'download download-for-mapping',
+                  data: {
+                    dc_tooltip: t('data_cycle_core.classifications_adminitration.download_tree_for_mappings', locale: active_ui_locale)
+                  } %>
+    <% end %>
+
+    <%= link_to tag.i(class: 'fa fa-clipboard'), '#', class: 'copy-to-clipboard', data: { value: tree_label.id, dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale) } %>
+
+    <%= link_to tag.i(class: 'fa fa-list'),
+                root_path(mode: 'tree', ctl_id: tree_label.id, reset: true),
+                class: 'contents-list',
+                target: :_blank,
+                data: {
+                  dc_tooltip: t('data_cycle_core.show_contents_for_tree_label', data: tree_label.name, locale: active_ui_locale)
+                } %>
+  </span>
+
+  <%= render('classification_tree_label_form', classification_tree_label: tree_label) if can?(:edit, tree_label) %>
+
+  <ul class="children">
+  </ul>
+</li>

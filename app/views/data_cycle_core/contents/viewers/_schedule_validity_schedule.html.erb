@@ -1,0 +1,37 @@
+<% objects = value.presence %>
+<% objects = Array(objects) + new_relations(options.dig(:item_diff), 'things').to_a.concat if changes_by_mode(options.dig(:item_diff), '+').present? %>
+
+<% objects.presence&.each_with_index do |object, index| %>
+
+  <%= render 'data_cycle_core/contents/viewers/attribute',
+        key: key,
+        definition: definition,
+        value: value,
+        options: options.merge({
+          hide_label: true
+        }),
+        data_attributes: {
+          id: [object.id],
+          editor: 'schedule'
+        },
+        content: content,
+        parent: local_assigns[:parent] do %>
+
+    <span class="detail-label">
+      <%= render 'data_cycle_core/shared/icon', icon_type: definition.dig('label')&.underscore_blanks, icon_class: 'property' %><strong><%= translated_attribute_label(key, definition, content, options) %> <%= content_tag(:span, (local_assigns.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %></strong>
+      <i><%=object.try(:schedule_object)&.terminating? ? "#{t('schedule.single_occurrence', locale: active_ui_locale)}" : "#{t('schedule.ongoing', locale: active_ui_locale)}" %></i>
+    </span>
+
+    <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
+
+    <% date_format = object.try(:schedule_object)&.terminating? ? 'date.formats.long' : 'date.formats.short' %>
+
+    <span class="detail-content events-calender-view">
+      <span><%= l(object.try(:dtstart)&.try(:to_date), format: t(date_format, locale: active_ui_locale), locale: active_ui_locale) %></span>
+      <span>-</span>
+      <span><%= l(object.try(:dtstart)&.-(1.second)&.+(object.try(:duration) || 0)&.try(:to_date), format: t(date_format, locale: active_ui_locale), locale: active_ui_locale) %></span>
+    </span>
+
+  <% end %>
+
+<% end %>

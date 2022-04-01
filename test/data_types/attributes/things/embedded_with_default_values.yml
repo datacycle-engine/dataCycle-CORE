@@ -1,0 +1,163 @@
+---
+- :data:
+    :name: Embedded-Entity-With-Default-1
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :features:
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :embedded_creative_work:
+        :label: Embedded Creative-Work
+        :type: embedded
+        :template_name: Embedded-With-Default-1
+        :translated: true
+
+- :data:
+    :name: Embedded-With-Default-1
+    :type: object
+    :content_type: embedded
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :test_attribute:
+        :label: Titel
+        :type: string
+        :storage_location: value
+      :test_text_attribute:
+        :label: Text
+        :type: string
+        :storage_location: value
+
+- :data:
+    :name: Embedded-Entity-With-Default-2
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :features:
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :embedded_creative_work:
+        :label: Embedded Creative-Work
+        :type: embedded
+        :template_name: Embedded-With-Default-2
+
+- :data:
+    :name: Embedded-With-Default-2
+    :type: object
+    :content_type: embedded
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :test_attribute:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+      :test_text_attribute:
+        :label: Text
+        :type: string
+        :storage_location: translated_value
+
+
+- :data:
+    :name: Embedded-Entity-With-Start-End-Default-Values
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :features:
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :embedded_creative_work:
+        :label: Embedded Creative-Work
+        :type: embedded
+        :template_name: Embedded-With-Start-End-Values
+        :default_value:
+          :module: DataCycleCore::Utility::DefaultValue::Embedded
+          :method: gip_start_end_waypoints
+
+- :data:
+    :name: Embedded-With-Start-End-Values
+    :type: object
+    :content_type: embedded
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+      :geo:
+        :type: mixin
+        :name: geo

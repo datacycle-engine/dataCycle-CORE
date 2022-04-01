@@ -1,0 +1,103 @@
+<%= form_with(url: form_path, local: true, id: "search-form", data: { add_filter_path: add_filter_path, add_tag_group_path: add_tag_group_path }) do %>
+  <section class="filters">
+    <div class="row">
+      <div class="column filter-body">
+        <div class="search">
+          <div class="input-group">
+            <%= text_field_tag :q,
+              @search_param,
+              placeholder: t('common.searchterm', locale: active_ui_locale),
+              class:"input-group-field fulltext-search-field" %>
+            <button type="submit" class="search_icon input-group-button" data-dc-tooltip="<%= t('actions.filter', locale: active_ui_locale) %>" data-disable><i class="fa fa-search" aria-hidden="true"></i></button>
+          </div>
+        </div>
+
+        <% if filter_model == DataCycleCore::User %>
+          <div class="main-filters">
+            <nav id="primary_nav_wrap">
+              <ul class="clickable-menu">
+                <li class="filter" data-id="roles">
+                  <span class="icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
+                  <span class="title"><%= DataCycleCore::Role.model_name.human(count: 2, locale: active_ui_locale) %></span>
+                  <div>
+                    <ul class="clearfix split-list">
+                      <% DataCycleCore::Role.accessible_by(current_ability).order(:rank).each do |item| %>
+                        <li>
+                          <input type="checkbox" name="roles[]" value="<%= item.id %>" id="<%= item.id %>" <%= 'checked' if @roles.presence&.ids&.include?(item.id) %> />
+                          <label for="<%= item.id %>">
+                            <span class="title">
+                              <span class="inner-title"><%= t('roles.'+item.name, locale: active_ui_locale) %></span>
+                            </span>
+                          </label>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </li>
+                <% if DataCycleCore::UserGroup.any? %>
+                  <li class="filter" data-id="user_groups">
+                    <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+                    <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: active_ui_locale) %></span>
+                    <div>
+                      <ul class="clearfix split-list">
+                        <% DataCycleCore::UserGroup.all.each do |item| %>
+                          <li>
+                            <input type="checkbox" name="user_groups[]" value="<%= item.id %>" id="<%= item.id %>" <%= 'checked' if @user_groups.presence&.ids&.include?(item.id) %> />
+                            <label for="<%= item.id %>">
+                              <span class="title">
+                                <span class="inner-title"><%= item.name %></span>
+                              </span>
+                            </label>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            </nav>
+          </div>
+        <% end %>
+
+        <% if filter_model == DataCycleCore::User %>
+          <div class="filtertags activefilter">
+            <span class="icon">
+              <i class="fa fa-check" aria-hidden="true"></i> <b><%= t('common.active_filters', locale: active_ui_locale) %>:</b>
+            </span>
+            <span class="filter-groups">
+              <%= render 'data_cycle_core/application/filters/tag_groups/roles',
+                  value: @roles,
+                  buttons: 'd',
+                  key: 'roles',
+                  target: 'roles' if filter_model == DataCycleCore::User && @roles.present? %>
+              <%= render 'data_cycle_core/application/filters/tag_groups/user_groups',
+                  value: @user_groups,
+                  buttons: 'd',
+                  key: 'user_groups',
+                  target: 'user_groups' if filter_model == DataCycleCore::User && @user_groups.present? %>
+            </span>
+          </div>
+        <% end %>
+
+        <div class="filterbuttons clearfix">
+          <div class="filterbuttons-left">
+            <%= button_tag type: :submit, class: "button success", data: {
+              disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.searching', locale: active_ui_locale)} ..."
+            } do %>
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <%= t('actions.filter', locale: active_ui_locale) %>
+            <% end %>
+
+            <div class="filter-buttons">
+              <%= link_to request.path, class: 'button', id: 'reset-filter', data: { dc_tooltip: t('actions.reset', count: 2, locale: active_ui_locale) } do %>
+                <i class="fa fa-times" aria-hidden="true"></i>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%= render 'data_cycle_core/application/view_mode_selector', additional_classes: 'column-padding' %>
+<% end %>

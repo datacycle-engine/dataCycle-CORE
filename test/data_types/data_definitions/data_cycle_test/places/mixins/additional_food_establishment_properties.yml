@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: additional_food_establishment_properties
+    :type: mixin
+    :properties: ~

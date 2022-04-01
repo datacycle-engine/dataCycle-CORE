@@ -1,0 +1,7 @@
+(function(){
+  let new_html = $('<%= escape_javascript render 'data_cycle_core/duplicate_candidates/duplicates_list_items', content: @content, items: @items, prefix: @prefix %>');
+
+  let load_more_button = $('#load_more_duplicates_<%= @content.id %>').parent('.clear-both');
+
+  $(new_html).replaceAll(load_more_button);
+})();

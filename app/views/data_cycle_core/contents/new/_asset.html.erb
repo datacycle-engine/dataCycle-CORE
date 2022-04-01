@@ -1,0 +1,16 @@
+<% if options&.dig(:render_attributes) %>
+  <%= render 'data_cycle_core/contents/new/default', local_assigns.merge(search_required: false) %>
+
+  <% if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
+    <fieldset>
+      <legend><%= t('new_step_title.agbs', locale: active_ui_locale) %></legend>
+      <%= render 'agbs', options: local_assigns[:options] %>
+    </fieldset>
+  <% end %>
+<% else %>
+  <fieldset class="no-search-warning no-submit">
+    <legend><%= t('actions.new', data: template&.translated_template_name(active_ui_locale), locale: active_ui_locale) %></legend>
+
+    <%= render 'data_cycle_core/contents/new/shared/content_uploader', local_assigns.merge(type: template&.schema&.dig('properties', template&.asset_property_names&.first, 'asset_type'), create_content: true) %>
+  </fieldset>
+<% end %>

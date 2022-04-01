@@ -1,0 +1,39 @@
+---
+- :data:
+    :name: Action
+    :type: object
+    :schema_type: Action
+    :boost: 1.0
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :attribute_group: action_type_one_line
+      :url:
+        :label: URL
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :validations:
+          :format: url
+      :action_type:
+        :label: Typ
+        :type: classification
+        :tree_label: ActionTypes
+        :api:
+          :name: '@type'
+          :partial: string
+        :ui:
+          :edit:
+            :attribute_group: action_type_one_line
+      :meta_data:
+        :type: mixin
+        :name: meta_data

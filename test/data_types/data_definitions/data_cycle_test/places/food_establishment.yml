@@ -1,0 +1,148 @@
+---
+- :data:
+    :name: Gastronomischer Betrieb
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 10.0
+    :api:
+      :type:
+        - Place
+        - Organization
+        - LocalBusiness
+        - FoodEstablishment
+    :features:
+      :geocode:
+        :allowed: true
+      :overlay:
+        :allowed: true
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
+          :indesign: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: PlaceOverlay
+        :translated: true
+        :validations:
+          :max: 1
+      :additional_food_establishment_properties:
+        :type: mixin
+        :name: additional_food_establishment_properties
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :gourmet_rating:
+        :label: Gourmet-Bewertung
+        :type: classification
+        :tree_label: Gourmet-Bewertungen
+        :ui:
+          :show:
+            :content_area: header
+      :opening_hours_specification:
+        :type: mixin
+        :name: opening_hours_specification
+      :dining_hours_specification:
+        :label: Warme Küche
+        :type: opening_time
+        :validations:
+          valid_dates: true
+          closed_range: true
+        :api:
+          :name: dc:diningHoursSpecification
+      :dining_hours_description:
+        :label: Warme Küche - Beschreibung
+        :type: embedded
+        :template_name: Öffnungszeit - Beschreibung
+        :ui:
+          :edit:
+            :disabled: true
+        :api:
+          :name: dc:diningHoursDescription
+          :partial: opening_hours_description
+          :v4:
+            :partial: embedded_opening_hours_description
+            :transformation:
+              :method: append
+              :name: dc:diningHoursSpecification
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :geo:
+        :type: mixin
+        :name: geo
+      :contact_info:
+        :type: mixin
+        :name: contact_info
+      :place_attributes:
+        :type: mixin
+        :name: place_attributes
+      :linked_data:
+        :type: mixin
+        :name: linked_data
+      :price_range:
+        :label: Preis-Info
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :outdoor_active:
+        :type: mixin
+        :name: outdoor_active
+      :outdoor_active_link:
+        :type: mixin
+        :name: outdoor_active_link
+      :outdoor_active_categories:
+        :type: mixin
+        :name: outdoor_active_categories
+      :outdoor_active_external_system:
+        :type: mixin
+        :name: outdoor_active_external_system
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Gastronomischer Betrieb'
+      :feratel:
+        :type: mixin
+        :name: feratel_categories
+      :feratel_cps:
+        :type: mixin
+        :name: feratel_cps
+      :pimcore_categories:
+        :type: mixin
+        :name: pimcore_categories
+      :wogehmahin:
+        :type: mixin
+        :name: wogehmahin
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

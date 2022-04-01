@@ -1,0 +1,13 @@
+<section class="duplicate-candidates">
+  <span class="horizontal-separator-header">
+    <div class="header-text">
+      <h4><%= t('duplicate.candidates', locale: active_ui_locale) %> (<%= content.duplicate_candidates.size %>)</h4>
+      <%= render 'data_cycle_core/duplicate_candidates/manual_duplicate_selector', content: content %>
+    </div>
+  </span>
+
+  <ul class="content-tiles remote-render"
+      data-remote-path="data_cycle_core/duplicate_candidates/duplicates_list"
+      data-remote-options="<%= to_query_params({ content: @content, prefix: prefix }).to_json %>">
+  </ul>
+</section>

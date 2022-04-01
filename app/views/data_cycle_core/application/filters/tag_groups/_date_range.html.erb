@@ -1,0 +1,19 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-calendar" aria-hidden="true"></i>
+    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>
+    <%= local_assigns[:filter_method] == 'e' ? t("common.is_not", locale: active_ui_locale) : t("common.is", locale: active_ui_locale) %>
+  </span>
+
+  <% if value&.dig('from').present? %>
+    <span class="tag-group-label"><%= t("terms.from", locale: active_ui_locale) %></span>
+    <span class="tag"><%= l(value['from'].to_date, locale: active_ui_locale) %></span>
+  <% end %>
+
+  <% if value&.dig('until').present? %>
+    <span class="tag-group-label"><%= t("terms.until", locale: active_ui_locale) %></span>
+    <span class="tag"><%= l(value['until'].to_date, locale: active_ui_locale) %></span>
+  <% end %>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons == 'a' %>
+</span>

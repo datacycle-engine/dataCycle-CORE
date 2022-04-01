@@ -1,0 +1,9 @@
+<%= link_to clear_watch_list_path(watch_list),
+            method: :delete,
+            class:'button-prime small alert clear-collection-link',
+            data: {
+              confirm: "#{t('actions.clear', data: watch_list.name, locale: active_ui_locale)}?",
+              dc_tooltip: t('actions.clear', data: watch_list.name, locale: active_ui_locale)
+            } do %>
+  <i class="fa fa-times" aria-hidden="true"></i>
+<% end %>

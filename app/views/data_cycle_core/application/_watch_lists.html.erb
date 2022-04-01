@@ -1,0 +1,24 @@
+<% content ||= nil %>
+<% if content && !@watch_list&.id.nil? && @watch_list.persisted? && controller_name == 'watch_lists' %>
+
+  <%= link_to remove_item_watch_list_path(@watch_list, hashable_type: content&.class&.name, hashable_id: content&.id, load_more: true),
+    class: 'remove-from-watchlist-link watch-lists-link',
+    method: :delete,
+    data: {
+      dc_tooltip: t('actions.remove_from', collection: @watch_list.name, locale: active_ui_locale),
+      disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
+    }.merge(@watch_list.my_selection ? {} : {
+      confirm: t('actions.remove_content_from', name: I18n.with_locale(content&.first_available_locale){ content&.title }, collection: @watch_list.name, locale: active_ui_locale)
+    }) do %>
+    <i aria-hidden="true" class="fa fa-times"></i>
+  <% end if can?(:remove_item, @watch_list) %>
+
+<% elsif content %>
+
+  <%= render 'data_cycle_core/application/watch_lists/editable_links', content: content, prefix: local_assigns[:prefix] %>
+
+<% else %>
+
+  <%= render 'data_cycle_core/application/watch_lists/readable_links' %>
+
+<% end %>

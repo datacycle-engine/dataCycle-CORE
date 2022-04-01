@@ -1,0 +1,11 @@
+<%= render 'data_cycle_core/contents/viewers/attribute',
+      key: key,
+      definition: definition,
+      value: value,
+      options: options.merge({ hide_label: true }),
+      content: content,
+      parent: local_assigns[:parent] do %>
+
+  <span class="detail-content"><img src="<%= value.try(:html_safe) %>" /></span>
+
+<% end %>

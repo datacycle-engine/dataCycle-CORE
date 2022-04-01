@@ -1,0 +1,45 @@
+---
+- :data:
+    :name: piemonte_events
+    :type: mixin
+    :properties:
+      :piemonte_tag:
+        :label: EventsPiemonte - Tags
+        :type: classification
+        :tree_label: EventsPiemonte - Tags
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :piemonte_category:
+        :label: EventsPiemonte - Categories
+        :type: classification
+        :tree_label: EventsPiemonte - Categories
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :piemonte_scope:
+        :label: EventsPiemonte - Scopes
+        :type: classification
+        :tree_label: EventsPiemonte - Scopes
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :piemonte_coverage:
+        :label: EventsPiemonte - Coverages
+        :type: classification
+        :tree_label: EventsPiemonte - Coverages
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :piemonte_data_source:
+        :label: EventsPiemonte - DataSources
+        :type: classification
+        :tree_label: EventsPiemonte - DataSources
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

@@ -1,0 +1,56 @@
+<% breadcrumb :schema, autoroot: false %>
+
+<main>
+  <h1 typeof="rdfs:Class" resource="<%= schema_url(@template_schema.schema_name) %>">
+    <%= Array.wrap(@template_schema.schema_name).join(' / ') %> (<em><%= @template_schema.template_name %></em>)
+  </h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Property</th>
+        <th>Expected Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+
+    <thead>
+      <th colspan="4">
+        Properties from
+        <% Array.wrap(@template_schema.schema_name).each do |schema_name| %>
+          <a href="//schema.org/<%= schema_name %>"><%= schema_name %></a>
+        <% end %>
+      </th>
+    </thead>
+
+    <tbody>
+      <% @template_schema.property_definitions.each do |definition| %>
+        <tr>
+          <th>
+            <%= definition[:label] %>
+            <%= tag.i(class: 'fa fa-language has-tip', aria_hidden: true, title: 'Translated') if definition[:translated] %>
+            <%= tag.i(class: 'fa fa-tag has-tip', aria_hidden: true, title: 'Classification') if definition[:data_type] == 'classification' %>
+            <%= tag.i(class: 'fa fa-share-alt has-tip', aria_hidden: true, title: 'embedded') if definition[:embedded] %>
+            <%= tag.i(class: 'fa fa-search has-tip', aria_hidden: true, title: 'fulltext search') if definition[:fulltext_search] %>
+          </th>
+          <td>
+            <% Array.wrap(definition[:data_type]).each do |data_type| %>
+              <% if data_type == 'classification' %>
+                <a href="https://www.w3.org/2009/08/skos-reference/skos.html#"><%= 'skos' %></a><br/>
+              <% else %>
+                <a href="<%= data_type %>"><%= data_type.split('/').last %></a><br/>
+              <% end %>
+            <% end %>
+          </td>
+          <td>
+            <% if definition[:data_type] == 'classification' && definition.dig(:comment_link).present? %>
+              <a href="<%= root_path(mode: 'tree', ctl_id: definition.dig(:comment_link), reset: true) %>"><%= definition.dig(:comment).presence %></a>
+            <% else %>
+              <%= definition.dig(:comment).presence %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</main>

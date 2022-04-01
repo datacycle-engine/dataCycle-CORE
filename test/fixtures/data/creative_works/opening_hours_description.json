@@ -1,0 +1,13 @@
+[
+  {
+    "validity_schedule": [
+      {
+        "start_time": {
+          "time": "2019-10-10 10:00",
+          "zone": "Europe/Vienna"
+        }
+      }
+    ],
+    "description": "Description - Test"
+  }
+]

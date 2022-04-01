@@ -1,0 +1,74 @@
+<section class="edit-header">
+  <div class="row expanded">
+    <div class="column edit-header-functions">
+      <div class="edit-name">
+        <i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) + ' ' + t('actions.bulk_edit', locale: active_ui_locale) %> (<%= I18n.locale %>)
+      </div>
+      <ul>
+        <% content = generic_content(@shared_template_features, @shared_properties) %>
+
+        <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
+
+        <%= tag.li render('data_cycle_core/contents/editors/metadata/locales_list', content: watch_list), class: 'has-dropdown' if content.translatable? && I18n.available_locales&.many? %>
+
+        <li class="buttons">
+          <%= link_to tag.button(
+            tag.i(class: 'fa fa-times', aria_hidden: true),
+            class: 'button discard top',
+            type: :button,
+            data: { dc_tooltip: t('actions.discard_changes', locale: active_ui_locale) }), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
+
+          <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? watch_list.things.includes(:translations, :lock).map(&:lock).compact.sort_by(&:updated_at).reverse! : nil %>
+
+          <%= button_tag safe_join([DataCycleCore::Feature::ContentLock.enabled? ? tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') : nil, tag.i(class: 'fa fa-check', aria_hidden: true)]),
+            class: "button-prime submit submit-edit-form #{'content-lock editable-lock' if DataCycleCore::Feature::ContentLock.enabled?}",
+            data: {
+              dc_tooltip: t('actions.save_changes', locale: active_ui_locale),
+              disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
+                tag.span(class: 'progress-value') +
+                tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+            }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
+              lock_length: DataCycleCore::Feature::ContentLock.lock_length,
+              lock_renew_before: DataCycleCore::Feature::ContentLock.lock_renew_before,
+              lock_content_id: watch_list&.id
+            } : {}).merge(content_locks.present? ? {
+              locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h,
+              lock_token: @lock_token,
+              lock_path: content_locks_path,
+            } : {}) %>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<%= form_with url: bulk_update_watch_list_path(watch_list), method: :patch, local: false, class: 'validation-form edit-content-form bulk-edit-form' do |f| %>
+  <%= hidden_field_tag :uuid, watch_list.id %>
+  <%= hidden_field_tag :table, watch_list.class.table_name %>
+  <%= hidden_field_tag :locale, @locale %>
+
+  <div>
+    <div class="row">
+      <div class="column">
+        <div class="detail-header editor">
+          <%= tag.span(t('controllers.error.no_shared_attributes', locale: active_ui_locale), class: 'bulk-no-attributes') if @shared_properties.blank? %>
+          <% @shared_properties.presence&.each do |key, prop| %>
+            <%= render_attribute_editor key: key,
+                                        prefix: key_prefix,
+                                        definition: prop,
+                                        value: nil,
+                                        parameters: {
+                                          options: {
+                                            additional_attribute_partials: ['data_cycle_core/contents/bulk_update_type_selector'],
+                                            edit_scope: 'bulk_edit'
+                                          }
+                                        },
+                                        content: content %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%= content_for :forms %>

@@ -1,0 +1,546 @@
+:publication_schedule:
+  :enabled: false
+  :classification_keys:
+    - output_channel
+
+:download:
+  :enabled: true
+  :downloader:
+    :content:
+      :enabled: true
+      :thing:
+        :enabled: true
+        :serializers:
+          :asset: false
+          :gpx: true
+          :json: false
+          :indesign: false
+          :xml: false
+      :watch_list:
+        :enabled: false
+        :serializers:
+          :asset: false
+          :gpx: false
+          :json: false
+          :indesign: false
+          :xml: false
+      :stored_filter:
+        :enabled: false
+        :serializers:
+          :asset: false
+          :gpx: false
+          :json: false
+          :indesign: false
+          :xml: false
+    :archive:
+      :zip:
+        :enabled: false
+        :thing:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+        :watch_list:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+        :stored_filter:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+      :indesign:
+        :enabled: false
+        :thing:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :watch_list:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :stored_filter:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+    :dependencies:
+      - serialize
+
+:serialize:
+  :enabled: true
+  :serializers:
+    :asset: false
+    :license: true
+    :gpx: true
+    :indesign: false
+    :json: false
+    :xml: false
+
+:overlay:
+  :enabled: true
+  :attribute_keys:
+    - overlay
+
+:releasable:
+  :enabled: false
+  :attribute_keys:
+    - release_status_id
+    - release_status_comment
+  :classification_names:
+    :valid: freigegeben
+    :partner: beim Partner
+    :review: in Review
+    :archive: archiviert
+
+:life_cycle:
+  :enabled: false
+#   :attribute_keys:
+#     - data_pool
+#   :tree_label: Inhaltspools
+#   :ordered:
+#     - Vorschläge
+#     - Recherche
+#     - Aktuelle Inhalte
+#     - Archiv
+
+:idea_collection:
+  :enabled: false
+
+:container:
+  :enabled: false
+
+:main_filter:
+  :enabled: true
+  :autoload_last_filter: true
+  :config:
+    :backend:
+      :filter:
+        - :search: true
+          # - :classification_tree: Inhaltstypen # toplevel classifications from this tree will be available as clickable buttons
+        - :classification_trees:
+            - Inhaltstypen
+          # - :permanent_advanced: # always visible advanced filtesrs, can be a array with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
+        - :advanced: true # can be a array with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
+      :store: true
+      :add_items_to_watch_list: true
+      :language: true
+      :mode_selector: true
+      :sortable: true
+    :things:
+      :filter:
+        - :search: true
+        - :classification_trees:
+            - 'Inhaltstypen'
+      :language: true
+      :mode_selector: true
+      :collapse: true
+    :collection:
+      :filter:
+        - :search: true
+        - :classification_trees:
+            - 'Inhaltstypen'
+      :language: true
+      :mode_selector: true
+      :collapse: true
+    :classification_tree:
+      :filter:
+        - :classification_trees:
+            - Inhaltstypen
+            - Märkte
+      :language: true
+    :publications:
+      :filter:
+        - :classification_trees:
+            - Inhaltstypen
+        - :advanced: true
+        - :publication_date: true
+      :language: true
+    :subscriptions:
+      :filter:
+        - :search: true
+      :language: true
+      :mode_selector: true
+
+:advanced_filter:
+  :enabled: true
+  :config:
+    :visible: false
+    :schedule_exceptions:
+      - validity_schedule
+  :classification_alias_ids: all
+#  :related_to: true
+  :external_source: false
+  :external_system: true
+  :id: true
+  :creator: true
+  :classification_tree_ids: true
+  :date_range: all
+  :validity_period:
+    :absolute: true
+    :relative: true
+  :inactive_things:
+    :absolute: true
+    :relative: true
+  :in_schedule:
+    :absolute: true
+    :relative: true
+  :geo_filter:
+    :geo_radius: false
+    :geo_within_classification:
+      false
+      - Administrative Einheiten
+  # :union_filter_ids: true
+  # :relation_filter:
+  #   :linked_image: image
+  #   :linked_location:
+  #     :attribute: content_location
+  #     :filter:
+  #       :stored_filter:
+  #         - :with_classification_aliases_and_treename:
+  #             :treeLabel: Inhaltstypen
+  #             :aliases:
+  #               - Gastronomischer Betrieb
+  #               - LocalBusiness
+  #               - Örtlichkeit
+  #               - POI
+  #               - Unterkunft
+  #   :linked_author:
+  #     :attribute: author
+  #     :filter:
+  #       :stored_filter:
+  #         - :with_classification_aliases_and_treename:
+  #             :treeLabel: Inhaltstypen
+  #             :aliases:
+  #               - Person
+  #               - Organisation
+  #   :linked_copyright_holder:
+  #     :attribute: copyright_holder
+  #     :filter:
+  #       :stored_filter:
+  #         - :with_classification_aliases_and_treename:
+  #             :treeLabel: Inhaltstypen
+  #             :aliases:
+  #               - Person
+  #               - Organisation
+  # :advanced_attributes:
+  #   :width:
+  #     :type: numeric
+  #   :contact_info.email:
+  #     :type: string
+  #   :upload_date:
+  #     :type: date
+  #   :mandatory_license:
+  #     :type: boolean
+  #   :upload_date:
+  #     :type: date
+  #   :live_date_from:
+  #     :type: date
+  #   :publication_date:
+  #     :type: date
+  #   :live_stream_start_end:
+  #     :type: date_range
+  #     # default query_operator: overlaps
+  #     :query_operator: 'overlaps'
+  #     # :query_operator: 'contains'
+  #     :attribute_keys:
+  #       - live_date_from
+  #       - live_date_until
+
+:sortable:
+  :enabled: false
+  :updated_at: true
+  :created_at: true
+  :translated_name: true
+  # advanced attributes are also available in APIv4
+  # :advanced_attributes:
+  #   :upload_date: true
+  #   :publication_date: true
+  #   :width: true
+  #   :height: true
+  #   :live_date_from: true
+
+:geocode:
+  :enabled: false
+  :attribute_keys:
+
+:auto_translation:
+  :enabled: false
+  :source_lang: de
+
+:translate:
+  :enabled: false
+  :allowed_languages:
+    - bg
+    - zh
+    - da
+    - de
+    - de-CH
+    - en
+    - et
+    - fi
+    - fr
+    - el
+    - it
+    - ja
+    - lv
+    - lt
+    - nl
+    - pl
+    - pt
+    - ro
+    - ru
+    - sv
+    - sk
+    - sl
+    - es
+    - cs
+    - hu
+
+:external_media_archive:
+  :enabled: false
+  :template_mapping:
+    :bild: image
+    :video: video
+
+:normalize:
+  :enabled: false
+  :external_source: Econob Normalize
+  :endpoint: DataCycleCore::MasterData::Normalizer::Endpoint
+
+:duplicate_content:
+  :enabled: false
+
+:duplicate_candidate:
+  :enabled: false
+
+:content_lock:
+  :enabled: false
+  :lock_length: <%= 30.minutes %>
+  :lock_renew_before: <%= 5.minutes %>
+
+:user_api:
+  :enabled: false
+  :only_config: true
+  :expiration_time: <%= 24.hours %>
+  :default_rank: 0
+  :allowed_ranks:
+    - 0
+  :user_params:
+    :email:
+    :given_name:
+    :family_name:
+    :default_locale:
+    :password:
+    :confirmed_at:
+  :issuer: datacycle.at
+
+:copy_embedded_locale:
+  :enabled: false
+  :only_config: true
+
+:view_mode:
+  :enabled: true
+  :allowed:
+    - grid
+    - list
+    - tree
+#    - map
+
+:translated_data_link:
+  :enabled: true
+
+:translatable:
+  :enabled: true
+  :only_config: true
+
+:user_registration:
+  :enabled: false
+  # :terms_condition_url:
+  # :privacy_policy_url:
+  # :default_role: external_user
+
+:preview:
+  :enabled: false
+  :widgets:
+    :list:
+    :map:
+
+:tile_border_color:
+  :enabled: false
+  :only_config: true
+  # :tree_label: Eyebase - Status
+
+:collection_group:
+  :enabled: false
+  :separator: ' / '
+
+:named_version:
+  :enabled: false
+
+:copyable_attribute:
+  :enabled: false
+
+:geo_key_figure:
+  :enabled: false
+  :attribute_keys:
+
+:my_selection:
+  :enabled: false
+
+:image_proxy:
+  :enabled: false
+  :frontend:
+    :enabled: false
+  :config:
+    :dynamic:
+    # :original:
+    :default:
+      :processing:
+        :resize_type: fit
+        :width: 0
+        :height: 0
+        :enlarge: 0
+        :gravity: ce
+    :thumb:
+      :processing:
+        :resize_type: fit
+        :width: 300
+        :height: 300
+        :enlarge: 0
+        :gravity: ce
+    :web:
+      :processing:
+        :resize_type: fit
+        :width: 2048
+        :height: 2048
+        :enlarge: 0
+        :gravity: ce
+    :web_small:
+      :processing:
+        :resize_type: fit
+        :width: 1500
+        :height: 1500
+        :enlarge: 0
+        :gravity: ce
+
+:report_generator:
+  :enabled: false
+  :config:
+    :global:
+      :downloads_popular:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::Popular
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
+      :stored_searches_usage:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::StoredSearchesUsage
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
+    :content:
+      :downloads_content:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::Content
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
+
+:image_editor:
+  :enabled: false
+
+:translation_of_work:
+  :enabled: true
+  :attribute_keys:
+    - translation_of_work
+
+:video_transcoding:
+  :enabled: false
+  :placeholder: 'path/to/placeholder/video.mp4'
+  :config:
+    :dynamic:
+    :mp4:
+      :processing:
+        :file_ext: 'mp4'
+        :options:
+          video_codec: 'libx264' # -c:v codec
+          frame_rate: 29.97 # -r framerate
+          keyframe_interval: 90 # -g
+          x264_preset: 'slow' # -preset slow
+          video_bitrate: 1500 # -b:v 1500k
+          x264_vprofile: 'main' # -vprofile main
+          resolution: '1280x720' # -s 1280x720
+          audio_bitrate: 92 # -b:a 92k
+          audio_codec: 'aac' # -c:a libfdk_aac
+          audio_sample_rate: 22050 # -ar 22050
+          audio_channels: 2 # -ac 2
+          threads: 4 # -threads 2
+          custom:
+            - '-movflags'
+            - 'faststart'
+    :mp4_low:
+      :processing:
+        :file_ext: 'mp4'
+        :filename_append: 'low'
+        :options:
+          video_codec: 'libx264' # -c:v codec
+          frame_rate: 29.97 # -r framerate
+          keyframe_interval: 90 # -g
+          x264_preset: 'slow' # -preset slow
+          video_bitrate: 600 # -b:v 1500k
+          x264_vprofile: 'baseline' # -vprofile main
+          resolution: '640x360' # -s 1280x720
+          audio_bitrate: 92 # -b:a 92k
+          audio_codec: 'aac' # -c:a libfdk_aac
+          audio_sample_rate: 22050 # -ar 22050
+          audio_channels: 2 # -ac 2
+          threads: 4 # -threads 2
+          custom:
+            - '-movflags'
+            - 'faststart'
+    :mp4_mid:
+      :processing:
+        :file_ext: 'mp4'
+        :filename_append: 'mid'
+        :options:
+          video_codec: 'libx264' # -c:v codec
+          frame_rate: 29.97 # -r framerate
+          keyframe_interval: 90 # -g
+          x264_preset: 'slow' # -preset slow
+          video_bitrate: 800 # -b:v 1500k
+          x264_vprofile: 'baseline' # -vprofile main
+          resolution: '640x360' # -s 1280x720
+          audio_bitrate: 92 # -b:a 92k
+          audio_codec: 'aac' # -c:a libfdk_aac
+          audio_sample_rate: 22050 # -ar 22050
+          audio_channels: 2 # -ac 2
+          threads: 4 # -threads 2
+          custom:
+            - '-movflags'
+            - 'faststart'
+
+:user_group_classification:
+  :enabled: false
+  # attribute_keys:
+  #   :output_channels:
+  #     :tree_label: "Ausgabekanäle"
+
+:content_score:
+  :enabled: true

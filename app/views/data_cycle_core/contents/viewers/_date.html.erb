@@ -1,0 +1,17 @@
+<%= render 'data_cycle_core/contents/viewers/attribute',
+      local_assigns.merge(data_attributes: {
+        value: l(value&.to_date, locale: active_ui_locale), editor: "date_picker"
+      }) do %>
+
+  <span class="detail-content">
+    <% case options.dig(:item_diff, 0) %>
+    <% when '~' %>
+      <del><%= l(options.dig(:item_diff, 1)&.to_date, locale: active_ui_locale) %></del>
+      <ins><%= l(options.dig(:item_diff, 2)&.to_date, locale: active_ui_locale) %></ins>
+    <% when '+' %>
+      <%= l(options.dig(:item_diff, 1)&.to_date, locale: active_ui_locale) %>
+    <% else %>
+      <%= l(value&.to_date, locale: active_ui_locale) %>
+    <% end %>
+  </span>
+<% end %>

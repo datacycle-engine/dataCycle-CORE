@@ -1,0 +1,45 @@
+<div class="glass home-container reset-password">
+  <div class="home-container-content">
+    <!--[if lt IE 9]>
+      <div class="legacy-ie-fix"></div>
+    <![endif]-->
+    <div class="columns">
+      <%= render 'logo' %>
+    </div>
+
+    <main class="columns">
+      <h1><%= t('devise.passwords.new.forgot_your_password', locale: active_ui_locale) %></h1>
+
+      <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+        <% if resource.errors.any? %>
+          <ul class="errors">
+            <% resource.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        <% end %>
+
+        <div class="row">
+          <div class="small-3 columns">
+            <label for="user_email" class="text-right middle">
+              <%= t('activerecord.attributes.user.email', locale: active_ui_locale) %>:
+            </label>
+          </div>
+          <div class="small-8 columns end">
+            <%= f.input :email, required: false, autofocus: true, label: false %>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="small-8 small-offset-3 columns end">
+            <div class="form-actions">
+              <%= f.button :button, class: 'button', type: 'submit' do %>
+                <%= t('devise.passwords.new.send_me_reset_password_instructions', locale: active_ui_locale) %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </main>
+  </div>
+</div>

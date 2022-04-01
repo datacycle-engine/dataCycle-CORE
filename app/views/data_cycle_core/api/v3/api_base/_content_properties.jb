@@ -1,0 +1,30 @@
+# frozen_string_literal: true
+
+unless content.schema.nil?
+  json ||= {}
+  context ||= false
+
+  json.merge! render 'content_context', content: content if context
+
+  ordered_api_properties(validation: content.schema).each do |key, prop|
+    next if options[:hidden_attributes].include?(key) || options[:combined_attributes].include?(key) || (@mode_parameters.include?('minimal') && !prop.dig('api', 'minimal')) || prop.dig('api', 'disabled')
+    # next if content.schema&.dig('properties', key, 'link_direction') == 'inverse'
+    value = content.try(key.to_sym)
+    next if value.blank? && !['sub_event', 'schedule'].include?(key)
+
+    partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content
+    if (prop.dig('api', 'transformation', 'method') == 'nest' || prop.dig('api', 'transformation', 'method') == 'merge_object') && prop.dig('api', 'transformation', 'name').present?
+      if json.dig(prop.dig('api', 'transformation', 'name')).present?
+        json.dig(prop.dig('api', 'transformation', 'name')).merge! render(*partial_params) unless partial_params.nil?
+      else
+        json[prop.dig('api', 'transformation', 'name')] = render(*partial_params) unless partial_params.nil?
+      end
+      json[prop.dig('api', 'transformation', 'name')]['@type'] = prop.dig('api', 'transformation', 'type') if prop.dig('api', 'transformation', 'type').present?
+    else
+      json.merge! render(*partial_params) unless partial_params.nil?
+    end
+  end
+
+end
+
+json

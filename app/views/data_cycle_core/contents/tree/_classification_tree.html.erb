@@ -1,0 +1,37 @@
+<li id="<%= classification_tree.id %>" class="tree-link-container">
+  <span class="inner-item">
+    <%= link_to '#',
+                class: 'tree-link',
+                data: {
+                  disable: true,
+                  additional_form_parameters: {
+                    ctl_id: classification_tree_label&.id,
+                    ct_id: classification_tree.id
+                  }.compact.to_json
+                } do %>
+      <%= classification_tree.sub_classification_alias.try(:internal_name) %>
+      <span class="children-count">(
+        <span class="child-count-direct result-count loading"
+        id="tree-direct-child-count-<%= classification_tree.id %>"
+        data-additional-form-parameters="<%= to_query_params({
+          content_class: local_assigns[:content_class] || 'things',
+          count_mode: 'classification_alias',
+          ctl_id: classification_tree_label&.id,
+          ct_id: classification_tree.id
+        }).to_json %>"
+        ></span>
+        /
+        <span class="child-count-full result-count loading"
+        id="tree-child-count-<%= classification_tree.id %>"
+        data-additional-form-parameters="<%= to_query_params({
+          content_class: local_assigns[:content_class] || 'things',
+          count_mode: 'ca_recursive',
+          ctl_id: classification_tree_label&.id,
+          ct_id: classification_tree.id
+        }).to_json %>"
+        ></span>
+        )
+      </span>
+    <% end %>
+  </span>
+</li>

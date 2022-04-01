@@ -1,0 +1,18 @@
+<%= render partial: 'data_cycle_core/contents/tree/classification_tree', collection: classification_trees, locals: { classification_tree_label: classification_tree_label } %>
+
+<% if @tree_page < @tree_total_pages %>
+  <li class="load-more-link pagination-container">
+    <span class="inner-item">
+      <%= link_to t('common.load_more', locale: active_ui_locale), '#',
+                  class: 'button small secondary pagination-link',
+                  data: {
+                    disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}",
+                    additional_form_parameters: {
+                      tree_page: @tree_page + 1,
+                      ctl_id: classification_tree_label&.id,
+                      ct_id: local_assigns[:classification_tree]&.id
+                    }.compact.to_json
+                  } %>
+    </span>
+  </li>
+<% end %>

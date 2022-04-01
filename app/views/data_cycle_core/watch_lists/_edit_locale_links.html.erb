@@ -1,0 +1,17 @@
+<li class="has-dropdown">
+  <a data-toggle="<%= local_assigns[:prefix] %>locales-menu"><i class="fa fa-language" aria-hidden="true"></i></a>
+  <div class="dropdown-pane no-bullet bottom" id="<%= local_assigns[:prefix] %>locales-menu" data-dropdown>
+    <h5><%= t('common.choose_language', locale: active_ui_locale) %></h5>
+    <ul class="list-items">
+      <% locales.each do |l| %>
+        <li class="<%= "active" if l.first == I18n.locale %>">
+          <%= link_to_unless l.first == I18n.locale, l.last,
+            bulk_edit_watch_list_path(content, locale: l.first),
+            data: {
+              locale: l.first
+            } %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</li>

@@ -1,0 +1,32 @@
+# frozen_string_literal: true
+
+json ||= {}
+api_property_definition = api_definition(definition)
+
+value = load_value_object(content, key, value, options[:languages], api_property_definition, options[:expand_language])
+
+if value.present?
+  property_definition = api_definition(definition)
+
+  key_new = attribute_key(key, definition)
+  key_new = property_definition.dig('transformation', 'name') if property_definition.dig('transformation', 'method') == 'append'
+
+  data = {
+    '@id' => generate_uuid(content.id, key),
+    '@type' => property_definition.dig('type').to_s || 'ViewAction',
+    'name' => property_definition.dig('action', 'platform') || key,
+    'url' => value
+  }
+
+  new_fields = subtree_for(key_new, options[:fields])
+  new_include = subtree_for(key_new, options[:include])
+  data.select! { |p_key, _value| api_default_attributes.include?(p_key) || select_attributes(new_fields).include?(p_key) || select_attributes(new_include).include?(p_key) } if new_fields.present?
+
+  if property_definition.dig('transformation', 'method') == 'append'
+    json = data
+  else
+    json = { key_new => data }
+  end
+end
+
+json

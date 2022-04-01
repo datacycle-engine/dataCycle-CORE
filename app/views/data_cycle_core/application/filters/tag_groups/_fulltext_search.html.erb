@@ -1,0 +1,20 @@
+<span class="tag-group tags i <%= key %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-search" aria-hidden="true"></i>
+    <%= t('common.searchterm', locale: active_ui_locale) %>:
+  </span>
+
+  <span class="tags-container">
+    <% if buttons == 'd' %>
+      <label for="<%= value %>">
+        <a class="tag">
+          <%= value %><i class="fa fa-times" aria-hidden="true"></i>
+        </a>
+      </label>
+    <% else %>
+      <span class="tag"><%= value %></span>
+    <% end %>
+  </span>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons == 'a' %>
+</span>

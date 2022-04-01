@@ -1,0 +1,38 @@
+<div class="dc-additional-values-filter-container">
+  <ul class="dc-additional-values-filter accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
+    <% additional_values.each do |key, value| %>
+      <% tree_label = value.dig('definition', 'ui', 'edit', 'filters', 'classification_tree') %>
+      <% items = additional_map_values_filter(tree_label) %>
+      <%= tag.li(
+      class: "dc-additional-values-filter-item #{'accordion-item' if items.present?}",
+      data: {
+        accordion_item: items.present? ? true: nil,
+        group_key: key,
+        definition: value['definition']&.to_json
+      }
+    ) do %>
+        <div class="loading-spinner"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></div>
+        <% random_id = SecureRandom.hex(10) %>
+        <div class="overlay-filter-label">
+          <%= check_box_tag "#{random_id}_dc_map_additional_value_#{key}",
+                            key,
+                            false,
+                            class: 'dc-additional-values-filter-group' %>
+          <%= label_tag "#{random_id}_dc_map_additional_value_#{key}", class: 'dc-additional-values-filter-title' do %>
+            <%= tag.span(value['label'], class: 'attribute-label-text', title: value['label']) %>
+          <% end %>
+        </div>
+
+        <% if items.present? %>
+          <a href="#" class="accordion-title"></a>
+
+          <%= render 'data_cycle_core/contents/editors/geographic/overlay_classification_tree_level',
+                    items: items,
+                    random_id: random_id,
+                    key: key %>
+
+        <% end %>
+      <% end %>
+    <% end %>
+  </ul>
+</div>

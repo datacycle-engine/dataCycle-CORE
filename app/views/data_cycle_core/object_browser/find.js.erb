@@ -1,0 +1,16 @@
+<% content_for :rendered_items, flush: true do %>
+  <% I18n.with_locale(params[:locale] || I18n.locale) do %>
+    <% @objects.presence&.each do |object| %>
+      <%= render_linked_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: object, prefix: params[:prefix], options: params[:options], objects: params[:objects], edit_buttons: true }, content: @content) unless params[:objects]&.include?(object.id) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+(function(){
+  let html_content = '<%= j yield(:rendered_items) %>';
+
+  $(html_content).appendTo($('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser .object-thumbs'));
+  $('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser .object-thumbs').addClass('has-items');
+  $(html_content).appendTo($('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %> .chosen-items-container'));
+  $('#<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>.object-browser').trigger('dc:update:chosen', { chosen: <%= Array(@objects&.ids).to_json.html_safe %> });
+})();

@@ -1,0 +1,23 @@
+<% if @count_only %>
+  <%= result_count(@count_mode, @total_count, @content_class || 'things') %>
+<% else %>
+  <% if @mode == 'tree' && params[:tree_page].present? && !(@classification_tree || @classification_tree_label).nil? %>
+    <%= render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees %>
+  <% elsif @mode == 'tree' && params[:page].present? && !@classification_tree.nil? %>
+    <%= render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, language: @language %>
+  <% elsif @mode == 'tree' && !@classification_tree.nil? %>
+    <ul class="children <%= 'has-contents' unless @contents.nil? %>">
+      <%= render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees %>
+    </ul>
+    <ul class="contents no-bullet">
+      <%= render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, language: @language %>
+    </ul>
+  <% elsif @mode == 'tree' && !@container.nil? %>
+    <ul class="children"></ul>
+    <ul class="contents no-bullet">
+      <%= render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, container: @container, classification_parent_tree: @classification_parent_tree, language: @language %>
+    </ul>
+  <% else %>
+    <%= render "data_cycle_core/application/presentation/#{valid_mode(@mode)}", contents: @contents, direction: params[:direction] %>
+  <% end %>
+<% end %>

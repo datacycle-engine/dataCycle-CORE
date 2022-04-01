@@ -1,0 +1,386 @@
+.dc-type-icon {
+  &::before {
+    font-family: 'FontAwesome';
+    position: relative;
+    text-align: center;
+    font-style: normal;
+  }
+
+  &.thing-icon {
+    &::before {
+      content: '\f15b';
+    }
+
+    &.thema::before {
+      content: '\f07c';
+    }
+
+    &.thema_archiv,
+    &.container_archiv {
+      &::before {
+        content: '\f187';
+      }
+    }
+
+    &.thema_aktuelle_inhalte,
+    &.container_aktuelle_inhalte {
+      &::before {
+        content: '\f07c';
+      }
+    }
+
+    &.recherche,
+    &.thema_recherche,
+    &.container_recherche {
+      &::before {
+        content: '\f0eb';
+      }
+    }
+
+    &.thema_vorschlage,
+    &.vorschlage,
+    &.container_vorschlage {
+      &::before {
+        content: '\f249';
+      }
+    }
+
+    &.artikel,
+    &.standard_artikel,
+    &.strukturierter_artikel,
+    &.radroutenbeschreibung,
+    &.angebot,
+    &.inhaltsblock,
+    &.beschreibungstext {
+      &::before {
+        content: '\f15c';
+      }
+    }
+
+    &.bild,
+    &.foto-serie {
+      &::before {
+        content: '\f03e';
+      }
+    }
+
+    &.socialmediaposting,
+    &.organization {
+      &::before {
+        content: '\f0c0';
+      }
+    }
+
+    &.portrait::before {
+      content: '\f2c1';
+    }
+
+    &.biografie::before {
+      content: '\f2bb';
+    }
+
+    &.zitat::before {
+      content: '\f10d';
+    }
+
+    &.zeitleiste,
+    &.zeitleiste_eintrag {
+      &::before {
+        content: '\f017';
+      }
+    }
+
+    &.app,
+    &.mobileapplication {
+      &::before {
+        content: '\f10b';
+      }
+    }
+
+    &.voting::before {
+      content: '\f164';
+    }
+
+    &.rezept,
+    &.rezept_komponente {
+      &::before {
+        content: '\f0f5';
+      }
+    }
+
+    &.linktipps::before {
+      content: '\f0c1';
+    }
+
+    &.website::before {
+      content: '\f109';
+    }
+
+    &.interview::before {
+      content: '\f075';
+    }
+
+    &.quiz::before {
+      content: '\f059';
+    }
+
+    &.frage::before {
+      content: '\f128';
+    }
+
+    &.antwort::before {
+      content: '\f112';
+    }
+
+    &.person::before {
+      content: '\f007';
+    }
+
+    &.content_location,
+    &.ortlichkeit,
+    &.poi,
+    &.unterkunft {
+      &::before {
+        content: '\f041';
+      }
+    }
+
+    &.tour,
+    &.route,
+    &.gesamtroute,
+    &.donau_-_tour,
+    &.etappe,
+    &.donau_tour {
+      &::before {
+        content: '\f279';
+      }
+    }
+
+    &.zertifizierung::before {
+      content: '\f0a3';
+    }
+
+    &.video,
+    &.video_serie,
+    &.webcam,
+    &.youtube_video {
+      &::before {
+        content: '\f03d';
+      }
+    }
+
+    &.event,
+    &.subevent {
+      &::before {
+        content: '\f073';
+      }
+    }
+
+    &.prospekt,
+    &.pdf {
+      &::before {
+        content: '\f1c1';
+      }
+    }
+
+    &.audio::before {
+      content: '\f1c7';
+    }
+
+    &.vkzeit::before {
+      content: '\f274';
+    }
+
+    &.job_posting,
+    &.jobposting {
+      &::before {
+        content: '\f0b1';
+      }
+    }
+
+    &.hotel,
+    &.wintours_-_hotel,
+    &.hotel_-_zimmer,
+    &.win_tours_hotel {
+      &::before {
+        content: '\f236';
+      }
+    }
+
+    &.termine,
+    &.wintours_-_termin {
+      &::before {
+        content: '\f073';
+      }
+    }
+
+    &.fahrrad,
+    &.fahrradangebot {
+      &::before {
+        content: '\f206';
+      }
+    }
+
+    &.schiff::before {
+      content: '\f21a';
+    }
+
+    &.reise,
+    &.reisedetails,
+    &.wintours_-_reise,
+    &.win_tours_reise,
+    &.produkt {
+      &::before {
+        content: '\f0f2';
+      }
+    }
+
+    &.wintours_-_rabatt,
+    &.win_tours_rabatt {
+      &::before {
+        content: '\f153';
+      }
+    }
+  }
+
+  &.wetterstation, // ZAMG
+  &.wettervorhersage,
+  &.wetterbericht,
+  &.tagesprognose,
+  &.prognose,
+  &.wetterstation_feratel, // FeratelWebcam
+  &.wetterprognose {
+    &::before {
+      content: '\f185';
+    }
+  }
+
+  &.data_cycle_file-icon::before {
+    content: '\f15b';
+  }
+
+  &.image-icon::before {
+    content: '\f03e';
+  }
+
+  &.text_file-icon::before {
+    content: '\f0f6';
+  }
+
+  &.pdf-icon::before {
+    content: '\f1c1';
+  }
+
+  &.audio-icon::before {
+    content: '\f1c7';
+  }
+
+  &.video::before {
+    content: '\f03d';
+  }
+
+  &.filter-icon {
+    &::before {
+      content: '\f0b0';
+    }
+
+    &.classification_tree_ids::before {
+      content: '\f0e8';
+    }
+
+    &.geo_radius,
+    &.geo_within_classification,
+    &.administrative_einheiten {
+      &::before {
+        content: '\f0ac';
+      }
+    }
+
+    &.sprache::before {
+      content: '\f075';
+    }
+  }
+
+  &.classification_tree_label-icon {
+    &::before {
+      content: '\f02c';
+    }
+
+    &.bundeslander::before {
+      content: '\f041';
+    }
+
+    &.markte,
+    &.zielmarkte {
+      &::before {
+        content: '\f192';
+      }
+    }
+
+    &.inhaltstypen::before {
+      content: '\f15c';
+    }
+
+    &.inhaltsarten::before {
+      content: '\f15b';
+    }
+
+    &.jahreszeiten::before {
+      content: '\f073';
+    }
+
+    &.ausgabekanale::before {
+      content: '\f02b';
+    }
+  }
+
+  &.user-icon::before {
+    content: '\f007';
+  }
+
+  &.user_group-icon::before {
+    content: '\f0c0';
+  }
+
+  &.user_organization-icon::before {
+    content: '\f0c0';
+  }
+
+  &.watch_list-icon::before {
+    content: '\f022';
+  }
+
+  &.property-icon {
+    &.type-date::before,
+    &.type-daterange::before,
+    &.type-object.key-duration::before {
+      content: '\f073';
+    }
+
+    &.type-classification::before {
+      content: '\f02c';
+    }
+
+    &.type-object {
+      &::before {
+        content: '\f07c';
+      }
+
+      &.key-validity_period::before {
+        content: '\f073';
+      }
+    }
+
+    &.type-number-content_score::before {
+      content: '\f006';
+    }
+
+    &.type-number-content_score.medium-score::before {
+      content: '\f123';
+    }
+
+    &.type-number-content_score.high-score::before {
+      content: '\f005';
+    }
+  }
+}

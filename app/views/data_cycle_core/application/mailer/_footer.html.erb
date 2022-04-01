@@ -1,0 +1,26 @@
+<% content_for :head do %>
+  <style>
+    .footer table {
+      width: 100%;
+      padding: 24px 24px 24px 36px;
+      background: #b8b8b8;
+    }
+    .footer p, .footer span {
+      font-size: 12px;
+    }
+  </style>
+<% end %>
+
+<tr class="footer">
+  <td>
+    <table border="0" cellspacing="0" cellpadding="0" width="100%">
+      <tr>
+        <td>
+          <p>
+            © <%= Date.current.year %> <a href="https://datacycle.info" target="_blank"><span>dataCycle GmbH</span></a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>

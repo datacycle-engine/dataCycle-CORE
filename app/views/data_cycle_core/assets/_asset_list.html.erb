@@ -1,0 +1,26 @@
+<ul id="<%= local_assigns[:key].present? ? "#{sanitize_to_id(key)}_asset_list" : 'single_asset_list' %>"
+  class="asset-list no-bullet <%= 'has-items' if local_assigns[:assets].present? %> <%= local_assigns[:class] %>"
+  data-asset-types="<%= local_assigns[:asset_types] %>"
+  data-selected="<%= local_assigns[:selected]&.to_json %>">
+  <% local_assigns[:assets].presence&.group_by(&:type)&.each do |type_key, value| %>
+    <% if local_assigns[:last_asset_type] != type_key %>
+      <h4 class="list-title"><%= type_key.constantize.model_name.human(count: value.size, locale: active_ui_locale) %></h4>
+    <% end %>
+
+    <% value.presence&.each do |asset| %>
+      <li class="<%= 'active' if asset.id.in?(Array.wrap(local_assigns[:selected])) %><%= ' locked' if asset.duplicate_candidates&.present? && !can?(:create_duplicate, asset) %>" data-id="<%= asset.id %>">
+        <a href="#" class="asset-deselect" title="<%= t('actions.delete', locale: active_ui_locale) %>"><i class="fa fa-times" aria-hidden="true"></i></a>
+        <%= link_to tag.i(class: 'fa fa-trash-o', aria_hidden: true),
+            asset_path(asset),
+            method: :delete,
+            class: 'asset-destroy',
+            title: t('actions.delete', locale: active_ui_locale),
+            data: {
+              disable_with: tag.i(class: 'fa fa-spinner fa-fw fa-spin'),
+              confirm: t('actions.delete_file', locale: active_ui_locale)
+            } if can?(:destroy, asset) %>
+        <%= render_asset_viewer(key: nil, definition: nil, value: asset) %>
+      </li>
+    <% end %>
+  <% end %>
+</ul>

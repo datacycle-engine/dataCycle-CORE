@@ -1,0 +1,201 @@
+:publication_schedule:
+  :enabled: true
+
+:download:
+  :enabled: true
+  :downloader:
+    :content:
+      :enabled: true
+      :thing:
+        :enabled: true
+        :serializers:
+          :asset: false
+          :gpx: true
+          :json: false
+          :indesign: false
+          :xml: false
+      :watch_list:
+        :enabled: false
+        :serializers:
+          :asset: false
+          :gpx: false
+          :json: false
+          :indesign: false
+          :xml: false
+      :stored_filter:
+        :enabled: false
+        :serializers:
+          :asset: false
+          :gpx: false
+          :json: false
+          :indesign: false
+          :xml: false
+    :archive:
+      :zip:
+        :enabled: false
+        :thing:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+        :watch_list:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+        :stored_filter:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+      :indesign:
+        :enabled: false
+        :thing:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :watch_list:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :stored_filter:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+    :dependencies:
+      - serialize
+
+:serialize:
+  :enabled: true
+  :serializers:
+    :asset: false
+    :license: true
+    :gpx: true
+    :indesign: false
+    :json: false
+    :xml: false
+
+:overlay:
+  :enabled: true
+
+:container:
+  :enabled: true
+
+:duplicate_content:
+  :enabled: true
+
+:releasable:
+  :enabled: true
+
+:life_cycle:
+  :enabled: true
+  :attribute_keys:
+    - data_pool
+  :tree_label: Inhaltspools
+  :ordered:
+    - Vorschläge
+    - Recherche
+    - Aktuelle Inhalte
+    - Archiv
+
+:idea_collection:
+  :enabled: true
+  :dependencies:
+    - life_cycle
+    - container
+  :template: Recherche
+  :life_cycle_stage: Recherche
+
+:duplicate_candidate:
+  :enabled: true
+
+:content_lock:
+  :enabled: true
+
+:user_api:
+  :enabled: true
+
+:sortable:
+  :enabled: true
+
+:advanced_filter:
+  :external_system: true
+  :boolean:
+    - duplicate_candidates
+  :geo_filter:
+    :geo_radius: true
+    :geo_within_classification:
+      - Administrative Einheiten
+  :relation_filter:
+    :linked_image: image
+    :linked_location: content_location
+  :related_to: true
+  :union_filter_ids: true
+  :advanced_attributes:
+    # media
+    :width:
+      :type: numeric
+    :height:
+      :type: numeric
+    :content_size:
+      :type: numeric
+    :upload_date:
+      :type: date
+    :mandatory_license:
+      :type: boolean
+    :duration:
+      :type: numeric
+
+:user_registration:
+  :enabled: true
+  :terms_condition_url: 'https://datacycle.info/de/allgemeine-geschaeftsbedingungen/'
+  :privacy_policy_url: 'https://open.datacycle.cloud/de/datenschutzerklaerung/'
+
+:preview:
+  :enabled: true
+  :widgets:
+    :list: https://datacycle.info/widgets/list
+    :map: hhttps://datacycle.info/widgets/map
+
+:translate:
+  :enabled: true
+  :allowed: true
+  :external_source: 'DeeplTranslate'
+  :endpoint: 'DataCycleCore::Generic::DeeplTranslate::DummyEndpoint'
+  :attribute_keys: ['text']
+
+:auto_translation:
+  :enabled: true
+
+:collection_group:
+  :enabled: true
+
+:named_version:
+  :enabled: true
+
+:image_proxy:
+  :enabled: true
+  :frontend:
+    :enabled: true
+
+:image_editor:
+  :enabled: true
+
+:report_generator:
+  :enabled: true
+  :config:
+    :global:
+      :downloads_popular:
+        :enabled: true
+    :content:
+      :downloads_content:
+        :enabled: true

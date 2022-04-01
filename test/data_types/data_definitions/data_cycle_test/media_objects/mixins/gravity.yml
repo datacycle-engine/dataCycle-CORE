@@ -1,0 +1,33 @@
+---
+- :data:
+    :name: gravity
+    :type: mixin
+    :properties:
+      :gravity:
+        :label: Gravity
+        :type: classification
+        :tree_label: Gravity
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
+      :api_gravity:
+        :label: Gravity
+        :type: string
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Classification
+          :method: concat
+          :key: uri
+          :parameters:
+            - gravity
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :name: dc:gravity
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true

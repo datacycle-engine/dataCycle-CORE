@@ -1,0 +1,13 @@
+normal: 'dc-logo.svg'
+inverted: 'dc-logo_inverted.svg'
+email: 'eml-datacycle.png'
+print: 'dc-logo.png'
+alt_text: 'dataCycle Logo'
+mail_dimensions:
+  height: '65px'
+customercolor: '#009fe3'
+background_images:
+  - dc-bg.jpg
+# footer_logo: 'dc-logo.svg'
+# footer_links:
+#   text: url

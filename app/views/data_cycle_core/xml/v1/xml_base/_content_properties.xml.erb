@@ -1,0 +1,12 @@
+<% unless content.schema.nil? %>
+
+  <% ordered_api_properties(validation: content.schema).each do |key, prop| %>
+    <% next if options[:hidden_attributes].include?(key) || options[:combined_attributes].include?(key) || options[:overlay_attributes].include?(key) || (@mode_parameters.include?('minimal') && !prop.dig('xml', 'minimal')) %>
+    <% next if content.timeseries_property_names.include?(key) %>
+    <% value = content.try(key.to_sym) %>
+
+    <% partial_load = xml_attribute(key: key, definition: prop, value: value, parameters: { options: options }, content: content) %>
+    <%= render *partial_load unless partial_load&.first.nil? %>
+  <% end %>
+
+<% end %>

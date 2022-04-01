@@ -1,0 +1,5 @@
+$('a[data-toggle="watch-lists-<%= @content_object.id %>"]').html('<%= j watch_list_link_icon(@content_object) %>');
+
+$('<%= j(render 'data_cycle_core/application/watch_lists/editable_link', content: @content_object, watch_list: @watch_list) %>').replaceAll('#content-<%= @content_object.id %>-watch-list-<%= @watch_list.id %>');
+
+$('#content-<%= @content_object.id %>-watch-list-<%= @watch_list.id %>').parentsUntil('.list-items', '.accordion-item').not(':has(.remove-from-watchlist-link)').removeClass('has-selected-collections');

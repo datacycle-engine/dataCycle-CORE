@@ -1,0 +1,30 @@
+.counter {
+  &.warning {
+    color: $warning-color;
+  }
+  &.error {
+    color: $alert-color;
+    font-weight: bold;
+  }
+  position: absolute;
+  right: 10px;
+  bottom: 0.3rem;
+  z-index: 1;
+  text-align: right;
+  font-style: italic;
+  font-size: 0.9rem;
+  line-height: 0.9rem;
+  height: 0.9rem;
+  color: $dark-gray;
+  margin: 0;
+}
+
+.reveal {
+  .counter {
+    font-size: 0.8rem;
+    line-height: 0.8rem;
+    height: 0.8rem;
+    bottom: -0.9rem;
+    right: 0px;
+  }
+}

@@ -1,0 +1,28 @@
+<div class="column detail-header-wrapper">
+
+  <div class="detail-header <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>">
+    <%= render_content_partial 'header_top', content: content %>
+
+    <% content_title = yield %>
+    <% if content_title.blank? %>
+      <div class="title">
+        <%= render 'data_cycle_core/contents/content_title_attribute', content: content, key: 'title' %>
+      </div>
+    <% else %>
+      <%= content_title %>
+    <% end %>
+
+    <%= render 'header_properties', content: content %>
+    <%= render 'data_cycle_core/contents/viewers/object_event_period', value: OpenStruct.new(start_date: content.try(:start_date), end_date: content.try(:end_date), event_schedule: content.try(:event_schedule)) if content.try(:start_date).present? || content.try(:end_date).present? %>
+    <%= render 'validity_period', dataCycleObject: content %>
+
+    <%= render 'data_cycle_core/contents/detail/content_header_classifications', local_assigns %>
+
+    <%= render_first_existing_partial(["data_cycle_core/contents/viewers/#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first}", 'data_cycle_core/contents/viewers/life_cycle'], { content: content }) if DataCycleCore::Feature::LifeCycle.enabled? && can?(:show, DataCycleCore::Feature::LifeCycle.data_attribute(content)) %>
+
+    <%= render_content_partial 'header_bottom', content: content %>
+  </div>
+
+  <%= render 'data_cycle_core/contents/external_connections', content: content if show_external_connections?(content) %>
+  <%= render 'data_cycle_core/contents/content_scores', content: content %>
+</div>

@@ -1,0 +1,21 @@
+{
+  "given_name": "Max",
+  "family_name": "Musterman",
+  "honorific_prefix": "prefix",
+  "honorific_suffix": "suffix",
+  "address": {
+    "street_address": "StreeAddress",
+    "postal_code": "PostCode",
+    "address_locality": "AddressLocality",
+    "address_country": "AddressCountry"
+  },
+  "contact_info": {
+    "contact_name": "Ansprechpartner",
+    "telephone": "Telephone",
+    "fax_number": "FaxNumber",
+    "email": "Email",
+    "url": "https://url.com"
+  },
+  "job_title": "JobTitle",
+  "description": "<p>Description</p>"
+}

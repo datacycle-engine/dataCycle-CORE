@@ -1,0 +1,12 @@
+<% while partial = Array.wrap(local_assigns.dig(:options, :additional_attribute_partials)).shift do %>
+  <%= render partial, local_assigns %>
+<% end %>
+
+<%= tag.div(class: attribute_editor_html_classes(**local_assigns), data: attribute_editor_data_attributes(**local_assigns)) do %>
+  <% if attribute_editable?(key, definition, options, content) %>
+    <%= render 'data_cycle_core/contents/editors/features/copyable_attribute', local_assigns if DataCycleCore::Feature::CopyableAttribute.copyable_attribute?(content, key) %>
+    <%= render 'data_cycle_core/contents/editors/features/geo_key_figure', local_assigns if DataCycleCore::Feature::GeoKeyFigure.allowed_attribute_key?(content, key) %>
+  <% end %>
+
+  <%= yield %>
+<% end %>

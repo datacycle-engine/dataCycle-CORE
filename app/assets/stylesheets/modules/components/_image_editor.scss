@@ -1,0 +1,74 @@
+.full.reveal.image-editor-reveal {
+  background: #151515;
+  padding: 0;
+  .top-bar {
+    min-height: 5vh;
+    .close-button {
+      font-size: 2rem;
+      top: 1rem;
+    }
+    .save-button {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      font-size: 2em;
+      line-height: 1;
+      color: $dark-gray;
+      cursor: pointer;
+      padding: 0;
+
+      &[disabled] {
+        cursor: not-allowed;
+        color: $black;
+      }
+    }
+    .close-button,
+    .save-button {
+      .fa {
+        font-size: 2rem;
+      }
+      &:hover {
+        color: #fff;
+      }
+    }
+  }
+  .image-editor-wrapper {
+    background: green;
+  }
+  thead,
+  tbody,
+  tfoot {
+    background: none;
+    border: none;
+    tr {
+      background: none;
+      border: none;
+    }
+  }
+  .tui-image-editor-header-buttons {
+    display: none;
+  }
+  .tui-image-editor-header-logo {
+    display: none;
+  }
+  .bottom-bar {
+    min-height: 3vh;
+    span {
+      padding-left: 1rem;
+      color: #9d9d9d;
+      font-size: 1rem;
+    }
+    a {
+      display: inline-block;
+      position: absolute;
+      right: 1rem;
+      img {
+        height: 20px;
+      }
+    }
+  }
+}
+.button.image-editor-button {
+  margin: 0.5rem 0 0 0.5rem;
+  padding: 0.9rem;
+}

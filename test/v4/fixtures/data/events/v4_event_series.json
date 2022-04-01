@@ -1,0 +1,19 @@
+{
+  "name": "Headline",
+  "description": "<p>Description</p>",
+  "potential_action": "https://potential-actions.link",
+  "use_guidelines": "cc_use_guidlines",
+  "license": "cc_license",
+  "attribution_url": "attribution_url",
+  "license_classification": "CC0",
+  "event_attendance_mode": "Teilnahme Online",
+  "event_status": "zu Online-Veranstaltung umgewandelt",
+  "virtual_location": [
+    {
+      "id": "649e40e3-b794-4a8e-b29d-d593ded7a577",
+      "url": "http://link.at",
+      "name": "Virtueller Veranstaltungsort"
+    }
+  ],
+  "slug": "Headline"
+}

@@ -1,0 +1,26 @@
+<% unless content.schema.nil? %>
+
+  <div class="type properties">
+
+    <% ordered_validation_properties(
+        validation: content.schema,
+        content_area: local_assigns.dig(:options, :force_render).to_s == 'true' ? '' : 'content',
+        scope: :show,
+        exclude_types: local_assigns.dig(:options, :exclude_types)
+      ).except(DataCycleCore::Feature::LifeCycle.attribute_keys(content)&.first).each do |key, prop| %>
+
+      <% value = content.try(key.to_sym) %>
+      <% value = value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if value.is_a?(ActiveRecord::Relation) && prop&.dig('type')&.in?(['linked', 'embedded']) %>
+
+      <%= render_attribute_viewer key: "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[#{key}]",
+                                  definition: prop,
+                                  value: value,
+                                  parameters: {
+                                    options: options
+                                  },
+                                  content: content %>
+    <% end %>
+
+  </div>
+
+<% end %>

@@ -1,0 +1,27 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
+
+  <%= attribute_edit_label_tag(**local_assigns) %>
+
+  <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }).order(created_at: :asc) %>
+
+  <ul class="no-bullet classification-radiobutton-list">
+    <li class="radiobutton-wrap">
+      <%= radio_button_tag key + '[]', '', true, id: sanitize_to_id(key + '[]') %>
+      <%= label_tag key + '[]', "#{t("common.no_selection", locale: active_ui_locale)}" %>
+    </li>
+    <%= collection_radio_buttons(nil, key + '[]', classification_items, :primary_classification_id, :internal_name, {}, { namespace: local_assigns.dig(:options, :prefix) }) do |rb| %>
+      <li class="radiobutton-wrap">
+        <%= rb.radio_button value: rb.value,
+                            checked: (value&.ids&.include?(rb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))),
+                            disabled: !rb.object.assignable || !attribute_editable?(key, definition, options, content)  %>
+        <%= rb.label data: { dc_tooltip: classification_tooltip(rb.object) } do %>
+          <%= rb.text %> <%= tag.i(class: 'fa fa-info-circle') if rb.object.try(:description).present? %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+
+  <% value.presence&.each do |c| %>
+    <%= hidden_field_tag key + '[]', c.id %>
+  <% end unless attribute_editable?(key, definition, options, content) %>
+<% end if classification_tree_label_has_children?(definition['tree_label']) %>

@@ -1,0 +1,4 @@
+<% if @success_message.present? %>
+  $('.named-version-container#version-name-<%= @content.id %>').html(null);
+  $('body').trigger('dc:flash:renderMessage', { type: 'success', text: '<%= t('feature.named_version.version_name_removed', locale: active_ui_locale) %>' });
+<% end %>

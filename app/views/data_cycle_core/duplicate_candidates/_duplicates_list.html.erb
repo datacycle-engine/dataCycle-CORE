@@ -1,0 +1,15 @@
+<% items = content.duplicate_candidates.presence&.page&.per(DataCycleCore.linked_objects_page_size) %>
+<%= render 'data_cycle_core/duplicate_candidates/duplicates_list_items', content: content, items: items, prefix: prefix %>
+
+<div class="clear-both duplicate-list-buttons">
+  <%= link_to t('common.load_all', locale: active_ui_locale), load_more_duplicates_thing_path(
+            content,
+            prefix: prefix
+          ),
+          remote: true,
+          id: "load_more_duplicates_#{content&.id}",
+          class: 'load-more-duplicates button small secondary',
+          data: {
+            disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"
+          } if items.try(:total_pages)&.positive? && !items&.last_page? %>
+</div>

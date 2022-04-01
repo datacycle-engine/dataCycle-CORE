@@ -1,0 +1,21 @@
+<a data-toggle="download_indesign_<%= content.id %>"
+    class="<%= 'button-prime small ' unless content.class.to_s == 'DataCycleCore::StoredFilter' %>download-content-link"
+    data-dc-tooltip="<%= t('actions.download_indesign', locale: active_ui_locale) %>">
+  <i class="fa fa-file-o" aria-hidden="true"></i>
+</a>
+
+<div class="reveal download-content-reveal"
+     id="download_indesign_<%= content.id %>"
+     data-reveal>
+  <h3 class="new_content_form_title"><%= t('actions.download_indesign', locale: active_ui_locale) %></h3>
+
+  <div class="new-content-form remote-render"
+         id="<%= content.id %>_download_indesign"
+         data-remote-path="data_cycle_core/application/downloads/forms/indesign"
+         data-remote-options="<%= to_query_params({ content: content }).to_json %>">
+  </div>
+
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

@@ -1,0 +1,24 @@
+<a data-toggle="preview-widget-<%= content.id %>"
+   class="preview-widget-link <%= local_assigns[:additional_button_classes] %>"
+   title="<%= t('actions.preview_content', locale: active_ui_locale) %>">
+  <i class="fa fa-eye" aria-hidden="true"></i>
+</a>
+
+<div class="dropdown-pane no-bullet bottom preview-widget-pane" id="preview-widget-<%= content.id %>" data-dropdown>
+  <h5><%= t('common.available_widgets', locale: active_ui_locale) %></h5>
+  <% DataCycleCore::Feature::Preview.available_widgets.each do |k,v| %>
+    <div class="preview-link">
+      <a href="<%= "#{v}?data_cycle_widget[endpoint]=#{content.id}" %>" title="<%= t("common.widgets.#{k}", locale: active_ui_locale) %>" class="copy-to-clipboard right" data-value="<%= "#{v}?data_cycle_widget[endpoint]=#{content.id}" %>">
+        <% case k %>
+        <% when 'list' %>
+        <i class="fa fa-list" aria-hidden="true"></i>
+        <% when 'map' %>
+        <i class="fa fa-map" aria-hidden="true"></i>
+      <% else %>
+        <i class="fa fa-columns" aria-hidden="true"></i>
+      <% end %>
+      <%= t("common.widgets.#{k}", locale: active_ui_locale) %>
+    </a>
+  </div>
+<% end %>
+</div>

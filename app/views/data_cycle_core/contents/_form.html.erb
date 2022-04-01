@@ -1,0 +1,77 @@
+<%= render_content_partial 'edit_header_functions', content: content, link_action: local_assigns[:link_action], additional_submit_properties: local_assigns[:additional_submit_properties] %>
+
+<%= form_with url: local_assigns[:form_url] || thing_path(content, watch_list_id: watch_list), local: true, method: :patch, class: 'validation-form edit-content-form', data: local_assigns[:form_data_attributes] do |f| %>
+  <%= hidden_field_tag :uuid, content.id %>
+  <%= hidden_field_tag :table, content.class.table_name %>
+  <%= hidden_field_tag "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[creator][]", content.created_by %>
+  <%= hidden_field_tag :locale, @locale %>
+  <%= content_for :additional_form_fields %>
+
+  <div class="edit-form-content <%= 'flex-box' if split_source %>">
+    <% if split_source %>
+      <% I18n.with_locale(split_source.first_available_locale(@source_locale)) do %>
+        <div class="row split-content detail-content"
+          data-locale="<%= I18n.locale %>"
+          data-id="<%= split_source.id %>"
+          data-available-locales="<%= split_source.available_locales.to_json %>"
+          data-embed-locale="<%= DataCycleCore.features.dig(:copy_embedded_locale, :enabled) %>"
+          data-enable-translate-buttons="<%= DataCycleCore::Feature::Translate.allowed?(content, @locale, I18n.locale, current_user) %>"
+          data-copy-all-translations="<%= split_source.translatable? && content.translatable? && I18n.available_locales&.many? %>">
+          <%= hidden_field_tag 'splitview', true %>
+
+          <%= render 'split_source_subscribe_notice', content: content, split_source: split_source if local_assigns[:subscribe_notice] && can?(:subscribe, split_source) && split_source.subscriptions.by_user(current_user).size.zero? && cookies[:subscribe_notice_dismissed].blank? %>
+
+          <div class="show-content">
+            <div class="detail-header-info">
+              <%= tag.b(t('duplicate.duplicate', locale: active_ui_locale) + ':', class: 'meta-data-prefix') if local_assigns[:link_action] == :merge_with_duplicate %>
+              <%= render 'meta_data', content: split_source %>
+              <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: split_source if show_external_connections?(split_source) %>
+              <ul class="split-locales no-bullet">
+                <%= render 'split_locale_links',
+                  content: content,
+                  source_content: split_source,
+                  locale_url_parameter: 'source_locale',
+                  locale: @locale,
+                  link_action: local_assigns[:link_action] if split_source.translatable? && I18n.available_locales&.many? %>
+              </ul>
+              <%= link_to tag.i(class: 'fa fa-times', aira_hidden: true), edit_thing_path(content, watch_list_id: @watch_list, locale: @locale), title: t('actions.close_source', locale: active_ui_locale), class: 'close-source-link' %>
+            </div>
+
+            <%= render_content_partial 'details', content: split_source, options: { force_render: true }, default: true %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+    <div class="row <%= 'split-content edit-content' if split_source %>" data-id="<%= content&.id %>">
+      <div class="column">
+        <div class="detail-header editor <%= content&.template_name&.underscore_blanks %>">
+          <div class="detail-header-info">
+            <%= tag.b(t('duplicate.original', locale: active_ui_locale) + ':', class: 'meta-data-prefix') if local_assigns[:link_action] == :merge_with_duplicate %>
+            <%= render 'meta_data', content: content %>
+            <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
+          </div>
+
+          <%= render 'data_cycle_core/contents/version_and_status', local_assigns.slice(:content, :key_prefix) if content.property_definitions.slice(*DataCycleCore::Feature::Releasable.allowed_attribute_keys(content)).present? || DataCycleCore::Feature::NamedVersion.enabled? %>
+
+          <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
+
+          <%
+            ordered_validation_properties(validation: content.schema, scope: :edit).except(*DataCycleCore::Feature::Releasable.allowed_attribute_keys(content)).presence&.each do |key, prop|
+              concat render_attribute_editor(
+                content: content,
+                key: key,
+                prefix: key_prefix,
+                value: content.try(key.to_sym),
+                definition: prop,
+                parameters: { options: {}, hide_embedded: @hide_embedded }
+              )
+            end
+          %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%= content_for :forms %>

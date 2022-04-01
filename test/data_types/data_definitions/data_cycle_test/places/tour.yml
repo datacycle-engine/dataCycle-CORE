@@ -1,0 +1,334 @@
+---
+- :data:
+    :name: Tour
+    :type: object
+    :schema_type: Place
+    :schema_ancestors:
+      - Place
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :overlay:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
+          :indesign: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: TourOverlay
+        :translated: true
+        :validations:
+          :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :trail_closed:
+        :label: Trail/Tour gesperrt
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true
+        :default_value: 'false'
+        :api:
+          :name: dc:trailClosed
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :description:
+        :label: Kurzbeschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+        :api:
+          :minimal: true
+      :logo:
+        :label: Logo
+        :type: linked
+        :template_name: Bild
+        :api:
+          :minimal: true
+      :video:
+        :label: Videos
+        :type: linked
+        :template_name: Video
+        :api:
+          :name: dc:video
+          :minimal: true
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :audio_object:
+        :label: Audiobeiträge
+        :type: linked
+        :template_name: Audio
+        :api:
+          :name: dc:audioObject
+          :minimal: true
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      # :outdoor_active_categories:
+      #   :type: mixin
+      #   :name: outdoor_active_categories
+      :location:
+        :label: GPS-Startkoordinaten
+        :type: geographic
+        :storage_location: value
+        :ui:
+          :edit:
+            :disabled: true
+        :api:
+          :minimal: true
+      :geo_shape:
+        :type: mixin
+        :name: geo_shape
+      :waypoint:
+        :label: POIs
+        :type: linked
+        :template_name: POI
+        :inverse_of: tour
+        :api:
+          :name: odta:wayPoint
+      :geo_contains:
+        :type: mixin
+        :name: geo_contains
+      :start_location:
+        :label: Startpunkt
+        :type: linked
+        :ui:
+          :attribute_group: trail_start_end_one_line
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+        :api:
+          :name: odta:startLocation
+          :disabled: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - POI
+        :xml:
+          :disabled: true
+      :end_location:
+        :label: Endpunkt
+        :type: linked
+        :ui:
+          :attribute_group: trail_start_end_one_line
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+        :api:
+          :name: odta:endLocation
+          :disabled: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - POI
+        :xml:
+          :disabled: true
+      :ascent:
+        :label: Aufstieg (m)
+        :type: number
+        :storage_location: value
+        :api:
+          :name: dc:ascent
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
+      :descent:
+        :label: Abstieg (m)
+        :type: number
+        :storage_location: value
+        :api:
+          :name: dc:descent
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
+      :min_altitude:
+        :label: Minimale Seehöhe (m)
+        :type: number
+        :storage_location: value
+        :api:
+          :name: dc:minAltitude
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
+      :max_altitude:
+        :label: Maximale Seehöhe (m)
+        :type: number
+        :storage_location: value
+        :api:
+          :name: dc:maxAltitude
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
+      :length:
+        :label: Länge (m)
+        :type: number
+        :storage_location: value
+        :api:
+          :name: dc:length
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_first_line_one_line
+      :duration:
+        :label: Dauer (min)
+        :type: number
+        :storage_location: value
+        :api:
+          :name: dc:duration
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_first_line_one_line
+      :opening_hours_specification:
+        :type: mixin
+        :name: opening_hours_specification
+      :season:
+        :label: Empfohlene Jahreszeit
+        :type: classification
+        :tree_label: Jahreszeiten
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+      :difficulty:
+        :label: Schwierigkeitsgrad
+        :type: classification
+        :tree_label: Schwierigkeitsgrad (Trail/Tour)
+        :ui:
+          :show:
+            :content_area: header
+            :disabled: true
+          :edit:
+            :type: radio_button
+            :disabled: true
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+      :aggregate_rating:
+        :label: Tourenbewertung
+        :type: embedded
+        :template_name: Tourenbewertung
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
+      :linked_data:
+        :type: mixin
+        :name: linked_data
+      :subject_of:
+        :label: Thema von
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :global: true
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Tour'
+      :author:
+        :label: Autor
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+
+        :ui:
+          :attribute_group:
+            - copyright_attributes_one_line
+      :sd_publisher:
+        :label: Inhaber / Herausgeber
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+        :ui:
+          :attribute_group:
+            - copyright_attributes_one_line
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
+      :external_source_attributes:
+        :type: mixin
+        :name: external_source_attributes
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
+      :additional_tour_properties:
+        :type: mixin
+        :name: additional_tour_properties
+      :legacy_tour_properties:
+        :type: mixin
+        :name: legacy_tour_properties

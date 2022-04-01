@@ -1,0 +1,46 @@
+- :data:
+    :name: ContentScore
+    :type: object
+    :schema_type: Intangible
+    :schema_ancestors:
+      - Intangible
+      - StructuredValue
+      - PropertyValue
+    :content_type: embedded
+    :api:
+      :type:
+        - Intangible
+        - StructuredValue
+        - PropertyValue
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :value:
+        :label: Wert
+        :type: number
+        :storage_location: translated_value
+        :validations:
+          :format: float
+        :ui:
+          :show:
+            :type: content_score
+      :unit_text:
+        :label: Einheit
+        :type: string
+        :storage_location: translated_value
+      :min_value:
+        :label: Niedrigster Wert
+        :type: number
+        :storage_location: value
+      :max_value:
+        :label: Höchster Wert
+        :type: number
+        :storage_location: value
+      :meta_data:
+        :type: mixin
+        :name: meta_data

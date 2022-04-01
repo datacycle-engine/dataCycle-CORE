@@ -1,0 +1,23 @@
+# frozen_string_literal: true
+
+property_header = render "data_cycle_core/api/v#{@api_version}/api_base/property_value_header", key: key, definition: definition
+
+object_properties = {}
+object_properties.merge!(property_header)
+object_properties['@id'] = generate_uuid(content.id, key)
+
+ordered_api_properties(validation: definition).each do |o_key, o_definition|
+  next if options[:field_filter] && new_fields.present? && !valid_key?(attribute_key(o_key, o_definition), object_options) && api_property_definition.dig('transformation', 'method') != 'merge_object'
+
+  key_new = attribute_key(o_key, o_definition)
+
+  data_value = load_object_value_object(content, key, o_key, value.try(o_key), options[:languages], o_definition, options[:expand_language])
+
+  next if data_value.blank?
+  camel_key = key_new.camelize(:lower)
+  object_properties[camel_key] = data_value
+  object_properties['unitCode'] = o_definition.dig('api', 'unit_code') if o_definition.dig('api', 'unit_code').present?
+  object_properties['unitName'] = o_definition.dig('api', 'unit_name') if o_definition.dig('api', 'unit_name').present?
+end
+
+object_properties

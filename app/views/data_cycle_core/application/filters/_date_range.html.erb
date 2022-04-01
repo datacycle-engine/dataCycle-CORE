@@ -1,0 +1,28 @@
+<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", local_assigns[:filter_type] || :date_range %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
+  <%= hidden_field_tag "f[#{identifier}][q]", DataCycleCore.features.dig(:advanced_filter, :date_range, filter_title.to_sym) if DataCycleCore.features.dig(:advanced_filter, :date_range).is_a?(Hash) %>
+
+  <div class="advanced-filter-title">
+    <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+  </div>
+
+  <div class="advanced-filter-mode">
+    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("common.is", locale: active_ui_locale), 'i'], [t("common.is_not", locale: active_ui_locale), 'e']], filter_method) %>
+    <span class="separator"><%= t("terms.from", locale: active_ui_locale) %></span>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>
+    <span class="separator"><%= t("terms.until", locale: active_ui_locale) %></span>
+    <%= date_field_tag "f[#{identifier}][v][until]", value&.dig('until') || local_assigns[:default_until], { placeholder: 'tt.mm.jjjj' } %>
+  </div>
+
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

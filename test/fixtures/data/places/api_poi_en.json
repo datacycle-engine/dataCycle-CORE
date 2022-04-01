@@ -1,0 +1,25 @@
+{
+  "name": "Test-POI-en",
+  "address": {
+    "street_address": "StreetAddress",
+    "postal_code": "PostalCode",
+    "address_locality": "City",
+    "address_country": "Country"
+  },
+  "contact_info": {
+    "contact_name": "Ansprechpartner",
+    "telephone": "Tel",
+    "fax_number": "Fax",
+    "email": "Email",
+    "url": "https://url.us"
+  },
+  "description": "<p>English Description</p>",
+  "text": "<p>English Text</p>",
+  "latitude": 1,
+  "longitude": 10,
+  "elevation": 11.7,
+  "potential_action": [{
+    "name": "Action - Test_en",
+    "url": "https://url.us/action"
+  }]
+}

@@ -1,0 +1,15 @@
+<div class="main-filters">
+  <nav id="primary_nav_wrap">
+    <ul class="clickable-menu">
+      <% filter.presence&.dig(:filters)&.each do |tree_label, tree_data| %>
+        <%= render 'data_cycle_core/application/filters/classification_tree',
+                            tree_label: tree_label,
+                            display_label: t("filter.#{tree_label.presence&.underscore_blanks}", default: tree_label, locale: active_ui_locale),
+                            identifier: tree_data[:identifier],
+                            excluded_types: tree_label == 'Inhaltstypen' ? config[:excluded_types] : [],
+                            value: tree_data[:value],
+                            classification_tree: tree_data[:classification_aliases] unless tree_data&.dig(:classification_aliases).nil? %>
+      <% end %>
+    </ul>
+  </nav>
+</div>

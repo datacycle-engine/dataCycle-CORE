@@ -1,0 +1,52 @@
+<% content_for(:user_links, flush:true) do %>
+  <% if user_signed_in? && current_user.role&.rank&.positive? %>
+    <div class="row columns">
+      <%= link_to subscriptions_path, class: 'user-subscriptions-link' do %>
+        <span class="icon"><i class="fa fa-bell" aria-hidden="true"></i></span>
+        <span class="title"><%= DataCycleCore::Subscription.model_name.human(count: 2, locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if DataCycleCore::Feature::PublicationSchedule.enabled? && can?(:index, :publication) %>
+    <div class="row columns">
+      <%= link_to publications_path, class: 'publications-link' do %>
+        <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+        <span class="title"><%= t('data_cycle_core.publications_calendar', locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if DataCycleCore.asset_objects.any? { |a| can?(:create, a.classify.constantize) } %>
+    <div class="row columns">
+      <a class="asset-selector-button" data-open="asset-selector-sidebar">
+        <span class="icon"><i class="fa fa-files-o" aria-hidden="true"></i></span>
+        <span class="title"><%= t('common.my_assets', locale: active_ui_locale) %></span>
+      </a>
+
+      <div class="full reveal asset-selector-reveal" id="asset-selector-sidebar" data-reveal data-multiple-opened="true" data-v-offset="0">
+        <div class="asset-list-container">
+          <h3><%= t('common.my_assets', locale: active_ui_locale) %></h3>
+          <div class="scrollable-asset-list">
+            <%= render 'data_cycle_core/assets/asset_list', class: 'timestamps', key: 'sidebar', asset_types: DataCycleCore.asset_objects %>
+          </div>
+        </div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    </div>
+  <% end %>
+
+  <%= yield :additional_user_links %>
+<% end %>
+
+<% if content_for?(:user_links) %>
+  <div class="settings-row">
+    <div class="row columns">
+      <h5><%= t('data_cycle_core.user_links', locale: active_ui_locale) %></h5>
+    </div>
+
+    <%= yield_content!(:user_links) %>
+  </div>
+<% end %>

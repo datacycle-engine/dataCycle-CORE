@@ -1,0 +1,19 @@
+<%= render 'data_cycle_core/contents/viewers/attribute',
+      local_assigns.merge(data_attributes: {
+        value: value,
+        editor: "boolean"
+      }) do %>
+
+    <span class="detail-content">
+      <% case options.dig(:item_diff, 0) %>
+      <% when '~' %>
+        <del><%= t("common.#{options.dig(:item_diff, 1).to_s}", locale: active_ui_locale) %></del>
+        <ins><%= t("common.#{options.dig(:item_diff, 2).to_s}", locale: active_ui_locale) %></ins>
+      <% when '+' %>
+        <%= t("common.#{options.dig(:item_diff, 1).to_s}", locale: active_ui_locale) %>
+      <% else %>
+        <%= t("common.#{value.to_s}", locale: active_ui_locale) unless value.nil? %>
+      <% end %>
+    </span>
+
+<% end %>

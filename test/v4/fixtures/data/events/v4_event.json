@@ -1,0 +1,23 @@
+{
+  "name": "Headline",
+  "description": "<p>Description</p>",
+  "text": "Text",
+  "same_as": "https://www.sameas.link",
+  "potential_action": "https://potential-actions.link",
+  "url": "http://external-url.link",
+  "use_guidelines": "cc_use_guidlines",
+  "license": "cc_license",
+  "attribution_url": "attribution_url",
+  "license_classification": "CC0",
+  "event_attendance_mode": "Teilnahme Online",
+  "event_status": "zu Online-Veranstaltung umgewandelt",
+  "virtual_location": [
+    {
+      "url": "http://link.at",
+      "name": "Virtueller Veranstaltungsort"
+    }
+  ],
+  "feratel_content_score": 77.77,
+  "content_score": 77.77,
+  "slug": "Headline"
+}

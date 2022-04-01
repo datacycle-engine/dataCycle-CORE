@@ -1,0 +1,16 @@
+<%= link_to item, class: 'content-link' do %>
+
+  <div class="inner">
+
+    <div class="infoRow">
+      <%= render 'data_cycle_core/shared/icon', icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
+      <span class="title"><%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %></span>
+    </div>
+
+    <div class="title">
+      <%= item&.name %>
+    </div>
+
+  </div>
+
+<% end %>

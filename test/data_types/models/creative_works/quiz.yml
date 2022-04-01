@@ -1,0 +1,146 @@
+---
+- :data:
+    :name: Quiz
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :releasable:
+        :allowed: true
+      :creatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :indesign: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :release_status:
+        :type: mixin
+        :name: releasable
+      :title:
+        :type: mixin
+        :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :creative_attributes:
+        :type: mixin
+        :name: creative_attributes
+      :question:
+        :label: Frage
+        :type: embedded
+        :template_name: Frage
+        :api:
+          :name: hasPart
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Quiz"
+      :publication_schedule:
+        :type: mixin
+        :name: publication_schedule
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
+
+- :data:
+    :name: Frage
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :api:
+      :type: Question
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :api:
+          :name: headline
+      :text:
+        :label: Fließtext
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+        :validations:
+          :max: 1
+      :accepted_answer:
+        :label: Richtige Antwort
+        :type: embedded
+        :template_name: Antwort
+        :validations:
+          :max: 1
+      :suggested_answer:
+        :label: Falsche Antwort
+        :type: embedded
+        :template_name: Antwort
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Frage"
+
+- :data:
+    :name: Antwort
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :api:
+      :type: Answer
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :text:
+        :label: Antwort
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :validations:
+          :required: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+        :validations:
+          :max: 1
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Antwort"

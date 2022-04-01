@@ -1,0 +1,20 @@
+<ul class="clickable-menu language-filter">
+  <li class="dropdown-menu-item filter" data-id="language">
+    <%= render 'data_cycle_core/shared/icon', icon_type: "sprache", icon_class: 'filter' %>
+    <span class="title"><%= t('common.language', locale: active_ui_locale) %></span>
+    <ul class="split-list no-bullet">
+      <% available_locales_with_all.each do |key, value| %>
+        <li>
+          <input type="checkbox" name="language[]" data-title="<%= value %>" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if @language.presence&.include?(key.to_s) %> />
+          <label for="<%= key.to_s %>">
+            <span class="title">
+              <span class="inner-title">
+                <%= value %>
+              </span>
+            </span>
+          </label>
+        </li>
+      <% end %>
+    </ul>
+  </li>
+</ul>

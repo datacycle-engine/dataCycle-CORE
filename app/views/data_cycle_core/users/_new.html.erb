@@ -1,0 +1,45 @@
+<div class="reveal new-item" id="new_<%= sanitize_to_id(type.name.underscore) %>" data-reveal data-multiple-opened="true">
+  <h3><%= t('actions.new', data: type.model_name.human(locale: active_ui_locale), locale: active_ui_locale ) %></h3>
+
+  <%= form_for type.new, url: { controller: type.name.tableize, action: :create_user } do |f| %>
+
+    <div class="form-element validation-container">
+      <%= f.label :email %>
+      <%= f.email_field :email, required: true, autofocus: true %>
+    </div>
+
+    <% if type == DataCycleCore::UserOrganization %>
+      <div class="form-element">
+        <%= f.label :name %>
+        <%= f.text_field :name %>
+      </div>
+    <% else %>
+      <div class="form-element">
+        <%= f.label :given_name %>
+        <%= f.text_field :given_name %>
+      </div>
+
+      <div class="form-element">
+        <%= f.label :family_name %>
+        <%= f.text_field :family_name %>
+      </div>
+    <% end %>
+
+    <div class="form-element validation-container password-field">
+      <%= f.label :password %>
+      <%= f.password_field :password, required: true %>
+    </div>
+
+    <div class="form-element validation-container">
+      <%= f.label :role_id %>
+      <%= f.select :role_id, DataCycleCore::Role.accessible_by(current_ability).order(:rank).collect{|r| [t('roles.'+r.name, locale: active_ui_locale), r.id]}, {}, class: 'no-margin' %>
+    </div>
+
+    <%= f.submit t(:submit, locale: active_ui_locale), class: "button primary", data: { disable_with: t(:submit, locale: active_ui_locale) } %>
+
+  <% end %>
+
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

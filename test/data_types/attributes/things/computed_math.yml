@@ -1,0 +1,33 @@
+---
+- :data:
+    :name: Calculation-Math
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :value_1:
+        :label: Value 1
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+      :value_2:
+        :label: Comp Value 2
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+      :math_sum:
+        :label: Math Sum
+        :type: number
+        :storage_location: value
+        :compute:
+          :module: Utility::Compute::Math
+          :method: sum
+          :parameters:
+            - value_1
+            - value_2

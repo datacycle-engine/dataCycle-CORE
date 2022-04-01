@@ -1,0 +1,28 @@
+<li class="has-dropdown">
+  <a id="auto_translation-link" data-toggle="auto_translation">
+    <i class="fa fa-cloud-download" aria-hidden="true"></i>
+  </a>
+  <div class="dropdown-pane no-bullet bottom" id="auto_translation" data-dropdown>
+    <h5>
+      <%= t('common.source_language', data: t('common.contents', count: 1, locale: active_ui_locale).capitalize, locale: active_ui_locale) %>
+    </h5>
+    <div id="split-source-selector">
+      <%= form_tag(auto_translations_thing_path(id: content.id), method: :post) do %>
+        <div class="form-element">
+          <div class="v-select white">
+            <%= select_tag(
+                          'source_locale',
+                          options_for_select(
+                            I18n.available_locales.map { |locale| t("locales.#{locale}", locale: active_ui_locale).capitalize }.zip(I18n.available_locales),
+                            selected: I18n.locale
+                          )
+                        ) %>
+          </div>
+        </div>
+        <button class="button" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i> <%=t('actions.auto_translate', locale: active_ui_locale).capitalize %>">
+        <%= t('actions.auto_translate', locale: active_ui_locale).capitalize %>
+      </button>
+    <% end %>
+  </div>
+</div>
+</li>

@@ -1,0 +1,87 @@
+---
+- :data:
+    :name: Linked-Creative-Work-1
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :linked_creative_work:
+        :label: Linked Entity
+        :type: linked
+        :template_name: Linked-Creative-Work-2
+      :linked_place:
+        :label: Linked Place Entity
+        :type: linked
+        :template_name: Linked-Place-1
+
+- :data:
+    :name: Linked-Creative-Work-2
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+
+- :data:
+    :name: Linked-Place-1
+    :type: object
+    :content_type: entity
+    :schema_type: Place
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic

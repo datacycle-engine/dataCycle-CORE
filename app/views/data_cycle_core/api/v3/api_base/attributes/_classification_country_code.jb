@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+json ||= {}
+classification_aliases = content.send(key).includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
+json = { addressCountry: classification_aliases.first.name || classification_aliases.first.internal_name } if classification_aliases.present?
+
+json

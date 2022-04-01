@@ -1,0 +1,48 @@
+<section id="admin-panel">
+  <section id="admin-inner" data-tabs-content="admin-icons">
+    <section id="schema" class="tabs-panel">
+      <section class="schema-nav">
+        <h5><%= t('admin_panel.schema', locale: active_ui_locale) %></h5>
+        <button class="copy-to-admin-clipboard">COPY</button>
+        <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
+      </section>
+      <pre id="admin_schema" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/schema" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+    </section>
+    <section id="datahash" class="tabs-panel">
+      <section class="datahash-nav">
+        <h5><%= t('admin_panel.datahash', locale: active_ui_locale) %></h5>
+        <button class="copy-to-admin-clipboard">COPY</button>
+        <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
+      </section>
+      <pre id="admin_datahash" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/datahash" data-remote-options="<%= to_query_params(content: content, locale: I18n.locale).to_json %>"></pre>
+    </section>
+    <section id="json-api" class="tabs-panel">
+      <section class="json-api-nav">
+        <h5><%= t('admin_panel.api', locale: active_ui_locale) + " V4" %></h5>
+        <button class="copy-to-admin-clipboard">COPY</button>
+        <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
+      </section>
+      <pre id="admin_api" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/json_api" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+    </section>
+    <% if content.try(:asset).present? && content&.asset&.metadata.present? %>
+      <section id="meta-data" class="tabs-panel">
+        <section class="meta-data-nav">
+          <h5><%= t('admin_panel.meta-data', locale: active_ui_locale) %></h5>
+          <button class="copy-to-admin-clipboard">COPY</button>
+          <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
+        </section>
+        <pre id="admin_meta-data" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/meta_data" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+      </section>
+    <% end %>
+  </section>
+
+  <ul class="tabs" data-active-collapse="true" data-tabs id="admin-icons">
+    <li class="tabs-title"><a href="#test"><i class="fa fa-user-secret"></i></a></li>
+    <li class="tabs-title"><a href="#schema"><i class="fa fa-code"></i></a></li>
+    <li class="tabs-title"><a href="#datahash"><i class="fa fa-hashtag"></i></a></li>
+    <li class="tabs-title"><a href="#json-api"><i class="fa">json</i></a></li>
+    <% if content.try(:asset).present? && content&.asset&.metadata.present? %>
+      <li class="tabs-title"><a href="#meta-data"><i class="fa">metadata</i></a></li>
+    <% end %>
+  </ul>
+</section>

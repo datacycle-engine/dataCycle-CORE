@@ -1,0 +1,71 @@
+.exceptions-page {
+  position: relative;
+  display: block;
+  background-color: $light-gray;
+  margin: 1rem 0;
+  padding: 3rem 5rem;
+  text-align: center;
+  border-radius: $global-radius;
+
+  > * {
+    position: relative;
+  }
+
+  &::before {
+    content: '\f11a';
+    font-family: FontAwesome;
+    position: absolute;
+    display: flex;
+    left: 4rem;
+    top: 0;
+    font-size: 12rem;
+    height: 100%;
+    align-items: center;
+    color: $white;
+    opacity: 0.5;
+    justify-content: center;
+  }
+
+  &.internal_server_error {
+    background-color: mix(white, $alert-color, $callout-background-fade);
+
+    &::before {
+      content: '\f119';
+    }
+  }
+
+  &.unauthorized {
+    background-color: mix(white, $warning-color, $callout-background-fade);
+
+    &::before {
+      content: '\f05e';
+    }
+  }
+
+  .exceptions-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2rem;
+
+    .button {
+      margin: 0 0.5rem 0 0;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .button {
+    position: relative;
+    border-radius: $global-radius;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    .fa {
+      margin-right: 0.3rem;
+    }
+  }
+}

@@ -1,0 +1,7 @@
+<% image ||= value %>
+<% unless image.nil? %>
+  <% content_for :asset_thumb do %>
+    <img src="<%= image.thing.try(:thumbnail_url) %>" />
+  <% end %>
+  <%= render 'data_cycle_core/contents/viewers/asset/default', local_assigns %>
+<% end %>

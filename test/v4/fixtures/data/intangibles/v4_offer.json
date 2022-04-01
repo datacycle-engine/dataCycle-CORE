@@ -1,0 +1,12 @@
+{
+  "url": "http://offer-url.at",
+  "name": "Angebot",
+  "text": "<p>Long Description</p>",
+  "price": "ab 3€",
+  "description": "<p>Description juhu</p>",
+  "potential_action": {
+    "action_url": "https://booking.link",
+    "action_name": "booking.link"
+  },
+  "slug": "Angebot"
+}

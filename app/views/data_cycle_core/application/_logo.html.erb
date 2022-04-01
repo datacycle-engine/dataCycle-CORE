@@ -1,0 +1,4 @@
+<span class="logo">
+  <%= image_tag dc_image_path(local_assigns[:inverted] ? DataCycleCore.logo['inverted'] : DataCycleCore.logo['normal']), alt: DataCycleCore.logo['alt_text'], class: 'hide-for-print' %>
+  <%= image_tag dc_image_path(DataCycleCore.logo['print']), alt: DataCycleCore.logo['alt_text'], class: 'show-for-print' %>
+</span>

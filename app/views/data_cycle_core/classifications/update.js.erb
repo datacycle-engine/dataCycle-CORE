@@ -1,0 +1,5 @@
+<% if @object.is_a? DataCycleCore::ClassificationTreeLabel %>
+  $('<%= escape_javascript(render 'classification_tree_label', tree_label: @object) %>').replaceAll('#<%= @object.id %>');
+<% else %>
+  $('<%= escape_javascript(render 'classification_tree', classification_tree_label: @object.classification_tree.classification_tree_label, classification_tree: @object.classification_tree, ancestors: @object.classification_tree.present? ? @object.classification_tree.ancestors.pluck(:id).reverse : []) %>').replaceAll('#<%= @object.classification_tree.id %>');
+<% end %>

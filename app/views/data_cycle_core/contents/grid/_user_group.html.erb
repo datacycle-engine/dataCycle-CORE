@@ -1,0 +1,36 @@
+<div class="inner content-link">
+
+  <div class="infoRow">
+    <%= render 'data_cycle_core/shared/icon', icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
+    <span class="title"><%= DataCycleCore::UserGroup.model_name.human(locale: active_ui_locale) %> (<%= item.users.size %>)</span>
+  </div>
+
+  <div class="title">
+    <%= item.name %>
+  </div>
+
+  <div class="tags">
+    <ul class="no-bullet no-format">
+      <% item.display_classification_aliases.each do |classification_alias| %>
+        <li class="tag" data-dc-tooltip="<%= classification_tooltip(classification_alias) %>"><%= classification_alias.internal_name %></li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<% content_for :media_buttons do %>
+  <% if can? :edit, item %>
+    <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true), edit_user_group_path(item, watch_list_id: @watch_list), class: 'edit-link', data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } %>
+  <% end %>
+
+  <% if can? :destroy, item %>
+    <%= link_to tag.i(class: 'fa fa-trash-o', aria_hidden: true),
+      item,
+      method: :delete,
+      class:'alert delete-link',
+      data: {
+        confirm: "#{item.model_name.human(locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?",
+        dc_tooltip: t('actions.delete', locale: active_ui_locale)
+      } %>
+  <% end %>
+<% end %>

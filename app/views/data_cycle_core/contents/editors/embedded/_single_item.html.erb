@@ -1,0 +1,21 @@
+<% I18n.with_locale(locale) do %>
+  <% ordered_validation_properties(validation: object&.schema, scope: :edit)&.each do |o_key, o_prop| %>
+    <%= render_attribute_editor key: o_key,
+                                prefix: embedded_key_prefix(key, index),
+                                definition: o_prop,
+                                value: embedded_attribute_value(content, object, o_key, o_prop, local_assigns[:attribute_locale], local_assigns[:translate] == 'true'),
+                                parameters: {
+                                  options: (o_prop.dig('ui', 'edit', 'options') || {}).merge(prefix: local_assigns.dig(:options, :prefix)),
+                                  parent: object,
+                                  parent_translatable: attribute_translatable?(key, definition, content),
+                                  force_render_child_locales: local_assigns.dig(:force_render_child_locales),
+                                  force_render_locales: local_assigns.dig(:force_render_locales),
+                                  attribute_locale: local_assigns[:attribute_locale],
+                                  duplicated_content: local_assigns[:duplicated_content],
+                                  hide_embedded: local_assigns[:hide_embedded],
+                                  translate: local_assigns[:translate],
+                                  new_content: object.template
+                                },
+                                content: content %>
+  <% end %>
+<% end %>
