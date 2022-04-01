@@ -26,7 +26,7 @@ module DataCycleCore
           test 'container at /api/v4/things/:id serializes with attribute hasPart' do
             get api_v4_thing_path(id: @container.id)
             assert_response :success
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse response.body
             json_data = json_data.dig('@graph').first
 
@@ -39,7 +39,7 @@ module DataCycleCore
           test 'container expands with include=hasPart ' do
             get api_v4_thing_path(id: @container.id, include: 'hasPart')
             assert_response :success
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse response.body
             json_data = json_data.dig('@graph').first
 

@@ -1,47 +1,48 @@
 export default {
-  markMatch: function (text, term) {
-    // Find where the match is
-    var match = text.toUpperCase().lastIndexOf(term.toUpperCase());
+  addselectionTitleAttributeOption: function ($) {
+    // Extend defaults
+    //
+    var Defaults = $.fn.select2.amd.require('select2/defaults');
 
-    var $result = $('<span></span>');
-
-    // If there is no match, move on
-    if (match < 0) {
-      return $result.text(text);
-    }
-
-    // Put in whatever text is before the match
-    $result.text(text.substring(0, match));
-
-    // Mark the match
-    var $match = $('<span class="select2-highlight"></span>');
-    $match.text(text.substring(match, match + term.length));
-
-    // Append the matching text
-    $result.append($match);
-
-    // Put in whatever is after the match
-    $result.append(text.substring(match + term.length));
-
-    return $result;
-  },
-  decorateResult: function (result) {
-    $(result).html(function (index, value) {
-      if (value != undefined) {
-        var text = value.split(' &gt; ');
-        text[text.length - 1] = '<span class="select2-option-title">' + text[text.length - 1] + '</span>';
-        return text.join(' > ');
-      }
+    $.extend(Defaults.defaults, {
+      selectionTitleAttribute: true
     });
-  },
-  removeTreeLabel: function (result, treelabel) {
-    $(result).html((index, value) => {
-      if (value != undefined) {
-        return value.replace(treelabel + ' &gt; ', '');
+
+    // SingleSelection
+    //
+    var SingleSelection = $.fn.select2.amd.require('select2/selection/single');
+
+    var _updateSingleSelection = SingleSelection.prototype.update;
+
+    SingleSelection.prototype.update = function (data) {
+      // invoke parent method
+      _updateSingleSelection.apply(this, Array.prototype.slice.apply(arguments));
+
+      var selectionTitleAttribute = this.options.get('selectionTitleAttribute');
+
+      if (selectionTitleAttribute === false) {
+        var $rendered = this.$selection.find('.select2-selection__rendered');
+        $rendered.removeAttr('title');
       }
-    });
-  },
-  removeTreeLabelFromSelection: function (text, treelabel) {
-    return text.replace(treelabel + ' > ', '');
+    };
+
+    // MultipleSelection
+    //
+    var MultipleSelection = $.fn.select2.amd.require('select2/selection/multiple');
+
+    var _updateMultipleSelection = MultipleSelection.prototype.update;
+
+    MultipleSelection.prototype.update = function (data) {
+      // invoke parent method
+      _updateMultipleSelection.apply(this, Array.prototype.slice.apply(arguments));
+
+      var selectionTitleAttribute = this.options.get('selectionTitleAttribute');
+
+      if (selectionTitleAttribute === false) {
+        var $rendered = this.$selection.find('.select2-selection__rendered');
+        $rendered.find('.select2-selection__choice').removeAttr('title');
+        this.$selection.find('.select2-selection__choice__remove').removeAttr('title');
+      }
+    };
   }
 };

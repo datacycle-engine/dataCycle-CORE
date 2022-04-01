@@ -29,7 +29,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @content.id, language: languages)
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse response.body
             json_data = json_data.dig('@graph').first
 

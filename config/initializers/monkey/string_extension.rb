@@ -12,7 +12,7 @@ module DataCycleCore
     end
 
     def attribute_path_from_key
-      split(/[\[\]]+/).flatten.except(['thing', 'datahash', 'translations', *I18n.available_locales.map(&:to_s)]).reject { |s| s =~ /^\d+$/ }
+      split(/[\[\]]+/).flatten.except(['thing', 'datahash', 'translations', *I18n.available_locales.map(&:to_s)]).grep_v(/^\d+$/)
     end
 
     def underscore_blanks

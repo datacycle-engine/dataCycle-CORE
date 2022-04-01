@@ -24,7 +24,9 @@ module DataCycleCore
           return nil if data.except('external_key', 'locale').blank?
 
           if local
-            content = DataCycleCore::Thing.new
+            content = DataCycleCore::Thing.new(
+              local_import: true
+            )
           else
             # try to find already present content:
             content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first

@@ -1,0 +1,63 @@
+#dc-tooltip {
+  display: none;
+  position: fixed;
+  background: $black;
+  color: $white;
+  padding: 0.5rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  pointer-events: none;
+  z-index: 9999;
+  max-width: 90vw;
+  max-height: 90vh;
+
+  #dc-tooltip-arrow {
+    position: absolute;
+    background: inherit;
+    width: 8px;
+    height: 8px;
+    transform: rotate(45deg);
+  }
+
+  .tag-full-path {
+    font-weight: bold;
+  }
+
+  .tag-description {
+    max-width: 40vw;
+  }
+
+  .tag-translations {
+    .tag-translations-header {
+      font-weight: bold;
+    }
+
+    ul.tag-translations-list {
+      list-style-type: none;
+      margin: 0 0 0 3rem;
+
+      li {
+        position: relative;
+        font-style: italic;
+
+        &::before {
+          content: attr(data-locale);
+          position: absolute;
+          right: calc(100% + 0.3rem);
+          font-weight: bold;
+          font-style: normal;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+}
+
+[data-dc-tooltip]:not([data-dc-tooltip='']):not(button):not(a):not(.button):not(label):not(.copy-to-clipboard) {
+  cursor: help;
+}
+
+.select2-results__option [data-dc-tooltip],
+a [data-dc-tooltip] {
+  cursor: inherit !important;
+}

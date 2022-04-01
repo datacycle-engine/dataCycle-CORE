@@ -83,10 +83,7 @@ module DataCycleCore
           classification_alias_id: a.id,
           name: a.internal_name,
           full_path: a.full_path,
-          title: [
-            a.full_path,
-            a.description
-          ].reject(&:blank?).join("\n\n"),
+          dc_tooltip: helpers.classification_tooltip(a),
           disabled: !a.assignable
         }
       }.compact.to_json, content_type: 'application/json'
@@ -105,10 +102,7 @@ module DataCycleCore
           classification_alias_id: c.primary_classification_alias.id,
           name: c.primary_classification_alias.internal_name,
           full_path: c.primary_classification_alias.full_path,
-          title: [
-            c.primary_classification_alias.full_path,
-            c.primary_classification_alias.description
-          ].reject(&:blank?).join("\n\n"),
+          dc_tooltip: helpers.classification_tooltip(c.primary_classification_alias),
           disabled: !c.primary_classification_alias.assignable
         }
       }.compact.to_json, content_type: 'application/json'

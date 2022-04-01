@@ -11,6 +11,8 @@ module DataCycleCore
     def self.normalize_parameters(params)
       params = params.to_h if params.is_a?(ActionController::Parameters)
 
+      return params unless params.is_a?(::Hash)
+
       params.each do |key, value|
         next unless value.is_a?(::Hash)
 

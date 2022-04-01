@@ -3,7 +3,7 @@
         <% if classification_tree.sub_classification_alias.internal? %>
             <i class="fa fa-eye-slash" aria-hidden="true"></i>
         <% end %>
-        <%= link_to classification_tree.sub_classification_alias.try(:internal_name) || classification_tree.sub_classification_alias.try(:primary_classification)&.try(:external_key),
+        <%= link_to classification_title(classification_tree.sub_classification_alias),
             classifications_path(classification_tree_id: classification_tree.id),
             data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"} %>
 
@@ -41,7 +41,7 @@
 
     <ul class="classifications">
         <% classification_tree.sub_classification_alias.classifications.each do |classification| %>
-            <li><%= classification.name %></li>
+            <li><%= classification_title(classification) %></li>
         <% end %>
     </ul>
     <ul class="children">

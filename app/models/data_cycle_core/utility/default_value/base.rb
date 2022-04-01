@@ -24,7 +24,7 @@ module DataCycleCore
 
             property_parameters = properties.dig('default_value', 'parameters')&.values&.map { |value| data_hash.dig(value) } if properties['default_value'].is_a?(Hash)
 
-            method_name.try(:call, { property_parameters: property_parameters, key: key, data_hash: data_hash, content: content, property_definition: properties, current_user: current_user })
+            method_name.try(:call, **{ property_parameters: property_parameters, key: key, data_hash: data_hash, content: content, property_definition: properties, current_user: current_user })
           end
 
           private

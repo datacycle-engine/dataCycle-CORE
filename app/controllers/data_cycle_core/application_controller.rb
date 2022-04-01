@@ -23,7 +23,12 @@ module DataCycleCore
     end
 
     def current_ability
-      @current_ability ||= DataCycleCore::Ability.new(current_user, session)
+      return @current_ability if defined? @current_ability
+
+      @current_ability = DataCycleCore::Ability.new(current_user, session)
+      current_user&.instance_variable_set(:@ability, @current_ability)
+
+      @current_ability
     end
 
     def clear_all_caches
@@ -81,7 +86,7 @@ module DataCycleCore
       render(json: { error: 'PATH_MISSING' }.to_json, status: :bad_request) && return if translate_params[:path].blank?
       render(json: { error: 'TRANSLATION_MISSING' }.to_json, status: :not_found) && return unless I18n.exists?(translate_params[:path], locale: helpers.active_ui_locale)
 
-      render json: { text: I18n.translate(translate_params[:path], locale: helpers.active_ui_locale) }.to_json
+      render json: { text: I18n.t(translate_params[:path], locale: helpers.active_ui_locale) }.to_json
     end
 
     private

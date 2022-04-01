@@ -2,6 +2,7 @@ import Select2 from 'select2';
 import difference from 'lodash/difference';
 import i18nDe from '../helpers/select2_i18n_de';
 import i18nEn from '../helpers/select2_i18n_en';
+import Select2Helpers from '../helpers/select2_helpers';
 
 class BasicSelect2 {
   constructor(element) {
@@ -11,7 +12,10 @@ class BasicSelect2 {
     this.defaultOptions = {
       allowClear: true,
       dropdownParent: this.$element.parent(),
-      createTag: this.createTag.bind(this)
+      createTag: this.createTag.bind(this),
+      selectionTitleAttribute: false,
+      templateResult: this.templateResult.bind(this),
+      templateSelection: this.templateSelection.bind(this)
     };
     this.select2Object = null;
     this.eventHandlers = {
@@ -26,6 +30,7 @@ class BasicSelect2 {
     if (!$.fn.select2) {
       Select2($);
       $.fn.select2.defaults.set('width', '100%');
+      Select2Helpers.addselectionTitleAttributeOption($);
 
       switch (DataCycle.uiLocale) {
         case 'de':
@@ -65,7 +70,11 @@ class BasicSelect2 {
     event.stopPropagation();
   }
   reset(_event) {
-    this.$element.val(null).trigger('change', { type: 'reset' });
+    this.$element.find('option').prop('selected', function () {
+      return this.defaultSelected;
+    });
+
+    this.$element.trigger('change', { type: 'reset' });
   }
   destroy(_event) {
     this.$element.select2('destroy');
@@ -149,15 +158,50 @@ class BasicSelect2 {
     if (!this.config.treeLabel) return;
 
     $(result).html((_index, value) => {
-      if (value != undefined) {
-        return value.replace(this.config.treeLabel + ' &gt; ', '');
-      }
+      if (value != undefined) return value.replace(this.config.treeLabel + ' &gt; ', '');
     });
+  }
+  copyDataAttributes(data, target) {
+    const source = data.element;
+
+    if (source && source instanceof $) source = source[0];
+    if (target instanceof $) target = target[0];
+    if ((!source && !data) || !target) return;
+
+    if (source && source.dataset.dcTooltip) target.dataset.dcTooltip = source.dataset.dcTooltip;
+    else if (data.dc_tooltip) target.dataset.dcTooltip = data.dc_tooltip;
+
+    if (source && source.dataset.fullPath) target.dataset.fullPath = source.dataset.fullPath;
+    else if (data.full_path) target.dataset.fullPath = data.full_path;
+  }
+  templateResult(data) {
+    if (data.loading) return data.text;
+
+    let term = this.query.term || '';
+    let titleValue = data.element && data.element.dataset.fullPath ? data.element.dataset.fullPath : data.text;
+    let result = titleValue ? this.markMatch(titleValue, term) : null;
+    if (this.config.showTreeLabel !== 'true') this.removeTreeLabel(result);
+    this.decorateResult(result);
+    this.copyDataAttributes(data, result);
+
+    return result;
+  }
+  templateSelection(data) {
+    data.selected = true;
+    data.text = data.name || data.text;
+    $(data.element).html(data.text);
+    const $result = $(`<span class="selection-label-wrapper"><span class="selection-label">${data.text}</span></span>`);
+    this.copySelect2Classes(data, $result);
+    this.addCollectionLinksToResults(data, $result);
+
+    this.copyDataAttributes(data, $result);
+
+    return $result;
   }
   removeTreeLabelFromSelection(text) {
     if (!this.config.treeLabel) return text;
 
-    return text.replace(this.config.treeLabel + ' > ', '');
+    return text.replace(`${this.config.treeLabel} > `, '');
   }
   createTag(params) {
     let term = $.trim(params.term);

@@ -67,10 +67,10 @@ class SimpleFields {
     const target = event.currentTarget;
 
     if (data && data.force) {
-      $(target).prop('checked', data.value);
+      $(target).prop('checked', data.value.toString() == target.value);
     } else {
       domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
-        $(target).prop('checked', data.value);
+        $(target).prop('checked', data.value.toString() == target.value);
       });
     }
   }

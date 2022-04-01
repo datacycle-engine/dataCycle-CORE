@@ -17,9 +17,8 @@
             <%= tag.button(
               tag.i(class: 'fa fa-check'),
               class: 'button-prime submit submit-edit-form',
-              title: t('actions.save_changes', locale: active_ui_locale),
               data: {
-                tooltip: true,
+                dc_tooltip: t('actions.save_changes', locale: active_ui_locale),
                 disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw')
               }
             ) %>

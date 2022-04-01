@@ -8,10 +8,6 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::GeoKeyFigure
         end
 
-        def part_id_path(content)
-          configuration(content).dig('part_id_path')
-        end
-
         def local(content)
           configuration(content).dig('local')
         end
@@ -25,11 +21,7 @@ module DataCycleCore
         end
 
         def endpoint
-          @endpoint ||= begin
-            return if external_source.blank?
-
-            configuration.dig(:endpoint).constantize.new(external_source.credentials.symbolize_keys)
-          end
+          @endpoint ||= (configuration.dig(:endpoint).constantize.new(external_source.credentials.symbolize_keys) if external_source.present?)
         end
 
         def get_key_figure(part_ids, key = nil)

@@ -79,12 +79,12 @@ module DataCycleCore
         end
 
         def min(data, value)
-          return unless data.size < value
+          return unless Array.wrap(data).size < value
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.min_ref',
             substitutions: {
-              data: data.size,
+              data: Array.wrap(data).size,
               value: value
             }
           }

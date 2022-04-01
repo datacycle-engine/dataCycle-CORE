@@ -166,7 +166,7 @@ class DatePicker {
       .then(data => {
         DataCycle.cache.holidays[year] = data || [];
       })
-      .finally(_ => {
+      .finally(() => {
         DataCycle.cache.holidays.loadingHolidays[year] = false;
         DataCycle.cache.holidays.loadingHolidaysRequest[year] = null;
       });

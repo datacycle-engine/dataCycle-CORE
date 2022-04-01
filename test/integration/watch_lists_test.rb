@@ -37,7 +37,7 @@ module DataCycleCore
 
       get api_v2_collections_path
       assert_response :success
-      assert_equal response.content_type, 'application/json'
+      assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = JSON.parse response.body
       assert_equal(1, json_data.dig('collections').count { |w| w['name'] == name })
     end
@@ -101,7 +101,7 @@ module DataCycleCore
 
       get api_v2_collections_path
       assert_response :success
-      assert_equal response.content_type, 'application/json'
+      assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = JSON.parse response.body
       assert_equal json_data.dig('collections').size, 0
     end
@@ -122,7 +122,7 @@ module DataCycleCore
 
       get api_v2_collection_path(@watch_list)
       assert_response :success
-      assert_equal response.content_type, 'application/json'
+      assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = JSON.parse response.body
       assert_equal json_data.dig('collection', 'items').size, 1
     end
@@ -149,7 +149,7 @@ module DataCycleCore
 
       get api_v2_collection_path(@watch_list)
       assert_response :success
-      assert_equal response.content_type, 'application/json'
+      assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = JSON.parse response.body
       assert_equal json_data.dig('collection', 'items').size, 2
     end
@@ -178,7 +178,7 @@ module DataCycleCore
 
       get api_v2_collection_path(watch_list)
       assert_response :success
-      assert_equal response.content_type, 'application/json'
+      assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = JSON.parse response.body
       assert_equal json_data.dig('collection', 'items').size, 2
     end
@@ -201,7 +201,7 @@ module DataCycleCore
 
       get api_v2_collection_path(@watch_list)
       assert_response :success
-      assert_equal response.content_type, 'application/json'
+      assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = JSON.parse response.body
       assert_equal json_data.dig('collection', 'items').size, 0
     end
@@ -423,7 +423,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse response.body
       assert json_data['valid']
     end

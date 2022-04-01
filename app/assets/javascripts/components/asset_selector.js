@@ -82,7 +82,7 @@ class AssetSelector {
           $html.trigger('dc:html:changed').trigger('dc:html:initialized');
         }
       })
-      .finally((_data, _text, _jqXHR) => {
+      .finally(() => {
         DataCycle.enableElement(this.editButton);
       });
   }
@@ -110,7 +110,7 @@ class AssetSelector {
           .then(_data => {
             $asset.remove();
           })
-          .finally((_data, _text, _jqXHR) => {
+          .finally(() => {
             DataCycle.enableElement($button);
           });
       },

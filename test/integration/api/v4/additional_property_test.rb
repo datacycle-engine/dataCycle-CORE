@@ -20,7 +20,7 @@ module DataCycleCore
           get api_v4_thing_path(id: @content, include: 'embeddedData')
 
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = JSON.parse(response.body)
 
           assert(json_data['@context'].present?)

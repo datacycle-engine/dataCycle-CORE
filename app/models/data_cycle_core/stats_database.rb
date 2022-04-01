@@ -3,22 +3,61 @@
 module DataCycleCore
   class StatsDatabase
     attr_accessor(
-      :stat_update, :pg_name, :pg_size, :pg_content, :pg_content_content,
-      :pg_classification_content, :pg_classifications, :pg_aliases, :pg_overlays,
-      :pg_content_history, :pg_tree_label, :pg_tree_nodes, :mongo_categories,
-      :mongo_pois, :mongo_regions, :import_modules
+      :stat_update, :pg_name, :pg_size, :pg_overlays,
+      :pg_content_history, :mongo_categories,
+      :mongo_pois, :mongo_regions, :import_modules,
+      :pg_tables
     )
 
-    def initialize(user_id)
-      @import_modules = []
-      load_postgres_data
-      load_mongo_data(user_id)
+    EXCLUDED_TABLES = [
+      'ar_internal_metadata',
+      'schema_migrations',
+      'spatial_ref_sys'
+    ].freeze
+
+    def initialize(user_id, stats_only = false)
+      update(user_id, stats_only)
     end
 
-    def update(user_id)
-      load_postgres_data
-      load_mongo_data(user_id)
+    def update(user_id, stats_only = false)
+      if stats_only
+        load_pg_stats
+      else
+        @import_modules = []
+        load_postgres_data
+        load_mongo_data(user_id)
+      end
+
       self
+    end
+
+    def load_pg_stats
+      @pg_tables = {}
+
+      stats_sql = <<-SQL.squish
+        SELECT
+          relname AS tablename,
+          pg_total_relation_size(relid) AS total_size,
+          pg_table_size(relid) AS data_size,
+          pg_indexes_size(relid) AS index_size
+        FROM
+          pg_catalog.pg_statio_user_tables
+        WHERE
+          relname NOT IN (?)
+        ORDER BY
+          pg_total_relation_size(relid) DESC;
+      SQL
+
+      stats_res = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [stats_sql, EXCLUDED_TABLES]))
+      stats_res.each do |stat_res|
+        @pg_tables[stat_res['tablename']] = stat_res.except('tablename')
+      end
+
+      count_sql = @pg_tables.keys.map { |t_name| "SELECT '#{t_name}' AS tablename, count(*) AS count FROM #{t_name}" }.join(' UNION ')
+      count_res = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, count_sql))
+      count_res.each do |count_r|
+        @pg_tables[count_r['tablename']]['count'] = count_r['count']
+      end
     end
 
     private
@@ -28,20 +67,7 @@ module DataCycleCore
 
       @pg_name = ActiveRecord::Base.connection.current_database
       sql = ActiveRecord::Base.send(:sanitize_sql_for_conditions, "SELECT pg_database_size('#{@pg_name}');")
-
       @pg_size = ActiveRecord::Base.connection.execute(sql).first['pg_database_size']
-      @pg_classifications = Classification.count
-      @pg_aliases = ClassificationAlias.count
-      @pg_classification_content = ClassificationContent.count
-      @pg_tree_label = ClassificationTreeLabel.count
-      @pg_tree_nodes = ClassificationTree.count
-      @pg_content = {}
-      @pg_content['Thing'] = DataCycleCore::Thing.count
-      @pg_content['Thing-Translations'] = DataCycleCore::Thing::Translation.count
-      @pg_content['History'] = DataCycleCore::Thing::History.count
-      @pg_content['History-Translations'] = DataCycleCore::Thing::History::Translation.count
-
-      @pg_content_content = DataCycleCore::ContentContent.count
     end
 
     def load_mongo_data(_user_id)

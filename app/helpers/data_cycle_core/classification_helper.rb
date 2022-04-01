@@ -14,14 +14,14 @@ module DataCycleCore
     # TODO: refactor
     def get_classifications_for_id(uids, tree_label = nil)
       unless uids.nil?
-        if !tree_label.nil?
+        if tree_label.nil?
+          @selected_classifications = DataCycleCore::ClassificationAlias.find(uids)
+        else
           allowed_classifications = get_classifications_for_name(tree_label)
             .classification_trees
             .map { |classification| classification.sub_classification_alias.id }
           allowed_uids = uids.select { |uid| allowed_classifications.include?(uid) }
           @selected_classifications = DataCycleCore::ClassificationAlias.find(allowed_uids)
-        else
-          @selected_classifications = DataCycleCore::ClassificationAlias.find(uids)
         end
       end
     rescue StandardError
@@ -74,8 +74,39 @@ module DataCycleCore
         .where('classification_tree_labels.name = ?', treelabel).count.positive?
     end
 
+    def classification_title(classification_or_alias)
+      if classification_or_alias.is_a?(DataCycleCore::Classification)
+        classification_or_alias.try(:name) || classification_or_alias.try(:external_key) || 'NO_NAME'
+      elsif classification_or_alias.is_a?(DataCycleCore::ClassificationAlias)
+        classification_or_alias.try(:internal_name) || classification_or_alias.try(:primary_classification).try(:external_key) || 'NO_NAME'
+      else
+        'DELETED'
+      end
+    end
+
     def classification_tooltip(classification_alias)
-      safe_join([classification_alias.full_path, classification_alias.description.presence].compact, '<br><br>')
+      return if classification_alias.nil?
+
+      tooltip_html = []
+
+      tooltip_html << tag.div(classification_alias.full_path, class: 'tag-full-path') if classification_alias.try(:full_path).present?
+
+      I18n.with_locale(classification_alias.first_available_locale(active_ui_locale)) do
+        tooltip_html << "<div class=\"tag-description\">#{classification_alias.description}</div>" if classification_alias.try(:description).present?
+      end
+
+      if classification_alias.name_i18n.keys.many?
+        tooltip_html << tag.div(
+          tag.span(I18n.t('classifications.tooltip_translations', locale: active_ui_locale), class: 'tag-translations-header') +
+          tag.ul(
+            safe_join(classification_alias.name_i18n.sort.map { |k, v| tag.li(v, data: { locale: "#{k}:" }) }),
+            class: 'tag-translations-list'
+          ),
+          class: 'tag-translations'
+        )
+      end
+
+      tooltip_html.compact.join('<br>')
     end
 
     def expected_classification_alias(c)
@@ -83,9 +114,12 @@ module DataCycleCore
     end
 
     def expected_value_id(c, expected_type)
-      if c.is_a?(expected_type) then c&.id
-      elsif expected_type == DataCycleCore::Classification then c&.primary_classification&.id
-      else c&.primary_classification_alias&.id
+      if c.is_a?(expected_type)
+        c&.id
+      elsif expected_type == DataCycleCore::Classification
+        c&.primary_classification&.id
+      else
+        c&.primary_classification_alias&.id
       end
     end
 
@@ -105,6 +139,8 @@ module DataCycleCore
     end
 
     def async_classification_select_options(value, expected_type = DataCycleCore::ClassificationAlias)
+      value = Array.wrap(value).compact
+
       return options_for_select([]) if value.blank?
 
       options_for_select(
@@ -117,10 +153,10 @@ module DataCycleCore
               ca.internal_name,
               expected_value_id(c, expected_type),
               {
-                title: [
-                  ca.full_path,
-                  ca.description
-                ].reject(&:blank?).join("\n\n")
+                data: {
+                  dc_tooltip: classification_tooltip(ca),
+                  full_path: ca.full_path
+                }
               }
             ]
           }
@@ -130,6 +166,8 @@ module DataCycleCore
     end
 
     def simple_classification_select_options(value, classification_items, expected_type = DataCycleCore::ClassificationAlias)
+      value = Array.wrap(value).compact
+
       options_for_select(
         classification_items
           &.where&.not(internal_name: DataCycleCore.excluded_filter_classifications)
@@ -141,12 +179,9 @@ module DataCycleCore
               ca.internal_name,
               expected_value_id(c, expected_type),
               {
-                title: [
-                  ca.full_path,
-                  ca.description
-                ].reject(&:blank?).join("\n\n"),
                 data: {
-                  title: ca.full_path
+                  dc_tooltip: classification_tooltip(ca),
+                  full_path: ca.full_path
                 },
                 disabled: !c.assignable
               }

@@ -24,7 +24,7 @@ module DataCycleCore
         test '/api/v4/endpoints/:uuid with a valid watch_list' do
           get api_v4_stored_filter_path(id: @watch_list.id)
 
-          assert_equal(response.content_type, 'application/json')
+          assert_equal(response.content_type, 'application/json; charset=utf-8')
           json_data = JSON.parse(response.body)
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)

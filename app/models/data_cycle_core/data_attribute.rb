@@ -11,6 +11,14 @@ module DataCycleCore
         options = {}
       end
 
+      if definition.is_a?(ActionController::Parameters)
+        definition = definition.to_unsafe_hash
+      elsif definition.is_a?(Hash)
+        definition = definition.with_indifferent_access
+      elsif options.nil?
+        definition = {}
+      end
+
       specific_scope ||= scope
 
       super

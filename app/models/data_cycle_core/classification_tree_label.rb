@@ -30,6 +30,8 @@ module DataCycleCore
       end
     end
 
+    has_many :classification_aliases_with_deleted, -> { with_deleted }, through: :classification_trees, source: :sub_classification_alias
+
     has_many :classifications, through: :classification_aliases
     has_many :things, -> { unscope(:order).distinct }, through: :classifications
     has_one :statistics, -> { readonly }, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label

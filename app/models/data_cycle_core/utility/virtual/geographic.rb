@@ -8,7 +8,8 @@ module DataCycleCore
           def line_string_union(**args)
             virtual_parameters = args.dig(:virtual_parameters)
             content = args.dig(:content)
-            factory = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')
+            longlat_projection = RGeo::CoordSys::Proj4.new('EPSG:4326')
+            factory = RGeo::Cartesian.factory(srid: 4326, proj4: longlat_projection)
             all_line_strings = content
               .send(virtual_parameters[0])
               .to_a

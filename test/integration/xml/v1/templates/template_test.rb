@@ -24,7 +24,7 @@ module DataCycleCore
 
           get xml_v1_thing_path(id: @content)
           assert_response(:success)
-          assert_equal('application/xml', response.content_type)
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           data_hash = xml_data.dig('RDF', 'thing')
@@ -37,7 +37,7 @@ module DataCycleCore
 
           get xml_v1_thing_path(id: @content)
           assert_response(:success)
-          assert_equal('application/xml', response.content_type)
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           data_hash = xml_data.dig('RDF', 'thing')
@@ -50,7 +50,7 @@ module DataCycleCore
 
           get xml_v1_thing_path(id: @content)
           assert_response(:success)
-          assert_equal('application/xml', response.content_type)
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           data_hash = xml_data.dig('RDF', 'thing')
@@ -63,7 +63,7 @@ module DataCycleCore
 
           get xml_v1_thing_path(id: @content)
           assert_response(:success)
-          assert_equal('application/xml', response.content_type)
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           data_hash = xml_data.dig('RDF', 'thing')

@@ -2,10 +2,11 @@
   <ul class="dc-additional-values-filter accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
     <% additional_values.each do |key, value| %>
       <% tree_label = value.dig('definition', 'ui', 'edit', 'filters', 'classification_tree') %>
+      <% items = additional_map_values_filter(tree_label) %>
       <%= tag.li(
-      class: "dc-additional-values-filter-item #{'accordion-item' if tree_label.present?}",
+      class: "dc-additional-values-filter-item #{'accordion-item' if items.present?}",
       data: {
-        accordion_item: tree_label.present? ? true: nil,
+        accordion_item: items.present? ? true: nil,
         group_key: key,
         definition: value['definition']&.to_json
       }
@@ -22,11 +23,11 @@
           <% end %>
         </div>
 
-        <% if tree_label.present? %>
+        <% if items.present? %>
           <a href="#" class="accordion-title"></a>
 
           <%= render 'data_cycle_core/contents/editors/geographic/overlay_classification_tree_level',
-                    items: additional_map_values_filter(tree_label),
+                    items: items,
                     random_id: random_id,
                     key: key %>
 

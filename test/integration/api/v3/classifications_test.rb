@@ -5,12 +5,12 @@ require 'test_helper'
 module DataCycleCore
   module Api
     module V3
-      class ClassificationTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
+      class ClassificationTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
+          DataCycleCore::Thing.where(template: false).delete_all
+        end
 
         setup do
-          @routes = Engine.routes
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
@@ -18,7 +18,7 @@ module DataCycleCore
           get api_v3_classification_trees_path
 
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = JSON.parse(response.body)
           assert_equal(['data', 'links', 'meta'], json_data.keys.sort)
         end
@@ -28,7 +28,7 @@ module DataCycleCore
           get api_v3_classification_tree_path(id: classification_tree)
 
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = JSON.parse(response.body)
           assert_equal(classification_tree.id, json_data.dig('data', 'id'))
           assert_equal(classification_tree.name, json_data.dig('data', 'name'))
@@ -39,7 +39,7 @@ module DataCycleCore
           get classifications_api_v3_classification_tree_path(id: classification_tree)
 
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = JSON.parse(response.body)
 
           total = classification_tree.classification_trees.count

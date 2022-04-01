@@ -78,6 +78,7 @@ end
 ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaStatements.prepend SchemaStatementsWithInterval
 
 # activerecord/lib/active_record/connection_adapters/postgresql_adapter.rb
+# @todo update or replace
 require 'active_record/connection_adapters/postgresql_adapter'
 ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::NATIVE_DATABASE_TYPES[:interval] = { name: 'interval' }
 ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.class_eval do
