@@ -34,26 +34,22 @@
 
     ul.tag-translations-list {
       list-style-type: none;
-      margin: 0 0 0 3rem;
+      margin: 0 0 0 1rem;
 
       li {
         position: relative;
-        font-style: italic;
+        font-weight: bold;
 
-        &::before {
-          content: attr(data-locale);
-          position: absolute;
-          right: calc(100% + 0.3rem);
-          font-weight: bold;
-          font-style: normal;
-          white-space: nowrap;
+        .tag-translations-locales {
+          font-weight: normal;
+          font-style: italic;
         }
       }
     }
   }
 }
 
-[data-dc-tooltip]:not([data-dc-tooltip='']):not(button):not(a):not(.button):not(label):not(.copy-to-clipboard) {
+[data-dc-tooltip]:not([data-dc-tooltip='']):not([disabled]):not(button):not(a):not(.button):not(label):not(.copy-to-clipboard) {
   cursor: help;
 }
 
