@@ -1,0 +1,16 @@
+# frozen_string_literal: true
+
+json ||= {}
+key_new = attribute_key(key, definition)
+api_property_definition = api_definition(definition)
+
+classification_aliases = content.send(key + '_overlay').includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
+enumerations = classification_aliases.presence.map do |classification_alias|
+  {
+    '@type' => api_property_definition.dig('type') || 'Enumeration',
+    'name' => classification_alias.uri || classification_alias.name || classification_alias.internal_name
+  }
+end
+
+json = { key_new => enumerations } if enumerations.present?
+json

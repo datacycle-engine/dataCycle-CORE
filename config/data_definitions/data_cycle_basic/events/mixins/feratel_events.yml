@@ -1,0 +1,72 @@
+---
+- :data:
+    :name: feratel_events
+    :type: mixin
+    :properties:
+      :holiday_themes:
+        :label: Feratel - Urlaubsthemen
+        :type: classification
+        :tree_label: Feratel - Urlaubsthemen
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_event_tags:
+        :label: Feratel - Veranstaltungstags
+        :type: classification
+        :tree_label: Feratel - Veranstaltungstags
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_owners:
+        :label: Feratel - Inhaber
+        :type: classification
+        :tree_label: Feratel - Inhaber
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_locations:
+        :label: Feratel - Ort
+        :type: classification
+        :tree_label: Feratel - Orte
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_facilities:
+        :label: Feratel - Ausstattungsmerkmale
+        :type: classification
+        :tree_label: Feratel - Ausstattungsmerkmale
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_status:
+        :label: Feratel - Status
+        :type: classification
+        :tree_label: Feratel - Status
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_creative_commons:
+        :tree_label: Feratel - CreativeCommons
+        :type: classification
+        :label: Feratel - CreativeCommons
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_facilities_events:
+        :label: Feratel - Merkmale - Events
+        :type: classification
+        :tree_label: Feratel - Merkmale - Events
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

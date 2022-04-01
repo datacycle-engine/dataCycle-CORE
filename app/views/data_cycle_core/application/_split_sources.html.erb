@@ -1,0 +1,31 @@
+<a data-toggle="split-sources"><i class="fa fa-columns" aria-hidden="true"></i></a>
+<div class="dropdown-pane align-right no-bullet bottom" id="split-sources" data-dropdown data-hover="true" data-hover-pane="true">
+    <h5><%= title_text %></h5>
+    <div id="split-source-selector">
+        <%= form_tag(url, method: :get) do %>
+            <div class="form-element">
+                <div class="v-select white">
+                    <%= select_tag(
+                          'source_id',
+                          async_thing_select_options(local_assigns[:value], local_assigns.dig(:query_params, :template_name).present?),
+                          {
+                            multiple: false,
+                            include_blank: true,
+                            class: 'async-select',
+                            data: {
+                              max: 20,
+                              placeholder: 'Vorlage wählen',
+                              search_path: select_search_things_path,
+                              query_params: local_assigns[:query_params]
+                            }
+                          }
+                        ) %>
+                </div>
+            </div>
+
+            <button class="button" data-disable-with="<i class='fa fa-spinner fa-spin fa-fw'></i> <%= t('common.load_splitsource', locale: active_ui_locale) %>">
+              <%= t('common.load_splitsource', locale: active_ui_locale) %>
+            </button>
+        <% end %>
+    </div>
+</div>

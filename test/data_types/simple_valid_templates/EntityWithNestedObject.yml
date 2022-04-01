@@ -1,0 +1,21 @@
+---
+- :data:
+    :name: Container
+    :type: object
+    :content_type: entity
+    :schema_type: Thing_Container
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :nested_object:
+        :label: Nested Object
+        :type: object
+        :storage_location: translated_value
+        :properties:
+          :some_property:
+            :type: string
+            :label: Some Property
+          :another_property:
+            :type: number
+            :label: Another Property

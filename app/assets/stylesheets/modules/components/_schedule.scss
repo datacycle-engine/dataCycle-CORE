@@ -1,0 +1,356 @@
+.detail-header.editor .schedule-editor .daterange .form-element {
+  display: flex;
+
+  &.exdate {
+    flex: auto;
+  }
+
+  .flatpickr-wrapper {
+    flex: auto;
+  }
+}
+
+.schedule-editor {
+  input {
+    background-color: white;
+  }
+
+  .daterange,
+  .daterange:hover {
+    background: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    display: flex;
+    flex-flow: row wrap;
+
+    > * {
+      margin-bottom: 1rem;
+    }
+
+    .form-element.start,
+    .form-element.duration {
+      flex: 0;
+
+      input {
+        width: 150px;
+      }
+    }
+
+    .form-element.duration {
+      .duration-part {
+        display: flex;
+
+        label:hover {
+          color: $primary-color;
+        }
+
+        input {
+          width: 80px;
+          min-width: 80px;
+          margin-right: 1rem;
+          text-align: right;
+        }
+      }
+
+      > *:not(:last-child) {
+        margin-right: 1rem;
+      }
+    }
+  }
+
+  .rrules {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+
+    > * {
+      height: 3.5rem;
+    }
+
+    .until {
+      flex: 0;
+    }
+
+    .after-label {
+      margin-left: 1rem;
+    }
+
+    .single_occurrence,
+    .daily,
+    .weekly,
+    .monthly,
+    .yearly {
+      display: none;
+    }
+
+    &.daily {
+      .daily {
+        display: inherit;
+      }
+    }
+
+    &.weekly {
+      .weekly {
+        display: inherit;
+      }
+    }
+
+    &.monthly {
+      .monthly {
+        display: inherit;
+      }
+    }
+
+    &.yearly {
+      .yearly {
+        display: inherit;
+      }
+    }
+
+    &.single_occurrence {
+      .single_occurrence {
+        display: inherit;
+      }
+    }
+
+    .special-dates {
+      flex-basis: 100%;
+    }
+    input {
+      min-width: 100px;
+      width: auto;
+
+      &.flatpickr-input {
+        width: 100%;
+      }
+
+      &[type='number'] {
+        min-width: 4rem;
+        width: 4rem;
+      }
+    }
+  }
+
+  .form-element {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    background: $light-gray;
+    padding: 0.5rem 1rem;
+
+    &:not(:last-of-type):not(.until) {
+      margin-right: 1rem;
+    }
+
+    label {
+      position: relative;
+      left: 0 !important;
+      top: 0 !important;
+      margin-right: 1rem;
+      padding: 0 !important;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+
+      .fa {
+        margin-right: 5px;
+      }
+    }
+
+    input {
+      width: auto;
+    }
+
+    select {
+      margin: 0 !important;
+      height: 2rem;
+    }
+
+    .flatpickr-input {
+      width: 100%;
+    }
+  }
+}
+
+.events-calender-view {
+  .calender-leaf {
+    display: inline-block;
+    position: relative;
+    width: 7rem;
+    text-align: center;
+
+    .leaf-date {
+      display: flex;
+      padding: 2.5rem 0.7rem 0.5rem 0.7rem;
+      flex-flow: column nowrap;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .leaf-background {
+      position: absolute;
+      pointer-events: none;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      font-size: 7rem;
+      text-align: center;
+    }
+    .leaf-month {
+      font-size: 0.8rem;
+    }
+    .leaf-year {
+      font-size: 0.8rem;
+    }
+    .leaf-day {
+      font-weight: bold;
+      font-size: 1.6rem;
+      line-height: 1.6rem;
+    }
+    .leaf-duration {
+      font-size: 0.8rem;
+      border: 7px solid;
+      border-radius: 5px;
+      width: 6.5rem;
+      border-bottom-left-radius: 7px;
+      border-bottom-right-radius: 7px;
+      padding: 0 5px;
+      position: absolute;
+      top: 6.5rem;
+      left: 0.25rem;
+    }
+
+    .leaf-duration ~ .leaf-date {
+      margin-bottom: 2rem;
+    }
+  }
+}
+
+.schedule-editor .rrules,
+.opening-time-editor .weekday {
+  .weekday-checkbox {
+    position: relative;
+    input {
+      visibility: hidden;
+      position: absolute;
+      right: 0;
+      pointer-events: none;
+    }
+
+    label {
+      position: relative;
+      left: 0 !important;
+      top: 0 !important;
+      padding: 0 !important;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 2rem;
+      width: 2rem;
+      font-weight: 600;
+      margin: 0;
+      color: $black;
+      margin: 0 0 0 0.5rem;
+      transition: box-shadow 0.1s;
+      background: rgba($alert-color, 0.5);
+      border: 1px solid rgba($alert-color, 0.5);
+    }
+
+    input:not(:disabled) ~ label:hover {
+      box-shadow: 0 0 3px $primary-color;
+    }
+
+    input:checked ~ label {
+      background: rgba($success-color, 0.5);
+      border-color: rgba($success-color, 0.5);
+    }
+    input:disabled ~ label {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.opening-time-editor .opening-time-range {
+  display: flex;
+  flex-flow: row nowrap;
+
+  input {
+    width: auto;
+    min-width: 100px;
+  }
+
+  .form-element {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    background: $light-gray;
+    padding: 0.5rem;
+    height: 3.5rem;
+
+    label {
+      position: relative;
+      left: 0 !important;
+      top: 0 !important;
+      padding: 0 0.5rem !important;
+      white-space: nowrap;
+    }
+
+    &.weekday {
+      margin-left: 1rem;
+
+      .weekday-checkbox {
+        input[type='radio'] {
+          &.true_option:checked ~ label {
+            background: rgba($success-color, 0.5);
+            border-color: rgba($success-color, 0.5);
+          }
+          &.false_option:checked ~ label {
+            background: rgba($alert-color, 0.5);
+            border-color: rgba($alert-color, 0.5);
+          }
+          &.ignore_option:checked ~ label {
+            background: transparent;
+            border-color: rgba($dark-gray, 0.5);
+          }
+        }
+      }
+
+      .weekday-checkbox.holiday {
+        margin-left: 0.5rem;
+        border-left: 1px solid darken($light-gray, 10%);
+
+        label {
+          width: auto;
+        }
+      }
+    }
+  }
+}
+
+.detail-type.opening_time {
+  .opening-time-group {
+    padding-top: 1rem;
+    margin: 0 !important;
+
+    .opening-time-opening-hours {
+      color: $dark-gray;
+      display: block;
+      padding: 0.5rem 0 0 0;
+      font-size: 0.9rem;
+
+      b {
+        color: $black;
+      }
+
+      .opening-time-day {
+        width: 100px;
+        display: inline-block;
+        text-align: right;
+        margin-right: 0.3rem;
+      }
+    }
+  }
+}

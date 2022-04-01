@@ -1,0 +1,12 @@
+---
+- :data:
+    :name: potential_actions
+    :type: mixin
+    :properties:
+      :potential_action:
+        :label: Weiterführende Links
+        :type: embedded
+        :template_name: Action
+        :translated: true
+        :api:
+          :partial: action

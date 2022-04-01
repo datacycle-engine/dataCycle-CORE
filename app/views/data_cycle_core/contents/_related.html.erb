@@ -1,0 +1,19 @@
+<% I18n.with_locale(local_assigns[:locale]) do %>
+  <section class="related-objects">
+    <span class="horizontal-separator-header">
+      <h4 class="header-text"><%= t('common.related_items', locale: active_ui_locale) %> (<%= content&.related_contents&.size %>)</h4>
+    </span>
+
+    <% related_objects = content&.related_contents&.includes(:translations)&.order(:template_name, :id) %>
+    <div class="relation-list">
+      <ul>
+        <%= render 'data_cycle_core/contents/related_relation_groups', content: content, related_objects: related_objects %>
+      </ul>
+    </div>
+    <div class="objects-list">
+      <ul class="list">
+        <%= render 'data_cycle_core/contents/related_groups', content: content, related_objects: related_objects.page(1)&.per(DataCycleCore.linked_objects_page_size) %>
+      </ul>
+    </div>
+  </section>
+<% end %>

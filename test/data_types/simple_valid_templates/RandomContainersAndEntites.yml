@@ -1,0 +1,70 @@
+---
+- :data:
+    :name: Container One
+    :type: object
+    :content_type: container
+    :schema_type: ContainerOne
+    :properties:
+      :id:
+        :label: id
+        :type: key
+
+- :data:
+    :name: Container Two
+    :type: object
+    :content_type: container
+    :schema_type: ContainerTwo
+    :properties:
+      :id:
+        :label: id
+        :type: key
+
+- :data:
+    :name: Container Three
+    :type: object
+    :content_type: container
+    :schema_type: ContainerThree
+    :properties:
+      :id:
+        :label: id
+        :type: key
+
+- :data:
+    :name: Entity One
+    :type: object
+    :content_type: entity
+    :schema_type: EntityOne
+    :properties:
+      :id:
+        :label: id
+        :type: key
+
+- :data:
+    :name: Entity Two
+    :type: object
+    :content_type: entity
+    :schema_type: EntityTwo
+    :properties:
+      :id:
+        :label: id
+        :type: key
+
+- :data:
+    :name: Entity Three
+    :type: object
+    :content_type: entity
+    :schema_type: EntityThree
+    :properties:
+      :id:
+        :label: id
+        :type: key
+
+- :data:
+    :name: Entity Four
+    :type: object
+    :content_type: entity
+    :schema_type: EntityFour
+    :properties:
+      :id:
+        :label: id
+        :type: key

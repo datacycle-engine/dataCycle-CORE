@@ -1,0 +1,48 @@
+<% if value.present? && definition.dig('xml', 'disabled').blank? %>
+  <% if definition.dig('xml', 'transformation', 'method') == 'unwrap' %>
+
+    <% if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations') %>
+      <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+        <% o_key_name = o_definition.dig('xml', 'name') || o_key %>
+        < <%=o_key_name.camelize(:lower)%>>
+        <% content.translations.each do |translation| %>
+          <% I18n.with_locale(translation.locale) do %>
+            <<%=translation.locale%>><%=normalize_string(content.try(key)&.try(o_key).to_s).html_safe%></<%=translation.locale%>>
+          <% end %>
+        <% end %>
+        </ <%=o_key_name.camelize(:lower)%>>
+      <% end %>
+    <% else %>
+      <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+        <% partial_params = xml_attribute(key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content) %>
+        <%= render *partial_params unless partial_params.nil? %>
+      <% end %>
+    <% end %>
+
+  <% else %>
+    <% key_name = definition.dig('xml', 'name') || key %>
+    <% key_name = definition.dig('xml', 'transformation', 'name') if definition.dig('xml', 'transformation', 'method') == 'merge_object' %>
+    <<%=key_name.camelize(:lower)%>>
+    <% if definition.dig('xml', 'type').present? %>
+      <type><%=definition.dig('xml', 'type')%></type>
+    <% end %>
+    <% if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations') %>
+      <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+        <% o_key_name = o_definition.dig('xml', 'name') || o_key %>
+        <<%=o_key_name.camelize(:lower)%>>
+        <% content.translations.each do |translation| %>
+          <% I18n.with_locale(translation.locale) do %>
+            < <%=translation.locale%> ><%=normalize_string(content.try(key)&.try(o_key).to_s).html_safe%> </ <%=translation.locale%> >
+          <% end %>
+        <% end %>
+        </<%=o_key_name.camelize(:lower)%>>
+      <% end %>
+    <% else %>
+      <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+        <% partial_params = xml_attribute(key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content) %>
+        <%= render *partial_params unless partial_params.nil? %>
+      <% end %>
+    <% end %>
+    </<%=key_name.camelize(:lower)%>>
+  <% end %>
+<% end %>

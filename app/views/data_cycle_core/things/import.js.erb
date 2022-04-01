@@ -1,0 +1,15 @@
+<% if @content.present? %>
+  $('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %> .items .no-results').remove();
+
+  <% I18n.with_locale(@content.first_available_locale(params[:locale])) do %>
+
+    if(!$('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>').find('.items .item[data-id="<%= @content.id %>"]').length){
+      $('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>').find('.items .loading').before('<%= j render_linked_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: @content, prefix: params[:prefix], options: params[:options], objects: params[:objects], edit_buttons: true }, content: @object_browser_parent) %>');
+    }
+
+    $('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>').find('.item-info-scrollable').html('<%= escape_javascript(render_linked_details(key: params[:key], definition: params[:definition], parameters: { object: @content, options: params[:options] })) %>').trigger('dc:html:changed').trigger('dc:html:initialized');
+
+    $('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %>').trigger('dc:import:complete', { id: '<%= @content.id %>' });
+
+  <% end %>
+<% end %>

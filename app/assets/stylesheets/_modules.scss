@@ -1,0 +1,60 @@
+// load foundation
+@import 'modules/foundation';
+// load font-awesome
+@import 'modules/font-awesome';
+// load overrides
+@import 'modules/foundation-overrides';
+@import 'modules/font-awesome-overrides';
+
+// load fonts
+@import 'modules/fonts';
+
+// load quilljs
+@import 'modules/quilljs';
+// load application modules
+@import 'modules/base';
+@import 'modules/structure';
+@import 'modules/responsive';
+// load components
+@import 'modules/components/breadcrumb';
+@import 'modules/components/filters';
+@import 'modules/components/views';
+@import 'modules/components/masonry';
+@import 'modules/components/data-cycle-objects';
+@import 'modules/components/offcanvas';
+@import 'modules/components/v_select';
+@import 'modules/components/classifications';
+@import 'modules/components/sortable';
+@import 'modules/components/confirmation_modal';
+@import 'modules/documentation';
+@import 'modules/schema';
+@import 'modules/admin_board';
+@import 'modules/exceptions';
+//load logs
+@import 'modules/logs';
+@import 'modules/develop';
+@import 'modules/detail';
+@import 'modules/print';
+@import 'modules/components/word_counter';
+@import 'modules/components/watch_list';
+@import 'modules/components/content_header_functions';
+@import 'modules/components/assets';
+@import 'modules/components/confirmation_modal';
+@import 'modules/components/publications';
+@import 'modules/components/content_uploader';
+@import 'modules/components/schedule';
+@import 'modules/components/embedded_attribute';
+@import 'modules/components/object_attribute';
+@import 'modules/components/icons';
+@import 'modules/components/mtk_editor';
+@import 'modules/components/tooltip';
+@import 'flatpickr/dist/flatpickr.min';
+@import 'modules/components/date_picker';
+@import 'ol/ol';
+@import 'select2/dist/css/select2.min';
+// load tui-image-editor
+@import 'tui-image-editor/dist/tui-image-editor';
+@import 'modules/components/_image_editor';
+@import 'modules/components/_report';
+
+@import 'tabulator-tables/dist/css/tabulator.min.css';

@@ -1,0 +1,46 @@
+<%= render 'data_cycle_core/contents/grid/compact/tile_wrapper', local_assigns.except(:tile_links).merge(tile_classes: 'image asset') do %>
+  <%
+      thumbnail_url = object.try(:thumbnail_url) || object.try(:image_asset).try(:first).try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url)
+  %>
+  <% render_locale = I18n.locale %>
+  <% I18n.with_locale(object.first_available_locale) do %>
+    <div class="thumbnail media item <%= local_assigns[:class] %>" style="<%= "background-image: url(#{thumbnail_url})" if thumbnail_url.present? %>" data-open="media-reveal<%= local_assigns.dig(:options, :prefix) %>-<%= object.id %>">
+      <div class="show-for-print">
+        <img src="<%= thumbnail_url %>" />
+      </div>
+      <div class="description">
+        <%= render_translatable_linked_field(content, 'data_cycle_core/contents/grid/compact/attributes/title', { object: object }) %>
+
+        <div class="show-for-print">
+          <br />
+          (ID: <%= object.id %>)
+        </div>
+      </div>
+      <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>
+      <%= render_linked_content_warnings(content, { content: object, locale: render_locale }) %>
+    </div>
+
+    <div class="width-content reveal media-preview" id="media-reveal<%= local_assigns.dig(:options, :prefix) %>-<%= object.id %>" data-reveal>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <%= render_translatable_linked_field(content, 'data_cycle_core/contents/grid/compact/attributes/title', { object: object, css_class: 'preview-title' }) %>
+      <div class="image">
+        <img class="lazyload" data-src="<%= thumbnail_url %>" />
+      </div>
+      <div class="description">
+        <%= render 'data_cycle_core/contents/validity_period', dataCycleObject: object %>
+        <%= render_linked_content_warnings(content, { content: object, locale: render_locale, text: true }) %>
+        <%= link_to t('tile_links.details', locale: active_ui_locale), thing_path(object), target: :_blank %>
+        <% if can?(:download, object) && object.try(:content_url).present? %>
+          | <%= link_to t('tile_links.full_size', locale: active_ui_locale), object.try(:content_url), target: :_blank %>
+        <% end %>
+        <% if DataCycleCore.features.dig(:external_media_archive, :enabled) %>
+          <% if object.try(:url).present? %>
+            | <%= link_to t('tile_links.media_archive', locale: active_ui_locale), object.url, target: :_blank %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

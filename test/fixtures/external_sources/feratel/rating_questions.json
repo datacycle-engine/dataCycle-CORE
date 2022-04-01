@@ -1,0 +1,131 @@
+[
+  {
+    "_id": {
+      "$oid": "5be5a18532c88f093f8064ad"
+    },
+    "external_id": "d982ecf0-85d2-4ce3-9175-02e6365ea2be",
+    "dump": {
+      "de": {
+        "_Type": "RatingQuestion",
+        "Id": "d982ecf0-85d2-4ce3-9175-02e6365ea2be",
+        "Active": "true",
+        "Type": "Hotel",
+        "Order": "3",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Zimmer/Unterkunft"
+          }
+        }
+      },
+      "en": {
+        "_Type": "RatingQuestion",
+        "Id": "d982ecf0-85d2-4ce3-9175-02e6365ea2be",
+        "Active": "true",
+        "Type": "Hotel",
+        "Order": "3",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Zimmer/Unterkunft"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:30.035Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:30.035Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:29.709Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5a18532c88f093f8064ae"
+    },
+    "external_id": "5704a657-5549-4905-b078-1166c6c356be",
+    "dump": {
+      "de": {
+        "_Type": "RatingQuestion",
+        "Id": "5704a657-5549-4905-b078-1166c6c356be",
+        "Active": "true",
+        "Type": "Appartment",
+        "Order": "5",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Service"
+          }
+        }
+      },
+      "en": {
+        "_Type": "RatingQuestion",
+        "Id": "5704a657-5549-4905-b078-1166c6c356be",
+        "Active": "true",
+        "Type": "Appartment",
+        "Order": "5",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Service"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:30.038Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:30.038Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:29.759Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5a18532c88f093f8064af"
+    },
+    "external_id": "0f21b4be-d7c1-4494-9e7e-187470098f4f",
+    "dump": {
+      "de": {
+        "_Type": "RatingQuestion",
+        "Id": "0f21b4be-d7c1-4494-9e7e-187470098f4f",
+        "Active": "true",
+        "Type": "AdditionalService",
+        "Order": "3",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Buchungsservice"
+          }
+        }
+      },
+      "en": {
+        "_Type": "RatingQuestion",
+        "Id": "0f21b4be-d7c1-4494-9e7e-187470098f4f",
+        "Active": "true",
+        "Type": "AdditionalService",
+        "Order": "3",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Buchungsservice"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:30.041Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:30.041Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:29.767Z"
+    }
+  }
+]

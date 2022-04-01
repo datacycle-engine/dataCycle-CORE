@@ -1,0 +1,12 @@
+<div class="metadata">
+  <span class="type <%= content.template_name.underscore_blanks %>">
+    <%= render 'data_cycle_core/shared/icon', icon_type: content.template_name.underscore_blanks, icon_class: content.class.name.demodulize.underscore %>
+    <span class="title"><%= content.translated_template_name(active_ui_locale) %></span>
+    <span class="template-locale">(<%= I18n.locale %>)</span>
+  </span>
+
+  <span class="created-at">
+    <% date = visible_content_date(content) %>
+    <%= date %>
+  </span>
+</div>

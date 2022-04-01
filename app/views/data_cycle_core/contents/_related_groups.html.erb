@@ -1,0 +1,38 @@
+<% grouped_objects = related_objects.presence&.group_by(&:template_name) %>
+<% grouped_objects&.each do |group| %>
+
+  <li class="grouped_by <%= group.first.underscore_blanks %>">
+    <span>
+      <%= render 'data_cycle_core/contents/lists/attributes/type', item: group.second.first %>
+    </span>
+
+    <ul>
+      <% group.second.presence&.each do |item| %>
+        <li class="<%= [
+                            'list-item',
+                            'content',
+                            item.class.name.demodulize.underscore.dasherize,
+                            item.schema_type&.underscore&.dasherize,
+                            item.template_name.underscore.dasherize,
+                            (item.hard_content_warnings? ? 'hard-warnings' : nil)
+                        ].compact.join(' ') %>" data-id="<%= [item.id] %>">
+
+          <%= render_first_existing_partial [
+                                                "data_cycle_core/contents/viewers/lists/#{item.template_name.underscore_blanks}",
+                                                "data_cycle_core/contents/viewers/lists/#{item.schema_type.underscore_blanks}",
+                                                'data_cycle_core/contents/viewers/lists/default'
+                                            ], local_assigns.merge({content: item})
+                %>
+        </li>
+      <% end %>
+    </ul>
+
+  </li>
+
+<% end %>
+
+<% if related_objects.try(:total_pages)&.positive? && !related_objects&.last_page? %>
+  <span class="load-more-related-button">
+    <%= link_to  t('common.load_more', locale: active_ui_locale), load_more_related_thing_path(content, locale: I18n.locale, page: local_assigns[:page].present? ? page + 1 : 2, last_group: grouped_objects.keys.last.underscore_blanks), class: 'button', remote: true, data: { disable_with:  t('common.load_more', locale: active_ui_locale) + ' ' + tag.i(class: 'fa fa-spinner fa-spin') } %>
+  </span>
+<% end %>

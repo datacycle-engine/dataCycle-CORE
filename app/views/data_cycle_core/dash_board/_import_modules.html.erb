@@ -1,0 +1,84 @@
+<div>
+  <div class="card">
+    <div class="card-divider">
+      <h5><%= locals[:import_data][:name] %></h5>
+      <h6 style="font-size: 0.8rem;"><%= locals[:import_data][:uuid] %></h6>
+    </div>
+    <div class="card-section">
+      <%= truncate(locals[:import_data][:database], length: 35)%>
+      <ul>
+        <%= content_tag(:li, "size: #{number_to_human_size(locals[:import_data][:db_size])}")%>
+      </ul>
+    </div>
+    <div class="card-section">
+      Collections: <br />
+      <ul>
+        <% locals[:import_data][:tables].each do |key, value| %>
+          <%= content_tag(:li, "#{key}: #{value[0]} #{value[1]}") %>
+        <% end %>
+      </ul>
+    </div>
+    <div class="card-section">
+      download (last try/success):
+      <ul>
+        <li><%= "#{locals[:import_data][:last_download]}".html_safe %> </li>
+        <% if (locals[:import_data][:last_successful_download] == 'never' && locals[:import_data][:last_download] == 'never') || locals[:import_data][:deactivated] %>
+          <li> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
+        <% elsif locals[:import_data][:last_download] == locals[:import_data][:last_successful_download] && locals[:import_data][:last_successful_download] != 'never' %>
+          <li class="success-color"> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
+        <% else %>
+          <li class="alert-color"> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
+        <% end %>
+      </ul>
+      import (last try/success):
+      <ul>
+        <li><%= "#{locals[:import_data][:last_import]}".html_safe %> </li>
+        <% if (locals[:import_data][:last_successful_import] == 'never' && locals[:import_data][:last_import] == 'never') || locals[:import_data][:deactivated] %>
+          <li> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
+        <% elsif locals[:import_data][:last_import] == locals[:import_data][:last_successful_import] && locals[:import_data][:last_successful_import] != 'never' %>
+            <li class="success-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
+        <% else %>
+          <li class="alert-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
+        <% end %>
+      </ul>
+    </div>
+    <% if locals[:import_data][:deactivated] %>
+      <div class="card-divider" style="padding: 1rem 1rem 0rem 1rem;">
+        <div class="admin_full_size">
+          deactivated <br/>
+          &nbsp;
+        </div>
+      </div>
+    <% else %>
+      <div class="card-divider" style="padding: 1rem 1rem 0rem 1rem;">
+        <div class="grid-buttons">
+          <div class="grid-parent">
+            <div class="admin_full_size">
+              <%= link_to(t('dash_board.download_import', locale: active_ui_locale), admin_download_import_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
+            </div>
+          </div>
+        </div>
+        <div class="grid-buttons">
+          <div class="grid-parent">
+            <div class="admin_full_size">
+              <%= link_to(t('dash_board.download', locale: active_ui_locale), admin_download_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
+            </div>
+            <div class="admin_full_size">
+              <%= link_to(t('dash_board.import', locale: active_ui_locale), admin_import_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :importable) %>
+            </div>
+          </div>
+        </div>
+        <div class="grid-buttons">
+          <div class="grid-parent">
+            <div class="admin_full_size">
+              <%= link_to(t('dash_board.download_full', locale: active_ui_locale), admin_download_full_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
+            </div>
+            <div class="admin_full_size">
+              <%= link_to(t('dash_board.import_full', locale: active_ui_locale), admin_import_full_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :importable) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

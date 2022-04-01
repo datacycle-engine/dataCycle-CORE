@@ -1,0 +1,19 @@
+<a id="add-to-watchlist-link" class="has-content watch-lists-link" data-toggle="watch-lists-for-user">
+  <span class="fa-stack watchlist-menu-icon">
+    <i class="fa fa-bookmark fa-stack-2x" aria-hidden="true"></i>
+    <i class="fa fa-th-list fa-stack-1x" aria-hidden="true"></i>
+  </span>
+  <%= DataCycleCore::WatchList.model_name.human(count: 2, locale: active_ui_locale) %>
+</a>
+
+<div class="dropdown-pane no-bullet bottom left watch-lists"
+  id="watch-lists-for-user"
+  data-dropdown>
+  <%= render 'data_cycle_core/application/watch_lists/filter', local_assigns %>
+  <ul class="list-items no-bullet remote-render"
+    id="watch-lists-for-menu"
+    data-remote-path="data_cycle_core/application/watch_lists/readable_link_collection"
+    data-remote-options="<%= to_query_params(local_assigns).to_json %>">
+  </ul>
+  <%= render 'data_cycle_core/application/watch_lists/new', content: nil %>
+</div>

@@ -1,0 +1,400 @@
+[
+  {
+    "_id": {
+      "$oid": "5be59e5432c88f05bead5ff1"
+    },
+    "external_id": "3047464",
+    "dump": {
+      "de": {
+        "address": {
+          "street": "Grossegg ",
+          "housenumber": "15b A",
+          "zipcode": "9800 ",
+          "town": " Spittal an der Drau",
+          "countryname": "Österreich"
+        },
+        "category": {
+          "id": "1574477",
+          "name": "Ausstellung",
+          "iconUrl": "https://res.oastatic.com/icons/alpstein/fair/maroon/fair.square_vector.svg",
+          "iconInactiveUrl": "https://res.oastatic.com/icons/alpstein/fair/grey80/fair.square_vector.svg",
+          "iconMapUrl": "https://res.oastatic.com/icons/alpstein/fair/maroon/fair.map_vector.svg",
+          "iconInactiveMapUrl": "https://res.oastatic.com/icons/alpstein/fair/grey80/fair.map_vector.svg",
+          "iconTransparentUrl": "https://res.oastatic.com/icons/alpstein/fair/fair.geocontent.png"
+        },
+        "title": "SoART Millstättersee Artist in Residence ",
+        "primaryImage": {
+          "title": "soArt",
+          "source": "Bad Kleinkirchheimer Tourismus Marketing GmbH",
+          "id": "3642759"
+        },
+        "geometry": "13.524635,46.788029",
+        "altitude": 543,
+        "images": {
+          "image": [
+            {
+              "title": "soArt",
+              "source": "Bad Kleinkirchheimer Tourismus Marketing GmbH",
+              "meta": {
+                "date": {
+                  "created": "2012-07-10T13:42:32",
+                  "lastModified": "2012-07-10T13:46:33"
+                },
+                "system": {
+                  "createdIn": "11",
+                  "lastModifiedIn": "11"
+                },
+                "source": {
+                  "name": "Bad Kleinkirchheimer Tourismus Marketing GmbH"
+                },
+                "workflow": {
+                  "state": "new"
+                }
+              },
+              "id": "3642759",
+              "width": 1067,
+              "height": 1600,
+              "gallery": true
+            }
+          ]
+        },
+        "regions": {
+          "region": [
+            {
+              "id": "1033137",
+              "type": "commune"
+            },
+            {
+              "id": "1022094",
+              "type": "country"
+            },
+            {
+              "id": "1026621",
+              "name": "Spittal an der Drau",
+              "type": "district"
+            },
+            {
+              "id": "1039948",
+              "type": "province"
+            },
+            {
+              "id": "8872283",
+              "type": "mountainarea"
+            }
+          ]
+        },
+        "winterActivity": false,
+        "meta": {
+          "date": {
+            "created": "2012-04-16T13:13:30",
+            "lastModified": "2015-12-03T02:02:50",
+            "firstPublish": "2012-04-16T13:18:44"
+          },
+          "system": {
+            "createdIn": "11",
+            "lastModifiedIn": "11"
+          },
+          "source": {
+            "logo": {
+              "title": "Bad Kleinkirchheim Tourismus",
+              "id": "1837507",
+              "logo": true
+            },
+            "id": "1008724",
+            "name": "Bad Kleinkirchheim Tourismus",
+            "url": "http://www.badkleinkirchheim.com"
+          },
+          "workflow": {
+            "state": "published"
+          },
+          "translation": [
+            "de"
+          ]
+        },
+        "id": "3047464",
+        "frontendtype": "poi",
+        "ranking": 48,
+        "countryCode": "A",
+        "linkSuggested": true,
+        "destination": true
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:48:52.574Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:48:52.574Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:48:52.574Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be59e5432c88f05bead5ff2"
+    },
+    "external_id": "6226007",
+    "dump": {
+      "de": {
+        "phone": "+43(0)4359/2280",
+        "email": "reichenfels@kath-pfarre-kaernten.at ",
+        "address": {
+          "street": "Sommerauer Straße ",
+          "housenumber": "2",
+          "zipcode": "9463",
+          "town": "Reichenfels",
+          "countryname": "Österreich"
+        },
+        "tourRecommendations": [
+          {
+            "id": "6551395"
+          },
+          {
+            "id": "2808257"
+          },
+          {
+            "id": "9665206"
+          },
+          {
+            "id": "9665195"
+          },
+          {
+            "id": "9660097"
+          },
+          {
+            "id": "3532594"
+          },
+          {
+            "id": "7002436"
+          }
+        ],
+        "category": {
+          "id": "1574485",
+          "name": "Kirche",
+          "iconUrl": "https://res.oastatic.com/icons/alpstein/church/maroon/church.square_vector.svg",
+          "iconInactiveUrl": "https://res.oastatic.com/icons/alpstein/church/grey80/church.square_vector.svg",
+          "iconMapUrl": "https://res.oastatic.com/icons/alpstein/church/maroon/church.map_vector.svg",
+          "iconInactiveMapUrl": "https://res.oastatic.com/icons/alpstein/church/grey80/church.map_vector.svg",
+          "iconTransparentUrl": "https://res.oastatic.com/icons/alpstein/church/church.geocontent.png"
+        },
+        "title": "Reichenfels, Pfarrkirche hl. Jakobus",
+        "primaryImage": {
+          "title": "Reichenfels, Pfarrkirche hl. Jakobus",
+          "author": "Monika Gschwandner",
+          "source": "www.kath-kirche-kaernten.at/pfarren/pfarre/C3215/",
+          "id": "6226014"
+        },
+        "geometry": "14.739704,47.007451",
+        "altitude": 816,
+        "images": {
+          "image": [
+            {
+              "title": "Reichenfels, Pfarrkirche hl. Jakobus",
+              "author": "Monika Gschwandner",
+              "source": "www.kath-kirche-kaernten.at/pfarren/pfarre/C3215/",
+              "meta": {
+                "date": {
+                  "created": "2013-03-03T14:41:10",
+                  "lastModified": "2013-03-03T14:41:34"
+                },
+                "system": {
+                  "createdIn": "11",
+                  "lastModifiedIn": "11"
+                },
+                "source": {
+                  "name": "www.kath-kirche-kaernten.at/pfarren/pfarre/C3215/"
+                },
+                "workflow": {
+                  "state": "new"
+                },
+                "authorFull": {
+                  "id": "3035705",
+                  "name": "Monika Gschwandner"
+                },
+                "author": "Monika Gschwandner"
+              },
+              "id": "6226014",
+              "width": 360,
+              "height": 480,
+              "gallery": true
+            }
+          ]
+        },
+        "regions": {
+          "region": [
+            {
+              "id": "1024302",
+              "type": "commune"
+            },
+            {
+              "id": "1022094",
+              "type": "country"
+            },
+            {
+              "id": "1040199",
+              "type": "district"
+            },
+            {
+              "id": "1039948",
+              "type": "province"
+            },
+            {
+              "id": "8872321",
+              "type": "mountainarea"
+            },
+            {
+              "id": "1039889",
+              "name": "Lavanttal",
+              "type": "tourismarea"
+            }
+          ]
+        },
+        "winterActivity": false,
+        "meta": {
+          "date": {
+            "created": "2013-03-03T14:39:03",
+            "lastModified": "2013-11-27T18:13:23",
+            "firstPublish": "2013-03-03T14:41:40"
+          },
+          "system": {
+            "createdIn": "11",
+            "lastModifiedIn": "11"
+          },
+          "source": {
+            "logo": {
+              "title": "ARGE Pilgern in Kärnten",
+              "id": "9896329",
+              "logo": true
+            },
+            "id": "3035582",
+            "name": "ARGE Pilgern in Kärnten",
+            "url": "https://www.pilgerwege-kaernten.at/"
+          },
+          "workflow": {
+            "state": "published"
+          },
+          "translation": [
+            "de"
+          ]
+        },
+        "id": "6226007",
+        "frontendtype": "poi",
+        "ranking": 48,
+        "countryCode": "A",
+        "linkSuggested": true,
+        "destination": false
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:48:52.742Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:48:52.742Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:48:52.742Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be59e5432c88f05bead5ff3"
+    },
+    "external_id": "26280347",
+    "dump": {
+      "de": {
+        "address": {
+          "street": "Stein i. Jauntal",
+          "zipcode": "9122",
+          "town": "St. Kanzian",
+          "countryname": "Österreich"
+        },
+        "tourRecommendations": [
+          {
+            "id": "6384116"
+          }
+        ],
+        "category": {
+          "id": "1574479",
+          "name": "Bildstock",
+          "iconUrl": "https://res.oastatic.com/icons/alpstein/waysideShrine/maroon/waysideShrine.square_vector.svg",
+          "iconInactiveUrl": "https://res.oastatic.com/icons/alpstein/waysideShrine/grey80/waysideShrine.square_vector.svg",
+          "iconMapUrl": "https://res.oastatic.com/icons/alpstein/waysideShrine/maroon/waysideShrine.map_vector.svg",
+          "iconInactiveMapUrl": "https://res.oastatic.com/icons/alpstein/waysideShrine/grey80/waysideShrine.map_vector.svg",
+          "iconTransparentUrl": "https://res.oastatic.com/icons/alpstein/waysideShrine/waysideShrine.geocontent.png"
+        },
+        "title": "Stein i. Jauntal, Kleiner Hildegardstock",
+        "geometry": "14.542548,46.610651",
+        "altitude": 455,
+        "regions": {
+          "region": [
+            {
+              "id": "1031183",
+              "name": "Sankt Kanzian am Klopeiner See",
+              "type": "commune"
+            },
+            {
+              "id": "1022094",
+              "type": "country"
+            },
+            {
+              "id": "1022336",
+              "type": "district"
+            },
+            {
+              "id": "1039948",
+              "type": "province"
+            }
+          ]
+        },
+        "winterActivity": false,
+        "meta": {
+          "date": {
+            "created": "2018-03-01T12:44:45",
+            "lastModified": "2018-03-01T12:48:32",
+            "firstPublish": "2018-03-01T12:46:49"
+          },
+          "system": {
+            "createdIn": "12",
+            "lastModifiedIn": "12"
+          },
+          "source": {
+            "logo": {
+              "title": "ARGE Pilgern in Kärnten",
+              "id": "9896329",
+              "logo": true
+            },
+            "id": "3035582",
+            "name": "ARGE Pilgern in Kärnten",
+            "url": "https://www.pilgerwege-kaernten.at/"
+          },
+          "workflow": {
+            "state": "published"
+          },
+          "authorFull": {
+            "id": "3035705",
+            "name": "Monika Gschwandner"
+          },
+          "author": "Monika Gschwandner",
+          "translation": [
+            "de"
+          ]
+        },
+        "id": "26280347",
+        "frontendtype": "poi",
+        "ranking": 17,
+        "countryCode": "A",
+        "linkSuggested": true,
+        "destination": false
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:48:52.884Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:48:52.884Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:48:52.884Z"
+    }
+  }
+]

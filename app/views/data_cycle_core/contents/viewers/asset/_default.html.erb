@@ -1,0 +1,49 @@
+<% asset ||= value %>
+
+<% unless asset.nil? %>
+  <div class="inner">
+    <span class="asset-file-link">
+      <a href="<%= asset.file.url %>" class="asset-file-link-tag" target="_blank" title="<%= t('actions.open_asset', locale: active_ui_locale) %>">
+        <i class="fa fa-external-link" aria-hidden="true"></i>
+      </a>
+    </span>
+    <span class="asset-type" title="<%= asset.content_type %>">
+      <i class="fa fa-check asset-checkbox" aria-hidden="true"></i>
+      <%= render 'data_cycle_core/shared/icon', icon_class: asset.try(:icon_class) || asset.class.name.demodulize.underscore_blanks %>
+      <%= asset.model_name.human(locale: active_ui_locale) %> (<%= number_to_human_size(asset.file_size) %><%= yield_content!(:additional_asset_metadata) %>)
+    </span>
+    <span class="asset-upload-date">
+      <%= t('actions.uploaded', locale: active_ui_locale) %>: <%= l(asset.updated_at, locale: active_ui_locale, format: :short) %>
+    </span>
+
+    <%= tag.span asset.name, class: 'asset-title' if asset.name.present? %>
+
+    <div class="thumb hide-for-print">
+      <%= yield_content!(:asset_thumb) %>
+    </div>
+
+    <% if asset.duplicate_candidates&.present? %>
+      <span class="asset-duplicate-warning">
+        <a data-toggle="<%= local_assigns.dig(:options, :prefix) %><%= asset.id %>-duplicates-list" title="<%= t('common.duplicates_exist', data: asset.duplicate_candidates.size, count: asset.duplicate_candidates.size, locale: active_ui_locale) %>"><i class="fa fa-exclamation-triangle content-warning<%= ' alert' unless can?(:create_duplicate, asset) %>" aria-hidden="true"></i></a>
+
+        <div class="dropdown-pane align-right no-bullet bottom" id="<%= local_assigns.dig(:options, :prefix) %><%= asset.id %>-duplicates-list" data-dropdown data-hover="true" data-hover-pane="true">
+          <h5><%= t('common.duplicates_exist', data: asset.duplicate_candidates.size, count: asset.duplicate_candidates.size, locale: active_ui_locale) %></h5>
+
+          <% if cannot?(:create_duplicate, asset) %>
+            <p class="content-warning-text alert"><%= t('common.cant_create_duplicate', locale: active_ui_locale) %></p>
+          <% end %>
+
+          <ul class="list-items duplicates-list no-bullet">
+            <% asset.duplicate_candidates.each do |duplicate| %>
+              <li>
+                <%= link_to thing_path(duplicate), target: :_blank, class: 'duplicate-link' do %>
+                  <img class="lazyload" data-src="<%= duplicate.try(:thumbnail_url) %>">
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </span>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,133 @@
+---
+- :data:
+    :name: SimpleJsonTest
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :datum:
+        :label: Datum
+        :type: datetime
+        :storage_location: value
+      :bool:
+        :label: Boolean
+        :type: boolean
+        :storage_location: value
+      :geo:
+        :label: Geographic
+        :type: geographic
+        :storage_location: value
+      :text:
+        :label: Text
+        :type: string
+        :storage_location: value
+      :datum2:
+        :label: Datum
+        :type: datetime
+        :storage_location: translated_value
+      :bool2:
+        :label: Boolean
+        :type: boolean
+        :storage_location: translated_value
+      :geo2:
+        :label: Geographic
+        :type: geographic
+        :storage_location: translated_value
+      :text2:
+        :label: Text2
+        :type: string
+        :storage_location: translated_value
+
+- :data:
+    :name: BoolJsonTest
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :data:
+        :label: Untranslatable
+        :type: object
+        :storage_location: value
+        :properties:
+          :flag1:
+            :label: flag1
+            :type: boolean
+            :storage_location: value
+          :flag2:
+            :label: flag2
+            :type: boolean
+            :storage_location: value
+          :flag3:
+            :label: flag3
+            :type: boolean
+            :storage_location: value
+
+- :data:
+    :name: ComplexJsonTest
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :data_untrans:
+        :label: Untranslatable
+        :type: object
+        :storage_location: value
+        :properties:
+          :datum_untrans:
+            :label: Datum
+            :type: datetime
+            :storage_location: value
+          :bool_untrans:
+            :label: Boolean
+            :type: boolean
+            :storage_location: value
+          :geo_untrans:
+            :label: Geographic
+            :type: geographic
+            :storage_location: value
+          :text_untrans:
+            :label: Text
+            :type: string
+            :storage_location: value
+      :data_trans:
+        :label: Translatable
+        :type: object
+        :storage_location: translated_value
+        :properties:
+          :datum_trans:
+            :label: Datum
+            :type: datetime
+            :storage_location: translated_value
+          :bool_trans:
+            :label: Boolean
+            :type: boolean
+            :storage_location: translated_value
+          :geo_trans:
+            :label: Geographic
+            :type: geographic
+            :storage_location: translated_value
+          :text_trans:
+            :label: Text
+            :type: string
+            :storage_location: translated_value

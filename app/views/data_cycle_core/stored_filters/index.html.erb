@@ -1,0 +1,45 @@
+<% breadcrumb :'data_cycle_core/stored_filters' %>
+
+<% content_for(:title, t('data_cycle_core.stored_searches.my_searches', locale: active_ui_locale)) %>
+
+<section class="stored-searches-list" data-pages="<%= @pages %>">
+
+  <% if @contents&.size&.zero? %>
+
+    <div class="row">
+      <div class="small-12">
+        <span class="no-results"><%= t('common.no_results', locale: active_ui_locale) %></span>
+      </div>
+    </div>
+
+  <% else %>
+
+    <div class="row saved-searches" id="searches-saved">
+      <ul class="no-bullet content-list">
+        <li class="title">
+          <span class="title-text"><%= t('data_cycle_core.stored_searches.saved', count: 2, locale: active_ui_locale) %></span>
+          <span class="pages"><%= @saved_count || 0 %> <%= t('common.entries', locale: active_ui_locale) %> <i class="fa fa-angle-down round" aria-hidden="true"></i></span>
+        </li>
+
+        <%= render partial: 'data_cycle_core/stored_filters/stored_saved_search',
+                    collection: @saved_stored_searches,
+                    as: :stored_search,
+                    locals: {
+                      saved_stored_searches: @saved_stored_searches
+                     } %>
+
+      </ul>
+    </div>
+
+    <div id="searches-history" class="row search-history-list" data-pages="<%= @pages || 0 %>">
+      <ul class="no-bullet content-list">
+        <li class="title">
+          <span class="title-text"><%= t('data_cycle_core.stored_searches.history', locale: active_ui_locale) %></span>
+          <span class="pages"><%= @history_count || 0 %> <%= t('common.entries', locale: active_ui_locale) %>  <i class="fa fa-angle-down round" aria-hidden="true"></i></span>
+        </li>
+        <%= render 'stored_searches', stored_searches: @stored_searches %>
+      </ul>
+    </div>
+
+  <% end %>
+</section>

@@ -1,0 +1,328 @@
+---
+- :data:
+    :name: Bild
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: entity
+    :boost: 10.0
+    :features:
+      :creatable:
+        :allowed: true
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :duplicate_candidate:
+        :allowed: true
+        :method: :bild_duplicate
+      :overlay:
+        :allowed: false
+      :serialize:
+        :allowed: true
+        :serializers:
+          :asset:
+            :original:
+              - png
+              - jpeg
+            :web:
+              - png
+              - jpeg
+          :json: true
+          :xml: true
+          :indesign: true
+      :report_generator:
+        :allowed: true
+    :api:
+      :type:
+        - CreativeWork
+        - MediaObject
+        - ImageObject
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: BildOverlay
+        :translated: true
+        :validations:
+          :max: 1
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :validity_schedule:
+        :label: Publikationsplan
+        :type: schedule
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :name: dc:validitySchedule
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: image
+        :api:
+          :disabled: true
+        :ui:
+          :edit:
+            :readonly: true
+      :alternative_headline:
+        :label: Alt-Label
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :api:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :caption:
+        :label: Bildunterschrift
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :advanced_search: true
+      :description:
+        :label: Beschreibung (ALT-Label)
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+        :advanced_search: true
+      :content_url:
+        :label: Bild URL
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: content_url
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :minimal: true
+      :thumbnail_url:
+        :label: Thumbnail URL
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Image
+          :method: thumbnail_url
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :partial: preview_image
+        :api:
+          :minimal: true
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
+        :xml:
+          :name: sameAs
+        :ui:
+          :edit:
+            :disabled: true
+      :width:
+        :label: Breite
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Image
+          :method: width
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: width
+        :advanced_search: true
+      :height:
+        :label: Höhe
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Image
+          :method: height
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: height
+        :advanced_search: true
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
+      :content_size:
+        :label: Dateigröße
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Asset
+          :method: file_size
+          :parameters:
+            :0: asset
+        :advanced_search: true
+      :file_format:
+        :label: Dateiformat
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: file_format
+          :parameters:
+            :0: asset
+      :file_type:
+        :label: Dateiformat - Klassifizierung
+        :type: classification
+        :tree_label: Dateiformate
+        :default_value:
+          :module: DataCycleCore::Utility::DefaultValue::Asset
+          :method: file_type_classification
+          :parameters:
+            :0: asset
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :content_area: header
+      :upload_date:
+        :label: Hochgeladen am
+        :type: date
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :placeholder: tt.mm.jjjj
+              :class: daterange
+        :default_value:
+          module: DataCycleCore::Utility::DefaultValue::Date
+          method: beginning_of_day
+        :advanced_search: true
+      :author:
+        :label: Fotograf
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_holder:
+        :label: Rechteinhaber
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_year:
+        :label: Copyright - Jahr
+        :type: number
+        :storage_location: value
+        :advanced_search: true
+      :content_location:
+        :label: Ort
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :validations:
+          :max: 1
+      :keywords:
+        :label: Keywords
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            :0: tags
+        :ui:
+          :show:
+            :disabled: true
+      :gravity:
+        :type: mixin
+        :name: gravity
+      :image_proxy:
+        :type: mixin
+        :name: image_proxy
+      :additional_media_properties:
+        :type: mixin
+        :name: additional_media_properties
+      :additional_image_properties:
+        :type: mixin
+        :name: additional_image_properties
+      :tags:
+        :type: mixin
+        :name: tags
+      :cloud_vision:
+        :type: mixin
+        :name: cloud_vision
+      :wikidata:
+        :type: mixin
+        :name: wikidata
+      :feratel:
+        :type: mixin
+        :name: feratel_images
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Bild'
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

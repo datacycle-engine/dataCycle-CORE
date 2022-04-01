@@ -1,0 +1,88 @@
+[
+  {
+    "_id": {
+      "$oid": "5bed585ffe4ae90b3a91bbec"
+    },
+    "external_id": "60",
+    "dump": {
+      "de": {
+        "GUID": {
+          "text": "4F00031E-22E9-4B65-9DEC-B12B756CA00A"
+        },
+        "ID": {
+          "text": "60"
+        },
+        "NAME": {
+          "text": "FIS-Abfahrt (1)"
+        },
+        "TYP": {
+          "text": "19"
+        },
+        "TYPKRZ": {
+          "text": "30_PI_19_EUROMITTEL"
+        },
+        "TYPNAME": {
+          "text": "Piste mittel"
+        },
+        "STATUS": {
+          "text": "gesperrt / geschlossen"
+        },
+        "STATUSWERT": {
+          "text": "2"
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-15T11:30:12.581Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-15T11:28:31.847Z"
+    },
+    "created_at": {
+      "$date": "2018-11-15T11:28:31.847Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5bed585ffe4ae90b3a91bbed"
+    },
+    "external_id": "61",
+    "dump": {
+      "de": {
+        "GUID": {
+          "text": "86FA1A07-AA17-4105-B53F-F8F478EEDB0E"
+        },
+        "ID": {
+          "text": "61"
+        },
+        "NAME": {
+          "text": "Wulfenia-Abfahrt (2)"
+        },
+        "TYP": {
+          "text": "18"
+        },
+        "TYPKRZ": {
+          "text": "30_PI_18_EUROLEICHT"
+        },
+        "TYPNAME": {
+          "text": "Piste leicht"
+        },
+        "STATUS": {
+          "text": "gesperrt / geschlossen"
+        },
+        "STATUSWERT": {
+          "text": "2"
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-15T11:30:12.583Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-15T11:28:31.887Z"
+    },
+    "created_at": {
+      "$date": "2018-11-15T11:28:31.887Z"
+    }
+  }
+]

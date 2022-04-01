@@ -1,0 +1,50 @@
+---
+- :data:
+    :name: title
+    :type: mixin
+    :properties:
+      :given_name:
+        :label: Vorname
+        :type: string
+        :storage_location: column
+        :search: true
+        :normalize:
+          :id: forename
+          :type: forename
+        :ui:
+          :show:
+            :content_area: none
+      :family_name:
+        :label: Nachname
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :normalize:
+          :id: surname
+          :type: surname
+        :ui:
+          :show:
+            :content_area: none
+        :api:
+          :minimal: true
+      :name:
+        :label: Name
+        :storage_location: column
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: concat
+          :parameters:
+            :0:
+              :type: content
+              :name: given_name
+            :1: ' '
+            :2:
+              :type: content
+              :name: family_name
+        :ui:
+          :show:
+            :disabled: true

@@ -1,0 +1,225 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module Feature
+    class AdvancedFilter < Base
+      class << self
+        def available_filters(user, view_type)
+          return [] unless enabled? && !user.nil?
+
+          filters = []
+          DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled, :config)&.each do |key, value|
+            filters.concat(try(key.to_sym, user, value) || default(user, key.to_s, value) || [])
+          end
+          filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.sort.group_by { |f| f[1] }.transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
+        end
+
+        def available_visible_filters(user, view_type, filter_config)
+          return [] unless enabled? && !user.nil? && filter_config.is_a?(Array)
+
+          filters = []
+
+          filter_config.each do |filter|
+            k, v = filter.first
+            filters.concat(try(k.to_sym, user, v) || default(user, k.to_s, v) || [])
+          end
+
+          filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.reverse
+        end
+
+        def advanced_attribute_classification_tree_label(specific_type)
+          configuration.dig('advanced_attributes', specific_type, 'tree_label')
+        end
+
+        def classification_alias_ids(user, value)
+          return [] unless value
+
+          query = DataCycleCore::ClassificationTreeLabel.where('? = ANY(classification_tree_labels.visibility)', 'filter')
+          query = query.where(name: value) if value.is_a?(Array)
+          query.pluck(:name).map do |c|
+            [
+              I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+              'classification_alias_ids',
+              data: { name: c }
+            ]
+          end
+        end
+
+        def relation_filter(user, value)
+          return [] unless value.is_a?(Hash)
+
+          value.map { |k, v|
+            next unless v
+
+            [
+              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
+              'relation_filter',
+              data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
+            ]
+          }.compact
+        end
+
+        def union_filter_ids(user, value)
+          return [] unless value
+
+          [
+            [
+              I18n.t('filter.union_filter_ids', collections: DataCycleCore::WatchList.model_name.human(count: 2, locale: user.ui_locale), default: 'union_filter_ids'.capitalize, locale: user.ui_locale),
+              'union_filter_ids',
+              data: { name: 'union_filter_ids'.capitalize }
+            ]
+          ]
+        end
+
+        def geo_filter(user, value)
+          if value.is_a?(Hash)
+            value_arr = []
+            value.each do |k, v|
+              if v.is_a?(Array)
+                v.map do |c|
+                  value_arr << [
+                    I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+                    'geo_filter',
+                    data: { name: c, advancedType: k }
+                  ]
+                end
+              elsif v
+                value_arr << [
+                  I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
+                  'geo_filter',
+                  data: { name: k, advancedType: k }
+                ]
+              end
+            end
+            value_arr
+          else
+            []
+          end
+        end
+
+        def date_range(user, value)
+          if value == 'all'
+            ['created_at', 'updated_at'].map do |c|
+              [
+                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+                'date_range',
+                data: { name: c }
+              ]
+            end
+          elsif value.is_a?(Hash)
+            value.keys.map do |c|
+              [
+                I18n.t("filter.#{c.to_s.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+                'date_range',
+                data: { name: c }
+              ]
+            end
+          elsif value.is_a?(Array)
+            value.map do |c|
+              [
+                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+                'date_range',
+                data: { name: c }
+              ]
+            end
+          else
+            []
+          end
+        end
+
+        def boolean(user, value = [])
+          value = ['duplicate_candidates'] if value == 'all'
+
+          value.presence&.map do |c|
+            [
+              I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+              'boolean',
+              data: { name: c }
+            ]
+          end || []
+        end
+
+        def default(user, key, value)
+          return [] unless value
+          [
+            [
+              I18n.t("filter.#{key.parameterize(separator: '_')}", default: key.capitalize, locale: user.ui_locale),
+              key,
+              data: { name: key.capitalize }
+            ]
+          ]
+        end
+
+        def advanced_attributes(user, value)
+          return [] unless value
+          value.map do |k, v|
+            [
+              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
+              'advanced_attributes',
+              data: { name: k, advancedType: v.dig('type') }
+            ]
+          end
+        end
+
+        def inactive_things(user, value)
+          return [] unless value
+          value.map { |k, v|
+            next unless v
+
+            [
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
+              'inactive_things',
+              data: { name: k, advancedType: k }
+            ]
+          }.compact
+        end
+
+        def in_schedule(user, value)
+          return [] unless value
+          value.map { |k, v|
+            next unless v
+
+            [
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
+              'in_schedule',
+              data: { name: k, advancedType: k }
+            ]
+          }.compact
+        end
+
+        def validity_period(user, value)
+          return [] unless value
+          value.map { |k, v|
+            next unless v
+
+            [
+              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
+              'validity_period',
+              data: { name: k, advancedType: k }
+            ]
+          }.compact
+        end
+
+        def always_visible?
+          !!configuration.dig(:config, :visible)
+        end
+
+        def schedule_filter_exceptions
+          Array.wrap(configuration.dig(:config, :schedule_exceptions))
+        end
+
+        def schedule_filter_exceptions_string(locale)
+          schedule_filter_exceptions
+            &.map { |e| I18n.t("schedule.filter_labels.#{e}", locale: locale) }
+            &.join(', ')
+        end
+
+        def relation_filter_restrictions(type, name)
+          return unless configuration.dig(type, name).is_a?(::Hash)
+
+          configuration.dig(type, name, 'filter')
+        end
+      end
+    end
+  end
+end

@@ -1,0 +1,97 @@
+<% breadcrumb :admin %>
+
+<section>
+  <% if current_user.email =~ /@pixelpoint\.at/ || current_user.email =~ /@datacycle\.at/ %>
+    <div class="row">
+      <div class="small-12 columns">
+        <h4>
+          <br/>
+          <i class='fa fa-arrow-circle-o-right' aria-hidden='true'></i>&nbsp; import configs<br/>
+          &nbsp;
+        </h4>
+        <%= link_to 'data-types', admin_import_templates_path, class: 'button small' %>
+        <%= link_to 'classifications', admin_import_classifications_path, class: 'button small' %>
+        <%= link_to 'external_systems', admin_import_external_systems_path, class:'button small' %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="small-12 columns">
+      <h4>
+        <br/>
+        <i class='fa fa-database' aria-hidden='true'></i>&nbsp;core database<br/>
+        &nbsp;
+      </h4>
+    </div>
+    <% if can? :show_admin_activities, :dash_board %>
+      <div class="small-12 columns">
+        <%= link_to 'activities', admin_activities_path, class: 'button small' %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="grid-external-modules">
+    <div class="grid-parent-few">
+      <%= render 'pg_total_stats' %>
+      <%= render 'job_queue_stats' %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="small-12 columns">
+      <br/>
+      <br/>
+      <h4>
+        <i class='fa fa-arrow-circle-o-down' aria-hidden='true'></i>&nbsp; import modules<br/>
+        &nbsp;
+      </h4>
+    </div>
+  </div>
+
+  <div class="grid-external-modules">
+    <% grid_class = @stat_outdoor_active.import_modules.size < 3 ? 'grid-parent-few' : 'grid-parent' %>
+    <div class="<%= grid_class %>">
+      <% @stat_outdoor_active.import_modules.each do |import_modules| %>
+        <%= render 'import_modules', locals: { import_data: import_modules } %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="small-12 columns">
+      <br/>
+      <br/>
+      <h4>
+        <i class='fa fa-arrow-circle-o-down' aria-hidden='true'></i>&nbsp; export modules<br/>
+        &nbsp;
+      </h4>
+    </div>
+  </div>
+  <div class="grid-external-modules">
+    <% external_systems = DataCycleCore::ExternalSystem.all %>
+    <% grid_class = external_systems.where("config -> 'export_config' IS NOT NULL").size < 3 ? 'grid-parent-few' : 'grid-parent' %>
+    <div class="<%=grid_class%>">
+      <%= render partial: 'export_modules', collection: external_systems.where("config -> 'export_config' IS NOT NULL"), as: 'external_system' %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="small-12 columns">
+      <br/>
+      <br/>
+      <h4>
+        <i class='fa fa-arrow-circle-o-down' aria-hidden='true'></i>&nbsp; sync foreign modules<br/>
+        &nbsp;
+      </h4>
+    </div>
+  </div>
+  <div class="grid-external-modules">
+    <% external_systems = DataCycleCore::ExternalSystem.all %>
+    <% grid_class = external_systems.where("credentials IS NULL").size < 3 ? 'grid-parent-few' : 'grid-parent' %>
+    <div class="<%=grid_class%>">
+      <%= render partial: 'export_modules', collection: external_systems.where("credentials IS NULL"), as: 'external_system' %>
+    </div>
+  </div>
+
+</section>

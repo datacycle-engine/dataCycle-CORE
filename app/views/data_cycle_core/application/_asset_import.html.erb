@@ -1,0 +1,65 @@
+<% uploader_validation ||= uploader_validation(asset_type: local_assigns[:asset_type]) %>
+<% type_class = "data_cycle_core/#{local_assigns.dig(:asset_type)}".classify.constantize %>
+<div class="reveal full asset-upload-reveal<%= ' in-object-browser' if local_assigns.dig(:remote_options, :object_browser) %><%= local_assigns[:create_content] ? ' create-content-reveal' : ' create-asset-reveal' %>"
+  id="asset-upload-reveal-<%= local_assigns[:key] || 'default' %>"
+  data-reveal
+  data-validation="<%= uploader_validation.to_json %>"
+  data-form-attributes="<%= new_dialog_config(template).to_json if local_assigns[:create_content] %>"
+  data-rendered-attributes="<%= new_attribute_labels(template).to_json if local_assigns[:create_content] %>"
+  data-content-uploader="<%= local_assigns[:create_content] || false %>"
+  data-asset-key="<%= local_assigns[:template]&.asset_property_names&.first if local_assigns[:create_content] %>"
+  data-create-duplicates="<%= can?(:create_duplicate, type_class) %>"
+  data-locale="<%= local_assigns.dig(:remote_options, :locale) || I18n.locale.to_s %>"
+  data-remote-options="<%= local_assigns[:remote_options]&.to_json %>"
+  data-type="<%= local_assigns[:asset_type] %>"
+  data-template="<%= template&.template_name if local_assigns[:create_content] %>"
+  data-multiple-opened="true" data-v-offset="0">
+  <h2><%= t('data_cycle_core.upload', locale: active_ui_locale) %></h2>
+  <div class="uploader-flex">
+    <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+      <li class="upload-warning accordion-item is-active callout warning" data-accordion-item>
+        <a href="#" class="accordion-title"><%= t('common.warning', locale: active_ui_locale) %></a>
+        <div class="accordion-content" data-tab-content>
+          <%= t('uploader.close_warning_html', locale: active_ui_locale) %>
+          <%= link_to (request.fullpath.include?('remote_render') ? request.referrer : request.fullpath), target: :_blank do %>
+            <i class="fa fa-external-link" aria-hidden="true"></i>
+            <%= t('uploader.continue_in_new_tab', locale: active_ui_locale) %>
+          <% end %>
+        </div>
+      </li>
+    </ul>
+    <% if local_assigns[:uploader_validation_text] && uploader_validation.present? %>
+      <div class="callout primary content-uploader-validations">
+        <%= tag.i class: 'fa fa-info-circle', aria_hidden: true, title: uploader_validation[:translation_description] if uploader_validation[:translation_description].present? %>
+        <ul>
+          <%= uploader_validation_to_text(uploader_validation&.except(:translation, :translation_description, :class)).html_safe %>
+        </ul>
+      </div>
+    <% end %>
+    <div id="content-upload-form-<%= local_assigns[:key] || 'default' %>" class="content-upload-form" data-url="<%= assets_path %>">
+      <%= file_field_tag "files-#{local_assigns[:key] || 'default'}",
+        multiple: true,
+        accept: uploader_validation[:format].presence&.map{ |e| ".#{e}" }&.join(', '),
+        class: 'upload-file' %>
+      <span class="buttons">
+        <button type="button" class="button success content-create-button" disabled="disabled" data-disable="true">
+          <span class="progress-bar">
+            <span class="progress-filled"></span>
+          </span>
+          <span class="button-text">
+            <%= tag.i(class: 'fa fa-check') %>
+            <%= t('actions.new_asset', data: type_class.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale) %>
+            <span class="progress-value"></span>
+          </span>
+        </button>
+        <button type="button" data-close class="button success asset-reload-button"><%= t('actions.close_overlay', locale: active_ui_locale) %></button>
+      </span>
+    </div>
+    <div class="drag-and-drop-field">
+      <%= t('upload.drag_and_drop_html', locale: active_ui_locale, type: type_translation) %>
+    </div>
+  </div>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

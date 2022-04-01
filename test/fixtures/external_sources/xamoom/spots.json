@@ -1,0 +1,149 @@
+[
+  {
+    "_id": {
+      "$oid": "5bed4290fe4ae90ab89b46b6"
+    },
+    "external_id": "5760715096850432|5636279542743040",
+    "dump": {
+      "de": {
+        "attributes": {
+          "description": "City WLAN",
+          "position-longitude": 14.310599182131114,
+          "image": "https://storage.googleapis.com/xamoom-files/mobile/f381dc432be84338a082c034e79ec735.png?v=92f9ee6036aa14770cb89bbad9ff080d33898616478bca18e7af76fb6fe7664438ecdb35373113f274f56cdea16d4dc02185075fbcfd40dae0d675e2a6a8d79c",
+          "tags": [
+            "wlan",
+            "wlan",
+            "wlan"
+          ],
+          "name": "WLAN Bahnhofstraße",
+          "position-latitude": 46.62496292258971
+        },
+        "type": "spots",
+        "id": "5760715096850432|5636279542743040"
+      },
+      "en": {
+        "attributes": {
+          "description": "City WLAN",
+          "position-longitude": 14.310599182131114,
+          "image": "https://storage.googleapis.com/xamoom-files/mobile/f381dc432be84338a082c034e79ec735.png?v=92f9ee6036aa14770cb89bbad9ff080d33898616478bca18e7af76fb6fe7664438ecdb35373113f274f56cdea16d4dc02185075fbcfd40dae0d675e2a6a8d79c",
+          "tags": [
+            "wlan",
+            "wlan",
+            "wlan"
+          ],
+          "name": "WLAN Bahnhofstraße",
+          "position-latitude": 46.62496292258971
+        },
+        "type": "spots",
+        "id": "5760715096850432|5636279542743040"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-15T09:55:31.347Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-15T09:55:31.347Z"
+    },
+    "created_at": {
+      "$date": "2018-11-15T09:55:28.366Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5bed4290fe4ae90ab89b46b7"
+    },
+    "external_id": "5760715096850432|5692526434451456",
+    "dump": {
+      "de": {
+        "attributes": {
+          "description": "City WLAN",
+          "position-longitude": 14.306227145848538,
+          "image": "https://storage.googleapis.com/xamoom-files/mobile/f381dc432be84338a082c034e79ec735.png?v=0486c868aaa768f79f6e003b50f77bbe0dbc6aeaaca1d8a6f573f9c40ab6f8fea452c0dbd6a5dfba1af3564c40a590fa7a28029a5e12c25cd7178424a9f99292",
+          "tags": [
+            "wlan",
+            "wlan",
+            "wlan"
+          ],
+          "name": "WLAN Benediktinerplatz",
+          "position-latitude": 46.622844086096954
+        },
+        "type": "spots",
+        "id": "5760715096850432|5692526434451456"
+      },
+      "en": {
+        "attributes": {
+          "description": "City WLAN",
+          "position-longitude": 14.306227145848538,
+          "image": "https://storage.googleapis.com/xamoom-files/mobile/f381dc432be84338a082c034e79ec735.png?v=0486c868aaa768f79f6e003b50f77bbe0dbc6aeaaca1d8a6f573f9c40ab6f8fea452c0dbd6a5dfba1af3564c40a590fa7a28029a5e12c25cd7178424a9f99292",
+          "tags": [
+            "wlan",
+            "wlan",
+            "wlan"
+          ],
+          "name": "WLAN Benediktinerplatz",
+          "position-latitude": 46.622844086096954
+        },
+        "type": "spots",
+        "id": "5760715096850432|5692526434451456"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-15T09:55:31.352Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-15T09:55:31.352Z"
+    },
+    "created_at": {
+      "$date": "2018-11-15T09:55:28.409Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5bed4290fe4ae90ab89b46b8"
+    },
+    "external_id": "5760715096850432|5641270294740992",
+    "dump": {
+      "de": {
+        "attributes": {
+          "description": "City WLAN (Neuer Platz, Alter Platz, Kramergasse, Wiener Gasse, Heuplatz)",
+          "position-longitude": 14.307980887164717,
+          "image": "https://storage.googleapis.com/xamoom-files/mobile/f381dc432be84338a082c034e79ec735.png?v=cf3f70489ee492e252124bb4085af730980e28caebb8b21f90896a89d6ba12454ba4101a883a6fd1dfa064a9599776c74540a0e189c36951472bfc6c261edf9e",
+          "tags": [
+            "wlan",
+            "wlan",
+            "wlan"
+          ],
+          "name": "WLAN Fußgängerzone",
+          "position-latitude": 46.62529231212795
+        },
+        "type": "spots",
+        "id": "5760715096850432|5641270294740992"
+      },
+      "en": {
+        "attributes": {
+          "description": "City WLAN (Neuer Platz, Alter Platz, Kramergasse, Wiener Gasse, Heuplatz)",
+          "position-longitude": 14.307980887164717,
+          "image": "https://storage.googleapis.com/xamoom-files/mobile/f381dc432be84338a082c034e79ec735.png?v=cf3f70489ee492e252124bb4085af730980e28caebb8b21f90896a89d6ba12454ba4101a883a6fd1dfa064a9599776c74540a0e189c36951472bfc6c261edf9e",
+          "tags": [
+            "wlan",
+            "wlan",
+            "wlan"
+          ],
+          "name": "WLAN Fußgängerzone",
+          "position-latitude": 46.62529231212795
+        },
+        "type": "spots",
+        "id": "5760715096850432|5641270294740992"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-15T09:55:31.354Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-15T09:55:31.354Z"
+    },
+    "created_at": {
+      "$date": "2018-11-15T09:55:28.415Z"
+    }
+  }
+]

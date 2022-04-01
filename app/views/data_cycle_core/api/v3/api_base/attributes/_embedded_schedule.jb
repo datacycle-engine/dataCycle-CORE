@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+json ||= {}
+key_new = definition.dig('api', 'name') || key.camelize(:lower)
+
+if value.present? && value.first.template_name != 'EventSchedule' # for e.g. Schedule in Tours (= Season)
+  json = render('data_cycle_core/api/v3/api_base/attributes/embedded.jb', { key: key, definition: content.properties_for(key), value: value, options: options, content: content })
+elsif content.try(:event_schedule).present?
+  data = content.event_schedule.to_a
+  if content.translations.size > 1 && @include_parameters.include?('translations')
+    json[key_new] = content.translations.map { |trans|
+      { trans.locale => I18n.with_locale(trans.locale) { data.map(&:to_schedule_schema_org_api_v3) } }
+    }.reduce(&:merge)
+  else
+    json[key_new] = data.map(&:to_schedule_schema_org_api_v3)&.reject(&:blank?)
+  end
+end
+json

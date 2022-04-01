@@ -1,0 +1,407 @@
+---
+- :data:
+    :name: Skigebiet Bergfex
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :overlay:
+        :allowed: true
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :indesign: true
+    :api:
+      :type:
+        - Place
+        - Organization
+        - LocalBusiness
+        - LodgingBusiness
+        - Resort
+        - SportActivityLocation
+        - SkiResort
+        - 'odta:SkiResort'
+        - 'dcls:Skigebiet'
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: SnowResortOverlay
+        :translated: true
+        :validations:
+          :max: 1
+      :title:
+        :type: mixin
+        :name: title
+      :subject_of:
+        :label: Detailbeschreibung
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :template_name: Skigebiets-Beschreibung
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :tourism_region:
+        :label: Tourismus-Region
+        :type: classification
+        :tree_label: Tourismus-Regionen
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :bergfex_status_icon:
+        :label: 'Status-Icon'
+        :type: classification
+        :tree_label: 'Bergfex - Status - Icon'
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :season_start:
+        :label: Saisonbeginn
+        :type: date
+        :storage_location: value
+        :api:
+          :v4:
+            :name: 'odta:seasonStart'
+        :ui:
+          :edit:
+            :options:
+              :class: daterange
+      :season_end:
+        :label: Saisonend
+        :type: date
+        :storage_location: value
+        :api:
+          :v4:
+            :name: 'odta:seasonEnd'
+        :ui:
+          :edit:
+            :options:
+              :class: daterange
+      :status:
+        :label: Status
+        :type: classification
+        :tree_label: 'odta:OpeningStatus'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :name: 'odta:status'
+          :partial: enumeration
+          :type: 'odta:OpeningStatus'
+      :min_elevation:
+        :label: minElevation
+        :type: number
+        :storage_location: value
+        :api:
+          :v4:
+            :name: 'odta:minElevation'
+      :max_elevation:
+        :label: maxElevation
+        :type: number
+        :storage_location: value
+        :api:
+          :v4:
+            :name: 'odta:maxElevation'
+      :date_time_updated_at:
+        :label: Zuletzt aktualisiert
+        :type: datetime
+        :storage_location: value
+        :validations:
+          :format: date_time
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :ui:
+          :edit:
+            :type: datetime
+            :options:
+              :class: daterange
+              :placeholder: 'tt.mm.jjjj --:--'
+      :line:
+        :label: Pisten/Lifte
+        :storage_location: column
+        :type: geographic
+        :ui:
+          :edit:
+            :disabled: true
+            :type: LineString
+            :options:
+              :additional_value_paths:
+                :lift_details:
+                  :geo: line
+                  :title: title
+                :slope_details:
+                  :geo: line
+                  :title: title
+      :lift_details:
+        :label: Lifte
+        :template_name: Lift
+        :type: linked
+        :inverse_of: snow_resort
+        :link_direction: inverse
+        :api:
+          :v4:
+            :name: 'odta:hasSkiLift'
+      :slope_details:
+        :label: Pisten
+        :template_name: Piste
+        :type: linked
+        :inverse_of: snow_resort
+        :link_direction: inverse
+        :api:
+          :v4:
+            :name: 'odta:hasSkiSlope'
+      :lifts:
+        :label: Lifte
+        :type: object
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :properties:
+          :value:
+            :label: Geöffnete Lifte
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: integer
+            :api:
+              :unit_code: 'C62'
+              :unit_name: '1'
+          :max_value:
+            :label: Lifte gesamt
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: integer
+            :api:
+              :unit_code: 'C62'
+              :unit_name: '1'
+      :slopes:
+        :label: Pistenlänge
+        :type: object
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :properties:
+          :value:
+            :label: Pistenlänge, geöffnete Pisten
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: float
+            :api:
+              :unit_code: 'KMT'
+              :unit_name: 'km'
+          :max_value:
+            :label: Max Pistenlänge
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: float
+            :api:
+              :unit_code: 'KMT'
+              :unit_name: 'km'
+      :count_open_slopes:
+        :label: Pisten
+        :type: object
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :properties:
+          :value:
+            :label: Geöffnete Pisten
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: integer
+            :api:
+              :unit_code: 'C62'
+              :unit_name: '1'
+          :max_value:
+            :label: Pisten gesamt
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: integer
+            :api:
+              :unit_code: 'C62'
+              :unit_name: '1'
+      :length_nordic_classic:
+        :label: Loipenlänge Nordisch Klassisch
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :unit_code: KMT
+          :unit_text: km
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :advanced_search: true
+      :length_nordic_skating:
+        :label: Loipenlänge Nordisch Skating
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :unit_code: KMT
+          :unit_text: km
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :advanced_search: true
+      :opening_hours_specification:
+        :type: mixin
+        :name: opening_hours_specification
+      :addons:
+        :label: Addons
+        :type: embedded
+        :template_name: Skigebiet - Addon
+        :api:
+          :name: amenityFeature
+      :webcam:
+        :label: Webcam Link
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :v4:
+            :name: 'odta:webcam'
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :contact_info:
+        :type: mixin
+        :name: contact_info
+      :snow_telephone:
+        :label: Schneetelefon
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :name: dc:snowTelephone
+      :geo:
+        :type: mixin
+        :name: geo
+      :snow_report:
+        :label: Schneehöhe - Messpunkt
+        :type: linked
+        :inverse_of: snow_resort
+        :template_name: Schneehöhe - Messpunkt Neu
+        :api:
+          :name: containsPlace
+        :advanced_search: true
+      :additional_snow_report:
+        :label: freie Scheehöhenmesspunkte
+        :type: linked
+        :inverse_of: snow_resort
+        :link_direction: inverse
+        :template_name: freie Scheehöhenmesspunkte
+      :same_as:
+        :label: Link
+        :type: string
+        :storage_location: translated_value
+        :ui:
+          :show:
+            :type: url
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :condition_avalanche_warning_level:
+        :label: 'Lawinenwarnlevel'
+        :type: classification
+        :tree_label: 'Bergfex - Lawinenwarnlevel'
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :condition_nordic_classic:
+        :label: 'NordicClassic - Meldung'
+        :type: classification
+        :tree_label: 'Bergfex - NordicClassic - Meldung'
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :condition_nordic_skating:
+        :label: 'NordicSkating - Meldung'
+        :type: classification
+        :tree_label: 'Bergfex - NordicClassic - Meldung'
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :condition_run_to_valley:
+        :label: 'Talfahrt - Meldung'
+        :type: classification
+        :tree_label: 'Bergfex - Talfahrt - Meldung'
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :condition_slopes:
+        :label: 'Pisten - Meldung'
+        :type: classification
+        :tree_label: 'Bergfex - Pisten - Meldung'
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Skigebiet'
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

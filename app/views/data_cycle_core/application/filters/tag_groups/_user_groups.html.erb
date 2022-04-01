@@ -1,0 +1,26 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-tags" aria-hidden="true"></i>
+    <%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: active_ui_locale) %>:
+  </span>
+
+  <% value = DataCycleCore::UserGroup.where(id: value) if !value.is_a?(ActiveRecord::Relation) && value.present? %>
+
+  <span class="tags-container">
+    <% if buttons == 'd' %>
+      <% value.each do |user_group| %>
+        <label for="<%= user_group.id %>">
+          <a class="tag">
+            <%= user_group.name %><i class="fa fa-times" aria-hidden="true"></i>
+          </a>
+        </label>
+      <% end %>
+    <% else %>
+      <% value.each do |user_group| %>
+        <span class="tag"><%= user_group.name %></span>
+      <% end %>
+    <% end %>
+  </span>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
+</span>

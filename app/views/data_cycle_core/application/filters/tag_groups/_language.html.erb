@@ -1,0 +1,26 @@
+<span class="tag-group tags <%= key %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-language" aria-hidden="true"></i>
+    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
+  </span>
+
+  <span class="tags-container">
+    <% if buttons == 'd' %>
+      <% value.presence&.each do |tag| %>
+        <label for="<%= tag %>">
+          <a class="tag">
+            <%= available_locales_with_all[tag&.to_sym] %><i class="fa fa-times" aria-hidden="true"></i>
+          </a>
+        </label>
+      <% end %>
+    <% else %>
+      <% value.presence&.each do |tag| %>
+        <span class="tag">
+          <%= available_locales_with_all[tag&.to_sym] %>
+        </span>
+      <% end %>
+    <% end %>
+  </span>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
+</span>

@@ -1,0 +1,34 @@
+.confirmation-modal {
+  padding: 3rem 3rem 6rem 3rem;
+  min-width: 20rem;
+  word-wrap: break-word;
+  section.confirmation-section {
+    display: none;
+    &:first-of-type {
+      display: block;
+    }
+  }
+  .confirmation-text {
+    text-align: center;
+  }
+  .confirmation-info {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+  }
+  .confirmation-buttons {
+    position: absolute;
+    display: table;
+    table-layout: fixed;
+    bottom: 0;
+    width: 100%;
+    left: 0;
+    button,
+    .button {
+      display: table-cell;
+      line-height: 2rem;
+      position: relative;
+      font-weight: bold;
+    }
+  }
+}

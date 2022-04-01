@@ -1,0 +1,29 @@
+<div class="reveal" id="save-filter-with-name" data-reveal>
+  <h3><%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %></h3>
+  <%= form_for(DataCycleCore::StoredFilter.new, html: { id: 'save-filter-name-form' }) do |f| %>
+    <div class="validation-container form-element">
+      <%= f.label :name, DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale) %>
+      <%= f.text_field :name, required: true, label: false, list: "search_history", class: "ajax-datalist search_history", autocomplete: :off %>
+      <datalist id="search_history"></datalist>
+    </div>
+    <% if can?(:create_global, DataCycleCore::StoredFilter) %>
+      <div class="validation-container form-element">
+        <%= f.check_box :system, label: false %>
+        <%= f.label :system, DataCycleCore::StoredFilter.human_attribute_name(:system, locale: active_ui_locale) %><br>
+      </div>
+    <% end %>
+    <div class="buttons">
+      <%= f.button t('actions.save', locale: active_ui_locale),
+        class: 'button primary',
+        data: {
+          save: t('actions.save', locale: active_ui_locale),
+          update: t('actions.update', locale: active_ui_locale),
+          disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.save', locale: active_ui_locale)}"
+        },
+        type: :submit %>
+    </div>
+  <% end %>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

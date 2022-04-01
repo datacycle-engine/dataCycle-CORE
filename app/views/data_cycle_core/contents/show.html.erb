@@ -1,0 +1,53 @@
+<% breadcrumb :content, @content, @watch_list %>
+
+<% content_for :top_content do %>
+  <%= render_content_partial 'header', content: @content %>
+<% end %>
+
+<% content_for :title do %>
+  <%= "#{@content.translated_template_name(active_ui_locale)}: #{@content.title}" %>
+<% end %>
+
+<% if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container') %>
+  <ul class="accordion container-details" data-accordion data-allow-all-closed="true">
+    <li class="accordion-item is-active" data-accordion-item>
+      <div class="accordion-content" data-tab-content>
+        <%= render_content_partial 'details', content: @content %>
+      </div>
+      <a href="#" class="accordion-title">
+        <span><i class="fa fa-chevron-down" aria-hidden="true"></i>
+          <span class="closed"><%= t('common.details.show', locale: active_ui_locale) %></span>
+          <span class="open"><%= t('common.details.hide', locale: active_ui_locale) %></span>
+        </span>
+      </a>
+    </li>
+  </ul>
+
+  <%= render 'data_cycle_core/application/filter', view_type: 'things' %>
+  <%= render 'data_cycle_core/application/results', contents: @contents %>
+
+  <% content_for :new_button do %>
+    <%= render 'new_content_button',
+                   query_methods: DataCycleCore::Feature::Container.query_methods(@content),
+                   content: @content,
+                   parent: @content.content_type?(:container) ? @content : nil,
+                   scope: 'container',
+                   button_class: 'new-object-circle' if new_content_select_options(query_methods: DataCycleCore::Feature::Container.query_methods(@content), scope: 'container').present? %>
+  <% end %>
+<% else %>
+  <%= render_content_partial 'details', content: @content %>
+
+  <%= render 'data_cycle_core/duplicate_candidates/duplicate_candidates', content: @content, prefix: local_assigns.dig(:options, :prefix) if DataCycleCore::Feature::DuplicateCandidate.enabled? && can?(:merge_duplicates, @content) && @content.duplicates.any? %>
+
+  <% if can?(:show_related, @content) && @content.related_contents.exists? %>
+    <div id="related-contents-<%= @content&.id %>"
+        class="remote-render"
+        data-remote-path="data_cycle_core/contents/related"
+        data-remote-options="<%= to_query_params({ content: @content, options: options ||= {}, locale: I18n.locale }).to_json %>">
+    </div>
+  <% end %>
+<% end %>
+
+<% content_for :admin_panel do %>
+  <%= render 'data_cycle_core/application/admin_panel/default', content: @content %>
+<% end %>

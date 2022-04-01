@@ -1,0 +1,17 @@
+<%= render 'data_cycle_core/contents/grid/default', local_assigns do %>
+  <% if item.try(:certification_period).present? %>
+    <% period_value = '' %>
+    <% unless item.certification_period.try(:certified_from).nil? %>
+      <% period_value = l(item.certification_period.certified_from.to_date, locale: active_ui_locale) %>
+    <% end %>
+    <% unless item.certification_period.try(:certified_to).nil? %>
+      <% period_value += " - #{l(item.certification_period.certified_to.to_date, locale: active_ui_locale)}" %>
+    <% end %>
+    <div class="event-period">
+      <span class="data event-period"
+            title="<%= period_value %>">
+        <%= period_value %>
+      </span>
+    </div>
+  <% end %>
+<% end %>

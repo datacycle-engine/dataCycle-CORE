@@ -1,0 +1,29 @@
+# frozen_string_literal: true
+
+default_options = {
+  include: @include_parameters,
+  fields: @fields_parameters,
+  field_filter: @field_filter,
+  languages: @language,
+  full: true
+}
+options = default_options.merge(defined?(options) ? options || {} : {})
+
+json = {}
+json.merge! render 'context', languages: options[:languages]
+json['@graph'] = []
+
+unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
+  @classification_tree_labels&.map do |item|
+    json['@graph'] << Rails.cache.fetch(api_v4_cache_key(item, options[:languages], options[:include], options[:fields], @api_subversion, options[:full]), expires_in: 1.year + Random.rand(7.days)) do
+      I18n.with_locale(I18n.default_locale) do
+        render 'classification_tree', content: item, options: options
+      end
+    end
+  end
+end
+json.merge! render 'pagination_links',
+                   objects: @classification_tree_labels,
+                   object_url: ->(params) { api_v4_concept_schemes_url(params) }
+
+json

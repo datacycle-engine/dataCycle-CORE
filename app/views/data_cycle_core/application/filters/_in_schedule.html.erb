@@ -1,0 +1,74 @@
+<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %> in-schedule" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", local_assigns[:filter_type] || :in_schedule %>
+  <%= hidden_field_tag "f[#{identifier}][q]", local_assigns[:filter_advanced_type] || filter_title %>
+  <%= hidden_field_tag "f[#{identifier}][m]", 'i' %>
+
+  <div class="advanced-filter-title">
+    <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+
+    <%= in_schedule_filter_title(*local_assigns.values_at(:filter_type, :filter_name, :filter_title, :identifier)) %>
+  </div>
+
+  <% if local_assigns[:filter_advanced_type] == 'absolute' %>
+    <div class="advanced-filter-selector">
+      <span class="separator"><%= t("terms.from", locale: active_ui_locale) %></span>
+      <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>
+      <span class="separator"><%= t("terms.until", locale: active_ui_locale) %></span>
+      <%= date_field_tag "f[#{identifier}][v][until]", value&.dig('until') || local_assigns[:default_until], { placeholder: 'tt.mm.jjjj' } %>
+    </div>
+  <% else %>
+    <div class="advanced-filter-selector">
+
+      <span class="separator"><%= t("terms.from", locale: active_ui_locale) %></span>
+      <%= select_tag "f[#{identifier}][v][from][mode]", options_for_select(
+                [
+                    [t("filter.in_schedule_types.in", locale: active_ui_locale), 'p'],
+                    [t("filter.in_schedule_types.before", locale: active_ui_locale), 'm']
+                ],
+                value&.dig('from','mode')
+            ) %>
+
+      <%= number_field_tag "f[#{identifier}][v][from][n]", value&.dig('from','n'), { placeholder: '', class: 'filter-text' } %>
+
+      <%= select_tag "f[#{identifier}][v][from][unit]", options_for_select(
+                [
+                    [t("datetime.prompts.day", locale: active_ui_locale), 'day'],
+                    [t("datetime.prompts.week", locale: active_ui_locale), 'week'],
+                    [t("datetime.prompts.month", locale: active_ui_locale), 'month'],
+                    [t("datetime.prompts.year", locale: active_ui_locale), 'year']
+                ],
+                value&.dig('from','unit')
+            ) %>
+    </div>
+    <div class="advanced-filter-selector">
+
+      <span class="separator"><%= t("terms.until", locale: active_ui_locale) %></span>
+      <%= select_tag "f[#{identifier}][v][until][mode]", options_for_select(
+                [
+                    [t("filter.in_schedule_types.in", locale: active_ui_locale), 'p'],
+                    [t("filter.in_schedule_types.before", locale: active_ui_locale), 'm']
+                ],
+                value&.dig('until','mode')
+            ) %>
+
+      <%= number_field_tag "f[#{identifier}][v][until][n]", value&.dig('until','n'), { placeholder: '', class: 'filter-text' } %>
+
+      <%= select_tag "f[#{identifier}][v][until][unit]", options_for_select(
+                [
+                    [t("datetime.prompts.day", locale: active_ui_locale), 'day'],
+                    [t("datetime.prompts.week", locale: active_ui_locale), 'week'],
+                    [t("datetime.prompts.month", locale: active_ui_locale), 'month'],
+                    [t("datetime.prompts.year", locale: active_ui_locale), 'year']
+                ],
+                value&.dig('until','unit')
+            ) %>
+    </div>
+  <% end %>
+
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

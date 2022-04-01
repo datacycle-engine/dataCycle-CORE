@@ -1,0 +1,42 @@
+- :data:
+    :name: Zusatzangebot
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 0.0
+    :features:
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :indesign: true
+    :api:
+      :type:
+        - Property
+        - amenityFeature
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Zusatzangebot'
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

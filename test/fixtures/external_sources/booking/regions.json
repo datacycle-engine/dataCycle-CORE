@@ -1,0 +1,161 @@
+[
+  {
+    "_id": { "$oid": "5bed553ffe4ae907a2951487" },
+    "external_id": "606",
+    "dump": {
+      "de": {
+        "region_id": 606,
+        "translations": [{ "language": "de", "name": "Steiermark" }],
+        "country": "at",
+        "name": "Styria",
+        "region_type": "province"
+      }
+    },
+    "seen_at": { "$date": "2018-11-15T11:15:11.967Z" },
+    "updated_at": { "$date": "2018-11-15T11:15:11.967Z" },
+    "created_at": { "$date": "2018-11-15T11:15:11.967Z" }
+  },
+  {
+    "_id": { "$oid": "5bed5540fe4ae907a2951488" },
+    "external_id": "607",
+    "dump": {
+      "de": {
+        "name": "Tyrol",
+        "region_type": "province",
+        "region_id": 607,
+        "translations": [{ "language": "de", "name": "Tirol" }],
+        "country": "at"
+      }
+    },
+    "seen_at": { "$date": "2018-11-15T11:15:12.021Z" },
+    "updated_at": { "$date": "2018-11-15T11:15:12.021Z" },
+    "created_at": { "$date": "2018-11-15T11:15:12.021Z" }
+  },
+  {
+    "_id": { "$oid": "5bed5540fe4ae907a2951489" },
+    "external_id": "1190",
+    "dump": {
+      "de": {
+        "translations": [{ "language": "de", "name": "Burgenland" }],
+        "region_id": 1190,
+        "country": "at",
+        "name": "Burgenland",
+        "region_type": "province"
+      }
+    },
+    "seen_at": { "$date": "2018-11-15T11:15:12.027Z" },
+    "updated_at": { "$date": "2018-11-15T11:15:12.028Z" },
+    "created_at": { "$date": "2018-11-15T11:15:12.028Z" }
+  },
+  {
+    "_id": { "$oid": "5bed5540fe4ae907a295148a" },
+    "external_id": "1191",
+    "dump": {
+      "de": {
+        "translations": [{ "name": "Kärnten", "language": "de" }],
+        "region_id": 1191,
+        "country": "at",
+        "name": "Carinthia",
+        "region_type": "province"
+      }
+    },
+    "seen_at": { "$date": "2018-11-15T11:15:12.034Z" },
+    "updated_at": { "$date": "2018-11-15T11:15:12.034Z" },
+    "created_at": { "$date": "2018-11-15T11:15:12.034Z" }
+  },
+  {
+    "_id": { "$oid": "5bed5540fe4ae907a295148b" },
+    "external_id": "1193",
+    "dump": {
+      "de": {
+        "country": "at",
+        "region_id": 1193,
+        "translations": [{ "name": "Oberösterreich", "language": "de" }],
+        "region_type": "province",
+        "name": "Upper Austria"
+      }
+    },
+    "seen_at": { "$date": "2018-11-15T11:15:12.040Z" },
+    "updated_at": { "$date": "2018-11-15T11:15:12.040Z" },
+    "created_at": { "$date": "2018-11-15T11:15:12.040Z" }
+  },
+  {
+    "_id": { "$oid": "5bed5540fe4ae907a295148c" },
+    "external_id": "1194",
+    "dump": {
+      "de": {
+        "region_type": "province",
+        "name": "Salzburg",
+        "country": "at",
+        "region_id": 1194,
+        "translations": [{ "language": "de", "name": "Salzburger Land" }]
+      }
+    },
+    "seen_at": { "$date": "2018-11-15T11:15:12.045Z" },
+    "updated_at": { "$date": "2018-11-15T11:15:12.045Z" },
+    "created_at": { "$date": "2018-11-15T11:15:12.045Z" }
+  },
+  {
+    "_id": { "$oid": "5bed5540fe4ae907a295148d" },
+    "external_id": "1195",
+    "dump": {
+      "de": {
+        "region_type": "province",
+        "name": "Vorarlberg",
+        "country": "at",
+        "region_id": 1195,
+        "translations": [{ "language": "de", "name": "Vorarlberg" }]
+      }
+    },
+    "seen_at": { "$date": "2018-11-15T11:15:12.049Z" },
+    "updated_at": { "$date": "2018-11-15T11:15:12.050Z" },
+    "created_at": { "$date": "2018-11-15T11:15:12.050Z" }
+  },
+  {
+    "_id": { "$oid": "5bed5540fe4ae907a295148e" },
+    "external_id": "1196",
+    "dump": {
+      "de": {
+        "region_type": "province",
+        "name": "Europe/Vienna (state)",
+        "country": "at",
+        "region_id": 1196,
+        "translations": [{ "language": "de", "name": "Bundesland Wien" }]
+      }
+    },
+    "seen_at": { "$date": "2018-11-15T11:15:12.053Z" },
+    "updated_at": { "$date": "2018-11-15T11:15:12.053Z" },
+    "created_at": { "$date": "2018-11-15T11:15:12.053Z" }
+  },
+  {
+    "_id": { "$oid": "5bed5540fe4ae907a295148f" },
+    "external_id": "1199",
+    "dump": {
+      "de": {
+        "name": "The Alps",
+        "region_type": "other",
+        "region_id": 1199,
+        "translations": [{ "name": "Alpen", "language": "de" }],
+        "country": "at"
+      }
+    },
+    "seen_at": { "$date": "2018-11-15T11:15:12.055Z" },
+    "updated_at": { "$date": "2018-11-15T11:15:12.055Z" },
+    "created_at": { "$date": "2018-11-15T11:15:12.055Z" }
+  },
+  {
+    "_id": { "$oid": "5bed5540fe4ae907a2951490" },
+    "external_id": "1450",
+    "dump": {
+      "de": {
+        "country": "at",
+        "region_id": 1450,
+        "region_type": "other",
+        "name": "Autoroute Frankfurt - Europe/Vienna"
+      }
+    },
+    "seen_at": { "$date": "2018-11-15T11:15:12.058Z" },
+    "updated_at": { "$date": "2018-11-15T11:15:12.058Z" },
+    "created_at": { "$date": "2018-11-15T11:15:12.058Z" }
+  }
+]

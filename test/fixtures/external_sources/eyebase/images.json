@@ -1,0 +1,161 @@
+[
+  {
+    "_id": {
+      "$oid": "5bed6342fe4ae912999bc790"
+    },
+    "external_id": "{\"text\"=>\"102553\"}",
+    "dump": {
+      "de": {
+        "item_id": {
+          "text": "102553"
+        },
+        "mediaassettype": {
+          "text": "501"
+        },
+        "titel": {
+          "#cdata-section": "Mahlerhof-Markt-Hoechst"
+        },
+        "titel_en": {
+          "#cdata-section": "##directory_1.102553.2"
+        },
+        "original_filename": {
+          "#cdata-section": "Mahlerhof-Markt-Höchst-DSC00198-b.jpg"
+        },
+        "ordnerstruktur": {
+          "#cdata-section": "Bilder VT-TV"
+        },
+        "copyright": {
+          "#cdata-section": "Vorarlberg Tourismus"
+        },
+        "field_216": {
+          "#cdata-section": "Gekauft mit allen Rechten. Für touristische Nutzung im Zusammenhang mit touristischen Themen über Vorarlberg, in Medien für Reise- und Tourismusgeschichten, in Veranstalterkatalogen von Reiseveranstaltern und Reisebüros, zur Bewerbung Vorarlbergs und für Werbepublikationen Vorarlberger touristischer Organisationen. Jegliche kommerzielle Nutzung (Poster, Bücher, Karten, Kalender etc.) oder Produktwerbung außerhalb der Tourismusbranche ist nicht erlaubt. Ein Bildnachweis ist verpflichtend anzuführen!"
+        },
+        "field_202": {
+          "#cdata-section": "Agnes Ammann"
+        },
+        "field_214": {
+          "#cdata-section": "Höchst"
+        },
+        "field_215": {
+          "#cdata-section": "Bodensee Vorarlberg, Herbst"
+        },
+        "geaendert": {
+          "#cdata-section": "2018-10-09 15:47:48"
+        },
+        "quality_1": {
+          "resolution_x": {
+            "text": "2500"
+          },
+          "resolution_y": {
+            "text": "1667"
+          },
+          "size_mb": {
+            "text": "1,26"
+          },
+          "checksum": {
+            "text": "ce2ec58e94e2100792893ec2fdafe5287cb6b88fef3b280459afa318c0d392cb9e39ece8"
+          },
+          "filename_ext": {
+            "text": ".jpg"
+          },
+          "filename_name_base": {
+            "text": "00102553_1"
+          },
+          "filename": {
+            "text": "00102553_1.jpg"
+          },
+          "url": {
+            "#cdata-section": "https://vorarlberg.eyebase.com/api/view.php?uid=1228409580&t=h793s1kpfr3vgf1t4tk4e1bfu3&org=/eyebase.data/bilder/1/942/00102553_1.jpg"
+          }
+        },
+        "quality_512": {
+          "resolution_x": {
+            "text": "800"
+          },
+          "resolution_y": {
+            "text": "533"
+          },
+          "size_mb": {
+            "text": "0,18"
+          },
+          "checksum": {
+            "text": "ce2ec58e94e2100792893ec2fdafe5287cb6b88fef3b280459afa318c0d392cb9e39ece8"
+          },
+          "filename_ext": {
+            "text": ".jpg"
+          },
+          "filename_name_base": {
+            "text": "00102553_w"
+          },
+          "filename": {
+            "text": "00102553_w.jpg"
+          },
+          "url": {
+            "#cdata-section": "https://vorarlberg.eyebase.com/api/view.php?uid=1228409580&t=h793s1kpfr3vgf1t4tk4e1bfu3&org=/eyebase.data/bilder/512/952/00102553_w.jpg"
+          }
+        },
+        "quality_1024": {
+          "resolution_x": {
+            "text": "5103"
+          },
+          "resolution_y": {
+            "text": "3402"
+          },
+          "size_mb": {
+            "text": "13,16"
+          },
+          "checksum": {
+            "text": "ce2ec58e94e2100792893ec2fdafe5287cb6b88fef3b280459afa318c0d392cb9e39ece8"
+          },
+          "filename_ext": {
+            "text": ".jpg"
+          },
+          "filename_name_base": {
+            "text": "00102553_m"
+          },
+          "filename": {
+            "text": "00102553_m.jpg"
+          },
+          "url": {
+            "#cdata-section": "https://vorarlberg.eyebase.com/api/view.php?uid=1228409580&t=h793s1kpfr3vgf1t4tk4e1bfu3&org=/eyebase.data/bilder/1024/952/00102553_m.jpg"
+          }
+        },
+        "quality_256": {
+          "resolution_x": {
+            "text": "300"
+          },
+          "resolution_y": {
+            "text": "200"
+          },
+          "size_mb": {
+            "text": "0,03"
+          },
+          "checksum": {
+            "text": "ce2ec58e94e2100792893ec2fdafe5287cb6b88fef3b280459afa318c0d392cb9e39ece8"
+          },
+          "filename_ext": {
+            "text": ".jpg"
+          },
+          "filename_name_base": {
+            "text": "00102553_a"
+          },
+          "filename": {
+            "text": "00102553_a.jpg"
+          },
+          "url": {
+            "#cdata-section": "https://vorarlberg.eyebase.com/eyebase.data/bilder/256/952/00102553_a.jpg"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-15T12:14:58.474Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-15T12:14:58.474Z"
+    },
+    "created_at": {
+      "$date": "2018-11-15T12:14:58.474Z"
+    }
+  }
+]

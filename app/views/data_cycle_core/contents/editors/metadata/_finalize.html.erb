@@ -1,0 +1,20 @@
+<div class="clearfix form-element finalize-container" data-key="finalize">
+  <hr />
+  <div class="finalize-button-container">
+    <%= check_box_tag 'finalize', true %>
+    <%= label_tag 'finalize', finalize_agbs_label %>
+  </div>
+
+  <% if content.indirect_data_links.by_receiver(current_user).valid.map(&:text_file).compact.present? %>
+    <div class="data-link-text-files">
+      <b><%= DataCycleCore::DataLink.human_attribute_name("text_file", file_types: DataCycleCore::TextFileUploader.new.extension_white_list.join(', '), locale: active_ui_locale) %>: </b>
+
+      <ul class="no-bullet">
+        <% content.indirect_data_links.by_receiver(current_user).valid.each do |data_link| %>
+          <li><%= link_to data_link.text_file.name, get_text_file_data_link_url(data_link), target: :_blank if data_link.text_file.present? %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+</div>

@@ -1,0 +1,251 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module Content
+    module ContentRelations
+      extend ActiveSupport::Concern
+
+      CONTENT_TYPES = [
+        CONTENT_TYPE_ENTITY = 'entity',
+        CONTENT_TYPE_EMBEDDED = 'embedded'
+      ].freeze
+
+      module ClassMethods
+        def content_relations(options = {})
+          table_given = options[:table_name]
+          postfix = options[:postfix]
+
+          self_class = "DataCycleCore::#{table_given.classify}"
+          self_class += "::#{postfix.capitalize}" unless postfix.nil?
+
+          classification_content_table = 'classification_content'
+          classification_content_table += "_#{postfix}" unless postfix.nil?
+          class_name = 'DataCycleCore::ClassificationContent'
+          class_name += "::#{postfix.capitalize}" unless postfix.nil?
+          content_name = 'content_data'
+          content_name += "_#{postfix}" unless postfix.nil?
+
+          # relation content to classification
+          has_many classification_content_table.to_sym, class_name: class_name, foreign_key: content_name.foreign_key, dependent: :destroy
+          has_many :classifications, through: classification_content_table.to_sym
+          has_many :classification_groups, through: :classifications
+          has_many :classification_aliases, through: :classification_groups
+          has_many :primary_classification_groups, through: :classifications
+          has_many :primary_classification_aliases, through: :primary_classification_groups, source: :classification_alias
+
+          # relation content to all other contents
+          has_many :content_content_b, -> { order(order_a: :asc, content_a_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
+          has_many :content_a, through: :content_content_b
+          has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
+          has_many :content_content_a, -> { order(order_a: :asc, content_b_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
+          has_many :content_b, through: :content_content_a
+          has_many :content_b_linked, -> { where.not(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
+          has_many :content_b_embedded, -> { where(content_type: CONTENT_TYPE_EMBEDDED) }, through: :content_content_a, source: :content_b
+          has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :destroy, inverse_of: :content_a_history
+
+          belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
+          belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
+          belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
+          belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'
+          belongs_to :representation_of, class_name: 'DataCycleCore::User'
+
+          belongs_to :parent, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :children, touch: false
+          has_many :children, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :parent, dependent: :destroy
+
+          has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
+          has_many :watch_lists, through: :watch_list_data_hashes
+
+          has_many :subscriptions, as: :subscribable, dependent: :destroy
+          has_many :data_link_content_items, as: :content
+          has_many :indirect_data_links, through: :data_link_content_items
+          has_many :data_links, as: :item, dependent: :destroy
+
+          has_many :asset_contents, dependent: :destroy, as: :content_data
+          has_many :assets, through: :asset_contents
+        end
+      end
+
+      def display_classification_aliases(context)
+        ca_query = classification_aliases
+        ca_query = ca_query.includes(:classification_tree_label) unless classification_aliases.first&.association(:classification_tree_label)&.loaded?
+        ca_query = ca_query.includes(:classification_alias_path) unless classification_aliases.first&.association(:classification_alias_path)&.loaded?
+        ca_query.to_a.uniq.select { |ca| (Array(ca.classification_tree_label&.visibility) & Array(context)).size.positive? }
+      end
+
+      def assigned_classification_aliases
+        primary_classification_aliases
+      end
+
+      def mapped_classification_aliases
+        classification_aliases.where.not(id: primary_classification_aliases.pluck(:id))
+      end
+
+      def is_related?
+        content_content_b.except(:order).exists?
+      end
+
+      def has_related?
+        content_content_a.except(:order).exists?
+      end
+
+      def has_cached_related_contents?
+        content_content_a.where.not(relation_b: nil).except(:order).or(content_content_b.except(:order)).exists?
+      end
+
+      def related_contents(embedded: false)
+        tree_query = <<-SQL.squish
+          WITH RECURSIVE content_tree(id) AS (
+              SELECT #{content_a_id_column}
+              FROM #{content_content_table}
+              WHERE #{content_b_id_column} = :id
+            UNION ALL
+              SELECT #{content_a_id_column}
+              FROM #{content_content_table}
+              INNER JOIN #{self.class.table_name} ON #{self.class.table_name}.id = #{content_b_id_column}
+              INNER JOIN content_tree ON content_tree.id = #{content_b_id_column}
+              WHERE #{self.class.table_name}.content_type = :content_type_embedded
+          )
+          SELECT DISTINCT id FROM content_tree
+        SQL
+
+        query = self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
+                                                                                              tree_query,
+                                                                                              id: id,
+                                                                                              content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                            ])})")
+        query = query.where.not(content_type: CONTENT_TYPE_EMBEDDED) unless embedded
+        query
+      end
+
+      def depending_contents
+        raw_sql = <<-SQL.squish
+          WITH RECURSIVE content_links AS (
+            SELECT
+              #{content_a_id_column} "content_a_id",
+              #{content_b_id_column} "content_b_id"
+            FROM #{content_content_table}
+            UNION
+            SELECT
+              #{content_b_id_column} "content_a_id",
+              #{content_a_id_column} "content_b_id"
+            FROM #{content_content_table}
+            WHERE #{relation_b_column} IS NOT NULL
+          ), content_dependencies AS (
+            SELECT
+          		ARRAY[content_links.content_a_id, content_links.content_b_id] "content_ids"
+          	FROM content_links
+          	WHERE content_links.content_b_id = ?::uuid
+            UNION ALL
+            SELECT
+          		content_links.content_a_id || content_dependencies.content_ids "content_ids"
+          	FROM content_links
+          	JOIN content_dependencies ON
+          		content_dependencies.content_ids[1] = content_links.content_b_id AND
+          		content_links.content_a_id <> ALL(content_dependencies.content_ids)
+          ) SELECT 1 FROM content_dependencies WHERE content_ids[1] = #{self.class.table_name}.#{self.class.primary_key}
+        SQL
+
+        self.class
+          .where(content_type: 'entity')
+          .where("EXISTS (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, id])})")
+      end
+
+      def linked_contents
+        # does not work for Histories, due to thing ids (instead of thing_history ids) in content_content_histories
+
+        tree_query = <<-SQL.squish
+          WITH RECURSIVE content_tree(id) AS (
+            SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
+            FROM #{self.class.table_name}
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_b_id_column}
+            WHERE #{content_a_id_column} = :id
+            AND #{self.class.table_name}.content_type != :content_type_embedded
+          UNION ALL
+            SELECT #{self.class.table_name}.id as id, content_tree.all_things||#{self.class.table_name}.id
+            FROM #{self.class.table_name}
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_b_id_column}
+            INNER JOIN content_tree ON content_tree.id = #{content_a_id_column}
+            AND #{self.class.table_name}.id <> ALL (content_tree.all_things)
+          )
+          SELECT DISTINCT id FROM content_tree
+        SQL
+
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
+                                                                                      tree_query,
+                                                                                      id: id,
+                                                                                      content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                    ])})")
+      end
+
+      def embedded_contents
+        tree_query = <<-SQL.squish
+          WITH RECURSIVE content_tree(id) AS (
+            SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
+            FROM #{self.class.table_name}
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_b_id_column}
+            WHERE #{content_a_id_column} = :id
+            AND #{self.class.table_name}.content_type = :content_type_embedded
+          UNION ALL
+            SELECT #{self.class.table_name}.id as id, content_tree.all_things||#{self.class.table_name}.id
+            FROM #{self.class.table_name}
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_b_id_column}
+            INNER JOIN content_tree ON content_tree.id = #{content_a_id_column}
+            AND #{self.class.table_name}.id <> ALL (content_tree.all_things)
+            AND #{self.class.table_name}.content_type = :content_type_embedded
+          )
+          SELECT DISTINCT id FROM content_tree
+        SQL
+
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
+                                                                                      tree_query,
+                                                                                      id: id,
+                                                                                      content_type_embedded: CONTENT_TYPE_EMBEDDED
+                                                                                    ])})")
+      end
+
+      def cached_related_contents
+        return self.class.none if history?
+
+        tree_query = <<-SQL.squish
+          WITH RECURSIVE paths(src, dest, path) AS (
+            SELECT DISTINCT ON (c.dest) c.src, c.dest, ARRAY[c.src, c.dest]
+            FROM content_content_relations c
+            WHERE c.src = :id
+            UNION ALL
+            SELECT DISTINCT on (d.dest) d.src, d.dest, p.path || ARRAY[d.dest]
+            FROM paths p
+            INNER JOIN content_content_relations d
+            ON p.dest = d.src
+            WHERE d.dest != ALL(p.path)
+            AND array_length(p.path, 1) <= :depth
+          )
+          SELECT DISTINCT paths.dest FROM paths
+        SQL
+
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, id: id, depth: DataCycleCore.cache_invalidation_depth])})")
+      end
+
+      private
+
+      def content_content_table
+        history? ? 'content_content_histories' : 'content_contents'
+      end
+
+      def content_a_id_column
+        "#{content_content_table}.#{history? ? 'content_a_history_id' : 'content_a_id'}"
+      end
+
+      def content_b_id_column
+        "#{content_content_table}.#{history? ? 'content_b_history_id' : 'content_b_id'}"
+      end
+
+      def relation_a_column
+        "#{content_content_table}.relation_a"
+      end
+
+      def relation_b_column
+        "#{content_content_table}.relation_b"
+      end
+    end
+  end
+end

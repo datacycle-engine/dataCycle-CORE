@@ -1,0 +1,62 @@
+---
+- :data:
+    :name: Wetterstation Feratel
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :translatable:
+        :allowed: true
+    :api:
+      :type:
+        - Place
+        - 'dcls:Wetterstation Feratel'
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :url:
+        :label: Content URL
+        :type: string
+        :storage_location: translated_value
+      :forecasts:
+        :label: Wettervorhersage
+        :type: linked
+        :inverse_of: weather_station
+        :template_name: Wetterprognose
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :content_location:
+        :label: Ort
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :validations:
+          :max: 1
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Wetterstation Feratel'
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

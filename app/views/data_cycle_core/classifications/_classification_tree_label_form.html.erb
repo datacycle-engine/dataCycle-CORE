@@ -1,0 +1,69 @@
+<%= form_for(classification_tree_label, url: classifications_path, namespace: classification_tree_label&.id, remote: true) do |f| %>
+
+  <div class="ca-buttons">
+    <button class="button-prime small success update" data-disable-with='<i class="fa fa-spinner fa-spin fa-fw"></i>'><i aria-hidden="true" class="fa fa-check"></i></button>
+    <button class="button-prime small discard"><i aria-hidden="true" class="fa fa-times"></i></button>
+  </div>
+
+  <%= f.hidden_field :id %>
+
+  <div class="ca-input">
+    <%= f.label :name, class: 'ca-label' %>
+    <%= f.text_field :name, class: 'ca-input-field' %>
+  </div>
+
+  <div class="ca-input checkbox">
+    <span class="ca-checkbox">
+      <%= f.label :internal do |l| %>
+          <%= f.check_box :internal %>
+          <%= l.translation %>
+      <% end %>
+    </span>
+  </div>
+
+  <div class="ca-input">
+    <div class="ca-collection-checkboxes">
+      <%= f.label :visibility %>
+      <%= f.collection_check_boxes :visibility,
+        DataCycleCore.classification_visibilities.map { |v|
+          OpenStruct.new(
+            name: v,
+            title: t("classification_visibilities.#{v}", locale: active_ui_locale, default: v),
+            checked: f.object.visibility.include?(v)
+          )
+        },
+        :name,
+        :title do |l| %>
+        <span class="ca-checkbox">
+          <%= l.check_box %>
+          <%= l.label %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <% if current_user&.is_role?('super_admin') %>
+    <div class="ca-input">
+      <div class="ca-collection-checkboxes">
+        <%= f.label :change_behaviour %>
+        <%= f.collection_check_boxes :change_behaviour,
+          DataCycleCore.classification_change_behaviour.map { |v|
+            OpenStruct.new(
+              name: v,
+              title: t("classification_change_behaviour.#{v}", locale: active_ui_locale, default: v),
+              checked: f.object.change_behaviour.include?(v)
+            )
+          },
+          :name,
+          :title do |l| %>
+          <span class="ca-checkbox">
+            <%= l.check_box %>
+            <%= l.label %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= f.submit class: 'success button' %>
+<% end %>

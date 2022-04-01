@@ -1,0 +1,124 @@
+---
+- :data:
+    :name: creative_attributes
+    :type: mixin
+    :properties:
+      :alternative_headline:
+        :label: Unterüberschrift
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :advanced_search: true
+      :link_name:
+        :label: Linktitel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :api:
+          :name: name
+          :v4:
+            :name: linkName
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
+      :about:
+        :label: Hauptthema
+        :type: linked
+        :inverse_of: subject_of
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+                - Ort
+                - Veranstaltung
+                - Veranstaltungsserie
+                - Unterkunft
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+        :advanced_search: true
+      :author:
+        :label: Autor
+        :type: linked
+        :template_name: Person
+        :validations:
+          :max: 1
+      :text:
+        :label: Fließtext
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :video:
+        :label: Videos
+        :type: linked
+        :template_name: Video
+      :content_location:
+        :label: Ort
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+      :url:
+        :label: Link
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
+        :xml:
+          :name: sameAs
+      # legacy property for v2 / v3
+      :keywords:
+        :label: Keywords
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            :0: tags
+        :ui:
+          :show:
+            :disabled: true
+#      :keywords:
+#        :label: Keywords
+#        :storage_location: virtual
+#        :type: virtual
+#        :virtual:
+#          :type: string
+#          :module: Utility::Virtual::Classification
+#          :method: concat
+#          :key: name
+#          :parameters:
+#            :0: tags
+#        :ui:
+#          :show:
+#            :disabled: true

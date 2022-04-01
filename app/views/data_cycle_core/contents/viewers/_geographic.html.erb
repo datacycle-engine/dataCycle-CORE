@@ -1,0 +1,79 @@
+<% additional_values = additional_map_values(content, definition&.dig('ui', 'edit', 'options', 'additional_value_paths')) %>
+
+<%= render 'data_cycle_core/contents/viewers/attribute',
+      key: key,
+      definition: definition,
+      value: value,
+      options: (options || {}).merge(additional_values.present? ? { force_render: true }: {}),
+      content: content,
+      parent: local_assigns[:parent],
+      data_attributes: {
+        value: { x: value.try(:x), y: value.try(:y), elevation: content&.try(:elevation) }.to_json,
+        editor: "geographic"
+      } do %>
+
+    <% value ||= options.dig(:item_diff, 1) %>
+    <% is_line_string = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type')).to_s.include?('LineString') %>
+
+    <div class="geographic">
+        <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map <%= is_line_string ? 'linestring' : 'point' %> <%= changes_mode(options.dig(:item_diff)) %>"
+          data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+          data-before-position="<%= value_to_geojson(options.dig(:item_diff, 1), { style: { color: 'red', width: 6 } })&.to_json if options.dig(:item_diff, 0) == '~' %>"
+          data-after-position="<%= value_to_geojson(options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2) : options.dig(:item_diff, 1), { style: { color: 'green' } })&.to_json %>"
+          data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
+          data-value="<%= value_to_geojson(value)&.to_json %>"
+          data-additional-values="<%= additional_values&.to_json %>">
+        </div>
+        <div class="ol-popup">
+          <a href="#" class="ol-popup-closer"><i class="fa fa-times" aria-hidden="true"></i></a>
+          <div class="ol-popup-content"></div>
+        </div>
+    </div>
+
+    <div class="map-info <%= 'linestring-info' if is_line_string %>">
+      <%= attribute_viewer_label_tag(key, definition, content, options) %>
+
+      <% if !is_line_string %>
+        <% case options.dig(:item_diff, 0) %>
+        <% when '~' %>
+          <% x_html = "<del>#{number_with_precision(options.dig(:item_diff, 1).presence&.x, locale: active_ui_locale, precision: 5)}</del><ins>#{number_with_precision(options.dig(:item_diff, 2).presence&.x, locale: active_ui_locale, precision: 5)}</ins>" %>
+          <% y_html = "<del>#{number_with_precision(options.dig(:item_diff, 1).presence&.y, locale: active_ui_locale, precision: 5)}</del><ins>#{number_with_precision(options.dig(:item_diff, 2).presence&.y, locale: active_ui_locale, precision: 5)}</ins>" %>
+        <% when '+' %>
+          <% x_html = number_with_precision(options.dig(:item_diff, 1).presence&.x, locale: active_ui_locale, precision: 5) %>
+          <% y_html = number_with_precision(options.dig(:item_diff, 1).presence&.y, locale: active_ui_locale, precision: 5) %>
+        <% else %>
+          <% x_html = number_with_precision(value.presence&.x, locale: active_ui_locale, precision: 5) %>
+          <% y_html = number_with_precision(value.presence&.y, locale: active_ui_locale, precision: 5) %>
+        <% end %>
+
+        <div class="detail-type longitude number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: active_ui_locale) %>">
+          <span class="detail-label">
+            <%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: active_ui_locale) %>
+          </span>
+          <span class="detail-content">
+            <%= x_html&.html_safe %>
+          </span>
+        </div>
+
+        <div class="detail-type latitude number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>">
+          <span class="detail-label">
+            <%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>
+          </span>
+          <span class="detail-content">
+            <%= y_html&.html_safe %>
+          </span>
+        </div>
+      <% end %>
+
+      <% if content.elevation.present? && content.elevation.nonzero? %>
+        <div class="detail-type elevation number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:elevation, locale: active_ui_locale) %>">
+          <span class="detail-label">
+            <%= DataCycleCore::Thing.human_attribute_name(:elevation, locale: active_ui_locale) %>
+          </span>
+          <span class="detail-content">
+            <%= content.elevation %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+<% end %>

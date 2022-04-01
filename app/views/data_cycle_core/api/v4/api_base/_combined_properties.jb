@@ -1,0 +1,32 @@
+# frozen_string_literal: true
+
+json ||= {}
+combined = {}
+options.dig(:combined_attributes).each do |property|
+  definition = content.properties_for(property)
+  next if definition.blank?
+  api_property_definition = api_definition(definition)
+  (combined[api_property_definition.dig('transformation', 'name')] ||= []) << [property, definition]
+end
+
+combined.each do |combined_key, combined_value|
+  json[combined_key] = combined_value.map { |key, definition|
+    value = load_value_object(content, key, content.try(key + '_overlay'), options[:languages], definition)
+
+    if value.present?
+      partial_params = render_api_attribute key: key, definition: definition, value: value, parameters: { options: options }, content: content
+      render(*partial_params) unless partial_params.nil?
+    end
+  }&.compact&.reject(&:blank?)
+
+  if json.dig(combined_key).blank?
+    json.delete(combined_key)
+    next
+  end
+
+  new_fields = subtree_for(combined_key, options[:fields])
+  next if new_fields.blank?
+  new_include = subtree_for(combined_key, options[:include])
+  json[combined_key] = json[combined_key]&.map { |array_item| array_item.select { |p_key, _value| api_default_attributes.include?(p_key) || select_attributes(new_fields).include?(p_key) || select_attributes(new_include).include?(p_key) } }
+end
+json.compact

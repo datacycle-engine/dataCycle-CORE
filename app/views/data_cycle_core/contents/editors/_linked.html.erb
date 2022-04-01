@@ -1,0 +1,90 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
+
+  <% object_class = DataCycleCore::Thing %>
+  <% objects = value&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
+  <% object_template = definition['template_name'] %>
+  <% html_id = "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+
+  <%= attribute_edit_label_tag(**local_assigns) %>
+
+  <div class="object-browser" id="<%= html_id %>"
+      data-type="<%= definition.fetch('template_name', nil) %>"
+      data-locale="<%= I18n.locale.to_s %>"
+      data-key="<%= key %>"
+      data-hidden-field-id="<%= "#{html_id}_default" %>"
+      data-prefix="<%= local_assigns.dig(:options, :prefix) %>"
+      data-object-id="<%= content.id %>"
+      data-object-key="<%= key.attribute_name_from_key %>"
+      data-definition="<%= definition.to_json %>"
+      data-options="<%= options.to_json %>"
+      data-class="<%= object_class %>"
+      data-editable="<%= attribute_editable?(key, definition, options, content) %>"
+      data-table="<%= 'things' %>"
+      data-per="<%= DataCycleCore.linked_objects_page_size %>"
+      data-objects="<%= value&.ids %>"
+      data-content-id="<%= contextual_content(local_assigns).id %>"
+      data-content-type="<%= contextual_content(local_assigns).class.table_name %>"
+      data-max="<%= definition.dig('validations', 'max') || 0 %>"
+      data-min="<%= definition.dig('validations', 'min') || 0 %>"
+      data-limited-by="<%= definition.dig('ui', 'edit', 'options', 'limited_by')&.to_json %>">
+    <div class="media-thumbs">
+      <ul class="object-thumbs no-bullet<%= ' has-items' if objects.present? %>">
+        <% if objects.present? %>
+          <% objects.each do |object| %>
+            <%= render_linked_partial(key: "#{key}[]", definition: definition, parameters: { object: object, prefix: local_assigns.dig(:options, :prefix), options: options, edit_buttons: true }, content: content) %>
+          <% end %>
+
+          <% value.presence&.ids&.reject { |v| objects.presence&.ids&.include?(v) }&.each do |id| %>
+            <%= hidden_field_tag "#{key}[]", id %>
+          <% end %>
+        <% else %>
+          <%= hidden_field_tag "#{key}[]", nil, id: "#{html_id}_default" %>
+        <% end %>
+      </ul>
+
+      <div class="buttons clear-both">
+        <%= link_to t('common.load_all', locale: active_ui_locale), load_more_linked_objects_thing_path(
+              contextual_content(local_assigns),
+              key: key.attribute_name_from_key,
+              complete_key: key,
+              definition: definition,
+              options: options,
+              page: params.fetch(:page, 1).to_i + 1,
+              load_more_action: :object_browser,
+              editable: attribute_editable?(key, definition, options, content),
+              locale: I18n.locale,
+              content_id: content.id,
+              content_type: content.class.table_name
+            ),
+            remote: true,
+            id: "load_more_#{content&.id}_#{sanitize_to_id(key)}",
+            class: 'load-more-linked-contents button',
+            data: {
+              disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_all', locale: active_ui_locale)}..."
+            } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
+
+        <% if attribute_editable?(key, definition, options, content) %>
+          <button class="button show-objectbrowser" data-disable id="show-object-browser-<%= html_id %>" type="button" data-open="object_browser_<%= html_id %>">
+            <i class="fa fa-plus"></i>
+          </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div id="object_browser_<%= html_id %>"
+      data-overlay="false"
+      class="object-browser-overlay full reveal without-overlay remote-render"
+      data-reveal
+      data-v-offset="0"
+      data-multiple-opened="true"
+      data-remote-path="data_cycle_core/object_browser/editor_overlay"
+      data-remote-options="<%= to_query_params(
+        html_id: html_id,
+        content: content,
+        key: key,
+        definition: definition
+      ).to_json %>">
+  </div>
+
+<% end %>

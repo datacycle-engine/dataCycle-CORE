@@ -1,0 +1,19 @@
+<% if DataCycleCore.logo.dig('footer_logo').present? || DataCycleCore.logo.dig('footer_links').present? %>
+  <div class="home-container-content footer">
+    <% if DataCycleCore.logo.dig('footer_links').present? %>
+      <div class="columns">
+        <ul class="footer-links">
+          <% DataCycleCore.logo.dig('footer_links').each do |url, text| %>
+            <li><%= link_to url, text, target: :_blank %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <% if DataCycleCore.logo.dig('footer_logo').present? %>
+      <div class="columns footer-image">
+        <img src="<%= dc_image_path(DataCycleCore.logo.dig('footer_logo')) %>" alt="<%= DataCycleCore.logo.dig('footer_logo_alt') %>" />
+      </div>
+    <% end %>
+  </div>
+<% end %>

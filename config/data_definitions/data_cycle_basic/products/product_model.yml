@@ -1,0 +1,65 @@
+---
+- :data:
+    :name: Produktmodel
+    :type: object
+    :schema_type: ProductModel
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :creatable:
+        :allowed: false
+      :translatable:
+        :allowed: true
+    :api:
+      :type:
+        - Product
+        - ProductModel
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :product_attributes:
+        :type: mixin
+        :name: product_attributes
+      :is_variant_of:
+        :label: Verknüpft mit
+        :type: linked
+        :inverse_of: model
+        :link_direction: inverse
+      :external_source_attributes:
+        :type: mixin
+        :name: external_source_attributes
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Produktmodel'
+      :external_key:
+        :label: external_key
+        :type: string
+        :storage_location: column
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :disabled: true
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

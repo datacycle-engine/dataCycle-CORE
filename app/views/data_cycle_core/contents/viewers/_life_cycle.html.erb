@@ -1,0 +1,26 @@
+<% if DataCycleCore::Feature::LifeCycle.allowed?(content) && [@split_source, @diff_source].all?(&:nil?) && can?(:view_life_cycle, content) %>
+  <div class="content-pool-buttons">
+    <% DataCycleCore::Feature::LifeCycle.ordered_classifications(content).each do |stage_name, stage| %>
+
+      <span class="content-pool <%= stage_name.underscore_blanks %> <%= content.life_cycle_stage?(stage[:id]) ? ' active' : ' hollow button' + (can?(:set_life_cycle, content, stage.merge({ name: stage_name })) ? '' : ' disabled') %>">
+        <%= link_to_if(!content.life_cycle_stage?(stage[:id]) && can?(:set_life_cycle, content, stage.merge({ name: stage_name })),
+          stage_name,
+          update_life_cycle_thing_path(content, life_cycle: {
+            id: stage[:id],
+            name: stage_name
+          }),
+          method: :patch,
+          title: t('actions.move_to', data: stage_name, locale: active_ui_locale),
+          data: {
+            confirm: local_assigns.dig(:confirm, stage_name.to_sym),
+            disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw') + stage_name
+          }) do %>
+          <%= stage_name %>
+        <% end %>
+      </span>
+
+    <% end %>
+  </div>
+<% elsif DataCycleCore::Feature::LifeCycle.allowed?(content) && [@split_source, @diff_source].any?(&:present?) %>
+  <%= render 'data_cycle_core/contents/viewers/classification', local_assigns %>
+<% end %>

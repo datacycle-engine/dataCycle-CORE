@@ -1,0 +1,14 @@
+<div class="search" data-id="<%= filter[:identifier] %>">
+  <div class="input-group">
+    <div class="input-group-button">
+      <button type="submit" class="search_icon"><i class="fa fa-search" aria-hidden="true"></i></button>
+    </div>
+    <%= hidden_field_tag "f[#{filter[:identifier]}][n]", t('common.searchterm', locale: active_ui_locale) %>
+    <%= hidden_field_tag "f[#{filter[:identifier]}][t]", :fulltext_search %>
+    <%= hidden_field_tag "f[#{filter[:identifier]}][c]", 'a' %>
+    <%= text_field_tag "f[#{filter[:identifier]}][v]",
+        filter[:value],
+        placeholder: t('common.searchterm', locale: active_ui_locale),
+        class:"input-group-field fulltext-search-field" %>
+  </div>
+</div>

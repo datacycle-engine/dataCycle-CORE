@@ -1,0 +1,26 @@
+<% number_method = definition&.dig('validations', 'format') == 'float' ? 'to_f' : 'to_i' %>
+
+<%= render 'data_cycle_core/contents/viewers/attribute',
+      local_assigns.merge(data_attributes: {
+        editor: definition.dig('ui', 'edit', 'type').try(:underscore) || 'number',
+        value: value.try(number_method)
+      }) do %>
+
+    <span class="detail-content">
+      <% case options.dig(:item_diff, 0) %>
+      <% when '~' %>
+        <del><%= number_with_delimiter(options.dig(:item_diff, 1).presence.try(number_method), locale: active_ui_locale) %></del>
+        <ins><%= number_with_delimiter(options.dig(:item_diff, 2).presence.try(number_method), locale: active_ui_locale) %></ins>
+        <%= definition&.dig('ui', 'show', 'options', 'data-unit').presence&.html_safe %>
+      <% when '+' %>
+        <%= number_with_delimiter(options.dig(:item_diff, 1).presence.try(number_method), locale: active_ui_locale) %>
+        <%= definition&.dig('ui', 'show', 'options', 'data-unit').presence&.html_safe %>
+      <% else %>
+        <% if value.present? %>
+          <%= number_with_delimiter(value.try(number_method), locale: active_ui_locale) %>
+          <%= definition&.dig('ui', 'show', 'options', 'data-unit').presence&.html_safe %>
+        <% end %>
+      <% end %>
+    </span>
+
+<% end %>

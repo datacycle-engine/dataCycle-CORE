@@ -1,0 +1,77 @@
+<% I18n.with_locale(@language) do %>
+
+  <div class="inner content-link">
+    <div class="with-dropdown-pane">
+      <div class="infoRow">
+        <%= render 'data_cycle_core/shared/icon', icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
+        <%= tag.send(item.access_locked? ? :del : :span) do %>
+          <%= tag.span item.model_name.human(locale: active_ui_locale) + (item.try(:external) ? " (#{item.class.human_attribute_name('external', locale: active_ui_locale)})" : ''), class: 'title' %>
+        <% end %>
+
+        <% if can?(:show_representation_of, DataCycleCore::User) && item.represented_by.present? %>
+          <a class="has-content represented-by-link" data-toggle="represented-by-<%= item.id %>">
+            <i class="fa fa-link" aria-hidden="true"></i>
+          </a>
+          <div class="dropdown-pane no-bullet bottom"
+              id="represented-by-<%= item.id %>"
+              data-dropdown
+              data-hover="true"
+              data-hover-pane="true">
+            <h5><%= DataCycleCore::User.human_attribute_name(:represented_by, locale: active_ui_locale) %></h5>
+            <ul class="list-items">
+              <% item.represented_by.each do |thing| %>
+                <li><%= link_to I18n.with_locale(thing.first_available_locale) { thing.title }, thing_path(thing.id), target: :_blank %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="title">
+      <%= item.full_name %>
+    </div>
+
+    <div class="description" title="<%= item.email %>">
+      <%= item.email %>
+    </div>
+
+    <% if can? :generate_access_token, item %>
+      <div class="token">
+        <% if item.access_token.present? %>
+          <%= content_tag :span, class: 'copy-to-clipboard with-shadow', data: { value: item.access_token } do %>
+            <i class="fa fa-key" aria-hidden="true"></i>
+            <%= item.access_token %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="tags">
+      <ul class="no-bullet no-format">
+        <% if item.role %>
+          <li class="tag"><%= t('roles.'+item.role.name, locale: active_ui_locale) %></li>
+        <% end %>
+        <% item.user_groups.each do |user_group| %>
+          <li class="tag"><%= user_group.name %></li>
+        <% end %>
+      </div>
+    </div>
+
+  <% end %>
+
+  <% content_for :media_buttons do %>
+    <% if can? :become, item %>
+      <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(item), class: 'become-link', title: t('actions.become', data: item.email, locale: active_ui_locale) %>
+    <% end %>
+
+    <% if can? :edit, item %>
+      <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true), edit_user_path(item, watch_list_id: @watch_list), class: 'edit-link', title: t('actions.edit', locale: active_ui_locale) %>
+    <% end %>
+
+    <% if can?(:destroy, item) && !item.access_locked? %>
+      <%= link_to tag.i(class: 'fa fa-lock', aria_hidden: true), item, method: :delete, class:'alert lock-link', title: t('actions.lock', locale: active_ui_locale), data: { confirm: "#{item.model_name.human(locale: active_ui_locale)} #{t('actions.lock', locale: active_ui_locale)}?" } %>
+    <% elsif can?(:destroy, item) %>
+      <%= link_to tag.i(class: 'fa fa-unlock', aria_hidden: true), unlock_user_path(item), method: :post, class:'success unlock-link', title: t('actions.unlock', locale: active_ui_locale) %>
+    <% end %>
+  <% end %>

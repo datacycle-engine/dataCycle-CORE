@@ -1,0 +1,23 @@
+<%= render 'data_cycle_core/contents/viewers/attribute',
+      local_assigns.merge(data_attributes: {
+          editor: 'included-object'
+      }) do %>
+
+  <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+    <% o_value = value.try(o_key) %>
+    <%= render_attribute_viewer key: "#{key}[#{o_key}]",
+                                definition: o_definition,
+                                value: o_value,
+                                parameters: {
+                                  parent: value,
+                                  options: options.merge(
+                                    {
+                                      item_diff: attribute_changes(@diff_schema, "#{key}[#{o_key}]"),
+                                      mode: changes_mode(attribute_changes(@diff_schema, "#{key}[#{o_key}]"))
+                                    }
+                                  )
+                                },
+                                content: content unless o_value.nil? %>
+  <% end %>
+
+<% end %>

@@ -1,0 +1,10 @@
+(function(){
+  let new_html = $('<%= escape_javascript render 'data_cycle_core/contents/related_groups', content: @content, related_objects: @related_objects, page: @page %>');
+
+  if(new_html.filter('.grouped_by').first().hasClass('<%= @last_group %>')){
+    let group_content = new_html.splice(new_html.index(new_html.filter('.grouped_by').first()), 1);
+    $(group_content).find('li.list-item').foundation().appendTo($('.grouped_by.<%= @last_group %> > ul'));
+  }
+
+  $(new_html).foundation().replaceAll('.load-more-related-button');
+})();

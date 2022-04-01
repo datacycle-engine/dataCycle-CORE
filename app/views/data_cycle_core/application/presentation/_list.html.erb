@@ -1,0 +1,41 @@
+<% unless contents.first_page? || local_assigns[:direction] == 'next' %>
+  <li class="pagination-container text-center prev" data-page="<%= contents.prev_page %>">
+    <%= link_to t('pagination.prev', locale: active_ui_locale), path_to_prev_page(contents, params: { direction: 'prev' }), class: 'button pagination-link', remote: true, data: { disable_with: tag.i(class: 'fa fa-spinner fa-fw fa-spin') + " #{t('common.loading', locale: active_ui_locale)}" } %>
+  </li>
+<% end %>
+
+<% contents&.each do |content| %>
+  <li id="list-item-<%= content.id %>" class="list-item data-cycle-object <%= content&.template_name&.underscore if content.is_a?(DataCycleCore::Thing) %> <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %> <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>">
+    <% content_for :media_buttons, flush: true do %>
+      <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', title: t('common.has_overlay', locale: active_ui_locale)) if content.try(:overlay?) %>
+
+      <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
+
+      <% if content.try(:translated_locales)&.many? %>
+        <i class="fa fa-language has-tip" aria-hidden="true" title="<%= content.translated_locales.map {|t| t("locales.#{t}", locale: active_ui_locale)}&.join("\n") %>"></i>
+      <% end %>
+
+      <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>
+        <%= render 'data_cycle_core/application/watch_lists', content: content %>
+      <% end %>
+    <% end %>
+
+    <% if content.is_a?(DataCycleCore::Thing) %>
+
+      <% cache(content_view_cache_key(item: content, locale: params[:language] || @language, mode: 'list', watch_list: @watch_list), expires_in: 1.year + Random.rand(7.days)) do %>
+        <%= render_content_tile(item: content, mode: 'list') %>
+      <% end %>
+
+    <% else %>
+
+      <%= render_content_tile(item: content, mode: 'list') %>
+
+    <% end %>
+  </li>
+<% end %>
+
+<% unless contents.last_page? || local_assigns[:direction] == 'prev' %>
+  <li class="pagination-container text-center next" data-page="<%= contents.next_page %>">
+    <%= link_to t('pagination.next', locale: active_ui_locale), path_to_next_page(contents, params: { direction: 'next' }), class: 'button pagination-link', remote: true, data: { disable_with: tag.i(class: 'fa fa-spinner fa-fw fa-spin') + " #{t('common.loading', locale: active_ui_locale)}" } %>
+  </li>
+<% end %>

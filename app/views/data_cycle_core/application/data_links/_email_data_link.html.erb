@@ -1,0 +1,30 @@
+<% if data_link.id.nil? %>
+  <button class="button new-data-link" data-open="data-link-overlay-<%= data_link.id || "new" %>"><%= t('data_cycle_core.data_links.create_link', locale: active_ui_locale) %></button>
+  <%= render 'data_cycle_core/data_links/form_reveal', local_assigns %>
+<% else %>
+  <li class="<%= "invalid" unless data_link.is_valid? %>" id="data-link-<%= data_link.id %>">
+    <span class="email" title="<%= data_link.receiver&.email %>"><%= data_link_permission_icon(data_link.permissions) %><%= data_link.receiver&.email %></span>
+    <span class="buttons">
+      <span class="copy-to-clipboard" title="<%= t('actions.copy_to_clipboard', locale: active_ui_locale) %>" data-value="<%= data_link_url(data_link, source_table: @split_source&.class&.table_name, source_id: @split_source&.id) %>">
+        <i class="fa fa-clipboard" aria-hidden="true"></i>
+      </span>
+      <% unless data_link.creator == current_user %>
+        <i class="fa fa-user"
+          aria-hidden="true"
+          data-dc-tooltip="<%= "<b>#{t('common.creator', locale: active_ui_locale)}:</b> #{data_link.creator.full_name} &#x3C;#{data_link.creator.email}&#x3E;" if data_link.creator.present? %>"></i>
+      <% end %>
+      <% if data_link.valid_from.present? || data_link.valid_until.present? %>
+        <i class="fa fa-calendar"
+          aria-hidden="true"
+          title="<%= t('terms.valid', locale: active_ui_locale) +
+            (data_link.valid_from.present? ? " #{t('terms.from', locale: active_ui_locale)} #{l(data_link.valid_from.to_date, locale: active_ui_locale)}" : '') +
+            (data_link.valid_until.present? ? " #{t('terms.until', locale: active_ui_locale)} #{l(data_link.valid_until.to_date, locale: active_ui_locale)}" : '') %>"></i>
+      <% end %>
+      <% if can?(:edit, data_link) %>
+        <span class="send-link-button" data-open="data-link-overlay-<%= data_link.id || "new" %>" title="<%= t('actions.edit', locale: active_ui_locale) %>"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+        <%= link_to '<i class="fa fa-lock" aria-hidden="true"></i>'.html_safe, data_link, method: :delete, class: 'invalidate-data-link', title: t('actions.lock', locale: active_ui_locale) if data_link.is_valid? %>
+        <%= render 'data_cycle_core/data_links/form_reveal', local_assigns %>
+      <% end %>
+    </span>
+  </li>
+<% end %>

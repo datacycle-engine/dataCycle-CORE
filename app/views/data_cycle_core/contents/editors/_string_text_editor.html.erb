@@ -1,0 +1,17 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
+
+  <div class="editor-block <%= 'disabled' unless attribute_editable?(key, definition, options, content) %>">
+    <%= yield_content!(:text_editor_header) %>
+
+    <%= attribute_edit_label_tag(**local_assigns) %>
+
+    <%= hidden_field_tag key, value, options.merge(id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}") %>
+
+    <% options.merge!({ data: { hidden_field_id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" }.merge(definition&.slice('validations', 'warnings')), class: 'quill-editor', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}-editor" }) %>
+
+    <%= content_tag :div, options do %>
+      <%= value.presence&.html_safe %>
+    <% end %>
+  </div>
+
+<% end %>

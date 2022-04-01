@@ -1,0 +1,9 @@
+<div class="publication-date-filter">
+  <div class="date-range">
+    <i class="fa fa-calendar" aria-hidden="true"></i>
+    <%= label_tag :publications_from, "#{t('data_cycle_core.publication_date', locale: active_ui_locale)}:" %>
+    <%= date_field_tag :publications_from, params[:publications_from], placeholder: t('terms.from', locale: active_ui_locale) %>
+    <%= label_tag :publications_until, ' - ' %>
+    <%= date_field_tag :publications_until, params[:publications_until], placeholder: t('terms.until', locale: active_ui_locale) %>
+  </div>
+</div>

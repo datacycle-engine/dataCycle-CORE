@@ -1,0 +1,446 @@
+[
+  {
+    "_id": {
+      "$oid": "5be5986d32c88f053b10a2d5"
+    },
+    "external_id": "https://veranstaltungen.kaernten.at/events/RmVyYXRlbC0wMzU0NTRhOC03NzBiLTRiNjMtODY1MC1iZGM4ZGFiZTdiMTI",
+    "dump": {
+      "de": {
+        "@context": "http://schema.org/",
+        "@type": "Event",
+        "name": "Bauernmarkt in Viktring",
+        "description": "Für die Bevölkerung in den Stadtteilen Klagenfurts gibt es eigene Wochenmärkte. Jeden Freitag kann man am Viktringer Platz direkt bei den Bauern einkaufen.",
+        "startDate": "2017-01-06",
+        "endDate": "2019-12-27",
+        "url": "https://veranstaltungen.kaernten.at/events/RmVyYXRlbC0wMzU0NTRhOC03NzBiLTRiNjMtODY1MC1iZGM4ZGFiZTdiMTI",
+        "categories": [
+          {
+            "id": "558c15096d65640b8f230000",
+            "name": "Märkte"
+          }
+        ],
+        "image": {
+          "@type": "ImageObject",
+          "id": "588962da2158b7481b000354",
+          "caption": "",
+          "width": 1024,
+          "height": 680,
+          "contentUrl": "https://veranstaltungen.kaernten.at/api/assets/588962da2158b7481b000354.jpg"
+        },
+        "subEvents": [
+          {
+            "@type": "Event",
+            "startDate": "2017-01-06T07:00:00+01:00",
+            "endDate": null,
+            "location": {
+              "@type": "Place",
+              "id": "5be5127d2158b75192004583",
+              "name": "Viktringer Platz",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 46.5942702,
+                "longitude": 14.269482599999947
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Viktringer Platz 11",
+                "postalCode": "9073",
+                "addressCountry": "AT",
+                "addressLocality": "Klagenfurt am Wörthersee"
+              }
+            }
+          },
+          {
+            "@type": "Event",
+            "startDate": "2017-01-13T07:00:00+01:00",
+            "endDate": null,
+            "location": {
+              "@type": "Place",
+              "id": "5be5127d2158b75192004583",
+              "name": "Viktringer Platz",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 46.5942702,
+                "longitude": 14.269482599999947
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Viktringer Platz 11",
+                "postalCode": "9073",
+                "addressCountry": "AT",
+                "addressLocality": "Klagenfurt am Wörthersee"
+              }
+            }
+          },
+          {
+            "@type": "Event",
+            "startDate": "2017-01-20T07:00:00+01:00",
+            "endDate": null,
+            "location": {
+              "@type": "Place",
+              "id": "5be5127d2158b75192004583",
+              "name": "Viktringer Platz",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 46.5942702,
+                "longitude": 14.269482599999947
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Viktringer Platz 11",
+                "postalCode": "9073",
+                "addressCountry": "AT",
+                "addressLocality": "Klagenfurt am Wörthersee"
+              }
+            }
+          },
+          {
+            "@type": "Event",
+            "startDate": "2019-12-27T07:00:00+01:00",
+            "endDate": null,
+            "location": {
+              "@type": "Place",
+              "id": "5be5127d2158b75192004583",
+              "name": "Viktringer Platz",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 46.5942702,
+                "longitude": 14.269482599999947
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Viktringer Platz 11",
+                "postalCode": "9073",
+                "addressCountry": "AT",
+                "addressLocality": "Klagenfurt am Wörthersee"
+              }
+            }
+          }
+        ],
+        "allDay": null,
+        "id": "RmVyYXRlbC0wMzU0NTRhOC03NzBiLTRiNjMtODY1MC1iZGM4ZGFiZTdiMTI",
+        "tags": [
+          "Visibility-Local",
+          "KLAGENFURT",
+          "Bruecke"
+        ],
+        "location": {
+          "@type": "Place",
+          "id": "5be5127d2158b75192004583",
+          "name": "Viktringer Platz",
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 46.5942702,
+            "longitude": 14.269482599999947
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Viktringer Platz 11",
+            "postalCode": "9073",
+            "addressCountry": "AT",
+            "addressLocality": "Klagenfurt am Wörthersee"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:41.613Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:41.613Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:41.613Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5986d32c88f053b10a2d6"
+    },
+    "external_id": "https://veranstaltungen.kaernten.at/events/RmVyYXRlbC1iZWRjMzcyYi1iNjM1LTQyOWItYTQ5MC0yZjhiOTlmZGJjMDA",
+    "dump": {
+      "de": {
+        "@context": "http://schema.org/",
+        "@type": "Event",
+        "name": "Radentheiner Stadtmarkt",
+        "description": "Regional Einkaufen - Produkte direkt vom Erzeuger, Kunsthandwerk und Unterhaltung.\r\nDer Treff für Jung und Alt. Fürs leibliche Wohl sorgt die Wirtegemeinschaft.\r\nWann: Jeden Freitag von 15:00 Uhr bis 18:30 Uhr.",
+        "startDate": "2017-04-07",
+        "endDate": "2018-12-28",
+        "url": "https://veranstaltungen.kaernten.at/events/RmVyYXRlbC1iZWRjMzcyYi1iNjM1LTQyOWItYTQ5MC0yZjhiOTlmZGJjMDA",
+        "categories": [
+          {
+            "id": "558c15096d65640b8f230000",
+            "name": "Märkte"
+          }
+        ],
+        "image": {
+          "@type": "ImageObject",
+          "id": "58057ec06d6564151b600600",
+          "caption": "",
+          "width": 1024,
+          "height": 768,
+          "contentUrl": "https://veranstaltungen.kaernten.at/api/assets/58057ec06d6564151b600600.jpg"
+        },
+        "subEvents": [
+          {
+            "@type": "Event",
+            "startDate": "2017-04-07T15:00:00+02:00",
+            "endDate": null,
+            "location": {
+              "@type": "Place",
+              "id": "5be515732158b75192018b29",
+              "name": "Weiler-Rems Platz Radenthein",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 46.8009902,
+                "longitude": 13.704881099999966
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Hauptstraße 31-37",
+                "postalCode": "9545",
+                "addressCountry": "AT",
+                "addressLocality": "Radenthein"
+              }
+            }
+          },
+          {
+            "@type": "Event",
+            "startDate": "2017-04-14T15:00:00+02:00",
+            "endDate": null,
+            "location": {
+              "@type": "Place",
+              "id": "5be515732158b75192018b29",
+              "name": "Weiler-Rems Platz Radenthein",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 46.8009902,
+                "longitude": 13.704881099999966
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Hauptstraße 31-37",
+                "postalCode": "9545",
+                "addressCountry": "AT",
+                "addressLocality": "Radenthein"
+              }
+            }
+          },
+          {
+            "@type": "Event",
+            "startDate": "2018-12-28T15:00:00+01:00",
+            "endDate": null,
+            "location": {
+              "@type": "Place",
+              "id": "5be515732158b75192018b29",
+              "name": "Weiler-Rems Platz Radenthein",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 46.8009902,
+                "longitude": 13.704881099999966
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Hauptstraße 31-37",
+                "postalCode": "9545",
+                "addressCountry": "AT",
+                "addressLocality": "Radenthein"
+              }
+            }
+          }
+        ],
+        "allDay": null,
+        "id": "RmVyYXRlbC1iZWRjMzcyYi1iNjM1LTQyOWItYTQ5MC0yZjhiOTlmZGJjMDA",
+        "tags": [
+          "MILLSTATT",
+          "Visibility-Local",
+          "Bruecke"
+        ],
+        "location": {
+          "@type": "Place",
+          "id": "5be515732158b75192018b29",
+          "name": "Weiler-Rems Platz Radenthein",
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 46.8009902,
+            "longitude": 13.704881099999966
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Hauptstraße 31-37",
+            "postalCode": "9545",
+            "addressCountry": "AT",
+            "addressLocality": "Radenthein"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:41.663Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:41.663Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:41.663Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5986d32c88f053b10a2d7"
+    },
+    "external_id": "https://veranstaltungen.kaernten.at/events/RmVyYXRlbC00YTNiZGZlOS04MThmLTQ3NjQtOWQ0Zi0yYzRiN2E4MDlkZDc",
+    "dump": {
+      "de": {
+        "@context": "http://schema.org/",
+        "@type": "Event",
+        "name": "Altstadtwanderung",
+        "description": "Zusammen mit einem unserer Guides entdecken Sie jeden Freitag und Samstag die schönsten Wahrzeichen und Plätze der Stadt – und das völlig kostenlos! Jeden Freitag und Samstag um 10:00 Uhr starten unsere Guides eine Entdeckertour am Arthur Lemisch Platz. Etwa 1,5 Stunden soll man für eine Führung durch Klagenfurts geschichtsträchtige Altstadt einplanen. Untermalt mit dem umfangreichen Hintergrundwissen unserer City-Guides führt die Tour zu den markantesten Plätzen und wichtigsten Sehenswürdigkeiten der Klagenfurter Altstadt. Die Geschichte von Klagenfurt am Wörthersee, den Gebäuden und Sehenswürdigkeiten und die eine oder andere Sage wird man auf dieser Tour bei den Denkmälern und Stationen vernehmen können.\r\n\r\n\r\n\r\nTermine: jeden Freitag und Samstag um 10:00 Uhr\r\nTreffpunkt: Arthur Lemisch Platz\r\nDauer: ca. 90 Minuten\r\n\r\nFür Gruppen und Sondertermine bitten wir um Voranmeldung!\r\n\r\nKontakt:\r\nKlagenfurt Tourismus\r\nNeuer Platz 5\r\n9020 Klagenfurt am Wörthersee\r\n\r\nT: +43 (0)463 287 463\r\nF: +43 (0)463 287 463-33\r\nE: info@visitklagenfurt.at\r\nW: www.visitklagenfurt.at\r\n\r\nIhr Ansprechpartner:\r\nMarkus Strutz\r\nT: +43 463 287 463 14\r\nE: strutz@visitklagenfurt.at",
+        "startDate": "2017-06-09",
+        "endDate": "2018-12-29",
+        "url": "https://veranstaltungen.kaernten.at/events/RmVyYXRlbC00YTNiZGZlOS04MThmLTQ3NjQtOWQ0Zi0yYzRiN2E4MDlkZDc",
+        "categories": [
+          {
+            "id": "5a8d9c3a2158b70a85000207",
+            "name": "Exkursionen / Ausflüge"
+          },
+          {
+            "id": "558c137c6d65640b8f170000",
+            "name": "Führungen"
+          }
+        ],
+        "image": {
+          "@type": "ImageObject",
+          "id": "58057ebf6d6564151bf50400",
+          "caption": "",
+          "width": 1024,
+          "height": 683,
+          "contentUrl": "https://veranstaltungen.kaernten.at/api/assets/58057ebf6d6564151bf50400.jpg"
+        },
+        "subEvents": [
+          {
+            "@type": "Event",
+            "startDate": "2017-06-09T10:00:00+02:00",
+            "endDate": "2017-06-09T11:30:00+02:00",
+            "location": {
+              "@type": "Place",
+              "id": "5be513a12158b7519200beee",
+              "name": "Doktor-Arthur-Lemisch-Platz",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 46.62457,
+                "longitude": 14.308089999999993
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Doktor-Arthur-Lemisch-Platz",
+                "postalCode": "9020",
+                "addressCountry": "AT",
+                "addressLocality": "Klagenfurt"
+              }
+            }
+          },
+          {
+            "@type": "Event",
+            "startDate": "2017-06-10T10:00:00+02:00",
+            "endDate": "2017-06-10T11:30:00+02:00",
+            "location": {
+              "@type": "Place",
+              "id": "5be513a12158b7519200beee",
+              "name": "Doktor-Arthur-Lemisch-Platz",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 46.62457,
+                "longitude": 14.308089999999993
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Doktor-Arthur-Lemisch-Platz",
+                "postalCode": "9020",
+                "addressCountry": "AT",
+                "addressLocality": "Klagenfurt"
+              }
+            }
+          },
+          {
+            "@type": "Event",
+            "startDate": "2017-06-16T10:00:00+02:00",
+            "endDate": "2017-06-16T11:30:00+02:00",
+            "location": {
+              "@type": "Place",
+              "id": "5be513a12158b7519200beee",
+              "name": "Doktor-Arthur-Lemisch-Platz",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 46.62457,
+                "longitude": 14.308089999999993
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Doktor-Arthur-Lemisch-Platz",
+                "postalCode": "9020",
+                "addressCountry": "AT",
+                "addressLocality": "Klagenfurt"
+              }
+            }
+          },
+          {
+            "@type": "Event",
+            "startDate": "2018-12-29T10:00:00+01:00",
+            "endDate": "2018-12-29T11:30:00+01:00",
+            "location": {
+              "@type": "Place",
+              "id": "5be513a12158b7519200beee",
+              "name": "Doktor-Arthur-Lemisch-Platz",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 46.62457,
+                "longitude": 14.308089999999993
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Doktor-Arthur-Lemisch-Platz",
+                "postalCode": "9020",
+                "addressCountry": "AT",
+                "addressLocality": "Klagenfurt"
+              }
+            }
+          }
+        ],
+        "allDay": null,
+        "id": "RmVyYXRlbC00YTNiZGZlOS04MThmLTQ3NjQtOWQ0Zi0yYzRiN2E4MDlkZDc",
+        "tags": [
+          "KLAGENFURT",
+          "Visibility-Region",
+          "Bruecke"
+        ],
+        "location": {
+          "@type": "Place",
+          "id": "5be513a12158b7519200beee",
+          "name": "Doktor-Arthur-Lemisch-Platz",
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 46.62457,
+            "longitude": 14.308089999999993
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Doktor-Arthur-Lemisch-Platz",
+            "postalCode": "9020",
+            "addressCountry": "AT",
+            "addressLocality": "Klagenfurt"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:41.672Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:41.672Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:41.672Z"
+    }
+  }
+]

@@ -1,0 +1,32 @@
+.flatpickr-day {
+  &:hover {
+    background: rgba($light-gray, 0.9);
+    border-color: rgba($light-gray, 0.9);
+  }
+
+  &.selected {
+    background: rgba($primary-color, 0.9);
+    color: $white;
+    border-color: rgba($primary-color, 0.9);
+  }
+
+  &.holiday {
+    &:not(.selected) {
+      background: rgba($success-color, 0.2);
+    }
+  }
+}
+
+.flatpickr-time {
+  .flatpickr-hour,
+  .flatpickr-minute {
+    box-shadow: none;
+    background: none;
+
+    &:hover,
+    &:focus {
+      box-shadow: none;
+      background: none;
+    }
+  }
+}

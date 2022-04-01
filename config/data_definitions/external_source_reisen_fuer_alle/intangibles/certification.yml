@@ -1,0 +1,192 @@
+- :data:
+    :name: Zertifizierung
+    :type: object
+    :schema_type: Intangible
+    :content_type: entity
+    :boost: 100.0
+    :api:
+      :type:
+        - Intangible
+        - 'dc:certification'
+    :features:
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Zertifiziert
+        :type: string
+        :storage_location: column
+        :search: true
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :linked_data:
+        :name: linked_data
+        :type: mixin
+      :certification_period:
+        :label: Zertifizierungszeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: certified_from
+            :to: certified_to
+        :ui:
+          :edit:
+            :type: daterange
+        :properties:
+          :certified_from:
+            :label: Zertifizierung
+            :type: date
+            :storage_location: value
+            :ui:
+              :edit:
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+          :certified_to:
+            :label: bis
+            :type: date
+            :storage_location: value
+            :ui:
+              :edit:
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+      :certification_type:
+        :label: Zertifizierungstyp
+        :type: object
+        :storage_location: translated_value
+        :properties:
+          :designation:
+            :label: Bezeichnung
+            :type: string
+            :storage_location: translated_value
+            :search: true
+          :key:
+            :label: Wert
+            :type: string
+            :storage_location: translated_value
+            :search: true
+          :icon:
+            :label: Symbol
+            :type: string
+            :storage_location: translated_value
+      :image:
+        :label: Icons
+        :type: linked
+        :template_name: Bild
+      :public_pdf:
+        :label: Detailberichte zur Barrierefreiheit zum Download
+        :type: object
+        :storage_location: translated_value
+        :properties:
+          :short_report:
+            :label: Kurzbericht
+            :type: string
+            :storage_location: translated_value
+          :wheelchair:
+            :label: Gehbehinderte/Rollstuhlfahrer
+            :type: string
+            :storage_location: translated_value
+          :deaf:
+            :label: Hörbehinderte/Gehörlose
+            :type: string
+            :storage_location: translated_value
+          :visual:
+            :label: Sehbehinderte/Blinde
+            :type: string
+            :storage_location: translated_value
+          :mental:
+            :label: Kognitiv Beeinträchtigte
+            :type: string
+            :storage_location: translated_value
+          # :allergic:
+          #   :label: Allergien
+          #   :type: string
+          #   :storage_location: translated_value
+          # :generations:
+          #   :label: Generationen
+          #   :type: string
+          #   :storage_location: translated_value
+          # :walking:
+          #   :label: Gehen
+          #   :type: string
+          #   :storage_location: translated_value
+      :short_reports:
+        :label: Kurzbericht
+        :type: object
+        :storage_location: translated_value
+        :api:
+          :name: shortReport
+        :properties:
+          :walking:
+            :label: Gehbehinderte/Rollstuhlfahrer
+            :type: string
+            :storage_location: translated_value
+            :search: true
+            :ui:
+              :edit:
+                :type: text_editor
+                :options:
+                  :data-size: full
+          :deaf:
+            :label: Hörbehinderte/Gehörlose
+            :type: string
+            :storage_location: translated_value
+            :search: true
+            :ui:
+              :edit:
+                :type: text_editor
+                :options:
+                  :data-size: full
+          :visual:
+            :label: Sehbehinderte/Blinde
+            :type: string
+            :storage_location: translated_value
+            :search: true
+            :ui:
+              :edit:
+                :type: text_editor
+                :options:
+                  :data-size: full
+          :mental:
+            :label: Kognitiv Beeinträchtigte
+            :type: string
+            :storage_location: translated_value
+            :search: true
+            :ui:
+              :edit:
+                :type: text_editor
+                :options:
+                  :data-size: full
+      :licence_owner:
+        :label: Lizenznehmer
+        :type: classification
+        :tree_label: reisen-fuer-alle.de - Lizenznehmer
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
+      :certificate_classification:
+        :label: Zertifizierungen
+        :type: classification
+        :tree_label: reisen-fuer-alle.de - Zertifikate
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: Reisen für Alle
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel

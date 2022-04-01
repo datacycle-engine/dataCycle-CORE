@@ -1,0 +1,111 @@
+---
+- :data:
+    :name: EventSchedule
+    :type: object
+    :schema_type: Event
+    :boost: 100.0
+    :content_type: embedded
+    :api:
+      :type:
+        - Intangible
+        - Schedule
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :event_date:
+        :label: Datum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: start_date
+            :to: end_date
+        :ui:
+          :edit:
+            :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
+        :properties:
+          :start_date:
+            :label: Von
+            :type: datetime
+            :storage_location: column
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
+          :end_date:
+            :label: Bis
+            :type: datetime
+            :storage_location: column
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
+      :event_time:
+        :label: Uhrzeit
+        :type: object
+        :storage_location: value
+        :api:
+          :transformation:
+            :method: unwrap
+        :properties:
+          :start_time:
+            :label: Beginn
+            :type: string
+            :storage_location: value
+            :validations:
+              :pattern: "(^$|^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$|^24:00(:00)?$)"
+            :ui:
+              :edit:
+                :options:
+                  :placeholder: hh:mm
+          :end_time:
+            :label: Ende
+            :type: string
+            :storage_location: value
+            :validations:
+              :pattern: "(^$|^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$|^24:00(:00)?$)"
+            :ui:
+              :edit:
+                :options:
+                  :placeholder: hh:mm
+      :day_of_week:
+        :label: Wochentag
+        :type: classification
+        :tree_label: Wochentage
+        :api:
+          :name: by_day
+      :by_month:
+        :label: Monat
+        :type: number
+        :storage_location: value
+      :by_month_day:
+        :label: Tag im Monat
+        :type: number
+        :storage_location: value
+      :repeat_count:
+        :label: Anzahl der Wiederholungen
+        :type: number
+        :storage_location: value
+      :repeat_frequency:
+        :label: Frequenz
+        :type: string
+        :storage_location: value
+      :meta_data:
+        :type: mixin
+        :name: meta_data

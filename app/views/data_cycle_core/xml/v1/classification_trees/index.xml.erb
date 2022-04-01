@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<rdf:RDF
+  xmlns:rdf="https://schema.org/"
+  xmlns:schema="https://schema.org/Thing/">
+
+<% @classification_tree_labels.each do |tree_label|%>
+  <classificationTree
+    about="<%=classification_tree_label_url(tree_label)%>">
+    <id><%=tree_label.id%></id>
+    <name><%=tree_label.name%></name>
+    <url><%=xml_v1_classification_tree_url(tree_label, language: @language, api_subversion: @api_subversion)%></url>
+  </classificationTree>
+<% end %>
+</rdf:RDF>

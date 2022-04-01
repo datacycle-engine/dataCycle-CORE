@@ -1,0 +1,58 @@
+<% breadcrumb :show_compare, @content, @watch_list %>
+
+<% content_for :top_content do %>
+
+  <div>
+
+    <section class="edit-header">
+      <div class="row expanded">
+        <div class="column edit-header-functions">
+          <div class="edit-name">
+            <i class="fa fa-columns" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: active_ui_locale) %>
+          </div>
+          <ul>
+            <li class="has-dropdown right">
+              <%= render 'split_sources', query_params: { exclude: @content&.id, template_name: @content&.template_name }, value: @diff_source, url: compare_thing_path(@content), title_text: t('common.choose_splitsource', locale: active_ui_locale) %>
+            </li>
+            <li class="buttons"></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="column">
+
+      <div class="detail-content detail-content-wrapper">
+
+        <% I18n.with_locale(@diff_source.first_available_locale) do %>
+
+          <div class="detail-content row">
+            <div class="show-content">
+              <div class="detail-header-info diff">
+                <% I18n.with_locale(@diff_source.first_available_locale) do %>
+                  <%= render 'diff_meta_data', content: @diff_source %>
+                <% end %>
+
+                <span class="meta-data-splitter">
+                  <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                </span>
+
+                <% I18n.with_locale(@content.first_available_locale) do %>
+                  <%= render 'diff_meta_data', content: @content %>
+                <% end %>
+              </div>
+
+            </div>
+          </div>
+
+          <%= render_content_partial 'history', content: @diff_source, options: { compare: true, force_render: true } %>
+
+        <% end %>
+
+      </div>
+
+    </div>
+
+  </div>
+
+<% end %>

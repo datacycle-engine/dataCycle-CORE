@@ -1,0 +1,370 @@
+[
+  {
+    "_id": {
+      "$oid": "5bed5c14fe4ae90edcc30023"
+    },
+    "external_id": "ChIJ6QdAIB9Vg0cRoTRs_E26xdU",
+    "dump": {
+      "de": {
+        "address_components": [
+          {
+            "long_name": "Gaschurn",
+            "short_name": "Gaschurn",
+            "types": [
+              "locality",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Bludenz",
+            "short_name": "Bludenz",
+            "types": [
+              "administrative_area_level_2",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Vorarlberg",
+            "short_name": "Vorarlberg",
+            "types": [
+              "administrative_area_level_1",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Österreich",
+            "short_name": "AT",
+            "types": [
+              "country",
+              "political"
+            ]
+          }
+        ],
+        "adr_address": "<span class=\"locality\">Gaschurn</span>, <span class=\"country-name\">Österreich</span>",
+        "formatted_address": "Gaschurn, Österreich",
+        "geometry": {
+          "location": {
+            "lat": 46.9858102,
+            "lng": 10.0265864
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 47.03424010000001,
+              "lng": 10.1601201
+            },
+            "southwest": {
+              "lat": 46.84081,
+              "lng": 9.9702001
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png",
+        "id": "ba13333f8828bd459da44a190a864bed5ac53126",
+        "name": "Gaschurn",
+        "photos": [
+          {
+            "height": 2304,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/115092360413503847423/photos\">Ueli Ramseier</a>"
+            ],
+            "photo_reference": "CmRaAAAANX4Ez6dQ08s7a6BmGjvJ_UsRNiWV9HLHw1Am_ppPXo0hFl39apR1cRc1TNJ7fLFlNtZhwlgTXQx1FZgfe1X6qgCdzDZaoWrtFBl511_CdiU9J-0sys7lnTb4n-xYvwTkEhD5-eOJ8EQ1lCFgfPgmelHxGhRIivCFsENJTicTF375iqxU5JvcXw",
+            "width": 4096
+          },
+          {
+            "height": 1836,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/114110147933881546833/photos\">Martin van Loon</a>"
+            ],
+            "photo_reference": "CmRaAAAAurcA_0yceb6LGvA4uORDCOVIvigz8yjik_Fw3rf2Wj0egJEqfU5XHN_L4wJ11iq6TVw0HA5ZA1-DOZFllBliuBUBcLEoC_alEpxEazr9a7sbHcWNiHgq4m9-6aUEqS2SEhCCwlVYn8Z7Icq_eHdYq507GhRgwjklU97NRmlTasU6eACHRN6IOg",
+            "width": 3264
+          },
+          {
+            "height": 3120,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/110933030381921761651/photos\">Robert Schauer</a>"
+            ],
+            "photo_reference": "CmRaAAAADNWSUre6Ip-naq9vLCck9p2rxQ-WTBAzN_f_2IaTnhzY5O9J4boJBilVqJ5A_jXaju2c9fn6KfoOOw-kcWUmb0VGfNBWz5C_dE7zo6Y2AT61PNkVF8x3doaHW14gbRTCEhBslGggTKZqcSuEZ-JTDaaVGhQ4b6SRreNgoaxz7jZhJCp0vmmbsg",
+            "width": 4160
+          },
+          {
+            "height": 1836,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/117323912454018176378/photos\">Hans Kloihofer</a>"
+            ],
+            "photo_reference": "CmRaAAAAhEh0k08Ga38IMao-2ViL5hYmo_srGJ_91Ef8GWdScvMJlT3f-OyIT9Rc9eD0CODU4GmQL0pQKZCK5lyaVHW6HA1MdboZuSTfUOf-NyAfYmPohGlihT8u8LrgafmsEX4hEhBKryddW4vll6bx-5lmMp7uGhS2Uvx2e8EePDPejMQHSPQttmZyfQ",
+            "width": 3264
+          },
+          {
+            "height": 3264,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/117323912454018176378/photos\">Hans Kloihofer</a>"
+            ],
+            "photo_reference": "CmRaAAAAP9ESWDCZEyWBmjzUdB6hbs84_o8WtDax4DqGrmU33K0z3yELERPOHtHaHr6oxan66EhiWwB92AAfZ8Aq3FNzlAL9UgS3_32rLo3IYCtszPgU4nam6Bxk4kSfzdipxmLLEhCW2z6E5fkn1ZmkwT-LdEWVGhTwdk-6ahQ88mivhRLrNvAZKJAu5A",
+            "width": 1836
+          },
+          {
+            "height": 1836,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/117323912454018176378/photos\">Hans Kloihofer</a>"
+            ],
+            "photo_reference": "CmRaAAAAOEpnCphwkL3rH14ObOixUibOnsRlzQf-02N7vfw5lbhlllg08bHFY5mRcUenixodUk-rp9BYM_iS4dEsHqHS35VXa4rB5HclEWG4555IoXS0neMK8e-X4G1uN0fJyHcCEhCKmA8KPF9ykZ_HaY0WwuxoGhSKOSegYKaz7E1tPmJccBahz7qVRA",
+            "width": 3264
+          },
+          {
+            "height": 768,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/104775814381705614906/photos\">Bernhard Bender</a>"
+            ],
+            "photo_reference": "CmRaAAAAnkvlJ2ec3-sNIFb6g6goFoSeQOaAbz96wpuxmWYcyF3d_XsLoNOGBnE45Qkwr3EYfHk_88KGU2gwY4msr7hCGBDYnAdVdRjgI150eJkfN3zhYEUI_qH4ZHayUrH7G2C0EhCjoqtUAc17acSHcMZIyxJQGhR3TyVTa6OaSaNLfNDvQCddmWzH9g",
+            "width": 1024
+          },
+          {
+            "height": 3000,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/114110147933881546833/photos\">Martin van Loon</a>"
+            ],
+            "photo_reference": "CmRaAAAAn_6PWHQcJX7B7LCQgkuDVUxORBEVY9ctg3vIVFJHkcLChI88rBjOYEYV9IfYhnOoqB-pMIiG6mwSpgytraM_biXPoK8Uss59QVArLywZ8fGRpDWCyTk4tgr1T7vI2VU_EhDgae9J87795jzkF6qy84trGhSHhHPrksV-AZ6py50y1x3K0XY6tw",
+            "width": 4000
+          },
+          {
+            "height": 1920,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/113844241797561204384/photos\">Isabelle De Groote</a>"
+            ],
+            "photo_reference": "CmRaAAAAKAsfoX_PQHWymKN06vpFqgjRcEyQIuTM2oKc5ZRTjxIF_L4W-y7daVGHl3Tx3o44JExV6VCDWxvzgU96of5x2uXupvTjNZfU2qiKOvAkI_zGsoch8j_6VeU-zfI2G9G1EhDHQIAlBo8dhpw0iEmd9W3-GhSoRjGXgTPxiTp2yAK1mLhTDDu7-w",
+            "width": 1080
+          },
+          {
+            "height": 3264,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/117323912454018176378/photos\">Hans Kloihofer</a>"
+            ],
+            "photo_reference": "CmRaAAAA58ULjob2v9I_wuC-JE8hSU03UL5yJfDruM0w_qVnGkoLiMl6PwpvZwjtPnVdoLLfQRth7icuHhMRn74L3aU26fyJABXgj1cOh2SIFMzKenzk4lMI1XHPgbTg4ZqPAc01EhAvHVkY16RuNbvn7IoYiCaGGhS481ZangHlPI8kRRaTVnl4AnkXOw",
+            "width": 1836
+          }
+        ],
+        "place_id": "ChIJ6QdAIB9Vg0cRoTRs_E26xdU",
+        "reference": "ChIJ6QdAIB9Vg0cRoTRs_E26xdU",
+        "scope": "GOOGLE",
+        "types": [
+          "locality",
+          "political"
+        ],
+        "url": "https://maps.google.com/?q=Gaschurn,+%C3%96sterreich&ftid=0x4783551f204007e9:0xd5c5ba4dfc6c34a1",
+        "utc_offset": 60,
+        "vicinity": "Gaschurn"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-15T11:44:20.448Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-15T11:44:20.449Z"
+    },
+    "created_at": {
+      "$date": "2018-11-15T11:44:20.449Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5bed5c14fe4ae90edcc30024"
+    },
+    "external_id": "ChIJlziBgYtQg0cRQlwmRzz2dlY",
+    "dump": {
+      "de": {
+        "address_components": [
+          {
+            "long_name": "Gaschurn",
+            "short_name": "Gaschurn",
+            "types": [
+              "locality",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Bludenz",
+            "short_name": "Bludenz",
+            "types": [
+              "administrative_area_level_2",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Vorarlberg",
+            "short_name": "Vorarlberg",
+            "types": [
+              "administrative_area_level_1",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Österreich",
+            "short_name": "AT",
+            "types": [
+              "country",
+              "political"
+            ]
+          },
+          {
+            "long_name": "6794",
+            "short_name": "6794",
+            "types": [
+              "postal_code"
+            ]
+          }
+        ],
+        "adr_address": "<span class=\"postal-code\">6794</span> <span class=\"locality\">Gaschurn</span>, <span class=\"country-name\">Österreich</span>",
+        "formatted_address": "6794 Gaschurn, Österreich",
+        "geometry": {
+          "location": {
+            "lat": 46.8644283,
+            "lng": 10.0853403
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 46.8657772802915,
+              "lng": 10.0866892802915
+            },
+            "southwest": {
+              "lat": 46.8630793197085,
+              "lng": 10.0839913197085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/generic_business-71.png",
+        "id": "b789984842f9412f875e5d4e9755e92b0d37bcee",
+        "name": "Schneeglocke",
+        "photos": [
+          {
+            "height": 1536,
+            "html_attributions": [
+              "<a href=\"https://maps.google.com/maps/contrib/103193696393469558201/photos\">Michael Geisler</a>"
+            ],
+            "photo_reference": "CmRaAAAAcnuFMYJ3o2IYu_3iob7PWV0hFvqtVNJNFV-NB3NgKtkY0v3-JFpNUDcKH4GvHWnCza5nGnbMdpe4Cn3UcPs_6h1Ofg7mviSwRt2El7UumDNz1iXd9-k5QAtTYPpN_ObWEhCO5OSqp2422vg5gB90HaynGhROVUNlBXPYffdKfiO0jJ_gdTyEVA",
+            "width": 2048
+          }
+        ],
+        "place_id": "ChIJlziBgYtQg0cRQlwmRzz2dlY",
+        "plus_code": {
+          "compound_code": "V37P+Q4 Gaschurn, Österreich",
+          "global_code": "8FRGV37P+Q4"
+        },
+        "reference": "ChIJlziBgYtQg0cRQlwmRzz2dlY",
+        "scope": "GOOGLE",
+        "types": [
+          "place_of_worship",
+          "point_of_interest",
+          "establishment"
+        ],
+        "url": "https://maps.google.com/?cid=6230437873265826882",
+        "utc_offset": 60,
+        "vicinity": "Gaschurn"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-15T11:44:20.725Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-15T11:44:20.725Z"
+    },
+    "created_at": {
+      "$date": "2018-11-15T11:44:20.725Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5bed5c14fe4ae90edcc30025"
+    },
+    "external_id": "ChIJJcVUnIlQg0cRs1trwQEU4dU",
+    "dump": {
+      "de": {
+        "address_components": [
+          {
+            "long_name": "Gaschurn",
+            "short_name": "Gaschurn",
+            "types": [
+              "locality",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Bludenz",
+            "short_name": "Bludenz",
+            "types": [
+              "administrative_area_level_2",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Vorarlberg",
+            "short_name": "Vorarlberg",
+            "types": [
+              "administrative_area_level_1",
+              "political"
+            ]
+          },
+          {
+            "long_name": "Österreich",
+            "short_name": "AT",
+            "types": [
+              "country",
+              "political"
+            ]
+          },
+          {
+            "long_name": "6794",
+            "short_name": "6794",
+            "types": [
+              "postal_code"
+            ]
+          }
+        ],
+        "adr_address": "<span class=\"postal-code\">6794</span> <span class=\"locality\">Gaschurn</span>, <span class=\"country-name\">Österreich</span>",
+        "formatted_address": "6794 Gaschurn, Österreich",
+        "geometry": {
+          "location": {
+            "lat": 46.8611848,
+            "lng": 10.0870997
+          },
+          "viewport": {
+            "northeast": {
+              "lat": 46.8625337802915,
+              "lng": 10.0884486802915
+            },
+            "southwest": {
+              "lat": 46.8598358197085,
+              "lng": 10.0857507197085
+            }
+          }
+        },
+        "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/generic_business-71.png",
+        "id": "35c92ccae7d5097c9200b958e5fdd6d72fed1e1a",
+        "name": "Rotfluhlücke",
+        "place_id": "ChIJJcVUnIlQg0cRs1trwQEU4dU",
+        "plus_code": {
+          "compound_code": "V36P+FR Gaschurn, Österreich",
+          "global_code": "8FRGV36P+FR"
+        },
+        "reference": "ChIJJcVUnIlQg0cRs1trwQEU4dU",
+        "scope": "GOOGLE",
+        "types": [
+          "place_of_worship",
+          "point_of_interest",
+          "establishment"
+        ],
+        "url": "https://maps.google.com/?cid=15411621397611109299",
+        "utc_offset": 60,
+        "vicinity": "Gaschurn"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-15T11:44:20.968Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-15T11:44:20.968Z"
+    },
+    "created_at": {
+      "$date": "2018-11-15T11:44:20.968Z"
+    }
+  }
+]

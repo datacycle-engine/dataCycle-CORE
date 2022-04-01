@@ -1,0 +1,17 @@
+{
+  "name": "Organisation",
+  "address": {
+    "street_address": "StreeAddress",
+    "postal_code": "PostCode",
+    "address_locality": "AddressLocality",
+    "address_country": "AddressCountry"
+  },
+  "contact_info": {
+    "contact_name": "Ansprechpartner",
+    "telephone": "Telephone",
+    "fax_number": "FaxNumber",
+    "email": "Email",
+    "url": "https://url.com"
+  },
+  "description": "<p>Description</p>"
+}

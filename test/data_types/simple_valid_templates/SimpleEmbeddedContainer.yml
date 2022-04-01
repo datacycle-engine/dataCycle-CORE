@@ -1,0 +1,24 @@
+---
+- :data:
+    :name: Simple Embedded Container
+    :type: object
+    :content_type: entity
+    :schema_type: Thing_ActingAsEmbeddedContainer
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :embedded:
+        :label: Simple Embedded Reference
+        :type: embedded
+        :template_name: Simple Embedded
+
+- :data:
+    :name: Simple Embedded
+    :type: object
+    :content_type: embedded
+    :schema_type: Thing_SimpleEmbedded
+    :properties:
+      :id:
+        :label: id
+        :type: key

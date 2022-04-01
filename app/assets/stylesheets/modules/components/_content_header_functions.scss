@@ -1,0 +1,278 @@
+.edit-header-functions {
+  > ul {
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-end;
+    align-items: center;
+
+    > li > a {
+      display: block;
+    }
+    > li.buttons {
+      display: flex;
+      flex-flow: row;
+      align-items: center;
+    }
+
+    .save-content-button {
+      opacity: 0.3;
+      transition: all ease-in-out 0.25s;
+      outline: none;
+      padding: 0.75rem;
+
+      .fa {
+        font-size: 1.4rem;
+        line-height: 1.4rem;
+      }
+
+      &:hover,
+      &:focus {
+        opacity: 1;
+      }
+    }
+
+    .duplicate-switch-link {
+      .fa {
+        font-size: 1.4rem;
+        line-height: 1.6rem;
+      }
+    }
+  }
+}
+
+.detail-header-functions,
+.edit-header-functions {
+  button,
+  a {
+    display: inline-block;
+  }
+  .button {
+    margin: 1rem 0 0 0;
+    font-weight: bold;
+    display: block;
+    width: 100%;
+
+    &.restore-version-button {
+      margin: 0;
+
+      .fa {
+        font-size: 2rem;
+      }
+    }
+  }
+  .fa {
+    min-width: 1.2rem;
+  }
+  > ul {
+    position: relative;
+    > li {
+      &.buttons {
+        .close-show-button {
+          .fa {
+            font-size: 1.5rem;
+          }
+        }
+        .submit-edit-form {
+          margin-left: 5px;
+        }
+        .submit {
+          flex: 0;
+          flex-basis: auto;
+          flex-shrink: 0;
+          z-index: 100;
+          outline: none;
+          i {
+            display: block;
+            z-index: 1;
+          }
+          &:disabled {
+            cursor: not-allowed;
+          }
+          .progress-value {
+            color: white;
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            line-height: 5rem;
+            top: 0;
+            left: 0;
+            font-size: 0.7rem;
+            text-align: center;
+            z-index: 1;
+          }
+          .progress-bar {
+            display: block;
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 5rem;
+            width: 5rem;
+            background: $primary-color;
+            z-index: 1;
+            border-radius: 2.5rem;
+            box-shadow: 1px 3px 5px 0px rgba($black, 0.3);
+            text-align: left;
+            overflow: hidden;
+            transition: all 0.25s;
+            visibility: hidden;
+
+            .progress-filled {
+              display: block;
+              height: 4rem;
+              margin: 0.5rem;
+              border-radius: 2rem;
+              background: lighten($color: $primary-color, $amount: 15%);
+              width: 0;
+              min-width: 4rem;
+              transition: width 0.1s;
+            }
+          }
+          &:hover {
+            .progress-bar {
+              visibility: visible;
+              width: calc(100vw - 2.5rem);
+            }
+          }
+        }
+        a {
+          padding: 0;
+        }
+        > .button,
+        > a > .button {
+          margin: 0;
+          display: block;
+          background: none;
+          outline: none;
+          color: rgba($primary-color, 0.5);
+          i {
+            font-size: 1.5rem;
+          }
+          &:hover,
+          &:focus {
+            color: $primary-color;
+          }
+          &.discard {
+            color: $black;
+            &:hover,
+            &:focus {
+              color: $black;
+            }
+          }
+          &.delete {
+            color: rgba(map-get($foundation-palette, alert), 0.5);
+            &:hover,
+            &:focus {
+              color: map-get($foundation-palette, alert);
+            }
+          }
+        }
+      }
+      display: inline;
+      position: relative;
+      vertical-align: top;
+      > span[title] {
+        color: $body-font-color;
+        opacity: 0.3;
+        transition: all ease-in-out 0.25s;
+        padding: 0 0.5rem;
+        cursor: help;
+      }
+      > a,
+      > .link {
+        display: inline-block;
+        color: $body-font-color;
+        opacity: 0.3;
+        transition: all ease-in-out 0.25s;
+        padding: 0 0.5rem;
+        border: none;
+        cursor: pointer;
+        line-height: 1.6;
+
+        &.watch-list-dropdown {
+          padding: 0;
+
+          > .watch-lists-link {
+            padding: 0 0.5rem;
+          }
+        }
+
+        .my-collection-star-icon {
+          top: -2px;
+        }
+
+        .dropdown-pane {
+          cursor: initial;
+        }
+
+        &:hover {
+          opacity: 1;
+          color: lighten($body-font-color, 30%);
+        }
+      }
+      > .link > a {
+        color: $body-font-color;
+      }
+    }
+  }
+}
+
+.detail-header-functions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  input {
+    padding: 0 0.5rem;
+    height: 2.2rem;
+    &.copy-input {
+      padding-right: 2.3rem;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+label.agb-link {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin-left: 0.2rem;
+}
+.edit-header-functions {
+  > ul {
+    text-align: right;
+    margin: 0;
+    list-style: none;
+    line-height: 3.5rem;
+    max-height: 3.5rem;
+    &.no-bullet {
+      margin: auto;
+    }
+    > li {
+      position: relative;
+      button.has-tip:not([disabled]),
+      button.dc-foundation-tooltip:not([disabled]) {
+        border-bottom: none;
+        cursor: pointer;
+      }
+      &.buttons {
+        a {
+          height: 100%;
+          text-align: center;
+          padding: 0.75rem;
+
+          &.normalize-content-button {
+            height: 100%;
+            width: 3rem;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            .fa {
+              font-size: 1.5rem;
+              line-height: 3.5rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}

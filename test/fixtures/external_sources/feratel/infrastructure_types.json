@@ -1,0 +1,131 @@
+[
+  {
+    "_id": {
+      "$oid": "5be5a18032c88f093f806487"
+    },
+    "external_id": "4",
+    "dump": {
+      "de": {
+        "_Type": "InfrastructureType",
+        "Type": "4",
+        "Order": "4",
+        "ChangeDate": "2010-02-19T14:51:00",
+        "Active": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Wellness & Gesundheit"
+          }
+        }
+      },
+      "en": {
+        "_Type": "InfrastructureType",
+        "Type": "4",
+        "Order": "4",
+        "ChangeDate": "2010-02-19T14:51:00",
+        "Active": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Wellness & Gesundheit"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:25.515Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:25.348Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:24.996Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5a18132c88f093f806488"
+    },
+    "external_id": "1",
+    "dump": {
+      "de": {
+        "_Type": "InfrastructureType",
+        "Type": "1",
+        "Order": "1",
+        "ChangeDate": "2010-02-19T14:50:00",
+        "Active": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Essen & Trinken"
+          }
+        }
+      },
+      "en": {
+        "_Type": "InfrastructureType",
+        "Type": "1",
+        "Order": "1",
+        "ChangeDate": "2010-02-19T14:50:00",
+        "Active": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Essen & Trinken"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:25.517Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:25.351Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:25.036Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5a18132c88f093f806489"
+    },
+    "external_id": "3",
+    "dump": {
+      "de": {
+        "_Type": "InfrastructureType",
+        "Type": "3",
+        "Order": "3",
+        "ChangeDate": "2010-02-19T14:51:00",
+        "Active": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Sport & Freizeit"
+          }
+        }
+      },
+      "en": {
+        "_Type": "InfrastructureType",
+        "Type": "3",
+        "Order": "3",
+        "ChangeDate": "2010-02-19T14:51:00",
+        "Active": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Sport & Freizeit"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:25.356Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:25.356Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:25.038Z"
+    }
+  }
+]

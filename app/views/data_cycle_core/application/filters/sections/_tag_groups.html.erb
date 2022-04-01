@@ -1,0 +1,22 @@
+<div class="filtertags activefilter">
+  <span class="icon">
+    <i class="fa fa-check" aria-hidden="true"></i> <b><%= t('common.active_filters', locale: active_ui_locale) %>:</b>
+  </span>
+
+  <span class="filter-groups">
+    <% filters&.each do |filter| %>
+      <%= render_advanced_filter_tags_partial({
+            filter_type: filter['t'],
+            filter_method: filter['m'],
+            filter_advanced_type: filter['q'],
+            title: filter['n'],
+            key: filter['n'].presence&.underscore_blanks,
+            target: filter['identifier'],
+            value: filter['v'],
+            classification_aliases: selected_classification_aliases&.slice(*filter['v']),
+            buttons: filter['c'] == 'a' ? 'a' : 'd',
+            container_classes: filter['c'] == 'a' ? 'advanced-tags' : nil,
+        }) %>
+    <% end %>
+  </span>
+</div>

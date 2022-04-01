@@ -1,0 +1,127 @@
+- :data:
+    :name: Service
+    :type: object
+    :schema_type: Intangible
+    :content_type: entity
+    :features:
+      :overlay:
+        :allowed: false
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :api:
+          :minimal: true
+        :ui:
+          :show:
+            :content_area: none
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: ServiceOverlay
+        :translated: true
+        :validations:
+          :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :text:
+        :label: Beschreibung (lang)
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :provider:
+        :label: Dienstleister
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - LocalBusiness
+                - Unterkunft
+                - Organisation
+      :area_served:
+        :label: Treffpunkt
+        :type: linked
+        :template_name: Örtlichkeit
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
+      :url:
+        :label: Angebots URL
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :format: url
+        :api:
+          :v4:
+            :name: sameAs
+      :hours_available:
+        :label: Termine
+        :type: schedule
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+      :offers:
+        :label: Angebote
+        :type: embedded
+        :template_name: Angebot
+        :translated: true
+      :feratel_service_classifications:
+        :type: mixin
+        :name: feratel_service_classifications
+      :linked_data:
+        :type: mixin
+        :name: linked_data        
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: Service
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :meta_data:
+        :type: mixin
+        :name: meta_data

@@ -1,0 +1,30 @@
+<% stored_searches.each do |key, value| %>
+  <% if params[:last_day] != key %>
+    <li class="stored-search-day" data-day="<%= key %>"><%= key %></li>
+  <% end %>
+  <% value.each do |stored_search| %>
+    <li class="content-item">
+      <span class="content-title">
+        <%= link_to root_path(stored_filter: stored_search.id) do %>
+          <i class="fa fa-clock-o" aria-hidden="true"></i>
+          <%= l(stored_search.updated_at.to_datetime, format: '%H:%M', locale: active_ui_locale) %>
+        <% end %>
+      </span>
+      <span class="content-attributes"><%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_search %></span>
+      <span class="buttons">
+        <% if can?(:update, stored_search) && stored_search.name.blank? %>
+          <a class="save-search" id="save-stored-search-<%= stored_search.id %>" data-toggle="save-search-form-<%= stored_search.id %>"><i class="fa fa-floppy-o" aria-hidden="true"></i></a>
+          <div class="dropdown-pane no-bullet align-right bottom remote-render"
+            id="save-search-form-<%= stored_search.id %>"
+            data-dropdown data-hover="true"
+            data-hover-pane="true"
+            data-remote-path="data_cycle_core/stored_filters/add_form"
+            data-remote-options="<%= to_query_params({ stored_search: stored_search }).to_json %>">
+          </div>
+        <% elsif can?(:update, stored_search) %>
+          <i class="fa fa-filter" aria-hidden="true"></i>
+        <% end %>
+      </span>
+    </li>
+  <% end %>
+<% end %>

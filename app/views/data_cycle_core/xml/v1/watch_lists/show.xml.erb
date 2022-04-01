@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<rdf:RDF
+  xmlns:rdf="https://schema.org"
+  xmlns:schema="https://schema.org/Thing/">
+
+  <collection>
+    <id><%=@watch_list.id%></id>
+    <name><%=@watch_list.name%></name>
+    <things>
+    <% @watch_list.watch_list_data_hashes.order(created_at: :desc).each do |item| %>
+      <% @thing_ids = [] %>
+      <%= render 'item', item: item %>
+    <% end %>
+    </things>
+  </collection>
+</rdf:RDF>

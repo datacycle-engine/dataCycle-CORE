@@ -1,0 +1,1 @@
+$('#<%= @key %>.async-select').trigger('dc:import:data', { value: <%= (@tag_ids&.compact&.to_json || []).html_safe %> });

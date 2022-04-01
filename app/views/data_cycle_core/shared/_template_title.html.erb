@@ -1,0 +1,9 @@
+<span class="template-title" title="<%= content.translated_template_name(active_ui_locale) %>">
+  <%= content.translated_template_name(active_ui_locale) %>
+</span>
+
+<% if local_assigns[:languages].present? %>
+  <span class="template-locale" title="<%= languages.join(', ') %>">
+    (<%= languages.slice(0, 2).join(', ') %><%= ', &hellip;'.html_safe if languages.size > 2 %>)
+  </span>
+<% end %>

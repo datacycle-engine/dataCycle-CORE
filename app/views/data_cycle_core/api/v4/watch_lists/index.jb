@@ -1,0 +1,23 @@
+# frozen_string_literal: true
+
+json = {}
+json.merge! render 'context', languages: @language
+
+unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
+  json['@graph'] = @watch_lists.map do |item|
+    {
+      '@id' => item.id,
+      '@type' => 'Thing',
+      'name' => item.name,
+      'dc:entityUrl' => api_v4_collection_url(@api_subversion, id: item.id),
+      'dc:item_count' => item.watch_list_data_hashes.count
+    }
+  end
+end
+json.merge! render 'pagination_links',
+                   objects: @watch_lists,
+                   object_url: (lambda do |params|
+                     File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
+                   end)
+
+json

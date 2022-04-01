@@ -1,0 +1,25 @@
+{
+  "name": "Organisation",
+  "address": {
+    "street_address": "StreeAddress",
+    "postal_code": "PostCode",
+    "address_locality": "AddressLocality",
+    "address_country": "AddressCountry"
+  },
+  "country_code": "AT",
+  "contact_info": {
+    "contact_name": "Ansprechpartner",
+    "telephone": "Telephone",
+    "fax_number": "FaxNumber",
+    "email": "Email",
+    "url": "https://url.com"
+  },
+  "description": "<p>Description</p>",
+  "use_guidelines": "cc_use_guidlines",
+  "license": "cc_license",
+  "more_permissions": "cc_more_permissions",
+  "attribution_name": "attribution_name",
+  "attribution_url": "attribution_url",
+  "license_classification": "CC0",
+  "slug": "Organisation"
+}

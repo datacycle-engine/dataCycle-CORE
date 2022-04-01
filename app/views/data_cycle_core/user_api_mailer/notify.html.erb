@@ -1,0 +1,57 @@
+<table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%">
+  <tr>
+    <td style="background:white;padding:24pt;border-radius: 7px;box-shadow: 0px 5px 18px 2px rgba(0, 0, 0, 0.15);">
+      <table border="0" cellspacing="0" cellpadding="0"
+     width="100%" style="width:100%;">
+        <tr>
+          <td>
+            <span style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b><%= t('hello', locale: @locale) %></b></span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:12pt 0 0 0;">
+            <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%= t('feature.user_api.mailer.text_html', name: @new_user.full_name, email: @new_user.email, locale: @locale) %></span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:24pt 0 0 0;">
+      <div align="center">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+          <tr>
+            <td align="center">
+              <table border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr>
+                  <td align="center" style="box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5);border-radius: 5px;" bgcolor="#90c062"><a href="<%= edit_user_url(@new_user) %>" target="_blank" style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:white;text-decoration:none;text-underline:none;border-radius: 3px; padding: 16px 0; border: 1px solid #90c062; display: inline-block;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= t("feature.user_api.mailer.user_link", locale: @locale).upcase %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
+  <% if I18n.exists?('feature.user_api.mailer.notice_html', locale: @locale) %>
+    <tr>
+      <td style="padding:24pt 0 0 0;">
+        <div align="center">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+              <td align="center">
+                <table border="0" cellspacing="0" cellpadding="0" align="center">
+                  <tr>
+                    <td align="center" style="box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.15);border-radius: 7px;padding:24pt;color:#333333;" bgcolor="#fff3d9">
+                      <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;"><%= t('feature.user_api.mailer.notice_html', locale: @locale) %></span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  <% end %>
+</table>

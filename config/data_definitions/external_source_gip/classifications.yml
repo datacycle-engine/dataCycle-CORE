@@ -1,0 +1,12 @@
+- Inhaltstypen | filter:
+    - $$Route
+    - $$Gesamtroute
+    - $$Radroutenbeschreibung
+
+- Gemeinde | all:
+    - Villach Stadt
+    - Villach Land
+
+- Wegpunkttyp | all:
+    - Start
+    - Ziel

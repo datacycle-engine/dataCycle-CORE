@@ -1,0 +1,74 @@
+---
+- :data:
+    :name: Computed-String
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :value_1:
+        :label: Value 1
+        :type: string
+        :storage_location: value
+      :value_2:
+        :label: Value 2
+        :type: string
+        :storage_location: value
+      :computed_value_incorrect:
+        :label: Computed Value
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: concat
+          :depends:
+            :0:
+              :type: content
+              :name: template_name
+              :method: equals?
+              :value: 'NOT Computed-String'
+          :parameters:
+            :0: "-text-"
+            :1:
+              :type: I18n
+              :name: locale
+            :2: "-text-"
+            :3:
+              :type: content
+              :name: created_at
+            :4: "-text-"
+            :5:
+              :type: content
+              :name: value_2
+      :computed_value_correct:
+        :label: Computed Value
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: concat
+          :depends:
+            :0:
+              :type: content
+              :name: template_name
+              :method: equals?
+              :value: 'Computed-String'
+          :parameters:
+            :0: "-text-"
+            :1:
+              :type: I18n
+              :name: locale
+            :2: "-text-"
+            :3:
+              :type: content
+              :name: created_at
+            :4: "-text-"
+            :5:
+              :type: content
+              :name: value_2
+

@@ -1,0 +1,8 @@
+<%= render partial: 'data_cycle_core/contents/tree/classification_tree', collection: classification_trees, locals: { classification_tree_label: classification_tree_label } %>
+<% if @tree_page < @tree_total_pages %>
+  <li class="load-more-link">
+    <span class="inner-item">
+      <%= link_to t('common.load_more', locale: active_ui_locale), request.params.slice(:language, :f, :stored_filter).merge({ ctl_id: classification_tree_label&.id, ct_id: local_assigns[:classification_tree]&.id, tree_page: (@tree_page + 1), mode: @mode }), data: { remote: true, disable: true }, class: 'button small secondary' %>
+    </span>
+  </li>
+<% end %>

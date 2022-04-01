@@ -1,0 +1,17 @@
+# frozen_string_literal: true
+
+keys = [key, 'headline']
+
+json ||= {}
+keys.each do |key_item|
+  if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
+    translated_values = {}
+    content.translations.each do |translation|
+      I18n.with_locale(translation.locale) do
+        translated_values[translation.locale] = content.send(key)
+      end
+    end
+  end
+  json[key_item] = translated_values || value
+end
+json

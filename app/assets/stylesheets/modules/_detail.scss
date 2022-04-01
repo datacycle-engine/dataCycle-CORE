@@ -1,0 +1,334 @@
+.detail-header {
+  background: $light-gray;
+  min-height: 10rem;
+}
+
+.detail-content {
+  .object[data-editor='included-object'] {
+    > .detail-type > .buttons {
+      top: 0;
+    }
+  }
+}
+
+// Details for Show
+.detail-content {
+  .buttons {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    margin: 0;
+
+    a {
+      position: relative;
+      padding: 0 3px;
+      display: inline-block;
+      &:last-child {
+        padding: 0 0 0 3px;
+      }
+    }
+
+    .button-prime {
+      &.small {
+        width: 1.5rem;
+        height: 1.5rem;
+        padding: 0;
+
+        .fa {
+          line-height: 1.5rem;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  .show-content {
+    .detail-header-info {
+      font-size: 0.9rem;
+      text-align: center;
+
+      .fa {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  &:not(.imageobject) {
+    p {
+      margin-bottom: 0.5rem;
+
+      &:last-child {
+        margin: 0;
+      }
+    }
+
+    .type {
+      &.properties {
+        .detail-type.object_browser {
+          li.content {
+            background-color: transparent;
+
+            &.has-changes {
+              &.new.bild .thumbnail,
+              &.new.video .thumbnail,
+              &.new:not(.image) {
+                background-color: rgba($success-color, 0.3) !important;
+                box-shadow: 0 0 1px darken($success-color, 20%);
+              }
+
+              &.remove.bild .thumbnail,
+              &.remove.video .thumbnail,
+              &.remove:not(.image) {
+                background-color: rgba($alert-color, 0.2) !important;
+                box-shadow: 0 0 1px $alert-color;
+              }
+            }
+          }
+        }
+
+        .detail-type.has-changes .detail-label,
+        .detail-type.selected .detail-label {
+          background: none;
+        }
+
+        .has-changes.tag {
+          &.new {
+            background-color: rgba($success-color, 0.9) !important;
+          }
+
+          &.remove {
+            background-color: rgba($alert-color, 0.9) !important;
+          }
+        }
+
+        .translatable-attribute-container {
+          .translatable-attribute {
+            &.remote-render,
+            &.remote-rendering,
+            &.remote-render-failed {
+              box-shadow: 0 0 1px $dark-gray;
+              padding: 2.2rem 1rem 1rem 1rem;
+
+              &::before {
+                margin-top: 2.2rem;
+                margin-left: 1rem;
+                width: calc(100% - 2rem);
+              }
+            }
+          }
+
+          &:not(:last-child) {
+            margin-bottom: 1rem;
+          }
+        }
+
+        .detail-type.object {
+          .translatable-attribute-container {
+            .translatable-attribute {
+              &.remote-render,
+              &.remote-rendering,
+              &.remote-render-failed {
+                box-shadow: none;
+                padding: 0.4rem 0 0.4rem 0.7rem;
+
+                &::before {
+                  margin-top: 0.4rem;
+                  margin-left: 0.7rem;
+                  width: calc(100% - 0.7rem);
+                }
+              }
+            }
+          }
+        }
+
+        .detail-type {
+          position: relative;
+          box-shadow: 0 0 1px $dark-gray;
+          padding: 2.2rem 1rem 1rem 1rem;
+
+          &.has-changes:not(.geographic),
+          &.has-changes.geographic .map-info {
+            background-color: rgba($light-gray, 0.5);
+
+            &::after {
+              content: '\f040';
+              font-family: FontAwesome;
+              font-size: 1.5rem;
+              font-weight: normal;
+              font-style: normal;
+              margin: 0;
+              text-decoration: none;
+              position: absolute;
+              top: 0.1rem;
+              right: 0.2rem;
+              color: darken($light-gray, 10%);
+              line-height: 1;
+              z-index: -1;
+            }
+
+            &:not(.object_browser) {
+              &.new {
+                &::after {
+                  content: '\f067';
+                  color: rgba($success-color, 0.3);
+                }
+
+                background-color: rgba($success-color, 0.1) !important;
+                box-shadow: 0 0 1px darken($success-color, 20%);
+              }
+
+              &.remove {
+                &::after {
+                  content: '\f1f8';
+                  color: rgba($alert-color, 0.3);
+                }
+
+                background-color: rgba($alert-color, 0.1) !important;
+                box-shadow: 0 0 1px $alert-color;
+              }
+            }
+
+            > span {
+              display: inline-block;
+              margin-right: 2rem;
+            }
+          }
+
+          &.has-changes.geographic {
+            &.new {
+              .geographic,
+              .map-info {
+                background-color: rgba($success-color, 0.1) !important;
+                box-shadow: 0 0 1px darken($success-color, 20%);
+              }
+
+              .map-info::after {
+                content: '\f067';
+                color: rgba($success-color, 0.7);
+              }
+            }
+
+            &.remove {
+              .geographic,
+              .map-info {
+                background-color: rgba($alert-color, 0.1) !important;
+                box-shadow: 0 0 1px $alert-color;
+              }
+
+              .map-info::after {
+                content: '\f1f8';
+                color: rgba($alert-color, 0.7);
+              }
+            }
+          }
+
+          &.selected {
+            background: rgba($primary-color, 0.1);
+            box-shadow: 0 0 1px $primary-color;
+          }
+
+          &:not(:last-child) {
+            margin-bottom: 1rem;
+          }
+
+          > div:not(.detail-type, .map-info, .geographic) {
+            margin-bottom: 1rem;
+          }
+
+          .detail-type {
+            box-shadow: none;
+            padding: 0;
+
+            &.object,
+            &.embedded {
+              box-shadow: 0 0 1px $dark-gray;
+              padding: 2.2rem 1rem 1rem 1rem;
+
+              > .detail-label {
+                position: absolute;
+                float: none;
+              }
+            }
+
+            .detail-label {
+              position: relative;
+            }
+          }
+
+          &.media {
+            .media-thumbs {
+              display: flex;
+            }
+
+            position: relative;
+            text-align: left;
+          }
+
+          .detail-label {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: inherit;
+            color: $dark-gray;
+            padding: 0.4rem 0.7rem;
+
+            > *:not(:last-child) {
+              margin-right: 0.3rem;
+            }
+          }
+
+          .detail-content {
+            position: relative;
+            display: inline-block;
+          }
+        }
+      }
+    }
+  }
+
+  .type {
+    &.translations {
+      .header {
+        margin: 0 0 1rem 1.25rem;
+      }
+    }
+  }
+
+  .object.detail_object {
+    padding-bottom: 1rem;
+
+    > .detail-type {
+      padding-left: 1rem;
+    }
+  }
+}
+
+.detail-header-info.diff {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  .meta-data-splitter {
+    flex: 0;
+    padding: 0 1rem;
+  }
+
+  .metadata {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.has-changes {
+  ins {
+    background-color: rgba($success-color, 0.5);
+    text-decoration: none;
+  }
+
+  del {
+    background-color: rgba($alert-color, 0.5);
+  }
+}

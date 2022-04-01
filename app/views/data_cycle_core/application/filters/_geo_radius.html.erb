@@ -1,0 +1,27 @@
+<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", local_assigns[:filter_type] || :geo_filter %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
+  <%= hidden_field_tag "f[#{identifier}][q]", local_assigns[:filter_advanced_type] || :geo_radius %>
+  <%= hidden_field_tag "f[#{identifier}][m]", 'i' %>
+
+  <div class="advanced-filter-title">
+    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <span class="separator"><%= t("common.center_point", locale: active_ui_locale) %></span>
+    <%= number_field_tag "f[#{identifier}][v][lon]", value&.dig('lon'), { step: 'any', required: true, placeholder: t('common.placeholder.longitude', locale: active_ui_locale), class: 'filter-text' } %>
+
+    <%= number_field_tag "f[#{identifier}][v][lat]", value&.dig('lat'), { step: 'any', required: true, placeholder: t('common.placeholder.latitude', locale: active_ui_locale), class: 'filter-text' } %>
+    <span class="separator"><%= t("common.distance", locale: active_ui_locale) %></span>
+    <%= number_field_tag "f[#{identifier}][v][distance]", value&.dig('distance'), { required: true, placeholder: t('common.placeholder.distance', locale: active_ui_locale), class: 'filter-text' } %>
+  </div>
+
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

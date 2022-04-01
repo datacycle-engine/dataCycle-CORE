@@ -1,0 +1,96 @@
+---
+- :data:
+    :name: cc_rel
+    :type: mixin
+    :properties:
+      :license:
+        :label: Copyright / Lizenz
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:license'
+      :more_permissions:
+        :label: Weitere Kriterien
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:morePermissions'
+      :attribution_name:
+        :label: Namensnennung
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:attributionName'
+      :attribution_url:
+        :label: Namensnennung - Url
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:attributionUrl'
+      :use_guidelines:
+        :label: Verwendungsrichtlinie
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:useGuidelines'
+      :license_classification:
+        :label: Lizenzen
+        :type: classification
+        :tree_label: Lizenzen
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :disabled: true
+          :v4:
+            :name: 'cc:license'
+            :disabled: false
+            :partial: string
+      :explicit_copyright_notice:
+        :label: raw_imported_copyright
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :computed_attribution_name:
+        :label: hidden attribution name
+        :storage_location: translated_value
+        :type: computed
+        :search: true
+        :external: false
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: attribution_name
+          :parameters:
+            :0: copyright_holder
+            :1: author
+        :api:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+

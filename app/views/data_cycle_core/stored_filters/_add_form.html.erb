@@ -1,0 +1,19 @@
+<h5><%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %></h5>
+<%= form_for(stored_search, namespace: stored_search.id) do |f| %>
+  <div class="validation-container form-element">
+    <%= f.label :name %>
+    <%= f.text_field :name, placeholder: DataCycleCore::StoredFilter.human_attribute_name('name', locale: active_ui_locale), required: true, label: false %>
+  </div>
+  <% if can?(:create_global, DataCycleCore::StoredFilter) %>
+    <div class="form-element">
+      <%= f.check_box :system %>
+      <%= f.label :system %>
+    </div>
+  <% end %>
+  <%= f.button t('actions.save', locale: active_ui_locale),
+        data: {
+          disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.save', locale: active_ui_locale)}"
+        },
+        class: "success button",
+        type: :submit %>
+<% end %>

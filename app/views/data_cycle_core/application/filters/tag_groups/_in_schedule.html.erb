@@ -1,0 +1,46 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-calendar" aria-hidden="true"></i>
+
+    <%= in_schedule_tag_title(*local_assigns.values_at(:filter_type, :filter_title, :key)) %>
+  </span>
+
+  <% if local_assigns[:filter_advanced_type] == 'relative' %>
+    <% if value&.dig('from','n').present? %>
+      <span class="tag-group-label"><%= t("terms.from", locale: active_ui_locale) %></span>
+      <span class="tag">
+        <% if value.dig('from','mode') == 'p' %>
+          <%= t("filter.in_schedule_types.in", locale: active_ui_locale) %>
+        <% else %>
+          <%= t("filter.in_schedule_types.before", locale: active_ui_locale) %>
+        <% end %>
+        <%= value.dig('from','n') %>
+        <%= t("datetime.prompts.#{value.dig('from','unit')}", locale: active_ui_locale) %>
+      </span>
+    <% end %>
+
+    <% if value&.dig('until','n').present? %>
+      <span class="tag-group-label"><%= t("terms.until", locale: active_ui_locale) %></span>
+      <span class="tag">
+        <% if value.dig('until','mode') == 'p' %>
+          <%= t("filter.in_schedule_types.in", locale: active_ui_locale) %>
+        <% else %>
+          <%= t("filter.in_schedule_types.before", locale: active_ui_locale) %>
+        <% end %>
+        <%= value.dig('until','n') %>
+        <%= t("datetime.prompts.#{value.dig('until','unit')}", locale: active_ui_locale) %>
+      </span>
+    <% end %>
+  <% else %>
+    <% if value&.dig('from').present? %>
+      <span class="tag-group-label"><%= t("terms.from", locale: active_ui_locale) %></span>
+      <span class="tag"><%= l(value['from'].to_date, locale: active_ui_locale) %></span>
+    <% end %>
+
+    <% if value&.dig('until').present? %>
+      <span class="tag-group-label"><%= t("terms.until", locale: active_ui_locale) %></span>
+      <span class="tag"><%= l(value['until'].to_date, locale: active_ui_locale) %></span>
+    <% end %>
+  <% end %>
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
+</span>

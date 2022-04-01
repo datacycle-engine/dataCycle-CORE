@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+
+key_new = definition.dig('api', 'name') || key
+{
+  key_new.camelize(:lower) =>
+    ((definition.dig('api', 'format', 'prepend') unless definition.dig('api', 'format', 'prepend').nil?) || '') +
+      value.to_s +
+      ((definition.dig('api', 'format', 'append') unless definition.dig('api', 'format', 'append').nil?) || '')
+}

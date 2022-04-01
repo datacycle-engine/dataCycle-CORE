@@ -1,0 +1,14 @@
+<div class="permanent-advanced-filters">
+  <% filter.presence&.dig(:filters)&.each_with_index do |advanced_filter, idx| %>
+    <%= render_advanced_filter_partial({
+          filter_type: advanced_filter['t'],
+          filter_title: advanced_filter['n'],
+          filter_name: advanced_filter['n'].presence&.underscore_blanks,
+          filter_method: advanced_filter['m'],
+          filter_code: advanced_filter['c'],
+          filter_buttons: advanced_filter['buttons'],
+          filter_advanced_type: advanced_filter['q'],
+          identifier: advanced_filter['identifier'],
+          value: advanced_filter['v'] }) %>
+  <% end %>
+</div>

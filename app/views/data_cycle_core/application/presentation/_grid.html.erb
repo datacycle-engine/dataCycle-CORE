@@ -1,0 +1,52 @@
+<% unless contents.first_page? || local_assigns[:direction] == 'next' %>
+  <li class="pagination-container text-center prev" data-page="<%= contents.prev_page %>">
+    <%= link_to t('pagination.prev', locale: active_ui_locale), path_to_prev_page(contents, params: { direction: 'prev' }), class: 'button pagination-link', remote: (contents.current_page % 10) != 0, data: { disable_with: tag.i(class: 'fa fa-spinner fa-fw fa-spin') + " #{t('common.loading', locale: active_ui_locale)}" } %>
+  </li>
+<% end %>
+
+<% unless local_assigns.key?(:direction) %>
+  <li class="grid-loading">
+    <span class="content-link">
+      <i class="fa fa-spinner fa-spin fa-fw"></i>
+      <span class="sr-only">Loading...</span>
+    </span>
+  </li>
+<% end %>
+
+<% contents&.each do |content| %>
+  <li class="grid-item data-cycle-object <%= content&.template_name&.underscore if content.is_a?(DataCycleCore::Thing) %> <%= ' expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %> <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>" id="grid-item-<%= content.id %>">
+    <% if content.is_a?(DataCycleCore::Thing) %>
+
+      <% cache(content_view_cache_key(item: content, locale: params[:language] || @language, mode: 'grid', watch_list: @watch_list), expires_in: 1.year + Random.rand(7.days)) do %>
+        <%= render_content_tile(item: content, mode: 'grid') %>
+      <% end %>
+
+    <% else %>
+
+      <%= render_content_tile(item: content, mode: 'grid') %>
+
+    <% end %>
+
+    <div class="buttons">
+      <%= yield_content!(:media_buttons) %>
+
+      <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', title: t('common.has_overlay', locale: active_ui_locale)) if content.try(:overlay?) %>
+
+      <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
+
+      <% if content.try(:translated_locales)&.many? %>
+        <i class="fa fa-language" aria-hidden="true" data-dc-tooltip="<%= content.translated_locales.map {|t| t("locales.#{t}", locale: active_ui_locale)}&.join('<br>') %>"></i>
+      <% end %>
+
+      <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>
+        <%= render 'data_cycle_core/application/watch_lists', content: content %>
+      <% end %>
+    </div>
+  </li>
+<% end %>
+
+<% unless contents.last_page? || local_assigns[:direction] == 'prev' %>
+  <li class="pagination-container text-center next" data-page="<%= contents.next_page %>">
+    <%= link_to t('pagination.next', locale: active_ui_locale), path_to_next_page(contents, params: { direction: 'next' }), class: 'button pagination-link', remote: (contents.next_page.to_i % 10) != 0, data: { disable_with: tag.i(class: 'fa fa-spinner fa-fw fa-spin') + " #{t('common.loading', locale: active_ui_locale)}" } %>
+  </li>
+<% end %>

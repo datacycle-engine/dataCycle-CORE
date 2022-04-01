@@ -1,0 +1,28 @@
+<% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? collection.things.locks.includes(:user, activitiable: [:translations]) : nil %>
+
+<%= tag.span(
+  class: 'edit-button-form',
+  data: {
+    dc_tooltip:  bulk_edit_button_title(content_locks, collection)
+  }
+  ) do %>
+  <%= button_to bulk_edit_watch_list_path(collection),
+                method: :get,
+                disabled: content_locks.present? || collection.things.size > DataCycleCore.global_configs[:bulk_update_limit],
+                class: "button-prime small bulk-edit-link #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked show-pie-text' if content_locks.present?}",
+                data: {
+                  disable: true
+                }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
+                  lock_length: DataCycleCore::Feature::ContentLock.lock_length,
+                  lock_content_id: collection&.id,
+                  lock_user_id: current_user.id,
+                  lock_check_path: check_lock_watch_list_path(collection)
+                } : {}).merge(content_locks.present? ? {
+                  locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h,
+                } : {}) do %>
+    <% if DataCycleCore::Feature::ContentLock.enabled? %>
+      <%= tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') %>
+    <% end %>
+    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+  <% end %>
+<% end %>

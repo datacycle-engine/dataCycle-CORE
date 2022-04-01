@@ -1,0 +1,259 @@
+.embedded-viewer {
+  &:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+  counter-reset: embedded;
+
+  > .dc-copyable-field {
+    > .accordion-title {
+      padding-right: 2.5rem;
+    }
+
+    &.dc-translatable-field {
+      > .accordion-title {
+        padding-right: 4rem;
+      }
+    }
+  }
+
+  .accordion-title {
+    background: transparent;
+    color: $dark-gray;
+    font-weight: normal;
+    font-size: 1rem;
+    border: none !important;
+    padding: 0.8rem 2.5rem 0.8rem 1rem;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    line-height: initial;
+    margin: 0 !important;
+    cursor: pointer;
+
+    .custom-accordion-header {
+      color: inherit;
+    }
+
+    &:hover {
+      color: $black;
+    }
+
+    &::before {
+      content: '\f107';
+      font-family: FontAwesome;
+      font-style: normal;
+      font-weight: normal;
+      text-decoration: inherit;
+      font-size: 1.5rem;
+      line-height: 1rem;
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      margin-top: 0;
+    }
+
+    > .title {
+      flex: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      > .embedded-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-style: italic;
+
+        &:before {
+          content: '-';
+          padding: 0 0.6rem 0 0.5rem;
+        }
+      }
+    }
+
+    .icon {
+      margin-right: 0.3rem;
+      .fa {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .accordion-content {
+    border: none !important;
+    padding-top: 0.4rem;
+    background: transparent;
+
+    &.remote-render,
+    &.remote-rendering {
+      &::before {
+        margin-top: 0.4rem;
+        margin-left: 1rem;
+        width: calc(100% - 2rem);
+      }
+    }
+  }
+
+  [data-accordion-item].is-active > .accordion-title {
+    &::before {
+      content: '\f106';
+    }
+  }
+
+  .detail-type.embedded:not(:only-of-type) {
+    counter-increment: embedded;
+    > .accordion-title {
+      > .title > .embedded-type::after {
+        content: counter(embedded);
+        margin-left: 0.3rem;
+      }
+    }
+  }
+}
+.detail-content .type.properties .embedded-viewer {
+  .event_period {
+    padding: 0.4rem 1rem;
+
+    .detail-label {
+      position: relative;
+      left: 0;
+      top: 0;
+      padding: 0 0 0 0.2rem;
+
+      i.property-icon {
+        display: none;
+      }
+    }
+  }
+}
+
+.detail-content .type.properties .detail-type {
+  .detail-type {
+    &[data-editor='text_editor'] {
+      .detail-content {
+        display: block;
+        padding-left: 1rem;
+      }
+    }
+  }
+  &.embedded:not(.textblock) {
+    padding: 0 !important;
+  }
+}
+
+.embedded-object {
+  counter-reset: embedded;
+
+  .content-object-item {
+    > .accordion-title {
+      cursor: pointer;
+      padding: 0;
+
+      > .title {
+        flex: auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+
+        > .embedded-title,
+        > .embedded-label {
+          padding: 0.2rem;
+        }
+
+        > .embedded-title {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-style: italic;
+
+          &.visible:before {
+            content: '-';
+            padding: 0 0.6rem 0 0.5rem;
+          }
+        }
+      }
+    }
+  }
+
+  .content-object-item:not(:only-of-type) {
+    counter-increment: embedded;
+
+    > .accordion-title > .title > .embedded-label::after {
+      content: counter(embedded);
+      margin-left: 0.3rem;
+    }
+  }
+}
+
+.accordion-item {
+  .accordion-title {
+    .embedded-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .accordion-close-children,
+  .accordion-open-children,
+  .edit-content-link {
+    cursor: pointer;
+    color: $dark-gray;
+    padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
+
+    .fa {
+      font-size: 1.5rem;
+      line-height: 1rem;
+      vertical-align: middle;
+    }
+
+    &:hover {
+      color: $black;
+    }
+  }
+
+  .edit-content-link .fa {
+    font-size: 1.1rem;
+    line-height: 1rem;
+  }
+
+  &.content-object-item {
+    .accordion-child-buttons {
+      right: 5.5rem;
+      top: 0.5rem;
+    }
+  }
+}
+
+.detail-header .edit .button-prime {
+  &.accordion-close-all,
+  &.accordion-open-all {
+    background-color: $dark-gray;
+
+    &:focus,
+    &:hover {
+      background-color: lighten($dark-gray, 10%);
+    }
+  }
+}
+
+.edit-header-functions > ul {
+  .accordion-child-buttons {
+    display: flex;
+
+    .accordion-close-all,
+    .accordion-open-all {
+      .fa {
+        font-size: 1.5rem;
+        line-height: 1rem;
+        vertical-align: middle;
+      }
+    }
+  }
+}

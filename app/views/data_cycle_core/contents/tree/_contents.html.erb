@@ -1,0 +1,24 @@
+<% contents.presence&.each do |content| %>
+  <% I18n.with_locale(content.first_available_locale) do %>
+    <% content_for :media_buttons, flush: true do %>
+      <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
+
+      <% if content.try(:translated_locales)&.many? %>
+        <i class="fa fa-language" title="<%= content.translated_locales.map {|t| t("locales.#{t}", locale: active_ui_locale)}&.join("\n") %>"></i>
+      <% end %>
+
+      <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>
+        <%= render 'data_cycle_core/application/watch_lists', content: content, prefix: "#{local_assigns[:classification_parent_tree]&.id || classification_tree.id}-#{local_assigns[:container]&.id}-" %>
+      <% end %>
+    <% end %>
+
+    <%= render_content_tile(item: content, parameters: local_assigns, mode: 'tree') %>
+  <% end %>
+<% end %>
+<% if @page < @total_pages %>
+  <li class="content-row button-row">
+    <%= link_to request.params.slice(:language, :f, :stored_filter).merge({ ct_id: local_assigns[:classification_parent_tree]&.id || classification_tree.id, con_id: local_assigns[:container]&.id, ctl_id: classification_tree_label&.id, cpt_id: local_assigns[:classification_parent_tree]&.id, page: (@page + 1), mode: @mode }), data: { remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}" } do %>
+      <%= t('common.load_more', locale: active_ui_locale) %>
+    <% end %>
+  </li>
+<% end %>

@@ -1,0 +1,21 @@
+<%= render 'data_cycle_core/contents/viewers/attribute',
+  local_assigns.merge(data_attributes: {
+    editor: definition.dig('validations', 'format').try(:underscore) || 'string',
+    'diff-before': options.dig(:item_diff, 1),
+    'diff-after': options.dig(:item_diff, 2),
+    value: value
+  }) do %>
+
+  <span class="detail-content">
+    <% if options.dig(:item_diff, 0) == '+' %>
+      <a href="<%= options.dig(:item_diff, 1).presence&.try(:html_safe) %>" target="_blank">
+        <%= options.dig(:item_diff, 1).presence&.try(:html_safe) %>
+      </a>
+    <% else %>
+      <a href="<%= value.try(:html_safe) %>" target="_blank">
+        <%= value.try(:html_safe) %>
+      </a>
+    <% end %>
+  </span>
+
+<% end %>

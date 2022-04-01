@@ -1,0 +1,18 @@
+<span class="copy-from-attribute-feature">
+  <%= link_to tag.i(class: 'fa fa-reply', aria_hidden: true),
+              '#',
+              title: DataCycleCore::Feature::CopyableAttribute.link_title(content, active_ui_locale),
+              class: 'copy-from-attribute-button button',
+              data: {
+                copy_from: DataCycleCore::Feature::CopyableAttribute.from_attribute(content),
+                clear_from_attribute: DataCycleCore::Feature::CopyableAttribute.clear_from_attribute?(content)
+              } %>
+
+  <%= link_to tag.i(class: 'fa fa-times', aria_hidden: true),
+              '#',
+              title: DataCycleCore::Feature::CopyableAttribute.clear_title(content, active_ui_locale),
+              class: 'copy-from-attribute-clear-button button ',
+              data: {
+                clear_attribute: DataCycleCore::Feature::CopyableAttribute.from_attribute(content)
+              } if DataCycleCore::Feature::CopyableAttribute.clear_from_attribute?(content) %>
+</span>

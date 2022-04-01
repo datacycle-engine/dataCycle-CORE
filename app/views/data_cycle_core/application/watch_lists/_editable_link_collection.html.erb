@@ -1,0 +1,26 @@
+<% collections, collection_groups, new_index, nested, group_title = get_collection_groups(local_assigns) %>
+
+<% content_for :collection_links do %>
+  <% if collection_groups.except(nil).present? %>
+    <li class="collection-group-item">
+      <ul class="accordion no-bullet" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+        <%= render partial: 'data_cycle_core/application/watch_lists/editable_link_collection', collection: collection_groups.except(nil), as: :collection_group, locals: local_assigns.merge(collection_group_index: new_index, collection_item_count: collection_groups&.size.to_i + collection_groups[nil]&.size.to_i) %>
+      </ul>
+    </li>
+  <% end %>
+
+  <%= render partial: 'data_cycle_core/application/watch_lists/editable_link', collection: collection_groups[nil], as: :watch_list, locals: local_assigns %>
+<% end %>
+
+<% if nested %>
+  <li class="collection-group accordion-item<%= ' is-active' if local_assigns[:collection_item_count].to_i < 11 %><%= ' has-selected-collections' if selected_collections?(collections, content.id) %>" data-accordion-item>
+    <a href="#" class="accordion-title"><%= group_title %></a>
+    <ul class="accordion-content no-bullet" data-tab-content>
+      <%= yield_content! :collection_links %>
+    </ul>
+  </li>
+<% else %>
+  <%= render_my_selection content: local_assigns[:content], type: 'editable' %>
+
+  <%= yield_content! :collection_links %>
+<% end %>

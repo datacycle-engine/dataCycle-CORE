@@ -1,0 +1,29 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-tags" aria-hidden="true"></i>
+    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
+  </span>
+  <% value = value.is_a?(ActionController::Parameters) ? value.to_unsafe_hash : value %>
+  <% if value.is_a?(Hash) %>
+    <% value.reject {|_,v| v.blank?}.each do |k,v| %>
+      <% if ['b', 'p'].include?(local_assigns.dig(:filter_method)) %>
+        <%
+          next if k == 'text'
+          if local_assigns.dig(:filter_method) == 'b'
+            translation_key = 'blank'
+          else
+            translation_key = 'present'
+          end
+        %>
+        <span class="tag"><%= t("common.#{translation_key}", locale: active_ui_locale) %></span>
+      <% else %>
+        <% next if k == 'helper' %>
+        <span class="tag-group-label"><%= t("terms.#{k}", locale: active_ui_locale) %></span>
+        <span class="tag"><%= v %></span>
+      <% end %>
+    <% end %>
+  <% else %>
+    <span class="tag"><%= value %></span>
+  <% end %>
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
+</span>

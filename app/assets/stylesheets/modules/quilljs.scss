@@ -1,0 +1,245 @@
+$fa-font-path: '/assets';
+@import 'quill/dist/quill.snow';
+
+.detail-header.editor .form-element .editor-block label {
+  padding-top: 0;
+  display: flex;
+}
+
+.form-element.focus,
+.detail-header.editor .form-element.focus {
+  > .editor-block {
+    background: white;
+    border-color: $primary-color;
+
+    > label,
+    > .ql-toolbar {
+      background: white;
+    }
+
+    > label {
+      color: $primary-color;
+    }
+  }
+}
+
+.form-element:hover,
+.detail-header.editor .form-element:hover {
+  > .editor-block {
+    > label {
+      color: $primary-color;
+    }
+  }
+}
+
+.editor-block,
+.form-element .editor-block,
+.form-element.editor-block {
+  position: relative;
+  display: flex;
+  flex-flow: row wrap;
+
+  > label {
+    order: 5;
+    padding: 0 0 0 1rem;
+    transition: color ease-in-out 0.25s;
+
+    .translatable-attribute-icon {
+      margin-right: 0.3rem;
+    }
+  }
+
+  .ql-container.ql-snow {
+    border: 0;
+  }
+
+  .ql-tooltip {
+    z-index: 21;
+
+    input[type='text'] {
+      padding: 0.5rem !important;
+      box-shadow: none !important;
+    }
+
+    &.dc--contentlink-tooltip {
+      &::before {
+        content: 'dataCycle-Referenz:';
+      }
+    }
+
+    .dc--external-link-label {
+      position: relative;
+      top: 0;
+      left: 0;
+      display: none;
+      &::before {
+        content: 'In neuem Tab öffnen:';
+      }
+    }
+
+    &::before,
+    &[data-mode='link']::before {
+      content: 'URL:';
+    }
+
+    a.ql-action::after {
+      content: 'Bearbeiten';
+    }
+
+    a.ql-remove::before {
+      content: 'Entfernen';
+    }
+
+    &.ql-editing {
+      .dc--external-link-label {
+        display: inline-block;
+      }
+      span.ql-preview {
+        display: none;
+      }
+      a.ql-action::after {
+        content: 'Übernehmen';
+      }
+    }
+  }
+  .ql-editor {
+    padding-bottom: 2rem;
+    font-size: 1rem;
+    min-height: 8rem;
+
+    p:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+
+    .dc--contentlink {
+      cursor: pointer;
+    }
+    a {
+      border-bottom: 1px solid;
+      text-decoration: none;
+    }
+  }
+
+  > .ql-toolbar {
+    order: 9;
+    border: unset;
+    justify-content: flex-end;
+
+    .ql-formats {
+      margin-right: 0;
+    }
+
+    .ql-contentlink {
+      path {
+        transition: fill 0.2s;
+      }
+      .st1 {
+        fill: #e6007e;
+      }
+      .st0 {
+        fill: #009fe3;
+      }
+      .st3 {
+        fill: #333;
+      }
+      &.ql-active,
+      &:hover {
+        .st0,
+        .st3 {
+          fill: #009fe3;
+        }
+      }
+    }
+    .ql-insertNbsp,
+    .ql-replaceAllNbsp {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+
+      &:hover svg {
+        fill: #06c;
+      }
+    }
+
+    .quill-notice {
+      position: absolute;
+      right: 8px;
+      white-space: nowrap;
+      background: white;
+      border-radius: 5px;
+      padding: 0.2rem 0.5rem;
+      top: 8px;
+      box-shadow: 0 0 3px $dark-gray;
+    }
+
+    .ql-insertNbsp {
+      span {
+        display: block;
+        height: 1.1rem;
+        width: 1.5rem;
+
+        svg {
+          height: 1.5rem;
+          width: 1.5rem;
+        }
+      }
+    }
+
+    .ql-replaceAllNbsp {
+      span {
+        display: block;
+        height: 0.9rem;
+        width: 1.2rem;
+
+        svg.spacebar-icon {
+          height: 1.2rem;
+          width: 1.2rem;
+        }
+
+        svg.times-icon {
+          width: 0.9rem;
+          height: 0.9rem;
+          position: absolute;
+          top: 2px;
+          right: 2px;
+        }
+      }
+    }
+  }
+
+  > label,
+  > .ql-toolbar {
+    display: flex;
+    flex: auto;
+    background: $light-gray;
+    border-bottom: 1px solid $light-gray;
+    align-items: center;
+    position: sticky;
+    top: 55px;
+    z-index: 12;
+    height: 3rem;
+  }
+
+  > .quill-editor {
+    order: 20;
+    width: 100%;
+  }
+}
+
+.split-content,
+.ca-input {
+  .form-element .editor-block {
+    > label,
+    > .ql-toolbar {
+      top: 0;
+    }
+  }
+}
+
+.dc--contentlink[data-href] {
+  color: #e6007e;
+  border-bottom: 1px dotted;
+  cursor: help;
+}

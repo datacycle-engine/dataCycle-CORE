@@ -1,0 +1,8 @@
+<li>
+  <%= tree.sub_classification_alias.try(:name) %>
+  <ul>
+    <% tree.sub_classification_alias.sub_classification_trees.includes(:sub_classification_alias).each do |subtree| %>
+        <%= render 'classification_tree', tree: subtree %>
+    <% end %>
+  </ul>
+</li>

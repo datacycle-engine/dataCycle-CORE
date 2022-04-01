@@ -1,0 +1,185 @@
+<% header = render 'data_cycle_core/application/mailer/header' %>
+<% footer = render 'data_cycle_core/application/mailer/footer' %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="x-apple-disable-message-reformatting">
+    <title>Mailer</title>
+
+    <!--[if mso]>
+        <style>
+            * {
+                font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif !important;
+            }
+        </style>
+    <![endif]-->
+    <!--[if !mso]><!-->
+    <link href='https://fonts.googleapis.com/css?family=Lato:300,400,700,700italic' rel='stylesheet' type='text/css'>
+    <!--<![endif]-->
+
+    <style>
+
+        html,
+        body {
+            margin: 0 auto !important;
+            padding: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+            font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;
+        }
+
+        * {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        div[style*="margin: 16px 0"] {
+            margin: 0 !important;
+        }
+
+        table,
+        td {
+            mso-table-lspace: 0pt !important;
+            mso-table-rspace: 0pt !important;
+        }
+
+        table {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            margin: 0 auto !important;
+        }
+        table table table {
+            table-layout: auto;
+        }
+
+        img {
+            -ms-interpolation-mode:bicubic;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        *[x-apple-data-detectors],  /* iOS */
+        .unstyle-auto-detected-links *,
+        .aBn {
+            border-bottom: 0 !important;
+            cursor: default !important;
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+
+        .a6S {
+            display: none !important;
+            opacity: 0.01 !important;
+        }
+        img.g-img + div {
+            display: none !important;
+        }
+
+        /* iPhone 4, 4S, 5, 5S, 5C, and 5SE */
+        @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
+            .email-container {
+                min-width: 320px !important;
+            }
+        }
+        /* iPhone 6, 6S, 7, 8, and X */
+        @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
+            .email-container {
+                min-width: 375px !important;
+            }
+        }
+        /* iPhone 6+, 7+, and 8+ */
+        @media only screen and (min-device-width: 414px) {
+            .email-container {
+                min-width: 414px !important;
+            }
+        }
+
+        a > span {
+            color: #333333;
+            text-decoration: underline;
+            text-underline: underline;
+        }
+    </style>
+    <!--[if mso]>
+    <style type="text/css">
+      ul,
+      ol {
+        margin: 0 !important;
+      }
+      li {
+        margin-left: 30px !important;
+      }
+      li.list-item-first {
+        margin-top: 0 !important;
+      }
+      li.list-item-last {
+        margin-bottom: 10px !important;
+      }
+    </style>
+    <![endif]-->
+
+    <style>
+
+      /* Media Queries */
+      @media screen and (max-width: 600px) {
+
+          /* What it does: Adjust typography on small screens to improve readability */
+          .email-container p {
+              font-size: 17px !important;
+          }
+
+      }
+
+    </style>
+    <!--[if gte mso 9]>
+    <xml>
+        <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+
+    <%= yield :head %>
+</head>
+<body>
+<div align="center">
+
+<table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
+
+ <%= header %>
+
+ <tr>
+  <td style='background:#d6d6d6;padding:36pt'>
+<!-- content starts here -->
+
+    <%= yield %>
+
+<!-- content ends here -->
+  </td>
+ </tr>
+ <tr>
+  <td style="background:#b8b8b8;padding:24pt 24pt 24pt 36pt">
+    <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
+      <%= footer %>
+    </table>
+  </td>
+ </tr>
+</table>
+
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+- Inhaltstypen | filter:
+    - $$Ort:
+        - $$Badeseen
+        - $$Skigebiet
+        - $$freie Scheehöhenmesspunkte
+    - $$Schneehöhe - Messpunkt
+    - $$Skigebiet - Addon
+
+# https://semantify.it/voc/ZdBcA9HrA?term=odta:OpeningStatus
+- odta:OpeningStatus | all:
+    - $$odta:Closed
+    - $$odta:NoInformation
+    - $$odta:Open
+    - $$odta:WeekendOnly
+
+# https://semantify.it/voc/ZdBcA9HrA?term=odta%3ASkiLiftType
+- odta:SkiLiftType | all:
+    - odta:ButtonLift
+    - odta:CableCar
+    - odta:ChairLift
+    - odta:Funicular
+    - odta:MagicCarpet
+    - odta:RopeTow
+    - odta:PracticeLift
+    - odta:TBarLift
+
+# https://semantify.it/voc/ZdBcA9HrA?term=odta:SkiSlopeCondition
+- odta:SkiSlopeCondition | all:
+    - odta:Bad
+    - odta:PartiallyBad
+    - odta:Good
+    - odta:Icy
+    - odta:PartiallyIcy
+    - odta:Ridable
+    - odta:Wet
+
+# https://semantify.it/voc/ZdBcA9HrA?term=odta:skiSlopeDifficulty
+- odta:SkiSlopeDifficulty | all:
+    - odta:Easy
+    - odta:Medium
+    - odta:Hard
+    - odta:Route
+    - odta:DifficultRoute
+
+# https://semantify.it/voc/ZdBcA9HrA?term=odta%3ASkiSlopeType
+- odta:SkiSlopeType | all:
+    - odta:MogulSlope
+    - odta:PracticeSlope
+    - odta:SkiRoute
+
+- odta:snowType | all:
+    - Altschnee
+    - Kunstschnee
+    - Nassschnee
+    - Pulver
+    - Sulz
+
+- odta:snowCondition | all:
+    - eisig
+    - griffig
+    - hart
+    - nass
+    - stellenweise aper
+    - weich

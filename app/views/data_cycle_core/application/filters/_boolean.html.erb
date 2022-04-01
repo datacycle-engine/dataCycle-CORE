@@ -1,0 +1,26 @@
+<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'n' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", local_assigns[:filter_type] || :boolean %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
+
+  <div class="advanced-filter-title">
+    <span class="icon"><i class="fa fa-clone" aria-hidden="true"></i></span>
+    <%= hidden_field_tag "f[#{identifier}][m]", 'n' %>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <%= radio_button_tag "f[#{identifier}][v]", 'true', (value != 'false') %>
+    <%= label_tag "f_#{identifier}_v_true", t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <%= radio_button_tag "f[#{identifier}][v]", 'false', (value == 'false') %>
+    <%= label_tag "f_#{identifier}_v_false", t("filter.not_#{filter_name}", default: filter_title, locale: active_ui_locale) %>
+  </div>
+
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

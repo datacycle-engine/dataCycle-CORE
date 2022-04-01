@@ -1,0 +1,11 @@
+# frozen_string_literal: true
+
+json ||= {}
+key_new = definition.dig('api', 'name') || key
+json[key_new.camelize(:lower)] = [
+  {
+    '@type' => 'GenderType',
+    'name' => value
+  }
+]
+json

@@ -1,0 +1,5 @@
+<% if content&.parent && content&.parent&.content_type?('container') && options.dig(:disable_parent).blank? %>
+  <isPartOf>
+    <%= render *content_partial('details', content: content.parent, options: options.merge({ disable_children: true })) %>
+  </isPartOf>
+<% end %>

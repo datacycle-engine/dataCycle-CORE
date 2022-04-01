@@ -1,0 +1,673 @@
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-flow: column;
+}
+
+.alert-color {
+  color: $alert-color;
+}
+
+.off-canvas-wrapper {
+  position: relative;
+  flex: auto;
+  display: flex;
+  flex-flow: column;
+  overflow: unset;
+}
+
+.off-canvas-content {
+  flex: auto;
+  display: flex;
+  flex-flow: column nowrap;
+
+  .inner-container {
+    flex: auto;
+  }
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: 'Open Sans', 'Noto Sans SC', 'Noto Sans TC', sans-serif;
+}
+
+.fa {
+  font-size: 1.1rem;
+}
+
+/* Header */
+
+header {
+  z-index: 22;
+  position: relative;
+  border-top: 5px solid $customercolor;
+
+  .top-bar {
+    display: flex;
+    height: 4.1rem;
+    width: 100%;
+    padding: 0;
+    background-color: $black;
+    line-height: 4.1rem;
+    background: linear-gradient(to bottom, darken($black, 15%) 0%, $black 50%, lighten($black, 7%) 100%);
+
+    .logo {
+      padding: 0 0 0 1rem;
+      display: flex;
+      width: auto;
+      flex: auto;
+      float: none;
+      align-items: center;
+      justify-content: flex-start;
+
+      img {
+        height: 50px;
+        min-width: 100px;
+      }
+    }
+
+    .title {
+      color: $white;
+      float: left;
+      position: relative;
+      padding: 0;
+      font-size: 1.2em;
+      font-weight: 200;
+      float: none;
+      margin-left: 1rem;
+      white-space: nowrap;
+    }
+
+    .top-bar-title {
+      padding: 0;
+      flex: 1 1 auto;
+      display: flex;
+      float: none;
+
+      a {
+        display: flex;
+      }
+    }
+
+    .top-bar-splitter {
+      flex: auto;
+    }
+
+    .top-bar-right {
+      ul.menu {
+        display: flex;
+        li {
+          flex: 1 1 auto;
+          a,
+          button {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
+  }
+
+  ul.menu {
+    line-height: 4.1rem;
+    height: 4.1rem;
+
+    > li {
+      height: 4.1rem;
+
+      a,
+      button {
+        height: 100%;
+        line-height: 4.1rem;
+      }
+    }
+
+    li {
+      vertical-align: top;
+
+      a,
+      button {
+        color: $white;
+        font-size: 1rem;
+        padding: 0 1.5rem;
+        line-height: 64px;
+        border-bottom: 0;
+
+        i.icon-right {
+          margin-left: 0.75rem;
+          margin-right: 0;
+        }
+
+        &:focus,
+        &:hover {
+          color: $light-gray;
+        }
+      }
+
+      button {
+        background-color: $black;
+        background: linear-gradient(to top, darken($black, 3%) 0%, $black 50%, lighten($black, 10%) 100%);
+        &[aria-expanded='true'] {
+          outline: none;
+          background: map-get($foundation-palette, primary);
+        }
+
+        &:focus,
+        &:hover {
+          background: linear-gradient(to bottom, $black 0%, $black 50%, lighten($black, 10%) 100%);
+          box-shadow: inset 0 0 3px 0 rgba(0, 0, 0, 0.7);
+        }
+
+        span {
+          position: relative;
+        }
+      }
+
+      &:last-child {
+        a {
+          padding-right: 0.5rem;
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeInGlassContainer {
+  0% {
+    opacity: 0;
+    box-shadow: none;
+  }
+  100% {
+    opacity: 1;
+    box-shadow: 0 3px 13px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* new object element */
+
+a.button-prime.new-object-circle {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1005;
+}
+
+.new-object.reveal {
+  position: absolute;
+  overflow: initial;
+  bottom: 9rem;
+  right: 1rem;
+  top: auto !important;
+  padding: 0;
+  border: 0;
+  background-color: white;
+  max-width: 32rem;
+  box-shadow: 1px 4px 2px 0px rgba(0, 1, 1, 0.2);
+
+  &:focus,
+  &:active {
+    border: 0;
+    outline: 0;
+  }
+
+  .new-object-links {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .new-favorites {
+    a.option:last-child {
+      border-bottom: 1px solid $light-gray;
+      margin-bottom: 2px;
+    }
+  }
+
+  a.option {
+    border-bottom: 1px solid $light-gray;
+    padding: 0.5rem;
+    display: block;
+    padding: 1rem;
+    color: $black;
+    font-size: 1.5rem;
+    font-weight: 200;
+    transition: all ease-in-out 0.1s;
+
+    &.default-new-option {
+      border-top: 1px solid $light-gray;
+      font-weight: 600;
+      font-style: italic;
+    }
+
+    .fa {
+      font-size: 1.5rem;
+      width: 2rem;
+      margin-right: 1rem;
+      text-align: center;
+    }
+
+    &:last-child {
+      border-bottom: 0;
+
+      &:after {
+        transition: all ease-in-out 0.1s;
+        @include css-triangle(1.5rem, $white, 'down');
+        position: absolute;
+        bottom: -1.5rem;
+        right: 2rem;
+        filter: drop-shadow(1px 4px 2px rgba(0, 1, 1, 0.2));
+      }
+
+      &:hover:after {
+        @include css-triangle(1.5rem, $primary-color, 'down');
+      }
+    }
+
+    &:focus,
+    &:hover {
+      background: $primary-color;
+      color: white;
+    }
+  }
+}
+
+a.button-prime,
+button.button-prime {
+  position: relative;
+  display: block;
+  text-align: center;
+  background-color: map-get($foundation-palette, primary);
+  border-radius: 50%;
+  outline: none;
+  box-shadow: 1px 2px 5px 0px rgba($black, 0.3);
+  transition: all ease-in-out 0.1s;
+  width: 5rem;
+  height: 5rem;
+  line-height: 5rem;
+  padding: 0;
+
+  &.alert {
+    background-color: map-get($foundation-palette, alert) !important;
+
+    &:focus,
+    &:hover {
+      background-color: lighten(map-get($foundation-palette, alert), 10%) !important;
+    }
+  }
+
+  &.warning {
+    background-color: map-get($foundation-palette, warning);
+
+    &:focus,
+    &:hover {
+      background-color: lighten(map-get($foundation-palette, warning), 10%);
+    }
+  }
+
+  &.success {
+    background-color: map-get($foundation-palette, success);
+
+    &:focus,
+    &:hover {
+      background-color: lighten(map-get($foundation-palette, success), 10%);
+    }
+  }
+
+  i {
+    color: $white;
+    position: relative;
+    display: block;
+    line-height: 5rem;
+    height: 100%;
+    width: 100%;
+    font-size: 3.5rem;
+  }
+
+  &:focus,
+  &:hover {
+    background-color: lighten($primary-color, 10%);
+  }
+
+  &.small {
+    height: 3rem;
+    width: 3rem;
+
+    &[disabled] {
+      cursor: not-allowed;
+      opacity: 0.25;
+    }
+
+    i {
+      line-height: 3rem;
+      font-size: 1.5rem;
+    }
+  }
+}
+
+/* Home */
+
+body.with-glass {
+  background-color: darkgrey;
+  background-position: center bottom;
+  background-attachment: fixed;
+  background-size: cover;
+  background-image: var(--dc-background-image-url);
+  border-top: 5px solid $customercolor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .off-canvas-content {
+    background: none;
+  }
+
+  header,
+  .off-canvas-wrapper {
+    display: none;
+  }
+
+  ul.footer-links li {
+    color: white;
+
+    a {
+      color: white;
+      text-decoration: underline;
+    }
+  }
+}
+
+ul.footer-links {
+  width: 100%;
+  margin: 0;
+  text-align: center;
+
+  li {
+    display: inline-block;
+
+    &:not(:last-child)::after {
+      content: ' | ';
+    }
+  }
+}
+
+.home-container {
+  max-width: 500px;
+  overflow: hidden;
+  margin: 50px auto;
+  width: 70%;
+  padding: 0;
+  animation: 1s ease-in-out 500ms 1 fadeInGlassContainer;
+  animation-fill-mode: both;
+
+  .logo {
+    img {
+      max-height: 60px;
+      max-width: 75%;
+      width: auto;
+    }
+  }
+
+  .home-container-content {
+    padding: rem-calc(15) 0;
+
+    &.footer {
+      .footer-image {
+        display: flex;
+        float: none;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    .centered-text {
+      text-align: center;
+    }
+
+    a.button {
+      font-weight: bold;
+      font-size: 1rem;
+      padding: 1rem 2rem;
+    }
+
+    a.forgotten_password_link {
+      display: block;
+      //margin: 1rem 0 1rem 0;
+      text-align: right;
+      font-size: 0.9rem;
+      color: white;
+      text-decoration: underline;
+    }
+    .login-checkboxes {
+      a {
+        text-decoration: underline;
+        color: $white;
+      }
+    }
+
+    button[type='submit'].button {
+      padding: 0.2rem 4.5rem;
+      i {
+        font-size: 3rem;
+      }
+    }
+
+    .login-form {
+      h3 {
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        padding-top: 0.5rem;
+        font-size: 2rem;
+        font-weight: normal;
+        text-align: center;
+      }
+      button[type='submit'].button {
+        background-color: $dark-gray;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        padding: 0.8rem 1rem;
+
+        &:hover,
+        &:focus {
+          background-color: darken($dark-gray, 10%);
+        }
+      }
+    }
+
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    backface-visibility: hidden;
+    position: relative;
+    border-bottom: 1px solid;
+    border-bottom-color: #ccc;
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .home-logo {
+    padding: 10px 0 0 0;
+  }
+
+  h1 {
+    text-align: center;
+  }
+
+  .accordion {
+    margin-bottom: 0;
+    background: none;
+    line-height: initial;
+
+    li.accordion-item {
+      a.accordion-title {
+        &.without-content {
+          &::before {
+            content: '';
+          }
+        }
+
+        border: 0;
+        color: white;
+        text-align: center;
+        font-size: 2rem;
+        padding: 1rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+
+        i {
+          font-size: 2rem;
+          margin-right: 0.75rem;
+        }
+
+        &::before {
+          top: 30%;
+        }
+
+        &:hover,
+        &:focus {
+          background: none;
+        }
+
+        &:hover {
+          color: white;
+          opacity: 0.7;
+        }
+      }
+    }
+
+    .accordion-content {
+      border: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: white;
+    }
+  }
+
+  form {
+    margin-top: 1rem;
+
+    label {
+      color: white;
+    }
+  }
+}
+
+.glass {
+  backface-visibility: hidden;
+  position: relative;
+
+  &::after {
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0px;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background-position: center bottom;
+    background-attachment: fixed;
+    background-size: cover;
+    background-image: var(--dc-background-image-url);
+    content: '';
+    transition: all 1s ease-out;
+    filter: blur(5px);
+  }
+}
+
+.home-container.reset-password {
+  main {
+    padding: 1rem 0;
+
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    form {
+      ul.errors {
+        margin: 1rem;
+        padding: 1rem;
+        background: rgba(map-get($foundation-palette, alert), 0.95);
+        list-style-type: none;
+      }
+
+      button[type='submit'].button {
+        padding: 1rem 1rem;
+        font-size: 1rem;
+      }
+
+      span.error {
+        display: none;
+      }
+    }
+  }
+}
+
+.close-button {
+  padding: 0;
+}
+
+.flash-notification {
+  min-height: 4.5rem;
+
+  &.alert,
+  &.info,
+  &.success {
+    position: fixed;
+    display: block;
+    line-height: 4rem;
+    margin: 0;
+    padding: 0.1rem 1rem;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100%;
+    z-index: 10001;
+    border: 0;
+    border-top: 5px solid $customercolor;
+    color: white;
+
+    .close-button,
+    .close-button.medium {
+      line-height: 3rem;
+      color: white;
+      padding: 0;
+    }
+  }
+
+  &.success {
+    background: rgba(map-get($foundation-palette, success), 0.95);
+  }
+
+  &.alert {
+    background: rgba(map-get($foundation-palette, alert), 0.95);
+  }
+
+  &.info {
+    background: rgba(map-get($foundation-palette, warning), 0.95);
+  }
+
+  span {
+    display: inline-block;
+    line-height: 1.5;
+  }
+}
+
+.pixelpoint-sso-login {
+  display: flex;
+  width: 3.6rem;
+  opacity: 0.7;
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  cursor: default;
+  transition: opacity 0.2s ease;
+  padding: 0.3rem;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    opacity: 1;
+  }
+}

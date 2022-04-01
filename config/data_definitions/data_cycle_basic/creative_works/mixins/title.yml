@@ -1,0 +1,57 @@
+---
+- :data:
+    :name: title
+    :type: mixin
+    :properties:
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :ui:
+          :show:
+            :content_area: none
+      :internal_name:
+        :label: Arbeitstitel
+        :type: string
+        :storage_location: column
+        :search: true
+        :api:
+          :disabled: true
+      # legacy property for v2 / v3
+      :headline:
+        :label: Headline
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::String
+          :method: concat
+          :parameters:
+            :0:
+              :type: content
+              :name: name
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :minimal: true
+#      :headline:
+#        :label: Headline
+#        :storage_location: virtual
+#        :type: virtual
+#        :virtual:
+#          :type: string
+#          :module: Utility::Virtual::String
+#          :method: concat
+#          :parameters:
+#            :0:
+#              :type: content
+#              :name: name
+#        :ui:
+#          :show:
+#            :disabled: true
+#        :api:
+#          :minimal: true

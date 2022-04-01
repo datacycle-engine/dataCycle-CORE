@@ -1,0 +1,135 @@
+---
+- :data:
+    :name: LocalBusiness
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :api:
+      :type:
+        - Place
+        - Organization
+        - LocalBusiness
+    :boost: 10.0
+    :features:
+      :geocode:
+        :allowed: true
+      :overlay:
+        :allowed: true
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
+          :indesign: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: PlaceOverlay
+        :translated: true
+        :validations:
+          :max: 1
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :opening_hours_specification:
+        :type: mixin
+        :name: opening_hours_specification
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :geo:
+        :type: mixin
+        :name: geo
+      :contact_info:
+        :type: mixin
+        :name: contact_info
+      :place_attributes:
+        :type: mixin
+        :name: place_attributes
+      :makes_offer:
+        :label: Angebote
+        :type: embedded
+        :template_name: Angebot
+        :translated: true
+      :linked_data:
+        :type: mixin
+        :name: linked_data
+      :price_range:
+        :label: Preis-Info
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :currencies_accepted:
+        :label: Akzeptierte Währung
+        :type: string
+        :storage_location: value
+        :search: true
+      :outdoor_active:
+        :type: mixin
+        :name: outdoor_active
+      :outdoor_active_link:
+        :type: mixin
+        :name: outdoor_active_link
+      :outdoor_active_categories:
+        :type: mixin
+        :name: outdoor_active_categories
+      :outdoor_active_external_system:
+        :type: mixin
+        :name: outdoor_active_external_system
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'LocalBusiness'
+      :feratel:
+        :type: mixin
+        :name: feratel_categories
+      :feratel_cps:
+        :type: mixin
+        :name: feratel_cps
+      :pimcore_categories:
+        :type: mixin
+        :name: pimcore_categories
+      :wogehmahin:
+        :type: mixin
+        :name: wogehmahin
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

@@ -1,0 +1,53 @@
+<% content_for :rendered_items do %>
+  <% if @objects.nil? %>
+    <%= render_embedded_object_partial(
+          key: @key,
+          definition: @definition,
+          parameters: {
+            index: @index,
+            options: @options,
+            locale: @locale,
+            new_content: true
+          },
+          content: @content
+        ) %>
+  <% else %>
+    <% @objects.presence&.each_with_index do |object, index| %>
+      <%= render_embedded_object_partial(
+            key: @key,
+            definition: @definition,
+            parameters: {
+              index: @index.presence&.to_i + index,
+              options: @options,
+              object: object,
+              locale: @locale,
+              duplicated_content: @duplicated_content.to_s == 'true',
+              force_render_child_locales: true,
+              force_render_locales: object.available_locales,
+              hide_embedded: @hide_embedded.to_s == 'true',
+              attribute_locale: @attribute_locale,
+              translate: @translate
+            },
+            content: @content
+      ) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+(function(){
+  $('#<%= sanitize_to_id(@key) %> > .buttons > .addContentObject .fa').css('display', 'none');
+  $('#<%= sanitize_to_id(@key) %> > .buttons > button').prop('disabled', false);
+
+  let $followingEmbedded = $('#<%= sanitize_to_id(@key) %> > .content-object-item').filter(function(){
+    return parseInt($(this).data('index')) > parseInt(<%= @index.presence&.to_i %>);
+  }).first();
+
+  let $content = $('<%= j yield :rendered_items %>');
+
+  if ($followingEmbedded.length) $content.insertBefore($followingEmbedded);
+  else $content.insertBefore('#<%= sanitize_to_id(@key) %> > .buttons');
+
+  $('<%= j content_for :forms %>').appendTo('body').foundation();
+
+  $content.trigger('dc:html:changed').trigger('dc:html:initialized', { newContent: <%= @objects.nil? || @duplicated_content.to_s == 'true' %> });
+})();

@@ -1,0 +1,30 @@
+<div class="event-period">
+
+  <% event_period_value = '' %>
+  <% event_period_full_value = '' %>
+
+  <% unless item.try(:start_date).nil? %>
+    <% event_period_value = l(item.start_date.to_date, locale: active_ui_locale) %>
+
+    <% if item.start_date.to_s(:time) == '00:00' %>
+      <% event_period_full_value = l(item.start_date.to_date, format: :full, locale: active_ui_locale) %>
+    <% else %>
+      <% event_period_full_value = l(item.start_date.to_datetime, locale: active_ui_locale) %>
+    <% end %>
+  <% end %>
+
+  <% unless item.try(:end_date).nil? %>
+    <% event_period_value += " - #{l(item.end_date.to_date, locale: active_ui_locale)}" %>
+
+    <% if item.end_date.to_s(:time) == '00:00' %>
+      <% event_period_full_value += " #{t('terms.until', locale: active_ui_locale)} #{l(item.end_date.to_date, format: :full, locale: active_ui_locale)}" %>
+    <% else %>
+      <% event_period_full_value += " #{t('terms.until', locale: active_ui_locale)} #{l(item.end_date.to_datetime, locale: active_ui_locale)}" %>
+    <% end %>
+  <% end %>
+
+  <span class="date event-period"
+        title="<%= event_period_full_value.present? ? event_period_full_value : event_period_value %>">
+    <%= event_period_value %>
+  </span>
+</div>

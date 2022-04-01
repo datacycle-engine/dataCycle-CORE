@@ -1,0 +1,220 @@
+---
+- :data:
+    :name: Embedded-Entity-Creative-Work-1
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :embedded_creative_work:
+        :label: Embedded Creative-Work
+        :type: embedded
+        :template_name: Embedded-Creative-Work-2
+
+- :data:
+    :name: Embedded-Entity-Creative-Work-2
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :embedded_creative_work:
+        :label: Embedded Creative-Work
+        :type: embedded
+        :translated: true
+        :template_name: Embedded-Creative-Work-2
+
+- :data:
+    :name: Embedded-Creative-Work-2
+    :type: object
+    :content_type: embedded
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :linked_place:
+        :label: Linked Place Entity
+        :type: linked
+        :template_name: Linked-Place-1
+
+- :data:
+    :name: Embedded-Entity-Search
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :float_main:
+        :label: Float-Main
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :advanced_search: true
+      :embedded_search:
+        :label: Embedded Search
+        :type: embedded
+        :translated: true
+        :template_name: Embedded-Search
+        :advanced_search: true
+
+- :data:
+    :name: Embedded-Search
+    :type: object
+    :content_type: embedded
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :float_one:
+        :label: Float-One
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :advanced_search: true
+      :float_two:
+        :label: Float-Two
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :advanced_search: true
+      :float_main:
+        :label: Float-Main
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :advanced_search: true
+      :integer_main:
+        :label: Integer-Main
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+        :advanced_search: true
+      :opens:
+        :label: geöffnet von
+        :type: string
+        :storage_location: value
+        :validations:
+          :pattern: "(^$|^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$|^24:00(:00)?$)"
+        :ui:
+          :edit:
+            :options:
+              :placeholder: hh:mm
+        :advanced_search: true
+      :closes:
+        :label: geöffnet bis
+        :type: string
+        :storage_location: value
+        :validations:
+          :pattern: "(^$|^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$|^24:00(:00)?$)"
+        :ui:
+          :edit:
+            :options:
+              :placeholder: hh:mm
+        :advanced_search: true
+      :publish_at:
+        :label: Publikationsdatum
+        :type: date
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :placeholder: tt.mm.jjjj
+        :advanced_search: true
+      :boolean_test:
+        :label: boolean_test
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true

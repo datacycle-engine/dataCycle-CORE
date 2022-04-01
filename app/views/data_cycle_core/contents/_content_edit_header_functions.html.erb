@@ -1,0 +1,71 @@
+<section class="edit-header">
+  <div class="row expanded">
+    <div class="column edit-header-functions">
+      <div class="edit-name">
+        <% if content_for?(:form_action) %>
+          <%= yield_content!(:form_action) %>
+        <% else %>
+          <i class="fa fa-pencil" aria-hidden="true"></i> <%= t('actions.edit_data', data: content.translated_template_name(active_ui_locale), locale: active_ui_locale) %>
+        <% end %>
+      </div>
+      <ul>
+        <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
+
+        <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_all', wrapper_tag: 'li' if content.embedded_property_names.present? %>
+
+        <%= yield_content! :additional_functions %>
+
+        <% if can?(:index, content) && content.try(:content_type?, 'entity') && action_name != 'merge_with_duplicate' %>
+          <li class="has-dropdown right">
+            <%= render 'split_sources', query_params: { exclude: content&.id }, value: @split_source, url: '', title_text: t('common.choose_splitsource', locale: active_ui_locale) %>
+          </li>
+        <% end %>
+
+        <%= tag.li render('data_cycle_core/contents/editors/metadata/locales_list', local_assigns.slice(:content, :link_action)), class: 'has-dropdown' if content.translatable? && I18n.available_locales&.many? %>
+
+        <%= tag.li render('data_links', content: content), class: 'has-dropdown right' if can? :index, DataCycleCore::DataLink %>
+
+        <li class="buttons">
+          <%= yield_content! :additional_edit_buttons %>
+
+          <%= button_tag tag.i(class: 'fa fa-superpowers', aria_hidden: true),
+            class: 'normalize-content-button',
+            title: t('common.normalize', locale: active_ui_locale),
+            data: {
+              title: t('common.normalize', locale: active_ui_locale),
+              url: normalize_thing_path(content),
+              disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw', aria_hidden: true)
+            } if DataCycleCore::Feature::Normalize.enabled? %>
+
+          <%= link_to tag.i(class: 'fa fa-times', aria_hidden: true),
+            previous_authorized_crumb.url,
+            class: 'button discard top',
+            title: t('actions.discard_changes', locale: active_ui_locale) if previous_authorized_crumb.present? %>
+
+          <%= button_tag tag.i(class: 'fa fa-floppy-o', aria_hidden: true), class: 'save-content-button', title: t('actions.save_without_redirect', locale: active_ui_locale), data: { disable: true } %>
+
+          <% submit_properties = {
+            class: "button-prime submit submit-edit-form #{local_assigns[:additional_submit_properties]&.delete(:additional_class)} #{'content-lock editable-lock' if DataCycleCore::Feature::ContentLock.enabled?}",
+            title: t('actions.save_changes', locale: active_ui_locale),
+            data: {
+              tooltip: true,
+              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+            }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
+              lock_length: DataCycleCore::Feature::ContentLock.lock_length,
+              lock_renew_before: DataCycleCore::Feature::ContentLock.lock_renew_before,
+              lock_content_id: content&.id
+            } : {}).merge(DataCycleCore::Feature::ContentLock.enabled? && content&.locked? ? {
+              locks: { content.lock.id => content&.locked_until&.to_i },
+              lock_token: @lock_token,
+              lock_path: content_locks_path,
+            } : {})
+          } %>
+
+          <% submit_properties.merge!(additional_submit_properties) if local_assigns[:additional_submit_properties].present? %>
+
+          <%= button_tag safe_join([DataCycleCore::Feature::ContentLock.enabled? ? tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') : nil, tag.i(class: 'fa fa-check', aria_hidden: true)]), submit_properties %>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

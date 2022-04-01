@@ -1,0 +1,72 @@
+[
+  {
+    "_id" : "5cd030452310407b13ed3c60",
+    "external_id" : "11615c26-e13a-42b6-8e60-920f76677098",
+    "dump" : {
+        "de" : {
+            "identifier" : "11615c26-e13a-42b6-8e60-920f76677098",
+            "betriebsname" : "JILLY_BEACH Wörthersee",
+            "address" : {
+                "address" : "Alfredweg 5-7",
+                "locality" : "Pörtschach",
+                "postalCode" : "9210",
+                "country" : "AT"
+            },
+            "telefon" : "+43 4272 2391",
+            "fax" : "+43 4272 2391 20",
+            "mail" : "gastronomie@jilly.at",
+            "web" : "www.jillybeach.at",
+            "description" : "Frischeste Zutaten in entspannter Atmosphäre - nirgends am See sind Sie dem Wasser näher als im Jilly_Beach Wörthersee.\r\nGeschäftsessen, private Veranstaltung, Workshop oder Hochzeit – das Jilly_Beach hat die passende Räumlichkeit für Sie.\r\nIm Brückenbereich, nur von niedrigen Glaswänden beschirmt, sitzt man am Steg in Griffweite zum Wasser – Nirgends am See sind Sie dem Wasser näher. Einfach cool ! Die ideale Location am See.\r\nIm sogenannten \"Upstairs\" dem total verglasten Bereich im ersten Stock ist es luftig im Hochsommer und kuschelig warm, wenn es  einmal kühler ist. Rundherum Glas, aber wenn die Sonne strahlt, ganz zum Öffnen. Einfach einmal vorbeischauen – es lohnt sich.\r\n\t\t\t\t\t",
+            "languages" : [
+                {
+                    "name" : "de"
+                }
+            ],
+            "Genusslust" : {
+                "identifier" : "81ccdf89-e76c-4671-a009-923db1e34828"
+            },
+            "photos" : [
+                {
+                    "headline": "Test1",
+                    "identifier" : "01d96a57-8abd-45eb-8847-f054bd996d64",
+                    "url" : "http://resc.deskline.net/images/KTN/1/763ddf44-6aa3-4f3b-8ae2-873fb9520f47/99/image.jpg"
+                },
+                {
+                    "headline": "Test2",
+                    "identifier" : "86cf4d3d-a0c3-4740-b8b4-4b216e9142af",
+                    "url" : "https://datacycle.kaernten.at/uploads/data_cycle_core/image/file/86cf4d3d-a0c3-4740-b8b4-4b216e9142af/d00197af-e5a6-4365-af5d-9840ece78d9c.jpg"
+                },
+                {
+                    "headline": "Test3",
+                    "identifier" : "WGH-Bild",
+                    "url" : "https://www.wogehmahin.at/wp-content/themes/wogehmahin_2015/gastro/images/108308_6_2.jpg"
+                }
+            ],
+            "topics" : [
+                {
+                    "name" : "Modernes Ambiente"
+                },
+                {
+                    "name" : "Nouvelle Cuisine"
+                },
+                {
+                    "name" : "Restaurant"
+                }
+            ],
+            "types" : [
+                {
+                    "name" : "Essen & Trinken"
+                }
+            ],
+            "owners" : [
+                {
+                    "name" : "WOERTHER"
+                }
+            ]
+        }
+    },
+    "seen_at" : "2019-05-06T13:01:57.429Z",
+    "updated_at" : "2019-05-06T13:01:57.429Z",
+    "created_at" : "2019-05-06T13:01:57.429Z"
+  }
+]

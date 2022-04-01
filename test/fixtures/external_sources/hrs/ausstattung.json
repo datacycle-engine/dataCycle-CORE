@@ -1,0 +1,41 @@
+[
+  {
+    "_id" : "5ccad2fc2310407aeccf5dd1",
+    "external_id" : "3",
+    "dump" : {
+        "de" : {
+            "id" : "3",
+            "name" : "Bootssteg"
+        }
+    },
+    "seen_at" : "2019-05-02T11:22:36.924Z",
+    "updated_at" : "2019-05-02T11:22:36.924Z",
+    "created_at" : "2019-05-02T11:22:36.924Z"
+  },
+  {
+    "_id" : "5ccad2fc2310407aeccf5dd2",
+    "external_id" : "5",
+    "dump" : {
+        "de" : {
+            "id" : "5",
+            "name" : "Tagung/Konferenz"
+        }
+    },
+    "seen_at" : "2019-05-02T11:22:36.936Z",
+    "updated_at" : "2019-05-02T11:22:36.936Z",
+    "created_at" : "2019-05-02T11:22:36.936Z"
+  },
+  {
+    "_id" : "5ccad2fc2310407aeccf5dd3",
+    "external_id" : "15",
+    "dump" : {
+        "de" : {
+            "id" : "15",
+            "name" : "Garten zur Nutzung"
+        }
+    },
+    "seen_at" : "2019-05-02T11:22:36.939Z",
+    "updated_at" : "2019-05-02T11:22:36.939Z",
+    "created_at" : "2019-05-02T11:22:36.939Z"
+  }
+]

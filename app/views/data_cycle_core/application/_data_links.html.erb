@@ -1,0 +1,12 @@
+<a id="send-link-link" data-toggle="send-link"><i class="fa fa-share" aria-hidden="true"></i><i class="fa <%= content.data_links.size.zero? ? "fa-user-o" : "fa-user" %>" aria-hidden="true"></i></a>
+<div class="dropdown-pane align-right no-bullet bottom data-links" id="send-link" data-dropdown data-hover="true" data-hover-pane="true">
+  <h5><%= t('actions.send_with_data', data: DataCycleCore::DataLink.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale) %></h5>
+
+  <ul class="list-items">
+    <% content.data_links.each do |data_link| %>
+      <%= render 'data_cycle_core/application/data_links/email_data_link', content: content, data_link: data_link %>
+    <% end %>
+  </ul>
+
+  <%= render 'data_cycle_core/application/data_links/email_data_link', content: content, data_link: DataCycleCore::DataLink.new %>
+</div>

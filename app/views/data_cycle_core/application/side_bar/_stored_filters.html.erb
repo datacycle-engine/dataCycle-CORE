@@ -1,0 +1,28 @@
+<div class="settings-row">
+  <div class="row columns">
+    <h5><%= t('data_cycle_core.stored_searches.my_saved', locale: active_ui_locale) %></h5>
+  </div>
+
+  <div class="row columns">
+    <ul class="list-items no-bullet named-stored-filters">
+      <% @accessible_stored_filters.where.not(name: nil).order(updated_at: :desc).first(5).each do |stored_filter| %>
+        <li class="<%= 'system-filter' if stored_filter.system %>">
+          <%= link_to root_path(stored_filter: stored_filter.id), class: 'stored-filter-link' do %>
+            <span class="icon"><i class="fa fa-search" aria-hidden="true"></i></span>
+            <span class="title"><%= stored_filter.name || "vor #{time_ago_in_words stored_filter.created_at}" %></span>
+          <% end %>
+          <span class="buttons">
+            <% if stored_filter.api && can?(:create_api, DataCycleCore::StoredFilter) %>
+              <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_path", id: stored_filter), class: 'copy-to-clipboard left', data: { value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_filter) } do %>
+                <i class="fa fa-clipboard" aria-hidden="true"></i>
+              <% end %>
+            <% end %>
+          </span>
+        </li>
+      <% end %>
+      <%# if @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).size > 5 %>
+      <li class="more-link"><%= link_to '...', stored_filters_path %></li>
+      <%# end %>
+    </ul>
+  </div>
+</div>

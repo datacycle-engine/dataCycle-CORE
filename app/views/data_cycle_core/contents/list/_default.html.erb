@@ -1,0 +1,44 @@
+<% I18n.with_locale(item.first_available_locale(@language)) do %>
+
+  <div class="inner-item">
+    <div class="content-row">
+      <%= link_to thing_path(item, watch_list_id: @watch_list&.id, locale: I18n.locale) do %>
+        <span class="type <%= item.template_name.downcase %>">
+          <%= render 'data_cycle_core/shared/icon',
+                     icon_type: item.template_name.underscore_blanks,
+                     icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
+
+          <%= render 'data_cycle_core/shared/template_title',
+                     content: item,
+                     languages: [I18n.locale.to_s] %>
+        </span>
+        <span class="title" title="<%= item.title %>"><%= item.title %></span>
+        <% if item.respond_to?(:internal_name) && item.internal_name.present? %>
+          <span class="title working-title" title="<%= item.internal_name %>">
+            (<%= sanitize(strip_links(truncate(item.internal_name, length: 70, separator: " ", escape: false))) %>)
+          </span>
+        <% end %>
+        <% if item.respond_to?(:is_valid?) && !item.try(:is_valid?) %>
+          <span class="validity_period">
+            <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: item} %>
+          </span>
+        <% end %>
+      <% end %>
+    </div>
+
+    <a class="toggle-details toggler" data-toggle="content-details-<%= item.id %>"></a>
+
+    <% if content_for?(:media_buttons) %>
+      <div class="buttons">
+        <%= yield_content!(:media_buttons) %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="content-details remote-render"
+    id="content-details-<%= item.id %>"
+    data-remote-render-function="render_content_tile_details"
+    data-remote-render-params="<%= to_query_params(item: item, mode: 'list').to_json %>"
+    data-remote-options="<%= to_query_params(locale: I18n.locale.to_s, language: @language).to_json %>">
+  </div>
+<% end %>

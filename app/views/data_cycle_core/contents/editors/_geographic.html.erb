@@ -1,0 +1,80 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
+
+  <%= hidden_field_tag key, value, class: 'location-data', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+  <%= hidden_field_tag key.gsub(key.attribute_name_from_key, 'route_data'), content.try(:route_data) if DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>
+  <% is_line_string = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type')).to_s.include?('LineString') %>
+
+  <div class="edit-type geographic">
+    <div id="map_<%= SecureRandom.hex(16) %>"
+          class="geographic-map <%= is_line_string ? 'linestring' : 'point' %><%= ' editor' if can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>"
+          data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+          data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
+          data-value="<%= value_to_geojson(value)&.to_json %>"
+          data-additional-values="<%= additional_map_values(content, definition&.dig('ui', 'edit', 'options', 'additional_value_paths'))&.to_json %>"
+          data-additional-values-overlay="<%= additional_map_values_overlay(content, definition, options)&.to_json %>"
+          data-elevation-profile="<%= definition&.dig('ui', 'edit', 'options', 'elevation_profile') %>"
+          data-allow-upload="<%= definition&.dig('ui', 'edit', 'options', 'data_upload') %>">
+    </div>
+    <div class="ol-popup">
+      <a href="#" class="ol-popup-closer"><i class="fa fa-times" aria-hidden="true"></i></a>
+      <div class="ol-popup-content"></div>
+    </div>
+  </div>
+
+  <div class="map-edit">
+    <% if definition&.dig('ui', 'edit', 'options', 'data_upload') && DataCycleCore.default_map_position.dig('editor') != 'TourSprung' %>
+      <input type="file" class="upload-gpx-input" accept=".gpx,.GPX,application/gpx+xml,application/octet-stream" style="display:none">
+      <%= link_to '#',
+        class: 'upload-gpx-button map-edit-button',
+        title: t('actions.upload_gpx', locale: active_ui_locale),
+        data: {
+          locale: I18n.locale.to_s,
+          disable_with: '<i class="fa fa-spinner fa-spin fa-fw"></i>'
+        } do %>
+        <i class="fa fa-upload"></i>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="map-info detail_object <%= 'linestring-info' if is_line_string %>">
+    <div class="content-object-item">
+      <span class="embedded-header">
+        <%= attribute_edit_label_tag(**local_assigns) %>
+      </span>
+
+      <% if !is_line_string %>
+        <div class="form-element longitude number">
+          <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'longitude'))}" do %>
+            <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
+            <%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: active_ui_locale) %>
+          <% end %>
+          <%= number_field_tag key.gsub(key.attribute_name_from_key, 'longitude'), value.presence&.x, class: 'form-control', step: :any, readonly: !attribute_editable?(key, definition, options, content), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'longitude'))}", placeholder: 'z.B. 14,550683' %>
+        </div>
+
+        <div class="form-element latitude number">
+          <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'latitude'))}" do %>
+            <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless attribute_editable?(key, definition, options, content) %>
+            <%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>
+          <% end %>
+          <%= number_field_tag key.gsub(key.attribute_name_from_key, 'latitude'), value.presence&.y, class: 'form-control', step: :any, readonly: !attribute_editable?(key, definition, options, content), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'latitude'))}", placeholder: 'z.B. 47,515785' %>
+        </div>
+
+        <%= render_attribute_editor key: 'elevation',
+                                    prefix: key.gsub(/\[key.attribute_name_from_key\]/, ''),
+                                    definition: content&.schema&.dig(*schema_path_from_key(key.gsub(key.attribute_name_from_key, 'elevation'))),
+                                    value: (content.elevation.blank? || content.elevation.zero?) ? nil : content.elevation,
+                                    parameters: { options: { force_render: true, prefix: local_assigns.dig(:options, :prefix) } },
+                                    content: content if content.collect_properties.flatten.include?('elevation') %>
+
+        <%= link_to t('actions.geocode', locale: active_ui_locale, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')), '#',
+          class: 'button geocode-address-button',
+          title: t('actions.geocode', locale: active_ui_locale, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')),
+          data: {
+            address_key: DataCycleCore::Feature::Geocode.address_source(content),
+            locale: I18n.locale.to_s
+          } if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature::Geocode.allowed?(content) %>
+      <% end %>
+    </div>
+  </div>
+
+<% end %>

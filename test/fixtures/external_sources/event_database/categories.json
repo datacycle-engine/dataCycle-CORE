@@ -1,0 +1,222 @@
+[
+  {
+    "_id": {
+      "$oid": "5be5986b32c88f053b10a2cb"
+    },
+    "external_id": "558c15096d65640b8f250000",
+    "dump": {
+      "de": {
+        "id": "558c15096d65640b8f250000",
+        "name": "Adventure",
+        "parentId": "558c127c6d65640b8f070000"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:39.104Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:39.104Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:39.104Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5986b32c88f053b10a2cc"
+    },
+    "external_id": "558c15096d65640b8f210000",
+    "dump": {
+      "de": {
+        "id": "558c15096d65640b8f210000",
+        "name": "Essen & Trinken",
+        "parentId": "558c127c6d65640b8f070000"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:39.151Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:39.151Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:39.151Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5986b32c88f053b10a2cd"
+    },
+    "external_id": "5a8d9c3a2158b70a85000207",
+    "dump": {
+      "de": {
+        "id": "5a8d9c3a2158b70a85000207",
+        "name": "Exkursionen / Ausflüge",
+        "parentId": "558c127c6d65640b8f070000"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:39.158Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:39.158Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:39.158Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5986b32c88f053b10a2ce"
+    },
+    "external_id": "558c15096d65640b8f290000",
+    "dump": {
+      "de": {
+        "id": "558c15096d65640b8f290000",
+        "name": "Fischen",
+        "parentId": "558c127c6d65640b8f070000"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:39.165Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:39.165Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:39.165Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5986b32c88f053b10a2cf"
+    },
+    "external_id": "558c15096d65640b8f270000",
+    "dump": {
+      "de": {
+        "id": "558c15096d65640b8f270000",
+        "name": "Golf",
+        "parentId": "558c127c6d65640b8f070000"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:39.171Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:39.171Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:39.171Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5986b32c88f053b10a2d0"
+    },
+    "external_id": "558c15096d65640b8f220000",
+    "dump": {
+      "de": {
+        "id": "558c15096d65640b8f220000",
+        "name": "Kulturreisen",
+        "parentId": "558c127c6d65640b8f070000"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:39.176Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:39.176Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:39.176Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5986b32c88f053b10a2d1"
+    },
+    "external_id": "558c15096d65640b8f240000",
+    "dump": {
+      "de": {
+        "id": "558c15096d65640b8f240000",
+        "name": "Kunstvermittlung",
+        "parentId": "558c127c6d65640b8f070000"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:39.180Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:39.180Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:39.180Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5986b32c88f053b10a2d2"
+    },
+    "external_id": "558c15096d65640b8f280000",
+    "dump": {
+      "de": {
+        "id": "558c15096d65640b8f280000",
+        "name": "Messen",
+        "parentId": "558c127c6d65640b8f070000"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:39.183Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:39.183Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:39.183Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5986b32c88f053b10a2d3"
+    },
+    "external_id": "558c15096d65640b8f230000",
+    "dump": {
+      "de": {
+        "id": "558c15096d65640b8f230000",
+        "name": "Märkte",
+        "parentId": "558c127c6d65640b8f070000"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:39.186Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:39.186Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:39.186Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5986b32c88f053b10a2d4"
+    },
+    "external_id": "558c15096d65640b8f200000",
+    "dump": {
+      "de": {
+        "id": "558c15096d65640b8f200000",
+        "name": "Rad, Wandern & Laufen",
+        "parentId": "558c127c6d65640b8f070000"
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T14:23:39.188Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T14:23:39.188Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T14:23:39.188Z"
+    }
+  }
+]

@@ -1,0 +1,104 @@
+# frozen_string_literal: true
+
+workbook = xlsx_package.workbook
+
+def render_template(sheet, template)
+  rows = template.schema['properties'].map { |key, definition|
+    convert_attribute_to_row(key, definition)
+  }.reduce([]) do |all, next_element|
+    all + (next_element.all? { |element| element.is_a?(Array) } ? next_element : [next_element])
+  end
+
+  rows = rows.map do |row|
+    first_filled_cell_index = row.find_index(&:present?)
+
+    row[0..first_filled_cell_index] + Array.new(rows.map(&:size).max - row.size) + row[(first_filled_cell_index + 1)..-1]
+  end
+
+  sheet.add_row([template.template_name], style: [sheet.styles.add_style(sz: 18)])
+  sheet.merge_cells("A1:#{('A'.ord + rows.map(&:size).max - 1).chr}1")
+
+  sheet.add_row
+  sheet.add_row
+
+  sheet.column_widths(*(Array.new(rows.map(&:size).max - 4, 10) + [nil, 25, 15, nil]))
+
+  rows.each do |row|
+    sheet.add_row(row)
+  end
+end
+
+def convert_attribute_to_row(key, definition)
+  case definition['type']
+  when 'key'
+    convert_string_attribute_to_row(key, definition)
+  when 'datetime'
+    convert_datetime_attribute_to_row(key, definition)
+  when 'string'
+    convert_string_attribute_to_row(key, definition)
+  when 'classification'
+    convert_classification_attribute_to_row(key, definition)
+  when 'object'
+    convert_object_attribute_to_rows(key, definition)
+  when 'embedded'
+    convert_embedded_attribute_to_rows(key, definition)
+  when 'linked'
+    convert_linked_attribute_to_rows(key, definition)
+  else
+    [definition['label'], key, definition['type'].capitalize, nil]
+  end
+end
+
+def convert_key_attribute_to_row(key, definition)
+  [definition['label'], key, 'Text', nil]
+end
+
+def convert_datetime_attribute_to_row(key, definition)
+  [definition['label'], key, 'DateTime', nil]
+end
+
+def convert_string_attribute_to_row(key, definition)
+  [definition['label'], key, 'Text', nil]
+end
+
+def convert_classification_attribute_to_row(key, definition)
+  [definition['label'], key, definition['type'].capitalize, " => siehe Klassifizierungsbaum '#{definition['tree_label']}'"]
+end
+
+def convert_object_attribute_to_rows(key, definition)
+  [[definition['label'], key, nil, nil]] + definition['properties'].map do |property_key, property_definition|
+    [nil] + convert_attribute_to_row(property_key, property_definition)
+  end
+end
+
+def convert_embedded_attribute_to_rows(key, definition)
+  embedded_template = DataCycleCore::Thing.find_by(template: true, template_name: definition['template_name'])
+
+  # rubocop:disable Performance/FlatMap
+  [[definition['label'], key, nil, nil]] + embedded_template.schema['properties'].map { |property_key, property_definition|
+    nested_attributes = convert_attribute_to_row(property_key, property_definition)
+
+    if nested_attributes.all? { |attribute| attribute.is_a?(Array) }
+      nested_attributes.map { |attribute| [nil] + attribute }
+    else
+      [[nil] + convert_attribute_to_row(property_key, property_definition)]
+    end
+  }.flatten(1)
+  # rubocop:enable Performance/FlatMap
+end
+
+def convert_linked_attribute_to_rows(key, definition)
+  [definition['label'], key, nil, ' => Verknüpfung']
+end
+
+DataCycleCore::Schema.templates_with_content_type('container').each do |template|
+  workbook.add_worksheet(name: template.template_name) do |sheet|
+    render_template(sheet, template)
+  end
+end
+
+DataCycleCore::Schema.templates_with_content_type('entity').each do |template|
+  workbook.add_worksheet(name: template.template_name) do |sheet|
+    render_template(sheet, template)
+  end
+end

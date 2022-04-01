@@ -1,0 +1,64 @@
+---
+- :data:
+    :name: Thing-With-Overlay
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: Thing-Overlay
+
+- :data:
+    :name: Thing-Overlay
+    :type: object
+    :content_type: embedded
+    :schema_type: CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+      :validity_period:
+        :label: Zeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: valid_from
+            :to: valid_until
+        :properties:
+          :valid_from:
+            :label: Gültigkeit
+            :type: datetime
+            :storage_location: value
+          :valid_until:
+            :label: bis
+            :type: datetime
+            :storage_location: value
+      :embedded:
+        :label: Embedded Overlay
+        :type: embedded
+        :template_name: Embedded-Creative-Work-2
+      :linked:
+        :label: Linked Bild
+        :type: linked
+        :template_name: Bild

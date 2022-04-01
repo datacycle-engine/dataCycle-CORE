@@ -1,0 +1,4 @@
+<%= tag.send(wrapper_tag, class: 'accordion-child-buttons') do %>
+  <a href="#" class="accordion-close-all <%= local_assigns[:additional_classes] %>" data-dc-tooltip="<%= t('embedded.close_all', locale: active_ui_locale) %>"><i class="fa fa-angle-double-up"></i></a>
+  <a href="#" class="accordion-open-all <%= local_assigns[:additional_classes] %>" data-dc-tooltip="<%= t('embedded.open_all', locale: active_ui_locale) %>"><i class="fa fa-angle-double-down"></i></a>
+<% end %>

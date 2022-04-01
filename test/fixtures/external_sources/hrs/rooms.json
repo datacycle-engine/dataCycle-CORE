@@ -1,0 +1,276 @@
+[
+  {
+    "_id" : "5cc841c723104023724ebc38",
+    "external_id" : "203-AT_UAB8-02-03-01",
+    "dump" : {
+        "de" : {
+            "id" : "203-AT_UAB8-02-03-01-ROOM_2",
+            "o_bezeichnung" : {
+                "text" : "Kräuterbauernhof Erath"
+            },
+            "o_id" : {
+                "text" : "203-AT_UAB8-02-03-01"
+            },
+            "o_strasse" : {
+                "text" : "Argenau 116"
+            },
+            "o_plz" : {
+                "text" : "6883"
+            },
+            "o_ort" : {
+                "text" : "Au"
+            },
+            "o_bemerkung" : {
+                "language_id" : "1",
+                "text" : "Vergessen Sie den Alltag und genießen Sie die Atmosphäre eines über 400 Jahre alten Bregenzerwälder-Hauses.<br/><br/>. eigener, beschrifteter Kräutergarten<br/>· typisches Bregenzerwälder-Bauernhaus mit besonderem Blumenschmuck<br/>· viele Wander- und Spazierwege mit Einkehrmöglichkeiten in unmittelbarer Nähe <br/>· direkt am Radweg <br/>· 5-10 min zu den Geschäften, Restaurants, Bank, Post, Tourismusbüro, Seilbahnen, Schwimmbad und Spielplatz<br/>· schöne ruhige Lage und dennoch zentral"
+            },
+            "o_lage" : {
+                "language_id" : "1",
+                "text" : "3 Skigebiete, Rodelbahnen, Sportgeschäfte, Tennisplätze, Freibäder, Spielplatz, Klettergarten, Radweg, Wanderwege<br/>"
+            },
+            "o_land" : {
+                "iso3166_alpha2" : "AT",
+                "text" : "Österreich"
+            },
+            "o_gps" : {
+                "longitude" : {
+                    "text" : "9.984941"
+                },
+                "latitude" : {
+                    "text" : "47.320731"
+                }
+            },
+            "o_ausstattung" : {
+                "ausstattung" : [
+                    {
+                        "value" : "Y",
+                        "position" : "3"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "5"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "15"
+                    }
+                ]
+            },
+            "o_bild" : {
+                "bild" : [
+                    {
+                        "formate" : "1,2,3,4",
+                        "beschreibung" : "Kräuterbauernhof Erath",
+                        "o_width" : "800",
+                        "o_height" : "600",
+                        "category" : "exterior",
+                        "text" : "https://holidayinsider.s3.amazonaws.com/hi/203/AT_UAB8-02-03-01/kraeuterbauernhof-erath_31177_l.jpg"
+                    }
+                ]
+            },
+            "o_category" : {
+                "category" : [
+                    {
+                        "value" : "Y",
+                        "position" : "2"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "1"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "5"
+                    }
+                ]
+            },
+            "o_category_single" : {
+                "id" : "2",
+                "text" : "Bauernhof"
+            },
+            "o_leisure" : {
+                "leisure" : [
+                    {
+                        "position" : "2",
+                        "name" : "Familie/Kinder"
+                    },
+                    {
+                        "position" : "3",
+                        "name" : "Bauernhof"
+                    },
+                    {
+                        "position" : "4",
+                        "name" : "Wandern/Walking"
+                    }
+                ]
+            },
+            "z_bezeichnung" : {
+                "language_id" : "1",
+                "text" : "Ferienwohnung Arnika"
+            },
+            "z_bemerkung" : {
+                "language_id" : "1",
+                "text" : "Das Appartement hat ein Schlafzimmer mit einem Doppelbett, eine Wohnküche mit TV und ein Badezimmer mit Dusche/WC. Handtücher und Bettwäsche stehen für Sie bereit."
+            },
+            "z_category" : {
+                "category" : {
+                    "value" : "Y",
+                    "position" : "5"
+                }
+            },
+            "z_bild" : {
+                "bild" : [
+                    {
+                        "formate" : "1,2,3,4",
+                        "beschreibung" : "Ferienwohnung 2 - Schlafzimmer",
+                        "o_width" : "1625",
+                        "o_height" : "1080",
+                        "category" : "other",
+                        "text" : "https://holidayinsider.s3.amazonaws.com/hi/203/AT_UAB8-02-03-01/AT_UAB8-02-03-01-ROOM_2-/kraeuterbauernhof-erath_zimmer-31172_l.jpg"
+                    }
+                ]
+            },
+            "o_sterne" : {
+                "text" : "3"
+            },
+            "k_groesse" : {
+                "text" : "35"
+            },
+            "k_max_personen" : {
+                "text" : "2"
+            },
+            "k_min_personen" : {
+                "text" : "2"
+            },
+            "k_bedrooms" : {
+                "text" : "1"
+            },
+            "k_ausstattung" : {
+                "ausstattung" : [
+                    {
+                        "value" : "Y",
+                        "position" : "84"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "4"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "34"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "35"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "41"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "20"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "25"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "5"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "7"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "68"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "46"
+                    },
+                    {
+                        "value" : "Y",
+                        "position" : "1001"
+                    }
+                ]
+            },
+            "ab_preis" : {
+                "text" : "51"
+            },
+            "o_waehrung" : {
+                "iso4217" : "EUR"
+            },
+            "distances" : {
+                "distance" : [
+                    {
+                        "typ" : "bahnhof",
+                        "name" : "Zugbahnhof",
+                        "distance_in_km" : "40.0"
+                    },
+                    {
+                        "typ" : "bus",
+                        "name" : "Bushaltestelle",
+                        "distance_in_km" : "0.2"
+                    },
+                    {
+                        "typ" : "restaurant",
+                        "name" : "Restaurant",
+                        "distance_in_km" : "0.2"
+                    },
+                    {
+                        "typ" : "schwimmbad",
+                        "name" : "Schwimmbad",
+                        "distance_in_km" : "0.4"
+                    },
+                    {
+                        "typ" : "skilift",
+                        "name" : "Skilift",
+                        "distance_in_km" : "0.3"
+                    },
+                    {
+                        "typ" : "loipe",
+                        "name" : "Loipe",
+                        "distance_in_km" : "0.2"
+                    }
+                ]
+            },
+            "foreignlanguages" : {
+                "language" : [
+                    {
+                        "typ" : "englisch"
+                    },
+                    {
+                        "typ" : "deutsch"
+                    }
+                ]
+            },
+            "k_normal_personen" : {
+                "text" : "2"
+            },
+            "o_url" : {
+                "text" : "https://holidays.hrs.de/unterkunftsverzeichnis/kraeuterbauernhof-erath?sp_id=203-AT_UAB8-02-03-01"
+            },
+            "ratingSummary" : {
+                "firstImpressionScore" : {
+                    "text" : "75"
+                }
+            },
+            "seoIndexAllowed" : {
+                "text" : "true"
+            },
+            "premiumSale" : {
+                "text" : "false"
+            },
+            "bookingType" : {
+                "text" : "book"
+            }
+        }
+    },
+    "seen_at" : "2019-04-30T12:38:31.274Z",
+    "updated_at" : "2019-04-30T12:38:31.275Z",
+    "created_at" : "2019-04-30T12:38:31.262Z"
+  }
+]

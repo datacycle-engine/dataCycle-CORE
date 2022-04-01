@@ -1,0 +1,47 @@
+body.documentation {
+  section.breadcrumb {
+    margin-bottom: 2rem;
+  }
+
+  main {
+    min-height: calc(100vh - 19rem);
+
+    max-width: 80rem;
+    margin: auto;
+  }
+
+  h3 {
+    font-style: italic;
+  }
+
+  h4 {
+    font-size: 120%;
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  pre {
+    border: 1px solid #e5e5e5;
+    background-color: #e6e6e6;
+    padding: 1rem;
+  }
+
+  p {
+    margin-bottom: 1rem;
+  }
+
+  pre {
+    margin-bottom: 2rem;
+  }
+
+  li > p {
+    margin-bottom: 0;
+  }
+
+  li:last-child {
+    margin-bottom: 1rem;
+  }
+  li li li:last-child {
+    margin-bottom: 0;
+  }
+}

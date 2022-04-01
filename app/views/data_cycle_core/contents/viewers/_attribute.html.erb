@@ -1,0 +1,21 @@
+<% if value.present? || options.dig(:force_render).to_s == 'true' || value.is_a?(FalseClass) %>
+
+  <% mode = options.dig(:mode) || 'has-changes edit' %>
+
+  <%= tag.div class: "detail-type #{[
+                key.attribute_name_from_key,
+                definition.dig('type').try(:underscore),
+                definition.dig('compute', 'type'),
+                definition.dig('ui', 'show', 'type').try(:underscore),
+                options.dig(:item_diff).present? ? "#{mode}" : "",
+                options.dig('class'),
+                ('is-embedded-title' if local_assigns[:parent]&.embedded_title_property_name.present? && key.attribute_name_from_key == local_assigns[:parent].embedded_title_property_name)
+            ].reject(&:blank?).join(' ')}", data: (local_assigns[:data_attributes]&.transform_values{ |v| v&.to_s&.html_safe } || {}).merge(label: local_assigns[:data_label] || translated_attribute_label(key, definition, local_assigns[:content], options), key: key) do %>
+
+    <%= attribute_viewer_label_tag(key, definition, local_assigns[:content], options) if options.dig(:hide_label).blank? %>
+
+    <%= yield %>
+
+  <% end %>
+
+<% end %>

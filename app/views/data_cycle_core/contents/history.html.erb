@@ -1,0 +1,76 @@
+<% breadcrumb :show_history, @content, @watch_list %>
+
+<% content_for :top_content do %>
+
+  <div>
+    <section class="edit-header">
+      <div class="row expanded">
+        <div class="column edit-header-functions">
+          <div class="edit-name">
+            <i class="fa fa-history" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: active_ui_locale) %>
+          </div>
+          <ul>
+            <% if can?(:restore_version, @diff_source) %>
+              <li>
+                <%= link_to tag.i(class: 'fa fa-bolt', aria_hidden: true),
+                            restore_history_version_thing_path(id: @content.id, history_id: @diff_source&.id),
+                            method: :post,
+                            class: 'button alert clear restore-version-button',
+                            title: t('history.restore.version.title', locale: active_ui_locale),
+                            data: {
+                              confirm: t('history.restore.version.confirmation_html', history_version_html: history_version_html(@diff_source), locale: active_ui_locale)
+                            } %>
+              </li>
+            <% end %>
+            <li class="has-dropdown">
+              <a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= t('common.version', locale: active_ui_locale) %></a>
+
+              <div class="dropdown-pane no-bullet bottom align-right"
+                id="show-history"
+                data-dropdown
+                data-hover="true"
+                data-hover-pane="true">
+                <div class="remote-render"
+                    data-remote-path="data_cycle_core/application/histories"
+                    data-remote-options="<%= to_query_params({ content: @content, history_id: @diff_source&.id }).to_json %>">
+                </div>
+              </div>
+            </li>
+            <li class="buttons"></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="column">
+
+      <div class="detail-content detail-content-wrapper">
+
+        <% I18n.with_locale(@diff_source.first_available_locale) do %>
+
+          <div class="detail-content row">
+            <div class="show-content">
+              <div class="detail-header-info diff">
+                <%= render 'diff_meta_data', content: @diff_source %>
+
+                <span class="meta-data-splitter">
+                  <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                </span>
+
+                <%= render 'diff_meta_data', content: @content %>
+              </div>
+
+            </div>
+          </div>
+
+          <%= render_content_partial 'history', content: @diff_source, options: { compare: true, force_render: true } %>
+
+        <% end %>
+
+      </div>
+
+    </div>
+
+  </div>
+
+<% end %>

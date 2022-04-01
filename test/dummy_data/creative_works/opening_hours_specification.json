@@ -1,0 +1,34 @@
+[
+  {
+    "start_time": {
+      "time": "2019-10-10 10:00",
+      "zone": "Europe/Vienna"
+    },
+    "duration": 3600,
+    "rrules": [
+      {
+        "rule_type": "IceCube::WeeklyRule",
+        "validations": {
+          "day": [1]
+        },
+        "until": "2019-10-17 23:59"
+      }
+    ]
+  },
+  {
+    "start_time": {
+      "time": "2019-10-10 13:00",
+      "zone": "Europe/Vienna"
+    },
+    "duration": 3600,
+    "rrules": [
+      {
+        "rule_type": "IceCube::WeeklyRule",
+        "validations": {
+          "day": [1]
+        },
+        "until": "2019-10-17 23:59"
+      }
+    ]
+  }
+]

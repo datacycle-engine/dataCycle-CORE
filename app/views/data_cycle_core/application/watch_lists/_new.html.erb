@@ -1,0 +1,20 @@
+<% if can?(:create, DataCycleCore::WatchList) %>
+  <div class="add-watchlist<%= ' add-watchlist-to-menu' if content.nil? %>">
+    <%
+      @new_watch_list ||= DataCycleCore::WatchList.new
+      namespace = content.nil? ? "header-menu" : content.id
+      identifier = "#{namespace}_new_watch_list"
+    %>
+
+    <%= form_for(@new_watch_list, namespace: namespace, html: { class: "add-watchlist-form", id: identifier }, remote: true) do |f| %>
+      <div class="validation-container form-element">
+        <%= hidden_field_tag :new_form_id, identifier %>
+        <%= f.text_field :full_path, class: 'form-control', value:'', placeholder: t('collection.new', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale), required: true %>
+        <%= button_tag(type: 'submit', class: "button primary") do %>
+          <i class="fa fa-plus" aria-hidden="true"></i>
+        <% end %>
+      </div>
+
+    <% end %>
+  </div>
+<% end %>

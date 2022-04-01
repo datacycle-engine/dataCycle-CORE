@@ -1,0 +1,21 @@
+<div class="watch-list-dropdown link">
+  <a id="add-to-watchlist-link" class="watch-lists-link" data-toggle="watch-lists-<%= local_assigns[:prefix] %><%= content.id %>">
+    <%= watch_list_link_icon(content) %>
+  </a>
+
+  <div class="dropdown-pane no-bullet watch-lists"
+    id="watch-lists-<%= local_assigns[:prefix] %><%= content.id %>"
+    data-dropdown
+    data-content-id="<%= content&.id %>"
+    data-content-type="<%= content&.class&.name %>">
+    <h5><%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %></h5>
+
+    <%= render 'data_cycle_core/application/watch_lists/filter', local_assigns %>
+    <ul class="list-items no-bullet remote-render"
+      id="watch-lists-for-<%= local_assigns[:prefix] %><%= content.id %>"
+      data-remote-path="data_cycle_core/application/watch_lists/editable_link_collection"
+      data-remote-options="<%= to_query_params(local_assigns).to_json %>">
+    </ul>
+    <%= render 'data_cycle_core/application/watch_lists/new', local_assigns %>
+  </div>
+</div>

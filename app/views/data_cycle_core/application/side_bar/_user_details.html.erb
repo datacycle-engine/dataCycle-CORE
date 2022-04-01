@@ -1,0 +1,23 @@
+<div class="settings-row">
+  <div class="row columns">
+    <h5><%= t('data_cycle_core.user_details', locale: active_ui_locale) %></h5>
+  </div>
+  <div class="row columns">
+    <% if can? :update, current_user %>
+      <%= link_to edit_user_path(current_user), class: 'edit-user-link', title: current_user&.full_name do %>
+        <span class="icon"><i class="fa fa-smile-o" aria-hidden="true"></i></span>
+        <span class="title"><%= current_user&.full_name %></span>
+        <span class="icon icon-edit"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+      <% end %>
+    <% else %>
+      <span class="icon"><i class="fa fa-smile-o" aria-hidden="true"></i></span>
+      <span class="title" title="<%= current_user&.full_name %>"><%= current_user&.full_name %></span>
+    <% end %>
+  </div>
+  <% if current_user.access_token.present? %>
+    <div class="row columns access-token">
+      <span class="icon"><i class="fa fa-key" aria-hidden="true"></i></span>
+      <span class="title copy-to-clipboard with-shadow" data-dc-tooltip="<%= DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale) %>" data-value="<%= current_user.access_token %>"><%= current_user.access_token %></span>
+    </div>
+  <% end %>
+</div>

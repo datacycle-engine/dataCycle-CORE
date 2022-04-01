@@ -1,0 +1,34 @@
+<div class="reveal" id="add-items-to-watch-list-overlay" data-reveal>
+  <h3><%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %></h3>
+  <%= form_with url: add_to_watchlist_stored_filters_path, local: true, id: 'add-items-to-watch-list-form' do |f| %>
+    <div class="validation-container form-element">
+      <%= f.label :watch_list, DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %>
+      <div class="v-select white">
+        <%= f.collection_select(:watch_list,
+          DataCycleCore::WatchList.accessible_by(current_ability).conditional_my_selection.order(updated_at: :desc),
+          :id,
+          :name,
+          {},
+          {
+            class: 'single-select',
+            id: 'add-items-to-watch-list-select',
+            data: {
+              allow_clear: false,
+              tags: true
+            }
+          }) %>
+      </div>
+    </div>
+    <div class="buttons">
+      <%= f.button t('actions.add', locale: active_ui_locale),
+        class: 'button primary',
+        data: {
+          disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.add', locale: active_ui_locale)}"
+        },
+        type: :submit %>
+    </div>
+  <% end %>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

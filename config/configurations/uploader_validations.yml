@@ -1,0 +1,5 @@
+:text_file:
+  :format:
+    - pdf
+  :file_size:
+    :max: <%= 5.megabytes %>

@@ -1,0 +1,274 @@
+---
+- :data:
+    :name: Pauschalangebot
+    :type: object
+    :schema_type: Intangible
+    :content_type: entity
+    :boost: 100.0
+    :api:
+      :type:
+        - Intangible
+        - Offer
+        - AggregateOffer
+    :features:
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :ui:
+          :show:
+            :content_area: none
+        :api:
+          :minimal: true
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :text:
+        :label: Beschreibung (lang)
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :content_description:
+        :label: Inhaltsbeschreibung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :api:
+          :transformation:
+            :method: nest
+            :name: dataCycleProperty
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
+      :content_text:
+        :label: Inhaltsbeschreibung (lang)
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :api:
+          :transformation:
+            :method: nest
+            :name: dataCycleProperty
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :feratel_offer_classifications:
+        :type: mixin
+        :name: feratel_offer_classifications
+      :feratel_owners:
+        :label: Feratel - Inhaber
+        :type: classification
+        :tree_label: Feratel - Inhaber
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
+      :low_price:
+        :label: ab Preis
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :high_price:
+        :label: bis Preis
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :price_specification:
+        :label: Preis
+        :type: embedded
+        :template_name: Preis
+        :translated: true
+        :advanced_search: true
+      # schema.org: correct name: eligible_region vs areaServed
+      :eligable_region:
+        :label: Anbieter
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :v4:
+            :name: eligibleRegion
+      #            :name: areaServed
+      :url:
+        :label: Angebots URL
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :format: url
+        :api:
+          :v4:
+            :name: sameAs
+      :offered_by:
+        :label: Ansprechpartner
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :offers:
+        :label: Angebote
+        :type: embedded
+        :template_name: Angebot
+        :translated: true
+        :advanced_search: true
+      :offer_period:
+        :label: Angebotszeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: valid_from
+            :to: valid_through
+        :ui:
+          :edit:
+            :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
+        #        :advanced_search: true
+        :properties:
+          :valid_from:
+            :label: 'Zeitraum von'
+            :type: date
+            :storage_location: value
+            :ui:
+              :edit:
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+          #            :advanced_search: true
+          :valid_through:
+            :label: 'bis'
+            :type: date
+            :storage_location: value
+            :ui:
+              :edit:
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+      #            :advanced_search: true
+      :potential_action:
+        :label: Buchungs-Url
+        :type: object
+        :storage_location: translated_value
+        :api:
+          :type: Action
+        :properties:
+          :action_name:
+            :label: Name
+            :type: string
+            :storage_location: translated_value
+            :api:
+              :name: name
+          :action_url:
+            :label: URL
+            :type: string
+            :storage_location: translated_value
+            :ui:
+              :show:
+                :type: url
+            :api:
+              :name: url
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+        :api:
+          :name: photo
+          :minimal: true
+          :v4:
+            :name: image
+      :additional_aggregate_offer_properties:
+        :type: mixin
+        :name: additional_aggregate_offer_properties
+      :external_source_attributes:
+        :type: mixin
+        :name: external_source_attributes
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Pauschalangebot'
+      :external_key:
+        :label: external_key
+        :type: string
+        :storage_location: column
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :disabled: true
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

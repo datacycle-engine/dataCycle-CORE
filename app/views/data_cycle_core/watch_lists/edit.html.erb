@@ -1,0 +1,21 @@
+<% breadcrumb :edit, @watch_list, :name %>
+
+<% content_for :top_content do %>
+
+<div>
+
+    <div id="edit-form">
+
+        <%= render 'form', keyPrefix: 'watch_list[datahash]', content: @watch_list %>
+
+    </div>
+
+</div>
+
+<% end %>
+
+<% content_for :title do %>
+  <%= "#{@watch_list.model_name.human(locale: active_ui_locale)}: " +
+      "#{@watch_list.name} " +
+      "<#{t('actions.edit', locale: active_ui_locale).upcase}>" %>
+<% end %>

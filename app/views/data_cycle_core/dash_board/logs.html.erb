@@ -1,0 +1,38 @@
+<section>
+    <div class="row">
+        <div class="small-12 columns">
+            <h2> <br/><%= @dataname %> log-files:</h2>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="row small-uncollapse">
+        <div class="small-6 columns">
+            <strong><em>
+                Import from external interface to MongoDB:
+                <br/>&nbsp;
+            </em></strong>
+        </div>
+        <div class="small-6 columns">
+            <strong><em>
+                Load data from MongoDB into PostgreSQL:
+                <br/>&nbsp;
+            </em></strong>
+        </div>
+    </div>
+    <div class="row small-uncollapse">
+        <div class="small-6 columns logs">
+            <%#= Logreader.read("./log/#{@dataname.downcase}_import.log").html_safe %>
+            <%= Logreader.tail("./log/#{@dataname.downcase}_download.log",2000) %>
+        </div>
+        <div class="small-6 columns logs">
+            <%= Logreader.tail("./log/#{@dataname.downcase}_import.log",2000) %>
+        </div>
+    </div>
+    <div class="row small-uncollapse">
+        <div class="small-12 columns">
+            <br/>
+            <%= link_to 'back', root_path, class: "button" %>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,25 @@
+<li id="<%= item.id %>" data-parent-classification="<%= local_assigns[:classification_parent_tree]&.id || classification_tree.id %>" class="content-row">
+  <div class="inner-item container">
+    <%= link_to request.params.slice(:language, :f, :stored_filter).merge({ con_id: item.id, ctl_id: classification_tree_label&.id, cpt_id: local_assigns[:classification_parent_tree]&.id || classification_tree.id, mode: @mode }), data: { remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}" }, class: "tree-link type #{item.template_name.downcase}" do %>
+      <span class="icon"><i class="folder-icon"></i></span>
+      <span><%= item.translated_template_name(active_ui_locale) %> - </span>
+      <span class="title" title="<%= item.title %>"><%= item.try(:title) %></span>
+      <span class="children-count">
+        (
+        <span class="child-count-full remote-render"
+            id="container-child-count-<%= classification_tree.id %>-<%= item.id %>"
+            data-remote-render-params="<%= to_query_params(request.params.slice(:language, :f, :stored_filter, :watch_list_id, :id).merge({ action: controller.action_name, controller: controller.controller_name, ctl_id: classification_tree_label&.id, ct_id: classification_tree.id, con_id: item.id, mode: @mode, count_only: true, count_mode: 'container' })).to_json %>"
+            >-</span>
+        )
+      </span>
+    <% end %>
+
+    <div class="buttons">
+      <%= link_to tag.i(class: 'fa fa-external-link'), thing_path(item, watch_list_id: @watch_list&.id), target: :_blank, class: 'link-to-item' %>
+
+      <%= yield_content!(:media_buttons) %>
+    </div>
+  </div>
+
+  <ul class="contents no-bullet"></ul>
+</li>

@@ -1,0 +1,9 @@
+<div class="subscribe-parent notice">
+  <p>Sie sollten diesen Inhalt (<%= split_source.template_name %>) abonnieren, um Ihren neu erstellten Inhalt (<%= content.template_name %>) aktuell halten zu können.</p>
+
+  <%= link_to t('actions.subscribe', locale: active_ui_locale).capitalize, create_subscriptions_path(subscribable_id: split_source.id, subscribable_type: split_source.class.name), method: :post %>
+
+  <button name="button" type="button" class="close-subscribe-notice" data-close aria-label="Dismiss Notice">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>

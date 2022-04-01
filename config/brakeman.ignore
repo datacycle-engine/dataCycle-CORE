@@ -1,0 +1,26 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "d8daa1f9017fb38eed06349832042a3ca85d9da8ab70d0fee933ae26219a8340",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/data_cycle_core/data_links_controller.rb",
+      "line": 87,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path, :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name.presence or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => helpers.active_ui_locale)).underscore_blanks}.#{(MiniMime.lookup_by_content_type(DataCycleCore::DataLink.find(params[:id]).text_file.content_type).extension or DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last)}\"))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore::DataLinksController",
+        "method": "get_text_file"
+      },
+      "user_input": "DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path",
+      "confidence": "Medium",
+      "note": ""
+    }
+  ],
+  "updated": "2021-08-17 12:32:51 +0200",
+  "brakeman_version": "5.1.1"
+}

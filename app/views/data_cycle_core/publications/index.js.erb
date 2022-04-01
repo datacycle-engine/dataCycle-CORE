@@ -1,0 +1,23 @@
+(function(){
+  let new_html = $('<%= escape_javascript render 'publication_list', contents: @contents %>');
+
+  if (new_html.filter('.publication-year').first().data('year') == '<%= params[:last_year] %>'){
+    let year_content = new_html.splice(new_html.index(new_html.filter('.publication-year').first()), 1);
+
+    if ($(year_content).find('.publication-month').first().data('month') == '<%= params[:last_month] %>'){
+      let month_content = $(year_content).find('.publication-month').first().detach();
+
+      if ($(month_content).find('.publication-day').first().data('day') == '<%= params[:last_day] %>'){
+        let day_content = $(month_content).find('.publication-day').first().detach();
+        $('.publication-day[data-day="'+day_content.data('day')+'"] > ul').append(day_content.find('.publication-content'));
+      }
+
+      $('.publication-month[data-month="'+month_content.data('month')+'"] > ul').append(month_content.find('.publication-day'));
+    }
+
+    $('.publication-year[data-year="'+$(year_content).data('year')+'"] > ul').append($(year_content).find('.publication-month'));
+  }
+
+  $(new_html).foundation().appendTo('.publications-list > .row > ul');
+  Foundation.reInit($('.publications-list .accordion'));
+})();

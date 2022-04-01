@@ -1,0 +1,9 @@
+<div class="type <%= item.template_name.downcase %>">
+  <div class="infoRow parent">
+    <%= render 'data_cycle_core/shared/icon', icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks, icon_type: "#{item.template_name.underscore_blanks}#{"_#{item.try(:life_cycle_stage)&.name&.underscore_blanks}" if DataCycleCore::Feature::LifeCycle.allowed?(item) && DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(item).present? && item.content_type?('container')}" %>
+
+    <% I18n.with_locale(item.first_available_locale(@language)) do %>
+      <span class="title" title="<%= item.title %>"><%= item.title %></span>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,37 @@
+---
+- :data:
+    :name: hrs
+    :type: mixin
+    :properties:
+      :hrs_categories:
+        :label: HRS - Categories
+        :type: classification
+        :tree_label: HRS - Categories
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :hrs_facilities:
+        :label: HRS - Facilities
+        :type: classification
+        :tree_label: HRS - Facilities
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :hrs_target_groups:
+        :label: HRS - Target-Groups
+        :type: classification
+        :tree_label: HRS - Target-Groups
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :hrs_stars:
+        :label: HRS - Stars
+        :type: classification
+        :tree_label: HRS - Stars
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

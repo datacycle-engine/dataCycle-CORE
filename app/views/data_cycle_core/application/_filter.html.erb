@@ -1,0 +1,97 @@
+<% filter_config = DataCycleCore::Feature::MainFilter.available_filters(view: view_type, user: current_user, selected_filters: @filters) %>
+
+<%= form_with(url: request.path, local: true, id: 'search-form', data: {
+  add_filter_path: add_filter_path,
+  add_tag_group_path: add_tag_group_path,
+  stored_filter: @stored_filter&.id,
+  mode: @mode,
+  ctl_id: @classification_tree_label&.id,
+  ct_id: @classification_tree&.id
+}) do %>
+  <%= hidden_field_tag 'mode', @mode %>
+  <%= hidden_field_tag 'ct_id', @classification_tree&.id %>
+  <%= hidden_field_tag 'ctl_id', @classification_tree_label&.id %>
+
+  <%= conditional_filter_accordion(filter_config) do %>
+    <div class="row">
+      <div class="column filter-body">
+        <% filter_config[:filter].each do |filter| %>
+          <%= render "data_cycle_core/application/filters/sections/#{filter[:type]}", filter: filter, config: filter_config %>
+        <% end %>
+
+        <%= render 'data_cycle_core/application/filters/sections/tag_groups',
+                    config: filter_config,
+                    filters: @filters,
+                    selected_classification_aliases: @selected_classification_aliases %>
+
+        <div class="languagetags">
+          <%= render 'data_cycle_core/application/filters/tag_groups/language',
+                      title: 'Sprache',
+                      key: 'language',
+                      target: 'language',
+                      value: @language,
+                      buttons: 'd' %>
+        </div>
+
+        <div class=" filterbuttons clearfix">
+          <div class="filterbuttons-left">
+            <%= button_tag type: :submit, class: "button success", data: {
+                           disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.searching', locale: active_ui_locale)} ..."
+                         } do %>
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <%= t('actions.filter', locale: active_ui_locale) %>
+            <% end %>
+
+            <%= render 'data_cycle_core/application/filters/sections/language' if filter_config[:language] %>
+
+            <div class="expandable-buttons">
+              <%= button_tag type: :button, id: 'save-filter', data: { open: 'save-filter-with-name' } do %>
+                <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                <span class="expandable">
+                  <%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %>
+                </span>
+              <% end if can?(:create, DataCycleCore::StoredFilter) && filter_config[:store] %>
+
+              <%= link_to request.path + '?reset=true', class: 'button', id: 'reset-filter' do %>
+                <i class="fa fa-times" aria-hidden="true"></i>
+                <span class="expandable">
+                  <%= t('actions.reset', count: 2, locale: active_ui_locale) %>
+                </span>
+              <% end %>
+
+              <%= button_tag type: :button, id: 'add-items-to-watch-list', data: { open: 'add-items-to-watch-list-overlay' } do %>
+                <span class="fa-stack">
+                  <i class="fa fa-bookmark fa-stack-2x"></i>
+                  <i class="fa fa-plus fa-stack-1x"></i>
+                </span>
+                <span class="expandable">
+                  <%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %>
+                </span>
+              <% end if can?(:add_item, DataCycleCore::WatchList) && filter_config[:add_items_to_watch_list] %>
+            </div>
+          </div>
+
+          <div class="filterbuttons-right">
+            <% if can?(:show_history, DataCycleCore::StoredFilter) && filter_config[:store] %>
+              <%= render 'stored_filters' %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%= render 'data_cycle_core/application/view_mode_selector',
+              sortable: filter_config[:sortable],
+              mode_selector: filter_config[:mode_selector],
+              additional_classes: local_assigns[:additional_classes],
+              additional_request_params: local_assigns[:additional_request_params] %>
+<% end %>
+
+<% if can?(:create, DataCycleCore::StoredFilter) && filter_config[:store] %>
+  <%= render 'data_cycle_core/application/filters/new_stored_filter', local_assigns %>
+<% end %>
+
+<% if can?(:add_item, DataCycleCore::WatchList) && filter_config[:add_items_to_watch_list] %>
+  <%= render 'data_cycle_core/application/filters/add_items_to_watch_list', local_assigns %>
+<% end %>

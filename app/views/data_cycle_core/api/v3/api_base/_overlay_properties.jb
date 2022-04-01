@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+json ||= {}
+DataCycleCore::Feature::OverlayAttributeService.call(content).each do |property|
+  data = content.try(:send, property).includes(:translations, :classifications)
+
+  next if data.blank?
+  data.each do |item|
+    # Rails.cache.fetch("api_v3_#{api_cache_key(item, @language, @include_parameters, @mode_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
+    json.merge! render 'content_details', content: item, options: options.merge({ header_type: :overlay })
+    # end
+  end
+end
+
+json

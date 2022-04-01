@@ -1,0 +1,32 @@
+<%= render 'data_cycle_core/application/filters/tag_groups/language',
+  title: 'Sprache',
+  key: 'language',
+  target: 'language',
+  value: stored_search.language,
+  buttons: false if stored_search.language.present? %>
+
+<% selected_classification_aliases = DataCycleCore::ClassificationAlias.includes(:classification_alias_path)
+  .select(:id, :name)
+  .where(id: stored_search.parameters
+    &.select { |f| f['t'] == 'classification_alias_ids' }
+    &.map { |f| f['v'] }
+    &.flatten
+    &.compact
+    &.uniq
+  )
+  .map { |c| [c.id, c.name] }
+  .to_h %>
+
+<% stored_search.parameters.presence&.reject { |f| f['t'].blank? || f['t'] == 'order' }&.each do |filter| %>
+  <%= render_advanced_filter_tags_partial({
+    filter_type: filter['t'],
+    title: filter['n'],
+    key: filter['n'].presence&.underscore_blanks,
+    target: filter['n'].presence&.underscore_blanks,
+    filter_advanced_type: filter['q'],
+    value: filter['v'],
+    filter_method: filter['m'],
+    selected_classification_aliases: selected_classification_aliases,
+    buttons: false
+  }) %>
+<% end %>

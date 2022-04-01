@@ -1,0 +1,122 @@
+---
+- :data:
+    :name: image_proxy
+    :type: mixin
+    :properties:
+      :virtual_original_url:
+        :label: Virtual Original Url
+        :storage_location: virtual
+        :type: virtual
+        :virtual:
+          :type: string
+          :module: Utility::Virtual::Asset
+          :method: imgproxy
+          :transformation:
+            :version: original
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: true
+            :name: dc:originalUrl
+        :ui:
+          :show:
+            :disabled: true
+      :virtual_content_url:
+        :label: Virtual Content Url
+        :storage_location: virtual
+        :type: virtual
+        :virtual:
+          :type: string
+          :module: Utility::Virtual::Asset
+          :method: imgproxy
+          :transformation:
+            :version: default
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :name: contentUrl
+        :ui:
+          :show:
+            :disabled: true
+      :virtual_thumbnail_url:
+        :label: Virtual Thumbnail Url
+        :storage_location: virtual
+        :type: virtual
+        :virtual:
+          :type: string
+          :module: Utility::Virtual::Asset
+          :method: imgproxy
+          :transformation:
+            :version: thumb
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :name: thumbnailUrl
+        :ui:
+          :show:
+            :disabled: true
+      :virtual_web_url:
+        :label: Virtual Web Url
+        :storage_location: virtual
+        :type: virtual
+        :virtual:
+          :type: string
+          :module: Utility::Virtual::Asset
+          :method: imgproxy
+          :transformation:
+            :version: web
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :name: dc:webUrl
+        :ui:
+          :show:
+            :disabled: true
+      :virtual_web_small_url:
+        :label: Virtual Web Small Url
+        :storage_location: virtual
+        :type: virtual
+        :virtual:
+          :type: string
+          :module: Utility::Virtual::Asset
+          :method: imgproxy
+          :transformation:
+            :version: web_small
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: true
+            :name: dc:webSmallUrl
+        :ui:
+          :show:
+            :disabled: true
+      :virtual_dynamic_url:
+        :label: Virtual Content Url
+        :storage_location: virtual
+        :type: virtual
+        :virtual:
+          :type: string
+          :module: Utility::Virtual::Asset
+          :method: imgproxy
+          :transformation:
+            :version: dynamic
+          :processing:
+            :resize_type: fill
+            :width: 1920
+            :height: 1080
+            :enlarge: 0
+            :gravity: sm
+            :format: jpeg
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: true
+            :name: dc:dynamicUrl
+        :ui:
+          :show:
+            :disabled: true
+
+

@@ -1,0 +1,413 @@
+:publication_schedule:
+  :enabled: false
+
+:download:
+  :enabled: true
+  :downloader:
+    :content:
+      :enabled: true
+      :thing:
+        :enabled: true
+        :serializers:
+          :asset: false
+          :gpx: true
+          :json: false
+          :indesign: false
+          :xml: false
+      :watch_list:
+        :enabled: false
+        :serializers:
+          :asset: false
+          :gpx: false
+          :json: false
+          :indesign: false
+          :xml: false
+      :stored_filter:
+        :enabled: false
+        :serializers:
+          :asset: false
+          :gpx: false
+          :json: false
+          :indesign: false
+          :xml: false
+    :archive:
+      :zip:
+        :enabled: false
+        :thing:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+        :watch_list:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+        :stored_filter:
+          :enabled: false
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: false
+      :indesign:
+        :enabled: false
+        :thing:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :watch_list:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :stored_filter:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+    :dependencies:
+      - serialize
+
+:serialize:
+  :enabled: true
+  :serializers:
+    :asset: false
+    :license: true
+    :gpx: true
+    :indesign: false
+    :json: false
+    :xml: false
+
+:overlay:
+  :enabled: true
+  :attribute_keys:
+    - overlay
+
+:releasable:
+  :enabled: false
+  :attribute_keys:
+    - release_status_id
+    - release_status_comment
+  :classification_names:
+    :valid: freigegeben
+    :partner: beim Partner
+    :review: in Review
+    :archive: archiviert
+
+:life_cycle:
+  :enabled: false
+
+:idea_collection:
+  :enabled: false
+
+:container:
+  :enabled: false
+
+:main_filter:
+  :enabled: true
+  :autoload_last_filter: true
+  :config:
+    :backend:
+      :filter:
+        - :search: true
+          # - :classification_tree: Inhaltstypen # toplevel classifications from this tree will be available as clickable buttons
+        - :classification_trees:
+            - Inhaltstypen
+          # - :permanent_advanced: # always visible advanced filtesrs, can be a array with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
+        - :advanced: true # can be a array with the same config as :advanced_filter:, this filters will always be shown in the advanced filter section
+      :store: true
+      :add_items_to_watch_list: true
+      :language: true
+      :mode_selector: true
+      :sortable: true
+    :things:
+      :filter:
+        - :search: true
+        - :classification_trees:
+            - 'Inhaltstypen'
+      :language: true
+      :mode_selector: true
+      :collapse: true
+    :collection:
+      :filter:
+        - :search: true
+        - :classification_trees:
+            - 'Inhaltstypen'
+      :language: true
+      :mode_selector: true
+      :collapse: true
+    :classification_tree:
+      :filter:
+        - :classification_trees:
+            - Inhaltstypen
+            - Märkte
+      :language: true
+    :publications:
+      :filter:
+        - :classification_trees:
+            - Inhaltstypen
+        - :advanced: true
+        - :publication_date: true
+      :language: true
+    :subscriptions:
+      :filter:
+        - :search: true
+      :language: true
+      :mode_selector: true
+
+:sortable:
+  :enabled: false
+  :updated_at: true
+  :created_at: true
+  :translated_name: true
+
+:advanced_filter:
+  :enabled: true
+  :config:
+    :visible: false
+    :schedule_exceptions:
+      - validity_schedule
+  :classification_alias_ids: all
+  :external_source: false
+  :external_system: true
+  :id: true
+  :creator: true
+  :classification_tree_ids: true
+  :date_range: all
+  :validity_period:
+    :absolute: true
+    :relative: true
+  :inactive_things:
+    :absolute: true
+    :relative: true
+  :in_schedule:
+    :absolute: true
+    :relative: true
+  :geo_filter:
+    :geo_radius: false
+    :geo_within_classification:
+      false
+      # - Administrative Einheiten
+  # :union_filter_ids: true
+  # :relation_filter:
+  #   :event_location: content_location
+#  :advanced_attributes:
+#    :width:
+#      :type: numeric
+#    :contact_info.email:
+#      :type: string
+#    :upload_date:
+#      :type: date
+#    :mandatory_license:
+#      :type: boolean
+#  :related_to: true
+
+:geocode:
+  :enabled: false
+  :attribute_keys:
+
+:auto_translation:
+  :enabled: false
+  :source_lang: de
+
+:translate:
+  :enabled: false
+  :allowed_languages:
+    - bg
+    - zh
+    - da
+    - de
+    - de-CH
+    - en
+    - et
+    - fi
+    - fr
+    - el
+    - it
+    - ja
+    - lv
+    - lt
+    - nl
+    - pl
+    - pt
+    - ro
+    - ru
+    - sv
+    - sk
+    - sl
+    - es
+    - cs
+    - hu
+
+:external_media_archive:
+  :enabled: false
+  :template_mapping:
+    :bild: image
+    :video: video
+
+:normalize:
+  :enabled: false
+
+:duplicate_content:
+  :enabled: false
+
+:image_optimizer:
+  :enabled: true
+  :config:
+    :pngout: false
+    :svgo: false
+    :advpng: false
+    :gifsicle:
+      :careful: true
+    :optipng:
+      :strip: false
+      :level: 1
+    :jpegtran:
+      :copy_chunks: true
+    :jpegoptim:
+      :strip: :com
+    :pngquant:
+      :speed: 10
+
+:duplicate_candidate:
+  :enabled: false
+
+:content_lock:
+  :enabled: false
+  :lock_length: <%= 30.minutes %>
+  :lock_renew_before: <%= 5.minutes %>
+
+:user_api:
+  :enabled: false
+  :only_config: true
+  :expiration_time: <%= 24.hours %>
+  :default_rank: 0
+  :allowed_ranks:
+    - 0
+  :user_params:
+    :email:
+    :given_name:
+    :family_name:
+    :default_locale:
+    :password:
+    :password_confirmation:
+    :confirmed_at:
+  :issuer: datacycle.at
+
+:copy_embedded_locale:
+  :enabled: false
+  :only_config: true
+
+:view_mode:
+  :enabled: true
+  :allowed:
+    - grid
+    - list
+    - tree
+
+:translated_data_link:
+  :enabled: true
+
+:translatable:
+  :enabled: true
+  :only_config: true
+
+:user_registration:
+  :enabled: false
+  :terms_condition_url:
+  :privacy_policy_url:
+
+:preview:
+  :enabled: false
+  :widgets:
+    :list:
+    :map:
+
+:tile_border_color:
+  :enabled: false
+  :only_config: true
+  # :tree_label: Eyebase - Status
+
+:collection_group:
+  :enabled: false
+  :separator: ' / '
+
+:named_version:
+  :enabled: false
+
+:copyable_attribute:
+  :enabled: false
+
+:geo_key_figure:
+  :enabled: false
+  :attribute_keys:
+
+:my_selection:
+  :enabled: false
+
+:image_proxy:
+  :enabled: false
+  :frontend:
+    :enabled: false
+  :config:
+    :dynamic:
+    :original:
+    :default:
+      :processing:
+        :resize_type: fit
+        :width: 0
+        :height: 0
+        :enlarge: 0
+        :gravity: ce
+    :thumb:
+      :processing:
+        :resize_type: fit
+        :width: 300
+        :height: 300
+        :enlarge: 0
+        :gravity: ce
+    :web:
+      :processing:
+        :resize_type: fit
+        :width: 2048
+        :height: 2048
+        :enlarge: 0
+        :gravity: ce
+    :web_small:
+      :processing:
+        :resize_type: fit
+        :width: 1500
+        :height: 1500
+        :enlarge: 0
+        :gravity: ce
+
+:report_generator:
+  :enabled: false
+  :config:
+    :global:
+      :downloads_popular:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::Popular
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
+    :content:
+      :downloads_content:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::Content
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
+
+:image_editor:
+  :enabled: false

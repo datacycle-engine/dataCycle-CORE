@@ -1,0 +1,3 @@
+$('#<%= @new_form_id %>').trigger('dc:collection:newCollection');
+
+$('#add-items-to-watch-list-select').trigger('dc:create:option', { text: '<%= @watch_list.name %>', id: '<%= @watch_list.id %>' });

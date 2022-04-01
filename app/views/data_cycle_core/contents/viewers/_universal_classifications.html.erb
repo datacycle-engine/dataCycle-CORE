@@ -1,0 +1,20 @@
+<% objects = value.presence&.includes(primary_classification_alias: [:classification_alias_path, :classification_tree_label, :primary_classification])&.map(&:primary_classification_alias)&.select { |c| c.classification_tree_label.visible?('show') }&.compact || [] %>
+
+<% if objects.present? %>
+  <% objects.group_by(&:classification_tree_label).each do |tree_label, classification_aliases| %>
+    <div data-label="<%= tree_label.name %>" class="detail-type classification">
+      <span class="detail-label">
+        <span class="icon tags"><i class="fa" aria-hidden="true"></i></span>
+        <%= tree_label.name %>
+      </span>
+
+      <span class="detail-content tags">
+        <% classification_aliases.uniq.each do |classification_alias| %>
+          <span class="tag" data-dc-tooltip="<%= classification_tooltip(classification_alias) %>">
+            <%= classification_alias.name || classification_alias.internal_name %>
+          </span>
+        <% end %>
+      </span>
+    </div>
+  <% end %>
+<% end %>

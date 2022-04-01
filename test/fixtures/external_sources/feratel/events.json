@@ -1,0 +1,1557 @@
+[
+  {
+    "_id": {
+      "$oid": "5be5a1a332c88f093f8064cb"
+    },
+    "external_id": "ced91d9c-d98f-4495-80b0-00049e3134f8",
+    "dump": {
+      "de": {
+        "_Type": "Event",
+        "Id": "ced91d9c-d98f-4495-80b0-00049e3134f8",
+        "ChangeDate": "2018-07-23T16:08:33.97",
+        "Systems": "LTIC",
+        "Details": {
+          "Names": {
+            "Translation": {
+              "Language": "de",
+              "text": "1 Jahr Hafenstadt"
+            }
+          },
+          "Location": {
+            "Translation": {
+              "Language": "de",
+              "text": "Hafenstadt Urban Area, Villacher Straße 16"
+            }
+          },
+          "Active": {
+            "text": "true"
+          },
+          "Towns": {
+            "Item": {
+              "Id": "8d224f4a-a64e-4336-87f1-d767448e0052"
+            }
+          },
+          "Position": {
+            "Latitude": "46.6237861135863",
+            "Longitude": "14.3025098740356"
+          },
+          "IsTopEvent": {
+            "text": "false"
+          },
+          "HolidayThemes": {
+            "Item": [
+              {
+                "Id": "8c52ddfa-0763-49ad-89f0-88709ee03673"
+              },
+              {
+                "Id": "6b7e741b-40d6-4eab-b745-1408aaee360a"
+              }
+            ]
+          },
+          "SerialEvents": {
+            "SerialEvent": {
+              "Id": "636faf3d-1da2-44ec-8978-fd293b63fc24"
+            }
+          },
+          "Visibility": {
+            "text": "Local"
+          },
+          "Dates": {
+            "Date": {
+              "From": "2018-08-10",
+              "To": "2018-08-10"
+            }
+          },
+          "StartTimes": {
+            "StartTime": {
+              "Time": "17:00:00",
+              "Mon": "false",
+              "Tue": "false",
+              "Wed": "false",
+              "Thu": "false",
+              "Fri": "true",
+              "Sat": "false",
+              "Sun": "false"
+            }
+          },
+          "Duration": {
+            "Type": "None",
+            "text": "0"
+          },
+          "DataOwner": {
+            "text": "KLAGENFURT"
+          }
+        },
+        "Addresses": {
+          "Address": [
+            {
+              "Type": "Venue",
+              "ChangeDate": "2018-05-16T09:25:00",
+              "Id": "2cd4a840-509f-4456-b34f-e89f98b728ea",
+              "Company": {
+                "text": "Hafenstadt Urban Area"
+              },
+              "AddressLine1": {
+                "text": "Villacherstraße 16"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9020"
+              },
+              "Town": {
+                "text": "Klagenfurt am Woerthersee"
+              }
+            },
+            {
+              "Type": "Organizer",
+              "ChangeDate": "2018-05-16T09:25:00",
+              "Id": "2cd4a840-509f-4456-b34f-e89f98b728ea",
+              "Company": {
+                "text": "Hafenstadt Urban Area"
+              },
+              "AddressLine1": {
+                "text": "Villacherstraße 16"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9020"
+              },
+              "Town": {
+                "text": "Klagenfurt am Woerthersee"
+              }
+            },
+            {
+              "Type": "Booking",
+              "ChangeDate": "2018-05-16T09:25:00",
+              "Id": "2cd4a840-509f-4456-b34f-e89f98b728ea",
+              "Company": {
+                "text": "Hafenstadt Urban Area"
+              },
+              "AddressLine1": {
+                "text": "Villacherstraße 16"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9020"
+              },
+              "Town": {
+                "text": "Klagenfurt am Woerthersee"
+              }
+            },
+            {
+              "Type": "Info",
+              "ChangeDate": "2018-05-16T09:25:00",
+              "Id": "2cd4a840-509f-4456-b34f-e89f98b728ea",
+              "Company": {
+                "text": "Hafenstadt Urban Area"
+              },
+              "AddressLine1": {
+                "text": "Villacherstraße 16"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9020"
+              },
+              "Town": {
+                "text": "Klagenfurt am Woerthersee"
+              }
+            }
+          ]
+        },
+        "Descriptions": {
+          "Description": {
+            "Id": "eb1cae83-c755-4558-974b-ca3ad5f755a0",
+            "Type": "EventHeader",
+            "Language": "de",
+            "Systems": "L T I C",
+            "ShowFrom": "101",
+            "ShowTo": "1231",
+            "ChangeDate": "2018-07-23T16:09:47.61",
+            "text": "Die Hafenstadt verwandelt sich  in ein Gesamt-Kunstwerk verschiedenster Künstler"
+          }
+        },
+        "Documents": {
+          "Document": {
+            "Id": "01d2d161-40e7-4020-8a93-d40c30a3ebde",
+            "Type": "EventHeader",
+            "Class": "Image",
+            "Systems": "L T I C",
+            "Order": "1",
+            "ShowFrom": "101",
+            "ShowTo": "1231",
+            "Copyright": "Philipp Lipiarski",
+            "Extension": "jpg",
+            "Size": "21",
+            "ChangeDate": "2018-07-23T16:08:37.687",
+            "Names": {
+              "Translation": {
+                "Language": "de",
+                "text": "Hafenstadt"
+              }
+            },
+            "URL": {
+              "text": "http://resc.deskline.net/images/KTN/1/01d2d161-40e7-4020-8a93-d40c30a3ebde/99/image.jpg"
+            }
+          }
+        },
+        "Facilities": {
+          "ChangeDate": "2018-07-23T16:08:37.733",
+          "Facility": [
+            {
+              "Id": "38109e6b-6a25-4fd3-836f-c427a5d18b92",
+              "Value": "1"
+            },
+            {
+              "Id": "d1e06157-0c24-4707-b957-3e592af75678",
+              "Value": "1"
+            }
+          ]
+        },
+        "CustomAttributes": {
+          "ChangeDate": "2018-07-23T16:08:33.97",
+          "CustomAttribute": [
+            {
+              "Value": "0",
+              "Id": "3ef22fab-210b-423e-ba2b-6b1c068fbef3"
+            },
+            {
+              "Value": "0",
+              "Id": "cbde7998-e870-4e52-b31b-40609323fcdd"
+            },
+            {
+              "Id": "e652a274-51ee-49d7-97bf-1b16454e821b"
+            },
+            {
+              "Id": "03b35655-0519-4d82-b45a-4b3f0e8befe0"
+            },
+            {
+              "Value": "0",
+              "Id": "5075b445-a848-4cfd-9ed5-b047ab34c1a0"
+            }
+          ]
+        }
+      },
+      "en": {
+        "_Type": "Event",
+        "Id": "ced91d9c-d98f-4495-80b0-00049e3134f8",
+        "ChangeDate": "2018-07-23T16:08:33.97",
+        "Systems": "LTIC",
+        "Details": {
+          "Names": {
+            "Translation": {
+              "Language": "en",
+              "text": "1 Jahr Hafenstadt"
+            }
+          },
+          "Location": {
+            "Translation": {
+              "Language": "en",
+              "text": "Hafenstadt Urban Area, Villacher Straße 16"
+            }
+          },
+          "Active": {
+            "text": "true"
+          },
+          "Towns": {
+            "Item": {
+              "Id": "8d224f4a-a64e-4336-87f1-d767448e0052"
+            }
+          },
+          "Position": {
+            "Latitude": "46.6237861135863",
+            "Longitude": "14.3025098740356"
+          },
+          "IsTopEvent": {
+            "text": "false"
+          },
+          "HolidayThemes": {
+            "Item": [
+              {
+                "Id": "8c52ddfa-0763-49ad-89f0-88709ee03673"
+              },
+              {
+                "Id": "6b7e741b-40d6-4eab-b745-1408aaee360a"
+              }
+            ]
+          },
+          "SerialEvents": {
+            "SerialEvent": {
+              "Id": "636faf3d-1da2-44ec-8978-fd293b63fc24"
+            }
+          },
+          "Visibility": {
+            "text": "Local"
+          },
+          "Dates": {
+            "Date": {
+              "From": "2018-08-10",
+              "To": "2018-08-10"
+            }
+          },
+          "StartTimes": {
+            "StartTime": {
+              "Time": "18:00:00",
+              "Mon": "false",
+              "Tue": "false",
+              "Wed": "false",
+              "Thu": "false",
+              "Fri": "true",
+              "Sat": "false",
+              "Sun": "false"
+            }
+          },
+          "Duration": {
+            "Type": "None",
+            "text": "0"
+          },
+          "DataOwner": {
+            "text": "KLAGENFURT"
+          }
+        },
+        "Addresses": {
+          "Address": [
+            {
+              "Type": "Organizer",
+              "ChangeDate": "2018-05-16T09:25:00",
+              "Id": "2cd4a840-509f-4456-b34f-e89f98b728ea",
+              "Company": {
+                "text": "Hafenstadt Urban Area"
+              },
+              "AddressLine1": {
+                "text": "Villacherstraße 16"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9020"
+              },
+              "Town": {
+                "text": "Klagenfurt am Woerthersee"
+              }
+            },
+            {
+              "Type": "Booking",
+              "ChangeDate": "2018-05-16T09:25:00",
+              "Id": "2cd4a840-509f-4456-b34f-e89f98b728ea",
+              "Company": {
+                "text": "Hafenstadt Urban Area"
+              },
+              "AddressLine1": {
+                "text": "Villacherstraße 16"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9020"
+              },
+              "Town": {
+                "text": "Klagenfurt am Woerthersee"
+              }
+            },
+            {
+              "Type": "Info",
+              "ChangeDate": "2018-05-16T09:25:00",
+              "Id": "2cd4a840-509f-4456-b34f-e89f98b728ea",
+              "Company": {
+                "text": "Hafenstadt Urban Area"
+              },
+              "AddressLine1": {
+                "text": "Villacherstraße 16"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9020"
+              },
+              "Town": {
+                "text": "Klagenfurt am Woerthersee"
+              }
+            },
+            {
+              "Type": "Venue",
+              "ChangeDate": "2018-05-16T09:25:00",
+              "Id": "2cd4a840-509f-4456-b34f-e89f98b728ea",
+              "Company": {
+                "text": "Hafenstadt Urban Area"
+              },
+              "AddressLine1": {
+                "text": "Villacherstraße 16"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9020"
+              },
+              "Town": {
+                "text": "Klagenfurt am Woerthersee"
+              }
+            }
+          ]
+        },
+        "Documents": {
+          "Document": {
+            "Id": "01d2d161-40e7-4020-8a93-d40c30a3ebde",
+            "Type": "EventHeader",
+            "Class": "Image",
+            "Systems": "L T I C",
+            "Order": "1",
+            "ShowFrom": "101",
+            "ShowTo": "1231",
+            "Copyright": "Philipp Lipiarski",
+            "Extension": "jpg",
+            "Size": "21",
+            "ChangeDate": "2018-07-23T16:08:37.687",
+            "Names": {
+              "Translation": {
+                "Language": "en",
+                "text": "Hafenstadt"
+              }
+            },
+            "URL": {
+              "text": "http://resc.deskline.net/images/KTN/1/01d2d161-40e7-4020-8a93-d40c30a3ebde/99/image.jpg"
+            }
+          }
+        },
+        "Facilities": {
+          "ChangeDate": "2018-07-23T16:08:37.733",
+          "Facility": [
+            {
+              "Id": "38109e6b-6a25-4fd3-836f-c427a5d18b92",
+              "Value": "1"
+            },
+            {
+              "Id": "d1e06157-0c24-4707-b957-3e592af75678",
+              "Value": "1"
+            }
+          ]
+        },
+        "CustomAttributes": {
+          "ChangeDate": "2018-07-23T16:08:33.97",
+          "CustomAttribute": [
+            {
+              "Value": "0",
+              "Id": "3ef22fab-210b-423e-ba2b-6b1c068fbef3"
+            },
+            {
+              "Value": "0",
+              "Id": "cbde7998-e870-4e52-b31b-40609323fcdd"
+            },
+            {
+              "Id": "e652a274-51ee-49d7-97bf-1b16454e821b"
+            },
+            {
+              "Id": "03b35655-0519-4d82-b45a-4b3f0e8befe0"
+            },
+            {
+              "Value": "0",
+              "Id": "5075b445-a848-4cfd-9ed5-b047ab34c1a0"
+            }
+          ]
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:03:13.213Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:03:13.214Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:59.806Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5a1a332c88f093f8064cc"
+    },
+    "external_id": "147cd2a2-08e0-4b87-859b-000a8f1dfe77",
+    "dump": {
+      "de": {
+        "_Type": "Event",
+        "Id": "147cd2a2-08e0-4b87-859b-000a8f1dfe77",
+        "ChangeDate": "2018-01-12T10:58:10.71",
+        "Systems": "LTIC",
+        "Details": {
+          "Names": {
+            "Translation": {
+              "Language": "de",
+              "text": "Vortrags- und Kabarettgala 2018"
+            }
+          },
+          "Location": {
+            "Translation": {
+              "Language": "de",
+              "text": "Casineum am See im Casino Velden"
+            }
+          },
+          "Active": {
+            "text": "true"
+          },
+          "Towns": {
+            "Item": {
+              "Id": "8d60c529-26f8-4543-bfb4-4a9f3803047a"
+            }
+          },
+          "Position": {
+            "Latitude": "46.615082673411",
+            "Longitude": "14.043717841803"
+          },
+          "IsTopEvent": {
+            "text": "false"
+          },
+          "HolidayThemes": {
+            "Item": {
+              "Id": "6b7e741b-40d6-4eab-b745-1408aaee360a"
+            }
+          },
+          "ConnectedEntries": {
+            "ConnectedEntry": {
+              "Type": "EventInfrastructure",
+              "Id": "0fb384e5-c8e2-4491-9bd2-b7fb12b18966"
+            }
+          },
+          "SerialEvents": {
+            "SerialEvent": [
+              {
+                "Id": "8aff4784-0d10-46d8-ad7c-cd6189b7ec1b"
+              },
+              {
+                "Id": "3273c873-2ace-40be-93e5-e1ba98e91db0"
+              }
+            ]
+          },
+          "Visibility": {
+            "text": "Town"
+          },
+          "Dates": {
+            "Date": {
+              "From": "2018-02-27",
+              "To": "2018-02-27"
+            }
+          },
+          "StartTimes": {
+            "StartTime": {
+              "Time": "19:00:00",
+              "Mon": "false",
+              "Tue": "true",
+              "Wed": "false",
+              "Thu": "false",
+              "Fri": "false",
+              "Sat": "false",
+              "Sun": "false"
+            }
+          },
+          "Duration": {
+            "Type": "None",
+            "text": "0"
+          },
+          "DataOwner": {
+            "text": "WOERTHER"
+          }
+        },
+        "Addresses": {
+          "Address": [
+            {
+              "Type": "Venue",
+              "ChangeDate": "2018-03-14T09:12:00",
+              "Id": "321c5a5d-f9d6-4455-ba42-014959be0d2c",
+              "Company": {
+                "text": "Casino Velden"
+              },
+              "AddressLine1": {
+                "text": "Am Corso 17"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9220"
+              },
+              "Town": {
+                "text": "Velden am Wörthersee"
+              },
+              "Email": {
+                "text": "velden@casinos.at"
+              },
+              "URL": {
+                "text": "http://www.velden.casinos.at"
+              },
+              "Phone": {
+                "text": "(0043) 4274 2064 112"
+              }
+            },
+            {
+              "Type": "Info",
+              "ChangeDate": "2018-03-14T09:12:00",
+              "Id": "321c5a5d-f9d6-4455-ba42-014959be0d2c",
+              "Company": {
+                "text": "Casino Velden"
+              },
+              "AddressLine1": {
+                "text": "Am Corso 17"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9220"
+              },
+              "Town": {
+                "text": "Velden am Wörthersee"
+              },
+              "Email": {
+                "text": "velden@casinos.at"
+              },
+              "URL": {
+                "text": "http://www.velden.casinos.at"
+              },
+              "Phone": {
+                "text": "(0043) 4274 2064 112"
+              }
+            },
+            {
+              "Type": "Organizer",
+              "ChangeDate": "2018-01-12T10:58:00",
+              "Id": "1abb9cea-a5ae-40b0-a959-d25a94dcc714",
+              "Company": {
+                "text": "Uni Club Klagenfurt"
+              },
+              "AddressLine1": {
+                "text": "Universitätsstraße 65-67"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9020"
+              },
+              "Town": {
+                "text": "Klagengfurt am Wörthersee"
+              },
+              "Email": {
+                "text": "uniclub@aau.at"
+              },
+              "URL": {
+                "text": "https://uniclub.aau.at/"
+              },
+              "Phone": {
+                "text": "(0043) 463 27008715"
+              }
+            },
+            {
+              "Type": "Booking",
+              "ChangeDate": "2018-03-14T09:12:00",
+              "Id": "321c5a5d-f9d6-4455-ba42-014959be0d2c",
+              "Company": {
+                "text": "Casino Velden"
+              },
+              "AddressLine1": {
+                "text": "Am Corso 17"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9220"
+              },
+              "Town": {
+                "text": "Velden am Wörthersee"
+              },
+              "Email": {
+                "text": "velden@casinos.at"
+              },
+              "URL": {
+                "text": "http://www.velden.casinos.at"
+              },
+              "Phone": {
+                "text": "(0043) 4274 2064 112"
+              }
+            }
+          ]
+        },
+        "Descriptions": {
+          "Description": {
+            "Id": "c06e0bfd-c267-499d-b690-7f31387d4a79",
+            "Type": "EventHeader",
+            "Language": "de",
+            "Systems": "L T I C",
+            "ShowFrom": "101",
+            "ShowTo": "1231",
+            "ChangeDate": "2018-01-12T10:55:29.443",
+            "text": "Der Universitäts.club|Wissenschaftsverein Kärnten präsentiert zwei Protagonisten des letzten Universitäts.club-Symposiums zum Thema \"Was die Welt im Innersten zusammenhält\". Angela Kane, eine erfahrene Verhandlungsführerin, greift in ihrem Vortrag \"Europa und die Vereinten Nationen - gemeinsame Ziele, globale Akteure?\" die Trump/USA Problematik auf. Sie wird zu Nord-Korea Stellung nehmen wie auch zur Rolle Chinas mit seinem verstärkten Anspruch auf eine Weltmacht-Rolle.\n\nDen anschließenden Kabarettbeitrag zum Thema \"Helfrieds Carinthischer Winter\" gestaltet der Kabarettist Christian Hölbling, der die kärntnerisch-steirische Doppelstaatsbürgerschaft besitzt.\n\nEintritt: 18,- Euro bzw. 12,- Euro für Universitäts.club-Mitglieder\nKartenvorverkauf: in allen Filialen der Kärntner Sparkasse AG"
+          }
+        },
+        "Documents": {
+          "Document": {
+            "Id": "113d4cf6-3513-4d86-9ef7-6f648e072e3b",
+            "Type": "EventHeader",
+            "Class": "Image",
+            "Systems": "L T I C",
+            "Order": "1",
+            "ShowFrom": "101",
+            "ShowTo": "1231",
+            "Extension": "jpeg",
+            "Size": "30",
+            "ChangeDate": "2018-01-12T11:01:43.277",
+            "Names": {
+              "Translation": {
+                "Language": "de",
+                "text": "Casino"
+              }
+            },
+            "URL": {
+              "text": "http://resc.deskline.net/images/KTN/1/113d4cf6-3513-4d86-9ef7-6f648e072e3b/99/image.jpeg"
+            }
+          }
+        },
+        "Facilities": {
+          "ChangeDate": "2018-01-12T10:55:53.71",
+          "Facility": [
+            {
+              "Id": "38db6558-45f7-4098-af1c-b7b317f95c34",
+              "Value": "1"
+            },
+            {
+              "Id": "c64c567a-7c4f-43f9-afe9-a14537687340",
+              "Value": "1"
+            }
+          ]
+        },
+        "CustomAttributes": {
+          "ChangeDate": "2018-01-12T10:58:10.71",
+          "CustomAttribute": [
+            {
+              "Value": "-99",
+              "Id": "3ef22fab-210b-423e-ba2b-6b1c068fbef3"
+            },
+            {
+              "Value": "99",
+              "Id": "cbde7998-e870-4e52-b31b-40609323fcdd"
+            },
+            {
+              "Value": "egal",
+              "Id": "e652a274-51ee-49d7-97bf-1b16454e821b"
+            },
+            {
+              "Value": "egal",
+              "Id": "03b35655-0519-4d82-b45a-4b3f0e8befe0"
+            },
+            {
+              "Value": "0",
+              "Id": "5075b445-a848-4cfd-9ed5-b047ab34c1a0"
+            }
+          ]
+        }
+      },
+      "en": {
+        "_Type": "Event",
+        "Id": "147cd2a2-08e0-4b87-859b-000a8f1dfe77",
+        "ChangeDate": "2018-01-12T10:58:10.71",
+        "Systems": "LTIC",
+        "Details": {
+          "Names": {
+            "Translation": {
+              "Language": "en",
+              "text": "Vortrags- und Kabarettgala 2018"
+            }
+          },
+          "Location": {
+            "Translation": {
+              "Language": "en",
+              "text": "Casineum am See im Casino Velden"
+            }
+          },
+          "Active": {
+            "text": "true"
+          },
+          "Towns": {
+            "Item": {
+              "Id": "8d60c529-26f8-4543-bfb4-4a9f3803047a"
+            }
+          },
+          "Position": {
+            "Latitude": "46.615082673411",
+            "Longitude": "14.043717841803"
+          },
+          "IsTopEvent": {
+            "text": "false"
+          },
+          "HolidayThemes": {
+            "Item": {
+              "Id": "6b7e741b-40d6-4eab-b745-1408aaee360a"
+            }
+          },
+          "ConnectedEntries": {
+            "ConnectedEntry": {
+              "Type": "EventInfrastructure",
+              "Id": "0fb384e5-c8e2-4491-9bd2-b7fb12b18966"
+            }
+          },
+          "SerialEvents": {
+            "SerialEvent": [
+              {
+                "Id": "8aff4784-0d10-46d8-ad7c-cd6189b7ec1b"
+              },
+              {
+                "Id": "3273c873-2ace-40be-93e5-e1ba98e91db0"
+              }
+            ]
+          },
+          "Visibility": {
+            "text": "Town"
+          },
+          "Dates": {
+            "Date": {
+              "From": "2018-02-27",
+              "To": "2018-02-27"
+            }
+          },
+          "StartTimes": {
+            "StartTime": {
+              "Time": "19:00:00",
+              "Mon": "false",
+              "Tue": "true",
+              "Wed": "false",
+              "Thu": "false",
+              "Fri": "false",
+              "Sat": "false",
+              "Sun": "false"
+            }
+          },
+          "Duration": {
+            "Type": "None",
+            "text": "0"
+          },
+          "DataOwner": {
+            "text": "WOERTHER"
+          }
+        },
+        "Addresses": {
+          "Address": [
+            {
+              "Type": "Info",
+              "ChangeDate": "2018-03-14T09:12:00",
+              "Id": "321c5a5d-f9d6-4455-ba42-014959be0d2c",
+              "Company": {
+                "text": "Casino Velden"
+              },
+              "AddressLine1": {
+                "text": "Am Corso 17"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9220"
+              },
+              "Town": {
+                "text": "Velden am Wörthersee"
+              },
+              "Email": {
+                "text": "velden@casinos.at"
+              },
+              "URL": {
+                "text": "http://www.velden.casinos.at"
+              },
+              "Phone": {
+                "text": "(0043) 4274 2064 112"
+              }
+            },
+            {
+              "Type": "Organizer",
+              "ChangeDate": "2018-01-12T10:58:00",
+              "Id": "1abb9cea-a5ae-40b0-a959-d25a94dcc714",
+              "Company": {
+                "text": "Uni Club Klagenfurt"
+              },
+              "AddressLine1": {
+                "text": "Universitätsstraße 65-67"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9020"
+              },
+              "Town": {
+                "text": "Klagengfurt am Wörthersee"
+              },
+              "Email": {
+                "text": "uniclub@aau.at"
+              },
+              "URL": {
+                "text": "https://uniclub.aau.at/"
+              },
+              "Phone": {
+                "text": "(0043) 463 27008715"
+              }
+            },
+            {
+              "Type": "Booking",
+              "ChangeDate": "2018-03-14T09:12:00",
+              "Id": "321c5a5d-f9d6-4455-ba42-014959be0d2c",
+              "Company": {
+                "text": "Casino Velden"
+              },
+              "AddressLine1": {
+                "text": "Am Corso 17"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9220"
+              },
+              "Town": {
+                "text": "Velden am Wörthersee"
+              },
+              "Email": {
+                "text": "velden@casinos.at"
+              },
+              "URL": {
+                "text": "http://www.velden.casinos.at"
+              },
+              "Phone": {
+                "text": "(0043) 4274 2064 112"
+              }
+            },
+            {
+              "Type": "Venue",
+              "ChangeDate": "2018-03-14T09:12:00",
+              "Id": "321c5a5d-f9d6-4455-ba42-014959be0d2c",
+              "Company": {
+                "text": "Casino Velden"
+              },
+              "AddressLine1": {
+                "text": "Am Corso 17"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9220"
+              },
+              "Town": {
+                "text": "Velden am Wörthersee"
+              },
+              "Email": {
+                "text": "velden@casinos.at"
+              },
+              "URL": {
+                "text": "http://www.velden.casinos.at"
+              },
+              "Phone": {
+                "text": "(0043) 4274 2064 112"
+              }
+            }
+          ]
+        },
+        "Documents": {
+          "Document": {
+            "Id": "113d4cf6-3513-4d86-9ef7-6f648e072e3b",
+            "Type": "EventHeader",
+            "Class": "Image",
+            "Systems": "L T I C",
+            "Order": "1",
+            "ShowFrom": "101",
+            "ShowTo": "1231",
+            "Extension": "jpeg",
+            "Size": "30",
+            "ChangeDate": "2018-01-12T11:01:43.277",
+            "Names": {
+              "Translation": {
+                "Language": "en",
+                "text": "Casino"
+              }
+            },
+            "URL": {
+              "text": "http://resc.deskline.net/images/KTN/1/113d4cf6-3513-4d86-9ef7-6f648e072e3b/99/image.jpeg"
+            }
+          }
+        },
+        "Facilities": {
+          "ChangeDate": "2018-01-12T10:55:53.71",
+          "Facility": [
+            {
+              "Id": "38db6558-45f7-4098-af1c-b7b317f95c34",
+              "Value": "1"
+            },
+            {
+              "Id": "c64c567a-7c4f-43f9-afe9-a14537687340",
+              "Value": "1"
+            }
+          ]
+        },
+        "CustomAttributes": {
+          "ChangeDate": "2018-01-12T10:58:10.71",
+          "CustomAttribute": [
+            {
+              "Value": "-99",
+              "Id": "3ef22fab-210b-423e-ba2b-6b1c068fbef3"
+            },
+            {
+              "Value": "99",
+              "Id": "cbde7998-e870-4e52-b31b-40609323fcdd"
+            },
+            {
+              "Value": "egal",
+              "Id": "e652a274-51ee-49d7-97bf-1b16454e821b"
+            },
+            {
+              "Value": "egal",
+              "Id": "03b35655-0519-4d82-b45a-4b3f0e8befe0"
+            },
+            {
+              "Value": "0",
+              "Id": "5075b445-a848-4cfd-9ed5-b047ab34c1a0"
+            }
+          ]
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:03:13.221Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:03:13.221Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:59.849Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5a1a332c88f093f8064cd"
+    },
+    "external_id": "77ea2483-d231-403f-96a9-000b12dfb7ef",
+    "dump": {
+      "de": {
+        "_Type": "Event",
+        "Id": "77ea2483-d231-403f-96a9-000b12dfb7ef",
+        "ChangeDate": "2018-02-22T13:51:06.91",
+        "Systems": "LTIC",
+        "Details": {
+          "Names": {
+            "Translation": {
+              "Language": "de",
+              "text": "OSTERN: Osterschießen"
+            }
+          },
+          "Location": {
+            "Translation": {
+              "Language": "de",
+              "text": "Rosegg"
+            }
+          },
+          "Active": {
+            "text": "true"
+          },
+          "Towns": {
+            "Item": {
+              "Id": "042cd9e6-d10b-443c-8f71-c467d766f122"
+            }
+          },
+          "Position": {
+            "Latitude": "46.5908828442788",
+            "Longitude": "14.0199494361877"
+          },
+          "IsTopEvent": {
+            "text": "false"
+          },
+          "HolidayThemes": {
+            "Item": [
+              {
+                "Id": "96802db7-9049-443b-8d39-2ca6a197cfa1"
+              },
+              {
+                "Id": "090a18ae-5d50-421e-a65a-c5a2b8227ae5"
+              }
+            ]
+          },
+          "Visibility": {
+            "text": "Country"
+          },
+          "Dates": {
+            "Date": {
+              "From": "2018-03-31",
+              "To": "2018-03-31"
+            }
+          },
+          "StartTimes": {
+            "StartTime": {
+              "Time": "12:00:00",
+              "Mon": "false",
+              "Tue": "false",
+              "Wed": "false",
+              "Thu": "false",
+              "Fri": "false",
+              "Sat": "true",
+              "Sun": "false"
+            }
+          },
+          "Duration": {
+            "Type": "None",
+            "text": "0"
+          },
+          "DataOwner": {
+            "text": "ROSENTAL"
+          }
+        },
+        "Addresses": {
+          "Address": [
+            {
+              "Type": "Venue",
+              "ChangeDate": "2015-07-02T10:59:00",
+              "Id": "a438e77a-14a1-448c-934a-31728852710d",
+              "Company": {
+                "text": "Marktgemeinde Rosegg"
+              },
+              "AddressLine1": {
+                "text": "Schlossallee 2"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9232"
+              },
+              "Town": {
+                "text": "Rosegg"
+              },
+              "Email": {
+                "text": "rosegg@ktn.gv.at"
+              },
+              "URL": {
+                "text": "http://www.rosegg.gv.at"
+              }
+            },
+            {
+              "Type": "Booking",
+              "ChangeDate": "2015-07-02T10:59:00",
+              "Id": "a438e77a-14a1-448c-934a-31728852710d",
+              "Company": {
+                "text": "Marktgemeinde Rosegg"
+              },
+              "AddressLine1": {
+                "text": "Schlossallee 2"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9232"
+              },
+              "Town": {
+                "text": "Rosegg"
+              },
+              "Email": {
+                "text": "rosegg@ktn.gv.at"
+              },
+              "URL": {
+                "text": "http://www.rosegg.gv.at"
+              }
+            },
+            {
+              "Type": "Organizer",
+              "ChangeDate": "2015-07-02T10:59:00",
+              "Id": "a438e77a-14a1-448c-934a-31728852710d",
+              "Company": {
+                "text": "Marktgemeinde Rosegg"
+              },
+              "AddressLine1": {
+                "text": "Schlossallee 2"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9232"
+              },
+              "Town": {
+                "text": "Rosegg"
+              },
+              "Email": {
+                "text": "rosegg@ktn.gv.at"
+              },
+              "URL": {
+                "text": "http://www.rosegg.gv.at"
+              }
+            },
+            {
+              "Type": "Info",
+              "ChangeDate": "2015-07-02T10:59:00",
+              "Id": "a438e77a-14a1-448c-934a-31728852710d",
+              "Company": {
+                "text": "Marktgemeinde Rosegg"
+              },
+              "AddressLine1": {
+                "text": "Schlossallee 2"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9232"
+              },
+              "Town": {
+                "text": "Rosegg"
+              },
+              "Email": {
+                "text": "rosegg@ktn.gv.at"
+              },
+              "URL": {
+                "text": "http://www.rosegg.gv.at"
+              }
+            }
+          ]
+        },
+        "Descriptions": {
+          "Description": {
+            "Id": "7c3a7e35-9acc-4b9a-b18a-87a5a41249b4",
+            "Type": "EventHeader",
+            "Language": "de",
+            "Systems": "L T I C",
+            "ShowFrom": "101",
+            "ShowTo": "1231",
+            "ChangeDate": "2018-02-22T13:51:08.913",
+            "text": "Osterschießen der Brauchtumsgruppe Rosegg und\nOsterschießen der Dorfgemeinschaft St. Martin"
+          }
+        },
+        "Documents": {
+          "Document": {
+            "Id": "9297fa20-80e3-4d2c-98b8-0eb7373bf2ab",
+            "Type": "EventHeader",
+            "Class": "Image",
+            "Systems": "L T I C",
+            "Order": "1",
+            "ShowFrom": "101",
+            "ShowTo": "1231",
+            "Copyright": "pixelio.de",
+            "Extension": "jpg",
+            "Size": "115",
+            "ChangeDate": "2018-02-22T13:51:08.867",
+            "Names": {
+              "Translation": {
+                "Language": "de",
+                "text": "Ostern"
+              }
+            },
+            "URL": {
+              "text": "http://resc.deskline.net/images/KTN/1/9297fa20-80e3-4d2c-98b8-0eb7373bf2ab/99/image.jpg"
+            }
+          }
+        },
+        "Links": {
+          "Link": {
+            "Id": "d42c738e-2560-4485-b794-8f3dec9f52fe",
+            "Name": "Marktgemeinde Rosegg",
+            "URL": "http://www.rosegg.gv.at/",
+            "ChangeDate": "2018-02-22T13:51:08.82",
+            "Type": "0",
+            "Order": "1"
+          }
+        },
+        "Facilities": {
+          "ChangeDate": "2018-02-22T13:51:20.32",
+          "Facility": {
+            "Id": "d759e6a4-d9b7-405b-8816-0eea100518c2",
+            "Value": "1"
+          }
+        },
+        "CustomAttributes": {
+          "ChangeDate": "2018-02-22T13:51:06.91",
+          "CustomAttribute": [
+            {
+              "Value": "0",
+              "Id": "3ef22fab-210b-423e-ba2b-6b1c068fbef3"
+            },
+            {
+              "Value": "40",
+              "Id": "cbde7998-e870-4e52-b31b-40609323fcdd"
+            },
+            {
+              "Value": "leicht",
+              "Id": "e652a274-51ee-49d7-97bf-1b16454e821b"
+            },
+            {
+              "Value": "leicht",
+              "Id": "03b35655-0519-4d82-b45a-4b3f0e8befe0"
+            },
+            {
+              "Value": "0",
+              "Id": "5075b445-a848-4cfd-9ed5-b047ab34c1a0"
+            }
+          ]
+        }
+      },
+      "en": {
+        "_Type": "Event",
+        "Id": "77ea2483-d231-403f-96a9-000b12dfb7ef",
+        "ChangeDate": "2018-02-22T13:51:06.91",
+        "Systems": "LTIC",
+        "Details": {
+          "Names": {
+            "Translation": {
+              "Language": "en",
+              "text": "OSTERN: Osterschießen"
+            }
+          },
+          "Location": {
+            "Translation": {
+              "Language": "en",
+              "text": "Rosegg"
+            }
+          },
+          "Active": {
+            "text": "true"
+          },
+          "Towns": {
+            "Item": {
+              "Id": "042cd9e6-d10b-443c-8f71-c467d766f122"
+            }
+          },
+          "Position": {
+            "Latitude": "46.5908828442788",
+            "Longitude": "14.0199494361877"
+          },
+          "IsTopEvent": {
+            "text": "false"
+          },
+          "HolidayThemes": {
+            "Item": [
+              {
+                "Id": "96802db7-9049-443b-8d39-2ca6a197cfa1"
+              },
+              {
+                "Id": "090a18ae-5d50-421e-a65a-c5a2b8227ae5"
+              }
+            ]
+          },
+          "Visibility": {
+            "text": "Country"
+          },
+          "Dates": {
+            "Date": {
+              "From": "2018-03-31",
+              "To": "2018-03-31"
+            }
+          },
+          "StartTimes": {
+            "StartTime": {
+              "Time": "12:00:00",
+              "Mon": "false",
+              "Tue": "false",
+              "Wed": "false",
+              "Thu": "false",
+              "Fri": "false",
+              "Sat": "true",
+              "Sun": "false"
+            }
+          },
+          "Duration": {
+            "Type": "None",
+            "text": "0"
+          },
+          "DataOwner": {
+            "text": "ROSENTAL"
+          }
+        },
+        "Addresses": {
+          "Address": [
+            {
+              "Type": "Booking",
+              "ChangeDate": "2015-07-02T10:59:00",
+              "Id": "a438e77a-14a1-448c-934a-31728852710d",
+              "Company": {
+                "text": "Marktgemeinde Rosegg"
+              },
+              "AddressLine1": {
+                "text": "Schlossallee 2"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9232"
+              },
+              "Town": {
+                "text": "Rosegg"
+              },
+              "Email": {
+                "text": "rosegg@ktn.gv.at"
+              },
+              "URL": {
+                "text": "http://www.rosegg.gv.at"
+              }
+            },
+            {
+              "Type": "Organizer",
+              "ChangeDate": "2015-07-02T10:59:00",
+              "Id": "a438e77a-14a1-448c-934a-31728852710d",
+              "Company": {
+                "text": "Marktgemeinde Rosegg"
+              },
+              "AddressLine1": {
+                "text": "Schlossallee 2"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9232"
+              },
+              "Town": {
+                "text": "Rosegg"
+              },
+              "Email": {
+                "text": "rosegg@ktn.gv.at"
+              },
+              "URL": {
+                "text": "http://www.rosegg.gv.at"
+              }
+            },
+            {
+              "Type": "Info",
+              "ChangeDate": "2015-07-02T10:59:00",
+              "Id": "a438e77a-14a1-448c-934a-31728852710d",
+              "Company": {
+                "text": "Marktgemeinde Rosegg"
+              },
+              "AddressLine1": {
+                "text": "Schlossallee 2"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9232"
+              },
+              "Town": {
+                "text": "Rosegg"
+              },
+              "Email": {
+                "text": "rosegg@ktn.gv.at"
+              },
+              "URL": {
+                "text": "http://www.rosegg.gv.at"
+              }
+            },
+            {
+              "Type": "Venue",
+              "ChangeDate": "2015-07-02T10:59:00",
+              "Id": "a438e77a-14a1-448c-934a-31728852710d",
+              "Company": {
+                "text": "Marktgemeinde Rosegg"
+              },
+              "AddressLine1": {
+                "text": "Schlossallee 2"
+              },
+              "Country": {
+                "text": "AT"
+              },
+              "ZipCode": {
+                "text": "9232"
+              },
+              "Town": {
+                "text": "Rosegg"
+              },
+              "Email": {
+                "text": "rosegg@ktn.gv.at"
+              },
+              "URL": {
+                "text": "http://www.rosegg.gv.at"
+              }
+            }
+          ]
+        },
+        "Documents": {
+          "Document": {
+            "Id": "9297fa20-80e3-4d2c-98b8-0eb7373bf2ab",
+            "Type": "EventHeader",
+            "Class": "Image",
+            "Systems": "L T I C",
+            "Order": "1",
+            "ShowFrom": "101",
+            "ShowTo": "1231",
+            "Copyright": "pixelio.de",
+            "Extension": "jpg",
+            "Size": "115",
+            "ChangeDate": "2018-02-22T13:51:08.867",
+            "Names": {
+              "Translation": {
+                "Language": "en",
+                "text": "Ostern"
+              }
+            },
+            "URL": {
+              "text": "http://resc.deskline.net/images/KTN/1/9297fa20-80e3-4d2c-98b8-0eb7373bf2ab/99/image.jpg"
+            }
+          }
+        },
+        "Links": {
+          "Link": {
+            "Id": "d42c738e-2560-4485-b794-8f3dec9f52fe",
+            "Name": "Marktgemeinde Rosegg",
+            "URL": "http://www.rosegg.gv.at/",
+            "ChangeDate": "2018-02-22T13:51:08.82",
+            "Type": "0",
+            "Order": "1"
+          }
+        },
+        "Facilities": {
+          "ChangeDate": "2018-02-22T13:51:20.32",
+          "Facility": {
+            "Id": "d759e6a4-d9b7-405b-8816-0eea100518c2",
+            "Value": "1"
+          }
+        },
+        "CustomAttributes": {
+          "ChangeDate": "2018-02-22T13:51:06.91",
+          "CustomAttribute": [
+            {
+              "Value": "0",
+              "Id": "3ef22fab-210b-423e-ba2b-6b1c068fbef3"
+            },
+            {
+              "Value": "40",
+              "Id": "cbde7998-e870-4e52-b31b-40609323fcdd"
+            },
+            {
+              "Value": "leicht",
+              "Id": "e652a274-51ee-49d7-97bf-1b16454e821b"
+            },
+            {
+              "Value": "leicht",
+              "Id": "03b35655-0519-4d82-b45a-4b3f0e8befe0"
+            },
+            {
+              "Value": "0",
+              "Id": "5075b445-a848-4cfd-9ed5-b047ab34c1a0"
+            }
+          ]
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:03:13.228Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:03:13.228Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:59.853Z"
+    }
+  }
+]

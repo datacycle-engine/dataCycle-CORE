@@ -1,0 +1,15 @@
+<d:response>
+  <d:href>/webdav/v1/endpoints/<%=id%>/things/</d:href>
+  <d:propstat>
+    <d:prop>
+      <d:getlastmodified><%=last_modified%></d:getlastmodified>
+      <d:resourcetype>
+        <d:collection/>
+      </d:resourcetype>
+      <% if etag.present? %>
+        <d:getetag><%= etag %></d:getetag>
+      <% end %>
+    </d:prop>
+    <d:status>HTTP/1.1 200 OK</d:status>
+  </d:propstat>
+</d:response>

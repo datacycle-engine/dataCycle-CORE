@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+json ||= {}
+key_new = attribute_key(key, definition)
+json[key_new] ||= []
+
+api_property_definition = api_definition(definition)
+
+new_options = options.dup
+new_options[:fields] = subtree_for(key_new, options[:fields])
+new_options[:include] = subtree_for(key_new, options[:include])
+new_options[:languages] = options[:languages]
+new_options[:full] = included_attribute?(key_new, options[:include]) || included_attribute?(key_new, options[:fields])
+
+classification_aliases = load_value_object(content, key, value, options[:languages], api_property_definition)&.primary_classification_aliases
+
+json.merge! render 'classifications', classification_aliases: classification_aliases, key: key_new, definition: {}, options: new_options
+json.reject { |_k, v| v.blank? }

@@ -1,0 +1,105 @@
+[
+  {
+    "_id": {
+      "$oid": "5be5651132c88f006c9d1fdc"
+    },
+    "external_id": "https://media.kaernten.at/api/v1/media/14",
+    "dump": {
+      "de": {
+        "@context": "http://www.schema.org/ImageObject",
+        "contentType": "Bild",
+        "url": "https://media.kaernten.at/api/v1/media/14",
+        "contentUrl": "https://media.kaernten.at/api/v1/media/14/file",
+        "thumbnailUrl": "https://media.kaernten.at/api/v1/media/14/thumbnail",
+        "headline": "Goldgräberdorf Heiligenblut",
+        "caption": "Goldgräberdorf Heiligenblut",
+        "description": "Wasserrad, Ausflugsziel in Kärnten",
+        "photographer": "Leitner",
+        "license": "Kärnten Werbung",
+        "contentLocation": {
+          "name": {
+            "de": "Fleiß",
+            "en": "Fleiß"
+          },
+          "address": "Fleiß 10, 9844 Fleiß, Austria",
+          "geo": {
+            "longitude": 12.9041,
+            "latitude": 47.0454
+          }
+        },
+        "width": 2272,
+        "height": 1704,
+        "contentSize": 1175979,
+        "fileFormat": "image/jpeg",
+        "keywords": [
+          "Wasserrad",
+          "Ausflugsziel",
+          "Wasser",
+          "Sommer",
+          "Heiligenblut",
+          "Leitner",
+          "log cabin",
+          "hut",
+          "cob"
+        ],
+        "dateCreated": "2014-01-10T23:46:02.000Z",
+        "dateModified": "2018-01-29T10:14:50.000Z",
+        "visibility": [
+          "public"
+        ]
+      },
+      "en": {
+        "@context": "http://www.schema.org/ImageObject",
+        "contentType": "Bild",
+        "url": "https://media.kaernten.at/api/v1/media/14",
+        "contentUrl": "https://media.kaernten.at/api/v1/media/14/file",
+        "thumbnailUrl": "https://media.kaernten.at/api/v1/media/14/thumbnail",
+        "headline": "Gold - digger village at Heiligenblut",
+        "caption": "Gold - digger village at Heiligenblut",
+        "description": "Water wheel, attraction in carinthia",
+        "photographer": "Leitner",
+        "license": "Kärnten Werbung",
+        "contentLocation": {
+          "name": {
+            "de": "Fleiß",
+            "en": "Fleiß"
+          },
+          "address": "Fleiß 10, 9844 Fleiß, Austria",
+          "geo": {
+            "longitude": 12.9041,
+            "latitude": 47.0454
+          }
+        },
+        "width": 2272,
+        "height": 1704,
+        "contentSize": 1175979,
+        "fileFormat": "image/jpeg",
+        "keywords": [
+          "Wasserrad",
+          "Ausflugsziel",
+          "Wasser",
+          "Sommer",
+          "Heiligenblut",
+          "Leitner",
+          "log cabin",
+          "hut",
+          "cob"
+        ],
+        "dateCreated": "2014-01-10T23:46:02.000Z",
+        "dateModified": "2018-01-29T10:14:50.000Z",
+        "visibility": [
+          "public"
+        ]
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T10:44:33.231Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T10:44:33.231Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T10:44:33.231Z"
+    }
+  }
+]

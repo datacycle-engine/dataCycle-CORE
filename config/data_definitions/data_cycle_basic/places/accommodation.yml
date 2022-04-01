@@ -1,0 +1,81 @@
+---
+- :data:
+    :name: Zimmer
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 10.0
+    :features:
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :indesign: true
+    :api:
+      :type:
+        - Place
+        - Accommodation
+        - Product
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :api:
+          :minimal: true
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :feratel_accommodation_classifications:
+        :type: mixin
+        :name: feratel_accommodation_classifications
+      :number_of_rooms:
+        :label: Räume
+        :type: number
+        :storage_location: value
+        :advanced_search: true
+      :floor_size:
+        :label: Größe (m²)
+        :type: number
+        :storage_location: value
+        :advanced_search: true
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      # :offers:
+      #   label: Angebote
+      #   :type: embedded
+      #   :template_name: Angebot
+      #   :translated: true
+#      :aminetyFeature: (later ... can be anything)
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Zimmer"
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
+      :meta_data:
+        :type: mixin
+        :name: meta_data

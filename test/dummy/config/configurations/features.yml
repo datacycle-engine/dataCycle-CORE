@@ -1,0 +1,262 @@
+:publication_schedule:
+  :enabled: true
+  :classification_keys:
+    - output_channel
+
+:download:
+  :enabled: true
+  :downloader:
+    :content:
+      :enabled: true
+      :thing:
+        :enabled: true
+        :serializers:
+          :asset: true
+          :gpx: true
+          :json: true
+          :xml: true
+      :watch_list:
+        :enabled: true
+        :serializers:
+          :json: true
+          :xml: true
+      :stored_filter:
+        :enabled: true
+        :serializers:
+          :json: true
+          :xml: true
+    :archive:
+      :zip:
+        :enabled: true
+        :thing:
+          :enabled: true
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: true
+        :watch_list:
+          :enabled: true
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: true
+        :stored_filter:
+          :enabled: true
+          # used from downloader.download.content.thing.serializers. can be overruled here.
+          # :serializers:
+          :mandatory_serializers:
+            :license: true
+      :indesign:
+        :enabled: true
+        :thing:
+          :enabled: true
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :watch_list:
+          :enabled: true
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+        :stored_filter:
+          :enabled: false
+          :serializers:
+            :indesign: true
+          :mandatory_serializers:
+            :asset: true
+    :dependencies:
+      - serialize
+
+:serialize:
+  :enabled: true
+  :serializers:
+    :asset: true
+    :license: true
+    :gpx: true
+    :indesign: true
+    :json: true
+    :xml: true
+
+:overlay:
+  :enabled: true
+
+:container:
+  :enabled: false
+
+:external_media_archive:
+  :enabled: false
+
+:normalize:
+  :enabled: false
+  :external_source: Econob Normalize
+  :endpoint: DataCycleCore::MasterData::Normalizer::Endpoint
+
+:duplicate_content:
+  :enabled: true
+
+:releasable:
+  :enabled: true
+
+:main_filter:
+  :autoload_last_filter: true
+
+:sortable:
+  :enabled: true
+
+:advanced_filter:
+  :external_system: true
+  :boolean:
+    - duplicate_candidates
+  :geo_filter:
+    :geo_radius: true
+    :geo_within_classification:
+      - Administrative Einheiten
+  :relation_filter:
+    :linked_image: image
+    :linked_location: content_location
+  :related_to: true
+  :union_filter_ids: true
+  :advanced_attributes:
+    # media
+    :width:
+      :type: numeric
+    :height:
+      :type: numeric
+    :content_size:
+      :type: numeric
+    :upload_date:
+      :type: date
+    :mandatory_license:
+      :type: boolean
+    :duration:
+      :type: numeric
+    :copyright_year:
+      :type: numeric
+    # lodging business
+    :number_of_rooms:
+      :type: numeric
+    :floor_size:
+      :type: numeric
+    # contact_info
+    :contact_info.email:
+      :type: string
+    :contact_info.telephone:
+      :type: string
+    :contact_info.fax_number:
+      :type: string
+    # address
+    :address.postal_code:
+      :type: string
+    :address.street_address:
+      :type: string
+    :address.address_locality:
+      :type: string
+    :address.address_country:
+      :type: string
+    # Creative Content
+    :total_time:
+      :type: numeric
+    # Bergfex
+    :water_temp.temperature:
+      :type: numeric
+    :water_temp.temp_at:
+      :type: date
+    :area:
+      :type: numeric
+    :depth:
+      :type: numeric
+    :length_nordic_classic:
+      :type: numeric
+    :length_nordic_skating:
+      :type: numeric
+    :elevation:
+      :type: numeric
+    :depth_of_snow:
+      :type: numeric
+    :depth_of_fresh_snow:
+      :type: numeric
+    # offers
+    :price:
+      :type: numeric
+    :min_price:
+      :type: numeric
+    :max_price:
+      :type: numeric
+    # testing new filters
+    :description:
+      :type: string
+    :alternative_headline:
+      :type: string
+    :caption:
+      :type: string
+    :text:
+      :type: string
+    #conventions
+    :number_of_meeting_rooms:
+      :type: numeric
+    :max_number_of_people:
+      :type: numeric
+#    :offer_period.valid_from:
+#      :type: date
+#    :offer_period.valid_through:
+#      :type: date
+#    :validity_period.valid_from:
+#      :type: date
+#    :validity_period.valid_through:
+#      :type: date
+
+:user_registration:
+  :enabled: true
+  :terms_condition_url: 'https://datacycle.info/de/allgemeine-geschaeftsbedingungen/'
+  :privacy_policy_url: 'https://open.datacycle.cloud/de/datenschutzerklaerung/'
+
+:duplicate_candidate:
+  :enabled: true
+
+:content_lock:
+  :enabled: true
+
+:user_api:
+  :enabled: true
+
+:preview:
+  :enabled: true
+  :widgets:
+    :list: https://widgets.datacycle.cloud/list
+    :map: https://widgets.datacycle.cloud/map
+
+:translate:
+  :enabled: true
+  :allowed: true
+  :external_source: 'DeeplTranslate'
+  :endpoint: 'DataCycleCore::Generic::DeeplTranslate::DummyEndpoint'
+  :attribute_keys: ['text']
+
+:auto_translation:
+  :enabled: true
+
+:collection_group:
+  :enabled: true
+
+:named_version:
+  :enabled: true
+
+:image_proxy:
+  :enabled: true
+  :frontend:
+    :enabled: true
+
+:image_editor:
+  :enabled: true
+
+:report_generator:
+  :enabled: true
+  :config:
+    :global:
+      :downloads_popular:
+        :enabled: true
+    :content:
+      :downloads_content:
+        :enabled: true

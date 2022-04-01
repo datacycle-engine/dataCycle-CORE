@@ -1,0 +1,1560 @@
+de:
+  i18n:
+    transliterate:
+      rule:
+        Ä: Ae
+        ä: ae
+        Ö: Oe
+        ö: oe
+        Ü: Ue
+        ü: ue
+        ß: ss
+  title: dataCycle
+  hello: 'Guten Tag!'
+  welcome: 'Willkommen!'
+  order:
+    header: 'Sortierung'
+    title: 'Titel'
+    updated: 'Bearbeitet'
+  submit: 'Erstellen'
+  settings:
+
+  locales:
+    de: deutsch
+    en: englisch
+    ar: arabisch
+    bg: bulgarisch
+    cs: tschechisch
+    da: dänisch
+    es: spanisch
+    fr: französisch
+    fi: finnisch
+    it: italienisch
+    hu: ungarisch
+    hr: kroatisch
+    ja: japanisch
+    ko: koreanisch
+    nl: holländisch
+    pt: portugiesisch
+    pl: polnisch
+    ro: rumänisch
+    ru: russisch
+    sl: slowenisch
+    sk: slowakisch
+    sv: schwedisch
+    tr: türkisch
+    uk: ukrainisch
+    'de-CH': schweizer-deutsch
+    'nl-BE': flämisch
+    zh: chinesisch
+
+  roles:
+    super_admin: Administrator (DataCycle)
+    admin: Administrator
+    user: Benutzer
+    standard: Standard
+    guest: Gast
+    external_user: Externer Benutzer
+
+  view_modes:
+    grid: Kacheln
+    list: Listenansicht
+    tree: Baumansicht
+
+  new_step_title:
+    title: Bildbeschreibung
+    copyright: Copyright
+    agbs: AGBs
+
+  admin_panel:
+    schema: Schema
+    datahash: Datahash
+    api: JSON API
+    relations: Relationen
+    meta-data: Metadaten
+
+  dash_board:
+    download_full: Download (full)
+    import_full: Import (full)
+    import: Import
+    download: Download
+    download_import: Download & Import
+    delete: delete
+    errors_were_encountered: errors were encountered
+
+  notification:
+    frequency:
+      always: sofort bei Änderung
+      named_version: bei Versionsänderungen
+      day: täglich
+      week: wöchentlich
+
+  classifications:
+    tooltip_translations: Übersetzungen
+
+  frontend:
+    load_error: Fehler beim Laden des Inhalts.
+    text_editor:
+      insertNbsp: Geschütztes Leerzeichen einfügen
+      replaceAllNbsp: Alle geschützten Leerzeichen durch normale Leerzeichen ersetzen
+      replaced_all_nbsp: Alle geschützten Leerzeichen wurden durch normale Leerzeichen ersetzt!
+    override_warning: 'Soll das Feld %{data} überschrieben werden?'
+    override_focus: Felder hervorheben
+    reload_page: Seite neu laden
+    upload:
+      running: Es gibt noch laufende Uploads!
+      missing_metadata: Fehlende Metadaten!
+      processing: wird verarbeitet
+      found_duplicate: Duplikat gefunden!
+      uploaded_successfully: hochgeladen, OK
+      error_saving_content: Fehler beim Speichern des Inhalts!
+      upload_error: Uploadfehler
+      metadata_warning:
+        one: Metadaten müssen ausgefüllt werden!
+        many: Metadaten müssen für jede Datei ausgefüllt werden!
+      edit_content: Inhalt bearbeiten
+      edit_locked: Inhalt kann erst bearbeitet werden, nachdem der Upload fertig ist
+      retry_upload: Erneut hochladen
+      format_not_supported: Nicht unterstützes Format (%{data})
+      error: Fehler
+      remove_file: Datei entfernen
+      file: Datei
+      confirm_single_to_all_html: '%{label} wirklich für alle %{template} übernehmen?'
+      confirm_all_to_all_html: '<h5>Alle Attribute für alle %{template} übernehmen</h5><p>Soll auch <b>%{label}</b> für alle %{template} übernommen werden?</p>'
+    cancel: Abbrechen
+    ok: Ok
+    content_lock:
+      renew_lock: Der Inhalt wird in %{min}min wieder freigegeben.<br><br>Wollen Sie die Sperre um %{renew}min verlängern?
+      released: Der Inhalt wurde wieder freigegeben und kann nicht mehr gespeichert werden.
+    update_stored_filter: 'Filterparameter aktualisieren?<br><br>Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.'
+    maximum_embedded: 'Maximalanzahl: %{data}'
+    minimum_embedded: 'Mindestanzahl: %{data}'
+    gpx:
+      file_missing: Datei nicht gefunden!
+      empty: Die GPX-Datei beinhaltet keinen Track.
+    map:
+      scroll_notice:
+        ctrlKey: Verwende Strg+Scrollen zum Zoomen der Karte
+        metaKey: 'Verwende ⌘+Scrollen zum Zoomen der Karte'
+        pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
+      filter:
+        button_title: Verknüpfte Inhalte bearbeiten
+    remote_render:
+      error: Fehler beim Laden des Inhalts.
+      reload: Neu laden
+    split_view:
+      translate_all: Alle übersetzen
+      copy_all: Alle übernehmen
+      translate: übersetzen
+      copy: übernehmen
+      translate_error: Fehler beim Laden der Übersetzung
+      copy_all_translations:
+        overlay_text: Sollen alle verfügbaren Sprachen übernommen werden?
+        confirmation_text: Ja
+        cancel_text: Nein, nur die aktuelle Sprache
+      copy_linked_error: 'Das Attribut konnte nicht übernommen werden: '
+    validate:
+      save_and_change_language: Wollen Sie speichern und auf die neue Sprache wechseln?
+      agbs: AGBs müssen akzeptiert werden!
+      error: 'Fehler:'
+      warning: 'Warnung:'
+      ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
+      final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
+      errors:
+        no_data: 'Keine Daten angegeben für %{data}.'
+        key_figure_not_found: Kennzahl nicht gefunden.
+        endpoint_error: Fehler bei der Verbindung zum Server.
+        gip_no_plausible_route: Keine geeignete Route für die Berechnung der Kennzahlen gefunden. Bitte stellen Sie sicher, dass genau eine Hauptroute in Richtung hinzugefügt wurde.
+    word_counter:
+      chars:
+        one: Zeichen
+        other: Zeichen
+      word:
+        one: Wort
+        other: Wörter
+      max: (noch max. %{data} %{label})
+      min: (noch min. %{data} %{label})
+    image_editor:
+      edit_image: Bild bearbeiten
+      unsupported_format: Das Bild wird vom Bild-Editor in ein unterstützes Dateiformat konvertiert.
+
+  schedule:
+    dtstart: Startzeitpunkt
+    duration:
+      root: Dauer
+      months: Monate
+      days: Tage
+      hours: Stunden
+      minutes: Minuten
+    dtend: Endzeitpunkt
+    full_day: Ganztägig
+    rrule: Wiederholungen
+    single_occurrence: einmalig
+    daily: täglich
+    weekly: wöchentlich
+    monthly: monatlich
+    yearly: jährlich
+    every:
+      maskulin: jeden
+      feminin: jede
+      neutrum: jedes
+    day: Tag
+    week: Woche
+    'on': am
+    month: Monat
+    weekday: Wochentag
+    dayofmonth: Tag des Monats
+    year: Jahr
+    next: Weitere Termine
+    prev: Vorherige Termine
+    rdate: Zusätzliche Termine
+    exdate: Ausgenommene Termine
+    ongoing: fortlaufend
+    filter_labels:
+      all: Alle Zeiträume (außer %{exceptions})
+      event_schedule: Termine (Veranstaltungen)
+      opening_hours_specification: Öffnungszeiten
+      dining_hours_specification: Warme Küche
+      hours_available: Termine (Services/Experiences)
+      validity_schedule: Gültigkeitszeitraum
+
+  opening_time:
+    valid_from: Gültigkeit von
+    valid_until: bis
+    weekday: Wochentag
+    holiday: Feiertag
+    time: Zeit
+    opens: geöffnet von
+    closes: bis
+    closed: geschlossen
+
+  collection:
+    new: Neue %{data}
+    filter: '%{data} filtern...'
+
+  common:
+    'true': Ja
+    'false': Nein
+    loading: 'Laden ...'
+    load_more: ... weitere Inhalte anzeigen
+    load_all: ...alle Inhalte anzeigen
+    are_you_sure: 'Sind Sie sicher?'
+    language: 'Sprache'
+    all: Alle
+    import: Importiert
+    export: Exportiert
+    internal: intern
+    external: extern
+    duplicate: Duplikate
+    auto_translation_submit: Automatische Übersetzung gestartet
+    source_language: 'Quellsprache wählen'
+    choose_language: 'Sprache wählen'
+    searchterm: 'Suchbegriff'
+    active_filters: Aktive Filter
+    no_results: 'Es wurden keine Inhalte für Ihre Filterkriterien gefunden.'
+    additional_filters:
+      show: weitere Filter anzeigen
+      hide: weitere Filter ausblenden
+    filter:
+      show: Filter anzeigen
+      hide: Filter ausblenden
+    details:
+      show: Details anzeigen
+      hide: Details ausblenden
+    contents:
+      zero: Keine Inhalte
+      one: Inhalt
+      other: Inhalte
+    things_count_html:
+      zero: Keine Inhalte
+      one: <b>%{delimited_count}</b> Inhalt
+      other: <b>%{delimited_count}</b> Inhalte
+    users_count_html:
+      zero: Keine Benutzer
+      one: <b>%{delimited_count}</b> Benutzer
+      other: <b>%{delimited_count}</b> Benutzer
+    user_groups_count_html:
+      zero: Keine Benutzergruppen
+      one: <b>%{delimited_count}</b> Benutzergruppe
+      other: <b>%{delimited_count}</b> Benutzergruppen
+    splitsource: Vorlage
+    choose_splitsource: Vorlage wählen
+    load_splitsource: Vorlage laden
+    compare: vergleichen
+    compare_contents: Inhalte vergleichen
+    version: Version
+    comment: Kommentar
+    status: Status
+    confirm_delete_all_caches: Wirklich alle Caches leeren?
+    confirm_delete_cache: Wirklich den Cache leeren?
+    confirm_delete_autotranslation: Wirklich alle manuellen Übersetzungen löschen?
+    content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
+    download_gpx: Als GPX-Datei herunterladen
+    duplicate_content: Inhalt duplizieren
+    no_search: Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.
+    publications: Geplante Publikationen
+    publications_calendar: Publikationskalender
+    show_more: Mehr anzeigen
+    show_less: Weniger anzeigen
+    expired_content: Gültigkeitszeitraum überschritten!
+    entries: Einträge
+    is: ist
+    is_not: ist nicht
+    greater: größer als
+    lower: kleiner als
+    similar: ist ähnlich
+    like: enthält
+    not_like: enthält nicht
+    blank: ist leer
+    present: ist ausgefüllt
+    is_true: 'TRUE'
+    is_false: 'FALSE'
+    has: enthält
+    has_not: enthält nicht
+    assigned: zugeordnet
+    not_assigned: nicht zugeordnet
+    no_translation: Keine Übersetzung vorhanden
+    max: maximal
+    min: mindestens
+    in: in
+    not_in: nicht in
+    landscape: Querformat
+    portrait: Hochformat
+    height: Höhe
+    width: Breite
+    exclude: Ausnahme
+    children_present_html: '<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte, diese werden mitgelöscht!</p>'
+    creator: Ersteller
+    abo_changed_title:
+      one: Ein abonnierter Inhalt (%{title}) wurde geändert
+      other: Abonnierte Inhalte wurden geändert
+    abo_finalized_title:
+      one: Bearbeitung eines abonnierten Inhalts abgeschlossen
+      other: Bearbeitung von abonnierten Inhalten abgeschlossen
+    abo_changed:
+      one: 'Ein abonnierter Inhalt hat sich geändert.'
+      other: 'Folgende abonnierte Inhalte haben sich geändert:'
+    abo_finalized:
+      one: 'Die Bearbeitung eines geteilten Inhalts durch einen Externen wurde abgeschlossen.'
+      other: 'Die Bearbeitung von geteilten Inhalten durch Externe wurde abgeschlossen.'
+    parent: Container
+    subscribe_text: Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.
+    unsubscribe_text: Bereits abonniert.
+    life_cycle: Lebenszyklus
+    create_new_content: Neuen Inhalt erstellen
+    data_type: Inhaltstyp
+    change_api_access: API Freigabe ändern
+    select_asset: '%{data} auswählen'
+    select_asset_title: Hochgeladene Dateien
+    my_assets: Meine Dateien
+    select_assets: Dateien verknüpfen
+    warning: Achtung!
+    warnings: Warnungen
+    external_connections:
+      one: Externe Verknüpfung
+      other: Externe Verknüpfungen
+    create_via_mediaarchive: '%{data} über Medienarchiv erstellen'
+    normalize: Normalisieren
+    required_field: Dieses Feld ist ein Pflichtfeld
+    preview: Vorschau
+    duplicates: Duplikate
+    duplicates_exist:
+      one: '%{data} mögliches Duplikat'
+      other: '%{data} mögliche Duplikate'
+    cant_create_duplicate: Datei kann nicht importiert werden, da es sich um ein Duplikat handelt
+    related_items: Verknüpfte Inhalte
+    generated_value_placeholder: Dieser Wert wird automatisch gesetzt
+    merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
+    additional_classifications: weitere Klassifizierungen
+    bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
+    bulk_update:
+      check_box_labels:
+        override_html: '<span class="attribute-title">%{data}</span> überschreiben'
+        add_html: 'An vorhandene <span class="attribute-title">%{data}</span> anhängen'
+        remove_html: 'Ausgewählte <span class="attribute-title">%{data}</span> entfernen'
+      button:
+        limited: Es können maximal %{data} Inhalte gleichzeitig bearbeitet werden.
+    watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
+    content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
+    content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
+    multiple_content_locks_html: '<span class="lock-count">%{data}</span> Inhalte werden gerade bearbeitet'
+    download:
+      available_formats: Verfügbare Formate
+      available_versions: Verfügbare Datei Versionen
+      available_transformations: Verfügbare Dateiformate
+      asset: Datei
+      json: JSON-Format
+      gpx: GPX-Datei
+      xml: XML-Format
+      indesign: Adobe InDesign
+      version:
+        original: Original
+        thumb_preview: Thumbnail
+        web: Web
+      format:
+        none: Originalformat
+    help: Hilfe
+    mode_switcher_title: Ansicht
+    date: Datum
+    longitude: Längengrad
+    latitude: Breitengrad
+    distance: Radius
+    center_point: Mittelpunkt
+    placeholder:
+      longitude: Längengrad, z.B. 14,30
+      latitude: Breitengrad, z.B. 46,61
+      distance: Radius in Metern
+    available_widgets: Verfügbare Widgets
+    widgets:
+      list: Listenansicht
+      map: Kartenansicht
+    user_registration:
+      terms_conditions: 'Ich aktzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
+      privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
+    no_selection: keine Auswahl
+    external_name: Titel
+    external_alternate_name: Alternativer Titel
+    external_locale: Sprache
+    external_key: Externe Id
+    inverse_linked: Inverse Referenz
+    has_overlay: Bei diesem Inhalt ist ein Overlay vorhanden
+    no_name: unbenannt
+    o_clock: Uhr
+    and: und
+    'yes': Ja
+    'no': Nein
+    merged_with_version_name: 'zusammengeführt mit %{name} (#%{id})'
+
+  embedded:
+    move_down: nach unten verschieben
+    move_up: nach oben verschieben
+    open_all: Alle aufklappen
+    close_all: Alle zuklappen
+    button_title: '%{title} hinzufügen'
+
+  upload:
+    drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'
+    system_dialog: Bilder über Systemdialog auswählen
+    or: oder
+    select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
+    copy_all_title: "Alle Attribute von diesem %{single} für alle %{multiple} übernehmen"
+
+  external_connection_states:
+    success: Erfolgreich synchronisiert
+    pending: wird synchronisiert
+    error: "Es ist ein Fehler aufgetreten.\nDie Synchronisation wird in bestimmten Intervallen erneut versucht."
+    failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nich synchronisiert werden."
+    export: Externes System
+
+  duplicate:
+    candidates: Mögliche Duplikate
+    score: Score
+    merge: zusammenführen
+    merge_with: '%{data} zusammenführen'
+    merge_content: Inhalte zusammenführen
+    mark_false_positive: kein Duplikat
+    switch: Original und Duplikat vertauschen
+    duplicate: Duplikat
+    original: Original
+
+  tile_links:
+    details: zur Detailansicht
+    full_size: in voller Größe öffnen
+    media_archive: im Medienarchiv öffnen
+
+  feature:
+    named_version:
+      input_label: Versionsname
+      version_name: 'Version: %{name}'
+      remove_version_name: Versionsname entfernen
+      confirm_remove: 'Versionsname "%{name}" entfernen?'
+      version_name_removed: Der Versionsname wurde entfernt!
+    download:
+      missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
+    serialize:
+      license:
+        copyright:
+          file_name: nutzungsbedingungen
+        introducton:
+          file_name: einleitungstext
+          text: 'Überschrift
+
+          Hier könnte Ihre Enleitung stehen
+
+          COPYRIGHT dataCycle'
+    geo_key_figure:
+      button_title: Ermittlung des Wertes für %{data} über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
+      button_title_all: Ermittlung der Werte über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
+    user_api:
+      mailer:
+        subject: Ein neuer Benutzer wurde erstellt
+        text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
+        user_link: Benutzer bearbeiten
+    report_generator:
+      downloads_popular: Top 50 Downloads
+      downloads_content: Alle Downloads dieses Inhalts
+      headings:
+        id: ID
+        name: Name
+        downloads_all: Anzahl der Downloads (Gesamt)
+        downloads_by_month: Anzahl der Downloads (%{date})
+        date_created: Heruntergeladen am
+        email: E-Mail
+        user_display_name: Account
+
+  history:
+    latest_edits: Letzte Bearbeitungen
+    created_at_html: erstellt am <b>%{date}</b>
+    updated_at_html: bearbeitet in <b>%{language}</b> am <b>%{date}</b>
+    valid_since: gültig seit
+    differences_to_version: Unterschiede zu Version
+    active_version: Aktuelle Version
+    look_at_version: Aktuellen Version mit dieser Version vergleichen
+    restored: Wiederhergestellt am %{date}
+    created: Inhalt erstellt
+    restore:
+      version:
+        title: Diese Version wiederherstellen
+        confirmation_html: Die Version <i>%{history_version_html}</i> als aktuelle Version wiederherstellen?<br><br>Die aktuelle Version wird dadurch überschrieben.
+        restored_version_name: Version vom %{date} wiederhergestellt.
+        restored: Die Version vom %{date} wurde erfolgreich wiederhergestellt.
+
+  data_link_mailer:
+    content_download: Inhalt herunterladen
+    content_read: Inhalt lesen
+    content_write: Inhalt bearbeiten
+    watch_list:
+      default: die Inhaltssammlung
+    thing:
+      nominativ: der Inhalt
+      akkusativ: den Inhalt
+    send_subject: Geteilter Link zu einem Inhalt
+    update_subject: Geteilte Inhaltssammlung wurde aktualisiert
+    notice: Hinweis
+    from: '%{from}'
+
+  filter:
+    add: Filter hinzufügen
+    language: Sprache
+    external_source: Externe Quelle
+    external_system: Externe Systeme
+    creator: Ersteller
+    classification_tree_ids: Klassifizierungsbaum
+    created_at: Erstellungsdatum
+    updated_at: Aktualisierungsdatum
+    validity_period: Gültigkeitszeitraum
+    upload_date: Uploaddatum
+    duplicate_candidates: Potentielle Duplikate vorhanden
+    not_duplicate_candidates: keine potentiellen Duplikate vorhanden
+    bookable: buchbar
+    not_bookable: nicht buchbar
+    width: Breite
+    height: Höhe
+    order: Reihenfolge
+    content_size: Dateigröße
+    contact_info_email: E-Mail
+    contact_info_telephone: Telefonnummer
+    contact_info_fax_number: Faxnummer
+    address_postal_code: PLZ
+    address_street_address: Strasse
+    address_address_locality: Ort
+    address_address_country: Land
+    mandatory_license: Copyright Nennung verpflichtend
+    price: Preis
+    min_price: Preis (Min)
+    max_price: Preis (Max)
+    duration: Dauer
+    copyright_year: Copyright Jahr
+    floor_size: Zimmergröße
+    total_time: Kochzeit
+    water_temp_temperature: Wassertemperatur
+    water_temp_temp_at: Wassertemperatur gemessen am
+    area: Fläche
+    depth: Tiefe
+    length_nordic_classic: Loipenlänge Nordisch Klassisch
+    length_nordic_skating: Loipenlänge Nordisch Skating
+    elevation: Meereshöhe
+    depth_of_snow: Schneehöhe
+    depth_of_fresh_snow: Neuschnee
+    caption: Bildunterschrift
+    description: Beschreibung
+    alternative_headline: Unterüberschrift
+    geo_radius: Umkreis
+    geo_within_classification: Lage
+    event_location: Veranstaltungsort
+    inactive_things: Abgelaufene Inhalte
+    in_schedule: Termin
+    relation_filter:
+      equal: ist
+      not_equal: ist nicht
+      contained_in: ist enthalten in
+      not_contained_in: ist nicht enthalten in
+      placeholder:
+        thing: Inhalt
+        collection_or_stored_filter: '%{collection} oder %{stored_filter}'
+    related_to: ist verknüpft mit
+    feratel_content_score: Feratel - Content Score
+    union_filter_ids: in gespeicherten Suchen / %{collections}
+    related_to_method:
+      related: verknüpft mit
+      not_related: nicht verknüpft mit
+    max_number_of_people: max. Anzahl Personen
+    total_number_of_beds: Gesamtanzahl Betten
+    number_of_rooms: Gesamtanzahl Einheiten
+    number_of_accommodations: Anzahl der Wohneinheiten
+    linked_image: Verknüpftes Bild
+    linked_location: Verknüpfter Ort
+    linked_author: Verknüpfter Fotograf
+    linked_copyright_holder: Verknüpfter Rechteinhaber
+    linked_provider: Verknüpfter Dienstleister
+    in_schedule_types:
+      absolute: Fester Zeitraum
+      relative: Relativer Zeitraum
+      before: vor
+      in: in
+      num: Anzahl
+      unit: Einheit
+
+  filter_groups:
+    classification_alias_ids: nach Klassifizierungen filtern...
+    classification_tree_ids: nach Klassifizierungsbaum filtern...
+    creator: nach Personen filtern...
+    external_source: nach externen Quellen filtern...
+    external_system: nach externen Systemen filtern...
+    validity_period: nach Gültigkeitszeitraum filtern...
+    date_range: nach Datum filtern...
+    boolean: nach booleschen Kriterien filtern...
+    advanced_attributes: nach Attributen filtern...
+    geo_radius: nach Umkreis filtern...
+    geo_within_classification: nach geografischer Lage filtern...
+    geo_filter: nach geografischer Lage filtern...
+    relation_filter: auf Basis von verknüpften Inhalten filtern ...
+    id: nach IDs filtern ...
+    union_filter_ids: mehrere Sammlungen kombinieren...
+    related_to: nach verknüpften Inhalten filtern ...
+    in_schedule: nach Termin filtern...
+    inactive_things: nach abgelaufenen Inhalten filtern...
+
+  sortable:
+    default: Standard
+    created_at: Erstellungsdatum
+    translated_name: Name
+    updated_at: Aktualisierungsdatum
+    ordering:
+      asc: Aufsteigend
+      desc: Absteigend
+
+  object_browser:
+    details:
+      created_at: erstellt
+      updated_at: bearbeitet
+      title: Titel
+      info: Info
+      copyright: Copyright
+
+  terms:
+    valid: gültig
+    from: von
+    until: bis
+    min: min
+    max: max
+    value_exists: Nicht leer
+    text: Text
+
+  list_titles:
+    teaser: Teasertext
+    text: Fließtext
+
+  pronoun:
+    my:
+      one: mein
+      other: meine
+
+  classification_visibilities:
+    backend: Dashboard
+    show: Detail-Ansicht (immer sichtbar)
+    show_more: Detail-Ansicht (standardmäßig eingeklappt)
+    edit: Bearbeitungs-Ansicht
+    api: API
+    tile: Kachel
+    filter: Erweiterte Dashboard-Filter
+    list: Listenansicht
+    tree_view: Wurzel in der Baumansicht
+    xml: XML
+
+  classification_change_behaviour:
+    trigger_webhooks: Webhooks für Inhalte auslösen
+    clear_cache: Cache für Inhalte leeren
+
+  pagination:
+    next: Weitere Ergebnisse
+    prev: Vorherge Ergebnisse
+
+  actions:
+    show: anzeigen
+    edit: bearbeiten
+    edit_data: '%{data} bearbeiten'
+    manage: '%{data} verwalten'
+    lock: sperren
+    unlock: freischalten
+    delete: löschen
+    choose_type: 'Inhaltstyp wählen'
+    new: '%{data} erstellen'
+    new_asset: '%{data} speichern'
+    generate: '%{data} generieren'
+    send: versenden
+    send_with_data: '%{data} versenden'
+    delete_with_data: '%{data} löschen'
+    subscribe: 'abonnieren'
+    subscribe_to: '%{data} abonnieren'
+    unsubscribe: 'Abonnement löschen'
+    subscribed_to: '%{data} abonniert'
+    auto_translate: 'automatisch Übersetzen'
+    translate: 'übersetzen'
+    translate_create: 'Übersetzungen anlegen'
+    reset:
+      one: 'Zurücksetzen'
+      other: 'Suche zurücksetzen'
+    filter: jetzt suchen
+    move_to: 'In %{data} verschieben'
+    duplicate_content: 'duplizieren'
+    read: lesen
+    write: schreiben
+    save_and_send: Senden
+    save_without_send: Speichern (kein E-Mail-Versand)
+    finalize: Bearbeitung final abschließen
+    finalize_agbs_text: AGBs
+    finalize_combined_html: '%{finalize} und %{agbs} akzeptieren'
+    copy_to_clipboard: In die Zwischenablage kopieren
+    copy_classification_alias_id_to_clipboard: Klassifizierungs-Alias-ID in die Zwischenablage kopieren
+    copied_to_clipboard: In Zwischenablage kopiert.
+    save: Speichern
+    update: Aktualisieren
+    upload: Dateien hochladen
+    become: 'Als %{data} anmelden'
+    create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
+    move_to_container: 'Inhalt verschieben'
+    move: verschieben
+    geocode: 'Geokoordinaten von %{title} übernehmen'
+    upload_gpx: 'GPX-Datei hochladen'
+    remove_feature: 'Geometrie löschen'
+    open_asset: 'Datei öffnen'
+    download: 'herunterlanden'
+    download_content: 'Inhalt herunterladen'
+    download_indesign: 'Inhalt für Adobe InDesign herunterladen'
+    download_zip: 'Inhalte als ZIP-Archiv herunterladen'
+    download_asset: 'Datei herunterladen'
+    download_asset_version: 'Datei herunterladen (%{data}-Version)'
+    preview_content: Vorschau anzeigen
+    processing_asset: 'Datei wird verarbeitet ...'
+    processing_image: 'Bild wird verarbeitet ...'
+    searching: suche
+    next: Weiter
+    back: Zurück
+    add_files: Dateien hinzufügen
+    delete_file: Datei wirklich löschen?
+    uploaded: hochgeladen
+    back_to_select: Zurück zur Auswahl
+    delete_translation: 'Übersetzung (%{data}) löschen'
+    delete_with_translated_html: 'Eingebetteten Datensatz löschen?<br><br>Es werden auch vorhandene Übersetzungen dieses eingebetteten Datensatzes gelöscht!'
+    discard_changes: Änderungen verwerfen
+    save_changes: Speichern und schließen
+    merge_with_duplicate: Änderungen speichern, Duplikat löschen und Ansicht schließen
+    reload: Seite neu laden
+    redirect_to_login: zur Anmeldung
+    external_detail: In Externem System öffnen
+    external_edit: In Externem System bearbeiten
+    open_as_source: Als Vorlage laden
+    close_source: Vorlage schließen
+    bulk_edit: im Bulk bearbeiten
+    add_items_to_watch_list: 'zu %{data} hinzufügen'
+    add: hinzufügen
+    delete_items_in_watch_list: Alle Inhalte dieser Inhaltssammlung löschen
+    save_without_redirect: Zwischenspeichern
+    set_and_next: 'übernehmen und weiter'
+    set_all_attributes: 'für alle übernehmen'
+    close_overlay: schließen
+    remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
+    copyable_from: '%{data} übernehmen'
+    copyable_from_clear: '%{data} verwerfen'
+    logout: Abmelden
+    clear: 'Alle Inhalte aus %{data} entfernen'
+    remove_content_from: '%{name} aus %{collection} entfernen?'
+    remove_from: 'aus %{collection} entfernen'
+
+  validation:
+    errors:
+      slug: '%{data} ist bereits der slug von einem anderen Datensatz.'
+      min: '%{data} zu kurz, sollte mindestens %{min} lang sein, ist aber nur %{length} lang.'
+      max: '%{data} zu lang, sollte maximal %{max} lang sein, ist aber %{length} lang.'
+      min_number: '%{data} zu klein, sollte %{value} sein, ist aber nur %{data}.'
+      max_number: '%{data} zu hoch, sollte %{value} sein, ist aber %{data}.'
+      min_datetime: 'Zeitpunkt %{data} sollte nach %{min} liegen.'
+      min_date: 'Datum %{data} sollte nach %{min} liegen.'
+      match: '%{data} stimmt nicht mit %{expression} überein.'
+      format: 'Format-String %{format_string} für %{data} unbekannt.'
+      uuid: 'Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0'
+      date_time: '%{data} ist kein gültiges Zeit/Datum Format.'
+      date: '%{data} ist kein gültiges Datums Format.'
+      key: '%{data} ist kein gültiges uuid Format.'
+      boolean: "%{data} ist kein gültiges Boolean Format. (Nur 'true' oder 'false' erlaubt)"
+      url: "%{data} ist keine gültige Url (gültiges Beispiel: 'https://www.example.com')."
+      string: '%{template} ist kein String, sondern %{label}.'
+      geo: 'Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String.'
+      geo_no_linestring: 'Für diesen Typ müssen mindestens zwei Punkte angegeben werden'
+      schedule:
+        general: 'Falschen Datentyp angegeben für %{template} (%{data}). Erwarte DataCycleCore::Schedule, oder einen gültigen Hash.'
+        time: "DateTime Format falsch für %{template} (%{data}), erwarte einen Hash mit { time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
+        date_time_array: 'DateTimeArray format falsch für %{template} (%{data}), erwarte ein Array von ActiveSupport::TimeWithZone'
+        rrule: 'RRULE format falsch für %{template} (%{data}).'
+        thing_id: 'thing_id ist ein Pflichtfeld.'
+        relation: 'relation ist ein Pflichtfeld.'
+        invalid: 'Der Eintrag mit Startzeitpunkt %{data} enthält keine gültigen Termine'
+        until_missing: 'Für den Eintrag mit Startzeitpunkt %{data} muss ein Endzeitpunkt angegeben werden'
+      number: '%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data}).'
+      no_data: 'Keine Daten angegeben.'
+      no_validation: 'Keine Validierungs-Daten angegeben.'
+      data_type: 'Falschen Daten-Typ angegeben für %{template} %{data}. Erwartet wurde UUID oder UUID Array.'
+      data_format_embedded: 'Daten in falschem Fromat angegeben für %{template} %{data}. Erwartet wurde ein Hash oder ein Array von Hashes.'
+      data_array_format: 'Elemente des Daten-Arrays für %{template} haben falsches Format %{key}.'
+      classification: "Keine Classification gefunden für %{key} in classification_tree mit dem Label: '%{label}' und tree_label '%{tree_label}'"
+      asset_upload: 'Datei konnte nicht hochgeladen werden'
+      asset_convert: 'Datei konnte nicht verarbeitet werden'
+      min_ref: 'Zu wenig Referezen angegeben, %{data} sollte mindestens %{value} sein.'
+      max_ref: 'Zu viele Referezen angegeben, %{data} sollte maximal %{value} sein.'
+      data_format: 'Elemente des Link-Arrays für %{template} haben das falsche Format %{key}.'
+      not_found: 'Daten für %{template} mit uuid %{key} nicht gefunden in Tabelle %{table}.'
+      integer: '%{data} ist kein Integer.'
+      float: '%{data} ist kein Float.'
+      object_type: 'Falscher Datentyp für %{data}. Typ %{type} ist nicht definiert.'
+      wrong_object_type: "Objekt Type %{data} ist kein embedded Datentyp und hat keine 'properties'."
+      no_template: 'Kein passendes Datentyp Template gefunden für %{name}.'
+      no_fields: "Keine Felder für 'from-date' und/oder 'to-date' angegeben."
+      convert_date: 'Datum konnte nicht konvertiert werden, um die Zeitspanne zu validieren.'
+      daterange: "Ungültige Zeitspanne, 'von' (%{from}) ist nach 'bis' (%{to})."
+      classification_conflict: Es gibt Konflikte bei den Publikationsdaten.
+      not_deleted: 'Beim Löschen von %{data} ist ein Fehler aufgetreten.'
+      not_saved: 'Beim Speichern von %{data} ist ein Fehler aufgetreten.'
+      file_too_large: 'Datei zu groß (max. %{max}).'
+      wrong_content_type: '%{content_type} Dateien sind nicht erlaubt.'
+      required: 'ist ein Pflichtfeld und muss ausgefüllt werden.'
+      unknown_activity_type: 'Unbekannter Typ für Activity'
+    warnings:
+      string: '%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}'
+      no_data: 'Keine Daten angegeben für %{data}'
+      no_evaluate: '%{data} nicht bei den Evaluierungsdaten angegeben.'
+      keyword: '%{key} ist kein gültiges Keyword für %{type}'
+      convert: "Konvertieren von %{data} zu 'date_time' Format für die Zeitspannen-Validierung fehlgeschlagen."
+      end_date: 'Kein End-Datum angegeben, setze auf 9999-12-31.'
+      start_date: 'Kein Start-Datum angegeben, setze auf 1970-01-01.'
+      address_not_found: Adresse nicht gefunden
+      address_ambiguous: Adresse nicht eindeutig
+      telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
+      required: 'sollte ausgefüllt werden.'
+      schedule:
+        duration_too_long: 'Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)'
+  controllers:
+    error:
+      invalid_parent: 'Ungültiges Eltern Objekt.'
+      invalid_parent_attr: 'Ungültige Eltern Attribute.'
+      no_permission: 'Keine Berechtigung.'
+      invalid: '%{data} konnte nicht erstellt werden.'
+      email_exists: 'Für diese E-Mail existiert bereits ein Link'
+      no_source: 'Keine gültige Vorlage angegeben'
+      wrong_content_type: Nicht unterstützter Datei-Typ
+      missing_parameter: Parameter fehlt!
+      duplicate:
+        type_mismatch: 'Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!'
+      session_expired: Die Sitzung ist abgelaufen, bitte melden Sie sich erneut an.
+      token_invalid: Die Sitzung ist abgelaufen, bitte laden Sie die Seite neu.
+      no_shared_attributes: Es gibt keine Attribute, die bei allen Inhalten vorkommen
+      no_selected_attributes: Es wurden keine Attribute zum Überschreiben ausgewählt
+      external_items: Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!
+      no_watchlist: Es wurde keine Inhaltssammlung gewählt
+      content_duplication_invalid: 'Das Duplikat konnte nicht erstellt werden!'
+      bulk_update_error: Beim Speichern ist ein Fehler aufgetreten, bitte versuchen Sie es erneut
+      definition_mismatch: Die Versionen können nicht verglichen werden, weil die Datendefinitionen nicht überein stimmen
+    success:
+      created: '%{data} wurde erfolgreich erstellt.'
+      ready_to_send: '%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden.'
+      updated: '%{data} wurde aktualisiert.'
+      destroyed: '%{data} wurde gelöscht.'
+      destroyed_translation: 'Übersetzung %{language} von %{data} wurde gelöscht.'
+      added_to: 'Zu Merkliste: %{data} hinzugefügt.'
+      removedFrom: 'Von Merkliste: %{data} entfernt.'
+      sent: 'E-Mail wurde versandt.'
+      saved: '%{data} wurde erstellt.'
+      saved_and_sent: '%{data} wurde erstellt und verschickt.'
+      updated_and_sent: '%{data} wurde aktualisiert und verschickt.'
+      invalid_mail: 'Keine gültige E-Mail Adresse.'
+      locked: '%{data} wurde gesperrt.'
+      unlocked: '%{data} wurde freigegeben.'
+      invalidated: '%{data} wurde deaktiviert.'
+      updated_user_settings: 'Benutzereinstellungen wurden aktualisiert.'
+      moved_to: 'Inhalt in %{data} verschoben'
+      become_user: 'Eingeloggt als %{data}.'
+      duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
+      merged_with_duplicate: Inhalte werden im Hintergrund zusammengeführt
+      bulk_updated:
+        one: '<b>%{count}</b> Inhalt wurde aktualisiert'
+        other: '<b>%{count}</b> Inhalte wurden aktualisiert'
+      bulk_deleted:
+        one: '<b>%{count}</b> Inhalt wurde gelöscht'
+        other: '<b>%{count}</b> Inhalte wurden gelöscht'
+      bulk_created:
+        one: '<b>%{count}</b> Inhalt wurde erstellt'
+        other: '<b>%{count}</b> Inhalte wurden erstellt'
+      removed_lock: Inhalt wurde freigegeben
+      cleared_collection: 'Alle Inhalte wurden aus %{data} entfernt'
+    warning:
+      no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
+    info:
+      not_modified: '%{data} wurde nicht geändert.'
+      created_duplication: '%{data} wurde erfolgreich dupliziert.'
+      content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
+      bulk_updated_skipped_html: '<br>Es wurden keine Übersetzungen angelegt, wenn ein Inhalt in der Sprache nicht vorhanden ist: %{counts}'
+      bulk_deleted_external_html:
+        one: '<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da dieser von einem externen System importiert wurden.'
+        other: '<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da diese von einem externen System importiert wurden.'
+      bulk_deleted_not_allowed_html:
+        one: '<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da Sie keine Berechtigung dafür haben.'
+        other: '<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da Sie keine Berechtigung dafür haben.'
+    job:
+      added: '%{data}/%{uuid} zur Job-Queue hinzugefügt.'
+      imported: "'%{data}' wurden aus YAML Datei importiert."
+      running: 'Job befindet sich bereits in der Job-Queue.'
+
+  activerecord:
+    errors:
+      messages:
+        record_invalid: 'Ungültiger Eintrag'
+      models:
+        data_cycle_core/asset:
+          attributes:
+            file:
+              blank: 'Datei darf nicht leer sein'
+        data_cycle_core/image:
+          attributes:
+            file:
+              blank: 'Datei darf nicht leer sein'
+        data_cycle_core/audio:
+          attributes:
+            file:
+              blank: 'Datei darf nicht leer sein'
+        data_cycle_core/video:
+          attributes:
+            file:
+              blank: 'Datei darf nicht leer sein'
+        data_cycle_core/pdf:
+          attributes:
+            file:
+              blank: 'Datei darf nicht leer sein'
+        data_cycle_core/watch_list:
+          attributes:
+            full_path:
+              blank: 'darf nicht leer sein.'
+        data_cycle_core/user:
+          attributes:
+            password:
+              blank: 'Passwort darf nicht leer sein.'
+              too_short: 'Passwort zu kurz.'
+            password_confirmation:
+              confirmation: 'Passwörter stimmen nicht überein.'
+            current_password:
+              blank: 'Aktuelles Passwort zur Bestätigung eingeben.'
+              invalid: 'Falsches Passwort.'
+            email:
+              blank: 'E-Mail darf nicht leer sein.'
+              taken: 'Für diese E-Mail existiert schon ein Benutzer.'
+              invalid: 'Keine gültige E-Mail.'
+        data_cycle_core/user_group:
+          attributes:
+            name:
+              blank: Name darf nicht leer sein.
+    models:
+      data_cycle_core/user: Benutzer
+      data_cycle_core/user_organization: Organisation
+      data_cycle_core/user_group:
+        one: Benutzergruppe
+        other: Benutzergruppen
+      data_cycle_core/subscription:
+        zero: 'Keine Abos'
+        one: Abo
+        other: Abos
+      data_cycle_core/watch_list:
+        one: Inhaltssammlung
+        other: Inhaltssammlungen
+      data_cycle_core/data_link:
+        one: Externer Link
+        other: Externe Links
+      data_cycle_core/stored_filter:
+        one: Gespeicherte Suche
+        other: Gespeicherte Suchen
+      data_cycle_core/content/content:
+        one: Inhalt
+        other: Inhalte
+      data_cycle_core/external_source:
+        one: Externe Quelle
+        other: Externe Quellen
+      data_cycle_core/external_system:
+        one: Externe Synchronisierung
+        other: Externe Synchronisierungen
+      data_cycle_core/asset:
+        one: Asset
+        other: Assets
+      data_cycle_core/text_file:
+        one: Textdokument
+        other: Textdokumente
+      data_cycle_core/pdf:
+        one: Pdf
+        other: Pdfs
+      data_cycle_core/image:
+        one: Bild
+        other: Bilder
+      data_cycle_core/video:
+        one: Video
+        other: Videos
+      data_cycle_core/audio:
+        one: Audiodatei
+        other: Audiodateien
+      data_cycle_core/data_cycle_file:
+        one: Datei
+        other: Dateien
+      data_cycle_core/role:
+        one: Benutzerrolle
+        other: Benutzerrollen
+      data_cycle_core/classification_alias:
+        one: Klassifizierung
+        other: Klassifizierungen
+    attributes:
+      data_cycle_core/watch_list:
+        name: Name
+        full_path: Name (inklusive Ordnerpfad)
+        user_group_ids: Benutzergruppen
+        user_ids: Benutzer
+        user_id: Eigentümer
+      data_cycle_core/classification_tree_label:
+        visibility: Sichtbarkeit
+        change_behaviour: Änderungsverhalten
+      data_cycle_core/classification_alias:
+        assignable: Zuweisbar
+        description: 'Beschreibungstext'
+        classification_ids: Klassifizierungs-Mapping
+        internal_name: Sprachneutraler Name
+        uri: Externe URI
+        external_keys: Externe Keys
+        mapped_to_string: Klassifizierungen gemapped von
+      data_cycle_core/user_group:
+        name: Name
+        user_ids: Benutzer
+        classification_ids_markets: Märkte
+        classification_ids_output_channels: Ausgabekanäle
+      data_cycle_core/user:
+        given_name: Vorname
+        family_name: Familienname
+        password: Passwort
+        password_confirmation: 'Passwort wiederholen'
+        current_password: 'Aktuelles Passwort'
+        email: E-Mail
+        role_id: Rolle
+        user_group_ids: Benutzergruppen
+        external: SSO
+        notification_frequency: Benachrichtigung von Abos
+        access_token: API Token
+        default_locale: 'Default-Sprache für Suchen und neue Inhalte'
+        represented_by: Repräsentiert durch
+        ui_locale: Sprache der Benutzeroberfläche
+      data_cycle_core/thing:
+        name: Name
+        legal_name: Firmenname
+        given_name: Vorname
+        family_name: Familienname
+        job_title: Berufsbezeichnung
+        street: Straße
+        country: Land
+        plz: PLZ
+        address: Ort
+        longitude: Längengrad
+        latitude: Breitengrad
+        elevation: Meereshöhe (m)
+        external_key: Externe Id
+      data_cycle_core/person:
+        given_name: Vorname
+        family_name: Familienname
+        job_title: Berufsbezeichnung
+      data_cycle_core/organization:
+        name: Name
+        legal_name: Firmenname
+      data_cycle_core/place:
+        name: Name
+        street: Straße
+        country: Land
+        plz: PLZ
+        address: Ort
+        longitude: Längengrad
+        latitude: Breitengrad
+        elevation: Meereshöhe (m)
+      data_cycle_core/data_link:
+        comment: Kommentar
+        permissions: Berechtigungen
+        validity_period: Gültigkeitszeitraum (von - bis)
+        valid_from: Gültig von
+        valid_until: bis
+        permissions_download: herunterladen
+        permissions_read: lesen
+        permissions_write: bearbeiten
+        text_file: Weitere Infos (%{file_types})
+        locale: 'E-Mail Sprache'
+      data_cycle_core/stored_filter:
+        system: Für alle Benutzer sichtbar
+        api: Über API abrufbar
+        api_users: Für API zugelassene Benutzer
+        linked_stored_filter_id: Filter für verknüpfte Inhalte
+        classification_tree_labels: Auf Klassifizierungsbäume einschränken
+        name: Name
+      data_cycle_core/asset:
+        name: Name
+        file: Datei
+      data_cycle_core/external_source:
+        name: Name
+
+  unauthorized:
+    manage:
+      all: 'Keine Zugriffsberechtigung!'
+
+  data_cycle_core:
+    administration: 'Administration'
+    user_settings: Benutzeraktionen
+    user_details: Benutzerdetails
+    user_links: Benutzerlinks
+    classifications: 'Klassifizierungen'
+    dashboard: Dashboard
+    classifications_adminitration:
+      classification:
+        submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
+    this_classification: Dieser Klassifizierung
+    this_classification_tree: Diesem Klassifizierungsbaum
+    show_contents_for_tree_label: 'Inhalte in %{data} auflisten'
+    settings: Einstellungen
+    publication_date: Publikationsdatum
+    publications_calendar: Publikationskalender
+    cache:
+      clear_all: Alle Caches leeren
+      clear: Cache leeren
+    autotranslate:
+      clear: Manuelle Übersetzungen löschen
+      auto: Für diesen Datensatz wurden alle Übersetzungen automatisch angelegt.
+    classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
+    classification_relations:
+      one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'
+      other: 'ACHTUNG: Mit dieser Klassifizierung sind <b>%{count}</b> Inhalte verknüpft!'
+    child_classification_relations:
+      one: 'ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Diese wird mitgelöscht!'
+      other: 'ACHTUNG: %{data} sind <b>%{count}</b> Klassifizierungen zugeordnet.<br>Diese werden mitgelöscht!'
+    stored_searches:
+      my_searches: Meine Suchen
+      my_saved: Meine gespeicherten Suchen
+      last: Zuletzt gesucht
+      saved:
+        one: Gepeicherte Suche
+        other: Gespeicherte Suchen
+      show_all_saved: Alle Gespeicherten Suchen ansehen
+      show_search_history: Gesamten Verlauf ansehen
+      save: Suche speichern
+      history: Suchverlauf
+    watch_list:
+      locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
+    upload: Neue Medien hochladen
+    data_links:
+      write_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.</span>'
+      read_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihr Feedback.</span>'
+      download_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt.<br><br>%{n_type} steht nun zum Download bereit.</span>'
+      updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” wurde aktualisiert. Es wurden Inhalte hinzugefügt oder entfernt.</span>'
+      create_link: Neuen Link erstellen
+    documentation:
+      root: Dokumentation
+      overview: Übersicht
+      architecture: Systemarchitektur
+      data_structure: Datenstruktur
+      classifications: Klassifizierungen
+      api:
+        root: Datenschnittstelle
+        classifications: Klassifizierungen
+        contents:
+          root: Inhalte
+          specification: Spezifikation
+
+    schema:
+      root: Schema
+      containers: Container
+      entities: Inhalte
+      embeddeds: Eingebettete Inhalte
+    reports:
+      root: 'Reports'
+      available_reports: 'Verfügbare Reports'
+
+    warning:
+      common:
+        invalid: Gültigkeitszeitraum überschritten
+        translation_missing: Keine Übersetzung vorhanden
+
+  import:
+    booking:
+      hotel_important_information: Wichtige Informationen
+      hotel_description: Kurzbeschreibung
+    feratel:
+      meeting_point: Treffpunkt
+      additional_service:
+        Arrival Information: Informationen zur Anreise
+        Cancellation Information: Stornierungsregelungen
+        Difficulty: Schwierigkeitsgrad
+        Equipment: Ausrüstung
+        'FAQ / good to know': FAQ / nützliche Hinweise
+        Included Services: Enthaltene Leistungen
+        Meeting Point: Treffpunkt
+        Opening hours: Öffnungszeiten
+        Payment: Zahlungsmodalitäten
+        Price Information: Preis
+        Rental Equipment: Mietausrüstung
+        Requirements: Voraussetzung
+        ServiceDescription: Beschreibung
+        Suitable for: Geeignet für
+      event:
+        EventHeader: Beschreibung
+        EventHeaderShort: Kurzbeschreibung
+        AdditionalService: Zusatzleistung
+        CurrentInformation: Aktuelle Informationen
+        GuestCardClassification: Gästekartenleistungen
+      serial_event:
+        EventGroup: Beschreibung
+      infrastructure:
+        AdditionalService: Zusatzleistung
+        CurrentInformation: Aktuelle Informationen
+        GuestCardClassification: Gästekartenleistungen
+        InfrastructureLong: Detailbeschreibung
+        InfrastructureOpeningTimes: Öffnungszeiten
+        InfrastructurePriceInfo: Preisinformation
+        InfrastructureShort: Kurzbeschreibung
+      GuestCards:
+        GuestCardClassification: Gästekartenleistungen
+      accommodation:
+        CurrentInformation: Aktuelle Informationen
+        SEOKeywords: SEO-Schlagwörter
+        ServiceProviderArrivalVoucher: Anreisemodalitäten
+        ServiceProviderConditions: Zusatzinformationen
+        ServiceProviderDescription: Beschreibung
+      GTC:
+        GTC: Allgemeine Geschäftsbedingungen
+      package:
+        PackageShortText: Kurzbeschreibung
+        Package: Beschreibung
+    outdoor_active:
+      place:
+        directions: Anfahrt
+        parking: Parken
+        hours_available: Öffnungszeiten
+        text: Beschreibung
+        price: Preis
+        description: Kurzbeschreibung
+      tour:
+        directions: Anfahrt
+        parking: Parken
+        hours_available: Öffnungszeiten
+        text: Beschreibung
+        price: Preis
+        description: Kurzbeschreibung
+        directions_public_transport: Öffentliche Verkehrsmittel
+        instructions: Wegbeschreibung
+        safety_instructions: Sicherheitshinweise
+        equipment: Ausrüstung
+        suggestion: Tipps
+        additional_information: Zusatzinformationen
+        maps: Literatur
+    imx_platform:
+      description: Beschreibung
+      description_long: Detailbeschreibung
+    timm4:
+      intro: Einleitung
+      description: Beschreibung
+      positionDescription: Lage
+      pricesDescription: Preisinformation
+      keywords: Stichworte
+      culinarySpecialities: Kulinarische Spezialitäten
+      furtherSpecialities: Weiter Spezialitäten
+      dishes: Gerichte
+      barrierFreeDescription: Barrierefreiheit
+      restDays: Ruhetage
+      companyHoliday: Betriebsferien
+      meetingPoint: Treffpunkt
+      timesComment: Erläuterung Beginnzeiten
+      menuDownload: Speisekarte herunterladen
+      recipeSuggestionDownload: Rezept herunterladen
+
+  media_archive:
+    allowed_html: '<h4>Einschränkungen</h4>
+      <ul class="no-bullet">
+      <li><b>Bild:</b>
+      <ul>
+      <li>Formate: %{image_types}</li>
+      <li>Abmessungen: %{image_dimensions}</li>
+      </ul>
+      </li>
+      <li><b>Video:</b>
+      <ul>
+      <li>Formate: %{video_types}</li>
+      <li>Codecs: h264 (audio: mp3/aac)</li>
+      </ul>
+      </li>
+      </ul>'
+
+  uploader:
+    restrictions: 'Einschränkungen'
+    validation:
+      format: 'Erlaubte Formate: <span class="value">%{data}</span>'
+      format_not_supported: Nicht unterstütztes Format (%{data})
+      dimensions:
+        exclude:
+          format: 'Folgende Formate sind in jeder Größe erlaubt: <span class="value">%{data}</span>'
+        landscape:
+          min:
+            width: 'Minimale Breite für Medien im Querformat: <span class="value">%{data}px</span>'
+            height: 'Minimale Höhe für Medien im Querformat: <span class="value">%{data}px</span>'
+          max:
+            width: 'Maximale Breite für Medien im Querformat: <span class="value">%{data}px</span>'
+            height: 'Maximale Höhe für Medien im Querformat: <span class="value">%{data}px</span>'
+        portrait:
+          min:
+            width: 'Minimale Breite für Medien im Hochformat: <span class="value">%{data}px</span>'
+            height: 'Minimale Höhe für Medien im Hochformat: <span class="value">%{data}px</span>'
+          max:
+            width: 'Maximale Breite für Medien im Hochformat: <span class="value">%{data}px</span>'
+            height: 'Maximale Höhe für Medien im Hochformat: <span class="value">%{data}px</span>'
+        logo:
+          max:
+            height: 'Maximale Höhe für Logos: <span class="value">%{data}px</span>'
+      codec:
+        video: 'Erlaubte Video-Codecs: <span class="value">%{data}</span>'
+        audio: 'Erlaubte Audio-Codecs: <span class="value">%{data}</span>'
+      file_size:
+        max: 'Maximale Dateigröße: <span class="value">%{data}</span>'
+        min: 'Minimale Dateigröße: <span class="value">%{data}</span>'
+
+    close_warning_html: '<p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
+      Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'
+    continue_in_new_tab: In neuem Tab weiterarbeiten
+
+  date:
+    abbr_day_names:
+      - So
+      - Mo
+      - Di
+      - Mi
+      - Do
+      - Fr
+      - Sa
+    abbr_month_names:
+      -
+      - Jan
+      - Feb
+      - Mär
+      - Apr
+      - Mai
+      - Jun
+      - Jul
+      - Aug
+      - Sep
+      - Okt
+      - Nov
+      - Dez
+    day_names:
+      - Sonntag
+      - Montag
+      - Dienstag
+      - Mittwoch
+      - Donnerstag
+      - Freitag
+      - Samstag
+    formats:
+      default: '%d.%m.%Y'
+      long: '%e. %B %Y'
+      short: '%e. %b'
+      full: '%A, %e. %B %Y'
+      edit: '%d.%m.%Y'
+    month_names:
+      -
+      - Januar
+      - Februar
+      - März
+      - April
+      - Mai
+      - Juni
+      - Juli
+      - August
+      - September
+      - Oktober
+      - November
+      - Dezember
+    order:
+      - :day
+      - :month
+      - :year
+
+  datetime:
+    distance_in_words:
+      about_x_hours:
+        one: etwa einer Stunde
+        other: etwa %{count} Stunden
+      about_x_months:
+        one: etwa einem Monat
+        other: etwa %{count} Monate
+      about_x_years:
+        one: etwa einem Jahr
+        other: etwa %{count} Jahre
+      almost_x_years:
+        one: fast einem Jahr
+        other: fast %{count} Jahre
+      half_a_minute: einer halben Minute
+      less_than_x_minutes:
+        one: weniger als einer Minute
+        other: weniger als %{count} Minuten
+      less_than_x_seconds:
+        one: weniger als einer Sekunde
+        other: weniger als %{count} Sekunden
+      over_x_years:
+        one: mehr als einem Jahr
+        other: mehr als %{count} Jahre
+      x_seconds:
+        one: einer Sekunde
+        other: '%{count} Sekunden'
+      x_minutes:
+        one: einer Minute
+        other: '%{count} Minuten'
+      x_hours:
+        one: einer Stunde
+        other: '%{count} Stunden'
+      x_days:
+        one: einem Tag
+        other: '%{count} Tagen'
+      x_months:
+        one: einem Monat
+        other: '%{count} Monaten'
+      x_years:
+        one: einem Jahr
+        other: '%{count} Jahren'
+    prompts:
+      day: Tag
+      hour: Stunden
+      minute: Minute
+      month: Monat
+      second: Sekunde
+      year: Jahr
+      week: Woche
+
+  number:
+    currency:
+      format:
+        delimiter: '.'
+        format: '%n %u'
+        precision: 2
+        separator: ','
+        significant: false
+        strip_insignificant_zeros: false
+        unit: '€'
+    format:
+      delimiter: '.'
+      precision: 2
+      separator: ','
+      significant: false
+      strip_insignificant_zeros: false
+    human:
+      decimal_units:
+        format: '%n %u'
+        units:
+          billion:
+            one: Milliarde
+            other: Milliarden
+          million:
+            one: Million
+            other: Millionen
+          quadrillion:
+            one: Billiarde
+            other: Billiarden
+          thousand: Tausend
+          trillion:
+            one: Billion
+            other: Billionen
+          unit: ''
+      format:
+        delimiter: ''
+        precision: 3
+        significant: true
+        strip_insignificant_zeros: true
+      storage_units:
+        format: '%n %u'
+        units:
+          byte:
+            one: Byte
+            other: Bytes
+          gb: GB
+          kb: KB
+          mb: MB
+          tb: TB
+    percentage:
+      format:
+        delimiter: ''
+        format: '%n %'
+    precision:
+      format:
+        delimiter: ''
+
+  support:
+    array:
+      last_word_connector: ' und '
+      two_words_connector: ' und '
+      words_connector: ', '
+
+  time:
+    am: vormittags
+    formats:
+      default: '%A, %d. %B %Y, %H:%M Uhr'
+      long: '%A, %d. %B %Y, %H:%M Uhr'
+      short: '%d. %B, %H:%M Uhr'
+      edit: '%d.%m.%Y %H:%M'
+      history: '%d.%m.%Y, %H:%M Uhr'
+      time_only: '%H:%M'
+    pm: nachmittags
+
+  external_sources:
+    bergfex:
+      snow_report:
+        type:
+          village: Schneehöhe Ort
+          base: Tal (Piste)
+          top: Berg (Piste)
+
+  errors:
+    messages:
+      extension_white_list_error: Ungültiger Dateityp
+
+  exceptions:
+    action_controller/invalid_authenticity_token: Ungültiges oder fehlendes CSRF-Token, bitte erneut anmelden
+    data_cycle_core/error/download/invalid_serialization_format_error: Die ausgewählte Download-Methode wird nicht unterstützt
+    data_cycle_core/error/api/bad_request_error:
+      unknown_parameter: Unbekannter Query Parameter
+      invalid_parameter: Ungültiger Query Parameter
+    data_cycle_core/error/api/expired_content_error:
+      expired_content: Inhalt ist abgelaufen
+    active_record/record_not_found: Nicht gefunden
+
+  details:
+    bild:
+      open_url: URL öffnen
+      exif_data: Bild-Metadaten (EXIF/IPTC/XMP)
+
+  exceptions_page:
+    back_to_root_link: Zurück zu dataCycle
+    copy_to_clipboard_link: Request-ID kopieren
+    copy_to_clipboard_title: Über die Request-ID kann der Fehler im Monitoring leichter gefunden werden
+    not_found: Diese Seite existiert leider nicht
+    internal_server_error: Es ist ein unerwarteter Fehler aufgetreten
+    unauthorized: Sie haben keine Berechtigung, die gewünschte Seite zu öffnen

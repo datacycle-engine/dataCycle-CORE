@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+json ||= {}
+key_new = attribute_key(key, definition)
+api_property_definition = api_definition(definition)
+
+data_value = load_value_object(content, key, value, options[:languages], api_property_definition)
+
+json = { key_new.camelize(:lower) => data_value } if data_value.present?
+json

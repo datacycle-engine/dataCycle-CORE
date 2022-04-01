@@ -1,0 +1,20 @@
+# frozen_string_literal: true
+
+json ||= {}
+if options.dig(:disable_children).blank?
+  new_fields = subtree_for('hasPart', options[:fields])
+  json['hasPart'] = content.children.map { |part|
+    if included_attribute?('hasPart', options[:include])
+      if (options[:field_filter] && new_fields.present?) || !options[:field_filter]
+        new_include = subtree_for('hasPart', options[:include])
+        Rails.cache.fetch(api_v4_cache_key(part, options[:languages], new_include, new_fields, @api_subversion, nil, @linked_stored_filter&.id, options[:classification_trees]), expires_in: 1.year + Random.rand(7.days)) do
+          render 'content_details', content: part, options: options.merge({ disable_parent: true, header_type: :full, include: new_include, fields: new_fields, field_filter: options[:field_filter], languages: options[:languages] })
+        end
+      end
+    elsif !options[:field_filter]
+      render 'content_header', content: part, options: { fields: new_fields, field_filter: options[:field_filter], header_type: :minimal, languages: options[:languages] }
+    end
+  }.compact.presence
+end
+
+json.compact

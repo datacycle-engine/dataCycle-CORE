@@ -1,0 +1,80 @@
+<div class="column detail-header-wrapper">
+
+  <% show_external_connections = show_external_connections?(content) %>
+
+  <div class="detail-header <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %> <%= 'with-external-connections' if show_external_connections %>">
+    <%= render_content_partial 'header_top', content: content %>
+
+    <% content_title = yield %>
+    <% if content_title.blank? %>
+      <div class="title">
+        <%= render 'data_cycle_core/contents/content_title_attribute', content: content, key: 'title' %>
+      </div>
+    <% else %>
+      <%= content_title %>
+    <% end %>
+
+    <%= render 'header_properties', content: content %>
+    <%= render 'data_cycle_core/contents/viewers/object_event_period', value: OpenStruct.new(start_date: content.try(:start_date), end_date: content.try(:end_date), event_schedule: content.try(:event_schedule)) if content.try(:start_date).present? || content.try(:end_date).present? %>
+
+    <% content.assigned_classification_aliases.includes(:classification_tree_label).in_context('show_more').group_by(&:classification_tree_label).each do |tree, classification_aliases| %>
+      <% content_for :mapped_hidden_classifications do %>
+        <div data-label="<%= tree.name %>" class="detail-type classification">
+          <span class="detail-label">
+            <span class="icon tags"><i class="fa" aria-hidden="true"></i></span>
+            <%= tree.name %>
+          </span>
+
+          <span class="detail-content tags">
+            <% classification_aliases.uniq.each do |classification_alias| %>
+              <span class="tag" data-dc-tooltip="<%= classification_tooltip(classification_alias) %>">
+                <%= classification_alias.name || classification_alias.internal_name %>
+              </span>
+            <% end %>
+          </span>
+        </div>
+      <% end %>
+    <% end %>
+
+    <% content.mapped_classification_aliases.includes(:classification_tree_label).group_by(&:classification_tree_label).each do |tree, classification_aliases| %>
+      <% content_for (tree.visibility.include?('show') ? :mapped_classifications : (tree.visibility.include?('show_more') ? :mapped_hidden_classifications : nil)) do %>
+        <div data-label="<%= tree.name %>" class="detail-type classification mapped-classification">
+          <span class="detail-label">
+            <span class="icon tags"><i class="fa" aria-hidden="true"></i></span>
+            <%= tree.name %>
+          </span>
+
+          <span class="detail-content tags">
+            <% classification_aliases.uniq.each do |classification_alias| %>
+              <span class="tag" data-dc-tooltip="<%= classification_tooltip(classification_alias) %>">
+                <%= classification_alias.name || classification_alias.internal_name %>
+              </span>
+            <% end %>
+          </span>
+        </div>
+      <% end %>
+    <% end %>
+
+    <%= content_for :mapped_classifications %>
+
+    <% if content_for?(:mapped_hidden_classifications) %>
+      <ul class="hidden-classifications no-bullet" data-accordion data-allow-all-closed="true">
+        <li class="accordion-item" data-accordion-item>
+          <a href="#" class="accordion-title"><%= t('common.additional_classifications', locale: active_ui_locale) %></a>
+
+          <div class="accordion-content" data-tab-content>
+            <%= content_for :mapped_hidden_classifications %>
+          </div>
+        </li>
+      </ul>
+    <% end %>
+
+    <%= render 'validity_period', dataCycleObject: content %>
+
+    <%= render_first_existing_partial(["data_cycle_core/contents/viewers/#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first}", 'data_cycle_core/contents/viewers/life_cycle'], { content: content }) if DataCycleCore::Feature::LifeCycle.enabled? && can?(:show, DataCycleCore::Feature::LifeCycle.data_attribute(content)) %>
+
+    <%= render_content_partial 'header_bottom', content: content %>
+  </div>
+
+  <%= render 'data_cycle_core/contents/external_connections', content: content if show_external_connections %>
+</div>

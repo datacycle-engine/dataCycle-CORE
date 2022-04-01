@@ -1,0 +1,5 @@
+<% if ['b', 'p'].include?(local_assigns.dig(:filter_method)) %>
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_attributes', local_assigns %>
+<% else %>
+  <%= render 'data_cycle_core/application/filters/tag_groups/classification_alias_ids', local_assigns %>
+<% end %>

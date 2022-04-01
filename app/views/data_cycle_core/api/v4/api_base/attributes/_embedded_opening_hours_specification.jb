@@ -1,0 +1,45 @@
+# frozen_string_literal: true
+
+key_new = definition.dig('api', 'name') || key.camelize(:lower)
+
+opening_hours = content.try(key + '_overlay').presence&.includes(:translations, :classifications)&.map { |specification|
+  if specification.time.present?
+    specification.time.map do |time|
+      [specification, time]
+    end
+  else
+    [
+      [specification, nil]
+    ]
+  end
+}&.reduce(&:+)&.map do |specification_with_time|
+  I18n.with_locale(specification_with_time.first.first_available_locale) do
+    if specification_with_time.first.schema.present?
+      item_res = {
+        '@type' => 'OpeningHoursSpecification'
+      }
+
+      item_res.merge! render 'content_properties',
+                             content: specification_with_time.first,
+                             options: options.merge(
+                               hidden_attributes: (options[:hidden_attributes] || []) + ['time', 'opens', 'closes'],
+                               include: [],
+                               fields: [],
+                               field_filter: false
+                             )
+
+      if specification_with_time.second
+        item_res.merge! render 'content_properties', content: specification_with_time.second, options: options.merge(
+          include: [],
+          fields: [],
+          field_filter: false
+        )
+      else
+        item_res
+      end
+    end
+  end
+end
+
+json = { key_new => opening_hours }
+json

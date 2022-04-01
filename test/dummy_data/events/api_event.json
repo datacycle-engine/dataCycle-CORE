@@ -1,0 +1,33 @@
+{
+  "name": "Headline",
+  "description": "Description",
+  "text": "Text",
+  "url": "http://www.myurl.com",
+  "same_as": "http://www.sameas.com",
+  "event_schedule": [
+    {
+      "start_time": { "time": "2019-10-10T00:00:00.000+01:00", "zone": "Europe/Vienna" },
+      "duration": 1728000
+    }
+  ],
+  "sub_event": [
+    {
+      "name": "Headline Sub-Event",
+      "description": "Description Sub-Event",
+      "url": "http://www.url-subevent.com",
+      "event_period": {
+        "start_date": "2019-10-10",
+        "end_date": "2019-10-15"
+      }
+    },
+    {
+      "name": "Headline Sub-Event",
+      "description": "Description Sub-Event",
+      "url": "http://www.url-subevent.com",
+      "event_period": {
+        "start_date": "2019-10-20",
+        "end_date": "2019-10-25"
+      }
+    }
+  ]
+}

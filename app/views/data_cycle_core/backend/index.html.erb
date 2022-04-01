@@ -1,0 +1,18 @@
+<% breadcrumb :root, @stored_filter %>
+
+<% content_for(:title, dashboard_title) %>
+
+<% content_for :new_button do %>
+  <%= render 'new_content_button',
+    query_methods: DataCycleCore::Feature::Container.index_query_methods,
+    button_class: 'new-object-circle',
+    search_required: true,
+    scope: 'backend',
+    search_param: @filters.presence&.find { |f| f['t'] == 'fulltext_search' }&.dig('v') if user_signed_in? && new_content_select_options(query_methods: DataCycleCore::Feature::Container.index_query_methods, scope: 'backend').present? %>
+<% end %>
+
+<% content_for :top_content do %>
+  <%= render 'data_cycle_core/application/filter', view_type: 'backend', additional_classes: 'column-padding' if user_signed_in? %>
+<% end %>
+
+<%= render 'data_cycle_core/application/results', contents: @contents %>

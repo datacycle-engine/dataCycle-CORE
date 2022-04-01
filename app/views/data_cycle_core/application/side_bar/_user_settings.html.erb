@@ -1,0 +1,19 @@
+<div class="settings-row">
+  <div class="row columns">
+    <h5><%= t('data_cycle_core.user_settings', locale: active_ui_locale) %></h5>
+  </div>
+  <div class="row columns">
+    <%= link_to data_cycle_core.destroy_user_session_path, method: :delete, class: 'logout-link' do %>
+      <span class="icon"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
+      <span class="title"><%= t('actions.logout', locale: active_ui_locale) %></span>
+    <% end %>
+  </div>
+  <% if current_user.role && current_user.role.rank > 0 %>
+    <div class="row columns">
+      <%= link_to settings_path, class: 'user-settings-link' do %>
+        <span class="icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
+        <span class="title"><%= t('data_cycle_core.settings', locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,28 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-sitemap" aria-hidden="true"></i>
+    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
+  </span>
+
+  <% classification_trees ||= DataCycleCore::ClassificationTreeLabel
+    .where(id: value)
+    .map { |c| [c.id, c] }.to_h %>
+
+  <span class="tags-container">
+    <% if buttons == 'd' %>
+      <% value.each do |ca_id| %>
+        <label for="<%= ca_id %>">
+          <a class="tag">
+            <%= classification_trees[ca_id].try(:name) %><i class="fa fa-times" aria-hidden="true"></i>
+          </a>
+        </label>
+      <% end %>
+    <% else %>
+      <% value.each do |ca_id| %>
+        <span class="tag"><%= classification_trees[ca_id].try(:name) %></span>
+      <% end %>
+    <% end %>
+  </span>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
+</span>

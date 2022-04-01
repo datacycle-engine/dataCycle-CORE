@@ -1,0 +1,7 @@
+<span class="diff metadata">
+  <span class="type <%= content.template_name.underscore_blanks %>">
+    <%= content.translated_template_name(active_ui_locale) %> (<%= I18n.locale %>)
+  </span>
+
+  <%= history_version_html(content) %>
+</span>

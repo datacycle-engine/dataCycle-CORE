@@ -1,0 +1,139 @@
+[
+  {
+    "_id": {
+      "$oid": "5be5a18532c88f093f8064a3"
+    },
+    "external_id": "325e5f7a-947c-4e06-83f5-029aa726f589",
+    "dump": {
+      "de": {
+        "_Type": "Classification",
+        "Id": "325e5f7a-947c-4e06-83f5-029aa726f589",
+        "Order": "18",
+        "ChangeDate": "2009-08-20T15:57:00",
+        "Active": "true",
+        "Global": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "2 Smileys"
+          }
+        }
+      },
+      "en": {
+        "_Type": "Classification",
+        "Id": "325e5f7a-947c-4e06-83f5-029aa726f589",
+        "Order": "18",
+        "ChangeDate": "2009-08-20T15:57:00",
+        "Active": "true",
+        "Global": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "2 Smileys"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:29.508Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:29.509Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:29.240Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5a18532c88f093f8064a4"
+    },
+    "external_id": "e937c83f-6f0d-4204-960c-05052c206363",
+    "dump": {
+      "de": {
+        "_Type": "Classification",
+        "Id": "e937c83f-6f0d-4204-960c-05052c206363",
+        "Order": "257",
+        "ChangeDate": "2013-11-28T12:33:00",
+        "Active": "true",
+        "URL": "http://www.wasserwelt.at",
+        "Global": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Wasserwelt Partnerbetriebe"
+          }
+        }
+      },
+      "en": {
+        "_Type": "Classification",
+        "Id": "e937c83f-6f0d-4204-960c-05052c206363",
+        "Order": "257",
+        "ChangeDate": "2013-11-28T12:33:00",
+        "Active": "true",
+        "URL": "http://www.wasserwelt.at",
+        "Global": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Wasserwelt Partnerbetriebe"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:29.517Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:29.518Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:29.304Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5a18532c88f093f8064a5"
+    },
+    "external_id": "eec30377-8928-443c-b684-06ca906bd834",
+    "dump": {
+      "de": {
+        "_Type": "Classification",
+        "Id": "eec30377-8928-443c-b684-06ca906bd834",
+        "Order": "3",
+        "ChangeDate": "2012-07-12T10:08:00",
+        "Active": "true",
+        "Global": "false",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "4 Wiesels"
+          }
+        }
+      },
+      "en": {
+        "_Type": "Classification",
+        "Id": "eec30377-8928-443c-b684-06ca906bd834",
+        "Order": "3",
+        "ChangeDate": "2012-07-12T10:08:00",
+        "Active": "true",
+        "Global": "false",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "4 Wiesels"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:29.526Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:29.527Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:29.313Z"
+    }
+  }
+]

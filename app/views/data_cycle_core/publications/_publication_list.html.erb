@@ -1,0 +1,62 @@
+<% contents.presence&.group_by { |c| l(c.publish_at&.to_date, format: "%Y", locale: active_ui_locale) }&.each do |p_year, value| %>
+  <li class="publication-year accordion-item is-active" data-accordion-item data-year="<%= p_year %>">
+    <a class="accordion-title">
+      <span class="title">
+        <span class="title-container">
+          <span class="icon"><i class="fa fa-angle-up" aria-hidden="true"></i></span>
+          <h4><%= p_year %></h4>
+        </span>
+      </span>
+    </a>
+    <ul class="no-bullet accordion accordion-content" data-tab-content data-accordion data-allow-all-closed="true" data-multi-expand="true">
+      <% value.group_by { |c| l(c.publish_at&.to_date, format: "%B", locale: active_ui_locale) }.each do |p_month, val| %>
+        <li class="publication-month accordion-item is-active" data-accordion-item data-month="<%= p_month %>">
+          <a class="accordion-title">
+            <span class="title">
+              <span class="title-container">
+                <span class="icon"><i class="fa fa-angle-up" aria-hidden="true"></i></span>
+                <span class="title"><%= p_month %></span>
+              </span>
+            </span>
+          </a>
+          <ul class="no-bullet accordion-content" data-tab-content>
+            <% val.group_by { |c| l(c.publish_at&.to_date, format: :long, locale: active_ui_locale) }.each_with_index do |(p_day, v), idx| %>
+              <li class="publication-day <%= 'active' if v.first.publish_at&.to_date.today? %>"  data-day="<%= v.first.publish_at %>">
+                <div class="flex title-row">
+                  <span class="title">
+                    <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                    <span class="title-text"><%= p_day %></span>
+                  </span>
+                  <% @publication_classifications.each do |pc_key, pc_value| %>
+                    <span><%= render 'data_cycle_core/shared/icon', icon_type: pc_value.underscore_blanks, icon_class: 'classification_tree_label' %></span>
+                  <% end if idx.zero? %>
+                </div>
+                <ul class="no-bullet">
+                  <% v.each do |content| %>
+                    <li class="publication-content">
+                      <div class="flex">
+                        <div class="title">
+                          <% I18n.with_locale(content.content_content_b&.first&.content_a.first_available_locale) do %>
+                            <%= link_to content.content_content_b&.first&.content_a, target: :_blank do %>
+                              <%= render 'data_cycle_core/contents/grid/attributes/type', item: content.content_content_b&.first&.content_a %>
+                            <% end %>
+                            <%= link_to content.content_content_b&.first&.content_a, target: :_blank do %>
+                              <%= render 'data_cycle_core/contents/grid/attributes/title', item: content.content_content_b&.first&.content_a if content.content_content_b&.first&.content_a.try(:title).present? %>
+                            <% end %>
+                          <% end if content.content_content_b&.first&.content_a.present? %>
+                        </div>
+                        <% @publication_classifications.each do |pc_key, pc_value| %>
+                          <span><%= content.try(pc_key)&.map(&:name)&.join(', ') %></span>
+                        <% end %>
+                      </div>
+                    </li>
+                  <% end %>
+                </ul>
+              </li>
+            <% end %>
+          </ul>
+        </li>
+      <% end %>
+    </ul>
+  </li>
+<% end %>

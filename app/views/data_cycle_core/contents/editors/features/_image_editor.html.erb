@@ -1,0 +1,42 @@
+<%
+    asset_id = value&.id
+    editor_id = SecureRandom.hex(10)
+    file_url = DataCycleCore::Feature::ImageEditor.file_url(local_assigns[:parent]&.asset.present? ? local_assigns[:parent] : content)
+    file_name = DataCycleCore::Feature::ImageEditor.file_name(local_assigns[:parent]&.asset.present? ? local_assigns[:parent] : content)
+    file_mime_type = DataCycleCore::Feature::ImageEditor.file_mime_type(local_assigns[:parent]&.asset.present? ? local_assigns[:parent] : content)
+%>
+
+<div class="image-editor" data-image-editor="image-editor-<%= asset_id || editor_id %>">
+  <button title="<%= t('frontend.image_editor.edit_image', locale: active_ui_locale) %>" type="button" class="button image-editor-button" data-disable data-open="image-editor-<%= asset_id || editor_id %>">
+    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+  </button>
+  <div class="full reveal image-editor-reveal"
+       id="image-editor-<%= asset_id || editor_id %>"
+       data-reveal data-multiple-opened="true"
+       data-v-offset="0"
+       data-asset-id="<%= asset_id %>"
+       data-file-url="<%= file_url %>"
+       data-file-name="<%= file_name %>"
+       data-file-mime-type="<%= file_mime_type %>"
+       data-hidden-field-key="<%= key %>">
+    <div class="top-bar">
+      <button class="save-button" data-close aria-label="Save modal" type="button">
+        <i class="fa fa-floppy-o" aria-hidden="true"></i>
+      </button>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <i class="fa fa-ban" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="image-editor-wrapper">
+      <div class="tui-image-editor"></div>
+    </div>
+    <div class="bottom-bar">
+      <span>
+        POWERED BY:
+      </span>
+      <a href="https://ui.toast.com/tui-image-editor" target="_blank">
+        <img src="https://uicdn.toast.com/toastui/img/tui-image-editor-bi.png" />
+      </a>
+    </div>
+  </div>
+</div>

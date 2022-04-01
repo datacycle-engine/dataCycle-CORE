@@ -1,0 +1,28 @@
+<li class="has-dropdown">
+  <a data-toggle="locales-menu"><i class="fa fa-language" aria-hidden="true"></i></a>
+  <div class="dropdown-pane align-right no-bullet bottom attribute-locale-switcher" id="locales-menu" data-dropdown data-hover="true" data-hover-pane="true">
+    <h5><%= t('common.choose_language', locale: active_ui_locale) %></h5>
+
+    <ul class="list-items">
+      <% available_locales_with_names.slice(*content.translated_locales).each do |locale| %>
+        <li class="<%= "active" if locale.first == I18n.locale %>">
+          <a class="available-attribute-locale" data-locale="<%= locale.first %>"><%= locale.last %></a>
+
+          <% if can? :destroy, content %>
+            <span class="buttons">
+              <%= link_to thing_path(content, watch_list_id: @watch_list, locale: locale.first),
+                      method: :delete,
+                      class:'delete-translation-link',
+                      data: {
+                          confirm: "#{t('actions.delete_translation', data: locale.first, locale: active_ui_locale)}?"
+                      },
+                      title: t('actions.delete_translation', data: locale.first, locale: active_ui_locale).capitalize, aria_haspopup: true do %>
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+              <% end %>
+            </span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</li>

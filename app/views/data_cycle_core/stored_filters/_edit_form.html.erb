@@ -1,0 +1,39 @@
+<%= form_for(stored_search, namespace: stored_search.id) do |f| %>
+  <div class="form-element">
+    <%= f.check_box :api %>
+    <%= f.label :api %>
+  </div>
+
+  <% if can?(:create_api_with_users, stored_search) %>
+    <div class="form-element">
+      <%= f.label :api_users %>
+      <div class="v-select white">
+        <%= f.collection_select(:api_users, DataCycleCore::User.all, :id, :email, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+      </div>
+    </div>
+    <div class="form-element">
+      <%= f.label :linked_stored_filter_id %>
+      <div class="v-select white">
+        <%= f.collection_select(:linked_stored_filter_id, local_assigns[:saved_stored_searches].where.not({ stored_filters: { id: stored_search.id }}), :id, :name, { include_blank: true }, { class: 'single-select', multiple: false, data: { placeholder: '' }}) %>
+      </div>
+    </div>
+    <div class="form-element">
+      <%= f.label :classification_tree_labels %>
+      <div class="v-select white">
+        <%= f.collection_select(:classification_tree_labels, DataCycleCore::ClassificationTreeLabel.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+      </div>
+    </div>
+  <% end %>
+  <div class="buttons">
+    <%= f.button t('actions.save', locale: active_ui_locale),
+        data: {
+          disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.save', locale: active_ui_locale)}"
+        },
+        class: "success button",
+        type: :submit %>
+  </div>
+<% end %>
+
+<button class="close-button" data-close aria-label="Close modal" type="button">
+  <span aria-hidden="true">&times;</span>
+</button>

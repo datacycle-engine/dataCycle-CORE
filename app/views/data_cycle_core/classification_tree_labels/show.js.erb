@@ -1,0 +1,44 @@
+(function(){
+  <% if @count_only %>
+    $('.remote-rendering[data-remote-render-id="<%= @target %>"]').html('<%= result_count(@count_mode, @total_count, @content_class || 'things') %>').removeClass('remote-rendering').addClass('remote-rendered')
+  <% elsif (c_type = @classification_tree || @classification_tree_label) && params[:tree_page].present? %>
+    $('#<%= c_type.id %> > ul.children > li.load-more-link').hide();
+
+    let classifications = $('<%= escape_javascript(render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees) %>');
+    classifications.appendTo('#<%= c_type.id %> > ul.children').trigger('dc:html:changed').trigger('dc:html:initialized');
+  <% elsif params[:page].present? && @classification_tree.present? %>
+    $('#<%= @classification_tree.id %> > ul.contents > li.button-row').remove();
+
+    let contents = $('<%= escape_javascript(render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree) %>');
+    contents.appendTo('#<%= @classification_tree.id %> > ul.contents');
+
+    <% if @contents.present? %>
+      $('#<%= @classification_tree.id %> > ul.children').addClass('has-contents');
+    <% end %>
+    $('#<%= @classification_tree.id %> > ul.children, #<%= @classification_tree.id %> > ul.contents').addClass('loaded').show();
+    contents.trigger('dc:html:changed').trigger('dc:html:initialized');
+  <% elsif @classification_tree.present? %>
+    let classifications = $('<%= escape_javascript(render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees) %>');
+    classifications.appendTo('#<%= @classification_tree.id %> > ul.children').trigger('dc:html:changed').trigger('dc:html:initialized');
+
+    let contents = $('<%= escape_javascript(render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree) %>');
+    contents.appendTo('#<%= @classification_tree.id %> > ul.contents');
+
+    <% if @contents.present? %>
+      $('#<%= @classification_tree.id %> > ul.children').addClass('has-contents');
+    <% end %>
+    $('#<%= @classification_tree.id %> > ul.children, #<%= @classification_tree.id %> > ul.contents').addClass('loaded').show();
+    contents.trigger('dc:html:changed').trigger('dc:html:initialized');
+  <% elsif @container.present? %>
+    $('#<%= @container.id %>[data-parent-classification="<%= @classification_parent_tree.id %>"] > ul.contents > li.button-row').remove();
+
+    let contents = $('<%= escape_javascript(render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, container: @container, classification_parent_tree: @classification_parent_tree) %>');
+
+    contents.appendTo('#<%= @container.id %>[data-parent-classification="<%= @classification_parent_tree.id %>"] > ul.contents');
+    <% if @contents.present? %>
+      $('#<%= @container.id %>[data-parent-classification="<%= @classification_parent_tree.id %>"] > ul.children').addClass('has-contents');
+    <% end %>
+    $('#<%= @container.id %>[data-parent-classification="<%= @classification_parent_tree.id %>"] > ul.children, #<%= @container.id %>[data-parent-classification="<%= @classification_parent_tree.id %>"] > ul.contents').addClass('loaded').show();
+    contents.trigger('dc:html:changed').trigger('dc:html:initialized');
+  <% end %>
+})();

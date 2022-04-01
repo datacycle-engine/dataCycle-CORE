@@ -1,0 +1,24 @@
+(function(){
+  let load_more_button = $('#load_more_<%= @content.id %>_<%= sanitize_to_id(@params[:complete_key]) %>');
+
+  <% content_for :rendered_items, flush: true do %>
+    <% I18n.with_locale(@params[:locale] || I18n.locale) do %>
+      <% @linked_objects.each do |content| %>
+        <%= render_linked_partial(key: @params[:complete_key] + (@params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: @params[:definition], parameters: { object: content, options: @params[:options], objects: @params[:objects], editable: @params[:editable], edit_buttons: true }, content: @content) %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  let html_content = '<%= j yield(:rendered_items) %>';
+
+  $(html_content).insertBefore($('#<%= sanitize_to_id(@params[:complete_key]) %> .object-thumbs > input:hidden').first()).trigger('dc:html:changed');
+
+  <%= @linked_objects.ids.to_json.html_safe %>.forEach(element => {
+    html_content = html_content.replace('id="media_reveal_' + element + '"', 'id="overlay_media_reveal_' + element + '"');
+  });
+
+  $(html_content).appendTo('#object_browser_<%= sanitize_to_id(@params[:complete_key]) %> .chosen-items-container').trigger('dc:html:changed');
+
+  $($.map(<%= @linked_objects.ids.to_json.html_safe %>, id => $('#<%= sanitize_to_id(@params[:complete_key]) %> .object-thumbs > input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
+  load_more_button.remove();
+})();
