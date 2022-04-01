@@ -21,10 +21,16 @@ class CheckBoxSelector {
 
     const target = event.currentTarget;
 
-    domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
-      this.$inputFields.each((_, item) => {
-        this.setInputValue(item, data.value);
+    if (data.force) this.setAllValues(data.value);
+    else {
+      domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => {
+        this.setAllValues(data.value);
       });
+    }
+  }
+  setAllValues(value) {
+    this.$inputFields.each((_, item) => {
+      this.setInputValue(item, value);
     });
   }
   setInputValue(item, value) {

@@ -16,3 +16,8 @@
         :api:
           :minimal: true
           :partial: media_title
+        :default_value:
+          :module: DataCycleCore::Utility::DefaultValue::Asset
+          :method: filename_to_string
+          :parameters:
+            :0: asset

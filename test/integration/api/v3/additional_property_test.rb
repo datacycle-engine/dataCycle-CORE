@@ -6,13 +6,13 @@ require 'json'
 module DataCycleCore
   module Api
     module V3
-      class AdditionalPropertyTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
+      class AdditionalPropertyTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
+          DataCycleCore::Thing.where(template: false).delete_all
+          @content = DataCycleCore::DummyDataHelper.create_data('additional_property')
+        end
 
         setup do
-          @routes = Engine.routes
-          @content = DataCycleCore::DummyDataHelper.create_data('additional_property')
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
@@ -20,7 +20,7 @@ module DataCycleCore
           get api_v3_thing_path(id: @content)
 
           assert_response(:success)
-          assert_equal('application/json', response.content_type)
+          assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = JSON.parse(response.body)
 
           assert_equal('http://schema.org', json_data['@context'])

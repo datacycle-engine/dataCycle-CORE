@@ -28,7 +28,7 @@ module DataCycleCore
             get api_v4_things_path
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(3, json_data['@graph'].size)
@@ -43,7 +43,7 @@ module DataCycleCore
             get api_v4_things_path(page: { size: 1 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(1, json_data['@graph'].size)
@@ -57,7 +57,7 @@ module DataCycleCore
             get api_v4_things_path(section: { meta: 0 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(3, json_data['@graph'].size)
@@ -70,7 +70,7 @@ module DataCycleCore
             get api_v4_things_path(page: { size: 1 }, section: { meta: 0 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(1, json_data['@graph'].size)
@@ -83,7 +83,7 @@ module DataCycleCore
             get api_v4_things_path(page: { size: 1 }, section: { links: 0 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(1, json_data['@graph'].size)
@@ -96,7 +96,7 @@ module DataCycleCore
             get api_v4_things_path(page: { size: 1 }, section: { '@context': 0 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(1, json_data['@graph'].size)
@@ -109,7 +109,7 @@ module DataCycleCore
             get api_v4_things_path(page: { size: 1 }, section: { '@graph': 0 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert(json_data['@graph'].blank?)
@@ -122,7 +122,7 @@ module DataCycleCore
             post api_v4_things_path
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(3, json_data['@graph'].size)
@@ -137,7 +137,7 @@ module DataCycleCore
             post api_v4_things_path(page: { size: 1 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(1, json_data['@graph'].size)
@@ -151,7 +151,7 @@ module DataCycleCore
             post api_v4_things_path(section: { meta: 0 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(3, json_data['@graph'].size)
@@ -164,7 +164,7 @@ module DataCycleCore
             post api_v4_things_path(page: { size: 1 }, section: { meta: 0 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(1, json_data['@graph'].size)
@@ -177,7 +177,7 @@ module DataCycleCore
             post api_v4_things_path(page: { size: 1 }, section: { links: 0 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(1, json_data['@graph'].size)
@@ -190,7 +190,7 @@ module DataCycleCore
             post api_v4_things_path(page: { size: 1 }, section: { '@context': 0 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(1, json_data['@graph'].size)
@@ -203,7 +203,7 @@ module DataCycleCore
             post api_v4_things_path(page: { size: 1 }, section: { '@graph': 0 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert(json_data['@graph'].blank?)
@@ -216,7 +216,7 @@ module DataCycleCore
             post api_v4_things_path
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data_full = JSON.parse(response.body)
 
             second = json_data_full['@graph'].second
@@ -225,7 +225,7 @@ module DataCycleCore
             post api_v4_things_path(page: { size: 1, offset: 1 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data['@graph'].size)
             assert_equal(json_data['@graph'].first.dig('@id'), second.dig('@id'))
@@ -236,7 +236,7 @@ module DataCycleCore
             post api_v4_things_path(page: { size: 1, offset: 1, number: 2 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data['@graph'].size)
             assert_equal(json_data['@graph'].first.dig('@id'), third.dig('@id'))
@@ -247,7 +247,7 @@ module DataCycleCore
             post api_v4_things_path(page: { offset: 2, limit: 1 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data['@graph'].size)
             assert_equal(json_data['@graph'].first.dig('@id'), third.dig('@id'))
@@ -260,7 +260,7 @@ module DataCycleCore
             post api_v4_things_path(page: { limit: 1 })
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
 
             assert_equal(1, json_data['@graph'].size)

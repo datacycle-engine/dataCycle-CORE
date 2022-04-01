@@ -139,7 +139,7 @@
       }
     }
   }
-  &.embedded {
+  &.embedded:not(.textblock) {
     padding: 0 !important;
   }
 }

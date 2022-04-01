@@ -36,7 +36,7 @@ module DataCycleCore
         file_name = 'test_rgb.jpg'
         upload_image file_name
 
-        assert_equal('sRGB', @image.metadata.dig('colorspace'))
+        assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
         assert_equal('image/jpeg', @image.content_type)
 
         validate_image file_name
@@ -46,7 +46,7 @@ module DataCycleCore
         file_name = 'test_rgb_portrait.jpg'
         upload_image file_name
 
-        assert_equal('sRGB', @image.metadata.dig('colorspace'))
+        assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
         assert_equal('image/jpeg', @image.content_type)
 
         validate_image file_name
@@ -57,7 +57,7 @@ module DataCycleCore
         upload_image file_name
 
         assert_equal('image/gif', @image.content_type)
-        assert_equal('sRGB', @image.metadata.dig('colorspace'))
+        assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
 
         validate_image file_name
       end
@@ -67,7 +67,7 @@ module DataCycleCore
         upload_image file_name
 
         assert_equal('image/png', @image.content_type)
-        assert_equal('sRGB', @image.metadata.dig('colorspace'))
+        assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
 
         validate_image file_name
       end
@@ -77,7 +77,7 @@ module DataCycleCore
         upload_image file_name
 
         assert_equal('image/jpeg', @image.content_type)
-        assert_equal('CMYK', @image.metadata.dig('colorspace'))
+        assert_equal('CMYK', @image.metadata.dig('ImColorSpace'))
 
         validate_image file_name
       end

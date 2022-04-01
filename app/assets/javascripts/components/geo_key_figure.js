@@ -7,7 +7,10 @@ class GeoKeyFigure {
     this.key = this.$element.data('key');
     this.fullKey = this.$element.data('fullKey');
     this.local = this.$element.data('local');
-    this.partIdPath = this.$element.data('partIdPath');
+    this.configuration = this.$element.data('configuration');
+    this.partIdPath = this.configuration.part_id_path;
+    this.attributeKeyMapping = this.configuration.attribute_key_mapping;
+    this.attributeKeyMappingSource = this.configuration.attribute_key_mapping_source;
     this.label = this.$formElement.data('label');
     this.locale = this.$formElement.closest('form').find(':hidden[name="locale"]').val() || '';
 
@@ -21,6 +24,7 @@ class GeoKeyFigure {
 
     this.$element.on('click', this._computeKeyFigure.bind(this));
     this.$triggerAllButton.on('click', this._computeKeyFigure.bind(this));
+
     if (!this.local) {
       this.setButtonStatus(false, { ids: this.getValues() });
       $(this.partSelectorString()).on('dc:objectBrowser:change', this.setButtonStatus.bind(this));
@@ -30,15 +34,15 @@ class GeoKeyFigure {
         .on('dc:map:elevationProfileInitialized', this.enableButtons.bind(this));
     }
   }
-  partSelectorString() {
-    return (this.partSelector = '.form-element' + this.partIdPath.map(v => '[data-key*="[' + v + ']"]').join(''));
+  partSelectorString(keyPath = this.partIdPath) {
+    return '.form-element' + keyPath.map(v => '[data-key*="[' + v + ']"]').join('');
   }
   getValues() {
     return $(this.partSelectorString())
       .find(':input')
       .serializeArray()
       .map(v => v && v.value)
-      .filter(n => n);
+      .filter(Boolean);
   }
   _computeKeyFigure(event) {
     event.preventDefault();
@@ -54,24 +58,74 @@ class GeoKeyFigure {
       this.sendRequest();
     }
   }
+  _getKeyBySourceMapping() {
+    let attributeKey = this.key;
+    let attributeKeyIndex = -1;
+    const $sourceEditor = $(this.partSelectorString([this.attributeKeyMappingSource])).find(
+      DataCycle.config.EditorSelectors.join(', ')
+    );
+
+    if (!$sourceEditor.is('select')) return attributeKey;
+
+    const selectedPath = $sourceEditor
+      .find('option:selected')
+      .map((_i, e) => e.dataset.fullPath)
+      .get();
+
+    for (const path of selectedPath) {
+      const parts = path.split(' > ');
+      parts.shift();
+
+      for (const [index, cl] of parts.entries()) {
+        for (const [key, value] of Object.entries(this.attributeKeyMapping)) {
+          let matchingIndex = -1;
+
+          if (cl.trim().toLowerCase() == key.trim().toLowerCase()) matchingIndex = index * 2;
+          else if (cl.trim().toLowerCase().includes(key.trim().toLowerCase())) matchingIndex = index;
+
+          if (attributeKeyIndex < matchingIndex) {
+            attributeKey = value;
+            attributeKeyIndex = index;
+          }
+        }
+      }
+    }
+
+    return attributeKey;
+  }
+  _getAttributeKey() {
+    let attributeKey;
+
+    if (this.attributeKeyMapping && typeof this.attributeKeyMapping === 'string')
+      attributeKey = this.attributeKeyMapping;
+    else if (this.attributeKeyMapping && this.attributeKeyMappingSource) attributeKey = this._getKeyBySourceMapping();
+    else attributeKey = this.key;
+
+    return attributeKey;
+  }
   async _computeByLocal() {
     await $(this.partSelectorString())
       .find(DataCycle.config.EditorSelectors.join(', '))
       .triggerHandler('dc:geoKeyFigure:compute', {
-        attributeKey: this.key,
+        attributeKey: this._getAttributeKey(),
         callback: this.setNewValue.bind(this)
       });
 
     DataCycle.enableElement(this.$element);
   }
   sendRequest() {
-    const ids = this.getValues();
+    const value = this.getValues();
 
-    if (!ids || !ids.length) return DataCycle.enableElement(this.$element);
+    if (!value || !value.length) return DataCycle.enableElement(this.$element);
 
-    const fullUrl = `${this.url}?key=${this.key}&${ids.map(v => 'part_ids[]=' + v).join('&')}`;
-
-    DataCycle.httpRequest({ url: fullUrl })
+    DataCycle.httpRequest({
+      url: this.url,
+      method: 'POST',
+      data: {
+        key: this._getAttributeKey(),
+        part_ids: value
+      }
+    })
       .then(data => {
         if (data) {
           if (data.newValue) this.setNewValue(data.newValue);
@@ -85,8 +139,12 @@ class GeoKeyFigure {
         DataCycle.enableElement(this.$element);
       });
   }
-  setNewValue(value) {
-    if (!value && value !== false) return;
+  async setNewValue(value) {
+    if (!value && value !== false) {
+      this.showErrorMessage(await I18n.translate('frontend.validate.errors.key_figure_not_found'));
+
+      return;
+    }
 
     this.$formElement.find(DataCycle.config.EditorSelectors.join(', ')).trigger('dc:import:data', {
       value: value,

@@ -8,7 +8,7 @@ module DataCycleCore
 
         included do
           DataCycleCore::Engine.routes.prepend do
-            get '/things/:id/geo_key_figure', action: :geo_key_figure, controller: 'things', as: 'geo_key_figure_thing' unless has_named_route?(:geo_key_figure_thing)
+            post '/things/:id/geo_key_figure', action: :geo_key_figure, controller: 'things', as: 'geo_key_figure_thing' unless has_named_route?(:geo_key_figure_thing)
           end
           Rails.application.reload_routes!
         end

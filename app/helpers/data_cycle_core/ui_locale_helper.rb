@@ -8,6 +8,31 @@ module DataCycleCore
       DataCycleCore.ui_locales.first
     end
 
+    def available_locales_with_names
+      @available_locales_with_names ||= Hash.new do |h, key|
+        h[key] = I18n
+          .t('locales', locale: key)
+          .slice(*I18n.available_locales)
+          .transform_values(&:capitalize)
+          .sort_by { |_, v| v.to_s }
+          .to_h
+      end
+
+      @available_locales_with_names[active_ui_locale]
+    end
+
+    def available_locales_with_all
+      @available_locales_with_all ||= Hash.new do |h, key|
+        if I18n.available_locales&.many?
+          h[key] = available_locales_with_names.reverse_merge({ all: t('common.all', locale: active_ui_locale) })
+        else
+          h[key] = available_locales_with_names
+        end
+      end
+
+      @available_locales_with_all[active_ui_locale]
+    end
+
     def translated_attribute_label(key, definition, content, options)
       @translated_attribute_label ||= Hash.new do |h, k|
         h[k] = begin

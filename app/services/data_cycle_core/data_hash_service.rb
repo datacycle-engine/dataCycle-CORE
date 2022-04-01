@@ -113,7 +113,7 @@ module DataCycleCore
 
       return allowed_params unless translations
 
-      { datahash: allowed_params, translations: I18n.available_locales.map { |l| [l, allowed_params] }.to_h }
+      { datahash: allowed_params, translations: I18n.available_locales.index_with { |_l| allowed_params } }
     end
 
     def self.blank?(data)

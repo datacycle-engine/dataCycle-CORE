@@ -41,7 +41,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @content_tour.id)
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse response.body
             json_data = json_data.dig('@graph').first
 
@@ -60,7 +60,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @content_tour.id, include: 'schedule')
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse response.body
             json_data = json_data.dig('@graph').first
 
@@ -85,7 +85,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @content_tour.id, include: 'poi')
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse response.body
             json_data = json_data.dig('@graph').first
 
@@ -110,7 +110,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @content_tour.id, include: 'poi,poi.image')
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse response.body
             json_data = json_data.dig('@graph').first
 
@@ -140,7 +140,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @content_tour.id, include: 'poi,poi.image,image')
             assert_response :success
 
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse response.body
             json_data = json_data.dig('@graph').first
 

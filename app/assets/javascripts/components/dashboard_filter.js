@@ -273,7 +273,7 @@ class DashboardFilter {
       $(event.currentTarget).trigger('mouseleave');
     } else if (!$(event.currentTarget).hasClass('active')) {
       $('.clickable-menu .active').removeClass('active');
-      $(event.currentTarget).addClass('active').trigger('mouseenter');
+      $(event.currentTarget).addClass('active').trigger('mouseenter').trigger('dc:clickableMenu:show');
       let list = $(event.currentTarget).find('> ul');
       if (!list.length) return;
 

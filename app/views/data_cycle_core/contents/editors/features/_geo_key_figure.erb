@@ -7,7 +7,7 @@
       key: key.attribute_name_from_key,
       full_key: key,
       local: DataCycleCore::Feature::GeoKeyFigure.local(content),
-      part_id_path: DataCycleCore::Feature::GeoKeyFigure.part_id_path(content)
+      configuration: DataCycleCore::Feature::GeoKeyFigure.configuration(content, key)
     } do %>
   <i class="fa fa-cloud-download"></i>
 <% end %>

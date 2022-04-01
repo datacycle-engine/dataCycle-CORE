@@ -57,7 +57,7 @@ module DataCycleCore
           def load_api_data(fields)
             get api_v4_thing_path(id: @content_overlay, fields: fields.join(','))
             assert_response(:success)
-            assert_equal('application/json', response.content_type)
+            assert_equal('application/json; charset=utf-8', response.content_type)
             JSON.parse(response.body).dig('@graph').first
           end
 

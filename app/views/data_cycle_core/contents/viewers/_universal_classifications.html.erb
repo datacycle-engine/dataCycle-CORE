@@ -10,7 +10,7 @@
 
       <span class="detail-content tags">
         <% classification_aliases.uniq.each do |classification_alias| %>
-          <span class="tag has-tip dc-foundation-tooltip" data-allow-html="true" title="<%= classification_tooltip(classification_alias) %>">
+          <span class="tag" data-dc-tooltip="<%= classification_tooltip(classification_alias) %>">
             <%= classification_alias.name || classification_alias.internal_name %>
           </span>
         <% end %>

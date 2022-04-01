@@ -6,6 +6,7 @@ module DataCycleCore
   module Feature
     class DuplicateCandidateTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       before(:all) do
+        @routes = Engine.routes
         DataCycleCore::ImageUploader.enable_processing = true
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
         image1 = upload_image 'test_rgb.jpg'

@@ -1082,7 +1082,8 @@ video {
 }
 
 // Submit button errors
-.tooltip {
+.tooltip,
+#dc-tooltip {
   .tooltip-error,
   .tooltip-warning {
     display: block;
@@ -1688,7 +1689,7 @@ select:-moz-focusring {
 .thumbnail-tooltip {
   text-align: center;
   max-width: 90vw;
-  max-width: 90vh;
+  max-height: 90vh;
 
   img {
     width: auto;
@@ -2414,10 +2415,12 @@ select {
   max-width: 90vw;
 }
 
-.tooltip p:last-child {
-  margin-bottom: 0;
+.tooltip,
+#dc-tooltip {
+  p:last-child {
+    margin-bottom: 0;
+  }
 }
-
 .status-container {
   margin-top: 1rem;
 }
@@ -2617,10 +2620,12 @@ input.normalized {
       &#schema,
       &#datahash,
       &#json-api,
+      &#meta-data,
       &#related-content {
         .schema-nav,
         .datahash-nav,
         .json-api-nav,
+        .meta-data-nav,
         .json-related-content {
           padding: 0.5rem;
           text-align: right;
@@ -3529,4 +3534,8 @@ body {
   &.open.rightMost {
     right: 0;
   }
+}
+
+.edit-button-form {
+  display: inline-block;
 }

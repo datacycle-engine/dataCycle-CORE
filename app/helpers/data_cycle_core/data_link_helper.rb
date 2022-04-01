@@ -28,9 +28,8 @@ module DataCycleCore
       unless I18n.exists?('finalize_agbs_html', locale: active_ui_locale)
         return tag.span(
           t('actions.finalize', locale: active_ui_locale),
-          title: t('common.content_not_editable', locale: active_ui_locale),
           data: {
-            tooltip: true
+            dc_tooltip: t('common.content_not_editable', locale: active_ui_locale)
           }
         )
       end
@@ -40,17 +39,14 @@ module DataCycleCore
         locale: active_ui_locale,
         finalize: tag.span(
           t('actions.finalize', locale: active_ui_locale),
-          title: t('common.content_not_editable', locale: active_ui_locale),
           data: {
-            tooltip: true
+            dc_tooltip: t('common.content_not_editable', locale: active_ui_locale)
           }
         ),
         agbs: tag.span(
           t('actions.finalize_agbs_text', locale: active_ui_locale),
-          title: t('finalize_agbs_html', locale: active_ui_locale),
           data: {
-            tooltip: true,
-            allow_html: true
+            dc_tooltip: t('finalize_agbs_html', locale: active_ui_locale)
           }
         )
       )

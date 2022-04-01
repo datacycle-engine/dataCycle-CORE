@@ -73,7 +73,7 @@ module DataCycleCore
           fulltext_filter = add_fulltext_filter(poi_name)
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
 
-          assert_equal(response.content_type, 'application/json')
+          assert_equal(response.content_type, 'application/json; charset=utf-8')
           json_data = JSON.parse(response.body)
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
@@ -171,7 +171,7 @@ module DataCycleCore
 
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
 
-          assert_equal(response.content_type, 'application/json')
+          assert_equal(response.content_type, 'application/json; charset=utf-8')
           json_data = JSON.parse(response.body)
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
@@ -185,7 +185,7 @@ module DataCycleCore
         test '/api/v4/endpoints/:uuid with relation_filter, finds one POI with one suitable image' do
           relation_filter = add_relation_filter('headline')
           get api_v4_stored_filter_path(id: relation_filter.id, include: 'image,poi.image')
-          assert_equal(response.content_type, 'application/json')
+          assert_equal(response.content_type, 'application/json; charset=utf-8')
           json_data = JSON.parse(response.body)
 
           assert_equal(1, json_data['@graph'].size)
@@ -198,7 +198,7 @@ module DataCycleCore
         test '/api/v4/endpoints/:uuid with relation_filter, all POIs filtered out because no valid image found' do
           relation_filter = add_relation_filter('something_not_present')
           get api_v4_stored_filter_path(id: relation_filter.id, include: 'image,poi.image')
-          assert_equal(response.content_type, 'application/json')
+          assert_equal(response.content_type, 'application/json; charset=utf-8')
           json_data = JSON.parse(response.body)
 
           assert_equal(0, json_data['@graph'].size)

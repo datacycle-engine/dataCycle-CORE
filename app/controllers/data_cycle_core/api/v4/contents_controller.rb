@@ -18,7 +18,7 @@ module DataCycleCore
             Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
               query = build_search_query
 
-              render(plain: query.query.to_geojson, content_type: GEOJSON_CONTENT_TYPE) && return if accept_geojson?
+              render(plain: query.query.to_geojson, content_type: GEOJSON_CONTENT_TYPE) && next if accept_geojson?
 
               query = apply_ordering(query)
 

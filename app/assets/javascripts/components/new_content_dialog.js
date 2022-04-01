@@ -1,5 +1,6 @@
 import QuillHelpers from './../helpers/quill_helpers';
 import ConfirmationModal from './../components/confirmation_modal';
+import UuidHelper from './../helpers/uuid_helper';
 
 class NewContentDialog {
   constructor(form) {
@@ -49,10 +50,13 @@ class NewContentDialog {
     if (this.referencedAssetField) {
       this.updateNavigationButtons();
       this.addCopyAttributeButtons(this.form);
+
       this.reveal.on('open.zf.reveal', event => {
         this.form.trigger('dc:form:enable');
         this.updateNavigationButtons(event);
       });
+
+      this.referencedAssetField.on('dc:form:uploadedFilesChanged', this.updateNavigationButtons.bind(this));
       this.referencedAssetField.on('dc:form:importAttributeValues', this.importAttributeValues.bind(this));
       this.form.on('dc:form:submitWithoutRedirect', this.copyToReferenceField.bind(this));
       this.form.find('.set-all-attributes').on('click', this.copyToAllReferenceFields.bind(this));
@@ -92,12 +96,29 @@ class NewContentDialog {
     if (config && config.allFiles) this.reveal.foundation('close');
     else this.nextAssetForm(event);
 
-    this.processFormData(formData, null, config && config.allFiles);
+    this.processFormData(formData, null, config && config.allFiles, config && config.copyPrimary);
   }
-  copyToAllReferenceFields(_event) {
-    this.form.trigger('submit', { allFiles: true });
+  async copyToAllReferenceFields(event) {
+    const target = event.currentTarget;
+
+    if (this.primaryAttributeKey) {
+      new ConfirmationModal({
+        text: await I18n.translate('frontend.upload.confirm_all_to_all_html', {
+          label: target.dataset.primaryAttributeLabel,
+          template: this.templateTranslationPlural
+        }),
+        confirmationText: await I18n.translate('common.yes'),
+        cancelText: await I18n.translate('common.no'),
+        confirmationClass: 'warning',
+        cancelable: true,
+        confirmationCallback: () => this.form.trigger('submit', { allFiles: true, copyPrimary: true }),
+        cancelCallback: () => this.form.trigger('submit', { allFiles: true })
+      });
+    } else {
+      this.form.trigger('submit', { allFiles: true });
+    }
   }
-  copySingleToAllReferenceFields(event) {
+  async copySingleToAllReferenceFields(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
 
@@ -107,9 +128,12 @@ class NewContentDialog {
 
     if (formElementKey.includes(`[${this.primaryAttributeKey}]`)) {
       new ConfirmationModal({
-        text: `${formElement.data('label')} wirklich für alle ${this.templateTranslationPlural} übernehmen?`,
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
+        text: await I18n.translate('frontend.upload.confirm_single_to_all_html', {
+          label: formElement.data('label'),
+          template: this.templateTranslationPlural
+        }),
+        confirmationText: await I18n.translate('common.yes'),
+        cancelText: await I18n.translate('common.no'),
         confirmationClass: 'warning',
         cancelable: true,
         confirmationCallback: () => this.processSingleFormData(formElementKey, $target)
@@ -131,7 +155,7 @@ class NewContentDialog {
     let requests = [];
 
     formData.forEach((v, i) => {
-      if (v && v.value.isUuid()) {
+      if (v && UuidHelper.isUuid(v.value)) {
         const promise = DataCycle.httpRequest({
           url: `/api/v4/universal/${v.value}`,
           method: 'POST',
@@ -183,7 +207,11 @@ class NewContentDialog {
     const formFields = $(container)
       .find('> fieldset > .form-element, > .form-element')
       .addBack('.form-element')
-      .filter((_i, item) => !$(item).prev('.copy-attribute-to-all').length && !item.closest('.conditional-form-field'));
+      .filter(
+        (_i, item) =>
+          !$(item).prev('.copy-attribute-to-all').length &&
+          !$(item).parents('.form-element').last().prev('.copy-attribute-to-all').length
+      );
 
     let button = $(
       `<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle ${this.templateTranslationPlural} übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-spinner fa-fw fa-spin"></i></button>`
@@ -237,7 +265,7 @@ class NewContentDialog {
 
       let key = v.name.normalizeKey();
 
-      if (groupedValues[key] || v.value.isUuid()) {
+      if (groupedValues[key] || UuidHelper.isUuid(v.value)) {
         if (!Array.isArray(groupedValues[key])) groupedValues[key] = [groupedValues[key]].filter(Boolean);
 
         groupedValues[key].push(v.value);
@@ -264,7 +292,7 @@ class NewContentDialog {
     this.prevAssetButton.on('click', this.prevAssetForm.bind(this));
   }
   updateNavigationButtons(event) {
-    event && event.preventDefault();
+    if (event) event.preventDefault();
 
     if (this.referencedAssetField.siblings('.file-for-upload').length) {
       if (!this.nextAssetButton) this.createNextAssetButton();
@@ -272,17 +300,17 @@ class NewContentDialog {
     }
 
     if (this.nextAssetButton && this.prevAssetButton) {
-      if (this.referencedAssetField.is(':last-of-type')) this.nextAssetButton.hide();
+      if (!this.referencedAssetField.next('.file-for-upload.finished').length) this.nextAssetButton.hide();
       else this.nextAssetButton.show();
 
-      if (this.referencedAssetField.is(':first-of-type')) this.prevAssetButton.hide();
+      if (!this.referencedAssetField.prev('.file-for-upload.finished').length) this.prevAssetButton.hide();
       else this.prevAssetButton.show();
     }
   }
   nextAssetForm(event) {
     event.preventDefault();
     this.reveal.foundation('close');
-    let nextAsset = this.referencedAssetField.next('.file-for-upload');
+    let nextAsset = this.referencedAssetField.next('.file-for-upload.finished');
 
     if (nextAsset && nextAsset.length)
       $('.reveal.new-content-reveal#' + nextAsset.find('.edit-upload-button').data('open')).foundation('open');
@@ -290,7 +318,7 @@ class NewContentDialog {
   prevAssetForm(event) {
     event.preventDefault();
     this.reveal.foundation('close');
-    let prevAsset = this.referencedAssetField.prev('.file-for-upload');
+    let prevAsset = this.referencedAssetField.prev('.file-for-upload.finished');
 
     if (prevAsset && prevAsset.length)
       $('.reveal.new-content-reveal#' + prevAsset.find('.edit-upload-button').data('open')).foundation('open');
@@ -339,21 +367,25 @@ class NewContentDialog {
   }
   goTo(event, data) {
     if (event) event.preventDefault();
+
+    const $fromSet = this.form.find('fieldset.active');
+    const fromIndex = this.form.find('fieldset').index($fromSet);
+    const toIndex = data !== undefined ? data : event && $(event.target).data('index');
+    const $toSet = this.form.find('fieldset:eq(' + toIndex + ')');
+
     if (
-      this.form.find('fieldset.active').hasClass('template') &&
-      this.form.find(':input[name="template"]').val() !== null &&
-      this.form.find(':input[name="template"]').val() != this.form.data('template')
-    ) {
+      $fromSet.hasClass('template') &&
+      fromIndex !== toIndex &&
+      this.form.data('template') !== this.form.find(':input[name="template"]').val()
+    )
       this.renderContentForm();
-    }
-    let index = data !== undefined ? data : event && $(event.target).data('index');
-    this.form.find('fieldset.active').removeClass('active');
-    this.form
-      .find('fieldset:eq(' + index + ')')
-      .addClass('active')
-      .trigger('dc:remote:render');
-    if (this.form.find('fieldset.active').hasClass('template') || this.form.find('fieldset.active').hasClass('iframe'))
+
+    $fromSet.removeClass('active');
+    $toSet.addClass('active').trigger('dc:remote:render');
+
+    if ($toSet.hasClass('template') || $toSet.hasClass('iframe'))
       this.form.closest('.reveal:not(.full)').foundation('_updatePosition');
+
     this.updateForm();
   }
   updateWarningLevel() {

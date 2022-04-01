@@ -71,6 +71,7 @@ de:
     datahash: Datahash
     api: JSON API
     relations: Relationen
+    meta-data: Metadaten
 
   dash_board:
     download_full: Download (full)
@@ -79,6 +80,7 @@ de:
     download: Download
     download_import: Download & Import
     delete: delete
+    errors_were_encountered: errors were encountered
 
   notification:
     frequency:
@@ -86,6 +88,9 @@ de:
       named_version: bei Versionsänderungen
       day: täglich
       week: wöchentlich
+
+  classifications:
+    tooltip_translations: Übersetzungen
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
@@ -108,10 +113,14 @@ de:
         one: Metadaten müssen ausgefüllt werden!
         many: Metadaten müssen für jede Datei ausgefüllt werden!
       edit_content: Inhalt bearbeiten
+      edit_locked: Inhalt kann erst bearbeitet werden, nachdem der Upload fertig ist
       retry_upload: Erneut hochladen
       format_not_supported: Nicht unterstützes Format (%{data})
       error: Fehler
       remove_file: Datei entfernen
+      file: Datei
+      confirm_single_to_all_html: '%{label} wirklich für alle %{template} übernehmen?'
+      confirm_all_to_all_html: '<h5>Alle Attribute für alle %{template} übernehmen</h5><p>Soll auch <b>%{label}</b> für alle %{template} übernommen werden?</p>'
     cancel: Abbrechen
     ok: Ok
     content_lock:
@@ -428,7 +437,7 @@ de:
     system_dialog: Bilder über Systemdialog auswählen
     or: oder
     select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
-    copy_all_title: 'alle Attribute von diesem %{single} für alle %{multiple} übernehmen'
+    copy_all_title: "Alle Attribute von diesem %{single} für alle %{multiple} übernehmen"
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -763,7 +772,7 @@ de:
     delete_items_in_watch_list: Alle Inhalte dieser Inhaltssammlung löschen
     save_without_redirect: Zwischenspeichern
     set_and_next: 'übernehmen und weiter'
-    set_all_attributes: 'für alle %{data} übernehmen'
+    set_all_attributes: 'für alle übernehmen'
     close_overlay: schließen
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
     copyable_from: '%{data} übernehmen'
@@ -881,7 +890,7 @@ de:
       locked: '%{data} wurde gesperrt.'
       unlocked: '%{data} wurde freigegeben.'
       invalidated: '%{data} wurde deaktiviert.'
-      updated_multiple: '%{data} wurden aktualisiert.'
+      updated_user_settings: 'Benutzereinstellungen wurden aktualisiert.'
       moved_to: 'Inhalt in %{data} verschoben'
       become_user: 'Eingeloggt als %{data}.'
       duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
@@ -1054,7 +1063,7 @@ de:
         access_token: API Token
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
         represented_by: Repräsentiert durch
-        ui_locale: UI Sprache
+        ui_locale: Sprache der Benutzeroberfläche
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname
@@ -1119,6 +1128,7 @@ de:
     user_details: Benutzerdetails
     user_links: Benutzerlinks
     classifications: 'Klassifizierungen'
+    dashboard: Dashboard
     classifications_adminitration:
       classification:
         submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
@@ -1539,6 +1549,7 @@ de:
   details:
     bild:
       open_url: URL öffnen
+      exif_data: Bild-Metadaten (EXIF/IPTC/XMP)
 
   exceptions_page:
     back_to_root_link: Zurück zu dataCycle
