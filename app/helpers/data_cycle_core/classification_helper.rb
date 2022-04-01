@@ -102,10 +102,13 @@ module DataCycleCore
             safe_join(
               classification_alias
                 .name_i18n
-                .inject({}) { |h, (k,v)| (h[v] ||= []) << k; h }
+                .each_with_object({}) { |(k, v), h|
+                (h[v] ||= []) << k
+              }
                 .transform_values { |v| v.sort.join(', ') }
-                .sort_by{ |_k, v| v }
-                .map { |k, v| tag.li(ActionView::OutputBuffer.new("#{k} #{tag.span("(#{v})", class: 'tag-translations-locales')}")) }),
+                .sort_by { |_k, v| v }
+                .map { |k, v| tag.li(ActionView::OutputBuffer.new("#{k} #{tag.span("(#{v})", class: 'tag-translations-locales')}")) }
+            ),
             class: 'tag-translations-list'
           ),
           class: 'tag-translations'
