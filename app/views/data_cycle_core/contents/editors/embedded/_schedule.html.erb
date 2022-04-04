@@ -26,7 +26,7 @@
   <a href="#" class="accordion-title">
     <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
     <span class="embedded-label"><%= translated_attribute_label(key, definition, local_assigns[:content], local_assigns[:options]) %></span>
-    <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
+    <%= render 'data_cycle_core/contents/helper_text', key: key, definition: definition, content: contextual_content(local_assigns) %>
   </a>
 
   <% unless readonly %>
@@ -58,7 +58,7 @@
         <% end %>
       </div>
 
-      <% duration = iso8601_duration_to_parts(value&.dig(:duration)) %>
+      <% duration = DataCycleCore::Schedule.iso8601_duration_to_parts(value&.dig(:duration)) %>
 
       <div class="form-element duration">
         <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[duration]")}", class: 'duration-label' do %>

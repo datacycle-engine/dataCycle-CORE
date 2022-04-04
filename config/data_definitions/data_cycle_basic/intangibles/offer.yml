@@ -121,21 +121,29 @@
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
       #              :advanced_search: true
-      :potentialAction:
+      :potential_action:
         :label: Buchungs-Url
         :type: object
         :storage_location: translated_value
         :api:
           :type: Action
+          :name: potentialAction
         :properties:
-          :name:
+          :action_name:
             :label: Name
             :type: string
             :storage_location: translated_value
-          :url:
+            :api:
+              :name: name
+          :action_url:
             :label: URL
             :type: string
             :storage_location: translated_value
+            :ui:
+              :show:
+                :type: url
+            :api:
+              :name: url
       :meta_data:
         :type: mixin
         :name: meta_data

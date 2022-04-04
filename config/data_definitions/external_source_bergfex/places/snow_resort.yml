@@ -247,6 +247,17 @@
         :template_name: Skigebiet - Addon
         :api:
           :name: amenityFeature
+      :amenity_feature:
+        :label: Zusatzangebot
+        :type: linked
+        :template_name: Zusatzangebot
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :transformation:
+              :method: append
+              :name: amenityFeature
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -281,14 +292,13 @@
         :inverse_of: snow_resort
         :link_direction: inverse
         :template_name: freie Scheehöhenmesspunkte
-      :url:
+      :same_as:
         :label: Link
         :type: string
         :storage_location: translated_value
-        :api:
-          :name: sameAs
-        :xml:
-          :name: sameAs
+        :ui:
+          :show:
+            :type: url
       :image:
         :label: Bilder
         :type: linked

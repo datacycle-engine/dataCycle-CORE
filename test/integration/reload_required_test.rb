@@ -38,7 +38,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal response.content_type, 'application/json'
+      assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = JSON.parse response.body
       assert json_data['error'].present?
     end
@@ -55,7 +55,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal response.content_type, 'application/json'
+      assert_equal response.content_type, 'application/json; charset=utf-8'
       json_data = JSON.parse response.body
       assert json_data['error'].present?
     end

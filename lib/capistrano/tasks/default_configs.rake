@@ -4,7 +4,7 @@ namespace :datacycle do
   namespace :default_configs do
     desc 'load default configurations from core'
     task :load do
-      set :rvm_ruby_version, '2.7.1'
+      set :rvm_ruby_version, '2.7.4'
       set :whenever_identifier, -> { "#{fetch(:application)}_#{fetch(:stage)}" }
       set :deploy_user, 'pixelpoint'
 
@@ -21,7 +21,7 @@ namespace :datacycle do
       set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
 
       append :linked_files, '.env'
-      append :linked_dirs, 'log', 'db/backups', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'public/uploads', 'public/eyebase', 'public/filmcommission'
+      append :linked_dirs, 'log', 'db/backups', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'public/uploads', 'public/eyebase', 'public/filmcommission', 'public/downloads'
 
       namespace :deploy do
         after 'deploy:started', :add_special_tasks do

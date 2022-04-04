@@ -8,7 +8,7 @@
   <%= tag.div class: "content-object-item textblock draggable_#{sanitize_to_id(key)}",
     id: "#{sanitize_to_id(key)}_item_#{index}",
     data: {
-      id: object.template || local_assigns[:duplicated_content] ? nil : object.id,
+      id: object.template ? nil : object.id,
       index: index
     } do %>
     <%= hidden_field_tag("#{new_prefix}[id]", object.id) unless object.template || local_assigns[:duplicated_content] %>
@@ -27,7 +27,7 @@
 
         <%= label_tag "#{new_prefix}[name]" do %>
           <%= validation_properties.dig('name', 'label') %>
-          <%= render 'data_cycle_core/contents/helper_text', { content: content, key: "#{new_prefix}[name]", definition: validation_properties['name'] } %>
+          <%= render 'data_cycle_core/contents/helper_text', { content: contextual_content(local_assigns), key: "#{new_prefix}[name]", definition: validation_properties['name'] } %>
         <% end %>
         <%= text_field_tag "#{new_prefix}[name]",
           I18n.with_locale(local_assigns[:attribute_locale]){ object.try(:name) },

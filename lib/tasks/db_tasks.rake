@@ -16,14 +16,37 @@ namespace :db do
     end
   end
 
+  namespace :rollback do
+    desc 'run data migrations'
+    task with_data: :environment do
+      data_paths = [
+        Rails.root.join('db', 'data_migrate').to_s,
+        DataCycleCore::Engine.root.join('db', 'data_migrate').to_s
+      ]
+
+      Rails.application.config.paths['db/migrate'].concat(data_paths)
+      ActiveRecord::Migrator.migrations_paths.concat(data_paths)
+
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:rollback"].invoke
+    end
+  end
+
   namespace :maintenance do
     desc 'run VACUUM (FULL) on DB, full(false|true)'
-    task :vacuum, [:full] => [:environment] do |_, args|
+    task :vacuum, [:full, :reindex] => [:environment] do |_, args|
       full = args.fetch(:full, false)
+      reindex = args.fetch(:reindex, false)
       sql = 'VACUUM'
-      sql += ' FULL' if full
+      sql += ' FULL' if full.to_s == 'true'
       sql += ' ANALYZE;'
+
       ActiveRecord::Base.connection.execute(sql)
+
+      next if full.to_s == 'true' || reindex.to_s != 'true'
+
+      DbHelper.with_config do |_host, _port, db, _user, _password|
+        ActiveRecord::Base.connection.execute("REINDEX DATABASE \"#{db}\";")
+      end
     end
   end
 

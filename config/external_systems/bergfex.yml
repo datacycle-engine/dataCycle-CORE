@@ -1,9 +1,9 @@
 ---
 name: Bergfex
 credentials:
-  end_point: /export/
-  host: https://content.bergfex.at
-  partner: kaernten.at
+  end_point: ENDPOINT
+  host: HOST
+  partner: PARTNER
 default_options:
   locales: [de,en]
 config:

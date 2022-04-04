@@ -48,6 +48,9 @@
           method: generate_slug
         :advanced_search: true
         :search: true
+        :ui:
+          :bulk_edit:
+            :disabled: true
         :api:
           :name: dc:slug
       :external_key:

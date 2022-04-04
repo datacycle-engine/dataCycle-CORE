@@ -1,6 +1,6 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
 
-  <%= attribute_edit_label_tag(key, definition, content, options) %>
+  <%= attribute_edit_label_tag(**local_assigns) %>
 
   <% value = value.first if value.is_a?(Array) || value.is_a?(ActiveRecord::Relation) %>
   <%= render 'data_cycle_core/assets/asset_list',
@@ -16,7 +16,7 @@
         asset_type: definition&.dig('asset_type'),
         label: translated_attribute_label(key, definition, content, options) %>
   <% end %>
-  <% if DataCycleCore::Feature::ImageEditor.allowed?(local_assigns[:parent] || content) %>
+  <% if DataCycleCore::Feature::ImageEditor.allowed?(contextual_content(local_assigns)) %>
     <%= render 'data_cycle_core/contents/editors/features/image_editor', local_assigns %>
   <% end %>
 <% end %>

@@ -22,12 +22,11 @@ module DataCycleCore
             .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth: depth, max_depth: max_depth, locales: locales) } }
             .inject(&:merge)
             .merge(sync_metadata)
-            .compact
             .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', depth: depth, max_depth: max_depth, locales: locales) }
             .deep_stringify_keys
         end
 
-        def attribute_to_sync_h(property_name, depth: 0, max_depth:, locales: nil)
+        def attribute_to_sync_h(property_name, max_depth:, depth: 0, locales: nil)
           present_overlay = overlay_property_names.include?(property_name)
           property_name_with_overlay = property_name
           property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
@@ -81,13 +80,14 @@ module DataCycleCore
                   .merge({ 'ancestors' => classification.ancestors.map(&:to_hash) })
                   .merge({ 'attribute_name' => classification_property_name })
 
-                classification_mappings = classification.mapped_to&.map do |alias_data|
+                classification_mappings = classification.mapped_to&.map { |alias_data|
                   primary_classification = alias_data.primary_classification
+                  next if primary_classification.nil?
                   primary_classification
                     .to_hash
                     .merge({ 'ancestors' => primary_classification.ancestors&.map(&:to_hash) })
                     .merge({ 'attribute_name' => 'universal_classifications' })
-                end
+                }&.compact
                 Array.wrap(classification_data) + classification_mappings
               }.presence&.flatten
             }&.compact&.flatten
@@ -97,7 +97,7 @@ module DataCycleCore
               classification_property_name_overlay = "#{classification_property_name}_#{overlay_name}" if overlay_property_names.include?(classification_property_name)
               send(classification_property_name_overlay)&.map { |classification|
                 classification.mapped_to&.map do |alias_data|
-                  alias_data.primary_classification.id
+                  alias_data.primary_classification&.id
                 end
               }.presence&.flatten
             }&.compact&.flatten

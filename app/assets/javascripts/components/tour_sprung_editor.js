@@ -1,6 +1,18 @@
 import OpenLayersEditor from './open_layers_editor';
-import lodashGet from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import fetchInject from 'fetch-inject';
+import AdditionalValuesFilterControl from './map_controls/mapbox_additional_values_filter_control';
+
+const mtkLibrary = ['https://static.maptoolkit.net/mtk/v9.7.9/mtk.js'];
+const defaultMtkScripts = [
+  'https://static.maptoolkit.net/mtk/v9.7.9/mtk.css',
+  'https://static.maptoolkit.net/api/v9.7.9/editor-gui.css',
+  'https://static.maptoolkit.net/api/v9.7.9/editor-gui.js'
+];
+const mtkElevationProfile = [
+  'https://static.maptoolkit.net/api/v9.7.9/elevationprofile.css',
+  'https://static.maptoolkit.net/api/v9.7.9/elevationprofile.js'
+];
 
 class TourSprungEditor extends OpenLayersEditor {
   constructor(container) {
@@ -12,14 +24,17 @@ class TourSprungEditor extends OpenLayersEditor {
     this.map;
     this.editorGui;
     this.draggingMarker;
-    this.pois = this.additionalAttributes && this.additionalAttributes.toursprung_pois;
-    this.$poisTarget =
-      this.additionalAttributes &&
-      this.additionalAttributes.toursprung_pois_target &&
-      this.$parentContainer
-        .closest('.form-element.geographic')
-        .siblings(`.form-element[data-key*="[${this.additionalAttributes.toursprung_pois_target}]"]`)
-        .find('.object-browser');
+    this.selectedAdditionalSources = {};
+    this.selectedAdditionalLayers = {};
+    this.allRenderedLayers = [];
+    this.showElevationProfile = this.$container.data('elevationProfile');
+    this.elevationProfile;
+    this.elevationProfilePromise;
+    this.keyFiguresMapping = {
+      length: 'distance',
+      max_altitude: 'highest_point',
+      min_altitude: 'lowest_point'
+    };
   }
   static isAllowedType(type) {
     return type && type.includes('LineString');
@@ -34,21 +49,26 @@ class TourSprungEditor extends OpenLayersEditor {
       });
   }
   async loadExtenalScripts() {
-    return await fetchInject(
-      [
-        'https://static.maptoolkit.net/mtk/v9.7.8/mtk.css',
-        'https://static.maptoolkit.net/api/v9.7.8/editor-gui.css',
-        'https://static.maptoolkit.net/api/v9.7.8/editor-gui.js'
-      ],
-      fetchInject(['https://static.maptoolkit.net/mtk/v9.7.8/mtk.js'])
-    );
+    return await fetchInject(defaultMtkScripts, fetchInject(mtkLibrary));
+  }
+  _styleControlWithOptions() {
+    const controlConfig = {};
+
+    if (this.mapOptions.maptypes) controlConfig.maptypes = this.mapOptions.maptypes;
+    if (this.mapOptions.maplayers)
+      controlConfig.layers = this.mapOptions.maplayers.map(v => {
+        v.value = new MTK.StyleLayer(v.value);
+        return v;
+      });
+
+    return new MTK.StyleControl(controlConfig);
   }
   initMap() {
     MTK.init({ apiKey: this.credentials.api_key, language: document.documentElement.lang }).createMap(
       this.containerId,
       {
         map: {
-          mapType: 'toursprung-terrain',
+          mapType: this.mapOptions.maptype || 'toursprung-terrain',
           location: this.defaultView(),
           controls: []
         }
@@ -59,23 +79,57 @@ class TourSprungEditor extends OpenLayersEditor {
   }
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
+    this.$container.on('dc:geoKeyFigure:compute', this._computeKeyFigure.bind(this));
+  }
+  _setElevationProfileFromFeature() {
+    this.elevationProfilePromise = new Promise(async (resolve, _reject) => {
+      if (!this.elevationProfile) await this._renderElevationProfile();
+
+      this.elevationProfile.setPolyline(this.feature, {}, () => resolve());
+    });
+  }
+  async _computeKeyFigure(event, data = {}) {
+    event.preventDefault();
+
+    if (!this.elevationProfile && !this.elevationProfilePromise) this._setElevationProfileFromFeature();
+
+    await this.elevationProfilePromise;
+    this.elevationProfilePromise = null;
+
+    const keyFigures = this.elevationProfile.getData();
+    const key = data.attributeKey;
+
+    if (!key || !keyFigures) return;
+
+    data.callback(Math.round(keyFigures[this.keyFiguresMapping[key] || key]));
   }
   configureMap(map) {
     this.map = map;
+
+    if (this.mapOptions.i18n) MTK.i18n = Object.assign({}, this.mapOptions.i18n);
 
     this.configureEditor();
 
     if (this.value) this.drawInitialRoute();
     this.initMtkEvents();
 
-    if (this.additionalValues && this.additionalValues.length) this.drawAdditionalFeatures();
+    this.drawAdditionalFeatures();
     this.updateMapPosition();
+  }
+  _disableScrollingOnMapOverlays() {
+    this.$parentContainer.siblings('.map-info').on('wheel', event => {
+      if (event.originalEvent[this.zoomMethod]) event.preventDefault();
+    });
+
+    this.$container.on('wheel', event => {
+      if (event.originalEvent[this.zoomMethod]) event.preventDefault();
+    });
   }
   initMouseWheelZoom() {
     this.map.gl.scrollZoom.disable();
 
     this.map.gl.on('wheel', event => {
-      if (!event.originalEvent[this.zoomMethod]) {
+      if (!event.originalEvent[this.zoomMethod] && document.fullscreenElement != this.$container.get(0)) {
         if (this.map.gl.scrollZoom._enabled) this.map.gl.scrollZoom.disable();
 
         if (!this.$container.find('.scroll-overlay').length) {
@@ -106,30 +160,25 @@ class TourSprungEditor extends OpenLayersEditor {
     });
   }
   initMtkEvents() {
+    this._disableScrollingOnMapOverlays();
     this.initMouseWheelZoom();
-
-    if (this.editorGui.pois && this.$poisTarget.length) {
-      MTK.event.addListener(this.editorGui.pois, 'selected', (pois, triggerTarget = true) => {
-        if (!triggerTarget) return;
-
-        this.$poisTarget.trigger('dc:import:data', {
-          value: Object.values(pois.getSelected()).map(v => v.remoteid),
-          replace: true
-        });
-      });
-    }
 
     MTK.event.addListener(this.editorGui.editor, 'update', () => {
       this.feature = this.editorGui.editor.getPolyline();
 
       this.setHiddenFieldValue(this.getGeoJsonFromFeature());
+
+      if (this.showElevationProfile || this.elevationProfile) this._setElevationProfileFromFeature();
+    });
+
+    this.map.on('maptypechanged', _event => {
+      this.allRenderedLayers = [];
+      this.drawAdditionalFeatures();
+      this._changeMtkLineStyle();
     });
   }
   drawInitialRoute() {
-    this.editorGui.editor.loadGeoJSON({
-      type: 'FeatureCollection',
-      features: [this.value]
-    });
+    this.editorGui.editor.loadGeoJSON(this._createFeatureCollection([this.value]));
 
     this.feature = this.editorGui.editor.getPolyline();
   }
@@ -167,93 +216,110 @@ class TourSprungEditor extends OpenLayersEditor {
       options
     );
   }
-  _addAdditionalPointsLayer() {
-    return new MTK.CollectionLayer(MTK.Marker, {
-      states: {
-        click: {
-          'mtk:popup': {
-            html: '${description}'
-          }
-        }
-      }
-    }).addTo(this.map);
+  _getLastLineLayerId() {
+    return this.map.gl
+      .getStyle()
+      .layers.find(
+        l =>
+          (l.type === 'background' && l.id === 'mtk-raster-layers') || (l.type === 'line' && l.id.includes('selected'))
+      ).id;
   }
-  _addAdditionalLinesLayer() {
-    return new MTK.CollectionLayer(MTK.Polyline, {
-      states: {
-        click: {
-          'mtk:popup': {
-            html: '${description}'
-          }
+  _getLastPointLayerId() {
+    return this.map.gl
+      .getStyle()
+      .layers.find(
+        l =>
+          (l.type === 'background' && l.id === 'mtk-symbol-layers') ||
+          (l.type === 'symbol' && l.source === 'mtk-editor-1') ||
+          (l.type === 'circle' && l.id.includes('selected'))
+      ).id;
+  }
+  _additionalLineLayer(key) {
+    const layerId = `additional_values_line_${key}`;
+
+    this.map.gl.addLayer(
+      {
+        id: layerId,
+        type: 'line',
+        source: `additional_values_${key}`,
+        filter: ['==', '$type', 'LineString'],
+        paint: {
+          'line-color': key.includes('selected') ? this.definedColors.default : this.definedColors.gray,
+          'line-opacity': key.includes('selected') ? 1 : 0.75,
+          'line-width': 5
         }
+      },
+      this._getLastLineLayerId()
+    );
+
+    this.allRenderedLayers.push(layerId);
+
+    return layerId;
+  }
+  _additionalPointLayer(key) {
+    const layerId = `additional_values_point_${key}`;
+
+    this.map.gl.addLayer(
+      {
+        id: layerId,
+        type: 'circle',
+        source: `additional_values_${key}`,
+        filter: ['==', '$type', 'Point'],
+        paint: {
+          'circle-radius': key.includes('selected') ? 7 : 5,
+          'circle-stroke-width': 2,
+          'circle-color': key.includes('selected') ? this.definedColors.red : this.definedColors.default,
+          'circle-stroke-color': this.definedColors.white
+        }
+      },
+      this._getLastPointLayerId()
+    );
+
+    this.allRenderedLayers.push(layerId);
+
+    return layerId;
+  }
+  _addPopup() {
+    const popup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      className: 'additional-feature-popup'
+    });
+
+    this.map.gl.on('mousemove', e => {
+      const feature = this.map.gl.queryRenderedFeatures(e.point, { layers: this.allRenderedLayers })[0];
+
+      if (feature) {
+        this.map.gl.getCanvas().style.cursor = 'pointer';
+        popup
+          .setLngLat(feature.geometry.type !== 'Point' ? e.lngLat : feature.geometry.coordinates)
+          .setHTML(feature.properties.name)
+          .addTo(this.map.gl);
+      } else {
+        this.map.gl.getCanvas().style.cursor = '';
+        popup.remove();
       }
-    }).addTo(this.map);
+    });
+  }
+  _addSelectedSourceAndLayers(key, data) {
+    this.selectedAdditionalSources[key] = `additional_values_selected_${key}`;
+
+    this.map.gl.addSource(this.selectedAdditionalSources[key], {
+      type: 'geojson',
+      data: data
+    });
+
+    this.selectedAdditionalLayers[key] = {
+      point: this._additionalPointLayer(`selected_${key}`),
+      line: this._additionalLineLayer(`selected_${key}`)
+    };
   }
   drawAdditionalFeatures() {
-    this.additionalPointsLayer = this._addAdditionalPointsLayer();
-    this.additionalLinesLayer = this._addAdditionalLinesLayer();
-
-    const pois = [];
-
-    for (let i = 0; i < this.additionalValues.length; ++i) {
-      const feature = this.additionalValues[i];
-
-      if (feature.geometry.type == 'Point') {
-        if (this.pois && this.editorGui.pois) {
-          pois.push(feature.properties.id);
-        } else {
-          const iconId = this.iconOptions('default', false, lodashGet(feature, 'properties.style.color', 'default'));
-          const newMarker = new MTK.Marker({
-            description: this.infoOverlayHtml(feature.properties)
-          })
-            .setLngLat(feature.geometry.coordinates)
-            .setImage({ id: iconId, anchor: 'bottom' });
-
-          this.additionalFeatures.push(newMarker);
-
-          this.additionalPointsLayer.addLayer(newMarker);
-        }
-      } else {
-        const newLine = new MTK.Polyline({
-          description: this.infoOverlayHtml(feature.properties)
-        }).setLngLats(feature.geometry.coordinates);
-
-        this.additionalFeatures.push(newLine);
-
-        this.additionalLinesLayer.addLayer(newLine);
-      }
+    for (const [key, value] of Object.entries(this.additionalValues)) {
+      this._addSelectedSourceAndLayers(key, value);
     }
 
-    this._renderAdditionalPointsAsPois(pois);
-  }
-  _renderAdditionalPointsAsPois(pois) {
-    if (!pois.length) return;
-
-    for (let i = 0; i < this.pois.length; ++i) {
-      fetch(
-        `https://resource.maptoolkit.net/${this.pois[i].resource.name}/search.json?api_key=${
-          this.credentials.api_key
-        }&remoteids=${pois.join(',')}`
-      ).then(response => {
-        if (response.ok)
-          response.json().then(result => {
-            if (!result || !result.features || !result.features.length) return;
-
-            for (let j = 0; j < result.features.length; ++j) {
-              const feature = result.features[j];
-
-              if (this.editorGui.pois._selected[feature.id]) return;
-
-              feature.properties.resource = result.properties.resource;
-              this.editorGui.pois._selected[feature.id] = feature;
-              this.editorGui.pois._updateLayer();
-              this.editorGui.pois._updateResource();
-              this.editorGui.pois.fire('selected', this.editorGui.pois, false);
-              this.editorGui.pois.enabled = false;
-            }
-          });
-      });
-    }
+    this._addPopup();
   }
   extendEditorInterface() {
     const uploadable = this.uploadable;
@@ -307,8 +373,7 @@ class TourSprungEditor extends OpenLayersEditor {
 
         b.addControl(new mapboxgl.NavigationControl(), 'top-left');
 
-        container.querySelector('.mtk-editor-routing').remove();
-        container.querySelector('.mtk-editor-reverse-route').remove();
+        container.querySelector('.mtk-editor-routing').remove(); // remove bike/car/foot icons
 
         const buttons = container.querySelectorAll('.mtk-editor-button');
 
@@ -326,31 +391,56 @@ class TourSprungEditor extends OpenLayersEditor {
 
     this.extendedEditorInterface = CustomEditorInterface;
   }
-  configureEditor() {
-    this.map.gl.addControl(new mapboxgl.NavigationControl(), 'top-left');
-    this.map.gl.addControl(new mapboxgl.FullscreenControl(), 'top-right');
-
-    this.extendEditorInterface();
-
-    this.editorGui = new this.extendedEditorInterface({
-      pois: this.pois
-    }).addTo(this.map);
-
+  _captureClickEvents() {
+    const mapBoxControls = this.$container.get(0).querySelectorAll('.mapboxgl-ctrl');
+    for (const control of mapBoxControls) {
+      control.addEventListener('click', event => {
+        event.preventDefault();
+      });
+    }
+  }
+  _changeMtkLineStyle() {
     const waypointLayerDefinition = this.editorGui.editor.getLayerDefinitions().find(v => v.type == 'symbol');
+
     const waypointLayerId = waypointLayerDefinition && waypointLayerDefinition.id;
-    if (waypointLayerId)
+    if (waypointLayerId) {
       this.map.gl.setLayoutProperty(waypointLayerId, 'icon-size', [
         'case',
         ['==', ['get', 'icon'], 'end'],
         0.8,
         ['==', ['get', 'icon'], 'start'],
         0.6,
-        0
+        0.3
       ]);
+    }
 
     this.editorGui.editor.outline.width = 0;
     Object.assign(this.editorGui.editor.line, this.lineStyle());
     Object.assign(this.editorGui.editor.dashedLine, this.lineStyle());
+  }
+  async _renderElevationProfile() {
+    if (!this.elevationProfile) await fetchInject(mtkElevationProfile);
+
+    this.elevationProfile = new MTK.ElevationProfile();
+    this.elevationProfile._container.querySelector('rect.mtk-elevation-close').dispatchEvent(new Event('click'));
+    if (this.showElevationProfile) this.elevationProfile.addTo(this.map);
+    this.$container.trigger('dc:map:elevationProfileInitialized');
+  }
+  configureEditor() {
+    this.map.gl.addControl(new mapboxgl.NavigationControl(), 'top-left');
+    new MTK.GeocoderControl().addTo(this.map, 'top-right');
+    this.map.gl.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+    this._styleControlWithOptions().addTo(this.map, 'bottom-right');
+
+    this.extendEditorInterface();
+    this._captureClickEvents();
+
+    this.editorGui = new this.extendedEditorInterface().addTo(this.map);
+
+    if (!isEmpty(this.additionalValuesOverlay))
+      this.map.gl.addControl(new AdditionalValuesFilterControl(this), 'top-left');
+
+    this._changeMtkLineStyle();
   }
   defaultView() {
     const viewOptions = {
@@ -391,14 +481,32 @@ class TourSprungEditor extends OpenLayersEditor {
         center: this.feature.lngLat
       });
   }
+  getBoundsForGeojson(geoJson) {
+    const bounds = new mapboxgl.LngLatBounds();
+
+    for (const feature of geoJson.features) {
+      if (!feature || !feature.geometry) continue;
+
+      if (feature.geometry.type === 'Point') bounds.extend(feature.geometry.coordinates);
+      else if (feature.geometry.type === 'MultiLineString') {
+        for (const lineStrings of feature.geometry.coordinates) {
+          for (const coords of lineStrings) bounds.extend([coords[0], coords[1]]);
+        }
+      }
+    }
+
+    return bounds;
+  }
   updateMapPosition() {
     let bounds = new mapboxgl.LngLatBounds();
 
     if (this.feature) bounds.extend(this.feature.getBounds());
-    if (this.additionalFeatures && this.additionalFeatures.length) {
-      bounds.extend(this.additionalPointsLayer.getBounds());
-      bounds.extend(this.additionalLinesLayer.getBounds());
+
+    for (const geoJson of Object.values(this.additionalValues)) {
+      bounds.extend(this.getBoundsForGeojson(geoJson));
     }
+
+    if (isEmpty(bounds)) return;
 
     this.map.gl.fitBounds(bounds, {
       padding: 50,

@@ -83,10 +83,7 @@ module DataCycleCore
           classification_alias_id: a.id,
           name: a.internal_name,
           full_path: a.full_path,
-          title: [
-            a.full_path,
-            a.description
-          ].reject(&:blank?).join("\n\n"),
+          dc_tooltip: helpers.classification_tooltip(a),
           disabled: !a.assignable
         }
       }.compact.to_json, content_type: 'application/json'
@@ -105,10 +102,7 @@ module DataCycleCore
           classification_alias_id: c.primary_classification_alias.id,
           name: c.primary_classification_alias.internal_name,
           full_path: c.primary_classification_alias.full_path,
-          title: [
-            c.primary_classification_alias.full_path,
-            c.primary_classification_alias.description
-          ].reject(&:blank?).join("\n\n"),
+          dc_tooltip: helpers.classification_tooltip(c.primary_classification_alias),
           disabled: !c.primary_classification_alias.assignable
         }
       }.compact.to_json, content_type: 'application/json'
@@ -227,10 +221,13 @@ module DataCycleCore
     def create_params
       return @create_params if defined? @create_params
       @create_params = begin
+        params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
+        params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
+
         normalize_names(params).permit(
           :classification_tree_label_id,
           :classification_tree_id,
-          classification_tree_label: [:id, :name, :internal, visibility: []],
+          classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
           classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
         )
       end
@@ -240,9 +237,10 @@ module DataCycleCore
       return @update_params if defined? @update_params
       @update_params = begin
         params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
+        params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
 
         normalize_names(params).permit(
-          classification_tree_label: [:id, :name, :internal, visibility: []],
+          classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
           classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
         )
       end

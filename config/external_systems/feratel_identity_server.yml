@@ -1,12 +1,12 @@
 ---
 name: Feratel Identity Server
 credentials:
-  host: https://apiidentitytest.deskline.net
-  external_system: Feratel Identity Server
+  host: HOST
+  external_system: EXTERNAL_SYSTEM
   client_options:
-    host: identitytest.deskline.net
-    scheme: https
-    token_endpoint: /connect/token
+    host: HOST
+    scheme: SCHEME
+    token_endpoint: TOKEN_ENDPOINT
 default_options:
   locales: [de]
 config:

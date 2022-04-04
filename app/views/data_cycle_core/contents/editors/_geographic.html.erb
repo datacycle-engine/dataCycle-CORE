@@ -6,12 +6,13 @@
 
   <div class="edit-type geographic">
     <div id="map_<%= SecureRandom.hex(16) %>"
-          class="geographic-map <%= is_line_string ? 'linestring' : 'point' %><%= ' editor' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>"
+          class="geographic-map <%= is_line_string ? 'linestring' : 'point' %><%= ' editor' if can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>"
           data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
           data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
           data-value="<%= value_to_geojson(value)&.to_json %>"
           data-additional-values="<%= additional_map_values(content, definition&.dig('ui', 'edit', 'options', 'additional_value_paths'))&.to_json %>"
-          data-additional-attributes="<%= definition&.dig('ui', 'edit', 'options', 'data_additional_attributes')&.to_json %>"
+          data-additional-values-overlay="<%= additional_map_values_overlay(content, definition, options)&.to_json %>"
+          data-elevation-profile="<%= definition&.dig('ui', 'edit', 'options', 'elevation_profile') %>"
           data-allow-upload="<%= definition&.dig('ui', 'edit', 'options', 'data_upload') %>">
     </div>
     <div class="ol-popup">
@@ -38,7 +39,7 @@
   <div class="map-info detail_object <%= 'linestring-info' if is_line_string %>">
     <div class="content-object-item">
       <span class="embedded-header">
-        <%= attribute_edit_label_tag(key, definition, content, options) %>
+        <%= attribute_edit_label_tag(**local_assigns) %>
       </span>
 
       <% if !is_line_string %>

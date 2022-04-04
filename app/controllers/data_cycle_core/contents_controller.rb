@@ -86,8 +86,8 @@ module DataCycleCore
       uri = URI.parse(content.send(attribute))
 
       # used for local development and docker env.
-      uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && uri.hostname == 'localhost'
-      redirect_to(uri.to_s)
+      uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'
+      redirect_to(uri.to_s, allow_other_host: true)
     end
 
     def new
@@ -402,30 +402,6 @@ module DataCycleCore
       render 'data_cycle_core/duplicate_candidates/load_more_duplicates'
     end
 
-    # def upload
-    #   return if asset_params[:file].blank?
-    #
-    #   object_type = DataCycleCore.asset_objects.find { |object| object.downcase.include?(asset_params[:file].content_type&.split('/')&.first&.downcase) }
-    #
-    #   render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: helpers.active_ui_locale) }) && return if object_type.blank?
-    #
-    #   authorize! :create, object_type.constantize
-    #
-    #   @asset = object_type.constantize.new(asset_params)
-    #   @asset.name = asset_params[:file].original_filename if asset_params[:name].blank?
-    #   @asset.creator_id = current_user.try(:id)
-    #   @asset.save
-    #
-    #   external_system = DataCycleCore::ExternalSystem.find_by(name: 'Medienarchiv')
-    #   return if external_system.blank?
-    #   utility_object = DataCycleCore::Export::PushObject.new(external_system: external_system)
-    #   errors = ::Export::MediaArchive::Create.process(utility_object: utility_object, data: @asset)
-    #
-    #   render(json: { error: JSON.parse(errors)['errors'] }) && return if errors.present? && JSON.parse(errors).key?('errors')
-    #
-    #   render json: @asset
-    # end
-
     def remove_locks
       @content = DataCycleCore::Thing.find(params[:id])
       authorize! :remove_lock, @content
@@ -472,7 +448,7 @@ module DataCycleCore
       values = {}
 
       attribute_value_params[:keys].each do |key|
-        key_path = key.gsub(/\[datahash\]|\[translations\]\[[^\]]*\]/, '').scan(/\[(.*?)\]/).flatten
+        key_path = key.attribute_path_from_key
         key_locale = key.scan(/\[translations\]\[([^\]]*)\]/).flatten.first
 
         next if key_path.blank?
@@ -486,13 +462,62 @@ module DataCycleCore
         end
       end
 
-      render json: values.reject { |_k, v| v.blank? && !v.is_a?(FalseClass) }.to_json
+      render json: values.reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.to_json
+    end
+
+    def geojson_for_map_editor
+      authorize! :index, DataCycleCore::Thing
+
+      render(plain: { type: 'FeatureCollection', features: [] }.to_json, content_type: 'application/vnd.geo+json') && return if map_editor_params.blank?
+
+      template_name = map_editor_params[:template_name]
+      filter_hash = map_editor_params[:stored_filter]
+      stored_filter = DataCycleCore::StoredFilter.new
+        .parameters_from_hash(filter_hash)
+        .apply_user_filter(current_user, { scope: 'object_browser', template_name: filter_hash.blank? ? template_name : nil })
+
+      if map_editor_params[:filter].present?
+        stored_filter.parameters.concat Array.wrap({
+          't' => 'classification_alias_ids',
+          'm' => 'i',
+          'v' => map_editor_params[:filter]
+        })
+      end
+
+      query = stored_filter.apply
+      query = query.where(template_name: template_name.to_s) if template_name && filter_hash.blank?
+      query = query.where(id: map_editor_params[:ids]) if map_editor_params[:ids].present?
+      query = query.in_validity_period
+
+      render plain: query.query.to_geojson(include_without_geometry: false), content_type: 'application/vnd.geo+json'
+    end
+
+    def attribute_default_value
+      authorize! :index, DataCycleCore::Thing
+
+      template = DataCycleCore::Thing.find_by!(template: true, template_name: default_value_params[:template_name])
+
+      I18n.with_locale(default_value_params[:locale] || DataCycleCore.ui_locales.first) do
+        render(
+          json: template.default_values_as_form_data(
+            keys: default_value_params[:keys],
+            data_hash: default_value_params[:data_hash] || {},
+            user: current_user
+          )
+        ) && return
+      end
     end
 
     private
 
+    def default_value_params
+      params.permit(:template_name, :locale, keys: [], data_hash: {})
+    end
+
     def set_watch_list
-      watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
+      return if params[:watch_list_id].blank?
+
+      watch_list = DataCycleCore::WatchList.find(params[:watch_list_id])
       authorize! :show, watch_list
       @watch_list = watch_list
     end
@@ -572,19 +597,23 @@ module DataCycleCore
 
     def source_params
       return @source_params if defined? @source_params
-      @source_params = begin
-        if params[:source]
-          ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_locale)
-        elsif params[:source_id].present?
-          params.permit(:source_id, :source_locale)
-        else
-          {}
-        end
-      end
+      @source_params = if params[:source]
+                         ActionController::Parameters.new(params[:source].split(',').to_h { |x| x.strip.split('=>') }).permit(:source_id, :source_locale)
+                       elsif params[:source_id].present?
+                         params.permit(:source_id, :source_locale)
+                       else
+                         {}
+                       end
     end
 
     def load_more_duplicates_params
       params.permit(:id, :prefix)
+    end
+
+    def map_editor_params
+      return @map_editor_params if defined? @map_editor_params
+
+      @map_editor_params = DataCycleCore::NormalizeService.normalize_parameters(params.permit(:template_name, ids: [], filter: [], stored_filter: {}))
     end
   end
 end

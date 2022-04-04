@@ -27,6 +27,10 @@ gem 'dotenv-rails'
 
 gem 'jb'
 
+# OmniAuth Authentication
+gem 'omniauth-rails_csrf_protection'
+gem 'omniauth-azure-activedirectory-v2'
+
 group :test do
   gem 'minitest-hooks'
 end
@@ -39,8 +43,8 @@ group :development do
   gem 'bundler-audit', require: false
   gem 'faker'
   gem 'fasterer', require: false
-  gem 'rubocop', '~> 0.84.0', require: false
-  gem 'rubocop-ast', '~> 0.3.0'
+  gem 'rubocop', require: false
+  gem 'rubocop-ast'
   gem 'rubocop-performance', require: false
   gem 'rubocop-rails', require: false
   gem 'awesome_print'

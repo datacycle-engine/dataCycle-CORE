@@ -32,7 +32,7 @@ module DataCycleCore
         }
 
         assert_response :success
-        assert_equal 'application/json', response.content_type
+        assert_equal 'application/json; charset=utf-8', response.content_type
         json_data = JSON.parse response.body
 
         assert json_data['valid']
@@ -51,7 +51,7 @@ module DataCycleCore
         }
 
         assert_response :success
-        assert_equal 'application/json', response.content_type
+        assert_equal 'application/json; charset=utf-8', response.content_type
         json_data = JSON.parse response.body
 
         assert json_data['valid']
@@ -72,7 +72,7 @@ module DataCycleCore
         }
 
         assert_response :success
-        assert_equal 'application/json', response.content_type
+        assert_equal 'application/json; charset=utf-8', response.content_type
         json_data = JSON.parse response.body
 
         assert json_data['valid']
@@ -90,7 +90,7 @@ module DataCycleCore
         }
 
         assert_response :success
-        assert_equal 'application/json', response.content_type
+        assert_equal 'application/json; charset=utf-8', response.content_type
         json_data = JSON.parse response.body
         assert_not json_data['valid']
         assert_equal 1, json_data['errors'].size
@@ -121,7 +121,7 @@ module DataCycleCore
       #        }
 
       #   assert_response :success
-      #   assert_equal 'application/json', response.content_type
+      #   assert_equal 'application/json; charset=utf-8', response.content_type
       #   json_data = JSON.parse response.body
       #   assert_empty json_data['error']
       #   assert_empty json_data['warning']

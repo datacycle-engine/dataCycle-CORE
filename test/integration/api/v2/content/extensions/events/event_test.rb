@@ -9,12 +9,9 @@ module DataCycleCore
       module Content
         module Extensions
           module Events
-            class Event < ActionDispatch::IntegrationTest
-              include Devise::Test::IntegrationHelpers
-              include Engine.routes.url_helpers
-
-              setup do
-                @routes = Engine.routes
+            class Event < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+              before(:all) do
+                DataCycleCore::Thing.where(template: false).delete_all
                 @content = DataCycleCore::DummyDataHelper.create_data('event')
                 event_schedule = @content.get_data_hash
                 event_schedule['event_schedule'] = [{
@@ -32,6 +29,9 @@ module DataCycleCore
                   'duration' => 5.days.to_i
                 }]
                 @content.set_data_hash(prevent_history: true, data_hash: event_schedule)
+              end
+
+              setup do
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 
@@ -39,7 +39,7 @@ module DataCycleCore
                 get api_v2_thing_path(id: @content)
 
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body)
 
                 # validate header
@@ -139,7 +139,7 @@ module DataCycleCore
                 get api_v2_thing_path(id: @content)
 
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body)
 
                 # content data
@@ -155,19 +155,19 @@ module DataCycleCore
               test 'stored item can be found via different endpoints' do
                 get(api_v2_things_path)
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Event' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_contents_search_path)
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Event' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_events_path(filter: { from: '2019-10-01' }))
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body).dig('data').first
                 assert_equal(@content.id, json_data.dig('identifier'))
               end

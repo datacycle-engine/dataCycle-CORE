@@ -12,14 +12,14 @@
                 <%= external_sync_status_icon(sync[:status], sync[:sync_type], true) %>
 
                 <%= tag.span(class: 'sync-external-key') do %>
-                  <%= tag.span(sync[:name] || sync[:external_key], class: 'copy-to-clipboard', title: sync[:title], data: { value: sync[:external_key] }) %>
+                  <%= tag.span(sync[:name] || sync[:external_key], class: 'copy-to-clipboard', data: { value: sync[:external_key], dc_tooltip: sync[:title] }) %>
                 <% end %>
 
                 <%= tag.span(l(sync[:date], locale: active_ui_locale, format: :history), class: 'last-successful-sync-at') if sync[:date].present? %>
 
-                <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', title: t('actions.external_edit', locale: active_ui_locale), target: :_blank if sync[:external_edit_url].present? %>
+                <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', target: :_blank, data: { dc_tooltip: t('actions.external_edit', locale: active_ui_locale) } if sync[:external_edit_url].present? %>
 
-                <%= link_to tag.i(class: 'external-link-icon fa fa-external-link'), sync[:external_detail_url], class: 'external-detail-link', title: t('actions.external_detail', locale: active_ui_locale), target: :_blank if sync[:external_detail_url].present? %>
+                <%= link_to tag.i(class: 'external-link-icon fa fa-external-link'), sync[:external_detail_url], class: 'external-detail-link', target: :_blank, data: { dc_tooltip: t('actions.external_detail', locale: active_ui_locale) } if sync[:external_detail_url].present? %>
               </li>
             <% end %>
           </ul>

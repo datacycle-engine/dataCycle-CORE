@@ -19,7 +19,7 @@ module DataCycleCore
 
     def attribute_editable?(key, definition, options, content)
       @attribute_editable ||= Hash.new do |h, k|
-        h[k] = can?(:edit, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :edit, k.dig(2, 'edit_scope')))
+        h[k] = can?(:update, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :update, k.dig(2, 'edit_scope')))
       end
 
       @attribute_editable[[key, definition, options, content]]
@@ -31,7 +31,7 @@ module DataCycleCore
 
       return render_linked_viewer(options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.definition['type'] == 'linked' && options.definition['link_direction'] == 'inverse'
 
-      return unless can?(:show, DataCycleCore::DataAttribute.new(
+      return unless can?(:edit, DataCycleCore::DataAttribute.new(
                                   options.key,
                                   options.definition,
                                   options.parameters[:options],
@@ -65,11 +65,12 @@ module DataCycleCore
       options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
 
       I18n.with_locale(options.locale) do
-        options.value ||= if options.parameters[:parent].nil?
-                            options.content.try(options.key.attribute_name_from_key)
-                          else
-                            options.parameters[:parent]&.try(options.key.attribute_name_from_key)
-                          end
+        content = options.parameters[:parent] || options.content
+
+        if DataCycleCore::DataHashService.blank?(options.value)
+          content.default_value(options.key.attribute_name_from_key, current_user) if !content.persisted? || content.template
+          options.value = content.try(options.key.attribute_name_from_key)
+        end
 
         allowed = attribute_editor_allowed(options)
         return allowed unless allowed.is_a?(TrueClass)
@@ -105,12 +106,6 @@ module DataCycleCore
 
     def embedded_key_prefix(key, index)
       "#{key}[#{index}]#{ATTRIBUTE_DATAHASH_PREFIX}"
-    end
-
-    def iso8601_duration_to_parts(duration)
-      return {} if duration.blank?
-
-      ActiveSupport::Duration.parse(duration).parts
     end
   end
 end

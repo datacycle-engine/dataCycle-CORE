@@ -52,7 +52,7 @@ module DataCycleCore
 
         def self.transform_attribute(data, key)
           if data&.translatable_property_names&.include?(key.to_s)
-            data.translated_locales&.collect { |l| [l, I18n.with_locale(l) { data.try(key) }] }&.to_h&.reject { |_k, v| v.blank? }
+            data.translated_locales&.index_with { |l| I18n.with_locale(l) { data.try(key) } }&.reject { |_k, v| v.blank? }
           else
             data.try(:key)
           end

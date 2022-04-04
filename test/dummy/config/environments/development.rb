@@ -21,10 +21,14 @@ Rails.application.configure do
   # Show full error reports.
   config.consider_all_requests_local = true
 
+  # Enable server timing (rails 7.0)
+  # config.server_timing = true
+
   # Enable/disable caching. By default caching is disabled.
   # Run rails dev:cache to toggle caching.
   if Rails.root.join('tmp', 'caching-dev.txt').exist?
     config.action_controller.perform_caching = true
+    config.action_controller.enable_fragment_cache_logging = true
 
     if Rails.application.secrets.dig(:redis_server).present?
       config.cache_store = :redis_cache_store, {
@@ -58,6 +62,12 @@ Rails.application.configure do
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 
+  # Raise exceptions for disallowed deprecations.
+  config.active_support.disallowed_deprecation = :raise
+
+  # Tell Active Support which deprecation messages to disallow.
+  config.active_support.disallowed_deprecation_warnings = []
+
   # Raise an error on page load if there are pending migrations.
   config.active_record.migration_error = :page_load
 
@@ -90,8 +100,15 @@ Rails.application.configure do
 
   config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
 
+  config.hosts = [
+    IPAddr.new('0.0.0.0/0'), # All IPv4 addresses.
+    IPAddr.new('::/0'),      # All IPv6 addresses.
+    'localhost',             # The localhost reserved domain.
+    'nginx' # Allow this to be addressed when running in containers via docker-compose.yml.
+  ]
+
   if ENV['RAILS_LOG_TO_STDOUT'].present?
-    logger = ActiveSupport::Logger.new(STDOUT)
+    logger = ActiveSupport::Logger.new($stdout)
     logger.formatter = config.log_formatter
     config.logger = ActiveSupport::TaggedLogging.new(logger)
   end

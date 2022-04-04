@@ -3,12 +3,13 @@
 require 'test_helper'
 
 module DataCycleCore
-  class CreativeWorksTest < ActionDispatch::IntegrationTest
-    include Devise::Test::IntegrationHelpers
-    include Engine.routes.url_helpers
-    setup do
-      @routes = Engine.routes
+  class CreativeWorksTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+    before(:all) do
+      DataCycleCore::Thing.where(template: false).delete_all
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+    end
+
+    setup do
       sign_in(User.find_by(email: 'tester@datacycle.at'))
     end
 

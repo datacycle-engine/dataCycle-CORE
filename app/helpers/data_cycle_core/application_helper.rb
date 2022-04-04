@@ -14,31 +14,6 @@ module DataCycleCore
       primary: :primary
     }.freeze
 
-    def available_locales_with_names
-      @available_locales_with_names ||= Hash.new do |h, key|
-        h[key] = I18n
-          .t('locales', locale: key)
-          .slice(*I18n.available_locales)
-          .transform_values(&:capitalize)
-          .sort_by { |_, v| v.to_s }
-          .to_h
-      end
-
-      @available_locales_with_names[active_ui_locale]
-    end
-
-    def available_locales_with_all
-      @available_locales_with_all ||= Hash.new do |h, key|
-        if I18n.available_locales&.many?
-          h[key] = available_locales_with_names.reverse_merge({ all: t('common.all', locale: active_ui_locale) })
-        else
-          h[key] = available_locales_with_names
-        end
-      end
-
-      @available_locales_with_all[active_ui_locale]
-    end
-
     def ice_cube_select_options
       IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly, :monthly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: active_ui_locale), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
     end
@@ -75,9 +50,9 @@ module DataCycleCore
       title = t("view_modes.#{mode}", locale: active_ui_locale)
       title += " (#{version})" if version.present?
       case mode
-      when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, title: title)
-      when 'list' then tag.i(class: 'fa fa-th-list', aria_hidden: true, title: title)
-      when 'tree' then tag.i(class: 'fa fa-sitemap', aria_hidden: true, title: title)
+      when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, data: { dc_tooltip: title })
+      when 'list' then tag.i(class: 'fa fa-th-list', aria_hidden: true, data: { dc_tooltip: title })
+      when 'tree' then tag.i(class: 'fa fa-sitemap', aria_hidden: true, data: { dc_tooltip: title })
       end
     end
 
@@ -100,7 +75,16 @@ module DataCycleCore
                 concat(
                   tag.ul(class: 'no-bullet') do
                     DataCycleCore::ClassificationTreeLabel.visible('tree_view').presence&.each do |tree_label|
-                      concat(tag.li(link_to_unless(tree_label.id == params_hash[:ctl_id], tree_label.name, params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge({ mode: mode, ctl_id: tree_label.id }))))
+                      concat(
+                        tag.li(
+                          link_to_unless(
+                            tree_label.id == params_hash[:ctl_id],
+                            t("filter.#{tree_label.name.presence&.underscore_blanks}", default: tree_label.name, locale: active_ui_locale),
+                            params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset)
+                              .merge({ mode: mode, ctl_id: tree_label.id })
+                          )
+                        )
+                      )
                     end
                   end
                 )
@@ -108,7 +92,12 @@ module DataCycleCore
             )
           elsif DataCycleCore::ClassificationTreeLabel.visible('tree_view').present?
             tree_label = DataCycleCore::ClassificationTreeLabel.visible('tree_view').first
-            link_to_unless(tree_label.id == params_hash[:ctl_id], mode_icon(mode, tree_label.name), params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge({ mode: mode, ctl_id: tree_label.id }))
+            link_to_unless(
+              tree_label.id == params_hash[:ctl_id],
+              mode_icon(mode, t("filter.#{tree_label.name.presence&.underscore_blanks}", default: tree_label.name, locale: active_ui_locale)),
+              params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset)
+                .merge({ mode: mode, ctl_id: tree_label.id })
+            )
           end
         end
       else
@@ -121,6 +110,14 @@ module DataCycleCore
       when 'list', 'tree' then mode
       else 'grid'
       end
+    end
+
+    def dashboard_title
+      title = t('data_cycle_core.dashboard', locale: active_ui_locale)
+
+      title << ": #{@stored_filter.name}" if @stored_filter&.name.present?
+
+      title
     end
 
     # Returns the full title on a per-page basis.
@@ -142,7 +139,7 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
-    def content_view_cache_key(item:, locale: 'de', mode:, watch_list:)
+    def content_view_cache_key(item:, mode:, watch_list:, locale: 'de')
       "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}_#{active_ui_locale}"
     end
 
@@ -195,11 +192,48 @@ module DataCycleCore
         DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) || {}
       else
         DataCycleCore.new_dialog.dig('default')
-      end.transform_values { |v| v&.select { |t| t.include?(filter.to_s) }&.map { |t| t.remove('**list').squish }&.except(except) }
+      end.transform_values do |v|
+        v&.map { |t|
+          key = Array.wrap(t).first
+
+          next unless key.include?(filter.to_s)
+          next if Array.wrap(except).include?(key)
+
+          if t.is_a?(::Array)
+            t[0] = t[0]&.remove('**list')&.squish
+            t
+          else
+            t&.remove('**list')&.squish
+          end
+        }&.compact
+      end
+    end
+
+    def content_uploader_data_hash(content, asset)
+      return {} if asset.nil?
+
+      asset_key = content&.asset_property_names&.first
+
+      return {} if asset_key.nil?
+
+      content.set_memoized_attribute(asset_key, asset)
+
+      { asset_key => asset.id }.with_indifferent_access
+    end
+
+    def attribute_label_for_uploader(key, value)
+      return value['properties']&.map { |k, v| attribute_label_for_uploader(k, v) }&.reduce({}, :merge) if value['type'] == 'object'
+
+      { key => value.slice('type', 'label', 'ui').merge({ default_value: value.key?('default_value') }) }
     end
 
     def new_attribute_labels(template)
-      template&.schema&.dig('properties')&.slice(*new_dialog_config(template, nil, '**list').values.flatten)&.map { |k, v| v['type'] == 'object' ? v['properties']&.map { |o_k, o_v| [o_k, o_v.slice('type', 'label', 'ui')] }.to_h : { k => v.slice('type', 'label', 'ui') } }&.reduce({}, :merge)
+      template
+        &.schema
+        &.[]('properties')
+        &.slice(*new_dialog_config(template, nil, '**list').values.flatten)
+        &.map { |key, value| attribute_label_for_uploader(key, value) }
+        &.reduce({}, :merge)
     end
 
     def uploader_validation_to_text(value, parents = ['uploader', 'validation'])
@@ -389,7 +423,7 @@ module DataCycleCore
     def link_to_condition(condition, name, options = {}, html_options = {}, &block)
       if condition
         link_to(name, options, html_options, &block)
-      elsif block_given?
+      elsif block
         block.arity <= 1 ? capture(name, &block) : capture(name, options, html_options, &block)
       else
         ERB::Util.html_escape(name)
@@ -421,14 +455,14 @@ module DataCycleCore
       options = { class: "flash flash-notification callout #{alert_class}" }
       options[:data] = { closable: '' } if closable
       tag.div(options) do
-        if value.is_a?(String)
+        if value.is_a?(::String)
           concat value.html_safe
         elsif value.is_a?(::Hash)
           concat value.map { |k, v| tag.b(k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
         elsif value.is_a?(::Array)
           concat value.join(', ').html_safe.to_s
         else
-          concat value.html_safe.to_s
+          concat value.to_s.html_safe
         end
         concat close_link if closable
       end

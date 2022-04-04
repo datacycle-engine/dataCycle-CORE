@@ -1,0 +1,13 @@
+<%= link_to geo_key_figure_thing_path(id: content.id),
+    class: 'geo-key-figure-button disabled',
+    remote: true,
+    title: t('feature.geo_key_figure.button_title', data: translated_attribute_label(key, definition, local_assigns[:content], local_assigns[:options]), locale: active_ui_locale),
+    data: {
+      disable_with: '<i class="fa fa-spinner fa-spin fa-fw"></i>',
+      key: key.attribute_name_from_key,
+      full_key: key,
+      local: DataCycleCore::Feature::GeoKeyFigure.local(content),
+      configuration: DataCycleCore::Feature::GeoKeyFigure.configuration(content, key)
+    } do %>
+  <i class="fa fa-cloud-download"></i>
+<% end %>

@@ -44,21 +44,22 @@ module DataCycleCore
 
         def includes_attribute_key(content, key)
           template_keys = attribute_keys(content)
-          (key.scan(/\[(.*?)\]/).flatten & template_keys).any?
+
+          (key.attribute_path_from_key & template_keys).any?
         end
 
-        def configuration(content = nil)
+        def configuration(content = nil, attribute_key = nil)
           @configuration ||= Hash.new do |h, key|
             config = ActiveSupport::HashWithIndifferentAccess.new
             config.merge!(DataCycleCore.features.dig(name.demodulize.underscore.to_sym) || {})
             config.merge!(key[3]&.dig('features', name.demodulize.underscore) || {})
             config.merge!(key[4]&.map { |k|
-              key[3]&.dig('properties', *k, 'features', name.demodulize.underscore).presence&.merge({ 'attribute_keys': (k.is_a?(Array) ? [k.last] : [k]), 'tree_label': key[3]&.dig('properties', *k, 'tree_label') })
+              key[3]&.dig('properties', *k, 'features', name.demodulize.underscore).presence&.merge({ attribute_keys: (k.is_a?(Array) ? [k.last] : [k]), tree_label: key[3]&.dig('properties', *k, 'tree_label') })
             }&.compact&.reduce({}) { |old, new| old.deep_merge(new) { |_, v1, v2| v1.is_a?(Array) && v2.is_a?(Array) ? v1 | v2 : v2 } } || {})
 
             h[key] = config.compact
           end
-          @configuration[cache_key(content)]
+          @configuration[cache_key(content, attribute_key)]
         end
 
         def content_module
@@ -83,12 +84,18 @@ module DataCycleCore
           self
         end
 
-        def cache_key(content)
-          if content.is_a?(DataCycleCore::Schedule)
-            [name.underscore, 'configuration', content&.id, {}, []]
-          else
-            [name.underscore, 'configuration', content&.id, content&.schema, content&.collect_properties]
-          end
+        def cache_key(content, key = nil)
+          [
+            name.underscore,
+            'configuration',
+            content&.id,
+            content.try(:schema),
+            if key.present?
+              content.try(:collect_properties)&.select { |v| v.is_a?(::Array) ? v.include?(key.attribute_name_from_key) : v == key.attribute_name_from_key }
+            else
+              content.try(:collect_properties)
+            end
+          ]
         end
       end
     end

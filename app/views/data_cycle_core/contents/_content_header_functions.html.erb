@@ -51,9 +51,9 @@
         <%= link_to clear_cache_thing_path(content),
                       method: :get,
                       data: {
-                          confirm: "#{t('common.confirm_delete_cache', locale: active_ui_locale) }"
-                      },
-                      title: t('data_cycle_core.cache.clear', locale: active_ui_locale), 'aria-haspopup': true do %>
+                          confirm: "#{t('common.confirm_delete_cache', locale: active_ui_locale) }",
+                          dc_tooltip: t('data_cycle_core.cache.clear', locale: active_ui_locale)
+                      } do %>
           <span class="icon"><i class="fa fa-shield" aria-hidden="true"></i></span>
         <% end %>
       </li>

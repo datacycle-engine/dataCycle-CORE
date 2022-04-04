@@ -11,7 +11,6 @@ class AsyncSelect2 extends BasicSelect2 {
       minimumInputLength: 2,
       escapeMarkup: this.escapeMarkup.bind(this),
       templateResult: this.templateResult.bind(this),
-      templateSelection: this.templateSelection.bind(this),
       ajax: this.ajaxOptions()
     });
   }
@@ -62,22 +61,14 @@ class AsyncSelect2 extends BasicSelect2 {
 
     let term = this.query.term || '';
     let result = data.full_path || data.name;
+
     result = this.markMatch(result, term);
     if (this.config.showTreeLabel !== 'true') this.removeTreeLabel(result);
     this.decorateResult(result);
     this.copySelect2Classes(data, result);
+    this.copyDataAttributes(data, result);
 
     return result;
-  }
-  templateSelection(data, _container) {
-    data.selected = true;
-    data.text = data.name || data.text;
-    $(data.element).html(data.text);
-    const $result = $(`<span class="selection-label-wrapper"><span class="selection-label">${data.text}</span></span>`);
-    this.copySelect2Classes(data, $result);
-    this.addCollectionLinksToResults(data, $result);
-
-    return $result;
   }
   ajaxOptions() {
     return {

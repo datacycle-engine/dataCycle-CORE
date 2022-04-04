@@ -78,6 +78,24 @@ CREATE FUNCTION public.delete_content_content_links_trigger() RETURNS trigger
 
 
 --
+-- Name: delete_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_schedule_occurences(schedule_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM schedule_occurrences WHERE schedule_id = ANY (schedule_ids); END; $$;
+
+
+--
+-- Name: delete_schedule_occurences_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_schedule_occurences_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM delete_schedule_occurences (ARRAY_AGG(id)) FROM ( SELECT DISTINCT old_schedules.id FROM old_schedules) "old_schedules_alias"; RETURN NULL; END; $$;
+
+
+--
 -- Name: generate_ca_paths_transitive(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -254,7 +272,7 @@ CREATE FUNCTION public.generate_content_content_links_trigger() RETURNS trigger
 
 CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN INSERT INTO watch_lists (name, user_id, created_at, updated_at, full_path, full_path_names, my_selection) SELECT 'Meine Auswahl', users.id, NOW(), NOW(), 'Meine Auswahl', ARRAY[]::varchar[], TRUE FROM users INNER JOIN roles ON roles.id = users.role_id WHERE users.id = NEW.id AND roles.rank <> 0; RETURN NEW; END; $$;
+    AS $$ BEGIN IF EXISTS ( SELECT FROM roles WHERE roles.id = NEW.role_id AND roles.rank <> 0) THEN INSERT INTO watch_lists ( name, user_id, created_at, updated_at, full_path, full_path_names, my_selection) SELECT 'Meine Auswahl', users.id, NOW(), NOW(), 'Meine Auswahl', ARRAY[]::varchar[], TRUE FROM users INNER JOIN roles ON roles.id = users.role_id WHERE users.id = NEW.id AND roles.rank <> 0 AND NOT EXISTS ( SELECT FROM watch_lists WHERE watch_lists.my_selection AND watch_lists.user_id = users.id); ELSE DELETE FROM watch_lists WHERE watch_lists.user_id = NEW.id AND watch_lists.my_selection; END IF; RETURN NEW; END; $$;
 
 
 --
@@ -263,7 +281,7 @@ CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
 
 CREATE FUNCTION public.generate_schedule_occurences(schedule_ids uuid[]) RETURNS SETOF uuid
     LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM schedule_occurrences WHERE schedule_id = ANY (schedule_ids); RETURN QUERY WITH occurences AS ( SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(get_occurrences (schedules.rrule::rrule, schedules.dtstart)) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule LIKE '%UNTIL%' AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(get_occurrences ((schedules.rrule || ';UNTIL=2037-12-31')::rrule, schedules.dtstart)) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule NOT LIKE '%UNTIL%' AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, schedules.dtstart AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND schedules.rrule IS NULL AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(schedules.rdate) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND id = ANY (schedule_ids)) INSERT INTO schedule_occurrences (schedule_id, thing_id, duration, occurrence) SELECT occurences.id, occurences.thing_id, occurences.duration, tstzrange(occurences.occurence, occurences.occurence + occurences.duration) AS occurrence FROM occurences WHERE occurences.id = ANY (schedule_ids) AND NOT EXISTS ( SELECT 1 FROM ( SELECT id "schedule_id", UNNEST(exdate) "date" FROM schedules) "exdates" WHERE exdates.schedule_id = occurences.id AND tstzrange(DATE_TRUNC('day', exdates.date), DATE_TRUNC('day', exdates.date) + INTERVAL '1 day') && tstzrange(occurences.occurence, occurences.occurence + occurences.duration)) RETURNING id; RETURN; END; $$;
+    AS $$ BEGIN DELETE FROM schedule_occurrences WHERE schedule_id = ANY (schedule_ids); RETURN QUERY WITH occurences AS ( SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(get_occurrences (schedules.rrule::rrule, schedules.dtstart AT TIME ZONE 'Europe/Vienna')) AT TIME ZONE 'Europe/Vienna' AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule LIKE '%UNTIL%' AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(get_occurrences ((schedules.rrule || ';UNTIL=2037-12-31')::rrule, schedules.dtstart AT TIME ZONE 'Europe/Vienna')) AT TIME ZONE 'Europe/Vienna' AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule NOT LIKE '%UNTIL%' AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, schedules.dtstart AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND schedules.rrule IS NULL AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(schedules.rdate) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND id = ANY (schedule_ids)) INSERT INTO schedule_occurrences ( schedule_id, thing_id, duration, occurrence) SELECT occurences.id, occurences.thing_id, occurences.duration, tstzrange(occurences.occurence, occurences.occurence + occurences.duration) AS occurrence FROM occurences WHERE occurences.id = ANY (schedule_ids) AND NOT EXISTS ( SELECT 1 FROM ( SELECT id "schedule_id", UNNEST(exdate) "date" FROM schedules) "exdates" WHERE exdates.schedule_id = occurences.id AND tstzrange(DATE_TRUNC('day', exdates.date), DATE_TRUNC('day', exdates.date) + INTERVAL '1 day') && tstzrange(occurences.occurence, occurences.occurence + occurences.duration)) RETURNING id; RETURN; END; $$;
 
 
 --
@@ -280,33 +298,8 @@ CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS trigger
 --
 
 CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig
-    LANGUAGE plpgsql
-    AS $$
-      DECLARE
-        dict regconfig;
-      BEGIN
-        SELECT
-          CASE
-            WHEN lang = 'da' THEN 'pg_catalog.danish'
-            WHEN lang = 'nl' THEN 'pg_catalog.dutch'
-            WHEN lang = 'en' THEN 'pg_catalog.english'
-            WHEN lang = 'fi' THEN 'pg_catalog.finnish'
-            WHEN lang = 'fr' THEN 'pg_catalog.french'
-            WHEN lang = 'de' THEN 'pg_catalog.german'
-            WHEN lang = 'de-CH' THEN 'pg_catalog.german'
-            WHEN lang = 'hu' THEN 'pg_catalog.hungarian'
-            WHEN lang = 'it' THEN 'pg_catalog.italian'
-            WHEN lang = 'no' THEN 'pg_catalog.norwegian'
-            WHEN lang = 'pt' THEN 'pg_catalog.portuguese'
-            WHEN lang = 'ru' THEN 'pg_catalog.russian'
-            WHEN lang = 'es' THEN 'pg_catalog.spanish'
-            WHEN lang = 'sv' THEN 'pg_catalog.swedish'
-            WHEN lang = 'tr' THEN 'pg_catalog.turkish'
-            ELSE 'pg_catalog.simple'
-          END
-        INTO dict;
-        RETURN dict;
-      END; $$;
+    LANGUAGE sql
+    AS $$ SELECT pg_dict_mappings.dict::regconfig FROM pg_dict_mappings WHERE pg_dict_mappings.locale IN (lang, 'simple') LIMIT 1; $$;
 
 
 --
@@ -349,8 +342,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -600,7 +593,8 @@ CREATE TABLE public.classification_tree_labels (
     updated_at timestamp without time zone NOT NULL,
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
-    visibility character varying[] DEFAULT '{}'::character varying[]
+    visibility character varying[] DEFAULT '{}'::character varying[],
+    change_behaviour character varying[] DEFAULT '{trigger_webhooks,clear_cache}'::character varying[]
 );
 
 
@@ -1021,6 +1015,16 @@ CREATE TABLE public.external_systems (
     last_import timestamp without time zone,
     last_successful_import timestamp without time zone,
     deactivated boolean DEFAULT false
+);
+
+
+--
+-- Name: pg_dict_mappings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.pg_dict_mappings (
+    locale character varying NOT NULL,
+    dict character varying NOT NULL
 );
 
 
@@ -1902,10 +1906,10 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
--- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -2616,6 +2620,13 @@ CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btre
 
 
 --
+-- Name: pg_dict_mappings_locale_dict_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX pg_dict_mappings_locale_dict_idx ON public.pg_dict_mappings USING btree (locale, dict);
+
+
+--
 -- Name: thing_translations_name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2634,6 +2645,13 @@ CREATE UNIQUE INDEX unique_by_shareable ON public.watch_list_shares USING btree 
 --
 
 CREATE UNIQUE INDEX unique_duplicate_index ON public.thing_duplicates USING btree (thing_id, thing_duplicate_id, method);
+
+
+--
+-- Name: user_group_users_on_user_id_user_group_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX user_group_users_on_user_id_user_group_id ON public.user_group_users USING btree (user_id, user_group_id);
 
 
 --
@@ -2689,6 +2707,13 @@ CREATE TRIGGER delete_collected_classification_content_relations_trigger_1 AFTER
 --
 
 CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.delete_content_content_links_trigger();
+
+
+--
+-- Name: schedules delete_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_schedule_occurences_trigger AFTER DELETE ON public.schedules REFERENCING OLD TABLE AS old_schedules FOR EACH STATEMENT EXECUTE FUNCTION public.delete_schedule_occurences_trigger();
 
 
 --
@@ -2916,6 +2941,13 @@ CREATE TRIGGER update_collected_classification_content_relations_trigger_4 AFTER
 --
 
 CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE OF content_a_id, content_b_id, relation_b ON public.content_contents FOR EACH ROW WHEN (((old.content_a_id IS DISTINCT FROM new.content_a_id) OR (old.content_b_id IS DISTINCT FROM new.content_b_id) OR ((old.relation_b)::text IS DISTINCT FROM (new.relation_b)::text))) EXECUTE FUNCTION public.generate_content_content_links_trigger();
+
+
+--
+-- Name: users update_my_selection_watch_list; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_my_selection_watch_list AFTER UPDATE OF role_id ON public.users FOR EACH ROW WHEN ((old.role_id IS DISTINCT FROM new.role_id)) EXECUTE FUNCTION public.generate_my_selection_watch_list();
 
 
 --
@@ -3180,6 +3212,13 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211217094832'),
 ('20220105142232'),
 ('20220111132413'),
-('20220113113445');
+('20220113113445'),
+('20220218095025'),
+('20220221123152'),
+('20220304071341'),
+('20220316115212'),
+('20220317105304'),
+('20220317131316'),
+('20220322104259');
 
 

@@ -38,6 +38,8 @@ module DataCycleCore
             data.dig('Links', 'Link'),
             data.dig('Products', 'Product'),
             Array.wrap(data.dig('Products', 'Product'))&.map { |i| Array.wrap(i.dig('Descriptions', 'Description')).presence }&.compact&.flatten,
+            data.dig('GuestCards', 'GuestCard'),
+            Array.wrap(data.dig('GuestCards', 'GuestCard'))&.map { |i| Array.wrap(i.dig('Descriptions', 'Description')).presence }&.compact&.flatten,
             data.dig('CustomAttributes'),
             data.dig('Services', 'Service'),
             Array.wrap(data.dig('Services', 'Service'))&.map { |i| Array.wrap(i.dig('Facility')).presence }&.compact&.flatten,

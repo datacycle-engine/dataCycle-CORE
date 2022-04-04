@@ -16,8 +16,7 @@ module DataCycleCore
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :original_id, :duplicate_id
-      attr_accessor(*WEBHOOK_ACCESSORS)
+      attr_accessor :datahash, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
       attr_writer :webhook_data
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
@@ -35,6 +34,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::Api
       include DataCycleCore::Content::Extensions::SyncApi
       include DataCycleCore::Content::Extensions::Geojson
+      include DataCycleCore::Content::Extensions::DefaultValue
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay
@@ -161,11 +161,9 @@ module DataCycleCore
       end
 
       def translatable_property_names
-        @translatable_property_names ||= begin
-          property_definitions.select { |property_name, definition|
-            translatable_property?(property_name, definition)
-          }.keys
-        end
+        @translatable_property_names ||= property_definitions.select { |property_name, definition|
+          translatable_property?(property_name, definition)
+        }.keys
       end
 
       def translated_columns
@@ -307,6 +305,10 @@ module DataCycleCore
           name_property_selector { |definition| definition['type'] == 'string' && definition.dig('ui', 'is_title') == true }.first || 'name'
       end
 
+      def exif_property_names
+        name_property_selector { |definition| definition['exif'].present? }
+      end
+
       def schema_sorted
         sorted_properties = schema.dig('properties').map { |key, value| { key => value } }.sort_by { |i| i.values.first.dig('sorting') }.inject(&:merge)
         schema.deep_dup.merge({ 'properties' => sorted_properties })
@@ -366,7 +368,7 @@ module DataCycleCore
       end
 
       def history?
-        respond_to?('history_valid')
+        respond_to?(:history_valid)
       end
 
       def collect_properties(definition = schema, parents = [])
@@ -517,7 +519,8 @@ module DataCycleCore
               .keep_if { |k, v|
                 ['computed', 'virtual', 'asset'].exclude?(v['type']) &&
                   (v['type'] != 'linked' || v['link_direction'] != 'inverse') &&
-                  t.allowed_feature_attribute?(k.attribute_name_from_key)
+                  t.allowed_feature_attribute?(k.attribute_name_from_key) &&
+                  v.dig('ui', 'bulk_edit', 'disabled').to_s != 'true'
               }
               .sort_by { |_, v| v['sorting'] }
               .map! { |(k, v)| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }] }
@@ -528,8 +531,8 @@ module DataCycleCore
 
         contents.find_each do |t|
           ordered_properties.select! do |k, v|
-            user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit, :bulk_edit)) &&
-              user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit))
+            user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit, :bulk_edit)) &&
+              user.can?(:update, DataCycleCore::DataAttribute.new(k, v, {}, t, :update))
           end
         end
 
@@ -545,12 +548,36 @@ module DataCycleCore
       end
 
       def set_property_value(property_name, property_definition, value)
-        Appsignal.send_error(e, nil, "method set_property_value is deprecated use set_data_hash instead. Thing: #{id}(#{template_name}) - #{property_name}")
+        Appsignal.send_error(e) do |transaction|
+          transaction.set_namespace("method set_property_value is deprecated use set_data_hash instead. Thing: #{id}(#{template_name}) - #{property_name}")
+        end
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
         ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}")
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
              (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
         reload_memoized [property_name, property_definition]
+      end
+
+      def set_memoized_attribute(key, value)
+        return if DataCycleCore::DataHashService.blank?(value)
+
+        definition = properties_for(key)
+
+        return send("#{key}=", value) if definition['storage_location'] == 'column'
+
+        if plain_property_names.include?(key)
+          value = convert_to_type(definition['type'], value, definition)
+        elsif value.is_a?(ActiveRecord::Relation) || (value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base))
+          return (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false]] = value
+        elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
+          value = DataCycleCore::Thing.where(id: value)
+        elsif classification_property_names.include?(key)
+          value = DataCycleCore::Classification.where(id: value)
+        elsif asset_property_names.include?(key)
+          value = DataCycleCore::Asset.where(id: value)
+        end
+
+        (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false]] = value
       end
 
       private

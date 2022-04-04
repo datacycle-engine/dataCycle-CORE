@@ -6,7 +6,9 @@
 }
 
 .grid-external-modules {
-  .card { width: 100%; }
+  .card {
+    width: 100%;
+  }
   .grid-parent {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -15,7 +17,72 @@
   .grid-parent-few {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 400px));
-    grid-gap: 1.5em
+    grid-gap: 1.5em;
+  }
+
+  .pg-stats {
+    .accordion-title {
+      cursor: pointer;
+
+      h6 {
+        color: $black;
+        font-size: 0.8rem;
+      }
+
+      &::before {
+        color: $dark-gray;
+        top: 1.8rem;
+        font-size: 1.5rem;
+      }
+    }
+
+    .accordion-content {
+      border: none;
+
+      &.remote-render,
+      &.remote-rendering {
+        &::before {
+          top: auto;
+          left: auto;
+          width: calc(100% - 2rem);
+        }
+      }
+    }
+
+    .pg-table-stats {
+      list-style: none;
+      margin: 0;
+      font-size: 0.9rem;
+
+      li.table-stat {
+        display: flex;
+
+        border-bottom: 1px dashed $medium-gray;
+        margin-bottom: 0.2rem;
+        flex-flow: row nowrap;
+
+        .table-name {
+          flex: auto;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .table-count {
+          margin-left: 0.5rem;
+        }
+
+        .table-size {
+          font-weight: 600;
+          margin-left: 0.5rem;
+        }
+
+        .table-name,
+        .table-count,
+        .table-size {
+          white-space: nowrap;
+        }
+      }
+    }
   }
 }
 

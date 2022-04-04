@@ -51,7 +51,7 @@ module DataCycleCore
     end
 
     def search
-      authorize! :show, :stored_filter
+      authorize! :show, DataCycleCore::StoredFilter
 
       stored_filters = DataCycleCore::StoredFilter.accessible_by(current_ability, :update)
         .includes(:user)
@@ -64,7 +64,7 @@ module DataCycleCore
     end
 
     def select_search_or_collection
-      authorize! :show, :stored_filter
+      authorize! :show, DataCycleCore::StoredFilter
 
       filter_string = select_search_params[:q]&.strip
       filter_proc = ->(query, query_table) { query.where(query_table[:name].matches("%#{filter_string}%")) } if filter_string.present?

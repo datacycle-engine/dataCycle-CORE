@@ -11,8 +11,7 @@
       <% unless data_link.creator == current_user %>
         <i class="fa fa-user"
           aria-hidden="true"
-          title="<%= "<b>#{t('common.creator', locale: active_ui_locale)}:</b> #{data_link.creator.full_name} &#x3C;#{data_link.creator.email}&#x3E;" if data_link.creator.present? %>"
-          data-allow-html="true"></i>
+          data-dc-tooltip="<%= "<b>#{t('common.creator', locale: active_ui_locale)}:</b> #{data_link.creator.full_name} &#x3C;#{data_link.creator.email}&#x3E;" if data_link.creator.present? %>"></i>
       <% end %>
       <% if data_link.valid_from.present? || data_link.valid_until.present? %>
         <i class="fa fa-calendar"

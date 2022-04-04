@@ -29,7 +29,11 @@ Dotenv::Railtie.load
 require File.expand_path('../test/dummy/config/environment.rb', __dir__)
 # ActiveRecord::Migrator.migrations_paths = [File.expand_path("../../test/dummy/db/migrate", __FILE__)]
 # ActiveRecord::Migrator.migrations_paths << File.expand_path('../../db/migrate', __FILE__)
-# ActiveRecord::Migration.maintain_test_schema!
+
+# Rails 7.0
+# ActiveRecord.maintain_test_schema = false
+ActiveRecord::Base.maintain_test_schema = false
+
 require 'rails/test_help'
 require 'test_cases/active_support_test_case'
 require 'test_cases/action_dispatch_integration_test'
@@ -37,6 +41,10 @@ require 'test_cases/action_dispatch_integration_test'
 # Filter out Minitest backtrace while allowing backtrace from other libraries
 # to be shown.
 Minitest.backtrace_filter = Minitest::BacktraceFilter.new
+
+# FIX for delayed_jobs in TEST environment with rails 6.x:
+# https://github.com/rails/rails/issues/37270
+(ActiveJob::Base.descendants << ActiveJob::Base).each(&:disable_test_adapter)
 
 # # Load fixtures from the engine
 # if ActiveSupport::TestCase.respond_to?(:fixture_path=)

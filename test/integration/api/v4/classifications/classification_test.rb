@@ -47,7 +47,7 @@ module DataCycleCore
             post api_v4_concept_scheme_path(id: tree.id)
 
             assert_response :success
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
 
             json_data = JSON.parse(response.body)
 

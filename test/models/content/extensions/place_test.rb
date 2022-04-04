@@ -29,7 +29,8 @@ module DataCycleCore
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place')).except('opening_hours_specification', 'opening_hours_description', 'opening_hours', 'potential_action'))
       assert_nil(data_set.desc)
       assert_equal(['address', 'location'], data_set.object_browser_fields)
-      assert_equal(data_set.cache_key.to_s, "data_cycle_core/things/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
+      assert_equal(data_set.cache_key.to_s, "data_cycle_core/things/#{data_set.id}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-de")
+      assert_equal(data_set.cache_key_with_version.to_s, "data_cycle_core/things/#{data_set.id}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-de-#{data_set.updated_at.utc.to_s(:usec)}")
 
       assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Örtlichkeit').count)
       data_set.destroy
@@ -66,6 +67,12 @@ module DataCycleCore
       assert_equal(true, expected_hash['location'].x == resulted_hash['location'].x)
       assert_equal(true, expected_hash['location'].y == resulted_hash['location'].y)
       assert_equal(true, expected_hash['location'].srid == resulted_hash['location'].srid)
+    end
+
+    test 'tour has correct WKT 1.2 string representation' do
+      test_tour = DataCycleCore::DummyDataHelper.create_data('tour')
+
+      assert test_tour.line.as_text.include?('MULTILINESTRING Z')
     end
 
     # TODO: move to emebedded tests

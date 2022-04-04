@@ -22,8 +22,15 @@
           :xml: true
           :json: true
           :indesign: true
-      :gip_key_figure:
+      :geo_key_figure:
         :allowed: true
+        :part_id_path:
+            - about
+        :attribute_keys:
+          - length
+          - duration
+          - ascent
+          - descent
     :properties:
       :id:
         :label: id
@@ -83,18 +90,10 @@
             :label: Länge (m)
             :type: number
             :storage_location: value
-            :features:
-              :gip_key_figure:
-                :part_id_path:
-                  - about
           :duration:
             :label: Fahrzeit (min)
             :type: number
             :storage_location: value
-            :features:
-              :gip_key_figure:
-                :part_id_path:
-                  - about
             :ui:
               :edit:
                 :partial: number
@@ -102,18 +101,10 @@
             :label: Aufstieg (m)
             :type: number
             :storage_location: value
-            :features:
-              :gip_key_figure:
-                :part_id_path:
-                  - about
           :descent:
             :label: Abstieg (m)
             :type: number
             :storage_location: value
-            :features:
-              :gip_key_figure:
-                :part_id_path:
-                  - about
       :description:
         :label: Text
         :type: string
@@ -126,7 +117,7 @@
               :data-size: full
         :advanced_search: true
       :live_status:
-        :label: Live Status
+        :label: Live Status (offen)
         :type: boolean
         :storage_location: value
         :advanced_search: true

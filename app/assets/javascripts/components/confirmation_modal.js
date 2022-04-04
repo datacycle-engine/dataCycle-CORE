@@ -110,7 +110,7 @@ class ConfirmationModal {
     const fieldOffset = overlayRect.top + overlayRect.height + 20;
 
     for (let i = 0; i < elements.length; ++i) {
-      elementMethod.call(this, elements[i], fieldOffset);
+      elementMethod.call(this, elements[i], fieldOffset, elements.length > 1);
     }
   }
   _showAncestors(ancestors) {
@@ -133,24 +133,32 @@ class ConfirmationModal {
       else if (field.style.display) field.style.removeProperty('display');
     }
   }
-  _showSpecificField(field, fieldOffset) {
+  _showSpecificField(field, fieldOffset, multiple = true) {
     if (field.style.top) field.dataset.oldTopValue = field.style.top;
     if (field.style.opacity) field.dataset.oldOpacityValue = field.style.opacity;
+    if (field.style.left) field.dataset.oldLeftValue = field.style.left;
+
     field.style.opacity = 0;
 
     window.requestAnimationFrame(() => {
       const ancestors = domElementHelpers.findAncestors(field, domElementHelpers.isHidden);
       this._showAncestors(ancestors.reverse());
 
+      let leftOffset = `${field.getBoundingClientRect().left}px`;
+
       field.classList.add('dc-focus-field');
       field.style.top = `${fieldOffset}px`;
+
+      if (!multiple) leftOffset = `calc(50% - ${field.getBoundingClientRect().width}px / 2)`;
+
+      field.style.left = leftOffset;
     });
 
     window.requestAnimationFrame(() => {
       field.style.opacity = 1;
     });
   }
-  _hideSpecificField(field, _fieldOffset) {
+  _hideSpecificField(field, _fieldOffset, _multiple = true) {
     if (!field.classList.contains('dc-focus-field')) return;
 
     field.style.opacity = 0;
@@ -158,13 +166,14 @@ class ConfirmationModal {
     setTimeout(() => {
       const ancestors = domElementHelpers.findAncestors(field, e => e.classList.contains('dc-focus-show-ancestor'));
       this._hideAncestors(ancestors);
-
       field.style.removeProperty('opacity');
       field.style.removeProperty('top');
+      field.style.removeProperty('left');
       field.classList.remove('dc-focus-field');
       if (field.style.oldTopValue) field.style.top = field.dataset.oldTopValue;
       if (field.style.oldOpacityValue) field.style.opacity = field.dataset.oldOpacityValue;
-    }, 300);
+      if (field.style.oldLeftValue) field.style.left = field.dataset.oldLeftValue;
+    }, 100);
   }
 }
 

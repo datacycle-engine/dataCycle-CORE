@@ -3,9 +3,9 @@ name: karriere.at
 identifier: karriereat
 deactivated: true
 credentials:
-  host: https://www.karriere.at
-  end_point: /extern/feed/kaernten_werbung
-  fbclid: IwAR30a_6G7CUSZoM0d2X5KItShjgBWvg4C7Bk2wctRpoi3qKXNY6IOnAcZfc
+  host: HOST
+  end_point: ENDPOINT
+  fbclid: FBCLID
 default_options:
   locales: [de]
 config:

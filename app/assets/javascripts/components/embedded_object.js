@@ -72,6 +72,7 @@ class EmbeddedObject {
         .map((_index, elem) => $(elem).data('id'))
         .get()
     );
+
     if (
       this.write &&
       (this.max == 0 || this.element.children('.content-object-item').length < this.max) &&

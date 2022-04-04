@@ -26,7 +26,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse response.body
       assert(json_data.dig('assets').any? { |v| v['id'] == image.id })
     end
@@ -42,7 +42,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse response.body
       assert_equal 'test_rgb.jpg', json_data['name']
     end
@@ -58,7 +58,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse response.body
       assert json_data['error'].present?
     end
@@ -76,7 +76,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
     end
 
     test 'update existing asset with invalid asset' do
@@ -92,7 +92,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse response.body
       assert json_data['error'].present?
     end
@@ -107,7 +107,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'application/json', response.content_type
+      assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse response.body
       assert_equal pdf.id, json_data['id']
     end

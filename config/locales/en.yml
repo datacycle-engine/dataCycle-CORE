@@ -23,27 +23,27 @@ en:
     en: English
     ar: Arabic
     bg: Bulgarian
-    cs: czech
-    da: danish
-    es: spanish
+    cs: Czech
+    da: Danish
+    es: Spanish
     fr: French
-    fi: finnish
-    it: italian
-    hu: hungarian
-    hr: croatian
-    ja: japanese
-    ko: korean
-    nl: dutch
-    pt: portuguese
-    pl: polish
+    fi: Finnish
+    it: Italian
+    hu: Hungarian
+    hr: Croatian
+    ja: Japanese
+    ko: Korean
+    nl: Dutch
+    pt: Portuguese
+    pl: Polish
     ro: Romanian
     ru: Russian
     sl: Slovenian
-    sk: slovak
+    sk: Slovak
     sv: Swedish
-    tr: turkish
-    uk: ukrainian
-    de-CH: swiss-german
+    tr: Turkish
+    uk: Ukrainian
+    de-CH: Swiss-german
     nl-BE: Flemish
     zh: Chinese
   roles:
@@ -73,12 +73,18 @@ en:
     download: Download
     download_import: Download &amp; Import
     delete: delete
+    errors_were_encountered: errors were encountered
+
   notification:
     frequency:
       always: immediately on change
       named_version: when versions are changed
       day: daily
       week: weekly
+
+  classifications:
+    tooltip_translations: Translations
+
   frontend:
     load_error: Error loading content.
     text_editor:
@@ -100,10 +106,14 @@ en:
         one: Metadata must be filled in!
         many: Metadata must be filled in for each file!
       edit_content: Edit content
+      edit_locked: Content can be edited only after the upload has finished
       retry_upload: Upload again
       format_not_supported: Unsupported format (%{data})
       error: Error
       remove_file: Remove file
+      file: File
+      confirm_single_to_all_html: 'really apply %{label} to all %{template}?'
+      confirm_all_to_all_html: '<h5>Apply all attributes to all %{template}</h5><p>Should <b>%{label}</b> also be applied to all %{template}?</p>'
     cancel: Cancel
     ok: Okay
     content_lock:
@@ -122,6 +132,8 @@ en:
         ctrlKey: Use Ctrl+Scroll to zoom the map
         metaKey: Use ⌘+Scroll to zoom the map
         pinch: Use two fingers to zoom/scroll the map
+      filter:
+        button_title: edit linked contents
     remote_render:
       error: Error loading content.
       reload: Reload
@@ -144,6 +156,11 @@ en:
       ignore_warnings: Warnings are present (%{data}).<br>Should the content be saved
         anyway?</br>
       final_save: The content is finally sent and <br>cannot be edited afterwards</br>.
+      errors:
+        no_data: No data specified for %{data}
+        key_figure_not_found: Key Figure not found
+        endpoint_error: Error while retreiving data.
+        gip_no_plausible_route: No Route for Key Figures found. Please select one Hauptroute in Richtung.
     word_counter:
       chars:
         one: Character
@@ -420,7 +437,7 @@ en:
     system_dialog: Select images via system dialog
     or: or
     select_from_datacycle: Use %{data} already uploaded
-    copy_all_title: take all attributes from this %{single} for all %{multiple}
+    copy_all_title: "take all attributes from this %{single} for all %{multiple}"
   external_connection_states:
     success: Successfully synchronized
     pending: is synchronized
@@ -454,9 +471,9 @@ en:
       version_name_removed: The version name has been removed!
     download:
       missing_serialize_format: At least one format must be selected
-    gip_key_figure:
-      button_title: Determination of the value for %{data} via a web service of the
-        GIP on the basis of the underlying geo-data
+    geo_key_figure:
+      button_title: Determination of the value for %{data} via a web service on the basis of the underlying geo-data
+      button_title_all: Determination of the values via a web service on the basis of the underlying geo-data
     user_api:
       mailer:
         subject: A new user has been created
@@ -546,6 +563,11 @@ en:
     relation_filter:
       contained_in: is contained in
       not_contained_in: is not included in
+      equal: equals
+      not_equal: not equals
+      placeholder:
+        thing: content
+        collection_or_stored_filter: '%{collection} or %{stored_filter}'
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
     union_filter_ids: in stored searches / %{collections}
@@ -627,6 +649,12 @@ en:
     filter: Advanced Dashboard Filters
     list: List view
     tree_view: Root in the tree view
+    xml: XML
+
+  classification_change_behaviour:
+    trigger_webhooks: trigger webhooks for contents
+    clear_cache: clear cache for contents
+
   pagination:
     next: Further results
     prev: Previous results
@@ -713,7 +741,7 @@ en:
     delete_items_in_watch_list: Delete all contents of this content collection
     save_without_redirect: Save
     set_and_next: take over and continue
-    set_all_attributes: apply for all %{data}
+    set_all_attributes: apply for all
     close_overlay: close
     remove_locks: Release content for editing (remove lock)
     copyable_from: Apply %{data}
@@ -804,6 +832,7 @@ en:
       address_ambiguous: Address not unique
       telephone_din5008: The format of the telephone number is not according to DIN
         5008, valid example +43 1 123456
+      required: 'should be filled in.'
       schedule:
         duration_too_long: 'The schedule with start time %{data} lasts longer than %{max} (This could probably also be achieved via repeating schedules)'
   controllers:
@@ -844,7 +873,7 @@ en:
       locked: '%{data} has been locked.'
       unlocked: '%{data} has been released.'
       invalidated: '%{data} has been disabled.'
-      updated_multiple: '%{data} have been updated.'
+      updated_user_settings: 'User settings have been updated.'
       moved_to: Content moved to %{data}
       become_user: Logged in as %{data}.
       duplicate_false_positive: '%{data} was removed from the possible duplicates'
@@ -995,6 +1024,7 @@ en:
         user_id: Owner
       data_cycle_core/classification_tree_label:
         visibility: Visibility
+        change_behaviour: Change behavior
       data_cycle_core/classification_alias:
         assignable: Assignable
         description: Description text
@@ -1022,7 +1052,7 @@ en:
         access_token: API Token
         default_locale: Default language for searches and new content
         represented_by: Represented by
-        ui_locale: UI language
+        ui_locale: user interface language
       data_cycle_core/thing:
         name: Name
         legal_name: Company name
@@ -1085,6 +1115,7 @@ en:
     user_details: User details
     user_links: User links
     classifications: Classifications
+    dashboard: Dashboard
     classifications_adminitration:
       classification:
         submit_loading_message: Saving may take several minutes, please be patient
@@ -1169,6 +1200,11 @@ en:
       common:
         invalid: Validity period exceeded
         translation_missing: No translation available
+
+    reports:
+      root: 'Reports'
+      available_reports: 'Available Reports'
+
   import:
     booking:
       hotel_important_information: Important information
@@ -1241,6 +1277,26 @@ en:
         suggestion: Tips
         additional_information: Additional information
         maps: Literature
+    imx_platform:
+      description: Description
+      description_long: Detailed description
+    timm4:
+      intro: Introduction
+      description: Description
+      positionDescription: Position
+      pricesDescription: Priceinformation
+      keywords: Keywords
+      culinarySpecialities: Culinary Specialities
+      furtherSpecialities: Further Specialities
+      dishes: Dishes
+      barrierFreeDescription: Barrier free description
+      restDays: Rest days
+      companyHoliday: Company holidays
+      meetingPoint: Meeting Point
+      timesComment: Entrance details
+      menuDownload: Download menu
+      recipeSuggestionDownload: Download suggested recipe
+
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
       <ul> <li>Formats: %{image_types}</li> <li>Dimensions: %{image_dimensions}</li>

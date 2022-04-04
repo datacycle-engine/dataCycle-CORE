@@ -9,13 +9,13 @@ module DataCycleCore
       module Content
         module Extensions
           module Persons
-            class Person < ActionDispatch::IntegrationTest
-              include Devise::Test::IntegrationHelpers
-              include Engine.routes.url_helpers
+            class Person < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+              before(:all) do
+                DataCycleCore::Thing.where(template: false).delete_all
+                @content = DataCycleCore::DummyDataHelper.create_data('person')
+              end
 
               setup do
-                @routes = Engine.routes
-                @content = DataCycleCore::DummyDataHelper.create_data('person')
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 
@@ -23,7 +23,7 @@ module DataCycleCore
                 get api_v2_thing_path(id: @content)
 
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body)
 
                 # validate header
@@ -69,7 +69,6 @@ module DataCycleCore
                 contact_info = @content.contact_info.to_h.transform_keys { |key| key.camelize(:lower) }
                 address = { '@type' => 'PostalAddress' }.merge(postal_address).merge(contact_info)
                 address['addressCountry'] = 'AT'
-                address['contactName'] = address.delete('name')
 
                 assert_equal(address, json_data.dig('address'))
 
@@ -88,19 +87,19 @@ module DataCycleCore
               test 'stored item can be found via different endpoints' do
                 get(api_v2_things_path)
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Person' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_contents_search_path)
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Person' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_persons_path)
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body).dig('data').first
                 assert_equal(@content.id, json_data.dig('identifier'))
               end

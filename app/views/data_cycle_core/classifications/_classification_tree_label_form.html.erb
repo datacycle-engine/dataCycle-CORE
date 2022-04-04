@@ -35,11 +35,35 @@
         :name,
         :title do |l| %>
         <span class="ca-checkbox">
-          <%= l.label { l.check_box + l.text } %>
+          <%= l.check_box %>
+          <%= l.label %>
         </span>
       <% end %>
     </div>
   </div>
+
+  <% if current_user&.is_role?('super_admin') %>
+    <div class="ca-input">
+      <div class="ca-collection-checkboxes">
+        <%= f.label :change_behaviour %>
+        <%= f.collection_check_boxes :change_behaviour,
+          DataCycleCore.classification_change_behaviour.map { |v|
+            OpenStruct.new(
+              name: v,
+              title: t("classification_change_behaviour.#{v}", locale: active_ui_locale, default: v),
+              checked: f.object.change_behaviour.include?(v)
+            )
+          },
+          :name,
+          :title do |l| %>
+          <span class="ca-checkbox">
+            <%= l.check_box %>
+            <%= l.label %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <%= f.submit class: 'success button' %>
 <% end %>

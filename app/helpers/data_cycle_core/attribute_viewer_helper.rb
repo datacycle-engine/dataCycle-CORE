@@ -62,9 +62,9 @@ module DataCycleCore
 
       if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) ||
          object_has_translatable_attributes?(options.content, options.definition)
-        render_translatable_attribute_viewer options.to_h
+        render_translatable_attribute_viewer(**options.to_h)
       else
-        render_untranslatable_attribute_viewer options.to_h
+        render_untranslatable_attribute_viewer(**options.to_h)
       end
     end
 
@@ -87,7 +87,7 @@ module DataCycleCore
         allowed = attribute_viewer_allowed(options)
         return allowed unless allowed.is_a?(TrueClass)
 
-        render_untranslatable_attribute_viewer options.to_h
+        render_untranslatable_attribute_viewer(**options.to_h)
       end
     end
 
@@ -148,6 +148,10 @@ module DataCycleCore
       else
         render(partial, params)
       end
+    end
+
+    def contextual_content(local_assigns)
+      local_assigns[:parent] || local_assigns[:content]
     end
   end
 end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# autoload_paths
+
 # rails essentials
 require 'rails'
 require 'active_model/railtie'
@@ -81,125 +83,129 @@ require 'vite_rails'
 require 'holidays'
 
 module DataCycleCore
-  class << self
-    mattr_accessor :breadcrumb_root_name
-    self.breadcrumb_root_name = 'Dashboard'
+  mattr_accessor :breadcrumb_root_name
+  self.breadcrumb_root_name = 'Dashboard'
 
-    # :special_data_attributes: @deprecated: remove after APIv2 migrations
-    # special data attributes are ignored by the standard json serializes and must be handled by the application itself
-    mattr_accessor :special_data_attributes
-    self.special_data_attributes = ['id', 'validity_period']
+  # :special_data_attributes: @deprecated: remove after APIv2 migrations
+  # special data attributes are ignored by the standard json serializes and must be handled by the application itself
+  mattr_accessor :special_data_attributes
+  self.special_data_attributes = ['id', 'validity_period']
 
-    mattr_accessor :internal_data_attributes
-    self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of']
+  mattr_accessor :internal_data_attributes
+  self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of']
 
-    mattr_accessor :asset_objects
-    self.asset_objects = [
-      'DataCycleCore::Image',
-      'DataCycleCore::Video',
-      'DataCycleCore::Audio',
-      'DataCycleCore::Pdf',
-      'DataCycleCore::DataCycleFile',
-      'DataCycleCore::TextFile',
-      'DataCycleCore::SrtFile'
-    ]
+  mattr_accessor :asset_objects
+  self.asset_objects = [
+    'DataCycleCore::Image',
+    'DataCycleCore::Video',
+    'DataCycleCore::Audio',
+    'DataCycleCore::Pdf',
+    'DataCycleCore::DataCycleFile',
+    'DataCycleCore::TextFile',
+    'DataCycleCore::SrtFile'
+  ]
 
-    mattr_accessor :allowed_api_strategies
-    self.allowed_api_strategies = [
-      'DataCycleCore::Generic::MediaArchive::Webhook',
-      'DataCycleCore::Generic::Common::Webhook',
-      'DataCycleCore::Generic::FeratelIdentityServer::Webhook',
-      'DataCycleCore::Generic::Sulu::Webhook',
-      'DataCycleCore::Generic::ExternalLink::Webhook',
-      'DataCycleCore::Generic::Amtangee::Webhook'
-    ]
+  mattr_accessor :allowed_api_strategies
+  self.allowed_api_strategies = [
+    'DataCycleCore::Generic::MediaArchive::Webhook',
+    'DataCycleCore::Generic::Common::Webhook',
+    'DataCycleCore::Generic::FeratelIdentityServer::Webhook',
+    'DataCycleCore::Generic::Sulu::Webhook',
+    'DataCycleCore::Generic::ExternalLink::Webhook',
+    'DataCycleCore::Generic::Amtangee::Webhook'
+  ]
 
-    mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = [
-      'Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Zeitleiste-Eintrag',
-      'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay',
-      'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt',
-      'Event-Ticket-Angebot', 'Zimmer', 'Zutatengruppe', 'Zutat', 'Rezeptkomponente', 'Angebot', 'Inhaltsblock',
-      'Zusatzangebot', 'Wetterprognose', 'Piste', 'Lift'
-    ]
+  mattr_accessor :excluded_filter_classifications
+  self.excluded_filter_classifications = [
+    'Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Zeitleiste-Eintrag',
+    'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay',
+    'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt',
+    'Event-Ticket-Angebot', 'Zimmer', 'Zutatengruppe', 'Zutat', 'Rezeptkomponente', 'Angebot', 'Inhaltsblock',
+    'Zusatzangebot', 'Wetterprognose', 'Piste', 'Lift'
+  ]
 
-    mattr_accessor :ui_locales
-    self.ui_locales = [:de, :en]
+  mattr_accessor :ui_locales
+  self.ui_locales = [:de, :en]
 
-    mattr_accessor :notification_frequencies
-    self.notification_frequencies = ['always', 'named_version', 'day', 'week']
+  mattr_accessor :notification_frequencies
+  self.notification_frequencies = ['always', 'named_version', 'day', 'week']
 
-    mattr_accessor :features
-    self.features = {}
+  mattr_accessor :features
+  self.features = {}
 
-    mattr_accessor :main_config
-    self.main_config = {}
+  mattr_accessor :main_config
+  self.main_config = {}
 
-    mattr_accessor :new_dialog
-    self.new_dialog = {}
+  mattr_accessor :new_dialog
+  self.new_dialog = {}
 
-    mattr_accessor :logo
-    self.logo = {}
+  mattr_accessor :logo
+  self.logo = {}
 
-    mattr_accessor :global_configs
-    self.global_configs = {}
+  mattr_accessor :global_configs
+  self.global_configs = {}
 
-    mattr_accessor :info_link
-    self.info_link = nil
-    # inheritable_attributes
-    mattr_accessor :inheritable_attributes
-    self.inheritable_attributes = ['validity_period']
+  mattr_accessor :info_link
+  self.info_link = nil
+  # inheritable_attributes
+  mattr_accessor :inheritable_attributes
+  self.inheritable_attributes = ['validity_period']
 
-    # embedded_objects in show
-    mattr_accessor :linked_objects_page_size
-    self.linked_objects_page_size = 5
+  # embedded_objects in show
+  mattr_accessor :linked_objects_page_size
+  self.linked_objects_page_size = 5
 
-    mattr_accessor :max_asynch_classification_items
-    self.max_asynch_classification_items = 50
+  mattr_accessor :max_asynch_classification_items
+  self.max_asynch_classification_items = 50
 
-    # webhooks
-    mattr_accessor :webhooks
-    self.webhooks = Array.wrap(ENV['WEBHOOKS']&.split(',')&.map(&:squish))
+  # webhooks
+  mattr_accessor :webhooks
+  self.webhooks = Array.wrap(ENV['WEBHOOKS']&.split(',')&.map(&:squish))
 
-    # template directories
-    mattr_accessor :template_path
-    mattr_accessor :default_template_paths
-    self.default_template_paths = []
+  # template directories
+  mattr_accessor :template_path
+  mattr_accessor :default_template_paths
+  self.default_template_paths = []
 
-    # location of import/download configs
-    mattr_accessor :external_sources_path
+  # location of import/download configs
+  mattr_accessor :external_sources_path
 
-    # location of external_system configs
-    mattr_accessor :external_systems_path
+  # location of external_system configs
+  mattr_accessor :external_systems_path
 
-    # obsolete: remove after projects initializer update
-    mattr_accessor :allowed_content_api_classifications
-    self.allowed_content_api_classifications = []
+  # obsolete: remove after projects initializer update
+  mattr_accessor :allowed_content_api_classifications
+  self.allowed_content_api_classifications = []
 
-    mattr_accessor :uploader_validations
-    self.uploader_validations = {}
+  mattr_accessor :uploader_validations
+  self.uploader_validations = {}
 
-    mattr_accessor :default_map_position
-    self.default_map_position = {}
+  mattr_accessor :default_map_position
+  self.default_map_position = {}
 
-    mattr_accessor :content_warnings
-    self.content_warnings = {}
+  mattr_accessor :content_warnings
+  self.content_warnings = {}
 
-    mattr_accessor :classification_visibilities
-    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'filter', 'tile', 'list', 'tree_view']
+  mattr_accessor :classification_visibilities
+  self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'filter', 'tile', 'list', 'tree_view']
 
-    mattr_accessor :cache_invalidation_depth
-    self.cache_invalidation_depth = 3
+  mattr_accessor :classification_change_behaviour
+  self.classification_change_behaviour = ['trigger_webhooks', 'clear_cache']
 
-    mattr_accessor :holidays_country_code
-    self.holidays_country_code = :at
+  mattr_accessor :cache_invalidation_depth
+  self.cache_invalidation_depth = 3
 
-    mattr_accessor :partial_update_improved
-    self.partial_update_improved = false
+  mattr_accessor :holidays_country_code
+  self.holidays_country_code = :at
 
-    mattr_accessor :transitive_classification_paths
-    self.transitive_classification_paths = false
-  end
+  mattr_accessor :partial_update_improved
+  self.partial_update_improved = false
+
+  mattr_accessor :transitive_classification_paths
+  self.transitive_classification_paths = false
+
+  mattr_accessor :persistent_activities
+  self.persistent_activities = ['downloads']
 
   def self.setup
     yield self
@@ -282,20 +288,33 @@ module DataCycleCore
       Dir[File.join(File.dirname(__FILE__), 'tasks/*.rake')].each { |f| load f }
     end
 
+    config.autoload_once_paths << "#{root}/app/middlewares"
+
     config.before_initialize do |app|
+      ### used for backward compatibility (Rails < 5.0)
+      app.config.load_defaults 6.1
+      app.config.autoloader = :zeitwerk
+      app.config.active_record.belongs_to_required_by_default = false
+      ###
       app.config.time_zone = 'Europe/Vienna'
       app.config.exceptions_app = routes
       app.middleware.insert_before Rack::Runtime, DataCycleCore::FixParamEncodingMiddleware
     end
 
     config.to_prepare do
+      Rails.autoloaders.main.ignore(
+        [
+          Rails.root.join('app', 'extensions'),
+          Rails.root.join('app', 'decorators')
+        ]
+      )
       Dir.glob(
         [
           Rails.root + 'app/decorators/**/*_decorator*.rb',
           Rails.root + 'app/extensions/**/*.rb'
         ]
       ).each do |c|
-        require_dependency(c)
+        load c
       end
 
       Devise::Mailer.layout 'data_cycle_core/email' # email.haml or email.erb

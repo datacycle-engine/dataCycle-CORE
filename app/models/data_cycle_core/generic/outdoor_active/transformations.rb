@@ -40,6 +40,8 @@ module DataCycleCore
           .>> t(:nest, 'address', ['street_address', 'postal_code', 'address_country', 'address_locality'])
           .>> t(:nest, 'contact_info', ['telephone', 'fax_number', 'url', 'email'])
           .>> t(:add_field, 'author', ->(s) { s.dig('meta', 'author') })
+          .>> t(:universal_classifications, ->(s) { load_opened(s.dig('opened')) })
+          .>> t(:universal_classifications, ->(s) { load_winter_activity(s.dig('winterActivity')) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('images', 'image')&.map { |item| item&.dig('id') } || [] })
           .>> t(:add_links, 'primary_image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('primaryImage')&.dig('id') })
           .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
@@ -98,6 +100,8 @@ module DataCycleCore
           .>> t(:map_value, 'landscape_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'technique_rating', ->(s) { s&.to_i })
           .>> t(:universal_classifications, ->(s) { Array.wrap(load_difficulty_rating(s.dig('difficulty_rating'))) })
+          .>> t(:universal_classifications, ->(s) { load_opened(s.dig('opened')) })
+          .>> t(:universal_classifications, ->(s) { load_winter_activity(s.dig('winterActivity')) })
           .>> t(:add_links, 'poi', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('pois', 'poi')&.map { |item| item&.dig('id') } || [] })
           .>> t(:add_links, 'contains_place', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('stageTours')&.map { |item| item&.dig('id') } || [] })
           .>> t(:add_links, 'contained_in_place', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('stageTour')).compact })
@@ -109,6 +113,17 @@ module DataCycleCore
           .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
           .>> t(:add_links, 'source', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('meta', 'source', 'id').present? ? ["SOURCE:#{s&.dig('meta', 'source', 'id')}"] : nil })
           .>> t(:strip_all)
+        end
+
+        def self.load_opened(opened)
+          return [] unless opened.in?([true, false])
+          status = opened ? 'geöffnet' : 'geschlossen'
+          DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('OutdoorActive - Status', status)
+        end
+
+        def self.load_winter_activity(winter)
+          return [] unless winter == true
+          DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('OutdoorActive - Status', 'Winteraktivität')
         end
 
         def self.load_difficulty_rating(rating)

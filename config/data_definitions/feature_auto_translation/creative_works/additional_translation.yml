@@ -27,13 +27,13 @@
             :options:
               :data-size: basic
         :advanced_search: true
+        :global: true
       :about:
         :label: About
         :type: linked
         :inverse_of: subject_of
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
@@ -69,8 +69,8 @@
         :type: datetime
         :storage_location: translated_value
         :ui:
-         :edit:
-           disabled: true
+          :edit:
+            disabled: true
         :api:
           :disabled: true
       :source_locale:
@@ -78,8 +78,8 @@
         :type: string
         :storage_location: translated_value
         :ui:
-         :edit:
-           disabled: true
+          :edit:
+            disabled: true
         :api:
           :disabled: true
       :translated_classification:
@@ -99,7 +99,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Übersetzung"
+        :default_value: 'Übersetzung'
       :meta_data:
         :type: mixin
         :name: meta_data

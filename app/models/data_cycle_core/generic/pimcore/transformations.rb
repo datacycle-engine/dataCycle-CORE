@@ -72,8 +72,8 @@ module DataCycleCore
 
         def self.to_place
           t(:add_field, 'external_key', ->(s) { Digest::MD5.hexdigest(DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(s).merge('place' => true).to_s) })
-          .>> t(:rename_keys, { 'contactperson' => 'name', 'phone' => 'telephone', 'website' => 'url' })
-          .>> t(:nest, 'contact_info', ['name', 'telephone', 'email', 'url'])
+          .>> t(:rename_keys, { 'contactperson' => 'contact_name', 'phone' => 'telephone', 'website' => 'url' })
+          .>> t(:nest, 'contact_info', ['contact_name', 'telephone', 'email', 'url'])
           .>> t(:add_field, 'address_country', ->(*) { 'AT' })
           .>> t(:rename_keys, { 'street' => 'street_address', 'zip' => 'postal_code', 'city' => 'address_locality' })
           .>> t(:nest, 'address', ['street_address', 'postal_code', 'address_locality', 'address_country'])
@@ -89,8 +89,8 @@ module DataCycleCore
           .>> t(:rename_keys, { 'name' => 'organizer_name' })
           .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('place_key')] })
           .>> t(:add_field, 'contact_person', ->(s) { s.dig('contactperson') })
-          .>> t(:rename_keys, { 'contactperson' => 'name', 'phone' => 'telephone', 'website' => 'url' })
-          .>> t(:nest, 'contact_info', ['name', 'telephone', 'email', 'url'])
+          .>> t(:rename_keys, { 'contactperson' => 'contact_name', 'phone' => 'telephone', 'website' => 'url' })
+          .>> t(:nest, 'contact_info', ['contact_name', 'telephone', 'email', 'url'])
           .>> t(:add_field, 'address_country', ->(*) { 'AT' })
           .>> t(:rename_keys, { 'street' => 'street_address', 'zip' => 'postal_code', 'city' => 'address_locality' })
           .>> t(:nest, 'address', ['street_address', 'postal_code', 'address_locality', 'address_country'])
@@ -101,15 +101,15 @@ module DataCycleCore
         def self.to_event_image
           t(:add_field, 'external_key', ->(s) { DataCycleCore::MasterData::DataConverter.string_to_string("Pimcore - EventImage - #{CGI.unescape(s.dig('link'))}") })
           .>> t(:add_field, 'name', ->(s) { CGI.unescape(s.dig('link')).split('/')&.last })
-          .>> t(:add_field, 'content_url', ->(s) { CGI.unescape(s.dig('link')) })
-          .>> t(:add_field, 'thumbnail_url', ->(s) { CGI.unescape(s.dig('link')) })
+          .>> t(:add_field, 'content_url', ->(s) { s.dig('link') })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('link') })
           .>> t(:reject_keys, ['link', 'index', 'gallery_size'])
         end
 
         def self.get_image_external_keys(hash)
           return [] if hash['gallery'].blank? && hash['teaser'].blank?
           image_urls = ([hash.dig('teaser')].compact + hash.dig('gallery')&.map { |item| item.dig('link') }&.compact).uniq
-          image_urls.map { |data| "Pimcore - EventImage - #{data}" }
+          image_urls.map { |data| DataCycleCore::MasterData::DataConverter.string_to_string("Pimcore - EventImage - #{CGI.unescape(data)}") }
         end
 
         def self.opening_hours(data, external_source_id, external_key)

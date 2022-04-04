@@ -9,13 +9,13 @@ module DataCycleCore
       module Content
         module Extensions
           module Places
-            class BergfexSnowResortTest < ActionDispatch::IntegrationTest
-              include Devise::Test::IntegrationHelpers
-              include Engine.routes.url_helpers
+            class BergfexSnowResortTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+              before(:all) do
+                DataCycleCore::Thing.where(template: false).delete_all
+                @content = DataCycleCore::DummyDataHelper.create_data('bergfex_snowresort')
+              end
 
               setup do
-                @routes = Engine.routes
-                @content = DataCycleCore::DummyDataHelper.create_data('bergfex_snowresort')
                 sign_in(User.find_by(email: 'admin@datacycle.at'))
               end
 
@@ -24,7 +24,7 @@ module DataCycleCore
                 get api_v3_thing_path(id: @content)
 
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body)
 
                 # validate header
@@ -51,7 +51,7 @@ module DataCycleCore
 
                 # content data
                 assert_equal(@content.name, json_data.dig('name'))
-                assert_equal(@content.url, json_data.dig('sameAs'))
+                assert_equal(@content.same_as, json_data.dig('sameAs'))
 
                 # TODO: (move to Transformations tests)
                 # API: Transformation: address
@@ -137,7 +137,7 @@ module DataCycleCore
                 data_hash = {
                   'overlay' => [{
                     'name' => 'overlay_name',
-                    'url' => 'LINK URL',
+                    'same_as' => 'LINK URL',
                     'image' => [overlay_image.id]
                   }]
                 }
@@ -149,31 +149,31 @@ module DataCycleCore
                 get api_v3_thing_path(id: @content)
 
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body)
 
                 # content data
                 assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
-                assert_equal(data_hash.dig('overlay').first.dig('url'), json_data.dig('sameAs'))
+                assert_equal(data_hash.dig('overlay').first.dig('same_as'), json_data.dig('sameAs'))
                 assert_equal(overlay_image.id, json_data.dig('image').first.dig('identifier'))
               end
 
               test 'stored item can be found via different endpoints' do
                 get(api_v3_things_path)
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'SkiResort' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'SkiResort' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_places_path)
                 assert_response(:success)
-                assert_equal('application/json', response.content_type)
+                assert_equal('application/json; charset=utf-8', response.content_type)
                 json_data = JSON.parse(response.body).dig('data').first
                 assert_equal(@content.id, json_data.dig('identifier'))
               end

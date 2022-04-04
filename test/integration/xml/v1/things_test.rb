@@ -5,13 +5,13 @@ require 'test_helper'
 module DataCycleCore
   module Xml
     module V1
-      class ThingTest < ActionDispatch::IntegrationTest
-        include Devise::Test::IntegrationHelpers
-        include Engine.routes.url_helpers
+      class ThingTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+        before(:all) do
+          DataCycleCore::Thing.where(template: false).delete_all
+          @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+        end
 
         setup do
-          @routes = Engine.routes
-          @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
@@ -19,7 +19,7 @@ module DataCycleCore
           get xml_v1_thing_path(id: @content)
 
           assert_response(:success)
-          assert_equal('application/xml', response.content_type)
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
           assert_equal('TestArtikel', xml_data.dig('RDF', 'thing', 'name'))
         end
@@ -28,7 +28,7 @@ module DataCycleCore
           get xml_v1_things_path
 
           assert_response(:success)
-          assert_equal('application/xml', response.content_type)
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           assert(xml_data.dig('RDF', 'thing').present?)
@@ -47,24 +47,24 @@ module DataCycleCore
         test 'stored article can be found in different ways' do
           get(xml_v1_contents_search_path)
           assert_response(:success)
-          assert_equal('application/xml', response.content_type)
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data_search = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           get(xml_v1_things_path)
           assert_response(:success)
-          assert_equal('application/xml', response.content_type)
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data_things = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           assert_equal(xml_data_search, xml_data_things)
 
           get(xml_v1_contents_search_path(type: 'creative_works'))
           assert_response(:success)
-          assert_equal('application/xml', response.content_type)
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data_search = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           get(xml_v1_creative_works_path)
           assert_response(:success)
-          assert_equal('application/xml', response.content_type)
+          assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data_creative_works = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
           assert_equal(xml_data_search, xml_data_creative_works)

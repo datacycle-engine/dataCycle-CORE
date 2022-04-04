@@ -97,7 +97,7 @@ module DataCycleCore
     def self.classification_for_tree_with_name(tree_name, *names)
       for_tree(tree_name)
         .with_internal_name(names)
-        .primary_classifications.pluck(:id).first
+        .primary_classifications.pick(:id)
     end
 
     def self.classifications_for_tree_with_name(tree_name, *names)
@@ -333,21 +333,21 @@ module DataCycleCore
 
     def classifications_removed(classification = nil)
       unless classification.nil?
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classification.things.ids)
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classification.things.ids)
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classification.things.ids) if classification_tree_label&.change_behaviour&.include?('clear_cache')
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classification.things.ids) if classification_tree_label&.change_behaviour&.include?('trigger_webhooks')
       end
 
       @classifications_changed = true
     end
 
     def add_things_webhooks_job_destroy
-      return unless classifications.things.exists?
+      return unless classification_tree_label&.change_behaviour&.include?('trigger_webhooks') && classifications.things.exists?
 
       DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classifications.things.ids)
     end
 
     def add_things_webhooks_job_update
-      return unless classifications.things.exists?
+      return unless classification_tree_label&.change_behaviour&.include?('trigger_webhooks') && classifications.things.exists?
 
       DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'execute_things_webhooks')
     end
@@ -359,11 +359,13 @@ module DataCycleCore
     end
 
     def add_things_cache_invalidation_job_update
+      return unless classification_tree_label&.change_behaviour&.include?('clear_cache')
+
       DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'invalidate_things_cache')
     end
 
     def add_things_cache_invalidation_job_destroy
-      return unless classifications.things.exists?
+      return unless classification_tree_label&.change_behaviour&.include?('clear_cache') && classifications.things.exists?
 
       DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classifications.things.ids)
     end

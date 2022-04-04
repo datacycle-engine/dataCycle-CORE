@@ -5,6 +5,7 @@ class ContentLock {
   constructor(button) {
     this.button = $(button);
     this.editable = this.button.hasClass('editable-lock');
+    this.buttonTooltip = this.button.closest('[data-dc-tooltip]').get(0);
     this.locks = {};
     this.lockLength = parseInt(this.button.data('lock-length'));
     this.lockRenewBefore = parseInt(this.button.data('lock-renew-before'));
@@ -33,11 +34,11 @@ class ContentLock {
     });
 
     if (this.editable) {
-      this.button.closest('.edit-header').on('mouseenter', event => {
+      this.button.closest('.edit-header').on('mouseenter', _event => {
         this.button.removeClass('show-pie-text');
       });
     } else {
-      this.button.closest('span').on('mouseleave', event => {
+      this.button.closest('span').on('mouseleave', _event => {
         this.button.removeClass('show-pie-text');
       });
     }
@@ -109,23 +110,27 @@ class ContentLock {
     let isFirst = Object.keys(this.locks).length === 0 && this.locks.constructor === Object;
     this.calculateLockedUntil({ [lockId]: lockedUntil });
 
-    if (
-      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text').length &&
-      !$('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-' + lockId).length
-    ) {
-      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text')
-        .first()
-        .before(buttonText);
-    } else if (!$('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text').length) {
-      $('#' + this.button.closest('.has-tip').data('toggle')).append(buttonText);
-    }
+    if (this.buttonTooltip) {
+      const $tooltipHtml = $(`<div>${this.buttonTooltip.dataset.dcTooltip}</div>`);
 
-    if (Object.keys(this.locks).length >= 50) {
-      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text').hide();
-      $(
-        '#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-multiple .lock-count'
-      ).html(Object.keys(this.locks).length);
-      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-multiple').show();
+      if (
+        $tooltipHtml.find('.content-locked-text').length &&
+        !$tooltipHtml.find(`.content-locked-text#content-lock-${lockId}`).length
+      ) {
+        $tooltipHtml.find('.content-locked-text').first().first().before(buttonText);
+      } else if (!$tooltipHtml.find('.content-locked-text').length) {
+        $tooltipHtml.append(buttonText);
+      }
+
+      if (Object.keys(this.locks).length >= 50) {
+        $tooltipHtml.find('.content-locked-text').hide();
+        $tooltipHtml
+          .find('.content-locked-text#content-lock-multiple .lock-count')
+          .html(Object.keys(this.locks).length);
+        $tooltipHtml.find('.content-locked-text#content-lock-multiple').show();
+      }
+
+      this.buttonTooltip.dataset.dcTooltip = $tooltipHtml.html();
     }
 
     this.button.prop('disabled', true).addClass('content-locked show-pie-text');
@@ -140,14 +145,14 @@ class ContentLock {
     this.button.find('.pie-text').text(DurationHelpers.seconds_to_human_time(diffSeconds));
 
     for (let key in this.locks) {
-      if (this.locks.hasOwnProperty(key)) {
-        $(
-          '#' +
-            this.button.closest('.has-tip').data('toggle') +
-            ' .content-locked-text#content-lock-' +
-            key +
-            ' .locked-until'
-        ).text(Math.max(0, Math.round(parseFloat((this.locks[key] - Date.now()) / (1000 * 60)))) + 'min');
+      if (this.locks.hasOwnProperty(key) && this.buttonTooltip) {
+        const $tooltipHtml = $(`<div>${this.buttonTooltip.dataset.dcTooltip}</div>`);
+
+        $tooltipHtml
+          .find(`.content-locked-text#content-lock-${key}  .locked-until`)
+          .text(Math.max(0, Math.round(parseFloat((this.locks[key] - Date.now()) / (1000 * 60)))) + 'min');
+
+        this.buttonTooltip.dataset.dcTooltip = $tooltipHtml.html();
       }
     }
 
@@ -240,10 +245,17 @@ class ContentLock {
   }
   unlockButton(lockId) {
     delete this.locks[lockId];
-    $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-' + lockId).remove();
-    if (Object.keys(this.locks).length < 50) {
-      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text').show();
-      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-multiple').hide();
+
+    if (this.buttonTooltip) {
+      const $tooltipHtml = $(`<div>${this.buttonTooltip.dataset.dcTooltip}</div>`);
+      $tooltipHtml.find(`.content-locked-text#content-lock-${lockId}`).remove();
+
+      if (Object.keys(this.locks).length < 50) {
+        $tooltipHtml.find('.content-locked-text').show();
+        $tooltipHtml.find('.content-locked-text#content-lock-multiple').hide();
+      }
+
+      this.buttonTooltip.dataset.dcTooltip = $tooltipHtml.html();
     }
 
     if (Object.keys(this.locks).length === 0 && this.locks.constructor === Object) {

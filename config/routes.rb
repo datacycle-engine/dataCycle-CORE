@@ -2,10 +2,17 @@
 
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
-                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions', registrations: 'data_cycle_core/registrations', confirmations: 'data_cycle_core/confirmations' }
+                     controllers: {
+                       passwords: 'data_cycle_core/passwords',
+                       sessions: 'data_cycle_core/sessions',
+                       registrations: 'data_cycle_core/registrations',
+                       confirmations: 'data_cycle_core/confirmations',
+                       omniauth_callbacks: 'data_cycle_core/omniauth'
+                     }
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root
+    post '/', to: 'backend#index'
   end
 
   match '/401', to: 'exceptions#unauthorized_exception', via: :all, as: :unauthorized_exception
@@ -63,8 +70,9 @@ DataCycleCore::Engine.routes.draw do
       get :create_duplication, on: :member
       get :clear_cache, on: :member
       get :destroy_auto_translate, on: :member
-      get 'asset/:type', on: :member, action: :asset, constraints: { type: '(content|thumb|original)' }
+      get 'asset/:type', on: :member, action: :asset, constraints: { type: /(content|thumb|original)/ }
       post :validate, on: :member
+      match :geojson_for_map_editor, on: :collection, via: [:get, :post], defaults: { format: 'application/vnd.geo+json' }
       post :validate, on: :collection
       get :select_search, on: :collection
       get :render_embedded_object, on: :member
@@ -72,10 +80,16 @@ DataCycleCore::Engine.routes.draw do
       delete :remove_locks, on: :member
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
       post :attribute_value, on: :member
+      post :attribute_default_value, on: :collection, defaults: { format: 'application/json' }
+      post '/', on: :member, action: :show
     end
   end
 
-  resources :subscriptions, only: [:index, :create, :destroy]
+  resources :subscriptions, only: [:index, :destroy] do
+    post '/create', on: :collection, action: :create
+    post '/', on: :collection, action: :index
+  end
+
   resources :stored_filters, only: [:index, :show, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
     get :select_search_or_collection, on: :collection
@@ -83,7 +97,10 @@ DataCycleCore::Engine.routes.draw do
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection
   end
-  resources :classification_tree_labels, only: :show, param: :ctl_id
+
+  resources :classification_tree_labels, only: :show, param: :ctl_id do
+    post '/', on: :member, action: :show
+  end
 
   defaults format: :json do
     resource :content_locks, only: :update do
@@ -125,6 +142,7 @@ DataCycleCore::Engine.routes.draw do
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
     delete :clear, on: :member
+    post '/', on: :member, action: :show
   end
 
   resources :classifications, only: [:index, :create] do
@@ -394,8 +412,7 @@ DataCycleCore::Engine.routes.draw do
           end
         end
       end
-
-      root to: 'webdav/v1/contents#options', via: :options # Microsoft Explorer is weired
+      match '/', to: 'webdav/v1/contents#options', via: [:options] # Microsoft Explorer is weired
     end
   end
 
@@ -409,7 +426,9 @@ DataCycleCore::Engine.routes.draw do
   # post 'contents/upload', to: 'contents#upload'
   # # post 'contents/new', to: 'contents#new'
 
-  resources :publications, only: :index
+  resources :publications, only: :index do
+    post '/', on: :collection, action: :index
+  end
 
   get :add_filter, controller: :application
   get :add_tag_group, controller: :application

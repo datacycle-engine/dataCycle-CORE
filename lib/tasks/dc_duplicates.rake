@@ -115,5 +115,18 @@ namespace :dc do
         exit(-1)
       end
     end
+
+    desc 'merges duplicate into original'
+    task :merge_duplicate, [:original, :duplicate] => [:environment] do |_, args|
+      original_param = args.fetch(:original, nil)
+      duplicate_param = args.fetch(:duplicate, nil)
+      abort('orignal and duplicate parameters must be specified') if original_param.nil? || duplicate_param.nil?
+
+      original = DataCycleCore::Thing.find(original_param)
+      duplicate = DataCycleCore::Thing.find(duplicate_param)
+
+      puts "Thing(#{original_param}) <--- Thing(#{duplicate_param})"
+      DataCycleCore::MergeDuplicateJob.perform_later(original.id, duplicate.id)
+    end
   end
 end

@@ -71,6 +71,7 @@ de:
     datahash: Datahash
     api: JSON API
     relations: Relationen
+    meta-data: Metadaten
 
   dash_board:
     download_full: Download (full)
@@ -79,6 +80,7 @@ de:
     download: Download
     download_import: Download & Import
     delete: delete
+    errors_were_encountered: errors were encountered
 
   notification:
     frequency:
@@ -86,6 +88,9 @@ de:
       named_version: bei Versionsänderungen
       day: täglich
       week: wöchentlich
+
+  classifications:
+    tooltip_translations: Übersetzungen
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
@@ -108,10 +113,14 @@ de:
         one: Metadaten müssen ausgefüllt werden!
         many: Metadaten müssen für jede Datei ausgefüllt werden!
       edit_content: Inhalt bearbeiten
+      edit_locked: Inhalt kann erst bearbeitet werden, nachdem der Upload fertig ist
       retry_upload: Erneut hochladen
       format_not_supported: Nicht unterstützes Format (%{data})
       error: Fehler
       remove_file: Datei entfernen
+      file: Datei
+      confirm_single_to_all_html: '%{label} wirklich für alle %{template} übernehmen?'
+      confirm_all_to_all_html: '<h5>Alle Attribute für alle %{template} übernehmen</h5><p>Soll auch <b>%{label}</b> für alle %{template} übernommen werden?</p>'
     cancel: Abbrechen
     ok: Ok
     content_lock:
@@ -128,6 +137,8 @@ de:
         ctrlKey: Verwende Strg+Scrollen zum Zoomen der Karte
         metaKey: 'Verwende ⌘+Scrollen zum Zoomen der Karte'
         pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
+      filter:
+        button_title: Verknüpfte Inhalte bearbeiten
     remote_render:
       error: Fehler beim Laden des Inhalts.
       reload: Neu laden
@@ -149,6 +160,11 @@ de:
       warning: 'Warnung:'
       ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
       final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
+      errors:
+        no_data: 'Keine Daten angegeben für %{data}.'
+        key_figure_not_found: Kennzahl nicht gefunden.
+        endpoint_error: Fehler bei der Verbindung zum Server.
+        gip_no_plausible_route: Keine geeignete Route für die Berechnung der Kennzahlen gefunden. Bitte stellen Sie sicher, dass genau eine Hauptroute in Richtung hinzugefügt wurde.
     word_counter:
       chars:
         one: Zeichen
@@ -421,7 +437,7 @@ de:
     system_dialog: Bilder über Systemdialog auswählen
     or: oder
     select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
-    copy_all_title: 'alle Attribute von diesem %{single} für alle %{multiple} übernehmen'
+    copy_all_title: "Alle Attribute von diesem %{single} für alle %{multiple} übernehmen"
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -466,8 +482,9 @@ de:
           Hier könnte Ihre Enleitung stehen
 
           COPYRIGHT dataCycle'
-    gip_key_figure:
-      button_title: Ermittlung des Wertes für %{data} über ein Web-Service der GIP auf Basis der zugrundeliegenden Geo-Daten
+    geo_key_figure:
+      button_title: Ermittlung des Wertes für %{data} über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
+      button_title_all: Ermittlung der Werte über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
     user_api:
       mailer:
         subject: Ein neuer Benutzer wurde erstellt
@@ -655,14 +672,19 @@ de:
 
   classification_visibilities:
     backend: Dashboard
-    show: Detail-Ansicht
-    api: API
-    tile: Kachel
+    show: Detail-Ansicht (immer sichtbar)
     show_more: Detail-Ansicht (standardmäßig eingeklappt)
     edit: Bearbeitungs-Ansicht
+    api: API
+    tile: Kachel
     filter: Erweiterte Dashboard-Filter
     list: Listenansicht
     tree_view: Wurzel in der Baumansicht
+    xml: XML
+
+  classification_change_behaviour:
+    trigger_webhooks: Webhooks für Inhalte auslösen
+    clear_cache: Cache für Inhalte leeren
 
   pagination:
     next: Weitere Ergebnisse
@@ -750,7 +772,7 @@ de:
     delete_items_in_watch_list: Alle Inhalte dieser Inhaltssammlung löschen
     save_without_redirect: Zwischenspeichern
     set_and_next: 'übernehmen und weiter'
-    set_all_attributes: 'für alle %{data} übernehmen'
+    set_all_attributes: 'für alle übernehmen'
     close_overlay: schließen
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
     copyable_from: '%{data} übernehmen'
@@ -828,6 +850,7 @@ de:
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
+      required: 'sollte ausgefüllt werden.'
       schedule:
         duration_too_long: 'Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)'
   controllers:
@@ -867,7 +890,7 @@ de:
       locked: '%{data} wurde gesperrt.'
       unlocked: '%{data} wurde freigegeben.'
       invalidated: '%{data} wurde deaktiviert.'
-      updated_multiple: '%{data} wurden aktualisiert.'
+      updated_user_settings: 'Benutzereinstellungen wurden aktualisiert.'
       moved_to: 'Inhalt in %{data} verschoben'
       become_user: 'Eingeloggt als %{data}.'
       duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
@@ -1012,6 +1035,7 @@ de:
         user_id: Eigentümer
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
+        change_behaviour: Änderungsverhalten
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: 'Beschreibungstext'
@@ -1039,7 +1063,7 @@ de:
         access_token: API Token
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
         represented_by: Repräsentiert durch
-        ui_locale: UI Sprache
+        ui_locale: Sprache der Benutzeroberfläche
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname
@@ -1104,6 +1128,7 @@ de:
     user_details: Benutzerdetails
     user_links: Benutzerlinks
     classifications: 'Klassifizierungen'
+    dashboard: Dashboard
     classifications_adminitration:
       classification:
         submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
@@ -1245,6 +1270,25 @@ de:
         suggestion: Tipps
         additional_information: Zusatzinformationen
         maps: Literatur
+    imx_platform:
+      description: Beschreibung
+      description_long: Detailbeschreibung
+    timm4:
+      intro: Einleitung
+      description: Beschreibung
+      positionDescription: Lage
+      pricesDescription: Preisinformation
+      keywords: Stichworte
+      culinarySpecialities: Kulinarische Spezialitäten
+      furtherSpecialities: Weiter Spezialitäten
+      dishes: Gerichte
+      barrierFreeDescription: Barrierefreiheit
+      restDays: Ruhetage
+      companyHoliday: Betriebsferien
+      meetingPoint: Treffpunkt
+      timesComment: Erläuterung Beginnzeiten
+      menuDownload: Speisekarte herunterladen
+      recipeSuggestionDownload: Rezept herunterladen
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
@@ -1505,6 +1549,7 @@ de:
   details:
     bild:
       open_url: URL öffnen
+      exif_data: Bild-Metadaten (EXIF/IPTC/XMP)
 
   exceptions_page:
     back_to_root_link: Zurück zu dataCycle

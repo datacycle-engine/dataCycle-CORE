@@ -14,7 +14,8 @@
   }
 
   .form-element {
-    .gip-key-figure-button {
+    .geo-key-figure-button,
+    .geo-key-figure-button-all {
       font-size: 1.1rem;
       position: absolute;
       right: 0.5rem;
@@ -27,6 +28,25 @@
       align-items: center;
       justify-content: center;
       text-align: center;
+      z-index: 12;
+
+      &.disabled {
+        color: $dark-gray;
+        text-shadow: none;
+        cursor: not-allowed;
+      }
+    }
+
+    &.focus {
+      .geo-key-figure-button,
+      .geo-key-figure-button-all {
+        z-index: 20;
+      }
+    }
+
+    .geo-key-figure-button-all {
+      right: 1rem;
+      top: 1rem;
     }
 
     label + select {
@@ -1062,7 +1082,8 @@ video {
 }
 
 // Submit button errors
-.tooltip {
+.tooltip,
+#dc-tooltip {
   .tooltip-error,
   .tooltip-warning {
     display: block;
@@ -1668,7 +1689,7 @@ select:-moz-focusring {
 .thumbnail-tooltip {
   text-align: center;
   max-width: 90vw;
-  max-width: 90vh;
+  max-height: 90vh;
 
   img {
     width: auto;
@@ -1868,6 +1889,199 @@ select {
     max-height: 450px;
     height: 450px;
     z-index: 0;
+
+    .additional-feature-popup {
+      pointer-events: none;
+
+      .mapboxgl-popup-content,
+      .mapboxgl-popup-tip {
+        pointer-events: none;
+      }
+    }
+
+    .dc-additional-values-overlay {
+      display: none;
+      position: absolute;
+      left: 50px;
+      top: 10px;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+      min-width: 10rem;
+      width: auto;
+      z-index: 2;
+      max-height: calc(100% - 20px);
+      overflow: auto;
+      max-width: calc(100% - 100px);
+
+      .dc-additional-values-filter-container {
+        max-height: 100%;
+        max-width: 100%;
+        overflow: auto;
+        padding: 1px;
+        width: 100%;
+        height: 100%;
+      }
+
+      &.remote-render,
+      &.remote-rendering {
+        &::before {
+          margin: 1rem;
+          width: calc(100% - 2rem);
+        }
+      }
+
+      &.active {
+        display: flex;
+      }
+
+      * {
+        color: $black;
+        background: transparent;
+        border: none;
+      }
+
+      .dc-additional-values-filter {
+        margin: 0;
+
+        .overlay-filter-label {
+          display: flex;
+
+          input {
+            display: none;
+          }
+
+          label::before {
+            content: '';
+            font-family: FontAwesome;
+            display: flex;
+            background-color: white;
+            border: 1px solid darken($medium-gray, 5%);
+            border-radius: 4px;
+            height: 16px;
+            width: 16px;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            margin-right: 0.5rem;
+            color: white;
+            transition: all 0.2s ease;
+          }
+
+          > input:indeterminate + label {
+            &::before {
+              content: '\f068';
+              background-color: $primary-color;
+              border-color: $primary-color;
+            }
+          }
+
+          > input:checked + label {
+            &::before {
+              content: '\f00c';
+              background-color: $primary-color;
+              border-color: $primary-color;
+            }
+          }
+        }
+
+        .dc-additional-values-filter-item,
+        .additional-map-values-filter-item {
+          display: flex;
+          flex-flow: column nowrap;
+          justify-content: center;
+          position: relative;
+
+          &:not(:last-of-type) {
+            margin-bottom: 0.2rem;
+          }
+
+          .loading-spinner {
+            display: none;
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            z-index: 1;
+            align-items: start;
+            justify-content: start;
+            overflow: hidden;
+
+            .fa {
+              font-size: 1rem;
+            }
+          }
+
+          &.source-loading {
+            pointer-events: none;
+
+            .loading-spinner {
+              display: flex;
+            }
+          }
+
+          &.dc-additional-values-filter-item:not(:last-of-type) {
+            border-bottom: 1px solid $light-gray;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+          }
+
+          label {
+            position: relative;
+            top: 0;
+            left: 0;
+            padding: 0;
+            z-index: unset;
+            flex: auto;
+            display: flex;
+            align-items: center;
+            margin-right: 1.5rem;
+            margin-left: 0;
+
+            input {
+              margin: 0 0.5rem 0 0;
+            }
+
+            .attribute-label-text {
+              line-height: 1rem;
+              white-space: nowrap;
+            }
+          }
+
+          .accordion-title {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 1rem;
+            flex: 0;
+            padding: 0;
+            display: block;
+            height: 1rem;
+
+            &::before {
+              position: relative;
+              top: 0;
+              right: 0;
+              margin-top: 0;
+              display: flex;
+              height: 1rem;
+              width: 1rem;
+              align-items: center;
+              justify-content: center;
+              font-size: 1rem;
+            }
+          }
+
+          .accordion-content {
+            width: 100%;
+            padding: 0.5rem 0 0.5rem 1rem;
+          }
+        }
+      }
+    }
 
     .mtk-editor-modal-window {
       margin-top: -100px;
@@ -2201,10 +2415,12 @@ select {
   max-width: 90vw;
 }
 
-.tooltip p:last-child {
-  margin-bottom: 0;
+.tooltip,
+#dc-tooltip {
+  p:last-child {
+    margin-bottom: 0;
+  }
 }
-
 .status-container {
   margin-top: 1rem;
 }
@@ -2404,10 +2620,12 @@ input.normalized {
       &#schema,
       &#datahash,
       &#json-api,
+      &#meta-data,
       &#related-content {
         .schema-nav,
         .datahash-nav,
         .json-api-nav,
+        .meta-data-nav,
         .json-related-content {
           padding: 0.5rem;
           text-align: right;
@@ -3283,7 +3501,7 @@ body {
   z-index: 1010 !important;
   background: white !important;
   pointer-events: none !important;
-  transition: opacity 0.3s ease-in;
+  transition: opacity 0.1s ease-in;
   opacity: 0;
   position: fixed !important;
   width: calc(50% - 3rem) !important;
@@ -3307,6 +3525,17 @@ body {
     padding-right: 0.5rem;
   }
 }
+
 .mini-preview-image {
+  display: inline-block;
+}
+
+.flatpickr-calendar {
+  &.open.rightMost {
+    right: 0;
+  }
+}
+
+.edit-button-form {
   display: inline-block;
 }

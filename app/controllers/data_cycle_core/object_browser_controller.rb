@@ -32,22 +32,19 @@ module DataCycleCore
         query = query.where(id: permitted_params[:filter_ids]) if permitted_params[:filter_ids].present?
         filter.parameters&.detect { |f| f['t'] == 'fulltext_search' }&.dig('v')&.then { |s| query = query.sort_fulltext_search('DESC', s) }
 
+        render(json: { count: query.count }) && return if count_only_params[:count_only]
+
         @per = permitted_params[:per] if permitted_params[:per].present?
         @per ||= DEFAULT_PER
 
-        @total = query.count
-        @pages = @total.fdiv(@per.to_i).ceil
-
-        if permitted_params[:page].present?
-          @page = permitted_params[:page]
-          @page = @pages if permitted_params[:page].to_i > @pages
-        end
+        @page = permitted_params[:page] if permitted_params[:page].present?
         @page ||= 1
 
-        @results = query.content_includes.page(@page).per(@per)
+        @results = query.content_includes.page(@page).per(@per).without_count
 
         render json: {
-          count: @total || 0,
+          last_page: @results.last_page?,
+          has_contents: !@results.empty?,
           html: render_to_string(formats: [:html], layout: false)
         }
       end
@@ -96,11 +93,15 @@ module DataCycleCore
     def permitted_params
       return @permitted_params if defined? @permitted_params
 
-      DataCycleCore::NormalizeService.normalize_parameters(params.permit(*permitted_parameter_keys))
+      @permitted_params = DataCycleCore::NormalizeService.normalize_parameters(params.permit(*permitted_parameter_keys))
     end
 
     def permitted_parameter_keys
       [:per, :page, :id, :locale, :content_id, :external, { filter_ids: [] }, { ids: [] }, { definition: {} }, filter: {}, excluded: []]
+    end
+
+    def count_only_params
+      params.permit(:count_only)
     end
   end
 end

@@ -1,4 +1,3 @@
-
 import TuiImageEditor from 'tui-image-editor';
 
 class ImageEditor {
@@ -12,9 +11,13 @@ class ImageEditor {
     this.assetId = reveal.dataset.assetId;
     this.hiddenFieldKey = reveal.dataset.hiddenFieldKey;
     this.saveButton = this.$reveal.find('.save-button');
-    this.editableList = $(`[data-image-editor="${this.$reveal.prop('id')}"]`).siblings('.asset-list').first();
-    this.outerEditButton = $(`[data-image-editor="${this.$reveal.prop('id')}"]`).find('.image-editor-button').first();
-    this.fileFormat = this.setFileFormat(this.fileMimeType)
+    this.editableList = $(`[data-image-editor="${this.$reveal.prop('id')}"]`)
+      .siblings('.asset-list')
+      .first();
+    this.outerEditButton = $(`[data-image-editor="${this.$reveal.prop('id')}"]`)
+      .find('.image-editor-button')
+      .first();
+    this.fileFormat = this.setFileFormat(this.fileMimeType);
 
     if (!this.assetId) {
       // initialize new asset
@@ -24,11 +27,11 @@ class ImageEditor {
     this.initEvents();
     this.setup();
   }
-  initEvents(){
+  initEvents() {
     this.saveButton.on('click', this.handleSave.bind(this));
     this.editableList.on('dc:asset_list:changed', this.handleAssetChange.bind(this));
   }
-  handleAssetChange(event, data){
+  handleAssetChange(event, data) {
     const newAsset = data.assets[0];
     this.fileUrl = newAsset.file.url;
     if (newAsset.name.split('.').length > 1) {
@@ -41,11 +44,13 @@ class ImageEditor {
     this.setup();
   }
   setFileFormat(mimeType) {
-    const fileFormat = mimeType.split('/').at(-1);
+    const fileFormatArr = mimeType.split('/')
+    const fileFormat = fileFormatArr[fileFormatArr.length - 1];
+
     this.updateOuterEditButton(this.supportedFileExtensions.includes(fileFormat)).then(r => {});
-    return (fileFormat === 'jpeg' || fileFormat === 'jpg') ? 'jpeg' : 'png';
+    return fileFormat === 'jpeg' || fileFormat === 'jpg' ? 'jpeg' : 'png';
   }
-  async updateOuterEditButton(supported = false){
+  async updateOuterEditButton(supported = false) {
     if (supported) {
       this.outerEditButton.removeClass('warning');
       this.outerEditButton.attr('title', await I18n.translate('frontend.image_editor.edit_image'));
@@ -130,7 +135,7 @@ class ImageEditor {
 
       // colorpicker style
       'colorpicker.button.border': '1px solid #1e1e1e',
-      'colorpicker.title.color': '#fff',
+      'colorpicker.title.color': '#fff'
     };
 
     const options = {
@@ -138,7 +143,7 @@ class ImageEditor {
       includeUI: {
         loadImage: {
           path: this.fileUrl,
-          name: this.fileName,
+          name: this.fileName
         },
         // locale: locale_ru_RU,
         theme: blackTheme, // or whiteTheme
@@ -153,20 +158,20 @@ class ImageEditor {
       cssMaxHeight: '1080',
       selectionStyle: {
         cornerSize: 20,
-        rotatingPointOffset: 70,
-      },
-    }
+        rotatingPointOffset: 70
+      }
+    };
     this.editor = new TuiImageEditor(this.$reveal.find('.tui-image-editor').get(0), options);
   }
   handleSave(event) {
     event.preventDefault();
-    let newUrl = this.editor.toDataURL({format: this.fileFormat});
+    let newUrl = this.editor.toDataURL({ format: this.fileFormat });
     this.updateAsset(newUrl);
   }
   initFile() {
     this.updateAsset(this.fileUrl);
   }
-  updateAsset(fileUrl){
+  updateAsset(fileUrl) {
     const fileName = this.fileName + '.' + this.fileFormat;
     this.urlToFile(fileUrl, fileName, this.fileMimeType).then(file => {
       let data = new FormData();
@@ -194,15 +199,18 @@ class ImageEditor {
         .catch(data => {
           let error = data.statusText;
           if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
-          console.log('error');
-        })
+          console.error('error');
+        });
     });
   }
-  urlToFile(url, filename, mimeType){
-    return (fetch(url)
-        .then(function(res){return res.arrayBuffer();})
-        .then(function(buf){return new File([buf], filename,{type:mimeType});})
-    );
+  urlToFile(url, filename, mimeType) {
+    return fetch(url)
+      .then(function (res) {
+        return res.arrayBuffer();
+      })
+      .then(function (buf) {
+        return new File([buf], filename, { type: mimeType });
+      });
   }
 }
 

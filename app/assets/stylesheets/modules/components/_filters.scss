@@ -1017,6 +1017,14 @@ $filter-border: #aaa;
           background: $light-gray;
           padding: 0.2rem;
 
+          &.remote-render,
+          &.remote-rendering {
+            &::before {
+              background: transparent;
+              box-shadow: none;
+            }
+          }
+
           li {
             flex: 0;
             flex-basis: calc(calc(100% / 3) - 0.4rem);
@@ -1030,7 +1038,7 @@ $filter-border: #aaa;
 
             &:last-child {
               flex-basis: 100%;
-              align-items: flex-start;
+              align-items: flex-end;
               background: transparent;
             }
 

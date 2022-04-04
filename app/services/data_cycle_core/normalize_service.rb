@@ -11,6 +11,8 @@ module DataCycleCore
     def self.normalize_parameters(params)
       params = params.to_h if params.is_a?(ActionController::Parameters)
 
+      return params unless params.is_a?(::Hash)
+
       params.each do |key, value|
         next unless value.is_a?(::Hash)
 
@@ -22,6 +24,10 @@ module DataCycleCore
           value.each_value { |h| normalize_parameters(h) }
         end
       end
+    end
+
+    def self.normalize_encoding(string)
+      string.scrub('').force_encoding('UTF-8').delete("\u0000")
     end
   end
 end

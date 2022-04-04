@@ -94,7 +94,7 @@ module DataCycleCore
 
       template_hash['properties'].each do |key, value|
         if value['type'] == 'schedule'
-          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], yearly_end: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]]] }
+          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]]] }
         elsif value['type'] == 'opening_time'
           parameter = { key.to_sym => [datahash: [:valid_from, :valid_until, :holiday, time: [datahash: [:id, :opens, :closes]], rrules: [validations: [day: []]]]] }
         elsif value['type'] == 'embedded'
@@ -113,7 +113,7 @@ module DataCycleCore
 
       return allowed_params unless translations
 
-      { datahash: allowed_params, translations: I18n.available_locales.map { |l| [l, allowed_params] }.to_h }
+      { datahash: allowed_params, translations: I18n.available_locales.index_with { |_l| allowed_params } }
     end
 
     def self.blank?(data)
@@ -126,9 +126,28 @@ module DataCycleCore
       return {} unless datahash.is_a?(::Hash)
 
       neutral_hash = datahash.key?(:datahash) ? datahash[:datahash] : datahash.except(:translations, :version_name)
-      translations = datahash[:translations]&.reject { |_, value| value.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
+      keep_locales = find_locales_recursive(neutral_hash)
+      translations = datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
 
       translations.transform_values { |value| neutral_hash.merge(value).with_indifferent_access }
+    end
+
+    def self.find_locales_recursive(datahash, locales = [])
+      datahash&.each_value do |v|
+        next unless v.is_a?(::Array) && v.first.is_a?(::Hash)
+
+        v.each do |h|
+          find_locales_recursive(h['datahash'], locales) if h.key?('datahash')
+
+          h['translations']&.each do |l, t|
+            find_locales_recursive(t, locales)
+
+            locales.push(l) if locales.exclude?(l) && t.deep_reject { |_tk, tv| DataCycleCore::DataHashService.blank?(tv) }.present?
+          end
+        end
+      end
+
+      locales
     end
 
     class << self

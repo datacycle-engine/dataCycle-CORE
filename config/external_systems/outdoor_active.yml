@@ -1,25 +1,26 @@
 ---
 name: OutdoorActive
+identifier: outdooractive
 credentials:
   import:
-    project: api-vbg-alpinfonet
-    key: 'XUBRAKED-EMWGMGL9-4OSSRCN4'
-    host: http://www.outdooractive.com
-    end_point: api/project
+    project: Project
+    key: IMPORT_KEY
+    host: IMPORT_HOST
+    end_point: ENDPOINT
   export:
     xml:
-      source: 'datacycle-kaernten'
+      source: SOURCE
     #    owner: 'woerthersee'
-    host: 'http://web:3000'
-    key: 'datacycle-kaernten'
+    host: EXPORT_HOST
+    key: EXPORT_KEY
 default_options:
   import:
     locales: [de, en]
-    outdoor_active_tour_base_url: 'https://touren.vorarlberg.travel/'
-    external_url: 'https://dms.outdooractive.com/%{locale}/poi/%{external_key}'
+    outdoor_active_tour_base_url: TOUR_BASE_URL
+    external_url: IMPORT_EXTERNAL_URL
   export:
-    external_url: 'https://dms.outdooractive.com/%{locale}/poi/%{external_key}'
-    external_key_param: outdoor_active_id
+    external_url: EXPORT_EXTERNAL_URL
+    external_key_param: KEY_PARAM
 config:
   download_config:
     tour_categories:

@@ -19,7 +19,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -41,7 +41,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -61,7 +61,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -81,7 +81,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -101,7 +101,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -127,7 +127,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -160,7 +160,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -191,7 +191,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -228,7 +228,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
             assert_response :bad_request
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -248,7 +248,7 @@ module DataCycleCore
             }
             post api_v4_thing_path(params)
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -274,7 +274,7 @@ module DataCycleCore
               'detail' => 'Not found'
             }
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -282,7 +282,7 @@ module DataCycleCore
 
             post api_v4_thing_path(params)
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -302,7 +302,7 @@ module DataCycleCore
               'detail' => 'Not found'
             }
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -310,7 +310,7 @@ module DataCycleCore
 
             post api_v4_stored_filter_path(params)
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -331,7 +331,7 @@ module DataCycleCore
               'detail' => 'Not found'
             }
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -340,7 +340,7 @@ module DataCycleCore
             post api_v4_collection_path(params)
             follow_redirect!
             assert_response :not_found
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -361,7 +361,7 @@ module DataCycleCore
               'detail' => 'invalid or missing authentication token'
             }
             assert_response :unauthorized
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)
@@ -369,7 +369,7 @@ module DataCycleCore
 
             post api_v4_collection_path(params)
             assert_response :unauthorized
-            assert_equal(response.content_type, 'application/json')
+            assert_equal(response.content_type, 'application/json; charset=utf-8')
             json_data = JSON.parse(response.body)
             assert_equal(1, json_data.size)
             assert_equal(1, json_data['errors'].size)

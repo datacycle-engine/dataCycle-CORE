@@ -52,12 +52,12 @@
               </dd>
             <% end %>
 
-            <% if ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidelines'].any?{|val| content.try(val.to_sym).present? } %>
+            <% if ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidelines', 'licensing_agreement'].any?{|val| content.try(val.to_sym).present? } %>
               <dt>
                 <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
               </dt>
 
-              <% ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidelines'].each do |property_name| %>
+              <% ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidelines', 'licensing_agreement'].each do |property_name| %>
                 <% next if content.try(property_name.to_sym).blank? %>
                 <dd>
                   <%= render_attribute_viewer key: property_name,
@@ -135,6 +135,13 @@
                    content: content
         %>
       <% end %>
+
+        <% if can? :show_exif_data, content %>
+            <h2><%= t('details.bild.exif_data', locale: active_ui_locale) %></h2>
+            <% meta_data = content&.asset&.file&.metadata&.to_utf8 || {} %>
+            <div id="exif-details" data-exif="<%= meta_data.to_json %>">
+            </div>
+        <% end %>
 
     </div>
 

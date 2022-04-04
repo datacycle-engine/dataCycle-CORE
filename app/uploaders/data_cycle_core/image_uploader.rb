@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'phash/image'
+require 'mini_exiftool_vendored'
 
 module DataCycleCore
   class ImageUploader < CommonUploader
@@ -76,7 +77,12 @@ module DataCycleCore
 
     def metadata
       image = ::MiniMagick::Image.new(current_path)
-      image.data
+      colorspace = { ImColorSpace: image.data.dig('colorspace') }
+      exif_data = MiniExiftool.new(current_path, { replace_invalid_chars: true })
+      exif_data
+        .to_hash
+        .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
+        .merge!(colorspace)
     end
 
     def set_phash

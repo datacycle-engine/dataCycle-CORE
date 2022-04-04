@@ -31,7 +31,8 @@ module DataCycleCore
 
         def self.load_all_sections(data)
           return nil if data.blank?
-          factory = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true)
+          longlat_projection = RGeo::CoordSys::Proj4.new('EPSG:4326')
+          factory = RGeo::Cartesian.factory(srid: 4326, proj4: longlat_projection, has_z_coordinate: true)
           all_line_strings = DataCycleCore::Thing
             .where(id: data)
             .map(&:line)
@@ -100,8 +101,10 @@ module DataCycleCore
         def self.parse_section(geometry)
           return nil if geometry.blank? || geometry.dig('coordinates').blank? || geometry.dig('SRID').blank?
           return if geometry.dig('SRID') != 31_256 # Österreich Ost
-          factory_source = RGeo::Cartesian.factory(srid: 31_256, proj4: '+proj=tmerc +lat_0=0 +lon_0=16.33333333333333 +k=1 +x_0=0 +y_0=-5000000 +ellps=bessel +towgs84=577.326,90.129,463.919,5.137,1.474,5.297,2.4232 +units=m +no_defs ')
-          longlat = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true)
+          factory_source_projection = RGeo::CoordSys::Proj4.new('EPSG:31256')
+          factory_source = RGeo::Cartesian.factory(srid: 31_256, proj4: factory_source_projection)
+          longlat_projection = RGeo::CoordSys::Proj4.new('EPSG:4326')
+          longlat = RGeo::Cartesian.factory(srid: 4326, proj4: longlat_projection, has_z_coordinate: true)
 
           coordinates = geometry['coordinates']
           source_coordinates =

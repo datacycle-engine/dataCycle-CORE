@@ -24,7 +24,9 @@ module DataCycleCore
           return nil if data.except('external_key', 'locale').blank?
 
           if local
-            content = DataCycleCore::Thing.new
+            content = DataCycleCore::Thing.new(
+              local_import: true
+            )
           else
             # try to find already present content:
             content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first
@@ -126,6 +128,7 @@ module DataCycleCore
           current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
           invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true)
           partial_update_improved = utility_object.external_source.default_options&.fetch('partial_update_improved', DataCycleCore.partial_update_improved) && !created
+
           valid = content.set_data_hash(
             data_hash: normalized_data,
             prevent_history: !utility_object.history,
@@ -204,44 +207,91 @@ module DataCycleCore
                     })
                   end
 
-                  GC.start
-
-                  times = [Time.current]
-
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                    mongo_item.with_session do |session|
-                      if options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
-                        iterate = iterator.call(mongo_item, locale, source_filter).allow_disk_use(true)
-                      else
-                        iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
-                      end
+                    per = options[:per] || logging_delta
+                    aggregate = options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
 
-                      iterate.each do |content|
-                        break if options[:max_count].present? && item_count >= options[:max_count]
-                        item_count += 1
-                        next if options[:min_count].present? && item_count < options[:min_count]
+                    if aggregate
+                      iterate = iterator.call(mongo_item, locale, source_filter).allow_disk_use(true)
 
-                        session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
+                      page_from = 0
+                      page_to = 0
+                    else
+                      iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max).batch_size(2)
 
-                        data_processor.call(
-                          utility_object: utility_object,
-                          raw_data: content[:dump][locale],
-                          locale: locale,
-                          options: options
-                        )
+                      total = iterate.size
+                      from = options[:min_count] || 0
+                      to = options[:max_count] || total
+                      page_from = from / per
+                      page_to = (to - 1) / per
+                    end
 
-                        next unless (item_count % logging_delta).zero?
+                    times = [Time.current]
+                    (page_from..page_to).each do |page|
+                      item_count = page * per
+                      if Rails.env.test?
+                        iterate = iterate.limit(per).offset(page * per) unless aggregate
+                        iterate.each do |content|
+                          break if options[:max_count].present? && item_count >= options[:max_count]
+                          item_count += 1
+                          next if options[:min_count].present? && item_count < options[:min_count]
 
-                        GC.start
-
+                          data_processor.call(
+                            utility_object: utility_object,
+                            raw_data: content[:dump][locale],
+                            locale: locale,
+                            options: options
+                          )
+                        end
                         times << Time.current
-
                         logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                      else
+                        read, write = IO.pipe
+                        pid = Process.fork do
+                          read.close
+                          iterate = iterate.limit(per).offset(page * per) unless aggregate
+                          iterate.each do |content|
+                            break if options[:max_count].present? && item_count >= options[:max_count]
+                            item_count += 1
+                            next if options[:min_count].present? && item_count < options[:min_count]
+
+                            data_processor.call(
+                              utility_object: utility_object,
+                              raw_data: content[:dump][locale],
+                              locale: locale,
+                              options: options
+                            )
+                          end
+                        rescue StandardError => e
+                          logging.info("E: #{e.message}")
+                          e.backtrace.each do |line|
+                            logging.info("E: #{line}")
+                          end
+                          raise e.exception
+                        ensure
+                          Marshal.dump({ count: item_count, timestamp: Time.current }, write)
+                          write.close
+                        end
+                        write.close
+                        result = read.read
+                        Process.waitpid(pid)
+                        read.close
+                        if result.size.positive?
+                          data = Marshal.load(result) # rubocop:disable Security/MarshalLoad
+                          item_count = data[:count]
+                          times << data[:timestamp]
+                          logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                        end
+                        raise DataCycleCore::Generic::Common::Error::ImporterError, "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total}" if $CHILD_STATUS.exitstatus&.positive? || $CHILD_STATUS.exitstatus.blank?
                       end
                     end
                   end
                 ensure
-                  logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
+                  if $CHILD_STATUS.exitstatus&.zero?
+                    logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count.to_s)
+                  else
+                    logging.info("#{importer_name}(#{phase_name}) #{locale} (#{item_count} items) aborted")
+                  end
                 end
               end
             end

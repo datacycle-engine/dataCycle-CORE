@@ -4,9 +4,9 @@
   "text": "<p>Long Description- en</p>",
   "price": "min 3€",
   "description": "<p>Description juhu- en</p>",
-  "potentialAction": {
-    "url": "https://booking-en.link",
-    "name": "booking.link- en"
+  "potential_action": {
+    "action_url": "https://booking-en.link",
+    "action_name": "booking.link- en"
   },
   "slug": "Angebot-en"
 }

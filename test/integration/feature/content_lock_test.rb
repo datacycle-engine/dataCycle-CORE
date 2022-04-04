@@ -67,7 +67,7 @@ module DataCycleCore
         }
 
         assert_response :success
-        assert_equal response.content_type, 'application/json'
+        assert_equal response.content_type, 'application/json; charset=utf-8'
         json_data = JSON.parse response.body
         assert_equal @content.lock.id, json_data.dig('locks')&.keys&.first
       end
@@ -80,7 +80,7 @@ module DataCycleCore
         }
 
         assert_response :success
-        assert_equal response.content_type, 'application/json'
+        assert_equal response.content_type, 'application/json; charset=utf-8'
         json_data = JSON.parse response.body
         assert_equal @watch_list.things.first.lock.id, json_data.dig('locks')&.keys&.first
       end
