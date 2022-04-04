@@ -1,9 +1,9 @@
 ---
 name: wogehmahin.at
 credentials:
-  end_point: 2Datacycle/index.php
-  host: https://www.wogehmahin.at
-  key: HEFz2DXMjTkuqB # key for KW
+  end_point: ENDPOINT
+  host: HOST
+  key: KEY
 default_options:
   locales: [de]
 config:

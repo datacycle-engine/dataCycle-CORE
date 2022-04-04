@@ -7,7 +7,6 @@ PATH
       acts_as_tree
       addressable
       amazing_print
-      bcrypt_pbkdf
       cancancan (>= 3.3.0)
       carrierwave (~> 0.5)
       carrierwave_backgrounder (~> 0.4.2)
@@ -17,7 +16,6 @@ PATH
       dotiw
       dry-transformer
       dry-validation
-      ed25519
       faraday
       faraday_middleware
       google-cloud-translate
@@ -678,6 +676,7 @@ PLATFORMS
 DEPENDENCIES
   appsignal
   awesome_print
+  bcrypt_pbkdf
   better_errors
   binding_of_caller
   brakeman
@@ -690,6 +689,7 @@ DEPENDENCIES
   caxlsx_rails
   data_cycle_core!
   dotenv-rails
+  ed25519
   faker
   fasterer
   jb

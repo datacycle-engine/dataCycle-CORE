@@ -2,9 +2,9 @@
 name: Medienarchiv
 credentials:
   import:
-    end_point: /api/v1/media.json
-    host: https://media.kaernten.at
-    token: 0PwwV8Z4PyF1lYBtGopUANWrZFGR38my
+    end_point: ENDPOINT
+    host: HOST
+    token: TOKEN
 default_options:
   import:
     locales: [de, en]

@@ -1,9 +1,9 @@
 ---
 name: Feratel CPS
 credentials:
-  host: 'http://cps.light.feratel.com'
-  end_point: '/cpsnet/internet'
-  id: 'LI045,1,100'
+  host: HOST
+  end_point: ENDPOINT
+  id: ID
 default_options:
   locales: [de]
 config:

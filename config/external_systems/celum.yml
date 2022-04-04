@@ -1,9 +1,9 @@
 ---
 name: Celum
 credentials:
-  host: http://media.austrianwine.com/api/
-  user: admin
-  password: 'd9ZdhuxEdSPLJdk)av9RHyeh'
+  host: HOST
+  user: USER
+  password: PASSWORD
 default_options:
   locales: [de]
 config:

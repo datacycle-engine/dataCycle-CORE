@@ -1,9 +1,9 @@
 ---
 name: HRS destination-data
 credentials:
-  host: https://destination-data.oms-ds.com
-  end_point: api
-  api_key: fafb190b8509c203cc1cfd95d937d101
+  host: HOST
+  end_point: ENDPOINT
+  api_key: API_KEY
 default_options:
   locales: [de]
 config:
