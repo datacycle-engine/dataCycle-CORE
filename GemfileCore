@@ -68,7 +68,7 @@ group :development, :test, :review do
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
   gem 'capistrano3-delayed-job'
-  gem 'capistrano3-puma', '~> 4.0'
+  gem 'capistrano3-puma'
 
   gem 'simplecov', require: false
 
