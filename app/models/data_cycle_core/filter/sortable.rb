@@ -31,7 +31,7 @@ module DataCycleCore
             .order(
               sanitized_order_string('things.boost', ordering),
               thing[:id].desc
-          )
+            )
         )
       end
 
