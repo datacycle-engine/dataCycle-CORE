@@ -38,9 +38,9 @@
   integrity sha512-Y30eVMcZva8o84c0HcXAtDO4BEzPJMvF6+B7x7urL2xbAqVsGJhojOyHLaoQHQYjb6OkqRq5kO+zeySycQwKqg==
 
 "@floating-ui/dom@^0.4.1":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-0.4.2.tgz#5c34a19f23a0d72af564e45e5af8000b45318e60"
-  integrity sha512-2/4vOhMAujkMmGqGX1Gut84phe5MNfk1kGeM+RSTJCpeR0SWR2/RR+/f1r1msOvTQa28wn7HEhxGe71CjYY/vw==
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-0.4.3.tgz#a45b891b4cfd2ceb7133121266040cf8912e4736"
+  integrity sha512-ncErIxO2wm6O2eXd3aRXSW3iPK/9za7jQHkDu5UtiYswUTzRz7b9K02sTQ3IyynnxG/cEKxWrH2jB3SDKj05Sw==
   dependencies:
     "@floating-ui/core" "^0.6.1"
 
