@@ -1280,6 +1280,8 @@ en:
     imx_platform:
       description: Description
       description_long: Detailed description
+    gem2go:
+      description: Description      
     timm4:
       intro: Introduction
       description: Description

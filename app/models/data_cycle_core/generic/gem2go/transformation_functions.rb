@@ -10,46 +10,14 @@ module DataCycleCore
         import Transproc::Recursion
         import DataCycleCore::Generic::Common::Functions
 
-        def self.locale_string(data, name, property)
-          return data if data.dig(*Array.wrap(property)).blank?
-          data[name] = data.dig(*Array.wrap(property), I18n.locale.to_s)
-          data
-        end
-
-        def self.parse_geo(data)
-          latitude = data
-            .dig('geoInfo', 'coordinates', 'latitude')
-            &.to_f
-            &.then { |i| i.zero? ? nil : i }
-          longitude = data
-            .dig('geoInfo', 'coordinates', 'longitude')
-            &.to_f
-            &.then { |i| i.zero? ? nil : i }
-          if latitude.blank?
-            latitude = data
-              .dig('location', 'coorinates', 'latitude')
-              &.to_f
-              &.then { |i| i.zero? ? nil : i }
-          end
-          if longitude.blank?
-            longitude = data
-              .dig('location', 'coorinates', 'longitude')
-              &.to_f
-              &.then { |i| i.zero? ? nil : i }
-          end
-          data['latitude'] = latitude
-          data['longitude'] = longitude
-          data
-        end
-
         def self.add_info(data, fields, external_source_id)
           additional_information = fields.map { |type|
             next if data[type].blank?
-            external_key = "ImxPlatform - AdditionalInformation - #{data.dig('id')} - #{type}"
+            external_key = "GEM2GO - AdditionalInformation - #{data.dig('external_key')} - #{type}"
             {
               'id' => DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)&.id,
               'external_key' => external_key,
-              'name' => I18n.t("import.imx_platform.#{type}", default: [type]),
+              'name' => I18n.t("import.gem2go.#{type}", default: [type]),
               'universal_classifications' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', type)),
               'description' => data[type]
             }.compact
@@ -58,39 +26,33 @@ module DataCycleCore
           data
         end
 
-        def self.parse_contact(data)
-          contact_data = data.dig('contact1') if data.dig('contact1', 'contactName').present?
-          contact_data ||= data.dig('contact2') if data.dig('contact2', 'contactName').present?
-          return data if contact_data['contactName'].blank?
-          contact_info = {}
-          contact_info['name'] = contact_data['contactName']
-          contact_info['telephone'] = contact_data.dig('address', 'phone1') || contact_data.dig('address', 'phone2')
-          contact_info['fax_number'] = contact_data.dig('address', 'fax')
-          contact_info['email'] = contact_data.dig('address', 'email')
-          contact_info['url'] =
-            if contact_data.dig('address', 'homepage').is_a?(::Hash)
-              contact_data.dig('address', 'homepage', I18n.locale.to_s)
-            else
-              contact_data.dig('address', 'homepage')
-            end
-          data['contact_info'] = contact_info
-          address = {}
-          address['street_address'] = [contact_data.dig('address', 'street'), contact_data.dig('address', 'streetNo')].join(' ')
-          address['postal_code'] = contact_data.dig('address', 'zipcode') if contact_data.dig('address', 'zipcode').present? && contact_data.dig('address', 'zipcode') != '*****'
-          address['address_locality'] = contact_data.dig('address', 'city')
-          data['address'] = address
-          data
-        end
+        def self.add_schedule(data, external_source_id, external_key)
+          return data if data.dig('timeintervals', 'datetime').blank?
+          data['event_schedule'] = []
+          Array.wrap(data.dig('timeintervals', 'datetime')).each do |date|
+            dtstart = date.dig('start', 'text')&.in_time_zone
+            dtend = date.dig('end', 'text')&.in_time_zone
+            next if dtstart.blank? || dtend.blank?
+            next if dtend < dtstart
+            duration = dtend - dtstart
 
-        def self.add_images(data, external_source_id)
-          images = data
-            .dig('media')
-            .map { |i| { id: i['id'], sort: i['sortingValue'] } }
-            .sort_by { |i| i[:sort] }
-            .map { |i| "ImxPlatform - AddressbaseImage - #{i[:id]}" }
-            .map { |i| DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: i)&.id }
-            .compact
-          data['image'] = images
+            data['event_schedule'] << {
+              start_time: { time: dtstart, zone: dtstart.time_zone.name },
+              duration: duration,
+              rrules: [{
+                rule_type: 'IceCube::DailyRule',
+                until: dtstart
+              }]
+            }
+          end
+          data['event_schedule'].map! do |item|
+            schedule_key = Digest::SHA1.hexdigest "#{external_key.call(data)}-#{item.to_json}"
+            item.merge({
+              id: DataCycleCore::Schedule.find_by(external_source_id: external_source_id, external_key: schedule_key)&.id,
+              external_source_id: external_source_id,
+              external_key: schedule_key
+            })
+          end
           data
         end
       end
