@@ -38,11 +38,7 @@ module DataCycleCore
 
             data['event_schedule'] << {
               start_time: { time: dtstart, zone: dtstart.time_zone.name },
-              duration: duration,
-              rrules: [{
-                rule_type: 'IceCube::DailyRule',
-                until: dtstart
-              }]
+              duration: duration
             }
           end
           data['event_schedule'].map! do |item|
