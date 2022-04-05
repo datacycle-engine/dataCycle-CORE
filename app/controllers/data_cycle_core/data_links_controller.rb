@@ -24,13 +24,8 @@ module DataCycleCore
         redirect_to edit_polymorphic_path(@data_link.item, split_params)
       elsif @data_link.downloadable? && DataCycleCore::Feature::Download.confirmation_required?
         render 'download', layout: 'layouts/data_cycle_core/devise'
-      elsif @data_link.downloadable? && @data_link.item_type == 'DataCycleCore::Thing'
-        download_content(@data_link.item, 'asset', nil, nil)
-      elsif @data_link.downloadable? && @data_link.item_type == 'DataCycleCore::WatchList'
-        download_items = @data_link.item.things.to_a.select do |thing|
-          DataCycleCore::Feature::Download.allowed?(thing)
-        end
-        download_collection(@data_link.item, download_items, ['asset'], nil, nil)
+      elsif @data_link.downloadable?
+        download_data_link(@data_link.item)
       else
         redirect_to polymorphic_path(@data_link.item)
       end
@@ -61,7 +56,13 @@ module DataCycleCore
     end
 
     def download
-      binding.pry
+      @data_link = DataCycleCore::DataLink.find_by(id: params[:id])
+
+      raise CanCan::AccessDenied unless @data_link.try(:is_valid?) && @data_link.downloadable?
+
+      sign_in(@data_link.receiver, store: false) if @data_link.creator.role.rank >= @data_link.receiver.role.rank
+
+      download_data_link(@data_link.item)
     end
 
     def update
@@ -98,6 +99,18 @@ module DataCycleCore
     end
 
     private
+
+    def download_data_link(item)
+      if item.is_a?(DataCycleCore::Thing)
+        download_content(item, 'asset', nil, nil)
+      elsif item.is_a?(DataCycleCore::WatchList)
+        download_items = item.things.to_a.select do |thing|
+          DataCycleCore::Feature::Download.allowed?(thing)
+        end
+
+        download_collection(item, download_items, ['asset'], nil, nil)
+      end
+    end
 
     def update_receiver_locale
       return unless @data_link.locale.present? && @data_link.receiver.is_role?('guest')

@@ -58,8 +58,8 @@ module DataCycleCore
       if DataCycleCore::Feature::Download.configuration.dig('confirmation', 'terms_of_use_url').present?
         terms_link_html = link_to(
           terms_link_html,
-            DataCycleCore::Feature::Download.configuration.dig('confirmation', 'terms_of_use_url'),
-            target: :_blank
+          DataCycleCore::Feature::Download.configuration.dig('confirmation', 'terms_of_use_url'),
+          target: :_blank, rel: :noopener
         )
       elsif I18n.exists?('common.download.confirmation.terms_of_use_html')
         terms_link_html = tag.span(
@@ -77,7 +77,7 @@ module DataCycleCore
 
     def download_item_type(data_link)
       if data_link.item.is_a?(DataCycleCore::Thing)
-        ActionView::OutputBuffer.new("#{data_link.item.translated_template_name(active_ui_locale)}: #{I18n.with_locale(data_link.item.first_available_locale){ data_link.item.try(:title) }}")
+        ActionView::OutputBuffer.new("#{data_link.item.translated_template_name(active_ui_locale)}: #{I18n.with_locale(data_link.item.first_available_locale) { data_link.item.try(:title) }}")
       else
         ActionView::OutputBuffer.new("#{data_link.item.model_name.human(count: 1, locale: active_ui_locale)}: #{data_link.item.try(:name)}")
       end
