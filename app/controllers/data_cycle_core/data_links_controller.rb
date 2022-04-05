@@ -4,33 +4,30 @@ module DataCycleCore
   class DataLinksController < ApplicationController
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
-    before_action :authenticate_user!, except: [:show, :get_text_file] # from devise (authenticate)
-    load_and_authorize_resource except: [:show, :get_text_file] # from cancancan (authorize)
+    before_action :authenticate_user!, except: [:show, :get_text_file, :download] # from devise (authenticate)
+    load_and_authorize_resource except: [:show, :get_text_file, :download] # from cancancan (authorize)
     after_action :update_receiver_locale, only: [:create, :update]
 
     def show
-      link = DataCycleCore::DataLink.find_by(id: params[:id])
+      @data_link = DataCycleCore::DataLink.find_by(id: params[:id])
 
-      raise CanCan::AccessDenied unless link.try(:is_valid?)
+      raise CanCan::AccessDenied unless @data_link.try(:is_valid?)
 
       session[:can_edit_ids] ||= []
-      session[:can_edit_ids] << link.id unless session[:can_edit_ids].include?(link.id)
+      session[:can_edit_ids] << @data_link.id unless session[:can_edit_ids].include?(@data_link.id)
 
-      sign_in(link.receiver, store: !link.downloadable?) if link.creator.role.rank >= link.receiver.role.rank
+      sign_in(@data_link.receiver, store: !@data_link.downloadable?) if @data_link.creator.role.rank >= @data_link.receiver.role.rank
 
-      link.update_column(:seen_at, Time.zone.now)
+      @data_link.update_column(:seen_at, Time.zone.now)
 
-      if link.writable? && link.item.is_a?(DataCycleCore::Thing)
-        redirect_to edit_polymorphic_path(link.item, split_params)
-      elsif link.downloadable? && link.item_type == 'DataCycleCore::Thing'
-        download_content(link.item, 'asset', nil, nil)
-      elsif link.downloadable? && link.item_type == 'DataCycleCore::WatchList'
-        download_items = link.item.things.to_a.select do |thing|
-          DataCycleCore::Feature::Download.allowed?(thing)
-        end
-        download_collection(link.item, download_items, ['asset'], nil, nil)
+      if @data_link.writable? && @data_link.item.is_a?(DataCycleCore::Thing)
+        redirect_to edit_polymorphic_path(@data_link.item, split_params)
+      elsif @data_link.downloadable? && DataCycleCore::Feature::Download.confirmation_required?
+        render 'download', layout: 'layouts/data_cycle_core/devise'
+      elsif @data_link.downloadable?
+        download_data_link(@data_link.item)
       else
-        redirect_to polymorphic_path(link.item)
+        redirect_to polymorphic_path(@data_link.item)
       end
     end
 
@@ -56,6 +53,16 @@ module DataCycleCore
       DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
       redirect_back(fallback_location: root_path, notice: (I18n.t "saved#{send_email_params[:send] == '1' ? '_and_sent' : ''}", data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), scope: [:controllers, :success], locale: helpers.active_ui_locale))
+    end
+
+    def download
+      @data_link = DataCycleCore::DataLink.find_by(id: params[:id])
+
+      raise CanCan::AccessDenied unless @data_link.try(:is_valid?) && @data_link.downloadable?
+
+      sign_in(@data_link.receiver, store: false) if @data_link.creator.role.rank >= @data_link.receiver.role.rank
+
+      download_data_link(@data_link.item)
     end
 
     def update
@@ -92,6 +99,18 @@ module DataCycleCore
     end
 
     private
+
+    def download_data_link(item)
+      if item.is_a?(DataCycleCore::Thing)
+        download_content(item, 'asset', nil, nil)
+      elsif item.is_a?(DataCycleCore::WatchList)
+        download_items = item.things.to_a.select do |thing|
+          DataCycleCore::Feature::Download.allowed?(thing)
+        end
+
+        download_collection(item, download_items, ['asset'], nil, nil)
+      end
+    end
 
     def update_receiver_locale
       return unless @data_link.locale.present? && @data_link.receiver.is_role?('guest')

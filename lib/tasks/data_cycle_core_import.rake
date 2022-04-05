@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-FIXNUM_MAX ||= (2**(0.size * 8 - 2) - 1)
-
 namespace :data_cycle_core do
   namespace :import do
     desc 'List available endpoints for import'
@@ -13,7 +11,7 @@ namespace :data_cycle_core do
 
     desc 'Download and import data from given data source'
     task :perform, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
+      options = Hash[{}.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
@@ -28,7 +26,7 @@ namespace :data_cycle_core do
 
     desc 'Only download data from given data source'
     task :download, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{ max_count: nil }.merge(args.to_h).map do |k, v|
+      options = Hash[{}.merge(args.to_h).map do |k, v|
         if k == :max_count && v
           [k, v.to_i]
         else
@@ -42,7 +40,7 @@ namespace :data_cycle_core do
 
     desc 'Only import (without downloading) data from given data source'
     task :import, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
+      options = Hash[{}.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
@@ -73,7 +71,7 @@ namespace :data_cycle_core do
 
     desc 'Download and import data from partial data source'
     task :perform_partial, [:external_source_id, :download_names, :import_names, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
+      options = Hash[{}.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
@@ -92,7 +90,7 @@ namespace :data_cycle_core do
 
     desc 'download data from partial data source'
     task :download_partial, [:external_source_id, :download_names, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
+      options = Hash[{}.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
         else
@@ -108,7 +106,7 @@ namespace :data_cycle_core do
 
     desc 'import data from partial data source'
     task :import_partial, [:external_source_id, :import_names, :mode, :max_count] => [:environment] do |_, args|
-      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
+      options = Hash[{}.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
         else

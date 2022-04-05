@@ -391,6 +391,13 @@ en:
         web: Web
       format:
         none: Original format
+      confirmation:
+        download: Download
+        terms_of_use_html: 'Terms of use'
+        terms_of_use_link_html: 'I accept the %{link}'
+        terms_of_use_link_text: Terms of use
+        download_start: Start download
+        download_preparing: Download is being prepared...
     help: Help
     mode_switcher_title: View
     date: Date
@@ -1170,7 +1177,7 @@ en:
       download_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
         Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
         has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
-        font-weight: bold;font-style: italic">%{title}</span></a>" shared with you.<br><br>%{n_type}
+        font-weight: bold;font-style: italic">%{title}</span></a>" with you.<br><br>%{n_type}
         is now available for download.</span>'
       updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lato'',
         ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} "<a
