@@ -3539,3 +3539,27 @@ body {
 .edit-button-form {
   display: inline-block;
 }
+
+.home-container.download-confirmation {
+  .download-item-type {
+    text-align: center;
+  }
+
+  form {
+    text-align: center;
+
+    .check-terms_of_use {
+      label > * {
+        margin: 0 0.2rem;
+      }
+    }
+
+    .buttons {
+      margin-top: 1rem;
+
+      .button {
+        padding: 0.8rem 2.5rem;
+      }
+    }
+  }
+}

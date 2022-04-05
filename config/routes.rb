@@ -126,7 +126,7 @@ DataCycleCore::Engine.routes.draw do
 
   resources :data_links do
     post :send_mail, on: :member
-    get :download, on: :member
+    post :download, on: :member
     get :get_text_file, on: :member
   end
 
