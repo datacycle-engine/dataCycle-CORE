@@ -99,7 +99,7 @@ module DataCycleCore
 
         def load_data(id: nil)
           response = Faraday.new.get do |req|
-            req.url(File.join(@host, @end_point, id))
+            req.url(File.join(@host, @end_point, id, '')) # the last empty string adds a trailing slash to the URL
             req.headers['Accept'] = 'application/json'
             req.params['usr'] = @key
           end
@@ -107,20 +107,20 @@ module DataCycleCore
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join(@host, @end_point, id)}", response) unless response.success?
           data = JSON.parse(response.body)
 
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']}, error loading data from #{File.join(@host, @end_point, id)}", response) unless data.try(:length)
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']}:, #{data['message_text']}, error loading data from #{File.join(@host, @end_point, id)}", response) unless data['status'] == 'OK'
           data
         end
 
         def mapped_key(key)
           case key
           when 'length'
-            'laenge'
+            'SHAPE_LENGTH'
           when 'duration'
-            'fahrzeit'
+            'FAHRZEIT'
           when 'ascent'
-            'hoehebergauf'
+            'HOEHE_BERGAUF'
           when 'descent'
-            'hoehebergab'
+            'HOEHE_BERGAB'
           else
             ''
           end
