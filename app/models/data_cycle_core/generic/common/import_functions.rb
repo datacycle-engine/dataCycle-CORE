@@ -220,8 +220,8 @@ module DataCycleCore
                       iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max).batch_size(2)
 
                       total = iterate.size
-                      from = options[:min_count] || 0
-                      to = options[:max_count] || total
+                      from = [options[:min_count] || 0, 0].max
+                      to = [options[:max_count] || total, total].min
                       page_from = from / per
                       page_to = (to - 1) / per
                     end

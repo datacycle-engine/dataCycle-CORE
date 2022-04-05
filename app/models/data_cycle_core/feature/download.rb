@@ -10,12 +10,12 @@ module DataCycleCore
 
         def allowed?(content, scope = [:content])
           return false unless enabled?
-          return false unless DataCycleCore::Feature::Download.dependencies_enabled?
+          return false unless dependencies_enabled?
           return false unless configuration.dig(:downloader, *scope, :enabled)
           return false unless configuration.dig(:downloader, *scope, content.class.to_s.demodulize.underscore, :enabled)
           return false unless enabled_serializers_for_download(content, scope).size.positive?
 
-          return configuration(content).dig('allowed') && DataCycleCore::Feature::Download.dependencies_allowed?(content) if content.class.to_s == 'DataCycleCore::Thing' && scope&.first == :content
+          return configuration(content).dig('allowed') && dependencies_allowed?(content) if content.class.to_s == 'DataCycleCore::Thing' && scope&.first == :content
 
           true
         end
@@ -49,6 +49,10 @@ module DataCycleCore
           configuration
             .dig(:downloader, *scope, content.class.to_s.demodulize.underscore, :mandatory_serializers)
             &.select { |k, v| v.present? && available_serializers.dig(k).present? } || {}
+        end
+
+        def confirmation_required?(content = nil)
+          configuration(content).dig('confirmation', 'required').to_s == 'true'
         end
       end
     end
