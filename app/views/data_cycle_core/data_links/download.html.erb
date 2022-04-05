@@ -2,7 +2,6 @@
   <div class="home-container-content">
     <div class="columns">
       <%= render 'logo' %>
-      <h1><%= t('common.download.confirmation.download', locale: active_ui_locale) %></h1>
       <h4 class="download-item-type"><%= download_item_type(@data_link) %></h4>
       <%= tag.p(t('common.download.confirmation.info_html', locale: active_ui_locale)) if I18n.exists?('common.download.confirmation.info_html', locale: active_ui_locale) %>
 
