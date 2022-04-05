@@ -24,9 +24,11 @@
             <li>
               <%= tag.span tag.i(class: 'fa fa-language', aria_hidden: true),
                             class: 'link',
-                            title: @watch_list.available_locales
+                            data: {
+                              dc_tooltip: @watch_list.available_locales
                                 .map { |t| t("locales.#{t}", locale: active_ui_locale) }
-                                .join("\n") %>
+                                .join('<br>')
+                            } %>
             </li>
           <% end %>
 
@@ -36,9 +38,9 @@
                 <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
                                             class: 'copy-to-clipboard',
                                             data: {
-                                                value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_url", api_subversion: nil, id: @watch_list)
-                                            },
-                                            title: t('actions.copy_to_clipboard', locale: active_ui_locale) do %>
+                                                value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_url", api_subversion: nil, id: @watch_list),
+                                                dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale)
+                                            } do %>
                   <i class="fa fa-clipboard" aria-hidden="true"></i>
                 <% end %>
               </span>
@@ -57,9 +59,9 @@
                 <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
                                             class: 'copy-to-clipboard',
                                             data: {
-                                                value: send("webdav_#{DataCycleCore.main_config.dig(:webdav, :default)}_contents_index_url", api_subversion: nil, id: @watch_list)
-                                            },
-                                            title: t('actions.copy_to_clipboard', locale: active_ui_locale) do %>
+                                                value: send("webdav_#{DataCycleCore.main_config.dig(:webdav, :default)}_contents_index_url", api_subversion: nil, id: @watch_list),
+                                                dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale)
+                                            } do %>
                   <i class="fa fa-hdd-o" aria-hidden="true"></i>
                 <% end %>
               </span>
@@ -112,18 +114,18 @@
 
         <%= render 'data_cycle_core/application/downloads/download', content: @watch_list if can?(:download, @watch_list) %>
 
-        <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link', title: t('actions.edit', locale: active_ui_locale) do %>
+        <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link', data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } do %>
           <i class="fa fa-pencil" aria-hidden="true"></i>
         <% end if can?(:edit, @watch_list) %>
 
         <%= render 'data_cycle_core/watch_lists/bulk_edit_button', collection: @watch_list if can?(:bulk_edit, @watch_list) %>
 
-        <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { confirm: "#{@watch_list.model_name.human(locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?" }, title: t('actions.delete', locale: active_ui_locale) do %>
+        <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { confirm: "#{@watch_list.model_name.human(locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?", dc_tooltip: t('actions.delete', locale: active_ui_locale) } do %>
           <i class="fa fa-trash-o" aria-hidden="true"></i>
         <% end if can? :destroy, @watch_list %>
 
         <% if can?(:bulk_delete, @watch_list) %>
-          <span title="<%= t('actions.delete_items_in_watch_list', locale: active_ui_locale) %>">
+          <span data-dc-tooltip="<%= t('actions.delete_items_in_watch_list', locale: active_ui_locale) %>">
             <%= button_to bulk_delete_watch_list_path(@watch_list),
                     method: :delete,
                     remote: true,
