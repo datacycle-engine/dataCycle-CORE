@@ -60,6 +60,8 @@ module DataCycleCore
 
       raise CanCan::AccessDenied unless @data_link.try(:is_valid?) && @data_link.downloadable?
 
+      redirect_back(fallback_location: root_path, alert: I18n.t('common.download.confirmation.terms_not_checked', locale: helpers.active_ui_locale)) && return if download_params[:terms_of_use].to_s != '1'
+
       sign_in(@data_link.receiver, store: false) if @data_link.creator.role.rank >= @data_link.receiver.role.rank
 
       download_data_link(@data_link.item)
@@ -121,6 +123,10 @@ module DataCycleCore
     def create_link_params
       params[:data_link][:valid_until] = params.dig(:data_link, :valid_until)&.to_datetime&.end_of_day.to_s
       params.require(:data_link).permit(:item_id, :item_type, :creator_id, :permissions, :comment, :valid_from, :valid_until, :asset_id, :locale)
+    end
+
+    def download_params
+      params.permit(:terms_of_use)
     end
 
     def receiver_params
