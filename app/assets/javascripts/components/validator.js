@@ -434,6 +434,7 @@ class Validator {
         values.filter(Boolean).forEach(validation => {
           if (!validation.valid) this.valid = false;
         });
+
         if (this.valid && submit) {
           this.queryCount = 0;
           let warnings = this.$form.find('.form-element .warning.counter');

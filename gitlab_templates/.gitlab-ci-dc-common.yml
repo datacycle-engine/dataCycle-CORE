@@ -91,7 +91,7 @@ services:
     - bundle exec rake db:create
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
-    - bundle exec rails test -b
+    - RUBYOPT=-W0 bundle exec rails test -b
 
 .deploy_config:
   <<: *local_test_vars

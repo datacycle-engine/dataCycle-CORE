@@ -70,8 +70,7 @@
         :label: Ort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Örtlichkeit
@@ -138,6 +137,9 @@
       :additional_properties:
         :type: mixin
         :name: additional_properties
+      :translation_of_work_mixin:
+        :type: mixin
+        :name: translation_of_work_mixin
 
 - :data:
     :name: Rezeptkomponente

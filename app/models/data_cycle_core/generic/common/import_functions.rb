@@ -287,7 +287,7 @@ module DataCycleCore
                     end
                   end
                 ensure
-                  if $CHILD_STATUS.exitstatus&.zero?
+                  if $CHILD_STATUS.present? && $CHILD_STATUS.exitstatus&.zero?
                     logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count.to_s)
                   else
                     logging.info("#{importer_name}(#{phase_name}) #{locale} (#{item_count} items) aborted")

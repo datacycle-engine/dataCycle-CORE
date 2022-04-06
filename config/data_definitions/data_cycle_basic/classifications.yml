@@ -77,7 +77,7 @@
 - Informationstypen | all:
 
 - $$Externe Informationstypen | all:
-    - description | OutdoorActive/imx_platform/TIMM4
+    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO
     - description_long | imx_platform
     - text | OutdoorActive
     - directions | OutdoorActive
