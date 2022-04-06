@@ -411,3 +411,8 @@
 
 :image_editor:
   :enabled: false
+
+:translation_of_work:
+  :enabled: true
+  :attribute_keys:
+    - translation_of_work
