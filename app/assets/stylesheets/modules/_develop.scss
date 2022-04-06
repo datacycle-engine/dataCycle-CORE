@@ -3542,7 +3542,14 @@ body {
 
 .home-container.download-confirmation {
   .download-item-type {
+    margin-top: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
     text-align: center;
+
+    .item-type {
+      font-weight: 600;
+    }
   }
 
   form {

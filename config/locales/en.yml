@@ -393,6 +393,7 @@ en:
         none: Original format
       confirmation:
         download: Download
+        terms_not_checked: The terms of use must be accepted
         terms_of_use_html: 'Terms of use'
         terms_of_use_link_html: 'I accept the %{link}'
         terms_of_use_link_text: Terms of use
@@ -1287,6 +1288,8 @@ en:
     imx_platform:
       description: Description
       description_long: Detailed description
+    gem2go:
+      description: Description      
     timm4:
       intro: Introduction
       description: Description

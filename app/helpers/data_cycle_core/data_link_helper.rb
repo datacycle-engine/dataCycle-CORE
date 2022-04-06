@@ -77,10 +77,15 @@ module DataCycleCore
 
     def download_item_type(data_link)
       if data_link.item.is_a?(DataCycleCore::Thing)
-        ActionView::OutputBuffer.new("#{data_link.item.translated_template_name(active_ui_locale)}: #{I18n.with_locale(data_link.item.first_available_locale) { data_link.item.try(:title) }}")
+        item_type = data_link.item.translated_template_name(active_ui_locale)
+        item_title = I18n.with_locale(data_link.item.first_available_locale) { data_link.item.try(:title) }
       else
-        ActionView::OutputBuffer.new("#{data_link.item.model_name.human(count: 1, locale: active_ui_locale)}: #{data_link.item.try(:name)}")
+        item_type = data_link.item.model_name.human(count: 1, locale: active_ui_locale)
+        item_title = data_link.item.try(:name)
       end
+
+      tag.span("#{item_type}: ", class: 'item-type') +
+        tag.span(item_title, class: 'item-title', data: { dc_tooltip: item_title })
     end
   end
 end
