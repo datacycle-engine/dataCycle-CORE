@@ -7,7 +7,7 @@
 
       <%= form_with(url: download_data_link_path(@data_link), local: true) do |f| %>
         <div class="check-terms_of_use dc-checkbox">
-          <%= f.check_box 'terms_of_use', required: true %>
+          <%= f.check_box 'terms_of_use', required: true, data: { disable: true } %>
           <%= f.label 'terms_of_use', terms_of_use_label %>
         </div>
 
