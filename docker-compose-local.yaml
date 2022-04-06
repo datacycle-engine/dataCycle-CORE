@@ -83,23 +83,23 @@ services:
       DNSDOCK_ALIAS: localhost
     ports:
       - '127.0.0.1:${PUBLIC_MAILHOG_PORT:-1025}:8025'
-  # varnish:
-  #   image: varnish:7.1
-  #   environment:
-  #     - VARNISH_SIZE=2G
-  #   command: "-s static=file,/var/lib/varnish/,1G"
-  #   extra_hosts:
-  #   - 'dockerhost:host-gateway'
-  #   volumes:
-  #     - ./../../../docker/default.vcl:/etc/varnish/default.vcl
-  #     # - ./../../../docker/storage:/tmp/varnish_storage
-  #   ports:
-  #     - '8080:80'
-  #   depends_on:
-  #     - nginx
+  varnish:
+    image: varnish:7.1
+    environment:
+      - VARNISH_SIZE=2G
+    command: "-s static=file,/var/lib/varnish/,10G"
+    extra_hosts:
+    - 'dockerhost:host-gateway'
+    volumes:
+      - ./../../../docker/default.vcl:/etc/varnish/default.vcl
+      # - ./../../../docker/storage:/tmp/varnish_storage
+    depends_on:
+      - nginx
   # varnishncsa -F "%m %U%q ---- %{Varnish:handling}x"
-  # 15d5d8a6-4282-4aa3-917b-3444ae8701cd
-  # varnishadm ban req.http.host == localhost:8080 '&&' req.url '~' '*15d5d8a6-4282-4aa3-917b-3444ae8701cd~'
+  # varnishadm ban "req.url ~ /things/288c2596-ee26-4793-961b-4d7f2ba7da8d"
+  # curl --http1.1 -v -X BAN -H 'x-invalidate-pattern: /things/288c2596-ee26-4793-961b-4d7f2ba7da8d' -H "Host: docker-varnish" varnish
+  # curl --http1.1 -v -X BAN -H 'x-invalidate-pattern: /things/288c2596-ee26-4793-961b-4d7f2ba7da8d' -H "Host: docker-varnish" localhost:8080
+  # http://localhost:3003/things/288c2596-ee26-4793-961b-4d7f2ba7da8d?locale=de
 volumes:
   mongodb-data:
   mongodb-log:
