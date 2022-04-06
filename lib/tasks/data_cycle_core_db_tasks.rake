@@ -199,7 +199,7 @@ namespace :data_cycle_core do
 
     #   if ENV.fetch('RAILS_ENV', 'development') != 'development'
     #     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
-    #     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs:all"].invoke(true)
+    #     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs"].invoke(true)
     #   end
 
     #   logger.info('Imported Live DB successfully')
@@ -220,7 +220,7 @@ namespace :data_cycle_core do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:create"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:seed"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs:all"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs"].invoke
       puts 'Reset Complete...'
     end
   end
