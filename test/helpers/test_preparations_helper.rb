@@ -147,7 +147,7 @@ module DataCycleCore
       )
     end
 
-    def self.create_content(template_name: nil, data_hash: nil, user: nil, prevent_history: false, save_time: Time.zone.now, version_name: nil)
+    def self.create_content(template_name: nil, data_hash: nil, user: nil, prevent_history: false, save_time: Time.zone.now, version_name: nil, source: nil)
       return if template_name.blank? || data_hash.blank?
       data_hash = data_hash.dup.with_indifferent_access
       @content = DataCycleCore::Thing.find_by(data_hash.slice('name', 'given_name', 'family_name').merge({ template_name: template_name, template: false }))
@@ -162,15 +162,22 @@ module DataCycleCore
       @content.created_by = user&.id if user.present?
       @content.save!(touch: false)
 
-      @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: (user || User.find_by(email: 'tester@datacycle.at')), update_search_all: false, prevent_history: prevent_history, save_time: save_time, version_name: version_name)
+      @content.set_data_hash(
+        data_hash: data_hash,
+        new_content: true,
+        current_user: (user || User.find_by(email: 'tester@datacycle.at')),
+        update_search_all: false,
+        prevent_history: prevent_history,
+        save_time: save_time,
+        version_name: version_name,
+        source: source
+      )
 
       @content
     end
 
     def self.generate_schedule(dtstart, dtend, duration, frequency: 'daily')
       schedule = DataCycleCore::Schedule.new
-      dtstart = dtstart
-      dtend = dtend
       untild = dtend
       end_time = dtstart + duration
       untildt = DataCycleCore::Schedule.until_as_utc_iso8601(untild, dtstart).to_datetime.utc
