@@ -395,6 +395,7 @@ de:
         none: Originalformat
       confirmation:
         download: Download
+        terms_not_checked: Die Nutzungsbedingungen müssen akzeptiert werden
         terms_of_use_html: 'Nutzungsbedingungen'
         terms_of_use_link_html: 'Ich akzeptiere die %{link}'
         terms_of_use_link_text: Nutzungsbedingungen
