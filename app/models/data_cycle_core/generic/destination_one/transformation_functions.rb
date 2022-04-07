@@ -1,0 +1,96 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module Generic
+    module DestinationOne
+      module TransformationFunctions
+        extend Transproc::Registry
+        import Transproc::HashTransformations
+        import Transproc::Conditional
+        import Transproc::Recursion
+        import DataCycleCore::Generic::Common::Functions
+
+        def self.add_info(data, external_source_id)
+          return data if data['texts'].blank?
+          additional_information = data['texts']
+            .select { |text|
+              text.dig('type') == 'text/html' && text.dig('value')&.strip.present? && text.dig('rel')&.strip.present?
+            }.map { |text|
+              type = text['rel'].downcase
+              external_key = "destination.one - AdditionalInformation - #{data.dig('external_key')} - #{text['rel']}"
+              {
+                'id' => DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)&.id,
+                'external_key' => external_key,
+                'name' => I18n.t("import.destination_one.#{type}", default: [type]),
+                'universal_classifications' => Array.wrap(DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', type)),
+                'description' => text['value']
+              }.compact
+            }.compact
+          data['additional_information'] = additional_information
+          data
+        end
+
+        def self.add_ccc(data, license)
+          key = license.call(data)
+          return data if key.blank? || !key.starts_with?('CC')
+          key = key.split('-')
+          data['license_classification'] = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Lizenzen', "#{key[0]} #{key[1..-1].join('-')}")
+          data
+        end
+
+        def self.add_opening_hours_specification(data, external_source_id)
+          parse_opening_hours_specification(data, external_source_id, 'opening_hours_specification', 'timeIntervals')
+        end
+
+        def self.add_dining_hours_specification(data, external_source_id)
+          parse_opening_hours_specification(data, external_source_id, 'dining_hours_specification', 'kitchenTimeIntervals')
+        end
+
+        def self.parse_opening_hours_specification(data, external_source_id, property, attribute)
+          return data if data.dig(attribute).blank?
+          data[property] = []
+          data.dig(attribute).uniq.each do |time|
+            dtstart = time['start']&.in_time_zone
+            dtend = time['end']&.in_time_zone
+            dtuntil = time['repeatUntil']&.in_time_zone || Time.zone.now.end_of_year + 5.years
+            if time['freq'].blank? && time['start'].present? # single entry
+              dtuntil = dtend
+              wdays = Array.wrap(dtstart.wday)
+            else
+              wdays = days(time['weekdays'])
+            end
+            data[property] << DataCycleCore::Generic::Common::OpeningHours.parse_opening_times({
+              'TimeFrom' => dtstart,
+              'DateFrom' => dtstart,
+              'TimeTo' => dtend,
+              'DateTo' => dtuntil.to_date,
+              'WeekDays' => wdays
+            }, external_source_id, "#{data['external_key']} - #{property} - #{time.to_json}")
+          end
+          data[property] = data[property]&.flatten
+          data
+        end
+
+        def self.parse_once(time, external_source_id, parent_external_key)
+        end
+
+        def self.days(weekdays)
+          return [] if weekdays.blank?
+          wd = []
+          weekdays.each do |i|
+            wd << {
+              'Monday' => 1,
+              'Tuesday' => 2,
+              'Thursday' => 3,
+              'Wednesday' => 4,
+              'Friday' => 5,
+              'Saturday' => 6,
+              'Sunday' => 0
+            }[i]
+          end
+          wd
+        end
+      end
+    end
+  end
+end
