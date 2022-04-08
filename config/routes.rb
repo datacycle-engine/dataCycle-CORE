@@ -59,7 +59,6 @@ DataCycleCore::Engine.routes.draw do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
       post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
-      get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_system_id/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :load_more_related, on: :member
@@ -74,6 +73,7 @@ DataCycleCore::Engine.routes.draw do
       post :validate, on: :member
       match :geojson_for_map_editor, on: :collection, via: [:get, :post], defaults: { format: 'application/vnd.geo+json' }
       post :validate, on: :collection
+      get :compare, on: :collection
       get :select_search, on: :collection
       get :render_embedded_object, on: :member
       post :bulk_create, on: :collection

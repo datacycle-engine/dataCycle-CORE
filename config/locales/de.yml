@@ -510,16 +510,24 @@ de:
         email: E-Mail
         user_display_name: Account
 
+  compare:
+    switch_contents: Inhalte tauschen
+
   history:
     latest_edits: Letzte Bearbeitungen
     created_at_html: erstellt am <b>%{date}</b>
     updated_at_html: bearbeitet in <b>%{language}</b> am <b>%{date}</b>
     valid_since: gültig seit
     differences_to_version: Unterschiede zu Version
-    active_version: Aktuelle Version
-    look_at_version: Aktuellen Version mit dieser Version vergleichen
+    active_version: mit aktueller Version vergleichen
+    # look_at_version: aktuelle Version mit dieser Version vergleichen
+    use_as_source: als Ausgangsversion im Vergleich verwenden
+    use_as_target: als Zielversion im Vergleich verwenden
     restored: Wiederhergestellt am %{date}
     created: Inhalt erstellt
+    switch_versions: Versionen tauschen
+    active_source: Ausgangsversion
+    active_target: Zielversion
     restore:
       version:
         title: Diese Version wiederherstellen
