@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module DestinationOne
-      module ImportGastro
+      module ImportTour
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
@@ -39,10 +39,10 @@ module DataCycleCore
               end
             end
 
-            DataCycleCore::Generic::DestinationOne::Processing.process_gastro(
+            DataCycleCore::Generic::DestinationOne::Processing.process_tour(
               utility_object,
               raw_data,
-              options.dig(:import, :transformations, :gastro)
+              options.dig(:import, :transformations, :tour)
             )
           end
         end

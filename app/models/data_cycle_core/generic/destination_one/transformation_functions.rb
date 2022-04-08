@@ -12,10 +12,14 @@ module DataCycleCore
 
         def self.add_info(data, external_source_id)
           return data if data['texts'].blank?
+          html_texts = data['texts']
+            .select { |text| text['type'] == 'text/html' && text['value']&.strip.present? && text['rel']&.strip.present? }
+            .map { |text| text['rel'] }
           additional_information = data['texts']
-            .select { |text|
-              text.dig('type') == 'text/html' && text.dig('value')&.strip.present? && text.dig('rel')&.strip.present?
-            }.map { |text|
+            .select { |text| text['value']&.strip.present? && text['rel']&.strip.present? }
+            .select { |text| text['type'].in?(['text/html', 'text/plain']) }
+            .reject { |text| (text['rel'].in?(html_texts) && text['type'] != 'text/html') }
+            .map { |text|
               type = text['rel'].downcase
               external_key = "destination.one - AdditionalInformation - #{data.dig('external_key')} - #{text['rel']}"
               {
@@ -35,6 +39,23 @@ module DataCycleCore
           return data if key.blank? || !key.starts_with?('CC')
           key = key.split('-')
           data['license_classification'] = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Lizenzen', "#{key[0]} #{key[1..-1].join('-')}")
+          data
+        end
+
+        def self.add_tour(data, geometry)
+          geo_data = geometry.call(data)
+          return data if geo_data.blank?
+          factory = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
+          data['line'] = factory.multi_line_string(
+            Array.wrap(
+              factory.line_string(
+                geo_data
+                  .split
+                  .each_slice(2)
+                  .map { |long, lat| factory.point(lat.to_f, long.to_f) }
+              )
+            )
+          )
           data
         end
 

@@ -24,6 +24,26 @@ module DataCycleCore
           )
         end
 
+        def self.process_hotel(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::DestinationOne::Transformations.to_hotel(utility_object.external_source.id),
+            default: { template: 'Unterkunft' },
+            config: config
+          )
+        end
+
+        def self.process_tour(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::DestinationOne::Transformations.to_tour(utility_object.external_source.id),
+            default: { template: 'Tour' },
+            config: config
+          )
+        end
+
         def self.process_image(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,

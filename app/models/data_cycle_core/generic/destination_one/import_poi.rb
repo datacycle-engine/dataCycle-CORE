@@ -29,7 +29,7 @@ module DataCycleCore
           I18n.with_locale(locale) do
             if raw_data.dig('media_objects').present?
               Array.wrap(raw_data.dig('media_objects'))
-                .select { |i| i.dig('rel') == 'default' } # for images
+                .select { |i| i.dig('rel').in?(['default', 'imagegallery']) } # for images
                 .each do |image_data|
                 DataCycleCore::Generic::DestinationOne::Processing.process_image(
                   utility_object,
