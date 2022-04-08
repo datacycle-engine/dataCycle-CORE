@@ -16,8 +16,6 @@ module DataCycleCore
 
         def inherit_publication_attributes(data_hash:)
           DataCycleCore.features.dig(:publication_schedule, :classification_keys).each do |key|
-            next if data_hash.dig('publication_schedule').blank?
-
             data_hash[key] = data_hash.dig('publication_schedule')&.map { |p| p.key?('datahash') ? p.dig('datahash', key) : p[key] }&.flatten&.compact&.uniq
           end
         end
