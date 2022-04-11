@@ -21,9 +21,7 @@ threads 1, ENV.fetch('PUMA_MAX_THREADS') { 5 }.to_i
 
 bind "unix://#{application_root}/tmp/sockets/puma.sock"
 
-if ENV.fetch('WEB_CONCURRENCY') { nil }.nil?
-  workers ENV.fetch('PUMA_MAX_WORKERS') { 3 }.to_i
-end
+workers ENV.fetch('PUMA_MAX_WORKERS') { 3 }.to_i if ENV.fetch('WEB_CONCURRENCY') { nil }.nil?
 
 preload_app!
 
