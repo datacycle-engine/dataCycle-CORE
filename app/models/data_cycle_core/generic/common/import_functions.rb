@@ -292,7 +292,7 @@ module DataCycleCore
                     logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count.to_s)
                   else
                     logging.info("#{importer_name}(#{phase_name}) #{locale} (#{item_count} items) aborted")
-                    raise DataCycleCore::Generic::Common::Error::ImporterError, "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total}"
+                    raise DataCycleCore::Generic::Common::Error::ImporterError, "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total}" unless Rails.env.test?
                   end
                 end
               end
