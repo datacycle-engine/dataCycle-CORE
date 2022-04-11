@@ -105,7 +105,7 @@ de:
       running: Es gibt noch laufende Uploads!
       missing_metadata: Fehlende Metadaten!
       processing: wird verarbeitet
-      found_duplicate: Duplikat gefunden!
+      found_duplicate: Duplikate gefunden!
       uploaded_successfully: hochgeladen, OK
       error_saving_content: Fehler beim Speichern des Inhalts!
       upload_error: Uploadfehler

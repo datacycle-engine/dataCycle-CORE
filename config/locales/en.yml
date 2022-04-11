@@ -98,7 +98,7 @@ en:
       running: There are still uploads in progress!
       missing_metadata: Missing metadata!
       processing: is being processed
-      found_duplicate: Duplicate found!
+      found_duplicate: Duplicates found!
       uploaded_successfully: uploaded, OK
       error_saving_content: Error saving the content!
       upload_error: Upload error

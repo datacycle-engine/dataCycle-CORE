@@ -390,9 +390,14 @@ ul.asset-list {
           color: $dark-gray;
 
           span.notice {
+            position: relative;
             white-space: nowrap;
             border-left: 1px solid $medium-gray;
             padding-left: 0.5rem;
+          }
+
+          span.error {
+            position: relative;
           }
 
           > span {
