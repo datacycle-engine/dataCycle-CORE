@@ -84,17 +84,11 @@ services:
     ports:
       - '127.0.0.1:${PUBLIC_MAILHOG_PORT:-1025}:8025'
   varnish:
-    image: varnish:7.1
-    environment:
-      - VARNISH_SIZE=2G
-    command: "-s static=file,/var/lib/varnish/,10G"
-    extra_hosts:
-    - 'dockerhost:host-gateway'
+    env_file:
+      - ${PWD}/.env
     volumes:
-      - ./../../../docker/default.vcl:/etc/varnish/default.vcl
-      # - ./../../../docker/storage:/tmp/varnish_storage
-    depends_on:
-      - nginx
+      - '${PWD}:/app'
+      - varnish-data:/var/lib/varnish/data
   # varnishncsa -F "%m %U%q ---- %{Varnish:handling}x"
   # varnishadm ban "req.url ~ /things/288c2596-ee26-4793-961b-4d7f2ba7da8d"
   # curl --http1.1 -v -X BAN -H 'x-invalidate-pattern: /things/288c2596-ee26-4793-961b-4d7f2ba7da8d' -H "Host: docker-varnish" varnish
@@ -106,3 +100,4 @@ volumes:
   nginx-log:
   postgres-data:
   redis:
+  varnish-data:
