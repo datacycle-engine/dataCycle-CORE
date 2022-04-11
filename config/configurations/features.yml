@@ -357,7 +357,7 @@
     :enabled: false
   :config:
     :dynamic:
-    :original:
+    # :original:
     :default:
       :processing:
         :resize_type: fit
