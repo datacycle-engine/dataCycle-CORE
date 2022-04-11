@@ -18,7 +18,7 @@ threads 1,<%= Integer(fetch(:puma_max_threads, 5)) %>
 <% if fetch(:puma_control_app) %>
 activate_control_app "<%= fetch(:puma_default_control_app) %>"
 <% end %>
-# workers <%= Integer(fetch(:puma_max_workers, 3)) %>
+workers <%= Integer(fetch(:puma_max_workers, 3)) %>
 <% if fetch(:puma_worker_timeout) %>
 worker_timeout <%= Integer(fetch(:puma_worker_timeout)) %>
 <% end %>
