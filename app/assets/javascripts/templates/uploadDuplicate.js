@@ -1,7 +1,7 @@
 export default async function (id, duplicates) {
   return `
-    <a class="possible-duplicates" data-toggle="${id}-duplicates-list" title="Duplikate vorhanden" aria-controls="${id}-duplicates-list" aria-haspopup="true">
-      <i class="fa fa-exclamation" aria-hidden="true"></i> Duplikate vorhanden
+    <a class="possible-duplicates" data-toggle="${id}-duplicates-list" aria-controls="${id}-duplicates-list" aria-haspopup="true">
+      <i class="fa fa-exclamation" aria-hidden="true"></i> ${await I18n.translate('frontend.upload.found_duplicate')}
     </a>
     <div class="dropdown-pane no-bullet bottom" id="${id}-duplicates-list" data-dropdown data-hover="true" data-hover-pane="true" aria-hidden="true">
       <h5>mögliche Duplikate</h5>

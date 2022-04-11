@@ -1,6 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep';
 import unionBy from 'lodash/unionBy';
-import get from 'lodash/get';
 import domElementHelpers from '../../helpers/dom_element_helpers';
 import uploadDuplicate from '../../templates/uploadDuplicate';
 import MimeTypes from 'mime';
