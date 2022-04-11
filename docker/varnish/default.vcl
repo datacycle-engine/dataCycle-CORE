@@ -18,6 +18,12 @@ sub vcl_recv {
 }
 
 sub vcl_backend_response {
+	# Don't cache 404 responses
+	if ( beresp.status == 404 ) {
+		set beresp.ttl = 120s;
+		set beresp.uncacheable = true;
+		return (deliver);
+	}
     set beresp.http.x-url = bereq.url;
     set beresp.http.x-host = bereq.http.host;
     set beresp.http.cache-control = "public, max-age=31536000";
