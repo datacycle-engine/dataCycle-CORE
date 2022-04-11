@@ -206,7 +206,7 @@ module DataCycleCore
         end
 
         def self.transform_name(data, attribute_name)
-          data[attribute_name] = data[attribute_name].split(',').reverse.join(' ').strip if data[attribute_name].include?(',')
+          data[attribute_name] = data[attribute_name].split(',').reverse.join(' ').strip if data[attribute_name]&.include?(',')
 
           data
         end
