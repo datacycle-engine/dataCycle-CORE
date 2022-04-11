@@ -93,6 +93,13 @@ module DataCycleCore
 
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can,
+              :history,
+              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing::History)
+            )
+
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
               :can, :read, :update, :import,
               DataCycleCore::Abilities::Segments::ContentIsEditable.new(
                 [

@@ -54,7 +54,7 @@ module DataCycleCore
       allowed = attribute_editor_allowed(options)
       return allowed unless allowed.is_a?(TrueClass)
 
-      if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) && !options.parameters&.dig(:parent_translatable)
+      if (attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) && !options.parameters&.dig(:parent_translatable)) || object_has_translatable_attributes?(options.content, options.definition)
         render_translatable_attribute_editor options.to_h
       else
         render_untranslatable_attribute_editor options.to_h
@@ -68,7 +68,7 @@ module DataCycleCore
         content = options.parameters[:parent] || options.content
 
         if DataCycleCore::DataHashService.blank?(options.value)
-          content.default_value(options.key.attribute_name_from_key, current_user) if !content.persisted? || content.template
+          content.default_value(options.key.attribute_name_from_key, current_user) if content.is_a?(DataCycleCore::Thing) && (!content.persisted? || content.template)
           options.value = content.try(options.key.attribute_name_from_key)
         end
 

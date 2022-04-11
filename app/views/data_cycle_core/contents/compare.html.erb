@@ -8,40 +8,32 @@
       <div class="row expanded">
         <div class="column edit-header-functions">
           <div class="edit-name">
-            <i class="fa fa-columns" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: active_ui_locale) %>
+            <i class="fa fa-arrows-h" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: active_ui_locale) %>
           </div>
-          <ul>
-            <li class="has-dropdown right">
-              <%= render 'split_sources', query_params: { exclude: @content&.id, template_name: @content&.template_name }, value: @diff_source, url: compare_thing_path(@content), title_text: t('common.choose_splitsource', locale: active_ui_locale) %>
-            </li>
-            <li class="buttons"></li>
-          </ul>
         </div>
       </div>
     </section>
 
     <div class="column">
 
-      <div class="detail-content detail-content-wrapper">
+      <div class="content-diff-wrapper">
 
         <% I18n.with_locale(@diff_source.first_available_locale) do %>
-
-          <div class="detail-content row">
+          <div class="detail-content row content-diff-header">
             <div class="show-content">
               <div class="detail-header-info diff">
                 <% I18n.with_locale(@diff_source.first_available_locale) do %>
-                  <%= render 'diff_meta_data', content: @diff_source %>
+                  <%= render 'data_cycle_core/contents/diff_meta_data', content: @content, diff_source: @diff_source, source_parameter: :diff_source %>
                 <% end %>
 
                 <span class="meta-data-splitter">
-                  <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                  <%= link_to tag.i(class: 'fa fa-long-arrow-right'), compare_things_url(id: @diff_source.id, source_id: @content.id, watch_list_id: @watch_list&.id), data: { dc_tooltip: t('compare.switch_contents', locale: active_ui_locale) } %>
                 </span>
 
                 <% I18n.with_locale(@content.first_available_locale) do %>
-                  <%= render 'diff_meta_data', content: @content %>
+                  <%= render 'data_cycle_core/contents/diff_meta_data', content: @content, diff_source: @diff_source, source_parameter: :content %>
                 <% end %>
               </div>
-
             </div>
           </div>
 

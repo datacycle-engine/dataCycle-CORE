@@ -11,7 +11,7 @@ module DataCycleCore
       include feature.controller_module if feature.enabled? && feature.controller_module
     end
 
-    load_and_authorize_resource only: [:index, :show, :destroy, :history]
+    load_and_authorize_resource only: [:index, :show, :destroy]
 
     def index
       redirect_back(fallback_location: root_path)
@@ -250,10 +250,12 @@ module DataCycleCore
     end
 
     def history
-      @content = DataCycleCore::Thing.includes(:classifications).find(params[:id])
-      @diff_source = @content.histories.find(params[:history_id]) if params[:history_id].present?
+      @content = DataCycleCore::Thing.find_by(id: params[:id]) || DataCycleCore::Thing::History.find_by(id: params[:id])
+      @diff_source = DataCycleCore::Thing.find_by(id: params[:history_id]) || DataCycleCore::Thing::History.find_by(id: params[:history_id])
 
-      redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
+      raise ActiveRecord::RecordNotFound if @content.nil? || @diff_source.nil?
+
+      authorize! :history, @content
 
       I18n.with_locale(@diff_source.first_available_locale) do
         @data_schema = @content.get_data_hash
