@@ -22,6 +22,7 @@
         :serializers:
           :asset:
             :original:
+            :default:
               - png
               - jpeg
             :web:
