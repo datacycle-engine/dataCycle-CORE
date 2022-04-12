@@ -20,6 +20,10 @@ upstream docker-imgproxy {
   server imgproxy:${IMGPROXY_PORT};
 }
 
+upstream docker-varnish {
+  server varnish:80;
+}
+
 upstream puma_data_cycle {
   server unix:${APPLICATION_ROOT}/tmp/sockets/puma.sock fail_timeout=0;
 }
@@ -216,28 +220,28 @@ server {
 
     # the filename is always ignored by the proxy to avoid DOS attachs. If required the name can be set via Content-Disposition header.
     # when no target type is set, the image will be processed with the source type
-    proxy_pass http://docker-imgproxy/$signature/resize:$mode:$width:$height:$enlarge/gravity:$gravity/filename:$thing/plain/$rqUrl@$type;
+    proxy_pass http://docker-varnish/$signature/resize:$mode:$width:$height:$enlarge/gravity:$gravity/filename:$thing/plain/$rqUrl@$type;
 
-    proxy_cache imgproxy_data_cycle;
+    # proxy_cache imgproxy_data_cycle;
 
     # the filename is not used for key cache
-    proxy_cache_key "$rqUrl$mode$width$height$enlarge$gravity$type";
+    # proxy_cache_key "$rqUrl$mode$width$height$enlarge$gravity$type";
 
-    proxy_cache_background_update on;
+    # proxy_cache_background_update on;
 
-    proxy_cache_lock on;
-    proxy_cache_lock_age 5s;
-    proxy_cache_lock_timeout 5s;
+    # proxy_cache_lock on;
+    # proxy_cache_lock_age 5s;
+    # proxy_cache_lock_timeout 5s;
 
-    proxy_cache_use_stale updating;
+    # proxy_cache_use_stale updating;
 
-    proxy_cache_valid 200 30d; # Cache valid assets for 30 days.
-    proxy_cache_valid any 15s; # Everything else gets 15s.
+    # proxy_cache_valid 200 30d; # Cache valid assets for 30 days.
+    # proxy_cache_valid any 15s; # Everything else gets 15s.
 
     proxy_http_version 1.1;
-    expires 1y;
+    # expires 1y;
 
-    add_header X-Cache $upstream_cache_status;
+    # add_header X-Cache $upstream_cache_status;
 
     proxy_intercept_errors on;
     recursive_error_pages on;
