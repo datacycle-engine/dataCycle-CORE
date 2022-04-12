@@ -387,6 +387,7 @@ en:
       indesign: Adobe InDesign
       version:
         original: Original
+        default: Default
         thumb_preview: Thumbnail
         web: Web
       format:

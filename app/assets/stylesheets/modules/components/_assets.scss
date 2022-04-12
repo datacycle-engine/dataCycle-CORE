@@ -553,8 +553,14 @@ ul.asset-list {
   }
   .file-info {
     .possible-duplicates {
+      cursor: pointer;
+
       i {
         font-size: 0.9rem;
+      }
+
+      a {
+        text-decoration: underline;
       }
     }
     .dropdown-pane {
