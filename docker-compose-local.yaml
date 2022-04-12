@@ -89,11 +89,6 @@ services:
     volumes:
       - '${PWD}:/app'
       - varnish-data:/var/lib/varnish/data
-  # varnishncsa -F "%m %U%q ---- %{Varnish:handling}x"
-  # varnishadm ban "req.url ~ /things/288c2596-ee26-4793-961b-4d7f2ba7da8d"
-  # curl --http1.1 -v -X BAN -H 'x-invalidate-pattern: /things/288c2596-ee26-4793-961b-4d7f2ba7da8d' -H "Host: docker-varnish" varnish
-  # curl --http1.1 -v -X BAN -H 'x-invalidate-pattern: /things/288c2596-ee26-4793-961b-4d7f2ba7da8d' -H "Host: docker-varnish" localhost:8080
-  # http://localhost:3003/things/288c2596-ee26-4793-961b-4d7f2ba7da8d?locale=de
 volumes:
   mongodb-data:
   mongodb-log:
