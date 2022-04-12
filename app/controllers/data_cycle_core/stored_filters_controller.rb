@@ -5,18 +5,40 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
     before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource except: [:search, :select_search_or_collection, :add_to_watchlist] # from cancancan (authorize)
+    load_and_authorize_resource except: [:search, :select_search_or_collection, :add_to_watchlist, :saved_searches] # from cancancan (authorize)
 
     def index
-      @saved_stored_searches = @accessible_stored_filters.where.not(name: nil).order(:name)
-      @saved_count = @saved_stored_searches.size
-
-      @stored_searches = current_user.stored_filters.order(updated_at: :desc).page(params[:page])
+      @page = (index_params[:page] || 1).to_i
+      @stored_searches = current_user.stored_filters.order(updated_at: :desc).page(@page)
       @history_count = @stored_searches.total_count
-      @pages = @stored_searches.total_pages
+      @last_page = @stored_searches.last_page?
       @stored_searches = @stored_searches.group_by { |c| l(c.updated_at&.to_date, format: :long, locale: helpers.active_ui_locale) }
 
-      respond_to(:html, :js)
+      respond_to do |format|
+        format.html
+        format.json do
+          render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/stored_filters/stored_searches', locals: { stored_searches: @stored_searches, last_page: @last_page, page: @page, last_day: index_params[:last_day] }) }
+        end
+      end
+    end
+
+    def saved_searches
+      authorize! :index, DataCycleCore::StoredFilter
+
+      @page = (index_params[:page] || 1).to_i
+      @stored_searches = DataCycleCore::StoredFilter.accessible_by(current_ability).where.not(name: nil).order(:name)
+      # binding.pry if index_params[:q].present?
+      # @stored_searches = @stored_searches.where(name: '')
+      @stored_searches = @stored_searches.page(@page)
+      @saved_count = @stored_searches.total_count
+      @last_page = @stored_searches.last_page?
+
+      respond_to do |format|
+        format.html
+        format.json do
+          render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/stored_filters/saved_searches_list', locals: { stored_searches: @stored_searches, last_page: @last_page, page: @page }) }
+        end
+      end
     end
 
     def show
@@ -68,7 +90,7 @@ module DataCycleCore
 
       filter_string = select_search_params[:q]&.strip
       filter_proc = ->(query, query_table) { query.where(query_table[:name].matches("%#{filter_string}%")) } if filter_string.present?
-      arel_query = @accessible_stored_filters.combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability).conditional_my_selection, filter_proc)
+      arel_query = DataCycleCore::StoredFilter.accessible_by(current_ability).combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability).conditional_my_selection, filter_proc)
       arel_query = arel_query.take(select_search_params[:max].to_i) if select_search_params[:max].present?
 
       result = ActiveRecord::Base.connection.select_all arel_query.to_sql
@@ -130,6 +152,10 @@ module DataCycleCore
 
     def select_search_params
       params.permit(:q, :max)
+    end
+
+    def index_params
+      params.permit(:page, :last_day, :q)
     end
   end
 end

@@ -1,6 +1,8 @@
-<div class="reveal" id="save-filter-with-name" data-reveal>
+<div class="reveal" id="<%= new_filter_id %>" data-reveal>
   <h3><%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %></h3>
-  <%= form_for(DataCycleCore::StoredFilter.new, html: { id: 'save-filter-name-form' }) do |f| %>
+  <%= form_with(model: DataCycleCore::StoredFilter.new, local: true) do |f| %>
+    <%= f.hidden_field :id, value: local_assigns[:id], id: nil %>
+
     <div class="validation-container form-element">
       <%= f.label :name, DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale) %>
       <%= f.text_field :name, required: true, label: false, list: "search_history", class: "ajax-datalist search_history", autocomplete: :off %>

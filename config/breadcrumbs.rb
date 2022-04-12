@@ -112,8 +112,12 @@ crumb :'data_cycle_core/publications' do
 end
 
 # Stored Filters Crumb
-crumb :'data_cycle_core/stored_filters' do
+crumb :search_history do
   link to_html_string("<i aria-hidden='true' class='fa fa-search'></i> #{t('data_cycle_core.stored_searches.my_searches', locale: active_ui_locale)}"), stored_filters_path, authorized: can?(:index, DataCycleCore::StoredFilter)
+end
+
+crumb :saved_searches do
+  link to_html_string("<i aria-hidden='true' class='fa fa-search'></i> #{t('data_cycle_core.stored_searches.my_saved', locale: active_ui_locale)}"), saved_searches_stored_filters_path, authorized: can?(:index, DataCycleCore::StoredFilter)
 end
 
 # Documentation

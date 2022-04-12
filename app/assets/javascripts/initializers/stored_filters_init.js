@@ -1,67 +1,63 @@
-import loadingIcon from '../templates/loadingIcon';
-
 export default function () {
-  if ($('.search-history-list').length) {
-    let loading = false;
-    let page = 1;
-    let pages = $('.search-history-list').data('pages');
-    let load_more = function () {
-      page += 1;
-      let form_data = [
-        {
-          name: 'infinite_scroll',
-          value: true
-        },
-        {
-          name: 'page',
-          value: page
-        },
-        {
-          name: 'last_day',
-          value: $('.stored-search-day').last().data('day')
-        }
-      ];
-      loading = true;
+  if ($('.stored-searches-list').length) {
+    $('.stored-searches-list').on('click', '.stored-searches-load-more-button', event => {
+      event.preventDefault();
+      event.stopPropagation();
 
-      $('.search-history-list').append(loadingIcon());
+      const target = event.currentTarget;
+
+      if (!target.href) return;
+
+      DataCycle.disableElement(target);
 
       DataCycle.httpRequest({
-        url: '',
-        method: 'GET',
-        data: form_data,
-        dataType: 'script'
-      }).then(_data => {
-        loading = false;
-        $('.search-history-list .loading').remove();
+        url: target.href,
+        data: {
+          last_day: $('.stored-search-day').last().data('day')
+        },
+        dataType: 'json',
+        contentType: 'application/json'
+      })
+        .then(data => {
+          $(data.html)
+            .replaceAll($(target.closest('li.load-more-link')))
+            .trigger('dc:html:changed')
+            .trigger('dc:html:initialized');
+        })
+        .catch(_error => {
+          DataCycle.enableElement(target);
+        });
+    });
 
-        if (
-          page < pages &&
-          !loading &&
-          $('.search-history-list .content-item').last().offset().top +
-            $('.search-history-list .content-item').last().outerHeight() +
-            80 <
-            $(window).height()
-        ) {
-          load_more();
-        }
-      });
-    };
+    $('.fulltext-search-form').on('submit', event => {
+      event.preventDefault();
+      event.stopPropagation();
 
-    if (
-      page < pages &&
-      !loading &&
-      $('.search-history-list .content-item').last().offset().top +
-        $('.search-history-list .content-item').last().outerHeight() +
-        80 <
-        $(window).height()
-    ) {
-      load_more();
-    }
+      const target = event.currentTarget;
+      const inputs = target.querySelectorAll('.fulltext-search-submit, .fulltext-search-field, .fulltext-search-reset');
 
-    $(document).on('scroll', _event => {
-      if (!loading && $(window).scrollTop() + $(window).height() >= $(document).height() - 100 && page < pages) {
-        load_more();
-      }
+      if (!target.action) return;
+
+      for (const input of inputs) DataCycle.disableElement(input);
+      for (const toRemove of target.closest('ul').querySelectorAll('li:not(.title)')) toRemove.remove();
+
+      DataCycle.httpRequest({
+        url: target.action,
+        data: {
+          q: target.querySelector('.fulltext-search-field').value
+        },
+        dataType: 'json',
+        contentType: 'application/json'
+      })
+        .then(data => {
+          $(data.html)
+            .replaceAll($(target.closest('li.load-more-link')))
+            .trigger('dc:html:changed')
+            .trigger('dc:html:initialized');
+        })
+        .finally(() => {
+          for (const input of inputs) DataCycle.enableElement(input);
+        });
     });
   }
 }

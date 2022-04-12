@@ -1,4 +1,5 @@
 <% filter_config = DataCycleCore::Feature::MainFilter.available_filters(view: view_type, user: current_user, selected_filters: @filters) %>
+<% new_filter_id = SecureRandom.hex(10) %>
 
 <%= form_with(url: request.path, local: true, id: 'search-form', data: {
   add_filter_path: add_filter_path,
@@ -45,7 +46,7 @@
             <%= render 'data_cycle_core/application/filters/sections/language' if filter_config[:language] %>
 
             <div class="expandable-buttons">
-              <%= button_tag type: :button, id: 'save-filter', data: { open: 'save-filter-with-name' } do %>
+              <%= button_tag type: :button, id: 'save-filter', data: { open: new_filter_id } do %>
                 <i class="fa fa-floppy-o" aria-hidden="true"></i>
                 <span class="expandable">
                   <%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %>
@@ -89,7 +90,7 @@
 <% end %>
 
 <% if can?(:create, DataCycleCore::StoredFilter) && filter_config[:store] %>
-  <%= render 'data_cycle_core/application/filters/new_stored_filter', local_assigns %>
+  <%= render 'data_cycle_core/stored_filters/new_stored_filter', local_assigns.merge({ new_filter_id: new_filter_id }) %>
 <% end %>
 
 <% if can?(:add_item, DataCycleCore::WatchList) && filter_config[:add_items_to_watch_list] %>

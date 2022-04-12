@@ -1178,6 +1178,8 @@ de:
       show_search_history: Gesamten Verlauf ansehen
       save: Suche speichern
       history: Suchverlauf
+      load_more: ... weitere Suchen anzeigen
+      filter_searches: Suchen filtern...
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
     upload: Neue Medien hochladen

@@ -1169,6 +1169,8 @@ en:
       show_search_history: View entire history
       save: Save search
       history: Search History
+      load_more: ... show more searches
+      filter_searches: filter searches...
     watch_list:
       locked_by_data_link: Add/Remove Content Locked (Active External Links)
     upload: Upload new media
