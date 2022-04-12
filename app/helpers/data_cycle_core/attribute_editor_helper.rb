@@ -3,7 +3,7 @@
 module DataCycleCore
   module AttributeEditorHelper
     ATTRIBUTE_DATAHASH_PREFIX = '[datahash]'
-    ATTRIBUTE_DATAHASH_REGEX = Regexp.new(/.*\K#{Regexp.quote(ATTRIBUTE_DATAHASH_PREFIX)}/)
+    ATTRIBUTE_DATAHASH_REGEX = Regexp.new(/.*\K(#{Regexp.quote(ATTRIBUTE_DATAHASH_PREFIX)}|\[translations\]\[[^\]]*\])/)
     ATTRIBUTE_FIELD_PREFIX = "thing#{ATTRIBUTE_DATAHASH_PREFIX}"
     RENDER_EDITOR_ARGUMENTS = DataCycleCore::AttributeViewerHelper::RENDER_VIEWER_ARGUMENTS.deep_merge({
       parameters: { options: { edit_scope: 'edit' } },
