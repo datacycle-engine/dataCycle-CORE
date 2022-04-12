@@ -92,7 +92,65 @@ module DataCycleCore
           data
         end
 
-        def self.parse_once(time, external_source_id, parent_external_key)
+        def self.add_event_schedule(data, external_source_id)
+          return data if data.dig('timeIntervals').blank?
+          schedule = []
+          data.dig('timeIntervals').uniq.each do |time|
+            next if time['start'].blank? || time['end'].blank?
+
+            external_key = Digest::SHA1.hexdigest("#{data['external_key']} - event_schedule - #{time.to_json}")
+            id = DataCycleCore::Schedule.find_by(external_source_id: external_source_id, external_key: external_key)&.id
+
+            dtstart = time['start'].in_time_zone
+            dtend = time['end'].in_time_zone
+            duration = dtend - dtstart
+            until_time = time['repeatUntil']&.in_time_zone || Time.zone.now.end_of_year + 5.years
+
+            schedule_hash = {
+              id: id,
+              external_source_id: external_source_id,
+              external_key: external_key,
+              start_time: {
+                time: dtstart.to_s,
+                zone: time['tz']
+              },
+              duration: duration
+            }
+
+            case time['freq']
+            when nil, 'Single'
+              schedule << schedule_hash
+            when 'Daily'
+              rrule = IceCube::Rule.daily
+              rrule.hour_of_day(dtstart.hour)
+              rrule.minute_of_hour(dtstart.to_datetime.minute)
+              rrule.interval(time['interval']) if time['interval'].present?
+              rrule.until(until_time)
+              schedule << schedule_hash.merge({ rrules: [rrule.to_hash] })
+            when 'Weekly'
+              rrule = IceCube::Rule.weekly
+              rrule.day(*days(time['weekdays'])) if time['weekdays'].present?
+              rrule.interval(time['interval']) if time['interval'].present?
+              rrule.until(until_time)
+              schedule << schedule_hash.merge({ rrules: [rrule.to_hash] })
+            when 'Monthly'
+              rrule = IceCube::Rule.daily
+              rrule.day_of_month(time['dayOfMonth']) if time['dayOfMonth'].present?
+              rrule.day_of_week(time['weekday'].downcase.to_sym => [time['dayOrdinal']]) if time['weekday'].present? && time['dayOrdinal'].present? # e.g. 4th sunday each month
+              rrule.interval(time['interval']) if time['interval'].present?
+              rrule.until(until_time)
+              schedule << schedule_hash.merge({ rrules: [rrule.to_hash] })
+            when 'Yearly'
+              rrule = IceCube::Rule.yearly
+              rrule.month_of_year(time['month'])
+              rrule.day_of_month(time['dayOfMonth'])
+              rrule.interval(time['interval']) if time['interval'].present?
+              rrule.until(until_time)
+              schedule << schedule_hash.merge({ rrules: [rrule.to_hash] })
+            end
+          end
+          data['event_schedule'] = schedule
+          data
         end
 
         def self.days(weekdays)
