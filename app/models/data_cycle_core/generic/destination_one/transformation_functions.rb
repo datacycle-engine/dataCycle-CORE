@@ -134,7 +134,7 @@ module DataCycleCore
               rrule.until(until_time)
               schedule << schedule_hash.merge({ rrules: [rrule.to_hash] })
             when 'Monthly'
-              rrule = IceCube::Rule.daily
+              rrule = IceCube::Rule.monthly
               rrule.day_of_month(time['dayOfMonth']) if time['dayOfMonth'].present?
               rrule.day_of_week(time['weekday'].downcase.to_sym => [time['dayOrdinal']]) if time['weekday'].present? && time['dayOrdinal'].present? # e.g. 4th sunday each month
               rrule.interval(time['interval']) if time['interval'].present?
