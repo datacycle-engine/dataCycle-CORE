@@ -1884,7 +1884,11 @@ select {
   &.async-select,
   &.single-select,
   &.multi-select {
-    visibility: hidden;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    // visibility: hidden;
     max-height: 1rem;
   }
 }

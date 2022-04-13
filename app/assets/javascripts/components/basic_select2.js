@@ -213,6 +213,7 @@ class BasicSelect2 {
     return {
       id: term,
       text: term,
+      name: term,
       newTag: true
     };
   }

@@ -27,16 +27,25 @@ module DataCycleCore
 
       @page = (index_params[:page] || 1).to_i
       @stored_searches = DataCycleCore::StoredFilter.accessible_by(current_ability).where.not(name: nil).order(:name)
-      # binding.pry if index_params[:q].present?
-      # @stored_searches = @stored_searches.where(name: '')
+      index_params[:q]&.split(' ')&.each { |s| @stored_searches = @stored_searches.where('stored_filters.name ILIKE ?', "%#{s}%") }
       @stored_searches = @stored_searches.page(@page)
-      @saved_count = @stored_searches.total_count
       @last_page = @stored_searches.last_page?
 
       respond_to do |format|
-        format.html
+        format.html do
+          @saved_count = @stored_searches.total_count
+        end
         format.json do
-          render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/stored_filters/saved_searches_list', locals: { stored_searches: @stored_searches, last_page: @last_page, page: @page }) }
+          json = {
+            html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/stored_filters/saved_searches_list', locals: { stored_searches: @stored_searches, last_page: @last_page, page: @page })
+          }
+
+          if @page == 1
+            json[:count] = @stored_searches.total_count
+            json[:count_string] = helpers.number_with_delimiter(@stored_searches.total_count.to_i, locale: helpers.active_ui_locale)
+          end
+
+          render json: json
         end
       end
     end
@@ -45,30 +54,38 @@ module DataCycleCore
       redirect_to root_path(stored_filter: @stored_filter)
     end
 
-    def update
-      cleaned_params = stored_filter_params
-      cleaned_params[:classification_tree_labels] = stored_filter_params[:classification_tree_labels]&.map(&:presence)&.compact
-      if @stored_filter.update(cleaned_params)
-        redirect_back(fallback_location: root_path, notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: helpers.active_ui_locale))
+    def create
+      stored_filter = stored_filter_params[:id].present? ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : DataCycleCore::StoredFilter.new
+      stored_filter.attributes = stored_filter_params.compact_blank
+
+      binding.pry
+
+      if params[:update_filter_parameters]
+        get_filtered_results(user_filter: nil) # prefill stored_filter params
+        stored_filter = save_filter(new_filter: stored_filter)
+
+        redirect_to(root_path(stored_filter: stored_filter), notice: (I18n.t (stored_filter_params[:id].present? ? :updated : :created), scope: [:controllers, :success], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+      elsif stored_filter.save
+        redirect_back(fallback_location: root_path, notice: (I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
       else
-        redirect_back(fallback_location: root_path, alert: (I18n.t :not_saved, scope: [:controllers, :errors], data: 'Filter', locale: helpers.active_ui_locale))
+        redirect_back(fallback_location: root_path, alert: (I18n.t :not_saved, scope: [:controllers, :errors], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
       end
     end
 
-    def create
-      @contents = get_filtered_results(user_filter: nil)
+    def render_update_form
+      @stored_filter = stored_filter_params[:id].to_s.uuid? ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : DataCycleCore::StoredFilter.new
 
-      @stored_filter = save_filter(new_filter: stored_filter_params[:id] ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : nil)
-
-      redirect_to(root_path(stored_filter: @stored_filter), notice: (I18n.t (stored_filter_params[:id].present? ? :updated : :created), scope: [:controllers, :success], data: 'Filter', locale: helpers.active_ui_locale))
+      render json: {
+        html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/stored_filters/edit_form', locals: { stored_search: @stored_filter, update_params: true })
+      }
     end
 
     def destroy
       @stored_filter.filter_uses.update_all(linked_stored_filter_id: nil)
       if @stored_filter.update(name: nil)
-        redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: 'Filter', locale: helpers.active_ui_locale))
+        redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
       else
-        redirect_back(fallback_location: root_path, alert: (I18n.t :not_deleted, scope: [:controllers, :errors], data: 'Filter', locale: helpers.active_ui_locale))
+        redirect_back(fallback_location: root_path, alert: (I18n.t :not_deleted, scope: [:controllers, :errors], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
       end
     end
 
@@ -80,9 +97,9 @@ module DataCycleCore
         .where('name ILIKE ?', "%#{params[:q].gsub(/ \| .*<.*@.*>$/, '')}%")
         .limit(20)
 
-      render json: stored_filters.map { |filter|
-        filter.tap { |f| f.name += " | #{f.user.full_name} <#{f.user.email}>" if f.user_id != current_user.id }
-      }
+      render plain: stored_filters.map { |filter|
+        filter.tap { |f| f.name += " | #{f.user.full_name} <#{f.user.email}>" if f.user_id != current_user.id }.to_select_option
+      }.to_json, content_type: 'application/json'
     end
 
     def select_search_or_collection
@@ -143,11 +160,14 @@ module DataCycleCore
 
     private
 
-    def create_params
-    end
-
     def stored_filter_params
-      params.require(:stored_filter).permit(:id, :name, :system, :api, :linked_stored_filter_id, classification_tree_labels: [], api_users: [])
+      params
+        .require(:stored_filter)
+        .permit(:id, :name, :system, :api, :linked_stored_filter_id, classification_tree_labels: [], api_users: [])
+        .tap do |p|
+          p[:classification_tree_labels].reject!(&:blank?)
+          p[:api_users].reject!(&:blank?)
+        end
     end
 
     def select_search_params

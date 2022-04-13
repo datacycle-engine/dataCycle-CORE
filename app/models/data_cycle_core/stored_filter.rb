@@ -104,17 +104,17 @@ module DataCycleCore
       if search.present?
         [
           {
-            "m": 'fulltext_search',
-            "o": 'DESC',
-            "v": search
+            'm': 'fulltext_search',
+            'o': 'DESC',
+            'v': search
           }
         ]
       elsif schedule.present?
         [
           {
-            "m": 'by_proximity',
-            "o": 'ASC',
-            "v": schedule
+            'm': 'by_proximity',
+            'o': 'ASC',
+            'v': schedule
           }
         ]
       end
@@ -137,6 +137,15 @@ module DataCycleCore
       end
 
       Arel::SelectManager.new(Arel::Nodes::TableAlias.new(query1.union(:all, query2), 'combined_collections_and_searches')).project(Arel.star).order('name ASC')
+    end
+
+    def to_select_option
+      DataCycleCore::Filter::SelectOption.new(
+        id,
+        name,
+        model_name.param_key,
+        name
+      )
     end
   end
 end
