@@ -54,7 +54,6 @@ module DataCycleCore
                     end
                   end
                   logging.info("Imported #{polygon_count} items", '')
-
                   classifications_array.sort_by! { |classification| classification[:adminlevel] }
 
                   classifications_array.each do |classification|
