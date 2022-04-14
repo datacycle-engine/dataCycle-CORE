@@ -47,6 +47,42 @@ namespace :data_cycle_core do
     end
   end
 
+  namespace :reports do
+    desc 'send download report via email'
+    task :send_report, [:recipient, :report_identifier, :format] => [:environment] do |_, args|
+      recipient = args.fetch(:recipient, nil)
+      unless recipient
+        puts 'Recipient is required!'
+        exit(-1)
+      end
+      DataCycleCore::ReportMailer.notify(
+        identifier: args.fetch(:report_identifier, 'downloads_popular'),
+        format: args.fetch(:format, 'xlsx'),
+        recipient: recipient
+      ).deliver_now
+    end
+    desc 'send monthly download report from the last month via email'
+    task :send_monthly_report, [:recipient, :report_identifier, :format] => [:environment] do |_, args|
+      recipient = args.fetch(:recipient, nil)
+      unless recipient
+        puts 'Recipient is required!'
+        exit(-1)
+      end
+      last_month = Time.zone.now - 1.month
+      params = {
+        by_month: last_month.month,
+        by_year: last_month.year
+      }
+
+      DataCycleCore::ReportMailer.notify(
+        identifier: args.fetch(:report_identifier, 'downloads_popular'),
+        format: args.fetch(:format, 'xlsx'),
+        recipient: recipient,
+        params: params
+      ).deliver_now
+    end
+  end
+
   namespace :archive do
     desc 'move expired contents to archive'
     task expired: :environment do
