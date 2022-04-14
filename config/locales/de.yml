@@ -105,7 +105,7 @@ de:
       running: Es gibt noch laufende Uploads!
       missing_metadata: Fehlende Metadaten!
       processing: wird verarbeitet
-      found_duplicate: Duplikat gefunden!
+      found_duplicate: Duplikate gefunden!
       uploaded_successfully: hochgeladen, OK
       error_saving_content: Fehler beim Speichern des Inhalts!
       upload_error: Uploadfehler
@@ -389,6 +389,7 @@ de:
       indesign: Adobe InDesign
       version:
         original: Original
+        default: Default
         thumb_preview: Thumbnail
         web: Web
       format:
@@ -510,16 +511,24 @@ de:
         email: E-Mail
         user_display_name: Account
 
+  compare:
+    switch_contents: Inhalte tauschen
+
   history:
     latest_edits: Letzte Bearbeitungen
     created_at_html: erstellt am <b>%{date}</b>
     updated_at_html: bearbeitet in <b>%{language}</b> am <b>%{date}</b>
     valid_since: gültig seit
     differences_to_version: Unterschiede zu Version
-    active_version: Aktuelle Version
-    look_at_version: Aktuellen Version mit dieser Version vergleichen
+    active_version: mit aktueller Version vergleichen
+    # look_at_version: aktuelle Version mit dieser Version vergleichen
+    use_as_source: als Ausgangsversion im Vergleich verwenden
+    use_as_target: als Zielversion im Vergleich verwenden
     restored: Wiederhergestellt am %{date}
     created: Inhalt erstellt
+    switch_versions: Versionen tauschen
+    active_source: Ausgangsversion
+    active_target: Zielversion
     restore:
       version:
         title: Diese Version wiederherstellen
@@ -1281,6 +1290,8 @@ de:
     imx_platform:
       description: Beschreibung
       description_long: Detailbeschreibung
+    gem2go:
+      description: Beschreibung
     timm4:
       intro: Einleitung
       description: Beschreibung
@@ -1297,6 +1308,40 @@ de:
       timesComment: Erläuterung Beginnzeiten
       menuDownload: Speisekarte herunterladen
       recipeSuggestionDownload: Rezept herunterladen
+    destination_one:
+      facility_unterhaltung: Facility Unterhaltung
+      info_wegbelag: Info Wegbelag
+      kitchen_spezialitaeten: Küche Spezialitäten
+      kitchen_zeiten: Küche Öffungszeiten
+      object_betriebsurlaub: Betriebsurlaub
+      price_info: Preisinformation
+      price_reducedinfo: Preisinformation Überblick
+      room_sonstige: Raum Sonstiges
+      route_start: Route Start
+      route_start_ort: Route Startort
+      route_ziel: Route Ziel
+      socialdescription: Socialdescription
+      socialtitle: Socialtitle
+      web_seo_beschreibung: web_seo_beschreibung
+      web_seo_keywords: web_seo_keywords
+      web_seo_titel: web_seo_titel
+      additionaltext_feature_barrierefreiheit: Barrierefreiheit
+      additionaltext_feature_eignung: Eignung
+      additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: Hygiene- und Infektionsmaßnahmen
+      dayoff: Ruhetag
+      details: Details
+      directions: Wegbeschreibung
+      iframe_height: iframe_height
+      iframe_titel: iframe_title
+      iframe_url: iframe_url
+      moreinfo: Weitere Informationen
+      openings: Öffungszeiten
+      packagefeature: Pauschalangebot Details
+      packagetripinfo: Pauschalangebot Informationen
+      station: Bahnhof
+      subtitle: Untertitel
+      teaser: Teaser
+
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

@@ -61,7 +61,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Katalog"
+        :default_value: 'Katalog'
       :publication_schedule:
         :type: mixin
         :name: publication_schedule
@@ -74,3 +74,6 @@
       :additional_properties:
         :type: mixin
         :name: additional_properties
+      :translation_of_work_mixin:
+        :type: mixin
+        :name: translation_of_work_mixin

@@ -94,7 +94,7 @@ module DataCycleCore
                   'DateTo' => (date_to + (future + next_year).years).to_date,
                   'Holiday' => holidays,
                   'WeekDays' => opening_hours_days.presence || (0..6).to_a
-                }, external_source_id, "#{data['id']} - #{index} - #{future}")
+                }, external_source_id, "#{data['id']} - #{property} - #{index} - #{future}")
                 data[property].push(processed)
               end
             else
@@ -105,7 +105,7 @@ module DataCycleCore
                 'DateTo' => (Time.zone.now.end_of_year + 5.years).to_date,
                 'Holiday' => holidays,
                 'WeekDays' => opening_hours_days
-              }, external_source_id, "#{data['id']} - #{index}")
+              }, external_source_id, "#{data['id']} - #{property} - #{index}")
               data[property].push(processed)
             end
           end
@@ -157,11 +157,7 @@ module DataCycleCore
             if data['times'].blank?
               dtstart = dstart
               dtend = dend.end_of_day
-              # data['event_schedule'] << {
-              #   start_time: { time: dtstart, zone: dtstart.time_zone.name },
-              #   end_time: { time: dtend, zone: dtend.time_zone.name },
-              #   duration: dtend.to_i - dtstart.to_i
-              # }
+
               data['event_schedule'] << {
                 start_time: { time: dtstart, zone: dtstart.time_zone.name },
                 duration: 1.day.to_i,

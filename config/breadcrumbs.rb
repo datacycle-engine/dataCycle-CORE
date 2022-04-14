@@ -65,6 +65,8 @@ end
 
 # Content Crumbs
 crumb :content do |content, watch_list|
+  content = content.thing if content.history?
+
   I18n.with_locale(content.first_available_locale) do
     link to_html_string(content.translated_template_name(active_ui_locale), content.title), thing_path(content, watch_list_id: watch_list), authorized: can?(:show, content)
   end
@@ -95,12 +97,12 @@ end
 
 # History Crumbs
 crumb :show_history do |item, watch_list|
-  link to_html_string("<i aria-hidden='true' class='fa fa-history'></i>#{t('actions.show', locale: active_ui_locale).capitalize}"), thing_path(item), authorized: can?(:history, item)
+  link to_html_string("<i aria-hidden='true' class='fa fa-arrows-h'></i>#{t('common.compare', locale: active_ui_locale).capitalize}"), thing_path(item), authorized: can?(:history, item)
   parent :content, item, watch_list
 end
 
 crumb :show_compare do |item, watch_list|
-  link to_html_string("<i aria-hidden='true' class='fa fa-columns'></i>#{t('common.compare', locale: active_ui_locale).capitalize}"), thing_path(item), authorized: can?(:show, item)
+  link to_html_string("<i aria-hidden='true' class='fa fa-arrows-h'></i>#{t('common.compare', locale: active_ui_locale).capitalize}"), thing_path(item), authorized: can?(:show, item)
   parent :content, item, watch_list
 end
 
