@@ -4,7 +4,8 @@ module DataCycleCore
   class ReportMailer < ApplicationMailer
     def notify(identifier:, format:, recipient:, params: {})
       report_class = DataCycleCore::Feature::ReportGenerator.by_identifier(identifier)
-      data, options = report_class.constantize.new(params: params.merge!({ key: identifier }), locale: 'de').send("to_#{format}")
+      params[:key] = identifier
+      data, options = report_class.constantize.new(params: params, locale: 'de').send("to_#{format}")
 
       attachments[options.dig(:filename)] = {
         mime_type: Mime[format.to_sym],
