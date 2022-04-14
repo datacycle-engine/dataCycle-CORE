@@ -5,12 +5,12 @@ module DataCycleCore
     module Extensions
       module DefaultValue
         def add_default_values(data_hash:, current_user: nil, new_content: false, force: false, partial: false)
-          props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }
-
-          if partial
-            props.slice!(*data_hash.keys)
-          elsif !new_content && !force && translated_locales.presence&.exclude?(I18n.locale)
-            props.slice!(*translatable_property_names)
+          if new_content || force
+            props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }
+          elsif !partial && translated_locales.presence&.exclude?(I18n.locale)
+            props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }.slice(*translatable_property_names)
+          else
+            props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }.slice(*data_hash.keys)
           end
 
           return data_hash if props.blank?

@@ -263,6 +263,7 @@ module DataCycleCore
       end
 
       def attribute_blank?(data_hash, key, _defininition = nil)
+        # BUG: if used on content in new language, translated_locales will include the new language after this method call
         return true if key.blank?
 
         data_hash[key].blank? &&
