@@ -5,7 +5,7 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
     before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource except: [:search, :select_search_or_collection, :add_to_watchlist, :saved_searches] # from cancancan (authorize)
+    load_and_authorize_resource except: [:create, :search, :select_search_or_collection, :add_to_watchlist, :saved_searches, :render_update_form] # from cancancan (authorize)
 
     def index
       @page = (index_params[:page] || 1).to_i
@@ -56,9 +56,10 @@ module DataCycleCore
 
     def create
       stored_filter = stored_filter_params[:id].present? ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : DataCycleCore::StoredFilter.new
-      stored_filter.attributes = stored_filter_params.compact_blank
 
-      binding.pry
+      authorize! stored_filter.new_record? ? :create : :update, stored_filter
+
+      stored_filter.attributes = stored_filter_params.compact_blank
 
       if params[:update_filter_parameters]
         get_filtered_results(user_filter: nil) # prefill stored_filter params
@@ -73,7 +74,9 @@ module DataCycleCore
     end
 
     def render_update_form
-      @stored_filter = stored_filter_params[:id].to_s.uuid? ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : DataCycleCore::StoredFilter.new
+      @stored_filter = stored_filter_params[:id].present? ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : DataCycleCore::StoredFilter.new
+
+      authorize! @stored_filter.new_record? ? :create : :update, @stored_filter
 
       render json: {
         html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/stored_filters/edit_form', locals: { stored_search: @stored_filter, update_params: true })
@@ -98,7 +101,7 @@ module DataCycleCore
         .limit(20)
 
       render plain: stored_filters.map { |filter|
-        filter.tap { |f| f.name += " | #{f.user.full_name} <#{f.user.email}>" if f.user_id != current_user.id }.to_select_option
+        filter.tap { |f| f.name += " | #{f.user.full_name} &lt;#{f.user.email}&gt;" if f.user_id != current_user.id }.to_select_option
       }.to_json, content_type: 'application/json'
     end
 
@@ -165,8 +168,9 @@ module DataCycleCore
         .require(:stored_filter)
         .permit(:id, :name, :system, :api, :linked_stored_filter_id, classification_tree_labels: [], api_users: [])
         .tap do |p|
-          p[:classification_tree_labels].reject!(&:blank?)
-          p[:api_users].reject!(&:blank?)
+          p[:name] ||= p.delete(:id) unless p[:id].to_s.uuid?
+          p[:classification_tree_labels]&.reject!(&:blank?)
+          p[:api_users]&.reject!(&:blank?)
         end
     end
 

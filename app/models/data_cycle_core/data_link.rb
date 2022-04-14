@@ -12,8 +12,6 @@ module DataCycleCore
 
     belongs_to :text_file, foreign_key: :asset_id
 
-    scope :session_edit_links, ->(ids) { where(permissions: 'write', id: ids) }
-
     def self.by_creator(creator)
       creator = DataCycleCore::User.find(creator) unless creator.is_a?(DataCycleCore::User)
 

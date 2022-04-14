@@ -10,6 +10,9 @@ module DataCycleCore
     belongs_to :linked_stored_filter, class_name: 'DataCycleCore::StoredFilter', inverse_of: :filter_uses, dependent: nil
     has_many :filter_uses, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, inverse_of: :linked_stored_filter, dependent: :nullify
 
+    has_many :data_links, as: :item, dependent: :destroy
+    has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
+
     # Mögliche Filter-Parameter: c, t, v, m, n, q
     #
     # c => 'd' oder 'a'         | für 'default' oder 'advanced'
@@ -146,6 +149,10 @@ module DataCycleCore
         model_name.param_key,
         name
       )
+    end
+
+    def valid_write_links?
+      valid_write_links.present?
     end
   end
 end

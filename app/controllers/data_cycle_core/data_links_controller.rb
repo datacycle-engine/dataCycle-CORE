@@ -13,8 +13,7 @@ module DataCycleCore
 
       raise CanCan::AccessDenied unless @data_link.try(:is_valid?)
 
-      session[:can_edit_ids] ||= []
-      session[:can_edit_ids] << @data_link.id unless session[:can_edit_ids].include?(@data_link.id)
+      (session[:data_link_ids] ||= []) << @data_link.id unless session[:data_link_ids]&.include?(@data_link.id)
 
       sign_in(@data_link.receiver, store: !@data_link.downloadable?) if @data_link.creator.role.rank >= @data_link.receiver.role.rank
 

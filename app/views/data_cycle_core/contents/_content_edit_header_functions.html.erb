@@ -23,7 +23,7 @@
 
         <%= tag.li render('data_cycle_core/contents/editors/metadata/locales_list', local_assigns.slice(:content, :link_action)), class: 'has-dropdown' if content.translatable? && I18n.available_locales&.many? %>
 
-        <%= tag.li render('data_links', content: content), class: 'has-dropdown right' if can? :index, DataCycleCore::DataLink %>
+        <%= tag.li render('data_cycle_core/data_links/data_links_list', content: content), class: 'has-dropdown right' if can? :index, DataCycleCore::DataLink %>
 
         <li class="buttons">
           <%= yield_content! :additional_edit_buttons %>

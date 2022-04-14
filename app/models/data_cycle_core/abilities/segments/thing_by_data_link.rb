@@ -11,11 +11,9 @@ module DataCycleCore
         end
 
         def include?(content, *_args)
-          return false if session[:can_edit_ids].blank?
+          return false if session[:data_link_ids].blank?
 
-          DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
-            next unless link.is_valid?
-
+          DataCycleCore::DataLink.where(id: session[:data_link_ids], permissions: 'write').valid.includes(:item).each do |link|
             release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
 
             if DataCycleCore::Feature::Releasable.allowed?(content) && release_partner_stage_id.present? && link.item_type == 'DataCycleCore::WatchList'

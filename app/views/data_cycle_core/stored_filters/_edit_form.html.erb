@@ -3,8 +3,11 @@
 <%= form_with(model: stored_search, namespace: SecureRandom.hex(10), local: true, url: stored_filters_path, method: :post, class: 'update-stored-search-form', data: {
   update_params: local_assigns[:update_params]
 }) do |f| %>
-  <div class="form-element">
-    <% if local_assigns[:update_params].to_s == 'true' %>
+  <% if local_assigns[:update_params].to_s == 'true' %>
+    <%= hidden_field_tag :update_filter_parameters, true %>
+    <div class="search-form-data"></div>
+
+    <div class="form-element">
       <%= f.label :id, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required')}") %>
       <div class="v-select white">
         <%= f.select(
@@ -25,13 +28,16 @@
             }
           ) %>
       </div>
-    <% else %>
+    </div>
+  <% else %>
+    <div class="form-element">
+
       <%= f.label :name, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required')}") %>
       <%= f.text_field :name, required: true %>
 
       <%= f.hidden_field :id %>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 
   <div class="dynamic-form-parts">
     <div class="form-element dc-checkbox">
@@ -39,25 +45,26 @@
       <%= f.label :system, DataCycleCore::StoredFilter.human_attribute_name(:system, locale: active_ui_locale) %>
     </div>
 
-    <fieldset>
-      <legend><%= t('data_cycle_core.stored_searches.form.api', locale: active_ui_locale) %></legend>
-      <div class="form-element dc-checkbox">
-        <%= f.check_box :api %>
-        <%= f.label :api, DataCycleCore::StoredFilter.human_attribute_name(:api, locale: active_ui_locale) %>
-      </div>
-
-      <% if can?(:create_api_with_users, stored_search) %>
-        <div class="form-element">
-          <%= f.label :api_users, DataCycleCore::StoredFilter.human_attribute_name(:api_users, locale: active_ui_locale) %>
-          <div class="v-select white">
-            <%= f.collection_select(:api_users, DataCycleCore::User.all, :id, :email, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
-          </div>
+    <% if can?(:create_api, stored_search) %>
+      <fieldset>
+        <legend><%= t('data_cycle_core.stored_searches.form.api', locale: active_ui_locale) %></legend>
+        <div class="form-element dc-checkbox">
+          <%= f.check_box :api %>
+          <%= f.label :api, DataCycleCore::StoredFilter.human_attribute_name(:api, locale: active_ui_locale) %>
         </div>
 
-        <div class="form-element">
-          <%= f.label :linked_stored_filter_id, DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter_id, locale: active_ui_locale) %>
-          <div class="v-select white">
-            <%= f.select(
+        <% if can?(:create_api_with_users, stored_search) %>
+          <div class="form-element">
+            <%= f.label :api_users, DataCycleCore::StoredFilter.human_attribute_name(:api_users, locale: active_ui_locale) %>
+            <div class="v-select white">
+              <%= f.collection_select(:api_users, DataCycleCore::User.all, :id, :email, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+            </div>
+          </div>
+
+          <div class="form-element">
+            <%= f.label :linked_stored_filter_id, DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter_id, locale: active_ui_locale) %>
+            <div class="v-select white">
+              <%= f.select(
             :linked_stored_filter_id,
             [stored_search.linked_stored_filter&.to_select_option&.to_option_for_select].compact,
             {
@@ -72,17 +79,18 @@
               }
             }
           ) %>
+            </div>
           </div>
-        </div>
 
-        <div class="form-element">
-          <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:classification_tree_labels, locale: active_ui_locale) %>
-          <div class="v-select white">
-            <%= f.collection_select(:classification_tree_labels, DataCycleCore::ClassificationTreeLabel.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+          <div class="form-element">
+            <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:classification_tree_labels, locale: active_ui_locale) %>
+            <div class="v-select white">
+              <%= f.collection_select(:classification_tree_labels, DataCycleCore::ClassificationTreeLabel.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+            </div>
           </div>
-        </div>
-      <% end %>
-    </fieldset>
+        <% end %>
+      </fieldset>
+    <% end %>
   </div>
 
   <div class="buttons">

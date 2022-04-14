@@ -1,6 +1,6 @@
 <% data_link ||= DataCycleCore::DataLink.new %>
 
-<%= form_for data_link, namespace: data_link.id, class: "send-link" do |f| %>
+<%= form_for data_link, namespace: SecureRandom.hex(10), class: "send-link" do |f| %>
   <p class="lead"><%= DataCycleCore::DataLink.model_name.human(locale: active_ui_locale).titleize %></p>
   <%= f.hidden_field 'source_table', value: local_assigns[:split_source].class.table_name unless local_assigns[:split_source].blank? %>
   <%= f.hidden_field 'source_id', value: local_assigns[:split_source].id unless local_assigns[:split_source].blank? %>

@@ -176,8 +176,12 @@
           border-radius: 4px;
           background: white;
 
-          li:not(:last-of-type) {
+          > li:not(:last-of-type) {
             margin-right: 0.5rem;
+          }
+
+          > li > a {
+            padding: 0 0.1rem;
           }
 
           .dropdown-pane.preview-widget-pane {
@@ -199,8 +203,10 @@
         }
 
         span {
-          i {
-            margin-right: 0.5rem;
+          &.content-title {
+            i {
+              margin-right: 0.5rem;
+            }
           }
 
           &.content-date,
@@ -324,6 +330,32 @@
 
 .update-search-form {
   overflow-y: visible;
+
+  .dynamic-form-parts {
+    position: relative;
+
+    &.loading {
+      pointer-events: none;
+      opacity: 0.5;
+
+      &::before {
+        content: '\f110';
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        display: flex;
+        position: absolute;
+        animation: fa-spin 2s infinite linear;
+        font-size: 2.5rem;
+        line-height: 2.5rem;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
 
   fieldset {
     padding: 0 1rem 1rem 1rem;

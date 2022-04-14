@@ -1154,6 +1154,7 @@ span.single_warning:before {
             flex: auto;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-right: 0.5rem;
           }
 
           .open-selection-link {
@@ -1790,19 +1791,29 @@ a {
       text-align: center;
     }
 
+    .email .fa {
+      min-width: unset;
+      margin-right: 0.3rem;
+    }
+
     .email,
     .buttons {
+      display: flex;
+      align-items: center;
       flex: auto;
       white-space: nowrap;
     }
 
     .buttons {
       text-align: right;
+
       > *,
       i.fa {
-        vertical-align: middle;
-        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
+
       .has-tip,
       .dc-foundation-tooltip {
         border: none;
@@ -1813,11 +1824,12 @@ a {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      display: inline-block;
-      vertical-align: middle;
+
       .fa {
         font-size: 0.9rem;
-        vertical-align: middle;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }
