@@ -80,7 +80,7 @@
     - description | OutdoorActive/imx_platform/TIMM4/GEM2GO
     - description_long | imx_platform
     - text | OutdoorActive
-    - directions | OutdoorActive
+    - directions | OutdoorActive/destination.one
     - directions_public_transport | OutdoorActive
     - parking | OutdoorActive
     - hours_available | OutdoorActive
@@ -125,6 +125,38 @@
     - companyHoliday | TIMM4
     - meetingPoint | TIMM4
     - timesComment | TIMM4
+    - facility_unterhaltung | destination.one
+    - info_wegbelag | destination.one
+    - kitchen_spezialitaeten | destination.one
+    - kitchen_zeiten | destination.one
+    - object_betriebsurlaub | destination.one
+    - price_info | destination.one
+    - price_reducedinfo | destination.one
+    - room_sonstige | destination.one
+    - route_start | destination.one
+    - route_start_ort | destination.one
+    - route_ziel | destination.one
+    - socialdescription | destination.one
+    - socialtitle | destination.one
+    - web_seo_beschreibung | destination.one
+    - web_seo_keywords | destination.one
+    - web_seo_titel | destination.one
+    - additionaltext_feature_barrierefreiheit | destination.one
+    - additionaltext_feature_eignung | destination.one
+    - additionaltext_feature_hygiene- und infektionsschutzmaßnahmen | destination.one
+    - dayoff | destination.one
+    - details | destination.one
+    - iframe_height | destination.one
+    - iframe_titel | destination.one
+    - iframe_url | destination.one
+    - moreinfo | destination.one
+    - openings | destination.one
+    - packagefeature | destination.one
+    - packagetripinfo | destination.one
+    - station | destination.one
+    - subtitle | destination.one
+    - teaser | destination.one
+
 
 - POI - Kategorien | all:
 

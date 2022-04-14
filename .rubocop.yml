@@ -46,6 +46,9 @@ Layout/SpaceAroundMethodCallOperator:
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: false
 
+Style/RedundantInitialize:
+  Enabled: false
+
 #######################################################
 ########## Lint
 
