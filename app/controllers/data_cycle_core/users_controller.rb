@@ -107,9 +107,25 @@ module DataCycleCore
 
     def search
       authorize! :show, DataCycleCore::User
-      users = DataCycleCore::User.where('email ILIKE :q', q: "%#{params[:q]}%").limit(20)
 
-      render json: users
+      users_table = DataCycleCore::User.arel_table
+
+      if search_params[:q].present?
+        subquery = [
+          DataCycleCore::User.where(users_table[:email].matches("%#{search_params[:q]}%")).arel,
+          DataCycleCore::User.where(users_table[:name].matches("%#{search_params[:q]}%")).arel,
+          DataCycleCore::User.where(users_table[:given_name].matches("%#{search_params[:q]}%")).arel,
+          DataCycleCore::User.where(users_table[:family_name].matches("%#{search_params[:q]}%")).arel
+        ].reduce { |query, union_query| Arel::Nodes::Union.new(query, union_query) }
+
+        users = DataCycleCore::User.from(Arel::Nodes::As.new(subquery, Arel.sql(users_table.name)))
+      else
+        users = DataCycleCore::User.all
+      end
+
+      users = users.limit(20)
+
+      render plain: users.map(&:to_select_option).to_json, content_type: 'application/json'
     end
 
     def become
@@ -124,7 +140,9 @@ module DataCycleCore
     private
 
     def search_params
-      params.permit(:q, roles: [], user_groups: [])
+      params
+        .permit(:q, roles: [], user_groups: [])
+        .tap { |p| p[:q].strip! }
     end
 
     def permitted_params

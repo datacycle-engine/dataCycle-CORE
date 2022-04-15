@@ -1,0 +1,48 @@
+<%= fields_for 'data_link[receiver]', receiver, namespace: namespace do |r| %>
+  <div class="form-element">
+    <% if r.object.new_record? %>
+      <%= r.label :id, ActionView::OutputBuffer.new("#{DataCycleCore::User.human_attribute_name("email", locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
+      <div class="v-select white">
+        <%= r.select(
+              :id,
+              [],
+              {
+                include_blank: true
+              },
+              {
+                required: true,
+                class: 'async-select data-link-receiver-selector',
+                data: {
+                  tags: true,
+                  max: 20,
+                  placeholder: '',
+                  search_path: search_users_path
+                }
+              }
+            ) %>
+      </div>
+    <% else %>
+      <%= r.hidden_field :id %>
+
+      <%= r.label :email, ActionView::OutputBuffer.new("#{DataCycleCore::User.human_attribute_name("email", locale: active_ui_locale)} #{tag.span('*', class: 'required')}") %>
+      <%= r.text_field :email, required: true, readonly: true, label: false %>
+    <% end %>
+  </div>
+  <div class="form-element grid-x grid-margin-x dynamic-form-parts">
+    <% if receiver.is_a?(DataCycleCore::UserOrganization) %>
+      <div class="cell small-12">
+        <%= r.label :name, DataCycleCore::User.human_attribute_name("name", locale: active_ui_locale) %>
+        <%= r.text_field :name, readonly: !r.object.new_record?, label: false %>
+      </div>
+    <% else %>
+      <div class="cell small-6">
+        <%= r.label :given_name, DataCycleCore::User.human_attribute_name("given_name", locale: active_ui_locale) %>
+        <%= r.text_field :given_name, readonly: !r.object.new_record?, label: false %>
+      </div>
+      <div class="cell small-6">
+        <%= r.label :family_name, DataCycleCore::User.human_attribute_name("family_name", locale: active_ui_locale) %>
+        <%= r.text_field :family_name, readonly: !r.object.new_record?, label: false %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

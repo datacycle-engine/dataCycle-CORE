@@ -8,7 +8,7 @@
     <div class="search-form-data"></div>
 
     <div class="form-element">
-      <%= f.label :id, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required')}") %>
+      <%= f.label :id, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
       <div class="v-select white">
         <%= f.select(
             :id,
@@ -31,11 +31,10 @@
     </div>
   <% else %>
     <div class="form-element">
-
-      <%= f.label :name, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required')}") %>
-      <%= f.text_field :name, required: true %>
-
       <%= f.hidden_field :id %>
+
+      <%= f.label :name, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
+      <%= f.text_field :name, required: true %>
     </div>
   <% end %>
 

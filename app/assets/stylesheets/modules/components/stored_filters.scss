@@ -232,6 +232,19 @@
             margin-top: 0.2rem;
             color: $dark-gray;
 
+            .stored-search-title {
+              font-size: 0.9rem;
+              color: $dark-gray;
+
+              .fa {
+                font-size: 1rem;
+              }
+
+              &.global {
+                font-weight: 600;
+              }
+            }
+
             i {
               font-size: 0.8rem;
               margin-right: 0.1rem;
@@ -331,10 +344,20 @@
 .update-search-form {
   overflow-y: visible;
 
+  .stored-filter-creator {
+    color: rgba($black, 0.5);
+  }
+
+  .select2-results__option.select2-results__option--highlighted {
+    .stored-filter-creator {
+      color: rgba($white, 0.5);
+    }
+  }
+
   .dynamic-form-parts {
     position: relative;
 
-    &.loading {
+    &.dynamic-parts-loading {
       pointer-events: none;
       opacity: 0.5;
 
@@ -371,10 +394,6 @@
 
   .form-element {
     margin-bottom: 1rem;
-
-    .required {
-      color: $alert-color;
-    }
 
     input,
     .v-select.white {

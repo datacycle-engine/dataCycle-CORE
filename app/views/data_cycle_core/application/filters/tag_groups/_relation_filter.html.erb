@@ -9,7 +9,7 @@
 
   <span class="tags-container">
     <% items.each do |item| %>
-      <%= tag.span(item.name, class: "tag #{item.html_class}", title: item.title) %>
+      <%= tag.span(item.name, class: "tag #{item.html_class}", data: { dc_tooltip: item.dc_tooltip }) %>
     <% end %>
   </span>
 

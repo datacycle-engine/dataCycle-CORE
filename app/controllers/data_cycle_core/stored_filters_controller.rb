@@ -97,11 +97,12 @@ module DataCycleCore
 
       stored_filters = DataCycleCore::StoredFilter.accessible_by(current_ability, :update)
         .includes(:user)
-        .where('name ILIKE ?', "%#{params[:q].gsub(/ \| .*<.*@.*>$/, '')}%")
         .limit(20)
 
+      stored_filters = stored_filters.where(DataCycleCore::StoredFilter.arel_table[:name].matches("%#{index_params[:q]}%")) if index_params[:q].present?
+
       render plain: stored_filters.map { |filter|
-        filter.tap { |f| f.name += " | #{f.user.full_name} &lt;#{f.user.email}&gt;" if f.user_id != current_user.id }.to_select_option
+        filter.tap { |f| f.name += "<span class=\"stored-filter-creator\"> | #{f.user.full_name} &lt;#{f.user.email}&gt;</span>" if f.user_id != current_user.id }.to_select_option
       }.to_json, content_type: 'application/json'
     end
 

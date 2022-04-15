@@ -1,5 +1,3 @@
-import loadingIcon from '../templates/loadingIcon';
-
 class StoredFilterForm {
   constructor(form) {
     this.form = form;
@@ -13,12 +11,13 @@ class StoredFilterForm {
   }
   setup() {
     $(this.idSelector).on('change', this.reloadFormData.bind(this));
-    this.form.addEventListener('submit', this.injectSearchFormData.bind(this));
+    if (this.searchFormPart && this.searchForm)
+      this.form.addEventListener('submit', this.injectSearchFormData.bind(this));
   }
   reloadFormData(_event) {
     DataCycle.disableElement(this.formSubmit, this.formSubmit.innerHTML);
     this.idSelector.disabled = true;
-    this.dynamicFormPart.classList.add('loading');
+    this.dynamicFormPart.classList.add('dynamic-parts-loading');
     this.dynamicFormPart.classList.remove('dc-fd-initialized');
 
     DataCycle.httpRequest({
@@ -38,7 +37,7 @@ class StoredFilterForm {
       })
       .finally(() => {
         this.idSelector.disabled = false;
-        this.dynamicFormPart.classList.remove('loading');
+        this.dynamicFormPart.classList.remove('dynamic-parts-loading');
         DataCycle.enableElement(this.formSubmit);
       });
   }
