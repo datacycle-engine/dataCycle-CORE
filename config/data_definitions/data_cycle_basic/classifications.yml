@@ -77,7 +77,8 @@
 - Informationstypen | all:
 
 - $$Externe Informationstypen | all:
-    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO
+    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz
+    - abstract | mein.toubiz
     - description_long | imx_platform
     - text | OutdoorActive
     - directions | OutdoorActive/destination.one

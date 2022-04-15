@@ -1308,6 +1308,9 @@ de:
       timesComment: Erläuterung Beginnzeiten
       menuDownload: Speisekarte herunterladen
       recipeSuggestionDownload: Rezept herunterladen
+    toubiz:
+      abstract: Zusammenfassung
+      description: Beschreibung
     destination_one:
       facility_unterhaltung: Facility Unterhaltung
       info_wegbelag: Info Wegbelag
