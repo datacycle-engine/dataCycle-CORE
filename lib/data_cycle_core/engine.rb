@@ -328,3 +328,9 @@ module DataCycleCore
 end
 
 require 'data_cycle_core/exceptions'
+
+require 'data_cycle_core/generic/common/functions'
+require 'data_cycle_core/generic/webhook_base'
+require 'data_cycle_core/generic/common/webhook'
+require 'data_cycle_core/generic/csv/endpoint'
+require 'data_cycle_core/master_data/contracts/general_contract'
