@@ -50,7 +50,11 @@ module DataCycleCore
           render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?
           content = content_params.as_json
 
-          response = strategy.create(content, external_system)
+          if strategy.method(:create).arity == 3
+            response = strategy.create(content, external_system, current_user)
+          else
+            response = strategy.create(content, external_system)
+          end
           errors = response[:error] || []
 
           render plain: Array.wrap(response).to_json, content_type: 'application/json', status: errors.size.positive? ? :bad_request : :ok
