@@ -183,7 +183,8 @@ module DataCycleCore
       end
 
       def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true)
-        data_hash = add_default_values(data_hash: data_hash, current_user: current_user).dup if add_defaults && properties_with_default_values.present?
+        data_hash = add_default_values(data_hash: data_hash, current_user: current_user, partial: !strict).dup if add_defaults && properties_with_default_values.present?
+
         validator = DataCycleCore::MasterData::ValidateData.new(self)
         valid = DataCycleCore::LocalizationService.localize_validation_errors(validator.validate(data_hash, schema_hash || schema, strict), current_user&.ui_locale || DataCycleCore.ui_locales.first)
 
@@ -262,6 +263,7 @@ module DataCycleCore
       end
 
       def attribute_blank?(data_hash, key, _defininition = nil)
+        # BUG: if used on content in new language, translated_locales will include the new language after this method call
         return true if key.blank?
 
         data_hash[key].blank? &&
