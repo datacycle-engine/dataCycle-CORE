@@ -179,6 +179,23 @@ module DataCycleCore
       assert_redirected_to unauthorized_exception_path
     end
 
+    test 'unlock external link' do
+      @data_link.update(valid_until: 1.minute.ago)
+
+      patch unlock_data_link_path(@data_link), params: {}, headers: {
+        referer: thing_url(@content)
+      }
+      assert_redirected_to thing_path(@content)
+      follow_redirect!
+
+      assert_nil @data_link.reload.valid_until
+
+      logout
+
+      get data_link_path(@data_link)
+      assert_redirected_to edit_thing_path(@content)
+    end
+
     test 'can only edit owned data_links' do
       sign_in(User.find_by(email: 'admin@datacycle.at'))
 
