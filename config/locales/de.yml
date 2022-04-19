@@ -509,6 +509,11 @@ de:
         date_created: Heruntergeladen am
         email: E-Mail
         user_display_name: Account
+      mailer:
+        subject:
+          downloads_popular: TOP 50 Bild Downloads
+        text_html: 
+         downloads_popular: Im Anhang finden Sie die TOP 50 Bild Downloads.
 
   compare:
     switch_contents: Inhalte tauschen
