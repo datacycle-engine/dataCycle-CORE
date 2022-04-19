@@ -39,16 +39,6 @@
         :translated: true
         :validations:
           :max: 1
-      :additional_information:
-        :label: Ergänzende Information
-        :type: embedded
-        :template_name: Ergänzende Information
-        :api:
-          :v4:
-            :name: dc:additionalInformation
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :poi_category:
         :label: Kategorie
         :type: classification
@@ -56,6 +46,19 @@
         :ui:
           :show:
             :content_area: header
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :place_attributes:
+        :type: mixin
+        :name: place_attributes
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
       :opening_hours_specification:
         :type: mixin
         :name: opening_hours_specification
@@ -68,9 +71,6 @@
       :contact_info:
         :type: mixin
         :name: contact_info
-      :place_attributes:
-        :type: mixin
-        :name: place_attributes
       :linked_data:
         :type: mixin
         :name: linked_data
