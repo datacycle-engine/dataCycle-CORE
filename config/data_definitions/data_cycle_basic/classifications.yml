@@ -157,7 +157,10 @@
     - station | destination.one
     - subtitle | destination.one
     - teaser | destination.one
-
+    - additionalBookingInformation | mein.toubiz
+    - currentInformation | mein.toubiz
+    - additionalLocationInformation | mein.toubiz
+    - additionalHostInformation | mein.toubiz
 
 - POI - Kategorien | all:
 

@@ -32,7 +32,7 @@ module DataCycleCore
         end
 
         def events(lang:)
-          includes = ['languages', 'externalIds', 'mainImage', 'images', 'openingTimes']
+          includes = ['files', 'media', 'tags', 'dates', 'contactInformation', 'fieldBlueprints', 'printInformation', 'fieldValues', 'host', 'location', 'category', 'externalIds']
           iterate_types(lang: lang.to_s, type: 'event', import_type: ['local', 'regional', 'multiregional'], includes: includes)
         end
 

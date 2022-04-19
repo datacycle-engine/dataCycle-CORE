@@ -34,7 +34,7 @@ module DataCycleCore
 
         def self.add_info(data, external_source_id, field_names)
           additional_information = field_names
-            .select { |type| data[type].strip.present? }
+            .select { |type| data[type]&.strip.present? }
             .map { |type| { 'name' => type, 'description' => data[type] } }
             .map { |text|
               type = text['name']
@@ -66,6 +66,72 @@ module DataCycleCore
             [factory.line_string(points.map { |point| factory.point(point[1], point[0], point[2]) })]
           )
           data
+        end
+
+        def self.add_things(data, external_source_id)
+          data['content_location'] = Common::Functions.find_thing_ids(external_system_id: external_source_id, external_key: data.dig('location', 'id'))
+          data['linked_thing'] =
+            if data.dig('host', 'id').present? && data.dig('host', 'id') != data.dig('location', 'id')
+              Common::Functions.find_thing_ids(external_system_id: external_source_id, external_key: data.dig('host', 'id'))
+            else
+              []
+            end
+          data
+        end
+
+        def self.add_event_schedule(data, external_source_id)
+          return data unless data.dig('hasSchedule')
+          return data if data.dig('dateIntervals').blank?
+          schedule = []
+          data.dig('dateIntervals').uniq.each do |time|
+            external_key = Digest::SHA1.hexdigest("#{data['external_key']} - event_schedule - #{time.to_json}")
+            id = DataCycleCore::Schedule.find_by(external_source_id: external_source_id, external_key: external_key)&.id
+
+            dstart = time['date']&.to_datetime || Time.current.beginning_of_year - 1.year
+            tstart = time['startAt'] || '00:00:00'
+            dtstart = "#{dstart.to_s(:only_date)}T#{tstart}".in_time_zone
+            tend = time['endAt'] || '23:59:59'
+            dtend = "#{dstart.to_s(:only_date)}T#{tend}".in_time_zone
+            duration = dtend - dtstart
+            duration += 1.day if duration.negative?
+            until_time = time['end']&.to_datetime || Time.zone.now.end_of_year + 5.years
+            until_time = "#{until_time.to_s(:only_date)}T#{tstart}".in_time_zone
+            until_time = dtstart if time['end'] == time['date']
+
+            extimes = data.dig('dates')
+              .select { |i| i['isCancelled'] == true }
+              .map { |i| "#{i['date']}T#{i['startAt'] || '00:00:00'}".in_time_zone }
+
+            schedule_hash = {
+              id: id,
+              external_source_id: external_source_id,
+              external_key: external_key,
+              start_time: {
+                time: dtstart.to_s,
+                zone: dtstart.time_zone.name
+              },
+              duration: duration,
+              extimes: extimes || []
+            }
+
+            case time['repeatRuleName']
+            when 'none'
+              schedule << schedule_hash
+            when 'weekly'
+              rrule = IceCube::Rule.weekly
+              days = rrule_days(time.dig('configuration', 'days'))
+              rrule.day(days) if days.present?
+              rrule.interval(time['interval']) if time['interval'].present?
+              rrule.until(until_time)
+              schedule << schedule_hash.merge({ rrules: [rrule.to_hash] })
+            end
+          end
+          data['event_schedule'] = schedule
+          data
+        end
+
+        def self.rrule_days(array)
+          array.map { |i| i > 6 ? i - 7 : i }
         end
       end
     end
