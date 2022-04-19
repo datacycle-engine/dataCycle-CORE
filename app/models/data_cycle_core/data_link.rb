@@ -48,6 +48,10 @@ module DataCycleCore
       !valid_from.presence&.>(Time.zone.now.round) && !valid_until.presence&.<(Time.zone.now.round)
     end
 
+    def self.valid_stored_filters
+      DataCycleCore::StoredFilter.where(id: all.where(item_type: 'DataCycleCore::StoredFilter').valid.pluck(:item_id))
+    end
+
     private
 
     def set_release_status

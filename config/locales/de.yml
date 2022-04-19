@@ -1179,6 +1179,7 @@ de:
       save: Suche speichern
       history: Suchverlauf
       load_more: ... weitere Suchen anzeigen
+      load_all: alle Suchen anzeigen
       filter_searches: Suchen filtern ...
       count_html:
         zero: '<b>Keine</b> Suchen'

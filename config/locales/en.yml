@@ -1170,6 +1170,7 @@ en:
       save: Save search
       history: Search History
       load_more: ... show more searches
+      load_all: show all searches
       filter_searches: filter searches ...
       count_html:
         zero: '<b>No</b> searches'

@@ -5,7 +5,7 @@ module DataCycleCore
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
     before_action :authenticate_user!, except: [:show, :get_text_file, :download] # from devise (authenticate)
-    load_and_authorize_resource except: [:show, :get_text_file, :download, :render_update_form] # from cancancan (authorize)
+    load_and_authorize_resource except: [:show, :get_text_file, :download, :render_update_form, :unlock] # from cancancan (authorize)
     after_action :update_receiver_locale, only: [:create, :update]
 
     def show
@@ -84,6 +84,16 @@ module DataCycleCore
       @data_link.update_column(:valid_until, 1.minute.ago)
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :invalidated, scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+    end
+
+    def unlock
+      @data_link = DataCycleCore::DataLink.find(params[:id])
+
+      authorize! :update, @data_link
+
+      @data_link.update_column(:valid_until, nil)
+
+      redirect_back(fallback_location: root_path, notice: (I18n.t :unlocked, scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def get_text_file

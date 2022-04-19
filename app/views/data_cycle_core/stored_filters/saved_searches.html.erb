@@ -9,7 +9,7 @@
       <div class="fulltext-search">
         <%= form_with(url: saved_searches_stored_filters_path, local: true, class: 'fulltext-search-form', method: :get) do |f| %>
           <%= f.button tag.i(class: 'fa fa-search'), type: :submit, class: 'fulltext-search-submit' %>
-          <%= f.text_field :q, id: nil, class: 'fulltext-search-field', placeholder: t('data_cycle_core.stored_searches.filter_searches', locale: active_ui_locale) %>
+          <%= f.text_field :q, value: @search_param, id: nil, class: 'fulltext-search-field', placeholder: t('data_cycle_core.stored_searches.filter_searches', locale: active_ui_locale) %>
           <%= f.button tag.i(class: 'fa fa-times'), type: :reset, class: 'fulltext-search-reset' %>
         <% end %>
       </div>

@@ -25,11 +25,18 @@ module DataCycleCore
     def saved_searches
       authorize! :index, DataCycleCore::StoredFilter
 
-      @page = (index_params[:page] || 1).to_i
       @stored_searches = DataCycleCore::StoredFilter.accessible_by(current_ability).where.not(name: nil).order(:name)
-      index_params[:q]&.split(' ')&.each { |s| @stored_searches = @stored_searches.where('stored_filters.name ILIKE ?', "%#{s}%") }
-      @stored_searches = @stored_searches.page(@page)
-      @last_page = @stored_searches.last_page?
+      @search_param = index_params[:q]
+      @stored_searches = @stored_searches.where(DataCycleCore::StoredFilter.arel_table[:name].matches("%#{@search_param}%")) if @search_param.present?
+      @page = (index_params[:page] || 1).to_i
+
+      if index_params[:load_all].present?
+        @stored_searches = @stored_searches.offset(DEFAULT_PAGE_SIZE * (@page - 1))
+        @last_page = true
+      else
+        @stored_searches = @stored_searches.page(@page).per(DEFAULT_PAGE_SIZE)
+        @last_page = @stored_searches.last_page?
+      end
 
       respond_to do |format|
         format.html do
@@ -85,6 +92,7 @@ module DataCycleCore
 
     def destroy
       @stored_filter.filter_uses.update_all(linked_stored_filter_id: nil)
+
       if @stored_filter.update(name: nil)
         redirect_back(fallback_location: root_path, notice: (I18n.t :destroyed, scope: [:controllers, :success], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
       else
@@ -180,7 +188,7 @@ module DataCycleCore
     end
 
     def index_params
-      params.permit(:page, :last_day, :q)
+      params.permit(:page, :last_day, :q, :load_all)
     end
   end
 end

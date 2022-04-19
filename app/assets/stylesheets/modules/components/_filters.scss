@@ -1054,6 +1054,10 @@ $filter-border: #aaa;
               span {
                 transition: background-color ease-in-out 0.25s, color ease-in-out 0.25s;
 
+                &.title {
+                  font-weight: 600;
+                }
+
                 &.global {
                   font-weight: bold;
                 }

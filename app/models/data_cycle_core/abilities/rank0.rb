@@ -68,8 +68,11 @@ module DataCycleCore
             (DataCycleCore::Feature::Releasable.attribute_keys(attribute.content).include?(attribute.key.attribute_name_from_key) && attribute.scope.to_s == 'show')
         end
 
-        DataCycleCore::DataLink.where(id: session[:data_link_ids], permissions: 'read', item_type: 'DataCycleCore::StoredFilter').valid.includes(:item).find_each do |_link|
-          can :read, :backend
+        if DataCycleCore::DataLink.where(id: session[:data_link_ids], item_type: 'DataCycleCore::StoredFilter').valid.exists?
+          can [:read, :search], :backend
+          can :advanced_filter, :backend do |_t, _k, v|
+            v == 'fulltext_search'
+          end
         end
 
         DataCycleCore::DataLink.where(id: session[:data_link_ids], permissions: 'write').valid.includes(:item).find_each do |link|

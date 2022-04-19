@@ -1744,6 +1744,15 @@ a {
           color: darken($primary-color, 30%);
         }
 
+        &.unlock-data-link {
+          color: $success-color;
+
+          &:hover,
+          &:focus {
+            color: darken($success-color, 30%);
+          }
+        }
+
         &.invalidate-data-link,
         &.delete-translation-link {
           color: $alert-color;

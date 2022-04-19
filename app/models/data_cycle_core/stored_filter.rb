@@ -154,5 +154,23 @@ module DataCycleCore
     def valid_write_links?
       valid_write_links.present?
     end
+
+    def apply_params_for_data_links(data_link_ids)
+      stored_filter_ids = DataCycleCore::DataLink.where(id: data_link_ids, permissions: 'read').valid_stored_filters.ids
+
+      return if stored_filter_ids.blank?
+
+      if (union_filters = parameters&.filter { |f| f['t'] == 'union_filter_ids' && f['v'].intersection(stored_filter_ids).present? }).present?
+        union_filters.each { |f| f['v'] = f['v'].intersection(stored_filter_ids) }
+      else
+        parameters << {
+          'c' => 'a',
+          't' => 'union_filter_ids',
+          'n' => 'Union_filter_ids',
+          'm' => 'i',
+          'v' => stored_filter_ids
+        }
+      end
+    end
   end
 end

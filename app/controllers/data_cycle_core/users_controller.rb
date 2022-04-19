@@ -142,7 +142,7 @@ module DataCycleCore
     def search_params
       params
         .permit(:q, roles: [], user_groups: [])
-        .tap { |p| p[:q].strip! }
+        .tap { |p| p[:q]&.strip! }
     end
 
     def permitted_params

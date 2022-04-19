@@ -123,8 +123,9 @@
         align-items: center;
         justify-content: center;
 
-        .stored-searches-load-more-button {
-          margin: 1rem;
+        .stored-searches-load-more-button,
+        .stored-searches-load-all-button {
+          margin: 1rem 0.5rem;
         }
       }
 
@@ -204,6 +205,8 @@
 
         span {
           &.content-title {
+            margin-right: 0.5rem;
+
             i {
               margin-right: 0.5rem;
             }
@@ -235,13 +238,14 @@
             .stored-search-title {
               font-size: 0.9rem;
               color: $dark-gray;
+              font-weight: 600;
 
               .fa {
                 font-size: 1rem;
               }
 
               &.global {
-                font-weight: 600;
+                font-weight: bold;
               }
             }
 
