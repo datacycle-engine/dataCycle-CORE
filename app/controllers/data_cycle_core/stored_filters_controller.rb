@@ -62,7 +62,11 @@ module DataCycleCore
     end
 
     def create
-      stored_filter = stored_filter_params[:id].present? ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : DataCycleCore::StoredFilter.new
+      stored_filter = if stored_filter_params[:id].present?
+                        DataCycleCore::StoredFilter.find(stored_filter_params[:id])
+                      else
+                        DataCycleCore::StoredFilter.new(user_id: current_user.id)
+                      end
 
       authorize! stored_filter.new_record? ? :create : :update, stored_filter
 
