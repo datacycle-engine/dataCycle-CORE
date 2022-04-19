@@ -1,0 +1,27 @@
+<% if stored_searches.present? %>
+  <%= render partial: 'data_cycle_core/stored_filters/stored_saved_search',
+            collection: stored_searches,
+            as: :stored_search %>
+
+  <% unless last_page %>
+    <li class="load-more-link">
+      <%= link_to t('data_cycle_core.stored_searches.load_all', locale: active_ui_locale),
+                saved_searches_stored_filters_path(load_all: true, page: page + 1),
+                class: 'button stored-searches-load-all-button secondary',
+                data: {
+                  disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('data_cycle_core.stored_searches.load_all', locale: active_ui_locale)}"
+                } %>
+
+      <%= link_to t('data_cycle_core.stored_searches.load_more', locale: active_ui_locale),
+                saved_searches_stored_filters_path(page: page + 1),
+                class: 'button stored-searches-load-more-button secondary',
+                data: {
+                  disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('data_cycle_core.stored_searches.load_more', locale: active_ui_locale)}"
+                } %>
+    </li>
+  <% end %>
+<% elsif page == 1 %>
+  <li>
+    <span class="no-results"><%= t('common.no_results', locale: active_ui_locale) %></span>
+  </li>
+<% end %>

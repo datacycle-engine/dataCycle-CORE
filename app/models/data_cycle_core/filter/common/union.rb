@@ -5,6 +5,7 @@ module DataCycleCore
     module Common
       module Union
         UNION_FILTER_EXCEPTS = [
+          :joins,
           :order,
           :reordering
         ].freeze

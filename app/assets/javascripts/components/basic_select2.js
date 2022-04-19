@@ -60,6 +60,17 @@ class BasicSelect2 {
     this.$element.on('dc:select:destroy', this.eventHandlers.destroy);
     this.$element.parent().on('change', '.select2-search__field', this.eventHandlers.suppressChange);
     this.$element.on('change', this.eventHandlers.resizeDropdown);
+    this.$element.on('select2:select', this.removeUnusedTags.bind(this));
+  }
+  removeUnusedTags(event) {
+    if (
+      this.select2Object.options.options.multiple ||
+      !this.select2Object.options.options.tags ||
+      event.params.data.newTag
+    )
+      return;
+
+    for (const tag of this.$element.get(0).querySelectorAll('option[data-select2-tag]')) tag.remove();
   }
   resizeDropdownEvent(_event) {
     const $dropdown = this.$element.closest('.dropdown-pane');
@@ -213,6 +224,7 @@ class BasicSelect2 {
     return {
       id: term,
       text: term,
+      name: term,
       newTag: true
     };
   }

@@ -974,7 +974,7 @@ a.dc-foundation-tooltip {
 }
 
 .reveal {
-  .send-link {
+  .data-link-form {
     textarea {
       min-height: 10rem;
     }
@@ -1272,6 +1272,33 @@ a.email-link {
   textarea {
     margin-bottom: 0;
   }
+
+  .dynamic-form-parts {
+    position: relative;
+
+    &.dynamic-parts-loading {
+      pointer-events: none;
+      opacity: 0.5;
+
+      &::before {
+        content: '\f110';
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        display: flex;
+        position: absolute;
+        animation: fa-spin 2s infinite linear;
+        font-size: 2.5rem;
+        line-height: 2.5rem;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+
   .form-element:not(:last-child) {
     margin-bottom: 1rem;
   }
@@ -1884,7 +1911,11 @@ select {
   &.async-select,
   &.single-select,
   &.multi-select {
-    visibility: hidden;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    // visibility: hidden;
     max-height: 1rem;
   }
 }
@@ -1896,7 +1927,7 @@ select {
 
 .ol-control {
   button {
-    font-family: sans-serif;
+    font-family: $body-font-family;
   }
 }
 
@@ -3226,12 +3257,6 @@ button.button-prime.small.bulk-delete-button {
       margin-left: 0.5rem;
     }
   }
-}
-.stored-searches-list ul li.content-item span.buttons {
-  max-width: inherit;
-  text-align: right;
-  display: flex;
-  flex-flow: row nowrap;
 }
 
 .download-content-reveal {

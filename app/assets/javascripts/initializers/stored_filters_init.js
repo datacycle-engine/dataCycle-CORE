@@ -1,67 +1,15 @@
-import loadingIcon from '../templates/loadingIcon';
+import StoredFilter from '../components/stored_filter';
+import StoredFilterForm from '../components/stored_filter_form';
 
 export default function () {
-  if ($('.search-history-list').length) {
-    let loading = false;
-    let page = 1;
-    let pages = $('.search-history-list').data('pages');
-    let load_more = function () {
-      page += 1;
-      let form_data = [
-        {
-          name: 'infinite_scroll',
-          value: true
-        },
-        {
-          name: 'page',
-          value: page
-        },
-        {
-          name: 'last_day',
-          value: $('.stored-search-day').last().data('day')
-        }
-      ];
-      loading = true;
+  const storedSearchesList = document.querySelector('.stored-searches-list');
 
-      $('.search-history-list').append(loadingIcon());
+  if (storedSearchesList) new StoredFilter(storedSearchesList);
 
-      DataCycle.httpRequest({
-        url: '',
-        method: 'GET',
-        data: form_data,
-        dataType: 'script'
-      }).then(_data => {
-        loading = false;
-        $('.search-history-list .loading').remove();
-
-        if (
-          page < pages &&
-          !loading &&
-          $('.search-history-list .content-item').last().offset().top +
-            $('.search-history-list .content-item').last().outerHeight() +
-            80 <
-            $(window).height()
-        ) {
-          load_more();
-        }
-      });
-    };
-
-    if (
-      page < pages &&
-      !loading &&
-      $('.search-history-list .content-item').last().offset().top +
-        $('.search-history-list .content-item').last().outerHeight() +
-        80 <
-        $(window).height()
-    ) {
-      load_more();
-    }
-
-    $(document).on('scroll', _event => {
-      if (!loading && $(window).scrollTop() + $(window).height() >= $(document).height() - 100 && page < pages) {
-        load_more();
-      }
-    });
+  if (document.querySelector('.save-filter-with-params')) {
+    DataCycle.htmlObserver.addCallbacks.push([
+      e => e.classList.contains('update-stored-search-form') && e.dataset.updateParams == 'true',
+      e => new StoredFilterForm(e)
+    ]);
   }
 }

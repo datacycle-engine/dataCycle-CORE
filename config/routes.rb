@@ -90,12 +90,14 @@ DataCycleCore::Engine.routes.draw do
     post '/', on: :collection, action: :index
   end
 
-  resources :stored_filters, only: [:index, :show, :create, :update, :destroy], path: :search_history do
+  resources :stored_filters, only: [:index, :show, :create, :destroy], path: :search_history do
     get :search, on: :collection
     get :select_search_or_collection, on: :collection
     get :download_zip, on: :member
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection
+    get :saved_searches, on: :collection
+    get :render_update_form, on: :collection
   end
 
   resources :classification_tree_labels, only: :show, param: :ctl_id do
@@ -128,6 +130,8 @@ DataCycleCore::Engine.routes.draw do
     post :send_mail, on: :member
     post :download, on: :member
     get :get_text_file, on: :member
+    patch :unlock, on: :member
+    get :render_update_form, on: :collection
   end
 
   resources :watch_lists do
