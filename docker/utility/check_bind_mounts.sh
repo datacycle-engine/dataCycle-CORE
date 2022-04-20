@@ -19,7 +19,7 @@ sudo chmod -R g+w $BASE_DC_IMPORT_VOLUME_PATH/import
 
 # nginx | app | mongodb
 echo "$BASE_LOG_VOLUME_PATH"
-mkdir -p $BASE_LOG_VOLUME_PATH/{app,mongodb,nginx}
+mkdir -p $BASE_LOG_VOLUME_PATH/app
 sudo chgrp -R 1000 $BASE_LOG_VOLUME_PATH/app
 sudo chmod -R g+w $BASE_LOG_VOLUME_PATH/app
 
