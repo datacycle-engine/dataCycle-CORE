@@ -1324,6 +1324,13 @@ de:
       timesComment: Erläuterung Beginnzeiten
       menuDownload: Speisekarte herunterladen
       recipeSuggestionDownload: Rezept herunterladen
+    toubiz:
+      abstract: Zusammenfassung
+      description: Beschreibung
+      additionalBookingInformation: Zusatzinformationen zur Buchung
+      currentInformation: Aktuelle Informationen
+      additionalLocationInformation: Zusatzinformationen zum Veranstaltungsort
+      additionalHostInformation: Zusatzinformationen zum Veranstalter
     destination_one:
       facility_unterhaltung: Facility Unterhaltung
       info_wegbelag: Info Wegbelag

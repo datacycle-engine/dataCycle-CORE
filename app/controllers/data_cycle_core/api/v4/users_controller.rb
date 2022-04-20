@@ -55,7 +55,7 @@ module DataCycleCore
           authorize! :update, current_user
 
           current_user.attributes = user_params.except(:additional_attributes)
-          (current_user.additional_attributes ||= {}).merge!(user_params[:additional_attributes])
+          (current_user.additional_attributes ||= {}).merge!(user_params[:additional_attributes] || {})
 
           if current_user.save
             render json: current_user.as_user_api_json.merge({

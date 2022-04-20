@@ -1327,6 +1327,13 @@ en:
       timesComment: Entrance details
       menuDownload: Download menu
       recipeSuggestionDownload: Download suggested recipe
+    toubiz:
+      abstract: Abstract
+      description: Description
+      additionalBookingInformation: Additional booking information
+      currentInformation: Current information
+      additionalLocationInformation: Additional location information
+      additionalHostInformation: Additional host information
     destination_one:
       facility_unterhaltung: Facility upkeep
       info_wegbelag: Info pavement

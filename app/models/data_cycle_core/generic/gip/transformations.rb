@@ -23,8 +23,6 @@ module DataCycleCore
         def self.to_route(prefix)
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { prefix + s.dig('value') })
-          .>> t(:add_field, 'sections', ->(s) { load_sections(s, prefix) })
-          .>> t(:add_field, 'line', ->(s) { load_all_sections(s.dig('sections')) })
           .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: prefix + s['value'])&.ids })
           .>> t(:strip_all)
         end
@@ -65,7 +63,11 @@ module DataCycleCore
           .>> t(:add_links, 'referencetype', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'type') ? Array.wrap("Gip - REFERENCETYPE - #{s.dig('properties', 'type')}") : [] })
           .>> t(:add_links, 'orgcode', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'externalorgcode') ? Array.wrap("Gip - ORGCODE - #{s.dig('properties', 'externalorgcode')}") : [] })
           .>> t(:add_field, 'name', ->(s) { "#{s['caption']} - #{DataCycleCore::Classification.find_by(id: s['minortyperef']).name}" })
-          .>> t(:add_field, 'routes', ->(s) { load_feature_routes(s.dig('properties', 'geoNameId1'), external_source_id) })
+          .>> t(:add_field, 'routes', ->(s) { load_feature_routes(s.dig('properties', 'geoNameId1'), 'GeoName_', external_source_id) })
+          .>> t(:add_field, 'routes_ev', ->(s) { load_feature_routes(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att8' }&.dig('properties', 'stringvalue'), 'GEONAME - EUROVELO - ', external_source_id) })
+          .>> t(:add_field, 'routes_at', ->(s) { load_feature_routes(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att9' }&.dig('properties', 'stringvalue'), 'GEONAME - ATROUTE - ', external_source_id) })
+          .>> t(:merge_array_values, 'routes', 'routes_at')
+          .>> t(:merge_array_values, 'routes', 'routes_ev')
           .>> t(:reject_keys, ['id', 'caption', 'bbox', 'geometry', 'properties'])
           .>> t(:strip_all)
         end
@@ -137,10 +139,10 @@ module DataCycleCore
           []
         end
 
-        def self.load_feature_routes(route_id, external_source_id)
+        def self.load_feature_routes(route_id, prefix, external_source_id)
           return [] if route_id.blank?
 
-          DataCycleCore::Thing.where(external_key: "GeoName_#{route_id}", external_source_id: external_source_id)&.ids
+          DataCycleCore::Thing.where(external_key: "#{prefix}#{route_id}", external_source_id: external_source_id)&.ids
         end
       end
     end
