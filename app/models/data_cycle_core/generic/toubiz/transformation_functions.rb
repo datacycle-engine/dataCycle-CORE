@@ -153,7 +153,9 @@ module DataCycleCore
         end
 
         def self.rrule_days(array)
-          array.map { |i| i > 6 ? i - 7 : i }
+          array
+            .select { |i| i <= 7 && i >= 0 } # per def. 0 -> Sunday, 1 -> Monday ....
+            .map { |i| i > 6 ? i - 7 : i }
         end
 
         def self.validate_url(url)
