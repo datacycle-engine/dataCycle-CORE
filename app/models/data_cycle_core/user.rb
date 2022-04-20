@@ -166,14 +166,9 @@ module DataCycleCore
     end
 
     def as_user_api_json
-      as_json(
-        only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
-        include: {
-          role: {
-            only: [:name, :rank]
-          }
-        }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
-      )
+      as_json(DataCycleCore::Feature::UserApi.json_params)
+      .merge(as_json(only: [:additional_attributes]).tap { |u| u['additional_attributes']&.slice!(*DataCycleCore::Feature::UserApi.json_additional_attributes) })
+      .deep_transform_keys { |k| k.to_s.camelize(:lower) }
     end
 
     def to_select_option
