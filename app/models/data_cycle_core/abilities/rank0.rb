@@ -69,7 +69,7 @@ module DataCycleCore
         end
 
         if DataCycleCore::DataLink.where(id: session[:data_link_ids], item_type: 'DataCycleCore::StoredFilter').valid.exists?
-          can [:read, :search], :backend
+          can [:read, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced], :backend
           can :advanced_filter, :backend do |_t, _k, v|
             v == 'fulltext_search'
           end
