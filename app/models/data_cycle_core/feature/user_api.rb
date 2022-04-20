@@ -28,7 +28,7 @@ module DataCycleCore
 
         def json_params
           {
-            only: user_params.filter { |k, v| DataCycleCore::User.reflect_on_all_associations(:has_many).map(&:name).exclude?(k.to_sym) && v.nil? }.keys,
+            only: user_params.filter { |k, v| DataCycleCore::User.reflect_on_all_associations(:has_many).map(&:name).exclude?(k.to_sym) && v.nil? }.keys + [:id],
             include: {
               role: {
                 only: [:name, :rank]
