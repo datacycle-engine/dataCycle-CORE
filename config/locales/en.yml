@@ -522,6 +522,8 @@ en:
     thing:
       nominativ: the content
       akkusativ: the content
+    stored_filter:
+      default: the stored search
     send_subject: Shared link to a content
     update_subject: Shared content collection has been updated
     notice: Note

@@ -179,9 +179,9 @@ module DataCycleCore
     def to_select_option
       DataCycleCore::Filter::SelectOption.new(
         id,
-        full_name,
+        email,
         model_name.param_key,
-        email
+        full_name
       )
     end
 
