@@ -317,10 +317,13 @@ DataCycleCore::Engine.routes.draw do
                 post :logout
               end
 
-              post 'users/create', to: 'users#create'
-              match 'users', to: 'users#index', via: [:get, :post]
-              post 'users/password', to: 'users#password'
-              match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
+              namespace :users do
+                post :create
+                match '/update', action: :update, via: [:patch, :put]
+                match '/', action: :index, via: [:get, :post]
+                post :password
+                match '/:id', action: :show, as: :user, via: [:get, :post]
+              end
 
               scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do
                 match '/:external_key', via: [:get, :post], to: 'external_systems#show', as: 'external_sources'

@@ -148,7 +148,7 @@ module DataCycleCore
           DataCycleCore::JsonWebToken.decode(json_data['token'])
         end
 
-        test '/api/v4/users - create new user' do
+        test '/api/v4/users/create - create new user' do
           user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
             email: "tester_2_#{Time.now.getutc.to_i}@datacycle.at",
             confirmed_at: Time.zone.now - 1.day
@@ -179,6 +179,18 @@ module DataCycleCore
           }, params: user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) }
 
           assert_response :unauthorized
+        end
+
+        test '/api/v4/users/update - update user' do
+          patch api_v4_users_update_path, params: { token: @new_user.access_token, givenName: 'Test', familyName: 'Er' }, headers: {}
+
+          assert_response :success
+          assert_equal response.content_type, 'application/json; charset=utf-8'
+          json_data = JSON.parse(response.body)
+
+          assert json_data['token'].present?
+          assert_equal 'Test', user_data['givenName']
+          assert_equal 'Er', user_data['familyName']
         end
 
         test '/api/v4/users - login or create user on authenticate' do
