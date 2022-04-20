@@ -277,7 +277,7 @@ namespace :dc do
 
       items.find_each do |wl|
         wl.send(:split_full_path)
-        wl.save!
+        wl.save!(touch: false)
         progressbar.increment
       end
     end
