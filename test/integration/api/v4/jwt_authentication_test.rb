@@ -182,15 +182,20 @@ module DataCycleCore
         end
 
         test '/api/v4/users/update - update user' do
-          patch api_v4_users_update_path, params: { token: @new_user.access_token, givenName: 'Test', familyName: 'Er' }, headers: {}
+          rsa_private = generate_private_key
+          token = DataCycleCore::JsonWebToken.encode(payload: { user: @user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) } }, alg: 'RS256', key: rsa_private)
+
+          patch api_v4_users_update_path, params: { givenName: 'Test', familyName: 'Er' }, headers: {
+            Authorization: "Bearer #{token}"
+          }
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
-          assert_equal 'Test', user_data['givenName']
-          assert_equal 'Er', user_data['familyName']
+          assert_equal 'Test', json_data['givenName']
+          assert_equal 'Er', json_data['familyName']
         end
 
         test '/api/v4/users - login or create user on authenticate' do
