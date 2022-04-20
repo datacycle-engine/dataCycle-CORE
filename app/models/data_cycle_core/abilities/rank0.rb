@@ -68,9 +68,14 @@ module DataCycleCore
             (DataCycleCore::Feature::Releasable.attribute_keys(attribute.content).include?(attribute.key.attribute_name_from_key) && attribute.scope.to_s == 'show')
         end
 
-        DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
-          next unless link.is_valid?
+        if DataCycleCore::DataLink.where(id: session[:data_link_ids], item_type: 'DataCycleCore::StoredFilter').valid.exists?
+          can [:read, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced], :backend
+          can :advanced_filter, :backend do |_t, _k, v|
+            v == 'fulltext_search'
+          end
+        end
 
+        DataCycleCore::DataLink.where(id: session[:data_link_ids], permissions: 'write').valid.includes(:item).find_each do |link|
           release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
 
           can [:update, :import], DataCycleCore::Thing do |content|

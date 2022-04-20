@@ -22,7 +22,7 @@
       </li>
     <% end %>
     <% if can?(:index, DataCycleCore::DataLink) %>
-      <li class="has-dropdown"><%= render 'data_links', content: content %></li>
+      <li class="has-dropdown"><%= render 'data_cycle_core/data_links/data_links_list', content: content %></li>
     <% end %>
     <% if can? :subscribe, content %>
       <li class="has-dropdown">

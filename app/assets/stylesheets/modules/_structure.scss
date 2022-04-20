@@ -31,7 +31,7 @@ input,
 optgroup,
 select,
 textarea {
-  font-family: 'Open Sans', 'Noto Sans SC', 'Noto Sans TC', sans-serif;
+  font-family: $body-font-family;
 }
 
 .fa {

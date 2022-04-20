@@ -68,7 +68,7 @@
             </li>
           <% end %>
 
-          <%= tag.li render('data_links', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
+          <%= tag.li render('data_cycle_core/data_links/data_links_list', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
           <li class="buttons">
             <%= link_to previous_authorized_crumb.url, class: 'has-content close-show-button' do %>
               <i aria-hidden="true" class="fa fa-times"></i>

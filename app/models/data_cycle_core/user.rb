@@ -133,15 +133,15 @@ module DataCycleCore
       elsif token[:external_user_id].present?
         User.find_by(uid: token[:external_user_id])
       elsif token[:user].present? && token.dig(:user, :email).present? && DataCycleCore.features.dig(:user_api, :enabled)
-        User.find_or_initialize_by(email: token.dig(:user, :email)).update_with_token(token)
+        User.find_or_initialize_by(email: token.dig(:user, :email).downcase).update_with_token(token)
       end
     end
 
     def self.from_omniauth(auth)
       return if auth&.info&.email.blank?
 
-      new_user = find_or_initialize_by(email: auth.info.email) do |user|
-        user.email = auth.info.email
+      new_user = find_or_initialize_by(email: auth.info.email.downcase) do |user|
+        user.email = auth.info.email.downcase
         user.password = Devise.friendly_token[0, 20]
         user.given_name = auth.info.first_name
         user.family_name = auth.info.last_name
@@ -173,6 +173,15 @@ module DataCycleCore
             only: [:name, :rank]
           }
         }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
+      )
+    end
+
+    def to_select_option
+      DataCycleCore::Filter::SelectOption.new(
+        id,
+        email,
+        model_name.param_key,
+        full_name
       )
     end
 

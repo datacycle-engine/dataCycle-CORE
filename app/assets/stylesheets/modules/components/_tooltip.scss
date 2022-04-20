@@ -49,7 +49,7 @@
   }
 }
 
-[data-dc-tooltip]:not([data-dc-tooltip='']):not([disabled]):not(button):not(a):not(.button):not(label):not(.copy-to-clipboard) {
+[data-dc-tooltip]:not([data-dc-tooltip='']):not([disabled]):not(button):not(a):not(.button):not(label):not(.copy-to-clipboard):not([data-open]:not([data-toggle])) {
   cursor: help;
 }
 
