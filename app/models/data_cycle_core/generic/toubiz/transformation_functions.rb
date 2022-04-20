@@ -79,6 +79,21 @@ module DataCycleCore
           data
         end
 
+        def self.add_potential_action(data, external_source_id)
+          url = data.dig('booking', 'url').presence || data.dig('bookingUrl').presence
+          return data if url.blank?
+          external_key = "#{data.dig('external_key')} - #{url}"
+          data['dc_potential_action'] = [{
+            'id' => DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)&.id,
+            'external_key' => external_key,
+            'external_source_id' => external_source_id,
+            'name' => 'booking',
+            'url' => url,
+            'action_type' => DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('ActionTypes', 'Bestellen')
+          }]
+          data
+        end
+
         def self.add_event_schedule(data, external_source_id)
           return data unless data.dig('hasSchedule')
           return data if data.dig('dateIntervals').blank?

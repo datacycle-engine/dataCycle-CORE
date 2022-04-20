@@ -13,6 +13,7 @@ module DataCycleCore
           .>> t(:add_ccc)
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('updatedAt')&.in_time_zone })
           .>> t(:add_info, external_source_id, ['description', 'abstract', 'additionalBookingInformation', 'currentInformation', 'additionalLocationInformation', 'additionalHostInformation'])
+          .>> t(:add_potential_action, external_source_id)
           .>> t(:add_event_schedule, external_source_id)
           .>> t(:add_links, 'primary_category', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('category', 'id')) })
           .>> t(:universal_classifications, ->(s) { s.dig('primary_category') })
