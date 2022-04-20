@@ -12,7 +12,7 @@ module DataCycleCore
 
         def self.add_contact_info(data)
           contact_info = {}
-          contact_info['url'] = data.dig('contactInformation', 'website')
+          contact_info['url'] = validate_url(data.dig('contactInformation', 'website'))
 
           numbers = data.dig('phoneNumbers').select { |i| i['type'].in?(['mobile', 'phone']) }
           numbers = numbers.select { |i| i['primary'] == true } if numbers.size > 1
@@ -80,7 +80,7 @@ module DataCycleCore
         end
 
         def self.add_potential_action(data, external_source_id)
-          url = data.dig('booking', 'url').presence || data.dig('bookingUrl').presence
+          url = validate_url(data.dig('booking', 'url').presence || data.dig('bookingUrl').presence)
           return data if url.blank?
           external_key = "#{data.dig('external_key')} - #{url}"
           data['dc_potential_action'] = [{
@@ -91,6 +91,13 @@ module DataCycleCore
             'url' => url,
             'action_type' => DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('ActionTypes', 'Bestellen')
           }]
+          data
+        end
+
+        def self.add_urls(data)
+          data['url'] = validate_url(data.dig('url'))
+          data['thumbnail_url'] = data['url']
+          data['content_url'] = data['url']
           data
         end
 
@@ -147,6 +154,15 @@ module DataCycleCore
 
         def self.rrule_days(array)
           array.map { |i| i > 6 ? i - 7 : i }
+        end
+
+        def self.validate_url(url)
+          schemes = ['http', 'https', 'mailto', 'ftp', 'sftp', 'tel']
+          begin
+            url if schemes.include?(Addressable::URI.parse(url)&.scheme)
+          rescue Addressable::URI::InvalidURIError
+            nil
+          end
         end
       end
     end

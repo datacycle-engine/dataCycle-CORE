@@ -73,8 +73,7 @@ module DataCycleCore
         def self.to_image
           t(:add_field, 'external_key', ->(s) { s.dig('id') })
           .>> t(:map_value, 'name', ->(v) { v.presence || '__no_name__' })
-          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('url') })
-          .>> t(:add_field, 'content_url', ->(s) { s.dig('url') })
+          .>> t(:add_urls)
           .>> t(:reject_keys, ['id', 'author'])
         end
       end
