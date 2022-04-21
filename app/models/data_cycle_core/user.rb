@@ -99,6 +99,10 @@ module DataCycleCore
       user_groups.exists?(name: group_name)
     end
 
+    def locked?
+      locked_at.present?
+    end
+
     def include_groups_user_ids
       user_groups.map { |ug| ug.users.ids }.flatten.uniq << id
     end
@@ -171,12 +175,13 @@ module DataCycleCore
       .deep_transform_keys { |k| k.to_s.camelize(:lower) }
     end
 
-    def to_select_option
+    def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
         id,
         email,
         model_name.param_key,
-        full_name
+        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(:locked_at, locale: locale)}</span>" : full_name,
+        locked?
       )
     end
 

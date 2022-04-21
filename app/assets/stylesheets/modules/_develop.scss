@@ -1411,12 +1411,6 @@ a.email-link {
         outline: none;
       }
 
-      // .select2-selection--single {
-      //   .select2-selection__rendered {
-      //     padding-left: 0;
-      //   }
-      // }
-
       &:hover {
         z-index: 1;
         box-shadow: 0 0 7px $primary-color;
@@ -1634,6 +1628,15 @@ a.email-link {
         position: relative;
         padding: 2px 5px 2px 2px;
         color: lighten($black, 20%);
+      }
+
+      .new-tag::before {
+        content: '\f067';
+        font-family: FontAwesome;
+        font-size: 1rem;
+        line-height: 1rem;
+        position: relative;
+        padding: 2px 5px 2px 2px;
       }
     }
 

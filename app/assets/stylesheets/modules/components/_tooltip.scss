@@ -19,6 +19,15 @@
     transform: rotate(45deg);
   }
 
+  #dc-tooltip-content {
+    .fa {
+      font-size: 0.9rem;
+      line-height: 0.9rem;
+      vertical-align: middle;
+      display: inline-flex;
+    }
+  }
+
   .tag-full-path {
     font-weight: bold;
   }

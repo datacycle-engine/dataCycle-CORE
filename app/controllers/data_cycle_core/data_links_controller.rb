@@ -41,6 +41,8 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return unless @receiver.valid?
 
+      redirect_back(fallback_location: root_path, alert: (I18n.t :user_locked, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return if @receiver.locked?
+
       redirect_back(fallback_location: root_path, alert: (I18n.t :email_exists, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return if DataCycleCore::DataLink.joins(:receiver).exists?(item_type: data_link_params[:item_type], item_id: data_link_params[:item_id], users: { email: @receiver.email })
 
       @data_link = DataCycleCore::DataLink.new(data_link_params)

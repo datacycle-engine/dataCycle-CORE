@@ -145,10 +145,14 @@ class BasicSelect2 {
       );
   }
   getClassFromData(data) {
-    if (data.html_class) return data.html_class || '';
-    else if (data.element) return $(data.element).attr('class') || '';
+    let htmlClass = '';
 
-    return '';
+    if (data.html_class) htmlClass += data.html_class;
+    else if (data.element) htmlClass += $(data.element).attr('class') || '';
+
+    if (data.newTag) htmlClass += 'new-tag';
+
+    return htmlClass;
   }
   copySelect2Classes(data, container) {
     if (this.select2Object && (container == undefined || $(container).hasClass('select2-selection__rendered')))

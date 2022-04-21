@@ -897,6 +897,7 @@ de:
       content_duplication_invalid: 'Das Duplikat konnte nicht erstellt werden!'
       bulk_update_error: Beim Speichern ist ein Fehler aufgetreten, bitte versuchen Sie es erneut
       definition_mismatch: Die Versionen können nicht verglichen werden, weil die Datendefinitionen nicht überein stimmen
+      user_locked: Ein Benutzer mit dieser E-Mail existiert bereits und ist gesperrt. Bitte wenden Sie sich an einen Administrator, um den Benutzer freizuschalten.
     success:
       created: '%{data} wurde erfolgreich erstellt.'
       ready_to_send: '%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden.'
@@ -1087,6 +1088,7 @@ de:
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
         represented_by: Repräsentiert durch
         ui_locale: Sprache der Benutzeroberfläche
+        locked_at: gesperrt
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname
