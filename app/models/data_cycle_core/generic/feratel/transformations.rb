@@ -232,7 +232,7 @@ module DataCycleCore
           .>> t(:unwrap_description, 'ServiceProviderDescription')
           .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
           .>> t(:add_amenity_features, external_source_id)
-          .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] } })
+          .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.then { |town| town.is_a?(String) ? town : town['text'] } })
           .>> t(:add_links, 'fdbcode', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'DBCode'))&.flatten&.reject(&:nil?)&.map { |item| "Feratel - DBCode - #{item}" } || [] })
           .>> t(:universal_classifications, ->(s) { s.dig('fdbcode') })
           .>> t(:unwrap, 'Details')
