@@ -22,10 +22,10 @@ module DataCycleCore
           (user_params['additional_attributes'] || {}).keys
         end
 
-        def additional_attribute_values(user)
+        def additional_tile_values(user)
           return unless enabled?
 
-          user.additional_attributes&.slice(*json_additional_attributes)
+          user.additional_attributes&.slice(*Array.wrap(configuration[:additional_tile_attributes]))
         end
 
         def user_params
