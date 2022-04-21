@@ -18,6 +18,7 @@ module DataCycleCore
           geometry_type = options.dig(:import, :geometry_type).constantize
           srid = options.dig(:import, :srid).to_i
           db_table = options.dig(:import, :db_table)
+          external_key_column = options.dig(:import, :external_key_column)
           external_source_id = options.dig(:external_source_id)
           tree_label = tree_label_for_name(options.dig(:import, :tree_label))
           classification_path_key = options.dig(:import, :classification_path, :key)
@@ -45,16 +46,14 @@ module DataCycleCore
                     file.each do |record|
                       attributes = record.attributes
 
-                      classification_polygon = geometry_type.new(admin_level: attributes['adminlevel'], geom: record.geometry)
+                      classification_polygon = geometry_type.new(geom: record.geometry)
                       next unless classification_polygon.save
 
-                      uri = attributes['wikidata'].blank? ? '' : 'https://www.wikidata.org/wiki/' + attributes['wikidata']
-
                       classification = {
-                        external_key: attributes['id'],
+                        external_key: attributes.dig(external_key_column),
                         external_source_id: external_source_id,
-                        name: attributes['locname'],
-                        uri: uri
+                        name: attributes.dig(classification_path_key).split(classification_path_seperator).last.squish,
+                        uri: attributes['wikidata'].blank? ? '' : 'https://www.wikidata.org/wiki/' + attributes['wikidata']
                       }.compact_blank!
 
                       attributes[classification_path_key] = 'Nicht zugeordnet' if attributes.dig(classification_path_key).blank?
