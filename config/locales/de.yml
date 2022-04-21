@@ -533,6 +533,7 @@ de:
     switch_versions: Versionen tauschen
     active_source: Ausgangsversion
     active_target: Zielversion
+    different_locales: Die zwei Versionen wurden in unterschiedlichen Sprachen bearbeitet, Änderungen an übersetzten Attributen werden nicht berücksichtigt
     restore:
       version:
         title: Diese Version wiederherstellen

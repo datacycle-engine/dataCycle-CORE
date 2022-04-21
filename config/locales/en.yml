@@ -506,6 +506,7 @@ en:
     active_target: target version
     use_as_source: use as source version in comparison
     use_as_target: use as target version in comparison
+    different_locales: The two versions were edited in different languages, changes to translated attributes are not considered
     restore:
       version:
         title: restore this version

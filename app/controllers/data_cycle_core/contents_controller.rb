@@ -257,9 +257,18 @@ module DataCycleCore
 
       authorize! :history, @content
 
-      I18n.with_locale(@diff_source.first_available_locale) do
+      @source_locale = @diff_source.last_updated_locale || @diff_source.first_available_locale
+
+      I18n.with_locale(@source_locale) do
+        @target_locale = @content.last_updated_locale || @content.first_available_locale
         @data_schema = @content.get_data_hash
-        @diff_schema = @diff_source.diff(@data_schema)
+        @diff_schema = @diff_source.diff(@data_schema) || {}
+
+        if @source_locale.to_s != @target_locale.to_s
+          @content.translatable_property_names.each do |key|
+            @diff_schema[key] = ['0', nil]
+          end
+        end
 
         render
       rescue StandardError
