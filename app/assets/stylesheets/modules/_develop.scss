@@ -413,6 +413,21 @@
       font-size: 1rem;
     }
   }
+  .user-additional-attributes {
+    margin: 0;
+    padding-bottom: 0.5rem;
+
+    li {
+      display: flex;
+      font-size: 0.9rem;
+
+      .attribute-label {
+        margin-right: 0.3rem;
+        font-weight: 300;
+        color: darken($dark-gray, 5%);
+      }
+    }
+  }
 }
 
 .copy-to-clipboard.with-shadow {
