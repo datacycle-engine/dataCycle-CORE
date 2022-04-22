@@ -5,5 +5,5 @@
 <% end if item.try(:primary_image).present? %>
 
 <%= render 'data_cycle_core/contents/grid/default', local_assigns do %>
-  <%= render 'data_cycle_core/contents/grid/attributes/address', local_assigns %>
+  <%= render 'data_cycle_core/contents/grid/attributes/address', local_assigns if item.try(:address_block).present? %>
 <% end %>
