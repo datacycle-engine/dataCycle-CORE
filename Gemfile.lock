@@ -580,7 +580,7 @@ GEM
     rgeo-shapefile (3.0.0)
       dbf (~> 4.0)
       rgeo (>= 1.0)
-    rubocop (1.28.0)
+    rubocop (1.28.1)
       parallel (~> 1.10)
       parser (>= 3.1.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -718,4 +718,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.3.12
+   2.3.10

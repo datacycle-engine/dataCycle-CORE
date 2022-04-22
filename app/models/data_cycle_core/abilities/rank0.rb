@@ -13,7 +13,7 @@ module DataCycleCore
         can [:login, :renew_login, :reset_password], :user_api
         can :create_editable_links, DataCycleCore::DataLink
         can [:show, :index], DataCycleCore::Asset, creator_id: user.id, asset_content: { id: nil }
-        can :copy_api_link, DataCycleCore::WatchList
+        can :copy_api_link, DataCycleCore::WatchList, my_selection: false
         can :index, DataCycleCore::Role, rank: 0..user&.role&.rank.to_i
         can :create, DataCycleCore::Thing do |template, scope|
           scope == 'asset' && template&.creatable?(scope)
