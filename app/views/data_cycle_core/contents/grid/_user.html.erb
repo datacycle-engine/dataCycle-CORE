@@ -32,7 +32,7 @@
       <%= item.full_name %>
     </div>
 
-    <div class="description" title="<%= item.email %>">
+    <div class="description" data-dc-tooltip="<%= item.email %>">
       <%= item.email %>
     </div>
 
@@ -49,7 +49,7 @@
       <ul class="user-additional-attributes no-bullet">
         <% DataCycleCore::Feature::UserApi.additional_tile_values(item).each do |key, value| %>
           <li>
-            <span class="attribute-label"><%= DataCycleCore::User.human_attribute_name("additional_attributes/#{key}", default: key, locale: active_ui_locale) %></span>
+            <span class="attribute-label"><%= DataCycleCore::User.human_attribute_name(key, default: key&.split('/').last, locale: active_ui_locale) %></span>
             <span class="attribute-value"><%= value %></span>
           </li>
         <% end %>
@@ -72,16 +72,16 @@
 
   <% content_for :media_buttons do %>
     <% if can? :become, item %>
-      <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(item), class: 'become-link', title: t('actions.become', data: item.email, locale: active_ui_locale) %>
+      <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(item), class: 'become-link', data: { dc_tooltip: t('actions.become', data: item.email, locale: active_ui_locale) } %>
     <% end %>
 
     <% if can? :edit, item %>
-      <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true), edit_user_path(item, watch_list_id: @watch_list), class: 'edit-link', title: t('actions.edit', locale: active_ui_locale) %>
+      <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true), edit_user_path(item, watch_list_id: @watch_list), class: 'edit-link', data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } %>
     <% end %>
 
     <% if can?(:destroy, item) && !item.access_locked? %>
-      <%= link_to tag.i(class: 'fa fa-lock', aria_hidden: true), item, method: :delete, class:'alert lock-link', title: t('actions.lock', locale: active_ui_locale), data: { confirm: "#{item.model_name.human(locale: active_ui_locale)} #{t('actions.lock', locale: active_ui_locale)}?" } %>
+      <%= link_to tag.i(class: 'fa fa-lock', aria_hidden: true), item, method: :delete, class:'alert lock-link', data: { confirm: "#{item.model_name.human(locale: active_ui_locale)} #{t('actions.lock', locale: active_ui_locale)}?", dc_tooltip: t('actions.lock', locale: active_ui_locale) } %>
     <% elsif can?(:destroy, item) %>
-      <%= link_to tag.i(class: 'fa fa-unlock', aria_hidden: true), unlock_user_path(item), method: :post, class:'success unlock-link', title: t('actions.unlock', locale: active_ui_locale) %>
+      <%= link_to tag.i(class: 'fa fa-unlock', aria_hidden: true), unlock_user_path(item), method: :post, class:'success unlock-link', data: { dc_tooltip: t('actions.unlock', locale: active_ui_locale) } %>
     <% end %>
   <% end %>

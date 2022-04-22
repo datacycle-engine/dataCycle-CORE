@@ -25,7 +25,19 @@ module DataCycleCore
         def additional_tile_values(user)
           return unless enabled?
 
-          user.additional_attributes&.slice(*Array.wrap(configuration[:additional_tile_attributes]))
+          tile_attributes = {}
+
+          configuration[:additional_tile_attributes]&.each do |key, value|
+            column = DataCycleCore::User.columns.find { |c| c.name == key }
+
+            if column.type == :string
+              tile_attributes[key] = user.try(key)
+            elsif column.type == :jsonb
+              tile_attributes.merge!(user.try(key)&.slice(*value.keys)&.transform_keys { |k| "#{key}/#{k}" } || {})
+            end
+          end
+
+          tile_attributes
         end
 
         def user_params
