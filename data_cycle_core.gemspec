@@ -17,11 +17,11 @@ require 'data_cycle_core/version'
 Gem::Specification.new do |s|
   s.name        = 'data_cycle_core'
   s.version     = DataCycleCore::VERSION
-  s.authors     = ['Michael Dermastia', 'Manuel Mitterer', 'Martin Oehzelt', 'Patrick Rainer', 'Johannes Zlattinger']
+  s.authors     = ['Manuel Mitterer', 'Martin Oehzelt', 'Benjamin Preisig', 'Patrick Rainer', 'Johannes Zlattinger']
   s.email       = ['office@datacycle.at']
-  s.homepage    = 'http://git.pixelpoint.biz/data-cycle/data-cycle-core'
-  s.summary     = 'dataCycle-Core. Rails engine for dataCycle'
-  s.license     = "Copyright 2016-#{Time.now.year} datacycle.at. All rights reserved."
+  s.homepage    = 'https://datacycle.info'
+  s.summary     = 'dataCycle CORE - management system for linked data'
+  s.license     = 'AGPLv3'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
