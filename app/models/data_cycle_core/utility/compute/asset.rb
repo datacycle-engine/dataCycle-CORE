@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def self.file_format(computed_parameters:, data_hash:, key:, content:, **_args)
-          DataCycleCore::Asset.find_by(id: computed_parameters&.first)&.try(:content_type) || data_hash&.[](key).presence || MiniMime.lookup_by_extension(data_hash['content_url']&.match(/.*\.(.*)/)&.[](1).to_s)&.content_type || content.try(key)
+          DataCycleCore::Asset.find_by(id: computed_parameters&.first)&.try(:content_type) || data_hash&.[](key) || MiniMime.lookup_by_extension(data_hash['content_url']&.match(/.*\.(.*)/)&.[](1).to_s)&.content_type || content.try(key)
         end
 
         def self.file_type_classification(computed_parameters:, data_hash:, key:, content:, computed_definition:, **args)
