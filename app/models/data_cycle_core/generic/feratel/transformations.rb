@@ -1078,7 +1078,7 @@ module DataCycleCore
 
         def self.systems_hash
           @systems_hash ||= ['L', 'T', 'I', 'C', 'P'].map { |i|
-            { i => DataCycleCore::ClassificationAlias.for_tree('Feratel - Systeme').find_by(description: i)&.primary_classification&.id }
+            { i => I18n.with_locale(:de) { DataCycleCore::ClassificationAlias.for_tree('Feratel - Systeme').find_by(description: i)&.primary_classification&.id } }
           }.inject(&:merge)
         end
 
