@@ -25,7 +25,7 @@ module DataCycleCore
 
           return Array.wrap(classification_alias_candidate) if classification_alias_candidate.present?
 
-          tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: property_definition&.dig('tree_label'))
+          tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: computed_definition&.dig('tree_label'))
 
           Array.wrap(tree_label&.create_classification_alias(*Array.wrap(file_format_path))&.primary_classification&.id)
         end
