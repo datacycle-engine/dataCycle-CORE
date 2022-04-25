@@ -22,7 +22,7 @@ module DataCycleCore
               each_locale(utility_object.locales) do |locale|
                 I18n.with_locale(locale) do
                   item_count = 0
-byebug
+
                   begin
                     logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
 
