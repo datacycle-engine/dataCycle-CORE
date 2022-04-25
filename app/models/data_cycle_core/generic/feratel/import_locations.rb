@@ -16,7 +16,7 @@ module DataCycleCore
           )
         end
 
-        def self.load_root_classifications(mongo_item, locale, options, source_filter = {})
+        def self.load_root_classifications(mongo_item, locale, _options, source_filter = {})
           mongo_item.where({ "dump.#{locale}.ParentID": '00000000-0000-0000-0000-000000000000' }.merge(source_filter))
         end
 
