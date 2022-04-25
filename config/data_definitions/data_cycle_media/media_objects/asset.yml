@@ -82,7 +82,7 @@
           :parameters:
             :0: asset
         :advanced_search: true
-      :file_format:
+      :file_format: # has to be valid MimeType
         :label: Dateiformat
         :storage_location: value
         :type: computed
@@ -94,16 +94,16 @@
             :0: asset
       :file_type:
         :label: Dateiformat - Klassifizierung
-        :type: classification
+        :storage_location: classification
+        :type: computed
         :tree_label: Dateiformate
-        :default_value:
-          :module: DataCycleCore::Utility::DefaultValue::Asset
+        :compute:
+          :type: classification
+          :module: Utility::Compute::Asset
           :method: file_type_classification
           :parameters:
             :0: asset
         :ui:
-          :edit:
-            :disabled: true
           :show:
             :content_area: header
       :upload_date:

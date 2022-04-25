@@ -487,15 +487,15 @@ module DataCycleCore
             'Width' => 'width',
             'Height' => 'height',
             'Size' => 'content_size',
-            'Extension' => 'file_format',
             'Copyright' => 'caption'
           })
+          .>> t(:extension_to_mimetype, 'file_format', ->(s) { s.dig('Extension') })
           .>> t(:map_value, 'width', ->(v) { v.to_i })
           .>> t(:map_value, 'height', ->(v) { v.to_i })
           .>> t(:map_value, 'content_size', ->(v) { v.to_i.kilobytes })
           .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(s.dig('ShowFrom').is_a?(::Time) && s.dig('ShowTo').is_a?(::Time) ? make_term(s.dig('ShowFrom'), s.dig('ShowTo')) : make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
           .>> t(:reject_keys, ['Type', 'Class', 'Systems', 'Order', 'ShowFrom',
-                               'ShowTo', 'ChangeDate', 'Systems', 'Systems', 'Names'])
+                               'ShowTo', 'ChangeDate', 'Systems', 'Systems', 'Names', 'Extension'])
           .>> t(:strip_all)
         end
 

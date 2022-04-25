@@ -129,7 +129,7 @@
           :parameters:
             :0: asset
         :advanced_search: true
-      :file_format:
+      :file_format: # has to be valid MimeType
         :label: Dateiformat
         :storage_location: value
         :type: computed
