@@ -21,7 +21,13 @@ module DataCycleCore
 
           return data_hash&.[](key) || content.try(key) || [] if file_format_path.blank?
 
-          classification_alias_candidate = DataCycleCore::ClassificationAlias.classification_for_tree_with_name(computed_definition&.dig('tree_label'), file_format_path.last)
+          classification_alias_candidate = DataCycleCore::ClassificationAlias
+            .for_tree(computed_definition&.dig('tree_label'))
+            .includes(:classification_alias_path)
+            .where(classification_alias_paths: { full_path_names: file_format_path.reverse.append(computed_definition&.dig('tree_label')) })
+            .primary_classifications
+            .limit(1)
+            .pluck(:id)
 
           return Array.wrap(classification_alias_candidate) if classification_alias_candidate.present?
 

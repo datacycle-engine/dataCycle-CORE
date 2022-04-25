@@ -489,7 +489,7 @@ module DataCycleCore
             'Size' => 'content_size',
             'Copyright' => 'caption'
           })
-          .>> t(:extension_to_mimetype, 'file_format', ->(s) { s.dig('Extension') })
+          .>> t(:extension_to_mimetype, 'file_format', ->(s) { s.dig('Extension') }, 'image')
           .>> t(:map_value, 'width', ->(v) { v.to_i })
           .>> t(:map_value, 'height', ->(v) { v.to_i })
           .>> t(:map_value, 'content_size', ->(v) { v.to_i.kilobytes })

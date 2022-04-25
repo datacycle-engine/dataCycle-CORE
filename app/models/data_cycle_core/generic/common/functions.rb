@@ -169,12 +169,12 @@ module DataCycleCore
           data_hash.merge({ name => function.call(data_hash) })
         end
 
-        def self.extension_to_mimetype(data_hash, name, function)
+        def self.extension_to_mimetype(data_hash, name, function, specific_type = nil)
           extension = function.call(data_hash)
 
           return data_hash if extension.blank?
 
-          data_hash.merge({ name => MiniMime.lookup_by_extension(extension.to_s)&.content_type }.compact)
+          data_hash.merge({ name => MiniMime.lookup_by_extension(extension.to_s)&.content_type&.then { |s| specific_type.present? ? s.gsub('application', specific_type.to_s) : s } }.compact)
         end
 
         def self.universal_classifications(data_hash, function)
