@@ -146,6 +146,7 @@ DataCycleCore::Engine.routes.draw do
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
     delete :clear, on: :member
+    get :search, on: :collection
     post '/', on: :member, action: :show
   end
 

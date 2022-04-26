@@ -1,5 +1,6 @@
 <% filter_config = DataCycleCore::Feature::MainFilter.available_filters(view: view_type, user: current_user, selected_filters: @filters) %>
 <% new_filter_id = SecureRandom.hex(10) %>
+<% add_to_collection_id = SecureRandom.hex(10) %>
 
 <%= form_with(url: request.path, local: true, id: 'search-form', data: {
   add_filter_path: add_filter_path,
@@ -70,7 +71,7 @@
                 </span>
               <% end %>
 
-              <%= button_tag type: :button, id: 'add-items-to-watch-list', data: { open: 'add-items-to-watch-list-overlay' } do %>
+              <%= button_tag type: :button, class: 'add-items-to-watch-list', data: { open: "add-items-to-collection-#{add_to_collection_id}" } do %>
                 <span class="fa-stack">
                   <i class="fa fa-bookmark fa-stack-2x"></i>
                   <i class="fa fa-plus fa-stack-1x"></i>
@@ -100,5 +101,5 @@
 <% end %>
 
 <% if can?(:add_item, DataCycleCore::WatchList) && filter_config[:add_items_to_watch_list] %>
-  <%= render 'data_cycle_core/application/filters/add_items_to_watch_list', local_assigns %>
+  <%= render 'data_cycle_core/application/filters/add_items_to_watch_list', local_assigns.merge({ html_id: "add-items-to-collection-#{add_to_collection_id}" }) %>
 <% end %>
