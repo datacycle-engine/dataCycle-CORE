@@ -54,6 +54,15 @@ module DataCycleCore
       end
     end
 
+    def to_select_option
+      DataCycleCore::Filter::SelectOption.new(
+        id,
+        name,
+        model_name.param_key,
+        full_path
+      )
+    end
+
     private
 
     def split_full_path
