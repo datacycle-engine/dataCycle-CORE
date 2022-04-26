@@ -116,7 +116,7 @@ module DataCycleCore
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
         if rule_hash.dig(:validations, :day_of_week).present?
-          by_day = rule_hash.dig(:validations, :day_of_week).keys.first
+          by_day = dow(rule_hash.dig(:validations, :day_of_week).keys.first)
           by_month_week = rule_hash.dig(:validations, :day_of_week).values.flatten.first
         end
       end

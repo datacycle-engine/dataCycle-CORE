@@ -238,6 +238,7 @@ module DataCycleCore
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:add_field, 'bookable', ->(s) { s&.dig('Bookable') == 'true' })
+          .>> t(:universal_classifications, ->(s) { s.dig('Bookable') == 'true' ? Array.wrap(DataCycleCore::ClassificationAlias.for_tree('Feratel - Tags').find_by(description_i18n: { de: 'bookable' })&.primary_classification&.id) : [] })
           .>> t(:transform_name, 'name')
           .>> t(:unwrap, 'Position')
           .>> t(:rename_keys, 'Latitude' => 'latitude', 'Longitude' => 'longitude')
@@ -1078,7 +1079,7 @@ module DataCycleCore
 
         def self.systems_hash
           @systems_hash ||= ['L', 'T', 'I', 'C', 'P'].map { |i|
-            { i => I18n.with_locale(:de) { DataCycleCore::ClassificationAlias.for_tree('Feratel - Systeme').find_by(description: i)&.primary_classification&.id } }
+            { i => DataCycleCore::ClassificationAlias.for_tree('Feratel - Systeme').find_by(description_i18n: { de: i })&.primary_classification&.id  }
           }.inject(&:merge)
         end
 

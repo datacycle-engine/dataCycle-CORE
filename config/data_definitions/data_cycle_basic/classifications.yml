@@ -187,6 +187,9 @@
     - $$Aktiv
     - $$Inaktiv
 
+- Feratel - Tags | all:
+    - $$Buchbar | bookable
+
 - Feratel - Angebot - Status | all:
     - $$Buchbar
     - $$Nicht Buchbar
