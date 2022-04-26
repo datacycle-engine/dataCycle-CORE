@@ -210,5 +210,10 @@ services:
     # e.g. MaxSessions 20
     - echo "$DOCKER_HOST"
     - docker-compose --env-file .env.production --profile migrate run migrate_project bash /app/docker/utility/post_migrate.sh
+    - docker system df
+    - docker image ls
+    - docker system prune -f -a
+    - docker system df
+    - docker image ls
   after_script:
     - docker logout $CI_REGISTRY
