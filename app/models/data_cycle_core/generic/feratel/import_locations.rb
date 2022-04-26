@@ -5,7 +5,7 @@ module DataCycleCore
     module Feratel
       module ImportLocations
         def self.import_data(utility_object:, options:)
-          DataCycleCore::Generic::Common::ImportFunctions.import_classifications(
+          DataCycleCore::Generic::Common::ImportFunctions.import_classifications_with_filter(
             utility_object,
             options.dig(:import, :tree_label) || 'Feratel - Orte',
             method(:load_root_classifications).to_proc,

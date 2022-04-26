@@ -139,6 +139,17 @@ module DataCycleCore
           end
         end
 
+        def import_classifications_with_filter(
+          utility_object, tree_name, load_root_classifications, load_child_classifications,
+          load_parent_classification_alias, extract_data, options
+        )
+          options[:import] = options[:import].merge(with_filters: true) if options.dig(:import, :source_filter).present?
+          import_classifications(
+            utility_object, tree_name, load_root_classifications, load_child_classifications,
+            load_parent_classification_alias, extract_data, options
+          )
+        end
+
         def import_classifications_frame(utility_object, tree_name, classification_processing, options)
           raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
 
