@@ -59,6 +59,7 @@ module DataCycleCore
     belongs_to :creator, class_name: 'DataCycleCore::User'
     has_many :created_users, class_name: 'DataCycleCore::User', foreign_key: :creator_id
 
+    before_save :reset_ui_locale, unless: :ui_locale_allowed?
     before_create :set_default_role
 
     delegate :can?, :cannot?, to: :ability
@@ -189,6 +190,14 @@ module DataCycleCore
 
     def set_default_role
       self.role ||= DataCycleCore::Feature::UserRegistration.default_role
+    end
+
+    def ui_locale_allowed?
+      ui_locale.blank? || DataCycleCore.ui_locales.map(&:to_s).include?(ui_locale.to_s)
+    end
+
+    def reset_ui_locale
+      self.ui_locale = self.class.column_defaults['ui_locale']
     end
 
     def ability
