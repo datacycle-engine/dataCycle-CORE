@@ -30,7 +30,7 @@ class TextEditor {
     this.element = element;
     this.$container = $(element.parentElement);
     this.editor;
-    this.exceptFormats = this.element.dataset.exceptFormats ? castArray(this.element.dataset.exceptFormats) : [];
+    this.excludeFormats = this.element.dataset.excludeFormats ? castArray(this.element.dataset.excludeFormats) : [];
     this.availableFormats = {
       none: ['break'],
       minimal: ['bold', 'italic', 'underline', 'break'],
@@ -113,14 +113,14 @@ class TextEditor {
         }
       },
       theme: 'snow',
-      formats: this.availableFormats[this.mode].filter(v => !this.exceptFormats.includes(v)),
+      formats: this.availableFormats[this.mode].filter(v => !this.excludeFormats.includes(v)),
       readOnly: !!this.element.getAttribute('readonly'),
       bounds: this.element
     };
 
-    if (this.exceptFormats.length) {
+    if (this.excludeFormats.length) {
       this.options.modules.toolbar.container = this.options.modules.toolbar.container.map(v =>
-        v.filter(v => !this.exceptFormats.includes(v))
+        v.filter(v => !this.excludeFormats.includes(v))
       );
     }
 
