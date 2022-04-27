@@ -701,17 +701,6 @@ footer {
     }
   }
 
-  .form-element.release_status_comment {
-    .editor-block {
-      background-color: white;
-
-      > label,
-      > .ql-toolbar {
-        background-color: white;
-      }
-    }
-  }
-
   .form-element.focus > .editor-block {
     border-color: $primary-color;
     background: white;
@@ -787,12 +776,6 @@ footer {
 
       &:not(:last-child) {
         margin-bottom: 1rem;
-      }
-
-      &.release_status_comment {
-        margin-bottom: 2rem;
-        padding-bottom: 2rem;
-        border-bottom: 1px solid $light-gray;
       }
 
       &.object {

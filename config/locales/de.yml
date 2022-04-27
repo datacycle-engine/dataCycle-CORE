@@ -471,6 +471,8 @@ de:
     media_archive: im Medienarchiv öffnen
 
   feature:
+    releasable:
+      version_and_status: Version & Status
     named_version:
       input_label: Versionsname
       version_name: 'Version: %{name}'

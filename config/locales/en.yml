@@ -471,6 +471,8 @@ en:
     full_size: open full-size
     media_archive: open in the media archive
   feature:
+    releasable:
+      version_and_status: Version & Status
     named_version:
       input_label: Version name
       version_name: 'Version: %{name}'
