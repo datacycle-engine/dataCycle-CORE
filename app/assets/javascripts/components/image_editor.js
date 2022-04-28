@@ -12,7 +12,8 @@ class ImageEditor {
     this.hiddenFieldKey = reveal.dataset.hiddenFieldKey;
     this.saveButton = this.$reveal.find('.save-button');
     this.editableList = $(`[data-image-editor="${this.$reveal.prop('id')}"]`)
-      .siblings('.asset-list')
+      .closest('.form-element.asset')
+      .find('> .asset-list')
       .first();
     this.outerEditButton = $(`[data-image-editor="${this.$reveal.prop('id')}"]`)
       .find('.image-editor-button')
@@ -31,7 +32,7 @@ class ImageEditor {
     this.saveButton.on('click', this.handleSave.bind(this));
     this.editableList.on('dc:asset_list:changed', this.handleAssetChange.bind(this));
   }
-  handleAssetChange(event, data) {
+  handleAssetChange(_event, data) {
     const newAsset = data.assets[0];
     this.fileUrl = newAsset.file.url;
     if (newAsset.name.split('.').length > 1) {
@@ -44,7 +45,7 @@ class ImageEditor {
     this.setup();
   }
   setFileFormat(mimeType) {
-    const fileFormatArr = mimeType.split('/')
+    const fileFormatArr = mimeType.split('/');
     const fileFormat = fileFormatArr[fileFormatArr.length - 1];
 
     this.updateOuterEditButton(this.supportedFileExtensions.includes(fileFormat)).then(r => {});
@@ -173,6 +174,7 @@ class ImageEditor {
   }
   updateAsset(fileUrl) {
     const fileName = this.fileName + '.' + this.fileFormat;
+
     this.urlToFile(fileUrl, fileName, this.fileMimeType).then(file => {
       let data = new FormData();
       data.append('asset[file]', file);

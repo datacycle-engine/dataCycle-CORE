@@ -689,7 +689,7 @@ footer {
     margin: 0;
     box-shadow: 0 0 0 rgba($dark-gray, 0.5);
     position: relative;
-    transition: box-shadow 0.1s ease-in-out, border 0.1s ease-in-out;
+    transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
     min-width: 150px;
     border-radius: 3px;
 
@@ -709,8 +709,8 @@ footer {
 
     &[readonly],
     &[data-readonly='true'] {
-      cursor: not-allowed;
-      background: rgba($light-gray, 0.5);
+      cursor: not-allowed !important;
+      background: rgba($light-gray, 0.5) !important;
     }
   }
 
