@@ -106,8 +106,9 @@
             &.remote-render,
             &.remote-rendering,
             &.remote-render-failed {
-              box-shadow: 0 0 1px $dark-gray;
+              box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
               padding: 2.2rem 1rem 1rem 1rem;
+              border-radius: 3px;
 
               &::before {
                 margin-top: 2.2rem;
@@ -143,8 +144,9 @@
 
         .detail-type {
           position: relative;
-          box-shadow: 0 0 1px $dark-gray;
+          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
           padding: 2.2rem 1rem 1rem 1rem;
+          border-radius: 3px;
 
           &.has-changes:not(.geographic),
           &.has-changes.geographic .map-info {
@@ -253,12 +255,13 @@
 
           .detail-type {
             box-shadow: none;
-            padding: 0;
+            padding: 0 !important;
 
             &.object,
             &.embedded {
-              box-shadow: 0 0 1px $dark-gray;
+              box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
               padding: 2.2rem 1rem 1rem 1rem;
+              border-radius: 3px;
 
               > .detail-label {
                 position: absolute;
@@ -278,6 +281,7 @@
 
             position: relative;
             text-align: left;
+            padding-top: 1.2rem;
           }
 
           .detail-label {
@@ -327,7 +331,8 @@
       display: flex;
       background: rgba($light-gray, 0.5);
       padding: 1rem;
-      box-shadow: 0 0 1px $dark-gray;
+      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+      border-radius: 3px;
 
       .meta-data-splitter {
         flex: 0;

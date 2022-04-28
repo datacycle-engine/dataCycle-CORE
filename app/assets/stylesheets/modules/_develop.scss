@@ -7,8 +7,7 @@
     &.name,
     &.headline_external {
       input {
-        height: 6rem;
-        padding: 1.5rem 0.5rem;
+        padding: 1.2rem 0.5rem;
       }
     }
   }
@@ -105,15 +104,12 @@
 
     &.classification {
       &.check_box {
-        background-color: $light-gray;
         padding: 2.5rem 0.5rem 1rem 0.5rem;
-        transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
-        &:hover {
-          box-shadow: 0 0 7px $primary-color;
-        }
+
         ul {
           margin: 0;
         }
+
         .checkbox-wrap {
           label {
             position: relative;
@@ -125,15 +121,12 @@
         }
       }
       &.radio_button {
-        background-color: $light-gray;
         padding: 2.5rem 0.5rem 1rem 0.5rem;
-        transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
-        &:hover {
-          box-shadow: 0 0 7px $primary-color;
-        }
+
         ul {
           margin: 0;
         }
+
         .radiobutton-wrap {
           label {
             position: relative;
@@ -709,13 +702,16 @@ select {
   }
 
   .content-version-and-status {
+    margin: 0;
+    background: transparent;
+
     .accordion-item {
       .accordion-title {
         border: none;
         padding: 0;
-        margin-top: 1rem;
+        padding-bottom: 0.5rem;
         transition: color 0.2s ease-in;
-        color: rgba($dark-gray, 0.5);
+        color: $dark-gray;
         background: transparent;
 
         .content-version-and-status-button {
@@ -726,15 +722,17 @@ select {
           font-size: 1rem;
           justify-content: center;
           padding: 0 0.5rem;
+          border-radius: 4px;
+          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
 
           &::before {
-            content: '\f078';
+            content: '\f107';
             font-family: FontAwesome;
             font-style: normal;
             font-weight: normal;
             display: block;
-            font-size: 1.5rem;
-            line-height: 1.5rem;
+            font-size: 1.8rem;
+            line-height: 1.8rem;
             margin-right: 0.3rem;
           }
         }
@@ -743,32 +741,45 @@ select {
           content: '' !important;
           display: block;
           position: absolute;
-          top: 50%;
+          top: calc(50% - 0.25rem);
           right: unset;
           left: 0;
           width: 100%;
-          border-bottom: 1px solid $light-gray;
-          height: 0;
+          border-top: 1px solid rgba($dark-gray, 0.5);
+          border-right: 1px solid transparent;
+          border-left: 1px solid transparent;
+          height: calc(50% + 0.25rem);
           margin: 0;
-          transition: border-color 0.2s ease-in;
+          transition: all 0.1s ease-in;
         }
 
         &:hover {
-          color: $dark-gray;
-
-          &::before {
-            border-color: $dark-gray;
-          }
+          color: $black;
         }
       }
 
-      &.is-active .content-version-and-status-button::before {
-        content: '\f077';
+      &.is-active {
+        .accordion-title::before {
+          border-top-right-radius: 3px;
+          border-top-left-radius: 3px;
+          border-right: 1px solid rgba($dark-gray, 0.5);
+          border-left: 1px solid rgba($dark-gray, 0.5);
+        }
+
+        .content-version-and-status-button::before {
+          content: '\f106';
+        }
       }
 
       .accordion-content {
-        padding: 0;
+        padding: 0 1rem 1rem 1rem;
         border: none;
+        margin-bottom: 1rem;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+        border-bottom: 1px solid rgba($dark-gray, 0.5);
+        border-right: 1px solid rgba($dark-gray, 0.5);
+        border-left: 1px solid rgba($dark-gray, 0.5);
       }
     }
 
@@ -1109,7 +1120,8 @@ a.dc-foundation-tooltip {
 .new-item,
 .new-content-reveal {
   iframe {
-    box-shadow: 0 0 1px $dark-gray;
+    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+    border-radius: 3px;
     border: none;
     width: 96vw;
     height: 85vh;
@@ -1518,8 +1530,10 @@ a.email-link {
     padding: 0 0 0 0;
 
     .select2 {
-      border: 1px solid $light-gray;
-      background: $light-gray;
+      // border: 1px solid $light-gray;
+      // background: $light-gray;
+      // box-shadow: 0 0 0 1px $light-gray inset;
+      // border: none;
       min-width: initial;
 
       .select2-selection {
@@ -1548,7 +1562,6 @@ a.email-link {
         padding: 0.05rem 0.3rem 0.05rem 0.3rem;
         font-size: 0.8rem;
         min-width: 100px;
-        background: $light-gray;
       }
     }
 
@@ -1895,6 +1908,7 @@ select:-moz-focusring {
 
 .load-more-linked-contents {
   display: inline-block;
+  margin: 1rem 0 0 0;
 
   &.small {
     .fa {
@@ -1928,7 +1942,7 @@ label[for='user_access_token'] {
 .edit-content-form,
 .edit_user {
   .select2-selection {
-    padding: 3rem 0.5rem 0.5rem 0.5rem;
+    padding: 2.5rem 0.5rem 0.5rem 0.5rem;
   }
 
   .embedded_object {
@@ -2057,7 +2071,6 @@ select {
   display: flex;
 
   .geographic {
-    background-color: $light-gray;
     flex: 2;
   }
 
@@ -2358,7 +2371,6 @@ select {
   }
 
   .map-info {
-    background-color: $light-gray;
     flex: 1;
     margin: 0 0 0 1rem;
     position: relative;
@@ -2407,8 +2419,14 @@ select {
   }
 
   .geographic {
-    padding: 0.5rem;
+    padding: 1px;
+    transition: box-shadow 0.1s;
+
+    &:hover {
+      box-shadow: 0 0 7px $primary-color;
+    }
   }
+
   .map-info.linestring-info {
     position: absolute;
     z-index: 1;
@@ -2423,9 +2441,11 @@ select {
     display: flex;
     flex-flow: row;
     justify-content: center;
+
     &:hover {
       box-shadow: none;
     }
+
     .content-object-item {
       pointer-events: all;
       box-shadow: none;
@@ -2433,6 +2453,7 @@ select {
       padding: 0.3rem 0.5rem;
       border: 2px solid rgba(0, 0, 0, 0.2);
       border-radius: 4px;
+
       .embedded-header {
         position: relative;
         top: 0;
@@ -2586,7 +2607,13 @@ select {
   .geographic,
   .map-info {
     background-color: transparent;
-    box-shadow: 0 0 1px $dark-gray;
+    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+    border-radius: 3px;
+  }
+
+  .geographic {
+    overflow: hidden;
+    padding: 1px;
   }
 }
 
@@ -3071,6 +3098,7 @@ section.duplicate-candidates {
       margin: 0 1rem 1rem 0;
       width: 250px;
       max-width: 300px;
+
       .thumbnail {
         box-shadow: none;
         margin: 0 auto;
@@ -3090,6 +3118,7 @@ section.duplicate-candidates {
   }
   .external-source-icon {
     position: relative;
+
     &.default-view {
       display: block;
     }
@@ -3514,7 +3543,7 @@ button.button-prime.small.bulk-delete-button {
 }
 .new-content-reveal .multi-step fieldset .form-element.daterange .conditional-form-field,
 .detail-header.editor .form-element .conditional-form-field {
-  padding: 1rem;
+  padding: 0.5rem 0 0 1rem;
 
   .conditional-field-selector {
     label {
@@ -3523,10 +3552,6 @@ button.button-prime.small.bulk-delete-button {
 
       input[type='radio'] {
         margin: 0;
-      }
-
-      &:last-of-type {
-        padding-bottom: 1rem;
       }
     }
   }

@@ -427,7 +427,6 @@ ul.backend-treeview-list,
     .form-element {
       .editor-block {
         border: 1px solid $light-gray;
-        background: $light-gray;
         box-shadow: none;
         transition: background-color 0.1s, box-shadow 0.1s;
       }
@@ -480,7 +479,7 @@ ul.backend-treeview-list,
       .select2-container {
         border: 1px solid $light-gray;
         background: $light-gray;
-        padding: 3rem 0.5rem 0.5rem 0.5rem;
+        padding: 2.5rem 0.5rem 0.5rem 0.5rem;
         transition: background-color 0.1s, box-shadow 0.1s;
 
         .select2-selection {
@@ -533,7 +532,6 @@ ul.backend-treeview-list,
         padding: 0.05rem 0.3rem 0.05rem 0.3rem;
         font-size: 0.8rem;
         min-width: 100px;
-        background: $light-gray;
         display: block;
       }
     }

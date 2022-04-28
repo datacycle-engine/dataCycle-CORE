@@ -1,18 +1,19 @@
 .edit-content-form {
   .form-element.asset {
-    background: $light-gray;
-    border: 1px solid $light-gray;
-    padding: 2.5rem 0.5rem 1rem 0.5rem;
-    transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+    padding: 2rem 0.5rem 1rem 0.5rem;
 
-    &:hover {
-      box-shadow: 0 0 7px $primary-color;
+    .asset-list {
+      margin: 0;
     }
 
     .content-uploader {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+
       .asset-selector-button {
-        width: auto;
-        margin: 0 0 0 0.5rem;
+        padding: 0.3rem 0.5rem;
+        margin: 0;
       }
     }
   }
@@ -621,6 +622,7 @@ ul.asset-list {
       display: inline-block;
       margin-right: 1rem;
       cursor: pointer;
+
       input {
         margin: 0 0.3rem 0 0;
         cursor: pointer;

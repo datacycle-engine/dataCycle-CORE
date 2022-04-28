@@ -409,9 +409,9 @@ footer {
   > .name input,
   > .headline_external input,
   > .headline input {
-    font-size: 2rem;
-    font-weight: 200;
-    padding: 0 5rem 0 5rem;
+    font-size: 1.6rem;
+    font-weight: 300;
+    padding: 1.7rem 1rem 1.2rem 1rem !important;
     text-align: center;
     position: relative;
   }
@@ -606,6 +606,11 @@ footer {
       left: initial;
     }
 
+    > label {
+      padding-top: 0 !important;
+      margin-top: -0.5rem;
+    }
+
     input {
       min-width: 100px;
     }
@@ -649,7 +654,7 @@ footer {
     top: 0.2rem;
     left: 1rem;
     z-index: 12;
-    color: rgba($dark-gray, 50%);
+    color: $dark-gray;
     transition: color ease-in-out 0.25s;
   }
 
@@ -666,29 +671,35 @@ footer {
   input,
   .editor-block,
   .daterange,
-  .embedded_object:not(.publication_schedule),
-  .detail_object,
+  .embedded_object:not(.publication_schedule) .content-object-item,
   .readonly-select,
+  .form-element.detail_object,
+  .map-info.detail_object,
+  .form-element.linked,
+  .form-element.boolean,
+  .form-element.check_box,
+  .form-element.asset,
+  .form-element.radio_button,
+  .form-element.geographic .geographic,
   .select2 {
-    border: 1px solid $light-gray;
-    background: $light-gray;
+    border: 1px solid rgba($dark-gray, 0.5);
     outline: none;
     height: auto;
     line-height: 1;
     margin: 0;
-    border-color: $light-gray;
-    box-shadow: 0 0 0 $dark-gray;
+    box-shadow: 0 0 0 rgba($dark-gray, 0.5);
     position: relative;
-    transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
-    min-width: 280px;
+    transition: box-shadow 0.1s ease-in-out, border 0.1s ease-in-out;
+    min-width: 150px;
+    border-radius: 3px;
 
     &:hover {
+      border-color: transparent;
       box-shadow: 0 0 7px $primary-color;
     }
 
     &:focus {
       border-color: $primary-color;
-      background: white;
     }
 
     &::placeholder {
@@ -696,8 +707,10 @@ footer {
       color: $dark-gray;
     }
 
-    &[readonly] {
-      background: $light-gray;
+    &[readonly],
+    &[data-readonly='true'] {
+      cursor: not-allowed;
+      background: rgba($light-gray, 0.5);
     }
   }
 
@@ -732,17 +745,6 @@ footer {
     .form-element {
       position: relative;
 
-      &.boolean,
-      &.linked {
-        background: $light-gray;
-        border: 1px solid $light-gray;
-        transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
-
-        &:hover {
-          box-shadow: 0 0 7px $primary-color;
-        }
-      }
-
       &.boolean {
         input[type='checkbox'] {
           margin: 1rem 0 1rem 1rem;
@@ -760,17 +762,7 @@ footer {
 
       &.linked {
         .object-browser {
-          padding: 3rem 1rem 1rem 1rem;
-
-          .object-thumbs.has-items::after {
-            content: '';
-            position: relative;
-            display: block;
-            width: 100%;
-            height: 0;
-            border-bottom: 1px solid $white;
-            margin-bottom: 1rem;
-          }
+          padding: 2rem 1rem 1rem 1rem;
         }
       }
 
@@ -796,7 +788,7 @@ footer {
       label {
         padding-top: 0.5rem;
         opacity: 1;
-        color: rgba($dark-gray, 50%);
+        color: $dark-gray;
       }
 
       [type='checkbox'] + label[for],
@@ -826,8 +818,8 @@ footer {
         &.remote-render,
         &.remote-rendering,
         &.remote-render-failed {
-          background: $light-gray;
-          padding: 2.5rem 1rem 2rem 1rem;
+          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+          padding: 2.5rem 1rem 1.2rem 1rem;
 
           &::before {
             margin-top: 2.5rem;
@@ -855,7 +847,7 @@ footer {
     input.single_date,
     .single_date input.form-control,
     .number input {
-      padding: 2.5rem 1rem 2rem 1rem;
+      padding: 2.5rem 1rem 1.2rem 1rem;
       line-height: initial;
     }
 
@@ -1534,12 +1526,15 @@ body .v-select {
           background: $white;
           box-shadow: inset 0 1px 2px rgba($black, 0.1);
           border: 1px solid $medium-gray;
+
           .select2-selection {
             margin: 0.2rem 0.5rem;
+
             &.select2-selection--multiple {
               margin: 0.5rem;
             }
           }
+
           .select2-search__field {
             background: $white;
           }

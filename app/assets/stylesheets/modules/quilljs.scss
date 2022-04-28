@@ -2,7 +2,6 @@ $fa-font-path: '/assets';
 @import 'quill/dist/quill.snow';
 
 .detail-header.editor .form-element .editor-block label {
-  padding-top: 0;
   display: flex;
 }
 
@@ -103,9 +102,9 @@ $fa-font-path: '/assets';
     }
   }
   .ql-editor {
-    padding-bottom: 2rem;
+    padding: 0.1rem 1rem 1.2rem 1rem;
     font-size: 1rem;
-    min-height: 8rem;
+    min-height: 2rem;
 
     p:not(:last-child) {
       margin-bottom: 0.5rem;
@@ -226,13 +225,12 @@ $fa-font-path: '/assets';
   > .ql-toolbar {
     display: flex;
     flex: auto;
-    background: $light-gray;
-    border-bottom: 1px solid $light-gray;
+    background-color: white;
     align-items: center;
     position: sticky;
     top: 55px;
     z-index: 12;
-    height: 3rem;
+    height: 2.5rem;
   }
 
   > .quill-editor {
