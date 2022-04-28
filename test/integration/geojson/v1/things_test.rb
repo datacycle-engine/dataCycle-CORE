@@ -77,7 +77,8 @@ module DataCycleCore
 
           assert_response(:success)
           assert_equal('application/vnd.geo+json; charset=utf-8', response.content_type)
-          factory = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 })
+          longlat_projection = RGeo::CoordSys::Proj4.new('EPSG:4326')
+          factory = RGeo::Cartesian.factory(srid: 4326, proj4: longlat_projection, has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 })
           coder = RGeo::GeoJSON.coder(geo_factory: factory)
           geojson_data = coder.decode(response.body)
 

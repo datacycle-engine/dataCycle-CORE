@@ -243,11 +243,35 @@ class AdditionalValuesFilterControl {
     this.map.setLayoutProperty(this.additionalLayers[key].point, 'visibility', visibility);
     this.map.setLayoutProperty(this.additionalLayers[key].line, 'visibility', visibility);
   }
+  _updateParentsRecursive(target) {
+    const parent = target
+      .closest('ul')
+      .closest('li')
+      .querySelector(':scope > .overlay-filter-label > input[type="checkbox"]');
+
+    if (!parent.classList.contains('dc-additional-values-filter-specific')) return;
+
+    const siblings = parent.closest('li').querySelector('ul').querySelectorAll('input[type="checkbox"]');
+    const status = Array.from(siblings).map(cb => cb.checked);
+
+    parent.checked = status.every(Boolean);
+    parent.indeterminate = !parent.checked && status.some(Boolean);
+  }
+  _updateAllChildren(target) {
+    const children = target.closest('li').querySelectorAll('input[type="checkbox"]');
+    for (const child of children) child.checked = target.checked;
+  }
   _specificFilterChanged(event) {
     const target = event.currentTarget;
 
-    if (target.checked) this.activeFilters[target.dataset.groupKey].filter.push(target.value);
-    else pull(this.activeFilters[target.dataset.groupKey].filter, target.value);
+    this._updateAllChildren(target);
+    this._updateParentsRecursive(target);
+
+    this.activeFilters[target.dataset.groupKey].filter = Array.from(
+      target
+        .closest('.dc-additional-values-filter-item')
+        .querySelectorAll('input.dc-additional-values-filter-specific:checked')
+    ).map(v => v.value);
 
     if (this.activeFilters[target.dataset.groupKey].enabled) this._reloadData(target.dataset.groupKey);
   }
@@ -264,14 +288,15 @@ class AdditionalValuesFilterControl {
     const params = Object.assign({}, this.activeFilters[key].definition, additionalParams);
     params.filter = this.activeFilters[key].filter;
 
-    const data = await DataCycle.httpRequest({
+    let data = await DataCycle.httpRequest({
       url: '/things/geojson_for_map_editor',
       method: 'POST',
       data: params,
       dataType: 'json'
     });
 
-    if (!data || !data.features) return;
+    if (!data) data = this.editor._createFeatureCollection();
+    if (!data.features) data.features = [];
 
     for (const feature of data.features) {
       feature.properties.id = feature.id;
@@ -282,7 +307,8 @@ class AdditionalValuesFilterControl {
   async _reloadGeoJson(key) {
     const data = await this._loadGeojson(key);
 
-    if (!data || !data.features) return;
+    if (!data) data = this.editor._createFeatureCollection();
+    if (!data.features) data.features = [];
 
     this.lastLoadedFilter[key] = this.activeFilters[key].filter.slice();
 

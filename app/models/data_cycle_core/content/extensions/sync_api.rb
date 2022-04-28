@@ -22,7 +22,6 @@ module DataCycleCore
             .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth: depth, max_depth: max_depth, locales: locales) } }
             .inject(&:merge)
             .merge(sync_metadata)
-            .compact
             .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', depth: depth, max_depth: max_depth, locales: locales) }
             .deep_stringify_keys
         end

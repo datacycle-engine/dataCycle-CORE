@@ -23,15 +23,14 @@ module DataCycleCore
         def self.to_route(prefix)
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { prefix + s.dig('value') })
-          .>> t(:add_field, 'sections', ->(s) { load_sections(s, prefix) })
-          .>> t(:add_field, 'line', ->(s) { load_all_sections(s.dig('sections')) })
           .>> t(:universal_classifications, ->(s) { DataCycleCore::Classification.where(external_key: prefix + s['value'])&.ids })
           .>> t(:strip_all)
         end
 
         def self.load_all_sections(data)
           return nil if data.blank?
-          factory = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true)
+          longlat_projection = RGeo::CoordSys::Proj4.new('EPSG:4326')
+          factory = RGeo::Cartesian.factory(srid: 4326, proj4: longlat_projection, has_z_coordinate: true)
           all_line_strings = DataCycleCore::Thing
             .where(id: data)
             .map(&:line)
@@ -64,7 +63,11 @@ module DataCycleCore
           .>> t(:add_links, 'referencetype', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'type') ? Array.wrap("Gip - REFERENCETYPE - #{s.dig('properties', 'type')}") : [] })
           .>> t(:add_links, 'orgcode', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'externalorgcode') ? Array.wrap("Gip - ORGCODE - #{s.dig('properties', 'externalorgcode')}") : [] })
           .>> t(:add_field, 'name', ->(s) { "#{s['caption']} - #{DataCycleCore::Classification.find_by(id: s['minortyperef']).name}" })
-          .>> t(:add_field, 'routes', ->(s) { load_feature_routes(s.dig('properties', 'geoNameId1'), external_source_id) })
+          .>> t(:add_field, 'routes', ->(s) { load_feature_routes(s.dig('properties', 'geoNameId1'), 'GeoName_', external_source_id) })
+          .>> t(:add_field, 'routes_ev', ->(s) { load_feature_routes(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att8' }&.dig('properties', 'stringvalue'), 'GEONAME - EUROVELO - ', external_source_id) })
+          .>> t(:add_field, 'routes_at', ->(s) { load_feature_routes(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att9' }&.dig('properties', 'stringvalue'), 'GEONAME - ATROUTE - ', external_source_id) })
+          .>> t(:merge_array_values, 'routes', 'routes_at')
+          .>> t(:merge_array_values, 'routes', 'routes_ev')
           .>> t(:reject_keys, ['id', 'caption', 'bbox', 'geometry', 'properties'])
           .>> t(:strip_all)
         end
@@ -100,8 +103,10 @@ module DataCycleCore
         def self.parse_section(geometry)
           return nil if geometry.blank? || geometry.dig('coordinates').blank? || geometry.dig('SRID').blank?
           return if geometry.dig('SRID') != 31_256 # Österreich Ost
-          factory_source = RGeo::Cartesian.factory(srid: 31_256, proj4: '+proj=tmerc +lat_0=0 +lon_0=16.33333333333333 +k=1 +x_0=0 +y_0=-5000000 +ellps=bessel +towgs84=577.326,90.129,463.919,5.137,1.474,5.297,2.4232 +units=m +no_defs ')
-          longlat = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true)
+          factory_source_projection = RGeo::CoordSys::Proj4.new('EPSG:31256')
+          factory_source = RGeo::Cartesian.factory(srid: 31_256, proj4: factory_source_projection)
+          longlat_projection = RGeo::CoordSys::Proj4.new('EPSG:4326')
+          longlat = RGeo::Cartesian.factory(srid: 4326, proj4: longlat_projection, has_z_coordinate: true)
 
           coordinates = geometry['coordinates']
           source_coordinates =
@@ -134,10 +139,10 @@ module DataCycleCore
           []
         end
 
-        def self.load_feature_routes(route_id, external_source_id)
+        def self.load_feature_routes(route_id, prefix, external_source_id)
           return [] if route_id.blank?
 
-          DataCycleCore::Thing.where(external_key: "GeoName_#{route_id}", external_source_id: external_source_id)&.ids
+          DataCycleCore::Thing.where(external_key: "#{prefix}#{route_id}", external_source_id: external_source_id)&.ids
         end
       end
     end

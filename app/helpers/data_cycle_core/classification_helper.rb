@@ -74,7 +74,19 @@ module DataCycleCore
         .where('classification_tree_labels.name = ?', treelabel).count.positive?
     end
 
+    def classification_title(classification_or_alias)
+      if classification_or_alias.is_a?(DataCycleCore::Classification)
+        classification_or_alias.try(:name) || classification_or_alias.try(:external_key) || 'NO_NAME'
+      elsif classification_or_alias.is_a?(DataCycleCore::ClassificationAlias)
+        classification_or_alias.try(:internal_name) || classification_or_alias.try(:primary_classification).try(:external_key) || 'NO_NAME'
+      else
+        'DELETED'
+      end
+    end
+
     def classification_tooltip(classification_alias)
+      return if classification_alias.nil?
+
       tooltip_html = []
 
       tooltip_html << tag.div(classification_alias.full_path, class: 'tag-full-path') if classification_alias.try(:full_path).present?
@@ -83,14 +95,25 @@ module DataCycleCore
         tooltip_html << "<div class=\"tag-description\">#{classification_alias.description}</div>" if classification_alias.try(:description).present?
       end
 
-      tooltip_html << tag.div(
-        tag.span(I18n.t('classifications.tooltip_translations', locale: active_ui_locale), class: 'tag-translations-header') +
-        tag.ul(
-          safe_join(classification_alias.name_i18n.sort.map { |k, v| tag.li(v, data: { locale: "#{k}:" }) }),
-          class: 'tag-translations-list'
-        ),
-        class: 'tag-translations'
-      )
+      if classification_alias.name_i18n.keys.many?
+        tooltip_html << tag.div(
+          tag.span(I18n.t('classifications.tooltip_translations', locale: active_ui_locale), class: 'tag-translations-header') +
+          tag.ul(
+            safe_join(
+              classification_alias
+                .name_i18n
+                .each_with_object({}) { |(k, v), h|
+                (h[v] ||= []) << k
+              }
+                .transform_values { |v| v.sort.join(', ') }
+                .sort_by { |_k, v| v }
+                .map { |k, v| tag.li(ActionView::OutputBuffer.new("#{k} #{tag.span("(#{v})", class: 'tag-translations-locales')}")) }
+            ),
+            class: 'tag-translations-list'
+          ),
+          class: 'tag-translations'
+        )
+      end
 
       tooltip_html.compact.join('<br>')
     end
@@ -125,6 +148,8 @@ module DataCycleCore
     end
 
     def async_classification_select_options(value, expected_type = DataCycleCore::ClassificationAlias)
+      value = Array.wrap(value).compact
+
       return options_for_select([]) if value.blank?
 
       options_for_select(
@@ -150,6 +175,8 @@ module DataCycleCore
     end
 
     def simple_classification_select_options(value, classification_items, expected_type = DataCycleCore::ClassificationAlias)
+      value = Array.wrap(value).compact
+
       options_for_select(
         classification_items
           &.where&.not(internal_name: DataCycleCore.excluded_filter_classifications)

@@ -1,10 +1,10 @@
 ---
 name: HRS
 credentials:
-  host: https://api.hrs-ds.com
-  end_point: api
-  interface_id: hmLZk1ougo3J85gDd7s3Nw
-  region_name: Vorarlberg
+  host: HOST
+  end_point: ENDPOINT
+  interface_id: INTERFACE_ID
+  region_name: REGION_NAME
 default_options:
   locales: [de]
 config:

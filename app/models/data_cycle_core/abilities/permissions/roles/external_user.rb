@@ -66,6 +66,13 @@ module DataCycleCore
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing)
             )
 
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can,
+              :history,
+              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing::History)
+            )
+
             # StoredFilter
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
@@ -95,7 +102,7 @@ module DataCycleCore
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
               :can, :copy_api_link,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList)
+              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList, my_selection: false)
             )
 
             add_permission(

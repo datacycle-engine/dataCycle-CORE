@@ -2,13 +2,13 @@
 name: Pimcore
 identifier: pimcore
 credentials:
-  host: https://www.montafon.at
-  url_part: webservice/imx
-  end_point: infrastructure
-  apikey: 6b46d5f1240824f1a27b6aaa3641e03d96694789f5700d149dae2aa144ea150d
-  endpoint_bergerlebnis: json/bergerlebnis
-  endpoint_event: json/event
-  endpoint_eventreihe: json/eventreihe
+  host: HOST
+  url_part: URL_PART
+  end_point: ENDPOINT
+  apikey: APIKEY
+  endpoint_bergerlebnis: ENDPOINT_BERGERLEBNIS
+  endpoint_event: ENDPOINT_EVENT
+  endpoint_eventreihe: ENDPOINT_EVENTREIHE
 default_options:
   locales: [de, en]
 config:
@@ -58,7 +58,6 @@ config:
       transformations:
         image:
           template: Bild
-          content_url_prefix: 'https://www.montafon.at'
     infrastructures:
       sorting: 20
       source_type: infrastructures

@@ -1,10 +1,9 @@
 ---
 name: GoogleApi
 credentials:
-  host: https://maps.googleapis.com/
-  end_point: maps/api/place/
-  key: 'AIzaSyC_JR0tq6Rea-daM5jnK2Ls3chxodsgJcQ'
-  #  bbox: 'MULTIPOINT ((9.56 47.64), (10.2 46.83))'
+  host: HOST
+  end_point: ENDPOINT
+  key: KEY
   geojson: 'config/external_systems/geo/vorarlberg.geojson'
 default_options:
   locales: [de]

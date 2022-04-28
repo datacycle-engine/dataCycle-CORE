@@ -1,10 +1,10 @@
 ---
 name: Booking
 credentials:
-  host: https://distribution-xml.booking.com/2.1/json
-  region_id: 1751 # Bodensee .... 1195 -> ganz Vorarlberg
-  user: 'bodenseevo'
-  password: 'Booking2016!'
+  host: HOST
+  region_id: REGION_ID
+  user: USER
+  password: PASSWORD
 default_options:
   locales: [de]
 config:

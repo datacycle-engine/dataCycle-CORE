@@ -167,7 +167,7 @@
           :parameters:
             :0: asset
         :advanced_search: true
-      :file_format:
+      :file_format: # has to be valid MimeType
         :label: Dateiformat
         :storage_location: value
         :type: computed
@@ -242,8 +242,7 @@
         :label: Ort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
@@ -268,7 +267,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Webcam"
+        :default_value: 'Webcam'
       :cc_rel:
         :type: mixin
         :name: cc_rel

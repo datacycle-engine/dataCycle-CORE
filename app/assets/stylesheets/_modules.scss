@@ -5,6 +5,10 @@
 // load overrides
 @import 'modules/foundation-overrides';
 @import 'modules/font-awesome-overrides';
+
+// load fonts
+@import 'modules/fonts';
+
 // load quilljs
 @import 'modules/quilljs';
 // load application modules
@@ -14,6 +18,7 @@
 // load components
 @import 'modules/components/breadcrumb';
 @import 'modules/components/filters';
+@import 'modules/components/stored_filters';
 @import 'modules/components/views';
 @import 'modules/components/masonry';
 @import 'modules/components/data-cycle-objects';

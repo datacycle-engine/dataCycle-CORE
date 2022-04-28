@@ -1,0 +1,22 @@
+<% random_id = SecureRandom.hex(10) %>
+
+<div class="diff metadata">
+  <div class="diff-header" data-toggle="<%= random_id %>">
+    <span class="type <%= content.template_name.underscore_blanks %>">
+      <%= content.translated_template_name(active_ui_locale) %>
+    </span>
+
+    <%= history_version_html(content) %>
+  </div>
+
+  <div class="dropdown-pane no-bullet bottom content-diff-dropdown"
+    id="<%= random_id %>"
+    data-dropdown
+    data-hover="true"
+    data-hover-pane="true">
+    <div class="remote-render"
+        data-remote-path="data_cycle_core/application/histories"
+        data-remote-options="<%= to_query_params({ content: content, history_id: content.id, right_side: local_assigns[:right_side], diff_id: local_assigns[:diff_id], diff_view: true }).to_json %>">
+    </div>
+  </div>
+</div>

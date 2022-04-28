@@ -272,52 +272,53 @@ server {
     error_page 502 = $rqUrl;
   }
 
+  # Disable cache for original image
   # get the original image
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/original\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif)))?$"{
-    limit_req zone=req_zone burst=100 nodelay;
+  # location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/original\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif)))?$"{
+  #   limit_req zone=req_zone burst=100 nodelay;
 
-    set $type "original";
-    set $proxyUrl "http://self_data_cycle/things/$thing/asset/original";
+  #   set $type "original";
+  #   set $proxyUrl "http://self_data_cycle/things/$thing/asset/original";
 
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header Host $http_host;
-    proxy_set_header X-Forwarded-Proto $scheme;
+  #   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  #   proxy_set_header Host $http_host;
+  #   proxy_set_header X-Forwarded-Proto $scheme;
 
-    proxy_pass $proxyUrl;
+  #   proxy_pass $proxyUrl;
 
-    proxy_intercept_errors on;
-    recursive_error_pages on;
-    error_page 301 302 303 307 308 = @image_proxy_redirect;
-  }
+  #   proxy_intercept_errors on;
+  #   recursive_error_pages on;
+  #   error_page 301 302 303 307 308 = @image_proxy_redirect;
+  # }
 
-  location @image_proxy_redirect {
-    set $saved_redirect_location $upstream_http_location;
-    resolver 127.0.0.11 8.8.8.8 8.8.4.4;
+  # location @image_proxy_redirect {
+  #   set $saved_redirect_location $upstream_http_location;
+  #   resolver 127.0.0.11 8.8.8.8 8.8.4.4;
 
-    proxy_ssl_server_name on;
+  #   proxy_ssl_server_name on;
 
-    proxy_pass $saved_redirect_location;
-    proxy_cache imgproxy_data_cycle;
+  #   proxy_pass $saved_redirect_location;
+  #   proxy_cache imgproxy_data_cycle;
 
-    proxy_cache_key "$proxyUrl$type";
+  #   proxy_cache_key "$proxyUrl$type";
 
-    proxy_ignore_headers Cache-Control Expires Set-Cookie;
+  #   proxy_ignore_headers Cache-Control Expires Set-Cookie;
 
-    proxy_cache_background_update on;
+  #   proxy_cache_background_update on;
 
-    proxy_cache_lock on;
-    proxy_cache_lock_age 5s;
-    proxy_cache_lock_timeout 5s;
+  #   proxy_cache_lock on;
+  #   proxy_cache_lock_age 5s;
+  #   proxy_cache_lock_timeout 5s;
 
-    proxy_cache_use_stale updating;
+  #   proxy_cache_use_stale updating;
 
-    proxy_cache_valid 200 30d; # Cache valid assets for 30 days.
-    proxy_cache_valid any 15s; # Everything else gets 15s.
+  #   proxy_cache_valid 200 30d; # Cache valid assets for 30 days.
+  #   proxy_cache_valid any 15s; # Everything else gets 15s.
 
-    proxy_http_version 1.1;
-    expires 1y;
+  #   proxy_http_version 1.1;
+  #   expires 1y;
 
-    add_header X-Cache $upstream_cache_status;
-  }
+  #   add_header X-Cache $upstream_cache_status;
+  # }
 
 }

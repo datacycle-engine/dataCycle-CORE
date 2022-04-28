@@ -2,9 +2,9 @@
 name: DataCycle Basic
 identifier: data-cycle-base
 credentials:
-  host: https://basic.datacycle.at
-  end_point: sync_api/v1/endpoints/41e72bcc-021a-40bf-9ab3-195219425506
-  token: 38a88193543ef6329e98efd3c2c22a03
+  host: HOST
+  end_point: ENDPOINT
+  token: TOKEN
 config:
   download_config:
     things:

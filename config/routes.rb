@@ -59,7 +59,6 @@ DataCycleCore::Engine.routes.draw do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
       post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
-      get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_system_id/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :load_more_related, on: :member
@@ -74,6 +73,7 @@ DataCycleCore::Engine.routes.draw do
       post :validate, on: :member
       match :geojson_for_map_editor, on: :collection, via: [:get, :post], defaults: { format: 'application/vnd.geo+json' }
       post :validate, on: :collection
+      get :compare, on: :collection
       get :select_search, on: :collection
       get :render_embedded_object, on: :member
       post :bulk_create, on: :collection
@@ -90,12 +90,14 @@ DataCycleCore::Engine.routes.draw do
     post '/', on: :collection, action: :index
   end
 
-  resources :stored_filters, only: [:index, :show, :create, :update, :destroy], path: :search_history do
+  resources :stored_filters, only: [:index, :show, :create, :destroy], path: :search_history do
     get :search, on: :collection
     get :select_search_or_collection, on: :collection
     get :download_zip, on: :member
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection
+    get :saved_searches, on: :collection
+    get :render_update_form, on: :collection
   end
 
   resources :classification_tree_labels, only: :show, param: :ctl_id do
@@ -126,8 +128,10 @@ DataCycleCore::Engine.routes.draw do
 
   resources :data_links do
     post :send_mail, on: :member
-    get :download, on: :member
+    post :download, on: :member
     get :get_text_file, on: :member
+    patch :unlock, on: :member
+    get :render_update_form, on: :collection
   end
 
   resources :watch_lists do
@@ -142,6 +146,7 @@ DataCycleCore::Engine.routes.draw do
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
     delete :clear, on: :member
+    get :search, on: :collection
     post '/', on: :member, action: :show
   end
 
@@ -313,10 +318,13 @@ DataCycleCore::Engine.routes.draw do
                 post :logout
               end
 
-              post 'users/create', to: 'users#create'
-              match 'users', to: 'users#index', via: [:get, :post]
-              post 'users/password', to: 'users#password'
-              match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
+              namespace :users do
+                post :create
+                match '/update', action: :update, via: [:patch, :put]
+                match '/', action: :index, via: [:get, :post]
+                post :password
+                match '/:id', action: :show, as: :user, via: [:get, :post]
+              end
 
               scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do
                 match '/:external_key', via: [:get, :post], to: 'external_systems#show', as: 'external_sources'

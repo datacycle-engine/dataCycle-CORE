@@ -28,6 +28,18 @@
     }
   }
 
+  .mtk-control-styles .mtk-control-styles-group + .mtk-control-styles-group {
+    margin-top: 0;
+  }
+
+  .mtk-elevation-profile {
+    pointer-events: none;
+
+    svg.mtk-elevation-svg {
+      pointer-events: auto;
+    }
+  }
+
   .mapboxgl-ctrl-top-left {
     height: 100%;
 

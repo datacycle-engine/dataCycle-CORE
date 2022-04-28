@@ -86,9 +86,16 @@ services:
       DNSDOCK_ALIAS: localhost
     ports:
       - '127.0.0.1:${PUBLIC_MAILHOG_PORT:-1025}:8025'
+  varnish:
+    env_file:
+      - ${PWD}/.env
+    volumes:
+      - '${PWD}:/app'
+      - varnish-data:/var/lib/varnish/data
 volumes:
   mongodb-data:
   mongodb-log:
   nginx-log:
   postgres-data:
   redis:
+  varnish-data:

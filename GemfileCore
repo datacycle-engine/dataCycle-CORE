@@ -68,7 +68,11 @@ group :development, :test, :review do
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
   gem 'capistrano3-delayed-job'
-  gem 'capistrano3-puma', '~> 4.0'
+  gem 'capistrano3-puma'
+
+  # support for ED25519 SSH Keys
+  gem 'bcrypt_pbkdf'
+  gem 'ed25519'
 
   gem 'simplecov', require: false
 

@@ -1,12 +1,12 @@
 ---
 name: austria.info
 credentials:
-  host: http://test.com
-  token: xxxxxxxxx
-  api_version: 4
-  api_subversion:
+  host: HOST
+  token: TOKE
+  api_version: API_VERSION
+  api_subversion: API_SUBVERSION
 default_options:
   export:
-    external_url: 'https://cms.austria.info/admin/app/sonatapagepage/%{external_key}/edit'
+    external_url: EXTERNAL_URL
 config:
   api_strategy: DataCycleCore::Generic::ExternalLink::Webhook

@@ -102,6 +102,13 @@ module DataCycleCore
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing)
             )
 
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can,
+              :history,
+              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing::History)
+            )
+
             # temporary disable exif data on show view
             # add_permission(
             #   DataCycleCore::Abilities::Segments::UsersByRole.new(role),
@@ -119,8 +126,14 @@ module DataCycleCore
             # WatchList
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :show, :bulk_edit, :bulk_delete, :update, :change_owner, :copy_api_link,
+              :can, :show, :bulk_edit, :bulk_delete, :update, :change_owner,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList)
+            )
+
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can, :copy_api_link,
+              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList, my_selection: false)
             )
 
             add_permission(

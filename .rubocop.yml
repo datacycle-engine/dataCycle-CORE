@@ -26,6 +26,9 @@ AllCops:
 Bundler/OrderedGems:
   Enabled: false
 
+Style/FetchEnvVar:
+  Enabled: false
+
 #######################################################
 ########## Layout
 Layout/MultilineMethodCallIndentation:
@@ -44,6 +47,9 @@ Layout/SpaceAroundMethodCallOperator:
   Enabled: true
 
 Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: false
+
+Style/RedundantInitialize:
   Enabled: false
 
 #######################################################

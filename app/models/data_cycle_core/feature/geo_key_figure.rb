@@ -8,10 +8,6 @@ module DataCycleCore
           DataCycleCore::Feature::ControllerFunctions::GeoKeyFigure
         end
 
-        def part_id_path(content)
-          configuration(content).dig('part_id_path')
-        end
-
         def local(content)
           configuration(content).dig('local')
         end

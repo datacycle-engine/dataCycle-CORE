@@ -73,8 +73,8 @@ class Tooltips {
     this.watchTooltipContent();
 
     this.tooltip.style.display = 'block';
-    await this.updatePosition();
     this.cleanups[this.referenceElement.dataset.dcTooltipId] = this.addAutoUpdate();
+    await this.updatePosition();
   }
 
   hideTooltip(_event) {
@@ -119,7 +119,7 @@ class Tooltips {
       this.tooltip.classList.add(this.referenceElement.dataset.dcTooltipClass.trim());
   }
   cleanupTooltipAttributes() {
-    if (this.referenceElement.dataset.dcTooltipClass)
+    if (this.referenceElement && this.referenceElement.dataset.dcTooltipClass)
       this.tooltip.classList.remove(this.referenceElement.dataset.dcTooltipClass.trim());
   }
   async updatePosition() {

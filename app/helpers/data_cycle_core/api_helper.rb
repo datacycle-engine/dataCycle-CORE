@@ -92,9 +92,10 @@ module DataCycleCore
 
     def load_value_object(content, key, value, languages, definition = nil)
       data_value = nil
-      single_value = !content.translatable_property_names.include?(key) || (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
+      return api_value_format(value, definition) unless content.translatable_property_names.include?(key)
+      single_value = (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
       if single_value
-        data_value = api_value_format(value, definition)
+        data_value = I18n.with_locale(Array.wrap(languages).first) { api_value_format(content.send(key + '_overlay'), definition) }
       else
         data_value = []
 

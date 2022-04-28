@@ -1,47 +1,36 @@
 <div class="dc-additional-values-filter-container">
   <ul class="dc-additional-values-filter accordion" data-accordion data-allow-all-closed="true" data-multi-expand="true">
-    <% random_id = SecureRandom.hex(10) %>
     <% additional_values.each do |key, value| %>
       <% tree_label = value.dig('definition', 'ui', 'edit', 'filters', 'classification_tree') %>
+      <% items = additional_map_values_filter(tree_label) %>
       <%= tag.li(
-      class: "dc-additional-values-filter-item #{'accordion-item' if tree_label.present?}",
+      class: "dc-additional-values-filter-item #{'accordion-item' if items.present?}",
       data: {
-        accordion_item: tree_label.present? ? true: nil,
+        accordion_item: items.present? ? true: nil,
         group_key: key,
         definition: value['definition']&.to_json
       }
     ) do %>
         <div class="loading-spinner"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></div>
-        <%= label_tag "#{random_id}_dc_map_additional_value_#{key}", class: 'dc-additional-values-filter-title' do %>
+        <% random_id = SecureRandom.hex(10) %>
+        <div class="overlay-filter-label">
           <%= check_box_tag "#{random_id}_dc_map_additional_value_#{key}",
-            key,
-            false,
-            class: 'dc-additional-values-filter-group' %>
-          <%= tag.span(value['label'], class: 'attribute-label-text') %>
-        <% end %>
+                            key,
+                            false,
+                            class: 'dc-additional-values-filter-group' %>
+          <%= label_tag "#{random_id}_dc_map_additional_value_#{key}", class: 'dc-additional-values-filter-title' do %>
+            <%= tag.span(value['label'], class: 'attribute-label-text') %>
+          <% end %>
+        </div>
 
-        <% if tree_label.present? %>
+        <% if items.present? %>
           <a href="#" class="accordion-title"></a>
 
-          <div class="accordion-content" data-tab-content>
-            <ul class="no-bullet additional-map-values-filter-items">
-              <%= collection_check_boxes(nil, "additional_values_filter[classification_tree]", additional_map_values_filter(tree_label), :id, :internal_name, {}, {}) do |cb| %>
-                <li class="additional-map-values-filter-item">
-                  <%= cb.label for: "#{random_id}_#{tree_label.underscore_blanks}_#{cb.value.underscore_blanks}", data: { dc_tooltip: cb.object.try(:description) } do %>
-                    <%= cb.check_box value: cb.value,
-                      id: "#{random_id}_#{tree_label.underscore_blanks}_#{cb.value.underscore_blanks}",
-                      class: 'dc-additional-values-filter-specific',
-                      data: {
-                        group_key: key
-                      } %>
-                    <span class="attribute-label-text">
-                      <%= cb.text %> <%= tag.i(class: 'fa fa-info-circle') if cb.object.try(:description).present? %>
-                    </span>
-                  <% end %>
-                </li>
-              <% end %>
-            </ul>
-          </div>
+          <%= render 'data_cycle_core/contents/editors/geographic/overlay_classification_tree_level',
+                    items: items,
+                    random_id: random_id,
+                    key: key %>
+
         <% end %>
       <% end %>
     <% end %>

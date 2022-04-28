@@ -104,6 +104,7 @@ module DataCycleCore
       by_day = nil
       by_month = nil
       by_month_day = nil
+      by_month_week = nil
       if @schedule_object&.recurrence_rules&.first.present?
         rule = @schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
@@ -111,9 +112,13 @@ module DataCycleCore
         end_time = @schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && @schedule_object.terminating?
         repeat_count = rule&.occurrence_count
         repeat_frequency = to_repeat_frequency(rule_hash)
-        by_day = rule_hash.dig(:validations, :day)
+        by_day = rule_hash.dig(:validations, :day)&.map { |day| dow(day) }
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
+        if rule_hash.dig(:validations, :day_of_week).present?
+          by_day = dow(rule_hash.dig(:validations, :day_of_week).keys.first)
+          by_month_week = rule_hash.dig(:validations, :day_of_week).values.flatten.first
+        end
       end
 
       {
@@ -129,9 +134,10 @@ module DataCycleCore
         'exceptDate' => exdate&.map(&:iso8601)&.presence,
         'dc:additionalDate' => rdate&.map(&:iso8601)&.presence,
         'repeatFrequency' => repeat_frequency,
-        'byDay' => by_day&.map { |day| dow(day) },
+        'byDay' => by_day,
         'byMonth' => by_month&.map(&:to_i),
         'byMonthDay' => by_month_day&.map(&:to_i),
+        'byMonthWeek' => by_month_week,
         'scheduleTimezone' => dtstart.time_zone.name
       }.compact
     end
@@ -310,6 +316,10 @@ module DataCycleCore
     end
 
     module ClassMethods
+      def until_as_utc_iso8601(until_date, until_time)
+        "#{until_date.in_time_zone.to_date.iso8601}T#{until_time.in_time_zone.strftime('%T')}+00:00"
+      end
+
       def to_h_from_schedule_params(value)
         return nil if value.blank? || value.values.blank?
 
@@ -326,7 +336,7 @@ module DataCycleCore
             zone: start_time.time_zone.name
           }
 
-          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day.to_s(:iso8601) if s.dig('rrules', 0, 'until').present?
+          s['rrules'][0]['until'] = until_as_utc_iso8601(s.dig('rrules', 0, 'until'), start_time) if s.dig('rrules', 0, 'until').present?
           s['rrules'][0]['validations'] ||= {}
           s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present?
           s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
@@ -387,7 +397,7 @@ module DataCycleCore
                 validations: {
                   day: days
                 },
-                until: s['valid_until']&.in_time_zone&.end_of_day&.to_s(:iso8601)
+                until: until_as_utc_iso8601(s['valid_until'], t['opens'])
               }]
             }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: t['id']).with_indifferent_access.compact
           end
