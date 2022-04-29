@@ -305,7 +305,7 @@ class AdditionalValuesFilterControl {
     return data;
   }
   async _reloadGeoJson(key) {
-    const data = await this._loadGeojson(key);
+    let data = await this._loadGeojson(key);
 
     if (!data) data = this.editor._createFeatureCollection();
     if (!data.features) data.features = [];
