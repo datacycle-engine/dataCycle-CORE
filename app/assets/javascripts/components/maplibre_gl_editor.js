@@ -42,10 +42,15 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     // this.initMapActions();
     // if (this.uploadable) this.initUploadActions();
   }
+  initFeatures() {
+    if (!this.feature && this.value) this.feature = this.value;
+    this.drawAdditionalFeatures();
+  }
 
   configureEditor() {
-    // TODO: add edit buttons
     this.initAdditionalControls();
+
+    if (this.feature) this.initEditFeature();
     // if (!isEmpty(this.additionalValuesOverlay))
     //   this.map.addControl(new AdditionalValuesFilterControl(this), 'bottom-left'); // TODO: locally override called methods if neccessary
     // this.extendEditorInterface();
@@ -66,35 +71,57 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     // Object.assign(this.editorGui.editor.dashedLine, this.lineStyle());
   }
   // initEventHandlers() {
+  //   //TODO: check toursprung-editor for different handlers
   //   this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
-  //   this.$container.on('dc:map:resetPrimaryFeature', this.removeFeature.bind(this));
   // }
 
   initAdditionalControls() {
     this.initDrawControl();
-    // this.map.addControl(new RemoveAllFeaturesControl());
   }
   initDrawControl() {
     this.draw = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
-        point: this.isPoint(),
-        line_string: this.isLineString(),
         trash: true
       },
-      defaultMode: this.isPoint() ? 'draw_point' : 'draw_line_string', // TODO: if already then select mode
-      styles: this.isPoint() ? this._getDrawPointStyle() : this._getDrawLineStyle()
+      defaultMode: this.getMapDrawMode(),
+      styles: this.getMapDrawStyle()
     });
     this.map.addControl(this.draw);
 
     this.map.on('draw.create', event => {
       this.feature = event.features[0];
-      // this.feature.setStyle();
-      // this.disableDrawableFeature(); // TODO:
-      // this.setCoordinates(); // TODO:
+      // this.setCoordinates(); // TODO: for points
       this.setHiddenFieldValue(this.feature);
-      // this.initGeometryEditActions(); // TODO:
+      // this.initGeometryEditActions(); // TODO: do we need this for point?
     });
+
+    // TODO:
+    this.map.on('draw.delete', event => {
+      this.removeFeature();
+    });
+
+    // TODO:
+    this.map.on('draw.update', event => {
+      this.feature = event.features[0];
+      // this.setCoordinates(); // TODO: for points
+      this.setHiddenFieldValue(this.feature);
+      // this.initGeometryEditActions(); // TODO: do we need this for point?
+    });
+  }
+  getMapDrawMode() {
+    // TODO: if already then select mode
+    if (this.feature) {
+      return 'simple_select';
+    }
+    return this.isPoint() ? 'draw_point' : 'draw_line_string';
+  }
+  getMapDrawStyle() {
+    return this.isPoint() ? this._getDrawPointStyle() : this._getDrawLineStyle();
+  }
+  initEditFeature() {
+    const featureIds = this.draw.add(this.feature);
+    this.draw.changeMode('direct_select', { featureId: featureIds[0] });
   }
   // async importData(event, data) {
   //   if (!this.value || (data && data.force)) {
@@ -361,18 +388,22 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 
   //   this.setNewCoordinates();
   // }
-  // removeFeature(event) {
-  //   event.preventDefault();
+  // TODO:
+  removeFeature(event) {
+    // console.log(event);
+    // event.preventDefault(); // TODO: do we need this when calling programatically?
+    if (event) event.preventDefault();
 
-  //   if (this.feature) {
-  //     this.source.removeFeature(this.feature);
-  //     this.feature = undefined;
-  //   }
+    if (this.feature) {
+      // this.source.removeFeature(this.feature); // TODO: remove from map when calling programatically
+      this.feature = undefined;
+    }
 
-  //   this.resetCoordinates();
-  //   this.resetHiddenFieldValue();
-  //   if (!this.drawableInteraction) this.initMapDrawableActions();
-  // }
+    this.resetCoordinates();
+    this.resetHiddenFieldValue();
+    this.draw.changeMode(this.getMapDrawMode());
+  }
+  // TODO:
   // initUploadActions() {
   //   if (this.$uploadButton) this.$uploadButton.on('click', this.relayUploadClick.bind(this));
   //   if (this.$uploadInput) this.$uploadInput.on('change', this.handleUploadFile.bind(this));
@@ -397,19 +428,21 @@ class MapLibreGlEditor extends MapLibreGlViewer {
   //   if (this.feature)
   //     this.map.getView().animate({ duration: 300, center: this.feature.getGeometry().getCoordinates() });
   // }
-  // setCoordinates() {
-  //   if (!this.feature || this.type != 'Point') return;
+  // TODO:
+  setCoordinates() {
+    if (!this.feature || !this.isPoint()) return;
 
-  //   const latLon = this.getFeatureLatLon();
-  //   this.$latitudeField.val(latLon[1]);
-  //   this.$longitudeField.val(latLon[0]);
-  // }
-  // resetCoordinates() {
-  //   if (this.type != 'Point') return;
+    const latLon = this.getFeatureLatLon();
+    this.$latitudeField.val(latLon[1]);
+    this.$longitudeField.val(latLon[0]);
+  }
+  // TODO:
+  resetCoordinates() {
+    if (!this.isPoint()) return;
 
-  //   this.$latitudeField.val('');
-  //   this.$longitudeField.val('');
-  // }
+    this.$latitudeField.val('');
+    this.$longitudeField.val('');
+  }
   // getGeoJsonFromInputs() {
   //   return {
   //     type: this.type,

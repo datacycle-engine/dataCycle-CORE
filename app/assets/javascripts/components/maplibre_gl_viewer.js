@@ -85,12 +85,15 @@ class MapLibreGlViewer {
     this.setZoomMethod();
     this.setIcons();
 
-    this.drawFeatures();
-    this.drawAdditionalFeatures();
+    this.initFeatures();
     this.initEventHandlers();
     this._disableScrollingOnMapOverlays();
     this.initMouseWheelZoom();
     this.updateMapPosition();
+  }
+  initFeatures() {
+    this.drawFeatures();
+    this.drawAdditionalFeatures();
   }
   initEventHandlers() {
     // TODO:
