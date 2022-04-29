@@ -18,6 +18,7 @@
           :asset: true
           :json: true
           :xml: true
+          :indesign: true
     :api:
       :type:
         - CreativeWork
@@ -228,6 +229,19 @@
           :method: quality
           :parameters:
             :0: asset
+      :upload_date:
+        :label: Hochgeladen am
+        :type: date
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :placeholder: tt.mm.jjjj
+              :class: daterange
+        :default_value:
+          module: DataCycleCore::Utility::DefaultValue::Date
+          method: beginning_of_day
+        :advanced_search: true
       :youtube_url:
         :label: YouTube URL
         :type: string
@@ -262,6 +276,19 @@
       :license_fields:
         :type: mixin
         :name: license_fields
+      :keywords:
+        :label: Keywords
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            :0: tags
+        :ui:
+          :show:
+            :disabled: true
       :image_proxy:
         :type: mixin
         :name: image_proxy

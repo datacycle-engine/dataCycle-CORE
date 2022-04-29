@@ -3,12 +3,12 @@
     :name: license_fields
     :type: mixin
     :properties:
-      :license:
-        :label: Copyright / Lizenz
-        :type: string
-        :storage_location: value
-        :search: true
-        :external: true
+      # :license:
+      #   :label: Copyright / Lizenz
+      #   :type: string
+      #   :storage_location: value
+      #   :search: true
+      #   :external: true
       :copyright_holder:
         :label: Rechteinhaber
         :type: linked

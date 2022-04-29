@@ -207,20 +207,9 @@
               :aliases:
                 - Person
                 - Organisation
-      :copyright_holder:
-        :label: Rechteinhaber
-        :type: linked
-        :stored_filter:
-          - :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Person
-                - Organisation
-      :copyright_year:
-        :label: Copyright - Jahr
-        :type: number
-        :storage_location: value
-        :advanced_search: true
+      :license_fields:
+        :type: mixin
+        :name: license_fields
       :content_location:
         :label: Ort
         :type: linked
@@ -258,12 +247,12 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: 'PDF'
-      :meta_data:
-        :type: mixin
-        :name: meta_data
       :cc_rel:
         :type: mixin
         :name: cc_rel
+      :meta_data:
+        :type: mixin
+        :name: meta_data
       :additional_properties:
         :type: mixin
         :name: additional_properties
