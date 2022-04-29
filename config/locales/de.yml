@@ -139,6 +139,8 @@ de:
         pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
       filter:
         button_title: Verknüpfte Inhalte bearbeiten
+      upload_gpx: 
+        button_title: 'GPX-Datei hochladen'
       styles:
         topo: Topo
         street: Standard
@@ -768,7 +770,6 @@ de:
     move_to_container: 'Inhalt verschieben'
     move: verschieben
     geocode: 'Geokoordinaten von %{title} übernehmen'
-    upload_gpx: 'GPX-Datei hochladen'
     remove_feature: 'Geometrie löschen'
     open_asset: 'Datei öffnen'
     download: 'herunterlanden'

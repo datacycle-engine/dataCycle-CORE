@@ -134,6 +134,8 @@ en:
         pinch: Use two fingers to zoom/scroll the map
       filter:
         button_title: edit linked contents
+      upload_gpx: 
+        button_title: Upload GPX file
       styles:
         topo: Topo
         street: Standard
@@ -732,7 +734,6 @@ en:
     move_to_container: Move content
     move: move
     geocode: Take over geocoordinates from %{title}
-    upload_gpx: Upload GPX file
     remove_feature: Delete geometry
     open_asset: Open file
     download: landing off

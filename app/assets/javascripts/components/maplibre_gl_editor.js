@@ -5,6 +5,7 @@ import MapLibreGlViewer from './maplibre_gl_viewer';
 import maplibregl from 'maplibre-gl/dist/maplibre-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import AdditionalValuesFilterControl from './map_controls/mapbox_additional_values_filter_control';
+import UploadGpxControl from './map_controls/maplibre_upload_gpx_control';
 
 class MapLibreGlEditor extends MapLibreGlViewer {
   constructor(container) {
@@ -77,6 +78,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 
   initAdditionalControls() {
     this.initDrawControl();
+    if (this.uploadable) this.map.addControl(new UploadGpxControl(this), 'top-left');
   }
   initDrawControl() {
     this.draw = new MapboxDraw({
