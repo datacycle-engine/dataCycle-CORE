@@ -255,6 +255,10 @@ class MapLibreGlViewer {
         type: 'line',
         source: source,
         filter: ['==', ['geometry-type'], 'LineString'],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
         paint: {
           'line-color': this.definedColors.white,
           'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0],
@@ -270,6 +274,10 @@ class MapLibreGlViewer {
         type: 'line',
         source: source,
         filter: ['==', '$type', 'LineString'],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
         paint: {
           'line-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), lineColor),
           'line-opacity': iconColor === 'gray' ? 0.75 : 1,
