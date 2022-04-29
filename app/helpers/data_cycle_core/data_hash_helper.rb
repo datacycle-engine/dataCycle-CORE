@@ -3,6 +3,11 @@
 module DataCycleCore
   module DataHashHelper
     INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']
+    GROUP_FLAGS = [
+      'collapsible',
+      'single_line',
+      'collapsed'
+    ].freeze
 
     def object_from_definition(definition)
       return nil if definition.blank? || definition.dig('template_name').nil?
@@ -11,20 +16,35 @@ module DataCycleCore
       DataCycleCore::Thing.find_by("template = true AND schema ->> 'content_type' = ? AND template_name =?", 'entity', template_name)
     end
 
+    def grouped_label(content, key)
+      return unless I18n.exists?("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)
+    end
+
     def ordered_validation_properties(validation:, type: nil, content_area: nil)
-      return nil if validation.nil? || validation['properties'].blank?
+      return if validation.nil? || validation['properties'].blank?
 
-      ordered_properties = ActiveSupport::OrderedHash.new
-      validation['properties'].each do |prop|
-        next if INTERNAL_PROPERTIES.include?(prop[0]) || prop[1]['sorting'].blank?
-        next if type.present? && prop[1]['type'] != type
-        next if content_area.presence&.!=('content') && prop[1].dig('ui', 'show', 'content_area') != content_area
-        next if content_area == 'content' && prop[1].dig('ui', 'show', 'content_area').present?
+      ordered_props = {}
 
-        ordered_properties[prop[1]['sorting'].to_i] = prop
+      validation['properties'].sort_by { |_, prop| prop['sorting'] }.each do |key, prop|
+        next if INTERNAL_PROPERTIES.include?(key) || prop['sorting'].blank?
+        next if type.present? && prop['type'] != type
+        next if content_area.presence&.!=('content') && prop.dig('ui', 'show', 'content_area') != content_area
+        next if content_area == 'content' && prop.dig('ui', 'show', 'content_area').present?
+
+        if (group = prop&.[]('ui')&.delete('attribute_group')).present?
+          ordered_props[group] ||= {
+            'type' => 'attribute_group',
+            'properties' => {},
+            'features' => GROUP_FLAGS.index_with { |f| group.include?("_#{f}") }
+          }
+
+          ordered_props[group]['properties'][key] = prop
+        else
+          ordered_props[key] = prop
+        end
       end
 
-      Hash[ordered_properties.sort.map { |_, v| v }]
+      ordered_props
     end
 
     def to_html_string(title, text = '')

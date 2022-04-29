@@ -1,0 +1,21 @@
+<% content_for :attribute_group, flush: true do %>
+  <% validation_properties = ordered_validation_properties(validation: definition) %>
+  <% validation_properties.presence&.each do |o_key, prop| %>
+    <%= render_attribute_editor key: key.gsub(key.attribute_name_from_key, o_key),
+                                prefix: local_assigns[:prefix],
+                                definition: prop,
+                                value: contextual_content(local_assigns).try(o_key),
+                                parameters: {
+                                  options: local_assigns[:options],
+                                  parent: local_assigns[:parent],
+                                  hide_embedded: local_assigns[:hide_embedded]
+                                },
+                                content: content %>
+  <% end %>
+<% end %>
+
+<% if content_for(:attribute_group).present? %>
+  <div class="attribute-group">
+    <%= yield_content!(:attribute_group) %>
+  </div>
+<% end %>
