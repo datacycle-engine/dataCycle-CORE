@@ -327,6 +327,7 @@ module DataCycleCore
   end
 end
 
+require 'data_cycle_core/acknowledgments'
 require 'data_cycle_core/exceptions'
 
 require 'data_cycle_core/generic/common/functions'

@@ -1183,6 +1183,7 @@ de:
         contents:
           root: Inhalte
           specification: Spezifikation
+    acknowledgments: Acknowledgments
 
     schema:
       root: Schema

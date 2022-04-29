@@ -129,6 +129,10 @@ crumb :documentation do
   end
 end
 
+crumb :acknowledgments do
+  link 'Acknowledgments', acknowledgments_path, authorized: true
+end
+
 # Schema
 crumb :schema do
   link t('data_cycle_core.schema.root', locale: active_ui_locale), schema_path, authorized: params[:id].present?

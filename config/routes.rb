@@ -29,6 +29,10 @@ DataCycleCore::Engine.routes.draw do
   get '/docs/*path', to: 'documentation#show', as: :docs_with_path
   get '/docs', to: 'documentation#show'
 
+  # get '/acknowledgments', to: 'acknowledgments#index'
+  # get '/acknowledgments/license', to: 'acknowledgments#license'
+  # get '/acknowledgments/notice', to: 'acknowledgments#notice'
+
   get :clear_all_caches, controller: :application
   get '/i18n/translate', to: 'application#translate'
 
