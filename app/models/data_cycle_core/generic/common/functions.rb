@@ -10,17 +10,15 @@ module DataCycleCore
         import Transproc::Recursion
 
         def self.underscore_keys(data_hash)
-          Hash[data_hash.to_a.map { |k, v| [k.to_s.underscore, v.is_a?(Hash) ? underscore_keys(v) : v] }]
+          data_hash.to_h.deep_transform_keys { |k| k.to_s.underscore }
         end
 
         def self.strip_all(data_hash)
-          Hash[data_hash.to_a.map { |k, v| [k, v.is_a?(Hash) ? strip_all(v) : (v.is_a?(String) ? v.strip : v)] }]
+          data_hash.to_h.deep_transform_values { |v| v.is_a?(::String) ? v.strip : v }
         end
 
         def self.location(data_hash)
-          if data_hash['longitude'].present? && data_hash['latitude'].present?
-            location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) unless data_hash['longitude'].zero? && data_hash['latitude'].zero?
-          end
+          location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) if data_hash['longitude'].present? && data_hash['latitude'].present? && !(data_hash['longitude'].zero? && data_hash['latitude'].zero?)
           data_hash.nil? ? { 'location' => location.presence } : data_hash.merge({ 'location' => location.presence })
         end
 
@@ -169,6 +167,14 @@ module DataCycleCore
 
         def self.add_field(data_hash, name, function)
           data_hash.merge({ name => function.call(data_hash) })
+        end
+
+        def self.extension_to_mimetype(data_hash, name, function, specific_type = nil)
+          extension = function.call(data_hash)
+
+          return data_hash if extension.blank?
+
+          data_hash.merge({ name => MiniMime.lookup_by_extension(extension.to_s)&.content_type&.then { |s| specific_type.present? ? s.gsub('application', specific_type.to_s) : s } }.compact)
         end
 
         def self.universal_classifications(data_hash, function)

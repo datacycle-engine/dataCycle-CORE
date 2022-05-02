@@ -51,6 +51,21 @@ module DataCycleCore
           end
         end
 
+        def update
+          authorize! :update, current_user
+
+          current_user.attributes = user_params.except(:additional_attributes)
+          (current_user.additional_attributes ||= {}).merge!(user_params[:additional_attributes] || {})
+
+          if current_user.save
+            render json: current_user.as_user_api_json.merge({
+              token: DataCycleCore::JsonWebToken.encode(payload: { user_id: current_user.id, jti: current_user.jti })
+            }), status: :ok
+          else
+            render json: { errors: current_user.errors }, status: :unprocessable_entity
+          end
+        end
+
         def password
           authorize! :reset_password, :user_api
           raise CanCan::AccessDenied, 'not_recoverable' unless DataCycleCore::Feature::UserApi.enabled?
@@ -70,11 +85,9 @@ module DataCycleCore
         end
 
         def user_params
-          user_keys = DataCycleCore.features.dig(:user_api, :user_params).deep_transform_keys { |k| k.camelize(:lower) }
-          authorized_params = Array(user_keys.select { |_, v| v.nil? }.keys)
-          authorized_params.concat(Array(user_keys.compact.map { |k, _| { "#{k}Ids" => [] } }))
-
-          params.permit(authorized_params).transform_keys(&:underscore)
+          params
+            .permit(DataCycleCore::Feature::UserApi.allowed_user_params)
+            .deep_transform_keys(&:underscore)
         end
 
         def role_params

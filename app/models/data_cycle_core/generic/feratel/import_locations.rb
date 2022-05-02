@@ -5,7 +5,7 @@ module DataCycleCore
     module Feratel
       module ImportLocations
         def self.import_data(utility_object:, options:)
-          DataCycleCore::Generic::Common::ImportFunctions.import_classifications(
+          DataCycleCore::Generic::Common::ImportFunctions.import_classifications_with_filter(
             utility_object,
             options.dig(:import, :tree_label) || 'Feratel - Orte',
             method(:load_root_classifications).to_proc,
@@ -16,12 +16,12 @@ module DataCycleCore
           )
         end
 
-        def self.load_root_classifications(mongo_item, locale, _options)
-          mongo_item.where("dump.#{locale}.ParentID": '00000000-0000-0000-0000-000000000000')
+        def self.load_root_classifications(mongo_item, locale, _options, source_filter = {})
+          mongo_item.where({ "dump.#{locale}.ParentID": '00000000-0000-0000-0000-000000000000' }.merge(source_filter))
         end
 
-        def self.load_child_classifications(mongo_item, parent_category_data, locale)
-          mongo_item.where("dump.#{locale}.ParentID": parent_category_data['Id'])
+        def self.load_child_classifications(mongo_item, parent_category_data, locale, source_filter = {})
+          mongo_item.where({ "dump.#{locale}.ParentID": parent_category_data['Id'] }.merge(source_filter))
         end
 
         def self.load_parent_classification_alias(raw_data, external_source_id, _options = {})

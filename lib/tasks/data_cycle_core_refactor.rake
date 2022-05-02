@@ -54,25 +54,15 @@ namespace :data_cycle_core do
     end
 
     desc 'import and update all templates'
-    task :import_update_all_templates, [:templates] => :environment do |_, args|
-      template_names = args.fetch(:templates, nil)&.split('|')&.map(&:squish)
+    task import_update_all_templates: :environment do
       temp = Time.zone.now
 
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
 
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:check:invalid_overlay_definitions"].invoke
 
-      if template_names.present?
-        template_names.each do |template_name|
-          Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_template_sql"].invoke(template_name, false)
-          Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_template_sql"].reenable
-        end
-      else
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_all_templates_sql"].invoke(false)
-      end
-
       puts 'END'
-      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
+      puts "--> MIGRATION time: #{Time.zone.now - temp} sec"
     end
   end
 end

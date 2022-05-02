@@ -45,9 +45,9 @@ module DataCycleCore
               video_data =
                 case item
                 when '24'
-                  { 'type' => 'Large', 'file_format' => 'mp4', 'width' => 1920, 'height' => 1080 }
+                  { 'type' => 'Large', 'file_format' => 'video/mp4', 'width' => 1920, 'height' => 1080 }
                 when '25'
-                  { 'type' => 'Small', 'file_format' => 'mp4', 'width' => 640, 'height' => 360 }
+                  { 'type' => 'Small', 'file_format' => 'video/mp4', 'width' => 640, 'height' => 360 }
                 end
               url_hash = cam_details.dig('pci').detect { |ii| ii.dig('t') == item }
               next if url_hash.blank?

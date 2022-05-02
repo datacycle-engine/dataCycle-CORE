@@ -77,7 +77,8 @@
 - Informationstypen | all:
 
 - $$Externe Informationstypen | all:
-    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO
+    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz
+    - abstract | mein.toubiz
     - description_long | imx_platform
     - text | OutdoorActive
     - directions | OutdoorActive/destination.one
@@ -156,7 +157,10 @@
     - station | destination.one
     - subtitle | destination.one
     - teaser | destination.one
-
+    - additionalBookingInformation | mein.toubiz
+    - currentInformation | mein.toubiz
+    - additionalLocationInformation | mein.toubiz
+    - additionalHostInformation | mein.toubiz
 
 - POI - Kategorien | all:
 
@@ -182,6 +186,9 @@
 - Feratel - Status | all:
     - $$Aktiv
     - $$Inaktiv
+
+- Feratel - Tags | all:
+    - $$Buchbar | bookable
 
 - Feratel - Angebot - Status | all:
     - $$Buchbar

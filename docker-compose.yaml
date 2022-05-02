@@ -63,7 +63,7 @@ services:
       context: ./docker/varnish
       dockerfile: Dockerfile
     entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}varnish/entrypoint.sh
-    command: "-s static=file,/var/lib/varnish/data/cache,${VARNISH_STATIC_SIZE:-1G} -f /var/lib/varnish/default.vcl"
+    command: "-s static=file,/var/lib/varnish/data/cache,${VARNISH_STATIC_SIZE:-10M} -f /var/lib/varnish/default.vcl"
     depends_on:
       - nginx
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'

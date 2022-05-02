@@ -24,11 +24,17 @@ module DataCycleCore
               )
             )
 
-            # DataLink
+            # DataLink for things, watch_lists
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
               :can, :update, :import,
               DataCycleCore::Abilities::Segments::ThingByDataLink.new
+            )
+            # DataLink for stored_filter
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can, :read, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced,
+              DataCycleCore::Abilities::Segments::StoredFilterByDataLink.new('fulltext_search')
             )
 
             ### Features

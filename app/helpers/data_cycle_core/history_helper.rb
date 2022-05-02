@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module HistoryHelper
-    INDICATOR_CLASSES = { '+' => 'has-changes new', '-' => 'has-changes remove', '~' => 'has-changes edit' }.freeze
+    INDICATOR_CLASSES = { '+' => 'has-changes new', '-' => 'has-changes remove', '~' => 'has-changes edit', '0' => 'has-changes irrelevant' }.freeze
 
     def attribute_changes(diff, key)
       return nil if diff.blank?

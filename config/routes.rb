@@ -90,12 +90,14 @@ DataCycleCore::Engine.routes.draw do
     post '/', on: :collection, action: :index
   end
 
-  resources :stored_filters, only: [:index, :show, :create, :update, :destroy], path: :search_history do
+  resources :stored_filters, only: [:index, :show, :create, :destroy], path: :search_history do
     get :search, on: :collection
     get :select_search_or_collection, on: :collection
     get :download_zip, on: :member
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection
+    get :saved_searches, on: :collection
+    get :render_update_form, on: :collection
   end
 
   resources :classification_tree_labels, only: :show, param: :ctl_id do
@@ -128,6 +130,8 @@ DataCycleCore::Engine.routes.draw do
     post :send_mail, on: :member
     post :download, on: :member
     get :get_text_file, on: :member
+    patch :unlock, on: :member
+    get :render_update_form, on: :collection
   end
 
   resources :watch_lists do
@@ -142,6 +146,7 @@ DataCycleCore::Engine.routes.draw do
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
     delete :clear, on: :member
+    get :search, on: :collection
     post '/', on: :member, action: :show
   end
 
@@ -313,10 +318,13 @@ DataCycleCore::Engine.routes.draw do
                 post :logout
               end
 
-              post 'users/create', to: 'users#create'
-              match 'users', to: 'users#index', via: [:get, :post]
-              post 'users/password', to: 'users#password'
-              match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
+              namespace :users do
+                post :create
+                match '/update', action: :update, via: [:patch, :put]
+                match '/', action: :index, via: [:get, :post]
+                post :password
+                match '/:id', action: :show, as: :user, via: [:get, :post]
+              end
 
               scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do
                 match '/:external_key', via: [:get, :post], to: 'external_systems#show', as: 'external_sources'

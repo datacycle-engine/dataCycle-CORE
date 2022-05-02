@@ -106,7 +106,7 @@ services:
 
 .build_docker_config:
   stage: build-docker
-  image: docker:20.10
+  image: git.pixelpoint.biz:5050/gitlab-utilities/docker-deploy-image:stable
   variables:
     DOCKER_BUILDKIT: 1
     GIT_SUBMODULE_STRATEGY: recursive
@@ -122,7 +122,7 @@ services:
 
 .deploy_docker_config:
   stage: deploy
-  image: docker:20.10
+  image: git.pixelpoint.biz:5050/gitlab-utilities/docker-deploy-image:stable
   allow_failure: false
   variables:
     DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
@@ -131,11 +131,6 @@ services:
     # Configure SSH
     - eval $(ssh-agent -s)
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-    # Configure Docker
-    - apk add docker-compose
-    - apk add bash
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
     - echo -e "\nPIXELPOINT_AAD_V2_CLIENT_ID=$PIXELPOINT_AAD_V2_CLIENT_ID\nPIXELPOINT_AAD_V2_TENANT_ID=$PIXELPOINT_AAD_V2_TENANT_ID\nPIXELPOINT_AAD_V2_CLIENT_SECRET=$PIXELPOINT_AAD_V2_CLIENT_SECRET\nAPPSIGNAL_APP_REVISION=$CI_COMMIT_SHA" >> $(pwd)/.env.production
@@ -154,7 +149,7 @@ services:
 
 .stop_docker_config:
   stage: .post
-  image: docker:20.10
+  image: git.pixelpoint.biz:5050/gitlab-utilities/docker-deploy-image:stable
   allow_failure: false
   variables:
     DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
@@ -163,11 +158,6 @@ services:
     # Configure SSH
     - eval $(ssh-agent -s)
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-    # Configure Docker
-    - apk add docker-compose
-    - apk add bash
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
   script:
@@ -181,7 +171,7 @@ services:
 
 .restart_docker_config:
   stage: .post
-  image: docker:20.10
+  image: git.pixelpoint.biz:5050/gitlab-utilities/docker-deploy-image:stable
   allow_failure: false
   variables:
     DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
@@ -190,11 +180,6 @@ services:
     # Configure SSH
     - eval $(ssh-agent -s)
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-    # Configure Docker
-    - apk add docker-compose
-    - apk add bash
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
   script:
@@ -208,7 +193,7 @@ services:
 
 .post_deploy_docker_config:
   stage: post-deploy
-  image: docker:20.10
+  image: git.pixelpoint.biz:5050/gitlab-utilities/docker-deploy-image:stable
   allow_failure: false
   variables:
     DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
@@ -217,11 +202,6 @@ services:
     # Configure SSH
     - eval $(ssh-agent -s)
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-    # Configure Docker
-    - apk add docker-compose
-    - apk add bash
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
     - echo -e "\nPIXELPOINT_AAD_V2_CLIENT_ID=$PIXELPOINT_AAD_V2_CLIENT_ID\nPIXELPOINT_AAD_V2_TENANT_ID=$PIXELPOINT_AAD_V2_TENANT_ID\nPIXELPOINT_AAD_V2_CLIENT_SECRET=$PIXELPOINT_AAD_V2_CLIENT_SECRET\nAPPSIGNAL_APP_REVISION=$CI_COMMIT_SHA" >> $(pwd)/.env.production
@@ -230,5 +210,10 @@ services:
     # e.g. MaxSessions 20
     - echo "$DOCKER_HOST"
     - docker-compose --env-file .env.production --profile migrate run migrate_project bash /app/docker/utility/post_migrate.sh
+    - docker system df
+    - docker image ls
+    - docker system prune -f -a
+    - docker system df
+    - docker image ls
   after_script:
     - docker logout $CI_REGISTRY

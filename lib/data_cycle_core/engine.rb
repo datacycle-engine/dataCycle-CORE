@@ -254,6 +254,7 @@ module DataCycleCore
     # use active_record as orm (!not mongoid)
     config.app_generators.orm = :active_record
     config.active_record.schema_format = :sql
+    config.active_record.dump_schemas = :all
     config.active_record.default_timezone = :utc # Or :local
 
     # backend for active_job is delayed_job

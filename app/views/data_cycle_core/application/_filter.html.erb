@@ -1,4 +1,6 @@
 <% filter_config = DataCycleCore::Feature::MainFilter.available_filters(view: view_type, user: current_user, selected_filters: @filters) %>
+<% new_filter_id = SecureRandom.hex(10) %>
+<% add_to_collection_id = SecureRandom.hex(10) %>
 
 <%= form_with(url: request.path, local: true, id: 'search-form', data: {
   add_filter_path: add_filter_path,
@@ -45,12 +47,22 @@
             <%= render 'data_cycle_core/application/filters/sections/language' if filter_config[:language] %>
 
             <div class="expandable-buttons">
-              <%= button_tag type: :button, id: 'save-filter', data: { open: 'save-filter-with-name' } do %>
-                <i class="fa fa-floppy-o" aria-hidden="true"></i>
-                <span class="expandable">
-                  <%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %>
-                </span>
-              <% end if can?(:create, DataCycleCore::StoredFilter) && filter_config[:store] %>
+              <% if can?(:create, DataCycleCore::StoredFilter) && filter_config[:store] %>
+                <%= button_tag type: :button, class: 'save-filter-with-params', data: { open: "update-search-form-#{@stored_filter&.id}" } do %>
+                  <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                  <span class="expandable">
+                    <%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %>
+                  </span>
+                <% end %>
+
+                <div class="reveal update-search-form" id="update-search-form-<%= @stored_filter&.id %>" data-reveal>
+                  <h3><%= t('data_cycle_core.stored_searches.save', locale: active_ui_locale) %></h3>
+                  <div class="remote-render"
+                        data-remote-path="data_cycle_core/stored_filters/edit_form"
+                        data-remote-options="<%= to_query_params({ stored_search: @stored_filter, update_params: true }).to_json %>">
+                  </div>
+                </div>
+              <% end %>
 
               <%= link_to request.path + '?reset=true', class: 'button', id: 'reset-filter' do %>
                 <i class="fa fa-times" aria-hidden="true"></i>
@@ -59,7 +71,7 @@
                 </span>
               <% end %>
 
-              <%= button_tag type: :button, id: 'add-items-to-watch-list', data: { open: 'add-items-to-watch-list-overlay' } do %>
+              <%= button_tag type: :button, class: 'add-items-to-watch-list', data: { open: "add-items-to-collection-#{add_to_collection_id}" } do %>
                 <span class="fa-stack">
                   <i class="fa fa-bookmark fa-stack-2x"></i>
                   <i class="fa fa-plus fa-stack-1x"></i>
@@ -88,10 +100,6 @@
               additional_request_params: local_assigns[:additional_request_params] %>
 <% end %>
 
-<% if can?(:create, DataCycleCore::StoredFilter) && filter_config[:store] %>
-  <%= render 'data_cycle_core/application/filters/new_stored_filter', local_assigns %>
-<% end %>
-
 <% if can?(:add_item, DataCycleCore::WatchList) && filter_config[:add_items_to_watch_list] %>
-  <%= render 'data_cycle_core/application/filters/add_items_to_watch_list', local_assigns %>
+  <%= render 'data_cycle_core/application/filters/add_items_to_watch_list', local_assigns.merge({ html_id: "add-items-to-collection-#{add_to_collection_id}" }) %>
 <% end %>

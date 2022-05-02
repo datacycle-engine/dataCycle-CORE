@@ -1,30 +1,60 @@
-<% stored_searches.each do |key, value| %>
-  <% if params[:last_day] != key %>
-    <li class="stored-search-day" data-day="<%= key %>"><%= key %></li>
+<% if stored_searches.present? %>
+  <% stored_searches.each do |key, value| %>
+    <% if local_assigns[:last_day] != key %>
+      <li class="stored-search-day" data-day="<%= key %>"><%= key %></li>
+    <% end %>
+    <% value.each do |stored_search| %>
+      <li class="content-item">
+        <span class="content-title">
+          <%= link_to root_path(stored_filter: stored_search.id) do %>
+            <i class="fa fa-clock-o" aria-hidden="true"></i>
+            <%= l(stored_search.updated_at.to_datetime, format: '%H:%M', locale: active_ui_locale) %>
+          <% end %>
+        </span>
+        <span class="content-attributes">
+          <% if stored_search.name.present? %>
+            <span class="stored-search-title <%= 'global' if stored_search.system %>">
+              <%= link_to root_path(stored_filter: stored_search.id) do %>
+                <%= stored_search.system ? tag.i(class: 'fa fa-globe') : tag.i(class: 'fa fa-filter') %>
+                <%= stored_search.name %>
+              <% end %>
+            </span>
+          <% end %>
+
+          <%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_search %>
+        </span>
+        <ul class="buttons no-bullet">
+          <% if can?(:update, stored_search) %>
+            <li>
+              <a id="update-stored-search-<%= stored_search.id %>" data-open="update-search-form-<%= stored_search.id %>" data-dc-tooltip="<%= t(stored_search.name.blank? ? 'data_cycle_core.stored_searches.save' : 'actions.edit_data', data: stored_search.model_name.human(locale: active_ui_locale), locale: active_ui_locale)  %>">
+                <%= tag.i(class: stored_search.name.blank? ? 'fa fa-floppy-o' : 'fa fa-pencil') %>
+              </a>
+              <div class="reveal update-search-form" id="update-search-form-<%= stored_search.id %>" data-reveal>
+                <h3><%= t(stored_search.name.blank? ? 'data_cycle_core.stored_searches.save' : 'actions.edit_data', data: stored_search.model_name.human(locale: active_ui_locale), locale: active_ui_locale) %></h3>
+                <div class="remote-render"
+                 data-remote-path="data_cycle_core/stored_filters/edit_form"
+                 data-remote-options="<%= to_query_params({ stored_search: stored_search }).to_json %>">
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </li>
+    <% end %>
   <% end %>
-  <% value.each do |stored_search| %>
-    <li class="content-item">
-      <span class="content-title">
-        <%= link_to root_path(stored_filter: stored_search.id) do %>
-          <i class="fa fa-clock-o" aria-hidden="true"></i>
-          <%= l(stored_search.updated_at.to_datetime, format: '%H:%M', locale: active_ui_locale) %>
-        <% end %>
-      </span>
-      <span class="content-attributes"><%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_search %></span>
-      <span class="buttons">
-        <% if can?(:update, stored_search) && stored_search.name.blank? %>
-          <a class="save-search" id="save-stored-search-<%= stored_search.id %>" data-toggle="save-search-form-<%= stored_search.id %>"><i class="fa fa-floppy-o" aria-hidden="true"></i></a>
-          <div class="dropdown-pane no-bullet align-right bottom remote-render"
-            id="save-search-form-<%= stored_search.id %>"
-            data-dropdown data-hover="true"
-            data-hover-pane="true"
-            data-remote-path="data_cycle_core/stored_filters/add_form"
-            data-remote-options="<%= to_query_params({ stored_search: stored_search }).to_json %>">
-          </div>
-        <% elsif can?(:update, stored_search) %>
-          <i class="fa fa-filter" aria-hidden="true"></i>
-        <% end %>
-      </span>
+
+  <% unless last_page %>
+    <li class="load-more-link">
+      <%= link_to t('data_cycle_core.stored_searches.load_more', locale: active_ui_locale),
+                stored_filters_path(page: page + 1),
+                class: 'button stored-searches-load-more-button secondary',
+                data: {
+                  disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('data_cycle_core.stored_searches.load_more', locale: active_ui_locale)}"
+                } %>
     </li>
   <% end %>
+<% else %>
+  <li>
+    <span class="no-results"><%= t('common.no_results', locale: active_ui_locale) %></span>
+  </li>
 <% end %>

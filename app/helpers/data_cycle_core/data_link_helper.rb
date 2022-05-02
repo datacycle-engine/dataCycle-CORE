@@ -6,6 +6,7 @@ module DataCycleCore
       modes = [OpenStruct.new(type: :read)]
 
       modes.push(OpenStruct.new(type: :write)) if can?(:create_editable_links, DataCycleCore::DataLink) &&
+                                                  !content.is_a?(DataCycleCore::StoredFilter) &&
                                                   (
                                                     (
                                                       content.is_a?(DataCycleCore::WatchList) &&

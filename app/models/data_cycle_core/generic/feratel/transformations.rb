@@ -184,11 +184,13 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_additional_service_type', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'AdditionalServiceTypes', 'Item'))&.map { |type| type.dig('Id')&.downcase }&.compact.presence || [] })
           .>> t(:add_links, 'feratel_guest_cards', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('UsageType')}" } || [] })
           .>> t(:universal_classifications, ->(s) { s.dig('feratel_guest_cards') })
+          .>> t(:add_links, 'feratel_as_code', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap("Feratel - Service Codes AdditionalService - #{s.dig('Details', 'Code')}") })
+          .>> t(:universal_classifications, ->(s) { s.dig('feratel_as_code') })
           .>> t(:add_field, 'feratel_guest_cards_descriptions', ->(s) { parse_guest_card_descriptions(Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?), s&.dig('external_key'), external_source_id) || [] })
           .>> t(:merge_array_values, 'additional_information', 'feratel_guest_cards_descriptions')
           .>> t(:add_links, 'feratel_facilities_additional_services', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:ensure_classification_tree, 'feratel_facilities_additional_services', 'Feratel - Merkmale - Services')
-          .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details'), external_source_id) }) # .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
+          .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details').merge({ 'external_key' => s.dig('external_key') }), external_source_id) }) # .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
           .>> t(:strip_all)
         end
 
@@ -232,12 +234,13 @@ module DataCycleCore
           .>> t(:unwrap_description, 'ServiceProviderDescription')
           .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
           .>> t(:add_amenity_features, external_source_id)
-          .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] } })
+          .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.then { |town| town.is_a?(String) ? town : town['text'] } })
           .>> t(:add_links, 'fdbcode', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'DBCode'))&.flatten&.reject(&:nil?)&.map { |item| "Feratel - DBCode - #{item}" } || [] })
           .>> t(:universal_classifications, ->(s) { s.dig('fdbcode') })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:add_field, 'bookable', ->(s) { s&.dig('Bookable') == 'true' })
+          .>> t(:universal_classifications, ->(s) { s.dig('Bookable') == 'true' ? Array.wrap(DataCycleCore::ClassificationAlias.for_tree('Feratel - Tags').find_by(description_i18n: { de: 'bookable' })&.primary_classification&.id) : [] })
           .>> t(:transform_name, 'name')
           .>> t(:unwrap, 'Position')
           .>> t(:rename_keys, 'Latitude' => 'latitude', 'Longitude' => 'longitude')
@@ -487,15 +490,15 @@ module DataCycleCore
             'Width' => 'width',
             'Height' => 'height',
             'Size' => 'content_size',
-            'Extension' => 'file_format',
             'Copyright' => 'caption'
           })
+          .>> t(:extension_to_mimetype, 'file_format', ->(s) { s.dig('Extension') }, 'image')
           .>> t(:map_value, 'width', ->(v) { v.to_i })
           .>> t(:map_value, 'height', ->(v) { v.to_i })
           .>> t(:map_value, 'content_size', ->(v) { v.to_i.kilobytes })
           .>> t(:add_field, 'validity_schedule', ->(s) { Array.wrap(s.dig('ShowFrom').is_a?(::Time) && s.dig('ShowTo').is_a?(::Time) ? make_term(s.dig('ShowFrom'), s.dig('ShowTo')) : make_season(s.dig('ShowFrom'), s.dig('ShowTo'))) })
           .>> t(:reject_keys, ['Type', 'Class', 'Systems', 'Order', 'ShowFrom',
-                               'ShowTo', 'ChangeDate', 'Systems', 'Systems', 'Names'])
+                               'ShowTo', 'ChangeDate', 'Systems', 'Systems', 'Names', 'Extension'])
           .>> t(:strip_all)
         end
 
@@ -1078,7 +1081,7 @@ module DataCycleCore
 
         def self.systems_hash
           @systems_hash ||= ['L', 'T', 'I', 'C', 'P'].map { |i|
-            { i => DataCycleCore::ClassificationAlias.for_tree('Feratel - Systeme').find_by(description: i)&.primary_classification&.id }
+            { i => DataCycleCore::ClassificationAlias.for_tree('Feratel - Systeme').find_by(description_i18n: { de: i })&.primary_classification&.id }
           }.inject(&:merge)
         end
 
