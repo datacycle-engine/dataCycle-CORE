@@ -5,20 +5,43 @@
     :properties:
 
       # used in importer
-      # migrate to => copyright_notice_override
       # oewein => show/edit disabled and api disabled
       # @todo: disable
       :license:
         :label: Copyright / Lizenz
         :type: string
         :storage_location: value
-        :search: true
+        :search: false
         :external: true
         :api:
-          :v4:
-            :name: 'cc:license'
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+
+      # legacy API Attribute
+      :legacy_license:
+        :label: LegacyLicense
+        :type: virtual
+        :virtual:
+          :type: string
+          :module: Utility::Virtual::Common
+          :method: take_first
+          :parameters:
+            :0: copyright_notice_override
+            :1: copyright_notice_computed
+        :api:
+          :disabled: false
+          :name: 'cc:license'
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       
-      # used in importer, serializer
+      # used in importer, serializer => Eyebase, wikidata
       # oew => computed! (like computed_attribution_name), api => :name: 'cc:attributionName' => use virtual(copyright_notice)
       # vcloud => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
       # vcloud_bodensee => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
@@ -28,11 +51,36 @@
         :label: Namensnennung
         :type: string
         :storage_location: value
-        :search: true
+        :search: false
         :external: true
         :api:
-          :v4:
-            :name: 'cc:attributionName'
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+
+      # legacy API Attribute
+      :legacy_attribution_name:
+        :label: LegacyAttributionName
+        :type: virtual
+        :virtual:
+          :type: string
+          :module: Utility::Virtual::Common
+          :method: take_first
+          :parameters:
+            :0: copyright_notice_override
+            :1: copyright_notice_computed
+        :api:
+          :disabled: false
+          :name: 'cc:attributionName'
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+
 
       # used in importer  => obsolete => delete
       # => destinationOne + wikiData
@@ -49,8 +97,6 @@
             :name: 'cc:attributionUrl'
       
       # FINAL
-      # used in importer
-      # => eyebase
       :use_guidelines:
         :label: Verwendungsrichtlinie
         :type: string
@@ -172,4 +218,3 @@
         :ui:
           :edit:
             :disabled: true
-

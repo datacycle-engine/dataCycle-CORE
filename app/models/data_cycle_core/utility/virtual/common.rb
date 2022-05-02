@@ -29,6 +29,7 @@ module DataCycleCore
               val = content.try(virtual_key.to_sym)
               return val if val.present?
             end
+            nil
           end
         end
       end
