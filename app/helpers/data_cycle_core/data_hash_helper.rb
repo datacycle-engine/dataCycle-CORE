@@ -17,7 +17,11 @@ module DataCycleCore
     end
 
     def attribute_group_title(content, key)
-      I18n.t("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale) if I18n.exists?("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)
+      if I18n.exists?("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)
+        I18n.t("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)
+      elsif I18n.exists?("attribute_labels.#{key.attribute_name_from_key}", locale: active_ui_locale)
+        I18n.t("attribute_labels.#{key.attribute_name_from_key}", locale: active_ui_locale)
+      end
     end
 
     def ordered_validation_properties(validation:, type: nil, content_area: nil)
