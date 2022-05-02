@@ -54,9 +54,9 @@
             :disabled: true
         :api:
           :disabled: true
-      :cc_rel:
+      :copyright_attributes:
         :type: mixin
-        :name: cc_rel
+        :name: copyright_attributes
       :meta_data:
         :type: mixin
         :name: meta_data

@@ -1,6 +1,5 @@
 ---
 - :data:
-    # usage
     :name: copyright_attributes
     :type: mixin
     :properties:
@@ -8,45 +7,48 @@
       # used in importer
       # migrate to => copyright_notice_override
       # oewein => show/edit disabled and api disabled
-      # :license:
-      #   :label: Copyright / Lizenz
-      #   :type: string
-      #   :storage_location: value
-      #   :search: true
-      #   :external: true
-      #   :api:
-      #     :v4:
-      #       :name: 'cc:license'
+      # @todo: disable
+      :license:
+        :label: Copyright / Lizenz
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:license'
       
       # used in importer, serializer
       # oew => computed! (like computed_attribution_name), api => :name: 'cc:attributionName' => use virtual(copyright_notice)
       # vcloud => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
       # vcloud_bodensee => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
       # oewein => computed! (like computed_attribution_name), api => disabled
-      # :attribution_name:
-      #   :label: Namensnennung
-      #   :type: string
-      #   :storage_location: value
-      #   :search: true
-      #   :external: true
-      #   :api:
-      #     :v4:
-      #       :name: 'cc:attributionName'
+      # @todo: disable
+      :attribution_name:
+        :label: Namensnennung
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:attributionName'
 
       # used in importer  => obsolete => delete
       # => destinationOne + wikiData
       # importer must use => url 
-      # :attribution_url:
-      #   :label: Namensnennung - Url
-      #   :type: string
-      #   :storage_location: value
-      #   :search: true
-      #   :external: true
-      #   :api:
-      #     :v4:
-      #       :name: 'cc:attributionUrl'
+      # @todo: disable
+      :attribution_url:
+        :label: Namensnennung - Url
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:attributionUrl'
       
-      # latest => OK
+      # FINAL
       # used in importer
       # => eyebase
       :use_guidelines:
@@ -59,6 +61,7 @@
           :v4:
             :name: 'cc:useGuidelines'
 
+      # latest validate: API output
       # used in importer
       # api: license => classification.url
       # oew => used as license string
@@ -81,8 +84,7 @@
             :disabled: false
             :partial: string
 
-      # latest => data_migration + delete!
-      # used in feratel importer
+      # FINAL
       # => copyright_notice_override
       # :explicit_copyright_notice:
       #   :label: raw_imported_copyright
@@ -98,26 +100,28 @@
       #     :show:
       #       :disabled: true
       
+      # latest test virtual in serializer
       # used in license serializer
       # vcloud: overwrite compute method
-      :computed_attribution_name:
-        :label: hidden attribution name
-        :storage_location: translated_value
-        :type: computed
-        :search: true
-        :external: false
-        :compute:
-          :type: string
-          :module: Utility::Compute::String
-          :method: attribution_name
-          :parameters:
-            :0: copyright_holder
-            :1: author
-        :api:
-          :disabled: true
-        :ui:
-          :show:
-            :disabled: true
+      # @todo: disable
+      # :computed_attribution_name:
+      #   :label: hidden attribution name
+      #   :storage_location: translated_value
+      #   :type: computed
+      #   :search: true
+      #   :external: false
+      #   :compute:
+      #     :type: string
+      #     :module: Utility::Compute::String
+      #     :method: attribution_name
+      #     :parameters:
+      #       :0: copyright_holder
+      #       :1: author
+      #   :api:
+      #     :disabled: true
+      #   :ui:
+      #     :show:
+      #       :disabled: true
 
       # new
       :copyright_notice_computed:

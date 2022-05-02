@@ -115,7 +115,7 @@ module DataCycleCore
             )
             data = data.merge('author' => author.ids) if author.present?
           end
-          data = data.merge('explicit_copyright_notice' => data.dig('CCCopyright') || data.dig('Copyright')) if data.dig('CCCopyright').present? || data.dig('Copyright').present?
+          data = data.merge('copyright_notice_override' => data.dig('CCCopyright') || data.dig('Copyright')) if data.dig('CCCopyright').present? || data.dig('Copyright').present?
           data
         end
 
