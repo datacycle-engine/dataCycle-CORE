@@ -22,6 +22,7 @@ $filter-border: #aaa;
   .filters {
     position: relative;
     background: $light-gray;
+    border-radius: $global-radius;
 
     .filter-body {
       display: flex;
@@ -59,18 +60,18 @@ $filter-border: #aaa;
     .permanent-advanced-filters,
     .publication-date-filter {
       .accordion-content {
-        border-top: 1px solid white;
+        border-top: 1px solid $white;
         background: inherit;
         padding: 1rem 0 0 0;
       }
 
       .accordion-title {
         span {
-          background: white;
+          background: $white;
         }
 
         &::before {
-          border-bottom: 1px solid white;
+          border-bottom: 1px solid $white;
         }
       }
     }
@@ -86,7 +87,7 @@ $filter-border: #aaa;
         background-color: darken($medium-gray, 10%);
         box-shadow: 0 0 2px $dark-gray;
         padding: 0.5rem;
-        border-radius: 5px;
+        border-radius: $global-radius;
       }
 
       .advanced-filter {
@@ -95,12 +96,12 @@ $filter-border: #aaa;
         margin: 1rem 0;
         background-color: darken($medium-gray, 10%);
         transition: background-color 1s ease;
-        border-radius: 5px;
+        border-radius: $global-radius;
         box-shadow: 0 0 5px lighten($color: $black, $amount: 20%);
 
         select {
           border: 1px solid $filter-border;
-          border-radius: 4px;
+          border-radius: $global-radius;
           white-space: nowrap;
           text-overflow: ellipsis;
           min-width: 6rem;
@@ -191,7 +192,7 @@ $filter-border: #aaa;
           .flatpickr-input {
             margin: 0;
             height: 2.2rem;
-            border-radius: 4px;
+            border-radius: $global-radius;
             border-color: $filter-border;
           }
 
@@ -205,7 +206,7 @@ $filter-border: #aaa;
             margin: 0;
             padding: 0.2rem 0.5rem;
             height: 2.2rem;
-            border-radius: 4px;
+            border-radius: $global-radius;
             border-color: $filter-border;
           }
 
@@ -228,7 +229,7 @@ $filter-border: #aaa;
         .advanced-filter-mode {
           flex: unset;
           select {
-            border-radius: 4px;
+            border-radius: $global-radius;
             height: 2.2rem;
             border-color: $filter-border;
             font-size: 0.9rem;
@@ -312,6 +313,7 @@ $filter-border: #aaa;
         padding: 0 2.6rem 0 1rem;
         transition: background ease-in-out 0.2s;
         margin-bottom: 0;
+        border-radius: $global-radius;
 
         > * {
           background-color: transparent;
@@ -354,7 +356,7 @@ $filter-border: #aaa;
         &:hover,
         &:focus,
         &:active {
-          background-color: white;
+          background-color: $white;
         }
       }
     }
@@ -400,17 +402,17 @@ $filter-border: #aaa;
         /* :: CHECKED :: */
         input:checked ~ label {
           background-color: $primary-color;
-          color: white;
+          color: $white;
 
           strong {
-            color: white;
+            color: $white;
           }
         }
 
         input:checked ~ label:before {
           animation: throw 0.2s linear;
           top: 0px;
-          color: white;
+          color: $white;
           opacity: 1;
           content: '✓';
           line-height: 2.3rem;
@@ -426,7 +428,7 @@ $filter-border: #aaa;
           position: absolute;
           top: 100%;
           left: 0;
-          background: white;
+          background: $white;
           width: 100%;
           padding: 1rem 0 0 0;
           box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
@@ -566,13 +568,13 @@ $filter-border: #aaa;
     }
 
     .split-list li {
-      background: white;
+      background: $white;
     }
   }
 
   .languagetags {
     font-size: 0.8rem;
-    border-top: 1px solid white;
+    border-top: 1px solid $white;
     padding-top: 1rem;
 
     .tag-group {
@@ -645,7 +647,7 @@ $filter-border: #aaa;
     .tag-group {
       display: inline-flex;
       background: lighten($light-gray, 7%);
-      border-radius: 5px;
+      border-radius: $global-radius;
       padding: 2px 4px;
       margin: 0 0.5rem 0.5rem 0;
       box-shadow: 0 0 5px lighten($color: $black, $amount: 20%);
@@ -828,17 +830,17 @@ $filter-border: #aaa;
               /* :: CHECKED :: */
               input:checked ~ label {
                 background-color: $primary-color;
-                color: white;
+                color: $white;
 
                 strong {
-                  color: white;
+                  color: $white;
                 }
               }
 
               input:checked ~ label:before {
                 animation: throw 0.2s linear;
                 top: 0px;
-                color: white;
+                color: $white;
                 opacity: 1;
                 content: '✓';
                 line-height: 2.3rem;
@@ -945,7 +947,7 @@ $filter-border: #aaa;
             .fa-stack-1x {
               font-size: 0.6rem;
               top: -2px;
-              color: white;
+              color: $white;
             }
           }
 
@@ -1028,7 +1030,7 @@ $filter-border: #aaa;
           li {
             flex: 0;
             flex-basis: calc(calc(100% / 3) - 0.4rem);
-            border-radius: 5px;
+            border-radius: $global-radius;
             background: $white;
             position: relative;
             margin: 0.2rem;
@@ -1122,7 +1124,7 @@ $filter-border: #aaa;
                       font-style: normal;
                       padding: 0 0.3rem;
                       line-height: 1.2rem;
-                      border-radius: 5px;
+                      border-radius: $global-radius;
                       font-weight: normal;
                     }
 
@@ -1415,11 +1417,11 @@ $filter-border: #aaa;
       /* :: CHECKED :: */
       input:checked ~ label {
         background-color: $primary-color;
-        color: white;
+        color: $white;
         border-color: $primary-color;
 
         strong {
-          color: white;
+          color: $white;
         }
       }
     }
@@ -1445,7 +1447,7 @@ $filter-border: #aaa;
     }
 
     &.active {
-      background: white;
+      background: $white;
       box-shadow: 0 5px 3px rgba(0, 0, 0, 0.3);
     }
   }

@@ -50,7 +50,7 @@
 #main-menu {
   .watch-lists,
   .abos {
-    background: white;
+    background: $white;
     a {
       color: $black;
     }
@@ -414,6 +414,6 @@
     align-items: center;
     justify-content: center;
     top: -1px;
-    color: white;
+    color: $white;
   }
 }

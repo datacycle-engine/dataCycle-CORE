@@ -50,7 +50,7 @@
         <tr>
           <td style="padding:12pt 0 0 0">
             <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999"><%= DataCycleCore::DataLink.human_attribute_name("permissions", locale: @locale) %>: </span>
-             <%= DataCycleCore::DataLink.human_attribute_name("permissions_#{@data_link.permissions}".to_sym, locale: @locale) %>
+            <%= DataCycleCore::DataLink.human_attribute_name("permissions_#{@data_link.permissions}".to_sym, locale: @locale) %>
           </td>
         </tr>
 
@@ -62,11 +62,11 @@
               <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999"><%= t('terms.valid', locale: @locale).capitalize %></span>
               <% if @data_link.valid_from.present? %>
                 <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999"><%= t('terms.from', locale: @locale) %></span>
-                 <%= l(@data_link.valid_from.to_date, locale: @locale) %>
+                <%= l(@data_link.valid_from.to_date, locale: @locale) %>
               <% end %>
               <% if @data_link.valid_until.present? %>
                 <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999"><%= t('terms.until', locale: @locale) %></span>
-                 <%= l(@data_link.valid_until.to_date, locale: @locale) %>
+                <%= l(@data_link.valid_until.to_date, locale: @locale) %>
               <% end %>
             </tr>
           <% end %>
@@ -81,7 +81,7 @@
               <td align="center">
                 <table border="0" cellspacing="0" cellpadding="0" align="center">
                   <tr>
-                    <td align="center" style="box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5);border-radius: 5px;" bgcolor="#90c062"><a href="<%= @url %>" target="_blank" style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:white;text-decoration:none;text-underline:none;border-radius: 3px; padding: 16px 0; border: 1px solid #90c062; display: inline-block;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= t("data_link_mailer.content_#{@data_link.permissions}", locale: @locale).upcase %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                    <td align="center" style="box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5);border-radius: 3px;" bgcolor="#90c062"><a href="<%= @url %>" target="_blank" style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:white;text-decoration:none;text-underline:none;border-radius: 3px; padding: 16px 0; border: 1px solid #90c062; display: inline-block;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= t("data_link_mailer.content_#{@data_link.permissions}", locale: @locale).upcase %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                   </tr>
                 </table>
               </td>

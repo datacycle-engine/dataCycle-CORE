@@ -176,7 +176,7 @@
       background-position: center center;
       background-size: contain;
       background-repeat: no-repeat;
-      background-color: white;
+      background-color: $white;
       box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
       overflow: hidden;
       border: 0;
@@ -347,7 +347,7 @@
   text-align: center;
   overflow: hidden;
   line-height: 1.5;
-  color: white;
+  color: $white;
   background-color: rgba($alert-color, 0.8);
   font-size: 0.9rem;
 }
@@ -585,7 +585,7 @@
           outline: none;
           background-color: lighten($light-gray, 7%);
           transition: background ease-in-out 0.2s;
-          border-radius: 4px;
+          border-radius: $global-radius;
           font-size: 1.1rem;
 
           &::placeholder {
@@ -596,7 +596,7 @@
           &:hover,
           &:focus,
           &:active {
-            background-color: white;
+            background-color: $white;
           }
         }
 
@@ -633,7 +633,7 @@
             &:hover,
             &:focus,
             &:active {
-              background-color: white;
+              background-color: $white;
             }
 
             .select2-selection__rendered {
@@ -673,7 +673,7 @@
         button,
         .button {
           padding: 0.5rem 0.8rem;
-          border-radius: 4px;
+          border-radius: $global-radius;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -891,7 +891,7 @@
         }
 
         .person {
-          color: white;
+          color: $white;
         }
 
         .warning {
@@ -987,12 +987,12 @@
       .object-browser-tile-checkbox {
         cursor: pointer;
         display: inline-flex;
-        color: white;
+        color: $white;
         font-size: 1.1rem;
         line-height: 1.1rem;
         border: 1px solid rgba($dark-gray, 0.5);
-        background-color: white;
-        border-radius: 5px;
+        background-color: $white;
+        border-radius: $global-radius;
         margin: 0 0.2rem 0.5rem 0;
         width: 1.2rem;
         height: 1.2rem;
@@ -1126,7 +1126,7 @@
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     z-index: 3;
-    background-color: white;
+    background-color: $white;
     border-left: 1px solid $medium-gray;
 
     .item-info-scrollable {
@@ -1254,7 +1254,7 @@ span.single_error.object-browser-error {
 }
 
 .close-object-browser-error {
-  color: white;
+  color: $white;
   margin-left: 0.5rem;
   display: inline-block;
 
@@ -1361,7 +1361,7 @@ span.single_error.object-browser-error {
       }
 
       position: relative;
-      background-color: white;
+      background-color: $white;
       padding: 1rem;
 
       &.accordion-item {
@@ -1374,7 +1374,7 @@ span.single_error.object-browser-error {
         content: '\f106';
       }
 
-      .accordion-title {
+      > .accordion-title {
         flex: 1;
         padding: 0.2rem;
         font-size: 1rem;
@@ -1426,7 +1426,7 @@ span.single_error.object-browser-error {
         }
       }
 
-      .accordion-content {
+      > .accordion-content {
         flex: auto;
         width: 100%;
         border: none;
@@ -1494,7 +1494,7 @@ span.single_error.object-browser-error {
           margin: 1rem 0;
 
           .slider-handle {
-            border-radius: 4px;
+            border-radius: $global-radius;
           }
         }
       }

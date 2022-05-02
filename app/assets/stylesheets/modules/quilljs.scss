@@ -8,12 +8,12 @@ $fa-font-path: '/assets';
 .form-element.focus,
 .detail-header.editor .form-element.focus {
   > .editor-block {
-    background: white;
+    background: $white;
     border-color: $primary-color;
 
     > label,
     > .ql-toolbar {
-      background: white;
+      background: $white;
     }
 
     > label {
@@ -101,10 +101,12 @@ $fa-font-path: '/assets';
       }
     }
   }
+
   .ql-editor {
     padding: 0.1rem 1rem 1.2rem 1rem;
     font-size: 1rem;
     min-height: 2rem;
+    border-radius: $global-radius;
 
     p:not(:last-child) {
       margin-bottom: 0.5rem;
@@ -179,8 +181,8 @@ $fa-font-path: '/assets';
       position: absolute;
       right: 8px;
       white-space: nowrap;
-      background: white;
-      border-radius: 5px;
+      background: $white;
+      border-radius: $global-radius;
       padding: 0.2rem 0.5rem;
       top: 8px;
       box-shadow: 0 0 3px $dark-gray;
@@ -225,12 +227,13 @@ $fa-font-path: '/assets';
   > .ql-toolbar {
     display: flex;
     flex: auto;
-    background-color: white;
+    background-color: $white;
     align-items: center;
     position: sticky;
     top: 55px;
     z-index: 12;
     height: 2.5rem;
+    border-radius: $global-radius;
   }
 
   > .quill-editor {

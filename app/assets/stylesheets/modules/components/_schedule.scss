@@ -12,7 +12,7 @@
 
 .schedule-editor {
   input {
-    background-color: white;
+    background-color: $white;
   }
 
   .daterange,
@@ -140,7 +140,7 @@
     transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
     box-shadow: 0 0 0 rgba($dark-gray, 0.5);
     border: 1px solid rgba($dark-gray, 0.5);
-    border-radius: 3px;
+    border-radius: $global-radius;
 
     &:not(:last-of-type):not(.until) {
       margin-right: 1rem;
@@ -215,7 +215,7 @@
     .leaf-duration {
       font-size: 0.8rem;
       border: 7px solid;
-      border-radius: 5px;
+      border-radius: $global-radius;
       width: 6.5rem;
       border-bottom-left-radius: 7px;
       border-bottom-right-radius: 7px;
@@ -294,7 +294,7 @@
     transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
     box-shadow: 0 0 0 rgba($dark-gray, 0.5);
     border: 1px solid rgba($dark-gray, 0.5);
-    border-radius: 3px;
+    border-radius: $global-radius;
 
     label {
       position: relative;

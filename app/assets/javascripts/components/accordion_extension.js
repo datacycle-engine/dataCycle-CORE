@@ -13,7 +13,7 @@ class AccordionExtension {
   }
   closeChildren(event) {
     $(event.currentTarget)
-      .closest('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
+      .closest('.embedded-viewer[data-accordion], .embedded-object[data-accordion], .attribute-group[data-accordion]')
       .foundation('up', $(event.currentTarget).closest('.accordion-title').siblings('.accordion-content'));
 
     this.closeAccordionItems(event, $(event.currentTarget.closest('.accordion-item')));
@@ -23,7 +23,7 @@ class AccordionExtension {
   }
   openChildren(event) {
     $(event.currentTarget)
-      .closest('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
+      .closest('.embedded-viewer[data-accordion], .embedded-object[data-accordion], .attribute-group[data-accordion]')
       .foundation('down', $(event.currentTarget).closest('.accordion-title').siblings('.accordion-content'));
 
     this.openAccordionItems(event, $(event.currentTarget.closest('.accordion-item')));
@@ -33,8 +33,8 @@ class AccordionExtension {
     event.stopPropagation();
 
     $(container)
-      .find('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
-      .addBack('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
+      .find('.embedded-viewer[data-accordion], .embedded-object[data-accordion], .attribute-group[data-accordion]')
+      .addBack('.embedded-viewer[data-accordion], .embedded-object[data-accordion], .attribute-group[data-accordion]')
       .each((_index, accordion) => {
         $(accordion).foundation('up', $(accordion).find('> .accordion-item > .accordion-content'));
       });
@@ -44,8 +44,8 @@ class AccordionExtension {
     event.stopPropagation();
 
     $(container)
-      .find('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
-      .addBack('.embedded-viewer[data-accordion], .embedded-object[data-accordion]')
+      .find('.embedded-viewer[data-accordion], .embedded-object[data-accordion], .attribute-group[data-accordion]')
+      .addBack('.embedded-viewer[data-accordion], .embedded-object[data-accordion], .attribute-group[data-accordion]')
       .each((_index, accordion) => {
         $(accordion).foundation('down', $(accordion).find('> .accordion-item > .accordion-content'));
       });

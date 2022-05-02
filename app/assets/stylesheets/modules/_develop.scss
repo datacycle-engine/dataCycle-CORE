@@ -145,11 +145,11 @@
         .select2-selection__rendered::before {
           content: '...';
           background: $dark-gray;
-          color: white;
+          color: $white;
           height: auto;
           float: left;
           margin: 0.1rem;
-          border-radius: 5px;
+          border-radius: $global-radius;
           font-size: 0.8rem;
           line-height: 1.42857143;
           padding: 0.03rem 0.4rem;
@@ -288,7 +288,7 @@
           padding: 0 0.5rem;
           position: relative;
           z-index: 1;
-          background: white;
+          background: $white;
 
           .closed {
             display: inline-block;
@@ -426,7 +426,7 @@
 .copy-to-clipboard.with-shadow {
   position: relative;
   padding: 2px 5px;
-  border-radius: 5px;
+  border-radius: $global-radius;
   box-shadow: 0 0 3px $medium-gray inset;
 
   &::after {
@@ -437,7 +437,7 @@
     right: 0;
     top: 0;
     padding: 2px 5px;
-    background-color: white;
+    background-color: $white;
   }
 
   &:hover,
@@ -452,7 +452,7 @@
   position: relative;
   padding: 1rem 2rem 1rem 1rem;
   background: #eee;
-  border-radius: 3px;
+  border-radius: $global-radius;
 
   .remove-edit-link {
     position: absolute;
@@ -701,124 +701,41 @@ select {
     }
   }
 
-  .content-version-and-status {
-    margin: 0;
-    background: transparent;
+  .content-version-and-status-attributes {
+    display: flex;
+    flex-flow: row wrap;
 
-    .accordion-item {
-      .accordion-title {
-        border: none;
-        padding: 0;
-        padding-bottom: 0.5rem;
-        transition: color 0.2s ease-in;
-        color: $dark-gray;
-        background: transparent;
+    > .form-element {
+      flex: 1;
+      margin: 0;
 
-        .content-version-and-status-button {
-          display: inline-flex;
-          align-items: center;
-          background: white;
-          position: relative;
-          font-size: 1rem;
-          justify-content: center;
-          padding: 0 0.5rem;
-          border-radius: 4px;
-          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+      .editor-block {
+        background-color: $white;
 
-          &::before {
-            content: '\f107';
-            font-family: FontAwesome;
-            font-style: normal;
-            font-weight: normal;
-            display: block;
-            font-size: 1.8rem;
-            line-height: 1.8rem;
-            margin-right: 0.3rem;
-          }
-        }
-
-        &::before {
-          content: '' !important;
-          display: block;
-          position: absolute;
-          top: calc(50% - 0.25rem);
-          right: unset;
-          left: 0;
-          width: 100%;
-          border-top: 1px solid rgba($dark-gray, 0.5);
-          border-right: 1px solid transparent;
-          border-left: 1px solid transparent;
-          height: calc(50% + 0.25rem);
-          margin: 0;
-          transition: all 0.1s ease-in;
-        }
-
-        &:hover {
-          color: $black;
+        > label,
+        > .ql-toolbar {
+          background-color: $white;
         }
       }
 
-      &.is-active {
-        .accordion-title::before {
-          border-top-right-radius: 3px;
-          border-top-left-radius: 3px;
-          border-right: 1px solid rgba($dark-gray, 0.5);
-          border-left: 1px solid rgba($dark-gray, 0.5);
-        }
-
-        .content-version-and-status-button::before {
-          content: '\f106';
-        }
+      &.release_status_comment {
+        width: 100%;
+        flex: auto;
+        margin-top: 1rem;
       }
 
-      .accordion-content {
-        padding: 0 1rem 1rem 1rem;
-        border: none;
-        margin-bottom: 1rem;
-        border-bottom-right-radius: 3px;
-        border-bottom-left-radius: 3px;
-        border-bottom: 1px solid rgba($dark-gray, 0.5);
-        border-right: 1px solid rgba($dark-gray, 0.5);
-        border-left: 1px solid rgba($dark-gray, 0.5);
+      .v-select {
+        display: flex;
+        height: 100%;
+
+        select {
+          min-height: 100%;
+        }
       }
     }
 
-    .content-version-and-status-attributes {
-      display: flex;
-      flex-flow: row wrap;
-
-      > .form-element {
-        flex: 1;
-        margin: 0;
-
-        .editor-block {
-          background-color: white;
-
-          > label,
-          > .ql-toolbar {
-            background-color: white;
-          }
-        }
-
-        &.release_status_comment {
-          width: 100%;
-          flex: auto;
-          margin-top: 1rem;
-        }
-
-        .v-select {
-          display: flex;
-          height: 100%;
-
-          select {
-            min-height: 100%;
-          }
-        }
-      }
-
-      > .form-element.version-name + .form-element.release_status_id {
-        margin-left: 1rem;
-      }
+    > .form-element.version-name + .form-element.release_status_id {
+      margin-left: 1rem;
     }
   }
 
@@ -948,7 +865,7 @@ select {
         padding: 1rem 2rem;
         text-align: center;
         background: rgba(map-get($foundation-palette, success), 0.95);
-        color: white;
+        color: $white;
         z-index: 1;
 
         p {
@@ -963,7 +880,7 @@ select {
           padding: 0.1rem;
 
           cursor: pointer;
-          color: white;
+          color: $white;
 
           span {
             display: block;
@@ -1121,7 +1038,7 @@ a.dc-foundation-tooltip {
 .new-content-reveal {
   iframe {
     box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
-    border-radius: 3px;
+    border-radius: $global-radius;
     border: none;
     width: 96vw;
     height: 85vh;
@@ -1217,7 +1134,7 @@ video {
   .tooltip-error,
   .tooltip-warning {
     display: block;
-    border-top: 1px solid white;
+    border-top: 1px solid $white;
     margin-top: 0.5rem;
     padding-top: 0.5rem;
   }
@@ -1238,9 +1155,9 @@ video {
   position: absolute;
   top: 0.3rem;
   right: 3rem;
-  background: white;
+  background: $white;
   padding: 0.3rem 0.5rem;
-  border-radius: 3px;
+  border-radius: $global-radius;
   box-shadow: 1px 1px 2px #ddd;
 }
 
@@ -1502,7 +1419,7 @@ a.email-link {
   text-align: left;
 
   &.release_status_id .v-select .select2 {
-    background-color: white;
+    background-color: $white;
   }
 
   .v-select {
@@ -1514,7 +1431,7 @@ a.email-link {
     box-shadow: 0 0 0 rgba($dark-gray, 0.5);
     position: relative;
     transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
-    border-radius: 3px;
+    border-radius: $global-radius;
     padding: 0;
 
     label {
@@ -1558,7 +1475,7 @@ a.email-link {
       .select2-search__field {
         height: auto;
         margin: 0 0.1rem;
-        border-radius: 5px;
+        border-radius: $global-radius;
         padding: 0.05rem 0.3rem 0.05rem 0.3rem;
         font-size: 0.8rem;
         min-width: 100px;
@@ -1602,7 +1519,7 @@ a.email-link {
       }
 
       .select2-selection__choice {
-        border-radius: 5px;
+        border-radius: $global-radius;
         background-color: rgba($primary-color, 0.5);
         border: 0;
         margin: 0.1rem;
@@ -1611,7 +1528,7 @@ a.email-link {
         white-space: normal;
 
         .select2-selection__choice__remove {
-          color: white;
+          color: $white;
         }
 
         &:focus,
@@ -1636,7 +1553,7 @@ a.email-link {
         left: 0;
         padding: 0.5rem 0.6rem;
         margin: 0 0 0 1rem;
-        color: white;
+        color: $white;
       }
 
       input[type='file'] {
@@ -1745,7 +1662,7 @@ a.email-link {
         .select2-option-title,
         .stored_filter::before,
         .watch_list::before {
-          color: white;
+          color: $white;
         }
       }
 
@@ -1795,12 +1712,12 @@ select:-moz-focusring {
   position: absolute;
   right: 43px;
   display: block;
-  background: white;
+  background: $white;
   color: $black;
   padding: 3px 7px;
   white-space: nowrap;
   z-index: 1;
-  border-radius: 5px;
+  border-radius: $global-radius;
   top: -3px;
   box-shadow: 0 0 3px #ccc;
 }
@@ -2016,7 +1933,7 @@ label[for='user_access_token'] {
 
       .form-element.focus > .editor-block {
         > .embedded-header {
-          background: white;
+          background: $white;
           border-bottom: 1px solid rgba($dark-gray, 0.3);
         }
       }
@@ -2112,7 +2029,7 @@ select {
       top: 10px;
       padding: 1rem;
       background: rgba(255, 255, 255, 0.9);
-      border-radius: 4px;
+      border-radius: $global-radius;
       box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
       min-width: 10rem;
       width: auto;
@@ -2162,16 +2079,16 @@ select {
             content: '';
             font-family: FontAwesome;
             display: flex;
-            background-color: white;
+            background-color: $white;
             border: 1px solid darken($medium-gray, 5%);
-            border-radius: 4px;
+            border-radius: $global-radius;
             height: 16px;
             width: 16px;
             align-items: center;
             justify-content: center;
             font-size: 11px;
             margin-right: 0.5rem;
-            color: white;
+            color: $white;
             transition: all 0.2s ease;
           }
 
@@ -2301,7 +2218,7 @@ select {
       width: 100%;
       height: 100%;
       text-align: center;
-      color: white;
+      color: $white;
       font-size: 1.2rem;
       justify-content: center;
       align-items: center;
@@ -2330,7 +2247,7 @@ select {
 
         .ol-popup {
           display: block;
-          background: white;
+          background: $white;
           padding: 0.5rem 0.75rem;
           box-shadow: 0 0 1px rgba($black, 0.8);
           min-width: 200px;
@@ -2427,7 +2344,6 @@ select {
   }
 
   .geographic {
-    padding: 1px;
     transition: box-shadow 0.1s;
 
     &:hover {
@@ -2460,7 +2376,7 @@ select {
       height: auto;
       padding: 0.3rem 0.5rem;
       border: 2px solid rgba(0, 0, 0, 0.2);
-      border-radius: 4px;
+      border-radius: $global-radius;
 
       .embedded-header {
         position: relative;
@@ -2482,7 +2398,7 @@ select {
         justify-content: center;
         margin: 1px;
         padding: 0;
-        color: white;
+        color: $white;
         font-size: 1.14em;
         font-weight: bold;
         text-decoration: none;
@@ -2510,7 +2426,7 @@ select {
     pointer-events: all;
     background: transparent;
     background-color: rgba(255, 255, 255, 0.4);
-    border-radius: 4px;
+    border-radius: $global-radius;
     padding: 2px;
 
     .map-edit-button {
@@ -2518,7 +2434,7 @@ select {
       border-radius: 2px;
       margin: 1px;
       font-size: 1.14em;
-      color: white;
+      color: $white;
       text-align: center;
       height: 1.375em;
       width: 1.375em;
@@ -2546,7 +2462,7 @@ select {
 
   .map-info {
     box-shadow: none;
-    background-color: white;
+    background-color: $white;
     padding: 0;
     margin: 0;
   }
@@ -2598,7 +2514,7 @@ select {
         height: auto;
         padding: 0.2rem 0.5rem;
         border: 2px solid rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
+        border-radius: $global-radius;
         background: $white;
       }
       &::after {
@@ -2606,7 +2522,7 @@ select {
         top: 0 !important;
         padding: 0.2rem 0.5rem;
         border: 2px solid rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
+        border-radius: $global-radius;
         background: $white;
       }
     }
@@ -2616,7 +2532,7 @@ select {
   .map-info {
     background-color: transparent;
     box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
-    border-radius: 3px;
+    border-radius: $global-radius;
   }
 
   .geographic {
@@ -2762,7 +2678,7 @@ input.normalized {
       color: $white;
       background-color: $white;
       border: 1px solid rgba($dark-gray, 0.5);
-      border-radius: 5px;
+      border-radius: $global-radius;
       margin-right: 0.3rem;
     }
     &.active {
@@ -3057,7 +2973,7 @@ section {
       position: relative;
       display: inline-block;
       margin: 0;
-      background: white;
+      background: $white;
       padding: 1rem;
     }
 
@@ -3250,7 +3166,7 @@ button.button-prime.small.bulk-delete-button {
     opacity: 1;
   }
   .progress-value {
-    color: white;
+    color: $white;
     display: block;
     position: absolute;
     width: 100%;
@@ -3358,7 +3274,7 @@ button.button-prime.small.bulk-delete-button {
     }
   }
   .pie-text {
-    color: white;
+    color: $white;
     z-index: 0;
     position: absolute;
     right: 50%;

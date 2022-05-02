@@ -1,0 +1,128 @@
+.attribute-group {
+  &:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+
+  .attribute-group-item {
+    position: relative;
+
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+
+    .attribute-group-title-link {
+      display: flex;
+      align-items: center;
+      padding: 0;
+      border: 0;
+      background-color: transparent;
+      color: $dark-gray;
+      transition: color 0.1s ease-in-out;
+
+      .attribute-group-title {
+        flex: auto;
+      }
+
+      &::before {
+        display: none;
+      }
+
+      &::after {
+        content: '\f107';
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        display: block;
+        font-size: 1.5rem;
+        line-height: 1rem;
+      }
+    }
+
+    .attribute-group-title {
+      display: flex;
+      align-items: center;
+      color: $dark-gray;
+      font-size: 0.9rem;
+      font-weight: normal;
+      line-height: 1rem;
+      transition: color 0.1s ease-in-out;
+    }
+
+    .attribute-group-content {
+      border: none;
+      padding: 0;
+    }
+
+    &.is-active {
+      .attribute-group-title-link::after {
+        content: '\f106';
+      }
+    }
+  }
+
+  &.has-title,
+  &.collapsible,
+  &:not(.squashed) {
+    .attribute-group-item {
+      border: 1px solid rgba($dark-gray, 0.5);
+      border-radius: $global-radius;
+      box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+      transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+
+      .attribute-group-title,
+      .attribute-group-title-link::after {
+        padding: 1rem;
+      }
+
+      .attribute-group-content {
+        padding: 0 1rem 1rem 1rem;
+      }
+    }
+
+    &.editor .attribute-group-item:hover {
+      border-color: transparent;
+      box-shadow: 0 0 7px $primary-color;
+
+      .attribute-group-title,
+      .attribute-group-title-link {
+        color: $primary-color;
+      }
+    }
+  }
+
+  &.squashed {
+    &.editor,
+    &.viewer.has-title,
+    &.viewer.collapsible,
+    &.viewer:not(.squashed) {
+      .attribute-group-item {
+        .attribute-group-content .attribute-group-content-element {
+          display: flex;
+          flex-flow: row wrap;
+          margin: -0.5rem;
+
+          > * {
+            flex: auto;
+            margin: 0.5rem;
+
+            input,
+            .editor-block {
+              height: 100%;
+            }
+
+            .v-select {
+              height: 100%;
+
+              > .select2,
+              > .select2 > .selection,
+              > .select2 > .selection > .select2-selection {
+                display: block;
+                height: 100%;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

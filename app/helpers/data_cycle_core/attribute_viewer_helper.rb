@@ -25,7 +25,7 @@ module DataCycleCore
         super(**args)
       end
 
-      def is_type?(attribute_type)
+      def type?(attribute_type)
         definition&.[]('type') == attribute_type
       end
 
@@ -35,7 +35,7 @@ module DataCycleCore
     end
 
     def attribute_viewer_allowed(options)
-      return render('data_cycle_core/contents/viewers/attribute_group', options.render_params) if options.is_type?('attribute_group')
+      return render('data_cycle_core/contents/viewers/attribute_group', options.render_params) if options.type?('attribute_group')
 
       return unless can?(:show, DataCycleCore::DataAttribute.new(
                                   options.key,
@@ -46,14 +46,14 @@ module DataCycleCore
                                 )) &&
                     (options.content.nil? || options.content&.allowed_feature_attribute?(options.key.attribute_name_from_key))
 
-      return if options.is_type?('classification') &&
+      return if options.type?('classification') &&
                 !options.definition['universal'] &&
                 !DataCycleCore::ClassificationService.visible_classification_tree?(
                   options.definition['tree_label'],
                   options.parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(options.scope.to_s) } : options.scope.to_s
                 )
 
-      return if options.is_type?('slug') && options.parameters[:parent]&.embedded?
+      return if options.type?('slug') && options.parameters[:parent]&.embedded?
 
       true
     end

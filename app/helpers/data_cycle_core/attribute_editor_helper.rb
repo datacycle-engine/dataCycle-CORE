@@ -26,11 +26,11 @@ module DataCycleCore
     end
 
     def attribute_editor_allowed(options)
-      return if options.is_type?('slug') && options.parameters[:parent]&.embedded?
-      return if options.is_type?('computed')
-      return render('data_cycle_core/contents/editors/attribute_group', options.render_params) if options.is_type?('attribute_group')
+      return if options.type?('slug') && options.parameters[:parent]&.embedded?
+      return if options.type?('computed')
+      return render('data_cycle_core/contents/editors/attribute_group', options.render_params) if options.type?('attribute_group')
 
-      return render_linked_viewer(options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.is_type?('linked') && options.definition['link_direction'] == 'inverse'
+      return render_linked_viewer(options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.type?('linked') && options.definition['link_direction'] == 'inverse'
 
       return unless can?(:edit, DataCycleCore::DataAttribute.new(
                                   options.key,
@@ -42,7 +42,7 @@ module DataCycleCore
                                 )) &&
                     (options.content.nil? || options.content&.allowed_feature_attribute?(options.key.attribute_name_from_key))
 
-      return if options.is_type?('classification') && !DataCycleCore::ClassificationService.visible_classification_tree?(options.definition['tree_label'], options.scope.to_s)
+      return if options.type?('classification') && !DataCycleCore::ClassificationService.visible_classification_tree?(options.definition['tree_label'], options.scope.to_s)
 
       true
     end

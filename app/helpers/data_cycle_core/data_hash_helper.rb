@@ -5,7 +5,7 @@ module DataCycleCore
     INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']
     GROUP_FLAGS = [
       'collapsible',
-      'single_line',
+      'squashed',
       'collapsed'
     ].freeze
 
@@ -16,8 +16,8 @@ module DataCycleCore
       DataCycleCore::Thing.find_by("template = true AND schema ->> 'content_type' = ? AND template_name =?", 'entity', template_name)
     end
 
-    def grouped_label(content, key)
-      return unless I18n.exists?("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)
+    def attribute_group_title(content, key)
+      I18n.t("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale) if I18n.exists?("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)
     end
 
     def ordered_validation_properties(validation:, type: nil, content_area: nil)
@@ -31,14 +31,15 @@ module DataCycleCore
         next if content_area.presence&.!=('content') && prop.dig('ui', 'show', 'content_area') != content_area
         next if content_area == 'content' && prop.dig('ui', 'show', 'content_area').present?
 
-        if (group = prop&.[]('ui')&.delete('attribute_group')).present?
-          ordered_props[group] ||= {
+        if (group = prop&.[]('ui')&.delete('attribute_group')).present? && content_area != 'header'
+          group_name = group.remove(*GROUP_FLAGS.map { |f| "_#{f}" })
+          ordered_props[group_name] ||= {
             'type' => 'attribute_group',
             'properties' => {},
-            'features' => GROUP_FLAGS.index_with { |f| group.include?("_#{f}") }
+            'features' => GROUP_FLAGS.index_with { |f| group.include?("_#{f}") }.compact_blank
           }
 
-          ordered_props[group]['properties'][key] = prop
+          ordered_props[group_name]['properties'][key] = prop
         else
           ordered_props[key] = prop
         end
