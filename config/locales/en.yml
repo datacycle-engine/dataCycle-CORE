@@ -734,6 +734,7 @@ en:
     move_to_container: Move content
     move: move
     geocode: Take over geocoordinates from %{title}
+    upload_gpx: Upload GPX file
     remove_feature: Delete geometry
     open_asset: Open file
     download: landing off

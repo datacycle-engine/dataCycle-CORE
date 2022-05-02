@@ -770,6 +770,7 @@ de:
     move_to_container: 'Inhalt verschieben'
     move: verschieben
     geocode: 'Geokoordinaten von %{title} übernehmen'
+    upload_gpx: 'GPX-Datei hochladen'
     remove_feature: 'Geometrie löschen'
     open_asset: 'Datei öffnen'
     download: 'herunterlanden'

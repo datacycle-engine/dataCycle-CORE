@@ -1,46 +1,31 @@
+import { gpx } from '@tmcw/togeojson';
+
 class UploadGpxControl {
   constructor(editor) {
     this.editor = editor;
-    // this.config = editor.additionalValuesOverlay;
-    // this.activeFilters = {};
-    // this.layerFilters = {};
-    // this.geojsonValues = {};
-    // this.lastLoadedFilter = {};
-    // this.additionalSources = {};
-    // this.additionalLayers = {};
-    // this.additionalValueTargets = {};
-    // this.enabled = false;
   }
   onAdd(map) {
     this.map = map;
 
     this._setupControls();
 
-    this.editor.loadFile = function ($input) {
-      this.uploadFile($input, (_err, d) => {
-        this.setWaypoints(d.waypoints);
-
-        b.fitBounds(d.bounds, { padding: 50 });
-      });
-    };
-
-    this.container.addEventListener('click', event => {
+    this.container.querySelector('button').addEventListener('click', event => {
       event.preventDefault();
       event.stopImmediatePropagation();
-      console.log(event);
-      // event.currentTarget.parentElement.querySelector('input[type="file"]').click();
+      event.currentTarget.parentElement.querySelector('input[type="file"]').click();
     });
 
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('hidden', true);
-    input.setAttribute('accept', '.gpx,.kml,.geojson');
-    input.addEventListener('change', event => {
+    this.input = document.createElement('input');
+    this.input.setAttribute('type', 'file');
+    this.input.setAttribute('hidden', true);
+    this.input.setAttribute('accept', '.gpx,.kml,.geojson');
+    this.input.addEventListener('change', event => {
       event.preventDefault();
       event.stopImmediatePropagation();
 
-      this.editor.loadFile(event.currentTarget);
+      this._handleUploadFile(event);
     });
+    this.container.appendChild(this.input);
 
     return this.container;
   }
@@ -61,6 +46,52 @@ class UploadGpxControl {
     const icon = document.createElement('i');
     icon.className = 'fa fa-upload';
     this.controlButton.appendChild(icon);
+  }
+  async _handleUploadFile(evt) {
+    let file = evt.target.files[0] || null;
+    if (!file) {
+      new ConfirmationModal({
+        text: await I18n.translate('frontend.gpx.file_missing')
+      });
+    } else {
+      const reader = new FileReader();
+      reader.onload = (_gpxFile => {
+        return async e => {
+          let xmlString = e.target.result;
+          let parser = new DOMParser();
+          let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+          let geoJSON = gpx(xmlDoc);
+          let featureGeometry = {
+            type: 'MultiLineString',
+            coordinates: []
+          };
+          if (geoJSON && geoJSON.features && geoJSON.features.length) {
+            geoJSON.features.forEach(feature => {
+              if (feature.geometry.type.includes('MultiLineString'))
+                featureGeometry.coordinates.push(...feature.geometry.coordinates);
+              else if (feature.geometry.type.includes('LineString'))
+                featureGeometry.coordinates.push(feature.geometry.coordinates);
+            });
+          }
+
+          if (!featureGeometry.coordinates || !featureGeometry.coordinates.length) {
+            new ConfirmationModal({
+              text: await I18n.translate('frontend.gpx.empty'),
+              confirmationText: 'Ok'
+            });
+          } else {
+            this.editor.setUploadedFeature({
+              type: 'Feature',
+              properties: {},
+              geometry: featureGeometry
+            });
+          }
+          console.log(this.input);
+          this.input.value = '';
+        };
+      })(file);
+      reader.readAsText(file);
+    }
   }
 }
 

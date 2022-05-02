@@ -344,23 +344,17 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 
   //   return coords;
   // }
-  // setUploadedFeature(geometry) {
-  //   this.setHiddenFieldValue(geometry);
-  //   this.updateFeature(geometry);
-  // }
-  // updateFeature(geometry) {
-  //   if (this.feature) this.source.removeFeature(this.feature);
+  setUploadedFeature(geoJson) {
+    this.updateFeature(geoJson);
+  }
+  updateFeature(geoJson) {
+    if (this.feature) this.draw.deleteAll();
 
-  //   this.feature = this.featureFromGeoJSON(geometry);
-  //   this.source.addFeature(this.feature);
-
-  //   if (this.feature) {
-  //     this.initGeometryEditActions();
-  //     this.disableDrawableFeature();
-  //   }
-
-  //   this.setNewCoordinates();
-  // }
+    this.feature = geoJson;
+    this.initEditFeature();
+    this.setNewCoordinates();
+  }
+  // TODO:
   // updateMapMarker(_event) {
   //   let valid = true;
   //   const coords = this.getGeoJsonFromInputs().coordinates;
@@ -423,13 +417,11 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 
   //   return this.shortenCoordinates(coords);
   // }
-  // setNewCoordinates() {
-  //   this.setCoordinates();
-  //   this.setHiddenFieldValue(this.getGeoJsonFromFeature());
-
-  //   if (this.feature)
-  //     this.map.getView().animate({ duration: 300, center: this.feature.getGeometry().getCoordinates() });
-  // }
+  setNewCoordinates() {
+    this.setCoordinates();
+    this.setHiddenFieldValue(this.feature);
+    if (this.feature) this.updateMapPosition();
+  }
   // TODO:
   setCoordinates() {
     if (!this.feature || !this.isPoint()) return;
