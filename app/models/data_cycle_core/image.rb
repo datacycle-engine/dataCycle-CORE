@@ -77,8 +77,7 @@ module DataCycleCore
         return [] if duplicate_check&.dig('phash').blank?
 
         DataCycleCore::Image
-          .left_outer_joins(thing: :translations)
-          .where.not(asset_contents: { content_data_id: nil })
+          .joins(thing: :translations)
           .where("things.schema -> 'features' -> 'duplicate_candidate' ->> 'method' = ?", 'bild_duplicate')
           .where("duplicate_check IS NOT NULL AND duplicate_check ->> 'phash' IS NOT NULL AND duplicate_check ->> 'phash' != '0' AND phash_hamming(?, duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id)
           .map(&:thing)
@@ -91,12 +90,11 @@ module DataCycleCore
         return [] if duplicate_check&.dig('phash').blank?
 
         DataCycleCore::Image
-          .left_outer_joins(thing: :translations)
-          .select("(100 - (100 * phash_hamming('#{duplicate_check['phash']}', assets.duplicate_check ->> 'phash') / 255)) AS score, *")
+          .joins(thing: :translations)
+          .select("(100 - (100 * phash_hamming('#{duplicate_check['phash']}', assets.duplicate_check ->> 'phash') / 255)) AS score, assets.*")
           .where("things.schema -> 'features' -> 'duplicate_candidate' ->> 'method' = ?", 'bild_duplicate')
           .where("assets.duplicate_check IS NOT NULL AND assets.duplicate_check ->> 'phash' IS NOT NULL AND assets.duplicate_check ->> 'phash' != '0' AND phash_hamming(?, assets.duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id)
-          .map { |d| { content: d.thing, method: 'phash', score: d.try(:score) } if d.thing.present? }
-          .compact
+          .map { |d| { content: d.thing, method: 'phash', score: d.try(:score) } }
       end
     end
 
