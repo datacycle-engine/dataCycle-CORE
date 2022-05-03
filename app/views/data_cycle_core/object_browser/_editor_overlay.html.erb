@@ -85,7 +85,7 @@
             dc_tooltip: limited_by_warning(content, definition, key, 'create_button_warning')
         }, definition) %>
 
-    <%= render 'data_cycle_core/contents/new_content_button', form_parameters if form_parameters.present? %>
+    <%= render 'data_cycle_core/contents/new_content_button', form_parameters if form_parameters.present? && local_assigns[:hide_new_button].blank? %>
 
     <button class="button-prime small close-object-browser" type="button" data-close>
       <i aria-hidden="true" class="fa fa-times"></i>

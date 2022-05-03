@@ -3015,6 +3015,7 @@ section.duplicate-candidates {
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-column-gap: 0.5rem;
+
       .button {
         margin: 5px 0 0 0;
       }
@@ -3039,6 +3040,51 @@ section.duplicate-candidates {
 
         .description {
           box-shadow: none;
+        }
+      }
+    }
+  }
+
+  .header-text {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    h4 {
+      margin: 0;
+    }
+
+    .manual-duplicates {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 1rem;
+
+      .object-browser {
+        padding: 0;
+
+        .media-thumbs {
+          display: block;
+
+          .object-thumbs {
+            display: none;
+          }
+
+          .buttons .show-objectbrowser {
+            font-size: 0.9rem;
+            line-height: 0.9rem;
+            padding: 0.5rem;
+            width: 2.2rem;
+            height: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .fa {
+              font-size: 0.9rem;
+              line-height: 0.9rem;
+            }
+          }
         }
       }
     }

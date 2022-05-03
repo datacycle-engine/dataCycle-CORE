@@ -471,6 +471,8 @@ en:
     full_size: open full-size
     media_archive: open in the media archive
   feature:
+    duplicate_candidate:
+      manual_button: Select manually for merging
     releasable:
       version_and_status: Version & Status
     named_version:
@@ -869,6 +871,7 @@ en:
       missing_parameter: Parameter missing!
       duplicate:
         type_mismatch: Contents of different types cannot be merged!
+        cannot_merge_self: The content cannot be merged with itself!
       session_expired: The session has expired, please log in again.
       token_invalid: The session has expired, please reload the page.
       no_shared_attributes: There are no attributes that occur with all content
