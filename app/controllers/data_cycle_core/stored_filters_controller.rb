@@ -70,7 +70,7 @@ module DataCycleCore
 
       authorize! stored_filter.new_record? ? :create : :update, stored_filter
 
-      stored_filter.attributes = stored_filter_params.compact_blank
+      stored_filter.attributes = stored_filter_params
 
       if params[:update_filter_parameters]
         get_filtered_results(user_filter: nil) # prefill stored_filter params
