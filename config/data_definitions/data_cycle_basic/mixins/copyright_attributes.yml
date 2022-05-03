@@ -5,8 +5,9 @@
     :properties:
 
       # FINAL => moved to copyright_notice_override
-      # used in importer
-      # DestinationOne, OpenDestinationOne, Tourbiz, WikiData
+      # importer => 
+      # OpenDestinationOne => before: => attribution_url; now: => copyright_notice_override
+      # DestinationOne, OpenDestinationOne, Tourbiz
       # oewein => show/edit disabled and api disabled
       # @todo: disable
       :license:
@@ -44,8 +45,8 @@
           :show:
             :disabled: true
       
-      # used in importer, serializer => Eyebase, wikidata
-      # Eyebase => obsolete
+      # importer => WikiData = author
+      # serializer
       # oew => computed! (like computed_attribution_name), api => :name: 'cc:attributionName' => use virtual(copyright_notice)
       # vcloud => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
       # vcloud_bodensee => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
@@ -85,9 +86,8 @@
           :show:
             :disabled: true
 
-
       # used in importer  => obsolete => delete
-      # => destinationOne + wikiData
+      # => wikiData, destinationOne
       # importer must use => url ? url allready used!!!
       # @todo: disable
       :attribution_url:
@@ -98,7 +98,26 @@
         :external: true
         :api:
           :v4:
-            :name: 'cc:attributionUrl'
+            :name: 'url'
+
+      # legacy API Attribute
+      :legacy_attribution_url:
+        :label: LegacyAttributionName
+        :type: virtual
+        :virtual:
+          :type: string
+          :module: Utility::Virtual::Common
+          :method: take_first
+          :parameters:
+            :0: attribution_url
+        :api:
+          :disabled: true
+          :name: 'cc:attributionUrl'
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       
       # FINAL
       :use_guidelines:
