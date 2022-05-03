@@ -4,9 +4,10 @@
     :type: mixin
     :properties:
 
-      # FINAL => moved to copyright_notice_override
-      # importer => DestinationOne, Tourbiz
-      # OpenDestinationOne => before: => attribution_url; now: => copyright_notice_override
+      # FINAL => data migration: moved to copyright_notice_override => use for legacy or DELETE
+      # Tourbiz => license => classification
+      # DestinationOne => images => license
+      # OpenDestinationOne => before: =>transform to: attribution_url; now: => copyright_notice_override (CC in attribution url ?)
       # oewein => show/edit disabled and api disabled
       # @todo: disable
       :license:
@@ -25,6 +26,7 @@
 
       # legacy API Attribute
       # => copyright_notice_override 
+      # default? disabled: true||false
       :legacy_license:
         :label: LegacyLicense
         :type: virtual
@@ -34,7 +36,6 @@
           :method: take_first
           :parameters:
             :0: copyright_notice_override
-            # :1: copyright_notice_computed
         :api:
           :disabled: false
           :name: 'cc:license'
@@ -51,6 +52,7 @@
       # vcloud_bodensee => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
       # oewein => computed! (like computed_attribution_name), api => disabled
       # @todo: disable
+      # default? disabled: true||false
       :attribution_name:
         :label: Namensnennung
         :type: string
@@ -87,7 +89,7 @@
 
       # used in importer  => obsolete => delete
       # => wikiData
-      # importer must use => url ? url allready used!!!
+      # importer must use => url ? url allready in use!!!
       # @todo: disable
       :attribution_url:
         :label: Namensnennung - Url
@@ -100,6 +102,7 @@
             :name: 'url'
 
       # legacy API Attribute
+      # default? disabled: true||false
       :legacy_attribution_url:
         :label: LegacyAttributionName
         :type: virtual
