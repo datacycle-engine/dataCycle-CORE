@@ -4,7 +4,9 @@
     :type: mixin
     :properties:
 
+      # FINAL => moved to copyright_notice_override
       # used in importer
+      # DestinationOne, OpenDestinationOne, Tourbiz, WikiData
       # oewein => show/edit disabled and api disabled
       # @todo: disable
       :license:
@@ -22,6 +24,7 @@
             :disabled: true
 
       # legacy API Attribute
+      # => copyright_notice_override 
       :legacy_license:
         :label: LegacyLicense
         :type: virtual
@@ -31,7 +34,7 @@
           :method: take_first
           :parameters:
             :0: copyright_notice_override
-            :1: copyright_notice_computed
+            # :1: copyright_notice_computed
         :api:
           :disabled: false
           :name: 'cc:license'
@@ -73,7 +76,7 @@
             :0: copyright_notice_override
             :1: copyright_notice_computed
         :api:
-          :disabled: false
+          :disabled: true
           :name: 'cc:attributionName'
         :ui:
           :edit:
@@ -84,7 +87,7 @@
 
       # used in importer  => obsolete => delete
       # => destinationOne + wikiData
-      # importer must use => url 
+      # importer must use => url ? url allready used!!!
       # @todo: disable
       :attribution_url:
         :label: Namensnennung - Url
@@ -107,13 +110,10 @@
           :v4:
             :name: 'cc:useGuidelines'
 
-      # latest validate: API output
-      # used in importer
-      # api: license => classification.url
-      # oew => used as license string
-      # vcloud => used as license string
-      # vcloud - bodensee => used as license string
-      # brandenburg - bodensee => used as license string
+      # api => URL | name => V4 Only
+      # ok for cc:license
+      # license requires creativeWork / Url
+      # licenses without url?
       # cc:license + license
       :license_classification:
         :label: Lizenzen
@@ -129,8 +129,23 @@
             :name: 'cc:license'
             :disabled: false
             :partial: string
+      
+      # FINAL => DELETE
+      # validate projects
+      # obsolete? => delete
+      # not found in code
+      # data_definition_only
+      # :more_permissions:
+      #   :label: Weitere Kriterien
+      #   :type: string
+      #   :storage_location: value
+      #   :search: true
+      #   :external: true
+      #   :api:
+      #     :v4:
+      #       :name: 'cc:morePermissions'
 
-      # FINAL
+      # FINAL => DELETE
       # => copyright_notice_override
       # :explicit_copyright_notice:
       #   :label: raw_imported_copyright
@@ -146,8 +161,10 @@
       #     :show:
       #       :disabled: true
       
+      # FINAL => DELETE
       # latest test virtual in serializer
       # used in license serializer
+      # /app/models/data_cycle_core/serialize/serializer/license.rb
       # vcloud: overwrite compute method
       # @todo: disable
       # :computed_attribution_name:
