@@ -45,6 +45,7 @@
             :disabled: true
       
       # used in importer, serializer => Eyebase, wikidata
+      # Eyebase => obsolete
       # oew => computed! (like computed_attribution_name), api => :name: 'cc:attributionName' => use virtual(copyright_notice)
       # vcloud => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
       # vcloud_bodensee => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
