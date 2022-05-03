@@ -3,13 +3,8 @@
     :name: copyright_attributes
     :type: mixin
     :properties:
-
-      # FINAL => data migration: moved to copyright_notice_override => use for legacy or DELETE
-      # Tourbiz => license => classification
-      # DestinationOne => images => license
-      # OpenDestinationOne => before: =>transform to: attribution_url; now: => copyright_notice_override (CC in attribution url ?)
+      # FINAL => data migration: moved to copyright_notice_override
       # oewein => show/edit disabled and api disabled
-      # @todo: disable
       :license:
         :label: Copyright / Lizenz
         :type: string
@@ -23,10 +18,7 @@
             :disabled: true
           :show:
             :disabled: true
-
       # legacy API Attribute
-      # => copyright_notice_override 
-      # default? disabled: true||false
       :legacy_license:
         :label: LegacyLicense
         :type: virtual
@@ -37,22 +29,18 @@
           :parameters:
             :0: copyright_notice_override
         :api:
-          :disabled: false
+          :disabled: true
           :name: 'cc:license'
         :ui:
           :edit:
             :disabled: true
           :show:
             :disabled: true
-      
-      # importer => WikiData = author
       # serializer
       # oew => computed! (like computed_attribution_name), api => :name: 'cc:attributionName' => use virtual(copyright_notice)
       # vcloud => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
       # vcloud_bodensee => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
       # oewein => computed! (like computed_attribution_name), api => disabled
-      # @todo: disable
-      # default? disabled: true||false
       :attribution_name:
         :label: Namensnennung
         :type: string
@@ -66,7 +54,6 @@
             :disabled: true
           :show:
             :disabled: true
-
       # legacy API Attribute
       :legacy_attribution_name:
         :label: LegacyAttributionName
@@ -86,11 +73,6 @@
             :disabled: true
           :show:
             :disabled: true
-
-      # used in importer  => obsolete => delete
-      # => wikiData
-      # importer must use => url ? url allready in use!!!
-      # @todo: disable
       :attribution_url:
         :label: Namensnennung - Url
         :type: string
@@ -100,9 +82,7 @@
         :api:
           :v4:
             :name: 'url'
-
       # legacy API Attribute
-      # default? disabled: true||false
       :legacy_attribution_url:
         :label: LegacyAttributionName
         :type: virtual
@@ -120,8 +100,6 @@
             :disabled: true
           :show:
             :disabled: true
-      
-      # FINAL
       :use_guidelines:
         :label: Verwendungsrichtlinie
         :type: string
@@ -131,12 +109,6 @@
         :api:
           :v4:
             :name: 'cc:useGuidelines'
-
-      # api => URL | name => V4 Only
-      # ok for cc:license
-      # license requires creativeWork / Url
-      # licenses without url?
-      # cc:license + license
       :license_classification:
         :label: Lizenzen
         :type: classification
@@ -151,12 +123,7 @@
             :name: 'cc:license'
             :disabled: false
             :partial: string
-      
       # FINAL => DELETE
-      # validate projects
-      # obsolete? => delete
-      # not found in code
-      # data_definition_only
       # :more_permissions:
       #   :label: Weitere Kriterien
       #   :type: string
@@ -168,7 +135,6 @@
       #       :name: 'cc:morePermissions'
 
       # FINAL => DELETE
-      # => copyright_notice_override
       # :explicit_copyright_notice:
       #   :label: raw_imported_copyright
       #   :type: string
@@ -188,7 +154,6 @@
       # used in license serializer
       # /app/models/data_cycle_core/serialize/serializer/license.rb
       # vcloud: overwrite compute method
-      # @todo: disable
       # :computed_attribution_name:
       #   :label: hidden attribution name
       #   :storage_location: translated_value
@@ -207,8 +172,6 @@
       #   :ui:
       #     :show:
       #       :disabled: true
-
-      # new
       :copyright_notice_computed:
         :label: Urheberrechtsvermerk (automatisch)
         :storage_location: value
@@ -228,8 +191,6 @@
         :ui:
           :edit:
             :disabled: true
-      
-      # new
       :copyright_notice_override:
         :label: Urheberrechtsvermerk (manuell)
         :storage_location: value
@@ -240,8 +201,6 @@
         :ui:
           :edit:
             :disabled: false
-      
-      # new
       :copyright_notice:
         :label: Urheberrechtsvermerk
         :type: virtual
