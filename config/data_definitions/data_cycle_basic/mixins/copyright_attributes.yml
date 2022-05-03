@@ -3,7 +3,6 @@
     :name: copyright_attributes
     :type: mixin
     :properties:
-      # FINAL => data migration: moved to copyright_notice_override
       # oewein => show/edit disabled and api disabled
       :license:
         :label: Copyright / Lizenz
@@ -36,7 +35,6 @@
             :disabled: true
           :show:
             :disabled: true
-      # serializer
       # oew => computed! (like computed_attribution_name), api => :name: 'cc:attributionName' => use virtual(copyright_notice)
       # vcloud => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
       # vcloud_bodensee => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'

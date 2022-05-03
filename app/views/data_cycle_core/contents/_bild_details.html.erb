@@ -52,12 +52,12 @@
               </dd>
             <% end %>
 
-            <% if ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'attribution_name', 'attribution_url', 'use_guidelines', 'licensing_agreement'].any?{|val| content.try(val.to_sym).present? } %>
+            <% if ['copyright_notice_override', 'copyright_notice_computed', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines', 'licensing_agreement', 'attribution_url'].any?{|val| content.try(val.to_sym).present? } %>
               <dt>
                 <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
               </dt>
 
-              <% ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'attribution_name', 'attribution_url', 'use_guidelines', 'licensing_agreement'].each do |property_name| %>
+              <% ['copyright_notice_override','copyright_notice_computed', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'use_guidelines', 'licensing_agreement', 'attribution_url'].each do |property_name| %>
                 <% next if content.try(property_name.to_sym).blank? %>
                 <dd>
                   <%= render_attribute_viewer key: property_name,
