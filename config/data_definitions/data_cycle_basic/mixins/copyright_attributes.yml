@@ -5,9 +5,8 @@
     :properties:
 
       # FINAL => moved to copyright_notice_override
-      # importer => 
+      # importer => DestinationOne, Tourbiz
       # OpenDestinationOne => before: => attribution_url; now: => copyright_notice_override
-      # DestinationOne, OpenDestinationOne, Tourbiz
       # oewein => show/edit disabled and api disabled
       # @todo: disable
       :license:
@@ -87,7 +86,7 @@
             :disabled: true
 
       # used in importer  => obsolete => delete
-      # => wikiData, destinationOne
+      # => wikiData
       # importer must use => url ? url allready used!!!
       # @todo: disable
       :attribution_url:
