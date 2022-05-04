@@ -3,7 +3,6 @@
     :name: copyright_attributes
     :type: mixin
     :properties:
-      # oewein => show/edit disabled and api disabled
       :license:
         :label: Copyright / Lizenz
         :type: string
@@ -35,10 +34,6 @@
             :disabled: true
           :show:
             :disabled: true
-      # oew => computed! (like computed_attribution_name), api => :name: 'cc:attributionName' => use virtual(copyright_notice)
-      # vcloud => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
-      # vcloud_bodensee => computed! (like computed_attribution_name), api => :name: 'cc:attributionName'
-      # oewein => computed! (like computed_attribution_name), api => disabled
       :attribution_name:
         :label: Namensnennung
         :type: string
@@ -61,8 +56,7 @@
           :module: Utility::Virtual::Common
           :method: take_first
           :parameters:
-            :0: copyright_notice_override
-            :1: copyright_notice_computed
+            :0: copyright_notice_computed
         :api:
           :disabled: true
           :name: 'cc:attributionName'

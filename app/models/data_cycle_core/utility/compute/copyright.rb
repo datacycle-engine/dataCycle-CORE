@@ -11,7 +11,7 @@ module DataCycleCore
               case content&.properties_for(definition[1])&.dig('type')
               when 'classification'
                 classificiation_ids = computed_parameters.dig(definition[0]&.to_i)
-                classificiation_ids&.each do | id |
+                classificiation_ids&.each do |id|
                   copyright_notice.push(DataCycleCore::Classification.find(id)&.primary_classification_alias&.name)
                 end
               when 'linked'
