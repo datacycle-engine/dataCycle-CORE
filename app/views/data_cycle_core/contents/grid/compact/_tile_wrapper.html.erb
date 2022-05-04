@@ -1,6 +1,6 @@
 <% content_for(:tile_header_buttons, tag.span(tag.i(class: 'fa fa-arrows-h'), class: 'inverse-linked has-tip', data: { dc_tooltip: t('common.inverse_linked', locale: active_ui_locale) })) if definition&.dig('link_direction') %>
 
-<% content_for(:tile_header_buttons, render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition, options: local_assigns[:options], removable: local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, local_assigns[:options], content, :update)))) %>
+<% content_for(:tile_header_buttons, render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition, options: local_assigns[:options], removable: local_assigns[:options]&.[]('force_tile_buttons') || (local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, local_assigns[:options], content, :update))))) %>
 
 <li class="<%= [
     'item',

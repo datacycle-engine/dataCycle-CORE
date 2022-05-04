@@ -16,6 +16,7 @@
             data-editable="true"
             data-definition="<%= definition.to_json %>"
             data-table="things"
+            data-options="<%= { 'force_tile_buttons' => true }.to_json %>"
             data-per="<%= DataCycleCore.linked_objects_page_size %>"
             data-content-id="<%= content.id %>"
             data-content-type="<%= content.class.table_name %>"
