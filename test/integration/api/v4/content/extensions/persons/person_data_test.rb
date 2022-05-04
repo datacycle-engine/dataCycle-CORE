@@ -540,7 +540,7 @@ module DataCycleCore
                 assert_full_thing_datahash(content_overlay)
                 @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { 'overlay' => [content_overlay.get_data_hash] })
                 @content.reload
-                
+
                 params = {
                   id: @content.id
                 }

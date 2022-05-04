@@ -31,13 +31,13 @@ module DataCycleCore
           'copyright_notice_computed',
           'attribution_name',
           'translation_of_work',
-          "source", 
-          "comment", 
-          "image_id", 
-          "visibility", 
-          "photographer", 
-          "restrictions", 
-          "mandatory_license"
+          'source',
+          'comment',
+          'image_id',
+          'visibility',
+          'photographer',
+          'restrictions',
+          'mandatory_license'
         ].freeze
 
       def assert_api_count_result(count)

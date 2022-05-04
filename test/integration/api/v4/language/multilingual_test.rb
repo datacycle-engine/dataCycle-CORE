@@ -509,7 +509,7 @@ module DataCycleCore
             offer = @content.offers.first
             offer_data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('intangibles', 'v4_offer_en').merge({ 'id' => offer.id })
             data_hash_en['offers'] = [offer_data_hash_en]
-            
+
             I18n.with_locale(:en) { @content.set_data_hash(data_hash: @content.get_data_hash.merge(data_hash_en)) }
             @content.reload
 
@@ -584,7 +584,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['validity_period']) do
               {}
             end
-            
+
             # cc_rel
             assert_translated_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
               # license is overwritten by license_classification
