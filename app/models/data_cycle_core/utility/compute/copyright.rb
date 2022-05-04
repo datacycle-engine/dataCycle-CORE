@@ -12,7 +12,7 @@ module DataCycleCore
               when 'classification'
                 classificiation_ids = computed_parameters.dig(definition[0]&.to_i)
                 classificiation_ids&.each do |id|
-                  copyright_notice.push(DataCycleCore::Classification.find(id)&.primary_classification_alias&.name)
+                  copyright_notice.push(DataCycleCore::Classification.find(id)&.primary_classification_alias&.internal_name)
                 end
               when 'linked'
                 copyright_notice.push((data_hash&.key?(definition[1]) ? DataCycleCore::Thing.where(id: computed_parameters.dig(definition[0]&.to_i)) : content.try(definition[1])).map { |c| I18n.with_locale(c.first_available_locale) { c.title.presence } }.compact.join(', ').presence)

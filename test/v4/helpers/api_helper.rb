@@ -26,9 +26,18 @@ module DataCycleCore
           'dc_potential_action', # TODO: temporary attribute will be moded to potential_action,
           'validity_schedule', # TODO: check if should be tested with full thing
           'slug',
-          'computed_attribution_name',
           'work_translation',
-          'translation_of_work'
+          'copyright_notice_override',
+          'copyright_notice_computed',
+          'attribution_name',
+          'translation_of_work',
+          "source", 
+          "comment", 
+          "image_id", 
+          "visibility", 
+          "photographer", 
+          "restrictions", 
+          "mandatory_license"
         ].freeze
 
       def assert_api_count_result(count)
