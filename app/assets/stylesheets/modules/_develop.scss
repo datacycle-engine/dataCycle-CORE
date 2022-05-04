@@ -427,23 +427,30 @@
   position: relative;
   padding: 2px 5px;
   border-radius: $global-radius;
-  box-shadow: 0 0 3px $medium-gray inset;
+  box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
 
   &::after {
     content: '\f0ea';
     font-family: FontAwesome;
     position: absolute;
-    display: none;
-    right: 0;
-    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    right: 1px;
+    top: 1px;
     padding: 2px 5px;
     background-color: $white;
+    height: calc(100% - 2px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    border-radius: $global-radius;
   }
 
   &:hover,
   &:focus {
     &::after {
-      display: block;
+      opacity: 1;
     }
   }
 }
@@ -931,6 +938,8 @@ select {
 
 // Thumbnails in Grid Items
 .data-cycle-object {
+  border-radius: $global-radius;
+
   .inner {
     .image-thumbnail {
       text-align: center;
@@ -972,6 +981,7 @@ select {
     text-align: center;
     padding: 1rem;
     display: block;
+    grid-column: 1 / -1;
 
     .fa {
       font-size: 3rem;
@@ -1833,7 +1843,7 @@ select:-moz-focusring {
 
 .load-more-linked-contents {
   display: inline-block;
-  margin: 1rem 0 0 0;
+  margin: 0;
 
   &.small {
     .fa {
@@ -1856,8 +1866,9 @@ label[for='user_access_token'] {
   align-items: center;
 
   .fa-key {
-    margin-right: 0.1rem;
+    margin-right: 0.2rem;
   }
+
   .external-source-icon {
     margin-right: 0.2rem;
   }
@@ -2877,9 +2888,9 @@ section.related-objects {
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         transition: all ease-in-out 0.2s;
         background: lighten($primary-color, 50%);
-        -webkit-filter: blur(0);
         padding: 1rem;
         margin-bottom: 1rem;
+        border-radius: $global-radius;
 
         &.expired-item {
           box-shadow: 0 1px 8px $alert-color;
@@ -2900,6 +2911,7 @@ section.related-objects {
         }
         .buttons {
           float: right;
+
           > * {
             margin-right: 0.5rem;
           }
@@ -3006,14 +3018,14 @@ section.duplicate-candidates {
     display: table-cell;
     vertical-align: bottom;
     text-align: center;
-    margin-top: 1rem;
-    border-top: 1px solid $light-gray;
-    padding-top: 5px;
-    min-width: 250px;
+
+    .duplicate-score {
+      border-top: 1px solid $light-gray;
+      padding-top: 5px;
+    }
 
     .duplicate-buttons {
       display: grid;
-      grid-template-columns: 1fr 1fr;
       grid-column-gap: 0.5rem;
 
       .button {
@@ -3023,15 +3035,16 @@ section.duplicate-candidates {
   }
 
   .content-tiles {
-    .content.image {
+    .content.image,
+    .content.bild,
+    .content.bild-filmcommission,
+    .content.video {
       box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
-      margin: 1rem 1rem 0 0;
-      width: 250px;
-      max-width: 300px;
+      padding: 1px 0.65rem 0.65rem;
 
       .buttons {
-        right: 0;
-        top: 0;
+        right: 1px;
+        top: 1px;
       }
 
       .thumbnail {
@@ -3065,6 +3078,7 @@ section.duplicate-candidates {
 
         .media-thumbs {
           display: block;
+          padding: 0;
 
           .object-thumbs {
             display: none;
@@ -3117,6 +3131,7 @@ section.duplicate-candidates {
 [data-editor='object_browser'] {
   .tile-top {
     display: flex;
+    flex-flow: row wrap;
 
     > *:not(:last-child) {
       margin-right: 0.3rem;
@@ -3124,6 +3139,7 @@ section.duplicate-candidates {
 
     .translatable-field-container {
       flex: auto;
+      width: 100%;
     }
   }
 }
@@ -3135,6 +3151,7 @@ section.duplicate-candidates {
   .tile-top {
     position: relative;
     padding-bottom: 1rem;
+    flex-flow: row;
   }
   .external-source-icon {
     position: relative;
@@ -3587,6 +3604,7 @@ body {
       width: 100%;
       display: flex;
       top: 0;
+      border-radius: $global-radius;
     }
 
     &::before {
@@ -3597,6 +3615,7 @@ body {
       background-color: lighten($light-gray, 4%);
       box-shadow: 0 0 1px lighten($dark-gray, 10%) inset;
     }
+
     &::after {
       position: relative;
       width: 100%;
@@ -3694,6 +3713,7 @@ body {
   position: fixed !important;
   width: calc(50% - 3rem) !important;
   box-shadow: 0 0 3px rgba($black, 0.3);
+  border-radius: $global-radius;
 }
 
 .focus-specific-field {

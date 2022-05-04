@@ -282,6 +282,7 @@ footer {
     background: $light-gray;
     margin-top: 0;
     padding: 2.5rem 1rem 1rem;
+    border-radius: $global-radius;
 
     &::before {
       content: '';
@@ -711,9 +712,57 @@ footer {
     }
 
     &[readonly],
-    &[data-readonly='true'] {
+    &[data-readonly='true'],
+    &[disabled],
+    &.disabled {
       cursor: not-allowed !important;
-      background: rgba($light-gray, 0.5) !important;
+      background: lighten($light-gray, 5%) !important;
+    }
+  }
+
+  .form-element.check_box .dc-checkbox {
+    [type='checkbox'] + label[for] {
+      position: relative;
+      left: 0;
+      top: 0;
+      padding: 1rem;
+      margin: 0;
+    }
+  }
+
+  .form-element.detail_object > .content-object-item {
+    border: none;
+    box-shadow: none;
+  }
+
+  .content-object-item {
+    border-radius: $global-radius;
+  }
+
+  .form-element {
+    &[readonly],
+    &[data-readonly='true'],
+    &[disabled],
+    &.disabled {
+      input,
+      .editor-block,
+      .daterange,
+      .embedded_object:not(.publication_schedule) .content-object-item,
+      .readonly-select,
+      .form-element.detail_object,
+      .map-info.detail_object,
+      .form-element.linked,
+      .form-element.boolean,
+      .form-element.check_box,
+      .form-element.asset,
+      .form-element.radio_button,
+      .form-element.geographic .geographic,
+      .select2,
+      .editor-block > .attribute-edit-label,
+      .editor-block > .ql-toolbar {
+        cursor: not-allowed !important;
+        background: lighten($light-gray, 5%) !important;
+      }
     }
   }
 
@@ -823,6 +872,7 @@ footer {
         &.remote-render-failed {
           box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
           padding: 2.5rem 1rem 1.2rem 1rem;
+          border-radius: $global-radius;
 
           &::before {
             margin-top: 2.5rem;
@@ -1309,6 +1359,7 @@ body .v-select {
   display: block;
   text-align: center;
   padding: 1rem 0;
+  grid-column: 1 / -1;
 }
 
 .overflow-hidden {
@@ -1368,6 +1419,7 @@ body .v-select {
         margin: -0.5rem -0.5rem -0.5rem 0.5rem;
       }
     }
+
     fieldset:not(.active) {
       display: none;
     }
@@ -1375,15 +1427,21 @@ body .v-select {
     > .buttons {
       padding-top: 1rem;
       border-top: 1px lighten($dark-gray, 20%) dashed;
+      display: grid;
+      grid-auto-flow: column;
+      grid-gap: 1rem;
+      justify-content: end;
 
       .submit {
         display: none;
       }
     }
+
     fieldset.template.active ~ .translatable-attribute-locales,
     fieldset.template.active ~ .form-thumbnail {
       display: none;
     }
+
     > .form-thumbnail {
       position: absolute;
       height: 2.8rem;
@@ -1418,9 +1476,11 @@ body .v-select {
           display: inline-block;
         }
       }
+
       legend {
         display: none;
       }
+
       .form-loading {
         text-align: center;
         line-height: 5.5rem;
@@ -1486,9 +1546,18 @@ body .v-select {
       .copy-attribute-to-all + .form-element {
         margin-right: 4rem;
       }
+
       .form-element {
         min-height: 3rem;
         margin-bottom: 1rem;
+
+        &.linked {
+          .show-objectbrowser {
+            top: 0;
+            right: 0;
+          }
+        }
+
         .translated {
           display: none;
         }

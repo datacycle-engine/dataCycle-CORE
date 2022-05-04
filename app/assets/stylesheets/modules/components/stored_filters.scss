@@ -136,6 +136,8 @@
       &.content-item {
         padding: 0.8rem 1rem 0.8rem 1rem;
         background-color: $white;
+        border-bottom: 1px solid $medium-gray;
+        border-radius: $global-radius;
 
         .content-title {
           &.global {
@@ -153,9 +155,8 @@
           bottom: 0;
           z-index: -1;
           box-shadow: 0 1px 3px $dark-gray;
+          border-radius: $global-radius;
         }
-
-        border-bottom: 1px solid $medium-gray;
 
         a {
           color: $black;

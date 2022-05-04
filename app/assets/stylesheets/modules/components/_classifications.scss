@@ -143,6 +143,7 @@ ul.backend-treeview-list,
         background: $light-gray;
         box-shadow: none;
         transition: background-color 0.1s, box-shadow 0.1s;
+        border-radius: $global-radius;
 
         > label {
           display: block;
@@ -395,6 +396,8 @@ ul.backend-treeview-list,
     &.new_classification_tree_label {
       padding: 1rem;
       box-shadow: 0 3px 3px $medium-gray;
+      border-bottom-left-radius: $global-radius;
+      border-bottom-right-radius: $global-radius;
     }
 
     &.new-classification-tree-label {
