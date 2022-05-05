@@ -24,12 +24,6 @@
           data-value="<%= value_to_geojson(value, {id: content.id})&.to_json %>"
           data-additional-values="<%= additional_values&.to_json %>">
     </div>
-    <% if DataCycleCore.default_map_position.dig('editor') == 'OpenLayers' %>
-      <div class="ol-popup">
-        <a href="#" class="ol-popup-closer"><i class="fa fa-times" aria-hidden="true"></i></a>
-        <div class="ol-popup-content"></div>
-      </div>
-    <% end %>
   </div>
 
   <div class="map-info <%= 'linestring-info' if is_line_string %>">
