@@ -5,7 +5,7 @@ module DataCycleCore
     module Compute
       module Copyright
         class << self
-          def copyright_notice(computed_parameters:, data_hash:, content:, computed_definition:, **_args)
+          def copyright_notice(computed_parameters:, data_hash:, content:, computed_definition:, key:, **_args)
             copyright_notice = []
             computed_definition.dig('compute', 'parameters')&.sort&.each do |definition|
               case content&.properties_for(definition[1])&.dig('type')
@@ -20,7 +20,7 @@ module DataCycleCore
                 copyright_notice.push(data_hash&.key?(definition[1]) ? computed_parameters.dig(definition[0]&.to_i).presence : content.try(definition[1]).presence)
               end
             end
-            copyright_notice.compact.presence&.join(' / ')&.prepend('(c) ')
+            copyright_notice.compact.presence&.join(' / ')&.prepend('(c) ') || content.try(key) || data_hash.dig(key)
           end
         end
       end

@@ -374,11 +374,10 @@ module DataCycleCore
                 end
 
                 # cc_rel
-                assert_attributes(json_validate, required_attributes, ['url', 'license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
+                assert_attributes(json_validate, required_attributes, ['url', 'license', 'attribution_url', 'attribution_name', 'license_classification']) do
                   # license is overwritten by license_classification
                   {
                     'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
-                    'cc:useGuidelines' => @content.use_guidelines,
                     'url' => @content.attribution_url,
                     'copyrightNotice' => @content.copyright_notice_computed
                   }
