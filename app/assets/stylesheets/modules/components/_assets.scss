@@ -303,7 +303,6 @@ ul.asset-list {
     .content-upload-form {
       .buttons {
         position: absolute;
-        display: flex;
         bottom: 0;
         left: 0;
         width: 100%;
@@ -311,15 +310,14 @@ ul.asset-list {
         background-color: $white;
         text-align: right;
         z-index: 1;
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        grid-gap: 1rem;
 
         .button,
         button {
           margin: 0;
-          flex: 1;
-
-          &:not(:last-child) {
-            margin-right: 1rem;
-          }
         }
       }
     }

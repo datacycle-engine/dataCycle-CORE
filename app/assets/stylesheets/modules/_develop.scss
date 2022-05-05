@@ -1856,6 +1856,10 @@ label[for='user_access_token'] {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+
+  .copy-to-clipboard {
+    margin-left: 0.5rem;
+  }
 }
 
 .copy-to-clipboard {
@@ -2027,8 +2031,8 @@ select {
     .additional-feature-popup {
       pointer-events: none;
 
-      .mapboxgl-popup-content,
-      .mapboxgl-popup-tip {
+      .maplibregl-popup-content,
+      .maplibregl-popup-tip {
         pointer-events: none;
       }
     }
@@ -2279,7 +2283,7 @@ select {
         }
       }
     }
-    .mapboxgl-popup-content {
+    .maplibregl-popup-content {
       padding-right: 2rem;
 
       .ol-popup-detail-link {
@@ -2292,7 +2296,7 @@ select {
         }
       }
 
-      .mapboxgl-popup-close-button {
+      .maplibregl-popup-close-button {
         padding: 0.4rem 0.6rem;
         top: 0;
         font-size: 1.2rem;
@@ -3201,7 +3205,7 @@ section.duplicate-candidates {
     position: relative;
     top: 0;
     left: 0;
-    margin: 0 1.5rem 0 0.3rem;
+    margin: 0 1.5rem 0 0;
     white-space: nowrap;
     overflow: hidden;
     display: flex;

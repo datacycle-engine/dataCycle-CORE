@@ -801,10 +801,28 @@ footer {
         input[type='checkbox'] {
           margin: 1rem 0 1rem 1rem;
         }
+
         input[type='checkbox'] + label[for] {
           position: relative;
           top: 0;
           left: 0;
+
+          &.attribute-edit-label {
+            display: inline-flex;
+          }
+        }
+      }
+
+      &.dc-checkbox {
+        input[type='checkbox'] {
+          margin: 0;
+        }
+
+        input[type='checkbox'] + label[for] {
+          position: relative;
+          top: unset;
+          left: unset;
+          margin: 1rem;
 
           &.attribute-edit-label {
             display: inline-flex;
