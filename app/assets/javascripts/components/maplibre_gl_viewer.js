@@ -21,7 +21,7 @@ class MapLibreGlViewer {
     this.additionalValues = this.$container.data('additionalValues') || {};
     this.additionalValuesOverlay = this.$container.data('additionalValuesOverlay');
     this.feature;
-    this.additionalFeatures = [];
+    this.additionalFeatures = {};
     this.icons = iconPaths;
     this.colorsHandler = {
       get: function (target, name) {
@@ -197,27 +197,14 @@ class MapLibreGlViewer {
   }
   drawFeatures() {
     if (!this.feature && this.value) this.feature = this.value;
-    // if (this.beforeValue) this.additionalFeatures = this.beforeValue; // TODO:
-    // if (this.afterValue) this.feature = this.afterValue;
-
-    // for (const geoJSON of Object.values(this.additionalValues)) {
-    //   this.additionalFeatures.push(geoJSON);
-    //   // this.additionalFeatures.push(...geoJSON);
-    // }
+    if (this.afterValue) this.feature = this.afterValue;
 
     if (this.feature) this._addSourceAndLayer('primary', this.feature);
-    // if (this.additionalFeatures.length > 0) this._addSourceAndLayer('secondary', this.additionalFeatures[0]); // TODO:
   }
   drawAdditionalFeatures() {
-    // for (const geoJSON of Object.values(this.additionalValues)) {
-    //   this.additionalFeatures.push(geoJSON);
-    //   // this.additionalFeatures.push(...geoJSON);
-    // }
+    const beforeFeature = this.beforeValue ? { beforeValue: this.beforeValue } : {};
 
-    // if (this.additionalFeatures.length > 0) this._addSourceAndLayer('secondary', this.additionalFeatures[0]); // TODO:
-    // if (this.additionalFeatures.length > 0) this._addSelectedSourceAndLayers('secondary', this.additionalFeatures[0]); // TODO:
-
-    this.additionalFeatures = this.additionalValues;
+    this.additionalFeatures = { ...beforeFeature, ...this.additionalValues };
 
     for (const [key, value] of Object.entries(this.additionalFeatures)) {
       this._addSelectedSourceAndLayers(key, value);
@@ -498,7 +485,7 @@ class MapLibreGlViewer {
     for (const geoJson of Object.values(this.additionalFeatures)) {
       bounds.extend(this.getBoundsForGeojson(geoJson));
     }
-    // TODO: AdditionalValuesDings
+    // TODO: how do AdditionalValues fit here?
 
     if (isEmpty(bounds)) return;
 
