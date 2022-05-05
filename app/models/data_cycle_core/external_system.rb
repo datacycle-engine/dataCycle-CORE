@@ -58,7 +58,7 @@ module DataCycleCore
       return @download_pretty_list if defined? @download_pretty_list
       @download_pretty_list = download_config
         &.sort_by { |v| v.second['sorting'] }
-        &.map { |k, _| "#{v['sorting'].to_s.ljust(4)}:#{k.to_sym}" }
+        &.map { |k, v| "#{v['sorting'].to_s.ljust(4)}:#{k.to_sym}" }
     end
 
     def download_list_ranked
@@ -80,7 +80,7 @@ module DataCycleCore
       return @import_pretty_list if defined? @import_pretty_list
       @import_pretty_list = import_config
         &.sort_by { |v| v.second['sorting'] }
-        &.map { |k, _| "#{v['sorting'].to_s.ljust(4)}:#{k.to_sym}" }
+        &.map { |k, v| "#{v['sorting'].to_s.ljust(4)}:#{k.to_sym}" }
     end
 
     def import_list_ranked
