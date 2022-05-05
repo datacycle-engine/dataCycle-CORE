@@ -479,6 +479,8 @@ de:
     media_archive: im Medienarchiv öffnen
 
   feature:
+    duplicate_candidate:
+      manual_button: Manuell zum Zusammenführen auswählen
     releasable:
       version_and_status: Version & Status
     named_version:
@@ -579,7 +581,7 @@ de:
     validity_period: Gültigkeitszeitraum
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
-    not_duplicate_candidates: keine potentiellen Duplikate vorhanden
+    not_1dates: keine potentiellen Duplikate vorhanden
     bookable: buchbar
     not_bookable: nicht buchbar
     width: Breite
@@ -899,6 +901,7 @@ de:
       missing_parameter: Parameter fehlt!
       duplicate:
         type_mismatch: 'Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!'
+        cannot_merge_self: Der Inhalt kann nicht mit sich selbst zusammengeführt werden!
       session_expired: Die Sitzung ist abgelaufen, bitte melden Sie sich erneut an.
       token_invalid: Die Sitzung ist abgelaufen, bitte laden Sie die Seite neu.
       no_shared_attributes: Es gibt keine Attribute, die bei allen Inhalten vorkommen
