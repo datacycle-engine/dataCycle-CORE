@@ -197,14 +197,13 @@ class MapLibreGlViewer {
   }
   drawFeatures() {
     if (!this.feature && this.value) this.feature = this.value;
-    if (this.afterValue) this.feature = this.afterValue;
-
-    if (this.feature) this._addSourceAndLayer('primary', this.feature);
+    if (!this.afterValue && this.feature) this._addSourceAndLayer('primary', this.feature);
   }
   drawAdditionalFeatures() {
     const beforeFeature = this.beforeValue ? { beforeValue: this.beforeValue } : {};
+    const afterFeature = this.afterValue ? { afterValue: this.afterValue } : {};
 
-    this.additionalFeatures = { ...beforeFeature, ...this.additionalValues };
+    this.additionalFeatures = { ...beforeFeature, ...afterFeature, ...this.additionalValues };
 
     for (const [key, value] of Object.entries(this.additionalFeatures)) {
       this._addSelectedSourceAndLayers(key, value);
@@ -377,6 +376,8 @@ class MapLibreGlViewer {
     });
   }
   _highlightLinked(feature) {
+    if (!feature.properties.thingPath) return;
+
     let listElement = $('li[data-id*="' + feature.properties.thingPath.split('/').pop() + '"]');
 
     listElement.addClass('highlight');
