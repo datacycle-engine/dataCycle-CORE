@@ -32,8 +32,10 @@ class TourSprungEditor extends OpenLayersEditor {
     this.elevationProfilePromise;
     this.keyFiguresMapping = {
       length: 'distance',
-      max_altitude: 'highest_point',
-      min_altitude: 'lowest_point'
+      max_altitude: 'elevation_max',
+      min_altitude: 'elevation_min',
+      ascent: 'ascend',
+      descent: 'descend'
     };
   }
   static isAllowedType(type) {
@@ -99,9 +101,9 @@ class TourSprungEditor extends OpenLayersEditor {
     const keyFigures = this.elevationProfile.getData();
     const key = data.attributeKey;
 
-    if (!key || !keyFigures) return;
+    if (!key || !keyFigures || !keyFigures.elevation) return;
 
-    data.callback(Math.round(keyFigures[this.keyFiguresMapping[key] || key]));
+    data.callback(Math.round(keyFigures.elevation[this.keyFiguresMapping[key] || key]));
   }
   configureMap(map) {
     this.map = map;

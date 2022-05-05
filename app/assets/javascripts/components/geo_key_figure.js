@@ -140,7 +140,7 @@ class GeoKeyFigure {
       });
   }
   async setNewValue(value) {
-    if (!value && value !== false) {
+    if (typeof value !== 'number') {
       this.showErrorMessage(await I18n.translate('frontend.validate.errors.key_figure_not_found'));
 
       return;
