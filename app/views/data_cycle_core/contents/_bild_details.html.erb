@@ -96,7 +96,7 @@
                 <% end %>
               </dd>
 
-              <% ['date_created', 'date_modified', 'upload_date'].each do |property_name| %>
+              <% ['date_created', 'date_modified', 'upload_date', 'recording_date'].each do |property_name| %>
                 <% next if content.try(property_name.to_sym).blank? %>
                 <dd>
                   <%= render_attribute_viewer key: property_name,
