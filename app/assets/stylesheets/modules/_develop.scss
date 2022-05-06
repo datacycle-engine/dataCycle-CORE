@@ -1,5 +1,4 @@
 /* todo: merge styles */
-/* Fixes for Firefox */
 .detail-header.editor {
   > .translatable-attribute-container > .translatable-attribute > .form-element,
   > .form-element {
@@ -16,6 +15,59 @@
     color: $dark-gray;
     text-shadow: none;
     cursor: not-allowed;
+  }
+
+  > .detail-type.linked {
+    margin-bottom: 1rem;
+    padding: 2rem 1rem 1rem 1rem;
+    border: 1px solid rgba($dark-gray, 0.5);
+    outline: none;
+    height: auto;
+    line-height: 1;
+    box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+    position: relative;
+    transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+    min-width: 150px;
+    border-radius: $global-radius;
+    cursor: not-allowed !important;
+    background: lighten($light-gray, 5%) !important;
+
+    &:hover {
+      border-color: transparent;
+      box-shadow: 0 0 7px $primary-color;
+
+      > .detail-label {
+        color: $primary-color;
+      }
+    }
+
+    &:focus {
+      border-color: $primary-color;
+    }
+
+    > .detail-label {
+      text-align: left;
+      position: absolute;
+      top: 0.2rem;
+      left: 1rem;
+      z-index: 12;
+      color: $dark-gray;
+      transition: color ease-in-out 0.25s;
+      padding-top: 0.5rem;
+      opacity: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &::before {
+        content: '\f05e';
+        font-family: FontAwesome;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.3rem;
+      }
+    }
   }
 
   .form-element {
