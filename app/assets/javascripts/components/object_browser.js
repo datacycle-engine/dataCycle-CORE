@@ -170,10 +170,17 @@ class ObjectBrowser {
       });
 
     data.ids.forEach(id => {
-      this.addObject(id, this.overlay.find('[data-id=' + id + ']').clone(), event);
+      this.addObject(id, this.cloneHtml(this.overlay.find('[data-id=' + id + ']')), event);
     });
 
     $('#new_' + this.id + '.in-object-browser form').trigger('reset');
+  }
+  cloneHtml(html) {
+    const $cloned = $(html).clone();
+
+    $cloned.find('[data-dc-tooltip-id]').each((_i, item) => item.removeAttribute('data-dc-tooltip-id'));
+
+    return $cloned;
   }
   async importDataHandler(_event, data) {
     let newItems = [],
@@ -257,7 +264,7 @@ class ObjectBrowser {
       this.loadDetails($target.data('id'));
     }
     if (this.chosen.indexOf($target.data('id')) == -1) {
-      this.addObject($target.data('id'), $target.clone(), event);
+      this.addObject($target.data('id'), this.cloneHtml($target), event);
     } else {
       this.removeObject($target.data('id'), event);
     }
@@ -380,7 +387,7 @@ class ObjectBrowser {
     this.objectListElement.classList.remove('has-items');
     this.element
       .find('> .media-thumbs > .object-thumbs')
-      .html('<input type="hidden" id="' + this.hidden_field_id + '" name="' + this.key + '[]">');
+      .html(`<input type="hidden" id="${this.hidden_field_id}" name="${this.key}[]">`);
   }
   findObjects(ids, external) {
     return DataCycle.httpRequest({
@@ -431,7 +438,7 @@ class ObjectBrowser {
       this.element
         .children('.media-thumbs')
         .children('.object-thumbs')
-        .html(this.overlay.find('.chosen-items-container li.item').clone())
+        .html(this.cloneHtml(this.overlay.find('.chosen-items-container li.item')))
         .children('li.item')
         .find('.reveal.media-preview')
         .each(function () {
@@ -555,7 +562,7 @@ class ObjectBrowser {
   setPreselected() {
     this.overlay
       .find('.chosen-items-container')
-      .html(this.element.find('> .media-thumbs > .object-thumbs > li.item').clone())
+      .html(this.cloneHtml(this.element.find('> .media-thumbs > .object-thumbs > li.item')))
       .find('[data-tooltip]')
       .each(function () {
         $(this).attr('title', $(this).data('title')).foundation().addClass('dc-fd-initialized');

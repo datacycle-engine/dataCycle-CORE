@@ -5,8 +5,11 @@ module DataCycleCore
     INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']
     GROUP_FLAGS = [
       'collapsible',
-      'squashed',
-      'collapsed'
+      'one_line',
+      'collapsed',
+      'two_columns',
+      'three_columns',
+      'four_columns'
     ].freeze
 
     def object_from_definition(definition)
@@ -17,11 +20,20 @@ module DataCycleCore
     end
 
     def attribute_group_title(content, key)
+      label_html = ActionView::OutputBuffer.new
+
       if I18n.exists?("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)
-        I18n.t("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)
+        label_html << tag.span(I18n.t("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale))
       elsif I18n.exists?("attribute_labels.#{key.attribute_name_from_key}", locale: active_ui_locale)
-        I18n.t("attribute_labels.#{key.attribute_name_from_key}", locale: active_ui_locale)
+        label_html << tag.span(I18n.t("attribute_labels.#{key.attribute_name_from_key}", locale: active_ui_locale))
+      else
+        return
       end
+
+      label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-object"))
+      label_html << render('data_cycle_core/contents/helper_text', key: key, content: content)
+
+      label_html
     end
 
     def ordered_validation_properties(validation:, type: nil, content_area: nil)
@@ -35,7 +47,9 @@ module DataCycleCore
         next if content_area.presence&.!=('content') && prop.dig('ui', 'show', 'content_area') != content_area
         next if content_area == 'content' && prop.dig('ui', 'show', 'content_area').present?
 
-        if (group = prop&.[]('ui')&.delete('attribute_group')).present? && content_area != 'header'
+        if prop&.[]('ui')&.key?('attribute_group') && content_area != 'header'
+          group = prop['ui'].then { |g| g['attribute_group'].is_a?(::Array) ? g['attribute_group'].shift : g.delete('attribute_group') }
+          prop['ui'].delete('attribute_group') if prop['ui'].key?('attribute_group') && prop.dig('ui', 'attribute_group').blank?
           group_name = group.remove(*GROUP_FLAGS.map { |f| "_#{f}" })
           ordered_props[group_name] ||= {
             'type' => 'attribute_group',

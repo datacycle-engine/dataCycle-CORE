@@ -1,13 +1,12 @@
 <% render_locale = I18n.locale %>
 <% I18n.with_locale(object.first_available_locale) do %>
+  <% content_for(:tile_header_buttons, tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle')) if local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>
+  <% content_for(:tile_header_buttons, render('data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.try(:icon_class) || object.class.name.demodulize.underscore_blanks)) %>
   <% content_for(:tile_header_buttons, render_linked_content_warnings(content, { content: object, locale: render_locale })) %>
 
   <%= render 'data_cycle_core/contents/grid/compact/tile_wrapper', local_assigns.merge(tile_classes: 'media') do %>
     <div class="tile-top">
-      <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>
-
       <%= yield_content!(:tile_links) %>
-      <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.try(:icon_class) || object.class.name.demodulize.underscore_blanks %>
 
       <%= render_translatable_linked_field(content, 'data_cycle_core/contents/grid/compact/attributes/title', { object: object }) %>
 

@@ -84,7 +84,7 @@
           <div class="form-element">
             <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:classification_tree_labels, locale: active_ui_locale) %>
             <div class="v-select white">
-              <%= f.collection_select(:classification_tree_labels, DataCycleCore::ClassificationTreeLabel.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+              <%= f.collection_select(:classification_tree_labels, DataCycleCore::ClassificationTreeLabel.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '', close_on_select: false } }) %>
             </div>
           </div>
         <% end %>

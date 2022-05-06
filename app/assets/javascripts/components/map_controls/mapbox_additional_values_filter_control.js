@@ -1,5 +1,3 @@
-import DomElementHelpers from '../../helpers/dom_element_helpers';
-import pull from 'lodash/pull';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 
@@ -32,7 +30,7 @@ class AdditionalValuesFilterControl {
   }
   _setupControls() {
     this.container = document.createElement('div');
-    this.container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group additional-values-overlay-control';
+    this.container.className = 'maplibregl-ctrl maplibregl-ctrl-group additional-values-overlay-control';
 
     this.controlButton = document.createElement('button');
     this.controlButton.className = 'dc-additional-values-overlay-button';
@@ -66,8 +64,15 @@ class AdditionalValuesFilterControl {
       this._addGeoJsonSource(key, this.geojsonValues[key]);
     }
   }
+  _reloadOverlayData(_event = undefined) {
+    for (const key of Object.keys(this.config)) {
+      this._addGeoJsonSource(key, this.geojsonValues[key]);
+    }
+  }
   _addEventHandlers() {
     this.controlButton.addEventListener('click', this._toggleOverlay.bind(this));
+
+    this.editor.map.on('maptypechanged', this._reloadOverlayData.bind(this));
 
     this._addOverlayTargetEvents();
   }
@@ -309,6 +314,7 @@ class AdditionalValuesFilterControl {
     this.lastLoadedFilter[key] = this.activeFilters[key].filter.slice();
 
     this.geojsonValues[key] = data;
+
     await this.map.getSource(this.additionalSources[key]).setData(this.geojsonValues[key]);
   }
 }

@@ -1005,6 +1005,38 @@ $filter-border: #aaa;
         text-align: left;
         cursor: pointer;
 
+        &.search-favorites-short {
+          > ul li {
+            a:not(.button) {
+              padding: 1rem 1rem 1.5rem 1rem;
+            }
+
+            .buttons {
+              display: flex;
+              align-items: center;
+              justify-content: flex-end;
+              position: absolute;
+              bottom: 1px;
+              right: 1px;
+              z-index: 1;
+
+              a {
+                position: relative;
+                padding: 0.2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+
+              .preview-widget-list {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+              }
+            }
+          }
+        }
+
         &.search-history-short > ul li .stored-date {
           color: $black;
           margin-bottom: 0.2rem;
@@ -1138,21 +1170,6 @@ $filter-border: #aaa;
 
             a.button {
               margin: 1rem;
-            }
-            .preview-widget-list {
-              display: flex;
-              align-items: center;
-              justify-content: flex-end;
-              position: absolute;
-              bottom: 0.5rem;
-              right: 0.5rem;
-              z-index: 1;
-
-              a {
-                position: relative;
-                display: inline-block;
-                padding: 0.5rem;
-              }
             }
           }
         }
@@ -1304,6 +1321,7 @@ $filter-border: #aaa;
     justify-content: center;
     padding: 0.6rem;
     border: 1px solid $light-gray;
+    border-radius: $global-radius;
 
     #tree-view-selector::before {
       left: unset;
@@ -1352,6 +1370,7 @@ $filter-border: #aaa;
     margin-right: auto;
     border: 1px solid $light-gray;
     min-width: 6rem;
+    border-radius: $global-radius;
 
     &.remote-render,
     &.remote-rendering {

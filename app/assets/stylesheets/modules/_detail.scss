@@ -283,13 +283,13 @@
           }
 
           &.media {
+            position: relative;
+            text-align: left;
+            padding-top: 2.5rem;
+
             .media-thumbs {
               display: flex;
             }
-
-            position: relative;
-            text-align: left;
-            padding-top: 1.2rem;
           }
 
           .detail-label {
