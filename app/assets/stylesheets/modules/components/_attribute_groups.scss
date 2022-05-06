@@ -116,12 +116,14 @@
       }
     }
 
-    &.one_line {
+    &.one_line,
+    &.two_columns,
+    &.three_columns,
+    &.four_columns {
       > .attribute-group-item {
         > .attribute-group-content > .attribute-group-content-element {
           display: grid;
-          grid-auto-flow: column;
-          grid-auto-columns: minmax(0, 1fr);
+          grid-auto-columns: 1fr;
           grid-gap: 1rem;
 
           > * {
@@ -147,20 +149,8 @@
       }
     }
 
-    &.two_columns,
-    &.three_columns,
-    &.four_columns {
-      > .attribute-group-item {
-        > .attribute-group-content > .attribute-group-content-element {
-          display: grid;
-          grid-auto-columns: 1fr;
-          grid-gap: 1rem;
-
-          > * {
-            margin: 0 !important;
-          }
-        }
-      }
+    &.one_line > .attribute-group-item > .attribute-group-content > .attribute-group-content-element {
+      grid-auto-flow: column;
     }
 
     &.two_columns > .attribute-group-item > .attribute-group-content > .attribute-group-content-element {
