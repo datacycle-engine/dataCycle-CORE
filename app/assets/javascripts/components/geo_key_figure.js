@@ -3,7 +3,9 @@ class GeoKeyFigure {
     this.$element = $(element);
     this.url = this.$element.prop('href');
     this.$formElement = this.$element.closest('.form-element');
-    this.$triggerAllButton = this.$element.closest('.content-object-item').find('.geo-key-figure-button-all');
+    this.$triggerAllButton = this.$element
+      .closest('.content-object-item, .attribute-group.editor.has-title')
+      .find('.geo-key-figure-button-all');
     this.key = this.$element.data('key');
     this.fullKey = this.$element.data('fullKey');
     this.local = this.$element.data('local');

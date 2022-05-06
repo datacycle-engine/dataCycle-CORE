@@ -12,6 +12,12 @@
     }
   }
 
+  .attribute-group-item > .buttons > .geo-key-figure-button-all.disabled {
+    color: $dark-gray;
+    text-shadow: none;
+    cursor: not-allowed;
+  }
+
   .form-element {
     .geo-key-figure-button,
     .geo-key-figure-button-all {
@@ -763,8 +769,12 @@ select {
       }
     }
 
+    .attribute-group-item > .buttons > .copy-all {
+      padding: 0;
+    }
+
     .detail-type.object {
-      .split-view-all-buttons {
+      .buttons {
         float: right;
         display: flex;
         align-items: center;
@@ -787,6 +797,7 @@ select {
           &.copy-all {
             order: 2;
           }
+
           &.translate-all {
             order: 1;
           }
@@ -806,20 +817,30 @@ select {
         }
       }
 
-      .split-view-all-buttons {
+      > .buttons {
         float: right;
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 1;
         position: relative;
+        top: unset;
+        right: unset;
 
         a {
           margin: 0.1rem;
+          height: 3rem;
+          width: 3rem;
+
+          .fa {
+            line-height: 3rem;
+            font-size: 1.5rem;
+          }
 
           &.copy-all {
             order: 2;
           }
+
           &.translate-all {
             order: 1;
           }

@@ -5,8 +5,11 @@ module DataCycleCore
     INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']
     GROUP_FLAGS = [
       'collapsible',
-      'squashed',
-      'collapsed'
+      'one_line',
+      'collapsed',
+      'two_columns',
+      'three_columns',
+      'four_columns'
     ].freeze
 
     def object_from_definition(definition)
