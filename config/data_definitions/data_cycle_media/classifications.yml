@@ -1,8 +1,5 @@
 - Inhaltstypen | filter:
   - $$Asset:
-    - $$Audio
-    - $$Bild
-    - $$Video
     - $$Datei
     - $$PDF
 

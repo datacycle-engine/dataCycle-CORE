@@ -34,7 +34,7 @@ module DataCycleCore
           .>> t(:add_field, 'thumbnail_url', ->(s) { ['http:', s.dig('thumbnails', 't2', 'url')].join if s.dig('thumbnails', 't2', 'url').present? })
           .>> t(:add_field, 'width', ->(s) { s.dig('thumbnails', 't0', 'width') })
           .>> t(:add_field, 'height', ->(s) { s.dig('thumbnails', 't0', 'height') })
-          .>> t(:add_field, 'license', ->(s) { s.dig('copyright') })
+          .>> t(:add_field, 'copyright_notice_override', ->(s) { s.dig('copyright') })
           .>> t(:reject_keys, ['id'])
           .>> t(:strip_all)
         end
