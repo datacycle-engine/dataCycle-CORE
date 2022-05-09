@@ -12,7 +12,6 @@ module DataCycleCore
 
         def include?(content, *_args)
           return false if session[:data_link_ids].blank?
-
           DataCycleCore::DataLink.where(id: session[:data_link_ids], permissions: 'write').valid.includes(:item).find_each do |link|
             release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
 
