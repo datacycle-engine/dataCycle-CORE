@@ -165,7 +165,8 @@
     max-width: 450px;
 
     &.highlight {
-      box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+      // box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+      box-shadow: 0 0 7px $primary-color;
     }
 
     .object-browser-tile-checkbox {
@@ -422,6 +423,11 @@
         .content-warning {
           color: $alert-color;
         }
+      }
+
+      &.highlight {
+        // box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        box-shadow: 0 0 7px $primary-color;
       }
 
       .name {
