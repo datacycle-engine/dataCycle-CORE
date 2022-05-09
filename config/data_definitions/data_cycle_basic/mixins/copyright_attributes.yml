@@ -115,55 +115,6 @@
             :name: 'cc:license'
             :disabled: false
             :partial: string
-      # FINAL => DELETE
-      # :more_permissions:
-      #   :label: Weitere Kriterien
-      #   :type: string
-      #   :storage_location: value
-      #   :search: true
-      #   :external: true
-      #   :api:
-      #     :v4:
-      #       :name: 'cc:morePermissions'
-
-      # FINAL => DELETE
-      # :explicit_copyright_notice:
-      #   :label: raw_imported_copyright
-      #   :type: string
-      #   :storage_location: translated_value
-      #   :api:
-      #     :disabled: true
-      #   :xml:
-      #     :disabled: true
-      #   :ui:
-      #     :edit:
-      #       :disabled: true
-      #     :show:
-      #       :disabled: true
-      
-      # FINAL => DELETE
-      # latest test virtual in serializer
-      # used in license serializer
-      # /app/models/data_cycle_core/serialize/serializer/license.rb
-      # vcloud: overwrite compute method
-      # :computed_attribution_name:
-      #   :label: hidden attribution name
-      #   :storage_location: translated_value
-      #   :type: computed
-      #   :search: true
-      #   :external: false
-      #   :compute:
-      #     :type: string
-      #     :module: Utility::Compute::String
-      #     :method: attribution_name
-      #     :parameters:
-      #       :0: copyright_holder
-      #       :1: author
-      #   :api:
-      #     :disabled: true
-      #   :ui:
-      #     :show:
-      #       :disabled: true
       :copyright_notice_computed:
         :label: Urheberrechtsvermerk (automatisch)
         :storage_location: value
