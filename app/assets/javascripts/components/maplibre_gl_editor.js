@@ -31,33 +31,26 @@ class MapLibreGlEditor extends MapLibreGlViewer {
   static isAllowedType(type) {
     return true;
   }
-  configureMap() {
-    super.configureMap();
-    this.configureEditor();
-
-    // this.initAdditionalControls();
-    // this.initMapActions();
-  }
   initFeatures() {
     if (!this.feature && this.value) this.feature = this.value;
+    // to ensure additional features are drawn last, the editor is initiallized here
+    this.configureEditor();
     this.drawAdditionalFeatures();
   }
-
   configureEditor() {
     this.initAdditionalControls();
 
     if (this.feature) this.initEditFeature();
 
-    if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.geoCodeAddress.bind(this));
-
     // if (!isEmpty(this.additionalValuesOverlay))
     //   this.map.addControl(new AdditionalValuesFilterControl(this), 'bottom-left'); // TODO: locally override called methods if neccessary
   }
   initEventHandlers() {
-    //TODO: check toursprung-editor for different handlers
+    //TODO:
     // this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
     this.$latitudeField.on('change', this.updateMapMarker.bind(this));
     this.$longitudeField.on('change', this.updateMapMarker.bind(this));
+    if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.geoCodeAddress.bind(this));
   }
 
   initAdditionalControls() {
@@ -75,28 +68,26 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     });
     this.map.addControl(this.draw);
 
+    this.initDrawEventHandlers();
+  }
+  initDrawEventHandlers() {
     this.map.on('draw.create', event => {
       this.feature = event.features[0];
       this.setCoordinates();
       this.setHiddenFieldValue(this.feature);
-      // this.initGeometryEditActions(); // TODO: do we need this for point?
     });
 
-    // TODO:
-    this.map.on('draw.delete', event => {
+    this.map.on('draw.delete', _event => {
       this.removeFeature();
     });
 
-    // TODO:
     this.map.on('draw.update', event => {
       this.feature = event.features[0];
       this.setCoordinates();
       this.setHiddenFieldValue(this.feature);
-      // this.initGeometryEditActions(); // TODO: do we need this for point?
     });
   }
   getMapDrawMode() {
-    // TODO: if already then select mode
     if (this.feature) {
       return 'simple_select';
     }
@@ -106,6 +97,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     return this.isPoint() ? this._getDrawPointStyle() : this._getDrawLineStyle();
   }
   initEditFeature() {
+    console.log('initeditFeature');
     const featureIds = this.draw.add(this.feature);
     if (this.isLineString()) this.draw.changeMode('direct_select', { featureId: featureIds[0] });
     if (this.isPoint()) this.draw.changeMode('simple_select', { featureIds: featureIds });
@@ -218,14 +210,8 @@ class MapLibreGlEditor extends MapLibreGlViewer {
       }
     }
   }
-  // TODO:
-  removeFeature(event) {
-    // console.log(event);
-    // event.preventDefault(); // TODO: do we need this when calling programatically?
-    if (event) event.preventDefault();
-
+  removeFeature() {
     if (this.feature) {
-      // this.source.removeFeature(this.feature); // TODO: remove from map when calling programatically
       this.feature = undefined;
     }
 
