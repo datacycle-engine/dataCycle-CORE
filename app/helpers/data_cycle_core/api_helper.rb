@@ -90,6 +90,19 @@ module DataCycleCore
       (content.embedded? && options.dig(:translatable_embedded)) || content.translatable? || options.dig(:languages).include?(content.first_available_locale.to_s)
     end
 
+    def ordered_api_properties(validation:, type: nil)
+      return if validation.nil? || validation['properties'].blank?
+
+      validation['properties']
+        .sort_by { |_, prop| prop['sorting'] }
+        .filter do |key, prop|
+          next false if INTERNAL_PROPERTIES.include?(key) || prop['sorting'].blank?
+          next false if type.present? && prop['type'] != type
+
+          true
+        end
+    end
+
     def load_value_object(content, key, value, languages, definition = nil)
       data_value = nil
       return api_value_format(value, definition) unless content.translatable_property_names.include?(key)

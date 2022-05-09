@@ -1170,6 +1170,17 @@ span.single_warning:before {
     }
   }
 
+  .select2-selection.select2-selection--multiple .select2-selection__choice {
+    border-radius: $global-radius;
+  }
+
+  &.select2-container {
+    .select2-selection--multiple,
+    .select2-selection--single {
+      border-radius: $global-radius;
+    }
+  }
+
   .select2-selection {
     line-height: 1.2;
 
