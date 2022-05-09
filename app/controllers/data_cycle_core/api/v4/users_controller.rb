@@ -27,7 +27,7 @@ module DataCycleCore
         def create
           authorize! :create_user, current_user
 
-          @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(user_params.merge(creator: current_user))
+          @user = (user_params[:name].present? ? DataCycleCore::UserOrganization : DataCycleCore::User).new(user_params.merge(creator: current_user))
           rank = DataCycleCore.features.dig(:user_api, :default_rank).to_i
 
           if role_params[:rank].present? && DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(role_params[:rank].to_i)
