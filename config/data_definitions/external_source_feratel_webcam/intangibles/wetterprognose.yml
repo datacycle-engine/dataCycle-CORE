@@ -94,9 +94,9 @@
       :meta_data:
         :type: mixin
         :name: meta_data
-      :cc_rel:
+      :copyright_attributes:
         :type: mixin
-        :name: cc_rel
+        :name: copyright_attributes
       :additional_properties:
         :type: mixin
         :name: additional_properties

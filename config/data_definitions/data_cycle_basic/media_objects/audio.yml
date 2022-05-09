@@ -18,6 +18,7 @@
           :asset: true
           :json: true
           :xml: true
+          :indesign: true
     :api:
       :type:
         - CreativeWork
@@ -160,20 +161,9 @@
               :aliases:
                 - Person
                 - Organisation
-      :copyright_holder:
-        :label: Rechteinhaber
-        :type: linked
-        :stored_filter:
-          - :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Person
-                - Organisation
-      :copyright_year:
-        :label: Copyright - Jahr
-        :type: number
-        :storage_location: value
-        :advanced_search: true
+      :license_fields:
+        :type: mixin
+        :name: license_fields
       :content_location:
         :label: Ort
         :type: linked
@@ -214,9 +204,9 @@
       :meta_data:
         :type: mixin
         :name: meta_data
-      :cc_rel:
+      :copyright_attributes:
         :type: mixin
-        :name: cc_rel
+        :name: copyright_attributes
       :additional_properties:
         :type: mixin
         :name: additional_properties

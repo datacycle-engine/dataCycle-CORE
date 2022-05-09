@@ -10,7 +10,7 @@ module DataCycleCore
 
         can :update, DataCycleCore::User, id: user.id
         can [:show, :find], :object_browser
-        can [:login, :renew_login, :reset_password], :user_api
+        can [:login, :renew_login, :reset_password, :confirm], :user_api
         can :create_editable_links, DataCycleCore::DataLink
         can [:show, :index], DataCycleCore::Asset, creator_id: user.id, asset_content: { id: nil }
         can :copy_api_link, DataCycleCore::WatchList, my_selection: false
