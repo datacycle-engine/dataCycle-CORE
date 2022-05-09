@@ -4,7 +4,7 @@ module Abilities
   module Permissions
     module Roles
       module Admin
-        def load_guest_permissions(role = :admin)
+        def load_admin_permissions(role = :admin)
           super
 
           add_permission(
@@ -12,6 +12,7 @@ module Abilities
             :can, :show_history,
             DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::StoredFilter, :user_id)
           )
+
           add_permission(
             DataCycleCore::Abilities::Segments::UsersByRole.new(role),
             :can, :show, :bulk_edit, :bulk_delete,
