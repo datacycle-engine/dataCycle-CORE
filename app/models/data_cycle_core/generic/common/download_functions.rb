@@ -43,9 +43,11 @@ module DataCycleCore
                   logging.info("Single download item: #{item_name}", item_id)
                 end
               rescue StandardError => e
-                Appsignal.send_error(e) do |transaction|
-                  transaction.set_namespace('background')
-                end
+                ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                  exception: e,
+                  namespace: 'background'
+                }
+
                 logging.error(nil, nil, nil, e)
               end
             end
@@ -113,9 +115,11 @@ module DataCycleCore
                         item.save!
                         logging.item_processed(item_name, item_id, item_count, max_string)
                       rescue StandardError => e
-                        Appsignal.send_error(e) do |transaction|
-                          transaction.set_namespace('background')
-                        end
+                        ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                          exception: e,
+                          namespace: 'background'
+                        }
+
                         logging.error(item_name, item_id, item_data, e)
                         success = false
                       end
@@ -130,9 +134,11 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  Appsignal.send_error(e) do |transaction|
-                    transaction.set_namespace('background')
-                  end
+                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                    exception: e,
+                    namespace: 'background'
+                  }
+
                   logging.error(nil, nil, nil, e)
                   success = false
                 ensure
@@ -197,9 +203,11 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      Appsignal.send_error(e) do |transaction|
-                        transaction.set_namespace('background')
-                      end
+                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                        exception: e,
+                        namespace: 'background'
+                      }
+
                       logging.error(item_name, item_id, item_data, e)
                       success = false
                     end
@@ -214,9 +222,11 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                Appsignal.send_error(e) do |transaction|
-                  transaction.set_namespace('background')
-                end
+                ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                  exception: e,
+                  namespace: 'background'
+                }
+
                 logging.error(nil, nil, nil, e)
                 success = false
               ensure
@@ -285,9 +295,11 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      Appsignal.send_error(e) do |transaction|
-                        transaction.set_namespace('background')
-                      end
+                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                        exception: e,
+                        namespace: 'background'
+                      }
+
                       logging.error(item_name, item_id, item_data, e)
                       success = false
                     end
@@ -302,9 +314,11 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                Appsignal.send_error(e) do |transaction|
-                  transaction.set_namespace('background')
-                end
+                ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                  exception: e,
+                  namespace: 'background'
+                }
+
                 logging.error(nil, nil, nil, e)
                 success = false
               ensure
@@ -327,9 +341,11 @@ module DataCycleCore
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)
               rescue StandardError => e
-                Appsignal.send_error(e) do |transaction|
-                  transaction.set_namespace('background')
-                end
+                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', this: {
+                  exception: e,
+                  namespace: 'background'
+                }
+
                 logging.error(nil, nil, nil, e)
               end
             end
@@ -350,9 +366,11 @@ module DataCycleCore
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)
               rescue StandardError => e
-                Appsignal.send_error(e) do |transaction|
-                  transaction.set_namespace('background')
-                end
+                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', this: {
+                  exception: e,
+                  namespace: 'background'
+                }
+
                 logging.error(nil, nil, nil, e)
               end
             end
@@ -411,9 +429,11 @@ module DataCycleCore
                         item.save!
                         logging.item_processed('delete', item_id, item_count, max_string)
                       rescue StandardError => e
-                        Appsignal.send_error(e) do |transaction|
-                          transaction.set_namespace('background')
-                        end
+                        ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', this: {
+                          exception: e,
+                          namespace: 'background'
+                        }
+
                         logging.error('delete', item_id, item_data, e)
                         success = false
                       end
@@ -428,9 +448,11 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  Appsignal.send_error(e) do |transaction|
-                    transaction.set_namespace('background')
-                  end
+                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', this: {
+                    exception: e,
+                    namespace: 'background'
+                  }
+
                   logging.error(nil, nil, nil, e)
                   success = false
                 ensure
@@ -504,9 +526,11 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  Appsignal.send_error(e) do |transaction|
-                    transaction.set_namespace('background')
-                  end
+                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', this: {
+                    exception: e,
+                    namespace: 'background'
+                  }
+
                   logging.error(nil, nil, nil, e)
                   success = false
                 ensure
@@ -580,9 +604,11 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  Appsignal.send_error(e) do |transaction|
-                    transaction.set_namespace('background')
-                  end
+                  ActiveSupport::Notifications.instrument 'mark_updated_failed.datacycle', this: {
+                    exception: e,
+                    namespace: 'background'
+                  }
+
                   logging.error(nil, nil, nil, e)
                   success = false
                 ensure
