@@ -27,7 +27,7 @@ module DataCycleCore
         def create
           authorize! :create_user, current_user
 
-          @user = (user_params[:name].present? ? DataCycleCore::UserOrganization : DataCycleCore::User).new(user_params.merge(creator: current_user))
+          @user = DataCycleCore::User.new(user_params.merge(creator: current_user))
           rank = DataCycleCore.features.dig(:user_api, :default_rank).to_i
 
           if role_params[:rank].present? && DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(role_params[:rank].to_i)
@@ -123,25 +123,29 @@ module DataCycleCore
 
         def layout_params
           params
-            .permit(:mailerLayout, :viewerLayout, :redirectUrl, :forwardToUrl)
+            .permit(:mailerLayout, :viewerLayout, :redirectUrl, :forwardToUrl).to_h
             .deep_transform_keys(&:underscore)
+            .with_indifferent_access
             .tap { |u|
               u[:mailer_layout].presence&.prepend('data_cycle_core/')
               u[:viewer_layout].presence&.prepend('data_cycle_core/')
-            }.compact_blank
+            }
+            .compact_blank
         end
 
         def password_params
           params
-            .permit(:email, :mailerLayout, :viewerLayout, :redirectUrl, :password, :passwordConfirmation, :resetPasswordToken, :confirmationToken, :forwardToUrl)
+            .permit(:email, :mailerLayout, :viewerLayout, :redirectUrl, :password, :passwordConfirmation, :resetPasswordToken, :confirmationToken, :forwardToUrl).to_h
             .deep_transform_keys(&:underscore)
+            .with_indifferent_access
             .tap { |u| u[:password_confirmation] = u[:password] if u.key?(:password) && u[:password_confirmation].blank? }
         end
 
         def user_params
           params
-            .permit(DataCycleCore::Feature::UserApi.allowed_user_params)
+            .permit(DataCycleCore::Feature::UserApi.allowed_user_params).to_h
             .deep_transform_keys(&:underscore)
+            .with_indifferent_access
         end
 
         def role_params
