@@ -1502,15 +1502,17 @@ $filter-border: #aaa;
     margin-right: 1rem;
   }
 
-  select {
+  > select {
     font-size: 0.9rem;
     margin: 0;
     height: 100%;
     border: 1px solid $light-gray;
+    border-radius: $global-radius 0 0 $global-radius;
   }
 
   .filter-sortable-checkbox-wrapper {
     border: 1px solid $light-gray;
+    border-radius: 0 $global-radius $global-radius 0;
     border-left: none;
     height: 100%;
     display: flex;
