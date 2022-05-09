@@ -27,10 +27,6 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     this.$longitudeField = this.$mapInfoContainer.find('.longitude input').first();
     this.$elevationField = this.$mapInfoContainer.find('.elevation input').first();
     this.$locationField = this.$parentContainer.siblings('input.location-data:hidden').first();
-
-    // this.additionalValuesOverlay = this.$container.data('additionalValuesOverlay');
-
-    // this.wktFormat = new this.ol.format.WKT();// TODO:
   }
   static isAllowedType(type) {
     return true;
@@ -56,22 +52,6 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 
     // if (!isEmpty(this.additionalValuesOverlay))
     //   this.map.addControl(new AdditionalValuesFilterControl(this), 'bottom-left'); // TODO: locally override called methods if neccessary
-    // this.extendEditorInterface();
-    // this.editorGui = new this.extendedEditorInterface().addTo(this.map);
-    // const waypointLayerDefinition = this.editorGui.editor.getLayerDefinitions().find(v => v.type == 'symbol');
-    // const waypointLayerId = waypointLayerDefinition && waypointLayerDefinition.id;
-    // if (waypointLayerId)
-    //   this.map.gl.setLayoutProperty(waypointLayerId, 'icon-size', [
-    //     'case',
-    //     ['==', ['get', 'icon'], 'end'],
-    //     0.8,
-    //     ['==', ['get', 'icon'], 'start'],
-    //     0.6,
-    //     0
-    //   ]);
-    // this.editorGui.editor.outline.width = 0;
-    // Object.assign(this.editorGui.editor.line, this.lineStyle());
-    // Object.assign(this.editorGui.editor.dashedLine, this.lineStyle());
   }
   initEventHandlers() {
     //TODO: check toursprung-editor for different handlers
