@@ -1405,8 +1405,16 @@ span.single_error.object-browser-error {
 
         .icon {
           margin-right: 0.5rem;
+
           .fa {
             font-size: 1rem;
+          }
+        }
+
+        > .title {
+          > .readonly-icon,
+          > .translatable-icon {
+            margin-right: 0.3rem;
           }
         }
 

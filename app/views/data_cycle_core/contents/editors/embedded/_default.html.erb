@@ -18,6 +18,8 @@
 
     <div class="accordion-title">
       <span class="title">
+        <%= tag.span(tag.i(class: 'fa fa-ban', aria_hidden: true), class: 'readonly-icon') unless attribute_editable?(key, definition, options, content) %>
+        <%= tag.span(tag.i(class: 'fa fa-language translatable-attribute-icon'), class: 'translatable-icon') if attribute_translatable?(key, definition, content) %>
         <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.class.name.demodulize.underscore %>
         <span class="embedded-label"><%= translated_attribute_label(key, definition, content, options)  %></span>
         <%= render 'data_cycle_core/contents/helper_text', key: key, definition: definition, content: contextual_content(local_assigns) %>
