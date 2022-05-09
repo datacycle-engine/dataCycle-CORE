@@ -141,17 +141,17 @@ module DataCycleCore
           )
 
           if valid
-            Appsignal.increment_counter(
-              "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.success",
-              1,
+            ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle', this: {
+              external_system: utility_object.external_source,
+              external_type: utility_object.source_type.collection_name,
               template_name: content.template_name
-            )
+            }
           else
-            Appsignal.increment_counter(
-              "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.failure",
-              1,
+            ActiveSupport::Notifications.instrument 'object_import_failed.datacycle', this: {
+              external_system: utility_object.external_source,
+              external_type: utility_object.source_type.collection_name,
               template_name: content.template_name
-            )
+            }
 
             utility_object.logging&.error('Validating import data', data['external_key'], data, content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
 

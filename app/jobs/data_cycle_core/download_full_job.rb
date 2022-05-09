@@ -34,9 +34,11 @@ module DataCycleCore
       pid = Process.fork do
         ExternalSystem.find(uuid).download({ mode: 'full' })
       rescue StandardError => e
-        Appsignal.send_error(e) do |transaction|
-          transaction.set_namespace("download job failed - #{external_source.id}")
-        end
+        ActiveSupport::Notifications.instrument "#{self.class.name.demodulize.underscore}_failed.datacycle", this: {
+          exception: e,
+          external_system: external_source
+        }
+
         external_source.config['last_download_failed'] = true
         external_source.config['last_download_exception'] = "#{e} (#{Time.zone.now})"
         external_source.save!
