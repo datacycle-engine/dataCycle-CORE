@@ -26,7 +26,6 @@ class DataCycle {
           '> :input[type="number"]',
           '> .duration-slider > div > input[type="number"]'
         ],
-        AppSignalFrontEndKey: null,
         retryableHttpCodes: [401, 403, 408, 500, 501, 502, 503, 504, 507, 509]
       },
       config
@@ -48,6 +47,8 @@ class DataCycle {
       addCallbacks: [],
       removeCallbacks: []
     };
+
+    this.notifications = new Comment('dataCycle-notifications');
 
     this.init();
   }

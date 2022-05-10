@@ -141,8 +141,7 @@ class TextEditor {
       this.removeInitialExtraLines();
       this.addEventHandlers();
     } catch (err) {
-      console.error(err);
-      if (window.appSignal) appSignal.sendError(err);
+      DataCycle.notifications.dispatchEvent(new CustomEvent('error', { detail: err }));
     }
   }
   addEventHandlers() {

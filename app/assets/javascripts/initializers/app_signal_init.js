@@ -1,10 +1,10 @@
 import AppSignal from '@appsignal/javascript';
 import { plugin } from '@appsignal/plugin-window-events';
 
-export default function () {
-  if (['production', 'staging'].includes(import.meta.env.MODE) && DataCycle.config.AppSignalFrontEndKey) {
+export default function (appSignalFrontEndKey) {
+  if (['production', 'staging'].includes(import.meta.env.MODE) && appSignalFrontEndKey) {
     const appSignal = new AppSignal({
-      key: DataCycle.config.AppSignalFrontEndKey,
+      key: appSignalFrontEndKey,
       ignoreErrors: [
         /diff() called with non-document/, // QuillJS Error
         /undefined has no properties/, // QuillJS Error
