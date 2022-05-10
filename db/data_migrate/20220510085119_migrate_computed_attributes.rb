@@ -5,7 +5,7 @@ class MigrateComputedAttributes < ActiveRecord::Migration[5.2]
   # disable_ddl_transaction!
 
   def up
-    DataCycleCore::RunTaskJob.set(queue: 'default').perform_later('dc:update_data:computed_attributes[,false,copyright_notice_computed]')
+    DataCycleCore::RunTaskJob.set(queue: 'default').perform_later('dc:update_data:computed_attributes', [nil, false, 'copyright_notice_computed'])
   end
 
   def down
