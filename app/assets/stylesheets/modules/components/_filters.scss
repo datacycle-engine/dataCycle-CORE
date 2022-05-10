@@ -432,6 +432,7 @@ $filter-border: #aaa;
           width: 100%;
           padding: 1rem 0 0 0;
           box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
+          border-radius: 0 0 $global-radius $global-radius;
         }
       }
 
@@ -450,6 +451,7 @@ $filter-border: #aaa;
           cursor: pointer;
           margin: 0;
           font-size: 1rem;
+          border-radius: $global-radius;
         }
 
         label:before {
@@ -469,7 +471,8 @@ $filter-border: #aaa;
         li {
           float: none;
           width: 18rem;
-          position: initial; //padding: 0.3rem 0.5rem;
+          position: initial;
+          border-radius: $global-radius;
 
           &:hover {
             box-shadow: none;
@@ -497,14 +500,15 @@ $filter-border: #aaa;
         }
 
         ul {
-          &.sub-list {
-            width: 25%;
-          }
-
           top: 0;
           left: 18rem;
           position: absolute;
           margin: 0;
+          border-radius: $global-radius;
+
+          &.sub-list {
+            width: 25%;
+          }
 
           &:not(.sub-list) {
             background: lighten($light-gray, 4%);
@@ -550,9 +554,16 @@ $filter-border: #aaa;
         display: inline-block;
         flex: 1;
         white-space: nowrap;
+        border-radius: $global-radius;
+
+        &.active {
+          border-radius: $global-radius $global-radius 0 0;
+        }
+
         .title {
           white-space: normal;
         }
+
         > .title {
           white-space: nowrap;
           word-break: break-word;
@@ -773,12 +784,14 @@ $filter-border: #aaa;
           display: inline-flex;
           align-items: center;
           cursor: pointer;
+          border-radius: $global-radius;
 
           > ul {
             display: none;
             padding: 0;
             position: relative;
             padding: 1rem;
+            border-radius: $global-radius;
 
             label {
               display: block;
@@ -789,6 +802,7 @@ $filter-border: #aaa;
               cursor: pointer;
               margin: 0;
               font-size: 1rem;
+              border-radius: $global-radius;
             }
 
             label:before {
@@ -813,6 +827,7 @@ $filter-border: #aaa;
               cursor: pointer;
               width: 25%;
               text-align: left;
+              border-radius: $global-radius;
 
               label:hover:before {
                 opacity: 0.3;
@@ -880,6 +895,7 @@ $filter-border: #aaa;
             background-color: $white;
             box-shadow: 0 5px 3px rgba($black, 0.3);
             color: $black;
+            border-radius: $global-radius $global-radius 0 0;
 
             > ul {
               position: absolute;
@@ -1004,6 +1020,7 @@ $filter-border: #aaa;
         line-height: 1.3;
         text-align: left;
         cursor: pointer;
+        border-radius: $global-radius;
 
         &.search-favorites-short {
           > ul li {
@@ -1050,6 +1067,7 @@ $filter-border: #aaa;
           overflow-y: auto;
           background: $light-gray;
           padding: 0.2rem;
+          border-radius: $global-radius;
 
           &.remote-render,
           &.remote-rendering {
@@ -1189,6 +1207,11 @@ $filter-border: #aaa;
           background-color: darken($white, 2%);
           box-shadow: 0 5px 3px rgba($black, 0.3);
           color: $black;
+          border-radius: $global-radius $global-radius 0 0;
+
+          &.search-favorites-short > ul {
+            border-radius: $global-radius 0 $global-radius $global-radius;
+          }
 
           > ul {
             display: flex !important;
