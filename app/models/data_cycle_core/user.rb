@@ -9,7 +9,7 @@ module DataCycleCore
 
     WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
-    attr_accessor :skip_callbacks, *WEBHOOK_ACCESSORS
+    attr_accessor :skip_callbacks, :forward_to_url, *WEBHOOK_ACCESSORS
 
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
@@ -70,6 +70,12 @@ module DataCycleCore
 
     def recoverable?
       !(external? || is_rank?(0))
+    end
+
+    def forward_to_url_with_token(tokens)
+      return if forward_to_url.blank?
+
+      "#{forward_to_url}#{tokens&.map { |k, v| "#{k.to_s.camelize(:lower)}=#{v}" }&.join('&')&.prepend(forward_to_url.include?('?') ? '&' : '?')}"
     end
 
     def allowed_webhook_attributes

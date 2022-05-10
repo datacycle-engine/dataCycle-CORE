@@ -30,6 +30,7 @@
               - jpeg
           :json: true
           :xml: true
+          :indesign: true
       :report_generator:
         :allowed: true
     :api:
@@ -243,11 +244,19 @@
           module: DataCycleCore::Utility::DefaultValue::Date
           method: beginning_of_day
         :advanced_search: true
+      # media archive legacy attribute
       :photographer:
         :label: Fotograf
         :type: string
         :storage_location: value
         :search: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+        :api:
+          :disabled: true
       :author:
         :label: Fotograf
         :type: linked
@@ -270,6 +279,22 @@
                 - Ort
         :validations:
           :max: 1
+      :keywords:
+        :label: Keywords
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            :0: tags
+        :ui:
+          :show:
+            :disabled: true
+      :gravity:
+        :type: mixin
+        :name: gravity
       :image_proxy:
         :type: mixin
         :name: image_proxy
@@ -299,9 +324,9 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: 'Bild'
-      :cc_rel:
+      :copyright_attributes:
         :type: mixin
-        :name: cc_rel
+        :name: copyright_attributes
       :meta_data:
         :type: mixin
         :name: meta_data

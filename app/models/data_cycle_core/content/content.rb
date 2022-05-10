@@ -39,6 +39,13 @@ module DataCycleCore
       after_save :reload_memoized
       after_save :reload_memoized_overlay
 
+      def reload(options = nil)
+        reload_memoized
+        reload_memoized_overlay
+
+        super(options)
+      end
+
       def webhook_data
         return @webhook_data if defined? @webhook_data
 

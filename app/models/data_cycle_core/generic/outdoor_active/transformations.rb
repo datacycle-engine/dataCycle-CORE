@@ -148,7 +148,7 @@ module DataCycleCore
           .>> t(:add_links, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] }, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] })
           .>> t(:universal_classifications, ->(s) { s.dig('license', 'short').blank? ? [] : DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('OutdoorActive - Lizenzen', s.dig('license', 'short')) })
           .>> t(:add_field, 'caption', ->(s) { [s.dig('author'), s.dig('source').is_a?(::Hash) ? s.dig('source', 'name') : s.dig('source')]&.reject(&:blank?)&.join(' - ') })
-          .>> t(:map_value, 'license', ->(v) { v.dig('url') if v.present? })
+          .>> t(:map_value, 'copyright_notice_override', ->(v) { v.dig('url') if v.present? })
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
           .>> t(:map_value, 'name', ->(v) { v || '__NO_NAME__' })
           .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_author_data(s)['external_key'] }, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_author_data(s)['external_key'] })

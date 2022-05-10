@@ -12,9 +12,9 @@ module DataCycleCore
         end
 
         def include?(_t = nil, _k = nil, filter_type = nil, *_args)
-          return true if filter_type.nil?
-
           return false unless session[:data_link_ids].present? && DataCycleCore::DataLink.where(id: session[:data_link_ids], item_type: 'DataCycleCore::StoredFilter').valid.exists?
+
+          return true if filter_type.nil?
 
           @types.include?(filter_type.to_s)
         end
