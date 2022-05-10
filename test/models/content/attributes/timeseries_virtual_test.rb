@@ -13,16 +13,27 @@ module DataCycleCore
           end
         end
 
+        def virtual_value(name, thing)
+          DataCycleCore::Utility::Virtual::Base.virtual_values(name, thing.properties_for(name), thing)
+        end
+
         test 'Testing Utility::Virtual::Timeseries methods' do
           assert_equal(0, @timeseries.series_first)
           assert_equal(10, @timeseries.series_last)
+          assert_equal(0, virtual_value('series_first', @timeseries))
+          assert_equal(10, virtual_value('series_last', @timeseries))
 
           assert_equal(0, @timeseries.series_min)
           assert_equal(10, @timeseries.series_max)
+          assert_equal(0, virtual_value('series_min', @timeseries))
+          assert_equal(10, virtual_value('series_max', @timeseries))
 
           assert_equal(11, @timeseries.series_count)
           assert_equal(55, @timeseries.series_sum)
           assert_equal(5, @timeseries.series_avg)
+          assert_equal(11, virtual_value('series_count', @timeseries))
+          assert_equal(55, virtual_value('series_sum', @timeseries))
+          assert_equal(5, virtual_value('series_avg', @timeseries))
         end
       end
     end

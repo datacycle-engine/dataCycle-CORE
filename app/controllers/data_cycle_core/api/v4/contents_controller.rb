@@ -49,20 +49,28 @@ module DataCycleCore
             .find(permitted_params[:content_id] || permitted_params[:id])
 
           from = nil
-          from = Time.parse(params.dig(:time, :in, :min)).in_time_zone if params.dig(:time, :in, :min).present?
+          from = Time.parse(permitted_params.dig(:time, :in, :min)).in_time_zone if permitted_params.dig(:time, :in, :min).present?
           to = nil
-          to = Time.parse(params.dig(:time, :in, :max)).in_time_zone if params.dig(:time, :in, :max).present?
-          @contents = content.send(params[:timeseries], from, to)
+          to = Time.parse(permitted_params.dig(:time, :in, :max)).in_time_zone if permitted_params.dig(:time, :in, :max).present?
+          if permitted_params[:timeseries].in?(content.timeseries_property_names)
+            method = permitted_params[:timeseries]
+            @contents = content.send(method, from, to)
+          else
+            @contents = nil
+          end
 
-          case params[:format].to_sym
+          case permitted_params[:format].to_sym
           when :json
             # render template: 'data_cycle_core/api/v4/timeseries/show', layout: false
-            render json: { data: @contents.pluck(:timestamp, :value) }
+            json = { error: "no timeseries data found for #{content.name}(#{content.id})" }
+            json = { data: @contents.pluck(:timestamp, :value) } unless @contents.nil?
+            render json: json
           when :csv
             response.headers['Content-Type'] = 'text/csv'
-            response.headers['Content-Disposition'] = "attachment; filename=#{content.id}_#{params[:timeseries]}.csv"
-            csv = ['timestamp; value'] + @contents.pluck(:timestamp, :value).map { |line| line.join('; ') }
-            render plain: csv.join("\n")
+            response.headers['Content-Disposition'] = "attachment; filename=#{content.id}_#{permitted_params[:timeseries]}.csv"
+            csv = ['timestamp; value']
+            csv += @contents.pluck(:timestamp, :value).map { |line| line.join('; ') }.join("\n") if @content.present?
+            render plain: csv
           end
         end
 
@@ -115,7 +123,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :search, :limit, uuid: []] + [filter: {}] + ['dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :search, :limit, :timeseries, uuid: []] + [filter: {}] + [time: {}] + ['dc:liveData': [:'@id', :minPrice]]
         end
 
         def permitted_filter_parameters
