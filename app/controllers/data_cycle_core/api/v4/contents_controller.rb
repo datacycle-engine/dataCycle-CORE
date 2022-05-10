@@ -43,6 +43,29 @@ module DataCycleCore
           render(plain: @content.to_geojson, content_type: GEOJSON_CONTENT_TYPE) && return if accept_geojson?
         end
 
+        def timeseries
+          content = DataCycleCore::Thing
+            .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+            .find(permitted_params[:content_id] || permitted_params[:id])
+
+          from = nil
+          from = Time.parse(params.dig(:time, :in, :min)).in_time_zone if params.dig(:time, :in, :min).present?
+          to = nil
+          to = Time.parse(params.dig(:time, :in, :max)).in_time_zone if params.dig(:time, :in, :max).present?
+          @contents = content.send(params[:timeseries], from, to)
+
+          case params[:format].to_sym
+          when :json
+            # render template: 'data_cycle_core/api/v4/timeseries/show', layout: false
+            render json: { data: @contents.pluck(:timestamp, :value) }
+          when :csv
+            response.headers['Content-Type'] = 'text/csv'
+            response.headers['Content-Disposition'] = "attachment; filename=#{content.id}_#{params[:timeseries]}.csv"
+            csv = ['timestamp; value'] + @contents.pluck(:timestamp, :value).map { |line| line.join('; ') }
+            render plain: csv.join("\n")
+          end
+        end
+
         def select
           uuid = permitted_params[:uuid] || permitted_params[:uuids]&.split(',')
           if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?

@@ -289,6 +289,7 @@ DataCycleCore::Engine.routes.draw do
 
               match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
               match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
+              match 'things/:id/:timeseries/(:format)', to: 'things#timeseries', as: 'thing_timeseries', via: [:get, :post]
 
               match 'universal(/:id)', to: 'universal#show', as: 'universal', via: [:get, :post]
 
@@ -302,6 +303,7 @@ DataCycleCore::Engine.routes.draw do
               match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
               match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
               match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+              match 'endpoints/:id/:content_id/:timeseries/(:format)', to: 'contents#timeseries', as: 'content_timeseries', via: [:get, :post]
 
               post 'collections/create', to: 'watch_lists#create'
               resources :collections, only: [], controller: :watch_lists do

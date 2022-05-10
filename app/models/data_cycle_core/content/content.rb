@@ -59,6 +59,9 @@ module DataCycleCore
           if original_name.in?(embedded_property_names + linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
             get_property_value(original_name, property_definition, args.first, overlay_flag & original_name.in?(overlay_property_names))
+          elsif original_name.in?(timeseries_property_names)
+            raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 2
+            get_property_value(original_name, property_definition, args.first, args&.try(:second))
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
             get_property_value(original_name, property_definition, nil, overlay_flag & original_name.in?(overlay_property_names))
@@ -254,6 +257,10 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition['type'].in?(['schedule', 'opening_time']) }
       end
 
+      def timeseries_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'timeseries' }
+      end
+
       def external_property_names
         name_property_selector { |definition| definition.dig('external') }
       end
@@ -354,6 +361,8 @@ module DataCycleCore
           schedule_array = send(property_name)
           schedule_array = schedule_array.map(&:to_h).presence
           schedule_array.blank? ? [] : schedule_array.compact
+        elsif timeseries_property_names.include?(property_name)
+          []
         elsif virtual_property_names.include?(property_name)
           []
         else
@@ -406,8 +415,11 @@ module DataCycleCore
               load_computed_attribute(key[0], key[1], key[4])
             elsif schedule_property_names(true).include?(key[0])
               load_schedule(key[0], key[4])
+            elsif timeseries_property_names.include?(key[0])
+              load_timeseries(key[0], key[3], key[4])
             elsif virtual_property_names.include?(key[0])
-              nil
+              # was nil .... dangerous??
+              DataCycleCore::Utility::Virtual::Base.virtual_values(key[0], key[1], self, key[2])
             else
               raise NotImplementedError
             end
