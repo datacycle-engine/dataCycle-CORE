@@ -175,6 +175,14 @@
             left: 0;
             font-weight: normal;
             color: $black;
+            display: inline-flex;
+            align-items: center;
+            margin: 0 0 0 1rem;
+            padding: 0.3rem 0;
+
+            > * {
+              margin-left: 0.3rem;
+            }
           }
         }
       }
