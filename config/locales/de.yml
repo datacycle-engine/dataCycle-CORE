@@ -997,6 +997,12 @@ de:
               blank: 'E-Mail darf nicht leer sein.'
               taken: 'Für diese E-Mail existiert schon ein Benutzer.'
               invalid: 'Keine gültige E-Mail.'
+            reset_password_token:
+              blank: Das Token darf nicht leer sein
+              invalid: Das Token ist nicht mehr gültig
+            confirmation_token:
+              blank: Das Token darf nicht leer sein
+              invalid: Das Token ist nicht mehr gültig
         data_cycle_core/user_group:
           attributes:
             name:

@@ -56,7 +56,7 @@ module DataCycleCore
           .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('url') })
           .>> t(:add_field, 'content_url', ->(s) { s.dig('url') })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('identifier') })
-          .>> t(:add_field, 'license', ->(s) { s.dig('copyright').presence })
+          .>> t(:add_field, 'copyright_notice_override', ->(s) { s.dig('copyright').presence })
           .>> t(:strip_all)
         end
 

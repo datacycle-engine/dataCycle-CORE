@@ -325,6 +325,9 @@ DataCycleCore::Engine.routes.draw do
                 match '/update', action: :update, via: [:patch, :put]
                 match '/', action: :index, via: [:get, :post]
                 post :password
+                match '/password', action: :change_password, via: [:patch, :put]
+                post :resend_confirmation
+                match '/confirm', action: :confirm, via: [:patch, :put]
                 match '/:id', action: :show, as: :user, via: [:get, :post]
               end
 

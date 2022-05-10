@@ -49,9 +49,9 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
-      :cc_rel:
+      :copyright_attributes:
         :type: mixin
-        :name: cc_rel        
+        :name: copyright_attributes        
       :dummy:
         :label: invisible
         :type: string

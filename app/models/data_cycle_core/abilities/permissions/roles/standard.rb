@@ -32,7 +32,7 @@ module DataCycleCore
             # UserApi
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :login, :renew_login, :reset_password,
+              :can, :login, :renew_login, :reset_password, :confirm,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(:user_api)
             )
 

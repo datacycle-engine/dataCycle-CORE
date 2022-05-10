@@ -197,7 +197,15 @@ module DataCycleCore
     end
 
     test 'can only edit owned data_links' do
-      sign_in(User.find_by(email: 'admin@datacycle.at'))
+      user = DataCycleCore::User.where(email: 'normal_admin@datacycle.at').first_or_create({
+        given_name: 'normal',
+        family_name: 'admin',
+        password: Devise.friendly_token,
+        confirmed_at: Time.zone.now - 1.day,
+        role_id: DataCycleCore::Role.find_by(name: 'admin')&.id
+      })
+
+      sign_in(user)
 
       patch data_link_path(@data_link), params: {
         data_link: {
@@ -206,6 +214,7 @@ module DataCycleCore
       }, headers: {
         referer: thing_url(@content)
       }
+
       assert_redirected_to root_path
       assert_equal I18n.t('unauthorized.manage.all', locale: DataCycleCore.ui_locales.first), flash[:alert]
       assert_nil @data_link.reload.comment
