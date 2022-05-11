@@ -1,11 +1,8 @@
-// import pick from 'lodash/pick';
-import isEmpty from 'lodash/isEmpty';
 import MapLibreGlViewer from './maplibre_gl_viewer';
-
-import maplibregl from 'maplibre-gl/dist/maplibre-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import AdditionalValuesFilterControl from './map_controls/mapbox_additional_values_filter_control';
 import UploadGpxControl from './map_controls/maplibre_upload_gpx_control';
+import domElementHelpers from '../helpers/dom_element_helpers';
+// import AdditionalValuesFilterControl from './map_controls/mapbox_additional_values_filter_control';
 
 class MapLibreGlEditor extends MapLibreGlViewer {
   constructor(container) {
@@ -31,6 +28,10 @@ class MapLibreGlEditor extends MapLibreGlViewer {
   static isAllowedType(type) {
     return true;
   }
+  configureMap() {
+    super.configureMap();
+    this.initEventHandlers();
+  }
   initFeatures() {
     if (!this.feature && this.value) this.feature = this.value;
     // to ensure additional features are drawn last, the editor is initiallized here
@@ -46,8 +47,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     //   this.map.addControl(new AdditionalValuesFilterControl(this), 'bottom-left'); // TODO: locally override called methods if neccessary
   }
   initEventHandlers() {
-    //TODO:
-    // this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
+    this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
     this.$latitudeField.on('change', this.updateMapMarker.bind(this));
     this.$longitudeField.on('change', this.updateMapMarker.bind(this));
     if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.geoCodeAddress.bind(this));
@@ -97,32 +97,19 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     return this.isPoint() ? this._getDrawPointStyle() : this._getDrawLineStyle();
   }
   initEditFeature() {
-    console.log('initeditFeature');
     const featureIds = this.draw.add(this.feature);
     if (this.isLineString()) this.draw.changeMode('direct_select', { featureId: featureIds[0] });
     if (this.isPoint()) this.draw.changeMode('simple_select', { featureIds: featureIds });
   }
-  // TODO: split-view
-  // async importData(event, data) {
-  //   if (!this.value || (data && data.force)) {
-  //     this.setUploadedFeature(data.value);
-  //   } else {
-  //     const target = event.currentTarget;
+  async importData(event, data) {
+    if (!this.value || (data && data.force)) {
+      this.setUploadedFeature(data.value);
+    } else {
+      const target = event.currentTarget;
 
-  //     domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => this.setUploadedFeature(data.value));
-  //   }
-  // }
-  // initMapEditActions() {
-
-  //   this.initSnapableAction(); // TODO: Manuel fragen
-
-  // }
-  // initSnapableAction() {
-  //   let snap = new this.ol.interaction.Snap({
-  //     source: this.source
-  //   });
-  //   this.map.addInteraction(snap);
-  // }
+      domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => this.setUploadedFeature(data.value));
+    }
+  }
   geoCodeAddress(event) {
     event.preventDefault();
 
@@ -179,8 +166,8 @@ class MapLibreGlEditor extends MapLibreGlViewer {
       this.setNewCoordinates();
     }
   }
-  setUploadedFeature(geoJson) {
-    this.updateFeature(geoJson);
+  setUploadedFeature(geometry) {
+    this.updateFeature(this.getGeoJsonFromGeometry(geometry));
   }
   updateFeature(geoJson) {
     if (this.feature) this.draw.deleteAll();
@@ -193,7 +180,6 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     let valid = true;
     const geoJson = this.getGeoJsonFromInputs();
     const coords = geoJson.geometry.coordinates;
-    console.log(coords);
     coords.forEach((element, index) => {
       // TODO: catch error and show some warning "Uncaught Error: Invalid LngLat latitude value: must be between -90 and 90"
       valid =
@@ -255,6 +241,9 @@ class MapLibreGlEditor extends MapLibreGlViewer {
       [parseFloat(this.$longitudeField.val()), parseFloat(this.$latitudeField.val())],
       this.type
     );
+  }
+  getGeoJsonFromGeometry(geometry) {
+    return this.getGeoJsonFromCoordinates(geometry.coordinates, geometry.type);
   }
   getGeoJsonFromCoordinates(coords, type) {
     return {

@@ -85,7 +85,6 @@ class MapLibreGlViewer {
     this.setIcons();
 
     this.initFeatures();
-    this.initEventHandlers();
     this._disableScrollingOnMapOverlays();
     this.initMouseWheelZoom();
     this.updateMapPosition();
@@ -93,10 +92,6 @@ class MapLibreGlViewer {
   initFeatures() {
     this.drawFeatures();
     this.drawAdditionalFeatures();
-  }
-  initEventHandlers() {
-    // TODO:
-    // this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
   }
   mapBaseLayer() {
     let baseStyle = this.mapStyles[0].value;

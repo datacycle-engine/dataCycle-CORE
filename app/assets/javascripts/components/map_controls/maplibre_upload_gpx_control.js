@@ -80,13 +80,8 @@ class UploadGpxControl {
               confirmationText: 'Ok'
             });
           } else {
-            this.editor.setUploadedFeature({
-              type: 'Feature',
-              properties: {},
-              geometry: featureGeometry
-            });
+            this.editor.setUploadedFeature(featureGeometry);
           }
-          console.log(this.input);
           this.input.value = '';
         };
       })(file);
