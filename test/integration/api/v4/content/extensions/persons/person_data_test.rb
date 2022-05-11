@@ -11,6 +11,7 @@ module DataCycleCore
             class PersonDataTest < DataCycleCore::V4::Base
               before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('person')
+                @content.reload
               end
 
               test 'api_v4_thing_path validate full person with default params' do
@@ -65,14 +66,13 @@ module DataCycleCore
                 end
 
                 # cc_rel
-                assert_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
+                assert_attributes(json_validate, required_attributes, ['url', 'license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
                   # license is overwritten by license_classification
                   {
                     'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
                     'cc:useGuidelines' => @content.use_guidelines,
-                    'cc:attributionUrl' => @content.attribution_url,
-                    'cc:attributionName' => @content.attribution_name,
-                    'cc:morePermissions' => @content.more_permissions
+                    'url' => @content.attribution_url,
+                    'copyrightNotice' => @content.copyright_notice_computed
                   }
                 end
 
@@ -158,16 +158,16 @@ module DataCycleCore
               #     {}
               #   end
               #
-              #   # cc_rel
-              #   assert_attributes(json_validate, required_attributes, ['license', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
-              #     # license is overwritten by license_classification
-              #     {
-              #       'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
-              #       'cc:attributionUrl' => @content.attribution_url,
-              #       'cc:attributionName' => @content.attribution_name,
-              #       'cc:morePermissions' => @content.more_permissions
-              #     }
-              #   end
+              # # cc_rel
+              # assert_attributes(json_validate, required_attributes, ['url', 'license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
+              #   # license is overwritten by license_classification
+              #   {
+              #     'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+              #     'cc:useGuidelines' => @content.use_guidelines,
+              #     'url' => @content.attribution_url,
+              #     'copyrightNotice' => @content.copyright_notice_computed
+              #   }
+              # end
               #
               #   # address
               #   # must fail !!!!
@@ -267,14 +267,13 @@ module DataCycleCore
                   end
 
                   # cc_rel
-                  assert_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
+                  assert_attributes(json_validate, required_attributes, ['url', 'license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
                     # license is overwritten by license_classification
                     {
                       'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
                       'cc:useGuidelines' => @content.use_guidelines,
-                      'cc:attributionUrl' => @content.attribution_url,
-                      'cc:attributionName' => @content.attribution_name,
-                      'cc:morePermissions' => @content.more_permissions
+                      'url' => @content.attribution_url,
+                      'copyrightNotice' => @content.copyright_notice_computed
                     }
                   end
 
@@ -316,8 +315,8 @@ module DataCycleCore
 
               test 'api_v4_thing_path validate full person with default params in language en and de' do
                 data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_en')
-                @content.reload
                 I18n.with_locale(:en) { @content.set_data_hash(data_hash: @content.get_data_hash.merge(data_hash_en)) }
+                @content.reload
 
                 assert_translated_datahash(data_hash_en, @content)
                 assert_translated_thing(@content, :en)
@@ -375,13 +374,12 @@ module DataCycleCore
                 end
 
                 # cc_rel
-                assert_attributes(json_validate, required_attributes, ['license', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
+                assert_attributes(json_validate, required_attributes, ['url', 'license', 'attribution_url', 'attribution_name', 'license_classification']) do
                   # license is overwritten by license_classification
                   {
                     'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
-                    'cc:attributionUrl' => @content.attribution_url,
-                    'cc:attributionName' => @content.attribution_name,
-                    'cc:morePermissions' => @content.more_permissions
+                    'url' => @content.attribution_url,
+                    'copyrightNotice' => @content.copyright_notice_computed
                   }
                 end
 
@@ -426,6 +424,7 @@ module DataCycleCore
                 content_overlay = DataCycleCore::V4::DummyDataHelper.create_data('person_overlay')
                 assert_full_thing_datahash(content_overlay)
                 @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { 'overlay' => [content_overlay.get_data_hash] })
+                @content.reload
 
                 params = {
                   id: @content.id
@@ -473,14 +472,13 @@ module DataCycleCore
                 end
 
                 # cc_rel
-                assert_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
+                assert_attributes(json_validate, required_attributes, ['url', 'license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
                   # license is overwritten by license_classification
                   {
                     'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
                     'cc:useGuidelines' => @content.use_guidelines,
-                    'cc:attributionUrl' => @content.attribution_url,
-                    'cc:attributionName' => @content.attribution_name,
-                    'cc:morePermissions' => @content.more_permissions
+                    'url' => @content.attribution_url,
+                    'copyrightNotice' => @content.copyright_notice_computed
                   }
                 end
 
@@ -540,6 +538,7 @@ module DataCycleCore
                 content_overlay = DataCycleCore::V4::DummyDataHelper.create_data('person_overlay_minimal')
                 assert_full_thing_datahash(content_overlay)
                 @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { 'overlay' => [content_overlay.get_data_hash] })
+                @content.reload
 
                 params = {
                   id: @content.id
@@ -587,14 +586,13 @@ module DataCycleCore
                 end
 
                 # cc_rel
-                assert_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
+                assert_attributes(json_validate, required_attributes, ['url', 'license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
                   # license is overwritten by license_classification
                   {
                     'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
                     'cc:useGuidelines' => @content.use_guidelines,
-                    'cc:attributionUrl' => @content.attribution_url,
-                    'cc:attributionName' => @content.attribution_name,
-                    'cc:morePermissions' => @content.more_permissions
+                    'url' => @content.attribution_url,
+                    'copyrightNotice' => @content.copyright_notice_computed
                   }
                 end
 

@@ -15,13 +15,10 @@ import './helpers/string_helpers';
 const initializers = import.meta.globEager('./initializers/*.js');
 import foundationInit from './initializers/foundation_init';
 import validationInit from './initializers/validation_init';
-import appSignalInit from './initializers/app_signal_init';
 import UrlReplacer from './helpers/url_replacer';
 
-export default (dataCycleConfig = {}) => {
+export default (dataCycleConfig = {}, postDataCycleInit = null) => {
   DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
-
-  appSignalInit();
 
   UrlReplacer.paramsToStoredFilterId();
 
@@ -31,14 +28,16 @@ export default (dataCycleConfig = {}) => {
     console.log('rails-ujs already started');
   }
 
+  if (typeof postDataCycleInit === 'function') postDataCycleInit();
+  DataCycle.notifications.addEventListener('error', ({ detail }) => console.error(detail));
+
   $(function () {
     for (const path in initializers) {
       if (!path.includes('foundation_init') && !path.includes('validation_init') && !path.includes('app_signal_init')) {
         try {
           initializers[path].default();
         } catch (err) {
-          console.error(err);
-          if (window.appSignal) appSignal.sendError(err);
+          DataCycle.notifications.dispatchEvent(new CustomEvent('error', { detail: err }));
         }
       }
     }

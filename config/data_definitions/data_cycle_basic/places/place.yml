@@ -99,9 +99,9 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: 'Örtlichkeit'
-      :cc_rel:
+      :copyright_attributes:
         :type: mixin
-        :name: cc_rel
+        :name: copyright_attributes
       :external_source_attributes:
         :type: mixin
         :name: external_source_attributes
