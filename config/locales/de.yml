@@ -147,6 +147,7 @@ de:
         bright: Bright
         basemap: BasemapAT
         winter: Winter
+        toursprung: Toursprung
     remote_render:
       error: Fehler beim Laden des Inhalts.
       reload: Neu laden

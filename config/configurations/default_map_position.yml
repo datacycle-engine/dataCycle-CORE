@@ -1,15 +1,21 @@
 :longitude: 13.34576
 :latitude: 47.69642
 :zoom: 7
-:styles:
-  - street: 'https://map.pixeldev.at/styles/pp-street/style.json'
-  # - topo: 'https://map.pixeldev.at/styles/pp-topo/style.json'
-  # - bright: 'https://map.pixeldev.at/styles/pp-bright/style.json'
-  # - basemap: 'https://map.pixeldev.at/styles/basemap-overlay/style.json'
-  # - winter: 'https://map.pixeldev.at/styles/pp-winter/style.json'
 :editor: 'MapLibreGl'
-# :editor: 'OpenStreetMap'
 # :editor: 'TourSprung'
+:styles:
+  - :id: topo
+    :value: 'https://map.pixeldev.at/styles/pp-topo/style.json'
+  # - :id: street
+  #   :value: 'https://map.pixeldev.at/styles/pp-street/style.json'
+  # - :id: bright
+  #   :value: 'https://map.pixeldev.at/styles/pp-bright/style.json'
+  # - :id: winter
+  #   :value: 'https://map.pixeldev.at/styles/pp-winter/style.json'
+  # - :id: basemap
+  #   :value: 'BaseMapAt'
+  # - :id: toursprung
+  #   :value: 'TourSprung'
 :credentials:
-  :pp_api_key: '1bb99e3a056f9ff374e7c1f6f64ae638'
-#   :api_key: 'sandbox'
+  :api_key: 'sandbox'
+  # '1bb99e3a056f9ff374e7c1f6f64ae638'

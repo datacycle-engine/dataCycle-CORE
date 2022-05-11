@@ -67,11 +67,10 @@ class MapLibreGlViewer {
       center: this.defaultCenter(),
       zoom: this.defaultZoom(),
       transformRequest: (url, resourceType) => {
-        if (url.includes('maptoolkit.net')) return `${url}?api_key=${this.credentials.api_key}`;
-        else if (url.includes('map.pixeldev.at')) {
+        if (url.includes('map.pixeldev.at')) {
           return {
             headers: {
-              Authorization: `Bearer ${this.credentials.pp_api_key}`
+              Authorization: `Bearer ${this.credentials.api_key}`
             },
             url: url
           };
@@ -100,7 +99,7 @@ class MapLibreGlViewer {
     // this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
   }
   mapBaseLayer() {
-    let baseStyle = Object.values(this.mapStyles[0])[0];
+    let baseStyle = this.mapStyles[0].value;
 
     if (typeof this['baseLayer' + baseStyle] == 'function') return this['baseLayer' + baseStyle]();
     else if (baseStyle) return baseStyle;
