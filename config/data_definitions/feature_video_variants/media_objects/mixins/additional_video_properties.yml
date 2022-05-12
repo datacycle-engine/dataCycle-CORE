@@ -1,0 +1,16 @@
+---
+- :data:
+    :name: additional_video_properties
+    :type: mixin
+    :properties:
+      :transcoding_default:
+        :label: Label
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Video
+          :method: transcode
+          :parameters:
+            :0: asset
+

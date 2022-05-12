@@ -29,6 +29,17 @@ module DataCycleCore
             DataCycleCore::Video.find_by(id: args.dig(:computed_parameters)&.first)&.file&.thumb_preview&.url || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
+          def transcode(**args)
+            asset = args.dig(:computed_parameters)&.first || args.dig(:content).try(:asset)
+            return if asset.blank?
+            asset_path = asset.file.file.path
+            new_path = Rails.root.join('tmp', 'movie.mp4').to_s
+            movie = FFMPEG::Movie.new(asset_path)
+            transcoded_movie = movie.transcode(new_path)
+            return new_path if transcoded_movie
+            nil
+          end
+
           def meta_value(video_id, path)
             video = DataCycleCore::Video.find_by(id: video_id)
             return nil if video.blank? || path.blank?
