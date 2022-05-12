@@ -37,7 +37,11 @@ module DataCycleCore
           contents = Array.wrap(content_params.as_json)
 
           responses = contents.map do |content|
-            strategy.update(content, external_system)
+            if strategy.method(:update).arity == 3
+              strategy.update(content, external_system, current_user)
+            else
+              strategy.update(content, external_system)
+            end
           end
 
           errors = responses.select { |i| i[:error].present? }
