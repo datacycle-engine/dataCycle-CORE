@@ -74,6 +74,28 @@ module DataCycleCore
           render plain: responses.to_json, content_type: 'application/json', status: errors.size.positive? ? :bad_request : :ok
         end
 
+        def timeseries
+          external_system = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id])
+          render(json: { error: 'unknown endpoint' }, status: :not_found) && return if external_system.blank?
+          content = DataCycleCore::Thing.find_by(external_source_id: external_system.id, external_key: permitted_params[:external_key])
+          render(json: { error: 'unknown endpoint' }, status: :not_found) && return if content.blank?
+          render(json: { error: 'unknown endpoint' }, status: :not_found) && return unless content.timeseries_property_names.include?(permitted_params[:attribute])
+
+          data =
+            case permitted_params[:format].to_sym
+            when :json
+              params[:data]
+            when :csv
+              csv = request.body
+              csv = CSV.parse(csv)
+              csv.presence
+            end
+          render(json: { warning: 'no data given' }, status: :no_content) && return if data.blank?
+
+          response = Timeseries.create_all(content, permitted_params[:attribute], data)
+          render plain: response.to_json, content_type: 'application/json', status: response[:error].present? ? :bad_request : :accepted
+        end
+
         private
 
         def search_feratel_api(search_method)
@@ -128,7 +150,7 @@ module DataCycleCore
 
         def permitted_parameter_keys
           super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id,
-                   :days, :units, :from, :to, :page_size, :start_index,
+                   :days, :units, :from, :to, :page_size, :start_index, :attribute,
                    occupation: [:adults, :children, :units], filter: {}]
         end
 

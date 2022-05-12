@@ -69,7 +69,7 @@ module DataCycleCore
             response.headers['Content-Type'] = 'text/csv'
             response.headers['Content-Disposition'] = "attachment; filename=#{content.id}_#{permitted_params[:timeseries]}.csv"
             csv = ['timestamp; value']
-            csv += @contents.pluck(:timestamp, :value).map { |line| line.join('; ') }.join("\n") if @content.present?
+            csv = (csv + @contents.pluck(:timestamp, :value).map { |line| line.join('; ') }).join("\n") if @contents.present?
             render plain: csv
           end
         end
