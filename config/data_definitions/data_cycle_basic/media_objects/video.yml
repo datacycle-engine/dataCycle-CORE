@@ -63,6 +63,34 @@
             :options:
               :data-size: basic
         :advanced_search: true
+      :text:
+        :label: Text
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :transcript:
+        :label: Transkript
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :thumbnail_image:
+        :label: Vorschaubild
+        :type: linked
+        :template_name: Bild
+        :api:
+          :name: thumbnail
       :content_url:
         :label: Video URL
         :storage_location: value
