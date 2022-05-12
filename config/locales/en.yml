@@ -170,6 +170,10 @@ en:
         other: Words
       max: '(still max %{data} %{label})'
       min: '(still min. %{data} %{label})'
+    image_editor:
+      edit_image: edit image
+      unsupported_format: The image will be converted to a supported file format by the image editor.
+      save_error: The image could not be saved
 
   schedule:
     dtstart: Start time

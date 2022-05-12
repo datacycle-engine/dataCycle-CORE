@@ -4,6 +4,10 @@
 
     .asset-list {
       margin: 0;
+
+      &.has-items {
+        padding-top: 1rem;
+      }
     }
 
     .asset-editor-buttons {

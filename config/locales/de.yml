@@ -177,6 +177,7 @@ de:
     image_editor:
       edit_image: Bild bearbeiten
       unsupported_format: Das Bild wird vom Bild-Editor in ein unterstützes Dateiformat konvertiert.
+      save_error: Das Bild konnte nicht gespeichert werden
 
   schedule:
     dtstart: Startzeitpunkt

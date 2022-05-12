@@ -3699,7 +3699,7 @@ body {
       height: 1.5rem;
       left: 0;
       background-color: lighten($light-gray, 4%);
-      box-shadow: 0 0 1px lighten($dark-gray, 10%) inset;
+      box-shadow: 0 0 0 1px $light-gray inset;
     }
 
     &::after {

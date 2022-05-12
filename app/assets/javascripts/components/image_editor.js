@@ -1,4 +1,5 @@
 import TuiImageEditor from 'tui-image-editor';
+import CalloutHelpers from './../helpers/callout_helpers';
 
 class ImageEditor {
   constructor(reveal) {
@@ -167,13 +168,15 @@ class ImageEditor {
   handleSave(event) {
     event.preventDefault();
     let newUrl = this.editor.toDataURL({ format: this.fileFormat });
-    this.updateAsset(newUrl);
+    this.updateAsset(newUrl, true);
   }
   initFile() {
     this.updateAsset(this.fileUrl);
   }
-  updateAsset(fileUrl) {
+  updateAsset(fileUrl, closeOverlay = false) {
     const fileName = this.fileName + '.' + this.fileFormat;
+
+    DataCycle.disableElement(this.saveButton);
 
     this.urlToFile(fileUrl, fileName, this.fileMimeType).then(file => {
       let data = new FormData();
@@ -195,15 +198,28 @@ class ImageEditor {
       });
 
       promise
-        .then(data => {
+        .then(async data => {
+          if (data.error) return this.handleError(data.error);
+
           this.editableList.trigger('dc:import:data', data);
+
+          if (closeOverlay) this.$reveal.foundation('close');
         })
-        .catch(data => {
+        .catch(async data => {
           let error = data.statusText;
           if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
-          console.error('error');
+          console.error('error saving image:', error);
+
+          const errorMessage = await I18n.t('frontend.image_editor.save_error');
+          this.handleError(errorMessage);
+        })
+        .finally(() => {
+          DataCycle.enableElement(this.saveButton);
         });
     });
+  }
+  handleError(e) {
+    CalloutHelpers.show(e, 'alert');
   }
   urlToFile(url, filename, mimeType) {
     return fetch(url)
