@@ -833,38 +833,6 @@ select {
       padding: 0;
     }
 
-    .detail-type.object {
-      .buttons {
-        float: right;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-top: -2.1rem;
-        margin-right: -0.9rem;
-        z-index: 1;
-        position: relative;
-
-        a {
-          margin: 0.1rem;
-          width: 2rem;
-          height: 2rem;
-
-          .fa {
-            font-size: 1.2rem;
-            line-height: 2rem;
-          }
-
-          &.copy-all {
-            order: 2;
-          }
-
-          &.translate-all {
-            order: 1;
-          }
-        }
-      }
-    }
-
     .detail-content {
       position: relative;
       padding: 0 1rem;
@@ -886,14 +854,15 @@ select {
         position: relative;
         top: unset;
         right: unset;
+        padding-top: 0.35rem;
 
         a {
           margin: 0.1rem;
-          height: 3rem;
-          width: 3rem;
+          height: 2.5rem;
+          width: 2.5rem;
 
           .fa {
-            line-height: 3rem;
+            line-height: 2.5rem;
             font-size: 1.5rem;
           }
 
