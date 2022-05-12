@@ -53,12 +53,18 @@ module DataCycleCore
         }
       end
 
+      def self.types
+        TYPES
+      end
+
+      private
+
       def add_msg(msg, type)
         return false unless type.to_sym.in?(TYPES)
         status_hash[type.to_sym].push(msg)
       end
 
-      TYPES.each do |method|
+      TYPES.each do |method|                                                    # public methods!
         class_eval <<-EOM, __FILE__, __LINE__ + 1
           def #{method}(msg)                                                    # def error(msg)
             add_msg(msg, :#{method})                                            #   add_msg(msg, :error)
