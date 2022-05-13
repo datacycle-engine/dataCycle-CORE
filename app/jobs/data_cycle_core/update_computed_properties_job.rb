@@ -22,7 +22,7 @@ module DataCycleCore
     def perform(content_id)
       DataCycleCore::Thing
         .where(id: load_depending_content_ids(content_id))
-        .each { |thing| update_computed_properties(thing) }
+        .find_each { |thing| update_computed_properties(thing) }
     end
 
     private

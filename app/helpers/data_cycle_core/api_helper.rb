@@ -166,9 +166,9 @@ module DataCycleCore
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil, linked_filter_id = nil, is_linked = false, depth = 0)
       include_params = is_linked ? include_parameters.dup << 'is_linked' : include_parameters
       if item.is_a?(DataCycleCore::Thing)
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
       elsif item.is_a?(DataCycleCore::Thing::History)
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       elsif item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
@@ -185,7 +185,7 @@ module DataCycleCore
       tree_params = classification_trees&.compact&.sort&.join(',')
 
       if item.is_a?(DataCycleCore::Thing) || item.is_a?(DataCycleCore::Thing::History)
-        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}"
+        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias) || item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
         key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_#{full}"
       else

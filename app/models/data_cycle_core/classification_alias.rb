@@ -374,9 +374,8 @@ module DataCycleCore
     end
 
     def invalidate_things_cache
-      linked_contents.ids.each do |thing_id|
-        DataCycleCore::CacheInvalidationJob.perform_later('DataCycleCore::Thing', thing_id, 'invalidate_self_and_update_search')
-      end
+      linked_contents.invalidate_all
+      linked_contents.update_search_all
     end
 
     def clean_stored_filters
