@@ -199,7 +199,10 @@ class ImageEditor {
 
       promise
         .then(async data => {
-          if (data.error) return this.handleError(data.error);
+          if (data.error) {
+            if (closeOverlay) this.handleError(data.error);
+            return;
+          }
 
           this.editableList.trigger('dc:import:data', data);
 
