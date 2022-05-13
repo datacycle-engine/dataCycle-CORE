@@ -6,7 +6,7 @@ module DataCycleCore
     belongs_to :thing, class_name: 'DataCycleCore::Thing'
 
     after_save do |item|
-      item.thing.update(template_updated_at: Time.zone.now)
+      item.thing.update_columns(template_updated_at: Time.zone.now)
     end
 
     def self.create_all(content, property, data)

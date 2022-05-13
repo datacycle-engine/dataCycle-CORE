@@ -28,7 +28,6 @@ module DataCycleCore
           "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
           "#{definition&.dig('compute', 'type')&.underscore}_#{api_property_definition.dig('partial')&.underscore}",
           definition&.dig('compute', 'type')&.underscore,
-          definition&.dig('virtual', 'type')&.underscore,
           definition['type'].underscore,
           'default'
         ].reject(&:blank?)
@@ -70,10 +69,6 @@ module DataCycleCore
       attribute_list.map { |item| item.first == name }.inject(&:|)
     end
 
-    def virtual_attribute(content, key, definition, language)
-      DataCycleCore::Utility::Virtual::Base.virtual_values(key, definition, content, language)
-    end
-
     def subtree_for(name, attribute_list)
       attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.select(&:present?)
     end
@@ -92,6 +87,7 @@ module DataCycleCore
 
     def load_value_object(content, key, value, languages, definition = nil)
       data_value = nil
+
       return api_value_format(value, definition) unless content.translatable_property_names.include?(key)
       single_value = (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
       if single_value

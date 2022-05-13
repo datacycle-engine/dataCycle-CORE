@@ -223,7 +223,7 @@ module DataCycleCore
       end
 
       def virtual_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'virtual' }
+        name_property_selector(include_overlay) { |definition| definition['virtual'].present? }
       end
 
       def linked_property_names(include_overlay = false)
@@ -240,7 +240,7 @@ module DataCycleCore
 
       def computed_property_names(include_overlay = false)
         @computed_property_names ||= Hash.new do |h, key|
-          h[key] = name_property_selector(key) { |definition| definition['type'] == 'computed' }
+          h[key] = name_property_selector(key) { |definition| definition['compute'].present? }
         end
         @computed_property_names[include_overlay]
       end
@@ -346,6 +346,10 @@ module DataCycleCore
       def attribute_to_h(property_name, timestamp = Time.zone.now)
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
+        elsif virtual_property_names.include?(property_name)
+          []
+        elsif computed_property_names.include?(property_name) # TODO: remove
+          send(property_name)
         elsif plain_property_names.include?(property_name)
           send(property_name)
         elsif classification_property_names.include?(property_name)
@@ -362,15 +366,11 @@ module DataCycleCore
           embedded_array.blank? ? [] : embedded_array.compact
         elsif asset_property_names.include?(property_name)
           send(property_name)
-        elsif computed_property_names.include?(property_name)
-          send(property_name)
         elsif schedule_property_names.include?(property_name)
           schedule_array = send(property_name)
           schedule_array = schedule_array.map(&:to_h).presence
           schedule_array.blank? ? [] : schedule_array.compact
         elsif timeseries_property_names.include?(property_name)
-          []
-        elsif virtual_property_names.include?(property_name)
           []
         else
           raise StandardError, "cannot determine how to serialize #{property_name}"
@@ -406,7 +406,11 @@ module DataCycleCore
       def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false)
         @get_property_value ||= Hash.new do |h, key|
           h[key] =
-            if plain_property_names(true).include?(key[0])
+            if virtual_property_names.include?(key[0])
+              DataCycleCore::Utility::Virtual::Base.virtual_values(key[0], key[1], self, key[2])
+            elsif computed_property_names(true).include?(key[0])
+              load_computed_attribute(key[0], key[1], key[4])
+            elsif plain_property_names(true).include?(key[0])
               load_json_attribute(key[0], key[1], key[4])
             elsif included_property_names(true).include?(key[0])
               load_included_data(key[0], key[1], key[4])
@@ -418,15 +422,10 @@ module DataCycleCore
               load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [I18n.locale], key[4])
             elsif asset_property_names.include?(key[0]) # no overlay
               load_asset_relation(key[0])&.first
-            elsif computed_property_names(true).include?(key[0])
-              load_computed_attribute(key[0], key[1], key[4])
             elsif schedule_property_names(true).include?(key[0])
               load_schedule(key[0], key[4])
             elsif timeseries_property_names.include?(key[0])
               load_timeseries(key[0], key[3], key[4])
-            elsif virtual_property_names.include?(key[0])
-              # was nil .... dangerous??
-              DataCycleCore::Utility::Virtual::Base.virtual_values(key[0], key[1], self, key[2])
             else
               raise NotImplementedError
             end

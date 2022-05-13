@@ -23,9 +23,11 @@ module DataCycleCore
     end
 
     test 'Timeseries callback to Thing' do
+      template_updated_at = @timeseries.template_updated_at
       updated_at = @timeseries.updated_at
       DataCycleCore::Timeseries.create(thing_id: @timeseries.id, property: 'series', timestamp: Time.zone.now, value: 1)
-      assert(updated_at < @timeseries.reload.updated_at)
+      assert(template_updated_at < @timeseries.reload.template_updated_at)
+      assert_equal(updated_at, @timeseries.reload.updated_at)
     end
 
     test 'Timeseries relation to Thing' do

@@ -19,64 +19,57 @@
         :type: timeseries
       :series_first:
         :label: first
-        :storage_location: virtual
-        :type: virtual
+        :type: number
+        :storage_location: value
         :virtual:
-          :type: number
           :module: Utility::Virtual::Timeseries
           :method: first
           :data: series
       :series_last:
         :label: last
-        :storage_location: virtual
-        :type: virtual
+        :type: number
+        :storage_location: value
         :virtual:
-          :type: number
           :module: Utility::Virtual::Timeseries
           :method: last
           :data: series
       :series_min:
         :label: min
-        :storage_location: virtual
-        :type: virtual
+        :type: number
+        :storage_location: value
         :virtual:
-          :type: number
           :module: Utility::Virtual::Timeseries
           :method: min
           :data: series
       :series_max:
         :label: max
-        :storage_location: virtual
-        :type: virtual
+        :type: number
+        :storage_location: value
         :virtual:
-          :type: number
           :module: Utility::Virtual::Timeseries
           :method: max
           :data: series
       :series_count:
         :label: count
-        :storage_location: virtual
-        :type: virtual
+        :type: number
+        :storage_location: value
         :virtual:
-          :type: number
           :module: Utility::Virtual::Timeseries
           :method: count
           :data: series
       :series_sum:
         :label: sum
-        :storage_location: virtual
-        :type: virtual
+        :type: number
+        :storage_location: value
         :virtual:
-          :type: number
           :module: Utility::Virtual::Timeseries
           :method: sum
           :data: series
       :series_avg:
         :label: avg
-        :storage_location: virtual
-        :type: virtual
+        :type: number
+        :storage_location: value
         :virtual:
-          :type: number
           :module: Utility::Virtual::Timeseries
           :method: avg
           :data: series

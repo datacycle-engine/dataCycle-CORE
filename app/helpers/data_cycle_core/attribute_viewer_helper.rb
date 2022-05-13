@@ -96,7 +96,6 @@ module DataCycleCore
 
       type = options.definition['type'].underscore_blanks
       type = options.definition.dig('compute', 'type').underscore_blanks.to_s if options.definition.dig('compute', 'type').present?
-      type = options.definition.dig('virtual', 'type').underscore_blanks.to_s if options.definition.dig('virtual', 'type').present? && options.definition.dig('virtual', 'force_display')
 
       partials = [
         options.definition&.dig('ui', 'show', 'partial').presence,
