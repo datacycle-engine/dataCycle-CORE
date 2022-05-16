@@ -37,7 +37,7 @@ module DataCycleCore
           path&.split('/')&.each do |folder|
             current_path = File.join(created_path)
             new_path = File.join(created_path.push(folder))
-            ftp.mkdir(new_path) if folder.present? && !ftp.list(current_path).any? { |dir| dir.match(/\s#{folder}$/) }
+            ftp.mkdir(new_path) if folder.present? && ftp.list(current_path).none? { |dir| dir.match(/\s#{folder}$/) }
           end
         end
       end
