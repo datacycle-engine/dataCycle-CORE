@@ -21,7 +21,7 @@ module DataCycleCore
               ftp.chdir(path)
             end
 
-            data.each do |item|
+            Array.wrap(data).each do |item|
               next if item.try(:asset)&.file&.file&.path.blank?
 
               ftp.putbinaryfile(item.asset.file.file.path, item.id + File.extname(item.asset.file.file.path))
