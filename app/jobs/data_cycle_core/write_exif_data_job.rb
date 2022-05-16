@@ -73,6 +73,9 @@ module DataCycleCore
 
     def update_variants(thing, updated_values)
       image_variant_property_names = thing.name_property_selector { |definition| definition['type'] == 'embedded' && definition['template_name'] == 'ImageVariant' }
+
+      return if image_variant_property_names.blank?
+
       image_variants = thing.send(image_variant_property_names.first)
 
       I18n.with_locale(thing.first_available_locale) do
