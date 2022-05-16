@@ -394,6 +394,15 @@ CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
     AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', template_updated_at = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
 
 
+--
+-- Name: core_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
+--
+
+CREATE TEXT SEARCH DICTIONARY public.core_german (
+    TEMPLATE = pg_catalog.thesaurus,
+    dictfile = 'core_german', dictionary = 'pg_catalog.german_stem' );
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;

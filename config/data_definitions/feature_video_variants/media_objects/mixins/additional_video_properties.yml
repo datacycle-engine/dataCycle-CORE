@@ -3,7 +3,7 @@
     :name: additional_video_properties
     :type: mixin
     :properties:
-      :transcoding_default:
+      :transcoding_mp4:
         :label: Label
         :storage_location: value
         :type: computed
@@ -11,6 +11,32 @@
           :type: string
           :module: Utility::Compute::Video
           :method: transcode
+          :transformation:
+            :version: mp4
+          :parameters:
+            :0: asset
+      :transcoding_mp4_low:
+        :label: Label
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Video
+          :method: transcode
+          :transformation:
+            :version: mp4_low
+          :parameters:
+            :0: asset
+      :transcoding_mp4_mid:
+        :label: Label
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Video
+          :method: transcode
+          :transformation:
+            :version: mp4_mid
           :parameters:
             :0: asset
 

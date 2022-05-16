@@ -30,14 +30,17 @@ module DataCycleCore
           end
 
           def transcode(**args)
+            content = args.dig(:content)
+            original_value = content.try(args.dig(:key))
+            return original_value if original_value.present? && original_value != DataCycleCore::Feature::VideoTranscoding.placeholder
+            # could be used for custom processing instructions via data definition
+            # video_processing = args.dig(:computed_definition, 'compute', 'processing')
+
             asset = args.dig(:computed_parameters)&.first || args.dig(:content).try(:asset)
             return if asset.blank?
-            asset_path = asset.file.file.path
-            new_path = Rails.root.join('tmp', 'movie.mp4').to_s
-            movie = FFMPEG::Movie.new(asset_path)
-            transcoded_movie = movie.transcode(new_path)
-            return new_path if transcoded_movie
-            nil
+
+            DataCycleCore::VideoTranscodingJob.perform_later(content.id, args.dig(:key))
+            DataCycleCore::Feature::VideoTranscoding.placeholder
           end
 
           def meta_value(video_id, path)

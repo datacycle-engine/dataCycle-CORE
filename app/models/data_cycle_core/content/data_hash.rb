@@ -27,7 +27,7 @@ module DataCycleCore
         add_default_values(**options.to_h.slice(:data_hash, :current_user, :new_content)) if properties_with_default_values.present?
 
         # add computed values
-        set_computed_values(data_hash: options.data_hash) if computed_property_names.present?
+        set_computed_values(data_hash: options.data_hash) if computed_property_names.present? && options.update_computed
       end
 
       def after_save_data_hash(options)
