@@ -13,10 +13,9 @@ describe DataCycleCore::MasterData::Differs::Computed do
     let(:template_hash) do
       {
         'label' => 'Test',
-        'type' => 'computed',
+        'type' => 'string',
         'storage_location' => 'value',
         'compute' => {
-          'type' => 'string',
           'module' => 'Utility::Compute::Common',
           'method' => 'copy',
           'parameters' => {

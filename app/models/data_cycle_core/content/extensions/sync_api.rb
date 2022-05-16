@@ -32,6 +32,8 @@ module DataCycleCore
           property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
           if plain_property_names.include?(property_name)
             send(property_name_with_overlay)
+          # elsif computed_property_names.include?(property_name)
+          #   send(property_name_with_overlay)
           elsif classification_property_names.include?(property_name)
             send(property_name).try(:pluck, :id)
           elsif linked_property_names.include?(property_name)
@@ -50,8 +52,6 @@ module DataCycleCore
             embedded_array.blank? ? [] : embedded_array.compact
           elsif asset_property_names.include?(property_name)
             # send(property_name_with_overlay) # do nothing --> only import url not asset itself
-          elsif computed_property_names.include?(property_name)
-            send(property_name_with_overlay)
           elsif schedule_property_names.include?(property_name)
             schedule_array = send(property_name_with_overlay)
             schedule_array = schedule_array

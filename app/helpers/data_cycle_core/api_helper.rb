@@ -15,8 +15,8 @@ module DataCycleCore
       api_version = @api_version || 2
       if api_version == 4
         partials = [
-          "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{key.underscore}",
-          (api_property_definition&.dig('partial')&.present? ? "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
+          "#{definition&.dig('type')&.underscore}_#{key.underscore}",
+          (api_property_definition&.dig('partial')&.present? ? "#{definition&.dig('type')&.underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
           api_property_definition&.dig('partial')&.underscore,
           definition['type'].underscore,
           'default'
@@ -26,8 +26,6 @@ module DataCycleCore
           "#{definition['type'].underscore}_#{key.underscore}",
           "#{definition['type'].underscore}_#{api_property_definition&.dig('partial')&.underscore}",
           "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
-          "#{definition&.dig('compute', 'type')&.underscore}_#{api_property_definition.dig('partial')&.underscore}",
-          definition&.dig('compute', 'type')&.underscore,
           definition['type'].underscore,
           'default'
         ].reject(&:blank?)

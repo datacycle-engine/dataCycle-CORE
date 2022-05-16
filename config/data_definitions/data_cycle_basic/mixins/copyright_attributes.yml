@@ -117,10 +117,9 @@
             :partial: string
       :copyright_notice_computed:
         :label: Urheberrechtsvermerk (automatisch)
+        :type: string
         :storage_location: value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::Copyright
           :method: copyright_notice
           :parameters:
@@ -147,7 +146,7 @@
       :copyright_notice:
         :label: Urheberrechtsvermerk
         :type: string
-        :storage_location: value        
+        :storage_location: value
         :virtual:
           :module: Utility::Virtual::Common
           :method: take_first

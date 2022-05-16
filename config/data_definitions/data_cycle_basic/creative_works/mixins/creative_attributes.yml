@@ -98,9 +98,8 @@
       :keywords:
         :label: Keywords
         :storage_location: translated_value
-        :type: computed
+        :type: string
         :compute:
-          :type: string
           :module: Utility::Compute::Classification
           :method: keywords
           :parameters:
@@ -108,18 +107,5 @@
         :ui:
           :show:
             :disabled: true
-#      :keywords:
-#        :label: Keywords
-#        :type: string
-#        :storage_location: value
-#        :virtual:
-#          :module: Utility::Virtual::Classification
-#          :method: concat
-#          :key: name
-#          :parameters:
-#            :0: tags
-#        :ui:
-#          :show:
-#            :disabled: true
-#          :edit:
-#            :disabled: true
+          :edit:
+            :disabled: true

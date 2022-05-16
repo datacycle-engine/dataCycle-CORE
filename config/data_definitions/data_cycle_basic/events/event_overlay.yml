@@ -16,9 +16,8 @@
       :start_date:
         :label: Startzeitpunkt
         :storage_location: column
-        :type: computed
+        :type: datetime
         :compute:
-          :type: datetime
           :module: Utility::Compute::Schedule
           :method: start_date
           :parameters:
@@ -26,12 +25,13 @@
         :ui:
           :show:
             :content_area: none
+          :edit:
+            :disabled: true
       :end_date:
         :label: Endzeitpunkt
         :storage_location: column
-        :type: computed
+        :type: datetime
         :compute:
-          :type: datetime
           :module: Utility::Compute::Schedule
           :method: end_date
           :parameters:
@@ -39,6 +39,8 @@
         :ui:
           :show:
             :content_area: none
+          :edit:
+            :disabled: true
       :description:
         :label: Beschreibung
         :type: string
