@@ -36,7 +36,7 @@ module DataCycleCore
       label_html
     end
 
-    def ordered_validation_properties(validation:, type: nil, content_area: nil)
+    def ordered_validation_properties(validation:, type: nil, content_area: nil, scope: :edit)
       return if validation.nil? || validation['properties'].blank?
 
       ordered_props = {}
@@ -44,26 +44,32 @@ module DataCycleCore
       validation['properties'].sort_by { |_, prop| prop['sorting'] }.each do |key, prop|
         next if INTERNAL_PROPERTIES.include?(key) || prop['sorting'].blank?
         next if type.present? && prop['type'] != type
-        next if content_area.presence&.!=('content') && prop.dig('ui', 'show', 'content_area') != content_area
-        next if content_area == 'content' && prop.dig('ui', 'show', 'content_area').present?
+        next if content_area.presence&.!=('content') && prop.dig('ui', scope.to_s, 'content_area') != content_area
+        next if content_area == 'content' && prop.dig('ui', scope.to_s, 'content_area').present?
 
-        if prop&.[]('ui')&.key?('attribute_group') && content_area != 'header'
-          group = prop['ui'].then { |g| g['attribute_group'].is_a?(::Array) ? g['attribute_group'].shift : g.delete('attribute_group') }
-          prop['ui'].delete('attribute_group') if prop['ui'].key?('attribute_group') && prop.dig('ui', 'attribute_group').blank?
-          group_name = group.remove(*GROUP_FLAGS.map { |f| "_#{f}" })
-          ordered_props[group_name] ||= {
-            'type' => 'attribute_group',
-            'properties' => {},
-            'features' => GROUP_FLAGS.index_with { |f| group.include?("_#{f}") }.compact_blank
-          }
-
-          ordered_props[group_name]['properties'][key] = prop
-        else
-          ordered_props[key] = prop
-        end
+        add_attribute_config(key, prop, scope, content_area, ordered_props)
       end
 
       ordered_props
+    end
+
+    def add_attribute_config(key, prop, scope, content_area, ordered_props)
+      return ordered_props[key] = prop unless content_area != 'header' && (prop['ui']&.key?('attribute_group') || prop.dig('ui', scope.to_s)&.key?('attribute_group'))
+
+      prop['ui'].delete('attribute_group') if prop['ui']&.key?('attribute_group') && prop.dig('ui', scope.to_s)&.key?('attribute_group')
+
+      prop_context = prop.dig('ui', scope.to_s)&.key?('attribute_group') ? prop['ui'][scope.to_s] : prop['ui']
+      group = prop_context.then { |g| g['attribute_group'].is_a?(::Array) ? g['attribute_group'].shift : g.delete('attribute_group') }
+      prop_context.delete('attribute_group') if prop_context.key?('attribute_group') && prop_context['attribute_group'].blank?
+      group_name = group.remove(*GROUP_FLAGS.map { |f| "_#{f}" })
+
+      ordered_props[group_name] ||= {
+        'type' => 'attribute_group',
+        'properties' => {},
+        'features' => GROUP_FLAGS.index_with { |f| group.include?("_#{f}") }.compact_blank
+      }
+
+      ordered_props[group_name]['properties'][key] = prop
     end
 
     def to_html_string(title, text = '')

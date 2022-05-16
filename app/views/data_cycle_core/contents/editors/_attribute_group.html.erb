@@ -1,5 +1,5 @@
 <% content_for :attribute_group, flush: true do %>
-  <% validation_properties = ordered_validation_properties(validation: definition) %>
+  <% validation_properties = ordered_validation_properties(validation: definition, scope: :edit) %>
   <% validation_properties.presence&.each do |o_key, prop| %>
     <%= render_attribute_editor key: o_key,
                                 prefix: "#{local_assigns[:prefix]}#{key.delete_suffix("[#{key.attribute_name_from_key}]")}",
