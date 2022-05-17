@@ -183,6 +183,7 @@ class ImageEditor {
       data.append('asset[file]', file);
       data.append('asset[type]', 'DataCycleCore::Image');
       data.append('asset[name]', fileName);
+      data.append('variant', true);
       const url = '/files/assets';
       const type = 'POST';
 

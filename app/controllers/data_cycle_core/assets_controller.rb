@@ -115,7 +115,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, asset_ids: [], selected: [], types: [])
+      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, :variant, asset_ids: [], selected: [], types: [])
     end
 
     def find_params
