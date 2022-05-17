@@ -27,7 +27,7 @@ module DataCycleCore
 
     def attribute_editor_allowed(options)
       return if options.type?('slug') && options.parameters[:parent]&.embedded?
-      return if options.type?('computed')
+      return if options.definition['compute'].present?
       return render('data_cycle_core/contents/editors/attribute_group', options.render_params) if options.type?('attribute_group')
 
       return render_linked_viewer(options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.type?('linked') && options.definition['link_direction'] == 'inverse'

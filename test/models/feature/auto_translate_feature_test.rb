@@ -59,7 +59,8 @@ module DataCycleCore
       I18n.with_locale(:en) { translation.set_data_hash(data_hash: { 'description' => 'new_descriptions' }) }
       changed_data = I18n.with_locale(:en) { translation.get_data_hash }
       assert_equal('manual', changed_data.dig('translation_type'))
-      assert_equal('Manuell', changed_data.dig('translated_classification').first.name)
+      assert(changed_data['translated_classification'].present?)
+      assert_equal('Manuell', translation.translated_classification.first.name)
     end
 
     test 'delete translations marked as manual updates' do
@@ -81,7 +82,8 @@ module DataCycleCore
       translation.set_data_hash(data_hash: { 'description' => 'new_descriptions' })
       changed_data = translation.get_data_hash
       assert_equal('manual', changed_data.dig('translation_type'))
-      assert_equal('Manuell', changed_data.dig('translated_classification').first.name)
+      assert(changed_data['translated_classification'].present?)
+      assert_equal('Manuell', translation.translated_classification.first.name)
       translation.destroy_auto_translations
       assert_raises ActiveRecord::RecordNotFound do
         translation.reload

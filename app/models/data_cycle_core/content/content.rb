@@ -348,8 +348,8 @@ module DataCycleCore
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
         elsif virtual_property_names.include?(property_name)
           []
-        elsif computed_property_names.include?(property_name) # TODO: remove
-          send(property_name)
+        # elsif computed_property_names.include?(property_name)
+        #   send(property_name)
         elsif plain_property_names.include?(property_name)
           send(property_name)
         elsif classification_property_names.include?(property_name)
@@ -408,8 +408,6 @@ module DataCycleCore
           h[key] =
             if virtual_property_names.include?(key[0])
               DataCycleCore::Utility::Virtual::Base.virtual_values(key[0], key[1], self, key[2])
-            elsif computed_property_names(true).include?(key[0])
-              load_computed_attribute(key[0], key[1], key[4])
             elsif plain_property_names(true).include?(key[0])
               load_json_attribute(key[0], key[1], key[4])
             elsif included_property_names(true).include?(key[0])
@@ -443,21 +441,6 @@ module DataCycleCore
               property_definition['type'],
               send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s),
               property_definition
-            )
-          end
-      end
-
-      def load_computed_attribute(property_name, property_definition, overlay_flag)
-        value = overlay_data(I18n.locale).try(:[], property_name) if overlay_flag
-        value ||
-          if property_definition['storage_location'] == 'column'
-            send(property_name)
-          elsif property_definition['storage_location'] == 'classification'
-            load_classifications(property_name, overlay_flag)
-          else
-            convert_to_type(
-              property_definition.dig('compute', 'type'),
-              send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
             )
           end
       end

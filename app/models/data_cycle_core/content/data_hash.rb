@@ -280,7 +280,7 @@ module DataCycleCore
           set_linked(key, value, properties)
         when 'embedded'
           set_embedded(key, value, properties['template_name'], properties['translated'], options)
-        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object', 'computed'
+        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
@@ -307,8 +307,6 @@ module DataCycleCore
           save_to_jsonb(key, value, properties, 'metadata')
         when 'translated_value'
           save_to_jsonb(key, value, properties, 'content')
-        when 'classification'
-          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal']) if properties.dig('compute', 'type') == 'classification'
         end
       end
 
