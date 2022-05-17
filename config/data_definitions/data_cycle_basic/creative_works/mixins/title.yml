@@ -40,10 +40,9 @@
           :minimal: true
 #      :headline:
 #        :label: Headline
-#        :storage_location: virtual
-#        :type: virtual
+#        :type: string
+#        :storage_location: value
 #        :virtual:
-#          :type: string
 #          :module: Utility::Virtual::String
 #          :method: concat
 #          :parameters:
@@ -52,6 +51,8 @@
 #              :name: name
 #        :ui:
 #          :show:
+#            :disabled: true
+#          :edit:
 #            :disabled: true
 #        :api:
 #          :minimal: true

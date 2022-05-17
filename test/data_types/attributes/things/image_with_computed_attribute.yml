@@ -63,9 +63,9 @@
             :disabled: false
       :copyright_notice:
         :label: Urheberrechtsvermerk
-        :type: virtual
+        :type: string
+        :storage_location: value        
         :virtual:
-          :type: string
           :module: Utility::Virtual::Common
           :method: take_first
           :parameters:
@@ -74,6 +74,7 @@
         :api:
           :disabled: false
         :ui:
+          :show:
+            :disabled: true
           :edit:
             :disabled: true
-

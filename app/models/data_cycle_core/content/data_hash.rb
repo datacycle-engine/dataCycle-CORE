@@ -290,7 +290,7 @@ module DataCycleCore
           set_schedule(value, key)
         when 'slug'
           save_slug(key, value, options.data_hash)
-        when 'key'
+        when 'key', 'timeseries'
           true # do nothing
         end
       end
