@@ -26,6 +26,12 @@ module DataCycleCore
               options: utility_object.external_source.config.dig('import_config', 'keywords') || 'Eyebase - Tags'
             )
 
+            # find thing from ftp export with id parsed from original_filename
+            thing_id = File.basename(raw_data.dig('original_filename', '#cdata-section').to_s, '.*')
+            if thing_id.uuid? && (thing = DataCycleCore::Thing.find_by(id: thing_id, external_source_id: nil, external_key: nil)).present?
+              thing.update_columns(external_source_id: utility_object.external_source.id, external_key: raw_data.dig('item_id', 'text'))
+            end
+
             DataCycleCore::Generic::Eyebase::Processing.process_media_asset(
               utility_object,
               raw_data,
