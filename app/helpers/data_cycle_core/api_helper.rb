@@ -58,8 +58,11 @@ module DataCycleCore
     end
 
     def attribute_disabled?(definition, api_version = @api_version)
-      return definition.dig('api', "v#{api_version}", 'disabled') if definition.dig('api', "v#{api_version}")&.key?('disabled')
-      definition.dig('api', 'disabled') || false
+      api_name = controller_path.delete_prefix('data_cycle_core/').split('/').first
+
+      return definition.dig(api_name, "v#{api_version}", 'disabled') if definition.dig(api_name, "v#{api_version}")&.key?('disabled')
+
+      definition.dig(api_name, 'disabled') || false
     end
 
     def included_attribute?(name, attribute_list)
