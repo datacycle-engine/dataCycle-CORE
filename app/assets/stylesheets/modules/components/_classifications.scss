@@ -48,8 +48,8 @@ ul.backend-treeview-list,
       z-index: 13;
       height: 3.5rem;
       padding: 0.5rem;
-      border-top-left-radius: 1.75rem;
-      border-top-right-radius: 1.75rem;
+      border-top-left-radius: 1.5rem;
+      border-top-right-radius: 1.5rem;
       background: $white;
       border: 1px solid $medium-gray;
       border-bottom: none;
@@ -96,12 +96,15 @@ ul.backend-treeview-list,
 
     .ca-input {
       position: relative;
+
       &:not(:last-of-type) {
         margin-bottom: 1rem;
       }
+
       &:not(:first-of-type) {
         margin-top: 1rem;
       }
+
       .ca-checkbox {
         display: block;
       }
@@ -138,12 +141,12 @@ ul.backend-treeview-list,
       .ca-collection-checkboxes {
         display: flex;
         flex-flow: row wrap;
-        padding: 3rem 1rem 1.5rem 1rem;
-        border: 1px solid $light-gray;
-        background: $light-gray;
-        box-shadow: none;
-        transition: background-color 0.1s, box-shadow 0.1s;
+        padding: 2.5rem 1rem 1rem 1rem;
+        border: 1px solid rgba($dark-gray, 0.5);
+        box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+        transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
         border-radius: $global-radius;
+        background: $white;
 
         > label {
           display: block;
@@ -156,6 +159,7 @@ ul.backend-treeview-list,
 
         &:hover {
           z-index: 1;
+          border-color: transparent;
           box-shadow: 0 0 7px $primary-color;
         }
 
@@ -178,7 +182,7 @@ ul.backend-treeview-list,
             cursor: pointer;
             border-radius: $global-radius;
             box-shadow: 0 0 1px #aaa;
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba($light-gray, 0.5);
             transition: background 0.2s ease;
             font-weight: normal;
             line-height: normal;
@@ -202,7 +206,7 @@ ul.backend-treeview-list,
           }
 
           > input:checked + label {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba($light-gray, 0.9);
 
             &::before {
               background-color: $primary-color;
@@ -265,6 +269,7 @@ ul.backend-treeview-list,
         &.new_classification_alias {
           padding: 0 1rem 1rem 1rem;
           box-shadow: 0 3px 3px $medium-gray;
+          border-radius: $global-radius 0 $global-radius $global-radius;
         }
       }
 
@@ -410,38 +415,54 @@ ul.backend-treeview-list,
     }
 
     input[type='text'] {
-      border: 1px solid $light-gray;
-      background: $light-gray;
-      box-shadow: none;
-      transition: background-color 0.1s, box-shadow 0.1s;
+      border: 1px solid rgba($dark-gray, 0.5);
+      box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+      transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+      border-radius: $global-radius;
+      background: $white;
 
       &:hover {
         z-index: 1;
+        border-color: transparent;
         box-shadow: 0 0 7px $primary-color;
       }
 
       &:focus,
       &.focus {
         border-color: $primary-color;
-        background: $white;
+      }
+
+      &::placeholder {
+        font-weight: 200;
+        color: $dark-gray;
+      }
+
+      &[readonly],
+      &[data-readonly='true'],
+      &[disabled],
+      &.disabled {
+        cursor: not-allowed !important;
+        background: lighten($light-gray, 5%) !important;
       }
     }
 
     .form-element {
       .editor-block {
-        border: 1px solid $light-gray;
-        box-shadow: none;
-        transition: background-color 0.1s, box-shadow 0.1s;
+        border: 1px solid rgba($dark-gray, 0.5);
+        box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+        transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+        border-radius: $global-radius;
+        background: $white;
       }
 
       &:hover .editor-block {
         z-index: 1;
+        border-color: transparent;
         box-shadow: 0 0 7px $primary-color;
       }
 
       &.focus .editor-block {
         border-color: $primary-color;
-        background: $white;
       }
     }
 
@@ -480,10 +501,12 @@ ul.backend-treeview-list,
       padding: 0 0 0 0;
 
       .select2-container {
-        border: 1px solid $light-gray;
-        background: $light-gray;
+        border: 1px solid rgba($dark-gray, 0.5);
+        box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+        transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+        border-radius: $global-radius;
+        background: $white;
         padding: 2.5rem 0.5rem 0.5rem 0.5rem;
-        transition: background-color 0.1s, box-shadow 0.1s;
 
         .select2-selection {
           border: 0;
@@ -492,6 +515,7 @@ ul.backend-treeview-list,
         }
 
         &:hover {
+          border-color: transparent;
           box-shadow: 0 0 7px $primary-color;
         }
 
@@ -499,6 +523,11 @@ ul.backend-treeview-list,
         &.select2-container--focus,
         &.select2-container--open {
           border-color: $primary-color;
+        }
+
+        &.select2-container--disabled {
+          cursor: not-allowed !important;
+          background: lighten($light-gray, 5%) !important;
         }
 
         & + .select2-container {
