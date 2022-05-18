@@ -48,6 +48,11 @@ group :development do
   gem 'rubocop-performance', require: false
   gem 'rubocop-rails', require: false
   gem 'awesome_print'
+
+  # only activate if required for local testing
+  # gem 'bullet'
+  # # rails panel (test)
+  # gem 'meta_request'
 end
 
 group :development, :test, :review do
@@ -61,4 +66,18 @@ group :development, :test, :review do
   gem 'rb-readline'
 
   gem 'simplecov', require: false
+
+  # activate for performance profiling
+  # performance profiling
+  # gem 'rack-mini-profiler'
+  # For memory profiling
+  # gem 'memory_profiler'
+  # For call-stack profiling flamegraphs
+  # gem 'flamegraph'
+  # gem 'stackprof'
+  #
+  # for API benchmark testing
+  # gem 'rails_api_benchmark'
+  # gem 'pronto', '~> 0.9.5'
+  # gem 'pronto-rubocop', '~> 0.9.1', require: false
 end

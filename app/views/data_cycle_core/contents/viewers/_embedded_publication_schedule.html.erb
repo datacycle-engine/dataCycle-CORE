@@ -51,7 +51,11 @@
                       <% objects = objects.concat(new_relations(publication_changes, 'classifications').includes(:classification_aliases).map(&:primary_classification_alias)) if changes_by_mode(publication_changes, '+').present? %>
 
                       <% objects.presence&.each do |a| %>
+<<<<<<< HEAD
                           <span class="tag has-tip <%= changes_class(publication_changes, a.primary_classification.id) %> dc-foundation-tooltip" data-allow-html="true" title="<%= classification_tooltip(a) %>">
+=======
+                          <span class="tag <%= changes_class(publication_changes, a.primary_classification.id) %>" data-dc-tooltip="<%= classification_tooltip(a) %>">
+>>>>>>> old/develop
                               <%= a.internal_name %>
                           </span>
                       <% end %>

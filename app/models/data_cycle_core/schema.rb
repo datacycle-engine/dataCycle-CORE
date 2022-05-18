@@ -110,7 +110,11 @@ module DataCycleCore
         when 'classification'
           'classification'
         else
+<<<<<<< HEAD
           case definition.dig('compute', 'type') || definition['type']
+=======
+          case definition['type']
+>>>>>>> old/develop
           when 'string'
             '//schema.org/Text'
           when 'datetime'

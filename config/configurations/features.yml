@@ -357,7 +357,11 @@
     :enabled: false
   :config:
     :dynamic:
+<<<<<<< HEAD
     :original:
+=======
+    # :original:
+>>>>>>> old/develop
     :default:
       :processing:
         :resize_type: fit
@@ -411,3 +415,11 @@
 
 :image_editor:
   :enabled: false
+<<<<<<< HEAD
+=======
+
+:translation_of_work:
+  :enabled: true
+  :attribute_keys:
+    - translation_of_work
+>>>>>>> old/develop

@@ -1,6 +1,12 @@
 <li>
   <%= link_to root_path(stored_filter: stored_filter.id) do %>
+<<<<<<< HEAD
     <span class="title <%= 'global' if stored_filter.system %>"><i class="fa fa-filter" aria-hidden="true"></i> <%= stored_filter.name %></span>
+=======
+    <span class="title <%= 'global' if stored_filter.system %>">
+      <%= stored_filter.system ? tag.i(class: 'fa fa-globe') : tag.i(class: 'fa fa-filter') %> <%= stored_filter.name %>
+    </span>
+>>>>>>> old/develop
     <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), locale: active_ui_locale) %></span>
   <% end %>
 

@@ -16,7 +16,11 @@
     </section>
     <section id="json-api" class="tabs-panel">
       <section class="json-api-nav">
+<<<<<<< HEAD
         <h5><%= t('admin_panel.api', locale: active_ui_locale) %></h5>
+=======
+        <h5><%= t('admin_panel.api', locale: active_ui_locale) + " V4" %></h5>
+>>>>>>> old/develop
         <button class="copy-to-admin-clipboard">COPY</button>
       </section>
       <pre id="admin_api" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/json_api" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>

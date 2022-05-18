@@ -76,6 +76,7 @@
                 <div class="small-12">&nbsp;</div>
               </div>
 
+<<<<<<< HEAD
               <div class="row">
                 <div class="small-4 columns">&nbsp;</div>
                 <%- if devise_mapping.rememberable? %>
@@ -85,6 +86,17 @@
                   </div>
                 <% end -%>
               </div>
+=======
+              <% if devise_mapping.rememberable? %>
+                <div class="row">
+                  <div class="small-4 columns">&nbsp;</div>
+                  <div class="small-7 columns end dc-checkbox">
+                    <%= f.check_box :remember_me %>
+                    <%= f.label :remember_me, t('activerecord.attributes.user.remember_me', locale: active_ui_locale) %>
+                  </div>
+                </div>
+              <% end %>
+>>>>>>> old/develop
 
               <div class="row">
                 <div class="small-7 small-offset-4 columns end">

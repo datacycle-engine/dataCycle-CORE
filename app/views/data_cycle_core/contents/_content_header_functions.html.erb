@@ -12,8 +12,13 @@
     <% end %>
 
     <% if can?(:index, content) && content.content_type?('entity') %>
+<<<<<<< HEAD
       <li class="has-dropdown">
         <%= render 'split_sources', query_params: { exclude: content&.id, template_name: content&.template_name }, value: @splitSource, url: compare_thing_path(content), title_text: t('common.compare_contents', locale: active_ui_locale) %>
+=======
+      <li class="has-dropdown compare-contents-link">
+        <%= render 'data_cycle_core/application/compare_sources', content: content, diff_source: nil, source_parameter: :diff_source %>
+>>>>>>> old/develop
       </li>
     <% end %>
     <% if content.content_type?('container') && I18n.available_locales&.many? && content.try(:children).present? %>
@@ -22,7 +27,11 @@
       </li>
     <% end %>
     <% if can?(:index, DataCycleCore::DataLink) %>
+<<<<<<< HEAD
       <li class="has-dropdown"><%= render 'data_links', content: content %></li>
+=======
+      <li class="has-dropdown"><%= render 'data_cycle_core/data_links/data_links_list', content: content %></li>
+>>>>>>> old/develop
     <% end %>
     <% if can? :subscribe, content %>
       <li class="has-dropdown">

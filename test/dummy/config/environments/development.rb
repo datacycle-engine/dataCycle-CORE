@@ -91,21 +91,31 @@ Rails.application.configure do
 
   config.web_console.whiny_requests = false if config.respond_to?(:web_console)
 
+<<<<<<< HEAD
   # config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST') { 'localhost:3003' }, protocol: ENV.fetch('APP_PROTOCOL') { 'http' } }
 
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.default_options = { from: "noreply@#{ENV.fetch('APP_HOST', 'localhost')}" }
   config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3000'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
+=======
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.default_options = { from: "noreply@#{ENV.fetch('APP_HOST', 'localhost')}" }
+  config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3003'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
+>>>>>>> old/develop
   config.action_mailer.smtp_settings = { address: ENV.fetch('MAILHOG_HOST', 'localhost'), port: 1025 }
 
   config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
 
+<<<<<<< HEAD
   config.hosts = [
     IPAddr.new('0.0.0.0/0'), # All IPv4 addresses.
     IPAddr.new('::/0'),      # All IPv6 addresses.
     'localhost',             # The localhost reserved domain.
     'nginx' # Allow this to be addressed when running in containers via docker-compose.yml.
   ]
+=======
+  config.hosts.clear
+>>>>>>> old/develop
 
   if ENV['RAILS_LOG_TO_STDOUT'].present?
     logger = ActiveSupport::Logger.new($stdout)

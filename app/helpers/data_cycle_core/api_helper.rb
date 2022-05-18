@@ -15,8 +15,13 @@ module DataCycleCore
       api_version = @api_version || 2
       if api_version == 4
         partials = [
+<<<<<<< HEAD
           "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{key.underscore}",
           (api_property_definition&.dig('partial')&.present? ? "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
+=======
+          "#{definition&.dig('type')&.underscore}_#{key.underscore}",
+          (api_property_definition&.dig('partial')&.present? ? "#{definition&.dig('type')&.underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
+>>>>>>> old/develop
           api_property_definition&.dig('partial')&.underscore,
           definition['type'].underscore,
           'default'
@@ -26,9 +31,12 @@ module DataCycleCore
           "#{definition['type'].underscore}_#{key.underscore}",
           "#{definition['type'].underscore}_#{api_property_definition&.dig('partial')&.underscore}",
           "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
+<<<<<<< HEAD
           "#{definition&.dig('compute', 'type')&.underscore}_#{api_property_definition.dig('partial')&.underscore}",
           definition&.dig('compute', 'type')&.underscore,
           definition&.dig('virtual', 'type')&.underscore,
+=======
+>>>>>>> old/develop
           definition['type'].underscore,
           'default'
         ].reject(&:blank?)
@@ -70,10 +78,13 @@ module DataCycleCore
       attribute_list.map { |item| item.first == name }.inject(&:|)
     end
 
+<<<<<<< HEAD
     def virtual_attribute(content, key, definition, language)
       DataCycleCore::Utility::Virtual::Base.virtual_values(key, definition, content, language)
     end
 
+=======
+>>>>>>> old/develop
     def subtree_for(name, attribute_list)
       attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.select(&:present?)
     end
@@ -92,9 +103,17 @@ module DataCycleCore
 
     def load_value_object(content, key, value, languages, definition = nil)
       data_value = nil
+<<<<<<< HEAD
       single_value = !content.translatable_property_names.include?(key) || (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
       if single_value
         data_value = api_value_format(value, definition)
+=======
+
+      return api_value_format(value, definition) unless content.translatable_property_names.include?(key)
+      single_value = (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
+      if single_value
+        data_value = I18n.with_locale(Array.wrap(languages).first) { api_value_format(content.send(key + '_overlay'), definition) }
+>>>>>>> old/develop
       else
         data_value = []
 

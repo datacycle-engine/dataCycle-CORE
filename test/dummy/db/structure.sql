@@ -10,6 +10,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+<<<<<<< HEAD
 -- Name: public; Type: SCHEMA; Schema: -; Owner: -
 --
 
@@ -21,6 +22,89 @@ CREATE SCHEMA public;
 --
 
 COMMENT ON SCHEMA public IS 'standard public schema';
+=======
+-- Name: pg_phash; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_phash WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_phash; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_phash IS 'support phash hamming distance calculation';
+
+
+--
+-- Name: pg_rrule; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_rrule WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_rrule; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_rrule IS 'RRULE field type for PostgreSQL';
+
+
+--
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
+
+--
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
+
+--
+-- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial types and functions';
+
+
+--
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+>>>>>>> old/develop
 
 
 --
@@ -315,6 +399,18 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
       END;$$;
 
 
+<<<<<<< HEAD
+=======
+--
+-- Name: update_template_definitions_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', template_updated_at = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
+
+
+>>>>>>> old/develop
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -743,7 +839,11 @@ CREATE VIEW public.content_computed_properties AS
     COALESCE((parameters.value ->> 'name'::text), (parameters.value #>> '{}'::text[])) AS compute_parameter_property_name
    FROM public.content_properties,
     LATERAL jsonb_each(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(key, value)
+<<<<<<< HEAD
   WHERE ((content_properties.property_definition ->> 'type'::text) = 'computed'::text);
+=======
+  WHERE (content_properties.property_definition ? 'compute'::text);
+>>>>>>> old/develop
 
 
 --
@@ -1270,6 +1370,23 @@ CREATE TABLE public.thing_translations (
 
 
 --
+<<<<<<< HEAD
+=======
+-- Name: timeseries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.timeseries (
+    thing_id uuid NOT NULL,
+    property character varying NOT NULL,
+    "timestamp" timestamp with time zone NOT NULL,
+    value double precision,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+>>>>>>> old/develop
 -- Name: user_group_users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2627,6 +2744,16 @@ CREATE UNIQUE INDEX pg_dict_mappings_locale_dict_idx ON public.pg_dict_mappings 
 
 
 --
+<<<<<<< HEAD
+=======
+-- Name: thing_attribute_timestamp_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX thing_attribute_timestamp_idx ON public.timeseries USING btree (thing_id, property, "timestamp");
+
+
+--
+>>>>>>> old/develop
 -- Name: thing_translations_name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2958,6 +3085,24 @@ CREATE TRIGGER update_schedule_occurences_trigger AFTER UPDATE OF thing_id, dura
 
 
 --
+<<<<<<< HEAD
+=======
+-- Name: things update_template_definitions_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_template_definitions_trigger AFTER UPDATE OF schema, boost, content_type ON public.things FOR EACH ROW WHEN (((new.template = true) AND ((old.schema IS DISTINCT FROM new.schema) OR (old.boost IS DISTINCT FROM new.boost) OR ((old.content_type)::text IS DISTINCT FROM (new.content_type)::text)))) EXECUTE PROCEDURE public.update_template_definitions_trigger();
+
+
+--
+-- Name: timeseries fk_rails_53ff16144f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.timeseries
+    ADD CONSTRAINT fk_rails_53ff16144f FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
+
+--
+>>>>>>> old/develop
 -- Name: schedule_occurrences schedule_occurrences_schedule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3219,6 +3364,13 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220316115212'),
 ('20220317105304'),
 ('20220317131316'),
+<<<<<<< HEAD
 ('20220322104259');
+=======
+('20220322104259'),
+('20220426105827'),
+('20220505135021'),
+('20220516134326');
+>>>>>>> old/develop
 
 

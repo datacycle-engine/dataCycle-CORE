@@ -99,7 +99,20 @@ module DataCycleCore
         tooltip_html << tag.div(
           tag.span(I18n.t('classifications.tooltip_translations', locale: active_ui_locale), class: 'tag-translations-header') +
           tag.ul(
+<<<<<<< HEAD
             safe_join(classification_alias.name_i18n.sort.map { |k, v| tag.li(v, data: { locale: "#{k}:" }) }),
+=======
+            safe_join(
+              classification_alias
+                .name_i18n
+                .each_with_object({}) { |(k, v), h|
+                (h[v] ||= []) << k
+              }
+                .transform_values { |v| v.sort.join(', ') }
+                .sort_by { |_k, v| v }
+                .map { |k, v| tag.li(ActionView::OutputBuffer.new("#{k} #{tag.span("(#{v})", class: 'tag-translations-locales')}")) }
+            ),
+>>>>>>> old/develop
             class: 'tag-translations-list'
           ),
           class: 'tag-translations'

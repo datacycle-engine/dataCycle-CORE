@@ -18,7 +18,10 @@ module DataCycleCore
             'embedded' => Validators::Embedded,
             'classification' => Validators::Classification,
             'asset' => Validators::Asset,
+<<<<<<< HEAD
             'computed' => Validators::Computed,
+=======
+>>>>>>> old/develop
             'schedule' => Validators::Schedule,
             'opening_time' => Validators::Schedule
           }

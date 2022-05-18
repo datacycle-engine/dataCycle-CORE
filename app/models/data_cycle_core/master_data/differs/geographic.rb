@@ -5,7 +5,11 @@ module DataCycleCore
     module Differs
       class Geographic < Basic
         def epsilon
+<<<<<<< HEAD
           1e0
+=======
+          1e-6
+>>>>>>> old/develop
         end
 
         def diff(a, b, _template, _partial_update)

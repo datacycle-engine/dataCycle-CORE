@@ -259,7 +259,11 @@ namespace :dc do
 
             if local_rails_env != 'development'
               execute :dc_rake_local, "#{ENV['CORE_RAKE_PREFIX']}db:migrate RAILS_ENV=#{local_rails_env}"
+<<<<<<< HEAD
               execute :dc_rake_local, "#{ENV['CORE_RAKE_PREFIX']}dc:update:configs:all[true] RAILS_ENV=#{local_rails_env}"
+=======
+              execute :dc_rake_local, "#{ENV['CORE_RAKE_PREFIX']}dc:update:configs[true] RAILS_ENV=#{local_rails_env}"
+>>>>>>> old/develop
             end
           end
         end

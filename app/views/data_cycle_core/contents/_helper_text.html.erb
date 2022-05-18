@@ -3,4 +3,8 @@
             dc_tooltip: t("helper_text.attributes.#{content&.template_name}.#{key.attribute_name_from_key}.tooltip", locale: active_ui_locale)
           } if I18n.exists?("helper_text.attributes.#{content&.template_name}.#{key.attribute_name_from_key}.tooltip", locale: active_ui_locale) %>
 
+<<<<<<< HEAD
 <%= tag.i '*', class: 'required-field-marker', title: t('common.required_field', locale: active_ui_locale) if local_assigns[:definition]&.dig('validations', 'required') || local_assigns[:definition]&.dig('validations', 'min') %>
+=======
+<%= tag.i '*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) } if local_assigns[:definition]&.dig('validations', 'required') || local_assigns[:definition]&.dig('validations', 'min') %>
+>>>>>>> old/develop

@@ -72,7 +72,13 @@ module DataCycleCore
     end
 
     def user_interface_error(exception)
+<<<<<<< HEAD
       redirect_back(fallback_location: root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false)
+=======
+      redirect_back(fallback_location: root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false) && return if is_a?(ApplicationController)
+
+      bad_request
+>>>>>>> old/develop
     end
 
     def not_acceptable
@@ -91,7 +97,11 @@ module DataCycleCore
       respond_to do |format|
         format.html { render 'data_cycle_core/exceptions/not_found_exception', status: :not_found } if is_a?(ApplicationController)
         format.json { render status: :not_found, json: { errors: content_api_error(exception) } }
+<<<<<<< HEAD
         format.js { render status: :not_found, js: I18n.t("exceptions.#{exception.class.name.underscore}", default: @exception_message, locale: helpers.active_ui_locale) }
+=======
+        format.js { render status: :not_found, js: "console.warn('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if is_a?(ApplicationController)
+>>>>>>> old/develop
         format.any { head :not_found }
       end
     end
@@ -100,7 +110,11 @@ module DataCycleCore
       respond_to do |format|
         format.html { redirect_to authorized_root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false } if is_a?(ApplicationController)
         format.json { render status: status_code, json: { errors: content_api_error(exception) } }
+<<<<<<< HEAD
         format.js { render status: status_code, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" }
+=======
+        format.js { render status: status_code, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if is_a?(ApplicationController)
+>>>>>>> old/develop
         format.any { head status_code }
       end
     end

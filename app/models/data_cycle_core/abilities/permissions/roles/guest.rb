@@ -26,7 +26,11 @@ module DataCycleCore
             # UserApi
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+<<<<<<< HEAD
               :can, :login, :renew_login, :reset_password,
+=======
+              :can, :login, :renew_login, :reset_password, :confirm,
+>>>>>>> old/develop
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(:user_api)
             )
 
@@ -67,7 +71,11 @@ module DataCycleCore
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
               :can, :copy_api_link,
+<<<<<<< HEAD
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList)
+=======
+              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList, my_selection: false)
+>>>>>>> old/develop
             )
 
             # DataAttributes
@@ -111,6 +119,16 @@ module DataCycleCore
                 ]
               )
             )
+<<<<<<< HEAD
+=======
+
+            # User
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can, :update,
+              DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::User, :id)
+            )
+>>>>>>> old/develop
           end
         end
       end

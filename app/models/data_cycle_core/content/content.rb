@@ -39,6 +39,16 @@ module DataCycleCore
       after_save :reload_memoized
       after_save :reload_memoized_overlay
 
+<<<<<<< HEAD
+=======
+      def reload(options = nil)
+        reload_memoized
+        reload_memoized_overlay
+
+        super(options)
+      end
+
+>>>>>>> old/develop
       def webhook_data
         return @webhook_data if defined? @webhook_data
 
@@ -59,6 +69,12 @@ module DataCycleCore
           if original_name.in?(embedded_property_names + linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
             get_property_value(original_name, property_definition, args.first, overlay_flag & original_name.in?(overlay_property_names))
+<<<<<<< HEAD
+=======
+          elsif original_name.in?(timeseries_property_names)
+            raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 2
+            get_property_value(original_name, property_definition, args.first, args&.try(:second))
+>>>>>>> old/develop
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
             get_property_value(original_name, property_definition, nil, overlay_flag & original_name.in?(overlay_property_names))
@@ -213,7 +229,11 @@ module DataCycleCore
       end
 
       def virtual_property_names(include_overlay = false)
+<<<<<<< HEAD
         name_property_selector(include_overlay) { |definition| definition['type'] == 'virtual' }
+=======
+        name_property_selector(include_overlay) { |definition| definition['virtual'].present? }
+>>>>>>> old/develop
       end
 
       def linked_property_names(include_overlay = false)
@@ -230,7 +250,11 @@ module DataCycleCore
 
       def computed_property_names(include_overlay = false)
         @computed_property_names ||= Hash.new do |h, key|
+<<<<<<< HEAD
           h[key] = name_property_selector(key) { |definition| definition['type'] == 'computed' }
+=======
+          h[key] = name_property_selector(key) { |definition| definition['compute'].present? }
+>>>>>>> old/develop
         end
         @computed_property_names[include_overlay]
       end
@@ -254,6 +278,13 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition['type'].in?(['schedule', 'opening_time']) }
       end
 
+<<<<<<< HEAD
+=======
+      def timeseries_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'timeseries' }
+      end
+
+>>>>>>> old/develop
       def external_property_names
         name_property_selector { |definition| definition.dig('external') }
       end
@@ -332,6 +363,13 @@ module DataCycleCore
       def attribute_to_h(property_name, timestamp = Time.zone.now)
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
+<<<<<<< HEAD
+=======
+        elsif virtual_property_names.include?(property_name)
+          []
+        # elsif computed_property_names.include?(property_name)
+        #   send(property_name)
+>>>>>>> old/develop
         elsif plain_property_names.include?(property_name)
           send(property_name)
         elsif classification_property_names.include?(property_name)
@@ -348,13 +386,20 @@ module DataCycleCore
           embedded_array.blank? ? [] : embedded_array.compact
         elsif asset_property_names.include?(property_name)
           send(property_name)
+<<<<<<< HEAD
         elsif computed_property_names.include?(property_name)
           send(property_name)
+=======
+>>>>>>> old/develop
         elsif schedule_property_names.include?(property_name)
           schedule_array = send(property_name)
           schedule_array = schedule_array.map(&:to_h).presence
           schedule_array.blank? ? [] : schedule_array.compact
+<<<<<<< HEAD
         elsif virtual_property_names.include?(property_name)
+=======
+        elsif timeseries_property_names.include?(property_name)
+>>>>>>> old/develop
           []
         else
           raise StandardError, "cannot determine how to serialize #{property_name}"
@@ -390,7 +435,13 @@ module DataCycleCore
       def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false)
         @get_property_value ||= Hash.new do |h, key|
           h[key] =
+<<<<<<< HEAD
             if plain_property_names(true).include?(key[0])
+=======
+            if virtual_property_names.include?(key[0])
+              DataCycleCore::Utility::Virtual::Base.virtual_values(key[0], key[1], self, key[2])
+            elsif plain_property_names(true).include?(key[0])
+>>>>>>> old/develop
               load_json_attribute(key[0], key[1], key[4])
             elsif included_property_names(true).include?(key[0])
               load_included_data(key[0], key[1], key[4])
@@ -402,12 +453,19 @@ module DataCycleCore
               load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [I18n.locale], key[4])
             elsif asset_property_names.include?(key[0]) # no overlay
               load_asset_relation(key[0])&.first
+<<<<<<< HEAD
             elsif computed_property_names(true).include?(key[0])
               load_computed_attribute(key[0], key[1], key[4])
             elsif schedule_property_names(true).include?(key[0])
               load_schedule(key[0], key[4])
             elsif virtual_property_names.include?(key[0])
               nil
+=======
+            elsif schedule_property_names(true).include?(key[0])
+              load_schedule(key[0], key[4])
+            elsif timeseries_property_names.include?(key[0])
+              load_timeseries(key[0], key[3], key[4])
+>>>>>>> old/develop
             else
               raise NotImplementedError
             end
@@ -429,6 +487,7 @@ module DataCycleCore
           end
       end
 
+<<<<<<< HEAD
       def load_computed_attribute(property_name, property_definition, overlay_flag)
         value = overlay_data(I18n.locale).try(:[], property_name) if overlay_flag
         value ||
@@ -444,6 +503,8 @@ module DataCycleCore
           end
       end
 
+=======
+>>>>>>> old/develop
       def load_included_data(property_name, property_definition, overlay_flag)
         sub_property_definitions = property_definition.try(:[], 'properties')
         raise StandardError, "Template for included data #{property_name} has no Subproperties defined." if sub_property_definitions.blank?
@@ -548,11 +609,17 @@ module DataCycleCore
       end
 
       def set_property_value(property_name, property_definition, value)
+<<<<<<< HEAD
         ActiveSupport::Notifications.instrument 'deprecation.datacycle', this: {
           message: "method set_property_value(#{property_name}, ...) is deprecated, use set_data_hash instead.",
           object: self
         }
 
+=======
+        Appsignal.send_error(e) do |transaction|
+          transaction.set_namespace("method set_property_value is deprecated use set_data_hash instead. Thing: #{id}(#{template_name}) - #{property_name}")
+        end
+>>>>>>> old/develop
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
         ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}")
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',

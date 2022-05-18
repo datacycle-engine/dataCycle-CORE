@@ -107,7 +107,11 @@ module DataCycleCore
         assert_equal(content_data_hash_properties, new_content.get_data_hash.except(*excepted_properties))
         assert_nil(new_content.asset)
         content.computed_property_names.each do |computed_property|
+<<<<<<< HEAD
           assert_nil(new_content.send(computed_property.to_sym))
+=======
+          assert(new_content.send(computed_property.to_sym).blank?)
+>>>>>>> old/develop
         end
       end
 

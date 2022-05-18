@@ -30,7 +30,11 @@
     <div class="buttons">
       <%= yield_content!(:media_buttons) %>
 
+<<<<<<< HEAD
       <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', title: t('common.has_overlay', locale: active_ui_locale)) if content.try(:overlay?) %>
+=======
+      <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', data: { dc_tooltip: t('common.has_overlay', locale: active_ui_locale) }) if content.try(:overlay?) %>
+>>>>>>> old/develop
 
       <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
 

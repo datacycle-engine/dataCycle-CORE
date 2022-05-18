@@ -40,6 +40,10 @@ module DataCycleCore
                 zipfile.add(file_name, download_file)
               end
             end
+<<<<<<< HEAD
+=======
+
+>>>>>>> old/develop
             DataCycleCore::Feature::Download.mandatory_serializers_for_download(object, [:archive, :zip]).each_key do |format|
               serializer = ('DataCycleCore::Serialize::Serializer::' + format.to_s.classify).constantize
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
@@ -61,6 +65,11 @@ module DataCycleCore
       end
 
       object.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
+<<<<<<< HEAD
+=======
+
+      response.headers['X-Accel-Buffering'] = 'no'
+>>>>>>> old/develop
       send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
     end
 
@@ -118,6 +127,11 @@ module DataCycleCore
       end
 
       object.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
+<<<<<<< HEAD
+=======
+
+      response.headers['X-Accel-Buffering'] = 'no'
+>>>>>>> old/develop
       send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
     end
 
@@ -137,6 +151,11 @@ module DataCycleCore
 
       download_file = create_download_file(serialized_content, file_name)
       content.activities.create(user: current_user, activity_type: 'download')
+<<<<<<< HEAD
+=======
+
+      response.headers['X-Accel-Buffering'] = 'no'
+>>>>>>> old/develop
       send_file download_file, filename: file_name, disposition: 'attachment', type: mime_type
     end
 

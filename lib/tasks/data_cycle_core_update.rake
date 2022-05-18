@@ -48,19 +48,37 @@ namespace :data_cycle_core do
       before_import = Time.zone.now
       puts "importing new template definitions\n"
       errors, duplicates, mixin_duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
+<<<<<<< HEAD
+=======
+
+>>>>>>> old/develop
       if duplicates.present?
         puts 'INFO: the following templates are overwritten:'
         ap duplicates
       end
+<<<<<<< HEAD
+=======
+
+>>>>>>> old/develop
       if mixin_duplicates.present?
         puts 'INFO: the following mixins are overwritten:'
         ap mixin_duplicates
       end
+<<<<<<< HEAD
+=======
+
+>>>>>>> old/develop
       if errors.present?
         puts 'the following errors were encountered during import:'
         ap errors
       end
+<<<<<<< HEAD
       errors.blank? ? puts('[done] ... looks good') : exit(-1)
+=======
+
+      errors.blank? ? puts("[done] ... looks good (Duration: #{(Time.zone.now - before_import).round} sec)") : exit(-1)
+
+>>>>>>> old/develop
       puts "\nchecking for usage of not translatable embedded"
       templates = DataCycleCore::MasterData::ImportTemplates.find_not_translatable_embedded
       if templates.present?
@@ -74,7 +92,11 @@ namespace :data_cycle_core do
 
       outdated_templates = DataCycleCore::MasterData::ImportTemplates.updated_template_statistics(before_import)
       if outdated_templates.present?
+<<<<<<< HEAD
         puts "\nWARNING: the following templates are not updated:"
+=======
+        puts "\nWARNING: the following templates were not updated:"
+>>>>>>> old/develop
         puts "#{'template_name'.ljust(20)} | #{'template_updated_at'.ljust(38)} | #{'#things'.ljust(12)} | #{'#things_hist'.ljust(12)}"
         puts '-' * 92
         outdated_templates.each do |key, value|
@@ -118,6 +140,7 @@ namespace :data_cycle_core do
       puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
     end
 
+<<<<<<< HEAD
     desc 'replace the data-definitions of all data-types in the Database with the templates in the Database'
     task :update_all_templates_sql, [:history] => [:environment] do |_, args|
       temp = Time.zone.now
@@ -177,6 +200,8 @@ namespace :data_cycle_core do
       puts "#{'thing_histories'.ljust(15)} | #{args[:template_name].ljust(25)} | #{(affected_history_items || 0).to_s.rjust(7)} | #{(total_history_items || 0).to_s.rjust(7)} | #{TimeHelper.format_time(Time.zone.now - temp, 5, 6, 's')} \r"
     end
 
+=======
+>>>>>>> old/develop
     desc 'auto_tag all images (without Cloud Vision Tags)'
     task auto_tagging: [:environment] do
       abort('Feature AutoTagging has to be enabled!') unless DataCycleCore::Feature::AutoTagging.enabled?

@@ -37,7 +37,15 @@ module DataCycleCore
           contents = Array.wrap(content_params.as_json)
 
           responses = contents.map do |content|
+<<<<<<< HEAD
             strategy.update(content, external_system)
+=======
+            if strategy.method(:update).arity == 3
+              strategy.update(content, external_system, current_user)
+            else
+              strategy.update(content, external_system)
+            end
+>>>>>>> old/develop
           end
 
           errors = responses.select { |i| i[:error].present? }
@@ -50,7 +58,15 @@ module DataCycleCore
           render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?
           content = content_params.as_json
 
+<<<<<<< HEAD
           response = strategy.create(content, external_system)
+=======
+          if strategy.method(:create).arity == 3
+            response = strategy.create(content, external_system, current_user)
+          else
+            response = strategy.create(content, external_system)
+          end
+>>>>>>> old/develop
           errors = response[:error] || []
 
           render plain: Array.wrap(response).to_json, content_type: 'application/json', status: errors.size.positive? ? :bad_request : :ok
@@ -70,6 +86,31 @@ module DataCycleCore
           render plain: responses.to_json, content_type: 'application/json', status: errors.size.positive? ? :bad_request : :ok
         end
 
+<<<<<<< HEAD
+=======
+        def timeseries
+          external_system = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id])
+          render(json: { error: 'unknown endpoint' }, status: :not_found) && return if external_system.blank?
+          content = DataCycleCore::Thing.find_by(external_source_id: external_system.id, external_key: permitted_params[:external_key])
+          render(json: { error: 'unknown endpoint' }, status: :not_found) && return if content.blank?
+          render(json: { error: 'unknown endpoint' }, status: :not_found) && return unless content.timeseries_property_names.include?(permitted_params[:attribute])
+
+          data =
+            case permitted_params[:format].to_sym
+            when :json
+              params[:data]
+            when :csv
+              csv = request.body
+              csv = CSV.parse(csv)
+              csv.presence
+            end
+          render(json: { warning: 'no data given' }, status: :no_content) && return if data.blank?
+
+          response = Timeseries.create_all(content, permitted_params[:attribute], data)
+          render plain: response.to_json, content_type: 'application/json', status: response[:error].present? ? :bad_request : :accepted
+        end
+
+>>>>>>> old/develop
         private
 
         def search_feratel_api(search_method)
@@ -124,7 +165,11 @@ module DataCycleCore
 
         def permitted_parameter_keys
           super + [:external_source_id, :type, :external_key, :webhook_source, :endpoint_id,
+<<<<<<< HEAD
                    :days, :units, :from, :to, :page_size, :start_index,
+=======
+                   :days, :units, :from, :to, :page_size, :start_index, :attribute,
+>>>>>>> old/develop
                    occupation: [:adults, :children, :units], filter: {}]
         end
 

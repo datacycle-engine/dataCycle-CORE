@@ -1,5 +1,6 @@
 <% I18n.with_locale(item.first_available_locale(@language)) do %>
 
+<<<<<<< HEAD
     <%= link_to thing_path(item, watch_list_id: @watch_list&.id, locale: I18n.locale), class: 'content-link' do %>
 
         <div class="inner">
@@ -21,5 +22,28 @@
         </div>
 
     <% end %>
+=======
+  <%= link_to thing_path(item, watch_list_id: @watch_list&.id, locale: I18n.locale), class: 'content-link' do %>
+
+    <div class="inner">
+      <%= render 'data_cycle_core/contents/grid/attributes/type', local_assigns %>
+      <%= render 'data_cycle_core/contents/grid/attributes/parent', item: item.parent if item.try(:parent).present? %>
+      <%= render 'data_cycle_core/contents/grid/attributes/title', local_assigns if item.try(:title).present? %>
+      <%= render 'data_cycle_core/contents/grid/attributes/description', local_assigns if item.try(:desc).present? %>
+
+      <%= yield %>
+
+      <%= render 'data_cycle_core/contents/grid/attributes/tags', local_assigns if item.try(:display_classification_aliases, 'tile').present? %>
+      <% if content_for?(:media_thumbs) %>
+        <%= yield_content!(:media_thumbs) %>
+      <% elsif item.try(:image).is_a?(ActiveRecord::Relation) && item.image.present? %>
+        <%= render 'data_cycle_core/contents/grid/attributes/images', local_assigns %>
+      <% end %>
+
+      <%#= render 'data_cycle_core/contents/grid/attributes/warnings', content: item %>
+    </div>
+
+  <% end %>
+>>>>>>> old/develop
 
 <% end %>

@@ -17,9 +17,15 @@ module DataCycleCore
         def create_duplicate_candidates
           duplicates = duplicate_method
 
+<<<<<<< HEAD
           return if duplicates.blank?
 
           duplicates.each do |duplicate|
+=======
+          duplicate_candidates.where.not(duplicate_id: duplicates&.map { |d| d[:content]&.id }&.compact).thing_duplicates.delete_all
+
+          duplicates&.each do |duplicate|
+>>>>>>> old/develop
             thing_duplicates.create!(thing_duplicate_id: duplicate[:content]&.id, method: duplicate[:method], score: duplicate[:score]) unless duplicate_candidates.with_fp.any? { |c| c.duplicate_id == duplicate[:content]&.id }
           end
         end

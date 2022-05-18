@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 <div class="description">
     <% unless item.try(:address).blank? %>
         <%= "#{item.address.street_address}<br />".html_safe unless item.address.street_address.blank? %>
         <%= item.address.postal_code.html_safe unless item.address.postal_code.blank? %>
         <%= item.address.address_locality.html_safe unless item.address.address_locality.blank? %>
     <% end %>
+=======
+<div class="address-block">
+  <%= item.address_block %>
+>>>>>>> old/develop
 </div>

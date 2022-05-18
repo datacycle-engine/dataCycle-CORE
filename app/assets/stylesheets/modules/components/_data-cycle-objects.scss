@@ -105,7 +105,8 @@
     overflow: hidden;
   }
 
-  .description {
+  .description,
+  .address-block {
     color: $black;
 
     p {
@@ -1471,29 +1472,72 @@ span.single_error.object-browser-error {
 /* Duration Slider */
 
 .detail-header.editor {
-  .duration {
+  .duration-slider-editor {
+    display: flex;
+    align-items: center;
+
+    > label.attribute-edit-label {
+      padding: 0;
+      position: relative;
+      display: inline-flex;
+      left: unset;
+      top: unset;
+      flex: 0;
+      white-space: nowrap;
+      line-height: 2.5rem;
+      margin-right: 0.5rem;
+    }
+
     .duration-slider {
-      padding-left: 8rem;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      flex: auto;
 
-      .small-2 {
-        position: relative;
-        padding-right: 0;
+      .duration-slider-slider {
+        flex: auto;
+        display: flex;
+
+        > .slider {
+          flex: auto;
+          margin: 1rem 0;
+
+          .slider-handle {
+            border-radius: 4px;
+          }
+        }
       }
 
-      input {
-        min-width: 100%;
-        text-align: right;
-        padding: 0 3rem 0 1rem;
-        height: 2.5rem;
-      }
+      .duration-slider-input {
+        flex: 0;
+        margin-left: 1rem;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: flex-end;
+        background: $light-gray;
 
-      .duration-label {
-        position: absolute;
-        right: 1rem;
-        top: 0;
-        display: inline-block;
-        height: 2.5rem;
-        line-height: 2.5rem;
+        > input {
+          display: block;
+          position: relative;
+          width: 100%;
+          padding: 0.5rem 0.35rem 0.5rem 0.7rem;
+          min-width: 5rem;
+          margin-right: 0.35rem;
+          text-align: right;
+          height: 2.5rem;
+        }
+
+        .duration-label {
+          position: relative;
+          top: unset;
+          left: unset;
+          height: unset;
+          line-height: inherit;
+          display: block;
+          right: unset;
+          padding: 0.5rem 0.7rem 0.5rem 0;
+        }
       }
     }
   }

@@ -55,7 +55,11 @@ module DataCycleCore
           test '/api/v4/endpoints/:id default results and /api/v4/users/' do
             post(
               stored_filters_path,
+<<<<<<< HEAD
               params: { stored_filter: { name: 'TestFilter' } },
+=======
+              params: { stored_filter: { name: 'TestFilter' }, update_filter_parameters: true },
+>>>>>>> old/develop
               headers: { referer: root_path }
             )
             filter = User.find_by(email: 'tester@datacycle.at').stored_filters.presence&.find_by(name: 'TestFilter')

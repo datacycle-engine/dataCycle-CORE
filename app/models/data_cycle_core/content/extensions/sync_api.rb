@@ -18,11 +18,18 @@ module DataCycleCore
         end
 
         def to_sync_h(depth: 0, max_depth: DataCycleCore.main_config.dig(:sync_api, :max_depth), locales: nil)
+<<<<<<< HEAD
           (property_names - virtual_property_names)
             .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth: depth, max_depth: max_depth, locales: locales) } }
             .inject(&:merge)
             .merge(sync_metadata)
             .compact
+=======
+          (property_names - timeseries_property_names - virtual_property_names)
+            .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth: depth, max_depth: max_depth, locales: locales) } }
+            .inject(&:merge)
+            .merge(sync_metadata)
+>>>>>>> old/develop
             .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', depth: depth, max_depth: max_depth, locales: locales) }
             .deep_stringify_keys
         end
@@ -33,6 +40,11 @@ module DataCycleCore
           property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
           if plain_property_names.include?(property_name)
             send(property_name_with_overlay)
+<<<<<<< HEAD
+=======
+          # elsif computed_property_names.include?(property_name)
+          #   send(property_name_with_overlay)
+>>>>>>> old/develop
           elsif classification_property_names.include?(property_name)
             send(property_name).try(:pluck, :id)
           elsif linked_property_names.include?(property_name)
@@ -51,8 +63,11 @@ module DataCycleCore
             embedded_array.blank? ? [] : embedded_array.compact
           elsif asset_property_names.include?(property_name)
             # send(property_name_with_overlay) # do nothing --> only import url not asset itself
+<<<<<<< HEAD
           elsif computed_property_names.include?(property_name)
             send(property_name_with_overlay)
+=======
+>>>>>>> old/develop
           elsif schedule_property_names.include?(property_name)
             schedule_array = send(property_name_with_overlay)
             schedule_array = schedule_array

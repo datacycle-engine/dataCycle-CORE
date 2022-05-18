@@ -95,6 +95,7 @@ module DataCycleCore
             end
 
             # cc_rel
+<<<<<<< HEAD
             assert_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
               # license is overwritten by license_classification
               {
@@ -102,6 +103,14 @@ module DataCycleCore
                 'cc:attributionUrl' => @content.attribution_url,
                 'cc:attributionName' => @content.attribution_name,
                 'cc:morePermissions' => @content.more_permissions
+=======
+            assert_attributes(json_validate, required_attributes, ['url', 'license', 'attribution_url', 'attribution_name', 'license_classification']) do
+              # license is overwritten by license_classification
+              {
+                'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                'url' => @content.attribution_url,
+                'copyrightNotice' => @content.copyright_notice_computed
+>>>>>>> old/develop
               }
             end
 
@@ -295,6 +304,7 @@ module DataCycleCore
             end
 
             # cc_rel
+<<<<<<< HEAD
             assert_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
               # license is overwritten by license_classification
               {
@@ -302,6 +312,14 @@ module DataCycleCore
                 'cc:attributionUrl' => @content.attribution_url,
                 'cc:attributionName' => @content.attribution_name,
                 'cc:morePermissions' => @content.more_permissions
+=======
+            assert_attributes(json_validate, required_attributes, ['url', 'license', 'attribution_url', 'attribution_name', 'license_classification']) do
+              # license is overwritten by license_classification
+              {
+                'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                'url' => @content.attribution_url,
+                'copyrightNotice' => @content.copyright_notice_computed
+>>>>>>> old/develop
               }
             end
 

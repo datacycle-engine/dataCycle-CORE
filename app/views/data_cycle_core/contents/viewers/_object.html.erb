@@ -12,8 +12,13 @@
                                   parent: value,
                                   options: options.merge(
                                     {
+<<<<<<< HEAD
                                       item_diff: attribute_changes(@diff_schema, "#{key}[#{o_key}]"),
                                       mode: changes_mode(attribute_changes(@diff_schema, "#{key}[#{o_key}]"))
+=======
+                                      item_diff: attribute_changes(options['item_diff'], o_key),
+                                      mode: changes_mode(attribute_changes(options['item_diff'], o_key))
+>>>>>>> old/develop
                                     }
                                   )
                                 },

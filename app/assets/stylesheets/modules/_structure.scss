@@ -31,7 +31,7 @@ input,
 optgroup,
 select,
 textarea {
-  font-family: 'Open Sans', 'Noto Sans SC', 'Noto Sans TC', sans-serif;
+  font-family: $body-font-family;
 }
 
 .fa {
@@ -189,7 +189,8 @@ header {
 
 /* new object element */
 
-a.button-prime.new-object-circle {
+a.button-prime.new-object-circle,
+button.button-prime.new-object-circle {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
@@ -370,10 +371,10 @@ body.with-glass {
   }
 
   ul.footer-links li {
-    color: white;
+    color: $black;
 
     a {
-      color: white;
+      color: $black;
       text-decoration: underline;
     }
   }
@@ -434,16 +435,15 @@ ul.footer-links {
 
     a.forgotten_password_link {
       display: block;
-      //margin: 1rem 0 1rem 0;
       text-align: right;
       font-size: 0.9rem;
-      color: white;
+      color: $black;
       text-decoration: underline;
     }
     .login-checkboxes {
       a {
         text-decoration: underline;
-        color: $white;
+        color: $black;
       }
     }
 
@@ -463,28 +463,23 @@ ul.footer-links {
         text-align: center;
       }
       button[type='submit'].button {
-        background-color: $dark-gray;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        background-color: darken($dark-gray, 20%);
         padding: 0.8rem 1rem;
 
         &:hover,
         &:focus {
-          background-color: darken($dark-gray, 10%);
+          background-color: darken($dark-gray, 30%);
         }
       }
     }
 
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    color: $black;
     overflow: hidden;
-    -webkit-backface-visibility: hidden;
-    -moz-backface-visibility: hidden;
     backface-visibility: hidden;
     position: relative;
     border-bottom: 1px solid;
-    border-bottom-color: #ccc;
     border-bottom-color: rgba(255, 255, 255, 0.2);
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.5);
   }
 
   .home-logo {
@@ -509,7 +504,7 @@ ul.footer-links {
         }
 
         border: 0;
-        color: white;
+        color: $black;
         text-align: center;
         font-size: 2rem;
         padding: 1rem 0;
@@ -530,7 +525,7 @@ ul.footer-links {
         }
 
         &:hover {
-          color: white;
+          color: $black;
           opacity: 0.7;
         }
       }
@@ -541,7 +536,7 @@ ul.footer-links {
       padding: 0;
       border: 0;
       background: none;
-      color: white;
+      color: $black;
     }
   }
 
@@ -549,7 +544,7 @@ ul.footer-links {
     margin-top: 1rem;
 
     label {
-      color: white;
+      color: $black;
     }
   }
 }
@@ -557,6 +552,8 @@ ul.footer-links {
 .glass {
   backface-visibility: hidden;
   position: relative;
+  border-radius: 10px;
+  overflow: hidden;
 
   &::after {
     backface-visibility: hidden;
@@ -573,6 +570,12 @@ ul.footer-links {
     content: '';
     transition: all 1s ease-out;
     filter: blur(5px);
+  }
+
+  input,
+  button,
+  .button {
+    border-radius: 4px;
   }
 }
 
@@ -669,5 +672,71 @@ ul.footer-links {
 
   &:hover {
     opacity: 1;
+  }
+}
+
+.dc-checkbox {
+  position: relative;
+
+  > input {
+    position: absolute;
+    top: 0.4rem;
+    opacity: 0;
+    width: 16px;
+    height: 16px;
+    z-index: -1;
+  }
+
+  > label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.3rem 0;
+    margin: 0;
+    cursor: pointer;
+    font-weight: normal;
+    line-height: normal;
+
+    &::before {
+      content: '\f00c';
+      font-family: FontAwesome;
+      display: inline-flex;
+      background-color: white;
+      border: 1px solid darken($medium-gray, 5%);
+      border-radius: 4px;
+      height: 16px;
+      width: 16px;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      margin-right: 0.4rem;
+      color: white;
+      transition: all 0.2s ease;
+      text-shadow: none;
+    }
+
+    &:hover::before {
+      color: darken($medium-gray, 5%);
+    }
+  }
+
+  > input:checked + label {
+    &::before {
+      color: white;
+      background-color: $primary-color;
+      border-color: $primary-color;
+    }
+  }
+
+  > input[required] + label {
+    &::after {
+      content: '*';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 0.1rem;
+      color: $alert-color;
+      text-shadow: none;
+    }
   }
 }

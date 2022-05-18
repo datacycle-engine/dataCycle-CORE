@@ -9,7 +9,11 @@ module DataCycleCore
 
     WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
+<<<<<<< HEAD
     attr_accessor :skip_callbacks, *WEBHOOK_ACCESSORS
+=======
+    attr_accessor :skip_callbacks, :forward_to_url, *WEBHOOK_ACCESSORS
+>>>>>>> old/develop
 
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
@@ -59,6 +63,10 @@ module DataCycleCore
     belongs_to :creator, class_name: 'DataCycleCore::User'
     has_many :created_users, class_name: 'DataCycleCore::User', foreign_key: :creator_id
 
+<<<<<<< HEAD
+=======
+    before_save :reset_ui_locale, unless: :ui_locale_allowed?
+>>>>>>> old/develop
     before_create :set_default_role
 
     delegate :can?, :cannot?, to: :ability
@@ -71,6 +79,15 @@ module DataCycleCore
       !(external? || is_rank?(0))
     end
 
+<<<<<<< HEAD
+=======
+    def forward_to_url_with_token(tokens)
+      return if forward_to_url.blank?
+
+      "#{forward_to_url}#{tokens&.map { |k, v| "#{k.to_s.camelize(:lower)}=#{v}" }&.join('&')&.prepend(forward_to_url.include?('?') ? '&' : '?')}"
+    end
+
+>>>>>>> old/develop
     def allowed_webhook_attributes
       WEBHOOKS_ATTRIBUTES
     end
@@ -99,6 +116,13 @@ module DataCycleCore
       user_groups.exists?(name: group_name)
     end
 
+<<<<<<< HEAD
+=======
+    def locked?
+      locked_at.present?
+    end
+
+>>>>>>> old/develop
     def include_groups_user_ids
       user_groups.map { |ug| ug.users.ids }.flatten.uniq << id
     end
@@ -133,15 +157,24 @@ module DataCycleCore
       elsif token[:external_user_id].present?
         User.find_by(uid: token[:external_user_id])
       elsif token[:user].present? && token.dig(:user, :email).present? && DataCycleCore.features.dig(:user_api, :enabled)
+<<<<<<< HEAD
         User.find_or_initialize_by(email: token.dig(:user, :email)).update_with_token(token)
+=======
+        User.find_or_initialize_by(email: token.dig(:user, :email).downcase).update_with_token(token)
+>>>>>>> old/develop
       end
     end
 
     def self.from_omniauth(auth)
       return if auth&.info&.email.blank?
 
+<<<<<<< HEAD
       new_user = find_or_initialize_by(email: auth.info.email) do |user|
         user.email = auth.info.email
+=======
+      new_user = find_or_initialize_by(email: auth.info.email.downcase) do |user|
+        user.email = auth.info.email.downcase
+>>>>>>> old/develop
         user.password = Devise.friendly_token[0, 20]
         user.given_name = auth.info.first_name
         user.family_name = auth.info.last_name
@@ -166,6 +199,7 @@ module DataCycleCore
     end
 
     def as_user_api_json
+<<<<<<< HEAD
       as_json(
         only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
         include: {
@@ -173,6 +207,20 @@ module DataCycleCore
             only: [:name, :rank]
           }
         }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
+=======
+      as_json(DataCycleCore::Feature::UserApi.json_params)
+      .merge(as_json(only: [:additional_attributes]).tap { |u| u['additional_attributes']&.slice!(*DataCycleCore::Feature::UserApi.json_additional_attributes) })
+      .deep_transform_keys { |k| k.to_s.camelize(:lower) }
+    end
+
+    def to_select_option(locale = DataCycleCore.ui_locales.first)
+      DataCycleCore::Filter::SelectOption.new(
+        id,
+        email,
+        model_name.param_key,
+        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(:locked_at, locale: locale)}</span>" : full_name,
+        locked?
+>>>>>>> old/develop
       )
     end
 
@@ -182,6 +230,17 @@ module DataCycleCore
       self.role ||= DataCycleCore::Feature::UserRegistration.default_role
     end
 
+<<<<<<< HEAD
+=======
+    def ui_locale_allowed?
+      ui_locale.blank? || DataCycleCore.ui_locales.map(&:to_s).include?(ui_locale.to_s)
+    end
+
+    def reset_ui_locale
+      self.ui_locale = self.class.column_defaults['ui_locale']
+    end
+
+>>>>>>> old/develop
     def ability
       return @ability if defined? @ability
 

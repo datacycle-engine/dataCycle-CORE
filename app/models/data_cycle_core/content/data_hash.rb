@@ -183,7 +183,12 @@ module DataCycleCore
       end
 
       def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true)
+<<<<<<< HEAD
         data_hash = add_default_values(data_hash: data_hash, current_user: current_user).dup if add_defaults && properties_with_default_values.present?
+=======
+        data_hash = add_default_values(data_hash: data_hash, current_user: current_user, partial: !strict).dup if add_defaults && properties_with_default_values.present?
+
+>>>>>>> old/develop
         validator = DataCycleCore::MasterData::ValidateData.new(self)
         valid = DataCycleCore::LocalizationService.localize_validation_errors(validator.validate(data_hash, schema_hash || schema, strict), current_user&.ui_locale || DataCycleCore.ui_locales.first)
 
@@ -262,6 +267,10 @@ module DataCycleCore
       end
 
       def attribute_blank?(data_hash, key, _defininition = nil)
+<<<<<<< HEAD
+=======
+        # BUG: if used on content in new language, translated_locales will include the new language after this method call
+>>>>>>> old/develop
         return true if key.blank?
 
         data_hash[key].blank? &&
@@ -290,7 +299,11 @@ module DataCycleCore
           set_linked(key, value, properties)
         when 'embedded'
           set_embedded(key, value, properties['template_name'], properties['translated'], options)
+<<<<<<< HEAD
         when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object', 'computed'
+=======
+        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object'
+>>>>>>> old/develop
           save_values(key, value, properties)
         when 'classification'
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
@@ -300,7 +313,11 @@ module DataCycleCore
           set_schedule(value, key)
         when 'slug'
           save_slug(key, value, options.data_hash)
+<<<<<<< HEAD
         when 'key'
+=======
+        when 'key', 'timeseries'
+>>>>>>> old/develop
           true # do nothing
         end
       end
@@ -317,8 +334,11 @@ module DataCycleCore
           save_to_jsonb(key, value, properties, 'metadata')
         when 'translated_value'
           save_to_jsonb(key, value, properties, 'content')
+<<<<<<< HEAD
         when 'classification'
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal']) if properties.dig('compute', 'type') == 'classification'
+=======
+>>>>>>> old/develop
         end
       end
 

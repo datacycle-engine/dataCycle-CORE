@@ -1,6 +1,9 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
 
+<<<<<<< HEAD
   <% object_class = DataCycleCore::Thing %>
+=======
+>>>>>>> old/develop
   <% objects = value&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
   <% object_template = definition['template_name'] %>
   <% html_id = "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
@@ -17,9 +20,15 @@
       data-object-key="<%= key.attribute_name_from_key %>"
       data-definition="<%= definition.to_json %>"
       data-options="<%= options.to_json %>"
+<<<<<<< HEAD
       data-class="<%= object_class %>"
       data-editable="<%= attribute_editable?(key, definition, options, content) %>"
       data-table="<%= 'things' %>"
+=======
+      data-class="DataCycleCore::Thing"
+      data-editable="<%= attribute_editable?(key, definition, options, content) %>"
+      data-table="things"
+>>>>>>> old/develop
       data-per="<%= DataCycleCore.linked_objects_page_size %>"
       data-objects="<%= value&.ids %>"
       data-content-id="<%= contextual_content(local_assigns).id %>"

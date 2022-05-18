@@ -1,0 +1,47 @@
+<%
+  if source_parameter.to_sym == :diff_source
+    hidden_key = :id
+    select_key = :source_id
+    source_content = content
+    diff_content = diff_source
+  else
+    hidden_key = :source_id
+    select_key = :id
+    source_content = diff_source
+    diff_content = content
+  end
+%>
+
+<h5><%= t('common.compare_contents', locale: active_ui_locale) %></h5>
+<div id="split-source-selector">
+    <%= form_with(url: compare_things_url, method: :get, local: true) do %>
+        <%= hidden_field_tag hidden_key, source_content&.id, id: nil %>
+        <div class="form-element">
+            <div class="v-select white">
+                <%= select_tag(
+                      select_key,
+                      async_thing_select_options(diff_content, true),
+                      {
+                        multiple: false,
+                        include_blank: true,
+                        class: 'async-select',
+                        id: SecureRandom.hex(10),
+                        data: {
+                          max: 20,
+                          placeholder: t('common.choose_splitsource', locale: active_ui_locale),
+                          search_path: select_search_things_path,
+                          query_params: {
+                            exclude: source_content&.id,
+                            template_name: source_content&.template_name
+                          }
+                        }
+                      }
+                    ) %>
+            </div>
+        </div>
+
+        <button class="button" data-disable-with="<i class='fa fa-spinner fa-spin fa-fw'></i> <%= t('common.load_splitsource', locale: active_ui_locale) %>">
+          <%= t('common.load_splitsource', locale: active_ui_locale) %>
+        </button>
+    <% end %>
+</div>

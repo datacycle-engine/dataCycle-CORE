@@ -254,6 +254,10 @@ module DataCycleCore
     # use active_record as orm (!not mongoid)
     config.app_generators.orm = :active_record
     config.active_record.schema_format = :sql
+<<<<<<< HEAD
+=======
+    config.active_record.dump_schemas = :all
+>>>>>>> old/develop
     config.active_record.default_timezone = :utc # Or :local
 
     # backend for active_job is delayed_job
@@ -327,6 +331,7 @@ module DataCycleCore
   end
 end
 
+<<<<<<< HEAD
 require 'data_cycle_core/acknowledgments'
 require 'data_cycle_core/exceptions'
 
@@ -335,3 +340,6 @@ require 'data_cycle_core/generic/webhook_base'
 require 'data_cycle_core/generic/common/webhook'
 require 'data_cycle_core/generic/csv/endpoint'
 require 'data_cycle_core/master_data/contracts/general_contract'
+=======
+require 'data_cycle_core/exceptions'
+>>>>>>> old/develop

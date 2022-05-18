@@ -8,11 +8,20 @@ module DataCycleCore
           h[key] = DataCycleCore::ClassificationTreeLabel.find_by(name: key)
         end
 
+<<<<<<< HEAD
         can [:show, :find], :object_browser
         can [:login, :renew_login, :reset_password], :user_api
         can :create_editable_links, DataCycleCore::DataLink
         can [:show, :index], DataCycleCore::Asset, creator_id: user.id, asset_content: { id: nil }
         can :copy_api_link, DataCycleCore::WatchList
+=======
+        can :update, DataCycleCore::User, id: user.id
+        can [:show, :find], :object_browser
+        can [:login, :renew_login, :reset_password, :confirm], :user_api
+        can :create_editable_links, DataCycleCore::DataLink
+        can [:show, :index], DataCycleCore::Asset, creator_id: user.id, asset_content: { id: nil }
+        can :copy_api_link, DataCycleCore::WatchList, my_selection: false
+>>>>>>> old/develop
         can :index, DataCycleCore::Role, rank: 0..user&.role&.rank.to_i
         can :create, DataCycleCore::Thing do |template, scope|
           scope == 'asset' && template&.creatable?(scope)
@@ -68,9 +77,20 @@ module DataCycleCore
             (DataCycleCore::Feature::Releasable.attribute_keys(attribute.content).include?(attribute.key.attribute_name_from_key) && attribute.scope.to_s == 'show')
         end
 
+<<<<<<< HEAD
         DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
           next unless link.is_valid?
 
+=======
+        if DataCycleCore::DataLink.where(id: session[:data_link_ids], item_type: 'DataCycleCore::StoredFilter').valid.exists?
+          can [:read, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced], :backend
+          can :advanced_filter, :backend do |_t, _k, v|
+            v == 'fulltext_search'
+          end
+        end
+
+        DataCycleCore::DataLink.where(id: session[:data_link_ids], permissions: 'write').valid.includes(:item).find_each do |link|
+>>>>>>> old/develop
           release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
 
           can [:update, :import], DataCycleCore::Thing do |content|

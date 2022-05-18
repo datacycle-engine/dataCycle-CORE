@@ -1,0 +1,25 @@
+<div class="glass home-container download-confirmation">
+  <div class="home-container-content">
+    <div class="columns">
+      <%= render 'logo' %>
+      <h4 class="download-item-type"><%= download_item_type(@data_link) %></h4>
+      <%= tag.p(t('common.download.confirmation.info_html', locale: active_ui_locale)) if I18n.exists?('common.download.confirmation.info_html', locale: active_ui_locale) %>
+
+      <%= form_with(url: download_data_link_path(@data_link), local: true) do |f| %>
+        <div class="check-terms_of_use dc-checkbox">
+          <%= f.check_box 'terms_of_use', required: true, data: { disable: true } %>
+          <%= f.label 'terms_of_use', terms_of_use_label %>
+        </div>
+
+        <div class="buttons">
+          <%= f.button t('common.download.confirmation.download_start', locale: active_ui_locale),
+                      type: :submit,
+                      class: 'button',
+                      data: {
+                        disable_with: t('common.download.confirmation.download_preparing', locale: active_ui_locale)
+                      } %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

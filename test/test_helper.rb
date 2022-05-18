@@ -17,8 +17,13 @@ unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
     SimpleCov.result.format!
 
     puts "\nCOVERAGE: " \
+<<<<<<< HEAD
       "#{(100 * SimpleCov.result.covered_lines.to_f / SimpleCov.result.total_lines.to_f).round(2)}% " \
       "(#{SimpleCov.result.covered_lines} / #{SimpleCov.result.total_lines} LOC)"
+=======
+         "#{(100 * SimpleCov.result.covered_lines.to_f / SimpleCov.result.total_lines.to_f).round(2)}% " \
+         "(#{SimpleCov.result.covered_lines} / #{SimpleCov.result.total_lines} LOC)"
+>>>>>>> old/develop
   end
 end
 

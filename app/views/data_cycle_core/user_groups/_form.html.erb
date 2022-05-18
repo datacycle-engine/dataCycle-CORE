@@ -45,11 +45,34 @@
         </div>
 
         <div class="form-element">
+<<<<<<< HEAD
 
           <div class="v-select">
             <%= f.label :user_ids, DataCycleCore::UserGroup.human_attribute_name(:user_ids, locale: active_ui_locale) %>
             <%= hidden_field_tag 'user_group[user_ids][]', nil, id: 'hidden_user_group_user_ids' %>
             <%= select_tag('user_group[user_ids][]', options_for_select(DataCycleCore::User.all.map { |c| [c.full_name, c.id, { title: c.email }] }, content.users.map(&:id)), { multiple: true, class: 'multi-select', data: { close_on_select: false } }) %>
+=======
+          <div class="v-select">
+            <%= f.label :user_ids, DataCycleCore::UserGroup.human_attribute_name(:user_ids, locale: active_ui_locale) %>
+            <%= hidden_field_tag 'user_group[user_ids][]', nil, id: 'hidden_user_group_user_ids' %>
+            <%= f.select(
+                  :user_ids,
+                  content.users.map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
+                  {
+                    include_blank: true
+                  },
+                  {
+                    multiple: true,
+                    class: 'async-select',
+                    data: {
+                      max: 20,
+                      placeholder: '',
+                      search_path: search_users_path,
+                      close_on_select: false
+                    }
+                  }
+                ) %>
+>>>>>>> old/develop
           </div>
 
         </div>

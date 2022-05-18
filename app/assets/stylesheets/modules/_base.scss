@@ -701,17 +701,6 @@ footer {
     }
   }
 
-  .form-element.release_status_comment {
-    .editor-block {
-      background-color: white;
-
-      > label,
-      > .ql-toolbar {
-        background-color: white;
-      }
-    }
-  }
-
   .form-element.focus > .editor-block {
     border-color: $primary-color;
     background: white;
@@ -787,12 +776,6 @@ footer {
 
       &:not(:last-child) {
         margin-bottom: 1rem;
-      }
-
-      &.release_status_comment {
-        margin-bottom: 2rem;
-        padding-bottom: 2rem;
-        border-bottom: 1px solid $light-gray;
       }
 
       &.object {
@@ -1154,6 +1137,7 @@ span.single_warning:before {
             flex: auto;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-right: 0.5rem;
           }
 
           .open-selection-link {
@@ -1743,6 +1727,15 @@ a {
           color: darken($primary-color, 30%);
         }
 
+        &.unlock-data-link {
+          color: $success-color;
+
+          &:hover,
+          &:focus {
+            color: darken($success-color, 30%);
+          }
+        }
+
         &.invalidate-data-link,
         &.delete-translation-link {
           color: $alert-color;
@@ -1790,19 +1783,29 @@ a {
       text-align: center;
     }
 
+    .email .fa {
+      min-width: unset;
+      margin-right: 0.3rem;
+    }
+
     .email,
     .buttons {
+      display: flex;
+      align-items: center;
       flex: auto;
       white-space: nowrap;
     }
 
     .buttons {
       text-align: right;
+
       > *,
       i.fa {
-        vertical-align: middle;
-        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
+
       .has-tip,
       .dc-foundation-tooltip {
         border: none;
@@ -1813,11 +1816,12 @@ a {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      display: inline-block;
-      vertical-align: middle;
+
       .fa {
         font-size: 0.9rem;
-        vertical-align: middle;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }

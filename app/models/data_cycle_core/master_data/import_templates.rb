@@ -222,11 +222,20 @@ module DataCycleCore
               ['key', 'string', 'text', 'number', 'boolean',
                'datetime', 'date', 'geographic', 'slug',
                'object', 'embedded', 'linked', 'classification',
+<<<<<<< HEAD
                'asset', 'computed', 'schedule', 'virtual', 'opening_time']
             )
           end
           optional(:storage_location) do
             str? & included_in?(['column', 'value', 'translated_value', 'virtual', 'classification'])
+=======
+               'asset', 'schedule', 'opening_time',
+               'timeseries']
+            )
+          end
+          optional(:storage_location) do
+            str? & included_in?(['column', 'value', 'translated_value', 'classification'])
+>>>>>>> old/develop
           end
           optional(:template_name) { str? }
           optional(:validations) { hash? }
@@ -300,6 +309,7 @@ module DataCycleCore
             required(:module) { str? }
             required(:method) { str? }
             required(:parameters) { hash? }
+<<<<<<< HEAD
             required(:type) do
               str? & included_in?(
                 ['string', 'text', 'number', 'boolean',
@@ -307,6 +317,8 @@ module DataCycleCore
                  'object', 'classification', 'asset', 'schedule']
               )
             end
+=======
+>>>>>>> old/develop
           end
         end
 
@@ -322,7 +334,15 @@ module DataCycleCore
             key.failure(:invalid_classification) if values.dig(:tree_label).blank? && values.dig(:universal) == false
           when 'asset'
             key.failure(:invalid_asset) if values.dig(:asset_type).blank?
+<<<<<<< HEAD
           when 'computed'
+=======
+          end
+        end
+
+        rule(:compute) do
+          if key? && values.present?
+>>>>>>> old/develop
             temp = begin
               module_name = ('DataCycleCore::' + values.dig(:compute, :module).classify).safe_constantize
               module_name.respond_to?(values.dig(:compute, :method))

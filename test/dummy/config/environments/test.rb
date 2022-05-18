@@ -33,7 +33,11 @@ Rails.application.configure do
   }
 
   # Show full error reports and disable caching.
+<<<<<<< HEAD
   config.consider_all_requests_local       = true
+=======
+  config.consider_all_requests_local = true
+>>>>>>> old/develop
   config.action_controller.perform_caching = false
   config.cache_store = :null_store
 
@@ -58,7 +62,11 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :test
 
   # Print deprecation notices to the stderr.
+<<<<<<< HEAD
   config.active_support.deprecation = :stderr
+=======
+  config.active_support.deprecation = :silence
+>>>>>>> old/develop
 
   # Raise exceptions for disallowed deprecations.
   config.active_support.disallowed_deprecation = :raise

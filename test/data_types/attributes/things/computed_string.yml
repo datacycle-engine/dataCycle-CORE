@@ -19,10 +19,16 @@
         :storage_location: value
       :computed_value_incorrect:
         :label: Computed Value
+<<<<<<< HEAD
         :storage_location: translated_value
         :type: computed
         :compute:
           :type: string
+=======
+        :type: string
+        :storage_location: translated_value
+        :compute:
+>>>>>>> old/develop
           :module: Utility::Compute::String
           :method: concat
           :depends:
@@ -46,10 +52,16 @@
               :name: value_2
       :computed_value_correct:
         :label: Computed Value
+<<<<<<< HEAD
         :storage_location: translated_value
         :type: computed
         :compute:
           :type: string
+=======
+        :type: string
+        :storage_location: translated_value
+        :compute:
+>>>>>>> old/develop
           :module: Utility::Compute::String
           :method: concat
           :depends:
@@ -71,4 +83,7 @@
             :5:
               :type: content
               :name: value_2
+<<<<<<< HEAD
 
+=======
+>>>>>>> old/develop

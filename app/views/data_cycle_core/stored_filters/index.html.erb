@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <% breadcrumb :'data_cycle_core/stored_filters' %>
 
 <% content_for(:title, t('data_cycle_core.stored_searches.my_searches', locale: active_ui_locale)) %>
@@ -42,4 +43,21 @@
     </div>
 
   <% end %>
+=======
+<% breadcrumb :search_history %>
+
+<% content_for(:title, t('data_cycle_core.stored_searches.my_searches', locale: active_ui_locale)) %>
+
+<section class="stored-searches-list">
+  <div class="row search-history-list">
+    <div class="title">
+      <span class="title-text"><%= t('data_cycle_core.stored_searches.history', locale: active_ui_locale) %></span>
+      <span class="pages"><span class="pages-count"><%= t('data_cycle_core.stored_searches.count_html', count: @history_count.to_i, count_string: number_with_delimiter(@history_count.to_i, locale: active_ui_locale), locale: active_ui_locale) %></span> <i class="fa fa-angle-down round" aria-hidden="true"></i></span>
+    </div>
+
+    <ul class="no-bullet content-list">
+      <%= render 'data_cycle_core/stored_filters/stored_searches', stored_searches: @stored_searches, last_page: @last_page, page: @page %>
+    </ul>
+  </div>
+>>>>>>> old/develop
 </section>

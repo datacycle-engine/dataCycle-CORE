@@ -7,7 +7,11 @@
 <% contents&.each do |content| %>
   <li id="list-item-<%= content.id %>" class="list-item data-cycle-object <%= content&.template_name&.underscore if content.is_a?(DataCycleCore::Thing) %> <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %> <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>">
     <% content_for :media_buttons, flush: true do %>
+<<<<<<< HEAD
       <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', title: t('common.has_overlay', locale: active_ui_locale)) if content.try(:overlay?) %>
+=======
+      <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', data: { dc_tooltip: t('common.has_overlay', locale: active_ui_locale) }) if content.try(:overlay?) %>
+>>>>>>> old/develop
 
       <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
 

@@ -115,8 +115,13 @@ module DataCycleCore
     end
 
     def add_related_items
+<<<<<<< HEAD
       @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list])
       @watch_list = current_user.watch_lists.create(full_path: params[:watch_list]) if @watch_list.nil?
+=======
+      @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list_id])
+      @watch_list = current_user.watch_lists.create(full_path: params[:watch_list_id]) if @watch_list.nil?
+>>>>>>> old/develop
 
       authorize!(:add_item, @watch_list)
 
@@ -364,6 +369,23 @@ module DataCycleCore
       )
     end
 
+<<<<<<< HEAD
+=======
+    def search
+      authorize! :show, DataCycleCore::WatchList
+
+      watch_lists = DataCycleCore::WatchList
+        .accessible_by(current_ability)
+        .conditional_my_selection
+        .order(updated_at: :desc)
+        .limit(20)
+
+      watch_lists = watch_lists.where(DataCycleCore::WatchList.arel_table[:full_path].matches("%#{search_params[:q]}%")) if search_params[:q].present?
+
+      render plain: watch_lists.map(&:to_select_option).to_json, content_type: 'application/json'
+    end
+
+>>>>>>> old/develop
     private
 
     def watch_list_params
@@ -374,6 +396,13 @@ module DataCycleCore
       params.permit(:new_form_id)
     end
 
+<<<<<<< HEAD
+=======
+    def search_params
+      params.permit(:q)
+    end
+
+>>>>>>> old/develop
     def hashable_params
       params.permit(:hashable_id, :hashable_type, serialize_format: [])
     end

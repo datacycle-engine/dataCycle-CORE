@@ -40,13 +40,21 @@
               </dd>
             <% end %>
 
+<<<<<<< HEAD
             <% if ['license', 'contributor', 'director', 'copyright_holder', 'copyright_year', 'restrictions'].any?{|val| content.try(val.to_sym).present? } %>
+=======
+            <% if ['copyright_notice_override', 'copyright_notice_computed', 'contributor', 'director', 'copyright_holder', 'copyright_year', 'restrictions'].any?{|val| content.try(val.to_sym).present? } %>
+>>>>>>> old/develop
 
               <dt>
                 <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
               </dt>
 
+<<<<<<< HEAD
               <% ['license', 'contributor', 'director', 'copyright_holder', 'copyright_year'].each do |property_name| %>
+=======
+              <% ['copyright_notice_override', 'copyright_notice_computed', 'contributor', 'director', 'copyright_holder', 'copyright_year'].each do |property_name| %>
+>>>>>>> old/develop
                 <% next if content.try(property_name.to_sym).blank? %>
                 <dd>
                   <%= render_attribute_viewer key: property_name,

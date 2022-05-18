@@ -102,6 +102,16 @@ module DataCycleCore
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing)
             )
 
+<<<<<<< HEAD
+=======
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can,
+              :history,
+              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing::History)
+            )
+
+>>>>>>> old/develop
             # temporary disable exif data on show view
             # add_permission(
             #   DataCycleCore::Abilities::Segments::UsersByRole.new(role),
@@ -119,12 +129,25 @@ module DataCycleCore
             # WatchList
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+<<<<<<< HEAD
               :can, :show, :bulk_edit, :bulk_delete, :update, :change_owner, :copy_api_link,
+=======
+              :can, :show, :bulk_edit, :bulk_delete, :update, :change_owner,
+>>>>>>> old/develop
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList)
             )
 
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+<<<<<<< HEAD
+=======
+              :can, :copy_api_link,
+              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList, my_selection: false)
+            )
+
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+>>>>>>> old/develop
               :can, :read, :create, :add_item, :remove_item,
               DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::WatchList, :user_id)
             )
@@ -147,6 +170,7 @@ module DataCycleCore
               DataCycleCore::Abilities::Segments::WatchListByUserShares.new(my_selection: false)
             )
 
+<<<<<<< HEAD
             # DataAttributes
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
@@ -188,6 +212,68 @@ module DataCycleCore
                 ]
               )
             )
+=======
+            if Rails.env.development?
+              # DataAttributes
+              add_permission(
+                DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+                :can, :read,
+                DataCycleCore::Abilities::Segments::DataAttributeAllowedForShow.new([])
+              )
+              add_permission(
+                DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+                :can, :edit,
+                DataCycleCore::Abilities::Segments::DataAttributeAllowedForEdit.new([])
+              )
+              add_permission(
+                DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+                :can, :update,
+                DataCycleCore::Abilities::Segments::DataAttributeAllowedForUpdate.new([])
+              )
+            else
+              # DataAttributes
+              add_permission(
+                DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+                :can, :read,
+                DataCycleCore::Abilities::Segments::DataAttributeAllowedForShow.new(
+                  [
+                    :attribute_not_disabled?,
+                    :overlay_attribute_visible?,
+                    :attribute_not_releasable?
+                  ]
+                )
+              )
+
+              add_permission(
+                DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+                :can, :edit,
+                DataCycleCore::Abilities::Segments::DataAttributeAllowedForEdit.new(
+                  [
+                    :attribute_not_included_in_publication_schedule?,
+                    :attribute_not_disabled?,
+                    :overlay_attribute_visible?,
+                    :attribute_not_external?,
+                    :attribute_tree_label_visible?
+                  ]
+                )
+              )
+
+              add_permission(
+                DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+                :can, :update,
+                DataCycleCore::Abilities::Segments::DataAttributeAllowedForUpdate.new(
+                  [
+                    :attribute_not_included_in_publication_schedule?,
+                    :attribute_not_disabled?,
+                    :attribute_not_read_only?,
+                    :overlay_attribute_visible?,
+                    :attribute_not_external?,
+                    :attribute_tree_label_visible?
+                  ]
+                )
+              )
+            end
+>>>>>>> old/develop
 
             # Backend
             add_permission(

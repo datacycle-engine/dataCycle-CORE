@@ -28,7 +28,11 @@ module DataCycleCore
           def copyright_file(content, language, content_ids_with_filenames)
             data = []
             content.each do |item|
+<<<<<<< HEAD
               license_string = item.try(:computed_attribution_name).presence || item.name.to_s
+=======
+              license_string = item.try(:copyright_notice_override).presence || item.try(:copyright_notice_computed).presence || item.name.to_s
+>>>>>>> old/develop
               (content_ids_with_filenames.dig(item.id) || []).each do |file_name|
                 data << [file_name, license_string].join(': ')
               end

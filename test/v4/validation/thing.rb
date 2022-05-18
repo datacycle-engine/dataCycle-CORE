@@ -74,9 +74,14 @@ module DataCycleCore
             end
           end
           optional(:'cc:license').value(:string)
+<<<<<<< HEAD
           optional(:'cc:morePermissions').value(:string)
           optional(:'cc:attributionName').value(:string)
           optional(:'cc:attributionUrl').value(:string)
+=======
+          optional(:copyrightNotice).value(:string)
+          optional(:url).value(:string)
+>>>>>>> old/develop
           optional(:'cc:useGuidelines').value(:string)
           optional(:'dc:slug').value(:string)
         end
@@ -113,9 +118,14 @@ module DataCycleCore
             hash(DEFAULT_HEADER)
           end
           optional(:'cc:license').value(:string)
+<<<<<<< HEAD
           optional(:'cc:morePermissions').value(:string)
           optional(:'cc:attributionName').value(:string)
           optional(:'cc:attributionUrl').value(:string)
+=======
+          optional(:copyrightNotice).value(:string)
+          optional(:url).value(:string)
+>>>>>>> old/develop
           optional(:'cc:useGuidelines').value(:string)
           optional(:'dc:slug').value(:string)
         end

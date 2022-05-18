@@ -11,7 +11,11 @@ module DataCycleCore
           @subject = DataCycleCore::Thing
         end
 
+<<<<<<< HEAD
         def include?(obj, scope, _content = nil)
+=======
+        def include?(obj, scope = nil, _content = nil)
+>>>>>>> old/develop
           return obj&.creatable?(scope) if scopes.include?('all')
 
           obj&.creatable?(scope) && scopes.include?(scope)

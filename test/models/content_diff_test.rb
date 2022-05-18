@@ -23,7 +23,12 @@ module DataCycleCore
         'slug' => ['-', content_data.slug],
         'data_type' => [['-', content_data.data_type.ids]],
         'data_pool' => [['-', content_data.data_pool.ids]],
+<<<<<<< HEAD
         'upload_date' => ['-', content_data.upload_date]
+=======
+        'upload_date' => ['-', content_data.upload_date],
+        'mandatory_license' => ['-', false]
+>>>>>>> old/develop
       }
       assert_equal(diff_hash_if_defaults_are_not_considered, diff)
 

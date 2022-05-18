@@ -95,7 +95,10 @@ module DataCycleCore
       options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
 
       type = options.definition['type'].underscore_blanks
+<<<<<<< HEAD
       type = options.definition.dig('compute', 'type').underscore_blanks.to_s if options.definition.dig('compute', 'type').present?
+=======
+>>>>>>> old/develop
 
       partials = [
         options.definition&.dig('ui', 'show', 'partial').presence,

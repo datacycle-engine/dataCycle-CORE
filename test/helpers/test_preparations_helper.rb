@@ -10,7 +10,11 @@ module DataCycleCore
                  'release_status_comment', 'subject_of', 'is_linked_to', 'linked_thing', 'externalIdentifier', 'license_classification',
                  'universal_classifications', 'slug'],
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel', 'author', 'about', 'keywords', 'topic',
+<<<<<<< HEAD
                         'video', 'potential_action', 'slug'],
+=======
+                        'video', 'potential_action', 'slug', 'work_translation', 'translation_of_work'],
+>>>>>>> old/develop
         event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags', 'feratel_owners', 'feratel_locations', 'feratel_status', 'slug',
                 'hrs_dd_categories', 'feratel_facilities', 'schedule', 'puglia_ticket_type', 'marche_classifications', 'puglia_category', 'puglia_type',
                 'piemonte_tag', 'piemonte_scope', 'piemonte_category', 'piemonte_coverage', 'piemonte_data_source', 'open_destination_one_keywords'],
@@ -147,7 +151,11 @@ module DataCycleCore
       )
     end
 
+<<<<<<< HEAD
     def self.create_content(template_name: nil, data_hash: nil, user: nil, prevent_history: false, save_time: Time.zone.now, version_name: nil)
+=======
+    def self.create_content(template_name: nil, data_hash: nil, user: nil, prevent_history: false, save_time: Time.zone.now, version_name: nil, source: nil)
+>>>>>>> old/develop
       return if template_name.blank? || data_hash.blank?
       data_hash = data_hash.dup.with_indifferent_access
       @content = DataCycleCore::Thing.find_by(data_hash.slice('name', 'given_name', 'family_name').merge({ template_name: template_name, template: false }))
@@ -162,15 +170,31 @@ module DataCycleCore
       @content.created_by = user&.id if user.present?
       @content.save!(touch: false)
 
+<<<<<<< HEAD
       @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: (user || User.find_by(email: 'tester@datacycle.at')), update_search_all: false, prevent_history: prevent_history, save_time: save_time, version_name: version_name)
+=======
+      @content.set_data_hash(
+        data_hash: data_hash,
+        new_content: true,
+        current_user: (user || User.find_by(email: 'tester@datacycle.at')),
+        update_search_all: false,
+        prevent_history: prevent_history,
+        save_time: save_time,
+        version_name: version_name,
+        source: source
+      )
+>>>>>>> old/develop
 
       @content
     end
 
     def self.generate_schedule(dtstart, dtend, duration, frequency: 'daily')
       schedule = DataCycleCore::Schedule.new
+<<<<<<< HEAD
       dtstart = dtstart
       dtend = dtend
+=======
+>>>>>>> old/develop
       untild = dtend
       end_time = dtstart + duration
       untildt = DataCycleCore::Schedule.until_as_utc_iso8601(untild, dtstart).to_datetime.utc

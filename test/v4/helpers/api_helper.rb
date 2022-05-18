@@ -26,7 +26,22 @@ module DataCycleCore
           'dc_potential_action', # TODO: temporary attribute will be moded to potential_action,
           'validity_schedule', # TODO: check if should be tested with full thing
           'slug',
+<<<<<<< HEAD
           'computed_attribution_name'
+=======
+          'work_translation',
+          'copyright_notice_override',
+          'copyright_notice_computed',
+          'attribution_name',
+          'translation_of_work',
+          'source',
+          'comment',
+          'image_id',
+          'visibility',
+          'photographer',
+          'restrictions',
+          'mandatory_license'
+>>>>>>> old/develop
         ].freeze
 
       def assert_api_count_result(count)
@@ -63,6 +78,7 @@ module DataCycleCore
         assert(thing.available_locales.include?(locale.to_sym))
       end
 
+<<<<<<< HEAD
       def assert_attributes(json_validate, required_attributes, attributes)
         assert_json_attributes(json_validate) do
           yield
@@ -74,6 +90,15 @@ module DataCycleCore
         assert_translated_json_attributes(json_validate) do
           yield
         end
+=======
+      def assert_attributes(json_validate, required_attributes, attributes, &block)
+        assert_json_attributes(json_validate, &block)
+        attributes.each { |a| required_attributes.delete(a) }
+      end
+
+      def assert_translated_attributes(json_validate, required_attributes, attributes, &block)
+        assert_translated_json_attributes(json_validate, &block)
+>>>>>>> old/develop
         attributes.each { |a| required_attributes.delete(a) }
       end
 
@@ -133,7 +158,15 @@ module DataCycleCore
       end
 
       def excluded_properties_for(content)
+<<<<<<< HEAD
         content.name_property_selector { |definition| definition['type'] == 'classification' && api_enabled?(definition) == false }
+=======
+        content.name_property_selector do |definition|
+          (
+            definition['type'] == 'classification'
+          ) && !api_enabled?(definition)
+        end
+>>>>>>> old/develop
       end
 
       def api_enabled?(definition)

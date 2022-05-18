@@ -52,12 +52,20 @@
               </dd>
             <% end %>
 
+<<<<<<< HEAD
             <% if ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidelines', 'licensing_agreement'].any?{|val| content.try(val.to_sym).present? } %>
+=======
+            <% if ['copyright_notice_override', 'copyright_notice_computed', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines', 'licensing_agreement', 'attribution_url'].any?{|val| content.try(val.to_sym).present? } %>
+>>>>>>> old/develop
               <dt>
                 <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
               </dt>
 
+<<<<<<< HEAD
               <% ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidelines', 'licensing_agreement'].each do |property_name| %>
+=======
+              <% ['copyright_notice_override','copyright_notice_computed', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'use_guidelines', 'licensing_agreement', 'attribution_url'].each do |property_name| %>
+>>>>>>> old/develop
                 <% next if content.try(property_name.to_sym).blank? %>
                 <dd>
                   <%= render_attribute_viewer key: property_name,
@@ -96,7 +104,11 @@
                 <% end %>
               </dd>
 
+<<<<<<< HEAD
               <% ['date_created', 'date_modified', 'upload_date'].each do |property_name| %>
+=======
+              <% ['date_created', 'date_modified', 'upload_date', 'recording_date'].each do |property_name| %>
+>>>>>>> old/develop
                 <% next if content.try(property_name.to_sym).blank? %>
                 <dd>
                   <%= render_attribute_viewer key: property_name,
@@ -137,9 +149,27 @@
       <% end %>
 
         <% if can? :show_exif_data, content %>
+<<<<<<< HEAD
             <h2><%= t('details.bild.exif_data', locale: active_ui_locale) %></h2>
             <% meta_data = content&.asset&.file&.metadata&.to_utf8 || {} %>
             <div id="exif-details" data-exif="<%= meta_data.to_json %>">
+=======
+            <div class="embedded-viewer" data-accordion="true" data-allow-all-closed="true">
+                <div class="detail-type embedded accordion-item" data-accordion-item="true">
+                    <div class="accordion-title">
+                        <h3>
+                            <span class="title">
+                                <span title="<%= t('details.bild.exif_data', locale: active_ui_locale) %>"><%= t('details.bild.exif_data', locale: active_ui_locale) %></span>
+                            </span>
+                        </h3>
+                    </div>
+                    <div class="accordion-content" data-tab-content>
+                        <% meta_data = content&.asset&.metadata&.to_utf8 || {} %>
+                        <div id="exif-details" data-exif="<%= meta_data.to_json %>">
+                        </div>
+                    </div>
+                </div>
+>>>>>>> old/develop
             </div>
         <% end %>
 

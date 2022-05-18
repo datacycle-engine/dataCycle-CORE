@@ -17,13 +17,21 @@
 
         <% if can?(:index, content) && content.try(:content_type?, 'entity') && action_name != 'merge_with_duplicate' %>
           <li class="has-dropdown right">
+<<<<<<< HEAD
             <%= render 'split_sources', query_params: { exclude: content&.id }, value: @split_source, url: '', title_text: t('common.choose_splitsource', locale: active_ui_locale) %>
+=======
+            <%= render 'data_cycle_core/application/split_sources', content: content, value: @split_source %>
+>>>>>>> old/develop
           </li>
         <% end %>
 
         <%= tag.li render('data_cycle_core/contents/editors/metadata/locales_list', local_assigns.slice(:content, :link_action)), class: 'has-dropdown' if content.translatable? && I18n.available_locales&.many? %>
 
+<<<<<<< HEAD
         <%= tag.li render('data_links', content: content), class: 'has-dropdown right' if can? :index, DataCycleCore::DataLink %>
+=======
+        <%= tag.li render('data_cycle_core/data_links/data_links_list', content: content), class: 'has-dropdown right' if can? :index, DataCycleCore::DataLink %>
+>>>>>>> old/develop
 
         <li class="buttons">
           <%= yield_content! :additional_edit_buttons %>

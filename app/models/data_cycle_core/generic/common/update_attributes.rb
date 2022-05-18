@@ -49,7 +49,25 @@ module DataCycleCore
             options.dig(:import, :attributes).each do |attribute|
               next unless update_item.respond_to?(attribute.dig(:key)&.to_s)
               value = load_value_for_attribute(attribute)
+<<<<<<< HEAD
               update_hash[attribute.dig(:key)] = value if value.present?
+=======
+              if attribute.dig(:key) == 'universal_classifications'
+                delete = attribute.dig(:delete) || false
+                update = false
+                old_value = update_item.universal_classifications.pluck(:id)
+                if delete && old_value.include?(*value)
+                  new_value = old_value - value
+                  update = true
+                elsif !delete && old_value.exclude?(*value)
+                  new_value = old_value + value
+                  update = true
+                end
+                update_hash[attribute.dig(:key)] = new_value if update
+              elsif value.present?
+                update_hash[attribute.dig(:key)] = value
+              end
+>>>>>>> old/develop
             end
 
             update_item.set_data_hash(partial_update: true, prevent_history: false, data_hash: update_hash) if update_hash.present?

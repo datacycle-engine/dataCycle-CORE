@@ -18,6 +18,7 @@
 // load components
 @import 'modules/components/breadcrumb';
 @import 'modules/components/filters';
+@import 'modules/components/stored_filters';
 @import 'modules/components/views';
 @import 'modules/components/masonry';
 @import 'modules/components/data-cycle-objects';
@@ -27,7 +28,6 @@
 @import 'modules/components/sortable';
 @import 'modules/components/confirmation_modal';
 @import 'modules/documentation';
-@import 'modules/acknowledgments';
 @import 'modules/schema';
 @import 'modules/admin_board';
 @import 'modules/exceptions';

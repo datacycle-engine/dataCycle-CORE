@@ -44,11 +44,17 @@ module DataCycleCore
 
         external_source.import(options) if success
       rescue StandardError => e
+<<<<<<< HEAD
         ActiveSupport::Notifications.instrument "#{self.class.name.demodulize.underscore}_failed.datacycle", this: {
           exception: e,
           external_system: external_source
         }
 
+=======
+        Appsignal.send_error(e) do |transaction|
+          transaction.set_namespace("download import job failed - #{external_source.id}")
+        end
+>>>>>>> old/develop
         external_source.config['last_download_import_failed'] = true
         external_source.config['last_download_import_exception'] = "#{e} (#{Time.zone.now})"
         external_source.save!

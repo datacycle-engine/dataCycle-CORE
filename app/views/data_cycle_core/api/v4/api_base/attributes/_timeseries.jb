@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+
+key_new = attribute_key(key, definition)
+
+json = {
+  key_new.camelize(:lower) => {
+    '@type' => 'dc:timeseries',
+    'dc:entityUrl' =>	"#{api_v4_thing_url(id: content.id)}/#{key}/"
+  }
+}
+
+json

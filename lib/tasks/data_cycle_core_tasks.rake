@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+<<<<<<< HEAD
 require 'data_cycle_core/acknowledgments'
 
+=======
+>>>>>>> old/develop
 Rake::Task['db:create'].enhance do
   if ENV['RAILS_ENV']
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
@@ -49,6 +52,45 @@ namespace :data_cycle_core do
     end
   end
 
+<<<<<<< HEAD
+=======
+  namespace :reports do
+    desc 'send download report via email'
+    task :send_report, [:recipient, :report_identifier, :format] => [:environment] do |_, args|
+      recipient = args.fetch(:recipient, nil)
+      unless recipient
+        puts 'Recipient is required!'
+        exit(-1)
+      end
+      DataCycleCore::ReportMailer.notify(
+        identifier: args.fetch(:report_identifier, 'downloads_popular'),
+        format: args.fetch(:format, 'xlsx'),
+        recipient: recipient
+      ).deliver_now
+    end
+    desc 'send monthly download report from the last month via email'
+    task :send_monthly_report, [:recipient, :report_identifier, :format] => [:environment] do |_, args|
+      recipient = args.fetch(:recipient, nil)
+      unless recipient
+        puts 'Recipient is required!'
+        exit(-1)
+      end
+      last_month = Time.zone.now - 1.month
+      params = {
+        by_month: last_month.month,
+        by_year: last_month.year
+      }
+
+      DataCycleCore::ReportMailer.notify(
+        identifier: args.fetch(:report_identifier, 'downloads_popular'),
+        format: args.fetch(:format, 'xlsx'),
+        recipient: recipient,
+        params: params
+      ).deliver_now
+    end
+  end
+
+>>>>>>> old/develop
   namespace :archive do
     desc 'move expired contents to archive'
     task expired: :environment do
@@ -265,6 +307,7 @@ namespace :data_cycle_core do
       puts "Cleaning up #{duplicated_content_relations_count} content relations ... [DONE]"
     end
   end
+<<<<<<< HEAD
 
   namespace :acknowledgments do
     desc 'Extract acknowledgment related data'
@@ -278,4 +321,6 @@ namespace :data_cycle_core do
       )
     end
   end
+=======
+>>>>>>> old/develop
 end
