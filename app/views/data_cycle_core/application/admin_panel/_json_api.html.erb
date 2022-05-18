@@ -3,7 +3,7 @@
       http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
       https: Rails.application.config.force_ssl
     ).render(
-      assigns: { content: content, language: ['de'], fields_parameters: [], include_parameters: [], api_version: 4, permitted_params: {} },
+      assigns: { content: content, language: ['de'], fields_parameters: [], include_parameters: [], api_version: 4, permitted_params: {}, api_context: 'api' },
       template: 'data_cycle_core/api/v4/contents/show',
       layout: false
     ) || {}

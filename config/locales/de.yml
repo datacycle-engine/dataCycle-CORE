@@ -49,7 +49,7 @@ de:
     zh: chinesisch
 
   roles:
-    super_admin: Administrator (DataCycle)
+    super_admin: Super-Administrator
     admin: Administrator
     user: Benutzer
     standard: Standard

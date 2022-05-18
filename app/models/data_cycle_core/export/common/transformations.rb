@@ -6,7 +6,7 @@ module DataCycleCore
       module Transformations
         def self.json_api_v2(_utility_object, data)
           DataCycleCore::Api::V2::ContentsController.render(
-            assigns: { content: data, mode_parameters: [], language: 'de', include_parameters: [] },
+            assigns: { content: data, mode_parameters: [], language: 'de', include_parameters: [], api_version: 2, api_context: 'api' },
             template: 'data_cycle_core/api/v2/contents/show',
             layout: false
           )

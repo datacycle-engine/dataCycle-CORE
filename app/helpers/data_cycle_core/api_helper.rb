@@ -48,21 +48,17 @@ module DataCycleCore
     end
 
     def attribute_key(key, definition)
-      definition.dig('api', 'v4', 'name') || definition.dig('api', 'name') || key.camelize(:lower)
+      api_definition(definition)['name'] || key.camelize(:lower)
     end
 
-    def api_definition(definition, api_version = @api_version)
-      return {} if definition.dig('api').blank?
+    def api_definition(definition, api_version = @api_version, api_context = @api_context)
+      return {} if definition[api_context].blank?
 
-      definition['api'].except('v1', 'v2', 'v3', 'v4').merge(definition.dig('api', "v#{api_version}") || {})
+      definition[api_context].reject { |k, _v| k.to_s.match?(/v\d+/) }.merge(definition.dig(api_context, "v#{api_version}") || {})
     end
 
-    def attribute_disabled?(definition, api_version = @api_version)
-      api_name = controller_path.delete_prefix('data_cycle_core/').split('/').first
-
-      return definition.dig(api_name, "v#{api_version}", 'disabled') if definition.dig(api_name, "v#{api_version}")&.key?('disabled')
-
-      definition.dig(api_name, 'disabled') || false
+    def attribute_disabled?(definition, api_version = @api_version, api_context = @api_context)
+      api_definition(definition, api_version, api_context)['disabled'] || false
     end
 
     def included_attribute?(name, attribute_list)
