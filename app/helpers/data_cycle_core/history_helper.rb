@@ -295,5 +295,18 @@ module DataCycleCore
       return left, right, false if left.history? && right.history?
       left.history? ? [right, left, true] : [left, right, true]
     end
+
+    def publication_attribute_changes(date_changes, publication)
+      case date_changes&.dig(0)
+      when '~'
+        tag.del(l(date_changes.dig(1).to_date, format: :long, locale: active_ui_locale)) + tag.ins(l(date_changes.dig(2).to_date, format: :long, locale: active_ui_locale))
+      when '+'
+        tag.ins(l(date_changes.dig(1).to_date, format: :long, locale: active_ui_locale))
+      when '-'
+        tag.del(l(publication&.publish_at&.to_date, format: :long, locale: active_ui_locale))
+      else
+        l(publication&.publish_at&.to_date, format: :long, locale: active_ui_locale)
+      end
+    end
   end
 end

@@ -105,6 +105,7 @@
 
   .detail-type.embedded:not(:only-of-type) {
     counter-increment: embedded;
+
     > .accordion-title {
       > .title > .embedded-type::after {
         content: counter(embedded);

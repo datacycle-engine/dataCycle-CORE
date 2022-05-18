@@ -6,7 +6,7 @@
 
   <ul class="no-bullet classification-checkbox-list">
     <%= collection_check_boxes(nil, key, classification_items, :primary_classification_id, :internal_name, {}, { namespace: local_assigns.dig(:options, :prefix) }) do |cb| %>
-      <li class="checkbox-wrap">
+      <li class="checkbox-wrap dc-checkbox">
         <%= cb.check_box value: cb.value,
                           checked: (value&.ids&.include?(cb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(cb.value))),
                           disabled: !cb.object.assignable || !attribute_editable?(key, definition, options, content) %>

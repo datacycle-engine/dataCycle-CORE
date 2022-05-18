@@ -216,7 +216,7 @@ namespace :dc do
           # update template, template definition
           place.template_name = poi_template.template_name
           place.schema = poi_template.schema
-          place.template_updated_at = Time.zone.now
+          place.cache_valid_since = Time.zone.now
           place.save
           # update search table
           place.search_languages(true)

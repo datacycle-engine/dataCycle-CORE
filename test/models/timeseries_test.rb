@@ -23,10 +23,10 @@ module DataCycleCore
     end
 
     test 'Timeseries callback to Thing' do
-      template_updated_at = @timeseries.template_updated_at
+      cache_valid_since = @timeseries.cache_valid_since
       updated_at = @timeseries.updated_at
       DataCycleCore::Timeseries.create(thing_id: @timeseries.id, property: 'series', timestamp: Time.zone.now, value: 1)
-      assert(template_updated_at < @timeseries.reload.template_updated_at)
+      assert(cache_valid_since < @timeseries.reload.cache_valid_since)
       assert_equal(updated_at, @timeseries.reload.updated_at)
     end
 

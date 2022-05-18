@@ -4,7 +4,7 @@
 
     <div class="type properties">
 
-      <% ordered_validation_properties(validation: content.schema).each do |key, prop| %>
+      <% ordered_validation_properties(validation: content.schema, scope: :show).each do |key, prop| %>
 
         <% value = content.try(key.to_sym) %>
 

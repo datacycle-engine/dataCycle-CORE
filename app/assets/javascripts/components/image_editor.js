@@ -1,4 +1,5 @@
 import TuiImageEditor from 'tui-image-editor';
+import CalloutHelpers from './../helpers/callout_helpers';
 
 class ImageEditor {
   constructor(reveal) {
@@ -12,7 +13,8 @@ class ImageEditor {
     this.hiddenFieldKey = reveal.dataset.hiddenFieldKey;
     this.saveButton = this.$reveal.find('.save-button');
     this.editableList = $(`[data-image-editor="${this.$reveal.prop('id')}"]`)
-      .siblings('.asset-list')
+      .closest('.form-element.asset')
+      .find('> .asset-list')
       .first();
     this.outerEditButton = $(`[data-image-editor="${this.$reveal.prop('id')}"]`)
       .find('.image-editor-button')
@@ -31,7 +33,7 @@ class ImageEditor {
     this.saveButton.on('click', this.handleSave.bind(this));
     this.editableList.on('dc:asset_list:changed', this.handleAssetChange.bind(this));
   }
-  handleAssetChange(event, data) {
+  handleAssetChange(_event, data) {
     const newAsset = data.assets[0];
     this.fileUrl = newAsset.file.url;
     if (newAsset.name.split('.').length > 1) {
@@ -44,7 +46,7 @@ class ImageEditor {
     this.setup();
   }
   setFileFormat(mimeType) {
-    const fileFormatArr = mimeType.split('/')
+    const fileFormatArr = mimeType.split('/');
     const fileFormat = fileFormatArr[fileFormatArr.length - 1];
 
     this.updateOuterEditButton(this.supportedFileExtensions.includes(fileFormat)).then(r => {});
@@ -166,18 +168,22 @@ class ImageEditor {
   handleSave(event) {
     event.preventDefault();
     let newUrl = this.editor.toDataURL({ format: this.fileFormat });
-    this.updateAsset(newUrl);
+    this.updateAsset(newUrl, true);
   }
   initFile() {
     this.updateAsset(this.fileUrl);
   }
-  updateAsset(fileUrl) {
+  updateAsset(fileUrl, closeOverlay = false) {
     const fileName = this.fileName + '.' + this.fileFormat;
+
+    DataCycle.disableElement(this.saveButton);
+
     this.urlToFile(fileUrl, fileName, this.fileMimeType).then(file => {
       let data = new FormData();
       data.append('asset[file]', file);
       data.append('asset[type]', 'DataCycleCore::Image');
       data.append('asset[name]', fileName);
+      data.append('variant', true);
       const url = '/files/assets';
       const type = 'POST';
 
@@ -193,15 +199,31 @@ class ImageEditor {
       });
 
       promise
-        .then(data => {
+        .then(async data => {
+          if (data.error) {
+            if (closeOverlay) this.handleError(data.error);
+            return;
+          }
+
           this.editableList.trigger('dc:import:data', data);
+
+          if (closeOverlay) this.$reveal.foundation('close');
         })
-        .catch(data => {
+        .catch(async data => {
           let error = data.statusText;
           if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
-          console.error('error');
+          console.error('error saving image:', error);
+
+          const errorMessage = await I18n.t('frontend.image_editor.save_error');
+          this.handleError(errorMessage);
+        })
+        .finally(() => {
+          DataCycle.enableElement(this.saveButton);
         });
     });
+  }
+  handleError(e) {
+    CalloutHelpers.show(e, 'alert');
   }
   urlToFile(url, filename, mimeType) {
     return fetch(url)

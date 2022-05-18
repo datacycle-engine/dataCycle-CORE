@@ -38,12 +38,12 @@
       position: relative;
       margin: 0 1rem;
       padding: 0 1rem;
-      background: white;
+      background: $white;
 
       .fulltext-search-form {
         input {
           margin: 0;
-          border-radius: 4px;
+          border-radius: $global-radius;
 
           &.fulltext-search-field {
             padding: 0 2.5rem;
@@ -81,7 +81,7 @@
 
     > span {
       position: relative;
-      background-color: white;
+      background-color: $white;
       padding: 0 1rem;
       margin: 0 1rem;
 
@@ -135,7 +135,9 @@
 
       &.content-item {
         padding: 0.8rem 1rem 0.8rem 1rem;
-        background-color: white;
+        background-color: $white;
+        border-bottom: 1px solid $medium-gray;
+        border-radius: $global-radius;
 
         .content-title {
           &.global {
@@ -153,9 +155,8 @@
           bottom: 0;
           z-index: -1;
           box-shadow: 0 1px 3px $dark-gray;
+          border-radius: $global-radius;
         }
-
-        border-bottom: 1px solid $medium-gray;
 
         a {
           color: $black;
@@ -174,8 +175,8 @@
           align-items: center;
           justify-content: center;
           padding: 0.5rem;
-          border-radius: 4px;
-          background: white;
+          border-radius: $global-radius;
+          background: $white;
 
           > li:not(:last-of-type) {
             margin-right: 0.5rem;
@@ -265,7 +266,7 @@
                 font-style: normal;
                 padding: 0 0.3rem;
                 line-height: 1.2rem;
-                border-radius: 5px;
+                border-radius: $global-radius;
                 font-weight: normal;
               }
 
@@ -388,7 +389,7 @@
     padding: 0 1rem 1rem 1rem;
     border: 1px solid $medium-gray;
     margin-bottom: 1rem;
-    border-radius: 5px;
+    border-radius: $global-radius;
 
     legend {
       padding: 0 0.5rem;

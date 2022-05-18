@@ -120,6 +120,12 @@ module DataCycleCore
       SubscriptionMailer.notify(self, contents).deliver_later
     end
 
+    def generate_user_token(refresh_jti = false)
+      update_columns(jti: SecureRandom.uuid) if refresh_jti || jti.blank?
+
+      DataCycleCore::JsonWebToken.encode(payload: { user_id: id, jti: jti })
+    end
+
     def update_with_token(token)
       if token.dig(:user, :rank).present?
         rank = DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(token.dig(:user, :rank).to_i) ? token.dig(:user, :rank).to_i : DataCycleCore.features.dig(:user_api, :default_rank).to_i

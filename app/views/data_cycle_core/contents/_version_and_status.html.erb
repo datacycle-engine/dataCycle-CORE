@@ -1,6 +1,8 @@
-<ul data-accordion class="accordion content-version-and-status" data-allow-all-closed="true">
-  <li class="accordion-item " data-accordion-item>
-    <div class="accordion-content" data-tab-content>
+<ul data-accordion class="accordion attribute-group editor has-title" data-allow-all-closed="true">
+  <li class="accordion-item attribute-group-item" data-accordion-item>
+    <a href="#" class="accordion-title attribute-group-title-link"><span class="attribute-group-title"><%= t('feature.releasable.version_and_status', locale: active_ui_locale) %></span></a>
+
+    <div class="accordion-content attribute-group-content" data-tab-content>
       <div class="content-version-and-status-attributes">
         <% if DataCycleCore::Feature::NamedVersion.enabled? %>
           <div class="clearfix form-element version-name string">
@@ -21,7 +23,5 @@
         <% end %>
       </div>
     </div>
-
-    <a href="#" class="accordion-title"><span class="content-version-and-status-button"><%= t('feature.releasable.version_and_status', locale: active_ui_locale) %></span></a>
   </li>
 </ul>

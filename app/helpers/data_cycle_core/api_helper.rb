@@ -58,8 +58,11 @@ module DataCycleCore
     end
 
     def attribute_disabled?(definition, api_version = @api_version)
-      return definition.dig('api', "v#{api_version}", 'disabled') if definition.dig('api', "v#{api_version}")&.key?('disabled')
-      definition.dig('api', 'disabled') || false
+      api_name = controller_path.delete_prefix('data_cycle_core/').split('/').first
+
+      return definition.dig(api_name, "v#{api_version}", 'disabled') if definition.dig(api_name, "v#{api_version}")&.key?('disabled')
+
+      definition.dig(api_name, 'disabled') || false
     end
 
     def included_attribute?(name, attribute_list)
@@ -81,6 +84,20 @@ module DataCycleCore
 
     def in_language?(content, options)
       (content.embedded? && options.dig(:translatable_embedded)) || content.translatable? || options.dig(:languages).include?(content.first_available_locale.to_s)
+    end
+
+    def ordered_api_properties(validation:, type: nil)
+      return if validation.nil? || validation['properties'].blank?
+
+      validation['properties']
+        .sort_by { |_, prop| prop['sorting'] }
+        .filter do |key, prop|
+          next false if INTERNAL_PROPERTIES.include?(key) || prop['sorting'].blank?
+          next false if type.present? && prop['type'] != type
+          next false if attribute_disabled?(prop) && prop['type'] != 'linked'
+
+          true
+        end
     end
 
     def load_value_object(content, key, value, languages, definition = nil)
@@ -147,9 +164,9 @@ module DataCycleCore
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil, linked_filter_id = nil, is_linked = false, depth = 0)
       include_params = is_linked ? include_parameters.dup << 'is_linked' : include_parameters
       if item.is_a?(DataCycleCore::Thing)
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
       elsif item.is_a?(DataCycleCore::Thing::History)
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       elsif item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
@@ -166,7 +183,7 @@ module DataCycleCore
       tree_params = classification_trees&.compact&.sort&.join(',')
 
       if item.is_a?(DataCycleCore::Thing) || item.is_a?(DataCycleCore::Thing::History)
-        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}"
+        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias) || item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
         key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_#{full}"
       else
