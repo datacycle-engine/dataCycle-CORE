@@ -5,10 +5,8 @@ module DataCycleCore
     module Compute
       module Classification
         class << self
-          def keywords(**args)
-            tags = args.dig(:computed_parameters).presence&.try(:flatten)&.reject(&:blank?)
-            return if tags.blank?
-            DataCycleCore::Classification.find(tags)&.map(&:name)&.join(',')
+          def keywords(computed_parameters:, **_args)
+            DataCycleCore::Classification.where(id: Array.wrap(computed_parameters.values).flatten.reject(&:blank?)).pluck(:name).join(',')
           end
 
           def description(**args)

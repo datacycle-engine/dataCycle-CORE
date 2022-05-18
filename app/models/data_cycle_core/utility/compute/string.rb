@@ -5,26 +5,24 @@ module DataCycleCore
     module Compute
       module String
         class << self
-          def concat(**args)
-            args.dig(:computed_definition)&.dig('compute', 'parameters')&.values&.map { |item|
-              item.is_a?(Hash) ? transform_string(item, args) : item
-            }&.join
+          def concat(computed_parameters:, **_args)
+            computed_parameters.values.join
           end
 
-          def transform_string(definition, args)
-            case definition.dig('type')
-            when 'external_source'
-              args.dig(:content)&.external_source&.default_options&.dig(definition.dig('name'))
-            when 'I18n'
-              definition.dig('type').constantize.send(definition.dig('name'))
-            when 'content'
-              args.dig(:data_hash).dig(definition.dig('name')) || args.dig(:content).send(definition.dig('name'))
-            when 'value'
-              args.dig(:data_hash).dig('translation_type') || definition.dig('value')
-            else
-              raise 'Unknown type for string transformation'
-            end
-          end
+          # def transform_string(definition, args)
+          #   case definition.dig('type')
+          #   when 'external_source'
+          #     args.dig(:content)&.external_source&.default_options&.dig(definition.dig('name'))
+          #   when 'I18n'
+          #     definition.dig('type').constantize.send(definition.dig('name'))
+          #   when 'content'
+          #     args.dig(:data_hash).dig(definition.dig('name')) || args.dig(:content).send(definition.dig('name'))
+          #   when 'value'
+          #     args.dig(:data_hash).dig('translation_type') || definition.dig('value')
+          #   else
+          #     raise 'Unknown type for string transformation'
+          #   end
+          # end
 
           def number_of_characters(computed_parameters:, data_hash:, **_args)
             recursive_char_count(data_hash, computed_parameters.first.dig('paths'))&.flatten&.compact&.sum

@@ -46,7 +46,7 @@
           :module: Utility::Compute::Schedule
           :method: start_date
           :parameters:
-            :0: event_schedule
+            - event_schedule
         :ui:
           :show:
             :content_area: none
@@ -60,7 +60,7 @@
           :module: Utility::Compute::Schedule
           :method: end_date
           :parameters:
-            :0: event_schedule
+            - event_schedule
         :ui:
           :show:
             :content_area: none

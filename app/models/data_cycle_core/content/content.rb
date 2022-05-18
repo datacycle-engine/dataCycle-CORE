@@ -35,6 +35,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::SyncApi
       include DataCycleCore::Content::Extensions::Geojson
       include DataCycleCore::Content::Extensions::DefaultValue
+      include DataCycleCore::Content::Extensions::ComputedValue
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay
